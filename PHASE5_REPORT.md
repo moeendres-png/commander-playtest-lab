@@ -5,6 +5,7 @@
 Phase 5 is implemented on top of the Phase-4 repository.
 
 - Implementation commit: `05682049d3c35fc5e4058307fc65862f4c978836`
+- Validation source commit: `b6e6e672b01fec4bb36dbe860c88bc46e68a7d98`
 - Package version: `0.5.0`
 - Structural engine: `structural-0.4.0`
 - Output label: `structural_model_estimates`
@@ -133,15 +134,15 @@ The offline demo performed the required workflow without model calls:
 ### Main paired comparison
 
 - Games: 80
-- Placement improvement: `+0.0250`
-- Place-1 share delta: `+0.0250`
-- Cards drawn delta: `+0.2000`
-- Paired outcomes: 5 variant wins, 3 losses, 72 ties
+- Placement improvement: `+0.0125`
+- Place-1 share delta: `+0.0125`
+- Cards drawn delta: `+1.3125`
+- Paired outcomes: 6 variant wins, 5 losses, 69 ties
 
 ### Holdout
 
-- Control / Control / Engine: placement improvement `-0.0375`
-- Aggro / Aggro / Control: placement improvement `+0.0375`
+- Control / Control / Engine: placement improvement `+0.0125`
+- Aggro / Aggro / Control: placement improvement `-0.0125`
 - Mean holdout placement improvement: `0.0`
 - All holdouts nonnegative: `false`
 

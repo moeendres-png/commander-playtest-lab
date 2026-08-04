@@ -1,6 +1,7 @@
 Commander Playtest Lab — Phase 5 verification
 Date: 2026-08-04
 Implementation commit: 05682049d3c35fc5e4058307fc65862f4c978836
+Validation source commit: b6e6e672b01fec4bb36dbe860c88bc46e68a7d98
 
 Python compilation: PASS
 Pytest: 84 passed
