@@ -2,7 +2,13 @@ from .batch import aggregate_structural_results, derive_match_seed, run_structur
 from .fixtures import build_synthetic_deck_profile
 from .project import load_project_structural_decks
 from .validation import VALIDATION_SCENARIOS, run_phase3_validation
-from .simulator import ENGINE_VERSION, StructuralSimulator, commander_cast_cost
+from .simulator import (
+    ENGINE_VERSION,
+    StructuralSimulator,
+    commander_cast_cost,
+    commander_damage_is_lethal,
+)
+from .triggers import AbstractTrigger, order_simultaneous_triggers, trigger_resolution_order
 from .profiles import (
     StructuralProfileCatalog,
     build_default_profile,
@@ -13,6 +19,7 @@ from .profiles import (
 
 __all__ = [
     "commander_cast_cost",
+    "commander_damage_is_lethal",
     "run_phase3_validation",
     "VALIDATION_SCENARIOS",
     "load_project_structural_decks",
@@ -27,4 +34,7 @@ __all__ = [
     "role_counts",
     "StructuralSimulator",
     "ENGINE_VERSION",
+    "AbstractTrigger",
+    "order_simultaneous_triggers",
+    "trigger_resolution_order",
 ]

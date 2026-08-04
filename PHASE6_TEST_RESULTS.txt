@@ -1,0 +1,45 @@
+Phase 6 test and acceptance record
+Generated: 2026-08-04T16:36:03.143151+00:00
+
+FULL PYTEST
+-----------
+......s................................................................. [ 72%]
+............................                                             [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/differential/test_phase6_differential.py:56: requires configured XMage or Forge differential command
+99 passed, 1 skipped in 12.31s
+
+
+UNIT SUITE
+----------
+........................................................................ [100%]
+72 passed in 2.28s
+
+
+PHASE-6 TIER SUITES
+-------------------
+...............s                                                         [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/differential/test_phase6_differential.py:56: requires configured XMage or Forge differential command
+15 passed, 1 skipped in 4.37s
+
+
+COMPILE CHECK
+-------------
+python -m compileall -q src tests
+Result: passed
+
+EVALUATION CLI
+--------------
+Command: PYTHONPATH=src python -m commander_lab.cli.app eval-phase6 --iterations-per-scenario 64 --workers 2 --seed 20260804 --output data/runs/phase6_evals
+Local acceptance: True
+Full release acceptance: False
+Total evaluation cases: 276
+Complete property games: 256
+Aborted property games: 0
+External differential cases executed: 0
+External differential cases blocked: 3
+
+INTERPRETATION
+--------------
+The single pytest skip and the two failed release gates refer to the same unavailable external XMage/Forge runtime. They are not treated as successful comparisons. All local blocking gates passed.

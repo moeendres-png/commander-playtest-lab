@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commander-playtest-lab"
-version = "0.5.0"
+version = "0.6.0"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -46,6 +46,10 @@ pythonpath = ["src"]
 markers = [
   "property: deterministic property-style tests",
   "integration: local integration tests",
+  "golden: fixed expected-decision regression tests",
+  "differential: comparisons against external or normalized rule backends",
+  "agent_eval: agent trajectory and report evaluation tests",
+  "external: requires a configured XMage or Forge backend",
 ]
 
 [tool.ruff]

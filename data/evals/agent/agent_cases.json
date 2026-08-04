@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "case_id": "agent_validate_deck",
+      "goal": "Validate the current Korvold deck for legality and physical allocation.",
+      "expected_tools": ["validate_deck"],
+      "optional_tools": ["inspect_deck"],
+      "requires_uncertainty": false,
+      "recommendation_task": false,
+      "required_validation_tools": [],
+      "critical": true
+    },
+    {
+      "case_id": "agent_matchup_batch",
+      "goal": "Run a bounded four-player matchup batch for Korvold and interpret the structural result.",
+      "expected_tools": ["run_matchup_batch"],
+      "optional_tools": ["run_sensitivity", "create_report"],
+      "requires_uncertainty": true,
+      "recommendation_task": false,
+      "required_validation_tools": [],
+      "critical": true
+    },
+    {
+      "case_id": "agent_upgrade_validation",
+      "goal": "Identify a possible Korvold cut, test a replacement, red-team it, and recommend it only if validated.",
+      "expected_tools": [
+        "inspect_deck",
+        "recommend_upgrades",
+        "compare_variants_paired",
+        "run_holdout",
+        "validate_upgrade",
+        "create_report"
+      ],
+      "optional_tools": ["run_sensitivity", "run_card_ablation", "generate_swap_matrix"],
+      "requires_uncertainty": true,
+      "recommendation_task": true,
+      "required_validation_tools": ["compare_variants_paired", "run_holdout", "validate_upgrade"],
+      "critical": true
+    },
+    {
+      "case_id": "agent_commander_denial",
+      "goal": "Assess RogShai commander dependence under commander denial without calling the output a real win rate.",
+      "expected_tools": ["run_commander_denial"],
+      "optional_tools": ["run_sensitivity", "create_report"],
+      "requires_uncertainty": true,
+      "recommendation_task": false,
+      "required_validation_tools": [],
+      "critical": true
+    },
+    {
+      "case_id": "agent_real_playtest_calibration",
+      "goal": "Ingest a real playtest sheet, calibrate the structural model, and report remaining uncertainty.",
+      "expected_tools": ["ingest_playtest", "calibrate", "create_report"],
+      "optional_tools": [],
+      "requires_uncertainty": true,
+      "recommendation_task": false,
+      "required_validation_tools": [],
+      "critical": true
+    }
+  ]
+}

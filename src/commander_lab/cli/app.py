@@ -10,6 +10,7 @@ from commander_lab.agents.demo import run_phase5_demo
 from commander_lab.api import create_app
 from commander_lab.analysis import DeckValidator
 from commander_lab.cards.catalog import CardCatalog
+from commander_lab.evals import run_phase6_evaluation
 from commander_lab.engine.structural import (
     generate_project_profiles,
     load_project_structural_decks,
@@ -167,6 +168,27 @@ def demo_phase5(
 ) -> None:
     """Run the offline deterministic Phase-5 end-to-end demonstration."""
     typer.echo(json.dumps(run_phase5_demo(root, iterations=iterations, seed=seed), indent=2, ensure_ascii=False))
+
+
+@app.command("eval-phase6")
+def eval_phase6(
+    iterations_per_scenario: int = typer.Option(64, min=1),
+    workers: int = typer.Option(2, min=1, max=64),
+    seed: int = typer.Option(20260804, min=0),
+    output: Path = typer.Option(Path("data/runs/phase6_evals")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run the multi-tier Phase-6 evaluation and acceptance gates."""
+    result = run_phase6_evaluation(
+        root,
+        iterations_per_property_scenario=iterations_per_scenario,
+        seed=seed,
+        workers=workers,
+        output_directory=root / output,
+    )
+    typer.echo(result.model_dump_json(indent=2))
+    if not result.local_acceptance_passed:
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

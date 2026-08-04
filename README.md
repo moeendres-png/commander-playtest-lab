@@ -257,3 +257,38 @@ commander-lab demo-phase5 --iterations 80 --seed 20260804 --root .
 ```
 
 The demo validates Korvold, runs a four-player structural matchup, screens one potential cut, performs a paired swap comparison, executes holdout validation, and writes a structured report. Synthetic opponents remain technical fixtures and are not evidence about the real metagame.
+
+## Phase 6: multi-tier evaluation system
+
+Phase 6 adds a release-gated evaluation suite with five independent tiers:
+
+- unit tests for import, legality, quantities, commander damage, commander tax, London mulligans, abstract trigger ordering, seeds, and event logs;
+- property checks for nonnegative zones, card conservation, zone consistency, eliminated-player inactivity, seed replay, and rejection of illegal actions;
+- reviewed golden pilot decisions for Korvold, RogShai, and generic tactical situations;
+- differential fixtures that can be executed through an external XMage or Forge adapter command;
+- agent trajectory evaluations for tool selection, evidence grounding, interpretation, uncertainty disclosure, model/real separation, and validation before recommendations.
+
+Run the complete local evaluation:
+
+```bash
+commander-lab eval-phase6 \
+  --iterations-per-scenario 64 \
+  --workers 2 \
+  --seed 20260804 \
+  --root .
+```
+
+The default run checks 256 complete structural games across goldfish, three-player, four-player, and five-player fixtures. Local acceptance requires all local blocking gates to pass. Full release acceptance additionally requires three real differential observations and a 100% match rate against a configured XMage or Forge backend.
+
+Configure an external differential adapter with one of:
+
+```bash
+export COMMANDER_LAB_FORGE_DIFFERENTIAL_CMD='python adapter.py --input {input} --output {output}'
+export COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD='python adapter.py --input {input} --output {output}'
+```
+
+The adapter receives a JSON fixture and must write a normalized JSON result. Missing external configuration is reported as `blocked`; it is never converted into a passing comparison.
+
+Acceptance thresholds are versioned in `config/evals.yaml`. Golden, differential, and agent cases are stored under `data/evals/`. The local agent cases can also be exported as JSONL input for a separate OpenAI custom-eval workflow; exporting the dataset performs no API call.
+
+Every simulation-derived value remains labeled `structural_model_estimates`. Passing the local suite is not evidence of a real match win rate and does not authorize an upgrade recommendation without paired and holdout validation.

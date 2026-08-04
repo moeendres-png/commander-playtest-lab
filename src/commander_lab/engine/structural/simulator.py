@@ -27,7 +27,7 @@ from commander_lab.models import (
 from commander_lab.storage import canonical_json_bytes
 
 
-ENGINE_VERSION = "structural-0.4.0"
+ENGINE_VERSION = "structural-0.6.0"
 
 
 def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
@@ -35,6 +35,16 @@ def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
     if base_cost < 0 or prior_casts < 0:
         raise ValueError("base_cost and prior_casts must be non-negative")
     return int(math.ceil(base_cost + 2 * prior_casts))
+
+
+def commander_damage_is_lethal(
+    damage_received: dict[str, float] | Iterable[float],
+    *,
+    threshold: float = 21.0,
+) -> bool:
+    """Return whether one commander has individually reached the lethal threshold."""
+    values = damage_received.values() if isinstance(damage_received, dict) else damage_received
+    return any(float(value) >= threshold for value in values)
 
 
 @dataclass(slots=True)
@@ -197,6 +207,7 @@ class StructuralSimulator:
                 "estimate_type": config.estimate_type,
             },
         )
+        self._emit_state_checkpoint(players, recorder, reason="post_mulligan")
 
         goldfish_life = 40.0
         goldfish_commander_damage: dict[str, float] = {}
@@ -285,6 +296,13 @@ class StructuralSimulator:
                     "after": after,
                 },
             )
+            self._emit_state_checkpoint(
+                players,
+                recorder,
+                reason="turn_end",
+                turn=turn_number,
+                global_turn=global_turn,
+            )
 
             total_life = sum(player.life for player in players if player.alive) + goldfish_life
             if total_life < previous_total_life - 0.01:
@@ -304,6 +322,13 @@ class StructuralSimulator:
         if len(players) == 1 and not winner_ids and not aborted:
             players[0].placement = 1
             winner_ids = (players[0].player_id,)
+        self._emit_state_checkpoint(
+            players,
+            recorder,
+            reason="game_end",
+            turn=math.ceil(global_turn / max(1, len(order))),
+            global_turn=global_turn,
+        )
         recorder.emit(
             "game_ended",
             payload={
@@ -1439,7 +1464,7 @@ class StructuralSimulator:
         for player in players:
             if not player.alive:
                 continue
-            commander_lethal = any(damage >= 21.0 for damage in player.commander_damage_received.values())
+            commander_lethal = commander_damage_is_lethal(player.commander_damage_received)
             if player.life <= 0 or commander_lethal or player.elimination_reason == "empty_library":
                 alive_before = sum(item.alive for item in players)
                 player.alive = False
@@ -1455,6 +1480,66 @@ class StructuralSimulator:
         remaining.sort(key=lambda player: (player.life, player.threat(), len(player.hand)), reverse=True)
         for placement, player in enumerate(remaining, start=1):
             player.placement = placement
+
+    @staticmethod
+    def _card_multiset_hash(cards: Iterable[str]) -> str:
+        payload = sorted(cards)
+        return hashlib.sha256(canonical_json_bytes(payload)).hexdigest()
+
+    @classmethod
+    def _zone_checkpoint(cls, player: _Player) -> dict[str, Any]:
+        zone_cards = [
+            *(card.oracle_name for card in player.library),
+            *(card.oracle_name for card in player.hand),
+            *(card.oracle_name for card in player.battlefield),
+            *(card.oracle_name for card in player.graveyard),
+            *(card.oracle_name for card in player.exile),
+            *player.commanders.keys(),
+        ]
+        expected_cards = [card.oracle_name for card in player.deck.cards]
+        commander_battlefield = sum(
+            commander.on_battlefield for commander in player.commanders.values()
+        )
+        commander_command = len(player.commanders) - commander_battlefield
+        counts = {
+            "library": len(player.library),
+            "hand": len(player.hand),
+            "battlefield": len(player.battlefield),
+            "graveyard": len(player.graveyard),
+            "exile": len(player.exile),
+            "command": commander_command,
+            "commander_battlefield": commander_battlefield,
+        }
+        return {
+            "player_id": player.player_id,
+            "alive": player.alive,
+            "counts": counts,
+            "total_physical_cards": sum(counts.values()),
+            "expected_deck_cards": len(expected_cards),
+            "current_multiset_hash": cls._card_multiset_hash(zone_cards),
+            "expected_multiset_hash": cls._card_multiset_hash(expected_cards),
+        }
+
+    @classmethod
+    def _emit_state_checkpoint(
+        cls,
+        players: Iterable[_Player],
+        recorder: _EventRecorder,
+        *,
+        reason: str,
+        turn: int | None = None,
+        global_turn: int | None = None,
+    ) -> None:
+        snapshots = [cls._zone_checkpoint(player) for player in players]
+        recorder.emit(
+            "state_checkpoint",
+            payload={
+                "reason": reason,
+                "turn": turn,
+                "global_turn": global_turn,
+                "players": snapshots,
+            },
+        )
 
     @staticmethod
     def _snapshot_metrics(player: _Player) -> dict[str, Any]:
