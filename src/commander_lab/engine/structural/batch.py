@@ -17,14 +17,14 @@ from commander_lab.models import (
     StructuralMatchResult,
 )
 
-from .simulator import StructuralSimulator
+from .simulator import ENGINE_VERSION, StructuralSimulator
 
 
 _WORKER_DECKS: dict[str, StructuralDeckProfile] = {}
 
 
 def derive_match_seed(master_seed: int, run_id: str, match_index: int) -> int:
-    payload = f"structural-0.3.0|{master_seed}|{run_id}|{match_index}".encode()
+    payload = f"{ENGINE_VERSION}|{master_seed}|{run_id}|{match_index}".encode()
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big", signed=False)
 
 
@@ -74,6 +74,7 @@ def _build_tasks(config: StructuralBatchConfig) -> list[dict[str, Any]]:
             seed=derive_match_seed(config.seed, config.run_id, index),
             deck_ids=config.deck_ids,
             starting_player_seat=start,
+            pilot_configs=config.pilot_configs,
             limits=config.limits,
         )
         tasks.append(
@@ -133,47 +134,62 @@ def run_structural_batch(
 def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> dict[str, object]:
     result_list = list(results)
     by_deck: dict[str, dict[str, list[float]]] = {}
+    by_pilot: dict[str, dict[str, list[float]]] = {}
     for result in result_list:
         for metrics in result.player_metrics.values():
-            bucket = by_deck.setdefault(
+            values = {
+                "placements": float(metrics.placement),
+                "wins": 1.0 if metrics.placement == 1 else 0.0,
+                "life": float(metrics.life),
+                "damage": float(metrics.normal_damage_dealt),
+                "commander_damage": float(metrics.commander_damage_dealt),
+                "cards_drawn": float(metrics.cards_drawn),
+                "ramp": float(metrics.ramp_resolved),
+                "engine_value": float(metrics.engine_value),
+            }
+            deck_bucket = by_deck.setdefault(
                 metrics.deck_id,
-                {
-                    "placements": [],
-                    "wins": [],
-                    "life": [],
-                    "damage": [],
-                    "commander_damage": [],
-                    "cards_drawn": [],
-                    "ramp": [],
-                    "engine_value": [],
-                },
+                {name: [] for name in values},
             )
-            bucket["placements"].append(float(metrics.placement))
-            bucket["wins"].append(1.0 if metrics.placement == 1 else 0.0)
-            bucket["life"].append(float(metrics.life))
-            bucket["damage"].append(float(metrics.normal_damage_dealt))
-            bucket["commander_damage"].append(float(metrics.commander_damage_dealt))
-            bucket["cards_drawn"].append(float(metrics.cards_drawn))
-            bucket["ramp"].append(float(metrics.ramp_resolved))
-            bucket["engine_value"].append(float(metrics.engine_value))
-    deck_metrics: dict[str, dict[str, float | int]] = {}
-    for deck_id, values in sorted(by_deck.items()):
-        deck_metrics[deck_id] = {
-            "samples": len(values["placements"]),
-            "average_placement": fmean(values["placements"]),
-            "place_1_share": fmean(values["wins"]),
-            "average_final_life": fmean(values["life"]),
-            "average_normal_damage": fmean(values["damage"]),
-            "average_commander_damage": fmean(values["commander_damage"]),
-            "average_cards_drawn": fmean(values["cards_drawn"]),
-            "average_ramp_resolved": fmean(values["ramp"]),
-            "average_engine_value": fmean(values["engine_value"]),
-        }
+            pilot_key = (
+                f"{metrics.pilot_name}:{metrics.pilot_strength}:{metrics.pilot_mode}"
+            )
+            pilot_bucket = by_pilot.setdefault(
+                pilot_key,
+                {name: [] for name in values},
+            )
+            for name, value in values.items():
+                deck_bucket[name].append(value)
+                pilot_bucket[name].append(value)
+
+    def summarize(
+        grouped: dict[str, dict[str, list[float]]],
+    ) -> dict[str, dict[str, float | int]]:
+        summary: dict[str, dict[str, float | int]] = {}
+        for key, values in sorted(grouped.items()):
+            summary[key] = {
+                "samples": len(values["placements"]),
+                "average_placement": fmean(values["placements"]),
+                "place_1_share": fmean(values["wins"]),
+                "average_final_life": fmean(values["life"]),
+                "average_normal_damage": fmean(values["damage"]),
+                "average_commander_damage": fmean(values["commander_damage"]),
+                "average_cards_drawn": fmean(values["cards_drawn"]),
+                "average_ramp_resolved": fmean(values["ramp"]),
+                "average_engine_value": fmean(values["engine_value"]),
+            }
+        return summary
+
     return {
         "estimate_type": "structural_model_estimates",
         "games": len(result_list),
         "completed_games": sum(result.completed for result in result_list),
         "aborted_games": sum(result.aborted for result in result_list),
-        "average_turns": fmean([float(result.turns) for result in result_list]) if result_list else 0.0,
-        "deck_metrics": deck_metrics,
+        "average_turns": (
+            fmean([float(result.turns) for result in result_list])
+            if result_list
+            else 0.0
+        ),
+        "deck_metrics": summarize(by_deck),
+        "pilot_metrics": summarize(by_pilot),
     }

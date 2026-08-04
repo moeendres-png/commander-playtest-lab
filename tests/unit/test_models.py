@@ -107,3 +107,46 @@ def test_requested_phase2_models_are_publicly_importable() -> None:
             UpgradeProposal,
         )
     )
+
+
+def test_pilot_config_count_must_match_pod_size() -> None:
+    from commander_lab.models import PilotConfig, StructuralMatchConfig  # noqa: PLC0415
+
+    with pytest.raises(ValidationError):
+        StructuralMatchConfig(
+            match_id="pilot-count",
+            seed=1,
+            deck_ids=("a", "b"),
+            pilot_configs=(PilotConfig(),),
+        )
+
+
+def test_phase4_pilot_models_are_publicly_importable() -> None:
+    from commander_lab.models import (  # noqa: PLC0415
+        PilotActionView,
+        PilotCommanderView,
+        PilotConfig,
+        PilotDecision,
+        PilotDecisionMode,
+        PilotOpponentView,
+        PilotStateView,
+        PilotStrength,
+        PilotUtilityBreakdown,
+        PilotUtilityWeights,
+    )
+
+    assert all(
+        item is not None
+        for item in (
+            PilotActionView,
+            PilotCommanderView,
+            PilotConfig,
+            PilotDecision,
+            PilotDecisionMode,
+            PilotOpponentView,
+            PilotStateView,
+            PilotStrength,
+            PilotUtilityBreakdown,
+            PilotUtilityWeights,
+        )
+    )

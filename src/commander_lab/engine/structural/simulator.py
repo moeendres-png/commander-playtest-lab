@@ -8,9 +8,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
+from commander_lab.agents import BasePilot, build_pilot
 from commander_lab.models import (
     CardRole,
     Color,
+    PilotActionView,
+    PilotCommanderView,
+    PilotConfig,
+    PilotDecision,
+    PilotOpponentView,
+    PilotStateView,
     StructuralCardProfile,
     StructuralDeckProfile,
     StructuralMatchConfig,
@@ -20,7 +27,7 @@ from commander_lab.models import (
 from commander_lab.storage import canonical_json_bytes
 
 
-ENGINE_VERSION = "structural-0.3.0"
+ENGINE_VERSION = "structural-0.4.0"
 
 
 def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
@@ -49,6 +56,8 @@ class _Player:
     player_id: str
     seat: int
     deck: StructuralDeckProfile
+    pilot: BasePilot
+    pilot_rng: random.Random
     library: list[StructuralCardProfile]
     hand: list[StructuralCardProfile] = field(default_factory=list)
     battlefield: list[StructuralCardProfile] = field(default_factory=list)
@@ -88,6 +97,7 @@ class _Player:
     spell_count: int = 0
     mana_available: float = 0.0
     pending_direct_damage: float = 0.0
+    current_turn: int = 1
 
     def threat(self) -> float:
         commander_power = sum(commander.power for commander in self.commanders.values() if commander.on_battlefield)
@@ -175,6 +185,15 @@ class StructuralSimulator:
                 "seed": config.seed,
                 "turn_order": [player.player_id for player in order],
                 "pod_size": len(players),
+                "pilots": [
+                    {
+                        "player_id": player.player_id,
+                        "pilot_name": player.pilot.pilot_name,
+                        "strength": player.pilot.config.strength.value,
+                        "mode": player.pilot.config.mode.value,
+                    }
+                    for player in players
+                ],
                 "estimate_type": config.estimate_type,
             },
         )
@@ -215,6 +234,7 @@ class StructuralSimulator:
             if not active.alive:
                 continue
             turn_number = (global_turn - 1) // len(order) + 1
+            active.current_turn = turn_number
             before = self._snapshot_metrics(active)
             recorder.emit(
                 "turn_started",
@@ -223,20 +243,20 @@ class StructuralSimulator:
             )
             active.temporary_mana = 0.0
             active.mana_spent = 0.0
-            self._upkeep(active, players, rng, recorder, turn_number)
+            self._upkeep(active, players, recorder, turn_number)
             self._draw(active, 1, recorder, reason="turn_draw")
             self._play_land(active, recorder)
             active.mana_available = active.lands + active.ramp_mana + active.temporary_mana + min(3.0, active.resources * 0.25)
             spells_cast = 0
             while spells_cast < config.limits.max_spells_per_turn:
-                action = self._choose_action(active, players, turn_number, rng)
+                action = self._choose_action(active, players, turn_number, recorder)
                 if action is None:
                     break
                 kind, card_or_name, score = action
                 if kind == "commander":
-                    resolved = self._cast_commander(active, str(card_or_name), players, rng, recorder, turn_number, score)
+                    resolved = self._cast_commander(active, str(card_or_name), players, recorder, score)
                 else:
-                    resolved = self._cast_card(active, card_or_name, players, rng, recorder, turn_number, score)
+                    resolved = self._cast_card(active, card_or_name, players, recorder, score)
                 spells_cast += 1
                 if not resolved and active.mana_available < 1:
                     break
@@ -330,10 +350,17 @@ class StructuralSimulator:
             commander_names = set(deck.commander_names)
             library = [card for card in deck.cards if card.oracle_name not in commander_names]
             rng.shuffle(library)
+            pilot_config = config.pilot_configs[seat] if config.pilot_configs else PilotConfig()
+            pilot = build_pilot(pilot_config, strategy=deck.commander_strategy)
+            pilot_seed_raw = hashlib.sha256(
+                f"{ENGINE_VERSION}|{config.seed}|{config.match_id}|pilot|{seat}".encode("utf-8")
+            ).digest()
             player = _Player(
                 player_id=f"p{seat + 1}",
                 seat=seat,
                 deck=deck,
+                pilot=pilot,
+                pilot_rng=random.Random(int.from_bytes(pilot_seed_raw[:8], "big")),
                 library=library,
                 commanders={
                     name: _Commander(
@@ -349,41 +376,100 @@ class StructuralSimulator:
             players.append(player)
         return players
 
-    def _london_mulligan(self, player: _Player, rng: random.Random, recorder: _EventRecorder, free_first: bool) -> None:
+    def _london_mulligan(
+        self,
+        player: _Player,
+        rng: random.Random,
+        recorder: _EventRecorder,
+        free_first: bool,
+    ) -> None:
         original = list(player.library)
         accepted: list[StructuralCardProfile] = []
+        accepted_views: list[PilotActionView] = []
         max_mulligans = 4
         mulligans = 0
+        hand_score = 0.0
         while mulligans <= max_mulligans:
             trial = list(original)
             rng.shuffle(trial)
             hand = trial[:7]
-            land_count = sum(card.is_land for card in hand)
-            early_actions = sum(
-                card.mana_value <= 2 and bool(card.roles.intersection({CardRole.RAMP, CardRole.DRAW, CardRole.SELECTION}))
-                for card in hand
+            views = [
+                self._opening_hand_action(card, index)
+                for index, card in enumerate(hand)
+            ]
+            keep, hand_score = player.pilot.should_keep_opening_hand(
+                views,
+                mulligans=mulligans,
+                free_first=free_first,
+                commander_names=player.deck.commander_names,
+                rng=player.pilot_rng,
             )
-            keep = 2 <= land_count <= 5 and (early_actions >= 1 or land_count >= 3)
             if keep or mulligans == max_mulligans:
                 accepted = hand
+                accepted_views = views
                 player.library = trial[7:]
                 break
             mulligans += 1
         bottom_count = max(0, mulligans - (1 if free_first and mulligans > 0 else 0))
-        accepted.sort(key=self._opening_hand_value, reverse=True)
-        bottomed = accepted[-bottom_count:] if bottom_count else []
-        player.hand = accepted[:-bottom_count] if bottom_count else accepted
+        bottom_ids = set(
+            player.pilot.choose_bottom_cards(
+                accepted_views,
+                bottom_count,
+                commander_names=player.deck.commander_names,
+            )
+        )
+        bottomed = [
+            card
+            for card, view in zip(accepted, accepted_views, strict=True)
+            if view.action_id in bottom_ids
+        ]
+        player.hand = [
+            card
+            for card, view in zip(accepted, accepted_views, strict=True)
+            if view.action_id not in bottom_ids
+        ]
         player.library.extend(bottomed)
         player.mulligans = mulligans
         recorder.emit(
             "london_mulligan",
             actor_id=player.player_id,
             payload={
+                "pilot_name": player.pilot.pilot_name,
+                "pilot_strength": player.pilot.config.strength.value,
+                "pilot_mode": player.pilot.config.mode.value,
                 "mulligans": mulligans,
                 "free_first": free_first,
+                "hand_score": round(hand_score, 6),
                 "bottomed": [card.oracle_name for card in bottomed],
                 "kept_hand_size": len(player.hand),
                 "land_count": sum(card.is_land for card in player.hand),
+            },
+        )
+
+    @staticmethod
+    def _opening_hand_action(
+        card: StructuralCardProfile,
+        index: int,
+    ) -> PilotActionView:
+        return PilotActionView(
+            action_id=f"opening:{index}:{card.oracle_name}",
+            action_kind="card",
+            card_name=card.oracle_name,
+            mana_cost=card.mana_value,
+            roles=card.roles,
+            role_strengths=card.role_strengths,
+            floor_value=card.floor_value,
+            immediate_impact=card.immediate_impact,
+            turn_cycle_risk=card.turn_cycle_risk,
+            multiplayer_scaling=card.multiplayer_scaling,
+            commander_synergy=card.commander_synergy,
+            base_power=card.base_power,
+            metadata={
+                "is_land": card.is_land,
+                "is_creature": card.is_creature,
+                "produces_colors": "".join(
+                    sorted(color.value for color in card.produces_colors)
+                ),
             },
         )
 
@@ -403,7 +489,6 @@ class StructuralSimulator:
         self,
         player: _Player,
         players: list[_Player],
-        rng: random.Random,
         recorder: _EventRecorder,
         turn_number: int,
     ) -> None:
@@ -492,34 +577,227 @@ class StructuralSimulator:
         player: _Player,
         players: list[_Player],
         turn_number: int,
-        rng: random.Random,
+        recorder: _EventRecorder,
     ) -> tuple[str, StructuralCardProfile | str, float] | None:
-        candidates: list[tuple[float, str, StructuralCardProfile | str]] = []
-        for card in player.hand:
+        actions: list[PilotActionView] = []
+        mapping: dict[str, tuple[str, StructuralCardProfile | str]] = {}
+        state = self._pilot_state(player, players, turn_number)
+        for index, card in enumerate(player.hand):
             if card.is_land or not self._can_pay(player, card.mana_value, card.color_requirements):
                 continue
-            score = self._card_score(player, card, players, turn_number)
-            if score > 0.75:
-                candidates.append((score, "card", card))
-        for commander in player.commanders.values():
-            if commander.on_battlefield or not self._can_pay(player, commander.next_cost, self._commander_color_requirements(player, commander.name)):
+            if (
+                not card.is_permanent
+                and card.roles
+                and card.roles.issubset({CardRole.COUNTER, CardRole.PROTECTION})
+            ):
                 continue
-            score = self._commander_score(player, commander, turn_number)
-            if score > 0.75:
-                candidates.append((score, "commander", commander.name))
-        if not candidates:
+            action_id = f"card:{index}:{card.oracle_name}"
+            action = self._pilot_action_for_card(
+                player,
+                players,
+                card,
+                action_id=action_id,
+                action_kind="card",
+            )
+            actions.append(action)
+            mapping[action_id] = ("card", card)
+        for commander in player.commanders.values():
+            requirements = self._commander_color_requirements(player, commander.name)
+            if commander.on_battlefield or not self._can_pay(player, commander.next_cost, requirements):
+                continue
+            card = next((item for item in player.deck.cards if item.oracle_name == commander.name), None)
+            action_id = f"commander:{commander.name}"
+            action = PilotActionView(
+                action_id=action_id,
+                action_kind="commander",
+                card_name=commander.name,
+                mana_cost=float(commander.next_cost),
+                roles=card.roles if card else frozenset({CardRole.ENGINE, CardRole.PAYOFF}),
+                role_strengths=card.role_strengths if card else {},
+                floor_value=card.floor_value if card else 0.8,
+                immediate_impact=card.immediate_impact if card else 0.6,
+                turn_cycle_risk=card.turn_cycle_risk if card else 0.55,
+                multiplayer_scaling=card.multiplayer_scaling if card else 0.0,
+                commander_synergy=max(1.0, card.commander_synergy if card else 1.0),
+                base_power=commander.base_power,
+                target_threat=state.max_opponent_threat,
+                remaining_mana=max(0.0, player.mana_available - commander.next_cost),
+                metadata={"prior_casts": commander.casts},
+            )
+            actions.append(action)
+            mapping[action_id] = ("commander", commander.name)
+        pass_action = PilotActionView(
+            action_id="pass",
+            action_kind="pass",
+            card_name="Pass priority window",
+            remaining_mana=player.mana_available,
+            immediate_impact=0.15,
+            floor_value=0.2,
+            metadata={"reactive_cards_held": sum(
+                1
+                for card in player.hand
+                if card.roles.intersection({CardRole.COUNTER, CardRole.PROTECTION, CardRole.REMOVAL})
+            )},
+        )
+        actions.append(pass_action)
+        decision = player.pilot.choose_action(state, actions, player.pilot_rng)
+        self._record_pilot_decision(player, decision, recorder, phase="main")
+        if decision.selected_action_id in {None, "pass"}:
             return None
-        candidates.sort(key=lambda item: (item[0], -self._action_cost(item[2], player), str(item[2])), reverse=True)
-        top_score = candidates[0][0]
-        close = [item for item in candidates if item[0] >= top_score - 0.15]
-        score, kind, item = close[rng.randrange(len(close))]
-        return kind, item, score
+        kind, item = mapping[decision.selected_action_id]
+        return kind, item, float(decision.selected_utility or 0.0)
 
     @staticmethod
-    def _action_cost(item: StructuralCardProfile | str, player: _Player) -> float:
-        if isinstance(item, str):
-            return player.commanders[item].next_cost
-        return item.mana_value
+    def _record_pilot_decision(
+        player: _Player,
+        decision: PilotDecision,
+        recorder: _EventRecorder,
+        *,
+        phase: str,
+    ) -> None:
+        recorder.emit(
+            "pilot_decision",
+            actor_id=player.player_id,
+            payload={
+                "phase": phase,
+                "pilot_name": decision.pilot_name,
+                "strength": decision.strength.value,
+                "mode": decision.mode.value,
+                "selected_action_id": decision.selected_action_id,
+                "selected_utility": decision.selected_utility,
+                "candidates": [list(item) for item in decision.candidates],
+                "breakdown": (
+                    decision.selected_breakdown.model_dump(mode="json")
+                    if decision.selected_breakdown is not None
+                    else None
+                ),
+            },
+        )
+
+    def _pilot_state(
+        self,
+        player: _Player,
+        players: list[_Player],
+        turn_number: int,
+    ) -> PilotStateView:
+        role_counts: dict[CardRole, int] = {}
+        for card in player.hand + player.battlefield:
+            for role in card.roles:
+                role_counts[role] = role_counts.get(role, 0) + 1
+        commanders = tuple(
+            PilotCommanderView(
+                name=commander.name,
+                base_cost=commander.base_cost,
+                next_cost=commander.next_cost,
+                casts=commander.casts,
+                on_battlefield=commander.on_battlefield,
+                power=commander.power,
+            )
+            for commander in player.commanders.values()
+        )
+        opponents: list[PilotOpponentView] = []
+        prefix = f"{player.player_id}:"
+        for opponent in players:
+            if opponent.player_id == player.player_id or not opponent.alive:
+                continue
+            outgoing = {
+                key.removeprefix(prefix): value
+                for key, value in opponent.commander_damage_received.items()
+                if key.startswith(prefix)
+            }
+            opponents.append(
+                PilotOpponentView(
+                    player_id=opponent.player_id,
+                    life=opponent.life,
+                    threat=opponent.threat(),
+                    board_power=opponent.board_power,
+                    engine_value=opponent.engine_value,
+                    graveyard_size=len(opponent.graveyard),
+                    hand_size=len(opponent.hand),
+                    commander_damage_from_actor=outgoing,
+                )
+            )
+        return PilotStateView(
+            player_id=player.player_id,
+            deck_id=player.deck.deck_id,
+            strategy=player.deck.commander_strategy,
+            turn=turn_number,
+            pod_size=len(players),
+            life=player.life,
+            hand_size=len(player.hand),
+            mana_available=max(0.0, player.mana_available),
+            lands=player.lands,
+            ramp_mana=player.ramp_mana,
+            resources=player.resources,
+            tokens=player.tokens,
+            board_power=player.board_power,
+            engine_value=player.engine_value,
+            graveyard_size=len(player.graveyard),
+            battlefield_names=tuple(card.oracle_name for card in player.battlefield),
+            hand_names=tuple(card.oracle_name for card in player.hand),
+            role_counts=role_counts,
+            commanders=commanders,
+            opponents=tuple(opponents),
+        )
+
+    def _pilot_action_for_card(
+        self,
+        player: _Player,
+        players: list[_Player],
+        card: StructuralCardProfile,
+        *,
+        action_id: str,
+        action_kind: str,
+        threat_score: float = 0.0,
+        target_player_id: str | None = None,
+    ) -> PilotActionView:
+        opponents = [item for item in players if item.alive and item.player_id != player.player_id]
+        target_threat = max((item.threat() for item in opponents), default=0.0)
+        conditional_multiplier = self._conditional_multiplier(player, card)
+        adjusted_strengths = {
+            role: strength * conditional_multiplier
+            for role, strength in card.role_strengths.items()
+        }
+        return PilotActionView(
+            action_id=action_id,
+            action_kind=action_kind,  # type: ignore[arg-type]
+            card_name=card.oracle_name,
+            mana_cost=card.mana_value,
+            roles=card.roles,
+            role_strengths=adjusted_strengths,
+            floor_value=min(3.0, card.floor_value * conditional_multiplier),
+            immediate_impact=min(2.0, card.immediate_impact * conditional_multiplier),
+            turn_cycle_risk=card.turn_cycle_risk,
+            multiplayer_scaling=card.multiplayer_scaling,
+            commander_synergy=card.commander_synergy,
+            base_power=card.base_power,
+            target_player_id=target_player_id,
+            target_threat=target_threat,
+            threat_score=threat_score,
+            remaining_mana=max(0.0, player.mana_available - card.mana_value),
+            metadata={"conditional_multiplier": round(conditional_multiplier, 6)},
+        )
+
+    @staticmethod
+    def _conditional_multiplier(player: _Player, card: StructuralCardProfile) -> float:
+        multiplier = 1.0
+        for conditional in card.conditional_strength:
+            if conditional.condition == "sacrifice_package_online":
+                material = player.tokens + player.resources * 0.5
+                material += player.role_count(CardRole.TOKEN_SOURCE) * 0.5
+                material += player.role_count(CardRole.SACRIFICE_OUTLET) * 0.7
+                probability = min(1.0, material / 3.0)
+            elif conditional.condition == "land_engine_online":
+                density = player.role_count(CardRole.LAND_SYNERGY) + max(0, player.lands - 2) * 0.25
+                probability = min(1.0, density / 2.5)
+            elif conditional.condition == "commander_attacking":
+                probability = 1.0 if player.commander_online() else 0.1
+            elif conditional.condition == "survives_turn_cycle":
+                probability = max(0.05, 1.0 - card.turn_cycle_risk)
+            else:
+                probability = 0.5
+            multiplier *= 1.0 + (conditional.multiplier - 1.0) * probability
+        return max(0.2, min(3.0, multiplier))
 
     @staticmethod
     def _commander_color_requirements(player: _Player, name: str) -> dict[Color, int]:
@@ -532,65 +810,6 @@ class StructuralSimulator:
             return False
         return all(color in player.available_colors for color in color_requirements)
 
-    def _card_score(self, player: _Player, card: StructuralCardProfile, players: list[_Player], turn: int) -> float:
-        opponents = [opponent for opponent in players if opponent.alive and opponent.player_id != player.player_id]
-        score = card.floor_value + card.immediate_impact - card.turn_cycle_risk * 0.35
-        online_commander = player.commander_online()
-        if online_commander:
-            score += card.commander_synergy
-        if CardRole.RAMP in card.roles:
-            score += card.strength(CardRole.RAMP) * max(0.2, 3.5 - turn * 0.35)
-        if CardRole.DRAW in card.roles:
-            score += card.strength(CardRole.DRAW) * (2.1 if len(player.hand) <= 4 else 1.1)
-        if CardRole.SELECTION in card.roles:
-            score += card.strength(CardRole.SELECTION) * 1.1
-        max_threat = max((opponent.threat() for opponent in opponents), default=0.0)
-        if CardRole.REMOVAL in card.roles:
-            score += card.strength(CardRole.REMOVAL) * max(0.0, max_threat - 3.0) * 0.3
-            if max_threat < 3.0:
-                score -= 2.0
-        if CardRole.WIPE in card.roles:
-            enemy_board = sum(opponent.threat() for opponent in opponents)
-            own_board = player.threat()
-            score += card.strength(CardRole.WIPE) * max(0.0, enemy_board - own_board * 1.4 - 7.0) * 0.18
-            if enemy_board < own_board + 5:
-                score -= 3.0
-        if CardRole.GRAVEYARD_HATE in card.roles:
-            graveyard_pressure = max((len(opponent.graveyard) for opponent in opponents), default=0)
-            score += card.strength(CardRole.GRAVEYARD_HATE) * max(0, graveyard_pressure - 3) * 0.25
-        if CardRole.RECURSION in card.roles:
-            score += card.strength(CardRole.RECURSION) * min(3.0, len(player.graveyard) * 0.25)
-        if CardRole.ENGINE in card.roles:
-            score += card.strength(CardRole.ENGINE) * (1.8 if turn <= 6 else 1.2)
-        if CardRole.PAYOFF in card.roles:
-            package = player.role_count(CardRole.ENABLER) + player.role_count(CardRole.TOKEN_SOURCE) + player.role_count(CardRole.LAND_SYNERGY)
-            score += card.strength(CardRole.PAYOFF) * min(3.0, package * 0.45)
-        if CardRole.COMBAT_PAYOFF in card.roles:
-            score += card.strength(CardRole.COMBAT_PAYOFF) * (2.2 if online_commander else -0.8)
-        if CardRole.FINISHER in card.roles:
-            lowest_life = min((opponent.life for opponent in opponents), default=40.0)
-            score += card.strength(CardRole.FINISHER) * max(0.0, 20.0 - lowest_life) * 0.2
-            score += card.multiplayer_scaling * max(0, len(opponents) - 1)
-        if CardRole.COUNTER in card.roles or CardRole.PROTECTION in card.roles:
-            score -= 4.0  # reactive cards are held unless they have another proactive role
-        if card.is_creature:
-            score += card.base_power * 0.25
-        return score
-
-    @staticmethod
-    def _commander_score(player: _Player, commander: _Commander, turn: int) -> float:
-        score = 2.2 + commander.base_power * 0.35
-        if player.deck.commander_strategy == "korvold":
-            score += player.role_count(CardRole.SACRIFICE_OUTLET) * 0.5 + player.role_count(CardRole.LAND_SYNERGY) * 0.25
-        elif commander.name == "Ishai, Ojutai Dragonspeaker":
-            score += 1.8 + player.role_count(CardRole.PROTECTION) * 0.25
-        elif commander.name == "Rograkh, Son of Rohgahh":
-            score += 1.0 + player.role_count(CardRole.ENABLER) * 0.2
-        score -= commander.casts * 0.55
-        if turn <= 2 and commander.next_cost >= 4:
-            score -= 1.0
-        return score
-
     def _pay(self, player: _Player, cost: float) -> None:
         player.mana_available = max(0.0, player.mana_available - cost)
         player.mana_spent += cost
@@ -600,9 +819,7 @@ class StructuralSimulator:
         player: _Player,
         name: str,
         players: list[_Player],
-        rng: random.Random,
         recorder: _EventRecorder,
-        turn: int,
         score: float,
     ) -> bool:
         commander = player.commanders[name]
@@ -629,9 +846,7 @@ class StructuralSimulator:
         player: _Player,
         card: StructuralCardProfile,
         players: list[_Player],
-        rng: random.Random,
         recorder: _EventRecorder,
-        turn: int,
         score: float,
     ) -> bool:
         player.hand.remove(card)
@@ -647,7 +862,7 @@ class StructuralSimulator:
             player.graveyard.append(card)
             recorder.emit("spell_countered", actor_id=player.player_id, payload={"card": card.oracle_name})
             return False
-        self._resolve_card(player, card, players, rng, recorder, turn)
+        self._resolve_card(player, card, players, recorder)
         return True
 
     def _notify_spell_cast(self, actor: _Player, players: Iterable[_Player]) -> None:
@@ -658,18 +873,60 @@ class StructuralSimulator:
             if ishai is not None and ishai.on_battlefield:
                 ishai.power += 1.0
 
-    def _attempt_counter(self, caster: _Player, players: list[_Player], threat_score: float, recorder: _EventRecorder) -> bool:
-        if threat_score < 4.2:
+    def _attempt_counter(
+        self,
+        caster: _Player,
+        players: list[_Player],
+        threat_score: float,
+        recorder: _EventRecorder,
+    ) -> bool:
+        if threat_score < 3.6:
             return False
         opponents = sorted(
             (player for player in players if player.alive and player.player_id != caster.player_id),
             key=lambda player: ((player.seat - caster.seat) % len(players), player.player_id),
         )
         for opponent in opponents:
-            counters = [card for card in opponent.hand if CardRole.COUNTER in card.roles and self._can_pay(opponent, card.mana_value, card.color_requirements)]
+            counters = [
+                card
+                for card in opponent.hand
+                if CardRole.COUNTER in card.roles
+                and self._can_pay(opponent, card.mana_value, card.color_requirements)
+            ]
             if not counters:
                 continue
-            counter = min(counters, key=lambda card: (card.mana_value, card.oracle_name))
+            state = self._pilot_state(opponent, players, max(1, opponent.current_turn))
+            actions: list[PilotActionView] = []
+            mapping: dict[str, StructuralCardProfile] = {}
+            for index, card in enumerate(counters):
+                action_id = f"counter:{index}:{card.oracle_name}"
+                action = self._pilot_action_for_card(
+                    opponent,
+                    players,
+                    card,
+                    action_id=action_id,
+                    action_kind="counter",
+                    threat_score=threat_score,
+                    target_player_id=caster.player_id,
+                )
+                actions.append(action)
+                mapping[action_id] = card
+            actions.append(
+                PilotActionView(
+                    action_id="pass",
+                    action_kind="pass",
+                    card_name="Decline counter",
+                    remaining_mana=opponent.mana_available,
+                    immediate_impact=0.1,
+                    floor_value=0.2,
+                    threat_score=threat_score,
+                )
+            )
+            decision = opponent.pilot.choose_action(state, actions, opponent.pilot_rng)
+            self._record_pilot_decision(opponent, decision, recorder, phase="counter")
+            if decision.selected_action_id in {None, "pass"}:
+                continue
+            counter = mapping[decision.selected_action_id]
             opponent.hand.remove(counter)
             self._pay(opponent, counter.mana_value)
             opponent.graveyard.append(counter)
@@ -677,7 +934,11 @@ class StructuralSimulator:
             recorder.emit(
                 "counter_resolved",
                 actor_id=opponent.player_id,
-                payload={"card": counter.oracle_name, "against": caster.player_id},
+                payload={
+                    "card": counter.oracle_name,
+                    "against": caster.player_id,
+                    "threat_score": round(threat_score, 4),
+                },
             )
             return True
         return False
@@ -687,9 +948,7 @@ class StructuralSimulator:
         player: _Player,
         card: StructuralCardProfile,
         players: list[_Player],
-        rng: random.Random,
         recorder: _EventRecorder,
-        turn: int,
     ) -> None:
         if CardRole.WIPE in card.roles:
             self._resolve_wipe(player, card, players, recorder)
@@ -748,11 +1007,56 @@ class StructuralSimulator:
         recorder.emit("selection_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "selected": chosen.oracle_name})
 
     def _resolve_removal(self, player: _Player, card: StructuralCardProfile, players: list[_Player], recorder: _EventRecorder) -> None:
-        targets = [opponent for opponent in players if opponent.alive and opponent.player_id != player.player_id]
+        targets = [
+            opponent
+            for opponent in players
+            if opponent.alive and opponent.player_id != player.player_id
+        ]
         if not targets:
             return
-        target = max(targets, key=lambda opponent: (opponent.threat(), -opponent.life, opponent.player_id))
-        if self._attempt_protection(target, recorder, against=card.oracle_name):
+        state = self._pilot_state(player, players, max(1, player.current_turn))
+        target_actions: list[PilotActionView] = []
+        target_mapping: dict[str, _Player] = {}
+        for opponent in targets:
+            commander_value = max(
+                (
+                    commander.power + 3.0
+                    for commander in opponent.commanders.values()
+                    if commander.on_battlefield
+                ),
+                default=0.0,
+            )
+            permanent_value = max(
+                (self._permanent_value(permanent) for permanent in opponent.battlefield),
+                default=0.0,
+            )
+            object_value = max(commander_value, permanent_value)
+            action_id = f"removal_target:{opponent.player_id}"
+            target_actions.append(
+                PilotActionView(
+                    action_id=action_id,
+                    action_kind="removal_target",
+                    card_name=f"{card.oracle_name} -> {opponent.player_id}",
+                    roles=frozenset({CardRole.REMOVAL}),
+                    role_strengths={CardRole.REMOVAL: card.strength(CardRole.REMOVAL)},
+                    immediate_impact=card.immediate_impact,
+                    floor_value=card.floor_value,
+                    target_player_id=opponent.player_id,
+                    target_threat=opponent.threat() + object_value * 0.35,
+                    threat_score=object_value,
+                    remaining_mana=player.mana_available,
+                    metadata={
+                        "target_life": opponent.life,
+                        "commander_value": commander_value,
+                        "permanent_value": permanent_value,
+                    },
+                )
+            )
+            target_mapping[action_id] = opponent
+        decision = player.pilot.choose_target(state, target_actions, player.pilot_rng)
+        self._record_pilot_decision(player, decision, recorder, phase="removal_target")
+        target = target_mapping.get(decision.selected_action_id or "", targets[0])
+        if self._attempt_protection(target, players, recorder, against=card.oracle_name):
             recorder.emit("removal_prevented", actor_id=target.player_id, payload={"against": card.oracle_name})
             return
         commanders = [commander for commander in target.commanders.values() if commander.on_battlefield]
@@ -791,16 +1095,64 @@ class StructuralSimulator:
         if CardRole.ENGINE in card.roles:
             player.engine_value = max(0.0, player.engine_value - card.strength(CardRole.ENGINE) * (1.0 - card.turn_cycle_risk * 0.25))
 
-    def _attempt_protection(self, target: _Player, recorder: _EventRecorder, *, against: str) -> bool:
-        protections = [card for card in target.hand if CardRole.PROTECTION in card.roles and self._can_pay(target, card.mana_value, card.color_requirements)]
+    def _attempt_protection(
+        self,
+        target: _Player,
+        players: list[_Player],
+        recorder: _EventRecorder,
+        *,
+        against: str,
+    ) -> bool:
+        protections = [
+            card
+            for card in target.hand
+            if CardRole.PROTECTION in card.roles
+            and self._can_pay(target, card.mana_value, card.color_requirements)
+        ]
         if not protections:
             return False
-        protection = min(protections, key=lambda card: (card.mana_value, card.oracle_name))
+        state = self._pilot_state(target, players, max(1, target.current_turn))
+        threat_score = max(4.0, target.threat() * 0.65)
+        actions: list[PilotActionView] = []
+        mapping: dict[str, StructuralCardProfile] = {}
+        for index, card in enumerate(protections):
+            action_id = f"protection:{index}:{card.oracle_name}"
+            action = self._pilot_action_for_card(
+                target,
+                players,
+                card,
+                action_id=action_id,
+                action_kind="protection",
+                threat_score=threat_score,
+                target_player_id=target.player_id,
+            )
+            actions.append(action)
+            mapping[action_id] = card
+        actions.append(
+            PilotActionView(
+                action_id="pass",
+                action_kind="pass",
+                card_name="Decline protection",
+                remaining_mana=target.mana_available,
+                immediate_impact=0.1,
+                floor_value=0.15,
+                threat_score=threat_score,
+            )
+        )
+        decision = target.pilot.choose_action(state, actions, target.pilot_rng)
+        self._record_pilot_decision(target, decision, recorder, phase="protection")
+        if decision.selected_action_id in {None, "pass"}:
+            return False
+        protection = mapping[decision.selected_action_id]
         target.hand.remove(protection)
         self._pay(target, protection.mana_value)
         target.graveyard.append(protection)
         target.protections_resolved += 1
-        recorder.emit("protection_resolved", actor_id=target.player_id, payload={"card": protection.oracle_name, "against": against})
+        recorder.emit(
+            "protection_resolved",
+            actor_id=target.player_id,
+            payload={"card": protection.oracle_name, "against": against},
+        )
         return True
 
     def _resolve_wipe(self, player: _Player, card: StructuralCardProfile, players: list[_Player], recorder: _EventRecorder) -> None:
@@ -808,7 +1160,7 @@ class StructuralSimulator:
         for target in players:
             if not target.alive:
                 continue
-            if self._attempt_board_protection(target, recorder, against=card.oracle_name):
+            if self._attempt_board_protection(target, players, recorder, against=card.oracle_name):
                 continue
             removable = [permanent for permanent in target.battlefield if not permanent.is_land]
             if not removable:
@@ -830,24 +1182,99 @@ class StructuralSimulator:
         player.wipes_resolved += 1
         recorder.emit("boardwipe_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "destroyed_permanents": affected})
 
-    def _attempt_board_protection(self, target: _Player, recorder: _EventRecorder, *, against: str) -> bool:
-        broad = [card for card in target.hand if card.oracle_name == "Boros Charm" and self._can_pay(target, card.mana_value, card.color_requirements)]
+    def _attempt_board_protection(
+        self,
+        target: _Player,
+        players: list[_Player],
+        recorder: _EventRecorder,
+        *,
+        against: str,
+    ) -> bool:
+        broad = [
+            card
+            for card in target.hand
+            if card.oracle_name == "Boros Charm"
+            and self._can_pay(target, card.mana_value, card.color_requirements)
+        ]
         if not broad:
             return False
         card = broad[0]
+        state = self._pilot_state(target, players, max(1, target.current_turn))
+        threat_score = max(5.0, target.threat())
+        action = self._pilot_action_for_card(
+            target,
+            players,
+            card,
+            action_id=f"protection:board:{card.oracle_name}",
+            action_kind="protection",
+            threat_score=threat_score,
+            target_player_id=target.player_id,
+        )
+        take, breakdown = target.pilot.should_take_reaction(
+            state, action, target.pilot_rng, threshold=0.25
+        )
+        decision = PilotDecision(
+            pilot_name=target.pilot.pilot_name,
+            strength=target.pilot.config.strength,
+            mode=target.pilot.config.mode,
+            selected_action_id=action.action_id if take else "pass",
+            selected_utility=breakdown.total_utility,
+            candidates=((action.action_id, breakdown.total_utility),),
+            selected_breakdown=breakdown,
+        )
+        self._record_pilot_decision(target, decision, recorder, phase="board_protection")
+        if not take:
+            return False
         target.hand.remove(card)
         self._pay(target, card.mana_value)
         target.graveyard.append(card)
         target.protections_resolved += 1
-        recorder.emit("board_protected", actor_id=target.player_id, payload={"card": card.oracle_name, "against": against})
+        recorder.emit(
+            "board_protected",
+            actor_id=target.player_id,
+            payload={"card": card.oracle_name, "against": against},
+        )
         return True
 
     def _resolve_graveyard_hate(self, player: _Player, card: StructuralCardProfile, players: list[_Player], recorder: _EventRecorder) -> None:
-        targets = [opponent for opponent in players if opponent.alive and opponent.player_id != player.player_id]
+        targets = [
+            opponent
+            for opponent in players
+            if opponent.alive and opponent.player_id != player.player_id
+        ]
         if not targets:
             return
-        target = max(targets, key=lambda opponent: len(opponent.graveyard))
-        count = min(len(target.graveyard), max(2, int(4 * card.strength(CardRole.GRAVEYARD_HATE))))
+        state = self._pilot_state(player, players, max(1, player.current_turn))
+        target_actions: list[PilotActionView] = []
+        target_mapping: dict[str, _Player] = {}
+        for opponent in targets:
+            action_id = f"graveyard_target:{opponent.player_id}"
+            target_actions.append(
+                PilotActionView(
+                    action_id=action_id,
+                    action_kind="graveyard_target",
+                    card_name=f"{card.oracle_name} -> {opponent.player_id}",
+                    roles=frozenset({CardRole.GRAVEYARD_HATE}),
+                    role_strengths={
+                        CardRole.GRAVEYARD_HATE: card.strength(CardRole.GRAVEYARD_HATE)
+                    },
+                    immediate_impact=card.immediate_impact,
+                    floor_value=card.floor_value,
+                    target_player_id=opponent.player_id,
+                    target_threat=opponent.threat(),
+                    threat_score=float(len(opponent.graveyard)),
+                    remaining_mana=player.mana_available,
+                    metadata={"graveyard_size": len(opponent.graveyard)},
+                )
+            )
+            target_mapping[action_id] = opponent
+        decision = player.pilot.choose_target(state, target_actions, player.pilot_rng)
+        self._record_pilot_decision(player, decision, recorder, phase="graveyard_target")
+        target = target_mapping.get(decision.selected_action_id or "", targets[0])
+        count = min(
+            len(target.graveyard),
+            max(2, int(4 * card.strength(CardRole.GRAVEYARD_HATE))),
+        )
         exiled = target.graveyard[-count:]
         del target.graveyard[-count:]
         target.exile.extend(exiled)
@@ -946,7 +1373,42 @@ class StructuralSimulator:
             recorder.emit("combat_damage", actor_id=player.player_id, payload={"target": "goldfish", "damage": round(damage, 4), "target_life": round(goldfish_life, 4)})
             return damage, goldfish_life
         targets = [opponent for opponent in players if opponent.alive and opponent.player_id != player.player_id]
-        target = max(targets, key=lambda opponent: (opponent.threat() * 0.3 + (40 - opponent.life), -opponent.seat))
+        state = self._pilot_state(player, players, turn)
+        target_actions: list[PilotActionView] = []
+        target_mapping: dict[str, _Player] = {}
+        for opponent in targets:
+            key_prefix = f"{player.player_id}:"
+            commander_pressure = max(
+                (
+                    value
+                    for key, value in opponent.commander_damage_received.items()
+                    if key.startswith(key_prefix)
+                ),
+                default=0.0,
+            )
+            action_id = f"combat_target:{opponent.player_id}"
+            target_actions.append(
+                PilotActionView(
+                    action_id=action_id,
+                    action_kind="combat_target",
+                    card_name=f"Attack {opponent.player_id}",
+                    immediate_impact=1.0,
+                    floor_value=0.4,
+                    base_power=total_attack,
+                    target_player_id=opponent.player_id,
+                    target_threat=opponent.threat(),
+                    remaining_mana=player.mana_available,
+                    metadata={
+                        "target_life": opponent.life,
+                        "commander_damage_pressure": commander_pressure,
+                        "blockers": opponent.board_power * 0.35 + opponent.tokens * 0.25,
+                    },
+                )
+            )
+            target_mapping[action_id] = opponent
+        decision = player.pilot.choose_combat_target(state, target_actions, player.pilot_rng)
+        self._record_pilot_decision(player, decision, recorder, phase="combat")
+        target = target_mapping.get(decision.selected_action_id or "", targets[0])
         blockers = target.board_power * 0.35 + target.tokens * 0.25
         damage = max(0.0, total_attack - blockers)
         target.life -= damage
@@ -1013,6 +1475,9 @@ class StructuralSimulator:
         return StructuralPlayerMetrics(
             player_id=player.player_id,
             deck_id=player.deck.deck_id,
+            pilot_name=player.pilot.pilot_name,
+            pilot_strength=player.pilot.config.strength.value,
+            pilot_mode=player.pilot.config.mode.value,
             placement=player.placement or 1,
             life=player.life,
             mulligans=player.mulligans,

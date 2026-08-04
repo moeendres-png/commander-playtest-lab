@@ -5,6 +5,7 @@ from pathlib import Path
 
 import typer
 
+from commander_lab.agents.validation import run_phase4_validation
 from commander_lab.analysis import DeckValidator
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.structural import (
@@ -14,7 +15,13 @@ from commander_lab.engine.structural import (
     run_structural_batch,
 )
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
-from commander_lab.models import StructuralAbortLimits, StructuralBatchConfig
+from commander_lab.models import (
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    StructuralAbortLimits,
+    StructuralBatchConfig,
+)
 from commander_lab.storage import compute_deck_hash
 from commander_lab.tools.local_snapshots import build_local_snapshots
 
@@ -80,6 +87,8 @@ def run_structural_batch_command(
     iterations: int = typer.Option(100, min=1),
     seed: int = typer.Option(20260804, min=0),
     workers: int = typer.Option(1, min=1, max=64),
+    pilot_strength: PilotStrength = typer.Option(PilotStrength.AVERAGE),
+    pilot_mode: PilotDecisionMode = typer.Option(PilotDecisionMode.DETERMINISTIC),
     max_turns: int = typer.Option(35, min=1),
     output: Path = typer.Option(Path("data/runs/adhoc_structural")),
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
@@ -92,6 +101,10 @@ def run_structural_batch_command(
         iterations=iterations,
         deck_ids=tuple(deck),
         workers=workers,
+        pilot_configs=tuple(
+            PilotConfig(strength=pilot_strength, mode=pilot_mode)
+            for _ in deck
+        ),
         output_directory=str(root / output),
         limits=StructuralAbortLimits(max_turns=max_turns),
     )
@@ -108,6 +121,25 @@ def validate_structural(
 ) -> None:
     """Run Goldfish plus three-, four-, and five-player structural validation batches."""
     summary = run_phase3_validation(root, iterations=iterations, workers=workers, seed=seed)
+    typer.echo(json.dumps(summary, indent=2, ensure_ascii=False, sort_keys=True))
+
+
+@app.command("validate-pilots")
+def validate_pilots(
+    iterations: int = typer.Option(16, min=1),
+    workers: int = typer.Option(2, min=1, max=64),
+    seed: int = typer.Option(20260804, min=0),
+    output: Path = typer.Option(Path("data/runs/phase4_validation")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run deterministic, stochastic, and strength-matrix pilot validation."""
+    summary = run_phase4_validation(
+        root,
+        iterations=iterations,
+        workers=workers,
+        seed=seed,
+        output_directory=root / output,
+    )
     typer.echo(json.dumps(summary, indent=2, ensure_ascii=False, sort_keys=True))
 
 

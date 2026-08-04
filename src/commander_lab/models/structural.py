@@ -1,35 +1,16 @@
 from __future__ import annotations
 
-from enum import StrEnum
 from typing import Literal
 
 from pydantic import Field, model_validator
 
 from .common import Color, DataQuality, FrozenModel, MutableModel, SourceRef
+from .pilots import PilotConfig
+from .roles import CardRole
 
 
 STRUCTURAL_ESTIMATE_TYPE = "structural_model_estimates"
 
-
-class CardRole(StrEnum):
-    MANA_SOURCE = "mana_source"
-    RAMP = "ramp"
-    DRAW = "draw"
-    SELECTION = "selection"
-    REMOVAL = "removal"
-    COUNTER = "counter"
-    PROTECTION = "protection"
-    WIPE = "wipe"
-    RECURSION = "recursion"
-    GRAVEYARD_HATE = "graveyard_hate"
-    ENGINE = "engine"
-    ENABLER = "enabler"
-    PAYOFF = "payoff"
-    FINISHER = "finisher"
-    COMBAT_PAYOFF = "combat_payoff"
-    TOKEN_SOURCE = "token_source"
-    SACRIFICE_OUTLET = "sacrifice_outlet"
-    LAND_SYNERGY = "land_synergy"
 
 
 class ConditionalStrength(FrozenModel):
@@ -105,6 +86,7 @@ class StructuralMatchConfig(FrozenModel):
     deck_ids: tuple[str, ...]
     starting_player_seat: int | None = Field(default=None, ge=0)
     free_multiplayer_mulligan: bool = True
+    pilot_configs: tuple[PilotConfig, ...] = ()
     limits: StructuralAbortLimits = Field(default_factory=StructuralAbortLimits)
     estimate_type: Literal["structural_model_estimates"] = STRUCTURAL_ESTIMATE_TYPE
 
@@ -116,6 +98,8 @@ class StructuralMatchConfig(FrozenModel):
             raise ValueError("at most ten players are supported")
         if self.starting_player_seat is not None and self.starting_player_seat >= len(self.deck_ids):
             raise ValueError("starting_player_seat is outside the pod")
+        if self.pilot_configs and len(self.pilot_configs) != len(self.deck_ids):
+            raise ValueError("pilot_configs must be empty or contain one config per seat")
         return self
 
 
@@ -126,6 +110,7 @@ class StructuralBatchConfig(FrozenModel):
     deck_ids: tuple[str, ...]
     workers: int = Field(default=1, ge=1, le=64)
     starting_player_rotation: bool = True
+    pilot_configs: tuple[PilotConfig, ...] = ()
     limits: StructuralAbortLimits = Field(default_factory=StructuralAbortLimits)
     output_directory: str | None = None
     estimate_type: Literal["structural_model_estimates"] = STRUCTURAL_ESTIMATE_TYPE
@@ -136,12 +121,17 @@ class StructuralBatchConfig(FrozenModel):
             raise ValueError("at least one deck is required")
         if len(self.deck_ids) > 10:
             raise ValueError("at most ten players are supported")
+        if self.pilot_configs and len(self.pilot_configs) != len(self.deck_ids):
+            raise ValueError("pilot_configs must be empty or contain one config per seat")
         return self
 
 
 class StructuralPlayerMetrics(FrozenModel):
     player_id: str
     deck_id: str
+    pilot_name: str = "GenericCommanderPilot"
+    pilot_strength: str = "average"
+    pilot_mode: str = "deterministic"
     placement: int
     life: float
     mulligans: int

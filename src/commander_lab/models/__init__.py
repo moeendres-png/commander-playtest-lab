@@ -25,9 +25,21 @@ from .game import (
 )
 from .opponents import OpponentListStatus, OpponentProfile, UncertaintyModel
 from .playtests import PlaytestParticipant, RealPlaytest
+from .roles import CardRole
+from .pilots import (
+    PilotActionView,
+    PilotCommanderView,
+    PilotConfig,
+    PilotDecision,
+    PilotDecisionMode,
+    PilotOpponentView,
+    PilotStateView,
+    PilotStrength,
+    PilotUtilityBreakdown,
+    PilotUtilityWeights,
+)
 from .structural import (
     STRUCTURAL_ESTIMATE_TYPE,
-    CardRole,
     ConditionalStrength,
     StructuralAbortLimits,
     StructuralBatchConfig,
@@ -79,6 +91,16 @@ __all__ = [
     "PhysicalCard",
     "PlayerState",
     "PlaytestParticipant",
+    "PilotActionView",
+    "PilotCommanderView",
+    "PilotConfig",
+    "PilotDecision",
+    "PilotDecisionMode",
+    "PilotOpponentView",
+    "PilotStateView",
+    "PilotStrength",
+    "PilotUtilityBreakdown",
+    "PilotUtilityWeights",
     "PurchaseStatus",
     "RealPlaytest",
     "RunStatus",
