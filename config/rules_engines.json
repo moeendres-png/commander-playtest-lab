@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "preferred_tactical_backend": "xmage",
+  "fallback_rules_backend": "forge",
+  "local_tactical_backend": "tactical",
+  "bridge_environment": {
+    "xmage": "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
+    "forge": "COMMANDER_LAB_FORGE_BRIDGE_CMD"
+  },
+  "validation_levels": [
+    "structural_only",
+    "tactical_validated",
+    "rules_engine_validated"
+  ],
+  "rules_engine_release_gate": {
+    "minimum_project_critical_interactions": 50,
+    "required_match_rate": 1.0
+  }
+}

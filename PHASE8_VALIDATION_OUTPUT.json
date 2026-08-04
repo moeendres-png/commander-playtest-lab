@@ -1,0 +1,103 @@
+{
+  "artifacts": {
+    "adapter_action_log": "data/runs/phase8_validation/adapter_action_log.jsonl",
+    "backend_probes": "data/runs/phase8_validation/backend_probes.json",
+    "canonical_registry": "data/rules/validation_registry.json",
+    "interaction_results": "data/runs/phase8_validation/interaction_results.jsonl",
+    "run_registry": "data/runs/phase8_validation/validation_registry.json"
+  },
+  "backend_probes": {
+    "forge": {
+      "availability": "unavailable",
+      "backend": "forge",
+      "backend_version": null,
+      "capabilities": {
+        "action_submission": false,
+        "commander_games": false,
+        "deck_loading": false,
+        "deterministic_seed": false,
+        "event_logs": false,
+        "game_logs": false,
+        "legal_action_query": false,
+        "maximum_players": null,
+        "multiplayer": false,
+        "notes": [],
+        "reproducible_starting_state": false,
+        "scenario_injection": false
+      },
+      "command": [],
+      "details": [
+        "set COMMANDER_LAB_FORGE_BRIDGE_CMD to a JSONL bridge command"
+      ]
+    },
+    "tactical": {
+      "availability": "available",
+      "backend": "tactical",
+      "backend_version": "tactical-0.8.0",
+      "capabilities": {
+        "action_submission": true,
+        "commander_games": true,
+        "deck_loading": true,
+        "deterministic_seed": true,
+        "event_logs": true,
+        "game_logs": true,
+        "legal_action_query": true,
+        "maximum_players": 10,
+        "multiplayer": true,
+        "notes": [
+          "bounded tactical oracle; not a complete Magic rules engine",
+          "passing cases are tactical_validated, never rules_engine_validated"
+        ],
+        "reproducible_starting_state": true,
+        "scenario_injection": true
+      },
+      "command": [],
+      "details": []
+    },
+    "xmage": {
+      "availability": "unavailable",
+      "backend": "xmage",
+      "backend_version": null,
+      "capabilities": {
+        "action_submission": false,
+        "commander_games": false,
+        "deck_loading": false,
+        "deterministic_seed": false,
+        "event_logs": false,
+        "game_logs": false,
+        "legal_action_query": false,
+        "maximum_players": null,
+        "multiplayer": false,
+        "notes": [],
+        "reproducible_starting_state": false,
+        "scenario_injection": false
+      },
+      "command": [],
+      "details": [
+        "set COMMANDER_LAB_XMAGE_BRIDGE_CMD to a JSONL bridge command"
+      ]
+    }
+  },
+  "card_status_counts": {
+    "rules_engine_validated": 0,
+    "structural_only": 108,
+    "tactical_validated": 59
+  },
+  "cards_total": 167,
+  "deterministic_starting_state": true,
+  "engine_version": "tactical-0.8.0",
+  "event_log_captured": true,
+  "interaction_cases": 73,
+  "local_acceptance_passed": true,
+  "notes": [
+    "All tactical results are bounded tactical validations, not complete rules-engine proofs.",
+    "The external release gate requires at least 50 matching XMage or Forge observations."
+  ],
+  "package_version": "0.8.0",
+  "phase": 8,
+  "programmatic_action_roundtrip": true,
+  "rules_engine_cases_attempted": 0,
+  "rules_engine_passed": 0,
+  "rules_engine_release_gate_passed": false,
+  "tactical_passed": 73
+}

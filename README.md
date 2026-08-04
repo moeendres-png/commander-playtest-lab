@@ -318,3 +318,27 @@ PYTHONPATH=src python scripts/run_phase7_validation.py
 ```
 
 The included smoke outputs use small samples to validate the workflow. They are `structural_model_estimates`, not real win rates or final deck recommendations.
+
+## Phase 8: tactical and rules-validated mode
+
+Phase 8 adds a bounded tactical oracle and persistent JSONL adapters for XMage and Forge. The adapter boundary supports deck loading, Commander game start, deterministic seeds or injected starting states, legal-action queries, programmatic action submission, event logs, and normalized Python results.
+
+Probe available backends:
+
+```bash
+commander-lab probe-rules-engines --root .
+```
+
+Run the local tactical and optional external validation suite:
+
+```bash
+commander-lab validate-rules-phase8 --seed 20260804 --root .
+```
+
+The interaction catalog contains more than 50 project-critical cases under `data/evals/differential/project_critical_interactions.json`. The generated registry marks every local card and interaction as one of:
+
+- `structural_only`;
+- `tactical_validated`;
+- `rules_engine_validated`.
+
+A tactical pass is not an external rules proof. `rules_engine_validated` is emitted only after a matching XMage or Forge bridge observation. Missing external engines remain a visible blocked gate.

@@ -11,6 +11,7 @@ from commander_lab.api import create_app
 from commander_lab.analysis import DeckValidator
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.evals import run_phase6_evaluation
+from commander_lab.engine.rules import RulesEngineManager, run_phase8_validation
 from commander_lab.engine.structural import (
     generate_project_profiles,
     load_project_structural_decks,
@@ -188,6 +189,35 @@ def eval_phase6(
     )
     typer.echo(result.model_dump_json(indent=2))
     if not result.local_acceptance_passed:
+        raise typer.Exit(code=1)
+
+
+@app.command("probe-rules-engines")
+def probe_rules_engines(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Probe the local tactical backend and optional Forge/XMage JSONL bridges."""
+    manager = RulesEngineManager(root=root)
+    try:
+        payload = {
+            key.value: value.model_dump(mode="json")
+            for key, value in manager.probes().items()
+        }
+    finally:
+        manager.close()
+    typer.echo(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True))
+
+
+@app.command("validate-rules-phase8")
+def validate_rules_phase8(
+    seed: int = typer.Option(20260804, min=0),
+    output: Path = typer.Option(Path("data/runs/phase8_validation")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run the Phase-8 tactical and optional external rules-engine validation suite."""
+    summary = run_phase8_validation(root, output_directory=root / output, seed=seed)
+    typer.echo(json.dumps(summary, indent=2, ensure_ascii=False, sort_keys=True))
+    if not summary["local_acceptance_passed"]:
         raise typer.Exit(code=1)
 
 

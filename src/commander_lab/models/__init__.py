@@ -66,6 +66,28 @@ from .structural import (
     StructuralMatchResult,
     StructuralPlayerMetrics,
 )
+
+from .rules import (
+    BridgeRequest,
+    BridgeResponse,
+    CardValidationRecord,
+    InteractionSpec,
+    InteractionValidation,
+    RulesBackend,
+    RulesDeckHandle,
+    RulesDeckInput,
+    RulesEngineAvailability,
+    RulesEngineCapabilities,
+    RulesEngineLog,
+    RulesEngineProbe,
+    RulesEngineResult,
+    RulesGameRequest,
+    RulesSession,
+    TacticalScenario,
+    ValidationLevel,
+    ValidationRegistry,
+)
+
 from .simulation import (
     CardContribution,
     CardSwap,
@@ -154,6 +176,24 @@ __all__ = [
     "ParetoFrontInput",
     "ShapleyInput",
     "ZoneState",
+    "BridgeRequest",
+    "BridgeResponse",
+    "CardValidationRecord",
+    "InteractionSpec",
+    "InteractionValidation",
+    "RulesBackend",
+    "RulesDeckHandle",
+    "RulesDeckInput",
+    "RulesEngineAvailability",
+    "RulesEngineCapabilities",
+    "RulesEngineLog",
+    "RulesEngineProbe",
+    "RulesEngineResult",
+    "RulesGameRequest",
+    "RulesSession",
+    "TacticalScenario",
+    "ValidationLevel",
+    "ValidationRegistry",
 ]
 
 
