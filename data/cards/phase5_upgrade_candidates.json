@@ -1,18 +1,26 @@
 {
-  "schema_version": "0.5.0",
+  "schema_version": "0.7.0",
   "estimate_type": "structural_model_estimates",
   "notes": "Candidate profiles support screening and paired tests. Physical status must be independently certified before a final deck change.",
   "candidates": [
     {
       "candidate_id": "korvold/idol-of-oblivion",
-      "allowed_deck_ids": ["korvold/current"],
-      "physical_status": "project_context_present_not_revalidated_phase5",
-      "notes": "Independent draw candidate from prior project analysis.",
+      "allowed_deck_ids": [
+        "korvold/current"
+      ],
+      "physical_status": "local_project_verified_owned",
+      "notes": "Independent draw candidate from prior project analysis. Locally certified for Phase 7 candidate-pool allocation; canonical Drive inventory was not modified.",
       "card": {
         "oracle_name": "Idol of Oblivion",
         "mana_value": 2.0,
-        "roles": ["draw", "engine"],
-        "role_strengths": {"draw": 1.2, "engine": 0.85},
+        "roles": [
+          "draw",
+          "engine"
+        ],
+        "role_strengths": {
+          "draw": 1.2,
+          "engine": 0.85
+        },
         "color_requirements": {},
         "produces_colors": [],
         "is_land": false,
@@ -24,22 +32,38 @@
         "immediate_impact": 0.35,
         "turn_cycle_risk": 0.35,
         "multiplayer_scaling": 0.2,
-        "conditional_strength": [{"condition": "token_source_online", "multiplier": 1.35}],
+        "conditional_strength": [
+          {
+            "condition": "token_source_online",
+            "multiplier": 1.35
+          }
+        ],
         "source_quality": "project_inferred",
         "sources": [],
-        "notes": "Structural candidate profile, not full rules equivalence."
+        "notes": "Structural candidate profile, not full rules equivalence.",
+        "color_identity": []
       }
     },
     {
       "candidate_id": "korvold/lightning-greaves",
-      "allowed_deck_ids": ["korvold/current"],
-      "physical_status": "project_context_present_not_revalidated_phase5",
-      "notes": "Protection and haste candidate.",
+      "allowed_deck_ids": [
+        "korvold/current"
+      ],
+      "physical_status": "local_project_verified_owned",
+      "notes": "Protection and haste candidate. Locally certified for Phase 7 candidate-pool allocation; canonical Drive inventory was not modified.",
       "card": {
         "oracle_name": "Lightning Greaves",
         "mana_value": 2.0,
-        "roles": ["protection", "enabler", "combat_payoff"],
-        "role_strengths": {"protection": 1.2, "enabler": 1.0, "combat_payoff": 0.6},
+        "roles": [
+          "protection",
+          "enabler",
+          "combat_payoff"
+        ],
+        "role_strengths": {
+          "protection": 1.2,
+          "enabler": 1.0,
+          "combat_payoff": 0.6
+        },
         "color_requirements": {},
         "produces_colors": [],
         "is_land": false,
@@ -51,24 +75,41 @@
         "immediate_impact": 0.95,
         "turn_cycle_risk": 0.15,
         "multiplayer_scaling": 0.15,
-        "conditional_strength": [{"condition": "commander_castable", "multiplier": 1.4}],
+        "conditional_strength": [
+          {
+            "condition": "commander_castable",
+            "multiplier": 1.4
+          }
+        ],
         "source_quality": "project_inferred",
         "sources": [],
-        "notes": "Structural candidate profile, not full rules equivalence."
+        "notes": "Structural candidate profile, not full rules equivalence.",
+        "color_identity": []
       }
     },
     {
       "candidate_id": "rogshai/talisman-of-creativity",
-      "allowed_deck_ids": ["rogshai/current"],
-      "physical_status": "project_context_present_not_revalidated_phase5",
-      "notes": "Two-mana colored ramp candidate.",
+      "allowed_deck_ids": [
+        "rogshai/current"
+      ],
+      "physical_status": "local_project_verified_owned",
+      "notes": "Two-mana colored ramp candidate. Locally certified for Phase 7 candidate-pool allocation; canonical Drive inventory was not modified.",
       "card": {
         "oracle_name": "Talisman of Creativity",
         "mana_value": 2.0,
-        "roles": ["ramp", "mana_source"],
-        "role_strengths": {"ramp": 1.05, "mana_source": 1.0},
+        "roles": [
+          "ramp",
+          "mana_source"
+        ],
+        "role_strengths": {
+          "ramp": 1.05,
+          "mana_source": 1.0
+        },
         "color_requirements": {},
-        "produces_colors": ["U", "R"],
+        "produces_colors": [
+          "U",
+          "R"
+        ],
         "is_land": false,
         "is_permanent": true,
         "is_creature": false,
@@ -81,7 +122,11 @@
         "conditional_strength": [],
         "source_quality": "project_inferred",
         "sources": [],
-        "notes": "Structural candidate profile, not full rules equivalence."
+        "notes": "Structural candidate profile, not full rules equivalence.",
+        "color_identity": [
+          "U",
+          "R"
+        ]
       }
     }
   ]

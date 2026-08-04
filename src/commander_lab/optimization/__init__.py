@@ -1,3 +1,10 @@
+from .constraints import (
+    DEFAULT_CONSTRAINTS,
+    evaluate_constraints,
+    evaluate_simultaneous_allocation,
+    load_candidate_inventory,
+    role_counts,
+)
 from .experiments import (
     PairedMetrics,
     ablation_filler,
@@ -7,13 +14,29 @@ from .experiments import (
     run_paired_structural_comparison,
     variant_deck,
 )
+from .search import (
+    SearchCandidate,
+    all_legal_single_swaps,
+    approximate_shapley_profile,
+    build_search_candidate,
+    card_matchup_tags,
+    default_constraints,
+    dominates,
+    objective_vector,
+    pareto_front,
+    profile_closing_score,
+    profile_rebuild_score,
+    screening_delta,
+    structural_rationale,
+    worst_quartile_improvement,
+)
 
 __all__ = [
-    "PairedMetrics",
-    "ablation_filler",
-    "derive_paired_seed",
-    "profile_score",
-    "role_summary",
-    "run_paired_structural_comparison",
-    "variant_deck",
+    "DEFAULT_CONSTRAINTS", "PairedMetrics", "SearchCandidate", "ablation_filler",
+    "all_legal_single_swaps", "approximate_shapley_profile", "build_search_candidate",
+    "card_matchup_tags", "default_constraints", "derive_paired_seed", "dominates",
+    "evaluate_constraints", "evaluate_simultaneous_allocation", "load_candidate_inventory", "objective_vector", "pareto_front",
+    "profile_closing_score", "profile_rebuild_score", "profile_score", "role_counts",
+    "role_summary", "run_paired_structural_comparison", "screening_delta",
+    "structural_rationale", "variant_deck", "worst_quartile_improvement",
 ]

@@ -111,3 +111,8 @@ class UpgradeProposal(MutableModel):
     validation_run_ids: list[str] = Field(default_factory=list)
     holdout_run_ids: list[str] = Field(default_factory=list)
     evidence_summary: dict[str, Any] = Field(default_factory=dict)
+    sensitivity_run_ids: list[str] = Field(default_factory=list)
+    red_team_review: dict[str, Any] = Field(default_factory=dict)
+    structural_rationale: list[str] = Field(default_factory=list)
+    affected_matchups: list[str] = Field(default_factory=list)
+    automatically_applied: bool = False

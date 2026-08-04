@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.7.0",
+  "data_as_of": "2026-08-04",
+  "generated_from_local_project_context_only": true,
+  "google_drive_modified": false,
+  "notes": "Local optimization candidate allocation snapshot. It does not replace the canonical full collection.",
+  "cards": [
+    {"oracle_name": "Idol of Oblivion", "available_quantity": 1, "verification": "local_project_verified_owned", "source": "Deep Clue Sea project inventory context"},
+    {"oracle_name": "Lightning Greaves", "available_quantity": 1, "verification": "local_project_verified_owned", "source": "project inventory context"},
+    {"oracle_name": "Talisman of Creativity", "available_quantity": 1, "verification": "local_project_verified_owned", "source": "Prismari Artistry project inventory context"}
+  ]
+}

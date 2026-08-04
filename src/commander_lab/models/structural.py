@@ -25,6 +25,7 @@ class StructuralCardProfile(FrozenModel):
     roles: frozenset[CardRole]
     role_strengths: dict[CardRole, float] = Field(default_factory=dict)
     color_requirements: dict[Color, int] = Field(default_factory=dict)
+    color_identity: frozenset[Color] = frozenset()
     produces_colors: frozenset[Color] = frozenset()
     is_land: bool = False
     is_permanent: bool = True

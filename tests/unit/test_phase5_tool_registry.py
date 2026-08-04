@@ -12,7 +12,8 @@ def test_all_required_tools_are_exposed() -> None:
         "validate_deck", "inspect_deck", "run_goldfish", "run_matchup_batch",
         "compare_decks", "compare_variants_paired", "run_card_ablation",
         "run_package_ablation", "run_commander_denial", "generate_swap_matrix",
-        "search_variants", "run_holdout", "run_sensitivity", "recommend_upgrades",
+        "search_variants", "run_local_search", "run_beam_search", "run_package_search",
+        "evaluate_pareto_front", "estimate_shapley", "run_holdout", "run_sensitivity", "recommend_upgrades",
         "validate_upgrade", "ingest_playtest", "calibrate", "create_report",
     }
 
@@ -20,8 +21,8 @@ def test_all_required_tools_are_exposed() -> None:
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 18
-    assert len({schema["name"] for schema in schemas}) == 18
+    assert len(schemas) == 23
+    assert len({schema["name"] for schema in schemas}) == 23
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

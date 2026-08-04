@@ -24,6 +24,22 @@ from .game import (
     ZoneState,
 )
 from .opponents import OpponentListStatus, OpponentProfile, UncertaintyModel
+
+from .optimization import (
+    BeamSearchInput,
+    CandidatePackage,
+    ConstraintIssue,
+    ConstraintReport,
+    LocalSearchInput,
+    ObjectiveVector,
+    OptimizationConstraints,
+    OptimizationObjective,
+    OptimizationValidationInput,
+    OptimizationVariant,
+    PackageSearchInput,
+    ParetoFrontInput,
+    ShapleyInput,
+)
 from .playtests import PlaytestParticipant, RealPlaytest
 from .roles import CardRole
 from .pilots import (
@@ -124,6 +140,19 @@ __all__ = [
     "StructuralMatchConfig",
     "StructuralMatchResult",
     "StructuralPlayerMetrics",
+    "BeamSearchInput",
+    "CandidatePackage",
+    "ConstraintIssue",
+    "ConstraintReport",
+    "LocalSearchInput",
+    "ObjectiveVector",
+    "OptimizationConstraints",
+    "OptimizationObjective",
+    "OptimizationValidationInput",
+    "OptimizationVariant",
+    "PackageSearchInput",
+    "ParetoFrontInput",
+    "ShapleyInput",
     "ZoneState",
 ]
 

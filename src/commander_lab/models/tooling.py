@@ -28,7 +28,8 @@ class CostLimits(FrozenModel):
     max_simulation_seconds: float = Field(default=120.0, gt=0.0, le=86_400.0)
     approval_threshold_iterations: int = Field(default=5_000, ge=1)
     hard_max_iterations: int = Field(default=100_000, ge=1)
-    max_variants: int = Field(default=32, ge=1, le=10_000)
+    max_variants: int = Field(default=64, ge=1, le=10_000)
+    max_swap_matrix_cells: int = Field(default=500, ge=1, le=100_000)
 
     @model_validator(mode="after")
     def validate_iteration_limits(self) -> "CostLimits":
@@ -143,10 +144,11 @@ class CommanderDenialInput(SimulationInput):
 
 class SwapMatrixInput(SimulationInput):
     deck_id: str
-    remove_cards: tuple[str, ...]
-    add_candidate_ids: tuple[str, ...]
+    remove_cards: tuple[str, ...] = ()
+    add_candidate_ids: tuple[str, ...] = ()
     opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
-    iterations_per_cell: int = Field(default=40, ge=1)
+    iterations_per_cell: int = Field(default=20, ge=1)
+    simulate_valid_cells: bool = True
 
 
 class SearchVariantsInput(SimulationInput):
@@ -183,6 +185,18 @@ class RecommendUpgradesInput(FrozenModel):
 class ValidateUpgradeInput(PairedVariantInput):
     minimum_place_delta: float = Field(default=0.01, ge=-3.0, le=3.0)
     require_holdout: bool = True
+    holdout_pods: tuple[tuple[str, ...], ...] = (
+        ("synthetic/control", "synthetic/control", "synthetic/engine"),
+        ("synthetic/aggro", "synthetic/aggro", "synthetic/control"),
+    )
+    sensitivity_seeds: tuple[int, ...] = (20260804, 20260805, 20260806)
+    sensitivity_strengths: tuple[PilotStrength, ...] = (
+        PilotStrength.AVERAGE,
+        PilotStrength.STRONG,
+        PilotStrength.NEAR_OPTIMAL_HEURISTIC,
+    )
+    require_sensitivity_nonnegative: bool = True
+    require_red_team_pass: bool = True
 
 
 class IngestPlaytestInput(FrozenModel):

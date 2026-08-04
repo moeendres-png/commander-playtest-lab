@@ -2,7 +2,7 @@
 
 Local, reproducible foundation for importing, validating, structurally simulating, and later optimizing MTG Commander decks.
 
-## Current scope: Phase 4
+## Current scope: Phase 7
 
 The repository provides:
 
@@ -195,7 +195,7 @@ Not implemented yet:
 
 ## Phase 5: local Function-Tool server and OpenAI agents
 
-Phase 5 adds a local FastAPI Function-Tool server with 18 strict, Pydantic-validated tools:
+Phase 5 introduced a local FastAPI Function-Tool server. Phase 7 extends it to 23 strict, Pydantic-validated tools:
 
 - deck validation and inspection;
 - goldfish and multiplayer batches;
@@ -292,3 +292,29 @@ The adapter receives a JSON fixture and must write a normalized JSON result. Mis
 Acceptance thresholds are versioned in `config/evals.yaml`. Golden, differential, and agent cases are stored under `data/evals/`. The local agent cases can also be exported as JSONL input for a separate OpenAI custom-eval workflow; exporting the dataset performs no API call.
 
 Every simulation-derived value remains labeled `structural_model_estimates`. Passing the local suite is not evidence of a real match win rate and does not authorize an upgrade recommendation without paired and holdout validation.
+
+
+## Phase 7: constrained deck optimization
+
+Phase 7 adds:
+
+- complete structural swap matrices;
+- constrained local and Beam Search;
+- multi-card package search;
+- Pareto fronts over seven separate objectives;
+- paired card and package ablation;
+- approximate Shapley contribution estimates;
+- a mandatory validation chain with paired comparison, holdouts, sensitivity, and red-team review.
+
+Optimization constraints are configured in `config/phase7_optimization.json`. Candidate physical allocation is read from the narrow local snapshot `data/collections/phase7_optimization_pool.json`.
+
+No search result is automatically applied. `validate_upgrade` returns `validated_not_applied` or `rejected_not_applied`, and canonical deck files remain unchanged.
+
+Run the Phase-7 validation suite:
+
+```bash
+pytest -q
+PYTHONPATH=src python scripts/run_phase7_validation.py
+```
+
+The included smoke outputs use small samples to validate the workflow. They are `structural_model_estimates`, not real win rates or final deck recommendations.

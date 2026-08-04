@@ -1,0 +1,65 @@
+{
+  "schema_version": "0.7.0",
+  "estimate_type": "structural_model_estimates",
+  "automatic_application": false,
+  "objectives": [
+    "four_player_performance",
+    "worst_quartile",
+    "commander_independence",
+    "rebuild",
+    "closing_power",
+    "matchup_robustness",
+    "physical_allocation"
+  ],
+  "constraints": {
+    "korvold/current": {
+      "exact_card_count": 100,
+      "singleton": true,
+      "allowed_colors": ["B", "R", "G"],
+      "role_minima": {
+        "ramp": 12,
+        "draw": 6,
+        "removal": 7,
+        "protection": 3,
+        "wipe": 3,
+        "recursion": 4,
+        "graveyard_hate": 2,
+        "finisher": 3,
+        "sacrifice_outlet": 5,
+        "land_synergy": 10
+      },
+      "minimum_lands": 38,
+      "maximum_lands": 40,
+      "minimum_colored_sources": {"G": 18, "B": 14, "R": 12},
+      "maximum_average_nonland_mana_value": 3.1,
+      "maximum_high_mana_value_cards": 10,
+      "high_mana_value_threshold": 5.0,
+      "require_verified_inventory": true,
+      "simultaneous_deck_ids": ["rogshai/current"]
+    },
+    "rogshai/current": {
+      "exact_card_count": 100,
+      "singleton": true,
+      "allowed_colors": ["W", "U", "R"],
+      "role_minima": {
+        "ramp": 9,
+        "draw": 6,
+        "removal": 9,
+        "counter": 6,
+        "protection": 6,
+        "wipe": 3,
+        "graveyard_hate": 2,
+        "finisher": 2,
+        "combat_payoff": 7
+      },
+      "minimum_lands": 36,
+      "maximum_lands": 38,
+      "minimum_colored_sources": {"W": 16, "U": 17, "R": 13},
+      "maximum_average_nonland_mana_value": 2.5,
+      "maximum_high_mana_value_cards": 5,
+      "high_mana_value_threshold": 5.0,
+      "require_verified_inventory": true,
+      "simultaneous_deck_ids": ["korvold/current"]
+    }
+  }
+}
