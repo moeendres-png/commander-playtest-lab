@@ -1,0 +1,147 @@
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+from commander_lab.engine.process_manager import EngineProcessManager
+from commander_lab.engine.rules import JsonLineBridgeClient, replay_into_internal_model
+from commander_lab.engine.rules.replay import ReplayValidationError
+from commander_lab.models import (
+    ENGINE_PROTOCOL_VERSION,
+    EngineMessageType,
+    EngineProcessStatus,
+    EngineProtocolRequest,
+    EngineReplay,
+    EngineRuntimeConfig,
+    RuntimeValidationLevel,
+)
+
+
+def test_every_required_message_type_has_a_valid_request_model() -> None:
+    for kind in EngineMessageType:
+        request = EngineProtocolRequest(
+            request_id=f"req-{kind.value}", engine="xmage", message_type=kind
+        )
+        assert request.protocol_version == ENGINE_PROTOCOL_VERSION
+        assert request.wire_dict()["method"] == kind.value
+
+
+def test_unknown_message_is_deterministically_rejected(repo_root: Path) -> None:
+    client = JsonLineBridgeClient(
+        (sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")), cwd=repo_root
+    )
+    try:
+        with pytest.raises(Exception, match="unknown bridge message type"):
+            client.request("definitely_unknown")
+    finally:
+        client.close()
+
+
+def test_process_manager_healthy_requires_external_handshake(repo_root: Path) -> None:
+    config = EngineRuntimeConfig(
+        provider="xmage",
+        start_command=(
+            sys.executable,
+            str(repo_root / "tests/fixtures/fake_external_engine_bridge.py"),
+        ),
+        healthcheck_timeout_seconds=2,
+        request_timeout_seconds=2,
+        log_directory="artifacts/engine_setup/test-process",
+    )
+    manager = EngineProcessManager(config, root=repo_root)
+    state = manager.start()
+    try:
+        assert state.status == EngineProcessStatus.HEALTHY
+        assert state.capabilities is not None
+        assert state.capabilities.runtime_kind == "external_rules_engine"
+    finally:
+        assert manager.stop().status == EngineProcessStatus.STOPPED
+
+
+def test_tactical_bridge_cannot_be_healthy_external_xmage(repo_root: Path) -> None:
+    config = EngineRuntimeConfig(
+        provider="xmage",
+        start_command=(sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")),
+        healthcheck_timeout_seconds=2,
+        request_timeout_seconds=2,
+        log_directory="artifacts/engine_setup/test-tactical-process",
+    )
+    manager = EngineProcessManager(config, root=repo_root)
+    state = manager.start()
+    try:
+        assert state.status != EngineProcessStatus.HEALTHY
+    finally:
+        manager.stop()
+
+
+def test_replay_rejects_silent_unknown_event_without_snapshot() -> None:
+    state = {
+        "game_id":"g","seed":1,"status":"in_progress","turn_number":0,
+        "active_player_id":"p","priority_player_id":"p","phase":"beginning",
+        "players":[{"player_id":"p","seat":0,"zones":{}}],"event_sequence":0
+    }
+    import hashlib
+    events = ({"sequence":0,"event_type":"unknown"},)
+    digest = hashlib.sha256(json.dumps(events, sort_keys=True, default=list).encode()).hexdigest()
+    replay = EngineReplay(
+        engine="tactical", engine_version="test",
+        validation_level=RuntimeValidationLevel.TACTICAL_ORACLE,
+        game_id="g", initial_state=state, events=events, final_state=state,
+        event_log_sha256=digest,
+    )
+    with pytest.raises(ReplayValidationError, match="no internal_state_after"):
+        replay_into_internal_model(replay)
+
+
+def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: Path) -> None:
+    import subprocess
+    from commander_lab.models import EngineProtocolResponse
+
+    for kind in EngineMessageType:
+        proc = subprocess.Popen(
+            [sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")],
+            cwd=repo_root,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        try:
+            assert proc.stdin is not None and proc.stdout is not None
+            request = EngineProtocolRequest(
+                request_id=f"wire-{kind.value}",
+                engine="tactical",
+                game_id="missing-game" if kind not in {
+                    EngineMessageType.ENGINE_HELLO,
+                    EngineMessageType.ENGINE_CAPABILITIES,
+                    EngineMessageType.LOAD_DECK,
+                    EngineMessageType.CREATE_GAME,
+                } else None,
+                message_type=kind,
+                payload={},
+            )
+            proc.stdin.write(json.dumps(request.wire_dict()) + "\n")
+            proc.stdin.flush()
+            line = proc.stdout.readline()
+            response = EngineProtocolResponse.from_wire(json.loads(line))
+            assert response.request_id == request.request_id
+            assert response.protocol_version == ENGINE_PROTOCOL_VERSION
+        finally:
+            proc.terminate()
+            proc.wait(timeout=2)
+
+
+def test_timeout_is_reported_without_false_success(repo_root: Path, tmp_path: Path) -> None:
+    script = tmp_path / "hang.py"
+    script.write_text("import time; time.sleep(5)", encoding="utf-8")
+    client = JsonLineBridgeClient(
+        (sys.executable, str(script)), cwd=repo_root, request_timeout_seconds=0.1
+    )
+    try:
+        with pytest.raises(Exception, match="timeout|closed"):
+            client.request(EngineMessageType.ENGINE_HELLO)
+    finally:
+        client.close()

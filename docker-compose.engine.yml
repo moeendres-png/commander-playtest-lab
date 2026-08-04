@@ -1,0 +1,31 @@
+services:
+  xmage:
+    profiles: ["xmage"]
+    build:
+      context: .
+      dockerfile: docker/xmage/Dockerfile
+    environment:
+      ENGINE_PROVIDER: xmage
+      ENGINE_MODE: external
+      ENGINE_PROTOCOL_VERSION: "1.0.0"
+      ENGINE_START_COMMAND: ${ENGINE_START_COMMAND:?set ENGINE_START_COMMAND to a conforming bridge}
+    volumes:
+      - ./:/workspace
+      - ./artifacts/engine_setup/logs:/workspace/artifacts/engine_setup/logs
+    ports:
+      - "127.0.0.1:${ENGINE_PORT:-17171}:${ENGINE_PORT:-17171}"
+  forge:
+    profiles: ["forge"]
+    build:
+      context: .
+      dockerfile: docker/forge/Dockerfile
+    environment:
+      ENGINE_PROVIDER: forge
+      ENGINE_MODE: external
+      ENGINE_PROTOCOL_VERSION: "1.0.0"
+      ENGINE_START_COMMAND: ${ENGINE_START_COMMAND:?set ENGINE_START_COMMAND to a conforming bridge}
+    volumes:
+      - ./:/workspace
+      - ./artifacts/engine_setup/logs:/workspace/artifacts/engine_setup/logs
+    ports:
+      - "127.0.0.1:${ENGINE_PORT:-17172}:${ENGINE_PORT:-17172}"

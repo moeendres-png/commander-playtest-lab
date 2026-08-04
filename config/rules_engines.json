@@ -1,19 +1,49 @@
 {
-  "schema_version": 1,
-  "preferred_tactical_backend": "xmage",
-  "fallback_rules_backend": "forge",
-  "local_tactical_backend": "tactical",
+  "schema_version": 2,
+  "protocol_version": "1.0.0",
+  "primary_engine": {
+    "provider": "xmage",
+    "release": "xmage_1.4.60V3",
+    "commit": "06d166b098ad36b277edef01116472203d5a047e",
+    "repository": "https://github.com/magefree/mage.git",
+    "source_archive": "https://github.com/magefree/mage/archive/06d166b098ad36b277edef01116472203d5a047e.tar.gz",
+    "license": "MIT",
+    "role": "primary tactical rules oracle"
+  },
+  "secondary_engine": {
+    "provider": "forge",
+    "release": "forge-2.0.13",
+    "commit": "852066bf4f761b302ed17cb011999d8a8fe08ad6",
+    "repository": "https://github.com/Card-Forge/forge.git",
+    "source_archive": "https://github.com/Card-Forge/forge/archive/852066bf4f761b302ed17cb011999d8a8fe08ad6.tar.gz",
+    "license": "GPL-3.0",
+    "role": "differential fallback"
+  },
+  "maven": {
+    "version": "3.9.16",
+    "download_base": "https://archive.apache.org/dist/maven/maven-3/3.9.16/binaries"
+  },
   "bridge_environment": {
     "xmage": "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
     "forge": "COMMANDER_LAB_FORGE_BRIDGE_CMD"
   },
-  "validation_levels": [
+  "runtime_validation_levels": [
+    "structural_only",
+    "tactical_oracle",
+    "external_rules_engine"
+  ],
+  "legacy_card_validation_levels": [
     "structural_only",
     "tactical_validated",
     "rules_engine_validated"
   ],
   "rules_engine_release_gate": {
     "minimum_project_critical_interactions": 50,
-    "required_match_rate": 1.0
+    "required_match_rate": 1.0,
+    "allow_tactical_oracle_substitution": false
+  },
+  "current_runtime": {
+    "external_engine_validation_pending": true,
+    "status": "external_runtime_prepared_but_not_executed"
   }
 }

@@ -1,0 +1,186 @@
+{
+  "commands": {
+    "docker": {
+      "command": [
+        "docker",
+        "--version"
+      ],
+      "detail": "[Errno 2] No such file or directory: 'docker'",
+      "error": "not_found"
+    },
+    "docker_compose": {
+      "command": [
+        "docker",
+        "compose",
+        "version"
+      ],
+      "detail": "[Errno 2] No such file or directory: 'docker'",
+      "error": "not_found"
+    },
+    "git": {
+      "command": [
+        "git",
+        "--version"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "git version 2.47.3"
+    },
+    "gradle": {
+      "command": [
+        "gradle",
+        "-version"
+      ],
+      "detail": "[Errno 2] No such file or directory: 'gradle'",
+      "error": "not_found"
+    },
+    "java": {
+      "command": [
+        "java",
+        "-version"
+      ],
+      "returncode": 0,
+      "stderr": "openjdk version \"21.0.10\" 2026-01-20\nOpenJDK Runtime Environment (build 21.0.10+7-Debian-1deb13u1)\nOpenJDK 64-Bit Server VM (build 21.0.10+7-Debian-1deb13u1, mixed mode, sharing)",
+      "stdout": ""
+    },
+    "javac": {
+      "command": [
+        "javac",
+        "-version"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "javac 21.0.10"
+    },
+    "maven": {
+      "command": [
+        "mvn",
+        "-version"
+      ],
+      "detail": "[Errno 2] No such file or directory: 'mvn'",
+      "error": "not_found"
+    },
+    "python": {
+      "command": [
+        "python",
+        "--version"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Python 3.13.5"
+    }
+  },
+  "environment": {
+    "ENGINE_BINARY_PATH": null,
+    "ENGINE_MODE": null,
+    "ENGINE_PROVIDER": null,
+    "ENGINE_SOURCE_PATH": null,
+    "JAVA_HOME": null,
+    "MAVEN_HOME": null
+  },
+  "filesystem": {
+    "free_bytes": 41666490368,
+    "free_gib": 38.8,
+    "repo": "/mnt/data/commander-playtest-lab-phase8-work",
+    "write_error": null,
+    "write_ok": true
+  },
+  "generated_at": "2026-08-04T18:59:46.799215Z",
+  "network": {
+    "dns": {
+      "github.com": {
+        "error": "gaierror(-3, 'Temporary failure in name resolution')",
+        "ok": false
+      },
+      "raw.githubusercontent.com": {
+        "error": "gaierror(-3, 'Temporary failure in name resolution')",
+        "ok": false
+      },
+      "repo.maven.apache.org": {
+        "error": "gaierror(-3, 'Temporary failure in name resolution')",
+        "ok": false
+      }
+    },
+    "https": {
+      "https://github.com": {
+        "command": [
+          "curl",
+          "-I",
+          "-L",
+          "--max-time",
+          "15",
+          "https://github.com"
+        ],
+        "returncode": 6,
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0curl: (6) Could not resolve host: github.com",
+        "stdout": ""
+      },
+      "https://raw.githubusercontent.com/magefree/mage/master/pom.xml": {
+        "command": [
+          "curl",
+          "-I",
+          "-L",
+          "--max-time",
+          "15",
+          "https://raw.githubusercontent.com/magefree/mage/master/pom.xml"
+        ],
+        "returncode": 6,
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0curl: (6) Could not resolve host: raw.githubusercontent.com",
+        "stdout": ""
+      },
+      "https://repo.maven.apache.org/maven2/": {
+        "command": [
+          "curl",
+          "-I",
+          "-L",
+          "--max-time",
+          "15",
+          "https://repo.maven.apache.org/maven2/"
+        ],
+        "returncode": 6,
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: repo.maven.apache.org",
+        "stdout": ""
+      }
+    }
+  },
+  "platform": {
+    "machine": "x86_64",
+    "python_implementation": "CPython",
+    "release": "6.12.13",
+    "system": "Linux",
+    "version": "#1 SMP Thu Jul 23 17:57:28 UTC 2026"
+  },
+  "ports": {
+    "17171": {
+      "available": true
+    },
+    "17172": {
+      "available": true
+    },
+    "8080": {
+      "available": false,
+      "error": "OSError(98, 'Address already in use')"
+    },
+    "9090": {
+      "available": true
+    }
+  },
+  "resources": {
+    "cpu_count": 5,
+    "load_average": [
+      0.04541015625,
+      0.15380859375,
+      0.166015625
+    ]
+  },
+  "subprocess_start": {
+    "command": [
+      "python",
+      "-c",
+      "print('subprocess-ok')"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "subprocess-ok"
+  }
+}

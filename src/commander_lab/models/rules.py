@@ -28,6 +28,7 @@ class RulesEngineAvailability(StrEnum):
 
 
 class RulesEngineCapabilities(FrozenModel):
+    # Phase-8 compatibility names.
     deck_loading: bool = False
     commander_games: bool = False
     deterministic_seed: bool = False
@@ -39,7 +40,50 @@ class RulesEngineCapabilities(FrozenModel):
     game_logs: bool = False
     multiplayer: bool = False
     maximum_players: int | None = Field(default=None, ge=1)
+
+    # Versioned Phase-8.5 capability-handshake names. These are explicit and
+    # must be reported by a bridge; callers must not infer them from provider.
+    commander_supported: bool = False
+    partner_supported: bool = False
+    multiplayer_supported: bool = False
+    max_players: int | None = Field(default=None, ge=1)
+    headless_supported: bool = False
+    seed_supported: bool = False
+    deck_import_supported: bool = False
+    legal_actions_supported: bool = False
+    action_submission_supported: bool = False
+    event_log_supported: bool = False
+    replay_supported: bool = False
+    stack_visible: bool = False
+    priority_visible: bool = False
+    commander_damage_visible: bool = False
+    commander_tax_visible: bool = False
+    starting_state_injection_supported: bool = False
+    scenario_injection_supported: bool = False
+    healthcheck_supported: bool = True
+    runtime_kind: Literal["external_rules_engine", "tactical_oracle", "unknown"] = "unknown"
     notes: tuple[str, ...] = ()
+
+    def supports(self, capability: str) -> bool:
+        aliases = {
+            "commander_supported": self.commander_supported or self.commander_games,
+            "multiplayer_supported": self.multiplayer_supported or self.multiplayer,
+            "max_players": self.max_players or self.maximum_players,
+            "seed_supported": self.seed_supported or self.deterministic_seed,
+            "deck_import_supported": self.deck_import_supported or self.deck_loading,
+            "legal_actions_supported": self.legal_actions_supported or self.legal_action_query,
+            "action_submission_supported": self.action_submission_supported or self.action_submission,
+            "event_log_supported": self.event_log_supported or self.event_logs,
+            "starting_state_injection_supported": (
+                self.starting_state_injection_supported or self.reproducible_starting_state
+            ),
+            "scenario_injection_supported": self.scenario_injection_supported or self.scenario_injection,
+        }
+        if capability in aliases:
+            return bool(aliases[capability])
+        if not hasattr(self, capability):
+            raise KeyError(f"unknown rules-engine capability: {capability}")
+        return bool(getattr(self, capability))
 
 
 class RulesEngineProbe(FrozenModel):

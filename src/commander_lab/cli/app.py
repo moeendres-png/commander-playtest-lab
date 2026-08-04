@@ -11,7 +11,8 @@ from commander_lab.api import create_app
 from commander_lab.analysis import DeckValidator
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.evals import run_phase6_evaluation
-from commander_lab.engine.rules import RulesEngineManager, run_phase8_validation
+from commander_lab.engine.rules import RulesEngineManager, run_phase8_validation, run_phase85_validation
+from commander_lab.engine.process_manager import EngineProcessManager, load_engine_runtime_config, stop_process_from_state
 from commander_lab.engine.structural import (
     generate_project_profiles,
     load_project_structural_decks,
@@ -218,6 +219,73 @@ def validate_rules_phase8(
     summary = run_phase8_validation(root, output_directory=root / output, seed=seed)
     typer.echo(json.dumps(summary, indent=2, ensure_ascii=False, sort_keys=True))
     if not summary["local_acceptance_passed"]:
+        raise typer.Exit(code=1)
+
+
+@app.command("engine-status")
+def engine_status(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Diagnose the configured external rules-engine runtime."""
+    manager = EngineProcessManager(load_engine_runtime_config(), root=root)
+    typer.echo(manager.diagnose().model_dump_json(indent=2))
+
+
+@app.command("engine-start")
+def engine_start(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+    foreground: bool = typer.Option(True, help="Keep supervising the JSONL bridge."),
+) -> None:
+    """Start and handshake with the configured external bridge."""
+    import time
+    manager = EngineProcessManager(load_engine_runtime_config(), root=root)
+    state = manager.start()
+    typer.echo(state.model_dump_json(indent=2))
+    if state.status.value != "healthy":
+        raise typer.Exit(code=1)
+    if foreground:
+        try:
+            while manager.state.status.value == "healthy":
+                time.sleep(2)
+                checked = manager.healthcheck()
+                if checked.status.value != "healthy":
+                    typer.echo(checked.model_dump_json(indent=2))
+                    raise typer.Exit(code=1)
+        except KeyboardInterrupt:
+            manager.stop()
+
+
+@app.command("engine-stop")
+def engine_stop(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Stop the process recorded by the external runtime state file."""
+    state = stop_process_from_state(load_engine_runtime_config(), root=root)
+    typer.echo(state.model_dump_json(indent=2))
+
+
+@app.command("engine-verify")
+def engine_verify(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Start, handshake and stop an external engine; tactical does not pass."""
+    manager = EngineProcessManager(load_engine_runtime_config(), root=root)
+    state = manager.start()
+    typer.echo(state.model_dump_json(indent=2))
+    manager.stop()
+    if state.status.value != "healthy":
+        raise typer.Exit(code=1)
+
+
+@app.command("validate-engine-phase85")
+def validate_engine_phase85(
+    output: Path = typer.Option(Path("artifacts/engine_setup/phase85_validation")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run Phase-8.5 contract/replay checks and external readiness gate."""
+    result = run_phase85_validation(root, output_directory=root / output)
+    typer.echo(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
+    if not result["local_acceptance_passed"]:
         raise typer.Exit(code=1)
 
 

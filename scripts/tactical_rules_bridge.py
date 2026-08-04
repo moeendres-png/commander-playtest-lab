@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -12,81 +13,232 @@ if str(SRC) not in sys.path:
 
 from commander_lab.engine.rules import TacticalRulesAdapter  # noqa: E402
 from commander_lab.models import (  # noqa: E402
+    ENGINE_PROTOCOL_VERSION,
     ActionProposal,
-    BridgeRequest,
+    EngineMessageType,
+    EngineProtocolErrorDetail,
+    EngineProtocolRequest,
+    EngineProtocolResponse,
+    EngineResponseStatus,
     RulesDeckInput,
     RulesGameRequest,
+    RuntimeValidationLevel,
     TacticalScenario,
 )
 
-
-def success(request_id: str, result: dict) -> None:
-    print(json.dumps({"request_id": request_id, "ok": True, "result": result}), flush=True)
+ENGINE_VERSION = "tactical-0.8.5"
 
 
-def failure(request_id: str, exc: Exception) -> None:
-    print(
-        json.dumps(
-            {
-                "request_id": request_id,
-                "ok": False,
-                "error": {"code": type(exc).__name__, "message": str(exc)},
-            }
-        ),
-        flush=True,
+def emit(response: EngineProtocolResponse) -> None:
+    print(json.dumps(response.wire_dict(), sort_keys=True), flush=True)
+
+
+def ok(request: EngineProtocolRequest, payload: dict, offset: int = 0) -> None:
+    emit(
+        EngineProtocolResponse(
+            request_id=request.request_id,
+            success=True,
+            status=EngineResponseStatus.OK,
+            payload=payload,
+            engine_event_offset=offset,
+        )
     )
+
+
+def fail(request_id: str, code: str, message: str, *, details: dict | None = None) -> None:
+    emit(
+        EngineProtocolResponse(
+            request_id=request_id,
+            success=False,
+            status=EngineResponseStatus.ERROR,
+            errors=(
+                EngineProtocolErrorDetail(
+                    code=code, message=message, details=details or {}
+                ),
+            ),
+        )
+    )
+
+
+def capabilities() -> dict:
+    return {
+        "commander_supported": True,
+        "partner_supported": True,
+        "multiplayer_supported": True,
+        "max_players": 10,
+        "headless_supported": True,
+        "seed_supported": True,
+        "deck_import_supported": True,
+        "legal_actions_supported": True,
+        "action_submission_supported": True,
+        "event_log_supported": True,
+        "replay_supported": True,
+        "stack_visible": True,
+        "priority_visible": True,
+        "commander_damage_visible": True,
+        "commander_tax_visible": True,
+        "starting_state_injection_supported": True,
+        "scenario_injection_supported": True,
+        "healthcheck_supported": True,
+        "runtime_kind": "tactical_oracle",
+        "notes": [
+            "bounded local tactical oracle",
+            "not an external rules engine",
+        ],
+    }
+
+
+def parse_request(raw: str) -> EngineProtocolRequest:
+    obj = json.loads(raw)
+    if "message_type" not in obj:
+        method = obj.get("method")
+        aliases = {
+            "probe": "engine_hello",
+            "start_commander_game": "create_game",
+            "create_scenario": "create_game",
+            "get_state": "get_game_state",
+            "get_logs": "get_event_log",
+            "get_result": "get_game_state",
+            "shutdown": "shutdown_game",
+        }
+        obj["message_type"] = aliases.get(method, method)
+        obj["protocol_version"] = ENGINE_PROTOCOL_VERSION
+        obj["engine"] = "tactical"
+        obj["payload"] = obj.get("params", {})
+        obj["method"] = obj["message_type"]
+        obj["params"] = obj["payload"]
+    return EngineProtocolRequest.model_validate(obj)
 
 
 def main() -> int:
     adapter = TacticalRulesAdapter()
+    loaded: dict[str, str] = {}
+    seeds: dict[str, int] = {}
     for raw in sys.stdin:
         raw = raw.strip()
         if not raw:
             continue
         request_id = "unknown"
         try:
-            request = BridgeRequest.model_validate_json(raw)
+            request = parse_request(raw)
             request_id = request.request_id
-            method = request.method
-            params = request.params
-            if method == "probe":
-                result = adapter.probe().model_dump(mode="json")
-            elif method == "load_deck":
-                result = adapter.load_deck(RulesDeckInput.model_validate(params["deck"])).model_dump(mode="json")
-            elif method == "start_commander_game":
-                result = adapter.start_commander_game(
-                    RulesGameRequest.model_validate(params["request"])
-                ).model_dump(mode="json")
-            elif method == "create_scenario":
-                result = adapter.create_scenario(
-                    TacticalScenario.model_validate(params["scenario"])
-                ).model_dump(mode="json")
-            elif method == "get_state":
-                result = {"state": adapter.get_state(params["session_id"]).model_dump(mode="json")}
-            elif method == "get_legal_actions":
-                result = {
-                    "actions": [
-                        item.model_dump(mode="json")
-                        for item in adapter.get_legal_actions(params["session_id"])
-                    ]
-                }
-            elif method == "submit_action":
-                state = adapter.submit_action(
-                    params["session_id"], ActionProposal.model_validate(params["proposal"])
+            if request.protocol_version != ENGINE_PROTOCOL_VERSION:
+                fail(
+                    request_id,
+                    "protocol_version_mismatch",
+                    f"expected {ENGINE_PROTOCOL_VERSION}; received {request.protocol_version}",
                 )
-                result = {"state": state.model_dump(mode="json")}
-            elif method == "get_logs":
-                result = adapter.get_logs(params["session_id"]).model_dump(mode="json")
-            elif method == "get_result":
-                result = adapter.get_result(params["session_id"]).model_dump(mode="json")
-            elif method == "shutdown":
-                success(request_id, {"shutdown": True})
+                continue
+            kind = request.message_type
+            payload = request.payload
+            if kind == EngineMessageType.ENGINE_HELLO:
+                probe = adapter.probe().model_dump(mode="json")
+                ok(
+                    request,
+                    {
+                        **probe,
+                        "engine": "tactical",
+                        "engine_version": ENGINE_VERSION,
+                        "protocol_version": ENGINE_PROTOCOL_VERSION,
+                        "validation_level": RuntimeValidationLevel.TACTICAL_ORACLE.value,
+                    },
+                )
+            elif kind == EngineMessageType.ENGINE_CAPABILITIES:
+                ok(request, {"capabilities": capabilities()})
+            elif kind == EngineMessageType.LOAD_DECK:
+                handle = adapter.load_deck(RulesDeckInput.model_validate(payload["deck"]))
+                loaded[handle.handle_id] = handle.deck_id
+                ok(request, handle.model_dump(mode="json"))
+            elif kind == EngineMessageType.CREATE_GAME:
+                if "scenario" in payload:
+                    session = adapter.create_scenario(
+                        TacticalScenario.model_validate(payload["scenario"])
+                    )
+                else:
+                    game_request = RulesGameRequest.model_validate(payload["request"])
+                    session = adapter.start_commander_game(game_request)
+                ok(request, session.model_dump(mode="json"))
+            elif kind == EngineMessageType.SET_SEED:
+                if not request.game_id:
+                    raise ValueError("set_seed requires game_id")
+                seeds[request.game_id] = int(payload["seed"])
+                ok(request, {"game_id": request.game_id, "seed": seeds[request.game_id]})
+            elif kind == EngineMessageType.START_GAME:
+                state = adapter.get_state(str(request.game_id))
+                ok(request, {"state": state.model_dump(mode="json")})
+            elif kind == EngineMessageType.GET_GAME_STATE:
+                state = adapter.get_state(str(request.game_id))
+                ok(request, {"state": state.model_dump(mode="json")})
+            elif kind == EngineMessageType.GET_LEGAL_ACTIONS:
+                actions = adapter.get_legal_actions(str(request.game_id))
+                ok(request, {"actions": [a.model_dump(mode="json") for a in actions]})
+            elif kind == EngineMessageType.SUBMIT_ACTION:
+                state = adapter.submit_action(
+                    str(request.game_id),
+                    ActionProposal.model_validate(payload["proposal"]),
+                )
+                ok(request, {"state": state.model_dump(mode="json")}, state.event_sequence)
+            elif kind == EngineMessageType.ADVANCE_PRIORITY:
+                actions = adapter.get_legal_actions(str(request.game_id))
+                passing = next((a for a in actions if a.action_type.value == "pass_priority"), None)
+                if passing is None:
+                    raise ValueError("no legal pass-priority action")
+                proposal = ActionProposal(
+                    proposal_id=f"bridge-{request.request_id}",
+                    actor_id=passing.actor_id,
+                    legal_action_id=passing.action_id,
+                    action_type=passing.action_type,
+                )
+                state = adapter.submit_action(str(request.game_id), proposal)
+                ok(request, {"state": state.model_dump(mode="json")}, state.event_sequence)
+            elif kind == EngineMessageType.ADVANCE_PHASE:
+                # The bounded tactical engine advances through its offered legal action.
+                actions = adapter.get_legal_actions(str(request.game_id))
+                passing = next((a for a in actions if a.action_type.value == "pass_priority"), None)
+                if passing is None:
+                    raise ValueError("no legal phase-advance action")
+                proposal = ActionProposal(
+                    proposal_id=f"phase-{request.request_id}",
+                    actor_id=passing.actor_id,
+                    legal_action_id=passing.action_id,
+                    action_type=passing.action_type,
+                )
+                state = adapter.submit_action(str(request.game_id), proposal)
+                ok(request, {"state": state.model_dump(mode="json")}, state.event_sequence)
+            elif kind == EngineMessageType.GET_EVENT_LOG:
+                log = adapter.get_logs(str(request.game_id))
+                ok(request, log.model_dump(mode="json"), len(log.events))
+            elif kind == EngineMessageType.EXPORT_REPLAY:
+                session_id = str(request.game_id)
+                state = adapter.get_state(session_id)
+                log = adapter.get_logs(session_id)
+                events = [e.model_dump(mode="json") for e in log.events]
+                digest = hashlib.sha256(
+                    json.dumps(events, sort_keys=True, separators=(",", ":")).encode()
+                ).hexdigest()
+                ok(
+                    request,
+                    {
+                        "schema_version": 1,
+                        "protocol_version": ENGINE_PROTOCOL_VERSION,
+                        "engine": "tactical",
+                        "engine_version": ENGINE_VERSION,
+                        "validation_level": RuntimeValidationLevel.TACTICAL_ORACLE.value,
+                        "game_id": session_id,
+                        "initial_state": {},
+                        "events": events,
+                        "final_state": state.model_dump(mode="json"),
+                        "event_log_sha256": digest,
+                    },
+                    len(events),
+                )
+            elif kind == EngineMessageType.SHUTDOWN_GAME:
+                ok(request, {"shutdown": True})
                 return 0
             else:
-                raise ValueError(f"unknown bridge method: {method}")
-            success(request_id, result)
-        except Exception as exc:
-            failure(request_id, exc)
+                fail(request_id, "unsupported_message", kind.value)
+        except Exception as exc:  # deterministic external contract boundary
+            fail(request_id, type(exc).__name__, str(exc))
     return 0
 
 

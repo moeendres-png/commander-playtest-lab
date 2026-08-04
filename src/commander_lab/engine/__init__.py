@@ -1,8 +1,10 @@
 """Simulation engines and action-validation boundaries."""
 
+from .process_manager import EngineProcessManager, load_engine_runtime_config
+
 from .action_validation import IllegalActionProposal, validate_action_proposal
 
-__all__ = ["IllegalActionProposal", "validate_action_proposal"]
+__all__ = ["IllegalActionProposal", "validate_action_proposal", "EngineProcessManager", "load_engine_runtime_config"]
 
 from .rules import (
     ForgeRulesAdapter,

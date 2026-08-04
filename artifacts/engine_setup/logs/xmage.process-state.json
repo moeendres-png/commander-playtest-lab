@@ -1,0 +1,17 @@
+{
+  "provider": "xmage",
+  "status": "not_configured",
+  "pid": null,
+  "engine_version": null,
+  "adapter_version": "commander-lab-protocol-1.0.0",
+  "protocol_version": "1.0.0",
+  "started_at": null,
+  "stopped_at": null,
+  "last_healthcheck_at": null,
+  "capabilities": null,
+  "details": [
+    "ENGINE_START_COMMAND is empty"
+  ],
+  "stdout_log": "/mnt/data/commander-playtest-lab-phase8-work/artifacts/engine_setup/logs/xmage.bridge.stdout.jsonl",
+  "stderr_log": "/mnt/data/commander-playtest-lab-phase8-work/artifacts/engine_setup/logs/xmage.bridge.stderr.log"
+}

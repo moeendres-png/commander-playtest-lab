@@ -1,0 +1,18 @@
+Phase 8.5 test execution (category-isolated to avoid the container's long combined-command timeout)
+
+agent_evals: 4 passed
+contract: 7 passed
+ differential: 2 passed, 1 skipped (requires a real configured XMage or Forge command)
+golden: 1 passed
+integration: 18 passed
+property: 8 passed
+unit: 90 passed
+
+TOTAL: 130 passed, 1 skipped, 0 failed
+
+Additional checks:
+- python -m compileall -q src scripts: passed
+- bash -n on all Unix bootstrap/start/stop scripts: passed
+- Phase 8.5 local contract acceptance: passed
+- Phase 8.5 replay acceptance: passed
+- external rules-engine acceptance: not executed / pending

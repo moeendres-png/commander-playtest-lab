@@ -11,6 +11,24 @@ from .cards import (
     PurchaseStatus,
 )
 from .common import Color, DataQuality, ErrorDetail, FrozenModel, MutableModel, NumericRange, SourceRef
+
+from .engine_runtime import (
+    ENGINE_PROTOCOL_VERSION,
+    EngineCapabilityHandshake,
+    EngineInstallationIdentity,
+    EngineMessageType,
+    EngineProcessState,
+    EngineProcessStatus,
+    EngineProtocolErrorDetail,
+    EngineProtocolRequest,
+    EngineProtocolResponse,
+    EngineReplay,
+    EngineResponseStatus,
+    EngineRuntimeConfig,
+    EngineRuntimeMode,
+    RuntimeValidationLevel,
+)
+
 from .game import (
     ActionProposal,
     ActionType,
@@ -194,6 +212,20 @@ __all__ = [
     "TacticalScenario",
     "ValidationLevel",
     "ValidationRegistry",
+    "ENGINE_PROTOCOL_VERSION",
+    "EngineCapabilityHandshake",
+    "EngineInstallationIdentity",
+    "EngineMessageType",
+    "EngineProcessState",
+    "EngineProcessStatus",
+    "EngineProtocolErrorDetail",
+    "EngineProtocolRequest",
+    "EngineProtocolResponse",
+    "EngineReplay",
+    "EngineResponseStatus",
+    "EngineRuntimeConfig",
+    "EngineRuntimeMode",
+    "RuntimeValidationLevel",
 ]
 
 

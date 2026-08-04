@@ -342,3 +342,10 @@ The interaction catalog contains more than 50 project-critical cases under `data
 - `rules_engine_validated`.
 
 A tactical pass is not an external rules proof. `rules_engine_validated` is emitted only after a matching XMage or Forge bridge observation. Missing external engines remain a visible blocked gate.
+
+## External rules-engine runtime (Phase 8.5)
+
+The versioned JSONL contract, process manager, offline bootstrap, Docker recipes,
+and replay validation are documented in `docs/engine_setup.md`. The current build
+runtime could not execute XMage or Forge; external validation therefore remains
+pending and no Tactical Oracle result is presented as external evidence.

@@ -1,0 +1,261 @@
+{
+  "$id": "https://commander-playtest-lab.local/schemas/engine-adapter-protocol-1.0.0.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "$defs": {
+        "EngineMessageType": {
+          "enum": [
+            "engine_hello",
+            "engine_capabilities",
+            "load_deck",
+            "create_game",
+            "set_seed",
+            "start_game",
+            "get_game_state",
+            "get_legal_actions",
+            "submit_action",
+            "advance_priority",
+            "advance_phase",
+            "get_event_log",
+            "export_replay",
+            "shutdown_game"
+          ],
+          "title": "EngineMessageType",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "engine": {
+          "default": "unknown",
+          "enum": [
+            "xmage",
+            "forge",
+            "tactical",
+            "unknown"
+          ],
+          "title": "Engine",
+          "type": "string"
+        },
+        "engine_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Engine Version"
+        },
+        "game_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Id"
+        },
+        "message_type": {
+          "$ref": "#/$defs/EngineMessageType"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        },
+        "params": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Params"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "protocol_version": {
+          "default": "1.0.0",
+          "title": "Protocol Version",
+          "type": "string"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "message_type"
+      ],
+      "title": "EngineProtocolRequest",
+      "type": "object"
+    },
+    {
+      "$defs": {
+        "EngineProtocolErrorDetail": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "title": "Code",
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "title": "Details",
+              "type": "object"
+            },
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "retryable": {
+              "default": false,
+              "title": "Retryable",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "title": "EngineProtocolErrorDetail",
+          "type": "object"
+        },
+        "EngineResponseStatus": {
+          "enum": [
+            "ok",
+            "degraded",
+            "error",
+            "unsupported"
+          ],
+          "title": "EngineResponseStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "engine_event_offset": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Engine Event Offset",
+          "type": "integer"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "errors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/EngineProtocolErrorDetail"
+          },
+          "title": "Errors",
+          "type": "array"
+        },
+        "ok": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ok"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "protocol_version": {
+          "default": "1.0.0",
+          "title": "Protocol Version",
+          "type": "string"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result"
+        },
+        "status": {
+          "$ref": "#/$defs/EngineResponseStatus"
+        },
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "warnings": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "request_id",
+        "success",
+        "status"
+      ],
+      "title": "EngineProtocolResponse",
+      "type": "object"
+    }
+  ],
+  "title": "Commander Lab Engine Adapter Protocol"
+}

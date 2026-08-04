@@ -1,0 +1,12 @@
+{
+  "name": "Commander Playtest Lab Engine",
+  "build": {"dockerfile": "../docker/xmage/Dockerfile", "context": ".."},
+  "workspaceFolder": "/workspace",
+  "mounts": ["source=${localWorkspaceFolder},target=/workspace,type=bind"],
+  "containerEnv": {
+    "ENGINE_PROVIDER": "xmage",
+    "ENGINE_MODE": "external",
+    "ENGINE_PROTOCOL_VERSION": "1.0.0",
+    "ALLOW_TACTICAL_ORACLE_FALLBACK": "false"
+  }
+}
