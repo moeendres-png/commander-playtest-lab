@@ -13,3 +13,6 @@ data/runs/*
 !data/runs/.gitkeep
 
 *.egg-info/
+
+build/
+dist/

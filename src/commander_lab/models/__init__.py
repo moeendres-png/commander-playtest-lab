@@ -25,6 +25,19 @@ from .game import (
 )
 from .opponents import OpponentListStatus, OpponentProfile, UncertaintyModel
 from .playtests import PlaytestParticipant, RealPlaytest
+from .structural import (
+    STRUCTURAL_ESTIMATE_TYPE,
+    CardRole,
+    ConditionalStrength,
+    StructuralAbortLimits,
+    StructuralBatchConfig,
+    StructuralBatchResult,
+    StructuralCardProfile,
+    StructuralDeckProfile,
+    StructuralMatchConfig,
+    StructuralMatchResult,
+    StructuralPlayerMetrics,
+)
 from .simulation import (
     CardContribution,
     CardSwap,
@@ -78,5 +91,16 @@ __all__ = [
     "UpgradeProposal",
     "UpgradeStatus",
     "ZoneName",
+    "STRUCTURAL_ESTIMATE_TYPE",
+    "CardRole",
+    "ConditionalStrength",
+    "StructuralAbortLimits",
+    "StructuralBatchConfig",
+    "StructuralBatchResult",
+    "StructuralCardProfile",
+    "StructuralDeckProfile",
+    "StructuralMatchConfig",
+    "StructuralMatchResult",
+    "StructuralPlayerMetrics",
     "ZoneState",
 ]

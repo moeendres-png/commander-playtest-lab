@@ -1,0 +1,179 @@
+from __future__ import annotations
+
+import __main__
+import hashlib
+import json
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+from statistics import fmean
+from typing import Any, Iterable
+
+from commander_lab.models import (
+    StructuralBatchConfig,
+    StructuralBatchResult,
+    StructuralDeckProfile,
+    StructuralMatchConfig,
+    StructuralMatchResult,
+)
+
+from .simulator import StructuralSimulator
+
+
+_WORKER_DECKS: dict[str, StructuralDeckProfile] = {}
+
+
+def derive_match_seed(master_seed: int, run_id: str, match_index: int) -> int:
+    payload = f"structural-0.3.0|{master_seed}|{run_id}|{match_index}".encode()
+    return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big", signed=False)
+
+
+def _process_context() -> multiprocessing.context.BaseContext:
+    """Use spawn for normal modules and fork for interactive POSIX sessions."""
+    main_file = getattr(__main__, "__file__", None)
+    if main_file and not str(main_file).startswith("<"):
+        return multiprocessing.get_context("spawn")
+    if "fork" in multiprocessing.get_all_start_methods():
+        return multiprocessing.get_context("fork")
+    return multiprocessing.get_context("spawn")
+
+
+def _initialize_worker(deck_payloads: dict[str, dict[str, Any]]) -> None:
+    global _WORKER_DECKS
+    _WORKER_DECKS = {
+        deck_id: StructuralDeckProfile.model_validate(payload)
+        for deck_id, payload in deck_payloads.items()
+    }
+
+
+def _run_worker(payload: dict[str, Any]) -> dict[str, Any]:
+    config = StructuralMatchConfig.model_validate(payload["config"])
+    simulator = StructuralSimulator(_WORKER_DECKS)
+    result = simulator.simulate(
+        config,
+        run_id=payload["run_id"],
+        event_log_path=payload.get("event_log_path"),
+        capture_events=bool(payload.get("event_log_path")),
+    )
+    return result.model_dump(mode="json")
+
+
+def _build_tasks(config: StructuralBatchConfig) -> list[dict[str, Any]]:
+    output_dir = Path(config.output_directory) if config.output_directory else None
+    if output_dir is not None:
+        (output_dir / "events").mkdir(parents=True, exist_ok=True)
+    tasks: list[dict[str, Any]] = []
+    for index in range(config.iterations):
+        match_id = f"{config.run_id}-{index:08d}"
+        start = index % len(config.deck_ids) if config.starting_player_rotation else None
+        event_path = None
+        if output_dir is not None:
+            event_path = str(output_dir / "events" / f"{match_id}.jsonl")
+        match = StructuralMatchConfig(
+            match_id=match_id,
+            seed=derive_match_seed(config.seed, config.run_id, index),
+            deck_ids=config.deck_ids,
+            starting_player_seat=start,
+            limits=config.limits,
+        )
+        tasks.append(
+            {
+                "run_id": config.run_id,
+                "config": match.model_dump(mode="json"),
+                "event_log_path": event_path,
+            }
+        )
+    return tasks
+
+
+def run_structural_batch(
+    config: StructuralBatchConfig,
+    decks: dict[str, StructuralDeckProfile],
+) -> StructuralBatchResult:
+    missing = set(config.deck_ids) - set(decks)
+    if missing:
+        raise KeyError(f"missing deck profiles: {sorted(missing)}")
+    tasks = _build_tasks(config)
+    deck_payloads = {deck_id: deck.model_dump(mode="json") for deck_id, deck in decks.items()}
+    if config.workers == 1:
+        _initialize_worker(deck_payloads)
+        raw_results = [_run_worker(task) for task in tasks]
+    else:
+        with ProcessPoolExecutor(
+            max_workers=config.workers,
+            initializer=_initialize_worker,
+            initargs=(deck_payloads,),
+            mp_context=_process_context(),
+        ) as executor:
+            raw_results = list(executor.map(_run_worker, tasks, chunksize=max(1, len(tasks) // (config.workers * 4))))
+    results = [StructuralMatchResult.model_validate(item) for item in raw_results]
+    aggregate = aggregate_structural_results(results)
+    batch = StructuralBatchResult(
+        run_id=config.run_id,
+        master_seed=config.seed,
+        iterations=config.iterations,
+        workers=config.workers,
+        pod_size=len(config.deck_ids),
+        completed_games=sum(result.completed for result in results),
+        aborted_games=sum(result.aborted for result in results),
+        match_results=results,
+        aggregate=aggregate,
+    )
+    if config.output_directory:
+        output_dir = Path(config.output_directory)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        result_path = output_dir / "structural_results.json"
+        payload = batch.model_dump(mode="json")
+        payload["result_path"] = str(result_path)
+        result_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+        batch.result_path = str(result_path)
+    return batch
+
+
+def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> dict[str, object]:
+    result_list = list(results)
+    by_deck: dict[str, dict[str, list[float]]] = {}
+    for result in result_list:
+        for metrics in result.player_metrics.values():
+            bucket = by_deck.setdefault(
+                metrics.deck_id,
+                {
+                    "placements": [],
+                    "wins": [],
+                    "life": [],
+                    "damage": [],
+                    "commander_damage": [],
+                    "cards_drawn": [],
+                    "ramp": [],
+                    "engine_value": [],
+                },
+            )
+            bucket["placements"].append(float(metrics.placement))
+            bucket["wins"].append(1.0 if metrics.placement == 1 else 0.0)
+            bucket["life"].append(float(metrics.life))
+            bucket["damage"].append(float(metrics.normal_damage_dealt))
+            bucket["commander_damage"].append(float(metrics.commander_damage_dealt))
+            bucket["cards_drawn"].append(float(metrics.cards_drawn))
+            bucket["ramp"].append(float(metrics.ramp_resolved))
+            bucket["engine_value"].append(float(metrics.engine_value))
+    deck_metrics: dict[str, dict[str, float | int]] = {}
+    for deck_id, values in sorted(by_deck.items()):
+        deck_metrics[deck_id] = {
+            "samples": len(values["placements"]),
+            "average_placement": fmean(values["placements"]),
+            "place_1_share": fmean(values["wins"]),
+            "average_final_life": fmean(values["life"]),
+            "average_normal_damage": fmean(values["damage"]),
+            "average_commander_damage": fmean(values["commander_damage"]),
+            "average_cards_drawn": fmean(values["cards_drawn"]),
+            "average_ramp_resolved": fmean(values["ramp"]),
+            "average_engine_value": fmean(values["engine_value"]),
+        }
+    return {
+        "estimate_type": "structural_model_estimates",
+        "games": len(result_list),
+        "completed_games": sum(result.completed for result in result_list),
+        "aborted_games": sum(result.aborted for result in result_list),
+        "average_turns": fmean([float(result.turns) for result in result_list]) if result_list else 0.0,
+        "deck_metrics": deck_metrics,
+    }

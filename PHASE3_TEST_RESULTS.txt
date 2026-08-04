@@ -1,0 +1,30 @@
+Phase 3 test and validation results
+===================================
+
+Python compile check:
+PASS
+
+Pytest:
+44 passed
+
+Fixed-seed event log replay:
+PASS - byte-identical JSONL logs
+
+Parallel reproducibility:
+PASS - workers=1 and workers=2 produce identical ordered match results and aggregates
+
+Phase-3 validation:
+- goldfish_korvold: 24 completed, 0 aborted, average turns 7.667
+- goldfish_rogshai: 24 completed, 0 aborted, average turns 14.417
+- three_player: 24 completed, 0 aborted, average turns 10.875
+- four_player: 24 completed, 0 aborted, average turns 14.208
+- five_player: 24 completed, 0 aborted, average turns 16.417
+
+Full validation rerun:
+PASS - recursive file hashes byte-identical
+
+Performance observation in current container:
+1000 four-player games, two workers: 11.36 seconds, approximately 136680 KB maximum RSS
+
+Optional lint check:
+NOT RUN - ruff executable was not installed in the execution environment

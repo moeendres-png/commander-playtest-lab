@@ -7,11 +7,18 @@ import typer
 
 from commander_lab.analysis import DeckValidator
 from commander_lab.cards.catalog import CardCatalog
+from commander_lab.engine.structural import (
+    generate_project_profiles,
+    load_project_structural_decks,
+    run_phase3_validation,
+    run_structural_batch,
+)
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
+from commander_lab.models import StructuralAbortLimits, StructuralBatchConfig
 from commander_lab.storage import compute_deck_hash
 from commander_lab.tools.local_snapshots import build_local_snapshots
 
-app = typer.Typer(no_args_is_help=True, help="Commander Playtest Lab data utilities")
+app = typer.Typer(no_args_is_help=True, help="Commander Playtest Lab utilities")
 
 
 @app.command("validate-local")
@@ -56,6 +63,52 @@ def inspect_deck(
     )
     if not report.valid:
         raise typer.Exit(code=1)
+
+
+@app.command("generate-structural-profiles")
+def generate_structural_profiles(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Regenerate the validated structural role-profile snapshot."""
+    output = generate_project_profiles(root)
+    typer.echo(str(output))
+
+
+@app.command("run-structural-batch")
+def run_structural_batch_command(
+    deck: list[str] = typer.Option(..., "--deck", help="Deck ID; repeat for each pod seat."),
+    iterations: int = typer.Option(100, min=1),
+    seed: int = typer.Option(20260804, min=0),
+    workers: int = typer.Option(1, min=1, max=64),
+    max_turns: int = typer.Option(35, min=1),
+    output: Path = typer.Option(Path("data/runs/adhoc_structural")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run a local structural_model_estimates batch."""
+    decks = load_project_structural_decks(root, include_synthetic_fixtures=True)
+    config = StructuralBatchConfig(
+        run_id="adhoc-structural",
+        seed=seed,
+        iterations=iterations,
+        deck_ids=tuple(deck),
+        workers=workers,
+        output_directory=str(root / output),
+        limits=StructuralAbortLimits(max_turns=max_turns),
+    )
+    result = run_structural_batch(config, decks)
+    typer.echo(json.dumps(result.aggregate, indent=2, ensure_ascii=False, sort_keys=True))
+
+
+@app.command("validate-structural")
+def validate_structural(
+    iterations: int = typer.Option(24, min=1),
+    workers: int = typer.Option(1, min=1, max=64),
+    seed: int = typer.Option(20260804, min=0),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run Goldfish plus three-, four-, and five-player structural validation batches."""
+    summary = run_phase3_validation(root, iterations=iterations, workers=workers, seed=seed)
+    typer.echo(json.dumps(summary, indent=2, ensure_ascii=False, sort_keys=True))
 
 
 if __name__ == "__main__":

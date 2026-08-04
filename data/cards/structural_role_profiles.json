@@ -1,0 +1,5206 @@
+{
+  "schema_version": "0.3.0",
+  "estimate_type": "structural_model_estimates",
+  "data_as_of": "2026-08-02",
+  "source_hash": "b58c83730ea596f1947e01c0c0ce3e9254e292415081d074c9e75c1bc6f2b4b2",
+  "profile_count": 161,
+  "profiles": [
+    {
+      "oracle_name": "Academy Manufactor",
+      "mana_value": 3.0,
+      "roles": [
+        "enabler",
+        "payoff",
+        "engine"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "payoff": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Adarkar Wastes",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Aftermath Analyst",
+      "mana_value": 2.0,
+      "roles": [
+        "recursion",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "recursion": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "An Offer You Can't Refuse",
+      "mana_value": 1.0,
+      "roles": [
+        "counter"
+      ],
+      "role_strengths": {
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Ancient Grudge",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Arcane Signet",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Assassin's Trophy",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Azorius Signet",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "U": 1,
+        "W": 1
+      },
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Bastion Protector",
+      "mana_value": 3.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Battlefield Forge",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "W",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Beast Within",
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Blackblade Reforged",
+      "mana_value": 2.0,
+      "roles": [
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.9,
+      "floor_value": 0.45,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Blacksmith's Skill",
+      "mana_value": 1.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Blasphemous Act",
+      "mana_value": 9.0,
+      "roles": [
+        "wipe"
+      ],
+      "role_strengths": {
+        "wipe": 1.6
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.6,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Bojuka Bog",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source",
+        "graveyard_hate"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0,
+        "graveyard_hate": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Boros Charm",
+      "mana_value": 2.0,
+      "roles": [
+        "protection",
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "protection": 1.0,
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Boros Signet",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "W": 1
+      },
+      "produces_colors": [
+        "W",
+        "R"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Braids, Arisen Nightmare",
+      "mana_value": 3.0,
+      "roles": [
+        "draw",
+        "sacrifice_outlet",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "sacrifice_outlet": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.6,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Cabaretti Courtyard",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Canyon Slough",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Celestial Purge",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Chain Reaction",
+      "mana_value": 4.0,
+      "roles": [
+        "wipe"
+      ],
+      "role_strengths": {
+        "wipe": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.6,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Chandra, Torch of Defiance",
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "engine",
+        "ramp"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "engine": 1.0,
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Chaos Warp",
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Cinder Glade",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source",
+        "ramp"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0,
+        "ramp": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "G",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Clever Impersonator",
+      "mana_value": 4.0,
+      "roles": [
+        "enabler"
+      ],
+      "role_strengths": {
+        "enabler": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.35,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Clifftop Retreat",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "W",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Combat Research",
+      "mana_value": 1.0,
+      "roles": [
+        "draw",
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.9,
+      "floor_value": 0.85,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Command Tower",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Consider",
+      "mana_value": 1.0,
+      "roles": [
+        "draw",
+        "selection"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "selection": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Counterspell",
+      "mana_value": 2.0,
+      "roles": [
+        "counter"
+      ],
+      "role_strengths": {
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Crop Rotation",
+      "mana_value": 1.0,
+      "roles": [
+        "selection",
+        "ramp",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "selection": 1.0,
+        "ramp": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Culling Ritual",
+      "mana_value": 4.0,
+      "roles": [
+        "wipe"
+      ],
+      "role_strengths": {
+        "wipe": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.7,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Curiosity",
+      "mana_value": 1.0,
+      "roles": [
+        "draw",
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.9,
+      "floor_value": 0.85,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Dark Ritual",
+      "mana_value": 1.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.8
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Deadly Dispute",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "enabler",
+        "sacrifice_outlet"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "enabler": 1.0,
+        "sacrifice_outlet": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Demolition Field",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Dovin's Veto",
+      "mana_value": 2.0,
+      "roles": [
+        "counter"
+      ],
+      "role_strengths": {
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1,
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Duelist's Heritage",
+      "mana_value": 3.0,
+      "roles": [
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "combat_payoff": 1.6
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.9,
+      "floor_value": 0.45,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Escape Tunnel",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Esior, Wardwing Familiar",
+      "mana_value": 2.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Eumidian Hatchery",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source",
+        "token_source",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0,
+        "token_source": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Evendo Brushrazer",
+      "mana_value": 3.0,
+      "roles": [
+        "ramp",
+        "sacrifice_outlet",
+        "enabler",
+        "engine",
+        "draw"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "engine": 1.0,
+        "ramp": 1.0,
+        "draw": 1.0,
+        "sacrifice_outlet": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [
+        {
+          "source_type": "card_database",
+          "source_name": "mtg.wtf",
+          "source_path": "https://mtg.wtf/card/eoc/10/Evendo-Brushrazer",
+          "retrieved_at": null,
+          "data_as_of": null,
+          "sha256": null,
+          "quality": "project_verified",
+          "notes": null
+        }
+      ],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Evolving Wilds",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Exotic Orchard",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Exploration Broodship",
+      "mana_value": 1.0,
+      "roles": [
+        "recursion",
+        "ramp",
+        "enabler",
+        "engine",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "recursion": 1.0,
+        "ramp": 1.0,
+        "engine": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [
+        {
+          "source_type": "card_database",
+          "source_name": "mtg.wtf",
+          "source_path": "https://mtg.wtf/card/eoc/14/Exploration-Broodship",
+          "retrieved_at": null,
+          "data_as_of": null,
+          "sha256": null,
+          "quality": "project_verified",
+          "notes": null
+        }
+      ],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Exsanguinate",
+      "mana_value": 4.0,
+      "roles": [
+        "finisher"
+      ],
+      "role_strengths": {
+        "finisher": 2.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 1.3,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Fabled Passage",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Faerie Mastermind",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.9,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Farewell",
+      "mana_value": 6.0,
+      "roles": [
+        "wipe",
+        "graveyard_hate"
+      ],
+      "role_strengths": {
+        "wipe": 2.0,
+        "graveyard_hate": 1.8
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.7,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Farseek",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Fellwar Stone",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Fire Covenant",
+      "mana_value": 3.0,
+      "roles": [
+        "wipe",
+        "removal"
+      ],
+      "role_strengths": {
+        "wipe": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Flare of Duplication",
+      "mana_value": 3.0,
+      "roles": [
+        "enabler"
+      ],
+      "role_strengths": {
+        "enabler": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.35,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Forest",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "G"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Glacial Fortress",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Goblin Bombardment",
+      "mana_value": 2.0,
+      "roles": [
+        "payoff",
+        "sacrifice_outlet"
+      ],
+      "role_strengths": {
+        "payoff": 1.0,
+        "sacrifice_outlet": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "God-Eternal Bontu",
+      "mana_value": 5.0,
+      "roles": [
+        "draw",
+        "sacrifice_outlet",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "sacrifice_outlet": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 5.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Guttersnipe",
+      "mana_value": 3.0,
+      "roles": [
+        "payoff",
+        "finisher"
+      ],
+      "role_strengths": {
+        "payoff": 1.6,
+        "finisher": 1.3
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 1.1,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Harrow",
+      "mana_value": 3.0,
+      "roles": [
+        "enabler",
+        "sacrifice_outlet",
+        "ramp",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "sacrifice_outlet": 1.0,
+        "ramp": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Hearthhull, the Worldseed",
+      "mana_value": 4.0,
+      "roles": [
+        "payoff",
+        "sacrifice_outlet",
+        "engine",
+        "finisher",
+        "land_synergy",
+        "draw"
+      ],
+      "role_strengths": {
+        "engine": 1.0,
+        "finisher": 1.6,
+        "land_synergy": 1.0,
+        "draw": 1.6,
+        "payoff": 1.8,
+        "sacrifice_outlet": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 6.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 1.2,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [
+        {
+          "source_type": "card_database",
+          "source_name": "mtg.wtf",
+          "source_path": "https://mtg.wtf/card/eoc/1/Hearthhull-the-Worldseed",
+          "retrieved_at": null,
+          "data_as_of": null,
+          "sha256": null,
+          "quality": "project_verified",
+          "notes": null
+        }
+      ],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Horizon Explorer",
+      "mana_value": 3.0,
+      "roles": [
+        "enabler",
+        "ramp",
+        "token_source",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "token_source": 1.0,
+        "ramp": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Ignoble Hierarch",
+      "mana_value": 1.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Immersturm Predator",
+      "mana_value": 4.0,
+      "roles": [
+        "graveyard_hate"
+      ],
+      "role_strengths": {
+        "graveyard_hate": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Imprisoned in the Moon",
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Into the Roil",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Ishai, Ojutai Dragonspeaker",
+      "mana_value": 4.0,
+      "roles": [
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {
+        "U": 1,
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 1.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Island",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Izzet Signet",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "U": 1
+      },
+      "produces_colors": [
+        "U",
+        "R"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Jeska, Thrice Reborn",
+      "mana_value": 3.0,
+      "roles": [
+        "combat_payoff",
+        "finisher"
+      ],
+      "role_strengths": {
+        "combat_payoff": 2.0,
+        "finisher": 1.7
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.9,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Jund Panorama",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Karplusan Forest",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "G",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Kediss, Emberclaw Familiar",
+      "mana_value": 2.0,
+      "roles": [
+        "combat_payoff",
+        "finisher"
+      ],
+      "role_strengths": {
+        "combat_payoff": 1.8,
+        "finisher": 1.5
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.9,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 1.2,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Korvold, Fae-Cursed King",
+      "mana_value": 5.0,
+      "roles": [
+        "draw",
+        "payoff",
+        "sacrifice_outlet",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.8,
+        "payoff": 1.6,
+        "sacrifice_outlet": 1.0,
+        "engine": 1.9
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 4.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.1,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Kykar, Wind's Fury",
+      "mana_value": 4.0,
+      "roles": [
+        "enabler",
+        "engine",
+        "token_source"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "engine": 1.0,
+        "token_source": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "U": 1,
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Light of Hope",
+      "mana_value": 1.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Llanowar Elves",
+      "mana_value": 1.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [
+        "G"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Llanowar Wastes",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "G"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Lofty Denial",
+      "mana_value": 2.0,
+      "roles": [
+        "counter"
+      ],
+      "role_strengths": {
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Loran of the Third Path",
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Loran's Escape",
+      "mana_value": 1.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Louisoix's Sacrifice",
+      "mana_value": 2.0,
+      "roles": [
+        "counter"
+      ],
+      "role_strengths": {
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Loyal Drake",
+      "mana_value": 3.0,
+      "roles": [
+        "draw"
+      ],
+      "role_strengths": {
+        "draw": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Massacre Wurm",
+      "mana_value": 6.0,
+      "roles": [
+        "wipe",
+        "finisher"
+      ],
+      "role_strengths": {
+        "wipe": 1.0,
+        "finisher": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 6.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 1.1,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Mayhem Devil",
+      "mana_value": 3.0,
+      "roles": [
+        "payoff"
+      ],
+      "role_strengths": {
+        "payoff": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Mazirek, Kraul Death Priest",
+      "mana_value": 5.0,
+      "roles": [
+        "payoff",
+        "engine",
+        "finisher"
+      ],
+      "role_strengths": {
+        "payoff": 1.0,
+        "engine": 1.0,
+        "finisher": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Mirkwood Bats",
+      "mana_value": 4.0,
+      "roles": [
+        "payoff",
+        "engine",
+        "finisher"
+      ],
+      "role_strengths": {
+        "payoff": 1.8,
+        "engine": 1.0,
+        "finisher": 1.5
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 1.2,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Mountain",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Mountain Valley",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Narset, Parter of Veils",
+      "mana_value": 3.0,
+      "roles": [
+        "selection",
+        "engine"
+      ],
+      "role_strengths": {
+        "selection": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Nature's Claim",
+      "mana_value": 1.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Nature's Lore",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Negate",
+      "mana_value": 2.0,
+      "roles": [
+        "counter"
+      ],
+      "role_strengths": {
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Opal Palace",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Open the Armory",
+      "mana_value": 2.0,
+      "roles": [
+        "selection"
+      ],
+      "role_strengths": {
+        "selection": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Ophiomancer",
+      "mana_value": 3.0,
+      "roles": [
+        "enabler",
+        "engine",
+        "token_source"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "engine": 1.0,
+        "token_source": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Oracle of Mul Daya",
+      "mana_value": 4.0,
+      "roles": [
+        "engine",
+        "ramp",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "engine": 1.0,
+        "ramp": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Orcish Lumberjack",
+      "mana_value": 1.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Path to Exile",
+      "mana_value": 1.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Pest Infestation",
+      "mana_value": 3.0,
+      "roles": [
+        "wipe",
+        "removal",
+        "token_source"
+      ],
+      "role_strengths": {
+        "wipe": 1.0,
+        "removal": 1.0,
+        "token_source": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.5,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Pitiless Plunderer",
+      "mana_value": 4.0,
+      "roles": [
+        "enabler",
+        "engine"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Plains",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Port Town",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Prairie Stream",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Preordain",
+      "mana_value": 1.0,
+      "roles": [
+        "selection"
+      ],
+      "role_strengths": {
+        "selection": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Psychotic Fury",
+      "mana_value": 2.0,
+      "roles": [
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Rakdos Charm",
+      "mana_value": 2.0,
+      "roles": [
+        "removal",
+        "graveyard_hate"
+      ],
+      "role_strengths": {
+        "removal": 1.0,
+        "graveyard_hate": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Ramunap Excavator",
+      "mana_value": 3.0,
+      "roles": [
+        "recursion",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "recursion": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Reality Shift",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Relic of Legends",
+      "mana_value": 3.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Riveteers Overlook",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Rocky Tar Pit",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Rograkh, Son of Rohgahh",
+      "mana_value": 0.0,
+      "roles": [
+        "enabler"
+      ],
+      "role_strengths": {
+        "enabler": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.35,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Sakura-Tribe Elder",
+      "mana_value": 2.0,
+      "roles": [
+        "enabler",
+        "ramp"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Scouring Swarm",
+      "mana_value": 3.0,
+      "roles": [
+        "payoff",
+        "engine",
+        "token_source",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "payoff": 1.0,
+        "engine": 1.0,
+        "token_source": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 1.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [
+        {
+          "source_type": "card_database",
+          "source_name": "mtg.wtf",
+          "source_path": "https://mtg.wtf/card/eoc/36/Scouring-Swarm",
+          "retrieved_at": null,
+          "data_as_of": null,
+          "sha256": null,
+          "quality": "project_verified",
+          "notes": null
+        }
+      ],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Shivan Reef",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Silence",
+      "mana_value": 1.0,
+      "roles": [
+        "counter",
+        "protection"
+      ],
+      "role_strengths": {
+        "counter": 1.0,
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Skycloud Expanse",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Slip Out the Back",
+      "mana_value": 1.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Smoldering Marsh",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Snakeskin Veil",
+      "mana_value": 1.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Snapback",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "mana_value": 1.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 2.2
+      },
+      "color_requirements": {},
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Soul of Windgrace",
+      "mana_value": 4.0,
+      "roles": [
+        "engine",
+        "recursion",
+        "ramp",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "land_synergy": 1.0,
+        "recursion": 1.0,
+        "ramp": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 5.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Soul-Guide Lantern",
+      "mana_value": 1.0,
+      "roles": [
+        "graveyard_hate"
+      ],
+      "role_strengths": {
+        "graveyard_hate": 1.4
+      },
+      "color_requirements": {},
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Splendid Reclamation",
+      "mana_value": 4.0,
+      "roles": [
+        "recursion",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "recursion": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Springbloom Druid",
+      "mana_value": 3.0,
+      "roles": [
+        "enabler",
+        "ramp",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "ramp": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Springleaf Drum",
+      "mana_value": 1.0,
+      "roles": [
+        "enabler",
+        "ramp"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "ramp": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Sprouting Goblin",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "ramp": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Staggering Insight",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {
+        "U": 1,
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.9,
+      "floor_value": 0.85,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Storm-Kiln Artist",
+      "mana_value": 4.0,
+      "roles": [
+        "enabler",
+        "ramp",
+        "engine",
+        "token_source"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "token_source": 1.0,
+        "engine": 1.0,
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Stroke of Midnight",
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Sulfur Falls",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Sulfurous Springs",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Sunhome, Fortress of the Legion",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source",
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0,
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "W",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Swamp",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Swiftfoot Boots",
+      "mana_value": 2.0,
+      "roles": [
+        "protection",
+        "combat_payoff"
+      ],
+      "role_strengths": {
+        "protection": 1.0,
+        "combat_payoff": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "commander_attacking",
+          "multiplier": 1.45,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Swords to Plowshares",
+      "mana_value": 1.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Szarel, Genesis Shepherd",
+      "mana_value": 5.0,
+      "roles": [
+        "recursion",
+        "payoff",
+        "engine",
+        "finisher",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "recursion": 1.0,
+        "engine": 1.0,
+        "finisher": 1.0,
+        "payoff": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 2.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [
+        {
+          "source_type": "card_database",
+          "source_name": "mtg.wtf",
+          "source_path": "https://mtg.wtf/card/eoc/4/Szarel-Genesis-Shepherd",
+          "retrieved_at": null,
+          "data_as_of": null,
+          "sha256": null,
+          "quality": "project_verified",
+          "notes": null
+        }
+      ],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Talisman of Progress",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "U": 1,
+        "W": 1
+      },
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Tear Asunder",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Temple of Enlightenment",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Terramorphic Expanse",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "U",
+        "G",
+        "R",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "The Gitrog Monster",
+      "mana_value": 5.0,
+      "roles": [
+        "draw",
+        "payoff",
+        "engine",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "payoff": 1.0,
+        "engine": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 6.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Tinder Wall",
+      "mana_value": 1.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Tireless Provisioner",
+      "mana_value": 3.0,
+      "roles": [
+        "ramp",
+        "enabler",
+        "engine",
+        "land_synergy",
+        "token_source"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "engine": 1.0,
+        "ramp": 1.0,
+        "land_synergy": 1.0,
+        "token_source": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Tireless Tracker",
+      "mana_value": 3.0,
+      "roles": [
+        "draw",
+        "engine",
+        "token_source",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "engine": 1.0,
+        "token_source": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 3.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Titania, Protector of Argoth",
+      "mana_value": 5.0,
+      "roles": [
+        "payoff",
+        "recursion",
+        "token_source",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "payoff": 1.0,
+        "recursion": 1.0,
+        "token_source": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 5.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Toxic Deluge",
+      "mana_value": 3.0,
+      "roles": [
+        "wipe"
+      ],
+      "role_strengths": {
+        "wipe": 1.8
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Turbulent Springs",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "U",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Twilight Mire",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "G"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Tyvar's Stand",
+      "mana_value": 2.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Vandalblast",
+      "mana_value": 1.0,
+      "roles": [
+        "wipe",
+        "removal"
+      ],
+      "role_strengths": {
+        "wipe": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Veil of Summer",
+      "mana_value": 1.0,
+      "roles": [
+        "protection"
+      ],
+      "role_strengths": {
+        "protection": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Vernal Fen",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [
+        "B",
+        "G"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Wash Away",
+      "mana_value": 1.0,
+      "roles": [
+        "counter",
+        "removal"
+      ],
+      "role_strengths": {
+        "counter": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Wear // Tear",
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Whirlwind of Thought",
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "payoff",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.7,
+        "payoff": 1.0,
+        "engine": 1.7
+      },
+      "color_requirements": {
+        "R": 1,
+        "U": 1,
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.35,
+      "turn_cycle_risk": 0.8,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Windgrace's Judgment",
+      "mana_value": 5.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1,
+        "R": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.8,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Winds of Rath",
+      "mana_value": 5.0,
+      "roles": [
+        "wipe"
+      ],
+      "role_strengths": {
+        "wipe": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Zuran Orb",
+      "mana_value": 0.0,
+      "roles": [
+        "enabler",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "sacrifice_outlet": 1.0,
+        "land_synergy": 1.0
+      },
+      "color_requirements": {},
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "land_engine_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    }
+  ]
+}
