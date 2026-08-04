@@ -186,10 +186,74 @@ The strength benchmark measures choices in controlled decisions such as early ra
 Not implemented yet:
 
 - full Oracle snapshot ingestion;
-- tactical stack engine;
-- card-by-card rules execution;
+- tactical stack engine and card-by-card rules execution;
 - real opponent-precon import for simulation;
 - Cosmic Spider-Man synthetic completion;
-- Forge or XMage runtime adapters;
-- OpenAI tool server and agent orchestration;
-- optimization and holdout validation.
+- rule-validating XMage or Forge runtime adapters;
+- a live OpenAI workflow smoke test in this build container, because its configured package index did not provide the optional Agents SDK and external DNS was unavailable.
+
+
+## Phase 5: local Function-Tool server and OpenAI agents
+
+Phase 5 adds a local FastAPI Function-Tool server with 18 strict, Pydantic-validated tools:
+
+- deck validation and inspection;
+- goldfish and multiplayer batches;
+- paired deck and variant comparison;
+- card and package ablation;
+- commander-denial stress tests;
+- swap matrices and bounded variant search;
+- holdout and sensitivity runs;
+- upgrade screening and validation;
+- real-playtest ingestion and provisional calibration;
+- structured Markdown reports.
+
+Start the local server:
+
+```bash
+python -m pip install -e '.[api]'
+commander-lab serve-tools --host 127.0.0.1 --port 8765
+```
+
+Endpoints:
+
+```text
+GET  /health
+GET  /v1/tools
+POST /v1/tools/{tool_name}:invoke
+POST /v1/workflows:run
+```
+
+The deterministic tools run without an API key. Live workflows require the optional OpenAI dependencies and `OPENAI_API_KEY`:
+
+```bash
+python -m pip install -e '.[api,openai]'
+export OPENAI_API_KEY=...
+```
+
+The OpenAI workflow contains four separate agents:
+
+- `Orchestrator Agent`;
+- `Deck Analyst`;
+- `Simulation Analyst`;
+- `Red-Team Reviewer`.
+
+The SDK integration uses Responses-path agents, strict function schemas, `WorkflowReport` structured output, persistent `SQLiteSession` storage, SDK tracing, blocking input guardrails, output guardrails, lifecycle hooks, and local cost tracking. Agents receive only the structured tools and cannot mutate deterministic game state.
+
+OpenAI traces are stored separately from deterministic game logs:
+
+```text
+data/runs/openai_traces/
+data/runs/openai_sessions.sqlite
+data/runs/tool_runs/<invocation>/events/
+```
+
+Budget controls include maximum model turns, total tokens, output tokens per call, configurable estimated USD cost, simulation time, variant count, a hard iteration ceiling, and an explicit approval threshold for large runs. Model prices are deliberately configuration values rather than hard-coded assumptions.
+
+Run the offline, deterministic end-to-end demonstration:
+
+```bash
+commander-lab demo-phase5 --iterations 80 --seed 20260804 --root .
+```
+
+The demo validates Korvold, runs a four-player structural matchup, screens one potential cut, performs a paired swap comparison, executes holdout validation, and writes a structured report. Synthetic opponents remain technical fixtures and are not evidence about the real metagame.

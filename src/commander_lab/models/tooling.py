@@ -1,0 +1,222 @@
+from __future__ import annotations
+
+from datetime import datetime
+from enum import StrEnum
+from typing import Any, Literal
+
+from pydantic import Field, model_validator
+
+from .common import FrozenModel, MutableModel
+from .pilots import PilotDecisionMode, PilotStrength
+from .structural import StructuralCardProfile
+
+
+class ToolStatus(StrEnum):
+    COMPLETED = "completed"
+    REJECTED = "rejected"
+    FAILED = "failed"
+    REQUIRES_APPROVAL = "requires_approval"
+
+
+class CostLimits(FrozenModel):
+    max_model_calls: int = Field(default=12, ge=1, le=1000)
+    max_total_tokens: int = Field(default=120_000, ge=1_000)
+    max_output_tokens_per_call: int = Field(default=8_000, ge=128, le=128_000)
+    max_estimated_cost_usd: float = Field(default=5.0, gt=0.0, le=100_000.0)
+    input_cost_per_million_usd: float = Field(default=0.0, ge=0.0)
+    output_cost_per_million_usd: float = Field(default=0.0, ge=0.0)
+    max_simulation_seconds: float = Field(default=120.0, gt=0.0, le=86_400.0)
+    approval_threshold_iterations: int = Field(default=5_000, ge=1)
+    hard_max_iterations: int = Field(default=100_000, ge=1)
+    max_variants: int = Field(default=32, ge=1, le=10_000)
+
+    @model_validator(mode="after")
+    def validate_iteration_limits(self) -> "CostLimits":
+        if self.approval_threshold_iterations > self.hard_max_iterations:
+            raise ValueError("approval threshold cannot exceed hard maximum")
+        return self
+
+
+class ToolExecutionMetadata(FrozenModel):
+    tool_name: str
+    invocation_id: str
+    created_at: datetime
+    git_commit: str | None = None
+    engine_version: str
+    data_snapshot_hash: str
+    deck_hashes: dict[str, str] = Field(default_factory=dict)
+    scenario_hash: str
+    seed: int | None = None
+    iterations: int | None = None
+    estimate_type: Literal["structural_model_estimates"] = "structural_model_estimates"
+    elapsed_seconds: float = Field(ge=0.0)
+    deterministic_game_log_directory: str | None = None
+    openai_trace_directory: str | None = None
+
+
+class ToolResponse(MutableModel):
+    status: ToolStatus
+    metadata: ToolExecutionMetadata
+    result: dict[str, Any] = Field(default_factory=dict)
+    warnings: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+
+
+class DeckRefInput(FrozenModel):
+    deck_id: str
+
+
+class ValidateDeckInput(DeckRefInput):
+    include_physical_allocation: bool = True
+
+
+class InspectDeckInput(DeckRefInput):
+    include_cards: bool = False
+
+
+class SimulationInput(FrozenModel):
+    seed: int = Field(default=20260804, ge=0)
+    iterations: int = Field(default=100, ge=1)
+    workers: int = Field(default=1, ge=1, le=64)
+    pilot_strength: PilotStrength = PilotStrength.STRONG
+    pilot_mode: PilotDecisionMode = PilotDecisionMode.DETERMINISTIC
+    max_turns: int = Field(default=35, ge=1, le=500)
+    approval_token: str | None = None
+
+
+class GoldfishInput(SimulationInput):
+    deck_id: str
+
+
+class MatchupBatchInput(SimulationInput):
+    deck_ids: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def validate_pod(self) -> "MatchupBatchInput":
+        if not 2 <= len(self.deck_ids) <= 10:
+            raise ValueError("matchup requires two to ten decks")
+        return self
+
+
+class CompareDecksInput(SimulationInput):
+    deck_ids: tuple[str, str]
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class CandidateProfile(FrozenModel):
+    candidate_id: str
+    card: StructuralCardProfile
+    allowed_deck_ids: tuple[str, ...] = ()
+    physical_status: str = "unverified_phase5"
+    notes: str | None = None
+
+
+class VariantSwap(FrozenModel):
+    remove: str
+    add_candidate_id: str
+
+
+class PairedVariantInput(SimulationInput):
+    deck_id: str
+    swaps: tuple[VariantSwap, ...]
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class CardAblationInput(SimulationInput):
+    deck_id: str
+    card_name: str
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class PackageAblationInput(SimulationInput):
+    deck_id: str
+    card_names: tuple[str, ...]
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class CommanderDenialInput(SimulationInput):
+    deck_id: str
+    additional_commander_tax: int = Field(default=6, ge=2, le=30)
+    suppress_commander_synergy: bool = True
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class SwapMatrixInput(SimulationInput):
+    deck_id: str
+    remove_cards: tuple[str, ...]
+    add_candidate_ids: tuple[str, ...]
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    iterations_per_cell: int = Field(default=40, ge=1)
+
+
+class SearchVariantsInput(SimulationInput):
+    deck_id: str
+    candidate_ids: tuple[str, ...] = ()
+    max_cuts: int = Field(default=6, ge=1, le=30)
+    max_results: int = Field(default=8, ge=1, le=100)
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class HoldoutInput(PairedVariantInput):
+    holdout_pods: tuple[tuple[str, ...], ...] = (
+        ("synthetic/control", "synthetic/control", "synthetic/engine"),
+        ("synthetic/aggro", "synthetic/aggro", "synthetic/control"),
+    )
+
+
+class SensitivityInput(SimulationInput):
+    deck_ids: tuple[str, ...]
+    seeds: tuple[int, ...] = (20260804, 20260805, 20260806)
+    pilot_strengths: tuple[PilotStrength, ...] = (
+        PilotStrength.AVERAGE,
+        PilotStrength.STRONG,
+        PilotStrength.NEAR_OPTIMAL_HEURISTIC,
+    )
+
+
+class RecommendUpgradesInput(FrozenModel):
+    deck_id: str
+    candidate_ids: tuple[str, ...] = ()
+    max_recommendations: int = Field(default=6, ge=1, le=50)
+
+
+class ValidateUpgradeInput(PairedVariantInput):
+    minimum_place_delta: float = Field(default=0.01, ge=-3.0, le=3.0)
+    require_holdout: bool = True
+
+
+class IngestPlaytestInput(FrozenModel):
+    source_path: str
+    sheet_name: str | None = None
+
+
+class CalibrateInput(FrozenModel):
+    playtest_ids: tuple[str, ...] = ()
+    output_name: str = "latest_calibration.json"
+
+
+class CreateReportInput(FrozenModel):
+    title: str
+    tool_responses: tuple[dict[str, Any], ...]
+    output_name: str = "report.md"
+
+
+class WorkflowRequest(FrozenModel):
+    user_goal: str
+    session_id: str = "commander-lab-default"
+    model: str = "gpt-5.6-sol"
+    reasoning_effort: str = "high"
+    budget: CostLimits = Field(default_factory=CostLimits)
+
+
+class WorkflowReport(FrozenModel):
+    workflow_id: str
+    goal: str
+    conclusion: str
+    evidence: tuple[str, ...]
+    caveats: tuple[str, ...]
+    tool_invocations: tuple[str, ...]
+    model_calls: int = Field(default=0, ge=0)
+    total_tokens: int = Field(default=0, ge=0)
+    estimated_cost_usd: float = Field(default=0.0, ge=0.0)
+    estimate_type: Literal["structural_model_estimates"] = "structural_model_estimates"

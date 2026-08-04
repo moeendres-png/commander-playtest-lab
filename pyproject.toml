@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commander-playtest-lab"
-version = "0.4.0"
+version = "0.5.0"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -29,8 +29,8 @@ api = [
   "uvicorn>=0.34,<1",
 ]
 openai = [
-  "openai>=2,<3",
-  "openai-agents>=0.6,<1",
+  "openai>=2.45,<3",
+  "openai-agents>=0.18.3,<0.19",
 ]
 
 [project.scripts]

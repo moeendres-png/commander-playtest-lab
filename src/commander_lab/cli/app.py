@@ -6,6 +6,8 @@ from pathlib import Path
 import typer
 
 from commander_lab.agents.validation import run_phase4_validation
+from commander_lab.agents.demo import run_phase5_demo
+from commander_lab.api import create_app
 from commander_lab.analysis import DeckValidator
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.structural import (
@@ -141,6 +143,30 @@ def validate_pilots(
         output_directory=root / output,
     )
     typer.echo(json.dumps(summary, indent=2, ensure_ascii=False, sort_keys=True))
+
+
+@app.command("serve-tools")
+def serve_tools(
+    host: str = typer.Option("127.0.0.1"),
+    port: int = typer.Option(8765, min=1, max=65535),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Start the local Function Tool HTTP server."""
+    try:
+        import uvicorn
+    except ImportError as exc:
+        raise RuntimeError("Install the api extra: pip install 'commander-playtest-lab[api]'") from exc
+    uvicorn.run(create_app(root), host=host, port=port)
+
+
+@app.command("demo-phase5")
+def demo_phase5(
+    iterations: int = typer.Option(40, min=1),
+    seed: int = typer.Option(20260804, min=0),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run the offline deterministic Phase-5 end-to-end demonstration."""
+    typer.echo(json.dumps(run_phase5_demo(root, iterations=iterations, seed=seed), indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
