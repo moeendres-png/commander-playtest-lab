@@ -1,0 +1,504 @@
+{
+  "candidate_screening": {
+    "errors": [],
+    "metadata": {
+      "created_at": "2026-08-04T15:31:16.701311Z",
+      "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+      "deck_hashes": {
+        "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      },
+      "deterministic_game_log_directory": null,
+      "elapsed_seconds": 0.001667762000579387,
+      "engine_version": "structural-0.4.0",
+      "estimate_type": "structural_model_estimates",
+      "git_commit": "05682049d3c35fc5e4058307fc65862f4c978836",
+      "invocation_id": "recommend_upgrades-cfe7b1205a5d",
+      "iterations": null,
+      "openai_trace_directory": "/mnt/data/commander-playtest-lab/data/runs/openai_traces",
+      "scenario_hash": "76c8ee06c4230aaac3b7909589c7328871def483c738b0639258eb1c8c6d49b2",
+      "seed": null,
+      "tool_name": "recommend_upgrades"
+    },
+    "result": {
+      "method": "role_profile_screening_only",
+      "recommendations": [
+        {
+          "add": "Idol of Oblivion",
+          "candidate_id": "korvold/idol-of-oblivion",
+          "physical_status": "project_context_present_not_revalidated_phase5",
+          "raw_profile_delta": 0.41600000000000037,
+          "remove": "Scouring Swarm",
+          "requires_paired_validation": true,
+          "role_compatibility_adjustment": 0.0,
+          "role_gain": [
+            "draw"
+          ],
+          "role_loss": [
+            "land_synergy",
+            "payoff",
+            "token_source"
+          ],
+          "screening_delta": 0.41600000000000037
+        }
+      ],
+      "warning": "Candidates are not confirmed until paired and holdout validation pass."
+    },
+    "status": "completed",
+    "warnings": []
+  },
+  "deck_imported": "korvold/current",
+  "estimate_type": "structural_model_estimates",
+  "matchup": {
+    "errors": [],
+    "metadata": {
+      "created_at": "2026-08-04T15:31:16.699017Z",
+      "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+      "deck_hashes": {
+        "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+        "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+        "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+        "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+      },
+      "deterministic_game_log_directory": "/mnt/data/commander-playtest-lab/data/runs/tool_runs/matchup-79642176/events",
+      "elapsed_seconds": 0.09991032400102995,
+      "engine_version": "structural-0.4.0",
+      "estimate_type": "structural_model_estimates",
+      "git_commit": "05682049d3c35fc5e4058307fc65862f4c978836",
+      "invocation_id": "run_matchup_batch-1831dd729919",
+      "iterations": 3,
+      "openai_trace_directory": "/mnt/data/commander-playtest-lab/data/runs/openai_traces",
+      "scenario_hash": "091c4a6c7319b636882044a82a07b07ce16702e6277e94916162434707678c7a",
+      "seed": 99,
+      "tool_name": "run_matchup_batch"
+    },
+    "result": {
+      "aggregate": {
+        "aborted_games": 0,
+        "average_turns": 11.666666666666666,
+        "completed_games": 3,
+        "deck_metrics": {
+          "korvold/current": {
+            "average_cards_drawn": 23.666666666666668,
+            "average_commander_damage": 50.83830333333333,
+            "average_engine_value": 1.7749999999999997,
+            "average_final_life": 28.612357333333332,
+            "average_normal_damage": 32.47769333333334,
+            "average_placement": 1.0,
+            "average_ramp_resolved": 9.0,
+            "place_1_share": 1.0,
+            "samples": 3
+          },
+          "synthetic/aggro": {
+            "average_cards_drawn": 14.333333333333334,
+            "average_commander_damage": 17.96685666666667,
+            "average_engine_value": 0.0,
+            "average_final_life": -4.756360000000002,
+            "average_normal_damage": 19.886734666666666,
+            "average_placement": 2.0,
+            "average_ramp_resolved": 1.6666666666666667,
+            "place_1_share": 0.0,
+            "samples": 3
+          },
+          "synthetic/control": {
+            "average_cards_drawn": 11.666666666666666,
+            "average_commander_damage": 14.786083333333332,
+            "average_engine_value": 0.36000000000000004,
+            "average_final_life": -7.659233333333334,
+            "average_normal_damage": 0.0,
+            "average_placement": 3.0,
+            "average_ramp_resolved": 2.3333333333333335,
+            "place_1_share": 0.0,
+            "samples": 3
+          },
+          "synthetic/engine": {
+            "average_cards_drawn": 9.0,
+            "average_commander_damage": 9.333333333333334,
+            "average_engine_value": 1.05,
+            "average_final_life": -6.340833333333339,
+            "average_normal_damage": 0.0,
+            "average_placement": 4.0,
+            "average_ramp_resolved": 1.0,
+            "place_1_share": 0.0,
+            "samples": 3
+          }
+        },
+        "estimate_type": "structural_model_estimates",
+        "games": 3,
+        "pilot_metrics": {
+          "AggroPilot:strong:deterministic": {
+            "average_cards_drawn": 14.333333333333334,
+            "average_commander_damage": 17.96685666666667,
+            "average_engine_value": 0.0,
+            "average_final_life": -4.756360000000002,
+            "average_normal_damage": 19.886734666666666,
+            "average_placement": 2.0,
+            "average_ramp_resolved": 1.6666666666666667,
+            "place_1_share": 0.0,
+            "samples": 3
+          },
+          "ControlPilot:strong:deterministic": {
+            "average_cards_drawn": 11.666666666666666,
+            "average_commander_damage": 14.786083333333332,
+            "average_engine_value": 0.36000000000000004,
+            "average_final_life": -7.659233333333334,
+            "average_normal_damage": 0.0,
+            "average_placement": 3.0,
+            "average_ramp_resolved": 2.3333333333333335,
+            "place_1_share": 0.0,
+            "samples": 3
+          },
+          "EnginePilot:strong:deterministic": {
+            "average_cards_drawn": 9.0,
+            "average_commander_damage": 9.333333333333334,
+            "average_engine_value": 1.05,
+            "average_final_life": -6.340833333333339,
+            "average_normal_damage": 0.0,
+            "average_placement": 4.0,
+            "average_ramp_resolved": 1.0,
+            "place_1_share": 0.0,
+            "samples": 3
+          },
+          "KorvoldPilot:strong:deterministic": {
+            "average_cards_drawn": 23.666666666666668,
+            "average_commander_damage": 50.83830333333333,
+            "average_engine_value": 1.7749999999999997,
+            "average_final_life": 28.612357333333332,
+            "average_normal_damage": 32.47769333333334,
+            "average_placement": 1.0,
+            "average_ramp_resolved": 9.0,
+            "place_1_share": 1.0,
+            "samples": 3
+          }
+        }
+      },
+      "result_path": "/mnt/data/commander-playtest-lab/data/runs/tool_runs/matchup-79642176/structural_results.json"
+    },
+    "status": "completed",
+    "warnings": []
+  },
+  "paired_test": {
+    "errors": [],
+    "metadata": {
+      "created_at": "2026-08-04T15:31:16.868743Z",
+      "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+      "deck_hashes": {
+        "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+        "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+        "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+        "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+      },
+      "deterministic_game_log_directory": null,
+      "elapsed_seconds": 0.16753914499895473,
+      "engine_version": "structural-0.4.0",
+      "estimate_type": "structural_model_estimates",
+      "git_commit": "05682049d3c35fc5e4058307fc65862f4c978836",
+      "invocation_id": "compare_variants_paired-40c52ce3ff6e",
+      "iterations": 3,
+      "openai_trace_directory": "/mnt/data/commander-playtest-lab/data/runs/openai_traces",
+      "scenario_hash": "40c7515bd8ada0d4b09ca9c78c26e85538305f8f4d026d2e36c597affc7962e8",
+      "seed": 99,
+      "tool_name": "compare_variants_paired"
+    },
+    "result": {
+      "baseline_deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "comparison": {
+        "baseline_average_cards_drawn": 22.666666666666668,
+        "baseline_average_damage": 56.67884210666667,
+        "baseline_average_placement": 1.0,
+        "baseline_place_1_share": 1.0,
+        "cards_drawn_delta": 1.6666666666666643,
+        "damage_delta": -0.24469588800000963,
+        "games": 3,
+        "paired_loss_count": 1,
+        "paired_tie_count": 2,
+        "paired_win_count": 0,
+        "place_1_share_delta": -0.33333333333333337,
+        "placement_improvement": -0.33333333333333326,
+        "variant_average_cards_drawn": 24.333333333333332,
+        "variant_average_damage": 56.43414621866666,
+        "variant_average_placement": 1.3333333333333333,
+        "variant_place_1_share": 0.6666666666666666
+      },
+      "pair_sample": [
+        {
+          "baseline_log_sha256": "e9ad8f62fc6e0a344cbd8cf6de84584ae36ee6a0b9db9a49b84d1ab6d2e2eb66",
+          "baseline_placement": 1,
+          "comparison": "tie",
+          "index": 0,
+          "seed": 18209055371016265035,
+          "starting_player_seat": 0,
+          "variant_log_sha256": "93aef7b24c99e8c31fb4556c0efb33aa4f170d962215defb5a9de714f2f3debc",
+          "variant_placement": 1
+        },
+        {
+          "baseline_log_sha256": "b737e2fa17e8fe122d26c21683e675d2167fcda419245eaf344cbd14267dc9ae",
+          "baseline_placement": 1,
+          "comparison": "tie",
+          "index": 1,
+          "seed": 3503175089451827081,
+          "starting_player_seat": 1,
+          "variant_log_sha256": "13fd8c130b6d2b8be70ce44e7cfb99f4fa77a078b0e9620ee2f15194665c27e4",
+          "variant_placement": 1
+        },
+        {
+          "baseline_log_sha256": "81e66ae2990992002a988e11b59f6bc4eca213e420f740915bc8997aa12ef45f",
+          "baseline_placement": 1,
+          "comparison": "variant_loss",
+          "index": 2,
+          "seed": 2543218274955150799,
+          "starting_player_seat": 2,
+          "variant_log_sha256": "bffac08abacf83c74ffa31b27c01b1bb240bd0df8ce5f7ff9e1307eaa799300f",
+          "variant_placement": 2
+        }
+      ],
+      "swaps": [
+        {
+          "add": "Idol of Oblivion",
+          "candidate_id": "korvold/idol-of-oblivion",
+          "physical_status": "project_context_present_not_revalidated_phase5",
+          "remove": "Scouring Swarm"
+        }
+      ],
+      "variant_deck_hash": "8196187940e8df4967b6e60dc4b0dec731d73229e53c78c9a4129cadad9287bb"
+    },
+    "status": "completed",
+    "warnings": []
+  },
+  "report": {
+    "errors": [],
+    "metadata": {
+      "created_at": "2026-08-04T15:31:17.370475Z",
+      "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+      "deck_hashes": {},
+      "deterministic_game_log_directory": null,
+      "elapsed_seconds": 0.0021277039995766245,
+      "engine_version": "structural-0.4.0",
+      "estimate_type": "structural_model_estimates",
+      "git_commit": "05682049d3c35fc5e4058307fc65862f4c978836",
+      "invocation_id": "create_report-abd61cfaa2bf",
+      "iterations": null,
+      "openai_trace_directory": "/mnt/data/commander-playtest-lab/data/runs/openai_traces",
+      "scenario_hash": "61d763fd4e9a23390c1aaee8d14bd6b79f50fcd821121abe39c6f73c57bf490a",
+      "seed": null,
+      "tool_name": "create_report"
+    },
+    "result": {
+      "decisions": [
+        "rejected"
+      ],
+      "evidence_items": 5,
+      "report_path": "/mnt/data/commander-playtest-lab/data/runs/reports/phase5_demo_report.md"
+    },
+    "status": "completed",
+    "warnings": []
+  },
+  "upgrade_validation": {
+    "errors": [],
+    "metadata": {
+      "created_at": "2026-08-04T15:31:17.368267Z",
+      "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+      "deck_hashes": {
+        "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+        "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+        "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+        "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+      },
+      "deterministic_game_log_directory": null,
+      "elapsed_seconds": 0.49939648100007616,
+      "engine_version": "structural-0.4.0",
+      "estimate_type": "structural_model_estimates",
+      "git_commit": "05682049d3c35fc5e4058307fc65862f4c978836",
+      "invocation_id": "validate_upgrade-079da06d2e86",
+      "iterations": 3,
+      "openai_trace_directory": "/mnt/data/commander-playtest-lab/data/runs/openai_traces",
+      "scenario_hash": "6e91f08a8743a936a1fc56bddda0dca3877b05542b767cde0a651f445ca135b9",
+      "seed": 99,
+      "tool_name": "validate_upgrade"
+    },
+    "result": {
+      "decision": "rejected",
+      "holdout": {
+        "all_holdouts_nonnegative": true,
+        "holdouts": [
+          {
+            "comparison": {
+              "baseline_average_cards_drawn": 22.333333333333332,
+              "baseline_average_damage": 77.04311663786666,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "cards_drawn_delta": 2.0,
+              "damage_delta": -12.398525499733339,
+              "games": 3,
+              "paired_loss_count": 0,
+              "paired_tie_count": 3,
+              "paired_win_count": 0,
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "variant_average_cards_drawn": 24.333333333333332,
+              "variant_average_damage": 64.64459113813332,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0
+            },
+            "pod": [
+              "synthetic/control",
+              "synthetic/control",
+              "synthetic/engine"
+            ]
+          },
+          {
+            "comparison": {
+              "baseline_average_cards_drawn": 20.666666666666668,
+              "baseline_average_damage": 33.925526033333334,
+              "baseline_average_placement": 1.3333333333333333,
+              "baseline_place_1_share": 0.6666666666666666,
+              "cards_drawn_delta": -2.0,
+              "damage_delta": -0.09931953333332899,
+              "games": 3,
+              "paired_loss_count": 0,
+              "paired_tie_count": 2,
+              "paired_win_count": 1,
+              "place_1_share_delta": 0.33333333333333337,
+              "placement_improvement": 0.33333333333333326,
+              "variant_average_cards_drawn": 18.666666666666668,
+              "variant_average_damage": 33.826206500000005,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0
+            },
+            "pod": [
+              "synthetic/aggro",
+              "synthetic/aggro",
+              "synthetic/control"
+            ]
+          }
+        ],
+        "mean_placement_improvement": 0.16666666666666663,
+        "swaps": [
+          {
+            "add": "Idol of Oblivion",
+            "candidate_id": "korvold/idol-of-oblivion",
+            "physical_status": "project_context_present_not_revalidated_phase5",
+            "remove": "Scouring Swarm"
+          }
+        ]
+      },
+      "paired": {
+        "baseline_deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+        "comparison": {
+          "baseline_average_cards_drawn": 22.666666666666668,
+          "baseline_average_damage": 56.67884210666667,
+          "baseline_average_placement": 1.0,
+          "baseline_place_1_share": 1.0,
+          "cards_drawn_delta": 1.6666666666666643,
+          "damage_delta": -0.24469588800000963,
+          "games": 3,
+          "paired_loss_count": 1,
+          "paired_tie_count": 2,
+          "paired_win_count": 0,
+          "place_1_share_delta": -0.33333333333333337,
+          "placement_improvement": -0.33333333333333326,
+          "variant_average_cards_drawn": 24.333333333333332,
+          "variant_average_damage": 56.43414621866666,
+          "variant_average_placement": 1.3333333333333333,
+          "variant_place_1_share": 0.6666666666666666
+        },
+        "pair_sample": [
+          {
+            "baseline_log_sha256": "e9ad8f62fc6e0a344cbd8cf6de84584ae36ee6a0b9db9a49b84d1ab6d2e2eb66",
+            "baseline_placement": 1,
+            "comparison": "tie",
+            "index": 0,
+            "seed": 18209055371016265035,
+            "starting_player_seat": 0,
+            "variant_log_sha256": "93aef7b24c99e8c31fb4556c0efb33aa4f170d962215defb5a9de714f2f3debc",
+            "variant_placement": 1
+          },
+          {
+            "baseline_log_sha256": "b737e2fa17e8fe122d26c21683e675d2167fcda419245eaf344cbd14267dc9ae",
+            "baseline_placement": 1,
+            "comparison": "tie",
+            "index": 1,
+            "seed": 3503175089451827081,
+            "starting_player_seat": 1,
+            "variant_log_sha256": "13fd8c130b6d2b8be70ce44e7cfb99f4fa77a078b0e9620ee2f15194665c27e4",
+            "variant_placement": 1
+          },
+          {
+            "baseline_log_sha256": "81e66ae2990992002a988e11b59f6bc4eca213e420f740915bc8997aa12ef45f",
+            "baseline_placement": 1,
+            "comparison": "variant_loss",
+            "index": 2,
+            "seed": 2543218274955150799,
+            "starting_player_seat": 2,
+            "variant_log_sha256": "bffac08abacf83c74ffa31b27c01b1bb240bd0df8ce5f7ff9e1307eaa799300f",
+            "variant_placement": 2
+          }
+        ],
+        "swaps": [
+          {
+            "add": "Idol of Oblivion",
+            "candidate_id": "korvold/idol-of-oblivion",
+            "physical_status": "project_context_present_not_revalidated_phase5",
+            "remove": "Scouring Swarm"
+          }
+        ],
+        "variant_deck_hash": "8196187940e8df4967b6e60dc4b0dec731d73229e53c78c9a4129cadad9287bb"
+      },
+      "reason": "one or more validation criteria failed",
+      "threshold": 0.0
+    },
+    "status": "completed",
+    "warnings": []
+  },
+  "validation": {
+    "errors": [],
+    "metadata": {
+      "created_at": "2026-08-04T15:31:16.599321Z",
+      "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+      "deck_hashes": {
+        "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      },
+      "deterministic_game_log_directory": null,
+      "elapsed_seconds": 0.0066740740003297105,
+      "engine_version": "structural-0.4.0",
+      "estimate_type": "structural_model_estimates",
+      "git_commit": "05682049d3c35fc5e4058307fc65862f4c978836",
+      "invocation_id": "validate_deck-4d101eb84727",
+      "iterations": null,
+      "openai_trace_directory": "/mnt/data/commander-playtest-lab/data/runs/openai_traces",
+      "scenario_hash": "bf48bb2c0107488951225df5fc1fe72158f573c3dba63177bed332099f5dc197",
+      "seed": null,
+      "tool_name": "validate_deck"
+    },
+    "result": {
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_id": "korvold/current",
+      "physical_allocation": {
+        "issues": [],
+        "metrics": {
+          "available_total_cards": 200,
+          "available_unique_cards": 161,
+          "required_total_cards": 100,
+          "required_unique_cards": 85
+        },
+        "valid": true
+      },
+      "validation": {
+        "issues": [],
+        "metrics": {
+          "commander_count": 1,
+          "commander_identity": [
+            "B",
+            "G",
+            "R"
+          ],
+          "library_cards": 99,
+          "total_cards": 100,
+          "unique_oracle_names": 85
+        },
+        "valid": true
+      }
+    },
+    "status": "completed",
+    "warnings": []
+  }
+}
