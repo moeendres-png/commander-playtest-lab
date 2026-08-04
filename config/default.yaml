@@ -1,0 +1,20 @@
+project:
+  name: commander-playtest-lab
+  schema_version: "0.2.0"
+  timezone: Europe/Berlin
+
+validation:
+  commander_deck_size: 100
+  strict_oracle_names: true
+  require_commander_legality: true
+  require_complete_color_identity: true
+
+imports:
+  default_language: en
+  google_drive_sheet_map:
+    korvold/current: "01_Korvold"
+    rogshai/current: "02_RogShai"
+
+hashing:
+  algorithm: sha256
+  canonical_json_version: 1

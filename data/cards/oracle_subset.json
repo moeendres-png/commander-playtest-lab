@@ -1,0 +1,4595 @@
+{
+  "schema_version": "0.2.0",
+  "generated_at": "2026-08-04T13:20:29.040568+00:00",
+  "data_as_of": "2026-08-02",
+  "catalog_scope": "Only cards in korvold/current and rogshai/current.",
+  "authoritative_oracle_snapshot": false,
+  "cards": [
+    {
+      "oracle_name": "Academy Manufactor",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Adarkar Wastes",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Aftermath Analyst",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "An Offer You Can't Refuse",
+      "aliases": [
+        "An Offer You Can’t Refuse"
+      ],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Ancient Grudge",
+      "aliases": [],
+      "colors": [
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Arcane Signet",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Assassin's Trophy",
+      "aliases": [
+        "Assassin’s Trophy"
+      ],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Azorius Signet",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Bastion Protector",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Battlefield Forge",
+      "aliases": [],
+      "colors": [
+        "R",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Beast Within",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Blackblade Reforged",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Blacksmith's Skill",
+      "aliases": [
+        "Blacksmith’s Skill"
+      ],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Blasphemous Act",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Bojuka Bog",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Boros Charm",
+      "aliases": [],
+      "colors": [
+        "R",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Boros Signet",
+      "aliases": [],
+      "colors": [
+        "R",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Braids, Arisen Nightmare",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Cabaretti Courtyard",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Canyon Slough",
+      "aliases": [],
+      "colors": [
+        "B",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "R"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Celestial Purge",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Chain Reaction",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Chandra, Torch of Defiance",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Chaos Warp",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Cinder Glade",
+      "aliases": [],
+      "colors": [
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "G",
+        "R"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Clever Impersonator",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Clifftop Retreat",
+      "aliases": [],
+      "colors": [
+        "R",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Combat Research",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Command Tower",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Consider",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Counterspell",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Crop Rotation",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Culling Ritual",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Curiosity",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Dark Ritual",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Deadly Dispute",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Demolition Field",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Dovin's Veto",
+      "aliases": [
+        "Dovin’s Veto"
+      ],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Duelist's Heritage",
+      "aliases": [
+        "Duelist’s Heritage"
+      ],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Escape Tunnel",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Esior, Wardwing Familiar",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Eumidian Hatchery",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Evendo Brushrazer",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Evolving Wilds",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Exotic Orchard",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Exploration Broodship",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Exsanguinate",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Fabled Passage",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Faerie Mastermind",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Farewell",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Farseek",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Fellwar Stone",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Fire Covenant",
+      "aliases": [],
+      "colors": [
+        "B",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Flare of Duplication",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Forest",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Basic Land — Forest",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": true,
+      "max_deck_copies": null,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Glacial Fortress",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Goblin Bombardment",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "God-Eternal Bontu",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Guttersnipe",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Harrow",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Hearthhull, the Worldseed",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Horizon Explorer",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Ignoble Hierarch",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Immersturm Predator",
+      "aliases": [],
+      "colors": [
+        "B",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Imprisoned in the Moon",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Into the Roil",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Ishai, Ojutai Dragonspeaker",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Legendary Creature",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ],
+      "can_be_commander": true,
+      "keywords": [
+        "Partner"
+      ]
+    },
+    {
+      "oracle_name": "Island",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Basic Land — Island",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": true,
+      "max_deck_copies": null,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Izzet Signet",
+      "aliases": [],
+      "colors": [
+        "R",
+        "U"
+      ],
+      "color_identity": [
+        "R",
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Jeska, Thrice Reborn",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Jund Panorama",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Karplusan Forest",
+      "aliases": [],
+      "colors": [
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "G",
+        "R"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Kediss, Emberclaw Familiar",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Korvold, Fae-Cursed King",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Legendary Creature",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ],
+      "can_be_commander": true
+    },
+    {
+      "oracle_name": "Kykar, Wind's Fury",
+      "aliases": [
+        "Kykar, Wind’s Fury"
+      ],
+      "colors": [
+        "R",
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "U",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Light of Hope",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Llanowar Elves",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Llanowar Wastes",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Lofty Denial",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Loran of the Third Path",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Loran's Escape",
+      "aliases": [
+        "Loran’s Escape"
+      ],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Louisoix's Sacrifice",
+      "aliases": [
+        "Louisoix’s Sacrifice"
+      ],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Loyal Drake",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Massacre Wurm",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Mayhem Devil",
+      "aliases": [],
+      "colors": [
+        "B",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Mazirek, Kraul Death Priest",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Mirkwood Bats",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Mountain",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Basic Land — Mountain",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": true,
+      "max_deck_copies": null,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Mountain Valley",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Narset, Parter of Veils",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Nature's Claim",
+      "aliases": [
+        "Nature’s Claim"
+      ],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Nature's Lore",
+      "aliases": [
+        "Nature’s Lore"
+      ],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Negate",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Opal Palace",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Open the Armory",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Ophiomancer",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Oracle of Mul Daya",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Orcish Lumberjack",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Path to Exile",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Pest Infestation",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Pitiless Plunderer",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Plains",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Basic Land — Plains",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": true,
+      "max_deck_copies": null,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Port Town",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Prairie Stream",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Preordain",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Psychotic Fury",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Rakdos Charm",
+      "aliases": [],
+      "colors": [
+        "B",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Ramunap Excavator",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Reality Shift",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Relic of Legends",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Riveteers Overlook",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Rocky Tar Pit",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Rograkh, Son of Rohgahh",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Legendary Creature",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ],
+      "can_be_commander": true,
+      "keywords": [
+        "Partner"
+      ]
+    },
+    {
+      "oracle_name": "Sakura-Tribe Elder",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Scouring Swarm",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Shivan Reef",
+      "aliases": [],
+      "colors": [
+        "R",
+        "U"
+      ],
+      "color_identity": [
+        "R",
+        "U"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Silence",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Skycloud Expanse",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Slip Out the Back",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Smoldering Marsh",
+      "aliases": [],
+      "colors": [
+        "B",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "R"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Snakeskin Veil",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Snapback",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Soul of Windgrace",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Soul-Guide Lantern",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Splendid Reclamation",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Springbloom Druid",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Springleaf Drum",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Sprouting Goblin",
+      "aliases": [],
+      "colors": [
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Staggering Insight",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Storm-Kiln Artist",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Stroke of Midnight",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Sulfur Falls",
+      "aliases": [],
+      "colors": [
+        "R",
+        "U"
+      ],
+      "color_identity": [
+        "R",
+        "U"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Sulfurous Springs",
+      "aliases": [],
+      "colors": [
+        "B",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "R"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Sunhome, Fortress of the Legion",
+      "aliases": [],
+      "colors": [
+        "R",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Swamp",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Basic Land — Swamp",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": true,
+      "max_deck_copies": null,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Swiftfoot Boots",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Swords to Plowshares",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Szarel, Genesis Shepherd",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Talisman of Progress",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Tear Asunder",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Temple of Enlightenment",
+      "aliases": [],
+      "colors": [
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "U",
+        "W"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Terramorphic Expanse",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "The Gitrog Monster",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Tinder Wall",
+      "aliases": [],
+      "colors": [
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Tireless Provisioner",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Tireless Tracker",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Titania, Protector of Argoth",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Toxic Deluge",
+      "aliases": [],
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Turbulent Springs",
+      "aliases": [],
+      "colors": [
+        "R",
+        "U"
+      ],
+      "color_identity": [
+        "R",
+        "U"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Twilight Mire",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Tyvar's Stand",
+      "aliases": [
+        "Tyvar’s Stand"
+      ],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Vandalblast",
+      "aliases": [],
+      "colors": [
+        "R"
+      ],
+      "color_identity": [
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Veil of Summer",
+      "aliases": [],
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Vernal Fen",
+      "aliases": [],
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Land",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Wash Away",
+      "aliases": [],
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Wear // Tear",
+      "aliases": [
+        "Wear //Tear",
+        "Wear/Tear"
+      ],
+      "colors": [
+        "R",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Whirlwind of Thought",
+      "aliases": [],
+      "colors": [
+        "R",
+        "U",
+        "W"
+      ],
+      "color_identity": [
+        "R",
+        "U",
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Windgrace's Judgment",
+      "aliases": [
+        "Windgrace’s Judgment"
+      ],
+      "colors": [
+        "B",
+        "G",
+        "R"
+      ],
+      "color_identity": [
+        "B",
+        "G",
+        "R"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Winds of Rath",
+      "aliases": [],
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Zuran Orb",
+      "aliases": [],
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Unknown",
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_verified",
+      "provenance": [
+        {
+          "source_type": "local_project_snapshot",
+          "source_name": "Muddle vs Korvold und Rogshai.txt",
+          "source_path": "/mnt/data/Muddle vs Korvold und Rogshai.txt",
+          "data_as_of": "2026-08-02T00:00:00Z",
+          "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
+          "quality": "project_verified",
+          "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    }
+  ]
+}

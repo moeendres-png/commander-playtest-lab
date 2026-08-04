@@ -1,0 +1,28 @@
+Commander Playtest Lab — Phase 2 verification
+Date: 2026-08-04
+
+Commands executed:
+
+1. PYTHONPATH=src pytest -q
+   Result: 27 passed in 0.23s
+
+2. PYTHONPATH=src python -m compileall -q src tests
+   Result: success
+
+3. PYTHONPATH=src python -m commander_lab.cli.app validate-local
+   Result:
+   - korvold/current valid: true
+   - rogshai/current valid: true
+   - combined physical allocation valid: true
+   - data snapshot hash: 80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9
+
+4. python -m pip install --no-deps --no-build-isolation -e .
+   Result: success
+
+5. python -m pip wheel --no-deps --no-build-isolation .
+   Result: commander_playtest_lab-0.2.0-py3-none-any.whl created successfully
+
+Environment note:
+The execution environment could not download Hypothesis from its package index. The repository still
+lists Hypothesis as an optional development dependency, while all committed property-style tests use
+deterministic standard-library generators and run without network access.

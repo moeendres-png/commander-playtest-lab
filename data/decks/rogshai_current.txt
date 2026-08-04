@@ -1,0 +1,89 @@
+# Local immutable deck snapshot: rogshai/current
+# Data as of: 2026-08-02
+# Source: local copy extracted from Muddle vs Korvold und Rogshai.txt
+
+[Commander]
+1 Ishai, Ojutai Dragonspeaker
+1 Rograkh, Son of Rohgahh
+
+[Mainboard]
+1 Soul-Guide Lantern
+1 Swiftfoot Boots
+1 Arcane Signet
+1 Chandra, Torch of Defiance
+1 Blackblade Reforged
+1 Fellwar Stone
+1 Relic of Legends
+1 Springleaf Drum
+1 Talisman of Progress
+1 Sol Ring
+1 Stroke of Midnight
+1 Silence
+1 Light of Hope
+1 Celestial Purge
+1 Bastion Protector
+1 Blacksmith's Skill
+1 Loran of the Third Path
+1 Loran's Escape
+1 Open the Armory
+1 Path to Exile
+1 Swords to Plowshares
+1 Winds of Rath
+1 Faerie Mastermind
+1 Into the Roil
+1 Negate
+1 Imprisoned in the Moon
+1 Staggering Insight
+1 Curiosity
+1 An Offer You Can't Refuse
+1 Farewell
+1 Storm-Kiln Artist
+1 Clever Impersonator
+1 Consider
+1 Counterspell
+1 Combat Research
+1 Esior, Wardwing Familiar
+1 Lofty Denial
+1 Louisoix's Sacrifice
+1 Loyal Drake
+1 Narset, Parter of Veils
+1 Preordain
+1 Reality Shift
+1 Slip Out the Back
+1 Snapback
+1 Wash Away
+1 Guttersnipe
+1 Jeska, Thrice Reborn
+1 Kediss, Emberclaw Familiar
+1 Chain Reaction
+1 Flare of Duplication
+1 Psychotic Fury
+1 Boros Charm
+1 Vandalblast
+1 Azorius Signet
+1 Dovin's Veto
+1 Duelist's Heritage
+1 Izzet Signet
+1 Kykar, Wind's Fury
+1 Whirlwind of Thought
+1 Boros Signet
+1 Wear // Tear
+1 Exotic Orchard
+1 Opal Palace
+1 Command Tower
+7 Plains
+1 Skycloud Expanse
+8 Island
+6 Mountain
+1 Temple of Enlightenment
+1 Adarkar Wastes
+1 Glacial Fortress
+1 Port Town
+1 Prairie Stream
+1 Turbulent Springs
+1 Shivan Reef
+1 Sulfur Falls
+1 Fabled Passage
+1 Battlefield Forge
+1 Clifftop Retreat
+1 Sunhome, Fortress of the Legion
