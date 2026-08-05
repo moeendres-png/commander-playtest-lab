@@ -95,6 +95,12 @@ class _Player:
     cards_drawn: int = 0
     commander_casts: int = 0
     commander_tax_paid: int = 0
+    first_commander_cast_turn: int | None = None
+    commander_peak_power: dict[str, float] = field(default_factory=dict)
+    ishai_peak_power: float = 0.0
+    korvold_cards_drawn: int = 0
+    hostile_target_events: int = 0
+    archenemy_turns: int = 0
     removals_resolved: int = 0
     counters_resolved: int = 0
     protections_resolved: int = 0
@@ -284,6 +290,7 @@ class StructuralSimulator:
             )
             self._end_step(active, players, recorder, turn_number)
             self._check_eliminations(players, turn_number, recorder)
+            self._record_archenemy_state(players, recorder, turn_number)
             after = self._snapshot_metrics(active)
             recorder.emit(
                 "turn_summary",
@@ -855,6 +862,8 @@ class StructuralSimulator:
         commander.casts += 1
         player.commander_casts += 1
         player.commander_tax_paid += tax
+        if player.first_commander_cast_turn is None:
+            player.first_commander_cast_turn = player.current_turn
         self._notify_spell_cast(player, players)
         recorder.emit("commander_cast", actor_id=player.player_id, payload={"card": name, "cost": cost, "tax": tax})
         if self._attempt_counter(player, players, score + 1.0, recorder):
@@ -862,6 +871,11 @@ class StructuralSimulator:
             return False
         commander.on_battlefield = True
         commander.power = max(commander.base_power, commander.power)
+        player.commander_peak_power[name] = max(
+            player.commander_peak_power.get(name, 0.0), commander.power
+        )
+        if name == "Ishai, Ojutai Dragonspeaker":
+            player.ishai_peak_power = max(player.ishai_peak_power, commander.power)
         if name == "Korvold, Fae-Cursed King":
             self._sacrifice_trigger(player, 1.0, recorder, reason="korvold_cast")
         recorder.emit("commander_resolved", actor_id=player.player_id, payload={"card": name, "power": commander.power})
@@ -898,6 +912,10 @@ class StructuralSimulator:
             ishai = player.commanders.get("Ishai, Ojutai Dragonspeaker")
             if ishai is not None and ishai.on_battlefield:
                 ishai.power += 1.0
+                player.ishai_peak_power = max(player.ishai_peak_power, ishai.power)
+                player.commander_peak_power[ishai.name] = max(
+                    player.commander_peak_power.get(ishai.name, 0.0), ishai.power
+                )
 
     def _attempt_counter(
         self,
@@ -954,6 +972,7 @@ class StructuralSimulator:
                 continue
             counter = mapping[decision.selected_action_id]
             opponent.hand.remove(counter)
+            caster.hostile_target_events += 1
             self._pay(opponent, counter.mana_value)
             opponent.graveyard.append(counter)
             opponent.counters_resolved += 1
@@ -1082,6 +1101,7 @@ class StructuralSimulator:
         decision = player.pilot.choose_target(state, target_actions, player.pilot_rng)
         self._record_pilot_decision(player, decision, recorder, phase="removal_target")
         target = target_mapping.get(decision.selected_action_id or "", targets[0])
+        target.hostile_target_events += 1
         if self._attempt_protection(target, players, recorder, against=card.oracle_name):
             recorder.emit("removal_prevented", actor_id=target.player_id, payload={"against": card.oracle_name})
             return
@@ -1360,7 +1380,12 @@ class StructuralSimulator:
         korvold = player.commanders.get("Korvold, Fae-Cursed King")
         if korvold is not None and korvold.on_battlefield:
             korvold.power += count
-            self._draw(player, max(1, int(count)), recorder, reason="korvold_trigger")
+            draw_count = max(1, int(count))
+            player.korvold_cards_drawn += draw_count
+            player.commander_peak_power[korvold.name] = max(
+                player.commander_peak_power.get(korvold.name, 0.0), korvold.power
+            )
+            self._draw(player, draw_count, recorder, reason="korvold_trigger")
         bats = sum(card.strength(CardRole.PAYOFF) for card in player.battlefield if card.oracle_name == "Mirkwood Bats")
         hearthhull = sum(card.strength(CardRole.PAYOFF) for card in player.battlefield if card.oracle_name == "Hearthhull, the Worldseed")
         player.resources += count * 0.25
@@ -1435,6 +1460,7 @@ class StructuralSimulator:
         decision = player.pilot.choose_combat_target(state, target_actions, player.pilot_rng)
         self._record_pilot_decision(player, decision, recorder, phase="combat")
         target = target_mapping.get(decision.selected_action_id or "", targets[0])
+        target.hostile_target_events += 1
         blockers = target.board_power * 0.35 + target.tokens * 0.25
         damage = max(0.0, total_attack - blockers)
         target.life -= damage
@@ -1543,6 +1569,29 @@ class StructuralSimulator:
         )
 
     @staticmethod
+    def _record_archenemy_state(
+        players: list[_Player],
+        recorder: _EventRecorder,
+        turn: int,
+    ) -> None:
+        living = [player for player in players if player.alive]
+        if len(living) < 3:
+            return
+        ranked = sorted(living, key=lambda item: (item.threat(), item.player_id), reverse=True)
+        leader, runner_up = ranked[0], ranked[1]
+        if leader.threat() >= 6.0 and leader.threat() >= runner_up.threat() * 1.25:
+            leader.archenemy_turns += 1
+            recorder.emit(
+                "archenemy_state",
+                actor_id=leader.player_id,
+                payload={
+                    "turn": turn,
+                    "threat": round(leader.threat(), 4),
+                    "runner_up_threat": round(runner_up.threat(), 4),
+                },
+            )
+
+    @staticmethod
     def _snapshot_metrics(player: _Player) -> dict[str, Any]:
         return {
             "life": round(player.life, 4),
@@ -1572,6 +1621,13 @@ class StructuralSimulator:
             cards_drawn=player.cards_drawn,
             commander_casts=player.commander_casts,
             commander_tax_paid=player.commander_tax_paid,
+            first_commander_cast_turn=player.first_commander_cast_turn,
+            commander_peak_power=dict(sorted(player.commander_peak_power.items())),
+            ishai_peak_power=player.ishai_peak_power,
+            korvold_cards_drawn=player.korvold_cards_drawn,
+            hostile_target_events=player.hostile_target_events,
+            archenemy_turns=player.archenemy_turns,
+            was_archenemy=player.archenemy_turns > 0,
             removals_resolved=player.removals_resolved,
             counters_resolved=player.counters_resolved,
             protections_resolved=player.protections_resolved,

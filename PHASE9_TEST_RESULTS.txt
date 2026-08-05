@@ -1,0 +1,59 @@
+Phase 9 test run
+2026-08-05T09:15:11Z
+$ PYTHONPATH=src pytest -q tests/unit
+........................................................................ [ 67%]
+..................................                                       [100%]
+106 passed in 7.19s
+
+$ PYTHONPATH=src pytest -q tests/integration
+..................                                                       [100%]
+18 passed in 11.52s
+
+$ PYTHONPATH=src pytest -q tests/property
+........                                                                 [100%]
+8 passed in 10.40s
+
+$ PYTHONPATH=src pytest -q tests/contract
+........                                                                 [100%]
+8 passed in 12.58s
+
+$ PYTHONPATH=src pytest -q tests/differential
+..s                                                                      [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/differential/test_phase6_differential.py:56: requires configured XMage or Forge differential command
+2 passed, 1 skipped in 0.57s
+
+$ PYTHONPATH=src pytest -q tests/golden tests/agent_evals tests/architecture tests/fuzz tests/mutation
+...........                                                              [100%]
+11 passed in 0.31s
+
+$ python -m compileall -q src tests
+compileall: passed
+
+$ PYTHONPATH=src python -m commander_lab.cli.app validate-phase9 --root . --output data/runs/phase9_validation
+{
+  "accepted_parameters_from_synthetic_fixture": {},
+  "calibration_markdown_path": "/mnt/data/audit_check_phase85/data/runs/phase9_validation/synthetic_calibration_report.md",
+  "calibration_report_path": "/mnt/data/audit_check_phase85/data/runs/phase9_validation/synthetic_calibration_report.json",
+  "canonical_deck_files_modified": false,
+  "engine_parameters_modified": false,
+  "expected_fixture_decision": "insufficient_evidence",
+  "external_engine_validation_pending": true,
+  "google_drive_files_modified": false,
+  "implementation_status": "passed",
+  "independent_confirmation_claimed": false,
+  "phase": "9",
+  "real_playtest_calibration_status": "not_run",
+  "reason": "No user-supplied real playtest records were present.",
+  "structural_reference_path": "/mnt/data/audit_check_phase85/data/runs/phase9_validation/structural_reference/structural_results.json",
+  "synthetic_fixture_games": 6,
+  "synthetic_fixture_status": "insufficient_evidence",
+  "train_validation_separated": true
+}
+
+Grouped suite summary:
+- 153 passed
+- 1 skipped: real XMage/Forge differential command not configured
+- 0 failed
+- compileall passed
+- Phase-9 validation runner passed

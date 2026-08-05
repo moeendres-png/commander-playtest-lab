@@ -72,8 +72,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("run_sensitivity", "Repeat scenarios across seeds and pilot strengths.", SensitivityInput, "run_sensitivity"),
     ToolDefinition("recommend_upgrades", "Screen role-profile upgrade candidates without claiming confirmation.", RecommendUpgradesInput, "recommend_upgrades"),
     ToolDefinition("validate_upgrade", "Confirm or reject a proposed upgrade using paired and holdout criteria.", ValidateUpgradeInput, "validate_upgrade"),
-    ToolDefinition("ingest_playtest", "Import a local real-playtest CSV or XLSX form.", IngestPlaytestInput, "ingest_playtest"),
-    ToolDefinition("calibrate", "Build a provisional calibration summary from ingested real games.", CalibrateInput, "calibrate"),
+    ToolDefinition("ingest_playtest", "Import a local real-playtest CSV, XLSX or JSON file into an append-only versioned dataset.", IngestPlaytestInput, "ingest_playtest"),
+    ToolDefinition("calibrate", "Compare sealed real train/validation evidence with structural references and write a non-applied calibration profile.", CalibrateInput, "calibrate"),
     ToolDefinition("create_report", "Create a local structured Markdown evidence report.", CreateReportInput, "create_report"),
 )
 

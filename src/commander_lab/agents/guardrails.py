@@ -85,15 +85,25 @@ def validate_user_goal(goal: str) -> None:
 
 
 def validate_tool_output(response: ToolResponse) -> None:
-    if response.metadata.estimate_type != "structural_model_estimates":
-        raise GuardrailViolation("simulation tool output has invalid estimate label")
+    allowed = {
+        "structural_model_estimates",
+        "empirical_playtest_observations",
+        "mixed_real_and_structural",
+    }
+    if response.metadata.estimate_type not in allowed:
+        raise GuardrailViolation("tool output has invalid evidence label")
     if response.status == ToolStatus.FAILED and not response.errors:
         raise GuardrailViolation("failed tools must contain understandable errors")
 
 
 def validate_workflow_report(report: WorkflowReport) -> None:
-    if report.estimate_type != "structural_model_estimates":
-        raise GuardrailViolation("workflow output has invalid estimate label")
+    allowed = {
+        "structural_model_estimates",
+        "empirical_playtest_observations",
+        "mixed_real_and_structural",
+    }
+    if report.estimate_type not in allowed:
+        raise GuardrailViolation("workflow output has invalid evidence label")
     if not report.tool_invocations:
         raise GuardrailViolation("agent workflow must cite at least one structured tool invocation")
     forbidden = forbidden_state_terms(report.conclusion)

@@ -8,6 +8,7 @@ from pydantic import Field, model_validator
 
 from .common import FrozenModel, MutableModel
 from .pilots import PilotDecisionMode, PilotStrength
+from .playtests import SplitStrategy
 from .structural import StructuralCardProfile
 
 
@@ -49,7 +50,11 @@ class ToolExecutionMetadata(FrozenModel):
     scenario_hash: str
     seed: int | None = None
     iterations: int | None = None
-    estimate_type: Literal["structural_model_estimates"] = "structural_model_estimates"
+    estimate_type: Literal[
+        "structural_model_estimates",
+        "empirical_playtest_observations",
+        "mixed_real_and_structural",
+    ] = "structural_model_estimates"
     elapsed_seconds: float = Field(ge=0.0)
     deterministic_game_log_directory: str | None = None
     openai_trace_directory: str | None = None
@@ -202,10 +207,24 @@ class ValidateUpgradeInput(PairedVariantInput):
 class IngestPlaytestInput(FrozenModel):
     source_path: str
     sheet_name: str | None = None
+    dataset_version: str = Field(default="phase9-current", pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 
 class CalibrateInput(FrozenModel):
-    playtest_ids: tuple[str, ...] = ()
+    dataset_version: str = Field(default="phase9-current", pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+    simulation_result_paths: tuple[str, ...] = ()
+    target_deck_versions: dict[str, str] = Field(default_factory=dict)
+    policy_path: str = "config/calibration_policy.json"
+    split_strategy: SplitStrategy = SplitStrategy.CHRONOLOGICAL
+    split_seed: int = Field(default=20260805, ge=0)
+    train_fraction: float = Field(default=0.7, gt=0.0, lt=1.0)
+    confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
+    bootstrap_samples: int = Field(default=1000, ge=100, le=100_000)
+    minimum_train_games: int = Field(default=20, ge=2)
+    minimum_validation_games: int = Field(default=8, ge=1)
+    minimum_train_observations: int = Field(default=12, ge=2)
+    minimum_validation_observations: int = Field(default=5, ge=1)
+    minimum_validation_improvement: float = Field(default=0.05, ge=0.0, le=1.0)
     output_name: str = "latest_calibration.json"
 
 
@@ -233,4 +252,8 @@ class WorkflowReport(FrozenModel):
     model_calls: int = Field(default=0, ge=0)
     total_tokens: int = Field(default=0, ge=0)
     estimated_cost_usd: float = Field(default=0.0, ge=0.0)
-    estimate_type: Literal["structural_model_estimates"] = "structural_model_estimates"
+    estimate_type: Literal[
+        "structural_model_estimates",
+        "empirical_playtest_observations",
+        "mixed_real_and_structural",
+    ] = "structural_model_estimates"

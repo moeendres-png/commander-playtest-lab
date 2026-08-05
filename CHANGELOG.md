@@ -11,3 +11,14 @@
 - Added architecture-boundary, deterministic fuzz and mutation-guard tests.
 - Added CI and an explicitly failing-until-real GitHub Actions XMage integration workflow.
 - External engine validation remains pending.
+
+## 0.9.0 - Phase 9 real playtest calibration
+
+- Added versioned append-only real playtest datasets.
+- Expanded CSV/XLSX/JSON import to all Phase-9 observations.
+- Added sealed chronological or stable-hash train/validation splits.
+- Added real-versus-structural distribution comparisons and bootstrap intervals.
+- Added conservative validation-gated calibration profiles with no automatic application.
+- Added Korvold draw, Ishai peak-power and archenemy metrics to structural outputs.
+- Added Phase-9 CLI commands, template, documentation and validation runner.
+- External rules-engine validation remains pending.

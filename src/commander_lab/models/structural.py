@@ -141,6 +141,13 @@ class StructuralPlayerMetrics(FrozenModel):
     cards_drawn: int
     commander_casts: int
     commander_tax_paid: int
+    first_commander_cast_turn: int | None = None
+    commander_peak_power: dict[str, float] = Field(default_factory=dict)
+    ishai_peak_power: float = 0.0
+    korvold_cards_drawn: int = 0
+    hostile_target_events: int = 0
+    archenemy_turns: int = 0
+    was_archenemy: bool = False
     removals_resolved: int
     counters_resolved: int
     protections_resolved: int

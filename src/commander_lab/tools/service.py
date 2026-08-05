@@ -11,7 +11,14 @@ from pathlib import Path
 from statistics import fmean
 from typing import Any, Callable
 
-from commander_lab.analysis import DeckValidator, validate_collection_quantities
+from commander_lab.analysis import (
+    CalibrationPolicy,
+    DeckValidator,
+    assign_playtest_splits,
+    calibrate_playtests,
+    load_structural_batches,
+    validate_collection_quantities,
+)
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.structural import ENGINE_VERSION, load_project_structural_decks, run_structural_batch
 from commander_lab.importers import RealPlaytestImporter
@@ -42,6 +49,7 @@ from commander_lab.models import (
     RecommendUpgradesInput,
     SearchVariantsInput,
     SensitivityInput,
+    SplitStrategy,
     StructuralBatchConfig,
     StructuralDeckProfile,
     SwapMatrixInput,
@@ -68,8 +76,15 @@ from commander_lab.optimization import (
     run_paired_structural_comparison,
     variant_deck,
 )
-from commander_lab.storage import load_model, sha256_value
+from commander_lab.storage import (
+    PlaytestRepository,
+    atomic_write_json,
+    atomic_write_text,
+    load_model,
+    sha256_value,
+)
 from commander_lab.models import Deck
+from commander_lab.reporting import calibration_report_markdown
 
 from .candidates import load_candidate_profiles
 
@@ -365,6 +380,7 @@ class CommanderToolService:
         seed: int | None = None,
         iterations: int | None = None,
         log_dir: str | None = None,
+        estimate_type: str = "structural_model_estimates",
     ) -> ToolExecutionMetadata:
         return ToolExecutionMetadata(
             tool_name=tool_name,
@@ -377,6 +393,7 @@ class CommanderToolService:
             scenario_hash=sha256_value(scenario),
             seed=seed,
             iterations=iterations,
+            estimate_type=estimate_type,
             elapsed_seconds=time.monotonic() - started,
             deterministic_game_log_directory=log_dir,
             openai_trace_directory=str(self.trace_dir),
@@ -392,6 +409,7 @@ class CommanderToolService:
         seed: int | None = None,
         iterations: int | None = None,
         log_dir: str | None = None,
+        estimate_type: str = "structural_model_estimates",
     ) -> ToolResponse:
         started = time.monotonic()
         invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"
@@ -424,6 +442,7 @@ class CommanderToolService:
             seed=seed,
             iterations=iterations,
             log_dir=log_dir,
+            estimate_type=estimate_type,
         )
         return ToolResponse(status=status, metadata=metadata, result=result, warnings=warnings, errors=errors)
 
@@ -1352,47 +1371,140 @@ class CommanderToolService:
             source = Path(request.source_path).resolve()
             if not source.is_file():
                 raise ToolExecutionError(f"playtest file not found: {source}")
-            games = RealPlaytestImporter().import_file(source, sheet_name=request.sheet_name)
-            destination = self.root / "data/playtests/ingested" / f"{sha256_value(str(source))[:12]}.json"
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(
-                json.dumps([game.model_dump(mode="json") for game in games], indent=2, ensure_ascii=False),
-                encoding="utf-8",
+            games = RealPlaytestImporter().import_file(
+                source,
+                sheet_name=request.sheet_name,
+                dataset_version=request.dataset_version,
             )
-            return {"games_imported": len(games), "game_ids": [game.game_id for game in games], "output_path": str(destination)}
-        return self._invoke("ingest_playtest", request, work)
+            repository = PlaytestRepository(self.root)
+            manifest = repository.ingest(games, dataset_version=request.dataset_version)
+            return {
+                "games_imported": len(games),
+                "game_ids": [game.game_id for game in games],
+                "validated_games_imported": sum(game.validated for game in games),
+                "games_with_validation_errors": {
+                    game.game_id: game.validation_errors
+                    for game in games
+                    if game.validation_errors
+                },
+                "dataset_manifest": manifest.model_dump(mode="json"),
+                "source_file_modified": False,
+                "canonical_deck_files_modified": False,
+                "google_drive_files_modified": False,
+            }
+        return self._invoke(
+            "ingest_playtest", request, work, estimate_type="empirical_playtest_observations"
+        )
 
     def calibrate(self, request: CalibrateInput) -> ToolResponse:
         def work() -> dict[str, Any]:
-            ingested = self.root / "data/playtests/ingested"
-            games = []
-            for path in sorted(ingested.glob("*.json")) if ingested.exists() else []:
-                games.extend(json.loads(path.read_text(encoding="utf-8")))
-            if request.playtest_ids:
-                games = [game for game in games if game.get("game_id") in request.playtest_ids]
-            turns = [game["turns"] for game in games if game.get("turns") is not None]
-            placements: Counter[str] = Counter()
-            samples: Counter[str] = Counter()
-            for game in games:
-                for participant in game.get("participants", []):
-                    deck_name = participant["deck_name"]
-                    samples[deck_name] += 1
-                    if participant.get("placement") == 1:
-                        placements[deck_name] += 1
-            calibration = {
-                "schema_version": "0.5.0",
-                "games": len(games),
-                "average_observed_turns": fmean(turns) if turns else None,
-                "observed_place_1_share": {
-                    deck: placements[deck] / samples[deck] for deck in sorted(samples)
+            repository = PlaytestRepository(self.root)
+            games = repository.load_games(request.dataset_version)
+            if not games:
+                raise ToolExecutionError(
+                    f"no real playtests found for dataset {request.dataset_version!r}"
+                )
+
+            policy_path = (self.root / request.policy_path).resolve()
+            try:
+                policy_path.relative_to(self.root)
+            except ValueError as exc:
+                raise ToolExecutionError("calibration policy must be inside the project root") from exc
+            if not policy_path.is_file():
+                raise ToolExecutionError(f"calibration policy not found: {policy_path}")
+            policy_payload = json.loads(policy_path.read_text(encoding="utf-8"))
+
+            def configured(name: str, default: Any) -> Any:
+                if name in request.model_fields_set:
+                    return getattr(request, name)
+                return policy_payload.get(name, default)
+
+            split_strategy = SplitStrategy(configured("split_strategy", request.split_strategy))
+            split_seed = int(configured("split_seed", request.split_seed))
+            train_fraction = float(configured("train_fraction", request.train_fraction))
+            assignments = assign_playtest_splits(
+                games,
+                strategy=split_strategy,
+                train_fraction=train_fraction,
+                seed=split_seed,
+            )
+            manifest = repository.seal_split(
+                request.dataset_version,
+                assignments=assignments,
+                strategy=split_strategy,
+                seed=split_seed,
+                train_fraction=train_fraction,
+            )
+            batches, source_hashes = load_structural_batches(
+                Path(path) for path in request.simulation_result_paths
+            )
+            policy = CalibrationPolicy(
+                policy_version=str(policy_payload.get("policy_version", "1.0.0")),
+                train_fraction=train_fraction,
+                split_strategy=split_strategy,
+                split_seed=split_seed,
+                confidence_level=float(configured("confidence_level", request.confidence_level)),
+                bootstrap_samples=int(configured("bootstrap_samples", request.bootstrap_samples)),
+                minimum_train_games=int(configured("minimum_train_games", request.minimum_train_games)),
+                minimum_validation_games=int(configured("minimum_validation_games", request.minimum_validation_games)),
+                minimum_train_observations=int(
+                    configured("minimum_train_observations", request.minimum_train_observations)
+                ),
+                minimum_validation_observations=int(
+                    configured("minimum_validation_observations", request.minimum_validation_observations)
+                ),
+                minimum_validation_improvement=float(
+                    configured("minimum_validation_improvement", request.minimum_validation_improvement)
+                ),
+                prior_strength=float(policy_payload.get("prior_strength", 20.0)),
+                minimum_multiplier=float(policy_payload.get("minimum_multiplier", 0.5)),
+                maximum_multiplier=float(policy_payload.get("maximum_multiplier", 2.0)),
+            )
+            report = calibrate_playtests(
+                manifest=manifest,
+                games=repository.load_games(request.dataset_version),
+                simulation_batches=batches,
+                simulation_source_hashes=source_hashes,
+                policy=policy,
+                target_deck_versions=request.target_deck_versions,
+            )
+            safe_name = Path(request.output_name).name
+            if not safe_name.endswith(".json"):
+                safe_name += ".json"
+            output_dir = self.root / "data" / "playtests" / "calibrations" / report.calibration_id
+            json_path = output_dir / safe_name
+            markdown_path = output_dir / f"{Path(safe_name).stem}.md"
+            profile_path = output_dir / "calibration_profile.json"
+            atomic_write_json(json_path, report.model_dump(mode="json"))
+            atomic_write_text(markdown_path, calibration_report_markdown(report))
+            atomic_write_json(
+                profile_path,
+                {
+                    "schema_version": "1.0.0",
+                    "calibration_id": report.calibration_id,
+                    "dataset_hash": report.dataset_hash,
+                    "policy_hash": report.policy_hash,
+                    "accepted_parameters": report.accepted_parameters,
+                    "status": report.status.value,
+                    "applied": False,
+                    "engine_defaults_modified": False,
+                    "independent_confirmation": False,
+                    "external_engine_validation_pending": True,
                 },
-                "status": "insufficient_data" if len(games) < 10 else "provisional",
-                "engine_parameters_modified": False,
+            )
+            return {
+                **report.model_dump(mode="json"),
+                "policy_path": str(policy_path),
+                "output_path": str(json_path),
+                "markdown_report_path": str(markdown_path),
+                "calibration_profile_path": str(profile_path),
+                "automatic_parameter_application": False,
+                "canonical_deck_files_modified": False,
+                "google_drive_files_modified": False,
             }
-            output = self.root / "data/playtests" / request.output_name
-            output.write_text(json.dumps(calibration, indent=2, ensure_ascii=False), encoding="utf-8")
-            return {**calibration, "output_path": str(output)}
-        return self._invoke("calibrate", request, work)
+        return self._invoke(
+            "calibrate", request, work, estimate_type="mixed_real_and_structural"
+        )
 
     def create_report(self, request: CreateReportInput) -> ToolResponse:
         def work() -> dict[str, Any]:

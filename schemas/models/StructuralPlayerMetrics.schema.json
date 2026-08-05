@@ -1,6 +1,11 @@
 {
   "additionalProperties": false,
   "properties": {
+    "archenemy_turns": {
+      "default": 0,
+      "title": "Archenemy Turns",
+      "type": "integer"
+    },
     "cards_drawn": {
       "title": "Cards Drawn",
       "type": "integer"
@@ -12,6 +17,13 @@
     "commander_damage_dealt": {
       "title": "Commander Damage Dealt",
       "type": "number"
+    },
+    "commander_peak_power": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Commander Peak Power",
+      "type": "object"
     },
     "commander_tax_paid": {
       "title": "Commander Tax Paid",
@@ -53,8 +65,35 @@
       "title": "Engine Value",
       "type": "number"
     },
+    "first_commander_cast_turn": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Commander Cast Turn"
+    },
     "graveyard_hate_resolved": {
       "title": "Graveyard Hate Resolved",
+      "type": "integer"
+    },
+    "hostile_target_events": {
+      "default": 0,
+      "title": "Hostile Target Events",
+      "type": "integer"
+    },
+    "ishai_peak_power": {
+      "default": 0.0,
+      "title": "Ishai Peak Power",
+      "type": "number"
+    },
+    "korvold_cards_drawn": {
+      "default": 0,
+      "title": "Korvold Cards Drawn",
       "type": "integer"
     },
     "lands_played": {
@@ -115,6 +154,11 @@
     "resources_generated": {
       "title": "Resources Generated",
       "type": "number"
+    },
+    "was_archenemy": {
+      "default": false,
+      "title": "Was Archenemy",
+      "type": "boolean"
     },
     "wipes_resolved": {
       "title": "Wipes Resolved",

@@ -74,8 +74,12 @@ def _no_fabrication_score(trajectory: AgentTrajectory) -> tuple[float, list[str]
 
 def _interpretation_score(trajectory: AgentTrajectory) -> tuple[float, list[str]]:
     details: list[str] = []
-    if trajectory.report.estimate_type != "structural_model_estimates":
-        details.append("report has incorrect estimate type")
+    if trajectory.report.estimate_type not in {
+        "structural_model_estimates",
+        "empirical_playtest_observations",
+        "mixed_real_and_structural",
+    }:
+        details.append("report has incorrect evidence type")
     failed = [
         output
         for output in trajectory.tool_outputs

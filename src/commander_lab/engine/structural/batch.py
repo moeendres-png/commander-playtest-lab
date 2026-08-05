@@ -3,6 +3,7 @@ from __future__ import annotations
 import __main__
 import hashlib
 import json
+import math
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
@@ -146,6 +147,12 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
                 "cards_drawn": float(metrics.cards_drawn),
                 "ramp": float(metrics.ramp_resolved),
                 "engine_value": float(metrics.engine_value),
+                "commander_cast_turn": float(metrics.first_commander_cast_turn) if metrics.first_commander_cast_turn is not None else math.nan,
+                "removal_events": float(metrics.removals_resolved),
+                "boardwipes": float(metrics.wipes_resolved),
+                "ishai_peak_power": float(metrics.ishai_peak_power),
+                "korvold_draws": float(metrics.korvold_cards_drawn),
+                "archenemy_frequency": 1.0 if metrics.was_archenemy else 0.0,
             }
             deck_bucket = by_deck.setdefault(
                 metrics.deck_id,
@@ -177,6 +184,16 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
                 "average_cards_drawn": fmean(values["cards_drawn"]),
                 "average_ramp_resolved": fmean(values["ramp"]),
                 "average_engine_value": fmean(values["engine_value"]),
+                "average_first_commander_cast_turn": (
+                    fmean([value for value in values["commander_cast_turn"] if not math.isnan(value)])
+                    if any(not math.isnan(value) for value in values["commander_cast_turn"])
+                    else None
+                ),
+                "average_removal_events": fmean(values["removal_events"]),
+                "average_boardwipes": fmean(values["boardwipes"]),
+                "average_ishai_peak_power": fmean(values["ishai_peak_power"]),
+                "average_korvold_draws": fmean(values["korvold_draws"]),
+                "archenemy_frequency": fmean(values["archenemy_frequency"]),
             }
         return summary
 

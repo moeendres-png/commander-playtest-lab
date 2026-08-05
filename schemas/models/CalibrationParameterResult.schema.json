@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "ParameterDecision": {
+      "enum": [
+        "not_evaluated",
+        "insufficient_evidence",
+        "no_signal",
+        "accepted_internal_holdout",
+        "rejected_validation"
+      ],
+      "title": "ParameterDecision",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Accepted Value"
+    },
+    "baseline_value": {
+      "default": 1.0,
+      "title": "Baseline Value",
+      "type": "number"
+    },
+    "decision": {
+      "$ref": "#/$defs/ParameterDecision"
+    },
+    "deck_key": {
+      "title": "Deck Key",
+      "type": "string"
+    },
+    "metric": {
+      "title": "Metric",
+      "type": "string"
+    },
+    "parameter_name": {
+      "title": "Parameter Name",
+      "type": "string"
+    },
+    "proposed_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Value"
+    },
+    "rationale": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Rationale",
+      "type": "array"
+    },
+    "train_difference_interval": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Train Difference Interval"
+    },
+    "train_real_observations": {
+      "minimum": 0,
+      "title": "Train Real Observations",
+      "type": "integer"
+    },
+    "train_simulated_observations": {
+      "minimum": 0,
+      "title": "Train Simulated Observations",
+      "type": "integer"
+    },
+    "validation_error_after": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Validation Error After"
+    },
+    "validation_error_before": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Validation Error Before"
+    },
+    "validation_improvement_fraction": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Validation Improvement Fraction"
+    },
+    "validation_real_observations": {
+      "minimum": 0,
+      "title": "Validation Real Observations",
+      "type": "integer"
+    },
+    "validation_simulated_observations": {
+      "minimum": 0,
+      "title": "Validation Simulated Observations",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_key",
+    "metric",
+    "parameter_name",
+    "decision",
+    "train_real_observations",
+    "validation_real_observations",
+    "train_simulated_observations",
+    "validation_simulated_observations"
+  ],
+  "title": "CalibrationParameterResult",
+  "type": "object"
+}

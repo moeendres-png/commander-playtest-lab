@@ -39,8 +39,12 @@
       "type": "string"
     },
     "estimate_type": {
-      "const": "structural_model_estimates",
       "default": "structural_model_estimates",
+      "enum": [
+        "structural_model_estimates",
+        "empirical_playtest_observations",
+        "mixed_real_and_structural"
+      ],
       "title": "Estimate Type",
       "type": "string"
     },

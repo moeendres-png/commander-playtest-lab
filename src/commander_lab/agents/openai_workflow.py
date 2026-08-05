@@ -246,7 +246,9 @@ def build_agent_runtime(
     specialist_common = (
         "You are a specialist in the Commander Playtest Lab. You may obtain evidence only by "
         "calling supplied structured tools. Never invent or mutate game state. Never describe "
-        "structural_model_estimates as empirical win rates. Include invocation identifiers or tool "
+        "structural_model_estimates as empirical win rates. Keep empirical playtest observations "
+        "separate from structural estimates, and label combined calibration evidence as mixed. "
+        "Include invocation identifiers or tool "
         "names in tool_invocations, and return WorkflowReport structured output."
     )
     settings = _reasoning_settings(sdk, request)
@@ -357,7 +359,7 @@ async def run_openai_workflow(
                 trace_include_sensitive_data=False,
                 trace_metadata={
                     "workflow_id": workflow_id,
-                    "estimate_type": "structural_model_estimates",
+                    "evidence_policy": "structural_empirical_separated",
                 },
             ),
         )

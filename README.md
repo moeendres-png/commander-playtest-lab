@@ -361,3 +361,25 @@ commander-lab runs-verify data/runs/<run-id>
 ```
 
 Phase 8.5.1 has not been executed in the sandbox. See `docs/phase851_execution_required.md`. External validation may never be inferred from Tactical Oracle output, and automatic fallback is disabled by default.
+
+## Phase 9: real playtest calibration
+
+Phase 9 adds append-only real-playtest datasets, deck-version tracking, sealed train/validation
+splits, real-versus-structural distribution comparisons, bootstrap uncertainty intervals and
+non-applied calibration profiles.
+
+```bash
+commander-lab ingest-playtest data/session.csv --dataset-version session-2026-08 --root .
+commander-lab calibrate-playtests \
+  --dataset-version session-2026-08 \
+  --simulation-result data/runs/calibration-reference/structural_results.json \
+  --korvold-version current-2026-08-05 \
+  --rogshai-version current-2026-08-05 \
+  --policy config/calibration_policy.json \
+  --root .
+commander-lab validate-phase9 --root .
+```
+
+Training games are never presented as validation evidence. The validation split is an internal
+holdout, not independent confirmation. Missing real evidence leaves parameters unchanged. See
+`docs/phase9_playtest_calibration.md`.

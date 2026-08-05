@@ -9,7 +9,7 @@ import typer
 from commander_lab.agents.validation import run_phase4_validation
 from commander_lab.agents.demo import run_phase5_demo
 from commander_lab.api import create_app
-from commander_lab.analysis import DeckValidator
+from commander_lab.analysis import DeckValidator, run_phase9_validation
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.evals import run_phase6_evaluation
 from commander_lab.engine.rules import RulesEngineManager, run_phase8_validation, run_phase85_validation
@@ -22,6 +22,8 @@ from commander_lab.engine.structural import (
 )
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
 from commander_lab.models import (
+    CalibrateInput,
+    IngestPlaytestInput,
     PilotConfig,
     PilotDecisionMode,
     PilotStrength,
@@ -377,6 +379,80 @@ def audit_phase86(
     typer.echo(result.model_dump_json(indent=2))
     if result.status == "phase_9_blocked":
         raise typer.Exit(code=2)
+
+
+@app.command("ingest-playtest")
+def ingest_playtest_command(
+    source: Path = typer.Argument(..., exists=True, dir_okay=False),
+    dataset_version: str = typer.Option("phase9-current"),
+    sheet_name: str | None = typer.Option(None),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Import a real playtest sheet into an append-only versioned dataset."""
+    from commander_lab.tools.service import CommanderToolService
+
+    response = CommanderToolService(root).ingest_playtest(
+        IngestPlaytestInput(
+            source_path=str(source),
+            sheet_name=sheet_name,
+            dataset_version=dataset_version,
+        )
+    )
+    typer.echo(response.model_dump_json(indent=2))
+    if response.status.value != "completed":
+        raise typer.Exit(code=1)
+
+
+@app.command("calibrate-playtests")
+def calibrate_playtests_command(
+    dataset_version: str = typer.Option("phase9-current"),
+    simulation_result: list[Path] = typer.Option([], "--simulation-result"),
+    korvold_version: str | None = typer.Option(None, "--korvold-version"),
+    rogshai_version: str | None = typer.Option(None, "--rogshai-version"),
+    policy: Path = typer.Option(Path("config/calibration_policy.json"), "--policy"),
+    split_seed: int | None = typer.Option(None, min=0),
+    train_fraction: float | None = typer.Option(None, min=0.01, max=0.99),
+    output_name: str = typer.Option("latest_calibration.json"),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Compare real and structural distributions using a sealed train/validation split."""
+    from commander_lab.tools.service import CommanderToolService
+
+    request_payload: dict[str, object] = {
+        "dataset_version": dataset_version,
+        "simulation_result_paths": tuple(str(path) for path in simulation_result),
+        "target_deck_versions": {
+            key: value
+            for key, value in {
+                "korvold": korvold_version,
+                "rogshai": rogshai_version,
+            }.items()
+            if value
+        },
+        "policy_path": str(policy),
+        "output_name": output_name,
+    }
+    if split_seed is not None:
+        request_payload["split_seed"] = split_seed
+    if train_fraction is not None:
+        request_payload["train_fraction"] = train_fraction
+    response = CommanderToolService(root).calibrate(CalibrateInput.model_validate(request_payload))
+    typer.echo(response.model_dump_json(indent=2))
+    if response.status.value != "completed":
+        raise typer.Exit(code=1)
+
+
+@app.command("validate-phase9")
+def validate_phase9_command(
+    seed: int = typer.Option(20260805, min=0),
+    output: Path = typer.Option(Path("data/runs/phase9_validation")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run the offline Phase-9 import, split, comparison and calibration smoke suite."""
+    result = run_phase9_validation(root, output_directory=root / output, seed=seed)
+    typer.echo(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
+    if result["implementation_status"] != "passed":
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":
