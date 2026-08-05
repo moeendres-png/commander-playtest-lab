@@ -6,7 +6,7 @@ from pathlib import Path
 from commander_lab.models import Deck, StructuralDeckProfile
 from commander_lab.storage import load_model
 
-from .fixtures import build_synthetic_deck_profile
+from .fixtures import build_current_opponent_profiles, build_synthetic_deck_profile
 from .profiles import StructuralProfileCatalog, build_structural_deck_profile
 
 
@@ -14,6 +14,7 @@ def load_project_structural_decks(
     root: str | Path,
     *,
     include_synthetic_fixtures: bool = False,
+    include_current_opponents: bool = False,
 ) -> dict[str, StructuralDeckProfile]:
     root_path = Path(root)
     manifest = json.loads((root_path / "data/decks/manifest.json").read_text(encoding="utf-8"))
@@ -28,4 +29,8 @@ def load_project_structural_decks(
         for archetype in ("aggro", "control", "engine"):
             profile = build_synthetic_deck_profile(archetype, data_snapshot_hash=snapshot_hash)
             decks[profile.deck_id] = profile
+    if include_current_opponents:
+        opponent_path = root_path / "data/opponents/current_structural_profiles.json"
+        if opponent_path.exists():
+            decks.update(build_current_opponent_profiles(opponent_path, data_snapshot_hash=snapshot_hash))
     return decks

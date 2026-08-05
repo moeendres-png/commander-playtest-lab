@@ -8,6 +8,7 @@ from commander_lab.models import (
     StructuralDeckProfile,
 )
 from commander_lab.storage import sha256_value
+from pathlib import Path
 
 
 def _card(
@@ -99,3 +100,130 @@ def build_synthetic_deck_profile(archetype: str, *, data_snapshot_hash: str) -> 
         commander_strategy=archetype,
         data_snapshot_hash=data_snapshot_hash,
     )
+
+
+
+def build_current_opponent_profiles(
+    config_path: str | Path,
+    *,
+    data_snapshot_hash: str,
+) -> dict[str, StructuralDeckProfile]:
+    """Build current opponent role profiles from a versioned local configuration.
+
+    These are structural estimates, not card-by-card rules-engine deck implementations.
+    """
+    import json
+    from pathlib import Path
+
+    payload = json.loads(Path(config_path).read_text(encoding="utf-8"))
+    profiles: dict[str, StructuralDeckProfile] = {}
+    all_colors = frozenset({Color.WHITE, Color.BLUE, Color.BLACK, Color.RED, Color.GREEN})
+    for spec in payload["profiles"]:
+        deck_id = str(spec["deck_id"])
+        commander_name = str(spec["commander"])
+        quality = DataQuality(str(spec.get("data_quality", "project_inferred")))
+        source_status = str(spec.get("source_status", "role_profile_only"))
+        cards: list[StructuralCardProfile] = [
+            StructuralCardProfile(
+                oracle_name=commander_name,
+                mana_value=float(spec.get("commander_cost", 5.0)),
+                roles=frozenset({CardRole.ENGINE, CardRole.PAYOFF, CardRole.COMBAT_PAYOFF}),
+                role_strengths={CardRole.ENGINE: 1.15, CardRole.PAYOFF: 1.1, CardRole.COMBAT_PAYOFF: 0.8},
+                is_permanent=True,
+                is_creature=True,
+                base_power=float(spec.get("commander_power", 5.0)),
+                commander_synergy=1.0,
+                floor_value=0.75,
+                immediate_impact=0.65,
+                turn_cycle_risk=0.45,
+                multiplayer_scaling=0.35,
+                source_quality=quality,
+                notes=f"Current opponent commander role profile; source_status={source_status}.",
+            )
+        ]
+        land_count = int(spec.get("land_count", 38))
+        for index in range(land_count):
+            cards.append(
+                StructuralCardProfile(
+                    oracle_name=f"{deck_id} mana source {index:02d}",
+                    mana_value=0.0,
+                    roles=frozenset({CardRole.MANA_SOURCE}),
+                    role_strengths={CardRole.MANA_SOURCE: 1.0},
+                    produces_colors=all_colors,
+                    is_land=True,
+                    floor_value=1.0,
+                    immediate_impact=1.0,
+                    turn_cycle_risk=0.0,
+                    source_quality=quality,
+                    notes=f"Abstract mana source for {deck_id}.",
+                )
+            )
+        role_counts = {CardRole(key): int(value) for key, value in spec.get("roles", {}).items()}
+        role_mv = {
+            CardRole.RAMP: 2.0, CardRole.DRAW: 3.0, CardRole.SELECTION: 2.0,
+            CardRole.REMOVAL: 2.5, CardRole.COUNTER: 2.0, CardRole.PROTECTION: 1.5,
+            CardRole.WIPE: 5.0, CardRole.RECURSION: 4.0, CardRole.GRAVEYARD_HATE: 2.5,
+            CardRole.ENGINE: 3.5, CardRole.ENABLER: 3.0, CardRole.PAYOFF: 4.0,
+            CardRole.FINISHER: 6.0, CardRole.COMBAT_PAYOFF: 3.5, CardRole.TOKEN_SOURCE: 3.5,
+            CardRole.SACRIFICE_OUTLET: 2.5, CardRole.LAND_SYNERGY: 3.0,
+        }
+        slot_count = 100 - len(cards)
+        slot_roles: list[set[CardRole]] = [set() for _ in range(slot_count)]
+        for role_index, (role, count) in enumerate(role_counts.items()):
+            capped = min(count, slot_count)
+            for offset in range(capped):
+                slot = (role_index * 11 + offset * 7) % slot_count
+                slot_roles[slot].add(role)
+        for index, roles in enumerate(slot_roles):
+            if not roles:
+                roles = {CardRole.ENABLER}
+            creature = bool(roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF, CardRole.FINISHER, CardRole.COMBAT_PAYOFF, CardRole.TOKEN_SOURCE})
+            mana_value = sum(role_mv.get(role, 3.0) for role in roles) / len(roles)
+            cards.append(
+                StructuralCardProfile(
+                    oracle_name=f"{deck_id} role card {index:03d}",
+                    mana_value=mana_value,
+                    roles=frozenset(roles),
+                    role_strengths={role: 1.0 for role in roles},
+                    is_permanent=not bool(roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.SELECTION}),
+                    is_creature=creature,
+                    base_power=3.0 if creature else 0.0,
+                    commander_synergy=0.45 if roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF} else 0.15,
+                    floor_value=0.72,
+                    immediate_impact=0.8 if roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.PROTECTION} else 0.55,
+                    turn_cycle_risk=0.25 if roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION} else 0.5,
+                    multiplayer_scaling=0.45 if roles & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER, CardRole.TOKEN_SOURCE} else 0.1,
+                    source_quality=quality,
+                    notes=f"Structural role-density card for {deck_id}; source_status={source_status}.",
+                )
+            )
+        while len(cards) < 100:
+            cards.append(
+                StructuralCardProfile(
+                    oracle_name=f"{deck_id} neutral filler {len(cards):03d}",
+                    mana_value=3.0,
+                    roles=frozenset({CardRole.ENABLER}),
+                    role_strengths={CardRole.ENABLER: 0.7},
+                    is_permanent=True,
+                    is_creature=True,
+                    base_power=2.5,
+                    floor_value=0.55,
+                    immediate_impact=0.4,
+                    turn_cycle_risk=0.55,
+                    multiplayer_scaling=0.05,
+                    source_quality=quality,
+                    notes=f"Neutral structural filler for {deck_id}.",
+                )
+            )
+        cards = cards[:100]
+        profiles[deck_id] = StructuralDeckProfile(
+            deck_id=deck_id,
+            deck_hash=sha256_value({"spec": spec, "cards": [card.oracle_name for card in cards]}),
+            commander_names=(commander_name,),
+            cards=tuple(cards),
+            commander_base_costs={commander_name: float(spec.get("commander_cost", 5.0))},
+            commander_base_power={commander_name: float(spec.get("commander_power", 5.0))},
+            commander_strategy=str(spec.get("strategy", "generic")),
+            data_snapshot_hash=data_snapshot_hash,
+        )
+    return profiles

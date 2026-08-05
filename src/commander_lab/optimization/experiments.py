@@ -75,7 +75,7 @@ def variant_deck(
         "baseline": baseline.deck_hash,
         "variant_id": variant_id,
         "removed": removed,
-        "added": [card.model_dump(mode="json") for card in additions],
+        "added": list(additions),
         "tax": additional_commander_tax,
         "suppress": suppress_commander_synergy,
     }

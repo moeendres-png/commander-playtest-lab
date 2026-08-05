@@ -6,6 +6,7 @@ from pathlib import Path
 
 import typer
 
+from commander_lab.acceptance import run_phase10_acceptance
 from commander_lab.agents.validation import run_phase4_validation
 from commander_lab.agents.demo import run_phase5_demo
 from commander_lab.api import create_app
@@ -102,7 +103,9 @@ def run_structural_batch_command(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     """Run a local structural_model_estimates batch."""
-    decks = load_project_structural_decks(root, include_synthetic_fixtures=True)
+    decks = load_project_structural_decks(
+        root, include_synthetic_fixtures=True, include_current_opponents=True
+    )
     config = StructuralBatchConfig(
         run_id="adhoc-structural",
         seed=seed,
@@ -452,6 +455,27 @@ def validate_phase9_command(
     result = run_phase9_validation(root, output_directory=root / output, seed=seed)
     typer.echo(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
     if result["implementation_status"] != "passed":
+        raise typer.Exit(code=1)
+
+
+@app.command("accept-phase10")
+def accept_phase10(
+    iterations: int = typer.Option(12, min=1),
+    seed: int = typer.Option(20260805, min=0),
+    workers: int = typer.Option(2, min=1, max=64),
+    output: Path = typer.Option(Path("data/runs/phase10_acceptance")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run the full Phase-10 end-to-end acceptance workflow."""
+    result = run_phase10_acceptance(
+        root,
+        iterations=iterations,
+        seed=seed,
+        workers=workers,
+        output_directory=root / output,
+    )
+    typer.echo(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
+    if result.get("status") not in {"passed", "passed_with_limitations"}:
         raise typer.Exit(code=1)
 
 

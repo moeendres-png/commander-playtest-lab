@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from commander_lab.acceptance import run_phase10_acceptance
 from commander_lab.agents.openai_workflow import AgentsSdkUnavailable, run_openai_workflow
 from commander_lab.models import WorkflowRequest
 from commander_lab.tools import CommanderToolService, ToolRegistry
@@ -20,7 +21,7 @@ def create_app(root: str | Path) -> FastAPI:
     registry = ToolRegistry(service)
     app = FastAPI(
         title="Commander Playtest Lab Function Tool Server",
-        version="0.5.0",
+        version="1.0.0",
         description=(
             "Local structured tool server. All simulation numbers are "
             "structural_model_estimates."
@@ -56,6 +57,23 @@ def create_app(root: str | Path) -> FastAPI:
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         return report.model_dump(mode="json")
+
+    @app.post("/v1/demos/phase10")
+    def run_phase10_demo(
+        iterations: int = 4, seed: int = 20260805, workers: int = 1
+    ) -> dict[str, object]:
+        if iterations < 1 or iterations > 100:
+            raise HTTPException(
+                status_code=422, detail="demo iterations must be between 1 and 100"
+            )
+        return run_phase10_acceptance(
+            root,
+            iterations=iterations,
+            seed=seed,
+            workers=workers,
+            output_directory=Path(root) / "data/runs/phase10_api_demo",
+            include_api_self_test=False,
+        )
 
     app.state.commander_service = service
     app.state.tool_registry = registry

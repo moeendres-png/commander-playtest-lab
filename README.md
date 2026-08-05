@@ -2,7 +2,7 @@
 
 Local, reproducible foundation for importing, validating, structurally simulating, and later optimizing MTG Commander decks.
 
-## Current scope: Phase 7
+## Current scope: Phase 10
 
 The repository provides:
 
@@ -183,19 +183,19 @@ The strength benchmark measures choices in controlled decisions such as early ra
 
 ## Project boundaries
 
-Not implemented yet:
+Current limitations:
 
-- full Oracle snapshot ingestion;
-- tactical stack engine and card-by-card rules execution;
-- real opponent-precon import for simulation;
-- Cosmic Spider-Man synthetic completion;
-- rule-validating XMage or Forge runtime adapters;
-- a live OpenAI workflow smoke test in this build container, because its configured package index did not provide the optional Agents SDK and external DNS was unavailable.
+- the local Oracle catalog covers the current project decks, not every printed Magic card;
+- the Structural Simulator and Tactical Oracle are bounded abstractions rather than complete Magic rules engines;
+- fixed precon opponents are represented by versioned structural role profiles, not card-by-card external-engine execution;
+- the Cosmic Spider-Man profile combines known cards with an explicitly synthetic mid-budget completion;
+- XMage/Forge bootstrap and adapter contracts are prepared, but no real external-engine run has completed in this environment;
+- live OpenAI-agent execution requires the optional Agents SDK and a separately configured API key.
 
 
 ## Phase 5: local Function-Tool server and OpenAI agents
 
-Phase 5 introduced a local FastAPI Function-Tool server. Phase 7 extends it to 23 strict, Pydantic-validated tools:
+Phase 5 introduced a local FastAPI Function-Tool server. The current server exposes 23 strict, Pydantic-validated tools:
 
 - deck validation and inspection;
 - goldfish and multiplayer batches;
@@ -222,6 +222,7 @@ GET  /health
 GET  /v1/tools
 POST /v1/tools/{tool_name}:invoke
 POST /v1/workflows:run
+POST /v1/demos/phase10
 ```
 
 The deterministic tools run without an API key. Live workflows require the optional OpenAI dependencies and `OPENAI_API_KEY`:
@@ -383,3 +384,23 @@ commander-lab validate-phase9 --root .
 Training games are never presented as validation evidence. The validation split is an internal
 holdout, not independent confirmation. Missing real evidence leaves parameters unchanged. See
 `docs/phase9_playtest_calibration.md`.
+
+## Phase 10: end-to-end acceptance
+
+The current package version is `1.0.0`. Phase 10 adds current project opponent profiles, a complete non-destructive acceptance workflow, CLI/API/ChatGPT-tool demos and example reports for both current decks.
+
+```bash
+commander-lab accept-phase10 --iterations 12 --workers 2 --seed 20260805 --root .
+```
+
+Current opponent scenarios use fixed precon references, the known Morcant and Kaervek role profiles, and a clearly marked synthetic mid-budget completion for Cosmic Spider-Man. No fixed empirical opponent frequencies are assumed.
+
+A result is only `validated_upgrade` after physical constraints, primary pods, worst-quartile behavior, holdout, sensitivity, red-team review and real external rules-engine validation pass. The current external engine gate remains pending, so Phase 10 cannot authorize a deck change.
+
+Documentation:
+
+- `docs/installation.md`
+- `docs/architecture.md`
+- `docs/phase10_validation.md`
+- `docs/known_limitations.md`
+- `docs/chatgpt_tool_usage.md`

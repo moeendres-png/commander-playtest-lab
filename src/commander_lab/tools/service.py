@@ -107,7 +107,11 @@ class CommanderToolService:
     def __init__(self, root: str | Path, *, limits: CostLimits | None = None) -> None:
         self.root = Path(root).resolve()
         self.limits = limits or self._load_limits()
-        self.decks = load_project_structural_decks(self.root, include_synthetic_fixtures=True)
+        self.decks = load_project_structural_decks(
+            self.root,
+            include_synthetic_fixtures=True,
+            include_current_opponents=True,
+        )
         self.candidates = load_candidate_profiles(self.root)
         self.candidate_inventory = load_candidate_inventory(self.root)
         self.verified_candidate_names = {

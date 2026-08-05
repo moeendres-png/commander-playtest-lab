@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0.0",
+  "data_as_of": "2026-08-05",
+  "estimate_type": "structural_model_estimates",
+  "weighting": "unweighted_representative_scenarios",
+  "notes": [
+    "Official precons are represented as fixed structural reference profiles; no opponent upgrades are assumed.",
+    "Cosmic Spider-Man uses known project information plus a synthetic mid-budget completion.",
+    "Morcant and Kaervek remain role-profile references because no current exact local 100-card file is present."
+  ],
+  "profiles": [
+    {
+      "deck_id": "opponent/morcant-elves",
+      "name": "Alen's Morcant Elves",
+      "commander": "High Perfect Morcant",
+      "commander_cost": 4.0,
+      "commander_power": 4.0,
+      "strategy": "aggro_engine",
+      "source_status": "partially_known",
+      "data_quality": "project_inferred",
+      "land_count": 37,
+      "roles": {"ramp": 10, "draw": 8, "removal": 7, "wipe": 2, "protection": 4, "engine": 12, "enabler": 14, "token_source": 12, "payoff": 10, "combat_payoff": 8, "finisher": 5},
+      "uncertainty": ["Final 99 not verified", "Exact proliferate and Blight densities unknown"]
+    },
+    {
+      "deck_id": "opponent/cosmic-spiderman-midbudget",
+      "name": "Cosmic Spider-Man Mid-Budget Completion",
+      "commander": "Cosmic Spider-Man",
+      "commander_cost": 5.0,
+      "commander_power": 5.0,
+      "strategy": "multicolor_legends_combat",
+      "source_status": "synthetic_completion",
+      "data_quality": "synthetic_assumption",
+      "land_count": 38,
+      "roles": {"ramp": 10, "draw": 9, "selection": 5, "removal": 10, "counter": 3, "protection": 7, "wipe": 3, "engine": 10, "enabler": 12, "payoff": 10, "combat_payoff": 10, "finisher": 5},
+      "uncertainty": ["Only a subset of cards is known", "Unknown slots filled as a plausible mid-budget list"]
+    },
+    {
+      "deck_id": "opponent/blight-curse-precon",
+      "name": "Blight Curse Official Precon Reference",
+      "commander": "The Reaper, King No More",
+      "commander_cost": 5.0,
+      "commander_power": 5.0,
+      "strategy": "minus_counters_enchantments_recursion",
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "land_count": 38,
+      "roles": {"ramp": 10, "draw": 8, "removal": 11, "wipe": 4, "protection": 3, "recursion": 6, "graveyard_hate": 3, "engine": 10, "enabler": 12, "payoff": 9, "finisher": 5},
+      "uncertainty": ["Structural reference to the fixed precon; card-by-card engine coverage not asserted"]
+    },
+    {
+      "deck_id": "opponent/kaervek-reference",
+      "name": "Kaervek the Merciless Reference",
+      "commander": "Kaervek the Merciless",
+      "commander_cost": 7.0,
+      "commander_power": 5.0,
+      "strategy": "punisher_control_reanimation",
+      "source_status": "project_reference",
+      "data_quality": "project_inferred",
+      "land_count": 38,
+      "roles": {"ramp": 12, "draw": 9, "removal": 12, "wipe": 5, "recursion": 5, "graveyard_hate": 3, "engine": 8, "payoff": 10, "finisher": 5},
+      "uncertainty": ["Open Path of Ancestry replacement remains unresolved"]
+    },
+    {
+      "deck_id": "opponent/doom-prevails-precon",
+      "name": "Doom Prevails Official Precon Reference",
+      "commander": "Doctor Doom",
+      "commander_cost": 5.0,
+      "commander_power": 5.0,
+      "strategy": "villains_artifacts_reuse",
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "land_count": 38,
+      "roles": {"ramp": 11, "draw": 9, "removal": 9, "counter": 3, "wipe": 4, "recursion": 5, "engine": 12, "enabler": 10, "payoff": 9, "token_source": 6, "finisher": 5},
+      "uncertainty": ["Opponent upgrades intentionally ignored for the fixed-precon reference"]
+    },
+    {
+      "deck_id": "opponent/dance-elements-precon",
+      "name": "Dance of the Elements Official Precon Reference",
+      "commander": "Dance of the Elements Commander",
+      "commander_cost": 5.0,
+      "commander_power": 5.0,
+      "strategy": "elemental_etb_evoke_recursion",
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "land_count": 38,
+      "roles": {"ramp": 11, "draw": 8, "removal": 8, "wipe": 3, "recursion": 9, "graveyard_hate": 2, "engine": 10, "enabler": 14, "payoff": 9, "token_source": 6, "finisher": 5},
+      "uncertainty": ["Fixed-precon structural reference"]
+    },
+    {
+      "deck_id": "opponent/wakanda-forever-precon",
+      "name": "Wakanda Forever Official Precon Reference",
+      "commander": "Wakanda Forever Commander",
+      "commander_cost": 5.0,
+      "commander_power": 5.0,
+      "strategy": "artifacts_equipment_tokens",
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "land_count": 38,
+      "roles": {"ramp": 11, "draw": 8, "removal": 9, "wipe": 3, "protection": 5, "engine": 10, "enabler": 10, "payoff": 9, "combat_payoff": 9, "token_source": 9, "finisher": 5},
+      "uncertainty": ["Fixed-precon structural reference"]
+    }
+  ],
+  "primary_four_player_pods": [
+    ["opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget"],
+    ["opponent/kaervek-reference", "opponent/doom-prevails-precon", "opponent/dance-elements-precon"],
+    ["opponent/morcant-elves", "opponent/doom-prevails-precon", "opponent/wakanda-forever-precon"],
+    ["opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget", "opponent/kaervek-reference"]
+  ],
+  "holdout_pods": [
+    ["opponent/cosmic-spiderman-midbudget", "opponent/dance-elements-precon", "opponent/wakanda-forever-precon"],
+    ["opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/kaervek-reference"]
+  ]
+}

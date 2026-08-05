@@ -16,3 +16,6 @@ data/runs/*
 
 build/
 dist/
+
+# Generated Phase-10 demo evidence
+artifacts/phase10/*.json
