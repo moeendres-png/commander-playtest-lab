@@ -228,13 +228,13 @@ def _api_demo_passed(api_demo: dict[str, Any]) -> bool:
         and health.get("status_code", 200) == 200
     )
 
-    tools = api_demo.get("tools", {})
+    tools = api_demo.get("tools")
     tools_ok = False
     if isinstance(tools, dict):
         tools_ok = tools.get("status_code", 200) == 200 and (
             int(tools.get("count", 0)) > 0 or bool(tools.get("tools"))
         )
-    elif isinstance(api_demo.get("tool_count"), int):
+    if not tools_ok and isinstance(api_demo.get("tool_count"), int):
         tools_ok = api_demo["tool_count"] > 0
 
     validate = (
@@ -263,7 +263,7 @@ def run_phase10_acceptance(
     seed: int = 20260805,
     workers: int = 2,
     output_directory: str | Path | None = None,
-    include_api_self_test: bool = False,
+    include_api_self_test: bool = True,
 ) -> dict[str, Any]:
     root_path = Path(root).resolve()
     output = Path(output_directory).resolve() if output_directory else root_path / "data/runs/phase10_acceptance"

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1 - 2026-08-05
+
+- Run the Phase-10 API self-test by default so clean repository and Git-bundle restores do not depend on an untracked API-demo artifact.
+- Accept both versioned API evidence and the in-process self-test evidence shape.
+- Close all contract-test subprocess pipes explicitly to prevent order-dependent suite hangs.
+- Preserve all external-engine and deck-change safety gates.
+
 ## 0.8.6 - 2026-08-05
 
 - Added Phase 8.6 trust-boundary audit and regression tests.

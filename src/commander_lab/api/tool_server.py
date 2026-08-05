@@ -72,7 +72,7 @@ def create_app(root: str | Path) -> FastAPI:
             seed=seed,
             workers=workers,
             output_directory=Path(root) / "data/runs/phase10_api_demo",
-            include_api_self_test=False,
+            include_api_self_test=True,
         )
 
     app.state.commander_service = service

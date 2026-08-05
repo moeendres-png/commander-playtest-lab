@@ -130,8 +130,16 @@ def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: P
             assert response.request_id == request.request_id
             assert response.protocol_version == ENGINE_PROTOCOL_VERSION
         finally:
-            proc.terminate()
-            proc.wait(timeout=2)
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait(timeout=2)
+            for stream in (proc.stdin, proc.stdout, proc.stderr):
+                if stream is not None:
+                    stream.close()
 
 
 def test_timeout_is_reported_without_false_success(repo_root: Path, tmp_path: Path) -> None:

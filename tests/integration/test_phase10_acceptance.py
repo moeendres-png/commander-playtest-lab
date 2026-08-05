@@ -57,3 +57,12 @@ def test_api_demo_accepts_versioned_evidence_envelope() -> None:
         },
     }
     assert _api_demo_passed(evidence) is True
+
+
+def test_api_demo_accepts_in_process_self_test_shape() -> None:
+    evidence = {
+        "health": {"status": "ok", "tool_count": 23},
+        "tool_count": 23,
+        "validate_call": {"status": "completed", "result": {"deck_id": "korvold/current"}},
+    }
+    assert _api_demo_passed(evidence) is True
