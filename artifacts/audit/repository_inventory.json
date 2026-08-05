@@ -1,10 +1,10 @@
 {
   "counts": {
     "documentation": 9,
-    "files": 606,
+    "files": 670,
     "python_modules": 93,
     "schemas": 109,
-    "scripts": 13,
+    "scripts": 15,
     "tests": 47
   },
   "files_by_suffix": {
@@ -12,17 +12,18 @@
     ".csv": 1,
     ".example": 1,
     ".exitcode": 2,
-    ".json": 153,
-    ".jsonl": 24,
-    ".log": 5,
-    ".md": 47,
+    ".json": 171,
+    ".jsonl": 52,
+    ".log": 3,
+    ".md": 59,
     ".ps1": 1,
-    ".py": 146,
-    ".pyc": 190,
+    ".py": 147,
+    ".pyc": 195,
     ".sh": 8,
+    ".sha256": 1,
     ".sqlite3": 1,
     ".toml": 1,
-    ".txt": 11,
+    ".txt": 12,
     ".yaml": 3,
     ".yml": 3,
     "<none>": 8
@@ -221,7 +222,7 @@
       "src/commander_lab/tools/service.py:121:subprocess.check_output(['git', '-C', str(self.root), 'rev-parse', 'HEAD'], text=True, stderr=subprocess.DEVNULL).strip"
     ]
   },
-  "generated_at": "2026-08-05T08:11:33.747264+00:00",
+  "generated_at": "2026-08-05T08:19:11.129312+00:00",
   "modules": [
     {
       "classes": [],
@@ -2436,7 +2437,7 @@
         "pydantic",
         "typing"
       ],
-      "lines": 25,
+      "lines": 24,
       "module": "commander_lab.storage.json_store",
       "path": "src/commander_lab/storage/json_store.py"
     },

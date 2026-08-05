@@ -129,7 +129,7 @@
     "schemas/engine_protocol/EngineProtocolRequest.schema.json",
     "schemas/engine_protocol/EngineProtocolResponse.schema.json"
   ],
-  "audit_commit": "a189065d7ed90bc057a32fdeadd681365d64463c",
+  "audit_commit": "83b36b0161e1ac27345f18d36da9f8d28e587f1b",
   "baseline_commit": "a189065d7ed90bc057a32fdeadd681365d64463c",
   "bugs": [
     {
@@ -303,7 +303,7 @@
     }
   ],
   "external_engine_validation_pending": true,
-  "generated_at": "2026-08-05T08:12:14.066683Z",
+  "generated_at": "2026-08-05T08:19:51.776026Z",
   "phase": "8.6",
   "phase9_allowed": false,
   "remaining_risks": [
