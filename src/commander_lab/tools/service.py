@@ -23,6 +23,24 @@ from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.structural import ENGINE_VERSION, load_project_structural_decks, run_structural_batch
 from commander_lab.importers import RealPlaytestImporter
 from commander_lab.models import (
+    BudgetBand,
+    CompareDeckToMetaInput,
+    CompareMetaPeriodsInput,
+    CreateMetaSnapshotInput,
+    FormatBand,
+    GenerateMetaReportInput,
+    ImportMetaDeckInput,
+    ImportPrimerReferenceInput,
+    ImportTournamentResultInput,
+    MetaCategory,
+    MetaDeckSnapshot,
+    MetaEvidenceRating,
+    MetaKnowledgeBaseSnapshot,
+    MetaSource,
+    PrimerReference,
+    QueryMetaCardsInput,
+    QueryMetaPackagesInput,
+    TournamentResult,
     CalibrateInput,
     CardAblationInput,
     Collection,
@@ -84,6 +102,8 @@ from commander_lab.storage import (
     sha256_value,
 )
 from commander_lab.models import Deck
+from commander_lab.meta import MetaKnowledgeBase
+from commander_lab.meta.store import stable_deck_hash
 from commander_lab.reporting import calibration_report_markdown
 
 from .candidates import load_candidate_profiles
@@ -797,6 +817,173 @@ class CommanderToolService:
                 "warning": "Candidates are not confirmed until paired and holdout validation pass.",
             }
         return self._invoke("recommend_upgrades", request, work, deck_ids=(request.deck_id,))
+
+
+    def _meta_kb(self) -> MetaKnowledgeBase:
+        return MetaKnowledgeBase(self.root)
+
+    def _stage_meta_record(self, filename: str, payload: dict[str, Any]) -> Path:
+        target = self.root / "data/meta/provenance" / filename
+        existing = []
+        if target.exists():
+            try:
+                existing = json.loads(target.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                existing = []
+        if not isinstance(existing, list):
+            existing = [existing]
+        existing.append(payload)
+        atomic_write_json(target, existing)
+        return target
+
+    def import_meta_deck(self, request: ImportMetaDeckInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            # Validate via the production snapshot model; write only to data/meta/provenance.
+            deck = MetaDeckSnapshot(
+                source_id=request.source_id,
+                commander=request.commander,
+                deck_hash=stable_deck_hash(request.decklist),
+                retrieved_at=datetime.now(UTC),
+                format_band=request.format_band,
+                categories=request.categories,
+                pod_size=request.pod_size,
+                budget_band=BudgetBand(request.budget_band),
+                event_name=request.event_name,
+                placement=request.placement,
+                player_count=request.player_count,
+                decklist=request.decklist,
+                provenance={"imported_by_tool": True, "source_path": request.snapshot_path},
+            )
+            path = self._stage_meta_record("staged_meta_decks.json", deck.model_dump(mode="json"))
+            return {"staged_path": str(path.relative_to(self.root)), "deck_hash": deck.deck_hash, "automatic_deck_application": False}
+        return self._invoke("import_meta_deck", request, work, estimate_type="structural_model_estimates")
+
+    def import_tournament_result(self, request: ImportTournamentResultInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            result = TournamentResult(
+                source_id=request.source_id,
+                event_name=request.event_name,
+                format_band=request.format_band,
+                pod_size=request.pod_size,
+                placement=request.placement,
+                player_count=request.player_count,
+            )
+            path = self._stage_meta_record("staged_tournament_results.json", result.model_dump(mode="json"))
+            return {"staged_path": str(path.relative_to(self.root)), "automatic_deck_application": False}
+        return self._invoke("import_tournament_result", request, work)
+
+    def import_primer_reference(self, request: ImportPrimerReferenceInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            primer = PrimerReference(
+                source_id=request.source_id,
+                commander=request.commander,
+                title=request.title,
+                key_points=request.key_points,
+                categories=request.categories,
+                evidence_quality=MetaEvidenceRating.ESTABLISHED_PRIMER,
+                transfer_limitations=("Primer notes are advisory only and never update decklists automatically.",),
+            )
+            path = self._stage_meta_record("staged_primer_references.json", primer.model_dump(mode="json"))
+            return {"staged_path": str(path.relative_to(self.root)), "automatic_deck_application": False}
+        return self._invoke("import_primer_reference", request, work)
+
+    def create_meta_snapshot(self, request: CreateMetaSnapshotInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            kb = self._meta_kb()
+            seed_path = self.root / request.seed_file
+            if not seed_path.exists():
+                raise ToolExecutionError(f"meta seed file missing: {request.seed_file}")
+            out_path = kb.snapshot_path(request.snapshot_id)
+            if out_path.exists() and not request.allow_overwrite:
+                raise ToolExecutionError(f"immutable snapshot already exists: {request.snapshot_id}")
+            payload = json.loads(seed_path.read_text(encoding="utf-8"))
+            sources = tuple(MetaSource.model_validate(x) for x in payload.get("sources", []))
+            decks = tuple(MetaDeckSnapshot.model_validate(x) for x in payload.get("deck_snapshots", []))
+            tournaments = tuple(TournamentResult.model_validate(x) for x in payload.get("tournament_results", []))
+            primers = tuple(PrimerReference.model_validate(x) for x in payload.get("primer_references", []))
+            from commander_lab.models import MetaArchetype, MetaPackage
+            archetypes = tuple(MetaArchetype.model_validate(x) for x in payload.get("archetypes", []))
+            packages = tuple(MetaPackage.model_validate(x) for x in payload.get("packages", []))
+            snapshot = kb.create_snapshot(
+                snapshot_id=request.snapshot_id,
+                sources=sources,
+                deck_snapshots=decks,
+                tournament_results=tournaments,
+                primer_references=primers,
+                archetypes=archetypes,
+                packages=packages,
+                notes=payload.get("notes"),
+            )
+            if out_path.exists() and request.allow_overwrite:
+                out_path.rename(out_path.with_suffix(".superseded-local.json"))
+            path = kb.write_snapshot(snapshot)
+            return {
+                "snapshot_id": snapshot.manifest.snapshot_id,
+                "path": str(path.relative_to(self.root)),
+                "source_count": len(snapshot.sources),
+                "deck_snapshot_count": len(snapshot.deck_snapshots),
+                "primer_count": len(snapshot.primer_references),
+                "archetype_count": len(snapshot.archetypes),
+                "card_frequency_count": len(snapshot.card_frequencies),
+                "automatic_deck_application": False,
+            }
+        return self._invoke("create_meta_snapshot", request, work)
+
+    def query_meta_cards(self, request: QueryMetaCardsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._meta_kb().query_cards(request.commander, request.format_band, request.min_frequency)
+        return self._invoke("query_meta_cards", request, work)
+
+    def query_meta_packages(self, request: QueryMetaPackagesInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._meta_kb().query_packages(request.commander, request.category)
+        return self._invoke("query_meta_packages", request, work)
+
+    def compare_deck_to_meta(self, request: CompareDeckToMetaInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            deck = self._deck(request.deck_id)
+            cards = tuple(card.oracle_name for card in deck.cards if card.oracle_name not in deck.commander_names)
+            result = self._meta_kb().compare_deck_to_meta(cards, commander=request.commander, format_band=request.format_band)
+            result["local_deck_id"] = request.deck_id
+            result["local_deck_hash"] = deck.deck_hash
+            result["automatic_deck_application"] = False
+            return result
+        return self._invoke("compare_deck_to_meta", request, work, deck_ids=(request.deck_id,))
+
+    def compare_meta_periods(self, request: CompareMetaPeriodsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._meta_kb().compare_periods(request.older_snapshot_id, request.newer_snapshot_id, commander=request.commander)
+        return self._invoke("compare_meta_periods", request, work)
+
+    def generate_meta_report(self, request: GenerateMetaReportInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            snapshot = self._meta_kb().load_snapshot()
+            lines = [
+                "# Meta Knowledge Base Report",
+                "",
+                f"Snapshot: `{snapshot.manifest.snapshot_id}`",
+                f"Sources: {len(snapshot.sources)}",
+                f"Deck snapshots: {len(snapshot.deck_snapshots)}",
+                f"Primer references: {len(snapshot.primer_references)}",
+                f"Archetypes: {len(snapshot.archetypes)}",
+                "",
+                "## Transfer policy",
+                "",
+                "Meta records are evidence only. They do not replace decklists, inventory, allocation, or local-opponent data.",
+                "cEDH records are structure, package, sequencing and interaction benchmarks unless a matching local context is explicitly established.",
+                "",
+                "## Sources",
+            ]
+            for source in snapshot.sources:
+                lines.append(f"- `{source.source_id}` — {source.title} ({source.evidence_quality})")
+            lines.append("\n## Small-sample flags")
+            for freq in snapshot.card_frequencies:
+                if freq.small_sample:
+                    lines.append(f"- {freq.commander} / {freq.format_band}: sample_size={freq.sample_size}")
+            target = self.root / "data/runs/meta_reports" / request.output_name
+            atomic_write_text(target, "\n".join(lines) + "\n")
+            return {"report_path": str(target.relative_to(self.root)), "snapshot_id": snapshot.manifest.snapshot_id, "automatic_deck_application": False}
+        return self._invoke("generate_meta_report", request, work)
 
     def generate_swap_matrix(self, request: SwapMatrixInput) -> ToolResponse:
         """Generate every requested cut/add cell, preserving invalid cells as evidence."""

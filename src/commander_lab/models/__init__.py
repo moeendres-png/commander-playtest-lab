@@ -121,6 +121,35 @@ from .rules import (
     ValidationRegistry,
 )
 
+from .meta import (
+    META_SCHEMA_VERSION,
+    BudgetBand,
+    FormatBand,
+    MetaArchetype,
+    MetaCardFrequency,
+    MetaCategory,
+    MetaDeckSnapshot,
+    MetaEvidenceRating,
+    MetaKnowledgeBaseSnapshot,
+    MetaPackage,
+    MetaSnapshotManifest,
+    MetaSource,
+    PrimerReference,
+    TournamentResult,
+)
+
+from .tooling import (
+    ImportMetaDeckInput,
+    ImportTournamentResultInput,
+    ImportPrimerReferenceInput,
+    CreateMetaSnapshotInput,
+    QueryMetaCardsInput,
+    QueryMetaPackagesInput,
+    CompareDeckToMetaInput,
+    CompareMetaPeriodsInput,
+    GenerateMetaReportInput,
+)
+
 from .simulation import (
     CardContribution,
     CardSwap,
@@ -221,6 +250,20 @@ __all__ = [
     "ParetoFrontInput",
     "ShapleyInput",
     "ZoneState",
+    "META_SCHEMA_VERSION",
+    "BudgetBand",
+    "FormatBand",
+    "MetaArchetype",
+    "MetaCardFrequency",
+    "MetaCategory",
+    "MetaDeckSnapshot",
+    "MetaEvidenceRating",
+    "MetaKnowledgeBaseSnapshot",
+    "MetaPackage",
+    "MetaSnapshotManifest",
+    "MetaSource",
+    "PrimerReference",
+    "TournamentResult",
     "BridgeRequest",
     "BridgeResponse",
     "CardValidationRecord",

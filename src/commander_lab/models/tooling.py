@@ -257,3 +257,73 @@ class WorkflowReport(FrozenModel):
         "empirical_playtest_observations",
         "mixed_real_and_structural",
     ] = "structural_model_estimates"
+
+# Meta Knowledge Base tool inputs (append-only reference/evidence layer)
+from .meta import FormatBand, MetaCategory  # noqa: E402
+
+
+class ImportMetaDeckInput(FrozenModel):
+    snapshot_path: str | None = None
+    source_id: str
+    commander: str
+    decklist: tuple[str, ...]
+    format_band: FormatBand
+    categories: tuple[MetaCategory, ...]
+    event_name: str | None = None
+    placement: str | None = None
+    player_count: int | None = Field(default=None, ge=1)
+    pod_size: int | None = Field(default=4, ge=2, le=10)
+    budget_band: str = "unknown"
+
+
+class ImportTournamentResultInput(FrozenModel):
+    snapshot_path: str | None = None
+    source_id: str
+    event_name: str
+    format_band: FormatBand
+    pod_size: int = Field(default=4, ge=2, le=10)
+    placement: str | None = None
+    player_count: int | None = Field(default=None, ge=1)
+
+
+class ImportPrimerReferenceInput(FrozenModel):
+    snapshot_path: str | None = None
+    source_id: str
+    commander: str
+    title: str
+    key_points: tuple[str, ...]
+    categories: tuple[MetaCategory, ...]
+
+
+class CreateMetaSnapshotInput(FrozenModel):
+    snapshot_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._:-]{2,127}$")
+    seed_file: str = "data/meta/provenance/meta_seed_sources.json"
+    allow_overwrite: bool = False
+
+
+class QueryMetaCardsInput(FrozenModel):
+    commander: str | None = None
+    format_band: FormatBand | None = None
+    min_frequency: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class QueryMetaPackagesInput(FrozenModel):
+    commander: str | None = None
+    category: MetaCategory | None = None
+
+
+class CompareDeckToMetaInput(FrozenModel):
+    deck_id: str
+    commander: str
+    format_band: FormatBand | None = None
+
+
+class CompareMetaPeriodsInput(FrozenModel):
+    older_snapshot_id: str
+    newer_snapshot_id: str
+    commander: str | None = None
+
+
+class GenerateMetaReportInput(FrozenModel):
+    output_name: str = "meta_report.md"
+    commander: str | None = None

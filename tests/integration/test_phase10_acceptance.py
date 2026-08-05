@@ -49,8 +49,8 @@ def test_phase10_smoke_never_claims_external_validation(tmp_path: Path) -> None:
 
 def test_api_demo_accepts_versioned_evidence_envelope() -> None:
     evidence = {
-        "health": {"status_code": 200, "body": {"status": "ok", "tool_count": 23}},
-        "tools": {"status_code": 200, "count": 23, "names": ["validate_deck"]},
+        "health": {"status_code": 200, "body": {"status": "ok", "tool_count": 32}},
+        "tools": {"status_code": 200, "count": 32, "names": ["validate_deck"]},
         "validate_deck": {
             "status_code": 200,
             "body": {"status": "completed", "result": {"deck_id": "rogshai/current"}},
@@ -61,8 +61,8 @@ def test_api_demo_accepts_versioned_evidence_envelope() -> None:
 
 def test_api_demo_accepts_in_process_self_test_shape() -> None:
     evidence = {
-        "health": {"status": "ok", "tool_count": 23},
-        "tool_count": 23,
+        "health": {"status": "ok", "tool_count": 32},
+        "tool_count": 32,
         "validate_call": {"status": "completed", "result": {"deck_id": "korvold/current"}},
     }
     assert _api_demo_passed(evidence) is True
