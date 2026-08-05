@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "CardSwap": {
+      "additionalProperties": false,
+      "properties": {
+        "add": {
+          "title": "Add",
+          "type": "string"
+        },
+        "quantity": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        },
+        "remove": {
+          "title": "Remove",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remove",
+        "add"
+      ],
+      "title": "CardSwap",
+      "type": "object"
+    },
+    "UpgradeStatus": {
+      "enum": [
+        "proposed",
+        "testing",
+        "confirmed",
+        "rejected",
+        "inconclusive"
+      ],
+      "title": "UpgradeStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "affected_matchups": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Affected Matchups",
+      "type": "array"
+    },
+    "automatically_applied": {
+      "default": false,
+      "title": "Automatically Applied",
+      "type": "boolean"
+    },
+    "baseline_deck_hash": {
+      "title": "Baseline Deck Hash",
+      "type": "string"
+    },
+    "conflicts": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Conflicts",
+      "type": "array"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "evidence_summary": {
+      "additionalProperties": true,
+      "title": "Evidence Summary",
+      "type": "object"
+    },
+    "holdout_run_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Holdout Run Ids",
+      "type": "array"
+    },
+    "objectives": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Objectives",
+      "type": "object"
+    },
+    "physical_buildable": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Physical Buildable"
+    },
+    "proposal_id": {
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "red_team_review": {
+      "additionalProperties": true,
+      "title": "Red Team Review",
+      "type": "object"
+    },
+    "sensitivity_run_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sensitivity Run Ids",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/UpgradeStatus",
+      "default": "proposed"
+    },
+    "structural_rationale": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Structural Rationale",
+      "type": "array"
+    },
+    "swaps": {
+      "items": {
+        "$ref": "#/$defs/CardSwap"
+      },
+      "title": "Swaps",
+      "type": "array"
+    },
+    "validation_run_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Run Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "deck_id",
+    "baseline_deck_hash",
+    "swaps",
+    "rationale"
+  ],
+  "title": "UpgradeProposal",
+  "type": "object"
+}

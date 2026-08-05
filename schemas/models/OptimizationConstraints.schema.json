@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    },
+    "Color": {
+      "enum": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "title": "Color",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_colors": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Color"
+      },
+      "title": "Allowed Colors",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "exact_card_count": {
+      "default": 100,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Exact Card Count",
+      "type": "integer"
+    },
+    "high_mana_value_threshold": {
+      "default": 5.0,
+      "maximum": 20.0,
+      "minimum": 0.0,
+      "title": "High Mana Value Threshold",
+      "type": "number"
+    },
+    "maximum_average_nonland_mana_value": {
+      "default": 99.0,
+      "maximum": 20.0,
+      "minimum": 0.0,
+      "title": "Maximum Average Nonland Mana Value",
+      "type": "number"
+    },
+    "maximum_high_mana_value_cards": {
+      "default": 100,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Maximum High Mana Value Cards",
+      "type": "integer"
+    },
+    "maximum_lands": {
+      "default": 100,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Maximum Lands",
+      "type": "integer"
+    },
+    "minimum_colored_sources": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/Color"
+      },
+      "title": "Minimum Colored Sources",
+      "type": "object"
+    },
+    "minimum_lands": {
+      "default": 0,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Minimum Lands",
+      "type": "integer"
+    },
+    "require_verified_inventory": {
+      "default": true,
+      "title": "Require Verified Inventory",
+      "type": "boolean"
+    },
+    "role_minima": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/CardRole"
+      },
+      "title": "Role Minima",
+      "type": "object"
+    },
+    "simultaneous_deck_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Simultaneous Deck Ids",
+      "type": "array"
+    },
+    "singleton": {
+      "default": true,
+      "title": "Singleton",
+      "type": "boolean"
+    }
+  },
+  "title": "OptimizationConstraints",
+  "type": "object"
+}

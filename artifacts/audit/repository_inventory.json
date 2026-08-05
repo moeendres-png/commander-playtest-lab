@@ -1,0 +1,2642 @@
+{
+  "counts": {
+    "documentation": 9,
+    "files": 606,
+    "python_modules": 93,
+    "schemas": 109,
+    "scripts": 13,
+    "tests": 47
+  },
+  "files_by_suffix": {
+    ".TAG": 1,
+    ".csv": 1,
+    ".example": 1,
+    ".exitcode": 2,
+    ".json": 153,
+    ".jsonl": 24,
+    ".log": 5,
+    ".md": 47,
+    ".ps1": 1,
+    ".py": 146,
+    ".pyc": 190,
+    ".sh": 8,
+    ".sqlite3": 1,
+    ".toml": 1,
+    ".txt": 11,
+    ".yaml": 3,
+    ".yml": 3,
+    "<none>": 8
+  },
+  "findings": {
+    "bare_except": [],
+    "direct_sql_outside_storage": [
+      "src/commander_lab/audit/runner.py",
+      "src/commander_lab/cli/app.py"
+    ],
+    "duplicate_function_names": {
+      "__init__": [
+        "src/commander_lab/agents/openai_workflow.py:156",
+        "src/commander_lab/agents/pilots.py:108",
+        "src/commander_lab/agents/tracing.py:13",
+        "src/commander_lab/analysis/validation.py:48",
+        "src/commander_lab/cards/catalog.py:14",
+        "src/commander_lab/cards/catalog.py:28",
+        "src/commander_lab/engine/process_manager.py:68",
+        "src/commander_lab/engine/rules/bridge.py:52",
+        "src/commander_lab/engine/rules/bridge.py:285",
+        "src/commander_lab/engine/rules/bridge.py:552",
+        "src/commander_lab/engine/rules/bridge.py:557",
+        "src/commander_lab/engine/rules/manager.py:15",
+        "src/commander_lab/engine/rules/tactical.py:66",
+        "src/commander_lab/engine/rules/tactical.py:657",
+        "src/commander_lab/engine/structural/profiles.py:385",
+        "src/commander_lab/engine/structural/simulator.py:125",
+        "src/commander_lab/engine/structural/simulator.py:171",
+        "src/commander_lab/features/replay_debugger.py:18",
+        "src/commander_lab/importers/base.py:21",
+        "src/commander_lab/importers/base.py:33",
+        "src/commander_lab/observability/local.py:24",
+        "src/commander_lab/observability/local.py:41",
+        "src/commander_lab/tools/registry.py:82",
+        "src/commander_lab/tools/service.py:92"
+      ],
+      "close": [
+        "src/commander_lab/engine/rules/base.py:76",
+        "src/commander_lab/engine/rules/bridge.py:265",
+        "src/commander_lab/engine/rules/bridge.py:545",
+        "src/commander_lab/engine/rules/manager.py:35"
+      ],
+      "create_scenario": [
+        "src/commander_lab/engine/rules/base.py:53",
+        "src/commander_lab/engine/rules/bridge.py:455",
+        "src/commander_lab/engine/rules/tactical.py:758"
+      ],
+      "default_weights": [
+        "src/commander_lab/agents/pilots.py:120",
+        "src/commander_lab/agents/pilots.py:520",
+        "src/commander_lab/agents/pilots.py:622",
+        "src/commander_lab/agents/pilots.py:752",
+        "src/commander_lab/agents/pilots.py:761",
+        "src/commander_lab/agents/pilots.py:770"
+      ],
+      "emit": [
+        "src/commander_lab/agents/tracing.py:19",
+        "src/commander_lab/engine/structural/simulator.py:132",
+        "src/commander_lab/observability/local.py:46"
+      ],
+      "get_legal_actions": [
+        "src/commander_lab/engine/rules/base.py:61",
+        "src/commander_lab/engine/rules/bridge.py:486",
+        "src/commander_lab/engine/rules/tactical.py:785"
+      ],
+      "get_logs": [
+        "src/commander_lab/engine/rules/base.py:69",
+        "src/commander_lab/engine/rules/bridge.py:511",
+        "src/commander_lab/engine/rules/tactical.py:814"
+      ],
+      "get_result": [
+        "src/commander_lab/engine/rules/base.py:73",
+        "src/commander_lab/engine/rules/bridge.py:522",
+        "src/commander_lab/engine/rules/tactical.py:826"
+      ],
+      "get_state": [
+        "src/commander_lab/engine/rules/base.py:57",
+        "src/commander_lab/engine/rules/bridge.py:477",
+        "src/commander_lab/engine/rules/tactical.py:782"
+      ],
+      "import_file": [
+        "src/commander_lab/importers/csv_importer.py:53",
+        "src/commander_lab/importers/opponents.py:13",
+        "src/commander_lab/importers/plaintext.py:32",
+        "src/commander_lab/importers/playtests.py:19",
+        "src/commander_lab/importers/xlsx_importer.py:14"
+      ],
+      "load_deck": [
+        "src/commander_lab/engine/rules/base.py:45",
+        "src/commander_lab/engine/rules/bridge.py:421",
+        "src/commander_lab/engine/rules/tactical.py:688"
+      ],
+      "opening_card_value": [
+        "src/commander_lab/agents/pilots.py:214",
+        "src/commander_lab/agents/pilots.py:552",
+        "src/commander_lab/agents/pilots.py:656"
+      ],
+      "opening_hand_specialist_bonus": [
+        "src/commander_lab/agents/pilots.py:160",
+        "src/commander_lab/agents/pilots.py:530",
+        "src/commander_lab/agents/pilots.py:632"
+      ],
+      "probe": [
+        "src/commander_lab/engine/rules/base.py:41",
+        "src/commander_lab/engine/rules/bridge.py:330",
+        "src/commander_lab/engine/rules/tactical.py:664"
+      ],
+      "specialist_bonus": [
+        "src/commander_lab/agents/pilots.py:307",
+        "src/commander_lab/agents/pilots.py:565",
+        "src/commander_lab/agents/pilots.py:671"
+      ],
+      "start_commander_game": [
+        "src/commander_lab/engine/rules/base.py:49",
+        "src/commander_lab/engine/rules/bridge.py:436",
+        "src/commander_lab/engine/rules/tactical.py:701"
+      ],
+      "submit_action": [
+        "src/commander_lab/engine/rules/base.py:65",
+        "src/commander_lab/engine/rules/bridge.py:496",
+        "src/commander_lab/engine/rules/tactical.py:788"
+      ],
+      "validate_pod": [
+        "src/commander_lab/models/rules.py:138",
+        "src/commander_lab/models/simulation.py:42",
+        "src/commander_lab/models/tooling.py:96"
+      ],
+      "work": [
+        "src/commander_lab/tools/service.py:431",
+        "src/commander_lab/tools/service.py:454",
+        "src/commander_lab/tools/service.py:478",
+        "src/commander_lab/tools/service.py:497",
+        "src/commander_lab/tools/service.py:521",
+        "src/commander_lab/tools/service.py:565",
+        "src/commander_lab/tools/service.py:593",
+        "src/commander_lab/tools/service.py:628",
+        "src/commander_lab/tools/service.py:656",
+        "src/commander_lab/tools/service.py:681",
+        "src/commander_lab/tools/service.py:704",
+        "src/commander_lab/tools/service.py:726",
+        "src/commander_lab/tools/service.py:780",
+        "src/commander_lab/tools/service.py:906",
+        "src/commander_lab/tools/service.py:991",
+        "src/commander_lab/tools/service.py:1094",
+        "src/commander_lab/tools/service.py:1168",
+        "src/commander_lab/tools/service.py:1216",
+        "src/commander_lab/tools/service.py:1247",
+        "src/commander_lab/tools/service.py:1351",
+        "src/commander_lab/tools/service.py:1366",
+        "src/commander_lab/tools/service.py:1398"
+      ]
+    },
+    "modules_using_any": [
+      "src/commander_lab/agents/guardrails.py",
+      "src/commander_lab/agents/openai_workflow.py",
+      "src/commander_lab/agents/tracing.py",
+      "src/commander_lab/agents/validation.py",
+      "src/commander_lab/api/tool_server.py",
+      "src/commander_lab/audit/runner.py",
+      "src/commander_lab/engine/rules/bridge.py",
+      "src/commander_lab/engine/rules/phase85.py",
+      "src/commander_lab/engine/rules/replay.py",
+      "src/commander_lab/engine/rules/tactical.py",
+      "src/commander_lab/engine/structural/batch.py",
+      "src/commander_lab/engine/structural/simulator.py",
+      "src/commander_lab/evals/agent_eval.py",
+      "src/commander_lab/evals/invariants.py",
+      "src/commander_lab/evals/models.py",
+      "src/commander_lab/features/replay_debugger.py",
+      "src/commander_lab/features/scenario_editor.py",
+      "src/commander_lab/importers/opponents.py",
+      "src/commander_lab/models/common.py",
+      "src/commander_lab/models/engine_runtime.py",
+      "src/commander_lab/models/game.py",
+      "src/commander_lab/models/optimization.py",
+      "src/commander_lab/models/rules.py",
+      "src/commander_lab/models/simulation.py",
+      "src/commander_lab/models/tooling.py",
+      "src/commander_lab/observability/local.py",
+      "src/commander_lab/storage/atomic.py",
+      "src/commander_lab/storage/database.py",
+      "src/commander_lab/storage/hashing.py",
+      "src/commander_lab/storage/run_integrity.py",
+      "src/commander_lab/tools/registry.py",
+      "src/commander_lab/tools/service.py"
+    ],
+    "subprocess_calls": [
+      "src/commander_lab/audit/runner.py:55:subprocess.run",
+      "src/commander_lab/audit/runner.py:83:subprocess.run",
+      "src/commander_lab/engine/process_manager.py:236:subprocess.run",
+      "src/commander_lab/engine/rules/bridge.py:123:subprocess.Popen",
+      "src/commander_lab/evals/differential.py:64:subprocess.run",
+      "src/commander_lab/evals/runner.py:68:subprocess.run",
+      "src/commander_lab/tools/service.py:121:subprocess.check_output",
+      "src/commander_lab/tools/service.py:121:subprocess.check_output(['git', '-C', str(self.root), 'rev-parse', 'HEAD'], text=True, stderr=subprocess.DEVNULL).strip"
+    ]
+  },
+  "generated_at": "2026-08-05T08:11:33.747264+00:00",
+  "modules": [
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [],
+      "lines": 3,
+      "module": "commander_lab.__init__",
+      "path": "src/commander_lab/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "pilots"
+      ],
+      "lines": 27,
+      "module": "commander_lab.agents.__init__",
+      "path": "src/commander_lab/agents/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "run_phase5_demo"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "commander_lab.tools",
+        "json",
+        "pathlib"
+      ],
+      "lines": 83,
+      "module": "commander_lab.agents.demo",
+      "path": "src/commander_lab/agents/demo.py"
+    },
+    {
+      "classes": [
+        "GuardrailViolation",
+        "WorkflowBudgetTracker"
+      ],
+      "functions": [
+        "forbidden_state_terms",
+        "validate_user_goal",
+        "validate_tool_output",
+        "validate_workflow_report",
+        "flatten_agent_input",
+        "total_tokens",
+        "estimated_cost_usd",
+        "ensure_next_model_call_allowed",
+        "register_model_usage"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "dataclasses",
+        "json",
+        "typing"
+      ],
+      "lines": 112,
+      "module": "commander_lab.agents.guardrails",
+      "path": "src/commander_lab/agents/guardrails.py"
+    },
+    {
+      "classes": [
+        "AgentsSdkUnavailable",
+        "AgentRuntime",
+        "BudgetHooks"
+      ],
+      "functions": [
+        "_load_sdk",
+        "_sdk_tools",
+        "_agent_guardrails",
+        "_reasoning_settings",
+        "_budget_hooks",
+        "build_agent_runtime",
+        "run_openai_workflow",
+        "no_direct_state_mutation",
+        "structural_output_only",
+        "make_invoke",
+        "__init__",
+        "_usage",
+        "on_llm_start",
+        "on_llm_end",
+        "on_tool_start",
+        "on_tool_end",
+        "invoke"
+      ],
+      "imports": [
+        "__future__",
+        "agents",
+        "commander_lab.models",
+        "commander_lab.tools",
+        "dataclasses",
+        "guardrails",
+        "openai.types.shared",
+        "os",
+        "pathlib",
+        "tracing",
+        "typing",
+        "uuid"
+      ],
+      "lines": 387,
+      "module": "commander_lab.agents.openai_workflow",
+      "path": "src/commander_lab/agents/openai_workflow.py"
+    },
+    {
+      "classes": [
+        "_StrengthPolicy",
+        "BasePilot",
+        "KorvoldPilot",
+        "RogShaiPilot",
+        "AggroPilot",
+        "ControlPilot",
+        "EnginePilot",
+        "GraveyardPilot",
+        "ArtifactPilot",
+        "GenericCommanderPilot"
+      ],
+      "functions": [
+        "auto_pilot_name",
+        "build_pilot",
+        "__init__",
+        "default_weights",
+        "opening_hand_score",
+        "opening_hand_specialist_bonus",
+        "should_keep_opening_hand",
+        "choose_bottom_cards",
+        "opening_card_value",
+        "evaluate_action",
+        "choose_action",
+        "should_take_reaction",
+        "choose_combat_target",
+        "choose_target",
+        "specialist_bonus",
+        "_select",
+        "_base_components",
+        "_logistic",
+        "default_weights",
+        "opening_hand_specialist_bonus",
+        "opening_card_value",
+        "specialist_bonus",
+        "default_weights",
+        "opening_hand_specialist_bonus",
+        "opening_card_value",
+        "specialist_bonus",
+        "default_weights",
+        "default_weights",
+        "default_weights"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "dataclasses",
+        "math",
+        "random",
+        "typing"
+      ],
+      "lines": 840,
+      "module": "commander_lab.agents.pilots",
+      "path": "src/commander_lab/agents/pilots.py"
+    },
+    {
+      "classes": [
+        "LocalAgentTraceRecorder"
+      ],
+      "functions": [
+        "__init__",
+        "emit"
+      ],
+      "imports": [
+        "__future__",
+        "datetime",
+        "json",
+        "pathlib",
+        "threading",
+        "typing"
+      ],
+      "lines": 28,
+      "module": "commander_lab.agents.tracing",
+      "path": "src/commander_lab/agents/tracing.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_result_signature",
+        "_config",
+        "_benchmark_state",
+        "_benchmark_action",
+        "_decision_quality_benchmark",
+        "_audit_decision_log",
+        "run_phase4_validation"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.agents.pilots",
+        "commander_lab.engine.structural.batch",
+        "commander_lab.engine.structural.project",
+        "commander_lab.engine.structural.simulator",
+        "commander_lab.models",
+        "json",
+        "pathlib",
+        "random",
+        "typing"
+      ],
+      "lines": 464,
+      "module": "commander_lab.agents.validation",
+      "path": "src/commander_lab/agents/validation.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "validation"
+      ],
+      "lines": 15,
+      "module": "commander_lab.analysis.__init__",
+      "path": "src/commander_lab/analysis/__init__.py"
+    },
+    {
+      "classes": [
+        "ValidationSeverity",
+        "ValidationIssue",
+        "ValidationReport",
+        "DeckValidator"
+      ],
+      "functions": [
+        "validate_collection_quantities",
+        "from_issues",
+        "__init__",
+        "validate"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "commander_lab.cards.catalog",
+        "commander_lab.models",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 241,
+      "module": "commander_lab.analysis.validation",
+      "path": "src/commander_lab/analysis/validation.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "tool_server"
+      ],
+      "lines": 3,
+      "module": "commander_lab.api.__init__",
+      "path": "src/commander_lab/api/__init__.py"
+    },
+    {
+      "classes": [
+        "InvocationPayload"
+      ],
+      "functions": [
+        "create_app",
+        "health",
+        "list_tools",
+        "invoke_tool",
+        "run_workflow"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.agents.openai_workflow",
+        "commander_lab.models",
+        "commander_lab.tools",
+        "fastapi",
+        "pathlib",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 62,
+      "module": "commander_lab.api.tool_server",
+      "path": "src/commander_lab/api/tool_server.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "invariants",
+        "models",
+        "runner"
+      ],
+      "lines": 8,
+      "module": "commander_lab.audit.__init__",
+      "path": "src/commander_lab/audit/__init__.py"
+    },
+    {
+      "classes": [
+        "StateInvariantError"
+      ],
+      "functions": [
+        "validate_game_state"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "commander_lab.models",
+        "typing"
+      ],
+      "lines": 46,
+      "module": "commander_lab.audit.invariants",
+      "path": "src/commander_lab/audit/invariants.py"
+    },
+    {
+      "classes": [
+        "AuditStatus",
+        "FeatureDecision",
+        "AuditCheck",
+        "BugRecord",
+        "FeatureCandidate",
+        "Phase86Result"
+      ],
+      "functions": [],
+      "imports": [
+        "__future__",
+        "commander_lab.models.common",
+        "datetime",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 73,
+      "module": "commander_lab.audit.models",
+      "path": "src/commander_lab/audit/models.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_run",
+        "_git",
+        "_module_inventory",
+        "_dependency_markdown",
+        "_ownership_markdown",
+        "_feature_candidates",
+        "_bugs",
+        "_web_research_markdown",
+        "_schema_exports",
+        "run_phase86_audit"
+      ],
+      "imports": [
+        "__future__",
+        "ast",
+        "collections",
+        "commander_lab.audit.models",
+        "commander_lab.models",
+        "commander_lab.storage.atomic",
+        "commander_lab.storage.database",
+        "commander_lab.storage.hashing",
+        "commander_lab.storage.run_integrity",
+        "datetime",
+        "importlib.metadata",
+        "json",
+        "os",
+        "pathlib",
+        "platform",
+        "shutil",
+        "subprocess",
+        "sys",
+        "tempfile",
+        "time",
+        "typing"
+      ],
+      "lines": 327,
+      "module": "commander_lab.audit.runner",
+      "path": "src/commander_lab/audit/runner.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [],
+      "lines": 0,
+      "module": "commander_lab.cards.__init__",
+      "path": "src/commander_lab/cards/__init__.py"
+    },
+    {
+      "classes": [
+        "UnknownCardError",
+        "AmbiguousCardNameError",
+        "CardCatalog"
+      ],
+      "functions": [
+        "__init__",
+        "__init__",
+        "add",
+        "from_json",
+        "to_json",
+        "resolve",
+        "normalize_name",
+        "__contains__",
+        "__len__",
+        "cards"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "difflib",
+        "json",
+        "normalize",
+        "pathlib",
+        "typing"
+      ],
+      "lines": 84,
+      "module": "commander_lab.cards.catalog",
+      "path": "src/commander_lab/cards/catalog.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "normalize_unicode",
+        "strip_export_annotations",
+        "normalize_oracle_name",
+        "oracle_lookup_key",
+        "split_quantity_and_name"
+      ],
+      "imports": [
+        "__future__",
+        "re",
+        "unicodedata"
+      ],
+      "lines": 57,
+      "module": "commander_lab.cards.normalize",
+      "path": "src/commander_lab/cards/normalize.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [],
+      "lines": 0,
+      "module": "commander_lab.cli.__init__",
+      "path": "src/commander_lab/cli/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "validate_local",
+        "inspect_deck",
+        "generate_structural_profiles",
+        "run_structural_batch_command",
+        "validate_structural",
+        "validate_pilots",
+        "serve_tools",
+        "demo_phase5",
+        "eval_phase6",
+        "probe_rules_engines",
+        "validate_rules_phase8",
+        "engine_status",
+        "engine_start",
+        "engine_stop",
+        "engine_verify",
+        "validate_engine_phase85",
+        "doctor",
+        "db_check",
+        "db_migrate",
+        "db_backup",
+        "db_restore",
+        "runs_verify",
+        "audit_phase86"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.agents.demo",
+        "commander_lab.agents.validation",
+        "commander_lab.analysis",
+        "commander_lab.api",
+        "commander_lab.audit",
+        "commander_lab.cards.catalog",
+        "commander_lab.engine.process_manager",
+        "commander_lab.engine.rules",
+        "commander_lab.engine.structural",
+        "commander_lab.evals",
+        "commander_lab.importers",
+        "commander_lab.models",
+        "commander_lab.storage",
+        "commander_lab.storage.database",
+        "commander_lab.storage.run_integrity",
+        "commander_lab.tools.local_snapshots",
+        "importlib.util",
+        "json",
+        "os",
+        "pathlib",
+        "platform",
+        "shutil",
+        "time",
+        "typer",
+        "uvicorn"
+      ],
+      "lines": 383,
+      "module": "commander_lab.cli.app",
+      "path": "src/commander_lab/cli/app.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "action_validation",
+        "process_manager",
+        "rules"
+      ],
+      "lines": 45,
+      "module": "commander_lab.engine.__init__",
+      "path": "src/commander_lab/engine/__init__.py"
+    },
+    {
+      "classes": [
+        "IllegalActionProposal"
+      ],
+      "functions": [
+        "validate_action_proposal"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models"
+      ],
+      "lines": 60,
+      "module": "commander_lab.engine.action_validation",
+      "path": "src/commander_lab/engine/action_validation.py"
+    },
+    {
+      "classes": [
+        "EngineProcessManager"
+      ],
+      "functions": [
+        "_now",
+        "_split_command",
+        "load_engine_runtime_config",
+        "stop_process_from_state",
+        "__init__",
+        "state",
+        "_replace",
+        "diagnose",
+        "port_available",
+        "start",
+        "healthcheck",
+        "stop",
+        "restart"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.engine.rules.bridge",
+        "commander_lab.models",
+        "commander_lab.storage.atomic",
+        "datetime",
+        "json",
+        "os",
+        "pathlib",
+        "shlex",
+        "shutil",
+        "signal",
+        "socket",
+        "subprocess",
+        "threading",
+        "time",
+        "typing"
+      ],
+      "lines": 287,
+      "module": "commander_lab.engine.process_manager",
+      "path": "src/commander_lab/engine/process_manager.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "base",
+        "bridge",
+        "manager",
+        "phase85",
+        "project",
+        "protocol",
+        "registry",
+        "replay",
+        "tactical",
+        "validation"
+      ],
+      "lines": 50,
+      "module": "commander_lab.engine.rules.__init__",
+      "path": "src/commander_lab/engine/rules/__init__.py"
+    },
+    {
+      "classes": [
+        "RulesEngineError",
+        "RulesEngineUnavailable",
+        "RulesEngineProtocolError",
+        "RulesEngineAdapter"
+      ],
+      "functions": [
+        "probe",
+        "load_deck",
+        "start_commander_game",
+        "create_scenario",
+        "get_state",
+        "get_legal_actions",
+        "submit_action",
+        "get_logs",
+        "get_result",
+        "close"
+      ],
+      "imports": [
+        "__future__",
+        "abc",
+        "commander_lab.models"
+      ],
+      "lines": 85,
+      "module": "commander_lab.engine.rules.base",
+      "path": "src/commander_lab/engine/rules/base.py"
+    },
+    {
+      "classes": [
+        "JsonLineBridgeClient",
+        "ExternalRulesAdapter",
+        "ForgeRulesAdapter",
+        "XMageRulesAdapter"
+      ],
+      "functions": [
+        "__init__",
+        "running",
+        "pid",
+        "stderr_tail",
+        "_pump",
+        "start",
+        "request",
+        "legacy_request",
+        "handshake",
+        "close",
+        "__init__",
+        "command_from_environment",
+        "_require_client",
+        "_require_capability",
+        "probe",
+        "_legacy_request",
+        "load_deck",
+        "start_commander_game",
+        "create_scenario",
+        "get_state",
+        "get_legal_actions",
+        "submit_action",
+        "get_logs",
+        "get_result",
+        "close",
+        "__init__",
+        "__init__"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "commander_lab.models",
+        "json",
+        "os",
+        "pathlib",
+        "queue",
+        "shlex",
+        "subprocess",
+        "threading",
+        "time",
+        "typing",
+        "uuid"
+      ],
+      "lines": 566,
+      "module": "commander_lab.engine.rules.bridge",
+      "path": "src/commander_lab/engine/rules/bridge.py"
+    },
+    {
+      "classes": [
+        "RulesEngineManager"
+      ],
+      "functions": [
+        "__init__",
+        "probes",
+        "available_external",
+        "close"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "bridge",
+        "commander_lab.models",
+        "pathlib",
+        "tactical"
+      ],
+      "lines": 41,
+      "module": "commander_lab.engine.rules.manager",
+      "path": "src/commander_lab/engine/rules/manager.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_utc",
+        "_tactical_contract",
+        "_replay_contract",
+        "run_phase85_validation"
+      ],
+      "imports": [
+        "__future__",
+        "bridge",
+        "commander_lab.engine.process_manager",
+        "commander_lab.models",
+        "commander_lab.storage.atomic",
+        "datetime",
+        "json",
+        "os",
+        "pathlib",
+        "protocol",
+        "replay",
+        "subprocess",
+        "sys",
+        "typing",
+        "uuid"
+      ],
+      "lines": 275,
+      "module": "commander_lab.engine.rules.phase85",
+      "path": "src/commander_lab/engine/rules/phase85.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_rules_deck_snapshot",
+        "load_project_rules_decks"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "json",
+        "pathlib"
+      ],
+      "lines": 39,
+      "module": "commander_lab.engine.rules.project",
+      "path": "src/commander_lab/engine/rules/project.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "build_protocol_schema",
+        "write_protocol_schema"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "json",
+        "pathlib"
+      ],
+      "lines": 28,
+      "module": "commander_lab.engine.rules.protocol",
+      "path": "src/commander_lab/engine/rules/protocol.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_interaction_catalog",
+        "_scenario_for_spec",
+        "validate_with_external_adapter",
+        "build_validation_registry",
+        "write_validation_registry"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "commander_lab.models",
+        "commander_lab.storage.atomic",
+        "json",
+        "pathlib",
+        "tactical",
+        "typing"
+      ],
+      "lines": 178,
+      "module": "commander_lab.engine.rules.registry",
+      "path": "src/commander_lab/engine/rules/registry.py"
+    },
+    {
+      "classes": [
+        "ReplayValidationError",
+        "ReplayValidationResult"
+      ],
+      "functions": [
+        "canonical_state_hash",
+        "replay_into_internal_model"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "dataclasses",
+        "hashlib",
+        "json",
+        "typing"
+      ],
+      "lines": 84,
+      "module": "commander_lab.engine.rules.replay",
+      "path": "src/commander_lab/engine/rules/replay.py"
+    },
+    {
+      "classes": [
+        "TacticalRuleError",
+        "TacticalRuleOracle",
+        "TacticalRulesAdapter"
+      ],
+      "functions": [
+        "_bool",
+        "_commander_damage_result",
+        "__init__",
+        "supported_rules",
+        "evaluate",
+        "validate",
+        "_commander_tax",
+        "_commander_damage_check",
+        "_normal_damage_check",
+        "_combat_damage",
+        "_kediss_trigger",
+        "_jeska_triple",
+        "_double_strike",
+        "_cast_trigger_survives_counter",
+        "_silence_restriction",
+        "_indestructible_interaction",
+        "_boros_charm_wipe",
+        "_toxic_deluge",
+        "_fire_covenant",
+        "_massacre_wurm",
+        "_culling_ritual",
+        "_farewell",
+        "_vandalblast",
+        "_wear_tear",
+        "_counter_commander",
+        "_commander_zone_change",
+        "_korvold_sacrifice",
+        "_sacrifice_cost",
+        "_academy_manufactor",
+        "_killer_service",
+        "_ophiomancer",
+        "_idol_of_oblivion",
+        "_titania",
+        "_ramunap",
+        "_splendid_reclamation",
+        "_aftermath_analyst",
+        "_tireless_provisioner",
+        "_tireless_tracker",
+        "_mirkwood_bats",
+        "_mayhem_devil",
+        "_mazirek",
+        "_braids",
+        "_bontu",
+        "_pitiless_plunderer",
+        "_goblin_bombardment",
+        "_rakdos_charm",
+        "_soul_guide_lantern",
+        "_bojuka_bog",
+        "_combat_draw",
+        "_ishai_trigger",
+        "_veyran_trigger",
+        "_guttersnipe",
+        "_kykar",
+        "_storm_kiln_artist",
+        "_archmage_emeritus",
+        "_whirlwind_of_thought",
+        "_narset_draw_limit",
+        "_esior_tax",
+        "_phase_out",
+        "_lofty_denial",
+        "_wash_away",
+        "_offer",
+        "_dovins_veto",
+        "_winds_of_rath",
+        "_lorans_escape",
+        "_equipment_shroud_hexproof",
+        "_apnap_trigger_order",
+        "_stack_lifo",
+        "_zero_toughness",
+        "_token_zone_change",
+        "__init__",
+        "probe",
+        "load_deck",
+        "start_commander_game",
+        "create_scenario",
+        "get_state",
+        "get_legal_actions",
+        "submit_action",
+        "get_logs",
+        "get_result",
+        "_apply_action",
+        "_require_session",
+        "_event"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "collections",
+        "commander_lab.engine.action_validation",
+        "commander_lab.models",
+        "commander_lab.storage.hashing",
+        "hashlib",
+        "random",
+        "typing",
+        "uuid"
+      ],
+      "lines": 917,
+      "module": "commander_lab.engine.rules.tactical",
+      "path": "src/commander_lab/engine/rules/tactical.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_catalog_card_names",
+        "_action_scenario",
+        "run_phase8_validation"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "json",
+        "manager",
+        "pathlib",
+        "project",
+        "registry"
+      ],
+      "lines": 204,
+      "module": "commander_lab.engine.rules.validation",
+      "path": "src/commander_lab/engine/rules/validation.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "batch",
+        "fixtures",
+        "profiles",
+        "project",
+        "simulator",
+        "triggers",
+        "validation"
+      ],
+      "lines": 40,
+      "module": "commander_lab.engine.structural.__init__",
+      "path": "src/commander_lab/engine/structural/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "derive_match_seed",
+        "_process_context",
+        "_initialize_worker",
+        "_run_worker",
+        "_build_tasks",
+        "run_structural_batch",
+        "aggregate_structural_results",
+        "summarize"
+      ],
+      "imports": [
+        "__future__",
+        "__main__",
+        "commander_lab.models",
+        "concurrent.futures",
+        "hashlib",
+        "json",
+        "multiprocessing",
+        "pathlib",
+        "simulator",
+        "statistics",
+        "typing"
+      ],
+      "lines": 195,
+      "module": "commander_lab.engine.structural.batch",
+      "path": "src/commander_lab/engine/structural/batch.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_card",
+        "build_synthetic_deck_profile",
+        "add_many"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "commander_lab.storage"
+      ],
+      "lines": 101,
+      "module": "commander_lab.engine.structural.fixtures",
+      "path": "src/commander_lab/engine/structural/fixtures.py"
+    },
+    {
+      "classes": [
+        "StructuralProfileCatalog"
+      ],
+      "functions": [
+        "_roles_for",
+        "_mana_value",
+        "_color_requirements",
+        "build_default_profile",
+        "build_structural_deck_profile",
+        "generate_project_profiles",
+        "role_counts",
+        "__init__",
+        "from_json",
+        "from_card_catalog",
+        "resolve",
+        "profiles",
+        "save"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "commander_lab.cards.catalog",
+        "commander_lab.models",
+        "commander_lab.storage",
+        "json",
+        "pathlib",
+        "typing"
+      ],
+      "lines": 469,
+      "module": "commander_lab.engine.structural.profiles",
+      "path": "src/commander_lab/engine/structural/profiles.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_project_structural_decks"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "commander_lab.storage",
+        "fixtures",
+        "json",
+        "pathlib",
+        "profiles"
+      ],
+      "lines": 31,
+      "module": "commander_lab.engine.structural.project",
+      "path": "src/commander_lab/engine/structural/project.py"
+    },
+    {
+      "classes": [
+        "_Commander",
+        "_Player",
+        "_EventRecorder",
+        "StructuralSimulator"
+      ],
+      "functions": [
+        "commander_cast_cost",
+        "commander_damage_is_lethal",
+        "next_cost",
+        "threat",
+        "commander_online",
+        "role_count",
+        "__init__",
+        "emit",
+        "sha256",
+        "write",
+        "__init__",
+        "simulate",
+        "_initialize_players",
+        "_london_mulligan",
+        "_opening_hand_action",
+        "_opening_hand_value",
+        "_upkeep",
+        "_draw",
+        "_play_land",
+        "_needed_colors",
+        "_choose_action",
+        "_record_pilot_decision",
+        "_pilot_state",
+        "_pilot_action_for_card",
+        "_conditional_multiplier",
+        "_commander_color_requirements",
+        "_can_pay",
+        "_pay",
+        "_cast_commander",
+        "_cast_card",
+        "_notify_spell_cast",
+        "_attempt_counter",
+        "_resolve_card",
+        "_resolve_selection",
+        "_resolve_removal",
+        "_permanent_value",
+        "_remove_permanent_value",
+        "_attempt_protection",
+        "_resolve_wipe",
+        "_attempt_board_protection",
+        "_resolve_graveyard_hate",
+        "_resolve_recursion",
+        "_resolve_finisher",
+        "_trigger_spellslinger",
+        "_sacrifice_trigger",
+        "_combat",
+        "_end_step",
+        "_check_eliminations",
+        "_assign_abort_placements",
+        "_card_multiset_hash",
+        "_zone_checkpoint",
+        "_emit_state_checkpoint",
+        "_snapshot_metrics",
+        "_final_metrics"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.agents",
+        "commander_lab.models",
+        "commander_lab.storage",
+        "dataclasses",
+        "hashlib",
+        "json",
+        "math",
+        "pathlib",
+        "random",
+        "typing"
+      ],
+      "lines": 1587,
+      "module": "commander_lab.engine.structural.simulator",
+      "path": "src/commander_lab/engine/structural/simulator.py"
+    },
+    {
+      "classes": [
+        "AbstractTrigger"
+      ],
+      "functions": [
+        "order_simultaneous_triggers",
+        "trigger_resolution_order",
+        "apnap_position"
+      ],
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "typing"
+      ],
+      "lines": 68,
+      "module": "commander_lab.engine.structural.triggers",
+      "path": "src/commander_lab/engine/structural/triggers.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "run_phase3_validation"
+      ],
+      "imports": [
+        "__future__",
+        "batch",
+        "commander_lab.models",
+        "json",
+        "pathlib",
+        "project"
+      ],
+      "lines": 82,
+      "module": "commander_lab.engine.structural.validation",
+      "path": "src/commander_lab/engine/structural/validation.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "agent_eval",
+        "differential",
+        "golden",
+        "invariants",
+        "models",
+        "runner"
+      ],
+      "lines": 64,
+      "module": "commander_lab.evals.__init__",
+      "path": "src/commander_lab/evals/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_agent_eval_cases",
+        "expected_tools_for_goal",
+        "_tool_choice_score",
+        "_no_fabrication_score",
+        "_interpretation_score",
+        "_uncertainty_score",
+        "_model_real_score",
+        "_validation_before_recommendation_score",
+        "score_agent_trajectory",
+        "serialize_tool_outputs",
+        "export_openai_eval_dataset"
+      ],
+      "imports": [
+        "__future__",
+        "json",
+        "models",
+        "pathlib",
+        "re",
+        "typing"
+      ],
+      "lines": 188,
+      "module": "commander_lab.evals.agent_eval",
+      "path": "src/commander_lab/evals/agent_eval.py"
+    },
+    {
+      "classes": [
+        "DifferentialBackendUnavailable"
+      ],
+      "functions": [
+        "load_differential_cases",
+        "configured_backend_command",
+        "run_external_case",
+        "compare_observation",
+        "run_configured_differential_cases"
+      ],
+      "imports": [
+        "__future__",
+        "json",
+        "models",
+        "os",
+        "pathlib",
+        "shlex",
+        "subprocess",
+        "tempfile",
+        "typing"
+      ],
+      "lines": 169,
+      "module": "commander_lab.evals.differential",
+      "path": "src/commander_lab/evals/differential.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_golden_cases",
+        "run_golden_cases"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.agents",
+        "commander_lab.models",
+        "json",
+        "models",
+        "pathlib",
+        "random"
+      ],
+      "lines": 46,
+      "module": "commander_lab.evals.golden",
+      "path": "src/commander_lab/evals/golden.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_jsonl",
+        "event_log_sha256",
+        "validate_event_log"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.storage",
+        "hashlib",
+        "json",
+        "pathlib",
+        "typing"
+      ],
+      "lines": 100,
+      "module": "commander_lab.evals.invariants",
+      "path": "src/commander_lab/evals/invariants.py"
+    },
+    {
+      "classes": [
+        "EvalTier",
+        "EvalStatus",
+        "AcceptanceThresholds",
+        "EvalCaseResult",
+        "EvalTierSummary",
+        "AcceptanceGate",
+        "EvalSuiteResult",
+        "GoldenDecisionCase",
+        "DifferentialCase",
+        "DifferentialObservation",
+        "AgentEvalCase",
+        "AgentTrajectory",
+        "AgentEvalScores"
+      ],
+      "functions": [
+        "expected_action_exists",
+        "minimum_score"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models.common",
+        "commander_lab.models.pilots",
+        "commander_lab.models.tooling",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 169,
+      "module": "commander_lab.evals.models",
+      "path": "src/commander_lab/evals/models.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_load_thresholds",
+        "_pytest_unit_case",
+        "_property_scenarios",
+        "_run_property_cases",
+        "_seed_and_action_properties",
+        "_agent_cases",
+        "_summarize_tier",
+        "run_phase6_evaluation"
+      ],
+      "imports": [
+        "__future__",
+        "agent_eval",
+        "collections",
+        "commander_lab",
+        "commander_lab.engine",
+        "commander_lab.engine.structural",
+        "commander_lab.models",
+        "differential",
+        "golden",
+        "invariants",
+        "json",
+        "models",
+        "pathlib",
+        "re",
+        "statistics",
+        "subprocess",
+        "sys",
+        "typing",
+        "uuid",
+        "yaml"
+      ],
+      "lines": 562,
+      "module": "commander_lab.evals.runner",
+      "path": "src/commander_lab/evals/runner.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "replay_debugger",
+        "scenario_editor"
+      ],
+      "lines": 4,
+      "module": "commander_lab.features.__init__",
+      "path": "src/commander_lab/features/__init__.py"
+    },
+    {
+      "classes": [
+        "ReplayStep",
+        "ReplayDebugger"
+      ],
+      "functions": [
+        "__init__",
+        "state_at",
+        "step",
+        "diff",
+        "filter_events"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.engine.rules.replay",
+        "commander_lab.models",
+        "dataclasses",
+        "typing"
+      ],
+      "lines": 48,
+      "module": "commander_lab.features.replay_debugger",
+      "path": "src/commander_lab/features/replay_debugger.py"
+    },
+    {
+      "classes": [
+        "ScenarioFixture"
+      ],
+      "functions": [
+        "save_scenario_fixture",
+        "validate_hash"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "commander_lab.models.common",
+        "commander_lab.storage.atomic",
+        "commander_lab.storage.hashing",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 34,
+      "module": "commander_lab.features.scenario_editor",
+      "path": "src/commander_lab/features/scenario_editor.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "base",
+        "csv_importer",
+        "google_drive",
+        "opponents",
+        "plaintext",
+        "playtests",
+        "xlsx_importer"
+      ],
+      "lines": 18,
+      "module": "commander_lab.importers.__init__",
+      "path": "src/commander_lab/importers/__init__.py"
+    },
+    {
+      "classes": [
+        "DeckImportOptions",
+        "ImportErrorWithContext",
+        "CatalogAwareImporter"
+      ],
+      "functions": [
+        "__init__",
+        "__init__",
+        "normalize_card_name",
+        "source_ref"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.cards.catalog",
+        "commander_lab.models",
+        "dataclasses",
+        "pathlib"
+      ],
+      "lines": 46,
+      "module": "commander_lab.importers.base",
+      "path": "src/commander_lab/importers/base.py"
+    },
+    {
+      "classes": [
+        "CsvDeckImporter"
+      ],
+      "functions": [
+        "_find_column",
+        "_truthy",
+        "_zone_from_value",
+        "import_file",
+        "import_rows"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "commander_lab.models",
+        "csv",
+        "datetime",
+        "pathlib",
+        "typing"
+      ],
+      "lines": 132,
+      "module": "commander_lab.importers.csv_importer",
+      "path": "src/commander_lab/importers/csv_importer.py"
+    },
+    {
+      "classes": [
+        "GoogleDriveExportImporter"
+      ],
+      "functions": [
+        "import_decks",
+        "_select_sheet"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "commander_lab.models",
+        "csv_importer",
+        "openpyxl",
+        "pathlib",
+        "typing",
+        "xlsx_importer"
+      ],
+      "lines": 74,
+      "module": "commander_lab.importers.google_drive",
+      "path": "src/commander_lab/importers/google_drive.py"
+    },
+    {
+      "classes": [
+        "OpponentProfileImporter"
+      ],
+      "functions": [
+        "import_file"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "json",
+        "pathlib",
+        "typing",
+        "yaml"
+      ],
+      "lines": 29,
+      "module": "commander_lab.importers.opponents",
+      "path": "src/commander_lab/importers/opponents.py"
+    },
+    {
+      "classes": [
+        "PlaintextDeckImporter"
+      ],
+      "functions": [
+        "import_file",
+        "import_text",
+        "_parse_heading",
+        "_resolve_commanders"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "commander_lab.cards.catalog",
+        "commander_lab.cards.normalize",
+        "commander_lab.models",
+        "datetime",
+        "pathlib",
+        "re",
+        "typing"
+      ],
+      "lines": 133,
+      "module": "commander_lab.importers.plaintext",
+      "path": "src/commander_lab/importers/plaintext.py"
+    },
+    {
+      "classes": [
+        "RealPlaytestImporter"
+      ],
+      "functions": [
+        "import_file",
+        "import_rows"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "commander_lab.models",
+        "csv",
+        "datetime",
+        "openpyxl",
+        "pathlib",
+        "typing"
+      ],
+      "lines": 108,
+      "module": "commander_lab.importers.playtests",
+      "path": "src/commander_lab/importers/playtests.py"
+    },
+    {
+      "classes": [
+        "XlsxDeckImporter"
+      ],
+      "functions": [
+        "import_file",
+        "_worksheet_rows"
+      ],
+      "imports": [
+        "__future__",
+        "base",
+        "csv_importer",
+        "openpyxl",
+        "openpyxl.worksheet.worksheet",
+        "pathlib",
+        "typing"
+      ],
+      "lines": 64,
+      "module": "commander_lab.importers.xlsx_importer",
+      "path": "src/commander_lab/importers/xlsx_importer.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "cards",
+        "common",
+        "engine_runtime",
+        "game",
+        "opponents",
+        "optimization",
+        "pilots",
+        "playtests",
+        "roles",
+        "rules",
+        "simulation",
+        "structural",
+        "tooling"
+      ],
+      "lines": 261,
+      "module": "commander_lab.models.__init__",
+      "path": "src/commander_lab/models/__init__.py"
+    },
+    {
+      "classes": [
+        "CardLegality",
+        "CardIdentity",
+        "CardCondition",
+        "PurchaseStatus",
+        "PhysicalCard",
+        "Collection",
+        "DeckZone",
+        "DeckEntry",
+        "CommanderConfiguration",
+        "Deck"
+      ],
+      "functions": [
+        "strip_oracle_name",
+        "basic_land_copy_rule",
+        "strip_name",
+        "available_quantities",
+        "strip_name",
+        "validate_names",
+        "validate_partner_count",
+        "commanders_match_entries",
+        "total_cards",
+        "library_cards",
+        "quantities",
+        "grouped_entries"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "common",
+        "datetime",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 217,
+      "module": "commander_lab.models.cards",
+      "path": "src/commander_lab/models/cards.py"
+    },
+    {
+      "classes": [
+        "FrozenModel",
+        "MutableModel",
+        "Color",
+        "DataQuality",
+        "SourceRef",
+        "NumericRange",
+        "ErrorDetail"
+      ],
+      "functions": [
+        "utc_now",
+        "contains"
+      ],
+      "imports": [
+        "__future__",
+        "datetime",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 65,
+      "module": "commander_lab.models.common",
+      "path": "src/commander_lab/models/common.py"
+    },
+    {
+      "classes": [
+        "EngineProcessStatus",
+        "RuntimeValidationLevel",
+        "EngineRuntimeMode",
+        "EngineMessageType",
+        "EngineResponseStatus",
+        "EngineCapabilityHandshake",
+        "EngineProtocolRequest",
+        "EngineProtocolErrorDetail",
+        "EngineProtocolResponse",
+        "EngineRuntimeConfig",
+        "EngineProcessState",
+        "EngineInstallationIdentity",
+        "EngineReplay"
+      ],
+      "functions": [
+        "supports",
+        "normalize_compatibility_aliases",
+        "wire_dict",
+        "validate_result",
+        "from_wire",
+        "wire_dict"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "datetime",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 268,
+      "module": "commander_lab.models.engine_runtime",
+      "path": "src/commander_lab/models/engine_runtime.py"
+    },
+    {
+      "classes": [
+        "ZoneName",
+        "GameStatus",
+        "TurnPhase",
+        "ActionType",
+        "ZoneState",
+        "PlayerState",
+        "LegalAction",
+        "ActionProposal",
+        "GameEvent",
+        "GameState"
+      ],
+      "functions": [
+        "cards_in",
+        "validate_player_references"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "datetime",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 149,
+      "module": "commander_lab.models.game",
+      "path": "src/commander_lab/models/game.py"
+    },
+    {
+      "classes": [
+        "OpponentListStatus",
+        "UncertaintyModel",
+        "OpponentProfile"
+      ],
+      "functions": [
+        "known_and_synthetic_fit_deck",
+        "verified_profiles_need_deck"
+      ],
+      "imports": [
+        "__future__",
+        "cards",
+        "common",
+        "enum",
+        "pydantic"
+      ],
+      "lines": 60,
+      "module": "commander_lab.models.opponents",
+      "path": "src/commander_lab/models/opponents.py"
+    },
+    {
+      "classes": [
+        "OptimizationObjective",
+        "OptimizationConstraints",
+        "ConstraintIssue",
+        "ConstraintReport",
+        "ObjectiveVector",
+        "OptimizationVariant",
+        "CandidatePackage",
+        "LocalSearchInput",
+        "BeamSearchInput",
+        "PackageSearchInput",
+        "ParetoFrontInput",
+        "ShapleyInput",
+        "OptimizationValidationInput"
+      ],
+      "functions": [
+        "validate_ranges",
+        "as_maximize_dict",
+        "nonempty_package",
+        "validate_cards"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "enum",
+        "pilots",
+        "pydantic",
+        "roles",
+        "tooling",
+        "typing"
+      ],
+      "lines": 184,
+      "module": "commander_lab.models.optimization",
+      "path": "src/commander_lab/models/optimization.py"
+    },
+    {
+      "classes": [
+        "PilotStrength",
+        "PilotDecisionMode",
+        "PilotUtilityWeights",
+        "PilotConfig",
+        "PilotCommanderView",
+        "PilotOpponentView",
+        "PilotStateView",
+        "PilotActionView",
+        "PilotUtilityBreakdown",
+        "PilotDecision"
+      ],
+      "functions": [
+        "as_dict",
+        "commander_online",
+        "max_opponent_threat",
+        "enemy_board_total",
+        "lowest_opponent_life",
+        "max_graveyard_pressure",
+        "role_strength_keys_exist",
+        "strength",
+        "components"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "enum",
+        "pydantic",
+        "roles",
+        "typing"
+      ],
+      "lines": 184,
+      "module": "commander_lab.models.pilots",
+      "path": "src/commander_lab/models/pilots.py"
+    },
+    {
+      "classes": [
+        "PlaytestParticipant",
+        "RealPlaytest"
+      ],
+      "functions": [
+        "participants_match_pod"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "datetime",
+        "pydantic"
+      ],
+      "lines": 44,
+      "module": "commander_lab.models.playtests",
+      "path": "src/commander_lab/models/playtests.py"
+    },
+    {
+      "classes": [
+        "CardRole"
+      ],
+      "functions": [],
+      "imports": [
+        "enum"
+      ],
+      "lines": 22,
+      "module": "commander_lab.models.roles",
+      "path": "src/commander_lab/models/roles.py"
+    },
+    {
+      "classes": [
+        "ValidationLevel",
+        "RulesBackend",
+        "RulesEngineAvailability",
+        "RulesEngineCapabilities",
+        "RulesEngineProbe",
+        "RulesDeckInput",
+        "RulesDeckHandle",
+        "RulesGameRequest",
+        "TacticalScenario",
+        "RulesSession",
+        "RulesEngineLog",
+        "RulesEngineResult",
+        "InteractionSpec",
+        "InteractionValidation",
+        "CardValidationRecord",
+        "ValidationRegistry",
+        "BridgeRequest",
+        "BridgeResponse"
+      ],
+      "functions": [
+        "supports",
+        "validate_commander_deck_size",
+        "validate_pod",
+        "result_or_error"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "enum",
+        "game",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 276,
+      "module": "commander_lab.models.rules",
+      "path": "src/commander_lab/models/rules.py"
+    },
+    {
+      "classes": [
+        "SimulationMode",
+        "RunStatus",
+        "SimulationConfig",
+        "SimulationRun",
+        "MatchResult",
+        "CardContribution",
+        "UpgradeStatus",
+        "CardSwap",
+        "UpgradeProposal"
+      ],
+      "functions": [
+        "validate_pod"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "datetime",
+        "enum",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 118,
+      "module": "commander_lab.models.simulation",
+      "path": "src/commander_lab/models/simulation.py"
+    },
+    {
+      "classes": [
+        "ConditionalStrength",
+        "StructuralCardProfile",
+        "StructuralDeckProfile",
+        "StructuralAbortLimits",
+        "StructuralMatchConfig",
+        "StructuralBatchConfig",
+        "StructuralPlayerMetrics",
+        "StructuralMatchResult",
+        "StructuralBatchResult"
+      ],
+      "functions": [
+        "validate_role_strengths",
+        "strength",
+        "commanders_have_costs",
+        "validate_starting_seat",
+        "validate_decks"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "pilots",
+        "pydantic",
+        "roles",
+        "typing"
+      ],
+      "lines": 187,
+      "module": "commander_lab.models.structural",
+      "path": "src/commander_lab/models/structural.py"
+    },
+    {
+      "classes": [
+        "ToolStatus",
+        "CostLimits",
+        "ToolExecutionMetadata",
+        "ToolResponse",
+        "DeckRefInput",
+        "ValidateDeckInput",
+        "InspectDeckInput",
+        "SimulationInput",
+        "GoldfishInput",
+        "MatchupBatchInput",
+        "CompareDecksInput",
+        "CandidateProfile",
+        "VariantSwap",
+        "PairedVariantInput",
+        "CardAblationInput",
+        "PackageAblationInput",
+        "CommanderDenialInput",
+        "SwapMatrixInput",
+        "SearchVariantsInput",
+        "HoldoutInput",
+        "SensitivityInput",
+        "RecommendUpgradesInput",
+        "ValidateUpgradeInput",
+        "IngestPlaytestInput",
+        "CalibrateInput",
+        "CreateReportInput",
+        "WorkflowRequest",
+        "WorkflowReport"
+      ],
+      "functions": [
+        "validate_iteration_limits",
+        "validate_pod"
+      ],
+      "imports": [
+        "__future__",
+        "common",
+        "datetime",
+        "enum",
+        "pilots",
+        "pydantic",
+        "structural",
+        "typing"
+      ],
+      "lines": 236,
+      "module": "commander_lab.models.tooling",
+      "path": "src/commander_lab/models/tooling.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "local"
+      ],
+      "lines": 3,
+      "module": "commander_lab.observability.__init__",
+      "path": "src/commander_lab/observability/__init__.py"
+    },
+    {
+      "classes": [
+        "MetricsRegistry",
+        "StructuredLogger"
+      ],
+      "functions": [
+        "_redact",
+        "__init__",
+        "increment",
+        "snapshot",
+        "write",
+        "__init__",
+        "emit"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "commander_lab.storage.atomic",
+        "datetime",
+        "json",
+        "pathlib",
+        "threading",
+        "typing"
+      ],
+      "lines": 56,
+      "module": "commander_lab.observability.local",
+      "path": "src/commander_lab/observability/local.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "constraints",
+        "experiments",
+        "search"
+      ],
+      "lines": 42,
+      "module": "commander_lab.optimization.__init__",
+      "path": "src/commander_lab/optimization/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_candidate_inventory",
+        "role_counts",
+        "evaluate_constraints",
+        "evaluate_simultaneous_allocation"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "commander_lab.models",
+        "json",
+        "pathlib",
+        "statistics"
+      ],
+      "lines": 217,
+      "module": "commander_lab.optimization.constraints",
+      "path": "src/commander_lab/optimization/constraints.py"
+    },
+    {
+      "classes": [
+        "PairedMetrics"
+      ],
+      "functions": [
+        "derive_paired_seed",
+        "variant_deck",
+        "ablation_filler",
+        "profile_score",
+        "role_summary",
+        "run_paired_structural_comparison",
+        "as_dict"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.engine.structural",
+        "commander_lab.models",
+        "commander_lab.storage",
+        "dataclasses",
+        "hashlib",
+        "statistics",
+        "typing"
+      ],
+      "lines": 235,
+      "module": "commander_lab.optimization.experiments",
+      "path": "src/commander_lab/optimization/experiments.py"
+    },
+    {
+      "classes": [
+        "SearchCandidate"
+      ],
+      "functions": [
+        "default_constraints",
+        "card_matchup_tags",
+        "structural_rationale",
+        "screening_delta",
+        "build_search_candidate",
+        "all_legal_single_swaps",
+        "profile_rebuild_score",
+        "profile_closing_score",
+        "worst_quartile_improvement",
+        "objective_vector",
+        "dominates",
+        "pareto_front",
+        "approximate_shapley_profile",
+        "coalition_value"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "commander_lab.models",
+        "commander_lab.storage",
+        "constraints",
+        "dataclasses",
+        "experiments",
+        "math",
+        "random",
+        "statistics",
+        "typing"
+      ],
+      "lines": 324,
+      "module": "commander_lab.optimization.search",
+      "path": "src/commander_lab/optimization/search.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [],
+      "lines": 0,
+      "module": "commander_lab.reporting.__init__",
+      "path": "src/commander_lab/reporting/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "atomic",
+        "database",
+        "hashing",
+        "json_store",
+        "run_integrity"
+      ],
+      "lines": 32,
+      "module": "commander_lab.storage.__init__",
+      "path": "src/commander_lab/storage/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_fsync_directory",
+        "atomic_write_bytes",
+        "atomic_write_text",
+        "atomic_write_json"
+      ],
+      "imports": [
+        "__future__",
+        "json",
+        "os",
+        "pathlib",
+        "tempfile",
+        "typing"
+      ],
+      "lines": 54,
+      "module": "commander_lab.storage.atomic",
+      "path": "src/commander_lab/storage/atomic.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "connect_database",
+        "migrate_database",
+        "check_database",
+        "backup_database",
+        "restore_database",
+        "seal_experiment"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.storage.atomic",
+        "commander_lab.storage.hashing",
+        "datetime",
+        "json",
+        "pathlib",
+        "shutil",
+        "sqlite3",
+        "typing"
+      ],
+      "lines": 140,
+      "module": "commander_lab.storage.database",
+      "path": "src/commander_lab/storage/database.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "_canonicalize",
+        "canonical_json_bytes",
+        "sha256_value",
+        "compute_deck_hash",
+        "compute_data_snapshot_hash",
+        "compute_scenario_hash"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.cards.normalize",
+        "commander_lab.models",
+        "dataclasses",
+        "datetime",
+        "enum",
+        "hashlib",
+        "json",
+        "pathlib",
+        "pydantic",
+        "typing",
+        "uuid"
+      ],
+      "lines": 98,
+      "module": "commander_lab.storage.hashing",
+      "path": "src/commander_lab/storage/hashing.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "save_model",
+        "load_model"
+      ],
+      "imports": [
+        "__future__",
+        "atomic",
+        "json",
+        "pathlib",
+        "pydantic",
+        "typing"
+      ],
+      "lines": 25,
+      "module": "commander_lab.storage.json_store",
+      "path": "src/commander_lab/storage/json_store.py"
+    },
+    {
+      "classes": [
+        "RunVerification"
+      ],
+      "functions": [
+        "_safe_relative",
+        "sha256_file",
+        "create_run_manifest",
+        "verify_run",
+        "quarantine_run"
+      ],
+      "imports": [
+        "__future__",
+        "atomic",
+        "dataclasses",
+        "datetime",
+        "hashlib",
+        "json",
+        "os",
+        "pathlib",
+        "shutil",
+        "typing"
+      ],
+      "lines": 112,
+      "module": "commander_lab.storage.run_integrity",
+      "path": "src/commander_lab/storage/run_integrity.py"
+    },
+    {
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "candidates",
+        "local_snapshots",
+        "registry",
+        "service"
+      ],
+      "lines": 15,
+      "module": "commander_lab.tools.__init__",
+      "path": "src/commander_lab/tools/__init__.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "load_candidate_profiles"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "json",
+        "pathlib"
+      ],
+      "lines": 15,
+      "module": "commander_lab.tools.candidates",
+      "path": "src/commander_lab/tools/candidates.py"
+    },
+    {
+      "classes": [],
+      "functions": [
+        "build_local_snapshots"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.analysis",
+        "commander_lab.cards.catalog",
+        "commander_lab.importers",
+        "commander_lab.models",
+        "commander_lab.storage",
+        "datetime",
+        "json",
+        "pathlib"
+      ],
+      "lines": 101,
+      "module": "commander_lab.tools.local_snapshots",
+      "path": "src/commander_lab/tools/local_snapshots.py"
+    },
+    {
+      "classes": [
+        "ToolDefinition",
+        "ToolRegistry"
+      ],
+      "functions": [
+        "schema",
+        "__init__",
+        "list_schemas",
+        "input_model",
+        "invoke"
+      ],
+      "imports": [
+        "__future__",
+        "commander_lab.models",
+        "dataclasses",
+        "pydantic",
+        "service",
+        "typing"
+      ],
+      "lines": 102,
+      "module": "commander_lab.tools.registry",
+      "path": "src/commander_lab/tools/registry.py"
+    },
+    {
+      "classes": [
+        "ToolExecutionError",
+        "ApprovalRequired",
+        "CommanderToolService"
+      ],
+      "functions": [
+        "__init__",
+        "_load_limits",
+        "git_commit",
+        "_check_iterations",
+        "_deck",
+        "_is_protected",
+        "_validate_swap_policy",
+        "_candidate",
+        "_optimization_constraints",
+        "_eligible_candidate_ids",
+        "_paired_variant_metrics",
+        "_commander_dependency_penalty",
+        "_holdout_improvements",
+        "_red_team_review",
+        "_evaluate_search_candidate",
+        "_metadata",
+        "_invoke",
+        "validate_deck",
+        "inspect_deck",
+        "run_goldfish",
+        "run_matchup_batch",
+        "compare_decks",
+        "_build_variant",
+        "compare_variants_paired",
+        "run_card_ablation",
+        "run_package_ablation",
+        "run_commander_denial",
+        "run_holdout",
+        "run_sensitivity",
+        "recommend_upgrades",
+        "generate_swap_matrix",
+        "models_variant_swap",
+        "search_variants",
+        "run_local_search",
+        "run_beam_search",
+        "_worst_quartile",
+        "run_package_search",
+        "evaluate_pareto_front",
+        "estimate_shapley",
+        "validate_upgrade",
+        "ingest_playtest",
+        "calibrate",
+        "create_report",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work",
+        "work"
+      ],
+      "imports": [
+        "__future__",
+        "candidates",
+        "collections",
+        "commander_lab.analysis",
+        "commander_lab.cards.catalog",
+        "commander_lab.engine.structural",
+        "commander_lab.importers",
+        "commander_lab.models",
+        "commander_lab.optimization",
+        "commander_lab.storage",
+        "datetime",
+        "itertools",
+        "json",
+        "pathlib",
+        "statistics",
+        "subprocess",
+        "time",
+        "typing",
+        "uuid"
+      ],
+      "lines": 1439,
+      "module": "commander_lab.tools.service",
+      "path": "src/commander_lab/tools/service.py"
+    }
+  ],
+  "root": "/mnt/data/audit_check_phase85"
+}

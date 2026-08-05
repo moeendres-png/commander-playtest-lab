@@ -1,0 +1,99 @@
+{
+  "$defs": {
+    "RulesBackend": {
+      "enum": [
+        "tactical",
+        "forge",
+        "xmage"
+      ],
+      "title": "RulesBackend",
+      "type": "string"
+    },
+    "ValidationLevel": {
+      "enum": [
+        "structural_only",
+        "tactical_validated",
+        "rules_engine_validated"
+      ],
+      "title": "ValidationLevel",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "backend": {
+      "$ref": "#/$defs/RulesBackend"
+    },
+    "backend_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Backend Version"
+    },
+    "comparison_keys": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Comparison Keys",
+      "type": "array"
+    },
+    "evidence_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evidence Path"
+    },
+    "expected": {
+      "additionalProperties": true,
+      "title": "Expected",
+      "type": "object"
+    },
+    "interaction_id": {
+      "title": "Interaction Id",
+      "type": "string"
+    },
+    "level": {
+      "$ref": "#/$defs/ValidationLevel"
+    },
+    "mismatches": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Mismatches",
+      "type": "array"
+    },
+    "observed": {
+      "additionalProperties": true,
+      "title": "Observed",
+      "type": "object"
+    },
+    "passed": {
+      "title": "Passed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "interaction_id",
+    "level",
+    "passed",
+    "backend",
+    "expected",
+    "observed",
+    "comparison_keys"
+  ],
+  "title": "InteractionValidation",
+  "type": "object"
+}

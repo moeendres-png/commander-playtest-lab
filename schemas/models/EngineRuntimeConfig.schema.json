@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "EngineRuntimeMode": {
+      "enum": [
+        "external",
+        "tactical_oracle",
+        "replay"
+      ],
+      "title": "EngineRuntimeMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allow_tactical_oracle_fallback": {
+      "default": false,
+      "title": "Allow Tactical Oracle Fallback",
+      "type": "boolean"
+    },
+    "binary_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Binary Path"
+    },
+    "healthcheck_timeout_seconds": {
+      "default": 20.0,
+      "exclusiveMinimum": 0,
+      "title": "Healthcheck Timeout Seconds",
+      "type": "number"
+    },
+    "home": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Home"
+    },
+    "host": {
+      "default": "127.0.0.1",
+      "title": "Host",
+      "type": "string"
+    },
+    "java_home": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Java Home"
+    },
+    "log_directory": {
+      "default": "artifacts/engine_setup/logs",
+      "title": "Log Directory",
+      "type": "string"
+    },
+    "maven_home": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maven Home"
+    },
+    "mode": {
+      "$ref": "#/$defs/EngineRuntimeMode",
+      "default": "external"
+    },
+    "port": {
+      "anyOf": [
+        {
+          "maximum": 65535,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Port"
+    },
+    "protocol_version": {
+      "default": "1.0.0",
+      "title": "Protocol Version",
+      "type": "string"
+    },
+    "provider": {
+      "default": "xmage",
+      "enum": [
+        "xmage",
+        "forge"
+      ],
+      "title": "Provider",
+      "type": "string"
+    },
+    "request_timeout_seconds": {
+      "default": 20.0,
+      "exclusiveMinimum": 0,
+      "title": "Request Timeout Seconds",
+      "type": "number"
+    },
+    "source_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Path"
+    },
+    "start_command": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Start Command",
+      "type": "array"
+    },
+    "stop_command": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Stop Command",
+      "type": "array"
+    }
+  },
+  "title": "EngineRuntimeConfig",
+  "type": "object"
+}

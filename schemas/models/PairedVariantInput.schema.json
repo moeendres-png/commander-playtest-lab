@@ -1,0 +1,119 @@
+{
+  "$defs": {
+    "PilotDecisionMode": {
+      "enum": [
+        "deterministic",
+        "stochastic"
+      ],
+      "title": "PilotDecisionMode",
+      "type": "string"
+    },
+    "PilotStrength": {
+      "enum": [
+        "weak",
+        "average",
+        "strong",
+        "near_optimal_heuristic"
+      ],
+      "title": "PilotStrength",
+      "type": "string"
+    },
+    "VariantSwap": {
+      "additionalProperties": false,
+      "properties": {
+        "add_candidate_id": {
+          "title": "Add Candidate Id",
+          "type": "string"
+        },
+        "remove": {
+          "title": "Remove",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remove",
+        "add_candidate_id"
+      ],
+      "title": "VariantSwap",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approval_token": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approval Token"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "iterations": {
+      "default": 100,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 35,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Max Turns",
+      "type": "integer"
+    },
+    "opponent_deck_ids": {
+      "default": [
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Opponent Deck Ids",
+      "type": "array"
+    },
+    "pilot_mode": {
+      "$ref": "#/$defs/PilotDecisionMode",
+      "default": "deterministic"
+    },
+    "pilot_strength": {
+      "$ref": "#/$defs/PilotStrength",
+      "default": "strong"
+    },
+    "seed": {
+      "default": 20260804,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "swaps": {
+      "items": {
+        "$ref": "#/$defs/VariantSwap"
+      },
+      "title": "Swaps",
+      "type": "array"
+    },
+    "workers": {
+      "default": 1,
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_id",
+    "swaps"
+  ],
+  "title": "PairedVariantInput",
+  "type": "object"
+}

@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "default": "latest_calibration.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "playtest_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Playtest Ids",
+      "type": "array"
+    }
+  },
+  "title": "CalibrateInput",
+  "type": "object"
+}

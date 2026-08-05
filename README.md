@@ -349,3 +349,15 @@ The versioned JSONL contract, process manager, offline bootstrap, Docker recipes
 and replay validation are documented in `docs/engine_setup.md`. The current build
 runtime could not execute XMage or Forge; external validation therefore remains
 pending and no Tactical Oracle result is presented as external evidence.
+
+## Phase 8.6 audit and operational commands
+
+```bash
+commander-lab doctor
+commander-lab db-migrate
+commander-lab db-check
+commander-lab audit-phase86
+commander-lab runs-verify data/runs/<run-id>
+```
+
+Phase 8.5.1 has not been executed in the sandbox. See `docs/phase851_execution_required.md`. External validation may never be inferred from Tactical Oracle output, and automatic fallback is disabled by default.

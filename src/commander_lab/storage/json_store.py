@@ -6,15 +6,16 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
+from .atomic import atomic_write_text
+
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 def save_model(path: str | Path, model: BaseModel) -> None:
     path_obj = Path(path)
-    path_obj.parent.mkdir(parents=True, exist_ok=True)
-    path_obj.write_text(
-        json.dumps(model.model_dump(mode="json"), indent=2, ensure_ascii=False),
-        encoding="utf-8",
+    atomic_write_text(
+        path_obj,
+        json.dumps(model.model_dump(mode="json"), indent=2, ensure_ascii=False) + "\n",
     )
 
 

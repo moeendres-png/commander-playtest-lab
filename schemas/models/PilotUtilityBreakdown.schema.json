@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "card_advantage": {
+      "default": 0.0,
+      "title": "Card Advantage",
+      "type": "number"
+    },
+    "commander_value": {
+      "default": 0.0,
+      "title": "Commander Value",
+      "type": "number"
+    },
+    "engine_development": {
+      "default": 0.0,
+      "title": "Engine Development",
+      "type": "number"
+    },
+    "interaction_reserve": {
+      "default": 0.0,
+      "title": "Interaction Reserve",
+      "type": "number"
+    },
+    "mana_efficiency": {
+      "default": 0.0,
+      "title": "Mana Efficiency",
+      "type": "number"
+    },
+    "political_visibility": {
+      "default": 0.0,
+      "title": "Political Visibility",
+      "type": "number"
+    },
+    "rebuild_capacity": {
+      "default": 0.0,
+      "title": "Rebuild Capacity",
+      "type": "number"
+    },
+    "specialist_bonus": {
+      "default": 0.0,
+      "title": "Specialist Bonus",
+      "type": "number"
+    },
+    "survival": {
+      "default": 0.0,
+      "title": "Survival",
+      "type": "number"
+    },
+    "tempo": {
+      "default": 0.0,
+      "title": "Tempo",
+      "type": "number"
+    },
+    "threat_reduction": {
+      "default": 0.0,
+      "title": "Threat Reduction",
+      "type": "number"
+    },
+    "total_utility": {
+      "default": 0.0,
+      "title": "Total Utility",
+      "type": "number"
+    },
+    "win_progress": {
+      "default": 0.0,
+      "title": "Win Progress",
+      "type": "number"
+    }
+  },
+  "title": "PilotUtilityBreakdown",
+  "type": "object"
+}

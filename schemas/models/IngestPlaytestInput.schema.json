@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "sheet_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sheet Name"
+    },
+    "source_path": {
+      "title": "Source Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_path"
+  ],
+  "title": "IngestPlaytestInput",
+  "type": "object"
+}

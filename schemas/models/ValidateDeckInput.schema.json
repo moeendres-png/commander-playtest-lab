@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "include_physical_allocation": {
+      "default": true,
+      "title": "Include Physical Allocation",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "ValidateDeckInput",
+  "type": "object"
+}

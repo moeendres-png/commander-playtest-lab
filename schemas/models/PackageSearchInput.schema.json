@@ -1,0 +1,317 @@
+{
+  "$defs": {
+    "CandidatePackage": {
+      "additionalProperties": false,
+      "properties": {
+        "package_id": {
+          "title": "Package Id",
+          "type": "string"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rationale"
+        },
+        "swaps": {
+          "items": {
+            "$ref": "#/$defs/VariantSwap"
+          },
+          "title": "Swaps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "package_id",
+        "swaps"
+      ],
+      "title": "CandidatePackage",
+      "type": "object"
+    },
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    },
+    "Color": {
+      "enum": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "title": "Color",
+      "type": "string"
+    },
+    "OptimizationConstraints": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_colors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Color"
+          },
+          "title": "Allowed Colors",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "exact_card_count": {
+          "default": 100,
+          "maximum": 500,
+          "minimum": 1,
+          "title": "Exact Card Count",
+          "type": "integer"
+        },
+        "high_mana_value_threshold": {
+          "default": 5.0,
+          "maximum": 20.0,
+          "minimum": 0.0,
+          "title": "High Mana Value Threshold",
+          "type": "number"
+        },
+        "maximum_average_nonland_mana_value": {
+          "default": 99.0,
+          "maximum": 20.0,
+          "minimum": 0.0,
+          "title": "Maximum Average Nonland Mana Value",
+          "type": "number"
+        },
+        "maximum_high_mana_value_cards": {
+          "default": 100,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Maximum High Mana Value Cards",
+          "type": "integer"
+        },
+        "maximum_lands": {
+          "default": 100,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Maximum Lands",
+          "type": "integer"
+        },
+        "minimum_colored_sources": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/Color"
+          },
+          "title": "Minimum Colored Sources",
+          "type": "object"
+        },
+        "minimum_lands": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Minimum Lands",
+          "type": "integer"
+        },
+        "require_verified_inventory": {
+          "default": true,
+          "title": "Require Verified Inventory",
+          "type": "boolean"
+        },
+        "role_minima": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/CardRole"
+          },
+          "title": "Role Minima",
+          "type": "object"
+        },
+        "simultaneous_deck_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Simultaneous Deck Ids",
+          "type": "array"
+        },
+        "singleton": {
+          "default": true,
+          "title": "Singleton",
+          "type": "boolean"
+        }
+      },
+      "title": "OptimizationConstraints",
+      "type": "object"
+    },
+    "PilotDecisionMode": {
+      "enum": [
+        "deterministic",
+        "stochastic"
+      ],
+      "title": "PilotDecisionMode",
+      "type": "string"
+    },
+    "PilotStrength": {
+      "enum": [
+        "weak",
+        "average",
+        "strong",
+        "near_optimal_heuristic"
+      ],
+      "title": "PilotStrength",
+      "type": "string"
+    },
+    "VariantSwap": {
+      "additionalProperties": false,
+      "properties": {
+        "add_candidate_id": {
+          "title": "Add Candidate Id",
+          "type": "string"
+        },
+        "remove": {
+          "title": "Remove",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remove",
+        "add_candidate_id"
+      ],
+      "title": "VariantSwap",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approval_token": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approval Token"
+    },
+    "candidate_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Candidate Ids",
+      "type": "array"
+    },
+    "constraints": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OptimizationConstraints"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "iterations": {
+      "default": 100,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "max_package_size": {
+      "default": 2,
+      "maximum": 5,
+      "minimum": 2,
+      "title": "Max Package Size",
+      "type": "integer"
+    },
+    "max_packages": {
+      "default": 12,
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Max Packages",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 35,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Max Turns",
+      "type": "integer"
+    },
+    "opponent_deck_ids": {
+      "default": [
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Opponent Deck Ids",
+      "type": "array"
+    },
+    "packages": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CandidatePackage"
+      },
+      "title": "Packages",
+      "type": "array"
+    },
+    "pilot_mode": {
+      "$ref": "#/$defs/PilotDecisionMode",
+      "default": "deterministic"
+    },
+    "pilot_strength": {
+      "$ref": "#/$defs/PilotStrength",
+      "default": "strong"
+    },
+    "seed": {
+      "default": 20260804,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "workers": {
+      "default": 1,
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "PackageSearchInput",
+  "type": "object"
+}

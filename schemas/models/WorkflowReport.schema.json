@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "caveats": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Caveats",
+      "type": "array"
+    },
+    "conclusion": {
+      "title": "Conclusion",
+      "type": "string"
+    },
+    "estimate_type": {
+      "const": "structural_model_estimates",
+      "default": "structural_model_estimates",
+      "title": "Estimate Type",
+      "type": "string"
+    },
+    "estimated_cost_usd": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Estimated Cost Usd",
+      "type": "number"
+    },
+    "evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "goal": {
+      "title": "Goal",
+      "type": "string"
+    },
+    "model_calls": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Model Calls",
+      "type": "integer"
+    },
+    "tool_invocations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tool Invocations",
+      "type": "array"
+    },
+    "total_tokens": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Total Tokens",
+      "type": "integer"
+    },
+    "workflow_id": {
+      "title": "Workflow Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "workflow_id",
+    "goal",
+    "conclusion",
+    "evidence",
+    "caveats",
+    "tool_invocations"
+  ],
+  "title": "WorkflowReport",
+  "type": "object"
+}

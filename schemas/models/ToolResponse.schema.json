@@ -1,0 +1,167 @@
+{
+  "$defs": {
+    "ToolExecutionMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "data_snapshot_hash": {
+          "title": "Data Snapshot Hash",
+          "type": "string"
+        },
+        "deck_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Deck Hashes",
+          "type": "object"
+        },
+        "deterministic_game_log_directory": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deterministic Game Log Directory"
+        },
+        "elapsed_seconds": {
+          "minimum": 0.0,
+          "title": "Elapsed Seconds",
+          "type": "number"
+        },
+        "engine_version": {
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "estimate_type": {
+          "const": "structural_model_estimates",
+          "default": "structural_model_estimates",
+          "title": "Estimate Type",
+          "type": "string"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        },
+        "invocation_id": {
+          "title": "Invocation Id",
+          "type": "string"
+        },
+        "iterations": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Iterations"
+        },
+        "openai_trace_directory": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Openai Trace Directory"
+        },
+        "scenario_hash": {
+          "title": "Scenario Hash",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        },
+        "tool_name": {
+          "title": "Tool Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool_name",
+        "invocation_id",
+        "created_at",
+        "engine_version",
+        "data_snapshot_hash",
+        "scenario_hash",
+        "elapsed_seconds"
+      ],
+      "title": "ToolExecutionMetadata",
+      "type": "object"
+    },
+    "ToolStatus": {
+      "enum": [
+        "completed",
+        "rejected",
+        "failed",
+        "requires_approval"
+      ],
+      "title": "ToolStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "errors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ToolExecutionMetadata"
+    },
+    "result": {
+      "additionalProperties": true,
+      "title": "Result",
+      "type": "object"
+    },
+    "status": {
+      "$ref": "#/$defs/ToolStatus"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "metadata"
+  ],
+  "title": "ToolResponse",
+  "type": "object"
+}

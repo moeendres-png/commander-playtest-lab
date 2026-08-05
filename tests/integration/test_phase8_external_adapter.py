@@ -11,7 +11,7 @@ from commander_lab.engine.rules import (
 from commander_lab.models import RulesBackend, ValidationLevel
 
 
-def test_external_adapter_can_promote_matching_observation_to_rules_engine_validated(
+def test_legacy_or_mock_adapter_cannot_promote_observation_to_rules_engine_validated(
     repo_root: Path, tmp_path: Path
 ) -> None:
     script = tmp_path / "fake_forge_bridge.py"
@@ -66,9 +66,8 @@ for raw in sys.stdin:
         case = load_interaction_catalog(
             repo_root / "data/rules/project_critical_interactions.json"
         )[0]
-        result = validate_with_external_adapter(case, adapter)
-        assert result.passed
-        assert result.level == ValidationLevel.RULES_ENGINE_VALIDATED
-        assert result.backend == RulesBackend.FORGE
+        import pytest
+        with pytest.raises(RuntimeError, match="unverified|legacy|external rules engine"):
+            validate_with_external_adapter(case, adapter)
     finally:
         adapter.close()

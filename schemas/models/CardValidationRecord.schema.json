@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "ValidationLevel": {
+      "enum": [
+        "structural_only",
+        "tactical_validated",
+        "rules_engine_validated"
+      ],
+      "title": "ValidationLevel",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "interaction_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Interaction Ids",
+      "type": "array"
+    },
+    "level": {
+      "$ref": "#/$defs/ValidationLevel"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "oracle_name": {
+      "title": "Oracle Name",
+      "type": "string"
+    },
+    "rules_engine_passed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Rules Engine Passed",
+      "type": "integer"
+    },
+    "tactical_passed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Tactical Passed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "oracle_name",
+    "level"
+  ],
+  "title": "CardValidationRecord",
+  "type": "object"
+}

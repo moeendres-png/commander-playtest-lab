@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.engine.process_manager import EngineProcessManager, load_engine_runtime_config
+from commander_lab.storage.atomic import atomic_write_json
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     EngineMessageType,
@@ -43,6 +44,14 @@ def _utc() -> str:
 
 
 def _tactical_contract(root: Path) -> dict[str, Any]:
+    """Exercise every declared JSONL message against one persistent tactical bridge.
+
+    A structured error counts as envelope coverage. Reusing a single process avoids the
+    large import/startup cost of launching one Python bridge for every message type.
+    This remains local protocol evidence, never external-engine evidence.
+    """
+    exercised: list[str] = []
+    structured: dict[str, str] = {}
     client = JsonLineBridgeClient(
         (sys.executable, str(root / "scripts/tactical_rules_bridge.py")),
         cwd=root,
@@ -50,33 +59,59 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
         protocol_version=ENGINE_PROTOCOL_VERSION,
         request_timeout_seconds=5,
     )
-    exercised: list[str] = []
+    hello: dict[str, Any] = {}
+    caps: dict[str, Any] = {}
     try:
-        hello = client.request(EngineMessageType.ENGINE_HELLO)
-        exercised.append(EngineMessageType.ENGINE_HELLO.value)
-        caps = client.request(EngineMessageType.ENGINE_CAPABILITIES)
-        exercised.append(EngineMessageType.ENGINE_CAPABILITIES.value)
+        for kind in EngineMessageType:
+            params: dict[str, Any] = {}
+            game_id = None if kind in {
+                EngineMessageType.ENGINE_HELLO,
+                EngineMessageType.ENGINE_CAPABILITIES,
+                EngineMessageType.LOAD_DECK,
+                EngineMessageType.CREATE_GAME,
+            } else "missing-game"
+            try:
+                payload = client.request(kind, params, game_id=game_id)
+                structured[kind.value] = "success"
+                if kind == EngineMessageType.ENGINE_HELLO:
+                    hello = payload
+                elif kind == EngineMessageType.ENGINE_CAPABILITIES:
+                    caps = payload
+            except Exception as exc:
+                # The request reached the bridge and produced a deterministic structured
+                # protocol failure; semantic success is not required for this contract test.
+                if "bridge message" in str(exc):
+                    structured[kind.value] = "structured_error"
+                else:
+                    structured[kind.value] = f"client_error:{type(exc).__name__}"
+            exercised.append(kind.value)
         unknown_rejected = False
         try:
             client.request("unknown_message")
         except Exception:
             unknown_rejected = True
-        return {
-            "passed": (
-                hello.get("validation_level") == RuntimeValidationLevel.TACTICAL_ORACLE.value
-                and caps.get("capabilities", {}).get("runtime_kind") == "tactical_oracle"
-                and unknown_rejected
-            ),
-            "exercised": exercised,
-            "declared_message_types": [item.value for item in EngineMessageType],
-            "all_message_envelopes_covered_by_contract_tests": True,
-            "unknown_message_rejected": unknown_rejected,
-            "hello": hello,
-            "capabilities": caps.get("capabilities", {}),
-            "validation_level": RuntimeValidationLevel.TACTICAL_ORACLE.value,
-        }
     finally:
         client.close()
+
+    declared = [item.value for item in EngineMessageType]
+    all_exercised = exercised == declared
+    return {
+        "status": "passed" if all_exercised and unknown_rejected else "failed",
+        "passed": (
+            all_exercised
+            and hello.get("validation_level") == RuntimeValidationLevel.TACTICAL_ORACLE.value
+            and caps.get("capabilities", {}).get("runtime_kind") == "tactical_oracle"
+            and unknown_rejected
+        ),
+        "exercised": exercised,
+        "declared_message_types": declared,
+        "message_outcomes": structured,
+        "all_message_envelopes_covered_by_contract_tests": all_exercised,
+        "unknown_message_rejected": unknown_rejected,
+        "hello": hello,
+        "capabilities": caps.get("capabilities", {}),
+        "validation_level": RuntimeValidationLevel.TACTICAL_ORACLE.value,
+    }
 
 
 def _replay_contract() -> dict[str, Any]:
@@ -193,9 +228,10 @@ def run_phase85_validation(root: str | Path, *, output_directory: str | Path) ->
         }
         for name in PROJECT_SCENARIOS
     ]
+    full_external = all(external_tests.values())
     status = (
-        "external_engine_ready_with_limitations"
-        if external_ready
+        "external_engine_ready"
+        if full_external
         else "external_runtime_prepared_but_not_executed"
     )
     result = {
@@ -224,7 +260,7 @@ def run_phase85_validation(root: str | Path, *, output_directory: str | Path) ->
         "external_integration_tests": external_tests,
         "project_scenarios": scenarios,
         "local_acceptance_passed": tactical["passed"] and replay["passed"],
-        "full_external_acceptance_passed": all(external_tests.values()),
+        "full_external_acceptance_passed": full_external,
         "phase9_may_begin": True,
         "phase9_condition": "external_engine_validation_pending=true",
         "claims_boundary": (
@@ -232,7 +268,7 @@ def run_phase85_validation(root: str | Path, *, output_directory: str | Path) ->
         ),
     }
     target = output / "phase85_validation_output.json"
-    target.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write_json(target, result)
     return result
 
 

@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "NumericRange": {
+      "additionalProperties": false,
+      "properties": {
+        "maximum": {
+          "title": "Maximum",
+          "type": "number"
+        },
+        "minimum": {
+          "title": "Minimum",
+          "type": "number"
+        }
+      },
+      "required": [
+        "minimum",
+        "maximum"
+      ],
+      "title": "NumericRange",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "boardwipe_count_range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NumericRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "confidence": {
+      "default": 0.5,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "interaction_density_range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NumericRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "known_card_count": {
+      "default": 0,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Known Card Count",
+      "type": "integer"
+    },
+    "plausible_variants": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Plausible Variants",
+      "type": "array"
+    },
+    "role_density_ranges": {
+      "additionalProperties": {
+        "$ref": "#/$defs/NumericRange"
+      },
+      "title": "Role Density Ranges",
+      "type": "object"
+    },
+    "speed_turn_range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NumericRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "synthetic_card_count": {
+      "default": 0,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Synthetic Card Count",
+      "type": "integer"
+    },
+    "unknown_fields": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unknown Fields",
+      "type": "array"
+    }
+  },
+  "title": "UncertaintyModel",
+  "type": "object"
+}

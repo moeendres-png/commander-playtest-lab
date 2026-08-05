@@ -1,0 +1,33 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "condition": {
+      "title": "Condition",
+      "type": "string"
+    },
+    "multiplier": {
+      "default": 1.0,
+      "maximum": 4.0,
+      "minimum": 0.0,
+      "title": "Multiplier",
+      "type": "number"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "condition"
+  ],
+  "title": "ConditionalStrength",
+  "type": "object"
+}

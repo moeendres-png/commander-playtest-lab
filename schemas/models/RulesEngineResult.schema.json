@@ -1,0 +1,437 @@
+{
+  "$defs": {
+    "ActionType": {
+      "enum": [
+        "pass_priority",
+        "play_land",
+        "cast_spell",
+        "cast_commander",
+        "activate_ability",
+        "declare_attackers",
+        "declare_blockers",
+        "choose_targets",
+        "choose_mode",
+        "pay_cost",
+        "mulligan",
+        "concede",
+        "structural_decision"
+      ],
+      "title": "ActionType",
+      "type": "string"
+    },
+    "GameState": {
+      "additionalProperties": false,
+      "properties": {
+        "active_player_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Active Player Id"
+        },
+        "event_sequence": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Event Sequence",
+          "type": "integer"
+        },
+        "game_id": {
+          "title": "Game Id",
+          "type": "string"
+        },
+        "legal_actions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/LegalAction"
+          },
+          "title": "Legal Actions",
+          "type": "array"
+        },
+        "phase": {
+          "$ref": "#/$defs/TurnPhase",
+          "default": "beginning"
+        },
+        "players": {
+          "items": {
+            "$ref": "#/$defs/PlayerState"
+          },
+          "title": "Players",
+          "type": "array"
+        },
+        "priority_player_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority Player Id"
+        },
+        "rng_counter": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Rng Counter",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "stack": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Stack",
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/GameStatus",
+          "default": "not_started"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step"
+        },
+        "turn_number": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Turn Number",
+          "type": "integer"
+        },
+        "winner_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Winner Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "game_id",
+        "seed",
+        "players"
+      ],
+      "title": "GameState",
+      "type": "object"
+    },
+    "GameStatus": {
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed",
+        "aborted"
+      ],
+      "title": "GameStatus",
+      "type": "string"
+    },
+    "LegalAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "action_type": {
+          "$ref": "#/$defs/ActionType"
+        },
+        "actor_id": {
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "allowed_target_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Target Ids",
+          "type": "array"
+        },
+        "choices_schema": {
+          "additionalProperties": true,
+          "title": "Choices Schema",
+          "type": "object"
+        },
+        "cost": {
+          "additionalProperties": true,
+          "title": "Cost",
+          "type": "object"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "modes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Modes",
+          "type": "array"
+        },
+        "source_object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Object Id"
+        },
+        "target_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "action_id",
+        "actor_id",
+        "action_type"
+      ],
+      "title": "LegalAction",
+      "type": "object"
+    },
+    "PlayerState": {
+      "additionalProperties": false,
+      "properties": {
+        "commander_cast_count": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Commander Cast Count",
+          "type": "object"
+        },
+        "commander_damage_received": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Commander Damage Received",
+          "type": "object"
+        },
+        "has_lost": {
+          "default": false,
+          "title": "Has Lost",
+          "type": "boolean"
+        },
+        "land_plays_remaining": {
+          "default": 1,
+          "minimum": 0,
+          "title": "Land Plays Remaining",
+          "type": "integer"
+        },
+        "life": {
+          "default": 40,
+          "title": "Life",
+          "type": "integer"
+        },
+        "loss_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Loss Reason"
+        },
+        "mana_pool": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Mana Pool",
+          "type": "object"
+        },
+        "player_id": {
+          "title": "Player Id",
+          "type": "string"
+        },
+        "poison_counters": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Poison Counters",
+          "type": "integer"
+        },
+        "seat": {
+          "minimum": 0,
+          "title": "Seat",
+          "type": "integer"
+        },
+        "zones": {
+          "$ref": "#/$defs/ZoneState"
+        }
+      },
+      "required": [
+        "player_id",
+        "seat"
+      ],
+      "title": "PlayerState",
+      "type": "object"
+    },
+    "RulesBackend": {
+      "enum": [
+        "tactical",
+        "forge",
+        "xmage"
+      ],
+      "title": "RulesBackend",
+      "type": "string"
+    },
+    "TurnPhase": {
+      "enum": [
+        "beginning",
+        "precombat_main",
+        "combat",
+        "postcombat_main",
+        "ending"
+      ],
+      "title": "TurnPhase",
+      "type": "string"
+    },
+    "ValidationLevel": {
+      "enum": [
+        "structural_only",
+        "tactical_validated",
+        "rules_engine_validated"
+      ],
+      "title": "ValidationLevel",
+      "type": "string"
+    },
+    "ZoneState": {
+      "additionalProperties": false,
+      "properties": {
+        "battlefield": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Battlefield",
+          "type": "array"
+        },
+        "command": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Command",
+          "type": "array"
+        },
+        "exile": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Exile",
+          "type": "array"
+        },
+        "graveyard": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Graveyard",
+          "type": "array"
+        },
+        "hand": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Hand",
+          "type": "array"
+        },
+        "library": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Library",
+          "type": "array"
+        }
+      },
+      "title": "ZoneState",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "backend": {
+      "$ref": "#/$defs/RulesBackend"
+    },
+    "backend_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Backend Version"
+    },
+    "completed": {
+      "title": "Completed",
+      "type": "boolean"
+    },
+    "final_state": {
+      "$ref": "#/$defs/GameState"
+    },
+    "normalized_result": {
+      "additionalProperties": true,
+      "title": "Normalized Result",
+      "type": "object"
+    },
+    "session_id": {
+      "title": "Session Id",
+      "type": "string"
+    },
+    "validation_level": {
+      "$ref": "#/$defs/ValidationLevel"
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "backend",
+    "session_id",
+    "completed",
+    "final_state",
+    "validation_level"
+  ],
+  "title": "RulesEngineResult",
+  "type": "object"
+}

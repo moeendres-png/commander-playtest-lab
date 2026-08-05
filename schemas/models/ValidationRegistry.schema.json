@@ -1,0 +1,211 @@
+{
+  "$defs": {
+    "CardValidationRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "interaction_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Interaction Ids",
+          "type": "array"
+        },
+        "level": {
+          "$ref": "#/$defs/ValidationLevel"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "oracle_name": {
+          "title": "Oracle Name",
+          "type": "string"
+        },
+        "rules_engine_passed": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Rules Engine Passed",
+          "type": "integer"
+        },
+        "tactical_passed": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Tactical Passed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "oracle_name",
+        "level"
+      ],
+      "title": "CardValidationRecord",
+      "type": "object"
+    },
+    "InteractionValidation": {
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "$ref": "#/$defs/RulesBackend"
+        },
+        "backend_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backend Version"
+        },
+        "comparison_keys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Comparison Keys",
+          "type": "array"
+        },
+        "evidence_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Path"
+        },
+        "expected": {
+          "additionalProperties": true,
+          "title": "Expected",
+          "type": "object"
+        },
+        "interaction_id": {
+          "title": "Interaction Id",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/ValidationLevel"
+        },
+        "mismatches": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Mismatches",
+          "type": "array"
+        },
+        "observed": {
+          "additionalProperties": true,
+          "title": "Observed",
+          "type": "object"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "interaction_id",
+        "level",
+        "passed",
+        "backend",
+        "expected",
+        "observed",
+        "comparison_keys"
+      ],
+      "title": "InteractionValidation",
+      "type": "object"
+    },
+    "RulesBackend": {
+      "enum": [
+        "tactical",
+        "forge",
+        "xmage"
+      ],
+      "title": "RulesBackend",
+      "type": "string"
+    },
+    "ValidationLevel": {
+      "enum": [
+        "structural_only",
+        "tactical_validated",
+        "rules_engine_validated"
+      ],
+      "title": "ValidationLevel",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cards": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CardValidationRecord"
+      },
+      "title": "Cards",
+      "type": "object"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "interactions": {
+      "additionalProperties": {
+        "$ref": "#/$defs/InteractionValidation"
+      },
+      "title": "Interactions",
+      "type": "object"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "rules_engine_cases": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Rules Engine Cases",
+      "type": "integer"
+    },
+    "rules_engine_passed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Rules Engine Passed",
+      "type": "integer"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tactical_cases": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Tactical Cases",
+      "type": "integer"
+    },
+    "tactical_passed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Tactical Passed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "engine_version",
+    "cards",
+    "interactions"
+  ],
+  "title": "ValidationRegistry",
+  "type": "object"
+}

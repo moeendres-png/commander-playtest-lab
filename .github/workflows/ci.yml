@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install project and quality tools
+        run: python -m pip install --require-virtualenv=false -e '.[dev,api]'
+      - name: Ruff lint
+        run: ruff check .
+      - name: Ruff format
+        run: ruff format --check .
+      - name: Mypy
+        run: mypy src/commander_lab
+      - name: Collect tests
+        run: pytest --collect-only -q
+      - name: Test suite
+        run: pytest -q
+      - name: Compile
+        run: python -m compileall -q src tests
+      - name: Phase 8.6 audit
+        run: commander-lab audit-phase86 --skip-tests || test $? -eq 2
+      - name: Secret-pattern scan
+        run: |
+          ! grep -RInE '(sk-[A-Za-z0-9_-]{20,}|OPENAI_API_KEY=.+)' --exclude='.env.example' --exclude-dir='.git' .
+      - name: Build wheel
+        run: python -m pip wheel --no-deps --wheel-dir dist .
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        if: always()
+        with:
+          name: ci-evidence
+          path: |
+            artifacts/audit/
+            PHASE86_VALIDATION_OUTPUT.json
+            dist/
+          if-no-files-found: warn

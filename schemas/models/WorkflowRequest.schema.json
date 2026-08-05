@@ -1,0 +1,113 @@
+{
+  "$defs": {
+    "CostLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "approval_threshold_iterations": {
+          "default": 5000,
+          "minimum": 1,
+          "title": "Approval Threshold Iterations",
+          "type": "integer"
+        },
+        "hard_max_iterations": {
+          "default": 100000,
+          "minimum": 1,
+          "title": "Hard Max Iterations",
+          "type": "integer"
+        },
+        "input_cost_per_million_usd": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Input Cost Per Million Usd",
+          "type": "number"
+        },
+        "max_estimated_cost_usd": {
+          "default": 5.0,
+          "exclusiveMinimum": 0.0,
+          "maximum": 100000.0,
+          "title": "Max Estimated Cost Usd",
+          "type": "number"
+        },
+        "max_model_calls": {
+          "default": 12,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Model Calls",
+          "type": "integer"
+        },
+        "max_output_tokens_per_call": {
+          "default": 8000,
+          "maximum": 128000,
+          "minimum": 128,
+          "title": "Max Output Tokens Per Call",
+          "type": "integer"
+        },
+        "max_simulation_seconds": {
+          "default": 120.0,
+          "exclusiveMinimum": 0.0,
+          "maximum": 86400.0,
+          "title": "Max Simulation Seconds",
+          "type": "number"
+        },
+        "max_swap_matrix_cells": {
+          "default": 500,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Max Swap Matrix Cells",
+          "type": "integer"
+        },
+        "max_total_tokens": {
+          "default": 120000,
+          "minimum": 1000,
+          "title": "Max Total Tokens",
+          "type": "integer"
+        },
+        "max_variants": {
+          "default": 64,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Variants",
+          "type": "integer"
+        },
+        "output_cost_per_million_usd": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Output Cost Per Million Usd",
+          "type": "number"
+        }
+      },
+      "title": "CostLimits",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "budget": {
+      "$ref": "#/$defs/CostLimits"
+    },
+    "model": {
+      "default": "gpt-5.6-sol",
+      "title": "Model",
+      "type": "string"
+    },
+    "reasoning_effort": {
+      "default": "high",
+      "title": "Reasoning Effort",
+      "type": "string"
+    },
+    "session_id": {
+      "default": "commander-lab-default",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "user_goal": {
+      "title": "User Goal",
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_goal"
+  ],
+  "title": "WorkflowRequest",
+  "type": "object"
+}

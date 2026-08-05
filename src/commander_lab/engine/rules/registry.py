@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Iterable
 
+from commander_lab.storage.atomic import atomic_write_text
+
 from commander_lab.models import (
     GameState,
     GameStatus,
@@ -11,6 +13,7 @@ from commander_lab.models import (
     InteractionValidation,
     PlayerState,
     RulesBackend,
+    RulesEngineAvailability,
     TacticalScenario,
     ValidationLevel,
     ValidationRegistry,
@@ -53,8 +56,15 @@ def validate_with_external_adapter(
     spec: InteractionSpec,
     adapter: RulesEngineAdapter,
 ) -> InteractionValidation:
+    probe = adapter.probe()
+    if probe.availability != RulesEngineAvailability.AVAILABLE:
+        raise RuntimeError("external rules engine is not available")
+    if probe.capabilities.runtime_kind != "external_rules_engine":
+        raise RuntimeError("unverified or legacy bridge cannot produce rules_engine_validated evidence")
     session = adapter.create_scenario(_scenario_for_spec(spec))
     result = adapter.get_result(session.session_id)
+    if result.validation_level != ValidationLevel.RULES_ENGINE_VALIDATED:
+        raise RuntimeError("external adapter returned a non-rules-engine validation level")
     observed = result.normalized_result
     mismatches = tuple(
         f"{key}: expected {spec.expected_normalized.get(key)!r}, observed {observed.get(key)!r}"
@@ -157,8 +167,7 @@ def build_validation_registry(
 def write_validation_registry(registry: ValidationRegistry, path: str | Path) -> Path:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(registry.model_dump_json(indent=2), encoding="utf-8")
-    return output
+    return atomic_write_text(output, registry.model_dump_json(indent=2) + "\n")
 
 
 __all__ = [

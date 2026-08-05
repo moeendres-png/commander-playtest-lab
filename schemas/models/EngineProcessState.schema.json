@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "EngineCapabilityHandshake": {
+      "additionalProperties": false,
+      "properties": {
+        "action_submission_supported": {
+          "default": false,
+          "title": "Action Submission Supported",
+          "type": "boolean"
+        },
+        "commander_damage_visible": {
+          "default": false,
+          "title": "Commander Damage Visible",
+          "type": "boolean"
+        },
+        "commander_supported": {
+          "default": false,
+          "title": "Commander Supported",
+          "type": "boolean"
+        },
+        "commander_tax_visible": {
+          "default": false,
+          "title": "Commander Tax Visible",
+          "type": "boolean"
+        },
+        "deck_import_supported": {
+          "default": false,
+          "title": "Deck Import Supported",
+          "type": "boolean"
+        },
+        "event_log_supported": {
+          "default": false,
+          "title": "Event Log Supported",
+          "type": "boolean"
+        },
+        "headless_supported": {
+          "default": false,
+          "title": "Headless Supported",
+          "type": "boolean"
+        },
+        "healthcheck_supported": {
+          "default": true,
+          "title": "Healthcheck Supported",
+          "type": "boolean"
+        },
+        "legal_actions_supported": {
+          "default": false,
+          "title": "Legal Actions Supported",
+          "type": "boolean"
+        },
+        "max_players": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Players"
+        },
+        "multiplayer_supported": {
+          "default": false,
+          "title": "Multiplayer Supported",
+          "type": "boolean"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "partner_supported": {
+          "default": false,
+          "title": "Partner Supported",
+          "type": "boolean"
+        },
+        "priority_visible": {
+          "default": false,
+          "title": "Priority Visible",
+          "type": "boolean"
+        },
+        "replay_supported": {
+          "default": false,
+          "title": "Replay Supported",
+          "type": "boolean"
+        },
+        "runtime_kind": {
+          "default": "unknown",
+          "enum": [
+            "external_rules_engine",
+            "tactical_oracle",
+            "unknown"
+          ],
+          "title": "Runtime Kind",
+          "type": "string"
+        },
+        "scenario_injection_supported": {
+          "default": false,
+          "title": "Scenario Injection Supported",
+          "type": "boolean"
+        },
+        "seed_supported": {
+          "default": false,
+          "title": "Seed Supported",
+          "type": "boolean"
+        },
+        "stack_visible": {
+          "default": false,
+          "title": "Stack Visible",
+          "type": "boolean"
+        },
+        "starting_state_injection_supported": {
+          "default": false,
+          "title": "Starting State Injection Supported",
+          "type": "boolean"
+        }
+      },
+      "title": "EngineCapabilityHandshake",
+      "type": "object"
+    },
+    "EngineProcessStatus": {
+      "enum": [
+        "not_configured",
+        "dependencies_missing",
+        "source_missing",
+        "build_failed",
+        "built_not_started",
+        "starting",
+        "healthy",
+        "degraded",
+        "unhealthy",
+        "stopped",
+        "external_runtime_required"
+      ],
+      "title": "EngineProcessStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter_version": {
+      "default": "commander-lab-protocol-1.0.0",
+      "title": "Adapter Version",
+      "type": "string"
+    },
+    "capabilities": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EngineCapabilityHandshake"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "details": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Details",
+      "type": "array"
+    },
+    "engine_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Engine Version"
+    },
+    "last_healthcheck_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Healthcheck At"
+    },
+    "pid": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pid"
+    },
+    "protocol_version": {
+      "default": "1.0.0",
+      "title": "Protocol Version",
+      "type": "string"
+    },
+    "provider": {
+      "enum": [
+        "xmage",
+        "forge"
+      ],
+      "title": "Provider",
+      "type": "string"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Started At"
+    },
+    "status": {
+      "$ref": "#/$defs/EngineProcessStatus"
+    },
+    "stderr_log": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stderr Log"
+    },
+    "stdout_log": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stdout Log"
+    },
+    "stopped_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stopped At"
+    }
+  },
+  "required": [
+    "provider",
+    "status"
+  ],
+  "title": "EngineProcessState",
+  "type": "object"
+}

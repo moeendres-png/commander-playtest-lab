@@ -1,0 +1,317 @@
+{
+  "artifacts": [
+    "/mnt/data/audit_check_phase85/artifacts/audit/executive_summary.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/repository_inventory.json",
+    "/mnt/data/audit_check_phase85/artifacts/audit/dependency_graph.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/module_ownership.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/web_research.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/feature_candidates.json",
+    "/mnt/data/audit_check_phase85/artifacts/audit/bug_register.json",
+    "/mnt/data/audit_check_phase85/artifacts/audit/bugfix_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/static_analysis_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/property_test_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/fuzzing_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/mutation_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/differential_test_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/reproducibility_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/performance_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/security_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/agent_eval_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/feature_implementation_report.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/remaining_risks.md",
+    "/mnt/data/audit_check_phase85/artifacts/audit/phase_9_readiness.md",
+    "schemas/models/ActionProposal.schema.json",
+    "schemas/models/BeamSearchInput.schema.json",
+    "schemas/models/BridgeRequest.schema.json",
+    "schemas/models/BridgeResponse.schema.json",
+    "schemas/models/CalibrateInput.schema.json",
+    "schemas/models/CandidatePackage.schema.json",
+    "schemas/models/CandidateProfile.schema.json",
+    "schemas/models/CardAblationInput.schema.json",
+    "schemas/models/CardContribution.schema.json",
+    "schemas/models/CardIdentity.schema.json",
+    "schemas/models/CardSwap.schema.json",
+    "schemas/models/CardValidationRecord.schema.json",
+    "schemas/models/Collection.schema.json",
+    "schemas/models/CommanderConfiguration.schema.json",
+    "schemas/models/CommanderDenialInput.schema.json",
+    "schemas/models/CompareDecksInput.schema.json",
+    "schemas/models/ConditionalStrength.schema.json",
+    "schemas/models/ConstraintIssue.schema.json",
+    "schemas/models/ConstraintReport.schema.json",
+    "schemas/models/CostLimits.schema.json",
+    "schemas/models/CreateReportInput.schema.json",
+    "schemas/models/Deck.schema.json",
+    "schemas/models/DeckEntry.schema.json",
+    "schemas/models/DeckRefInput.schema.json",
+    "schemas/models/EngineCapabilityHandshake.schema.json",
+    "schemas/models/EngineInstallationIdentity.schema.json",
+    "schemas/models/EngineProcessState.schema.json",
+    "schemas/models/EngineProtocolErrorDetail.schema.json",
+    "schemas/models/EngineProtocolRequest.schema.json",
+    "schemas/models/EngineProtocolResponse.schema.json",
+    "schemas/models/EngineReplay.schema.json",
+    "schemas/models/EngineRuntimeConfig.schema.json",
+    "schemas/models/ErrorDetail.schema.json",
+    "schemas/models/FrozenModel.schema.json",
+    "schemas/models/GameEvent.schema.json",
+    "schemas/models/GameState.schema.json",
+    "schemas/models/GoldfishInput.schema.json",
+    "schemas/models/HoldoutInput.schema.json",
+    "schemas/models/IngestPlaytestInput.schema.json",
+    "schemas/models/InspectDeckInput.schema.json",
+    "schemas/models/InteractionSpec.schema.json",
+    "schemas/models/InteractionValidation.schema.json",
+    "schemas/models/LegalAction.schema.json",
+    "schemas/models/LocalSearchInput.schema.json",
+    "schemas/models/MatchResult.schema.json",
+    "schemas/models/MatchupBatchInput.schema.json",
+    "schemas/models/MutableModel.schema.json",
+    "schemas/models/NumericRange.schema.json",
+    "schemas/models/ObjectiveVector.schema.json",
+    "schemas/models/OpponentProfile.schema.json",
+    "schemas/models/OptimizationConstraints.schema.json",
+    "schemas/models/OptimizationValidationInput.schema.json",
+    "schemas/models/OptimizationVariant.schema.json",
+    "schemas/models/PackageAblationInput.schema.json",
+    "schemas/models/PackageSearchInput.schema.json",
+    "schemas/models/PairedVariantInput.schema.json",
+    "schemas/models/ParetoFrontInput.schema.json",
+    "schemas/models/PhysicalCard.schema.json",
+    "schemas/models/PilotActionView.schema.json",
+    "schemas/models/PilotCommanderView.schema.json",
+    "schemas/models/PilotConfig.schema.json",
+    "schemas/models/PilotDecision.schema.json",
+    "schemas/models/PilotOpponentView.schema.json",
+    "schemas/models/PilotStateView.schema.json",
+    "schemas/models/PilotUtilityBreakdown.schema.json",
+    "schemas/models/PilotUtilityWeights.schema.json",
+    "schemas/models/PlayerState.schema.json",
+    "schemas/models/PlaytestParticipant.schema.json",
+    "schemas/models/RealPlaytest.schema.json",
+    "schemas/models/RecommendUpgradesInput.schema.json",
+    "schemas/models/RulesDeckHandle.schema.json",
+    "schemas/models/RulesDeckInput.schema.json",
+    "schemas/models/RulesEngineCapabilities.schema.json",
+    "schemas/models/RulesEngineLog.schema.json",
+    "schemas/models/RulesEngineProbe.schema.json",
+    "schemas/models/RulesEngineResult.schema.json",
+    "schemas/models/RulesGameRequest.schema.json",
+    "schemas/models/RulesSession.schema.json",
+    "schemas/models/SearchVariantsInput.schema.json",
+    "schemas/models/SensitivityInput.schema.json",
+    "schemas/models/ShapleyInput.schema.json",
+    "schemas/models/SimulationConfig.schema.json",
+    "schemas/models/SimulationInput.schema.json",
+    "schemas/models/SimulationRun.schema.json",
+    "schemas/models/SourceRef.schema.json",
+    "schemas/models/StructuralAbortLimits.schema.json",
+    "schemas/models/StructuralBatchConfig.schema.json",
+    "schemas/models/StructuralBatchResult.schema.json",
+    "schemas/models/StructuralCardProfile.schema.json",
+    "schemas/models/StructuralDeckProfile.schema.json",
+    "schemas/models/StructuralMatchConfig.schema.json",
+    "schemas/models/StructuralMatchResult.schema.json",
+    "schemas/models/StructuralPlayerMetrics.schema.json",
+    "schemas/models/SwapMatrixInput.schema.json",
+    "schemas/models/TacticalScenario.schema.json",
+    "schemas/models/ToolExecutionMetadata.schema.json",
+    "schemas/models/ToolResponse.schema.json",
+    "schemas/models/UncertaintyModel.schema.json",
+    "schemas/models/UpgradeProposal.schema.json",
+    "schemas/models/ValidateDeckInput.schema.json",
+    "schemas/models/ValidateUpgradeInput.schema.json",
+    "schemas/models/ValidationRegistry.schema.json",
+    "schemas/models/VariantSwap.schema.json",
+    "schemas/models/WorkflowReport.schema.json",
+    "schemas/models/WorkflowRequest.schema.json",
+    "schemas/models/ZoneState.schema.json",
+    "schemas/engine_protocol/EngineProtocolRequest.schema.json",
+    "schemas/engine_protocol/EngineProtocolResponse.schema.json"
+  ],
+  "audit_commit": "a189065d7ed90bc057a32fdeadd681365d64463c",
+  "baseline_commit": "a189065d7ed90bc057a32fdeadd681365d64463c",
+  "bugs": [
+    {
+      "affected_versions": [
+        "0.8.0",
+        "0.8.5"
+      ],
+      "bug_id": "BUG-86-001",
+      "component": "external validation trust boundary",
+      "discovered_by": "contract audit",
+      "fix": "Require a successful external runtime probe and reject legacy/unattested bridge results.",
+      "regression_test": "tests/contract/test_phase86_phase85_claims.py",
+      "reproduction": "A legacy/fake bridge response could be accepted by the external adapter and promoted.",
+      "root_cause": "Result validation trusted response shape without an attested external runtime probe.",
+      "severity": "critical",
+      "validation_status": "passed"
+    },
+    {
+      "affected_versions": [
+        "0.8.5"
+      ],
+      "bug_id": "BUG-86-002",
+      "component": "Phase 8.5 contract evidence",
+      "discovered_by": "evidence audit",
+      "fix": "Execute every message type against the bridge and record actual structured responses/errors.",
+      "regression_test": "tests/contract/test_phase86_phase85_claims.py",
+      "reproduction": "Validation output listed all protocol messages as exercised although only hello/capabilities were sent.",
+      "root_cause": "Coverage was populated from enum values rather than executed requests.",
+      "severity": "high",
+      "validation_status": "passed"
+    },
+    {
+      "affected_versions": [
+        "0.8.5"
+      ],
+      "bug_id": "BUG-86-003",
+      "component": "external readiness state",
+      "discovered_by": "status-model audit",
+      "fix": "Keep prepared status until all real integration gates pass.",
+      "regression_test": "tests/contract/test_phase86_phase85_claims.py",
+      "reproduction": "Handshake alone could result in ready-with-limitations despite missing deck/action/multiplayer tests.",
+      "root_cause": "Readiness gate conflated transport health with integration acceptance.",
+      "severity": "high",
+      "validation_status": "passed"
+    },
+    {
+      "affected_versions": [
+        "0.2.0",
+        "0.8.5"
+      ],
+      "bug_id": "BUG-86-004",
+      "component": "artifact persistence",
+      "discovered_by": "storage audit",
+      "fix": "Introduce atomic write helpers and apply them to key run, process-state and registry artifacts.",
+      "regression_test": "tests/unit/test_phase86_atomic_and_integrity.py",
+      "reproduction": "Interrupted writes could leave truncated JSON or logs.",
+      "root_cause": "Direct writes without fsync and atomic rename.",
+      "severity": "high",
+      "validation_status": "passed"
+    },
+    {
+      "affected_versions": [
+        "0.8.5"
+      ],
+      "bug_id": "BUG-86-005",
+      "component": "SQLite backup",
+      "discovered_by": "new integrity test",
+      "fix": "Use SQLite backup API with checkpoint and validate restored database.",
+      "regression_test": "tests/unit/test_phase86_database.py",
+      "reproduction": "WAL-backed database backup could omit recent committed data.",
+      "root_cause": "File copy semantics did not account for WAL state.",
+      "severity": "medium",
+      "validation_status": "passed"
+    },
+    {
+      "affected_versions": [
+        "0.8.5"
+      ],
+      "bug_id": "BUG-86-006",
+      "component": "experiment registry",
+      "discovered_by": "feature integrity audit",
+      "fix": "Seal complete experiment design and reject changes under the same ID.",
+      "regression_test": "tests/unit/test_phase86_database.py",
+      "reproduction": "Experiment record did not guarantee immutable hypothesis, scenarios, seeds and acceptance criteria together.",
+      "root_cause": "Incomplete sealed payload.",
+      "severity": "medium",
+      "validation_status": "passed"
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "pytest_collect",
+      "component": "quality",
+      "evidence": [
+        "/mnt/data/audit_check_phase85/artifacts/audit/static_analysis_raw.json"
+      ],
+      "limitations": [],
+      "status": "passed",
+      "summary": "pytest_collect: passed"
+    },
+    {
+      "check_id": "pytest",
+      "component": "quality",
+      "evidence": [
+        "/mnt/data/audit_check_phase85/artifacts/audit/static_analysis_raw.json"
+      ],
+      "limitations": [],
+      "status": "passed",
+      "summary": "pytest: passed"
+    },
+    {
+      "check_id": "compileall",
+      "component": "quality",
+      "evidence": [
+        "/mnt/data/audit_check_phase85/artifacts/audit/static_analysis_raw.json"
+      ],
+      "limitations": [],
+      "status": "passed",
+      "summary": "compileall: passed"
+    },
+    {
+      "check_id": "ruff_check",
+      "component": "quality",
+      "evidence": [
+        "/mnt/data/audit_check_phase85/artifacts/audit/static_analysis_raw.json"
+      ],
+      "limitations": [],
+      "status": "blocked",
+      "summary": "ruff_check: blocked"
+    },
+    {
+      "check_id": "ruff_format",
+      "component": "quality",
+      "evidence": [
+        "/mnt/data/audit_check_phase85/artifacts/audit/static_analysis_raw.json"
+      ],
+      "limitations": [],
+      "status": "blocked",
+      "summary": "ruff_format: blocked"
+    },
+    {
+      "check_id": "mypy",
+      "component": "quality",
+      "evidence": [
+        "/mnt/data/audit_check_phase85/artifacts/audit/static_analysis_raw.json"
+      ],
+      "limitations": [],
+      "status": "blocked",
+      "summary": "mypy: blocked"
+    },
+    {
+      "check_id": "database_integrity",
+      "component": "storage",
+      "evidence": [
+        "/mnt/data/audit_check_phase85/data/runs/audit.sqlite3"
+      ],
+      "limitations": [],
+      "status": "passed",
+      "summary": "SQLite integrity: passed"
+    },
+    {
+      "check_id": "external_engine",
+      "component": "engine",
+      "evidence": [],
+      "limitations": [
+        "Phase 8.5.1 external XMage runtime was not executed; DNS/Maven/Docker are unavailable.",
+        "Provider-specific Java bridge against real XMage APIs is not implemented or built."
+      ],
+      "status": "blocked",
+      "summary": "Real XMage/Forge runtime not executable in current sandbox"
+    }
+  ],
+  "external_engine_validation_pending": true,
+  "generated_at": "2026-08-05T08:12:14.066683Z",
+  "phase": "8.6",
+  "phase9_allowed": false,
+  "remaining_risks": [
+    "Phase 8.5.1 external XMage runtime was not executed; DNS/Maven/Docker are unavailable.",
+    "Provider-specific Java bridge against real XMage APIs is not implemented or built.",
+    "Ruff, mypy, Hypothesis, automated mutation testing, dependency audit and SBOM generation were not executable in this sandbox.",
+    "External-engine multiplayer/action-loop/critical-scenario gates remain not_run."
+  ],
+  "schema_version": 1,
+  "status": "phase_9_blocked"
+}

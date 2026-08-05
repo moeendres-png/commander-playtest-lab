@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "EngineMessageType": {
+      "enum": [
+        "engine_hello",
+        "engine_capabilities",
+        "load_deck",
+        "create_game",
+        "set_seed",
+        "start_game",
+        "get_game_state",
+        "get_legal_actions",
+        "submit_action",
+        "advance_priority",
+        "advance_phase",
+        "get_event_log",
+        "export_replay",
+        "shutdown_game"
+      ],
+      "title": "EngineMessageType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "engine": {
+      "default": "unknown",
+      "enum": [
+        "xmage",
+        "forge",
+        "tactical",
+        "unknown"
+      ],
+      "title": "Engine",
+      "type": "string"
+    },
+    "engine_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Engine Version"
+    },
+    "game_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Game Id"
+    },
+    "message_type": {
+      "$ref": "#/$defs/EngineMessageType"
+    },
+    "method": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Method"
+    },
+    "params": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Params"
+    },
+    "payload": {
+      "additionalProperties": true,
+      "title": "Payload",
+      "type": "object"
+    },
+    "protocol_version": {
+      "default": "1.0.0",
+      "title": "Protocol Version",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "message_type"
+  ],
+  "title": "EngineProtocolRequest",
+  "type": "object"
+}

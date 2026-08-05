@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import typer
@@ -287,6 +288,95 @@ def validate_engine_phase85(
     typer.echo(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
     if not result["local_acceptance_passed"]:
         raise typer.Exit(code=1)
+
+
+@app.command("doctor")
+def doctor(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Check environment, schemas, storage, engine configuration and core imports."""
+    import importlib.util
+    import platform
+    import shutil
+    from commander_lab.storage.database import check_database
+    from commander_lab.engine.process_manager import EngineProcessManager, load_engine_runtime_config
+
+    manager = EngineProcessManager(load_engine_runtime_config(), root=root)
+    payload = {
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "commands": {name: shutil.which(name) for name in ("git", "java", "javac", "mvn", "gradle", "docker", "ruff", "mypy")},
+        "packages": {name: importlib.util.find_spec(name) is not None for name in ("pytest", "hypothesis", "fastapi", "pydantic")},
+        "writable": os.access(root, os.W_OK),
+        "database": check_database(root / "data" / "runs" / "audit.sqlite3"),
+        "engine": manager.diagnose().model_dump(mode="json"),
+        "external_engine_validation_pending": True,
+    }
+    typer.echo(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True))
+
+
+@app.command("db-check")
+def db_check(
+    database: Path = typer.Option(Path("data/runs/audit.sqlite3")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    from commander_lab.storage.database import check_database
+    payload = check_database(root / database)
+    typer.echo(json.dumps(payload, indent=2, sort_keys=True))
+    if payload.get("status") != "passed":
+        raise typer.Exit(code=1)
+
+
+@app.command("db-migrate")
+def db_migrate(
+    database: Path = typer.Option(Path("data/runs/audit.sqlite3")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    from commander_lab.storage.database import migrate_database
+    typer.echo(json.dumps(migrate_database(root / database), indent=2, sort_keys=True))
+
+
+@app.command("db-backup")
+def db_backup(
+    database: Path = typer.Option(Path("data/runs/audit.sqlite3")),
+    output: Path = typer.Option(Path("artifacts/audit/audit.sqlite3.backup")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    from commander_lab.storage.database import backup_database
+    typer.echo(str(backup_database(root / database, root / output)))
+
+
+@app.command("db-restore")
+def db_restore(
+    backup: Path = typer.Argument(..., exists=True, dir_okay=False),
+    database: Path = typer.Option(Path("data/runs/audit.sqlite3")),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    from commander_lab.storage.database import restore_database
+    typer.echo(str(restore_database(backup, root / database)))
+
+
+@app.command("runs-verify")
+def runs_verify(
+    run_directory: Path = typer.Argument(..., exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    from commander_lab.storage.run_integrity import verify_run
+    result = verify_run(run_directory)
+    typer.echo(json.dumps({"valid": result.valid, "status": result.status, "errors": result.errors, "checked_files": result.checked_files}, indent=2))
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@app.command("audit-phase86")
+def audit_phase86(
+    skip_tests: bool = typer.Option(False),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    from commander_lab.audit import run_phase86_audit
+    result = run_phase86_audit(root, run_tests=not skip_tests)
+    typer.echo(result.model_dump_json(indent=2))
+    if result.status == "phase_9_blocked":
+        raise typer.Exit(code=2)
 
 
 if __name__ == "__main__":

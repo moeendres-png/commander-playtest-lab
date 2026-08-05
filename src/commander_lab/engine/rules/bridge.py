@@ -521,8 +521,14 @@ class ExternalRulesAdapter(RulesEngineAdapter):
 
     def get_result(self, session_id: str) -> RulesEngineResult:
         if self._legacy_mode:
-            return RulesEngineResult.model_validate(
-                self._legacy_request("get_result", {"session_id": session_id})
+            raise RulesEngineProtocolError(
+                "legacy bridge results are unverified and cannot be promoted to rules_engine_validated"
+            )
+        if self._capabilities is None:
+            self.probe()
+        if self._capabilities is None or self._capabilities.runtime_kind != "external_rules_engine":
+            raise RulesEngineProtocolError(
+                "bridge did not provide an external_rules_engine capability attestation"
             )
         state = self.get_state(session_id)
         return RulesEngineResult(

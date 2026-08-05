@@ -1,0 +1,508 @@
+{
+  "$defs": {
+    "Color": {
+      "enum": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "title": "Color",
+      "type": "string"
+    },
+    "CommanderConfiguration": {
+      "additionalProperties": false,
+      "properties": {
+        "commander_identity_override": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Color"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Commander Identity Override"
+        },
+        "commanders": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Commanders",
+          "type": "array"
+        },
+        "uses_partner": {
+          "default": false,
+          "title": "Uses Partner",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "commanders"
+      ],
+      "title": "CommanderConfiguration",
+      "type": "object"
+    },
+    "DataQuality": {
+      "enum": [
+        "authoritative",
+        "project_verified",
+        "project_inferred",
+        "synthetic_assumption",
+        "unknown"
+      ],
+      "title": "DataQuality",
+      "type": "string"
+    },
+    "Deck": {
+      "additionalProperties": false,
+      "properties": {
+        "cards": {
+          "items": {
+            "$ref": "#/$defs/DeckEntry"
+          },
+          "title": "Cards",
+          "type": "array"
+        },
+        "commander": {
+          "$ref": "#/$defs/CommanderConfiguration"
+        },
+        "data_as_of": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data As Of"
+        },
+        "deck_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deck Hash"
+        },
+        "deck_id": {
+          "minLength": 1,
+          "title": "Deck Id",
+          "type": "string"
+        },
+        "format": {
+          "default": "commander",
+          "title": "Format",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "deck_id",
+        "name",
+        "commander",
+        "cards"
+      ],
+      "title": "Deck",
+      "type": "object"
+    },
+    "DeckEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "oracle_name": {
+          "minLength": 1,
+          "title": "Oracle Name",
+          "type": "string"
+        },
+        "physical_copy_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Physical Copy Ids",
+          "type": "array"
+        },
+        "quantity": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        },
+        "zone": {
+          "$ref": "#/$defs/DeckZone",
+          "default": "main"
+        }
+      },
+      "required": [
+        "oracle_name"
+      ],
+      "title": "DeckEntry",
+      "type": "object"
+    },
+    "DeckZone": {
+      "enum": [
+        "commander",
+        "main",
+        "sideboard",
+        "maybeboard"
+      ],
+      "title": "DeckZone",
+      "type": "string"
+    },
+    "NumericRange": {
+      "additionalProperties": false,
+      "properties": {
+        "maximum": {
+          "title": "Maximum",
+          "type": "number"
+        },
+        "minimum": {
+          "title": "Minimum",
+          "type": "number"
+        }
+      },
+      "required": [
+        "minimum",
+        "maximum"
+      ],
+      "title": "NumericRange",
+      "type": "object"
+    },
+    "OpponentListStatus": {
+      "enum": [
+        "verified_complete",
+        "official_precon",
+        "partially_known",
+        "synthetic_completion",
+        "role_profile_only"
+      ],
+      "title": "OpponentListStatus",
+      "type": "string"
+    },
+    "SourceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "data_as_of": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data As Of"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "quality": {
+          "$ref": "#/$defs/DataQuality",
+          "default": "unknown"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "source_name": {
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Path"
+        },
+        "source_type": {
+          "title": "Source Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_type",
+        "source_name"
+      ],
+      "title": "SourceRef",
+      "type": "object"
+    },
+    "UncertaintyModel": {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "boardwipe_count_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NumericRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "confidence": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "interaction_density_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NumericRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "known_card_count": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Known Card Count",
+          "type": "integer"
+        },
+        "plausible_variants": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Plausible Variants",
+          "type": "array"
+        },
+        "role_density_ranges": {
+          "additionalProperties": {
+            "$ref": "#/$defs/NumericRange"
+          },
+          "title": "Role Density Ranges",
+          "type": "object"
+        },
+        "speed_turn_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NumericRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "synthetic_card_count": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Synthetic Card Count",
+          "type": "integer"
+        },
+        "unknown_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unknown Fields",
+          "type": "array"
+        }
+      },
+      "title": "UncertaintyModel",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "archetypes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Archetypes",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "commander": {
+      "$ref": "#/$defs/CommanderConfiguration"
+    },
+    "data_quality": {
+      "$ref": "#/$defs/DataQuality",
+      "default": "unknown"
+    },
+    "deck": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Deck"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "known_cards": {
+      "items": {
+        "$ref": "#/$defs/DeckEntry"
+      },
+      "title": "Known Cards",
+      "type": "array"
+    },
+    "list_status": {
+      "$ref": "#/$defs/OpponentListStatus"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "pilot_style": {
+      "default": "generic",
+      "title": "Pilot Style",
+      "type": "string"
+    },
+    "profile_id": {
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/SourceRef"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "strategic_roles": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Strategic Roles",
+      "type": "object"
+    },
+    "uncertainty": {
+      "$ref": "#/$defs/UncertaintyModel"
+    }
+  },
+  "required": [
+    "profile_id",
+    "name",
+    "commander",
+    "list_status"
+  ],
+  "title": "OpponentProfile",
+  "type": "object"
+}

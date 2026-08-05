@@ -1,0 +1,73 @@
+{
+  "$defs": {
+    "PilotDecisionMode": {
+      "enum": [
+        "deterministic",
+        "stochastic"
+      ],
+      "title": "PilotDecisionMode",
+      "type": "string"
+    },
+    "PilotStrength": {
+      "enum": [
+        "weak",
+        "average",
+        "strong",
+        "near_optimal_heuristic"
+      ],
+      "title": "PilotStrength",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approval_token": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approval Token"
+    },
+    "iterations": {
+      "default": 100,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 35,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Max Turns",
+      "type": "integer"
+    },
+    "pilot_mode": {
+      "$ref": "#/$defs/PilotDecisionMode",
+      "default": "deterministic"
+    },
+    "pilot_strength": {
+      "$ref": "#/$defs/PilotStrength",
+      "default": "strong"
+    },
+    "seed": {
+      "default": 20260804,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "workers": {
+      "default": 1,
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "title": "SimulationInput",
+  "type": "object"
+}

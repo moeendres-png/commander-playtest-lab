@@ -1,0 +1,85 @@
+name: External XMage Integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      xmage_commit:
+        description: Verified full XMage commit SHA
+        required: true
+        default: 06d166b098ad36b277edef01116472203d5a047e
+
+permissions:
+  contents: read
+
+env:
+  XMAGE_COMMIT: ${{ inputs.xmage_commit }}
+  ENGINE_PROVIDER: xmage
+  ENGINE_MODE: external
+  ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
+  PYTHONHASHSEED: "0"
+
+jobs:
+  build-and-integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: magefree/mage
+          ref: ${{ inputs.xmage_commit }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@7a445ee88d4e23b52c33c56cb891b5ed6a1a101 # v4 immutable revision
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify XMage commit and metadata
+        working-directory: vendor/engine-source/xmage
+        run: |
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+          git cat-file -t "$XMAGE_COMMIT"
+          git show --no-patch --format=fuller "$XMAGE_COMMIT"
+          git describe --tags --exact-match "$XMAGE_COMMIT" | tee ../../../artifacts/xmage-tag.txt
+      - name: Build XMage
+        working-directory: vendor/engine-source/xmage
+        run: |
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests package; else mvn -B -ntp -DskipTests package; fi
+      - name: Install lab
+        run: python -m pip install -e '.[dev,api]'
+      - name: Require real provider-specific bridge
+        run: |
+          test -f engine-bridge/pom.xml || {
+            echo 'Provider-specific XMage Java bridge has not yet been implemented. This is a hard failure, not a fallback.' >&2
+            exit 1
+          }
+      - name: Build bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+      - name: Run external acceptance
+        run: |
+          scripts/start_engine.sh
+          trap 'scripts/stop_engine.sh || true' EXIT
+          scripts/verify_engine.sh
+          commander-lab validate-engine-phase85
+          python scripts/run_external_phase851.py
+      - name: Generate checksums
+        if: always()
+        run: find artifacts -type f -print0 | sort -z | xargs -0 sha256sum > artifacts/external-engine-checksums.sha256 || true
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: external-engine-evidence
+          path: |
+            artifacts/
+            vendor/engine-source/xmage/**/target/*.jar
+            engine-bridge/target/*.jar
+          if-no-files-found: warn

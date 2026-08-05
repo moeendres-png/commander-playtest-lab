@@ -1,0 +1,7 @@
+{
+  "additionalProperties": false,
+  "description": "Immutable value object used for deterministic state and provenance records.",
+  "properties": {},
+  "title": "FrozenModel",
+  "type": "object"
+}

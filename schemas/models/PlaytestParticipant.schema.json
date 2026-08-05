@@ -1,0 +1,94 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "commander_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Commander Names",
+      "type": "array"
+    },
+    "deck_name": {
+      "title": "Deck Name",
+      "type": "string"
+    },
+    "final_life": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Final Life"
+    },
+    "mulligans": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mulligans"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "placement": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Placement"
+    },
+    "player_id": {
+      "title": "Player Id",
+      "type": "string"
+    },
+    "player_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Player Name"
+    },
+    "seat": {
+      "minimum": 0,
+      "title": "Seat",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "player_id",
+    "deck_name",
+    "seat"
+  ],
+  "title": "PlaytestParticipant",
+  "type": "object"
+}

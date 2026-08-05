@@ -1,0 +1,266 @@
+{
+  "$defs": {
+    "StructuralPlayerMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "cards_drawn": {
+          "title": "Cards Drawn",
+          "type": "integer"
+        },
+        "commander_casts": {
+          "title": "Commander Casts",
+          "type": "integer"
+        },
+        "commander_damage_dealt": {
+          "title": "Commander Damage Dealt",
+          "type": "number"
+        },
+        "commander_tax_paid": {
+          "title": "Commander Tax Paid",
+          "type": "integer"
+        },
+        "counters_resolved": {
+          "title": "Counters Resolved",
+          "type": "integer"
+        },
+        "deck_id": {
+          "title": "Deck Id",
+          "type": "string"
+        },
+        "eliminated_turn": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Eliminated Turn"
+        },
+        "elimination_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Elimination Reason"
+        },
+        "engine_value": {
+          "title": "Engine Value",
+          "type": "number"
+        },
+        "graveyard_hate_resolved": {
+          "title": "Graveyard Hate Resolved",
+          "type": "integer"
+        },
+        "lands_played": {
+          "title": "Lands Played",
+          "type": "integer"
+        },
+        "life": {
+          "title": "Life",
+          "type": "number"
+        },
+        "mulligans": {
+          "title": "Mulligans",
+          "type": "integer"
+        },
+        "normal_damage_dealt": {
+          "title": "Normal Damage Dealt",
+          "type": "number"
+        },
+        "pilot_mode": {
+          "default": "deterministic",
+          "title": "Pilot Mode",
+          "type": "string"
+        },
+        "pilot_name": {
+          "default": "GenericCommanderPilot",
+          "title": "Pilot Name",
+          "type": "string"
+        },
+        "pilot_strength": {
+          "default": "average",
+          "title": "Pilot Strength",
+          "type": "string"
+        },
+        "placement": {
+          "title": "Placement",
+          "type": "integer"
+        },
+        "player_id": {
+          "title": "Player Id",
+          "type": "string"
+        },
+        "protections_resolved": {
+          "title": "Protections Resolved",
+          "type": "integer"
+        },
+        "ramp_resolved": {
+          "title": "Ramp Resolved",
+          "type": "integer"
+        },
+        "recursions_resolved": {
+          "title": "Recursions Resolved",
+          "type": "integer"
+        },
+        "removals_resolved": {
+          "title": "Removals Resolved",
+          "type": "integer"
+        },
+        "resources_generated": {
+          "title": "Resources Generated",
+          "type": "number"
+        },
+        "wipes_resolved": {
+          "title": "Wipes Resolved",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "player_id",
+        "deck_id",
+        "placement",
+        "life",
+        "mulligans",
+        "lands_played",
+        "ramp_resolved",
+        "cards_drawn",
+        "commander_casts",
+        "commander_tax_paid",
+        "removals_resolved",
+        "counters_resolved",
+        "protections_resolved",
+        "wipes_resolved",
+        "graveyard_hate_resolved",
+        "recursions_resolved",
+        "engine_value",
+        "resources_generated",
+        "normal_damage_dealt",
+        "commander_damage_dealt"
+      ],
+      "title": "StructuralPlayerMetrics",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "abort_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Abort Reason"
+    },
+    "aborted": {
+      "default": false,
+      "title": "Aborted",
+      "type": "boolean"
+    },
+    "completed": {
+      "title": "Completed",
+      "type": "boolean"
+    },
+    "end_reason": {
+      "title": "End Reason",
+      "type": "string"
+    },
+    "estimate_type": {
+      "const": "structural_model_estimates",
+      "default": "structural_model_estimates",
+      "title": "Estimate Type",
+      "type": "string"
+    },
+    "event_count": {
+      "title": "Event Count",
+      "type": "integer"
+    },
+    "event_log_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Event Log Path"
+    },
+    "log_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Log Sha256"
+    },
+    "match_id": {
+      "title": "Match Id",
+      "type": "string"
+    },
+    "placements": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Placements",
+      "type": "object"
+    },
+    "player_metrics": {
+      "additionalProperties": {
+        "$ref": "#/$defs/StructuralPlayerMetrics"
+      },
+      "title": "Player Metrics",
+      "type": "object"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "turns": {
+      "title": "Turns",
+      "type": "integer"
+    },
+    "winner_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Winner Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "match_id",
+    "seed",
+    "completed",
+    "turns",
+    "winner_ids",
+    "placements",
+    "end_reason",
+    "player_metrics",
+    "event_count"
+  ],
+  "title": "StructuralMatchResult",
+  "type": "object"
+}

@@ -1,0 +1,135 @@
+# Dependency graph
+
+Generated from Python AST imports.
+
+```mermaid
+graph TD
+    commander_lab_agents_demo --> commander_lab_models
+    commander_lab_agents_demo --> commander_lab_tools
+    commander_lab_agents_guardrails --> commander_lab_models
+    commander_lab_agents_openai_workflow --> commander_lab_models
+    commander_lab_agents_openai_workflow --> commander_lab_tools
+    commander_lab_agents_pilots --> commander_lab_models
+    commander_lab_agents_validation --> commander_lab_agents_pilots
+    commander_lab_agents_validation --> commander_lab_engine_structural_batch
+    commander_lab_agents_validation --> commander_lab_engine_structural_project
+    commander_lab_agents_validation --> commander_lab_engine_structural_simulator
+    commander_lab_agents_validation --> commander_lab_models
+    commander_lab_analysis_validation --> commander_lab_cards_catalog
+    commander_lab_analysis_validation --> commander_lab_models
+    commander_lab_api_tool_server --> commander_lab_agents_openai_workflow
+    commander_lab_api_tool_server --> commander_lab_models
+    commander_lab_api_tool_server --> commander_lab_tools
+    commander_lab_audit_invariants --> commander_lab_models
+    commander_lab_audit_models --> commander_lab_models_common
+    commander_lab_audit_runner --> commander_lab_audit_models
+    commander_lab_audit_runner --> commander_lab_models
+    commander_lab_audit_runner --> commander_lab_storage_atomic
+    commander_lab_audit_runner --> commander_lab_storage_database
+    commander_lab_audit_runner --> commander_lab_storage_hashing
+    commander_lab_audit_runner --> commander_lab_storage_run_integrity
+    commander_lab_cards_catalog --> commander_lab_models
+    commander_lab_cli_app --> commander_lab_agents_demo
+    commander_lab_cli_app --> commander_lab_agents_validation
+    commander_lab_cli_app --> commander_lab_analysis
+    commander_lab_cli_app --> commander_lab_api
+    commander_lab_cli_app --> commander_lab_audit
+    commander_lab_cli_app --> commander_lab_cards_catalog
+    commander_lab_cli_app --> commander_lab_engine_process_manager
+    commander_lab_cli_app --> commander_lab_engine_rules
+    commander_lab_cli_app --> commander_lab_engine_structural
+    commander_lab_cli_app --> commander_lab_evals
+    commander_lab_cli_app --> commander_lab_importers
+    commander_lab_cli_app --> commander_lab_models
+    commander_lab_cli_app --> commander_lab_storage
+    commander_lab_cli_app --> commander_lab_storage_database
+    commander_lab_cli_app --> commander_lab_storage_run_integrity
+    commander_lab_cli_app --> commander_lab_tools_local_snapshots
+    commander_lab_engine_action_validation --> commander_lab_models
+    commander_lab_engine_process_manager --> commander_lab_engine_rules_bridge
+    commander_lab_engine_process_manager --> commander_lab_models
+    commander_lab_engine_process_manager --> commander_lab_storage_atomic
+    commander_lab_engine_rules_base --> commander_lab_models
+    commander_lab_engine_rules_bridge --> commander_lab_models
+    commander_lab_engine_rules_manager --> commander_lab_models
+    commander_lab_engine_rules_phase85 --> commander_lab_engine_process_manager
+    commander_lab_engine_rules_phase85 --> commander_lab_models
+    commander_lab_engine_rules_phase85 --> commander_lab_storage_atomic
+    commander_lab_engine_rules_project --> commander_lab_models
+    commander_lab_engine_rules_protocol --> commander_lab_models
+    commander_lab_engine_rules_registry --> commander_lab_models
+    commander_lab_engine_rules_registry --> commander_lab_storage_atomic
+    commander_lab_engine_rules_replay --> commander_lab_models
+    commander_lab_engine_rules_tactical --> commander_lab_engine_action_validation
+    commander_lab_engine_rules_tactical --> commander_lab_models
+    commander_lab_engine_rules_tactical --> commander_lab_storage_hashing
+    commander_lab_engine_rules_validation --> commander_lab_models
+    commander_lab_engine_structural_batch --> commander_lab_models
+    commander_lab_engine_structural_fixtures --> commander_lab_models
+    commander_lab_engine_structural_fixtures --> commander_lab_storage
+    commander_lab_engine_structural_profiles --> commander_lab_cards_catalog
+    commander_lab_engine_structural_profiles --> commander_lab_models
+    commander_lab_engine_structural_profiles --> commander_lab_storage
+    commander_lab_engine_structural_project --> commander_lab_models
+    commander_lab_engine_structural_project --> commander_lab_storage
+    commander_lab_engine_structural_simulator --> commander_lab_agents
+    commander_lab_engine_structural_simulator --> commander_lab_models
+    commander_lab_engine_structural_simulator --> commander_lab_storage
+    commander_lab_engine_structural_validation --> commander_lab_models
+    commander_lab_evals_golden --> commander_lab_agents
+    commander_lab_evals_golden --> commander_lab_models
+    commander_lab_evals_invariants --> commander_lab_storage
+    commander_lab_evals_models --> commander_lab_models_common
+    commander_lab_evals_models --> commander_lab_models_pilots
+    commander_lab_evals_models --> commander_lab_models_tooling
+    commander_lab_evals_runner --> commander_lab
+    commander_lab_evals_runner --> commander_lab_engine
+    commander_lab_evals_runner --> commander_lab_engine_structural
+    commander_lab_evals_runner --> commander_lab_models
+    commander_lab_features_replay_debugger --> commander_lab_engine_rules_replay
+    commander_lab_features_replay_debugger --> commander_lab_models
+    commander_lab_features_scenario_editor --> commander_lab_models
+    commander_lab_features_scenario_editor --> commander_lab_models_common
+    commander_lab_features_scenario_editor --> commander_lab_storage_atomic
+    commander_lab_features_scenario_editor --> commander_lab_storage_hashing
+    commander_lab_importers_base --> commander_lab_cards_catalog
+    commander_lab_importers_base --> commander_lab_models
+    commander_lab_importers_csv_importer --> commander_lab_models
+    commander_lab_importers_google_drive --> commander_lab_models
+    commander_lab_importers_opponents --> commander_lab_models
+    commander_lab_importers_plaintext --> commander_lab_cards_catalog
+    commander_lab_importers_plaintext --> commander_lab_cards_normalize
+    commander_lab_importers_plaintext --> commander_lab_models
+    commander_lab_importers_playtests --> commander_lab_models
+    commander_lab_observability_local --> commander_lab_storage_atomic
+    commander_lab_optimization_constraints --> commander_lab_models
+    commander_lab_optimization_experiments --> commander_lab_engine_structural
+    commander_lab_optimization_experiments --> commander_lab_models
+    commander_lab_optimization_experiments --> commander_lab_storage
+    commander_lab_optimization_search --> commander_lab_models
+    commander_lab_optimization_search --> commander_lab_storage
+    commander_lab_storage_database --> commander_lab_storage_atomic
+    commander_lab_storage_database --> commander_lab_storage_hashing
+    commander_lab_storage_hashing --> commander_lab_cards_normalize
+    commander_lab_storage_hashing --> commander_lab_models
+    commander_lab_tools_candidates --> commander_lab_models
+    commander_lab_tools_local_snapshots --> commander_lab_analysis
+    commander_lab_tools_local_snapshots --> commander_lab_cards_catalog
+    commander_lab_tools_local_snapshots --> commander_lab_importers
+    commander_lab_tools_local_snapshots --> commander_lab_models
+    commander_lab_tools_local_snapshots --> commander_lab_storage
+    commander_lab_tools_registry --> commander_lab_models
+    commander_lab_tools_service --> commander_lab_analysis
+    commander_lab_tools_service --> commander_lab_cards_catalog
+    commander_lab_tools_service --> commander_lab_engine_structural
+    commander_lab_tools_service --> commander_lab_importers
+    commander_lab_tools_service --> commander_lab_models
+    commander_lab_tools_service --> commander_lab_optimization
+    commander_lab_tools_service --> commander_lab_storage
+```
+
+## Enforced boundaries
+
+- Deterministic engine modules may not import agents or OpenAI integration.
+- Storage access is centralized under `commander_lab.storage`.
+- External-engine specifics stay under `commander_lab.engine.rules`.

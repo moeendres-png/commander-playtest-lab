@@ -1,0 +1,287 @@
+{
+  "$defs": {
+    "PilotConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "mistake_rate": {
+          "anyOf": [
+            {
+              "maximum": 0.5,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mistake Rate"
+        },
+        "mode": {
+          "$ref": "#/$defs/PilotDecisionMode",
+          "default": "deterministic"
+        },
+        "pilot_name": {
+          "default": "auto",
+          "title": "Pilot Name",
+          "type": "string"
+        },
+        "reserve_mana_target": {
+          "anyOf": [
+            {
+              "maximum": 10.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reserve Mana Target"
+        },
+        "strength": {
+          "$ref": "#/$defs/PilotStrength",
+          "default": "average"
+        },
+        "temperature": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "maximum": 5.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Temperature"
+        },
+        "weights": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PilotUtilityWeights"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "PilotConfig",
+      "type": "object"
+    },
+    "PilotDecisionMode": {
+      "enum": [
+        "deterministic",
+        "stochastic"
+      ],
+      "title": "PilotDecisionMode",
+      "type": "string"
+    },
+    "PilotStrength": {
+      "enum": [
+        "weak",
+        "average",
+        "strong",
+        "near_optimal_heuristic"
+      ],
+      "title": "PilotStrength",
+      "type": "string"
+    },
+    "PilotUtilityWeights": {
+      "additionalProperties": false,
+      "properties": {
+        "card_advantage": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Card Advantage",
+          "type": "number"
+        },
+        "commander_value": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Commander Value",
+          "type": "number"
+        },
+        "engine_development": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Engine Development",
+          "type": "number"
+        },
+        "interaction_reserve": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Interaction Reserve",
+          "type": "number"
+        },
+        "mana_efficiency": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Mana Efficiency",
+          "type": "number"
+        },
+        "political_visibility": {
+          "default": -0.65,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Political Visibility",
+          "type": "number"
+        },
+        "rebuild_capacity": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Rebuild Capacity",
+          "type": "number"
+        },
+        "survival": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Survival",
+          "type": "number"
+        },
+        "tempo": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Tempo",
+          "type": "number"
+        },
+        "threat_reduction": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Threat Reduction",
+          "type": "number"
+        },
+        "win_progress": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Win Progress",
+          "type": "number"
+        }
+      },
+      "title": "PilotUtilityWeights",
+      "type": "object"
+    },
+    "StructuralAbortLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "max_events": {
+          "default": 20000,
+          "minimum": 10,
+          "title": "Max Events",
+          "type": "integer"
+        },
+        "max_no_progress_turns": {
+          "default": 12,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max No Progress Turns",
+          "type": "integer"
+        },
+        "max_spells_per_turn": {
+          "default": 8,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Spells Per Turn",
+          "type": "integer"
+        },
+        "max_turns": {
+          "default": 30,
+          "maximum": 500,
+          "minimum": 1,
+          "title": "Max Turns",
+          "type": "integer"
+        }
+      },
+      "title": "StructuralAbortLimits",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "deck_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deck Ids",
+      "type": "array"
+    },
+    "estimate_type": {
+      "const": "structural_model_estimates",
+      "default": "structural_model_estimates",
+      "title": "Estimate Type",
+      "type": "string"
+    },
+    "iterations": {
+      "default": 1,
+      "maximum": 10000000,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "limits": {
+      "$ref": "#/$defs/StructuralAbortLimits"
+    },
+    "output_directory": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Directory"
+    },
+    "pilot_configs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PilotConfig"
+      },
+      "title": "Pilot Configs",
+      "type": "array"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "seed": {
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "starting_player_rotation": {
+      "default": true,
+      "title": "Starting Player Rotation",
+      "type": "boolean"
+    },
+    "workers": {
+      "default": 1,
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "run_id",
+    "seed",
+    "deck_ids"
+  ],
+  "title": "StructuralBatchConfig",
+  "type": "object"
+}

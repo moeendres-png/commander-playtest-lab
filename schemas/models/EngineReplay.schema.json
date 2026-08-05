@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "RuntimeValidationLevel": {
+      "enum": [
+        "structural_only",
+        "tactical_oracle",
+        "external_rules_engine"
+      ],
+      "title": "RuntimeValidationLevel",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "engine": {
+      "enum": [
+        "xmage",
+        "forge",
+        "tactical"
+      ],
+      "title": "Engine",
+      "type": "string"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "event_log_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Log Sha256",
+      "type": "string"
+    },
+    "events": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "final_state": {
+      "additionalProperties": true,
+      "title": "Final State",
+      "type": "object"
+    },
+    "game_id": {
+      "title": "Game Id",
+      "type": "string"
+    },
+    "initial_state": {
+      "additionalProperties": true,
+      "title": "Initial State",
+      "type": "object"
+    },
+    "protocol_version": {
+      "default": "1.0.0",
+      "title": "Protocol Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "validation_level": {
+      "$ref": "#/$defs/RuntimeValidationLevel"
+    }
+  },
+  "required": [
+    "engine",
+    "engine_version",
+    "validation_level",
+    "game_id",
+    "initial_state",
+    "events",
+    "final_state",
+    "event_log_sha256"
+  ],
+  "title": "EngineReplay",
+  "type": "object"
+}

@@ -24,7 +24,7 @@ from commander_lab.models import (
     StructuralMatchResult,
     StructuralPlayerMetrics,
 )
-from commander_lab.storage import canonical_json_bytes
+from commander_lab.storage import atomic_write_text, canonical_json_bytes
 
 
 ENGINE_VERSION = "structural-0.6.0"
@@ -154,10 +154,11 @@ class _EventRecorder:
     def write(self, path: str | Path) -> None:
         path_obj = Path(path)
         path_obj.parent.mkdir(parents=True, exist_ok=True)
-        with path_obj.open("w", encoding="utf-8", newline="\n") as handle:
-            for event in self.events:
-                handle.write(json.dumps(event, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
-                handle.write("\n")
+        payload = "".join(
+            json.dumps(event, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+            for event in self.events
+        )
+        atomic_write_text(path_obj, payload)
 
 
 class StructuralSimulator:

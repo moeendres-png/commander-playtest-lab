@@ -13,6 +13,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Mapping
 
+from commander_lab.storage.atomic import atomic_write_text
+
 from commander_lab.models import (
     EngineCapabilityHandshake,
     EngineProcessState,
@@ -85,7 +87,7 @@ class EngineProcessManager:
 
     def _replace(self, **updates: object) -> EngineProcessState:
         self._state = self._state.model_copy(update=updates)
-        self.state_path.write_text(self._state.model_dump_json(indent=2), encoding="utf-8")
+        atomic_write_text(self.state_path, self._state.model_dump_json(indent=2) + "\n")
         return self._state
 
     def diagnose(self) -> EngineProcessState:

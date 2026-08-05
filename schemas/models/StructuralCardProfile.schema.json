@@ -1,0 +1,325 @@
+{
+  "$defs": {
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    },
+    "Color": {
+      "enum": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "title": "Color",
+      "type": "string"
+    },
+    "ConditionalStrength": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "title": "Condition",
+          "type": "string"
+        },
+        "multiplier": {
+          "default": 1.0,
+          "maximum": 4.0,
+          "minimum": 0.0,
+          "title": "Multiplier",
+          "type": "number"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "condition"
+      ],
+      "title": "ConditionalStrength",
+      "type": "object"
+    },
+    "DataQuality": {
+      "enum": [
+        "authoritative",
+        "project_verified",
+        "project_inferred",
+        "synthetic_assumption",
+        "unknown"
+      ],
+      "title": "DataQuality",
+      "type": "string"
+    },
+    "SourceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "data_as_of": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data As Of"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "quality": {
+          "$ref": "#/$defs/DataQuality",
+          "default": "unknown"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "source_name": {
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Path"
+        },
+        "source_type": {
+          "title": "Source Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_type",
+        "source_name"
+      ],
+      "title": "SourceRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "base_power": {
+      "default": 0.0,
+      "maximum": 30.0,
+      "minimum": 0.0,
+      "title": "Base Power",
+      "type": "number"
+    },
+    "color_identity": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Color"
+      },
+      "title": "Color Identity",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "color_requirements": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/Color"
+      },
+      "title": "Color Requirements",
+      "type": "object"
+    },
+    "commander_synergy": {
+      "default": 0.0,
+      "maximum": 2.0,
+      "minimum": 0.0,
+      "title": "Commander Synergy",
+      "type": "number"
+    },
+    "conditional_strength": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ConditionalStrength"
+      },
+      "title": "Conditional Strength",
+      "type": "array"
+    },
+    "floor_value": {
+      "default": 0.5,
+      "maximum": 2.0,
+      "minimum": 0.0,
+      "title": "Floor Value",
+      "type": "number"
+    },
+    "immediate_impact": {
+      "default": 0.5,
+      "maximum": 1.5,
+      "minimum": 0.0,
+      "title": "Immediate Impact",
+      "type": "number"
+    },
+    "is_creature": {
+      "default": false,
+      "title": "Is Creature",
+      "type": "boolean"
+    },
+    "is_land": {
+      "default": false,
+      "title": "Is Land",
+      "type": "boolean"
+    },
+    "is_permanent": {
+      "default": true,
+      "title": "Is Permanent",
+      "type": "boolean"
+    },
+    "mana_value": {
+      "default": 3.0,
+      "maximum": 20.0,
+      "minimum": 0.0,
+      "title": "Mana Value",
+      "type": "number"
+    },
+    "multiplayer_scaling": {
+      "default": 0.0,
+      "maximum": 2.0,
+      "minimum": -1.0,
+      "title": "Multiplayer Scaling",
+      "type": "number"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "oracle_name": {
+      "minLength": 1,
+      "title": "Oracle Name",
+      "type": "string"
+    },
+    "produces_colors": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Color"
+      },
+      "title": "Produces Colors",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "role_strengths": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/CardRole"
+      },
+      "title": "Role Strengths",
+      "type": "object"
+    },
+    "roles": {
+      "items": {
+        "$ref": "#/$defs/CardRole"
+      },
+      "title": "Roles",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "source_quality": {
+      "$ref": "#/$defs/DataQuality",
+      "default": "project_inferred"
+    },
+    "sources": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/SourceRef"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "turn_cycle_risk": {
+      "default": 0.5,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Turn Cycle Risk",
+      "type": "number"
+    }
+  },
+  "required": [
+    "oracle_name",
+    "roles"
+  ],
+  "title": "StructuralCardProfile",
+  "type": "object"
+}
