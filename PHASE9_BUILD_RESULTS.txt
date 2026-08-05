@@ -1,0 +1,14 @@
+Phase 9 package build
+
+python -m build --wheel --no-isolation
+- not_run: Python module `build` is not installed in this runtime.
+
+python -m pip wheel --no-deps --no-build-isolation . -w dist
+- passed
+- artifact: commander_playtest_lab-0.9.0-py3-none-any.whl
+- SHA-256: 13959dbcd9b8c3f6914ce1838261c687e2ca22a4c2022d8449f65f23e398ede9
+
+Wheel isolated target installation and import
+- passed
+- imported package version: 0.9.0
+- imported CalibrationReport model successfully
