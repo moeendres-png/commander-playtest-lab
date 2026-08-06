@@ -1,0 +1,248 @@
+{
+  "automatic_deck_application": false,
+  "estimate_type": "structural_model_estimates",
+  "generated_at": "2026-08-06T12:46:00+02:00",
+  "real_game_count_used_for_weights": 0,
+  "results": [
+    {
+      "automatic_deck_application": false,
+      "deck_id": "rogshai/current",
+      "ensemble_id": "cosmic-spiderman-ensemble-v1",
+      "matchup": {
+        "aggregate_interpretation": "equal_weight_reference",
+        "average": -0.23651599206349208,
+        "best": -0.19228920634920638,
+        "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+        "deck_id": "rogshai/current",
+        "ensemble_id": "cosmic-spiderman-ensemble-v1",
+        "estimate_type": "structural_model_estimates",
+        "median": -0.23572920634920635,
+        "most_sensitive_assumption": "role_concentration",
+        "per_variant": [
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.28231634920634924,
+            "sensitive_dimension": "speed",
+            "synthetic": true,
+            "variant_id": "cosmic-aggressive"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.23031492063492065,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "cosmic-midrange"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.19228920634920638,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "cosmic-legends-value"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.2411434920634921,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "cosmic-control"
+          }
+        ],
+        "positive_variant_share": 0.0,
+        "spread": 0.03206847490972582,
+        "weight_mode": "unweighted",
+        "worst": -0.28231634920634924
+      },
+      "official_profile_overwrite": false,
+      "validation": {
+        "assumed_cards_by_variant": {
+          "cosmic-aggressive": [],
+          "cosmic-control": [],
+          "cosmic-legends-value": [],
+          "cosmic-midrange": []
+        },
+        "automatic_profile_overwrite": false,
+        "ensemble_id": "cosmic-spiderman-ensemble-v1",
+        "known_cards_by_variant": {
+          "cosmic-aggressive": [],
+          "cosmic-control": [],
+          "cosmic-legends-value": [],
+          "cosmic-midrange": []
+        },
+        "synthetic_variants": 4,
+        "valid": true,
+        "variant_count": 4,
+        "weight_mode": "unweighted"
+      }
+    },
+    {
+      "automatic_deck_application": false,
+      "deck_id": "korvold/current",
+      "ensemble_id": "morcant-elves-ensemble-v1",
+      "matchup": {
+        "aggregate_interpretation": "equal_weight_reference",
+        "average": -0.26443430327868855,
+        "best": -0.23395894613583137,
+        "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+        "deck_id": "korvold/current",
+        "ensemble_id": "morcant-elves-ensemble-v1",
+        "estimate_type": "structural_model_estimates",
+        "median": -0.26409394613583137,
+        "most_sensitive_assumption": "role_concentration",
+        "per_variant": [
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.29559037470725996,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "morcant-go-wide"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.23395894613583137,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "morcant-counters"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.2343589461358314,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "morcant-etb"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.2938289461358314,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "morcant-blight"
+          }
+        ],
+        "positive_variant_share": 0.0,
+        "spread": 0.0302820917202574,
+        "weight_mode": "unweighted",
+        "worst": -0.29559037470725996
+      },
+      "official_profile_overwrite": false,
+      "validation": {
+        "assumed_cards_by_variant": {
+          "morcant-blight": [],
+          "morcant-counters": [],
+          "morcant-etb": [],
+          "morcant-go-wide": []
+        },
+        "automatic_profile_overwrite": false,
+        "ensemble_id": "morcant-elves-ensemble-v1",
+        "known_cards_by_variant": {
+          "morcant-blight": [],
+          "morcant-counters": [],
+          "morcant-etb": [],
+          "morcant-go-wide": []
+        },
+        "synthetic_variants": 4,
+        "valid": true,
+        "variant_count": 4,
+        "weight_mode": "unweighted"
+      }
+    },
+    {
+      "automatic_deck_application": false,
+      "deck_id": "korvold/current",
+      "ensemble_id": "doom-prevails-ensemble-v1",
+      "matchup": {
+        "aggregate_interpretation": "equal_weight_reference",
+        "average": -0.2601146604215457,
+        "best": -0.1908032318501171,
+        "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+        "deck_id": "korvold/current",
+        "ensemble_id": "doom-prevails-ensemble-v1",
+        "estimate_type": "structural_model_estimates",
+        "median": -0.2774432318501171,
+        "most_sensitive_assumption": "role_concentration",
+        "per_variant": [
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.1908032318501171,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": false,
+            "variant_id": "doom-official-precon"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.2947689461358314,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "doom-artifact-upgrade"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.2824789461358314,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "doom-villain-typal"
+          },
+          {
+            "assumed_cards": [],
+            "confidence": 0.25,
+            "known_cards": [],
+            "score": -0.27240751756440285,
+            "sensitive_dimension": "role_concentration",
+            "synthetic": true,
+            "variant_id": "doom-recursion-control"
+          }
+        ],
+        "positive_variant_share": 0.0,
+        "spread": 0.040792981201502335,
+        "weight_mode": "unweighted",
+        "worst": -0.2947689461358314
+      },
+      "official_profile_overwrite": false,
+      "validation": {
+        "assumed_cards_by_variant": {
+          "doom-artifact-upgrade": [],
+          "doom-official-precon": [],
+          "doom-recursion-control": [],
+          "doom-villain-typal": []
+        },
+        "automatic_profile_overwrite": false,
+        "ensemble_id": "doom-prevails-ensemble-v1",
+        "known_cards_by_variant": {
+          "doom-artifact-upgrade": [],
+          "doom-official-precon": [],
+          "doom-recursion-control": [],
+          "doom-villain-typal": []
+        },
+        "synthetic_variants": 3,
+        "valid": true,
+        "variant_count": 4,
+        "weight_mode": "unweighted"
+      }
+    }
+  ],
+  "schema_version": "1.0.0",
+  "seed": 20260806,
+  "weighting_policy": "unweighted_due_insufficient_observations"
+}

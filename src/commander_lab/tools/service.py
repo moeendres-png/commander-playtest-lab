@@ -56,6 +56,9 @@ from commander_lab.models import (
     IngestLocalGameInput, UpdateLocalOpponentProfileInput, InspectLocalMetaInput,
     CompareObservedToAssumedInput, DetectLocalMetaDriftInput,
     BuildLocalMetaScenariosInput, GenerateLocalMetaReportInput,
+    CreateOpponentEnsembleInput, AddOpponentVariantInput, ValidateEnsembleInput,
+    RunEnsembleMatchupsInput, CompareVariantSensitivityInput,
+    EvaluateRobustUpgradeInput, GenerateEnsembleReportInput,
     PilotEnsembleDefinition,
     PilotEnsembleMember,
     CompiledPilotPolicy,
@@ -145,6 +148,8 @@ from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionE
 from commander_lab.provenance import ProvenanceStore
 from commander_lab.local_meta import LocalMetaStore
 from commander_lab.models.local_meta import LocalGameRecord
+from commander_lab.opponent_ensembles import OpponentEnsembleStore
+from commander_lab.models.opponent_ensembles import OpponentEnsemble, OpponentVariant
 
 from .candidates import load_candidate_profiles
 
@@ -192,6 +197,9 @@ class CommanderToolService:
 
     def _local_meta(self) -> LocalMetaStore:
         return LocalMetaStore(self.root)
+
+    def _opponent_ensembles(self) -> OpponentEnsembleStore:
+        return OpponentEnsembleStore(self.root)
 
     def _load_limits(self) -> CostLimits:
         path = self.root / "config/openai_workflow.json"
@@ -1275,6 +1283,38 @@ class CommanderToolService:
         return self._invoke("generate_package_report", request, work, deck_ids=(request.deck_id,))
 
 
+
+
+    def create_opponent_ensemble(self, request: CreateOpponentEnsembleInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            ensemble=OpponentEnsemble.model_validate_json(self._project_path(request.source_path).read_text(encoding="utf-8")); path=self._opponent_ensembles().save(ensemble)
+            return {"ensemble_id":ensemble.ensemble_id,"path":str(path.relative_to(self.root)),"variant_count":len(ensemble.variants),"automatic_profile_overwrite":False}
+        return self._invoke("create_opponent_ensemble", request, work)
+
+    def add_opponent_variant(self, request: AddOpponentVariantInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            variant=OpponentVariant.model_validate_json(self._project_path(request.variant_path).read_text(encoding="utf-8")); e=self._opponent_ensembles().add_variant(request.ensemble_id,variant,request.new_ensemble_id)
+            return {"ensemble_id":e.ensemble_id,"version":e.version,"variant_count":len(e.variants),"automatic_profile_overwrite":False}
+        return self._invoke("add_opponent_variant", request, work)
+
+    def validate_ensemble(self, request: ValidateEnsembleInput) -> ToolResponse:
+        return self._invoke("validate_ensemble", request, lambda:self._opponent_ensembles().validate(request.ensemble_id))
+
+    def run_ensemble_matchups(self, request: RunEnsembleMatchupsInput) -> ToolResponse:
+        def work() -> dict[str, Any]: return self._opponent_ensembles().run_matchups(self._deck(request.deck_id),request.ensemble_id,request.seed).model_dump(mode="json")
+        return self._invoke("run_ensemble_matchups",request,work,deck_ids=(request.deck_id,),seed=request.seed,estimate_type="structural_model_estimates")
+
+    def compare_variant_sensitivity(self, request: CompareVariantSensitivityInput) -> ToolResponse:
+        return self._invoke("compare_variant_sensitivity",request,lambda:self._opponent_ensembles().compare_sensitivity(self._deck(request.deck_id),request.ensemble_id,request.seed),deck_ids=(request.deck_id,),seed=request.seed)
+
+    def evaluate_robust_upgrade(self, request: EvaluateRobustUpgradeInput) -> ToolResponse:
+        def work() -> dict[str, Any]: return self._opponent_ensembles().evaluate_robust_upgrade(self._deck(request.baseline_deck_id),self._deck(request.candidate_deck_id),request.ensemble_id,request.seed)
+        return self._invoke("evaluate_robust_upgrade",request,work,deck_ids=(request.baseline_deck_id,request.candidate_deck_id),seed=request.seed)
+
+    def generate_ensemble_report(self, request: GenerateEnsembleReportInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            target=self.root/"data/opponent_ensembles"/Path(request.output_name).name; atomic_write_text(target,self._opponent_ensembles().report(request.ensemble_id)); return {"report_path":str(target.relative_to(self.root)),"ensemble_id":request.ensemble_id,"automatic_profile_overwrite":False}
+        return self._invoke("generate_ensemble_report",request,work)
 
     def ingest_local_game(self, request: IngestLocalGameInput) -> ToolResponse:
         def work() -> dict[str, Any]:

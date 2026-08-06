@@ -1,3 +1,6 @@
+## 1.7.0 - 2026-08-06
+- Added versioned opponent ensembles for Cosmic Spider-Man, Morcant Elves and Doom Prevails with uncertainty-aware robustness tools.
+
 ## 1.6.0 - 2026-08-06
 - Added append-only local meta learning, observed opponent profile versions, conservative shrinkage, drift and scenario tools.
 

@@ -37,14 +37,17 @@ def test_all_required_tools_are_exposed() -> None:
         "ingest_local_game", "update_local_opponent_profile", "inspect_local_meta",
         "compare_observed_to_assumed", "detect_local_meta_drift",
         "build_local_meta_scenarios", "generate_local_meta_report",
+        "create_opponent_ensemble", "add_opponent_variant", "validate_ensemble",
+        "run_ensemble_matchups", "compare_variant_sensitivity",
+        "evaluate_robust_upgrade", "generate_ensemble_report",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 66
-    assert len({schema["name"] for schema in schemas}) == 66
+    assert len(schemas) == 73
+    assert len({schema["name"] for schema in schemas}) == 73
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

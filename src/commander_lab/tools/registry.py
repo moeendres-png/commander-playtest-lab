@@ -43,6 +43,8 @@ from commander_lab.models import (
     IngestLocalGameInput, UpdateLocalOpponentProfileInput, InspectLocalMetaInput,
     CompareObservedToAssumedInput, DetectLocalMetaDriftInput,
     BuildLocalMetaScenariosInput, GenerateLocalMetaReportInput,
+    CreateOpponentEnsembleInput, AddOpponentVariantInput, ValidateEnsembleInput,
+    RunEnsembleMatchupsInput, CompareVariantSensitivityInput, EvaluateRobustUpgradeInput, GenerateEnsembleReportInput,
     GoldfishInput,
     HoldoutInput,
     ImportMetaDeckInput,
@@ -154,6 +156,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("detect_local_meta_drift", "Detect drift between versioned observed opponent profiles.", DetectLocalMetaDriftInput, "detect_local_meta_drift"),
     ToolDefinition("build_local_meta_scenarios", "Build primary, holdout, sensitivity and ensemble scenarios from observed profiles.", BuildLocalMetaScenariosInput, "build_local_meta_scenarios"),
     ToolDefinition("generate_local_meta_report", "Generate a local meta report with explicit data quantity and uncertainty.", GenerateLocalMetaReportInput, "generate_local_meta_report"),
+    ToolDefinition("create_opponent_ensemble", "Create a versioned opponent ensemble from structured variants.", CreateOpponentEnsembleInput, "create_opponent_ensemble"),
+    ToolDefinition("add_opponent_variant", "Add a variant by creating a new ensemble version.", AddOpponentVariantInput, "add_opponent_variant"),
+    ToolDefinition("validate_ensemble", "Validate observed constraints, color identity and weights.", ValidateEnsembleInput, "validate_ensemble"),
+    ToolDefinition("run_ensemble_matchups", "Run structural matchup estimates across every opponent variant.", RunEnsembleMatchupsInput, "run_ensemble_matchups"),
+    ToolDefinition("compare_variant_sensitivity", "Report average, median, worst, spread and sensitive assumptions.", CompareVariantSensitivityInput, "compare_variant_sensitivity"),
+    ToolDefinition("evaluate_robust_upgrade", "Evaluate whether an upgrade is nonnegative across opponent variants.", EvaluateRobustUpgradeInput, "evaluate_robust_upgrade"),
+    ToolDefinition("generate_ensemble_report", "Generate a report separating known cards and synthetic assumptions.", GenerateEnsembleReportInput, "generate_ensemble_report"),
 )
 
 

@@ -1,0 +1,190 @@
+{
+  "automatic_profile_overwrite": false,
+  "commander": "High Perfect Morcant",
+  "commander_color_identity": [
+    "B",
+    "G"
+  ],
+  "ensemble_id": "morcant-elves-ensemble-v1",
+  "name": "Morcant Elves uncertainty ensemble",
+  "observed_constraints": [],
+  "source_ids": [
+    "user-direct-current-project-rules"
+  ],
+  "variants": [
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "High Perfect Morcant",
+      "commander_color_identity": [
+        "B",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.25,
+        "minimum": 0.1
+      },
+      "known_cards": [],
+      "name": "Go-wide",
+      "role_distribution": {
+        "elves": 0.9,
+        "go_wide": 0.9
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 8,
+        "minimum": 5
+      },
+      "synthetic": true,
+      "variant_id": "morcant-go-wide",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "tokens"
+      ],
+      "wipe_count_range": {
+        "maximum": 2,
+        "minimum": 0
+      }
+    },
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "High Perfect Morcant",
+      "commander_color_identity": [
+        "B",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.3,
+        "minimum": 0.15
+      },
+      "known_cards": [],
+      "name": "Counters/Proliferate",
+      "role_distribution": {
+        "counters": 0.9,
+        "proliferate": 0.8
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 10,
+        "minimum": 7
+      },
+      "synthetic": true,
+      "variant_id": "morcant-counters",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "counter scaling"
+      ],
+      "wipe_count_range": {
+        "maximum": 3,
+        "minimum": 1
+      }
+    },
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "High Perfect Morcant",
+      "commander_color_identity": [
+        "B",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.35,
+        "minimum": 0.15
+      },
+      "known_cards": [],
+      "name": "ETB Value",
+      "role_distribution": {
+        "etb": 0.9,
+        "value": 0.8
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 11,
+        "minimum": 7
+      },
+      "synthetic": true,
+      "variant_id": "morcant-etb",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "ETB value"
+      ],
+      "wipe_count_range": {
+        "maximum": 3,
+        "minimum": 1
+      }
+    },
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "High Perfect Morcant",
+      "commander_color_identity": [
+        "B",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.45,
+        "minimum": 0.25
+      },
+      "known_cards": [],
+      "name": "Blight Focus",
+      "role_distribution": {
+        "blight": 0.9,
+        "control": 0.5
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 12,
+        "minimum": 7
+      },
+      "synthetic": true,
+      "variant_id": "morcant-blight",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "blight attrition"
+      ],
+      "wipe_count_range": {
+        "maximum": 4,
+        "minimum": 1
+      }
+    }
+  ],
+  "version": 1,
+  "weight_mode": "unweighted"
+}

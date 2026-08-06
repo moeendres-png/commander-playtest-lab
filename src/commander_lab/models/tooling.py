@@ -553,3 +553,36 @@ class BuildLocalMetaScenariosInput(FrozenModel):
 
 class GenerateLocalMetaReportInput(FrozenModel):
     output_name: str = "local_meta_report.md"
+
+
+# Opponent ensemble tool inputs
+class CreateOpponentEnsembleInput(FrozenModel):
+    source_path: str
+
+class AddOpponentVariantInput(FrozenModel):
+    ensemble_id: str
+    variant_path: str
+    new_ensemble_id: str
+
+class ValidateEnsembleInput(FrozenModel):
+    ensemble_id: str
+
+class RunEnsembleMatchupsInput(FrozenModel):
+    deck_id: str
+    ensemble_id: str
+    seed: int = Field(default=20260806,ge=0)
+
+class CompareVariantSensitivityInput(FrozenModel):
+    deck_id: str
+    ensemble_id: str
+    seed: int = Field(default=20260806,ge=0)
+
+class EvaluateRobustUpgradeInput(FrozenModel):
+    baseline_deck_id: str
+    candidate_deck_id: str
+    ensemble_id: str
+    seed: int = Field(default=20260806,ge=0)
+
+class GenerateEnsembleReportInput(FrozenModel):
+    ensemble_id: str
+    output_name: str = "opponent_ensemble_report.md"
