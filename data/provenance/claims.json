@@ -6,5 +6,32 @@
       "repo-1.4.0"
     ],
     "text": "Canonical deck files were not modified."
+  },
+  {
+    "claim_id": "claim-local-real-game-count-zero",
+    "claim_kind": "source_fact",
+    "derived_ids": [
+      "derived-local-meta-summary-v1"
+    ],
+    "text": "No real local Commander games have been imported."
+  },
+  {
+    "claim_id": "claim-opponent-ensembles-unweighted",
+    "claim_kind": "inference",
+    "derived_ids": [
+      "derived-local-meta-summary-v1",
+      "derived-opponent-ensemble-smoke-v1"
+    ],
+    "text": "Opponent ensembles remain unweighted due to insufficient observed data."
+  },
+  {
+    "claim_id": "claim-opponent-ensembles-no-full-list",
+    "claim_kind": "source_fact",
+    "source_ids": [
+      "opponent-ensemble-cosmic-spiderman-ensemble-v1",
+      "opponent-ensemble-morcant-elves-ensemble-v1",
+      "opponent-ensemble-doom-prevails-ensemble-v1"
+    ],
+    "text": "No complete opponent list or confirmed assumed card is generated."
   }
 ]

@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "authority_rank_new": 80,
+    "authority_rank_old": 80,
+    "effective_at": "2026-08-06T11:29:57.806578Z",
+    "historical_record_retained": true,
+    "new_id": "repo-1.5.0",
+    "old_id": "repo-1.4.0",
+    "reason": "newer versioned technical repository state; historical source retained",
+    "supersession_id": "supersede-repository-1.4-to-1.5"
+  },
+  {
+    "authority_rank_new": 80,
+    "authority_rank_old": 80,
+    "effective_at": "2026-08-06T11:29:57.806578Z",
+    "historical_record_retained": true,
+    "new_id": "repo-1.6.0",
+    "old_id": "repo-1.5.0",
+    "reason": "newer versioned technical repository state; historical source retained",
+    "supersession_id": "supersede-repository-1.5-to-1.6"
+  },
+  {
+    "authority_rank_new": 80,
+    "authority_rank_old": 80,
+    "effective_at": "2026-08-06T11:29:57.806578Z",
+    "historical_record_retained": true,
+    "new_id": "repo-1.7.0-implementation",
+    "old_id": "repo-1.6.0",
+    "reason": "newer versioned technical repository state; historical source retained",
+    "supersession_id": "supersede-repository-1.6-to-1.7"
+  }
+]

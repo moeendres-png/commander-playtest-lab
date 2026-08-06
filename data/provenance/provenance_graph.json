@@ -4,6 +4,7 @@
       "artifact_id": "deck-korvold-current",
       "artifact_type": "decklist",
       "content_hash": "5e82f849c2a9cb091d070423a1e65a1881f68b0f68cacf63b4fd1814ecf6257d",
+      "created_at": "2026-08-06T11:29:57.802681Z",
       "derived_from": [
         "user-direct-current-project-rules",
         "repo-1.4.0"
@@ -20,6 +21,7 @@
       "artifact_id": "deck-rogshai-current",
       "artifact_type": "decklist",
       "content_hash": "b30a323d700bbe26afb2561f921ca81c9197a8739e3a2862fc7efb1b9594295c",
+      "created_at": "2026-08-06T11:29:57.802689Z",
       "derived_from": [
         "user-direct-current-project-rules",
         "repo-1.4.0"
@@ -36,6 +38,7 @@
       "artifact_id": "package-registry",
       "artifact_type": "package_registry",
       "content_hash": "b423546d3904bc41f89308978a0152f1dac334090e7075515a24921d18bb267f",
+      "created_at": "2026-08-06T11:29:57.802692Z",
       "derived_from": [
         "user-direct-current-project-rules",
         "repo-1.4.0"
@@ -52,6 +55,7 @@
       "artifact_id": "pilot-registry",
       "artifact_type": "pilot_registry",
       "content_hash": "73648509cb5761a1a3b4e0723048f6046170a65b8211a0d952070fdfda3e03c6",
+      "created_at": "2026-08-06T11:29:57.802696Z",
       "derived_from": [
         "user-direct-current-project-rules",
         "repo-1.4.0"
@@ -62,6 +66,128 @@
       "path_or_drive_id": "data/pilots/pilot_registry.json",
       "title": "pilot_registry.json",
       "transformation_ids": [],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "local-meta-observation-shells-v1",
+      "artifact_type": "local_meta_profiles",
+      "content_hash": "8d2a3e8a19030bf4019191f56f5d4ef2ecd8681b977bc8f6426a07b32eb8d299",
+      "created_at": "2026-08-06T11:29:57.807791Z",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "repo-1.5.0"
+      ],
+      "git_commit": "65333bc7765a361d6d06c1c992d2ef83eb87bffa",
+      "metadata": {
+        "complete_deck_inferred": false,
+        "official_precon_overwritten": false,
+        "real_game_count": 0
+      },
+      "package_version": "1.6.0",
+      "path_or_drive_id": "data/local_meta/profiles",
+      "title": "Versioned local opponent observation shells",
+      "transformation_ids": [
+        "transform-local-meta-learning"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "opponent-ensemble-cosmic-spiderman-ensemble-v1",
+      "artifact_type": "opponent_ensemble",
+      "content_hash": "964cb58b0a2c1c807a1f609fdcfb60b909867aa4d015ad2ca9755e003d2eeed4",
+      "created_at": "2026-08-06T11:29:57.808000Z",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures",
+        "local-meta-observation-shells-v1",
+        "repo-1.6.0"
+      ],
+      "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+      "metadata": {
+        "automatic_profile_overwrite": false,
+        "complete_deck_inferred": false,
+        "weight_mode": "unweighted"
+      },
+      "package_version": "1.7.0",
+      "path_or_drive_id": "data/opponent_ensembles/cosmic-spiderman-ensemble-v1.json",
+      "title": "cosmic-spiderman-ensemble-v1",
+      "transformation_ids": [
+        "transform-opponent-ensembles"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "opponent-ensemble-morcant-elves-ensemble-v1",
+      "artifact_type": "opponent_ensemble",
+      "content_hash": "b8fb96d6b0505be35bce425f2c90b270cae852e8f9b77507b35813d643b28c66",
+      "created_at": "2026-08-06T11:29:57.808055Z",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures",
+        "local-meta-observation-shells-v1",
+        "repo-1.6.0"
+      ],
+      "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+      "metadata": {
+        "automatic_profile_overwrite": false,
+        "complete_deck_inferred": false,
+        "weight_mode": "unweighted"
+      },
+      "package_version": "1.7.0",
+      "path_or_drive_id": "data/opponent_ensembles/morcant-elves-ensemble-v1.json",
+      "title": "morcant-elves-ensemble-v1",
+      "transformation_ids": [
+        "transform-opponent-ensembles"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "opponent-ensemble-doom-prevails-ensemble-v1",
+      "artifact_type": "opponent_ensemble",
+      "content_hash": "ef31f35351e33ef414cf5d369edc1b9e7b6ad1a567c341558d4500a48ed62ecf",
+      "created_at": "2026-08-06T11:29:57.808097Z",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures",
+        "local-meta-observation-shells-v1",
+        "repo-1.6.0"
+      ],
+      "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+      "metadata": {
+        "automatic_profile_overwrite": false,
+        "complete_deck_inferred": false,
+        "weight_mode": "unweighted"
+      },
+      "package_version": "1.7.0",
+      "path_or_drive_id": "data/opponent_ensembles/doom-prevails-ensemble-v1.json",
+      "title": "doom-prevails-ensemble-v1",
+      "transformation_ids": [
+        "transform-opponent-ensembles"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "opponent-ensemble-index-v1",
+      "artifact_type": "opponent_ensemble_index",
+      "content_hash": "c690378ec82401921859e3c1bf0017d76a43600cc5355bb0574b6bd1ed0570a5",
+      "created_at": "2026-08-06T11:29:57.808134Z",
+      "derived_from": [
+        "opponent-ensemble-cosmic-spiderman-ensemble-v1",
+        "opponent-ensemble-morcant-elves-ensemble-v1",
+        "opponent-ensemble-doom-prevails-ensemble-v1"
+      ],
+      "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+      "metadata": {
+        "ensemble_count": 3,
+        "real_game_count_used_for_weights": 0,
+        "variant_count": 12
+      },
+      "package_version": "1.7.0",
+      "path_or_drive_id": "data/opponent_ensembles/ENSEMBLE_INDEX.json",
+      "title": "Opponent ensemble index",
+      "transformation_ids": [
+        "transform-opponent-ensembles"
+      ],
       "verification_status": "hash_verified"
     }
   ],
@@ -76,6 +202,45 @@
       "location": "PLAYTEST_LAB_CURRENT_STATUS.json",
       "source_ids": [
         "repo-1.4.0"
+      ]
+    },
+    {
+      "citation_id": "cite-local-real-game-count-zero",
+      "claim_id": "claim-local-real-game-count-zero",
+      "claim_kind": "source_fact",
+      "claim_text": "No real local Commander games have been imported into the learning layer.",
+      "confidence": 1.0,
+      "derived_ids": [
+        "derived-local-meta-summary-v1"
+      ],
+      "location": "data/local_meta/LOCAL_META_REPORT.md",
+      "source_ids": []
+    },
+    {
+      "citation_id": "cite-opponent-ensembles-unweighted",
+      "claim_id": "claim-opponent-ensembles-unweighted",
+      "claim_kind": "inference",
+      "claim_text": "The three opponent ensembles are unweighted because no real games are available for observational weighting.",
+      "confidence": 1.0,
+      "derived_ids": [
+        "derived-local-meta-summary-v1",
+        "derived-opponent-ensemble-smoke-v1"
+      ],
+      "location": "data/opponent_ensembles/OPPONENT_ENSEMBLE_REPORT.md",
+      "source_ids": []
+    },
+    {
+      "citation_id": "cite-opponent-ensembles-no-full-list",
+      "claim_id": "claim-opponent-ensembles-no-full-list",
+      "claim_kind": "source_fact",
+      "claim_text": "Opponent ensemble variants do not infer complete decklists or confirm assumed cards.",
+      "confidence": 1.0,
+      "derived_ids": [],
+      "location": "data/opponent_ensembles/OPPONENT_ENSEMBLE_REPORT.md",
+      "source_ids": [
+        "opponent-ensemble-cosmic-spiderman-ensemble-v1",
+        "opponent-ensemble-morcant-elves-ensemble-v1",
+        "opponent-ensemble-doom-prevails-ensemble-v1"
       ]
     }
   ],
@@ -96,15 +261,55 @@
       "model_label": "structural_model_estimates",
       "transformation_id": "transform-package-extraction",
       "verification_status": "partially_verified"
+    },
+    {
+      "confidence": 1.0,
+      "content_hash": "d29d8ef72d9a99f0d5a523d756bebf5d0c8bde9358ea032e20c3cd48d7be4b21",
+      "data_type": "local_meta_observation_summary",
+      "derived_from": [
+        "local-meta-observation-shells-v1"
+      ],
+      "derived_id": "derived-local-meta-summary-v1",
+      "metadata": {
+        "insufficient_data": true,
+        "missing_data_estimated": false,
+        "real_game_count": 0
+      },
+      "model_label": "empirical_playtest_observations",
+      "transformation_id": "transform-local-meta-learning",
+      "verification_status": "verified"
+    },
+    {
+      "confidence": 0.25,
+      "content_hash": "4c25037c573de437c46bbde1e04e8c1c49fb732147c9e6cac937193aec51e49b",
+      "data_type": "opponent_ensemble_structural_estimates",
+      "derived_from": [
+        "opponent-ensemble-cosmic-spiderman-ensemble-v1",
+        "opponent-ensemble-morcant-elves-ensemble-v1",
+        "opponent-ensemble-doom-prevails-ensemble-v1",
+        "deck-korvold-current",
+        "deck-rogshai-current"
+      ],
+      "derived_id": "derived-opponent-ensemble-smoke-v1",
+      "metadata": {
+        "automatic_deck_application": false,
+        "empirical_winrates": false,
+        "real_game_count_used_for_weights": 0
+      },
+      "model_label": "structural_model_estimates",
+      "transformation_id": "transform-opponent-ensembles",
+      "verification_status": "partially_verified"
     }
   ],
-  "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+  "generated_at": "2026-08-06T11:29:57.806578Z",
+  "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
   "graph_id": "commander-playtest-lab-provenance-1.5.0",
   "licenses": [
     {
       "full_text_storage_allowed": true,
       "license_id": "private-project",
       "license_name": "Private project",
+      "notes": null,
       "restrictions": [
         "no_external_redistribution"
       ],
@@ -116,6 +321,7 @@
       "full_text_storage_allowed": false,
       "license_id": "structured-external",
       "license_name": "Structured external reference use",
+      "notes": null,
       "restrictions": [
         "no_unlicensed_full_text"
       ],
@@ -127,20 +333,26 @@
       ]
     }
   ],
-  "package_version": "1.4.0",
+  "package_version": "1.7.0",
   "schema_version": "1.0.0",
   "sources": [
     {
       "author": "Moritz Endres",
       "confidence": 1.0,
       "content_hash": "643bd517729c6eac274669a6891d3ff5f99110dafd73b7bcfdc89958316a54a3",
+      "derived_from": [],
       "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
       "license": "user_provided",
+      "notes": null,
       "observed": true,
       "package_version": "1.4.0",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T11:29:57.802582Z",
       "source_id": "user-direct-current-project-rules",
       "source_type": "direct_user_statement",
+      "supersedes": [],
       "title": "Current binding MTG project rules",
+      "transformation": null,
       "url_or_drive_id": "project-instructions-2026-08-02",
       "usage_rights": [
         "project_internal_use"
@@ -148,15 +360,22 @@
       "verification_status": "verified"
     },
     {
+      "author": null,
       "confidence": 1.0,
       "content_hash": "4d6bcb0dfac116a4431a91e9e93be936f63dddd73802f1ee338960314ffeac96",
+      "derived_from": [],
       "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
       "license": "private_project",
+      "notes": null,
       "observed": true,
       "package_version": "1.4.0",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T11:29:57.802640Z",
       "source_id": "drive-current-status-1.4.0",
       "source_type": "google_drive_file",
+      "supersedes": [],
       "title": "PLAYTEST_LAB_CURRENT_STATUS.json",
+      "transformation": null,
       "url_or_drive_id": "1vHWqJV5Rvh4HqiqVyUDJ8yaS1zNGUme4",
       "usage_rights": [
         "project_internal_use"
@@ -164,15 +383,22 @@
       "verification_status": "hash_verified"
     },
     {
+      "author": null,
       "confidence": 1.0,
       "content_hash": "2d190763d491f147b9ca5629e0f8cc24f95ae527efe8dae22144eee2cedfb603",
+      "derived_from": [],
       "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
       "license": "private_project",
+      "notes": null,
       "observed": true,
       "package_version": "1.4.0",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T11:29:57.802649Z",
       "source_id": "repo-1.4.0",
       "source_type": "repository",
+      "supersedes": [],
       "title": "commander-playtest-lab 1.4.0 repository",
+      "transformation": null,
       "url_or_drive_id": "1QrPVlbP4CNfvwtzl0dv6lVXmG5ayHSA5",
       "usage_rights": [
         "project_internal_use"
@@ -180,28 +406,136 @@
       "verification_status": "verified"
     },
     {
+      "author": null,
       "confidence": 0.25,
       "content_hash": "eafe2ac0fb717121706ac4e732c0ec592c2a571e14f6228ddf69487209854012",
+      "derived_from": [],
       "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
       "license": "private_project",
+      "notes": null,
       "observed": false,
       "package_version": "1.4.0",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T11:29:57.802654Z",
       "source_id": "synthetic-opponent-fixtures",
       "source_type": "synthetic_assumption",
+      "supersedes": [],
       "title": "Synthetic structural opponent fixtures",
+      "transformation": null,
       "url_or_drive_id": "src/commander_lab/engine/structural/fixtures.py",
       "usage_rights": [
         "project_internal_use"
       ],
       "verification_status": "hash_verified"
+    },
+    {
+      "author": null,
+      "confidence": 1.0,
+      "content_hash": "dd4b2f48c34f137c114a233dcf0d27e16f58f0d8ad760e88085ffb1d309d3328",
+      "derived_from": [],
+      "git_commit": "82af48877fc4e04687a2f40a89c02b03c107e986",
+      "license": "private_project",
+      "notes": null,
+      "observed": true,
+      "package_version": "1.5.0",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T11:29:57.806578Z",
+      "source_id": "repo-1.5.0",
+      "source_type": "repository",
+      "supersedes": [],
+      "title": "commander-playtest-lab 1.5.0 repository",
+      "transformation": null,
+      "url_or_drive_id": "1_WV6yevM82x0MundVlLHtgmGqTDqopXH",
+      "usage_rights": [
+        "project_internal_use"
+      ],
+      "verification_status": "verified"
+    },
+    {
+      "author": null,
+      "confidence": 1.0,
+      "content_hash": "ad227b48a9c708f90d9a8ece3de2a6e6fa8874951c01aad7bb21f8ca332042cc",
+      "derived_from": [],
+      "git_commit": "65333bc7765a361d6d06c1c992d2ef83eb87bffa",
+      "license": "private_project",
+      "notes": null,
+      "observed": true,
+      "package_version": "1.6.0",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T11:29:57.806578Z",
+      "source_id": "repo-1.6.0",
+      "source_type": "repository",
+      "supersedes": [],
+      "title": "commander-playtest-lab 1.6.0 repository",
+      "transformation": null,
+      "url_or_drive_id": "1att92Esr96S-97W4s9fc1P7o7sFS0h2L",
+      "usage_rights": [
+        "project_internal_use"
+      ],
+      "verification_status": "verified"
+    },
+    {
+      "author": null,
+      "confidence": 1.0,
+      "content_hash": "a76502cfb1c789fc403812aec243475d2631cc9926334ff9c0a336e3a84b3cf4",
+      "derived_from": [],
+      "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+      "license": "private_project",
+      "notes": null,
+      "observed": true,
+      "package_version": "1.7.0",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T11:29:57.806578Z",
+      "source_id": "repo-1.7.0-implementation",
+      "source_type": "repository",
+      "supersedes": [],
+      "title": "commander-playtest-lab 1.7.0 repository",
+      "transformation": null,
+      "url_or_drive_id": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+      "usage_rights": [
+        "project_internal_use"
+      ],
+      "verification_status": "verified"
     }
   ],
-  "supersessions": [],
+  "supersessions": [
+    {
+      "authority_rank_new": 80,
+      "authority_rank_old": 80,
+      "effective_at": "2026-08-06T11:29:57.806578Z",
+      "historical_record_retained": true,
+      "new_id": "repo-1.5.0",
+      "old_id": "repo-1.4.0",
+      "reason": "newer versioned technical repository state; historical source retained",
+      "supersession_id": "supersede-repository-1.4-to-1.5"
+    },
+    {
+      "authority_rank_new": 80,
+      "authority_rank_old": 80,
+      "effective_at": "2026-08-06T11:29:57.806578Z",
+      "historical_record_retained": true,
+      "new_id": "repo-1.6.0",
+      "old_id": "repo-1.5.0",
+      "reason": "newer versioned technical repository state; historical source retained",
+      "supersession_id": "supersede-repository-1.5-to-1.6"
+    },
+    {
+      "authority_rank_new": 80,
+      "authority_rank_old": 80,
+      "effective_at": "2026-08-06T11:29:57.806578Z",
+      "historical_record_retained": true,
+      "new_id": "repo-1.7.0-implementation",
+      "old_id": "repo-1.6.0",
+      "reason": "newer versioned technical repository state; historical source retained",
+      "supersession_id": "supersede-repository-1.6-to-1.7"
+    }
+  ],
   "transformations": [
     {
       "code_hash": "83eaba42aaad14a66337f1ba9277e62b91970f165be18bbbaf8ae95925da5826",
       "description": "Validates curated primer rules against the safe DSL and compiles reversible pilot overlays.",
       "deterministic": true,
+      "executed_at": "2026-08-06T11:29:57.802833Z",
       "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
       "input_ids": [
         "primer-registry"
@@ -211,12 +545,14 @@
         "pilot-registry"
       ],
       "package_version": "1.4.0",
+      "parameters_hash": null,
       "transformation_id": "transform-primer-to-policy"
     },
     {
       "code_hash": "d31d81bd2218fc2c5418f562f0b9a2da5f872c23c5bf8b2e19e22abfbfe14116",
       "description": "Combines curated package definitions, roles and conservative co-occurrence analysis.",
       "deterministic": true,
+      "executed_at": "2026-08-06T11:29:57.802843Z",
       "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
       "input_ids": [
         "package-registry",
@@ -228,7 +564,51 @@
         "derived-package-analysis"
       ],
       "package_version": "1.4.0",
+      "parameters_hash": null,
       "transformation_id": "transform-package-extraction"
+    },
+    {
+      "code_hash": "0761ddc533e0479ea13ad21242d0fc4e4e1f34b6c639b8254b4ca2dace94f81a",
+      "description": "Creates append-only versioned local observation profiles and conservative uncertainty summaries without filling missing fields.",
+      "deterministic": true,
+      "executed_at": "2026-08-06T11:29:57.806578Z",
+      "git_commit": "65333bc7765a361d6d06c1c992d2ef83eb87bffa",
+      "input_ids": [
+        "user-direct-current-project-rules",
+        "repo-1.5.0"
+      ],
+      "name": "Local meta learning",
+      "output_ids": [
+        "local-meta-observation-shells-v1",
+        "derived-local-meta-summary-v1"
+      ],
+      "package_version": "1.6.0",
+      "parameters_hash": null,
+      "transformation_id": "transform-local-meta-learning"
+    },
+    {
+      "code_hash": "6f7f4712d38dd23663be0b313b6f2454845826d488b7e4c76f88ac2ddccc9253",
+      "description": "Constructs versioned uncertainty variants from known constraints and explicitly synthetic role assumptions, then evaluates structural sensitivity without applying deck changes.",
+      "deterministic": true,
+      "executed_at": "2026-08-06T11:29:57.806578Z",
+      "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+      "input_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures",
+        "local-meta-observation-shells-v1",
+        "repo-1.6.0"
+      ],
+      "name": "Opponent ensemble construction and robustness evaluation",
+      "output_ids": [
+        "opponent-ensemble-cosmic-spiderman-ensemble-v1",
+        "opponent-ensemble-morcant-elves-ensemble-v1",
+        "opponent-ensemble-doom-prevails-ensemble-v1",
+        "opponent-ensemble-index-v1",
+        "derived-opponent-ensemble-smoke-v1"
+      ],
+      "package_version": "1.7.0",
+      "parameters_hash": "c690378ec82401921859e3c1bf0017d76a43600cc5355bb0574b6bd1ed0570a5",
+      "transformation_id": "transform-opponent-ensembles"
     }
   ]
 }
