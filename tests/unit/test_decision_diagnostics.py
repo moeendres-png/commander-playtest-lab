@@ -53,6 +53,7 @@ def test_integrated_ten_step_smoke(tmp_path):
     assert [row.step for row in report.steps]==list(range(1,11))
     assert all(row.source_paths and row.source_hashes and row.validation_level for row in report.steps)
     assert report.external_engine_used is False
+    assert 'through 0 retained records' not in report.steps[4].result_summary
 
 
 def test_event_log_instrumentation_builds_auditable_dataset(tmp_path):

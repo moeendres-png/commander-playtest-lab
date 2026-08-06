@@ -616,7 +616,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
     trace = provenance_store.trace(trace_id)
     trace_path = run_dir / "provenance_trace.json"
     atomic_write_json(trace_path, trace)
-    add(5, "trace_provenance", [relative(provenance_store.path), relative(trace_path)], "provenance_verified", f"traced {trace_id} through {len(trace.get('records', trace.get('trace', [])))} retained records")
+    add(5, "trace_provenance", [relative(provenance_store.path), relative(trace_path)], "provenance_verified", f"traced {trace_id} through {len(trace.get('lineage', trace.get('records', trace.get('trace', []))))} retained records")
 
     # 6. Load the append-only local observed profile without filling missing data.
     local_path = root / "data/local_meta/profiles/alen_morcant_observed_v1.json"

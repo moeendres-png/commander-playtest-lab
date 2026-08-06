@@ -610,7 +610,7 @@
   "source": {
     "source_type": "plaintext",
     "source_name": "korvold_current.txt",
-    "source_path": "/mnt/data/commander-playtest-lab/data/decks/korvold_current.txt",
+    "source_path": "/mnt/data/audit_12_8_10/repo/repo/data/decks/korvold_current.txt",
     "retrieved_at": null,
     "data_as_of": null,
     "sha256": null,

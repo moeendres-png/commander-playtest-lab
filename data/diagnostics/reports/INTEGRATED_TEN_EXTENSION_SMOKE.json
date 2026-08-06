@@ -26,7 +26,7 @@
       "result_summary": "compiled 7 validated rules",
       "source_hashes": [
         "716f4c777db1192ec20fb354e3fe3e8d53fceee66992402eaf4fddec6b5eb65a",
-        "90ae538896eaaa811f5b923f40ec996136da69b8d04f14dc3552418939897392"
+        "4b8d5a1b78fab0f856dce1268a98ce736377ee640e4ca00e80c5f8272f6cb735"
       ],
       "source_paths": [
         "data/primer_rules/rules/korvold_current_rules.json",
@@ -70,10 +70,10 @@
     },
     {
       "name": "trace_provenance",
-      "result_summary": "traced derived-diagnostic-smoke-v1.10 through 0 retained records",
+      "result_summary": "traced derived-diagnostic-dataset-v1.10.1 through 7 retained records",
       "source_hashes": [
-        "645810906a8da8bb0b9974438ac021d6873b250ce2103dd0b7742ba01fd4f9d1",
-        "0acfc4dd94aa5bedda4506be7e092e07e37f85bcb556c122e4d3d70204664dab"
+        "c0b811e9271b62a5b1da4447387091c1024f973c890721b1e94e2c6ef4cbf098",
+        "1029f00814a77356d156c79424f64a759fee03d216affebfbcf7184301806b6c"
       ],
       "source_paths": [
         "data/provenance/provenance_graph.json",
