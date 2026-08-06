@@ -23,6 +23,13 @@ from commander_lab.models import (
     ComparePolicyVersionsInput,
     RunPolicyEvalInput,
     GeneratePrimerConflictReportInput,
+    ListPilotProfilesInput,
+    InspectPilotInput,
+    RunPilotBenchmarkInput,
+    ComparePilotsInput,
+    RunPilotEnsembleInput,
+    TestVariantAcrossPilotsInput,
+    GeneratePilotRobustnessReportInput,
     GoldfishInput,
     HoldoutInput,
     ImportMetaDeckInput,
@@ -107,6 +114,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("compare_policy_versions", "Compare two immutable compiled pilot policy versions.", ComparePolicyVersionsInput, "compare_policy_versions"),
     ToolDefinition("run_policy_eval", "Evaluate a compiled pilot policy against controlled golden scenarios.", RunPolicyEvalInput, "run_policy_eval"),
     ToolDefinition("generate_primer_conflict_report", "Detect and report contradictory primer rules without silently merging them.", GeneratePrimerConflictReportInput, "generate_primer_conflict_report"),
+    ToolDefinition("list_pilot_profiles", "List versioned non-omniscient pilot profiles and supported deck hashes.", ListPilotProfilesInput, "list_pilot_profiles"),
+    ToolDefinition("inspect_pilot", "Inspect one pilot profile, weights, source rules and information boundary.", InspectPilotInput, "inspect_pilot"),
+    ToolDefinition("run_pilot_benchmark", "Run paired structural benchmarks across realistic pilots for one deck.", RunPilotBenchmarkInput, "run_pilot_benchmark"),
+    ToolDefinition("compare_pilots", "Compare selected pilot profiles under identical structural seeds and opponents.", ComparePilotsInput, "compare_pilots"),
+    ToolDefinition("run_pilot_ensemble", "Evaluate an equal or custom weighted pilot ensemble, worst pilot and median pilot.", RunPilotEnsembleInput, "run_pilot_ensemble"),
+    ToolDefinition("test_variant_across_pilots", "Test a deck variant across multiple pilots without applying the change.", TestVariantAcrossPilotsInput, "test_variant_across_pilots"),
+    ToolDefinition("generate_pilot_robustness_report", "Generate a Markdown pilot robustness report from a structural result.", GeneratePilotRobustnessReportInput, "generate_pilot_robustness_report"),
 )
 
 

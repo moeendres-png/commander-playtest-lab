@@ -1,0 +1,61 @@
+{
+  "ensembles": [
+    {
+      "deck_id": "korvold/current",
+      "ensemble_id": "korvold.equal.v1",
+      "estimate_type": "structural_model_estimates",
+      "members": [
+        {
+          "pilot_name": "KorvoldValuePilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldSacrificePilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldLandRebuildPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldAggressivePilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldConservativePilot",
+          "weight": 0.2
+        }
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "deck_id": "rogshai/current",
+      "ensemble_id": "rogshai.equal.v1",
+      "estimate_type": "structural_model_estimates",
+      "members": [
+        {
+          "pilot_name": "RogShaiTempoPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiVoltronPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiSpellslingerPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiControlPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiProtectedFinishPilot",
+          "weight": 0.2
+        }
+      ],
+      "version": "1.0.0"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

@@ -21,14 +21,21 @@ def test_all_required_tools_are_exposed() -> None:
         "import_primer", "extract_primer_rules", "validate_pilot_rules",
         "compile_pilot_policy", "compare_policy_versions", "run_policy_eval",
         "generate_primer_conflict_report",
+        "generate_pilot_robustness_report",
+        "test_variant_across_pilots",
+        "run_pilot_ensemble",
+        "compare_pilots",
+        "run_pilot_benchmark",
+        "inspect_pilot",
+        "list_pilot_profiles",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 39
-    assert len({schema["name"] for schema in schemas}) == 39
+    assert len(schemas) == 46
+    assert len({schema["name"] for schema in schemas}) == 46
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

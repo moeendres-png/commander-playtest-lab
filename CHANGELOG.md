@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0 - 2026-08-06
+
+- Add five realistic Korvold and five realistic RogShai pilot profiles.
+- Add versioned pilot registry, information boundaries and deterministic parameter hashes.
+- Add equal/custom pilot ensembles, worst/median pilot and robustness analysis.
+- Add seven multi-pilot Function Tools and ten Golden Scenario definitions.
+- Move Phase-12.2 replay evidence from an ignored generated path to a tracked fixture.
+- Preserve canonical decks, inventory and allocation unchanged.
+
 ## 1.2.0 - 2026-08-06
 
 - Added a safe Primer-to-Pilot rule DSL with fixed fields and operators; primer text is never executed.

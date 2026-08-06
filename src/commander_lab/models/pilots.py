@@ -21,6 +21,32 @@ class PilotDecisionMode(StrEnum):
     STOCHASTIC = "stochastic"
 
 
+class PilotInformationMode(StrEnum):
+    """Information boundary available to a structural pilot.
+
+    Current production pilots are restricted to visible state plus explicitly
+    modelled public/known cards. No mode grants library-order or hidden-hand
+    access.
+    """
+
+    VISIBLE_ONLY = "visible_only"
+    VISIBLE_PLUS_KNOWN_CARDS = "visible_plus_known_cards"
+
+
+class PilotInformationPolicy(FrozenModel):
+    mode: PilotInformationMode = PilotInformationMode.VISIBLE_PLUS_KNOWN_CARDS
+    hidden_opponent_hands: bool = False
+    random_library_order: bool = False
+    exact_future_draws: bool = False
+    opponent_hand_model: Literal["none", "plausible_distribution"] = "plausible_distribution"
+
+    @model_validator(mode="after")
+    def prohibit_omniscience(self) -> "PilotInformationPolicy":
+        if self.hidden_opponent_hands or self.random_library_order or self.exact_future_draws:
+            raise ValueError("pilot information policies may not enable hidden or future information")
+        return self
+
+
 class PilotUtilityWeights(FrozenModel):
     survival: float = Field(default=1.0, ge=-5.0, le=5.0)
     mana_efficiency: float = Field(default=1.0, ge=-5.0, le=5.0)
@@ -46,6 +72,51 @@ class PilotConfig(FrozenModel):
     temperature: float | None = Field(default=None, gt=0.0, le=5.0)
     mistake_rate: float | None = Field(default=None, ge=0.0, le=0.5)
     reserve_mana_target: float | None = Field(default=None, ge=0.0, le=10.0)
+    profile_version: str = Field(default="1.0.0", pattern=r"^\d+\.\d+\.\d+$")
+    parameter_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    source_rule_ids: tuple[str, ...] = ()
+    allowed_deviation: float = Field(default=0.0, ge=0.0, le=2.0)
+    supported_deck_hashes: tuple[str, ...] = ()
+    information_policy: PilotInformationPolicy = Field(default_factory=PilotInformationPolicy)
+
+
+class PilotProfile(FrozenModel):
+    profile_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._:-]{2,127}$")
+    pilot_name: str
+    commander_family: Literal["korvold", "rogshai", "generic"]
+    version: str = Field(pattern=r"^\d+\.\d+\.\d+$")
+    parameter_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_rule_ids: tuple[str, ...]
+    weights: PilotUtilityWeights
+    mode: PilotDecisionMode
+    allowed_deviation: float = Field(ge=0.0, le=2.0)
+    supported_deck_hashes: tuple[str, ...]
+    information_policy: PilotInformationPolicy = Field(default_factory=PilotInformationPolicy)
+    description: str
+    is_baseline: bool = False
+
+
+class PilotEnsembleMember(FrozenModel):
+    pilot_name: str
+    weight: float = Field(gt=0.0, le=1.0)
+
+
+class PilotEnsembleDefinition(FrozenModel):
+    ensemble_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._:-]{2,127}$")
+    version: str = Field(pattern=r"^\d+\.\d+\.\d+$")
+    deck_id: str
+    members: tuple[PilotEnsembleMember, ...]
+    estimate_type: Literal["structural_model_estimates"] = "structural_model_estimates"
+
+    @model_validator(mode="after")
+    def valid_weights(self) -> "PilotEnsembleDefinition":
+        if not self.members:
+            raise ValueError("pilot ensemble must contain at least one member")
+        if abs(sum(member.weight for member in self.members) - 1.0) > 1e-9:
+            raise ValueError("pilot ensemble weights must sum to 1.0")
+        if len({member.pilot_name.casefold() for member in self.members}) != len(self.members):
+            raise ValueError("pilot ensemble members must be unique")
+        return self
 
 
 class PilotCommanderView(FrozenModel):

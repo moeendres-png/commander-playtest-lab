@@ -213,7 +213,7 @@ def test_rule_with_missing_required_card_does_not_trigger() -> None:
 
 
 def test_saved_replay_evidence_is_structural_and_parseable() -> None:
-    replay = ROOT / "data/runs/tool_runs/matchup-2d03c57b/events/matchup-2d03c57b-00000000.jsonl"
+    replay = ROOT / "tests/fixtures/replays/phase12_2_structural_replay.jsonl"
     rows = [json.loads(line) for line in replay.read_text(encoding="utf-8").splitlines() if line.strip()]
     assert rows
     assert all(row["estimate_type"] == "structural_model_estimates" for row in rows)
@@ -227,7 +227,7 @@ def test_replay_audit_reports_coverage_without_counterfactual_claim() -> None:
     )
     report = compiler.audit_replay_coverage(
         policy=policy,
-        replay_path="data/runs/tool_runs/matchup-2d03c57b/events/matchup-2d03c57b-00000000.jsonl",
+        replay_path="tests/fixtures/replays/phase12_2_structural_replay.jsonl",
     )
     assert report["event_count"] > 0
     assert report["estimate_types"] == ["structural_model_estimates"]

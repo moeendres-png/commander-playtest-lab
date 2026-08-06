@@ -385,3 +385,78 @@ class RunPolicyEvalInput(FrozenModel):
 class GeneratePrimerConflictReportInput(FrozenModel):
     rule_paths: tuple[str, ...]
     output_name: str = "primer_conflict_report.json"
+
+
+class ListPilotProfilesInput(FrozenModel):
+    commander_family: Literal["korvold", "rogshai", "generic"] | None = None
+    include_baselines: bool = True
+
+
+class InspectPilotInput(FrozenModel):
+    pilot_name: str
+
+
+class RunPilotBenchmarkInput(FrozenModel):
+    deck_id: str
+    pilot_names: tuple[str, ...] = ()
+    opponent_deck_ids: tuple[str, ...] = (
+        "opponent/morcant-elves",
+        "opponent/blight-curse-precon",
+        "opponent/doom-prevails-precon",
+    )
+    iterations: int = Field(default=8, ge=1, le=500)
+    seed: int = Field(default=20260806, ge=0)
+    max_turns: int = Field(default=24, ge=5, le=100)
+    output_name: str = "latest_pilot_benchmark"
+
+
+class ComparePilotsInput(RunPilotBenchmarkInput):
+    pilot_names: tuple[str, ...] = Field(min_length=2)
+
+
+class PilotWeightInput(FrozenModel):
+    pilot_name: str
+    weight: float = Field(gt=0.0, le=1.0)
+
+
+class RunPilotEnsembleInput(FrozenModel):
+    deck_id: str
+    ensemble_id: str | None = None
+    custom_weights: tuple[PilotWeightInput, ...] = ()
+    opponent_deck_ids: tuple[str, ...] = (
+        "opponent/morcant-elves",
+        "opponent/blight-curse-precon",
+        "opponent/doom-prevails-precon",
+    )
+    iterations: int = Field(default=8, ge=1, le=500)
+    seed: int = Field(default=20260806, ge=0)
+    max_turns: int = Field(default=24, ge=5, le=100)
+    output_name: str = "latest_pilot_ensemble"
+
+    @model_validator(mode="after")
+    def require_one_weight_source(self) -> "RunPilotEnsembleInput":
+        if bool(self.ensemble_id) == bool(self.custom_weights):
+            raise ValueError("provide exactly one of ensemble_id or custom_weights")
+        if self.custom_weights and abs(sum(item.weight for item in self.custom_weights) - 1.0) > 1e-9:
+            raise ValueError("custom pilot weights must sum to 1.0")
+        return self
+
+
+class TestVariantAcrossPilotsInput(FrozenModel):
+    baseline_deck_id: str
+    variant_deck_id: str
+    pilot_names: tuple[str, ...]
+    opponent_deck_ids: tuple[str, ...] = (
+        "opponent/morcant-elves",
+        "opponent/blight-curse-precon",
+        "opponent/doom-prevails-precon",
+    )
+    iterations: int = Field(default=8, ge=1, le=500)
+    seed: int = Field(default=20260806, ge=0)
+    max_turns: int = Field(default=24, ge=5, le=100)
+    output_name: str = "latest_variant_across_pilots"
+
+
+class GeneratePilotRobustnessReportInput(FrozenModel):
+    result_path: str
+    output_name: str = "pilot_robustness_report.md"
