@@ -1,3 +1,6 @@
+## 1.6.0 - 2026-08-06
+- Added append-only local meta learning, observed opponent profile versions, conservative shrinkage, drift and scenario tools.
+
 ## 1.5.0 - 2026-08-06
 - Added complete source/artifact/derivation provenance graph, supersession and claim auditing.
 - Added simulation identity hashes and six provenance tools.

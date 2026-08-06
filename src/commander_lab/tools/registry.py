@@ -40,6 +40,9 @@ from commander_lab.models import (
     TraceArtifactProvenanceInput, TraceRecommendationSourcesInput,
     ListSupersededSourcesInput, VerifySourceHashInput,
     GenerateProvenanceReportInput, AuditUnreferencedClaimsInput,
+    IngestLocalGameInput, UpdateLocalOpponentProfileInput, InspectLocalMetaInput,
+    CompareObservedToAssumedInput, DetectLocalMetaDriftInput,
+    BuildLocalMetaScenariosInput, GenerateLocalMetaReportInput,
     GoldfishInput,
     HoldoutInput,
     ImportMetaDeckInput,
@@ -144,6 +147,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("verify_source_hash", "Verify a source file against its registered content hash.", VerifySourceHashInput, "verify_source_hash"),
     ToolDefinition("generate_provenance_report", "Generate a complete provenance graph report.", GenerateProvenanceReportInput, "generate_provenance_report"),
     ToolDefinition("audit_unreferenced_claims", "Audit claims lacking sources, model labels or explicit inference labels.", AuditUnreferencedClaimsInput, "audit_unreferenced_claims"),
+    ToolDefinition("ingest_local_game", "Ingest one append-only real local game without filling missing data.", IngestLocalGameInput, "ingest_local_game"),
+    ToolDefinition("update_local_opponent_profile", "Create a versioned shrinkage-based observed opponent profile.", UpdateLocalOpponentProfileInput, "update_local_opponent_profile"),
+    ToolDefinition("inspect_local_meta", "Inspect local game count, profile versions and uncertainty.", InspectLocalMetaInput, "inspect_local_meta"),
+    ToolDefinition("compare_observed_to_assumed", "Compare direct observations with an assumed baseline without inferring a full deck.", CompareObservedToAssumedInput, "compare_observed_to_assumed"),
+    ToolDefinition("detect_local_meta_drift", "Detect drift between versioned observed opponent profiles.", DetectLocalMetaDriftInput, "detect_local_meta_drift"),
+    ToolDefinition("build_local_meta_scenarios", "Build primary, holdout, sensitivity and ensemble scenarios from observed profiles.", BuildLocalMetaScenariosInput, "build_local_meta_scenarios"),
+    ToolDefinition("generate_local_meta_report", "Generate a local meta report with explicit data quantity and uncertainty.", GenerateLocalMetaReportInput, "generate_local_meta_report"),
 )
 
 

@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "observation_statuses": [
+    "directly_observed",
+    "reported_by_player",
+    "inferred_role",
+    "unknown",
+    "synthetic_assumption"
+  ],
+  "missing_data_policy": "never_estimate",
+  "append_only": true
+}

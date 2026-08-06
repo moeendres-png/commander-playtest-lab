@@ -435,3 +435,7 @@ __all__.extend([
     "ListSupersededSourcesInput", "VerifySourceHashInput",
     "GenerateProvenanceReportInput", "AuditUnreferencedClaimsInput",
 ])
+
+from .local_meta import (LOCAL_META_SCHEMA_VERSION, ObservationStatus, LocalCardObservation, LocalRoleObservation, LocalGameParticipant, LocalGameRecord, LocalFrequencyEstimate, LocalOpponentProfileVersion, LocalMetaSnapshot)
+from .tooling import (IngestLocalGameInput, UpdateLocalOpponentProfileInput, InspectLocalMetaInput, CompareObservedToAssumedInput, DetectLocalMetaDriftInput, BuildLocalMetaScenariosInput, GenerateLocalMetaReportInput)
+__all__.extend(["LOCAL_META_SCHEMA_VERSION","ObservationStatus","LocalCardObservation","LocalRoleObservation","LocalGameParticipant","LocalGameRecord","LocalFrequencyEstimate","LocalOpponentProfileVersion","LocalMetaSnapshot","IngestLocalGameInput","UpdateLocalOpponentProfileInput","InspectLocalMetaInput","CompareObservedToAssumedInput","DetectLocalMetaDriftInput","BuildLocalMetaScenariosInput","GenerateLocalMetaReportInput"])

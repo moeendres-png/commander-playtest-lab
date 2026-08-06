@@ -53,6 +53,9 @@ from commander_lab.models import (
     TraceArtifactProvenanceInput, TraceRecommendationSourcesInput,
     ListSupersededSourcesInput, VerifySourceHashInput,
     GenerateProvenanceReportInput, AuditUnreferencedClaimsInput,
+    IngestLocalGameInput, UpdateLocalOpponentProfileInput, InspectLocalMetaInput,
+    CompareObservedToAssumedInput, DetectLocalMetaDriftInput,
+    BuildLocalMetaScenariosInput, GenerateLocalMetaReportInput,
     PilotEnsembleDefinition,
     PilotEnsembleMember,
     CompiledPilotPolicy,
@@ -140,6 +143,8 @@ from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
 from commander_lab.reporting import calibration_report_markdown
 from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
 from commander_lab.provenance import ProvenanceStore
+from commander_lab.local_meta import LocalMetaStore
+from commander_lab.models.local_meta import LocalGameRecord
 
 from .candidates import load_candidate_profiles
 
@@ -184,6 +189,9 @@ class CommanderToolService:
 
     def _provenance(self) -> ProvenanceStore:
         return ProvenanceStore(self.root)
+
+    def _local_meta(self) -> LocalMetaStore:
+        return LocalMetaStore(self.root)
 
     def _load_limits(self) -> CostLimits:
         path = self.root / "config/openai_workflow.json"
@@ -1266,6 +1274,44 @@ class CommanderToolService:
             }
         return self._invoke("generate_package_report", request, work, deck_ids=(request.deck_id,))
 
+
+
+    def ingest_local_game(self, request: IngestLocalGameInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            path=self._project_path(request.source_path); payload=json.loads(path.read_text(encoding="utf-8")); game=LocalGameRecord.model_validate(payload)
+            result=self._local_meta().ingest(game); result.update({"complete_opponent_deck_inferred":False,"append_only":True})
+            return result
+        return self._invoke("ingest_local_game", request, work, estimate_type="empirical_playtest_observations")
+
+    def update_local_opponent_profile(self, request: UpdateLocalOpponentProfileInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            p=self._local_meta().update_profile(request.opponent_key,request.commander,request.deck_version_label)
+            return {"profile":p.model_dump(mode="json"),"official_precon_overwritten":False,"complete_deck_inferred":False}
+        return self._invoke("update_local_opponent_profile", request, work, estimate_type="mixed_real_and_structural")
+
+    def inspect_local_meta(self, request: InspectLocalMetaInput) -> ToolResponse:
+        return self._invoke("inspect_local_meta", request, self._local_meta().inspect, estimate_type="empirical_playtest_observations")
+
+    def compare_observed_to_assumed(self, request: CompareObservedToAssumedInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            assumed=json.loads(self._project_path(request.assumed_profile_path).read_text()) if request.assumed_profile_path else None
+            return self._local_meta().compare_observed_to_assumed(request.opponent_key,assumed)
+        return self._invoke("compare_observed_to_assumed", request, work, estimate_type="mixed_real_and_structural")
+
+    def detect_local_meta_drift(self, request: DetectLocalMetaDriftInput) -> ToolResponse:
+        return self._invoke("detect_local_meta_drift", request, lambda:self._local_meta().detect_drift(request.opponent_key), estimate_type="empirical_playtest_observations")
+
+    def build_local_meta_scenarios(self, request: BuildLocalMetaScenariosInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            result=self._local_meta().build_scenarios(); target=self.root/"data/local_meta/exports"/Path(request.output_name).name; atomic_write_json(target,result); result["output_path"]=str(target.relative_to(self.root)); return result
+        return self._invoke("build_local_meta_scenarios", request, work, estimate_type="mixed_real_and_structural")
+
+    def generate_local_meta_report(self, request: GenerateLocalMetaReportInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            data=self._local_meta().inspect(); target=self.root/"data/local_meta"/Path(request.output_name).name
+            lines=["# Local Meta Learning Report","",f"Status: `{'local_meta_learning_ready_with_insufficient_data' if data['real_game_count']<5 else 'local_meta_learning_ready'}`",f"Real imported games: {data['real_game_count']}",f"Profiles: {data['profile_count']}",f"Data quality: {data['data_quality']}","","Missing data are not estimated. Observed cards do not imply a complete list. Official precon profiles are never overwritten automatically."]
+            atomic_write_text(target,"\n".join(lines)+"\n"); return {"report_path":str(target.relative_to(self.root)),**data}
+        return self._invoke("generate_local_meta_report", request, work, estimate_type="mixed_real_and_structural")
 
     def trace_artifact_provenance(self, request: TraceArtifactProvenanceInput) -> ToolResponse:
         return self._invoke("trace_artifact_provenance", request, lambda: self._provenance().trace(request.artifact_id))

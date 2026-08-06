@@ -527,3 +527,29 @@ class GenerateProvenanceReportInput(FrozenModel):
 
 class AuditUnreferencedClaimsInput(FrozenModel):
     fail_on_unreferenced: bool = False
+
+
+# Local meta learning tool inputs
+class IngestLocalGameInput(FrozenModel):
+    source_path: str
+
+class UpdateLocalOpponentProfileInput(FrozenModel):
+    opponent_key: str
+    commander: str
+    deck_version_label: str = "unknown"
+
+class InspectLocalMetaInput(FrozenModel):
+    include_profiles: bool = True
+
+class CompareObservedToAssumedInput(FrozenModel):
+    opponent_key: str
+    assumed_profile_path: str | None = None
+
+class DetectLocalMetaDriftInput(FrozenModel):
+    opponent_key: str
+
+class BuildLocalMetaScenariosInput(FrozenModel):
+    output_name: str = "local_meta_scenarios.json"
+
+class GenerateLocalMetaReportInput(FrozenModel):
+    output_name: str = "local_meta_report.md"
