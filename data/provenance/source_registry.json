@@ -159,5 +159,134 @@
       "project_internal_use"
     ],
     "verification_status": "verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 1.0,
+    "content_hash": "8d68a37510509da02dbe7584d4ee6ce8651517ead4a3aa13bbe95e9e9ccaa11c",
+    "derived_from": [
+      "repo-1.7.0-implementation"
+    ],
+    "git_commit": "a983a28ce21eb4977a8f29eb37368be7c3804fee",
+    "license": "project repository license",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.8.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "repo-1.8.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "Mulligan Lab repository 1.8.0",
+    "transformation": "versioned feature implementation",
+    "url_or_drive_id": "a983a28ce21eb4977a8f29eb37368be7c3804fee",
+    "usage_rights": [
+      "project-internal use",
+      "reproducible build"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 1.0,
+    "content_hash": "6489d80a50f954aa69678c0862a8fb57e23ceaee39a34ab0c7377c88d3d907c6",
+    "derived_from": [
+      "repo-1.8.0"
+    ],
+    "git_commit": "8cfb5b78dd55642707feecb97dbe92033ebbee4b",
+    "license": "project repository license",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.9.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "repo-1.9.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "Counterfactual Replay repository 1.9.0",
+    "transformation": "versioned feature implementation",
+    "url_or_drive_id": "8cfb5b78dd55642707feecb97dbe92033ebbee4b",
+    "usage_rights": [
+      "project-internal use",
+      "reproducible build"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 1.0,
+    "content_hash": "cd7313a6835206021d5bc452dcb0076e2817f90eddcbfa6631697625c01b7904",
+    "derived_from": [
+      "repo-1.9.0"
+    ],
+    "git_commit": "ea993210c7f65d3f84c742bca42ffa73bf7dd27e",
+    "license": "project repository license",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.10.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "repo-1.10.0-implementation",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "Decision Diagnostics implementation 1.10.0",
+    "transformation": "versioned feature implementation",
+    "url_or_drive_id": "ea993210c7f65d3f84c742bca42ffa73bf7dd27e",
+    "usage_rights": [
+      "project-internal use",
+      "reproducible build"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 0.85,
+    "content_hash": "b761bf5a8a4df010223833d4a7b73ffd73f8845be7eeaae2fcbf0332c86ae716",
+    "derived_from": [
+      "user-direct-current-project-rules"
+    ],
+    "git_commit": "6c734875bdaec147c79e6c8671fbc6d17158dc68",
+    "license": "structured facts and source references",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.1.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "meta-snapshot-phase12-1",
+    "source_type": "web_research",
+    "supersedes": [],
+    "title": "Versioned Meta Knowledge Base snapshot",
+    "transformation": "curated and versioned meta ingestion",
+    "url_or_drive_id": "data/meta/manifests/latest.json",
+    "usage_rights": [
+      "structured project analysis"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Structural Simulator",
+    "confidence": 0.6,
+    "content_hash": "a79021dee2b402e75b20bd2790683f1c5e8d851a29448f5f4cbe60ce2c19b65e",
+    "derived_from": [
+      "repo-1.8.0",
+      "pilot-registry"
+    ],
+    "git_commit": "8cfb5b78dd55642707feecb97dbe92033ebbee4b",
+    "license": "project generated data",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.9.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "structural-replay-korvold-example",
+    "source_type": "model_inference",
+    "supersedes": [],
+    "title": "Recorded Korvold structural event replay used for counterfactual example",
+    "transformation": "deterministic structural simulation event recording",
+    "url_or_drive_id": "data/runs/pilot_ensembles/test-pilot-benchmark-b/KorvoldSacrificePilot/events/pilot-benchmark-korvoldsacrificepilot-9123-00000000.jsonl",
+    "usage_rights": [
+      "project analysis"
+    ],
+    "verification_status": "hash_verified"
   }
 ]

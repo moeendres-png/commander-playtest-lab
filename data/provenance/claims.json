@@ -33,5 +33,23 @@
       "opponent-ensemble-doom-prevails-ensemble-v1"
     ],
     "text": "No complete opponent list or confirmed assumed card is generated."
+  },
+  {
+    "claim_id": "claim-mulligan-model-boundary",
+    "claim_kind": "model_output",
+    "claim_text": "Generated Mulligan keep rules are model-based and not absolute.",
+    "location": "docs/mulligan_lab/MULLIGAN_LAB_LIMITATIONS.md"
+  },
+  {
+    "claim_id": "claim-counterfactual-boundary",
+    "claim_kind": "model_output",
+    "claim_text": "Counterfactual results are model alternatives rather than historical facts.",
+    "location": "docs/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md"
+  },
+  {
+    "claim_id": "claim-diagnostic-smoke",
+    "claim_kind": "model_output",
+    "claim_text": "The integrated ten-extension smoke completed all ten steps with explicit validation levels.",
+    "location": "data/diagnostics/reports/INTEGRATED_TEN_EXTENSION_SMOKE.md"
   }
 ]
