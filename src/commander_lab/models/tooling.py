@@ -658,3 +658,47 @@ class TestKeepRuleInput(FrozenModel):
 class CreateMulliganReportInput(FrozenModel):
     result_path: str
     output_name: str = "MULLIGAN_LAB_REPORT.md"
+
+
+# Counterfactual replay tool inputs
+class FindCounterfactualBranchpointsInput(FrozenModel):
+    source_path: str
+    actor_id: str | None = None
+    phase: str | None = None
+
+
+class ListAlternativeActionsInput(FrozenModel):
+    source_path: str
+    event_offset: int = Field(ge=0)
+    expected_state_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+
+
+class RunCounterfactualInput(FrozenModel):
+    source_path: str
+    event_offset: int = Field(ge=0)
+    alternative_action: str
+    expected_state_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    engine_mode: str = "structural"
+    seed_policy: str = "same_seed"
+    hidden_information_policy: str = "public_information_only"
+    seed: int = Field(default=20260806, ge=0)
+    future_samples: int = Field(default=1, ge=1, le=10_000)
+    workers: int = Field(default=1, ge=1, le=64)
+    output_name: str = "counterfactual_result.json"
+
+
+class CompareCounterfactualsInput(FrozenModel):
+    result_paths: tuple[str, ...] = Field(min_length=1)
+    output_name: str = "counterfactual_comparison.json"
+
+
+class GenerateDecisionRegretReportInput(FrozenModel):
+    result_path: str
+    output_name: str = "DECISION_REGRET_REPORT.md"
+
+
+class ExportMinimalCounterfactualFixtureInput(FrozenModel):
+    source_path: str
+    event_offset: int = Field(ge=0)
+    expected_state_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    output_name: str = "counterfactual_golden_fixture.json"

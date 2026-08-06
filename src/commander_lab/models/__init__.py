@@ -468,3 +468,43 @@ from .tooling import (
     TestKeepRuleInput,
     CreateMulliganReportInput,
 )
+
+__all__.extend([
+    "MULLIGAN_LAB_SCHEMA_VERSION", "GeneratedKeepRule", "HypergeometricBaseline",
+    "KeepRuleClause", "LondonMulliganResult", "MulliganContext",
+    "MulliganEstimateLevel", "MulliganGamePlan", "MulliganLabResult",
+    "MulliganPolicyName", "MulliganPolicySummary", "OpeningHandEvaluation",
+    "OpeningHandFeatures", "SampleOpeningHandsInput", "EvaluateOpeningHandInput",
+    "CompareMulliganPoliciesInput", "RunMulliganLabInput", "GenerateKeepRulesInput",
+    "TestKeepRuleInput", "CreateMulliganReportInput",
+])
+
+from .counterfactual import (
+    COUNTERFACTUAL_SCHEMA_VERSION,
+    CounterfactualAction,
+    CounterfactualBranchpoint,
+    CounterfactualComparison,
+    CounterfactualEngineMode,
+    CounterfactualFutureSample,
+    CounterfactualResult,
+    CounterfactualStateDiff,
+    DecisionRegretRecord,
+    HiddenInformationPolicy,
+    SeedPolicy,
+)
+from .tooling import (
+    FindCounterfactualBranchpointsInput,
+    ListAlternativeActionsInput,
+    RunCounterfactualInput,
+    CompareCounterfactualsInput,
+    GenerateDecisionRegretReportInput,
+    ExportMinimalCounterfactualFixtureInput,
+)
+__all__.extend([
+    "COUNTERFACTUAL_SCHEMA_VERSION", "CounterfactualAction", "CounterfactualBranchpoint",
+    "CounterfactualComparison", "CounterfactualEngineMode", "CounterfactualFutureSample",
+    "CounterfactualResult", "CounterfactualStateDiff", "DecisionRegretRecord",
+    "HiddenInformationPolicy", "SeedPolicy", "FindCounterfactualBranchpointsInput",
+    "ListAlternativeActionsInput", "RunCounterfactualInput", "CompareCounterfactualsInput",
+    "GenerateDecisionRegretReportInput", "ExportMinimalCounterfactualFixtureInput",
+])

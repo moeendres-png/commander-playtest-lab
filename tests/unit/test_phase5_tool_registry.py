@@ -43,14 +43,17 @@ def test_all_required_tools_are_exposed() -> None:
         "sample_opening_hands", "evaluate_opening_hand",
         "compare_mulligan_policies", "run_mulligan_lab",
         "generate_keep_rules", "test_keep_rule", "create_mulligan_report",
+        "find_counterfactual_branchpoints", "list_alternative_actions",
+        "run_counterfactual", "compare_counterfactuals",
+        "generate_decision_regret_report", "export_minimal_counterfactual_fixture",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 80
-    assert len({schema["name"] for schema in schemas}) == 80
+    assert len(schemas) == 86
+    assert len({schema["name"] for schema in schemas}) == 86
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

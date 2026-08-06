@@ -6,6 +6,12 @@ from typing import Any, Callable
 from pydantic import BaseModel
 
 from commander_lab.models import (
+    FindCounterfactualBranchpointsInput, ListAlternativeActionsInput,
+    RunCounterfactualInput, CompareCounterfactualsInput,
+    GenerateDecisionRegretReportInput, ExportMinimalCounterfactualFixtureInput,
+)
+
+from commander_lab.models import (
     BeamSearchInput,
     CalibrateInput,
     CardAblationInput,
@@ -171,6 +177,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("generate_keep_rules", "Generate candidate model-based keep rules from a Mulligan Lab result.", GenerateKeepRulesInput, "generate_keep_rules"),
     ToolDefinition("test_keep_rule", "Test a generated keep-rule candidate against one explicit hand.", TestKeepRuleInput, "test_keep_rule"),
     ToolDefinition("create_mulligan_report", "Create a Mulligan Lab report with uncertainty and truth-boundary labels.", CreateMulliganReportInput, "create_mulligan_report"),
+    ToolDefinition("find_counterfactual_branchpoints", "Find replay decision branchpoints with hashes and recorded legal candidates.", FindCounterfactualBranchpointsInput, "find_counterfactual_branchpoints"),
+    ToolDefinition("list_alternative_actions", "List only recorded legal alternatives at a verified replay branchpoint.", ListAlternativeActionsInput, "list_alternative_actions"),
+    ToolDefinition("run_counterfactual", "Run a structural or tactical counterfactual model alternative with explicit hidden-information policy.", RunCounterfactualInput, "run_counterfactual"),
+    ToolDefinition("compare_counterfactuals", "Compare multiple model-dependent counterfactual alternatives.", CompareCounterfactualsInput, "compare_counterfactuals"),
+    ToolDefinition("generate_decision_regret_report", "Generate a decision-regret report without claiming historical certainty.", GenerateDecisionRegretReportInput, "generate_decision_regret_report"),
+    ToolDefinition("export_minimal_counterfactual_fixture", "Export a verified branchpoint as a minimal Golden Scenario fixture.", ExportMinimalCounterfactualFixtureInput, "export_minimal_counterfactual_fixture"),
+
 )
 
 

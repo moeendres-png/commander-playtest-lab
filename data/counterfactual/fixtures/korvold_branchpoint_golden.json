@@ -1,0 +1,51 @@
+{
+  "branchpoint": {
+    "actor_id": "p1",
+    "alternative_action": null,
+    "available_actions": [
+      {
+        "action_id": "card:5:Zuran Orb",
+        "action_kind": "main_phase_action",
+        "legal": true,
+        "public_description": "card:5:Zuran Orb",
+        "target_ids": [],
+        "utility": 11.244583333333331
+      },
+      {
+        "action_id": "card:0:Crop Rotation",
+        "action_kind": "main_phase_action",
+        "legal": true,
+        "public_description": "card:0:Crop Rotation",
+        "target_ids": [],
+        "utility": 9.71325
+      },
+      {
+        "action_id": "pass",
+        "action_kind": "pass_priority",
+        "legal": true,
+        "public_description": "pass",
+        "target_ids": [],
+        "utility": 0.0525
+      }
+    ],
+    "branchpoint_id": "pilot-benchmark-korvoldsacrificepilot-9123-00000000:9",
+    "chosen_action": "card:5:Zuran Orb",
+    "engine_mode": "structural",
+    "event_offset": 9,
+    "event_type": "pilot_decision",
+    "game_id": "pilot-benchmark-korvoldsacrificepilot-9123-00000000",
+    "hidden_information_policy": "public_information_only",
+    "phase": "main",
+    "player_eliminated": false,
+    "replay_prefix_hash": "f16189cba4888ef2088c1b6d5040190f1ea520bdfd875783bf0591938933f60b",
+    "schema_version": "1.0.0",
+    "seed_policy": "same_seed",
+    "source_path": "data/runs/pilot_ensembles/test-pilot-benchmark-b/KorvoldSacrificePilot/events/pilot-benchmark-korvoldsacrificepilot-9123-00000000.jsonl",
+    "source_run_id": "KorvoldSacrificePilot",
+    "state_hash": "16afb42db46759cd908a0e0ef807547a74086592f5fcc8244a8927b3577aa046",
+    "validation_level": "structural_model_estimates"
+  },
+  "fixture_type": "counterfactual_golden_scenario",
+  "schema_version": "1.0.0",
+  "truth_boundary": "model_alternative_not_historical_fact"
+}

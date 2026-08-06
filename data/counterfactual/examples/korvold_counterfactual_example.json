@@ -1,0 +1,342 @@
+{
+  "alternative_action": "card:0:Crop Rotation",
+  "branchpoint": {
+    "actor_id": "p1",
+    "alternative_action": "card:0:Crop Rotation",
+    "available_actions": [
+      {
+        "action_id": "card:5:Zuran Orb",
+        "action_kind": "main_phase_action",
+        "legal": true,
+        "public_description": "card:5:Zuran Orb",
+        "target_ids": [],
+        "utility": 11.244583333333331
+      },
+      {
+        "action_id": "card:0:Crop Rotation",
+        "action_kind": "main_phase_action",
+        "legal": true,
+        "public_description": "card:0:Crop Rotation",
+        "target_ids": [],
+        "utility": 9.71325
+      },
+      {
+        "action_id": "pass",
+        "action_kind": "pass_priority",
+        "legal": true,
+        "public_description": "pass",
+        "target_ids": [],
+        "utility": 0.0525
+      }
+    ],
+    "branchpoint_id": "pilot-benchmark-korvoldsacrificepilot-9123-00000000:9",
+    "chosen_action": "card:5:Zuran Orb",
+    "engine_mode": "structural",
+    "event_offset": 9,
+    "event_type": "pilot_decision",
+    "game_id": "pilot-benchmark-korvoldsacrificepilot-9123-00000000",
+    "hidden_information_policy": "multiple_future_samples",
+    "phase": "main",
+    "player_eliminated": false,
+    "replay_prefix_hash": "f16189cba4888ef2088c1b6d5040190f1ea520bdfd875783bf0591938933f60b",
+    "schema_version": "1.0.0",
+    "seed_policy": "derived_seeds",
+    "source_path": "data/runs/pilot_ensembles/test-pilot-benchmark-b/KorvoldSacrificePilot/events/pilot-benchmark-korvoldsacrificepilot-9123-00000000.jsonl",
+    "source_run_id": "KorvoldSacrificePilot",
+    "state_hash": "16afb42db46759cd908a0e0ef807547a74086592f5fcc8244a8927b3577aa046",
+    "validation_level": "structural_model_estimates"
+  },
+  "conclusion": "chosen_model_preferred",
+  "counterfactual_id": "4e8c3b94a38c1010bbab6988",
+  "external_engine_used": false,
+  "future_samples": [
+    {
+      "alternative_score": 9.57965612642803,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.2081159008631626,
+      "improvement": -1.6649272069053007,
+      "sample_index": 0,
+      "seed": 15757754951370505391
+    },
+    {
+      "alternative_score": 9.613444921426677,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.20389230148833173,
+      "improvement": -1.6311384119066539,
+      "sample_index": 1,
+      "seed": 15660100333347188148
+    },
+    {
+      "alternative_score": 9.6572021946478,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.19842264233569143,
+      "improvement": -1.5873811386855314,
+      "sample_index": 2,
+      "seed": 1718117610879194097
+    },
+    {
+      "alternative_score": 9.970824096427277,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.1592199046132567,
+      "improvement": -1.2737592369060535,
+      "sample_index": 3,
+      "seed": 4089903750413673402
+    },
+    {
+      "alternative_score": 9.438082549911705,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.22581259792770333,
+      "improvement": -1.8065007834216267,
+      "sample_index": 4,
+      "seed": 9620223221748320232
+    },
+    {
+      "alternative_score": 9.395859451162648,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.23109048527133544,
+      "improvement": -1.8487238821706835,
+      "sample_index": 5,
+      "seed": 5034779784453283173
+    },
+    {
+      "alternative_score": 9.453048023652638,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.22394191371008668,
+      "improvement": -1.7915353096806934,
+      "sample_index": 6,
+      "seed": 13643960022198731982
+    },
+    {
+      "alternative_score": 10.083816847533514,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.14509581072497707,
+      "improvement": -1.1607664857998166,
+      "sample_index": 7,
+      "seed": 17944406004438468782
+    },
+    {
+      "alternative_score": 9.427665125811929,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.22711477594017523,
+      "improvement": -1.8169182075214019,
+      "sample_index": 8,
+      "seed": 16089731629662351536
+    },
+    {
+      "alternative_score": 9.687041927057502,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.19469267578447863,
+      "improvement": -1.557541406275829,
+      "sample_index": 9,
+      "seed": 14171637848519062748
+    },
+    {
+      "alternative_score": 10.0936152490277,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.14387101053820392,
+      "improvement": -1.1509680843056314,
+      "sample_index": 10,
+      "seed": 16303591414931536864
+    },
+    {
+      "alternative_score": 9.890029339777332,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.16931924919449998,
+      "improvement": -1.3545539935559998,
+      "sample_index": 11,
+      "seed": 14637166154944146685
+    },
+    {
+      "alternative_score": 9.304544977122072,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.2425047945264074,
+      "improvement": -1.9400383562112593,
+      "sample_index": 12,
+      "seed": 6073756605858914831
+    },
+    {
+      "alternative_score": 10.110357215619809,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.14177826471419025,
+      "improvement": -1.134226117713522,
+      "sample_index": 13,
+      "seed": 13620845763817599510
+    },
+    {
+      "alternative_score": 9.489062755302964,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.2194400722537958,
+      "improvement": -1.7555205780303664,
+      "sample_index": 14,
+      "seed": 9290501514612251385
+    },
+    {
+      "alternative_score": 9.785685054081712,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.18236228490645245,
+      "improvement": -1.4588982792516196,
+      "sample_index": 15,
+      "seed": 5106623267687421911
+    },
+    {
+      "alternative_score": 9.630612344828704,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.2017463735630784,
+      "improvement": -1.6139709885046272,
+      "sample_index": 16,
+      "seed": 11209257868769202672
+    },
+    {
+      "alternative_score": 9.239631118101139,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.25061902690402416,
+      "improvement": -2.0049522152321932,
+      "sample_index": 17,
+      "seed": 13060618323935557878
+    },
+    {
+      "alternative_score": 9.452966440455661,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.22395211160970865,
+      "improvement": -1.7916168928776692,
+      "sample_index": 18,
+      "seed": 11746849137460287977
+    },
+    {
+      "alternative_score": 9.891792197920294,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.16909889192662972,
+      "improvement": -1.3527911354130377,
+      "sample_index": 19,
+      "seed": 8735330100540585715
+    },
+    {
+      "alternative_score": 10.049799811779545,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.14934794019422337,
+      "improvement": -1.194783521553787,
+      "sample_index": 20,
+      "seed": 2507073290608598242
+    },
+    {
+      "alternative_score": 9.915949044140426,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.1660792861491132,
+      "improvement": -1.3286342891929055,
+      "sample_index": 21,
+      "seed": 2499086822679654239
+    },
+    {
+      "alternative_score": 10.041395907452284,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.15039842823513083,
+      "improvement": -1.2031874258810467,
+      "sample_index": 22,
+      "seed": 9566268403149625054
+    },
+    {
+      "alternative_score": 10.238707688189526,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.12573445564297558,
+      "improvement": -1.0058756451438047,
+      "sample_index": 23,
+      "seed": 852984038387913623
+    },
+    {
+      "alternative_score": 10.074805688652022,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.14622220558516358,
+      "improvement": -1.1697776446813086,
+      "sample_index": 24,
+      "seed": 13982348527766540789
+    },
+    {
+      "alternative_score": 9.881381399667776,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.1704002417081944,
+      "improvement": -1.3632019336655552,
+      "sample_index": 25,
+      "seed": 13592079314037534558
+    },
+    {
+      "alternative_score": 9.999122548739168,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.1556825980742704,
+      "improvement": -1.2454607845941632,
+      "sample_index": 26,
+      "seed": 2640065521902777736
+    },
+    {
+      "alternative_score": 9.042638606530947,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.275243090850298,
+      "improvement": -2.201944726802384,
+      "sample_index": 27,
+      "seed": 2749177154600563170
+    },
+    {
+      "alternative_score": 9.885284460696314,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.16991235907962712,
+      "improvement": -1.359298872637017,
+      "sample_index": 28,
+      "seed": 7211338128217807123
+    },
+    {
+      "alternative_score": 10.141960728329282,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.1378278256255061,
+      "improvement": -1.1026226050040489,
+      "sample_index": 29,
+      "seed": 9356161421356479111
+    },
+    {
+      "alternative_score": 10.25200612009128,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.12407215165525638,
+      "improvement": -0.9925772132420511,
+      "sample_index": 30,
+      "seed": 8504997971119948920
+    },
+    {
+      "alternative_score": 10.351242148776432,
+      "chosen_score": 11.244583333333331,
+      "estimated_placement_delta": -0.1116676480696124,
+      "improvement": -0.8933411845568991,
+      "sample_index": 31,
+      "seed": 17114299141168126495
+    }
+  ],
+  "historical_fact": false,
+  "improvement_variance": 0.10717736468349448,
+  "mean_improvement": -1.4611698299163902,
+  "median_improvement": -1.3612504031512862,
+  "model_alternative": true,
+  "positive_future_fraction": 0.0,
+  "provenance": {
+    "replay_prefix_hash": "f16189cba4888ef2088c1b6d5040190f1ea520bdfd875783bf0591938933f60b",
+    "source_path": "data/runs/pilot_ensembles/test-pilot-benchmark-b/KorvoldSacrificePilot/events/pilot-benchmark-korvoldsacrificepilot-9123-00000000.jsonl",
+    "source_run_id": "KorvoldSacrificePilot",
+    "state_hash": "16afb42db46759cd908a0e0ef807547a74086592f5fcc8244a8927b3577aa046",
+    "validation_level": "structural_model_estimates"
+  },
+  "schema_version": "1.0.0",
+  "state_diff": {
+    "board_delta": 0.0,
+    "card_advantage_delta": 0.0,
+    "commander_damage_delta": 0.0,
+    "hand_delta": 0.0,
+    "immediate_utility_delta": -1.5313333333333308,
+    "interaction_reserve_delta": 0.0,
+    "life_delta": 0.0,
+    "mana_delta": 0.0,
+    "placement_delta": -0.18264622873954878,
+    "threat_delta": 0.0,
+    "win_progress_delta": -0.15313333333333307
+  },
+  "tactical_oracle_used": false,
+  "warnings": [
+    "Counterfactuals are model alternatives, not facts about what historically would have happened.",
+    "Structural candidate utilities are proxies, not complete rules-engine state transitions."
+  ]
+}
