@@ -1,0 +1,1135 @@
+{
+  "schema_version": "1.0.0",
+  "rows": [
+    {
+      "category": "Grundsystem",
+      "function": "TXT deck import",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "CSV deck import",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "XLSX deck import",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Oracle name normalization",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Commander configuration",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Partner configuration",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Singleton validation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Color identity validation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Physical quantity validation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Simultaneous allocation validation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Deck hash",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Data snapshot hash",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Three-player pods",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Four-player pods",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Five-player pods",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "London Mulligan",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Commander tax",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Commander damage per commander/opponent",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Combat",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Removal",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Counterspells",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Protection",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Board wipes",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Recursion",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Graveyard hate",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Elimination",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Game end",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Deterministic seed derivation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Worker-independent structural results",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Mana and color stability",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Approximated structural mana model, not a complete rules engine."
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Stack semantics",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "External stack/priority semantics not validated."
+    },
+    {
+      "category": "Grundsystem",
+      "function": "Priority semantics",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "External engine pending."
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "KorvoldPilot",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "RogShaiPilot",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Generic opponent pilots",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Weak pilot",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Average pilot",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Strong pilot",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Near-optimal heuristic pilot",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Ten specialized multi-pilot profiles",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Pilot information boundaries",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Protection windows",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Counter windows",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Rebuild decisions",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Finish decisions",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Pilot ensemble comparison",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Threat assessment",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Heuristic threat model."
+    },
+    {
+      "category": "Piloten und Simulation",
+      "function": "Political visibility",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Politics and negotiation remain abstractions."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Commander denial",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Card ablation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Package ablation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Swap matrix",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Local search",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Beam search",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Package search",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Pareto front",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Approximate Shapley contributions",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Paired variant comparison",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Holdout evaluation",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Sensitivity analysis",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Red-team review",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Optimierung",
+      "function": "Upgrade release gates",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Structural/model evidence only; no automatic deck application."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.1 Meta Knowledge Base",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model/source evidence with documented limits."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.2 Primer-to-Pilot Compiler",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model/source evidence with documented limits."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.3 Multi-Pilot Ensembles",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model/source evidence with documented limits."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.4 Archetype and Package Extraction",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model/source evidence with documented limits."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.5 Provenance",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model/source evidence with documented limits."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.6 Local Meta Learning",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Implementation complete; zero real games prevents learning."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.7 Opponent Ensembles",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model/source evidence with documented limits."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.8 Mulligan Lab",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model/source evidence with documented limits."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.9 Counterfactual Replay",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Model alternative, not historical fact; external engine not used."
+    },
+    {
+      "category": "Erweiterungen",
+      "function": "12.10 Decision Diagnostics",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "Diagnosis is not empirical proof."
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "SQLite migrations and integrity",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Run manifests",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Event logs",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Replay export/import",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Artifact hashes",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Experiment registry",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "CLI",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "FastAPI",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Function Tool HTTP server",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Guardrails",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Cost limits",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Session persistence",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Trace separation/redaction",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Drive recovery artifacts",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": ""
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Parquet write path",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "blocked",
+      "validation_level": "structural_only",
+      "status": "partial",
+      "error_or_limit": "Optional pyarrow/fastparquet dependency is not installed."
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Actual MCP server",
+      "code": "no",
+      "tests": "not_run",
+      "practically_executed": "not_run",
+      "validation_level": "structural_only",
+      "status": "missing",
+      "error_or_limit": "Project exposes a FastAPI Function Tool server, not a true MCP transport."
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "OpenAI live orchestrator",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "blocked",
+      "validation_level": "structural_only",
+      "status": "functional_with_limitations",
+      "error_or_limit": "OPENAI_API_KEY and openai/openai-agents packages are absent; offline adapter tests pass."
+    },
+    {
+      "category": "Infrastruktur",
+      "function": "Google Drive final audit upload",
+      "code": "yes",
+      "tests": "not_run",
+      "practically_executed": "not_run",
+      "validation_level": "structural_only",
+      "status": "partial",
+      "error_or_limit": "Completed locally; final upload/round-trip is performed after packaging if connector file upload succeeds."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "XMage adapter",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "No real XMage/Forge runtime executed."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "Forge adapter",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "No real XMage/Forge runtime executed."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "Engine process manager",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "No real XMage/Forge runtime executed."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "JSONL protocol",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "No real XMage/Forge runtime executed."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "Capability schema",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "No real XMage/Forge runtime executed."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "Tactical Oracle",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "No real XMage/Forge runtime executed."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External runtime bootstrap scripts",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed_with_limitations",
+      "validation_level": "tactical_oracle",
+      "status": "functional_with_limitations",
+      "error_or_limit": "No real XMage/Forge runtime executed."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "Real capability handshake",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External deck import",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External Commander multiplayer",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External legal actions",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External action submission",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External illegal-action rejection",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External event log",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External replay",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External partner validation",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External Commander tax validation",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External Commander damage validation",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External stack validation",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Externe Regelengine",
+      "function": "External priority validation",
+      "code": "partial",
+      "tests": "skipped",
+      "practically_executed": "blocked",
+      "validation_level": "external_rules_engine",
+      "status": "partial",
+      "error_or_limit": "ENGINE_START_COMMAND is empty; Maven/Gradle/Docker absent; no external binary/source configured."
+    },
+    {
+      "category": "Reale Playtests",
+      "function": "CSV/XLSX/JSON playtest import",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": "Synthetic fixtures only during audit."
+    },
+    {
+      "category": "Reale Playtests",
+      "function": "Dataset versioning and corrections",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "passed",
+      "validation_level": "structural_only",
+      "status": "complete",
+      "error_or_limit": "No real records imported."
+    },
+    {
+      "category": "Reale Playtests",
+      "function": "Real-playtest calibration",
+      "code": "yes",
+      "tests": "passed",
+      "practically_executed": "blocked",
+      "validation_level": "real_playtest_observed",
+      "status": "partial",
+      "error_or_limit": "missing_user_data: real_imported_games=0."
+    }
+  ]
+}

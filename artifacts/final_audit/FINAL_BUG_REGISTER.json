@@ -1,0 +1,74 @@
+{
+  "bugs": [
+    {
+      "bug_id": "BUG-12.11-001",
+      "severity": "high",
+      "component": "Phase-10 acceptance/API lifecycle",
+      "symptom": "Fresh Drive restore could fail the audit gate because the heavy acceptance test did not finish within 120 seconds.",
+      "minimal_reproduction": "Run test_phase10_smoke_never_claims_external_validation on start commit 6459581.",
+      "root_cause": "FastAPI TestClient was created in-process after process-pool and bridge activity, producing order-dependent shutdown behavior.",
+      "fix": "Run the API self-test in a bounded isolated interpreter.",
+      "regression_test": "test_api_self_test_runs_in_isolated_process plus Phase-10 acceptance smoke.",
+      "affected_versions": [
+        "1.10.1"
+      ],
+      "status": "fixed"
+    },
+    {
+      "bug_id": "BUG-12.11-002",
+      "severity": "medium",
+      "component": "JSONL bridge lifecycle",
+      "symptom": "Closed bridge processes retained open stdin/stdout/stderr and live pump-thread references.",
+      "minimal_reproduction": "test_bridge_client_close_reaps_threads_and_streams.",
+      "root_cause": "close() waited for the process but did not close streams or join/reset threads.",
+      "fix": "Close all streams, join threads and clear references in finally.",
+      "regression_test": "test_bridge_client_close_reaps_threads_and_streams.",
+      "affected_versions": [
+        "<=1.10.1"
+      ],
+      "status": "fixed"
+    },
+    {
+      "bug_id": "BUG-12.11-003",
+      "severity": "high",
+      "component": "Function Tool reproducibility",
+      "symptom": "Identical matchup/goldfish tool requests produced different seeds and log hashes.",
+      "minimal_reproduction": "Invoke the same request twice and compare match seeds.",
+      "root_cause": "Random output-directory UUID was reused as simulation run_id, which participates in seed derivation.",
+      "fix": "Derive deterministic simulation identity from engine version, tool name and request; retain unique storage paths.",
+      "regression_test": "test_matchup_tool_seed_is_independent_of_storage_uuid and test_goldfish_tool_seed_is_independent_of_storage_uuid.",
+      "affected_versions": [
+        "<=1.10.1"
+      ],
+      "status": "fixed"
+    },
+    {
+      "bug_id": "BUG-12.11-004",
+      "severity": "medium",
+      "component": "Phase-8.5 test isolation",
+      "symptom": "Tests could modify canonical tracked engine process-state files.",
+      "minimal_reproduction": "Run Phase-8.5 contract/integration tests and inspect git status.",
+      "root_cause": "Test runtime used the default canonical log directory.",
+      "fix": "Route test process-state writes to tmp_path and assert canonical bytes are unchanged.",
+      "regression_test": "Phase-8.5 contract and restricted acceptance tests.",
+      "affected_versions": [
+        "<=1.10.1"
+      ],
+      "status": "fixed"
+    },
+    {
+      "bug_id": "BUG-12.11-005",
+      "severity": "low",
+      "component": "Protocol contract performance",
+      "symptom": "Protocol envelope contract started fourteen separate Python bridge processes.",
+      "minimal_reproduction": "Time the protocol envelope test on commit 69a0da0.",
+      "root_cause": "One process per message type.",
+      "fix": "Reuse one persistent bridge and shut it down normally.",
+      "regression_test": "test_tactical_bridge_returns_a_valid_envelope_for_every_message.",
+      "affected_versions": [
+        "<=1.10.1"
+      ],
+      "status": "fixed"
+    }
+  ]
+}

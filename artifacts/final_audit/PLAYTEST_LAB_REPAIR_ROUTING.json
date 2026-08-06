@@ -1,0 +1,52 @@
+[
+  {
+    "issue_id": "BLOCK-EXT-001",
+    "issue_type": "missing_runtime",
+    "severity": "high",
+    "recommended_environment": "codex",
+    "work_prompt_section": "Drive handoff and evidence collection",
+    "codex_prompt_section": "BLOCK-EXT-001",
+    "user_input_required": false,
+    "acceptance_gate": "Real external handshake, deck import, multiplayer, legal/action loop, logs/replay and critical scenarios pass."
+  },
+  {
+    "issue_id": "BLOCK-REAL-001",
+    "issue_type": "missing_user_data",
+    "severity": "medium",
+    "recommended_environment": "user_data_then_work",
+    "work_prompt_section": "BLOCK-REAL-001",
+    "codex_prompt_section": "None",
+    "user_input_required": true,
+    "acceptance_gate": "At least policy minimum of 20 training and 8 validation games; calibration remains non-automatic."
+  },
+  {
+    "issue_id": "BLOCK-QA-001",
+    "issue_type": "missing_dependency",
+    "severity": "medium",
+    "recommended_environment": "codex",
+    "work_prompt_section": "Drive handoff and evidence collection",
+    "codex_prompt_section": "BLOCK-QA-001",
+    "user_input_required": false,
+    "acceptance_gate": "All configured checks run with recorded exit codes; no critical/high unresolved finding."
+  },
+  {
+    "issue_id": "BLOCK-PARQUET-001",
+    "issue_type": "missing_dependency",
+    "severity": "low",
+    "recommended_environment": "codex",
+    "work_prompt_section": "Drive handoff and evidence collection",
+    "codex_prompt_section": "BLOCK-PARQUET-001",
+    "user_input_required": false,
+    "acceptance_gate": "1000-row Parquet round-trip passes in fresh environment."
+  },
+  {
+    "issue_id": "BLOCK-MCP-001",
+    "issue_type": "architecture_gap",
+    "severity": "low",
+    "recommended_environment": "codex",
+    "work_prompt_section": "Drive handoff and evidence collection",
+    "codex_prompt_section": "BLOCK-MCP-001",
+    "user_input_required": true,
+    "acceptance_gate": "MCP initialize/list/call lifecycle passes without altering existing HTTP semantics."
+  }
+]

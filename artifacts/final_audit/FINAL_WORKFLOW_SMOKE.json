@@ -1,0 +1,158 @@
+{
+  "allocation_changes": false,
+  "canonical_deck_changes": false,
+  "external_engine_used": false,
+  "inventory_changes": false,
+  "passed_steps": 10,
+  "report_id": "phase12-10-integrated-smoke-executed",
+  "schema_version": "1.0.0",
+  "status": "passed_with_limitations",
+  "steps": [
+    {
+      "name": "load_meta_source",
+      "result_summary": "loaded and schema-validated meta-2026-08-05-phase12-1",
+      "source_hashes": [
+        "b761bf5a8a4df010223833d4a7b73ffd73f8845be7eeaae2fcbf0332c86ae716"
+      ],
+      "source_paths": [
+        "data/meta/manifests/latest.json"
+      ],
+      "status": "passed",
+      "step": 1,
+      "validation_level": "source_fact"
+    },
+    {
+      "name": "compile_primer_rule",
+      "result_summary": "compiled 7 validated rules",
+      "source_hashes": [
+        "716f4c777db1192ec20fb354e3fe3e8d53fceee66992402eaf4fddec6b5eb65a",
+        "ba392252bbb3c833e81a4cca1e7b5b3a3ba50ad70985d275b41cea6b365fedc2"
+      ],
+      "source_paths": [
+        "data/primer_rules/rules/korvold_current_rules.json",
+        "data/runs/integrated_extension_smoke/compiled_policy.json"
+      ],
+      "status": "passed",
+      "step": 2,
+      "validation_level": "curated_project_rule"
+    },
+    {
+      "name": "select_multiple_pilots",
+      "result_summary": "executed 3 legal-action pilot games; placements={'KorvoldPilot': 1, 'KorvoldValuePilot': 1, 'KorvoldSacrificePilot': 1}",
+      "source_hashes": [
+        "33ad2859a082fcb54e469a28b1693ebbfc6675488a07daac5e3f7102955e7a1f",
+        "e23cf72963113b07426206e41356ed25a3f9d67a8a8361eb2787257f9e9fcfa4",
+        "a309e7d1faa3ae12805100ed37dc01b7ec770665132c567644cc41f3d8a3c7ff"
+      ],
+      "source_paths": [
+        "data/runs/integrated_extension_smoke/pilot-0-KorvoldPilot.jsonl",
+        "data/runs/integrated_extension_smoke/pilot-1-KorvoldValuePilot.jsonl",
+        "data/runs/integrated_extension_smoke/pilot-2-KorvoldSacrificePilot.jsonl"
+      ],
+      "status": "passed",
+      "step": 3,
+      "validation_level": "structural_model_estimates"
+    },
+    {
+      "name": "analyze_packages",
+      "result_summary": "evaluated 9 curated packages; machine candidates remain unconfirmed",
+      "source_hashes": [
+        "b423546d3904bc41f89308978a0152f1dac334090e7075515a24921d18bb267f",
+        "9c233b3404fa0ae2b805a9549c66bdb608f4c16f1bd80be763d7442697768c9b"
+      ],
+      "source_paths": [
+        "data/packages/package_registry.json",
+        "data/runs/integrated_extension_smoke/package_analysis.json"
+      ],
+      "status": "passed",
+      "step": 4,
+      "validation_level": "curated_project_package"
+    },
+    {
+      "name": "trace_provenance",
+      "result_summary": "traced derived-diagnostic-dataset-v1.10.1 through 7 retained records",
+      "source_hashes": [
+        "c0b811e9271b62a5b1da4447387091c1024f973c890721b1e94e2c6ef4cbf098",
+        "1029f00814a77356d156c79424f64a759fee03d216affebfbcf7184301806b6c"
+      ],
+      "source_paths": [
+        "data/provenance/provenance_graph.json",
+        "data/runs/integrated_extension_smoke/provenance_trace.json"
+      ],
+      "status": "passed",
+      "step": 5,
+      "validation_level": "provenance_verified"
+    },
+    {
+      "name": "load_local_opponent_profile",
+      "result_summary": "real observations remain 0; no missing values inferred",
+      "source_hashes": [
+        "eaba8eff03e44d9e5d78d5418937431025c5bd3dfaa41da3726d1c229af74ff4"
+      ],
+      "source_paths": [
+        "data/local_meta/profiles/alen_morcant_observed_v1.json"
+      ],
+      "status": "passed",
+      "step": 6,
+      "validation_level": "insufficient_real_data"
+    },
+    {
+      "name": "simulate_opponent_ensemble",
+      "result_summary": "executed 4 variants; worst=-0.2956, spread=0.0303",
+      "source_hashes": [
+        "b8fb96d6b0505be35bce425f2c90b270cae852e8f9b77507b35813d643b28c66",
+        "d90c79089a65b0161b23442a88f94d78f2412ea14f4e823bd8467a68980901b2"
+      ],
+      "source_paths": [
+        "data/opponent_ensembles/morcant-elves-ensemble-v1.json",
+        "data/runs/integrated_extension_smoke/ensemble_matchup.json"
+      ],
+      "status": "passed",
+      "step": 7,
+      "validation_level": "structural_model_estimates"
+    },
+    {
+      "name": "apply_mulligan_policy",
+      "result_summary": "executed 8 policies plus validation contexts ['holdout_pod', 'opponent_ensemble', 'pilot_profile', 'primary_pod']",
+      "source_hashes": [
+        "bcf5a140194d3b3cb4d4297f7d8213541c8c9be12d2b9af0646790426df6721a"
+      ],
+      "source_paths": [
+        "data/runs/integrated_extension_smoke/mulligan_lab.json"
+      ],
+      "status": "passed",
+      "step": 8,
+      "validation_level": "structural_model_estimates"
+    },
+    {
+      "name": "run_counterfactual_replay",
+      "result_summary": "executed 4 futures; chosen_model_preferred; mean=-17.5305",
+      "source_hashes": [
+        "33ad2859a082fcb54e469a28b1693ebbfc6675488a07daac5e3f7102955e7a1f",
+        "8a6309c45f6945cb2de31f6b1f396785680b9da5b8a45b31477078a0cecd127a"
+      ],
+      "source_paths": [
+        "data/runs/integrated_extension_smoke/pilot-0-KorvoldPilot.jsonl",
+        "data/runs/integrated_extension_smoke/counterfactual.json"
+      ],
+      "status": "passed",
+      "step": 9,
+      "validation_level": "structural_counterfactual"
+    },
+    {
+      "name": "diagnose_failure_cause",
+      "result_summary": "executed event-derived diagnosis for Korvold, Fae-Cursed King: insufficient_evidence; cut_gate=blocked:sample_too_small,holdout_not_confirmed,diagnosis_not_deck_or_card_weakness",
+      "source_hashes": [
+        "0c8b458ef13c4186175bfe8086e6ec201d6a41241d9d0655ff1b481c57e15797",
+        "cd76af6f42a8ae696691b9dda787a5fb9680f4f493c089491c7d0f6fdcad77df"
+      ],
+      "source_paths": [
+        "data/runs/integrated_extension_smoke/diagnostic_dataset.json",
+        "data/runs/integrated_extension_smoke/diagnosis.json"
+      ],
+      "status": "passed",
+      "step": 10,
+      "validation_level": "model_diagnosis"
+    }
+  ]
+}

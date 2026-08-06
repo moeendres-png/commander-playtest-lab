@@ -1,0 +1,96 @@
+{
+  "validation_level": "structural_only",
+  "estimate_type": "structural_model_estimates",
+  "decks": {
+    "korvold": {
+      "pilot_ensemble": {
+        "status": "completed",
+        "automatic_deck_changes": false,
+        "worst_pilot": {
+          "pilot_name": "KorvoldConservativePilot",
+          "average_placement": 2.0
+        },
+        "median_pilot": {
+          "pilot_name": "KorvoldLandRebuildPilot",
+          "average_placement": 1.0
+        }
+      },
+      "opponent_ensembles": {
+        "morcant-elves-ensemble-v1": {
+          "status": "completed",
+          "variants": 4,
+          "estimate_type": "structural_model_estimates"
+        },
+        "doom-prevails-ensemble-v1": {
+          "status": "completed",
+          "variants": 4,
+          "estimate_type": "structural_model_estimates"
+        },
+        "cosmic-spiderman-ensemble-v1": {
+          "status": "completed",
+          "variants": 4,
+          "estimate_type": "structural_model_estimates"
+        }
+      },
+      "mulligan_lab": {
+        "status": "completed",
+        "rules": 1,
+        "absolute_rules": false,
+        "full_followup_separate": true
+      }
+    },
+    "rogshai": {
+      "pilot_ensemble": {
+        "status": "completed",
+        "automatic_deck_changes": false,
+        "worst_pilot": {
+          "pilot_name": "RogShaiTempoPilot",
+          "average_placement": 2.0
+        },
+        "median_pilot": {
+          "pilot_name": "RogShaiProtectedFinishPilot",
+          "average_placement": 1.0
+        }
+      },
+      "opponent_ensembles": {
+        "morcant-elves-ensemble-v1": {
+          "status": "completed",
+          "variants": 4,
+          "estimate_type": "structural_model_estimates"
+        },
+        "doom-prevails-ensemble-v1": {
+          "status": "completed",
+          "variants": 4,
+          "estimate_type": "structural_model_estimates"
+        },
+        "cosmic-spiderman-ensemble-v1": {
+          "status": "completed",
+          "variants": 4,
+          "estimate_type": "structural_model_estimates"
+        }
+      },
+      "mulligan_lab": {
+        "status": "completed",
+        "rules": 1,
+        "absolute_rules": false,
+        "full_followup_separate": true
+      }
+    }
+  },
+  "counterfactual": {
+    "status": "completed",
+    "branchpoints": 118,
+    "alternative": "pass",
+    "historical_fact": false,
+    "external_engine_used": false,
+    "state_diff_present": true
+  },
+  "diagnostics": {
+    "card_status": "completed",
+    "pilot_status": "completed",
+    "known_cause_status": "completed",
+    "known_cause": "pilot_does_not_recognize_line",
+    "empirically_proven": false
+  },
+  "errors": []
+}

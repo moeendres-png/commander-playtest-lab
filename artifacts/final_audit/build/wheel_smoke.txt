@@ -1,0 +1,3 @@
+version 1.10.2
+tools 92 92
+dependency_mode fresh_venv_with_verified_runtime_site_packages

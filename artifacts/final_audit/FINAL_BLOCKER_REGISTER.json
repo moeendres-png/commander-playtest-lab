@@ -1,0 +1,88 @@
+{
+  "blockers": [
+    {
+      "blocker_id": "BLOCK-EXT-001",
+      "issue_type": "missing_runtime",
+      "severity": "high",
+      "function": "External XMage/Forge validation",
+      "cause": "ENGINE_START_COMMAND is empty; no engine binary/source is configured; Maven, Gradle and Docker are absent.",
+      "risk": "Critical MTG interactions remain tactical_oracle or structural_only.",
+      "local_workaround": "Use Structural Simulator and Tactical Oracle with explicit labels.",
+      "permanent_solution": "Build/configure pinned XMage or Forge bridge in a networked Codex/local environment and execute all external gates.",
+      "environment": "Codex or local development machine with Java, Maven/Docker and network/offline sources.",
+      "files": [
+        "scripts/bootstrap_engine_linux.sh",
+        "config/engine_runtime.json",
+        ".github/workflows/xmage-integration.yml"
+      ],
+      "user_action": "Provide/authorize engine source or networked execution.",
+      "acceptance_gate": "Real external handshake, deck import, multiplayer, legal/action loop, logs/replay and critical scenarios pass."
+    },
+    {
+      "blocker_id": "BLOCK-REAL-001",
+      "issue_type": "missing_user_data",
+      "severity": "medium",
+      "function": "Real-playtest calibration",
+      "cause": "real_imported_games=0.",
+      "risk": "No empirical calibration or local-meta weights.",
+      "local_workaround": "Keep all outputs as structural_model_estimates.",
+      "permanent_solution": "Import sufficient real playtest records with versioned train/validation split.",
+      "environment": "Work or local CLI with user playtest files.",
+      "files": [
+        "data/playtests/playtest_template.csv"
+      ],
+      "user_action": "Provide real game logs.",
+      "acceptance_gate": "At least policy minimum of 20 training and 8 validation games; calibration remains non-automatic."
+    },
+    {
+      "blocker_id": "BLOCK-QA-001",
+      "issue_type": "missing_dependency",
+      "severity": "medium",
+      "function": "Static/security/mutation audit",
+      "cause": "ruff, mypy, Hypothesis, mutmut, pip-audit and CycloneDX are not installed.",
+      "risk": "Some quality/security claims cannot be independently executed in this runtime.",
+      "local_workaround": "Compileall, deterministic fuzz/property/mutation guards, custom secret scan and pip check were executed.",
+      "permanent_solution": "Install pinned dev/security dependencies and run CI.",
+      "environment": "Codex/networked CI.",
+      "files": [
+        "pyproject.toml",
+        ".github/workflows/ci.yml"
+      ],
+      "user_action": "None if Codex/CI has package access.",
+      "acceptance_gate": "All configured checks run with recorded exit codes; no critical/high unresolved finding."
+    },
+    {
+      "blocker_id": "BLOCK-PARQUET-001",
+      "issue_type": "missing_dependency",
+      "severity": "low",
+      "function": "Parquet writing",
+      "cause": "Neither pyarrow nor fastparquet is installed.",
+      "risk": "Parquet export path cannot execute in this runtime.",
+      "local_workaround": "JSON/JSONL/SQLite paths remain available.",
+      "permanent_solution": "Install a pinned Parquet engine and add an installation smoke test.",
+      "environment": "Codex/CI or local Python environment.",
+      "files": [
+        "pyproject.toml"
+      ],
+      "user_action": "None if dependency is approved.",
+      "acceptance_gate": "1000-row Parquet round-trip passes in fresh environment."
+    },
+    {
+      "blocker_id": "BLOCK-MCP-001",
+      "issue_type": "architecture_gap",
+      "severity": "low",
+      "function": "True MCP transport",
+      "cause": "Project implements a FastAPI Function Tool server, not an MCP server.",
+      "risk": "MCP clients cannot connect directly.",
+      "local_workaround": "Use HTTP Function Tool API or OpenAI function tools.",
+      "permanent_solution": "Implement and test an MCP transport only if required.",
+      "environment": "Codex.",
+      "files": [
+        "src/commander_lab/api.py",
+        "src/commander_lab/tools/registry.py"
+      ],
+      "user_action": "Confirm MCP is required.",
+      "acceptance_gate": "MCP initialize/list/call lifecycle passes without altering existing HTTP semantics."
+    }
+  ]
+}

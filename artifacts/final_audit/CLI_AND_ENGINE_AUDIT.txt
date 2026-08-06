@@ -1,0 +1,472 @@
+\n## env PYTHONPATH=src python -m commander_lab.cli.app --help
+                                                                                
+ Usage: python -m commander_lab.cli.app [OPTIONS] COMMAND [ARGS]...             
+                                                                                
+ Commander Playtest Lab utilities                                               
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.      │
+│ --show-completion             Show completion for the current shell, to copy │
+│                               it or customize the installation.              │
+│ --help                        Show this message and exit.                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ validate-local                Rebuild and validate the two immutable local   │
+│                               current-deck snapshots.                        │
+│ inspect-deck                  Import and validate a plaintext deck without   │
+│                               modifying its source file.                     │
+│ generate-structural-profiles  Regenerate the validated structural            │
+│                               role-profile snapshot.                         │
+│ run-structural-batch          Run a local structural_model_estimates batch.  │
+│ validate-structural           Run Goldfish plus three-, four-, and           │
+│                               five-player structural validation batches.     │
+│ validate-pilots               Run deterministic, stochastic, and             │
+│                               strength-matrix pilot validation.              │
+│ serve-tools                   Start the local Function Tool HTTP server.     │
+│ demo-phase5                   Run the offline deterministic Phase-5          │
+│                               end-to-end demonstration.                      │
+│ eval-phase6                   Run the multi-tier Phase-6 evaluation and      │
+│                               acceptance gates.                              │
+│ probe-rules-engines           Probe the local tactical backend and optional  │
+│                               Forge/XMage JSONL bridges.                     │
+│ validate-rules-phase8         Run the Phase-8 tactical and optional external │
+│                               rules-engine validation suite.                 │
+│ engine-status                 Diagnose the configured external rules-engine  │
+│                               runtime.                                       │
+│ engine-start                  Start and handshake with the configured        │
+│                               external bridge.                               │
+│ engine-stop                   Stop the process recorded by the external      │
+│                               runtime state file.                            │
+│ engine-verify                 Start, handshake and stop an external engine;  │
+│                               tactical does not pass.                        │
+│ validate-engine-phase85       Run Phase-8.5 contract/replay checks and       │
+│                               external readiness gate.                       │
+│ doctor                        Check environment, schemas, storage, engine    │
+│                               configuration and core imports.                │
+│ db-check                                                                     │
+│ db-migrate                                                                   │
+│ db-backup                                                                    │
+│ db-restore                                                                   │
+│ runs-verify                                                                  │
+│ audit-phase86                                                                │
+│ ingest-playtest               Import a real playtest sheet into an           │
+│                               append-only versioned dataset.                 │
+│ calibrate-playtests           Compare real and structural distributions      │
+│                               using a sealed train/validation split.         │
+│ validate-phase9               Run the offline Phase-9 import, split,         │
+│                               comparison and calibration smoke suite.        │
+│ accept-phase10                Run the full Phase-10 end-to-end acceptance    │
+│                               workflow.                                      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+exit_code=0
+\n## env PYTHONPATH=src python -m commander_lab.cli.app validate-local --root .
+{
+  "schema_version": "0.2.0",
+  "data_as_of": "2026-08-02",
+  "generated_from_local_files_only": true,
+  "google_drive_modified": false,
+  "authoritative_oracle_snapshot": false,
+  "data_snapshot_hash": "e16af128ccb598039548c0e602f202954d8278af8c327746be8dc67321f0e91e",
+  "decks": {
+    "korvold/current": {
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "total_cards": 100,
+      "library_cards": 99,
+      "commanders": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "source_file": "korvold_current.txt",
+      "normalized_file": "korvold_current.json",
+      "validation": {
+        "valid": true,
+        "issues": [],
+        "metrics": {
+          "total_cards": 100,
+          "library_cards": 99,
+          "unique_oracle_names": 85,
+          "commander_count": 1,
+          "commander_identity": [
+            "B",
+            "G",
+            "R"
+          ]
+        }
+      }
+    },
+    "rogshai/current": {
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "total_cards": 100,
+      "library_cards": 98,
+      "commanders": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "source_file": "rogshai_current.txt",
+      "normalized_file": "rogshai_current.json",
+      "validation": {
+        "valid": true,
+        "issues": [],
+        "metrics": {
+          "total_cards": 100,
+          "library_cards": 98,
+          "unique_oracle_names": 82,
+          "commander_count": 2,
+          "commander_identity": [
+            "R",
+            "U",
+            "W"
+          ]
+        }
+      }
+    }
+  },
+  "allocation_validation": {
+    "valid": true,
+    "issues": [],
+    "metrics": {
+      "required_unique_cards": 161,
+      "available_unique_cards": 161,
+      "required_total_cards": 200,
+      "available_total_cards": 200
+    }
+  }
+}
+exit_code=0
+\n## env PYTHONPATH=src python -m commander_lab.cli.app db-migrate --root .
+{
+  "foreign_keys": true,
+  "integrity": true,
+  "schema_version": 1,
+  "status": "passed"
+}
+exit_code=0
+\n## env PYTHONPATH=src python -m commander_lab.cli.app db-check --root .
+{
+  "foreign_keys": true,
+  "integrity": true,
+  "schema_version": 1,
+  "status": "passed"
+}
+exit_code=0
+\n## env PYTHONPATH=src python -m commander_lab.cli.app doctor --root .
+{
+  "commands": {
+    "docker": null,
+    "git": "/usr/bin/git",
+    "gradle": null,
+    "java": "/usr/bin/java",
+    "javac": "/usr/bin/javac",
+    "mvn": null,
+    "mypy": null,
+    "ruff": null
+  },
+  "database": {
+    "foreign_keys": true,
+    "integrity": true,
+    "schema_version": 1,
+    "status": "passed"
+  },
+  "engine": {
+    "adapter_version": "commander-lab-protocol-1.0.0",
+    "capabilities": null,
+    "details": [
+      "ENGINE_START_COMMAND is empty"
+    ],
+    "engine_version": null,
+    "last_healthcheck_at": null,
+    "pid": null,
+    "protocol_version": "1.0.0",
+    "provider": "xmage",
+    "started_at": null,
+    "status": "not_configured",
+    "stderr_log": "/mnt/data/cpl_1211_latest/commander-playtest-lab/artifacts/engine_setup/logs/xmage.bridge.stderr.log",
+    "stdout_log": "/mnt/data/cpl_1211_latest/commander-playtest-lab/artifacts/engine_setup/logs/xmage.bridge.stdout.jsonl",
+    "stopped_at": null
+  },
+  "external_engine_validation_pending": true,
+  "packages": {
+    "fastapi": true,
+    "hypothesis": false,
+    "pydantic": true,
+    "pytest": true
+  },
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+  "python": "3.13.5",
+  "writable": true
+}
+exit_code=0
+\n## env PYTHONPATH=src python -m commander_lab.cli.app engine-status --root .
+{
+  "provider": "xmage",
+  "status": "not_configured",
+  "pid": null,
+  "engine_version": null,
+  "adapter_version": "commander-lab-protocol-1.0.0",
+  "protocol_version": "1.0.0",
+  "started_at": null,
+  "stopped_at": null,
+  "last_healthcheck_at": null,
+  "capabilities": null,
+  "details": [
+    "ENGINE_START_COMMAND is empty"
+  ],
+  "stdout_log": "/mnt/data/cpl_1211_latest/commander-playtest-lab/artifacts/engine_setup/logs/xmage.bridge.stdout.jsonl",
+  "stderr_log": "/mnt/data/cpl_1211_latest/commander-playtest-lab/artifacts/engine_setup/logs/xmage.bridge.stderr.log"
+}
+exit_code=0
+\n## env PYTHONPATH=src python -m commander_lab.cli.app runs-verify artifacts/final_audit/pods/korvold
+{
+  "valid": true,
+  "status": "valid",
+  "errors": [],
+  "checked_files": 5
+}
+exit_code=0
+{
+  "claims_boundary": "Tactical Oracle results are local fixtures and are not external rules-engine evidence.",
+  "contract_tests": {
+    "all_message_envelopes_covered_by_contract_tests": true,
+    "capabilities": {
+      "action_submission_supported": true,
+      "commander_damage_visible": true,
+      "commander_supported": true,
+      "commander_tax_visible": true,
+      "deck_import_supported": true,
+      "event_log_supported": true,
+      "headless_supported": true,
+      "healthcheck_supported": true,
+      "legal_actions_supported": true,
+      "max_players": 10,
+      "multiplayer_supported": true,
+      "notes": [
+        "bounded local tactical oracle",
+        "not an external rules engine"
+      ],
+      "partner_supported": true,
+      "priority_visible": true,
+      "replay_supported": true,
+      "runtime_kind": "tactical_oracle",
+      "scenario_injection_supported": true,
+      "seed_supported": true,
+      "stack_visible": true,
+      "starting_state_injection_supported": true
+    },
+    "declared_message_types": [
+      "engine_hello",
+      "engine_capabilities",
+      "load_deck",
+      "create_game",
+      "set_seed",
+      "start_game",
+      "get_game_state",
+      "get_legal_actions",
+      "submit_action",
+      "advance_priority",
+      "advance_phase",
+      "get_event_log",
+      "export_replay",
+      "shutdown_game"
+    ],
+    "exercised": [
+      "engine_hello",
+      "engine_capabilities",
+      "load_deck",
+      "create_game",
+      "set_seed",
+      "start_game",
+      "get_game_state",
+      "get_legal_actions",
+      "submit_action",
+      "advance_priority",
+      "advance_phase",
+      "get_event_log",
+      "export_replay",
+      "shutdown_game"
+    ],
+    "hello": {
+      "availability": "available",
+      "backend": "tactical",
+      "backend_version": "tactical-0.8.0",
+      "capabilities": {
+        "action_submission": true,
+        "action_submission_supported": false,
+        "commander_damage_visible": false,
+        "commander_games": true,
+        "commander_supported": false,
+        "commander_tax_visible": false,
+        "deck_import_supported": false,
+        "deck_loading": true,
+        "deterministic_seed": true,
+        "event_log_supported": false,
+        "event_logs": true,
+        "game_logs": true,
+        "headless_supported": false,
+        "healthcheck_supported": true,
+        "legal_action_query": true,
+        "legal_actions_supported": false,
+        "max_players": null,
+        "maximum_players": 10,
+        "multiplayer": true,
+        "multiplayer_supported": false,
+        "notes": [
+          "bounded tactical oracle; not a complete Magic rules engine",
+          "passing cases are tactical_validated, never rules_engine_validated"
+        ],
+        "partner_supported": false,
+        "priority_visible": false,
+        "replay_supported": false,
+        "reproducible_starting_state": true,
+        "runtime_kind": "unknown",
+        "scenario_injection": true,
+        "scenario_injection_supported": false,
+        "seed_supported": false,
+        "stack_visible": false,
+        "starting_state_injection_supported": false
+      },
+      "command": [],
+      "details": [],
+      "engine": "tactical",
+      "engine_version": "tactical-0.8.5",
+      "protocol_version": "1.0.0",
+      "validation_level": "tactical_oracle"
+    },
+    "message_outcomes": {
+      "advance_phase": "structured_error",
+      "advance_priority": "structured_error",
+      "create_game": "structured_error",
+      "engine_capabilities": "success",
+      "engine_hello": "success",
+      "export_replay": "structured_error",
+      "get_event_log": "success",
+      "get_game_state": "structured_error",
+      "get_legal_actions": "structured_error",
+      "load_deck": "structured_error",
+      "set_seed": "structured_error",
+      "shutdown_game": "success",
+      "start_game": "structured_error",
+      "submit_action": "structured_error"
+    },
+    "passed": true,
+    "status": "passed",
+    "unknown_message_rejected": true,
+    "validation_level": "tactical_oracle"
+  },
+  "external_engine_validation_pending": true,
+  "external_integration_tests": {
+    "deck_import": false,
+    "event_log": false,
+    "handshake": false,
+    "illegal_action_rejected": false,
+    "legal_action": false,
+    "multiplayer_game": false
+  },
+  "external_process_state": {
+    "adapter_version": "commander-lab-protocol-1.0.0",
+    "capabilities": null,
+    "details": [
+      "ENGINE_START_COMMAND is empty"
+    ],
+    "engine_version": null,
+    "last_healthcheck_at": null,
+    "pid": null,
+    "protocol_version": "1.0.0",
+    "provider": "xmage",
+    "started_at": null,
+    "status": "not_configured",
+    "stderr_log": "/mnt/data/cpl_1211_latest/commander-playtest-lab/artifacts/final_audit/engine-logs/xmage.bridge.stderr.log",
+    "stdout_log": "/mnt/data/cpl_1211_latest/commander-playtest-lab/artifacts/final_audit/engine-logs/xmage.bridge.stdout.jsonl",
+    "stopped_at": null
+  },
+  "full_external_acceptance_passed": false,
+  "generated_at": "2026-08-06T21:56:50.066653Z",
+  "installed_or_pinned": {
+    "forge": {
+      "commit": "852066bf4f761b302ed17cb011999d8a8fe08ad6",
+      "executed": false,
+      "release": "forge-2.0.13"
+    },
+    "xmage": {
+      "commit": "06d166b098ad36b277edef01116472203d5a047e",
+      "executed": false,
+      "release": "xmage_1.4.60V3"
+    }
+  },
+  "local_acceptance_passed": true,
+  "phase": "8.5",
+  "phase9_condition": "external_engine_validation_pending=true",
+  "phase9_may_begin": true,
+  "primary_engine": "xmage",
+  "project_scenarios": [
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "commander_from_command_zone",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "commander_tax_after_removal",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "partner_commanders",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "commander_damage_per_opponent",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "kediss_normal_damage",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "jeska_combat_damage_tripling",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "boardwipe",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "counter_commander",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "protection_response",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    },
+    {
+      "note": "No external XMage/Forge runtime was executed in this environment.",
+      "scenario": "cast_trigger_survives_counter",
+      "status": "manual_review_required",
+      "validation_level": "structural_only"
+    }
+  ],
+  "replay_tests": {
+    "events_applied": 1,
+    "final_state_hash": "0d8de52dc5c9607961e33a0b42fcf552d6d99aee23e87bb0721aeac447ce9fca",
+    "mismatches": [],
+    "passed": true,
+    "validation_level": "tactical_oracle"
+  },
+  "secondary_engine": "forge",
+  "status": "external_runtime_prepared_but_not_executed",
+  "version": "engine-integration-0.8.5"
+}
