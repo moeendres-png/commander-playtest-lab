@@ -69,6 +69,20 @@
         "<=1.10.1"
       ],
       "status": "fixed"
+    },
+    {
+      "bug_id": "BUG-12.11-006",
+      "severity": "low",
+      "component": "Final audit documentation and repair routing",
+      "symptom": "The packaged function matrix still marked the completed Drive round-trip as partial, and the Work prompt repeated already completed upload tasks.",
+      "minimal_reproduction": "Compare FINAL_FUNCTION_MATRIX and PLAYTEST_LAB_WORK_CHAT_REPAIR_PROMPT with FINAL_DRIVE_ROUNDTRIP.json.",
+      "root_cause": "The matrix and prompts were generated before the post-packaging Drive readback and were not refreshed afterward.",
+      "fix": "Mark the verified Drive upload complete and rewrite Work/Codex routing for only the remaining blockers.",
+      "regression_test": "Prompt-quality and cross-artifact consistency review against FINAL_SYSTEM_AUDIT_RESULT and FINAL_DRIVE_ROUNDTRIP.",
+      "affected_versions": [
+        "1.10.2 initial audit package"
+      ],
+      "status": "fixed"
     }
   ]
 }

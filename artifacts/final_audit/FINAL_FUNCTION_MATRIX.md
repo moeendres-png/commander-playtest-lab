@@ -91,7 +91,7 @@
 | Infrastruktur | Parquet write path | yes | passed | blocked | structural_only | partial | Optional pyarrow/fastparquet dependency is not installed. |
 | Infrastruktur | Actual MCP server | no | not_run | not_run | structural_only | missing | Project exposes a FastAPI Function Tool server, not a true MCP transport. |
 | Infrastruktur | OpenAI live orchestrator | yes | passed | blocked | structural_only | functional_with_limitations | OPENAI_API_KEY and openai/openai-agents packages are absent; offline adapter tests pass. |
-| Infrastruktur | Google Drive final audit upload | yes | not_run | not_run | structural_only | partial | Completed locally; final upload/round-trip is performed after packaging if connector file upload succeeds. |
+| Infrastruktur | Google Drive final audit upload | yes | passed | passed | structural_only | complete | Final repository was uploaded, re-downloaded, SHA-256 matched, safely restored, and targeted restore checks passed. |
 | Externe Regelengine | XMage adapter | yes | passed | passed_with_limitations | tactical_oracle | functional_with_limitations | No real XMage/Forge runtime executed. |
 | Externe Regelengine | Forge adapter | yes | passed | passed_with_limitations | tactical_oracle | functional_with_limitations | No real XMage/Forge runtime executed. |
 | Externe Regelengine | Engine process manager | yes | passed | passed_with_limitations | tactical_oracle | functional_with_limitations | No real XMage/Forge runtime executed. |

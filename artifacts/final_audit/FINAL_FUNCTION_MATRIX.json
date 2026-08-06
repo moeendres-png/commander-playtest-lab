@@ -895,11 +895,11 @@
       "category": "Infrastruktur",
       "function": "Google Drive final audit upload",
       "code": "yes",
-      "tests": "not_run",
-      "practically_executed": "not_run",
+      "tests": "passed",
+      "practically_executed": "passed",
       "validation_level": "structural_only",
-      "status": "partial",
-      "error_or_limit": "Completed locally; final upload/round-trip is performed after packaging if connector file upload succeeds."
+      "status": "complete",
+      "error_or_limit": "Final repository was uploaded, re-downloaded, SHA-256 matched, safely restored, and targeted restore checks passed."
     },
     {
       "category": "Externe Regelengine",

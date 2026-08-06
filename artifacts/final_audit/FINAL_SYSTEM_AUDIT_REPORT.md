@@ -66,3 +66,7 @@ The one skip requires a configured real XMage or Forge differential command. No 
 - No synthetic game is counted as real.
 - No Tactical Oracle result is called an external rules-engine result.
 - No upgrade was applied automatically.
+
+## Post-roundtrip documentation consistency correction
+
+A final cross-artifact review found that the packaged function matrix and Work prompt still reflected the pre-upload state. They were corrected to record the completed Drive round-trip and to route only unresolved work: real-playtest intake, external-engine evidence, QA/security tooling, optional Parquet, and optional MCP. No product code or package version changed.
