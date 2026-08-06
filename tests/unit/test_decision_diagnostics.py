@@ -53,3 +53,26 @@ def test_integrated_ten_step_smoke(tmp_path):
     assert [row.step for row in report.steps]==list(range(1,11))
     assert all(row.source_paths and row.source_hashes and row.validation_level for row in report.steps)
     assert report.external_engine_used is False
+
+
+def test_event_log_instrumentation_builds_auditable_dataset(tmp_path):
+    from commander_lab.diagnostics import DiagnosticInstrumentationCollector
+    from commander_lab.engine.structural import StructuralSimulator, load_project_structural_decks
+    from commander_lab.models import StructuralAbortLimits, StructuralMatchConfig
+    decks=load_project_structural_decks(ROOT,include_synthetic_fixtures=True,include_current_opponents=True)
+    log=ROOT/'data/runs/diagnostics/test-event-derived.jsonl'
+    try:
+        StructuralSimulator(decks).simulate(
+            StructuralMatchConfig(match_id='diagnostic-event-derived',seed=9123,deck_ids=('korvold/current','synthetic/aggro','synthetic/control','synthetic/engine'),limits=StructuralAbortLimits(max_turns=5)),
+            event_log_path=log,capture_events=True,
+        )
+        dataset=DiagnosticInstrumentationCollector(ROOT).build(
+            dataset_id='event-derived-test',deck_id='korvold/current',
+            log_paths=[str(log.relative_to(ROOT))],opponent_ensemble_count=3,
+        )
+        assert dataset.source_ids and dataset.source_ids[0].startswith('sha256:')
+        assert any(row.opening_hand or row.drawn or row.played for row in dataset.card_metrics)
+        assert dataset.validation_levels == ('structural_model_estimates',)
+        assert 'not empirical' in dataset.notes[0]
+    finally:
+        log.unlink(missing_ok=True)

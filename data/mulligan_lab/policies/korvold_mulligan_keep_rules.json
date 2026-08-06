@@ -1,8 +1,6 @@
 {
-  "absolute_rules": false,
   "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
   "deck_id": "korvold/current",
-  "model_based": true,
   "rules": [
     {
       "absolute_rule": false,
@@ -42,16 +40,142 @@
         "Visible graveyard hate reduces graveyard-only keeps."
       ],
       "model_based": true,
-      "policy": "conservative",
-      "rule_id": "korvold.current.conservative.candidate-v1",
-      "source_run_hash": "f92b0c6533214b4ae0fc337d1eb9d719351b7a3510fd096d7bc30644a1f4fd62",
+      "policy": "curve_oriented",
+      "rule_id": "korvold.current.curve_oriented.candidate-v1",
+      "source_run_hash": "fee4cf4e4198562c6bb06a0b45dd9bfec4acf686cfe2cb68ca196955f1fca588",
       "validation_contexts": [
-        "primary_structural",
-        "opponent_ensemble",
-        "multi_pilot_candidate"
+        "primary",
+        "holdout-a",
+        "holdout-b",
+        "ensemble",
+        "pilot-KorvoldPilot",
+        "pilot-KorvoldSacrificePilot",
+        "pilot-KorvoldConservativePilot"
       ],
-      "validation_status": "candidate"
+      "validation_results": [
+        {
+          "average_placement": 1.0,
+          "baseline_average_placement": 1.75,
+          "context_id": "primary",
+          "context_kind": "primary_pod",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "KorvoldPilot",
+          "placement_delta": -0.75,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 1.0,
+          "baseline_average_placement": 1.25,
+          "context_id": "holdout-a",
+          "context_kind": "holdout_pod",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/kaervek-reference",
+            "opponent/doom-prevails-precon",
+            "opponent/dance-elements-precon"
+          ],
+          "pilot_profile_id": "KorvoldPilot",
+          "placement_delta": -0.25,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 2.0,
+          "baseline_average_placement": 1.5,
+          "context_id": "holdout-b",
+          "context_kind": "holdout_pod",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/wakanda-forever-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "opponent/blight-curse-precon"
+          ],
+          "pilot_profile_id": "KorvoldPilot",
+          "placement_delta": 0.5,
+          "samples": 4,
+          "supported": false
+        },
+        {
+          "average_placement": 1.0,
+          "baseline_average_placement": 1.75,
+          "context_id": "ensemble",
+          "context_kind": "opponent_ensemble",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "KorvoldPilot",
+          "placement_delta": -0.75,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 1.0,
+          "baseline_average_placement": 1.75,
+          "context_id": "pilot-KorvoldPilot",
+          "context_kind": "pilot_profile",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "KorvoldPilot",
+          "placement_delta": -0.75,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 2.0,
+          "baseline_average_placement": 1.75,
+          "context_id": "pilot-KorvoldSacrificePilot",
+          "context_kind": "pilot_profile",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "KorvoldSacrificePilot",
+          "placement_delta": 0.25,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 2.0,
+          "baseline_average_placement": 1.25,
+          "context_id": "pilot-KorvoldConservativePilot",
+          "context_kind": "pilot_profile",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "KorvoldConservativePilot",
+          "placement_delta": 0.75,
+          "samples": 4,
+          "supported": false
+        }
+      ],
+      "validation_status": "holdout_checked"
     }
   ],
-  "schema_version": "1.0.0"
+  "schema_version": "1.10.1",
+  "truth_boundary": "model_based_not_absolute"
 }

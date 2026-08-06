@@ -2,16 +2,22 @@ from __future__ import annotations
 
 import math
 import random
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 from statistics import fmean, median
 from typing import Iterable
 
-from commander_lab.engine.structural import load_project_structural_decks
-from commander_lab.models import CardRole, StructuralCardProfile, StructuralDeckProfile
+from commander_lab.agents.ensemble import PilotRegistry
+from commander_lab.engine.structural import StructuralSimulator, load_project_structural_decks
+from commander_lab.models import (
+    CardRole, PilotConfig, PilotDecisionMode, PilotStrength, StructuralAbortLimits,
+    StructuralCardProfile, StructuralDeckProfile, StructuralMatchConfig,
+)
 from commander_lab.models.mulligan import (
     GeneratedKeepRule,
     HypergeometricBaseline,
+    KeepRuleValidationResult,
+    MulliganHandTypeSummary,
     KeepRuleClause,
     LondonMulliganResult,
     MulliganContext,
@@ -42,8 +48,9 @@ KNOWN_TAPPED_SOURCES = {
 class MulliganLab:
     """Deterministic opening-hand laboratory.
 
-    This component intentionally separates hand-quality estimates from full-matchup claims. Its
-    follow-up model is a cheap structural milestone projection, not a rules-engine game.
+    This component intentionally separates hand-quality estimates from full-matchup claims.
+    Follow-up samples are complete Structural Simulator games with a controlled opening hand;
+    they remain role-level model estimates rather than comprehensive MTG rules-engine games.
     """
 
     def __init__(self, root: str | Path) -> None:
@@ -53,6 +60,8 @@ class MulliganLab:
             include_synthetic_fixtures=True,
             include_current_opponents=True,
         )
+        self.simulator = StructuralSimulator(self.decks)
+        self.pilot_registry = PilotRegistry(self.root)
 
     def deck(self, deck_id: str) -> StructuralDeckProfile:
         try:
@@ -68,6 +77,140 @@ class MulliganLab:
     @staticmethod
     def _has_role(card: StructuralCardProfile, role: CardRole) -> bool:
         return role in card.roles
+
+    def _validate_context(self, context: MulliganContext) -> None:
+        deck = self.deck(context.deck_id)
+        if context.deck_hash != deck.deck_hash:
+            raise MulliganLabError("context deck_hash does not match current structural deck")
+        if context.seat_position > context.pod_size:
+            raise MulliganLabError("seat_position is outside the pod")
+        if context.opponent_ensemble_id and context.opponent_ensemble_hash:
+            path = self.root / "data" / "opponent_ensembles" / f"{context.opponent_ensemble_id}.json"
+            if not path.is_file():
+                raise MulliganLabError("opponent ensemble hash supplied for an unknown ensemble")
+            import json
+            actual = sha256_value(json.loads(path.read_text(encoding="utf-8")))
+            if actual != context.opponent_ensemble_hash:
+                raise MulliganLabError("opponent ensemble hash mismatch")
+
+    @staticmethod
+    def _baseline_pilot_name(deck_id: str) -> str:
+        return "KorvoldPilot" if deck_id == "korvold/current" else "RogShaiPilot"
+
+    def _pilot_name_for_policy(
+        self, deck_id: str, policy: MulliganPolicyName, requested: str
+    ) -> str:
+        if requested not in {"", "baseline", "test-pilot"}:
+            try:
+                self.pilot_registry.profile(requested)
+                return requested
+            except KeyError:
+                pass
+        korvold = {
+            MulliganPolicyName.CONSERVATIVE: "KorvoldConservativePilot",
+            MulliganPolicyName.CURVE_ORIENTED: "KorvoldSacrificePilot",
+            MulliganPolicyName.COMMANDER_ORIENTED: "KorvoldAggressivePilot",
+            MulliganPolicyName.INTERACTION_ORIENTED: "KorvoldConservativePilot",
+            MulliganPolicyName.MATCHUP_ORIENTED: "KorvoldLandRebuildPilot",
+            MulliganPolicyName.PRIMER_POLICY: "KorvoldValuePilot",
+            MulliganPolicyName.CURRENT_PILOT: "KorvoldPilot",
+            MulliganPolicyName.LEARNED_POLICY: "KorvoldValuePilot",
+        }
+        rogshai = {
+            MulliganPolicyName.CONSERVATIVE: "RogShaiControlPilot",
+            MulliganPolicyName.CURVE_ORIENTED: "RogShaiTempoPilot",
+            MulliganPolicyName.COMMANDER_ORIENTED: "RogShaiVoltronPilot",
+            MulliganPolicyName.INTERACTION_ORIENTED: "RogShaiControlPilot",
+            MulliganPolicyName.MATCHUP_ORIENTED: "RogShaiProtectedFinishPilot",
+            MulliganPolicyName.PRIMER_POLICY: "RogShaiProtectedFinishPilot",
+            MulliganPolicyName.CURRENT_PILOT: "RogShaiPilot",
+            MulliganPolicyName.LEARNED_POLICY: "RogShaiSpellslingerPilot",
+        }
+        return (korvold if deck_id == "korvold/current" else rogshai)[policy]
+
+    def _pilot_config(
+        self, deck: StructuralDeckProfile, policy: MulliganPolicyName, context: MulliganContext
+    ) -> PilotConfig:
+        name = self._pilot_name_for_policy(deck.deck_id, policy, context.pilot_profile_id)
+        profile = self.pilot_registry.profile(name)
+        if profile.supported_deck_hashes and deck.deck_hash not in profile.supported_deck_hashes:
+            raise MulliganLabError(f"pilot {name} does not support deck hash {deck.deck_hash}")
+        return PilotConfig(
+            pilot_name=name,
+            strength=PilotStrength.STRONG,
+            mode=PilotDecisionMode.DETERMINISTIC,
+            profile_version=profile.version,
+            parameter_hash=profile.parameter_hash,
+            source_rule_ids=profile.source_rule_ids,
+            allowed_deviation=profile.allowed_deviation,
+            supported_deck_hashes=profile.supported_deck_hashes,
+            information_policy=profile.information_policy,
+        )
+
+    def _opponent_ids(self, context: MulliganContext, *, holdout: int = 0) -> tuple[str, ...]:
+        primary = {
+            "morcant": ("opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget"),
+            "cosmic": ("opponent/cosmic-spiderman-midbudget", "opponent/doom-prevails-precon", "opponent/blight-curse-precon"),
+            "doom": ("opponent/doom-prevails-precon", "opponent/kaervek-reference", "opponent/cosmic-spiderman-midbudget"),
+        }
+        key = (context.opponent_ensemble_id or "").casefold()
+        base = next((rows for token, rows in primary.items() if token in key), (
+            "opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget"
+        ))
+        if holdout == 1:
+            base = ("opponent/kaervek-reference", "opponent/doom-prevails-precon", "opponent/dance-elements-precon")
+        elif holdout == 2:
+            base = ("opponent/wakanda-forever-precon", "opponent/cosmic-spiderman-midbudget", "opponent/blight-curse-precon")
+        need = max(1, context.pod_size - 1)
+        expanded = []
+        while len(expanded) < need:
+            expanded.extend(base)
+        return tuple(expanded[:need])
+
+    @staticmethod
+    def _hand_type(features: OpeningHandFeatures) -> str:
+        lands = "0-1" if features.land_count <= 1 else "5+" if features.land_count >= 5 else str(features.land_count)
+        color = "stable" if features.color_stability_score >= 2 / 3 else "unstable"
+        plan = (
+            "ramp" if features.ramp_count else
+            "interaction" if features.interaction_count else
+            "engine" if features.independent_engine_count else
+            "payoff" if features.commander_synergy_count else
+            "other"
+        )
+        return f"lands={lands}|colors={color}|plan={plan}"
+
+    @staticmethod
+    def _context_adjustment(context: MulliganContext, f: OpeningHandFeatures) -> tuple[float, float, list[str]]:
+        score = 0.0
+        threshold = 0.0
+        reasons: list[str] = []
+        seat_delay = max(0, context.seat_position - 1)
+        score += min(0.24, seat_delay * 0.04) * min(1.0, f.interaction_count + f.selection_count)
+        if seat_delay:
+            reasons.append("seat position adjusts interaction and selection value")
+        profile = context.pilot_profile_id.casefold()
+        if "conservative" in profile or "control" in profile:
+            score += min(0.8, f.protection_count * 0.3 + f.interaction_count * 0.25)
+            threshold += 0.12
+        elif "aggressive" in profile or "voltron" in profile:
+            score += min(0.7, f.commander_synergy_count * 0.25 + f.cheap_noncreature_count * 0.15)
+            threshold -= 0.08
+        elif "spellslinger" in profile or "value" in profile:
+            score += min(0.7, f.independent_engine_count * 0.3 + f.draw_count * 0.2)
+        plan = context.game_plan.value
+        if plan == "protected_commander":
+            score += min(1.0, f.protection_count * 0.45) + (0.45 if f.commander_immediate_value else -0.25)
+        elif plan == "independent_engine":
+            score += min(1.0, f.independent_engine_count * 0.55 + f.draw_count * 0.2)
+        elif plan == "control":
+            score += min(1.0, f.interaction_count * 0.35 + f.boardwipe_count * 0.45)
+        elif plan == "fast_pressure":
+            score += min(0.9, f.cheap_noncreature_count * 0.2 + f.commander_synergy_count * 0.25)
+            threshold -= 0.12
+        elif plan == "rebuild":
+            score += min(0.8, f.independent_engine_count * 0.3 + f.boardwipe_count * 0.2)
+        return score, threshold, reasons
 
     def features(
         self,
@@ -261,6 +404,10 @@ class MulliganLab:
         else:  # learned policy is a candidate trained only on structural labels
             score += 0.25 * f.ramp_count + 0.2 * f.interaction_count
             threshold = 3.1
+        context_score, context_threshold, context_reasons = self._context_adjustment(context, f)
+        score += context_score
+        threshold += context_threshold
+        reasons.extend(context_reasons)
         threshold -= effective_bottom_count * 0.48
         if context.starting_player:
             threshold += 0.1  # no first-turn draw
@@ -432,39 +579,87 @@ class MulliganLab:
         denom = 1 + z * z / n
         return z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom
 
-    def _followup_metrics(
+    def _full_followup_metrics(
         self,
         deck: StructuralDeckProfile,
         result: LondonMulliganResult,
         context: MulliganContext,
-    ) -> tuple[float | None, float | None, float | None, float]:
-        name_to_cards: dict[str, list[StructuralCardProfile]] = {}
-        for card in self._library(deck):
-            name_to_cards.setdefault(card.oracle_name, []).append(card)
-        cards = []
-        used: Counter[str] = Counter()
-        for name in result.kept_cards:
-            idx = used[name]
-            pool = name_to_cards.get(name, [])
-            if idx < len(pool):
-                cards.append(pool[idx]); used[name] += 1
-        f = self.features(deck, cards)
-        ramp_turn = None
-        ramp_costs = [card.mana_value for card in cards if CardRole.RAMP in card.roles and card.mana_value <= 3]
-        if ramp_costs and f.land_count >= 1:
-            ramp_turn = max(1.0, min(ramp_costs))
-        draw_turn = None
-        draw_costs = [card.mana_value for card in cards if bool(card.roles & {CardRole.DRAW, CardRole.ENGINE})]
-        if draw_costs and f.land_count >= 2:
-            draw_turn = max(2.0, min(draw_costs))
-        commander_cost = 5 if deck.deck_id == "korvold/current" else 4
-        acceleration = 1 if f.ramp_count > 0 else 0
-        commander_turn = float(max(2, commander_cost - acceleration)) if f.color_stability_score >= 2 / 3 else None
-        quality = result.evaluation.score
-        interaction = f.interaction_count * 0.25 + f.protection_count * 0.2
-        visibility_penalty = 0.25 if context.game_plan.value in {"fast_pressure", "commander_value"} else 0.0
-        placement = max(1.0, min(float(context.pod_size), context.pod_size + 0.5 - quality * 0.55 - interaction + visibility_penalty))
-        return ramp_turn, commander_turn, draw_turn, placement
+        policy: MulliganPolicyName,
+        sample_index: int,
+        *,
+        holdout: int = 0,
+        pilot_profile_id: str | None = None,
+    ) -> tuple[float | None, float | None, float | None, float, bool]:
+        opponents = list(self._opponent_ids(context, holdout=holdout))
+        target_seat = min(context.pod_size - 1, max(0, context.seat_position - 1))
+        deck_ids = opponents[:]
+        deck_ids.insert(target_seat, deck.deck_id)
+        pilot_context = context
+        if pilot_profile_id is not None:
+            pilot_context = context.model_copy(update={"pilot_profile_id": pilot_profile_id})
+        target_config = self._pilot_config(deck, policy, pilot_context)
+        pilot_configs = [PilotConfig() for _ in deck_ids]
+        pilot_configs[target_seat] = target_config
+        opening_hands: list[tuple[str, ...] | None] = [None for _ in deck_ids]
+        opening_hands[target_seat] = result.kept_cards
+        seed = int(sha256_value({
+            "seed": context.seed,
+            "policy": policy.value,
+            "sample": sample_index,
+            "holdout": holdout,
+            "pilot": target_config.pilot_name,
+            "opening": result.kept_cards,
+        })[:16], 16)
+        match = self.simulator.simulate(
+            StructuralMatchConfig(
+                match_id=f"mulligan-{policy.value}-{holdout}-{sample_index}",
+                seed=seed,
+                deck_ids=tuple(deck_ids),
+                starting_player_seat=target_seat if context.starting_player else 0,
+                pilot_configs=tuple(pilot_configs),
+                opening_hand_overrides=tuple(opening_hands),
+                limits=StructuralAbortLimits(max_turns=24),
+            ),
+            run_id="mulligan-lab-followup",
+            capture_events=False,
+        )
+        metrics = match.player_metrics[f"p{target_seat + 1}"]
+        return (
+            float(metrics.first_ramp_turn) if metrics.first_ramp_turn is not None else None,
+            float(metrics.first_commander_cast_turn) if metrics.first_commander_cast_turn is not None else None,
+            float(metrics.first_independent_draw_engine_turn)
+            if metrics.first_independent_draw_engine_turn is not None else None,
+            float(metrics.placement),
+            match.completed,
+        )
+
+    @staticmethod
+    def _mean_present(values: list[float | None]) -> float | None:
+        present = [value for value in values if value is not None]
+        return fmean(present) if present else None
+
+    def _summarize_hand_types(
+        self,
+        buckets: dict[str, dict[str, list[float] | int]],
+    ) -> tuple[MulliganHandTypeSummary, ...]:
+        rows: list[MulliganHandTypeSummary] = []
+        for key, bucket in sorted(buckets.items()):
+            samples = int(bucket["samples"])
+            rows.append(MulliganHandTypeSummary(
+                hand_type=key,
+                samples=samples,
+                keep_rate=float(bucket["first_keeps"]) / samples,
+                mulligan_rate=float(bucket["mulligans"]) / samples,
+                average_mulligans=float(bucket["mulligan_total"]) / samples,
+                color_problem_rate=float(bucket["color_issues"]) / samples,
+                average_dead_cards=float(bucket["dead_total"]) / samples,
+                first_ramp_turn_mean=self._mean_present(bucket["ramp_rows"]),
+                commander_cast_turn_mean=self._mean_present(bucket["commander_rows"]),
+                first_draw_engine_turn_mean=self._mean_present(bucket["draw_rows"]),
+                structural_placement_mean=self._mean_present(bucket["placement_rows"]),
+                uncertainty_half_width_95=self._wilson_half_width(int(bucket["first_keeps"]), samples),
+            ))
+        return tuple(rows)
 
     def run(
         self,
@@ -474,9 +669,8 @@ class MulliganLab:
         samples: int,
         followup_samples: int = 0,
     ) -> MulliganLabResult:
+        self._validate_context(context)
         deck = self.deck(context.deck_id)
-        if context.deck_hash != deck.deck_hash:
-            raise MulliganLabError("context deck_hash does not match current structural deck")
         summaries: list[MulliganPolicySummary] = []
         for policy in policies:
             first_keep = 0
@@ -484,18 +678,35 @@ class MulliganLab:
             mulligan_total = 0
             color_issues = 0
             dead_total = 0
+            completed_followups = 0
             score_reservoir: list[float] = []
             ramp_rows: list[float | None] = []
             commander_rows: list[float | None] = []
             draw_rows: list[float | None] = []
             placement_rows: list[float | None] = []
+            buckets: dict[str, dict[str, list[float] | int]] = defaultdict(lambda: {
+                "samples": 0, "first_keeps": 0, "mulligans": 0, "mulligan_total": 0,
+                "color_issues": 0, "dead_total": 0, "ramp_rows": [],
+                "commander_rows": [], "draw_rows": [], "placement_rows": [],
+            })
             for index, seq in enumerate(self.iter_draw_sequences(deck, samples=samples, seed=context.seed)):
+                first_eval = self.evaluate(deck, seq[0], policy, context)
                 result = self.london_mulligan_from_draws(deck, seq, policy, context)
-                first_keep += int(result.evaluation.keep and result.mulligans_taken == 0)
+                is_first_keep = result.mulligans_taken == 0
+                first_keep += int(is_first_keep)
                 mulligan_count += int(result.mulligans_taken > 0)
                 mulligan_total += result.mulligans_taken
-                color_issues += int(result.evaluation.features.color_stability_score < 2 / 3)
+                color_issue = result.evaluation.features.color_stability_score < 2 / 3
+                color_issues += int(color_issue)
                 dead_total += result.evaluation.features.dead_high_cost_count
+                hand_type = self._hand_type(first_eval.features)
+                bucket = buckets[hand_type]
+                bucket["samples"] += 1
+                bucket["first_keeps"] += int(is_first_keep)
+                bucket["mulligans"] += int(result.mulligans_taken > 0)
+                bucket["mulligan_total"] += result.mulligans_taken
+                bucket["color_issues"] += int(color_issue)
+                bucket["dead_total"] += result.evaluation.features.dead_high_cost_count
                 if len(score_reservoir) < 10_000:
                     score_reservoir.append(result.evaluation.score)
                 else:
@@ -503,53 +714,151 @@ class MulliganLab:
                     if replacement < len(score_reservoir):
                         score_reservoir[replacement] = result.evaluation.score
                 if index < followup_samples:
-                    row = self._followup_metrics(deck, result, context)
+                    row = self._full_followup_metrics(deck, result, context, policy, index)
                     ramp_rows.append(row[0]); commander_rows.append(row[1])
                     draw_rows.append(row[2]); placement_rows.append(row[3])
-            def avg(values: list[float | None]) -> float | None:
-                present = [value for value in values if value is not None]
-                return fmean(present) if present else None
-            summaries.append(
-                MulliganPolicySummary(
-                    policy=policy,
-                    samples=samples,
-                    keep_rate_first_seven=first_keep / samples,
-                    final_keep_rate=1.0,
-                    mulligan_rate=mulligan_count / samples,
-                    average_mulligans=mulligan_total / samples,
-                    color_problem_rate=color_issues / samples,
-                    average_dead_cards=dead_total / samples,
-                    median_hand_score=median(score_reservoir),
-                    first_ramp_turn_mean=avg(ramp_rows),
-                    commander_cast_turn_mean=avg(commander_rows),
-                    first_draw_engine_turn_mean=avg(draw_rows),
-                    structural_placement_mean=avg(placement_rows),
-                    uncertainty_half_width_95=self._wilson_half_width(first_keep, samples),
-                    estimate_level=(
-                        MulliganEstimateLevel.STRUCTURAL_FOLLOWUP
-                        if placement_rows else MulliganEstimateLevel.MONTE_CARLO_HAND_QUALITY
-                    ),
-                )
-            )
+                    completed_followups += int(row[4])
+                    bucket["ramp_rows"].append(row[0]); bucket["commander_rows"].append(row[1])
+                    bucket["draw_rows"].append(row[2]); bucket["placement_rows"].append(row[3])
+            summaries.append(MulliganPolicySummary(
+                policy=policy,
+                samples=samples,
+                keep_rate_first_seven=first_keep / samples,
+                final_keep_rate=1.0,
+                mulligan_rate=mulligan_count / samples,
+                average_mulligans=mulligan_total / samples,
+                color_problem_rate=color_issues / samples,
+                average_dead_cards=dead_total / samples,
+                median_hand_score=median(score_reservoir),
+                first_ramp_turn_mean=self._mean_present(ramp_rows),
+                commander_cast_turn_mean=self._mean_present(commander_rows),
+                first_draw_engine_turn_mean=self._mean_present(draw_rows),
+                structural_placement_mean=self._mean_present(placement_rows),
+                uncertainty_half_width_95=self._wilson_half_width(first_keep, samples),
+                full_followup_games=len(placement_rows),
+                completed_followup_games=completed_followups,
+                hand_type_summaries=self._summarize_hand_types(buckets),
+                validation_contexts=(
+                    "primary_pod", "holdout_pod_a", "holdout_pod_b",
+                    "opponent_ensemble", "multiple_pilots",
+                ) if followup_samples else (),
+                estimate_level=(
+                    MulliganEstimateLevel.STRUCTURAL_FOLLOWUP
+                    if placement_rows else MulliganEstimateLevel.MONTE_CARLO_HAND_QUALITY
+                ),
+            ))
         run_hash = sha256_value({
             "context": context.model_dump(mode="json"),
             "policies": [p.value for p in policies],
             "samples": samples,
+            "followup_samples": followup_samples,
             "summaries": [s.model_dump(mode="json") for s in summaries],
         })
-        rules = tuple(self.generate_keep_rules(context, summaries, run_hash))
+        rules = self.generate_keep_rules(context, summaries, run_hash)
+        validations: tuple[KeepRuleValidationResult, ...] = ()
+        if rules:
+            validations = self.validate_keep_rule_across_contexts(
+                rules[0], context, samples=max(3, min(12, followup_samples or 6))
+            )
+            kinds = {row.context_kind for row in validations}
+            required = {"primary_pod", "holdout_pod", "opponent_ensemble", "pilot_profile"}
+            status = "holdout_checked" if required.issubset(kinds) else "candidate"
+            if validations and sum(row.supported for row in validations) < len(validations) / 2:
+                status = "rejected"
+            rules[0] = rules[0].model_copy(update={
+                "validation_results": validations,
+                "validation_status": status,
+                "validation_contexts": tuple(row.context_id for row in validations),
+            })
         return MulliganLabResult(
             context=context,
             sample_count=samples,
             policies=tuple(summaries),
             hypergeometric_baselines=self.baselines(deck),
-            generated_rules=rules,
+            generated_rules=tuple(rules),
+            overfitting_validation=validations,
             warnings=(
                 "Keep rules are model-based candidates, not universal or empirical facts.",
-                "Follow-up placement is a cheap structural milestone projection, not a complete rules-engine game.",
+                "Follow-up placement comes from complete Structural Simulator games with forced public opening hands.",
+                "Structural follow-up games are not comprehensive MTG rules-engine games.",
                 "No external engine validation was performed.",
             ),
         )
+
+    def validate_keep_rule_across_contexts(
+        self,
+        rule: GeneratedKeepRule,
+        context: MulliganContext,
+        *,
+        samples: int,
+    ) -> tuple[KeepRuleValidationResult, ...]:
+        deck = self.deck(context.deck_id)
+        baseline_policy = rule.policy
+        pilot_names = (
+            ("KorvoldPilot", "KorvoldSacrificePilot", "KorvoldConservativePilot")
+            if context.deck_id == "korvold/current"
+            else ("RogShaiPilot", "RogShaiTempoPilot", "RogShaiControlPilot")
+        )
+        contexts: list[tuple[str, str, MulliganContext, int, str]] = [
+            ("primary", "primary_pod", context, 0, pilot_names[0]),
+            ("holdout-a", "holdout_pod", context, 1, pilot_names[0]),
+            ("holdout-b", "holdout_pod", context, 2, pilot_names[0]),
+            ("ensemble", "opponent_ensemble", context.model_copy(update={
+                "opponent_ensemble_id": context.opponent_ensemble_id or "morcant-elves-ensemble-v1"
+            }), 0, pilot_names[0]),
+        ]
+        contexts.extend(
+            (f"pilot-{name}", "pilot_profile", context.model_copy(update={"pilot_profile_id": name}), 0, name)
+            for name in pilot_names
+        )
+        output: list[KeepRuleValidationResult] = []
+        for context_id, kind, test_context, holdout, pilot_name in contexts:
+            agreements = 0
+            placements: list[float] = []
+            baselines: list[float] = []
+            for index, seq in enumerate(self.iter_draw_sequences(deck, samples=samples, seed=context.seed + 1009)):
+                first = seq[0]
+                features = self.features(deck, first)
+                rule_keep = bool(self.test_rule(rule, features)["keep"])
+                baseline_eval = self.evaluate(deck, first, baseline_policy, test_context)
+                agreements += int(rule_keep == baseline_eval.keep)
+                if rule_keep:
+                    forced = LondonMulliganResult(
+                        initial_draws=(tuple(card.oracle_name for card in first),),
+                        kept_cards=tuple(card.oracle_name for card in first),
+                        bottomed_cards=(), mulligans_taken=0, effective_bottom_count=0,
+                        free_multiplayer_mulligan_used=False,
+                        evaluation=baseline_eval.model_copy(update={"keep": True}),
+                        commander_names=deck.commander_names,
+                    )
+                    placements.append(self._full_followup_metrics(
+                        deck, forced, test_context, baseline_policy, index,
+                        holdout=holdout, pilot_profile_id=pilot_name,
+                    )[3])
+                baseline_result = self.london_mulligan_from_draws(
+                    deck, seq, baseline_policy, test_context
+                )
+                baselines.append(self._full_followup_metrics(
+                    deck, baseline_result, test_context, baseline_policy, index + 10000,
+                    holdout=holdout, pilot_profile_id=pilot_name,
+                )[3])
+            placement = fmean(placements) if placements else None
+            baseline = fmean(baselines) if baselines else None
+            delta = placement - baseline if placement is not None and baseline is not None else None
+            agreement = agreements / samples
+            output.append(KeepRuleValidationResult(
+                context_id=context_id,
+                context_kind=kind,
+                pilot_profile_id=pilot_name,
+                opponent_deck_ids=self._opponent_ids(test_context, holdout=holdout),
+                samples=samples,
+                keep_agreement_rate=agreement,
+                average_placement=placement,
+                baseline_average_placement=baseline,
+                placement_delta=delta,
+                supported=agreement >= 0.60 and (delta is None or delta <= 0.35),
+            ))
+        return tuple(output)
 
     def generate_keep_rules(
         self,

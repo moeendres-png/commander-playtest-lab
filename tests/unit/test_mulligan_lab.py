@@ -118,3 +118,23 @@ def test_large_materialization_is_forbidden_but_streaming_supported(repo_root: P
         lab.sample_draw_sequences(deck,samples=100001,seed=1)
     iterator=lab.iter_draw_sequences(deck,samples=100001,seed=1)
     assert len(next(iterator)) == 7
+
+
+def test_context_dimensions_change_model_score(repo_root: Path) -> None:
+    lab=MulliganLab(repo_root); deck=lab.deck("rogshai/current")
+    hand=names(deck,("Island","Plains","Sol Ring","Consider","Counterspell","Slip Out the Back","Combat Research"))
+    base=context(deck)
+    control=base.model_copy(update={"seat_position":4,"starting_player":False,"pilot_profile_id":"RogShaiControlPilot","game_plan":MulliganGamePlan.CONTROL})
+    tempo=base.model_copy(update={"seat_position":1,"starting_player":True,"pilot_profile_id":"RogShaiTempoPilot","game_plan":MulliganGamePlan.FAST_PRESSURE})
+    assert lab.evaluate(deck,hand,MulliganPolicyName.MATCHUP_ORIENTED,control).score != lab.evaluate(deck,hand,MulliganPolicyName.MATCHUP_ORIENTED,tempo).score
+
+
+def test_full_followup_and_overfitting_contexts_are_executed(repo_root: Path) -> None:
+    lab=MulliganLab(repo_root); deck=lab.deck("korvold/current")
+    result=lab.run(context(deck), (MulliganPolicyName.PRIMER_POLICY,), samples=6, followup_samples=2)
+    summary=result.policies[0]
+    assert summary.full_followup_games == 2
+    assert 0 <= summary.completed_followup_games <= 2
+    assert summary.hand_type_summaries
+    assert {row.context_kind for row in result.overfitting_validation} == {"primary_pod","holdout_pod","opponent_ensemble","pilot_profile"}
+    assert all(row.samples >= 3 for row in result.overfitting_validation)

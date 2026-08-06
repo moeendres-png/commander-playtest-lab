@@ -1,15 +1,15 @@
 # Counterfactual Decision-Regret Report
 
-Branchpoint: `pilot-benchmark-korvoldsacrificepilot-9123-00000000:9`
-Chosen action: `card:5:Zuran Orb`
-Alternative action: `card:0:Crop Rotation`
+Branchpoint: `integrated-pilot-0:9`
+Chosen action: `card:1:Exploration Broodship`
+Alternative action: `pass`
 Hidden-information policy: `multiple_future_samples`
 Engine mode: `structural`
 
 ## Model result
 
-- Mean improvement: -1.4612
-- Median improvement: -1.3613
+- Mean improvement: -17.5305
+- Median improvement: -17.5305
 - Positive future fraction: 0.000
 - Conclusion: `chosen_model_preferred`
 

@@ -34,7 +34,9 @@ def test_find_and_run_public_counterfactual(tmp_path: Path) -> None:
     lab = CounterfactualReplayLab(tmp_path)
     branch = lab.find_branchpoints(source)[0]
     result = lab.run(branch, alternative_action="pass", future_samples=1)
-    assert result.mean_improvement == pytest.approx(1.5)
+    assert result.mean_improvement > 1.5
+    assert result.state_diff.interaction_reserve_delta > 0
+    assert result.state_diff.hand_delta > 0
     assert result.historical_fact is False
     assert result.external_engine_used is False
     assert result.branchpoint.hidden_information_policy == HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
@@ -123,3 +125,30 @@ def test_compare_regret_and_fixture_export(tmp_path: Path) -> None:
     payload = lab.export_fixture(branch, target)
     assert target.is_file()
     assert payload["truth_boundary"] == "model_alternative_not_historical_fact"
+
+
+def test_tactical_oracle_actions_are_executed_without_external_claim(tmp_path: Path) -> None:
+    target = tmp_path / "data/runs/counterfactual/source/events/tactical.jsonl"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    rows = [
+        {"event_type":"game_started","game_id":"g2","sequence":0,"actor_id":None,"payload":{"seed":1}},
+        {"event_type":"pilot_decision","game_id":"g2","sequence":1,"actor_id":"p1","payload":{
+            "phase":"main","selected_action_id":"cast-now","selected_utility":2.0,
+            "counterfactual_actions":[
+                {"action_id":"cast-now","utility":2.0,"legal":True,"action_kind":"cast_commander",
+                 "tactical_rule":"commander_tax","tactical_input":{"prior_command_zone_casts":0,"printed_generic_cost":5}},
+                {"action_id":"cast-later","utility":2.2,"legal":True,"action_kind":"cast_commander",
+                 "tactical_rule":"commander_tax","tactical_input":{"prior_command_zone_casts":1,"printed_generic_cost":5}}
+            ]
+        }}
+    ]
+    target.write_text("\n".join(json.dumps(row, sort_keys=True) for row in rows)+"\n", encoding="utf-8")
+    lab=CounterfactualReplayLab(tmp_path)
+    branch=lab.find_branchpoints(str(target.relative_to(tmp_path)))[0]
+    result=lab.run(branch, alternative_action="cast-later", engine_mode=CounterfactualEngineMode.TACTICAL_ORACLE)
+    assert result.provenance["validation_level"] == "tactical_oracle"
+    assert result.tactical_oracle_used is True
+    assert result.tactical_observations["chosen"]["total_cast_cost"] == 5
+    assert result.tactical_observations["alternative"]["total_cast_cost"] == 7
+    assert result.external_engine_used is False
+    assert any("not an external rules engine" in warning for warning in result.warnings)

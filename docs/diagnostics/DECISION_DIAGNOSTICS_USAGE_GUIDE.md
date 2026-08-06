@@ -1,10 +1,11 @@
-# Usage
+# Decision Diagnostics usage — completion revision 1.10.1
 
-1. Instrument card and pilot outcomes into a versioned `DiagnosticDataset`.
-2. Run card/pilot diagnosis separately.
-3. Compare deck, pilot, opponent, action and seed effects.
-4. Inspect evidence and counterevidence.
-5. Follow `recommended_next_test` while the cut release gate is blocked.
-6. Only treat `model_supported_cut_candidate` as a candidate for a paired replacement test.
+1. Produce immutable Structural event logs with event capture enabled.
+2. Build a `DiagnosticDataset` with `DiagnosticInstrumentationCollector`; source SHA-256 hashes are retained.
+3. Run `diagnose_card_performance` and `diagnose_pilot_behavior` separately.
+4. Compare deck, pilot, opponent, action and seed effects using identical evidence frames.
+5. Inspect evidence, counterevidence, package dependency, counterfactual consistency and the cut release gate.
+6. Run the recommended next experiment while any gate is blocked.
+7. Treat `model_supported_cut_candidate` only as permission for a paired replacement test, never as an automatic cut.
 
-No tool modifies a canonical deck automatically.
+The reproducible generator is `scripts/complete_phase12_8_10.py`. No tool changes a canonical deck automatically.

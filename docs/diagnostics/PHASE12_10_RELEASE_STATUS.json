@@ -1,1 +1,17 @@
-{"schema_version":"1.10.0","phase":"12.10","status":"decision_diagnostics_ready_with_limitations","package_version":"1.10.0","branch":"feature/decision-diagnostics","parent_commit":"8cfb5b78dd55642707feecb97dbe92033ebbee4b","tests":{"passed":251,"skipped":1,"failed":0},"integrated_smoke":{"passed_steps":10,"total_steps":10,"status":"passed_with_limitations"},"tools":{"registered":92,"unique_names":92},"real_imported_games":0,"external_engine_validation":false,"canonical_deck_files_modified":false,"inventory_modified":false,"allocation_modified":false,"automatic_deck_changes":false,"empirical_diagnosis_claimed":false}
+{
+  "schema_version": "1.10.1",
+  "phase": "12.8-12.10-completion-audit",
+  "status": "decision_diagnostics_ready_with_limitations",
+  "package_version": "1.10.1",
+  "branch": "fix/phase12-8-10-completion-audit",
+  "tests": {"passed": 255, "skipped": 1, "failed": 0},
+  "integrated_smoke": {"passed_steps": 10, "total_steps": 10, "status": "passed_with_limitations", "all_steps_executed": true},
+  "tools": {"registered": 92, "unique_names": 92},
+  "real_imported_games": 0,
+  "external_engine_validation": false,
+  "canonical_deck_files_modified": false,
+  "inventory_modified": false,
+  "allocation_modified": false,
+  "automatic_deck_changes": false,
+  "empirical_diagnosis_claimed": false
+}

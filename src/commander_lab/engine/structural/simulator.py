@@ -92,6 +92,8 @@ class _Player:
     mulligans: int = 0
     lands_played: int = 0
     ramp_resolved: int = 0
+    first_ramp_turn: int | None = None
+    first_independent_draw_engine_turn: int | None = None
     cards_drawn: int = 0
     commander_casts: int = 0
     commander_tax_paid: int = 0
@@ -206,6 +208,8 @@ class StructuralSimulator:
                     {
                         "player_id": player.player_id,
                         "pilot_name": player.pilot.pilot_name,
+                        "deck_id": player.deck.deck_id,
+                        "deck_hash": player.deck.deck_hash,
                         "strength": player.pilot.config.strength.value,
                         "mode": player.pilot.config.mode.value,
                     }
@@ -405,9 +409,63 @@ class StructuralSimulator:
                     for name in deck.commander_names
                 },
             )
-            self._london_mulligan(player, rng, recorder, config.free_multiplayer_mulligan and len(config.deck_ids) >= 3)
+            if config.opening_hand_overrides and config.opening_hand_overrides[seat] is not None:
+                self._apply_opening_hand_override(
+                    player, config.opening_hand_overrides[seat] or (), rng, recorder
+                )
+            else:
+                self._london_mulligan(
+                    player, rng, recorder,
+                    config.free_multiplayer_mulligan and len(config.deck_ids) >= 3,
+                )
             players.append(player)
         return players
+
+
+    def _apply_opening_hand_override(
+        self,
+        player: _Player,
+        card_names: tuple[str, ...],
+        rng: random.Random,
+        recorder: _EventRecorder,
+    ) -> None:
+        """Inject a validated public opening hand for controlled follow-up games.
+
+        The override is restricted to cards in the player's library and never includes
+        commanders. Remaining cards are shuffled with the match seed.
+        """
+        remaining = list(player.library)
+        hand: list[StructuralCardProfile] = []
+        for name in card_names:
+            match = next((card for card in remaining if card.oracle_name == name), None)
+            if match is None:
+                raise ValueError(
+                    f"opening-hand override card is unavailable in {player.deck.deck_id}: {name}"
+                )
+            remaining.remove(match)
+            hand.append(match)
+        rng.shuffle(remaining)
+        player.hand = hand
+        player.library = remaining
+        player.mulligans = 0
+        recorder.emit(
+            "london_mulligan",
+            actor_id=player.player_id,
+            payload={
+                "pilot_name": player.pilot.pilot_name,
+                "pilot_strength": player.pilot.config.strength.value,
+                "pilot_mode": player.pilot.config.mode.value,
+                "mulligans": 0,
+                "free_first": len(card_names) == 7,
+                "hand_score": None,
+                "initial_hand": list(card_names),
+                "kept_cards": list(card_names),
+                "bottomed": [],
+                "kept_hand_size": len(hand),
+                "land_count": sum(card.is_land for card in hand),
+                "override": True,
+            },
+        )
 
     def _london_mulligan(
         self,
@@ -473,6 +531,8 @@ class StructuralSimulator:
                 "mulligans": mulligans,
                 "free_first": free_first,
                 "hand_score": round(hand_score, 6),
+                "initial_hand": [card.oracle_name for card in accepted],
+                "kept_cards": [card.oracle_name for card in player.hand],
                 "bottomed": [card.oracle_name for card in bottomed],
                 "kept_hand_size": len(player.hand),
                 "land_count": sum(card.is_land for card in player.hand),
@@ -869,7 +929,7 @@ class StructuralSimulator:
         if player.first_commander_cast_turn is None:
             player.first_commander_cast_turn = player.current_turn
         self._notify_spell_cast(player, players)
-        recorder.emit("commander_cast", actor_id=player.player_id, payload={"card": name, "cost": cost, "tax": tax})
+        recorder.emit("commander_cast", actor_id=player.player_id, payload={"card": name, "cost": cost, "tax": tax, "turn": player.current_turn})
         if self._attempt_counter(player, players, score + 1.0, recorder):
             recorder.emit("commander_countered", actor_id=player.player_id, payload={"card": name})
             return False
@@ -900,7 +960,13 @@ class StructuralSimulator:
         recorder.emit(
             "spell_cast",
             actor_id=player.player_id,
-            payload={"card": card.oracle_name, "mana_value": card.mana_value, "roles": sorted(role.value for role in card.roles)},
+            payload={
+                "card": card.oracle_name,
+                "mana_value": card.mana_value,
+                "roles": sorted(role.value for role in card.roles),
+                "package_ids": sorted(card.package_ids),
+                "turn": player.current_turn,
+            },
         )
         if self._attempt_counter(player, players, score, recorder):
             player.graveyard.append(card)
@@ -1015,9 +1081,17 @@ class StructuralSimulator:
             else:
                 player.ramp_mana += max(0.5, strength * 0.75)
             player.ramp_resolved += 1
+            if player.first_ramp_turn is None:
+                player.first_ramp_turn = player.current_turn
             recorder.emit("ramp_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "strength": strength})
         if CardRole.SELECTION in card.roles:
             self._resolve_selection(player, recorder, card)
+        if (
+            player.first_independent_draw_engine_turn is None
+            and bool(card.roles & {CardRole.DRAW, CardRole.ENGINE})
+            and card.commander_synergy < 1.2
+        ):
+            player.first_independent_draw_engine_turn = player.current_turn
         if CardRole.DRAW in card.roles:
             amount = max(1, int(math.ceil(card.strength(CardRole.DRAW))))
             if card.oracle_name == "Korvold, Fae-Cursed King":
@@ -1544,6 +1618,14 @@ class StructuralSimulator:
         return {
             "player_id": player.player_id,
             "alive": player.alive,
+            "life": player.life,
+            "commander_damage": dict(player.commander_damage_received),
+            "diagnostic_zones": {
+                "hand": [card.oracle_name for card in player.hand],
+                "battlefield": [card.oracle_name for card in player.battlefield],
+                "graveyard": [card.oracle_name for card in player.graveyard],
+                "exile": [card.oracle_name for card in player.exile],
+            },
             "counts": counts,
             "total_physical_cards": sum(counts.values()),
             "expected_deck_cards": len(expected_cards),
@@ -1622,6 +1704,8 @@ class StructuralSimulator:
             mulligans=player.mulligans,
             lands_played=player.lands_played,
             ramp_resolved=player.ramp_resolved,
+            first_ramp_turn=player.first_ramp_turn,
+            first_independent_draw_engine_turn=player.first_independent_draw_engine_turn,
             cards_drawn=player.cards_drawn,
             commander_casts=player.commander_casts,
             commander_tax_paid=player.commander_tax_paid,

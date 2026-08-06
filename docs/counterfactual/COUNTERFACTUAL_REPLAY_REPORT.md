@@ -1,17 +1,11 @@
-# Phase 12.9 – Counterfactual Replay
+# Phase 12.9 – Counterfactual Replay completion revision
 
 Status: `counterfactual_replay_ready_with_limitations`
 
-Version: `1.9.0`
+Original release: `1.9.0`; completed and revalidated in package `1.10.1`.
 
-The implementation identifies hashed replay branchpoints, lists only recorded legal candidates, enforces state and replay-prefix hashes, supports explicit hidden-information and seed policies, compares structural alternatives, calculates model-dependent decision regret, extends Replay Debugger, and exports Golden Scenario fixtures.
+The implementation now identifies hashed replay branchpoints, accepts only recorded legal alternatives, verifies replay-prefix and state hashes, computes explicit public-state/action deltas, and supports four hidden-information policies. Structural futures use deterministic seed policies. Tactical mode actually invokes the bounded `TacticalRuleOracle`; its result remains `tactical_oracle` and is never promoted to external-engine evidence.
 
-## Validation
+The Replay Debugger retains branch markers, action comparisons, state differences, same-seed repeats, batched alternative futures and Golden Scenario export.
 
-- 243 tests passed.
-- One real external-engine differential test was skipped because no XMage/Forge command is configured.
-- The included Korvold example uses a recorded structural pilot-decision candidate set.
-
-## Truth boundary
-
-Counterfactuals are model alternatives. They do not establish what historically would have happened. Tactical Oracle remains distinct from an external engine. No external-engine counterfactual was executed.
+Counterfactuals remain model alternatives. They do not prove how a historical game would have unfolded.

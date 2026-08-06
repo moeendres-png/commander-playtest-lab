@@ -36,6 +36,9 @@ class CounterfactualAction(FrozenModel):
     action_kind: str = "structural_action"
     target_ids: tuple[str, ...] = ()
     public_description: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    tactical_rule: str | None = None
+    tactical_input: dict[str, Any] = Field(default_factory=dict)
 
 
 class CounterfactualBranchpoint(FrozenModel):
@@ -57,6 +60,8 @@ class CounterfactualBranchpoint(FrozenModel):
     event_type: str = "pilot_decision"
     phase: str | None = None
     player_eliminated: bool = False
+    public_state_before: dict[str, Any] = Field(default_factory=dict)
+    realized_future_summary: dict[str, float] = Field(default_factory=dict)
     validation_level: str = "structural_model_estimates"
 
     @model_validator(mode="after")
@@ -110,6 +115,7 @@ class CounterfactualResult(FrozenModel):
     historical_fact: bool = False
     external_engine_used: bool = False
     tactical_oracle_used: bool = False
+    tactical_observations: dict[str, Any] = Field(default_factory=dict)
     warnings: tuple[str, ...] = ()
     provenance: dict[str, Any] = Field(default_factory=dict)
 

@@ -1,5 +1,5 @@
 # Counterfactual Replay
 
-Versioned structural analysis of alternative actions at recorded replay branchpoints. Only actions present in the recorded candidate set are considered legal. Every result records the replay-prefix hash, state-proxy hash, seed policy, hidden-information policy, engine mode and source path.
+The counterfactual layer verifies a replay branchpoint, lists only recorded legal alternatives and compares explicit action/state deltas under a declared hidden-information policy. Structural and Tactical Oracle modes are distinct; external-engine mode is unavailable unless a real XMage or Forge runtime is configured.
 
-Counterfactual outputs are model alternatives. They do not establish what would historically have happened.
+Every output states that it is a model alternative rather than a historical fact.

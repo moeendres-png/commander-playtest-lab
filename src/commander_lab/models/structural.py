@@ -89,6 +89,7 @@ class StructuralMatchConfig(FrozenModel):
     starting_player_seat: int | None = Field(default=None, ge=0)
     free_multiplayer_mulligan: bool = True
     pilot_configs: tuple[PilotConfig, ...] = ()
+    opening_hand_overrides: tuple[tuple[str, ...] | None, ...] = ()
     limits: StructuralAbortLimits = Field(default_factory=StructuralAbortLimits)
     estimate_type: Literal["structural_model_estimates"] = STRUCTURAL_ESTIMATE_TYPE
 
@@ -102,6 +103,10 @@ class StructuralMatchConfig(FrozenModel):
             raise ValueError("starting_player_seat is outside the pod")
         if self.pilot_configs and len(self.pilot_configs) != len(self.deck_ids):
             raise ValueError("pilot_configs must be empty or contain one config per seat")
+        if self.opening_hand_overrides and len(self.opening_hand_overrides) != len(self.deck_ids):
+            raise ValueError("opening_hand_overrides must be empty or contain one hand per seat")
+        if any(hand is not None and len(hand) > 7 for hand in self.opening_hand_overrides):
+            raise ValueError("opening-hand overrides may contain at most seven cards")
         return self
 
 
@@ -139,6 +144,8 @@ class StructuralPlayerMetrics(FrozenModel):
     mulligans: int
     lands_played: int
     ramp_resolved: int
+    first_ramp_turn: int | None = None
+    first_independent_draw_engine_turn: int | None = None
     cards_drawn: int
     commander_casts: int
     commander_tax_paid: int

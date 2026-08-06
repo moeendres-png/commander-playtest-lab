@@ -1,3 +1,15 @@
+# Changelog
+
+## 1.10.1 – Phase 12.8–12.10 completion audit
+
+- Completed Mulligan Lab follow-up evaluation with controlled opening-hand injection into full Structural Simulator games.
+- Added hand-type summaries and executed primary, holdout, opponent-ensemble and multi-pilot keep-rule validation.
+- Upgraded counterfactual replay to explicit public-state deltas, four hidden-information policies and real Tactical Oracle invocation without external-engine claims.
+- Added event-log-derived per-card and pilot instrumentation for decision diagnostics.
+- Replaced the load-only ten-extension smoke with an executed 10/10 integration workflow retaining source hashes and validation levels.
+- Added regression tests for context-sensitive mulligans, full follow-ups, Tactical Oracle counterfactuals and event-derived diagnostics.
+- No canonical deck, inventory or allocation data changed.
+
 ## 1.7.0 - 2026-08-06
 - Added versioned opponent ensembles for Cosmic Spider-Man, Morcant Elves and Doom Prevails with uncertainty-aware robustness tools.
 

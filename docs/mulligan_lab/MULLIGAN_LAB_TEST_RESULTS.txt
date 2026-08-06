@@ -1,14 +1,8 @@
-Phase 12.8 final split regression
-- unit: 180 passed
-- integration excluding phase10 acceptance: 21 passed
-- phase10 acceptance: 4 passed
-- golden: 2 passed
-- property: 8 passed
-- architecture: 1 passed
-- contract: 8 passed
-- differential: 2 passed, 1 skipped (external XMage/Forge command not configured)
-- fuzz: 2 passed
-- mutation: 3 passed
-- regressions: 1 passed
-- agent_evals: 4 passed
-TOTAL: 236 passed, 1 skipped, 0 failed
+Phase 12.8 completion regression in release 1.10.1
+- Unit suite: 199 passed
+- Integration suite: 25 passed
+- Property/golden/architecture/contract: 19 passed
+- Differential/fuzz/mutation/regressions/agent evals: 12 passed, 1 skipped
+- Total repository regression: 255 passed, 1 skipped, 0 failed
+- Skip: real XMage/Forge differential command not configured
+- New coverage: context-sensitive scoring, forced opening hands, complete follow-ups, hand-type summaries, and executed primary/holdout/ensemble/multi-pilot validation

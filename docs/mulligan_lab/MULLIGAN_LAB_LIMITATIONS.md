@@ -1,8 +1,8 @@
-# Mulligan Lab Limitations
+# Mulligan Lab limitations — completion revision 1.10.1
 
-- All keep decisions and generated rules are model-based structural estimates.
-- The cheap follow-up model estimates milestones and placement; it is not a full rules-engine game.
-- No real playtest dataset exists yet, so the learned policy remains a candidate.
-- Opponent ensembles are unweighted because zero real local games have been imported.
-- Tactical Oracle and external XMage/Forge validation were not used for these mulligan results.
-- Million-sample runs are supported through streaming, but the release report used 1,000 samples per deck.
+- All keeps, rules and placement estimates are structural model outputs, not absolute instructions or empirical win rates.
+- Follow-up samples now execute complete Structural Simulator games with the selected hand forced for the controlled player; the simulator remains a role-level abstraction, not a comprehensive rules engine.
+- The current persisted release run used 500 cheap hand samples and four complete follow-up games per policy and deck. Larger runs are supported but were not claimed as executed.
+- Generated rules were executed against primary, holdout, ensemble and multiple-pilot contexts, but no real-game holdout exists because zero real games are imported.
+- Opponent ensembles remain unweighted in the absence of observations.
+- No real XMage/Forge game was used.

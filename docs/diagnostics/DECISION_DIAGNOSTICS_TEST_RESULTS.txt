@@ -1,8 +1,9 @@
-Phase 12.10 final regression
-- Unit: 195 passed
-- Integration: 25 passed
-- Golden/property/architecture/contract: 19 passed
+Phase 12.10 completion regression in release 1.10.1
+- Unit suite: 199 passed
+- Integration suite: 25 passed
+- Property/golden/architecture/contract: 19 passed
 - Differential/fuzz/mutation/regressions/agent evals: 12 passed, 1 skipped
-- Total: 251 passed, 1 skipped, 0 failed
+- Total: 255 passed, 1 skipped, 0 failed
+- Integrated ten-extension smoke: 10/10 executed steps passed with limitations
+- New coverage: event-log instrumentation, actual multi-pilot games, executed package/provenance/ensemble/Mulligan/counterfactual/diagnostic stages
 - Skip: real XMage/Forge differential command not configured
-- Integrated ten-extension smoke: 10/10 steps passed with limitations

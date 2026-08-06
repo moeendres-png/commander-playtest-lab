@@ -1,9 +1,10 @@
-# Known limitations
+# Counterfactual Replay limitations — completion revision 1.10.1
 
-- Structural event logs record candidate utilities but not a complete executable Magic state at every decision.
-- Immediate and future deltas are therefore structural proxies.
-- Same-realized-future mode reuses the recorded future and is not causal identification.
-- Resampled futures are synthetic model samples, not observations.
-- Politics, hidden hands and library order are not inferred in public-information mode.
-- No real XMage or Forge replay was executed.
-- No private real-game information is exported outside the project folders.
+- Structural replays do not encode the full Magic rules state at every priority pass.
+- Immediate card, mana, life, board, hand, reserve, threat and win-progress deltas are explicit but remain structural approximations.
+- Same-realized-future mode controls the observed public suffix; it is not causal identification.
+- Resampled futures are synthetic uncertainty samples.
+- Public-information mode does not infer hidden hands or library order.
+- Tactical Oracle covers only registered primitives and is not an external engine.
+- No real XMage/Forge counterfactual was executed.
+- Private real-game data is not exported outside project folders.

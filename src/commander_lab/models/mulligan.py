@@ -109,6 +109,37 @@ class HypergeometricBaseline(FrozenModel):
     category: str
 
 
+
+
+class MulliganHandTypeSummary(FrozenModel):
+    hand_type: str
+    samples: int = Field(ge=1)
+    keep_rate: float = Field(ge=0.0, le=1.0)
+    mulligan_rate: float = Field(ge=0.0, le=1.0)
+    average_mulligans: float = Field(ge=0.0)
+    color_problem_rate: float = Field(ge=0.0, le=1.0)
+    average_dead_cards: float = Field(ge=0.0)
+    first_ramp_turn_mean: float | None = None
+    commander_cast_turn_mean: float | None = None
+    first_draw_engine_turn_mean: float | None = None
+    structural_placement_mean: float | None = None
+    uncertainty_half_width_95: float = Field(ge=0.0)
+
+
+class KeepRuleValidationResult(FrozenModel):
+    context_id: str
+    context_kind: Literal["primary_pod", "holdout_pod", "opponent_ensemble", "pilot_profile"]
+    pilot_profile_id: str
+    opponent_deck_ids: tuple[str, ...]
+    samples: int = Field(ge=1)
+    keep_agreement_rate: float = Field(ge=0.0, le=1.0)
+    average_placement: float | None = None
+    baseline_average_placement: float | None = None
+    placement_delta: float | None = None
+    supported: bool
+    estimate_level: MulliganEstimateLevel = MulliganEstimateLevel.STRUCTURAL_FOLLOWUP
+
+
 class MulliganPolicySummary(FrozenModel):
     policy: MulliganPolicyName
     samples: int = Field(ge=1)
@@ -124,6 +155,10 @@ class MulliganPolicySummary(FrozenModel):
     first_draw_engine_turn_mean: float | None = None
     structural_placement_mean: float | None = None
     uncertainty_half_width_95: float = Field(ge=0.0)
+    full_followup_games: int = Field(default=0, ge=0)
+    completed_followup_games: int = Field(default=0, ge=0)
+    hand_type_summaries: tuple[MulliganHandTypeSummary, ...] = ()
+    validation_contexts: tuple[str, ...] = ()
     estimate_level: MulliganEstimateLevel = MulliganEstimateLevel.MONTE_CARLO_HAND_QUALITY
 
 
@@ -144,6 +179,7 @@ class GeneratedKeepRule(FrozenModel):
     source_run_hash: str
     validation_contexts: tuple[str, ...] = ()
     validation_status: Literal["candidate", "holdout_checked", "rejected"] = "candidate"
+    validation_results: tuple[KeepRuleValidationResult, ...] = ()
     model_based: bool = True
     absolute_rule: bool = False
 
@@ -163,5 +199,6 @@ class MulliganLabResult(FrozenModel):
     common_random_numbers: bool = True
     full_matchup_performance_separate: bool = True
     generated_rules: tuple[GeneratedKeepRule, ...] = ()
+    overfitting_validation: tuple[KeepRuleValidationResult, ...] = ()
     warnings: tuple[str, ...] = ()
     estimate_type: str = "structural_model_estimates"

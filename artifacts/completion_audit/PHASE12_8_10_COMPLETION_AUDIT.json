@@ -1,0 +1,28 @@
+{
+  "allocation_changes": false,
+  "canonical_deck_changes": false,
+  "completed_gaps": [
+    "full structural mulligan follow-up games",
+    "executed keep-rule validation across primary, holdout, ensemble and pilot contexts",
+    "counterfactual public state deltas and hidden-information policies",
+    "actual Tactical Oracle invocation without external-engine promotion",
+    "event-log-derived card and pilot diagnostics",
+    "executed ten-step integration smoke"
+  ],
+  "external_engine_validation": false,
+  "integrated_smoke": {
+    "passed": 10,
+    "status": "passed_with_limitations",
+    "total": 10
+  },
+  "inventory_changes": false,
+  "model_claims_empirical": false,
+  "phase_status": {
+    "12.10": "decision_diagnostics_ready_with_limitations",
+    "12.8": "mulligan_lab_ready_with_limitations",
+    "12.9": "counterfactual_replay_ready_with_limitations"
+  },
+  "real_imported_games": 0,
+  "schema_version": "1.10.1",
+  "status": "decision_diagnostics_ready_with_limitations"
+}

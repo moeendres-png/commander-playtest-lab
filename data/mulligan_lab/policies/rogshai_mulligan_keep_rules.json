@@ -1,8 +1,6 @@
 {
-  "absolute_rules": false,
   "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
   "deck_id": "rogshai/current",
-  "model_based": true,
   "rules": [
     {
       "absolute_rule": false,
@@ -42,16 +40,142 @@
         "Interaction-heavy matchups may keep slower hands with reserve counters."
       ],
       "model_based": true,
-      "policy": "commander_oriented",
-      "rule_id": "rogshai.current.commander_oriented.candidate-v1",
-      "source_run_hash": "7e917fe66b9706e011ddb1b1a63fbb5a3f538e1c7c4c556009b45135d76e6c06",
+      "policy": "matchup_oriented",
+      "rule_id": "rogshai.current.matchup_oriented.candidate-v1",
+      "source_run_hash": "b9f9c6f5e2f7f772ab4e47f823a051e7e99986a7768d051cc8e3db776932db93",
       "validation_contexts": [
-        "primary_structural",
-        "opponent_ensemble",
-        "multi_pilot_candidate"
+        "primary",
+        "holdout-a",
+        "holdout-b",
+        "ensemble",
+        "pilot-RogShaiPilot",
+        "pilot-RogShaiTempoPilot",
+        "pilot-RogShaiControlPilot"
       ],
-      "validation_status": "candidate"
+      "validation_results": [
+        {
+          "average_placement": 3.0,
+          "baseline_average_placement": 2.75,
+          "context_id": "primary",
+          "context_kind": "primary_pod",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 1.0,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "RogShaiPilot",
+          "placement_delta": 0.25,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 3.0,
+          "baseline_average_placement": 2.5,
+          "context_id": "holdout-a",
+          "context_kind": "holdout_pod",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 1.0,
+          "opponent_deck_ids": [
+            "opponent/kaervek-reference",
+            "opponent/doom-prevails-precon",
+            "opponent/dance-elements-precon"
+          ],
+          "pilot_profile_id": "RogShaiPilot",
+          "placement_delta": 0.5,
+          "samples": 4,
+          "supported": false
+        },
+        {
+          "average_placement": 1.0,
+          "baseline_average_placement": 2.25,
+          "context_id": "holdout-b",
+          "context_kind": "holdout_pod",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 1.0,
+          "opponent_deck_ids": [
+            "opponent/wakanda-forever-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "opponent/blight-curse-precon"
+          ],
+          "pilot_profile_id": "RogShaiPilot",
+          "placement_delta": -1.25,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 3.0,
+          "baseline_average_placement": 2.75,
+          "context_id": "ensemble",
+          "context_kind": "opponent_ensemble",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 1.0,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "RogShaiPilot",
+          "placement_delta": 0.25,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 3.0,
+          "baseline_average_placement": 2.75,
+          "context_id": "pilot-RogShaiPilot",
+          "context_kind": "pilot_profile",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 1.0,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "RogShaiPilot",
+          "placement_delta": 0.25,
+          "samples": 4,
+          "supported": true
+        },
+        {
+          "average_placement": 3.0,
+          "baseline_average_placement": 2.5,
+          "context_id": "pilot-RogShaiTempoPilot",
+          "context_kind": "pilot_profile",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 1.0,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "RogShaiTempoPilot",
+          "placement_delta": 0.5,
+          "samples": 4,
+          "supported": false
+        },
+        {
+          "average_placement": 1.0,
+          "baseline_average_placement": 2.5,
+          "context_id": "pilot-RogShaiControlPilot",
+          "context_kind": "pilot_profile",
+          "estimate_level": "structural_followup",
+          "keep_agreement_rate": 0.75,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_profile_id": "RogShaiControlPilot",
+          "placement_delta": -1.5,
+          "samples": 4,
+          "supported": true
+        }
+      ],
+      "validation_status": "holdout_checked"
     }
   ],
-  "schema_version": "1.0.0"
+  "schema_version": "1.10.1",
+  "truth_boundary": "model_based_not_absolute"
 }
