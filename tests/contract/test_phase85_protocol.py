@@ -100,17 +100,20 @@ def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: P
     import subprocess
     from commander_lab.models import EngineProtocolResponse
 
-    for kind in EngineMessageType:
-        proc = subprocess.Popen(
-            [sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")],
-            cwd=repo_root,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        try:
-            assert proc.stdin is not None and proc.stdout is not None
+    process = subprocess.Popen(
+        [sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")],
+        cwd=repo_root,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1,
+    )
+    assert process.stdin is not None and process.stdout is not None
+    kinds = [kind for kind in EngineMessageType if kind != EngineMessageType.SHUTDOWN_GAME]
+    kinds.append(EngineMessageType.SHUTDOWN_GAME)
+    try:
+        for kind in kinds:
             request = EngineProtocolRequest(
                 request_id=f"wire-{kind.value}",
                 engine="tactical",
@@ -123,23 +126,22 @@ def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: P
                 message_type=kind,
                 payload={},
             )
-            proc.stdin.write(json.dumps(request.wire_dict()) + "\n")
-            proc.stdin.flush()
-            line = proc.stdout.readline()
+            process.stdin.write(json.dumps(request.wire_dict()) + "\n")
+            process.stdin.flush()
+            line = process.stdout.readline()
+            assert line, {"message_type": kind.value}
             response = EngineProtocolResponse.from_wire(json.loads(line))
             assert response.request_id == request.request_id
             assert response.protocol_version == ENGINE_PROTOCOL_VERSION
-        finally:
-            if proc.poll() is None:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=2)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.wait(timeout=2)
-            for stream in (proc.stdin, proc.stdout, proc.stderr):
-                if stream is not None:
-                    stream.close()
+        process.stdin.close()
+        assert process.wait(timeout=10) == 0
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait(timeout=2)
+        for stream in (process.stdin, process.stdout, process.stderr):
+            if stream is not None and not stream.closed:
+                stream.close()
 
 
 def test_bridge_client_close_reaps_threads_and_streams(repo_root: Path) -> None:
