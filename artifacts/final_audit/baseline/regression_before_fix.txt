@@ -1,0 +1,134 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+______________ test_bridge_client_close_reaps_threads_and_streams ______________
+
+repo_root = PosixPath('/mnt/data/cpl_1211_latest/commander-playtest-lab')
+
+    def test_bridge_client_close_reaps_threads_and_streams(repo_root: Path) -> None:
+        client = JsonLineBridgeClient(
+            (sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")), cwd=repo_root
+        )
+        client.request(EngineMessageType.ENGINE_HELLO)
+        process = client._process
+        stdout_thread = client._stdout_thread
+        stderr_thread = client._stderr_thread
+        assert process is not None and stdout_thread is not None and stderr_thread is not None
+        client.close()
+        assert process.poll() is not None
+>       assert process.stdin is not None and process.stdin.closed
+E       AssertionError: assert (<_io.TextIOWrapper name=12 encoding='utf-8'> is not None and False)
+E        +  where <_io.TextIOWrapper name=12 encoding='utf-8'> = <Popen: returncode: 0 args: ('/opt/pyvenv/bin/python3', '/mnt/data/cpl_1211_...>.stdin
+E        +  and   False = <_io.TextIOWrapper name=12 encoding='utf-8'>.closed
+E        +    where <_io.TextIOWrapper name=12 encoding='utf-8'> = <Popen: returncode: 0 args: ('/opt/pyvenv/bin/python3', '/mnt/data/cpl_1211_...>.stdin
+
+tests/contract/test_phase85_protocol.py:156: AssertionError
+_________________ test_api_self_test_runs_in_isolated_process __________________
+
+    def test_api_self_test_runs_in_isolated_process() -> None:
+>       from commander_lab.acceptance.phase10 import _run_api_self_test_isolated
+E       ImportError: cannot import name '_run_api_self_test_isolated' from 'commander_lab.acceptance.phase10' (/mnt/data/cpl_1211_latest/commander-playtest-lab/src/commander_lab/acceptance/phase10.py)
+
+tests/integration/test_phase10_acceptance.py:72: ImportError
+____________ test_matchup_tool_seed_is_independent_of_storage_uuid _____________
+
+    def test_matchup_tool_seed_is_independent_of_storage_uuid() -> None:
+        service = CommanderToolService(ROOT)
+        request = MatchupBatchInput(
+            deck_ids=(
+                "korvold/current",
+                "opponent/morcant-elves",
+                "opponent/blight-curse-precon",
+                "opponent/cosmic-spiderman-midbudget",
+            ),
+            seed=424242,
+            iterations=2,
+            workers=1,
+            max_turns=20,
+        )
+        first = service.run_matchup_batch(request)
+        second = service.run_matchup_batch(request)
+        paths = [Path(first.result["result_path"]), Path(second.result["result_path"])]
+        try:
+            payloads = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
+            assert paths[0] != paths[1]
+>           assert [row["seed"] for row in payloads[0]["match_results"]] == [
+                row["seed"] for row in payloads[1]["match_results"]
+            ]
+E           assert [105109886388...8480948503699] == [120872509288...3881317929093]
+E             
+E             At index 0 diff: 10510988638876239657 != 12087250928827757443
+E             
+E             Full diff:
+E               [
+E             -     12087250928827757443,
+E             -     4288023881317929093,
+E             +     10510988638876239657,
+E             +     10716258480948503699,
+E               ]
+
+tests/unit/test_phase5_tool_registry.py:94: AssertionError
+____________ test_goldfish_tool_seed_is_independent_of_storage_uuid ____________
+
+    def test_goldfish_tool_seed_is_independent_of_storage_uuid() -> None:
+        service = CommanderToolService(ROOT)
+        request = GoldfishInput(
+            deck_id="rogshai/current", seed=515151, iterations=2, workers=1, max_turns=20
+        )
+        first = service.run_goldfish(request)
+        second = service.run_goldfish(request)
+        paths = [
+            Path(first.metadata.deterministic_game_log_directory).parent,
+            Path(second.metadata.deterministic_game_log_directory).parent,
+        ]
+        try:
+            payloads = [
+                json.loads((path / "structural_results.json").read_text(encoding="utf-8"))
+                for path in paths
+            ]
+            assert paths[0] != paths[1]
+>           assert [row["seed"] for row in payloads[0]["match_results"]] == [
+                row["seed"] for row in payloads[1]["match_results"]
+            ]
+E           assert [176501683047...3656921224359] == [209872483440...4903784718200]
+E             
+E             At index 0 diff: 17650168304703497043 != 2098724834408790563
+E             
+E             Full diff:
+E               [
+E             -     2098724834408790563,
+E             -     16530114903784718200,
+E             +     17650168304703497043,
+E             +     16643103656921224359,
+E               ]
+
+tests/unit/test_phase5_tool_registry.py:123: AssertionError
+=========================== short test summary info ============================
+FAILED tests/contract/test_phase85_protocol.py::test_bridge_client_close_reaps_threads_and_streams - AssertionError: assert (<_io.TextIOWrapper name=12 encoding='utf-8'> is not None and False)
+ +  where <_io.TextIOWrapper name=12 encoding='utf-8'> = <Popen: returncode: 0 args: ('/opt/pyvenv/bin/python3', '/mnt/data/cpl_1211_...>.stdin
+ +  and   False = <_io.TextIOWrapper name=12 encoding='utf-8'>.closed
+ +    where <_io.TextIOWrapper name=12 encoding='utf-8'> = <Popen: returncode: 0 args: ('/opt/pyvenv/bin/python3', '/mnt/data/cpl_1211_...>.stdin
+FAILED tests/integration/test_phase10_acceptance.py::test_api_self_test_runs_in_isolated_process - ImportError: cannot import name '_run_api_self_test_isolated' from 'commander_lab.acceptance.phase10' (/mnt/data/cpl_1211_latest/commander-playtest-lab/src/commander_lab/acceptance/phase10.py)
+FAILED tests/unit/test_phase5_tool_registry.py::test_matchup_tool_seed_is_independent_of_storage_uuid - assert [105109886388...8480948503699] == [120872509288...3881317929093]
+  
+  At index 0 diff: 10510988638876239657 != 12087250928827757443
+  
+  Full diff:
+    [
+  -     12087250928827757443,
+  -     4288023881317929093,
+  +     10510988638876239657,
+  +     10716258480948503699,
+    ]
+FAILED tests/unit/test_phase5_tool_registry.py::test_goldfish_tool_seed_is_independent_of_storage_uuid - assert [176501683047...3656921224359] == [209872483440...4903784718200]
+  
+  At index 0 diff: 17650168304703497043 != 2098724834408790563
+  
+  Full diff:
+    [
+  -     2098724834408790563,
+  -     16530114903784718200,
+  +     17650168304703497043,
+  +     16643103656921224359,
+    ]
+4 failed in 1.74s
+exit_code=1

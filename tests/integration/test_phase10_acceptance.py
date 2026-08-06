@@ -66,3 +66,12 @@ def test_api_demo_accepts_in_process_self_test_shape() -> None:
         "validate_call": {"status": "completed", "result": {"deck_id": "korvold/current"}},
     }
     assert _api_demo_passed(evidence) is True
+
+
+def test_api_self_test_runs_in_isolated_process() -> None:
+    from commander_lab.acceptance.phase10 import _run_api_self_test_isolated
+
+    result = _run_api_self_test_isolated(Path.cwd(), timeout_seconds=30.0)
+    assert result["health"]["status"] == "ok"
+    assert result["tool_count"] > 0
+    assert result["validate_call"]["status"] == "completed"

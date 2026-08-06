@@ -142,6 +142,26 @@ def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: P
                     stream.close()
 
 
+def test_bridge_client_close_reaps_threads_and_streams(repo_root: Path) -> None:
+    client = JsonLineBridgeClient(
+        (sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")), cwd=repo_root
+    )
+    client.request(EngineMessageType.ENGINE_HELLO)
+    process = client._process
+    stdout_thread = client._stdout_thread
+    stderr_thread = client._stderr_thread
+    assert process is not None and stdout_thread is not None and stderr_thread is not None
+    client.close()
+    assert process.poll() is not None
+    assert process.stdin is not None and process.stdin.closed
+    assert process.stdout is not None and process.stdout.closed
+    assert process.stderr is not None and process.stderr.closed
+    assert not stdout_thread.is_alive() and not stderr_thread.is_alive()
+    assert client._process is None
+    assert client._stdout_thread is None
+    assert client._stderr_thread is None
+
+
 def test_timeout_is_reported_without_false_success(repo_root: Path, tmp_path: Path) -> None:
     script = tmp_path / "hang.py"
     script.write_text("import time; time.sleep(5)", encoding="utf-8")

@@ -1,6 +1,8 @@
+import json
+import shutil
 from pathlib import Path
 
-from commander_lab.models import ToolStatus, ValidateDeckInput
+from commander_lab.models import GoldfishInput, MatchupBatchInput, ToolStatus, ValidateDeckInput
 from commander_lab.tools import TOOL_DEFINITIONS, CommanderToolService, ToolRegistry
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -67,3 +69,61 @@ def test_validate_deck_tool() -> None:
     assert result.status == ToolStatus.COMPLETED
     assert result.result["validation"]["valid"] is True
     assert result.metadata.estimate_type == "structural_model_estimates"
+
+
+def test_matchup_tool_seed_is_independent_of_storage_uuid() -> None:
+    service = CommanderToolService(ROOT)
+    request = MatchupBatchInput(
+        deck_ids=(
+            "korvold/current",
+            "opponent/morcant-elves",
+            "opponent/blight-curse-precon",
+            "opponent/cosmic-spiderman-midbudget",
+        ),
+        seed=424242,
+        iterations=2,
+        workers=1,
+        max_turns=20,
+    )
+    first = service.run_matchup_batch(request)
+    second = service.run_matchup_batch(request)
+    paths = [Path(first.result["result_path"]), Path(second.result["result_path"])]
+    try:
+        payloads = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
+        assert paths[0] != paths[1]
+        assert [row["seed"] for row in payloads[0]["match_results"]] == [
+            row["seed"] for row in payloads[1]["match_results"]
+        ]
+        assert [row["log_sha256"] for row in payloads[0]["match_results"]] == [
+            row["log_sha256"] for row in payloads[1]["match_results"]
+        ]
+        assert first.result["aggregate"] == second.result["aggregate"]
+    finally:
+        for path in paths:
+            shutil.rmtree(path.parent, ignore_errors=True)
+
+
+def test_goldfish_tool_seed_is_independent_of_storage_uuid() -> None:
+    service = CommanderToolService(ROOT)
+    request = GoldfishInput(
+        deck_id="rogshai/current", seed=515151, iterations=2, workers=1, max_turns=20
+    )
+    first = service.run_goldfish(request)
+    second = service.run_goldfish(request)
+    paths = [
+        Path(first.metadata.deterministic_game_log_directory).parent,
+        Path(second.metadata.deterministic_game_log_directory).parent,
+    ]
+    try:
+        payloads = [
+            json.loads((path / "structural_results.json").read_text(encoding="utf-8"))
+            for path in paths
+        ]
+        assert paths[0] != paths[1]
+        assert [row["seed"] for row in payloads[0]["match_results"]] == [
+            row["seed"] for row in payloads[1]["match_results"]
+        ]
+        assert first.result == second.result
+    finally:
+        for path in paths:
+            shutil.rmtree(path, ignore_errors=True)
