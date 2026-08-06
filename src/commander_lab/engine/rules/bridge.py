@@ -264,19 +264,33 @@ class JsonLineBridgeClient:
 
     def close(self) -> None:
         with self._lock:
-            if self._process is None:
+            process = self._process
+            if process is None:
                 return
-            if self.running:
-                try:
-                    self.request(EngineMessageType.SHUTDOWN_GAME, timeout_seconds=2.0)
-                except Exception:
-                    self._process.terminate()
+            stdout_thread = self._stdout_thread
+            stderr_thread = self._stderr_thread
             try:
-                self._process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self._process.kill()
-                self._process.wait(timeout=5)
-            self._process = None
+                if process.poll() is None:
+                    try:
+                        self.request(EngineMessageType.SHUTDOWN_GAME, timeout_seconds=2.0)
+                    except Exception:
+                        process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=5)
+            finally:
+                for stream in (process.stdin, process.stdout, process.stderr):
+                    if stream is not None and not stream.closed:
+                        stream.close()
+                current = threading.current_thread()
+                for thread in (stdout_thread, stderr_thread):
+                    if thread is not None and thread is not current:
+                        thread.join(timeout=2)
+                self._process = None
+                self._stdout_thread = None
+                self._stderr_thread = None
 
 
 class ExternalRulesAdapter(RulesEngineAdapter):

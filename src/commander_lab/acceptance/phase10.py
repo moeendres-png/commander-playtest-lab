@@ -4,6 +4,8 @@ import json
 import os
 import re
 import subprocess
+import sys
+import textwrap
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -217,6 +219,68 @@ def _write_deck_report(
     ]
     atomic_write_text(path, "\n".join(lines))
     return path
+
+
+def _run_api_self_test_isolated(
+    root: str | Path, *, timeout_seconds: float = 30.0
+) -> dict[str, Any]:
+    """Run the FastAPI self-test outside the heavy acceptance process.
+
+    The acceptance workflow starts process pools and bridge threads. Keeping the
+    TestClient lifecycle in a fresh interpreter avoids order-dependent shutdown
+    hangs while preserving the same API assertions.
+    """
+    root_path = Path(root).resolve()
+    script = textwrap.dedent(
+        """
+        import json, sys
+        from pathlib import Path
+        from fastapi.testclient import TestClient
+        from commander_lab.api import create_app
+
+        root = Path(sys.argv[1]).resolve()
+        with TestClient(create_app(root)) as client:
+            result = {
+                "health": client.get("/health").json(),
+                "tool_count": len(client.get("/v1/tools").json()["tools"]),
+                "validate_call": client.post(
+                    "/v1/tools/validate_deck:invoke",
+                    json={"arguments": {"deck_id": "korvold/current"}},
+                ).json(),
+            }
+        print(json.dumps(result, sort_keys=True))
+        """
+    )
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(root_path / "src")]
+        + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else [])
+    )
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(root_path)],
+            cwd=root_path,
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"isolated API self-test timed out after {timeout_seconds:.1f}s"
+        ) from exc
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"isolated API self-test failed: {completed.stderr.strip()}"
+        )
+    lines = [line for line in completed.stdout.splitlines() if line.strip()]
+    if len(lines) != 1:
+        raise RuntimeError(f"invalid isolated API output: {completed.stdout!r}")
+    result = json.loads(lines[0])
+    if not isinstance(result, dict):
+        raise RuntimeError("isolated API output is not an object")
+    return result
 
 
 def _api_demo_passed(api_demo: dict[str, Any]) -> bool:
@@ -501,18 +565,7 @@ def run_phase10_acceptance(
     api_demo: dict[str, Any]
     if include_api_self_test:
         try:
-            from fastapi.testclient import TestClient
-            from commander_lab.api import create_app
-
-            with TestClient(create_app(root_path)) as client:
-                api_demo = {
-                    "health": client.get("/health").json(),
-                    "tool_count": len(client.get("/v1/tools").json()["tools"]),
-                    "validate_call": client.post(
-                        "/v1/tools/validate_deck:invoke",
-                        json={"arguments": {"deck_id": "korvold/current"}},
-                    ).json(),
-                }
+            api_demo = _run_api_self_test_isolated(root_path)
         except Exception as exc:
             api_demo = {"status": "failed", "error": f"{type(exc).__name__}: {exc}"}
     else:

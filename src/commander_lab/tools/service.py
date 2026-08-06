@@ -172,6 +172,19 @@ class ApprovalRequired(ToolExecutionError):
     pass
 
 
+def _deterministic_structural_run_id(prefix: str, request: Any) -> str:
+    """Separate deterministic simulation identity from unique artifact storage."""
+    payload = (
+        request.model_dump(mode="json", exclude={"approval_token"})
+        if hasattr(request, "model_dump")
+        else request
+    )
+    digest = sha256_value(
+        {"engine_version": ENGINE_VERSION, "tool": prefix, "request": payload}
+    )
+    return f"{prefix}-{digest[:16]}"
+
+
 class CommanderToolService:
     """Deterministic local Function Tool service.
 
@@ -594,10 +607,11 @@ class CommanderToolService:
 
     def run_goldfish(self, request: GoldfishInput) -> ToolResponse:
         output = self.root / "data/runs/tool_runs" / f"goldfish-{uuid.uuid4().hex[:8]}"
+        simulation_run_id = _deterministic_structural_run_id("goldfish", request)
         def work() -> dict[str, Any]:
             self._check_iterations(request.iterations, request.approval_token)
             config = StructuralBatchConfig(
-                run_id=output.name,
+                run_id=simulation_run_id,
                 seed=request.seed,
                 iterations=request.iterations,
                 deck_ids=(request.deck_id,),
@@ -613,12 +627,13 @@ class CommanderToolService:
 
     def run_matchup_batch(self, request: MatchupBatchInput) -> ToolResponse:
         output = self.root / "data/runs/tool_runs" / f"matchup-{uuid.uuid4().hex[:8]}"
+        simulation_run_id = _deterministic_structural_run_id("matchup", request)
         def work() -> dict[str, Any]:
             self._check_iterations(request.iterations, request.approval_token)
             for deck_id in request.deck_ids:
                 self._deck(deck_id)
             config = StructuralBatchConfig(
-                run_id=output.name,
+                run_id=simulation_run_id,
                 seed=request.seed,
                 iterations=request.iterations,
                 deck_ids=request.deck_ids,

@@ -82,3 +82,12 @@
 - Added Korvold draw, Ishai peak-power and archenemy metrics to structural outputs.
 - Added Phase-9 CLI commands, template, documentation and validation runner.
 - External rules-engine validation remains pending.
+
+## 1.10.2 – Phase 12.11 final hardening
+
+- Isolated the Phase-10 API self-test in a bounded subprocess to eliminate order-dependent shutdown hangs.
+- Closed JSONL bridge streams and joined pump threads deterministically.
+- Reused one tactical bridge process for the complete protocol-contract sweep.
+- Isolated Phase-8.5 test process-state writes from canonical tracked status.
+- Decoupled deterministic simulation run identity from random artifact-directory UUIDs.
+- Added failing-first regression tests; no deck, inventory or allocation data changed.
