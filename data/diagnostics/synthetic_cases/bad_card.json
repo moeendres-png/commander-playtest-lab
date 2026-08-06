@@ -1,0 +1,82 @@
+{
+  "card_metrics": [
+    {
+      "alternative_lines": [
+        "wait",
+        "different target"
+      ],
+      "average_turn_played": 4.2,
+      "card_name": "Weak Card",
+      "counterfactual_outcome_delta": 0.0,
+      "dead_in_hand": 45,
+      "discarded": 2,
+      "drawn": 100,
+      "kept": 12,
+      "mana_efficiency": 1.1,
+      "mulliganed": 3,
+      "opening_hand": 15,
+      "pilot_decisions": [
+        "hold",
+        "cast"
+      ],
+      "played": 25,
+      "removed": 10,
+      "sample_size": 100,
+      "successful": 45,
+      "synergy_partner_present": 50,
+      "unplayable": 30,
+      "without_value": 8
+    }
+  ],
+  "counterfactual_consistency": 0.95,
+  "counterfactual_improvement": 0.0,
+  "dataset_id": "bad-card",
+  "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+  "deck_id": "korvold/current",
+  "deck_variant_effect": 0.8,
+  "holdout_confirms_problem": true,
+  "multiple_pods_confirm": true,
+  "notes": [],
+  "opponent_ensemble_count": 4,
+  "opponent_observation_conflict": false,
+  "opponent_sensitivity": 0.1,
+  "package_checked": true,
+  "package_completeness": 1.0,
+  "package_id": "tested-role-package",
+  "package_minimum_met": true,
+  "pilot_disagreement": 0.08,
+  "pilot_metrics": [
+    {
+      "average_placement": null,
+      "dead_card_rate": 0.45,
+      "decision_regret": 0.0,
+      "missed_line_count": 0,
+      "pilot_name": "PilotA",
+      "primer_rule_miss_count": 0,
+      "sample_size": 50,
+      "success_rate": 0.15,
+      "unplayable_rate": 0.3
+    },
+    {
+      "average_placement": null,
+      "dead_card_rate": 0.42,
+      "decision_regret": 0.0,
+      "missed_line_count": 0,
+      "pilot_name": "PilotB",
+      "primer_rule_miss_count": 0,
+      "sample_size": 50,
+      "success_rate": 0.18,
+      "unplayable_rate": 0.28
+    }
+  ],
+  "real_structural_disagreement": 0.0,
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.1,
+  "source_ids": [
+    "synthetic-known-cause-bad-card"
+  ],
+  "tactical_structural_disagreement": 0.0,
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}

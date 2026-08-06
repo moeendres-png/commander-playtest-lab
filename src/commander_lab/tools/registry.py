@@ -6,6 +6,12 @@ from typing import Any, Callable
 from pydantic import BaseModel
 
 from commander_lab.models import (
+    DiagnoseCardPerformanceInput, DiagnosePilotBehaviorInput,
+    CompareDeckAndPilotEffectsInput, ClassifyFailureCauseInput,
+    RecommendNextExperimentInput, GenerateDiagnosticReportInput,
+)
+
+from commander_lab.models import (
     FindCounterfactualBranchpointsInput, ListAlternativeActionsInput,
     RunCounterfactualInput, CompareCounterfactualsInput,
     GenerateDecisionRegretReportInput, ExportMinimalCounterfactualFixtureInput,
@@ -183,6 +189,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("compare_counterfactuals", "Compare multiple model-dependent counterfactual alternatives.", CompareCounterfactualsInput, "compare_counterfactuals"),
     ToolDefinition("generate_decision_regret_report", "Generate a decision-regret report without claiming historical certainty.", GenerateDecisionRegretReportInput, "generate_decision_regret_report"),
     ToolDefinition("export_minimal_counterfactual_fixture", "Export a verified branchpoint as a minimal Golden Scenario fixture.", ExportMinimalCounterfactualFixtureInput, "export_minimal_counterfactual_fixture"),
+
+    ToolDefinition("diagnose_card_performance", "Diagnose card weakness versus misuse, package, pilot, opponent, model or variance causes.", DiagnoseCardPerformanceInput, "diagnose_card_performance"),
+    ToolDefinition("diagnose_pilot_behavior", "Diagnose missed lines, timing errors and pilot-style mismatch.", DiagnosePilotBehaviorInput, "diagnose_pilot_behavior"),
+    ToolDefinition("compare_deck_and_pilot_effects", "Compare deck, pilot, opponent, action and seed effects without claiming causality.", CompareDeckAndPilotEffectsInput, "compare_deck_and_pilot_effects"),
+    ToolDefinition("classify_failure_cause", "Classify the most supported failure cause with counterevidence and uncertainty.", ClassifyFailureCauseInput, "classify_failure_cause"),
+    ToolDefinition("recommend_next_experiment", "Recommend the next discriminating experiment from a diagnosis.", RecommendNextExperimentInput, "recommend_next_experiment"),
+    ToolDefinition("generate_diagnostic_report", "Generate a model-labeled diagnostic report and cut release gates.", GenerateDiagnosticReportInput, "generate_diagnostic_report"),
 
 )
 

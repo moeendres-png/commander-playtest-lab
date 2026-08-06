@@ -508,3 +508,29 @@ __all__.extend([
     "ListAlternativeActionsInput", "RunCounterfactualInput", "CompareCounterfactualsInput",
     "GenerateDecisionRegretReportInput", "ExportMinimalCounterfactualFixtureInput",
 ])
+
+from .diagnostics import (
+    DIAGNOSTIC_SCHEMA_VERSION,
+    CardPerformanceInstrumentation,
+    DiagnosisRecord,
+    DiagnosticDataset,
+    DiagnosticMetrics,
+    FactorEffectComparison,
+    FailureCause,
+    IntegratedExtensionSmokeReport,
+    IntegratedSmokeStep,
+    PilotDiagnosticEvidence,
+)
+from .tooling import (
+    DiagnoseCardPerformanceInput, DiagnosePilotBehaviorInput,
+    CompareDeckAndPilotEffectsInput, ClassifyFailureCauseInput,
+    RecommendNextExperimentInput, GenerateDiagnosticReportInput,
+)
+__all__.extend([
+    "DIAGNOSTIC_SCHEMA_VERSION", "CardPerformanceInstrumentation", "DiagnosisRecord",
+    "DiagnosticDataset", "DiagnosticMetrics", "FactorEffectComparison", "FailureCause",
+    "IntegratedExtensionSmokeReport", "IntegratedSmokeStep", "PilotDiagnosticEvidence",
+    "DiagnoseCardPerformanceInput", "DiagnosePilotBehaviorInput",
+    "CompareDeckAndPilotEffectsInput", "ClassifyFailureCauseInput",
+    "RecommendNextExperimentInput", "GenerateDiagnosticReportInput",
+])

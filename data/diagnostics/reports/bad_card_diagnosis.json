@@ -1,0 +1,50 @@
+{
+  "automatic_deck_change": false,
+  "confidence": 0.6875,
+  "counterevidence": [
+    "curated package minimum is met",
+    "low opponent sensitivity",
+    "low seed sensitivity",
+    "tested alternative action does not improve the model result"
+  ],
+  "counterfactual_result": {
+    "consistency": 0.95,
+    "improvement": 0.0
+  },
+  "cut_release_gate": "model_supported_cut_candidate",
+  "diagnosis_id": "f085bb66bbff7ef490214457",
+  "empirically_proven": false,
+  "evidence": [
+    "persistent weakness remains across pilots, pods, holdout, seeds and legal counterfactuals"
+  ],
+  "hypothesis": "genuine_deck_construction_issue",
+  "metrics": {
+    "counterfactual_improvement": 0.0,
+    "dead_card_rate": 0.45,
+    "decision_regret": 0.0,
+    "evidence_strength": 0.75,
+    "missed_line_count": 0,
+    "package_failure_rate": 0.0,
+    "pilot_disagreement": 0.08,
+    "unplayable_rate": 0.3
+  },
+  "model_dependent": true,
+  "opponent_sensitivity": 0.1,
+  "package_dependency": {
+    "checked": true,
+    "completeness": 1.0,
+    "minimum_met": true,
+    "package_id": "tested-role-package"
+  },
+  "pilot_sensitivity": 0.08,
+  "recommended_next_test": "paired_replacement_test_with_role_coverage_gate",
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.1,
+  "source_ids": [
+    "synthetic-known-cause-bad-card"
+  ],
+  "subject": "Weak Card",
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}

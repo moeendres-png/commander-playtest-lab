@@ -1,0 +1,8 @@
+Phase 12.10 final regression
+- Unit: 195 passed
+- Integration: 25 passed
+- Golden/property/architecture/contract: 19 passed
+- Differential/fuzz/mutation/regressions/agent evals: 12 passed, 1 skipped
+- Total: 251 passed, 1 skipped, 0 failed
+- Skip: real XMage/Forge differential command not configured
+- Integrated ten-extension smoke: 10/10 steps passed with limitations

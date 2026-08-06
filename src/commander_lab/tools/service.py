@@ -2644,3 +2644,71 @@ class CommanderToolService:
             payload = lab.export_fixture(branch, target)
             return payload | {"fixture_path": str(target.relative_to(self.root))}
         return self._invoke("export_minimal_counterfactual_fixture", request, work)
+
+    def _diagnostic_engine(self):
+        from commander_lab.diagnostics import DecisionDiagnosticEngine
+        return DecisionDiagnosticEngine()
+
+    def diagnose_card_performance(self, request):
+        from commander_lab.diagnostics import DecisionDiagnosticEngine
+        def work() -> dict[str, Any]:
+            dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
+            diagnosis = self._diagnostic_engine().classify(dataset, request.card_name)
+            target = self.root / "data/runs/diagnostics" / Path(request.output_name).name
+            atomic_write_json(target, diagnosis.model_dump(mode="json"))
+            return diagnosis.model_dump(mode="json") | {"diagnosis_path": str(target.relative_to(self.root))}
+        return self._invoke("diagnose_card_performance", request, work)
+
+    def diagnose_pilot_behavior(self, request):
+        from commander_lab.diagnostics import DecisionDiagnosticEngine
+        def work() -> dict[str, Any]:
+            dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
+            diagnosis = self._diagnostic_engine().classify(dataset, request.pilot_name)
+            target = self.root / "data/runs/diagnostics" / Path(request.output_name).name
+            atomic_write_json(target, diagnosis.model_dump(mode="json"))
+            return diagnosis.model_dump(mode="json") | {"diagnosis_path": str(target.relative_to(self.root))}
+        return self._invoke("diagnose_pilot_behavior", request, work)
+
+    def compare_deck_and_pilot_effects(self, request):
+        from commander_lab.diagnostics import DecisionDiagnosticEngine
+        def work() -> dict[str, Any]:
+            dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
+            result = self._diagnostic_engine().compare_effects(dataset)
+            return result.model_dump(mode="json") | {"causal_identification": False}
+        return self._invoke("compare_deck_and_pilot_effects", request, work)
+
+    def classify_failure_cause(self, request):
+        from commander_lab.diagnostics import DecisionDiagnosticEngine
+        def work() -> dict[str, Any]:
+            dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
+            diagnosis = self._diagnostic_engine().classify(dataset, request.subject)
+            target = self.root / "data/runs/diagnostics" / Path(request.output_name).name
+            atomic_write_json(target, diagnosis.model_dump(mode="json"))
+            return diagnosis.model_dump(mode="json") | {"diagnosis_path": str(target.relative_to(self.root))}
+        return self._invoke("classify_failure_cause", request, work)
+
+    def recommend_next_experiment(self, request):
+        from commander_lab.diagnostics import DecisionDiagnosticEngine
+        from commander_lab.models import DiagnosisRecord
+        def work() -> dict[str, Any]:
+            diagnosis = DiagnosisRecord.model_validate_json(self._project_path(request.diagnosis_path).read_text(encoding="utf-8"))
+            return DecisionDiagnosticEngine.next_experiment(diagnosis)
+        return self._invoke("recommend_next_experiment", request, work)
+
+    def generate_diagnostic_report(self, request):
+        from commander_lab.diagnostics import DecisionDiagnosticEngine
+        from commander_lab.models import DiagnosisRecord
+        def work() -> dict[str, Any]:
+            diagnoses = [
+                DiagnosisRecord.model_validate_json(self._project_path(path).read_text(encoding="utf-8"))
+                for path in request.diagnosis_paths
+            ]
+            target = self.root / "data/runs/diagnostics" / Path(request.output_name).name
+            DecisionDiagnosticEngine.report(diagnoses, target)
+            return {
+                "report_path": str(target.relative_to(self.root)),
+                "diagnosis_count": len(diagnoses),
+                "automatic_deck_changes": False,
+                "empirical_proof_claimed": False,
+            }
+        return self._invoke("generate_diagnostic_report", request, work)

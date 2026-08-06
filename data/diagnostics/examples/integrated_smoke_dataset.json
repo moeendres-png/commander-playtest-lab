@@ -1,0 +1,73 @@
+{
+  "card_metrics": [
+    {
+      "alternative_lines": [
+        "wait",
+        "different target"
+      ],
+      "average_turn_played": 4.2,
+      "card_name": "Mirkwood Bats",
+      "counterfactual_outcome_delta": 0.0,
+      "dead_in_hand": 4,
+      "discarded": 2,
+      "drawn": 30,
+      "kept": 12,
+      "mana_efficiency": 1.1,
+      "mulliganed": 3,
+      "opening_hand": 15,
+      "pilot_decisions": [
+        "hold",
+        "cast"
+      ],
+      "played": 24,
+      "removed": 10,
+      "sample_size": 30,
+      "successful": 30,
+      "synergy_partner_present": 30,
+      "unplayable": 2,
+      "without_value": 8
+    }
+  ],
+  "counterfactual_consistency": 0.8,
+  "counterfactual_improvement": -0.1,
+  "dataset_id": "integrated-smoke",
+  "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+  "deck_id": "korvold/current",
+  "deck_variant_effect": null,
+  "holdout_confirms_problem": false,
+  "multiple_pods_confirm": false,
+  "notes": [],
+  "opponent_ensemble_count": 3,
+  "opponent_observation_conflict": false,
+  "opponent_sensitivity": 0.2,
+  "package_checked": true,
+  "package_completeness": 0.8,
+  "package_id": "korvold-mirkwood-table-damage",
+  "package_minimum_met": true,
+  "pilot_disagreement": 0.1,
+  "pilot_metrics": [
+    {
+      "average_placement": null,
+      "dead_card_rate": 0.13,
+      "decision_regret": 0.1,
+      "missed_line_count": 0,
+      "pilot_name": "KorvoldValuePilot",
+      "primer_rule_miss_count": 0,
+      "sample_size": 30,
+      "success_rate": 0.55,
+      "unplayable_rate": 0.07
+    }
+  ],
+  "real_structural_disagreement": 0.0,
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.15,
+  "source_ids": [
+    "meta-2026-08-05-phase12-1",
+    "korvold-current-policy",
+    "morcant-elves-ensemble-v1"
+  ],
+  "tactical_structural_disagreement": 0.0,
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}

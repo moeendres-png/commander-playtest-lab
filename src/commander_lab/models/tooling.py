@@ -702,3 +702,35 @@ class ExportMinimalCounterfactualFixtureInput(FrozenModel):
     event_offset: int = Field(ge=0)
     expected_state_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     output_name: str = "counterfactual_golden_fixture.json"
+
+
+# Deck / pilot / model diagnostic tool inputs
+class DiagnoseCardPerformanceInput(FrozenModel):
+    dataset_path: str
+    card_name: str
+    output_name: str = "card_diagnosis.json"
+
+
+class DiagnosePilotBehaviorInput(FrozenModel):
+    dataset_path: str
+    pilot_name: str
+    output_name: str = "pilot_diagnosis.json"
+
+
+class CompareDeckAndPilotEffectsInput(FrozenModel):
+    dataset_path: str
+
+
+class ClassifyFailureCauseInput(FrozenModel):
+    dataset_path: str
+    subject: str
+    output_name: str = "failure_cause_diagnosis.json"
+
+
+class RecommendNextExperimentInput(FrozenModel):
+    diagnosis_path: str
+
+
+class GenerateDiagnosticReportInput(FrozenModel):
+    diagnosis_paths: tuple[str, ...] = Field(min_length=1)
+    output_name: str = "DECISION_DIAGNOSTIC_REPORT.md"

@@ -1,0 +1,59 @@
+{
+  "card_metrics": [
+    {
+      "alternative_lines": [
+        "wait",
+        "different target"
+      ],
+      "average_turn_played": 4.2,
+      "card_name": "Support Card",
+      "counterfactual_outcome_delta": 0.0,
+      "dead_in_hand": 8,
+      "discarded": 2,
+      "drawn": 80,
+      "kept": 12,
+      "mana_efficiency": 1.1,
+      "mulliganed": 3,
+      "opening_hand": 15,
+      "pilot_decisions": [
+        "hold",
+        "cast"
+      ],
+      "played": 67,
+      "removed": 10,
+      "sample_size": 80,
+      "successful": 45,
+      "synergy_partner_present": 50,
+      "unplayable": 5,
+      "without_value": 8
+    }
+  ],
+  "counterfactual_consistency": 0.8,
+  "counterfactual_improvement": 0.0,
+  "dataset_id": "incomplete-package",
+  "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+  "deck_id": "korvold/current",
+  "deck_variant_effect": null,
+  "holdout_confirms_problem": false,
+  "multiple_pods_confirm": false,
+  "notes": [],
+  "opponent_ensemble_count": 3,
+  "opponent_observation_conflict": false,
+  "opponent_sensitivity": 0.1,
+  "package_checked": true,
+  "package_completeness": 0.35,
+  "package_id": "land-rebuild",
+  "package_minimum_met": false,
+  "pilot_disagreement": 0.1,
+  "pilot_metrics": [],
+  "real_structural_disagreement": 0.0,
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.1,
+  "source_ids": [
+    "synthetic-known-cause-incomplete-package"
+  ],
+  "tactical_structural_disagreement": 0.0,
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}

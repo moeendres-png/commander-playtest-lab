@@ -1,0 +1,13 @@
+{
+  "automatic_deck_changes": false,
+  "datasets": [
+    "synthetic_cases/poor_pilot.json",
+    "synthetic_cases/bad_card.json",
+    "synthetic_cases/incomplete_package.json",
+    "synthetic_cases/wrong_opponent.json",
+    "synthetic_cases/high_variance.json",
+    "synthetic_cases/wrong_structural.json",
+    "examples/integrated_smoke_dataset.json"
+  ],
+  "schema_version": "1.0.0"
+}

@@ -46,14 +46,17 @@ def test_all_required_tools_are_exposed() -> None:
         "find_counterfactual_branchpoints", "list_alternative_actions",
         "run_counterfactual", "compare_counterfactuals",
         "generate_decision_regret_report", "export_minimal_counterfactual_fixture",
+        "diagnose_card_performance", "diagnose_pilot_behavior",
+        "compare_deck_and_pilot_effects", "classify_failure_cause",
+        "recommend_next_experiment", "generate_diagnostic_report",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 86
-    assert len({schema["name"] for schema in schemas}) == 86
+    assert len(schemas) == 92
+    assert len({schema["name"] for schema in schemas}) == 92
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

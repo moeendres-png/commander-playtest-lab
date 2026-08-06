@@ -1,0 +1,142 @@
+{
+  "allocation_changes": false,
+  "canonical_deck_changes": false,
+  "external_engine_used": false,
+  "inventory_changes": false,
+  "passed_steps": 10,
+  "report_id": "phase12-10-integrated-smoke",
+  "schema_version": "1.0.0",
+  "status": "passed_with_limitations",
+  "steps": [
+    {
+      "name": "load_meta_source",
+      "result_summary": "loaded meta snapshot meta-2026-08-05-phase12-1",
+      "source_hashes": [
+        "b761bf5a8a4df010223833d4a7b73ffd73f8845be7eeaae2fcbf0332c86ae716"
+      ],
+      "source_paths": [
+        "data/meta/manifests/latest.json"
+      ],
+      "status": "passed",
+      "step": 1,
+      "validation_level": "source_fact"
+    },
+    {
+      "name": "compile_primer_rule",
+      "result_summary": "compiled 7 rules",
+      "source_hashes": [
+        "716f4c777db1192ec20fb354e3fe3e8d53fceee66992402eaf4fddec6b5eb65a"
+      ],
+      "source_paths": [
+        "data/primer_rules/rules/korvold_current_rules.json"
+      ],
+      "status": "passed",
+      "step": 2,
+      "validation_level": "curated_project_rule"
+    },
+    {
+      "name": "select_multiple_pilots",
+      "result_summary": "KorvoldPilot, KorvoldValuePilot, KorvoldSacrificePilot",
+      "source_hashes": [
+        "73648509cb5761a1a3b4e0723048f6046170a65b8211a0d952070fdfda3e03c6"
+      ],
+      "source_paths": [
+        "data/pilots/pilot_registry.json"
+      ],
+      "status": "passed",
+      "step": 3,
+      "validation_level": "structural_model_estimates"
+    },
+    {
+      "name": "analyze_packages",
+      "result_summary": "loaded 10 Korvold package records",
+      "source_hashes": [
+        "b423546d3904bc41f89308978a0152f1dac334090e7075515a24921d18bb267f"
+      ],
+      "source_paths": [
+        "data/packages/package_registry.json"
+      ],
+      "status": "passed",
+      "step": 4,
+      "validation_level": "curated_project_package"
+    },
+    {
+      "name": "trace_provenance",
+      "result_summary": "graph commander-playtest-lab-provenance-1.5.0 contains 7 sources",
+      "source_hashes": [
+        "e2cd6887ee3d26890b5eae61e863caee85505d7a6c117a79415a3054ba4c8daa"
+      ],
+      "source_paths": [
+        "data/provenance/provenance_graph.json"
+      ],
+      "status": "passed",
+      "step": 5,
+      "validation_level": "provenance_verified"
+    },
+    {
+      "name": "load_local_opponent_profile",
+      "result_summary": "real observations: 0",
+      "source_hashes": [
+        "eaba8eff03e44d9e5d78d5418937431025c5bd3dfaa41da3726d1c229af74ff4"
+      ],
+      "source_paths": [
+        "data/local_meta/profiles/alen_morcant_observed_v1.json"
+      ],
+      "status": "passed",
+      "step": 6,
+      "validation_level": "insufficient_real_data"
+    },
+    {
+      "name": "simulate_opponent_ensemble",
+      "result_summary": "validated 4 variants",
+      "source_hashes": [
+        "b8fb96d6b0505be35bce425f2c90b270cae852e8f9b77507b35813d643b28c66"
+      ],
+      "source_paths": [
+        "data/opponent_ensembles/morcant-elves-ensemble-v1.json"
+      ],
+      "status": "passed",
+      "step": 7,
+      "validation_level": "structural_model_estimates"
+    },
+    {
+      "name": "apply_mulligan_policy",
+      "result_summary": "compared 8 policies",
+      "source_hashes": [
+        "31513316efca946415d2ed0cb0b2865ae4e28b999ce87293602474fb976a8ce6"
+      ],
+      "source_paths": [
+        "data/mulligan_lab/results/korvold_mulligan_lab.json"
+      ],
+      "status": "passed",
+      "step": 8,
+      "validation_level": "structural_model_estimates"
+    },
+    {
+      "name": "run_counterfactual_replay",
+      "result_summary": "chosen_model_preferred",
+      "source_hashes": [
+        "8ab218c0007e6b11d52ceaa11939116f083a7fe83949229786e67b6abf8a0a87"
+      ],
+      "source_paths": [
+        "data/counterfactual/examples/korvold_counterfactual_example.json"
+      ],
+      "status": "passed",
+      "step": 9,
+      "validation_level": "structural_counterfactual"
+    },
+    {
+      "name": "diagnose_failure_cause",
+      "result_summary": "insufficient_evidence",
+      "source_hashes": [
+        "54fb896d38ed2b59486a8ef293315bd951eb24f442cffde8a6dc130783924a2b"
+      ],
+      "source_paths": [
+        "data/diagnostics/examples/integrated_smoke_dataset.json"
+      ],
+      "status": "passed",
+      "step": 10,
+      "validation_level": "model_diagnosis"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "automatic_deck_change": false,
+  "confidence": 0.5900000000000001,
+  "counterevidence": [
+    "low opponent sensitivity",
+    "low seed sensitivity",
+    "tested alternative action does not improve the model result"
+  ],
+  "counterfactual_result": {
+    "consistency": 0.8,
+    "improvement": 0.0
+  },
+  "cut_release_gate": "blocked:package_incomplete,holdout_not_confirmed,diagnosis_not_deck_or_card_weakness",
+  "diagnosis_id": "c1435c0712c407015385a46a",
+  "empirically_proven": false,
+  "evidence": [
+    "package density is below its curated minimum"
+  ],
+  "hypothesis": "package_is_incomplete",
+  "metrics": {
+    "counterfactual_improvement": 0.0,
+    "dead_card_rate": 0.1,
+    "decision_regret": 0.0,
+    "evidence_strength": 0.6000000000000001,
+    "missed_line_count": 0,
+    "package_failure_rate": 0.65,
+    "pilot_disagreement": 0.1,
+    "unplayable_rate": 0.0625
+  },
+  "model_dependent": true,
+  "opponent_sensitivity": 0.1,
+  "package_dependency": {
+    "checked": true,
+    "completeness": 0.35,
+    "minimum_met": false,
+    "package_id": "land-rebuild"
+  },
+  "pilot_sensitivity": 0.1,
+  "recommended_next_test": "restore_or_ablate_the_complete_package_before_judging_single_cards",
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.1,
+  "source_ids": [
+    "synthetic-known-cause-incomplete-package"
+  ],
+  "subject": "Support Card",
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}
