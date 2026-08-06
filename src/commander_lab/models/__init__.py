@@ -200,6 +200,13 @@ from .packages import (
     PackageVersionComparison,
 )
 
+
+from .provenance import (
+    PROVENANCE_SCHEMA_VERSION, ArtifactRecord, CitationRecord, ClaimKind,
+    DerivedDataRecord, LicenseRecord, ProvenanceGraph, SourceRecord, SourceType,
+    SupersessionRecord, TransformationRecord, VerificationStatus,
+)
+
 from .simulation import (
     CardContribution,
     CardSwap,
@@ -413,4 +420,18 @@ __all__.extend([
     "ListPilotProfilesInput", "InspectPilotInput", "RunPilotBenchmarkInput",
     "ComparePilotsInput", "PilotWeightInput", "RunPilotEnsembleInput",
     "TestVariantAcrossPilotsInput", "GeneratePilotRobustnessReportInput",
+])
+
+from .tooling import (
+    TraceArtifactProvenanceInput, TraceRecommendationSourcesInput,
+    ListSupersededSourcesInput, VerifySourceHashInput,
+    GenerateProvenanceReportInput, AuditUnreferencedClaimsInput,
+)
+__all__.extend([
+    "PROVENANCE_SCHEMA_VERSION", "ArtifactRecord", "CitationRecord", "ClaimKind",
+    "DerivedDataRecord", "LicenseRecord", "ProvenanceGraph", "SourceRecord",
+    "SourceType", "SupersessionRecord", "TransformationRecord", "VerificationStatus",
+    "TraceArtifactProvenanceInput", "TraceRecommendationSourcesInput",
+    "ListSupersededSourcesInput", "VerifySourceHashInput",
+    "GenerateProvenanceReportInput", "AuditUnreferencedClaimsInput",
 ])

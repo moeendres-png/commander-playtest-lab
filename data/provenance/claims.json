@@ -1,0 +1,10 @@
+[
+  {
+    "claim_id": "claim-current-decks-unchanged",
+    "claim_kind": "source_fact",
+    "source_ids": [
+      "repo-1.4.0"
+    ],
+    "text": "Canonical deck files were not modified."
+  }
+]

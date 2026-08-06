@@ -1,0 +1,50 @@
+{
+  "record_count": 9,
+  "records": [
+    {
+      "content_hash": "643bd517729c6eac274669a6891d3ff5f99110dafd73b7bcfdc89958316a54a3",
+      "id": "user-direct-current-project-rules",
+      "verification_status": "verified"
+    },
+    {
+      "content_hash": "4d6bcb0dfac116a4431a91e9e93be936f63dddd73802f1ee338960314ffeac96",
+      "id": "drive-current-status-1.4.0",
+      "verification_status": "hash_verified"
+    },
+    {
+      "content_hash": "2d190763d491f147b9ca5629e0f8cc24f95ae527efe8dae22144eee2cedfb603",
+      "id": "repo-1.4.0",
+      "verification_status": "verified"
+    },
+    {
+      "content_hash": "eafe2ac0fb717121706ac4e732c0ec592c2a571e14f6228ddf69487209854012",
+      "id": "synthetic-opponent-fixtures",
+      "verification_status": "hash_verified"
+    },
+    {
+      "content_hash": "5e82f849c2a9cb091d070423a1e65a1881f68b0f68cacf63b4fd1814ecf6257d",
+      "id": "deck-korvold-current",
+      "verification_status": "hash_verified"
+    },
+    {
+      "content_hash": "b30a323d700bbe26afb2561f921ca81c9197a8739e3a2862fc7efb1b9594295c",
+      "id": "deck-rogshai-current",
+      "verification_status": "hash_verified"
+    },
+    {
+      "content_hash": "b423546d3904bc41f89308978a0152f1dac334090e7075515a24921d18bb267f",
+      "id": "package-registry",
+      "verification_status": "hash_verified"
+    },
+    {
+      "content_hash": "73648509cb5761a1a3b4e0723048f6046170a65b8211a0d952070fdfda3e03c6",
+      "id": "pilot-registry",
+      "verification_status": "hash_verified"
+    },
+    {
+      "content_hash": "bd517660cd7bfbde6f0078704d1a65983753a7f9bcba59e5482d78588384d08d",
+      "id": "derived-package-analysis",
+      "verification_status": "partially_verified"
+    }
+  ]
+}

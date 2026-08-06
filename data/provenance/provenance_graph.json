@@ -1,0 +1,234 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "deck-korvold-current",
+      "artifact_type": "decklist",
+      "content_hash": "5e82f849c2a9cb091d070423a1e65a1881f68b0f68cacf63b4fd1814ecf6257d",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "repo-1.4.0"
+      ],
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "metadata": {},
+      "package_version": "1.4.0",
+      "path_or_drive_id": "data/decks/korvold_current.json",
+      "title": "korvold_current.json",
+      "transformation_ids": [],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "deck-rogshai-current",
+      "artifact_type": "decklist",
+      "content_hash": "b30a323d700bbe26afb2561f921ca81c9197a8739e3a2862fc7efb1b9594295c",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "repo-1.4.0"
+      ],
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "metadata": {},
+      "package_version": "1.4.0",
+      "path_or_drive_id": "data/decks/rogshai_current.json",
+      "title": "rogshai_current.json",
+      "transformation_ids": [],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "package-registry",
+      "artifact_type": "package_registry",
+      "content_hash": "b423546d3904bc41f89308978a0152f1dac334090e7075515a24921d18bb267f",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "repo-1.4.0"
+      ],
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "metadata": {},
+      "package_version": "1.4.0",
+      "path_or_drive_id": "data/packages/package_registry.json",
+      "title": "package_registry.json",
+      "transformation_ids": [],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "pilot-registry",
+      "artifact_type": "pilot_registry",
+      "content_hash": "73648509cb5761a1a3b4e0723048f6046170a65b8211a0d952070fdfda3e03c6",
+      "derived_from": [
+        "user-direct-current-project-rules",
+        "repo-1.4.0"
+      ],
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "metadata": {},
+      "package_version": "1.4.0",
+      "path_or_drive_id": "data/pilots/pilot_registry.json",
+      "title": "pilot_registry.json",
+      "transformation_ids": [],
+      "verification_status": "hash_verified"
+    }
+  ],
+  "citations": [
+    {
+      "citation_id": "cite-claim-current-decks-unchanged",
+      "claim_id": "claim-current-decks-unchanged",
+      "claim_kind": "source_fact",
+      "claim_text": "Canonical Korvold and RogShai deck files were not modified by package extraction.",
+      "confidence": 1.0,
+      "derived_ids": [],
+      "location": "PLAYTEST_LAB_CURRENT_STATUS.json",
+      "source_ids": [
+        "repo-1.4.0"
+      ]
+    }
+  ],
+  "derived_data": [
+    {
+      "confidence": 0.7,
+      "content_hash": "bd517660cd7bfbde6f0078704d1a65983753a7f9bcba59e5482d78588384d08d",
+      "data_type": "package_analysis",
+      "derived_from": [
+        "package-registry",
+        "deck-korvold-current",
+        "deck-rogshai-current"
+      ],
+      "derived_id": "derived-package-analysis",
+      "metadata": {
+        "automatic_deck_application": false
+      },
+      "model_label": "structural_model_estimates",
+      "transformation_id": "transform-package-extraction",
+      "verification_status": "partially_verified"
+    }
+  ],
+  "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+  "graph_id": "commander-playtest-lab-provenance-1.5.0",
+  "licenses": [
+    {
+      "full_text_storage_allowed": true,
+      "license_id": "private-project",
+      "license_name": "Private project",
+      "restrictions": [
+        "no_external_redistribution"
+      ],
+      "usage_rights": [
+        "project_internal_use"
+      ]
+    },
+    {
+      "full_text_storage_allowed": false,
+      "license_id": "structured-external",
+      "license_name": "Structured external reference use",
+      "restrictions": [
+        "no_unlicensed_full_text"
+      ],
+      "usage_rights": [
+        "facts",
+        "short_summary",
+        "hash",
+        "source_reference"
+      ]
+    }
+  ],
+  "package_version": "1.4.0",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "author": "Moritz Endres",
+      "confidence": 1.0,
+      "content_hash": "643bd517729c6eac274669a6891d3ff5f99110dafd73b7bcfdc89958316a54a3",
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "license": "user_provided",
+      "observed": true,
+      "package_version": "1.4.0",
+      "source_id": "user-direct-current-project-rules",
+      "source_type": "direct_user_statement",
+      "title": "Current binding MTG project rules",
+      "url_or_drive_id": "project-instructions-2026-08-02",
+      "usage_rights": [
+        "project_internal_use"
+      ],
+      "verification_status": "verified"
+    },
+    {
+      "confidence": 1.0,
+      "content_hash": "4d6bcb0dfac116a4431a91e9e93be936f63dddd73802f1ee338960314ffeac96",
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "license": "private_project",
+      "observed": true,
+      "package_version": "1.4.0",
+      "source_id": "drive-current-status-1.4.0",
+      "source_type": "google_drive_file",
+      "title": "PLAYTEST_LAB_CURRENT_STATUS.json",
+      "url_or_drive_id": "1vHWqJV5Rvh4HqiqVyUDJ8yaS1zNGUme4",
+      "usage_rights": [
+        "project_internal_use"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "confidence": 1.0,
+      "content_hash": "2d190763d491f147b9ca5629e0f8cc24f95ae527efe8dae22144eee2cedfb603",
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "license": "private_project",
+      "observed": true,
+      "package_version": "1.4.0",
+      "source_id": "repo-1.4.0",
+      "source_type": "repository",
+      "title": "commander-playtest-lab 1.4.0 repository",
+      "url_or_drive_id": "1QrPVlbP4CNfvwtzl0dv6lVXmG5ayHSA5",
+      "usage_rights": [
+        "project_internal_use"
+      ],
+      "verification_status": "verified"
+    },
+    {
+      "confidence": 0.25,
+      "content_hash": "eafe2ac0fb717121706ac4e732c0ec592c2a571e14f6228ddf69487209854012",
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "license": "private_project",
+      "observed": false,
+      "package_version": "1.4.0",
+      "source_id": "synthetic-opponent-fixtures",
+      "source_type": "synthetic_assumption",
+      "title": "Synthetic structural opponent fixtures",
+      "url_or_drive_id": "src/commander_lab/engine/structural/fixtures.py",
+      "usage_rights": [
+        "project_internal_use"
+      ],
+      "verification_status": "hash_verified"
+    }
+  ],
+  "supersessions": [],
+  "transformations": [
+    {
+      "code_hash": "83eaba42aaad14a66337f1ba9277e62b91970f165be18bbbaf8ae95925da5826",
+      "description": "Validates curated primer rules against the safe DSL and compiles reversible pilot overlays.",
+      "deterministic": true,
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "input_ids": [
+        "primer-registry"
+      ],
+      "name": "Primer-to-Pilot compiler",
+      "output_ids": [
+        "pilot-registry"
+      ],
+      "package_version": "1.4.0",
+      "transformation_id": "transform-primer-to-policy"
+    },
+    {
+      "code_hash": "d31d81bd2218fc2c5418f562f0b9a2da5f872c23c5bf8b2e19e22abfbfe14116",
+      "description": "Combines curated package definitions, roles and conservative co-occurrence analysis.",
+      "deterministic": true,
+      "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+      "input_ids": [
+        "package-registry",
+        "deck-korvold-current",
+        "deck-rogshai-current"
+      ],
+      "name": "Archetype and package extraction",
+      "output_ids": [
+        "derived-package-analysis"
+      ],
+      "package_version": "1.4.0",
+      "transformation_id": "transform-package-extraction"
+    }
+  ]
+}

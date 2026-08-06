@@ -1,3 +1,7 @@
+## 1.5.0 - 2026-08-06
+- Added complete source/artifact/derivation provenance graph, supersession and claim auditing.
+- Added simulation identity hashes and six provenance tools.
+
 # Changelog
 
 ## 1.4.0 - 2026-08-06

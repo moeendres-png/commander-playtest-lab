@@ -37,6 +37,9 @@ from commander_lab.models import (
     EvaluatePackageDensityInput,
     DetectOrphanedCardsInput,
     GeneratePackageReportInput,
+    TraceArtifactProvenanceInput, TraceRecommendationSourcesInput,
+    ListSupersededSourcesInput, VerifySourceHashInput,
+    GenerateProvenanceReportInput, AuditUnreferencedClaimsInput,
     GoldfishInput,
     HoldoutInput,
     ImportMetaDeckInput,
@@ -135,6 +138,12 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("evaluate_package_density", "Evaluate package completeness, density, redundancy and failure modes.", EvaluatePackageDensityInput, "evaluate_package_density"),
     ToolDefinition("detect_orphaned_cards", "Detect support cards without payoffs and payoffs without enablers.", DetectOrphanedCardsInput, "detect_orphaned_cards"),
     ToolDefinition("generate_package_report", "Generate an explainable archetype/package Markdown report.", GeneratePackageReportInput, "generate_package_report"),
+    ToolDefinition("trace_artifact_provenance", "Trace an artifact through sources, transformations and derived records.", TraceArtifactProvenanceInput, "trace_artifact_provenance"),
+    ToolDefinition("trace_recommendation_sources", "Trace a recommendation to its deck, pilot, simulation and evidence sources.", TraceRecommendationSourcesInput, "trace_recommendation_sources"),
+    ToolDefinition("list_superseded_sources", "List superseded sources while retaining historical records.", ListSupersededSourcesInput, "list_superseded_sources"),
+    ToolDefinition("verify_source_hash", "Verify a source file against its registered content hash.", VerifySourceHashInput, "verify_source_hash"),
+    ToolDefinition("generate_provenance_report", "Generate a complete provenance graph report.", GenerateProvenanceReportInput, "generate_provenance_report"),
+    ToolDefinition("audit_unreferenced_claims", "Audit claims lacking sources, model labels or explicit inference labels.", AuditUnreferencedClaimsInput, "audit_unreferenced_claims"),
 )
 
 

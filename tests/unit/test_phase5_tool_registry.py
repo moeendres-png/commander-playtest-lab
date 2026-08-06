@@ -31,14 +31,17 @@ def test_all_required_tools_are_exposed() -> None:
         "extract_archetypes", "extract_packages", "inspect_package",
         "compare_package_versions", "evaluate_package_density",
         "detect_orphaned_cards", "generate_package_report",
+        "trace_artifact_provenance", "trace_recommendation_sources",
+        "list_superseded_sources", "verify_source_hash",
+        "generate_provenance_report", "audit_unreferenced_claims",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 53
-    assert len({schema["name"] for schema in schemas}) == 53
+    assert len(schemas) == 59
+    assert len({schema["name"] for schema in schemas}) == 59
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

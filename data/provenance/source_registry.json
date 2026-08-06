@@ -1,0 +1,94 @@
+[
+  {
+    "author": "Moritz Endres",
+    "confidence": 1.0,
+    "content_hash": "643bd517729c6eac274669a6891d3ff5f99110dafd73b7bcfdc89958316a54a3",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "user_provided",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T10:58:18.317280Z",
+    "source_id": "user-direct-current-project-rules",
+    "source_type": "direct_user_statement",
+    "supersedes": [],
+    "title": "Current binding MTG project rules",
+    "transformation": null,
+    "url_or_drive_id": "project-instructions-2026-08-02",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "verified"
+  },
+  {
+    "author": null,
+    "confidence": 1.0,
+    "content_hash": "4d6bcb0dfac116a4431a91e9e93be936f63dddd73802f1ee338960314ffeac96",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "private_project",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T10:58:18.317348Z",
+    "source_id": "drive-current-status-1.4.0",
+    "source_type": "google_drive_file",
+    "supersedes": [],
+    "title": "PLAYTEST_LAB_CURRENT_STATUS.json",
+    "transformation": null,
+    "url_or_drive_id": "1vHWqJV5Rvh4HqiqVyUDJ8yaS1zNGUme4",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": null,
+    "confidence": 1.0,
+    "content_hash": "2d190763d491f147b9ca5629e0f8cc24f95ae527efe8dae22144eee2cedfb603",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "private_project",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T10:58:18.317357Z",
+    "source_id": "repo-1.4.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "commander-playtest-lab 1.4.0 repository",
+    "transformation": null,
+    "url_or_drive_id": "1QrPVlbP4CNfvwtzl0dv6lVXmG5ayHSA5",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "verified"
+  },
+  {
+    "author": null,
+    "confidence": 0.25,
+    "content_hash": "eafe2ac0fb717121706ac4e732c0ec592c2a571e14f6228ddf69487209854012",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "private_project",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T10:58:18.317362Z",
+    "source_id": "synthetic-opponent-fixtures",
+    "source_type": "synthetic_assumption",
+    "supersedes": [],
+    "title": "Synthetic structural opponent fixtures",
+    "transformation": null,
+    "url_or_drive_id": "src/commander_lab/engine/structural/fixtures.py",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "hash_verified"
+  }
+]

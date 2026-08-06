@@ -48,6 +48,9 @@ class ToolExecutionMetadata(FrozenModel):
     data_snapshot_hash: str
     deck_hashes: dict[str, str] = Field(default_factory=dict)
     scenario_hash: str
+    configuration_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    opponent_hashes: dict[str, str] = Field(default_factory=dict)
+    pilot_version: str | None = None
     seed: int | None = None
     iterations: int | None = None
     estimate_type: Literal[
@@ -503,3 +506,24 @@ class DetectOrphanedCardsInput(FrozenModel):
 class GeneratePackageReportInput(FrozenModel):
     deck_id: str
     output_name: str = "package_report.md"
+
+
+# Full provenance tool inputs
+class TraceArtifactProvenanceInput(FrozenModel):
+    artifact_id: str
+
+class TraceRecommendationSourcesInput(FrozenModel):
+    recommendation_id: str
+
+class ListSupersededSourcesInput(FrozenModel):
+    include_historical: bool = True
+
+class VerifySourceHashInput(FrozenModel):
+    source_id: str
+    candidate_path: str | None = None
+
+class GenerateProvenanceReportInput(FrozenModel):
+    output_name: str = "provenance_report.md"
+
+class AuditUnreferencedClaimsInput(FrozenModel):
+    fail_on_unreferenced: bool = False

@@ -50,6 +50,9 @@ from commander_lab.models import (
     EvaluatePackageDensityInput,
     DetectOrphanedCardsInput,
     GeneratePackageReportInput,
+    TraceArtifactProvenanceInput, TraceRecommendationSourcesInput,
+    ListSupersededSourcesInput, VerifySourceHashInput,
+    GenerateProvenanceReportInput, AuditUnreferencedClaimsInput,
     PilotEnsembleDefinition,
     PilotEnsembleMember,
     CompiledPilotPolicy,
@@ -136,6 +139,7 @@ from commander_lab.agents.pilots import build_pilot
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
 from commander_lab.reporting import calibration_report_markdown
 from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
+from commander_lab.provenance import ProvenanceStore
 
 from .candidates import load_candidate_profiles
 
@@ -177,6 +181,9 @@ class CommanderToolService:
         self.trace_dir.mkdir(parents=True, exist_ok=True)
         self.report_dir = self.root / "data/runs/reports"
         self.report_dir.mkdir(parents=True, exist_ok=True)
+
+    def _provenance(self) -> ProvenanceStore:
+        return ProvenanceStore(self.root)
 
     def _load_limits(self) -> CostLimits:
         path = self.root / "config/openai_workflow.json"
@@ -446,6 +453,9 @@ class CommanderToolService:
             data_snapshot_hash=str(self.manifest["data_snapshot_hash"]),
             deck_hashes={deck_id: self._deck(deck_id).deck_hash for deck_id in deck_ids if deck_id in self.decks},
             scenario_hash=sha256_value(scenario),
+            configuration_hash=sha256_value(scenario),
+            opponent_hashes={deck_id: self._deck(deck_id).deck_hash for deck_id in deck_ids[1:] if deck_id in self.decks},
+            pilot_version=(scenario.get("pilot_version") if isinstance(scenario, dict) else None) or (str(scenario.get("pilot_strength")) if isinstance(scenario, dict) and scenario.get("pilot_strength") else "unspecified"),
             seed=seed,
             iterations=iterations,
             estimate_type=estimate_type,
@@ -1255,6 +1265,36 @@ class CommanderToolService:
                 "estimate_type": "structural_model_estimates",
             }
         return self._invoke("generate_package_report", request, work, deck_ids=(request.deck_id,))
+
+
+    def trace_artifact_provenance(self, request: TraceArtifactProvenanceInput) -> ToolResponse:
+        return self._invoke("trace_artifact_provenance", request, lambda: self._provenance().trace(request.artifact_id))
+
+    def trace_recommendation_sources(self, request: TraceRecommendationSourcesInput) -> ToolResponse:
+        return self._invoke("trace_recommendation_sources", request, lambda: self._provenance().recommendation_sources(request.recommendation_id))
+
+    def list_superseded_sources(self, request: ListSupersededSourcesInput) -> ToolResponse:
+        return self._invoke("list_superseded_sources", request, lambda: {"supersessions": self._provenance().list_superseded(), "historical_sources_retained": True})
+
+    def verify_source_hash(self, request: VerifySourceHashInput) -> ToolResponse:
+        return self._invoke("verify_source_hash", request, lambda: self._provenance().verify_source_hash(request.source_id, request.candidate_path))
+
+    def generate_provenance_report(self, request: GenerateProvenanceReportInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            store=self._provenance(); graph=store.load(); store.validate(graph); audit=store.audit_claims()
+            target=self.root/"data/runs/provenance_reports"/Path(request.output_name).name
+            lines=["# Provenance Report","",f"Graph: `{graph.graph_id}`",f"Sources: {len(graph.sources)}",f"Artifacts: {len(graph.artifacts)}",f"Derived records: {len(graph.derived_data)}",f"Transformations: {len(graph.transformations)}",f"Citations: {len(graph.citations)}",f"Supersessions: {len(graph.supersessions)}","",f"Unreferenced claims: {len(audit['unreferenced_claims'])}","","Historical sources are retained and superseded records remain traceable."]
+            atomic_write_text(target,"\n".join(lines)+"\n")
+            return {"report_path":str(target.relative_to(self.root)),"graph_hash":sha256_value(graph.model_dump(mode="json")),"audit":audit}
+        return self._invoke("generate_provenance_report", request, work)
+
+    def audit_unreferenced_claims(self, request: AuditUnreferencedClaimsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            result=self._provenance().audit_claims()
+            if request.fail_on_unreferenced and not result["passed"]:
+                raise ToolExecutionError("unreferenced claims detected")
+            return result
+        return self._invoke("audit_unreferenced_claims", request, work)
 
     def generate_swap_matrix(self, request: SwapMatrixInput) -> ToolResponse:
         """Generate every requested cut/add cell, preserving invalid cells as evidence."""
