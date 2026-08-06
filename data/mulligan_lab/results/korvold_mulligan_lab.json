@@ -1,0 +1,275 @@
+{
+  "common_random_numbers": true,
+  "context": {
+    "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+    "deck_id": "korvold/current",
+    "game_plan": "balanced",
+    "opponent_ensemble_hash": "c755d54156f0214ca9be8f03ca9a418a93d5fa3f62fa269403e35868987061c8",
+    "opponent_ensemble_id": "morcant-elves-ensemble-v1",
+    "pilot_profile_id": "baseline",
+    "pilot_version": "unspecified",
+    "pod_size": 4,
+    "seat_position": 1,
+    "seed": 20260806,
+    "starting_player": false
+  },
+  "estimate_type": "structural_model_estimates",
+  "full_matchup_performance_separate": true,
+  "generated_rules": [
+    {
+      "absolute_rule": false,
+      "clauses": [
+        {
+          "feature": "land_count",
+          "operator": "between",
+          "rationale": "current Korvold land band",
+          "value": [
+            2.0,
+            4.0
+          ]
+        },
+        {
+          "feature": "colored_sources.G",
+          "operator": "ge",
+          "rationale": "green is required for early ramp",
+          "value": 1.0
+        },
+        {
+          "feature": "ramp_count",
+          "operator": "ge",
+          "rationale": "supports a timely value window",
+          "value": 1.0
+        },
+        {
+          "feature": "sacrifice_resource_count",
+          "operator": "ge",
+          "rationale": "avoids ramp-only hands without sacrifice material",
+          "value": 1.0
+        }
+      ],
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_id": "korvold/current",
+      "exceptions": [
+        "Two-land hands require functional acceleration or selection.",
+        "Visible graveyard hate reduces graveyard-only keeps."
+      ],
+      "model_based": true,
+      "policy": "conservative",
+      "rule_id": "korvold.current.conservative.candidate-v1",
+      "source_run_hash": "f92b0c6533214b4ae0fc337d1eb9d719351b7a3510fd096d7bc30644a1f4fd62",
+      "validation_contexts": [
+        "primary_structural",
+        "opponent_ensemble",
+        "multi_pilot_candidate"
+      ],
+      "validation_status": "candidate"
+    }
+  ],
+  "hypergeometric_baselines": [
+    {
+      "category": "lands",
+      "category_size": 39,
+      "draws": 7,
+      "population_size": 99,
+      "probability_at_least": {
+        "1": 0.9740574930026493,
+        "2": 0.8429037076271543,
+        "3": 0.5710576797579465,
+        "4": 0.27170342287816407
+      }
+    },
+    {
+      "category": "early_ramp",
+      "category_size": 14,
+      "draws": 7,
+      "population_size": 99,
+      "probability_at_least": {
+        "1": 0.6684465062486334,
+        "2": 0.2571522988102295,
+        "3": 0.056646372684007525,
+        "4": 0.007138736603458895
+      }
+    },
+    {
+      "category": "interaction",
+      "category_size": 10,
+      "draws": 7,
+      "population_size": 99,
+      "probability_at_least": {
+        "1": 0.5371630300080191,
+        "2": 0.14681859748466186,
+        "3": 0.02135074417358271,
+        "4": 0.0016695122816487264
+      }
+    },
+    {
+      "category": "protection",
+      "category_size": 4,
+      "draws": 7,
+      "population_size": 99,
+      "probability_at_least": {
+        "1": 0.2577375373767126,
+        "2": 0.024216762618824477,
+        "3": 0.0008646851430356585,
+        "4": 9.297689710060844e-06
+      }
+    },
+    {
+      "category": "independent_draw_engine",
+      "category_size": 18,
+      "draws": 7,
+      "population_size": 99,
+      "probability_at_least": {
+        "1": 0.766426463884169,
+        "2": 0.3740229232095728,
+        "3": 0.11069949459898855,
+        "4": 0.019505233608310007
+      }
+    }
+  ],
+  "policies": [
+    {
+      "average_dead_cards": 0.502,
+      "average_mulligans": 0.359,
+      "color_problem_rate": 0.044,
+      "commander_cast_turn_mean": 4.172774869109948,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.4444444444444446,
+      "first_ramp_turn_mean": 1.5421686746987953,
+      "keep_rate_first_seven": 0.737,
+      "median_hand_score": 6.4,
+      "mulligan_rate": 0.263,
+      "policy": "conservative",
+      "samples": 1000,
+      "structural_placement_mean": 1.2636416739999998,
+      "uncertainty_half_width_95": 0.027250081969998178
+    },
+    {
+      "average_dead_cards": 0.494,
+      "average_mulligans": 0.334,
+      "color_problem_rate": 0.055,
+      "commander_cast_turn_mean": 4.146596858638744,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.4076923076923076,
+      "first_ramp_turn_mean": 1.5290697674418605,
+      "keep_rate_first_seven": 0.75,
+      "median_hand_score": 6.2,
+      "mulligan_rate": 0.25,
+      "policy": "curve_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.337025,
+      "uncertainty_half_width_95": 0.02680359063769738
+    },
+    {
+      "average_dead_cards": 0.505,
+      "average_mulligans": 0.358,
+      "color_problem_rate": 0.063,
+      "commander_cast_turn_mean": 4.147368421052631,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.3359375,
+      "first_ramp_turn_mean": 1.5146198830409356,
+      "keep_rate_first_seven": 0.737,
+      "median_hand_score": 6.55,
+      "mulligan_rate": 0.263,
+      "policy": "commander_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.36745,
+      "uncertainty_half_width_95": 0.027250081969998178
+    },
+    {
+      "average_dead_cards": 0.503,
+      "average_mulligans": 0.351,
+      "color_problem_rate": 0.058,
+      "commander_cast_turn_mean": 4.166666666666667,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.462686567164179,
+      "first_ramp_turn_mean": 1.5476190476190477,
+      "keep_rate_first_seven": 0.741,
+      "median_hand_score": 6.0,
+      "mulligan_rate": 0.259,
+      "policy": "interaction_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.3461249999999998,
+      "uncertainty_half_width_95": 0.027116013804192665
+    },
+    {
+      "average_dead_cards": 0.513,
+      "average_mulligans": 0.336,
+      "color_problem_rate": 0.059,
+      "commander_cast_turn_mean": 4.172774869109948,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.450381679389313,
+      "first_ramp_turn_mean": 1.532934131736527,
+      "keep_rate_first_seven": 0.752,
+      "median_hand_score": 5.95,
+      "mulligan_rate": 0.248,
+      "policy": "matchup_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.377775,
+      "uncertainty_half_width_95": 0.026732098836615696
+    },
+    {
+      "average_dead_cards": 0.497,
+      "average_mulligans": 0.402,
+      "color_problem_rate": 0.058,
+      "commander_cast_turn_mean": 4.157894736842105,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.362962962962963,
+      "first_ramp_turn_mean": 1.5384615384615385,
+      "keep_rate_first_seven": 0.712,
+      "median_hand_score": 6.3,
+      "mulligan_rate": 0.288,
+      "policy": "primer_policy",
+      "samples": 1000,
+      "structural_placement_mean": 1.34125,
+      "uncertainty_half_width_95": 0.028024238643864843
+    },
+    {
+      "average_dead_cards": 0.506,
+      "average_mulligans": 0.413,
+      "color_problem_rate": 0.047,
+      "commander_cast_turn_mean": 4.157894736842105,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.4420289855072466,
+      "first_ramp_turn_mean": 1.5384615384615385,
+      "keep_rate_first_seven": 0.708,
+      "median_hand_score": 5.6,
+      "mulligan_rate": 0.292,
+      "policy": "current_pilot",
+      "samples": 1000,
+      "structural_placement_mean": 1.4820624999999998,
+      "uncertainty_half_width_95": 0.028138271158135657
+    },
+    {
+      "average_dead_cards": 0.501,
+      "average_mulligans": 0.343,
+      "color_problem_rate": 0.058,
+      "commander_cast_turn_mean": 4.152631578947369,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 3.406015037593985,
+      "first_ramp_turn_mean": 1.5380116959064327,
+      "keep_rate_first_seven": 0.751,
+      "median_hand_score": 6.0,
+      "mulligan_rate": 0.249,
+      "policy": "learned_policy",
+      "samples": 1000,
+      "structural_placement_mean": 1.3675625,
+      "uncertainty_half_width_95": 0.02676793981157925
+    }
+  ],
+  "sample_count": 1000,
+  "schema_version": "1.0.0",
+  "warnings": [
+    "Keep rules are model-based candidates, not universal or empirical facts.",
+    "Follow-up placement is a cheap structural milestone projection, not a complete rules-engine game.",
+    "No external engine validation was performed."
+  ]
+}

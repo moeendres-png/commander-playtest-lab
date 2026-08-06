@@ -1,0 +1,14 @@
+Phase 12.8 final split regression
+- unit: 180 passed
+- integration excluding phase10 acceptance: 21 passed
+- phase10 acceptance: 4 passed
+- golden: 2 passed
+- property: 8 passed
+- architecture: 1 passed
+- contract: 8 passed
+- differential: 2 passed, 1 skipped (external XMage/Forge command not configured)
+- fuzz: 2 passed
+- mutation: 3 passed
+- regressions: 1 passed
+- agent_evals: 4 passed
+TOTAL: 236 passed, 1 skipped, 0 failed

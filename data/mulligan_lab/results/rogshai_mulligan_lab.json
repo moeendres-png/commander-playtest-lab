@@ -1,0 +1,275 @@
+{
+  "common_random_numbers": true,
+  "context": {
+    "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+    "deck_id": "rogshai/current",
+    "game_plan": "balanced",
+    "opponent_ensemble_hash": "42a7045c5c68527cffe85e5c11ef17f442c0917d4789179e7d3eefd14fad2fcb",
+    "opponent_ensemble_id": "cosmic-spiderman-ensemble-v1",
+    "pilot_profile_id": "baseline",
+    "pilot_version": "unspecified",
+    "pod_size": 4,
+    "seat_position": 1,
+    "seed": 20260806,
+    "starting_player": false
+  },
+  "estimate_type": "structural_model_estimates",
+  "full_matchup_performance_separate": true,
+  "generated_rules": [
+    {
+      "absolute_rule": false,
+      "clauses": [
+        {
+          "feature": "land_count",
+          "operator": "between",
+          "rationale": "current RogShai land band",
+          "value": [
+            2.0,
+            3.0
+          ]
+        },
+        {
+          "feature": "early_blue_source_count",
+          "operator": "ge",
+          "rationale": "blue enables early interaction and Ishai support",
+          "value": 1.0
+        },
+        {
+          "feature": "cheap_noncreature_count",
+          "operator": "ge",
+          "rationale": "supports tempo and Ishai growth",
+          "value": 1.0
+        },
+        {
+          "feature": "color_stability_score",
+          "operator": "ge",
+          "rationale": "avoids unstable Jeskai starts",
+          "value": 0.66
+        }
+      ],
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_id": "rogshai/current",
+      "exceptions": [
+        "Offensive aura/payoff clusters need a protected Ishai window.",
+        "Interaction-heavy matchups may keep slower hands with reserve counters."
+      ],
+      "model_based": true,
+      "policy": "commander_oriented",
+      "rule_id": "rogshai.current.commander_oriented.candidate-v1",
+      "source_run_hash": "7e917fe66b9706e011ddb1b1a63fbb5a3f538e1c7c4c556009b45135d76e6c06",
+      "validation_contexts": [
+        "primary_structural",
+        "opponent_ensemble",
+        "multi_pilot_candidate"
+      ],
+      "validation_status": "candidate"
+    }
+  ],
+  "hypergeometric_baselines": [
+    {
+      "category": "lands",
+      "category_size": 37,
+      "draws": 7,
+      "population_size": 98,
+      "probability_at_least": {
+        "1": 0.9684648148637277,
+        "2": 0.8199627612220092,
+        "3": 0.5335659434844092,
+        "4": 0.24046978498101745
+      }
+    },
+    {
+      "category": "early_ramp",
+      "category_size": 8,
+      "draws": 7,
+      "population_size": 98,
+      "probability_at_least": {
+        "1": 0.4599427183566594,
+        "2": 0.09990453059443226,
+        "3": 0.010953919500234974,
+        "4": 0.0006108251869562207
+      }
+    },
+    {
+      "category": "interaction",
+      "category_size": 20,
+      "draws": 7,
+      "population_size": 98,
+      "probability_at_least": {
+        "1": 0.8090340305025466,
+        "2": 0.43771131203527613,
+        "3": 0.14777439487590055,
+        "4": 0.030232401432910453
+      }
+    },
+    {
+      "category": "protection",
+      "category_size": 8,
+      "draws": 7,
+      "population_size": 98,
+      "probability_at_least": {
+        "1": 0.4599427183566594,
+        "2": 0.09990453059443226,
+        "3": 0.010953919500234974,
+        "4": 0.0006108251869562207
+      }
+    },
+    {
+      "category": "independent_draw_engine",
+      "category_size": 11,
+      "draws": 7,
+      "population_size": 98,
+      "probability_at_least": {
+        "1": 0.577621696504326,
+        "2": 0.17610158083559888,
+        "3": 0.0292039775421621,
+        "4": 0.0026562179108181086
+      }
+    }
+  ],
+  "policies": [
+    {
+      "average_dead_cards": 0.142,
+      "average_mulligans": 0.85,
+      "color_problem_rate": 0.015,
+      "commander_cast_turn_mean": 3.405128205128205,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.81651376146789,
+      "first_ramp_turn_mean": 1.8067226890756303,
+      "keep_rate_first_seven": 0.529,
+      "median_hand_score": 5.825,
+      "mulligan_rate": 0.471,
+      "policy": "conservative",
+      "samples": 1000,
+      "structural_placement_mean": 1.268218783,
+      "uncertainty_half_width_95": 0.030878530294917456
+    },
+    {
+      "average_dead_cards": 0.126,
+      "average_mulligans": 0.826,
+      "color_problem_rate": 0.023,
+      "commander_cast_turn_mean": 3.3711340206185567,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.825242718446602,
+      "first_ramp_turn_mean": 1.808,
+      "keep_rate_first_seven": 0.535,
+      "median_hand_score": 5.625,
+      "mulligan_rate": 0.465,
+      "policy": "curve_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.31133125,
+      "uncertainty_half_width_95": 0.030854817796295557
+    },
+    {
+      "average_dead_cards": 0.131,
+      "average_mulligans": 0.809,
+      "color_problem_rate": 0.021,
+      "commander_cast_turn_mean": 3.3979591836734695,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.803738317757009,
+      "first_ramp_turn_mean": 1.775,
+      "keep_rate_first_seven": 0.531,
+      "median_hand_score": 6.225,
+      "mulligan_rate": 0.469,
+      "policy": "commander_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.23999375,
+      "uncertainty_half_width_95": 0.03087112209566619
+    },
+    {
+      "average_dead_cards": 0.134,
+      "average_mulligans": 0.791,
+      "color_problem_rate": 0.023,
+      "commander_cast_turn_mean": 3.3897435897435897,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.8411214953271027,
+      "first_ramp_turn_mean": 1.7933884297520661,
+      "keep_rate_first_seven": 0.555,
+      "median_hand_score": 5.875,
+      "mulligan_rate": 0.445,
+      "policy": "interaction_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.3100187499999998,
+      "uncertainty_half_width_95": 0.030743421659169785
+    },
+    {
+      "average_dead_cards": 0.13,
+      "average_mulligans": 0.833,
+      "color_problem_rate": 0.019,
+      "commander_cast_turn_mean": 3.3846153846153846,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.8411214953271027,
+      "first_ramp_turn_mean": 1.8114754098360655,
+      "keep_rate_first_seven": 0.541,
+      "median_hand_score": 5.575,
+      "mulligan_rate": 0.459,
+      "policy": "matchup_oriented",
+      "samples": 1000,
+      "structural_placement_mean": 1.3603562499999997,
+      "uncertainty_half_width_95": 0.030826635513365622
+    },
+    {
+      "average_dead_cards": 0.131,
+      "average_mulligans": 0.897,
+      "color_problem_rate": 0.019,
+      "commander_cast_turn_mean": 3.3917525773195876,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.8461538461538463,
+      "first_ramp_turn_mean": 1.7916666666666667,
+      "keep_rate_first_seven": 0.51,
+      "median_hand_score": 5.825,
+      "mulligan_rate": 0.49,
+      "policy": "primer_policy",
+      "samples": 1000,
+      "structural_placement_mean": 1.2770875,
+      "uncertainty_half_width_95": 0.03092423661059843
+    },
+    {
+      "average_dead_cards": 0.134,
+      "average_mulligans": 0.922,
+      "color_problem_rate": 0.016,
+      "commander_cast_turn_mean": 3.393782383419689,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.8214285714285716,
+      "first_ramp_turn_mean": 1.825,
+      "keep_rate_first_seven": 0.504,
+      "median_hand_score": 5.075,
+      "mulligan_rate": 0.496,
+      "policy": "current_pilot",
+      "samples": 1000,
+      "structural_placement_mean": 1.4041375,
+      "uncertainty_half_width_95": 0.030929413631013123
+    },
+    {
+      "average_dead_cards": 0.131,
+      "average_mulligans": 0.871,
+      "color_problem_rate": 0.016,
+      "commander_cast_turn_mean": 3.381443298969072,
+      "estimate_level": "structural_followup",
+      "final_keep_rate": 1.0,
+      "first_draw_engine_turn_mean": 2.8207547169811322,
+      "first_ramp_turn_mean": 1.8130081300813008,
+      "keep_rate_first_seven": 0.522,
+      "median_hand_score": 5.425,
+      "mulligan_rate": 0.478,
+      "policy": "learned_policy",
+      "samples": 1000,
+      "structural_placement_mean": 1.3422125,
+      "uncertainty_half_width_95": 0.030900559186149652
+    }
+  ],
+  "sample_count": 1000,
+  "schema_version": "1.0.0",
+  "warnings": [
+    "Keep rules are model-based candidates, not universal or empirical facts.",
+    "Follow-up placement is a cheap structural milestone projection, not a complete rules-engine game.",
+    "No external engine validation was performed."
+  ]
+}

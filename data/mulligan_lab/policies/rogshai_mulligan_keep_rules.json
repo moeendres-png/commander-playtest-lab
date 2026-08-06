@@ -1,0 +1,57 @@
+{
+  "absolute_rules": false,
+  "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+  "deck_id": "rogshai/current",
+  "model_based": true,
+  "rules": [
+    {
+      "absolute_rule": false,
+      "clauses": [
+        {
+          "feature": "land_count",
+          "operator": "between",
+          "rationale": "current RogShai land band",
+          "value": [
+            2.0,
+            3.0
+          ]
+        },
+        {
+          "feature": "early_blue_source_count",
+          "operator": "ge",
+          "rationale": "blue enables early interaction and Ishai support",
+          "value": 1.0
+        },
+        {
+          "feature": "cheap_noncreature_count",
+          "operator": "ge",
+          "rationale": "supports tempo and Ishai growth",
+          "value": 1.0
+        },
+        {
+          "feature": "color_stability_score",
+          "operator": "ge",
+          "rationale": "avoids unstable Jeskai starts",
+          "value": 0.66
+        }
+      ],
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_id": "rogshai/current",
+      "exceptions": [
+        "Offensive aura/payoff clusters need a protected Ishai window.",
+        "Interaction-heavy matchups may keep slower hands with reserve counters."
+      ],
+      "model_based": true,
+      "policy": "commander_oriented",
+      "rule_id": "rogshai.current.commander_oriented.candidate-v1",
+      "source_run_hash": "7e917fe66b9706e011ddb1b1a63fbb5a3f538e1c7c4c556009b45135d76e6c06",
+      "validation_contexts": [
+        "primary_structural",
+        "opponent_ensemble",
+        "multi_pilot_candidate"
+      ],
+      "validation_status": "candidate"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

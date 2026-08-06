@@ -40,14 +40,17 @@ def test_all_required_tools_are_exposed() -> None:
         "create_opponent_ensemble", "add_opponent_variant", "validate_ensemble",
         "run_ensemble_matchups", "compare_variant_sensitivity",
         "evaluate_robust_upgrade", "generate_ensemble_report",
+        "sample_opening_hands", "evaluate_opening_hand",
+        "compare_mulligan_policies", "run_mulligan_lab",
+        "generate_keep_rules", "test_keep_rule", "create_mulligan_report",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 73
-    assert len({schema["name"] for schema in schemas}) == 73
+    assert len(schemas) == 80
+    assert len({schema["name"] for schema in schemas}) == 80
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

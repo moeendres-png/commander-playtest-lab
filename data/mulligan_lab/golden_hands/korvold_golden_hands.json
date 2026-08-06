@@ -1,0 +1,21 @@
+{
+  "deck_id": "korvold/current",
+  "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+  "hands": [
+    {
+      "id": "korvold-balanced-keep",
+      "cards": ["Forest", "Forest", "Swamp", "Sol Ring", "Zuran Orb", "Deadly Dispute", "Mirkwood Bats"],
+      "policy": "primer_policy",
+      "expected": "keep",
+      "rationale": "Green, acceleration, sacrifice material, draw and a later payoff."
+    },
+    {
+      "id": "korvold-graveyard-no-setup",
+      "cards": ["Forest", "Swamp", "Mountain", "Splendid Reclamation", "Ramunap Excavator", "The Gitrog Monster", "Massacre Wurm"],
+      "policy": "primer_policy",
+      "expected": "mulligan",
+      "rationale": "Too many expensive or graveyard-dependent cards without early setup."
+    }
+  ],
+  "model_based": true
+}

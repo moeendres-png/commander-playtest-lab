@@ -586,3 +586,75 @@ class EvaluateRobustUpgradeInput(FrozenModel):
 class GenerateEnsembleReportInput(FrozenModel):
     ensemble_id: str
     output_name: str = "opponent_ensemble_report.md"
+
+
+class SampleOpeningHandsInput(FrozenModel):
+    deck_id: str
+    samples: int = Field(default=1000, ge=1, le=5_000_000)
+    seed: int = Field(default=20260806, ge=0)
+    max_mulligans: int = Field(default=6, ge=0, le=7)
+
+
+class EvaluateOpeningHandInput(FrozenModel):
+    deck_id: str
+    card_names: tuple[str, ...]
+    policy: str = "current_pilot"
+    opponent_ensemble_id: str | None = None
+    seat_position: int = Field(default=1, ge=1, le=10)
+    starting_player: bool = False
+    pod_size: int = Field(default=4, ge=2, le=10)
+    pilot_profile_id: str = "baseline"
+    pilot_version: str = "unspecified"
+    game_plan: str = "balanced"
+    seed: int = Field(default=20260806, ge=0)
+
+    @model_validator(mode="after")
+    def validate_hand_size(self) -> "EvaluateOpeningHandInput":
+        if not 1 <= len(self.card_names) <= 7:
+            raise ValueError("opening hand must contain one to seven cards")
+        return self
+
+
+class CompareMulliganPoliciesInput(FrozenModel):
+    deck_id: str
+    policies: tuple[str, ...] = (
+        "conservative",
+        "curve_oriented",
+        "commander_oriented",
+        "interaction_oriented",
+        "matchup_oriented",
+        "primer_policy",
+        "current_pilot",
+        "learned_policy",
+    )
+    samples: int = Field(default=5000, ge=1, le=5_000_000)
+    followup_samples: int = Field(default=250, ge=0, le=100_000)
+    opponent_ensemble_id: str | None = None
+    seat_position: int = Field(default=1, ge=1, le=10)
+    starting_player: bool = False
+    pod_size: int = Field(default=4, ge=2, le=10)
+    pilot_profile_id: str = "baseline"
+    pilot_version: str = "unspecified"
+    game_plan: str = "balanced"
+    seed: int = Field(default=20260806, ge=0)
+    approval_token: str | None = None
+
+
+class RunMulliganLabInput(CompareMulliganPoliciesInput):
+    output_name: str = "mulligan_lab_result.json"
+
+
+class GenerateKeepRulesInput(FrozenModel):
+    result_path: str
+    output_name: str = "generated_keep_rules.json"
+
+
+class TestKeepRuleInput(FrozenModel):
+    rule_path: str
+    deck_id: str
+    card_names: tuple[str, ...]
+
+
+class CreateMulliganReportInput(FrozenModel):
+    result_path: str
+    output_name: str = "MULLIGAN_LAB_REPORT.md"

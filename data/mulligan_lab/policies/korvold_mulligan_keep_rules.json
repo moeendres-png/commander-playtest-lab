@@ -1,0 +1,57 @@
+{
+  "absolute_rules": false,
+  "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+  "deck_id": "korvold/current",
+  "model_based": true,
+  "rules": [
+    {
+      "absolute_rule": false,
+      "clauses": [
+        {
+          "feature": "land_count",
+          "operator": "between",
+          "rationale": "current Korvold land band",
+          "value": [
+            2.0,
+            4.0
+          ]
+        },
+        {
+          "feature": "colored_sources.G",
+          "operator": "ge",
+          "rationale": "green is required for early ramp",
+          "value": 1.0
+        },
+        {
+          "feature": "ramp_count",
+          "operator": "ge",
+          "rationale": "supports a timely value window",
+          "value": 1.0
+        },
+        {
+          "feature": "sacrifice_resource_count",
+          "operator": "ge",
+          "rationale": "avoids ramp-only hands without sacrifice material",
+          "value": 1.0
+        }
+      ],
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_id": "korvold/current",
+      "exceptions": [
+        "Two-land hands require functional acceleration or selection.",
+        "Visible graveyard hate reduces graveyard-only keeps."
+      ],
+      "model_based": true,
+      "policy": "conservative",
+      "rule_id": "korvold.current.conservative.candidate-v1",
+      "source_run_hash": "f92b0c6533214b4ae0fc337d1eb9d719351b7a3510fd096d7bc30644a1f4fd62",
+      "validation_contexts": [
+        "primary_structural",
+        "opponent_ensemble",
+        "multi_pilot_candidate"
+      ],
+      "validation_status": "candidate"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "policies": [
+    {"policy": "conservative", "status": "model_based", "description": "Prioritizes stable mana and protection."},
+    {"policy": "curve_oriented", "status": "model_based", "description": "Prioritizes early mana use and low dead-card load."},
+    {"policy": "commander_oriented", "status": "model_based", "description": "Prioritizes a supported commander value window."},
+    {"policy": "interaction_oriented", "status": "model_based", "description": "Prioritizes early interaction and reserve protection."},
+    {"policy": "matchup_oriented", "status": "model_based", "description": "Applies ensemble-specific role pressure without inventing cards."},
+    {"policy": "primer_policy", "status": "model_based", "description": "Uses curated Primer-to-Pilot mulligan principles."},
+    {"policy": "current_pilot", "status": "model_based", "description": "Approximates the current baseline pilot keep threshold."},
+    {"policy": "learned_policy", "status": "candidate", "description": "Structural candidate only; no real games imported."}
+  ],
+  "absolute_rules": false
+}

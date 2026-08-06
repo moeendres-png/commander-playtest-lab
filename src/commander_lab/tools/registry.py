@@ -68,6 +68,8 @@ from commander_lab.models import (
     ToolResponse,
     ValidateDeckInput,
     ValidateUpgradeInput,
+    SampleOpeningHandsInput, EvaluateOpeningHandInput, CompareMulliganPoliciesInput,
+    RunMulliganLabInput, GenerateKeepRulesInput, TestKeepRuleInput, CreateMulliganReportInput,
 )
 
 from .service import CommanderToolService
@@ -162,7 +164,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("run_ensemble_matchups", "Run structural matchup estimates across every opponent variant.", RunEnsembleMatchupsInput, "run_ensemble_matchups"),
     ToolDefinition("compare_variant_sensitivity", "Report average, median, worst, spread and sensitive assumptions.", CompareVariantSensitivityInput, "compare_variant_sensitivity"),
     ToolDefinition("evaluate_robust_upgrade", "Evaluate whether an upgrade is nonnegative across opponent variants.", EvaluateRobustUpgradeInput, "evaluate_robust_upgrade"),
-    ToolDefinition("generate_ensemble_report", "Generate a report separating known cards and synthetic assumptions.", GenerateEnsembleReportInput, "generate_ensemble_report"),
+    ToolDefinition("generate_ensemble_report", "Generate a report separating known cards and synthetic assumptions.", GenerateEnsembleReportInput, "generate_ensemble_report"),    ToolDefinition("sample_opening_hands", "Sample deterministic London-mulligan opening-hand sequences without commanders in the library.", SampleOpeningHandsInput, "sample_opening_hands"),
+    ToolDefinition("evaluate_opening_hand", "Evaluate one current-deck opening hand under a versioned model-based mulligan policy.", EvaluateOpeningHandInput, "evaluate_opening_hand"),
+    ToolDefinition("compare_mulligan_policies", "Compare mulligan policies using common random numbers and separate hand/follow-up estimates.", CompareMulliganPoliciesInput, "compare_mulligan_policies"),
+    ToolDefinition("run_mulligan_lab", "Run and persist the deckhash-bound Mulligan Lab.", RunMulliganLabInput, "run_mulligan_lab"),
+    ToolDefinition("generate_keep_rules", "Generate candidate model-based keep rules from a Mulligan Lab result.", GenerateKeepRulesInput, "generate_keep_rules"),
+    ToolDefinition("test_keep_rule", "Test a generated keep-rule candidate against one explicit hand.", TestKeepRuleInput, "test_keep_rule"),
+    ToolDefinition("create_mulligan_report", "Create a Mulligan Lab report with uncertainty and truth-boundary labels.", CreateMulliganReportInput, "create_mulligan_report"),
 )
 
 
