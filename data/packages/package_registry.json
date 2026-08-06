@@ -1,0 +1,1238 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-06T10:54:00+02:00",
+  "packages": [
+    {
+      "package_id": "korvold-land-sacrifice-recursion",
+      "version": "1.0.0",
+      "name": "Korvold land sacrifice and recursion",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "land_engine",
+      "core_cards": [
+        "Crop Rotation",
+        "Ramunap Excavator",
+        "Splendid Reclamation"
+      ],
+      "support_cards": [
+        "Aftermath Analyst",
+        "Harrow",
+        "Springbloom Druid",
+        "Titania, Protector of Argoth"
+      ],
+      "optional_cards": [
+        "Soul of Windgrace",
+        "The Gitrog Monster",
+        "Zuran Orb"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Crop Rotation",
+        "Harrow",
+        "Springbloom Druid",
+        "Zuran Orb"
+      ],
+      "payoffs": [
+        "Ramunap Excavator",
+        "Aftermath Analyst",
+        "Splendid Reclamation",
+        "Titania, Protector of Argoth"
+      ],
+      "finishers": [
+        "Splendid Reclamation",
+        "Titania, Protector of Argoth"
+      ],
+      "failure_modes": [
+        "graveyard exile interrupts recursion",
+        "land sacrifice without recursion can reduce development"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.91,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-land-sacrifice-recursion",
+      "version": "1.1.0",
+      "name": "Korvold land sacrifice and recursion",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "land_engine",
+      "core_cards": [
+        "Crop Rotation",
+        "Ramunap Excavator",
+        "Splendid Reclamation",
+        "Aftermath Analyst"
+      ],
+      "support_cards": [
+        "Harrow",
+        "Springbloom Druid",
+        "Titania, Protector of Argoth",
+        "Soul of Windgrace"
+      ],
+      "optional_cards": [
+        "The Gitrog Monster",
+        "Zuran Orb",
+        "Sprouting Goblin"
+      ],
+      "minimum_density": 5,
+      "redundancy": 2,
+      "enablers": [
+        "Crop Rotation",
+        "Harrow",
+        "Springbloom Druid",
+        "Zuran Orb"
+      ],
+      "payoffs": [
+        "Ramunap Excavator",
+        "Aftermath Analyst",
+        "Splendid Reclamation",
+        "Titania, Protector of Argoth",
+        "Soul of Windgrace"
+      ],
+      "finishers": [
+        "Splendid Reclamation",
+        "Titania, Protector of Argoth"
+      ],
+      "failure_modes": [
+        "graveyard exile interrupts recursion",
+        "land sacrifice without recursion can reduce development"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.94,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-token-sacrifice-material",
+      "version": "1.0.0",
+      "name": "Korvold token and sacrifice material",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "sacrifice",
+      "core_cards": [
+        "Ophiomancer",
+        "Tireless Provisioner",
+        "Pest Infestation"
+      ],
+      "support_cards": [
+        "Scouring Swarm",
+        "Eumidian Hatchery",
+        "Academy Manufactor",
+        "Tireless Tracker"
+      ],
+      "optional_cards": [
+        "Killer Service"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Ophiomancer",
+        "Tireless Provisioner",
+        "Pest Infestation",
+        "Scouring Swarm",
+        "Eumidian Hatchery"
+      ],
+      "payoffs": [
+        "Korvold, Fae-Cursed King",
+        "Mayhem Devil",
+        "Mirkwood Bats"
+      ],
+      "finishers": [
+        "Mirkwood Bats"
+      ],
+      "failure_modes": [
+        "token makers removed before value",
+        "support without sacrifice outlet"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.9,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-free-sacrifice-outlets",
+      "version": "1.0.0",
+      "name": "Korvold free and low-cost sacrifice outlets",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "sacrifice",
+      "core_cards": [
+        "Zuran Orb",
+        "Goblin Bombardment"
+      ],
+      "support_cards": [
+        "Braids, Arisen Nightmare",
+        "God-Eternal Bontu",
+        "Immersturm Predator"
+      ],
+      "optional_cards": [
+        "Hearthhull, the Worldseed"
+      ],
+      "minimum_density": 2,
+      "redundancy": 2,
+      "enablers": [
+        "Zuran Orb",
+        "Goblin Bombardment",
+        "Braids, Arisen Nightmare",
+        "God-Eternal Bontu",
+        "Immersturm Predator"
+      ],
+      "payoffs": [
+        "Korvold, Fae-Cursed King",
+        "Mayhem Devil",
+        "Mazirek, Kraul Death Priest"
+      ],
+      "finishers": [
+        "Goblin Bombardment"
+      ],
+      "failure_modes": [
+        "outlets without fodder",
+        "sorcery-speed outlet exposure"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.88,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-treasure-clue-food",
+      "version": "1.0.0",
+      "name": "Korvold Treasure/Clue/Food engine",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "artifact_engine",
+      "core_cards": [
+        "Tireless Provisioner",
+        "Academy Manufactor"
+      ],
+      "support_cards": [
+        "Tireless Tracker",
+        "Pitiless Plunderer",
+        "Deadly Dispute"
+      ],
+      "optional_cards": [
+        "Eumidian Hatchery"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Tireless Provisioner",
+        "Tireless Tracker",
+        "Pitiless Plunderer"
+      ],
+      "payoffs": [
+        "Academy Manufactor",
+        "Korvold, Fae-Cursed King",
+        "Mirkwood Bats"
+      ],
+      "finishers": [
+        "Mirkwood Bats"
+      ],
+      "failure_modes": [
+        "Manufactor without token type production",
+        "artifact hate suppresses engine"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.86,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-mirkwood-table-damage",
+      "version": "1.0.0",
+      "name": "Korvold Mirkwood Bats table damage",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "punisher",
+      "core_cards": [
+        "Mirkwood Bats",
+        "Tireless Provisioner"
+      ],
+      "support_cards": [
+        "Academy Manufactor",
+        "Pitiless Plunderer",
+        "Ophiomancer",
+        "Pest Infestation"
+      ],
+      "optional_cards": [
+        "Eumidian Hatchery",
+        "Scouring Swarm"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Tireless Provisioner",
+        "Pitiless Plunderer",
+        "Ophiomancer",
+        "Pest Infestation"
+      ],
+      "payoffs": [
+        "Mirkwood Bats"
+      ],
+      "finishers": [
+        "Mirkwood Bats"
+      ],
+      "failure_modes": [
+        "Bats exposed before a large token/sacrifice window",
+        "insufficient token-event density"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.9,
+      "format_band": "large_pod",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-mazirek-szarel-counters",
+      "version": "1.0.0",
+      "name": "Korvold Mazirek/Szarel counter scaling",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "go_wide",
+      "core_cards": [
+        "Mazirek, Kraul Death Priest",
+        "Szarel, Genesis Shepherd"
+      ],
+      "support_cards": [
+        "Ophiomancer",
+        "Tireless Provisioner",
+        "Scouring Swarm",
+        "Titania, Protector of Argoth"
+      ],
+      "optional_cards": [
+        "Eumidian Hatchery"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ophiomancer",
+        "Tireless Provisioner",
+        "Scouring Swarm",
+        "Titania, Protector of Argoth"
+      ],
+      "payoffs": [
+        "Mazirek, Kraul Death Priest",
+        "Szarel, Genesis Shepherd"
+      ],
+      "finishers": [
+        "Mazirek, Kraul Death Priest",
+        "Szarel, Genesis Shepherd"
+      ],
+      "failure_modes": [
+        "payoffs removed before sacrifice chain",
+        "wide board exposed to wipe"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.91,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-wipe-rebuild",
+      "version": "1.0.0",
+      "name": "Korvold boardwipe and rebuild",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "midrange",
+      "core_cards": [
+        "Toxic Deluge",
+        "Blasphemous Act",
+        "Splendid Reclamation"
+      ],
+      "support_cards": [
+        "Culling Ritual",
+        "Fire Covenant",
+        "Aftermath Analyst",
+        "Ramunap Excavator",
+        "Soul of Windgrace"
+      ],
+      "optional_cards": [
+        "Massacre Wurm"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Toxic Deluge",
+        "Blasphemous Act",
+        "Culling Ritual",
+        "Fire Covenant"
+      ],
+      "payoffs": [
+        "Splendid Reclamation",
+        "Aftermath Analyst",
+        "Ramunap Excavator",
+        "Soul of Windgrace"
+      ],
+      "finishers": [
+        "Massacre Wurm",
+        "Splendid Reclamation"
+      ],
+      "failure_modes": [
+        "wipe without stored rebuild resources",
+        "graveyard hate after wipe"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.93,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-graveyard-protection",
+      "version": "1.0.0",
+      "name": "Korvold graveyard risk management",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "graveyard_recursion",
+      "core_cards": [
+        "Bojuka Bog",
+        "Rakdos Charm"
+      ],
+      "support_cards": [
+        "Ramunap Excavator",
+        "Aftermath Analyst",
+        "Splendid Reclamation",
+        "Soul of Windgrace"
+      ],
+      "optional_cards": [
+        "Veil of Summer",
+        "Tyvar's Stand"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ramunap Excavator",
+        "Aftermath Analyst",
+        "Soul of Windgrace"
+      ],
+      "payoffs": [
+        "Splendid Reclamation",
+        "Titania, Protector of Argoth"
+      ],
+      "finishers": [
+        "Splendid Reclamation"
+      ],
+      "failure_modes": [
+        "open graveyard exile invalidates rebuild line",
+        "overcommitting unique recursion targets"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.82,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "korvold-independent-finishers",
+      "version": "1.0.0",
+      "name": "Korvold commander-independent finishers",
+      "commander": "Korvold, Fae-Cursed King",
+      "archetype": "punisher",
+      "core_cards": [
+        "Mirkwood Bats",
+        "Exsanguinate",
+        "Massacre Wurm"
+      ],
+      "support_cards": [
+        "Mayhem Devil",
+        "Mazirek, Kraul Death Priest",
+        "Szarel, Genesis Shepherd",
+        "Hearthhull, the Worldseed"
+      ],
+      "optional_cards": [
+        "Goblin Bombardment"
+      ],
+      "minimum_density": 3,
+      "redundancy": 3,
+      "enablers": [
+        "Tireless Provisioner",
+        "Ophiomancer",
+        "Pitiless Plunderer"
+      ],
+      "payoffs": [
+        "Mirkwood Bats",
+        "Mayhem Devil",
+        "Mazirek, Kraul Death Priest",
+        "Szarel, Genesis Shepherd"
+      ],
+      "finishers": [
+        "Exsanguinate",
+        "Massacre Wurm",
+        "Mirkwood Bats",
+        "Hearthhull, the Worldseed"
+      ],
+      "failure_modes": [
+        "payoff without resource engine",
+        "finisher telegraphed too early"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "draftsim-korvold-guide",
+        "manatap-korvold-mulligan"
+      ],
+      "confidence": 0.94,
+      "format_band": "large_pod",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-combat-draw",
+      "version": "1.0.0",
+      "name": "RogShai combat draw",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "support_cards": [
+        "Open the Armory",
+        "Duelist's Heritage",
+        "Swiftfoot Boots"
+      ],
+      "optional_cards": [
+        "Loyal Drake"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Open the Armory",
+        "Swiftfoot Boots"
+      ],
+      "payoffs": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "finishers": [
+        "Duelist's Heritage"
+      ],
+      "failure_modes": [
+        "aura exposed to removal",
+        "no safe combat connection"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.95,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-commander-damage",
+      "version": "1.0.0",
+      "name": "RogShai commander damage",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury"
+      ],
+      "support_cards": [
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion",
+        "Blackblade Reforged",
+        "Jeska, Thrice Reborn"
+      ],
+      "optional_cards": [
+        "Open the Armory"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm"
+      ],
+      "payoffs": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Blackblade Reforged"
+      ],
+      "finishers": [
+        "Jeska, Thrice Reborn",
+        "Psychotic Fury",
+        "Duelist's Heritage",
+        "Sunhome, Fortress of the Legion"
+      ],
+      "failure_modes": [
+        "Ishai removed before combat",
+        "double strike shown without protection"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.94,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-double-strike",
+      "version": "1.0.0",
+      "name": "RogShai double-strike conversion",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm"
+      ],
+      "support_cards": [
+        "Sunhome, Fortress of the Legion",
+        "Open the Armory"
+      ],
+      "optional_cards": [
+        "Flare of Duplication"
+      ],
+      "minimum_density": 2,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Open the Armory"
+      ],
+      "payoffs": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion"
+      ],
+      "finishers": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion"
+      ],
+      "failure_modes": [
+        "combat trick without lethal power",
+        "protection unavailable"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.92,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-jeska-finish",
+      "version": "1.0.0",
+      "name": "RogShai Jeska finish window",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Jeska, Thrice Reborn",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "support_cards": [
+        "Silence",
+        "Boros Charm",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Psychotic Fury"
+      ],
+      "optional_cards": [
+        "Duelist's Heritage"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Silence",
+        "Boros Charm",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse"
+      ],
+      "payoffs": [
+        "Jeska, Thrice Reborn"
+      ],
+      "finishers": [
+        "Jeska, Thrice Reborn"
+      ],
+      "failure_modes": [
+        "Jeska cast outside lethal window",
+        "Ishai lacks sufficient power"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.94,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-kediss-table-damage",
+      "version": "1.0.0",
+      "name": "RogShai Kediss table damage",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "punisher",
+      "core_cards": [
+        "Kediss, Emberclaw Familiar",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "support_cards": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Jeska, Thrice Reborn"
+      ],
+      "optional_cards": [
+        "Blackblade Reforged"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury"
+      ],
+      "payoffs": [
+        "Kediss, Emberclaw Familiar"
+      ],
+      "finishers": [
+        "Kediss, Emberclaw Familiar",
+        "Jeska, Thrice Reborn"
+      ],
+      "failure_modes": [
+        "Kediss splash damage is not commander damage",
+        "single-target lethal may be preferable"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.95,
+      "format_band": "large_pod",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-protection-counter",
+      "version": "1.0.0",
+      "name": "RogShai protection and counter reserve",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "control",
+      "core_cards": [
+        "Silence",
+        "Counterspell",
+        "Dovin's Veto"
+      ],
+      "support_cards": [
+        "An Offer You Can't Refuse",
+        "Negate",
+        "Lofty Denial",
+        "Wash Away",
+        "Boros Charm",
+        "Blacksmith's Skill",
+        "Loran's Escape",
+        "Slip Out the Back"
+      ],
+      "optional_cards": [
+        "Louisoix's Sacrifice"
+      ],
+      "minimum_density": 6,
+      "redundancy": 3,
+      "enablers": [
+        "Silence",
+        "Counterspell",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Negate",
+        "Lofty Denial",
+        "Wash Away"
+      ],
+      "payoffs": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Jeska, Thrice Reborn"
+      ],
+      "finishers": [
+        "Silence",
+        "Boros Charm"
+      ],
+      "failure_modes": [
+        "counter spent on harmless value",
+        "protection density stranded without threat"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.96,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-independent-spellslinger",
+      "version": "1.0.0",
+      "name": "RogShai independent spellslinger engine",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "spellslinger",
+      "core_cards": [
+        "Kykar, Wind's Fury",
+        "Whirlwind of Thought",
+        "Guttersnipe"
+      ],
+      "support_cards": [
+        "Storm-Kiln Artist",
+        "Chandra, Torch of Defiance",
+        "Faerie Mastermind",
+        "Consider",
+        "Preordain"
+      ],
+      "optional_cards": [
+        "Loyal Drake"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Kykar, Wind's Fury",
+        "Storm-Kiln Artist",
+        "Whirlwind of Thought"
+      ],
+      "payoffs": [
+        "Guttersnipe",
+        "Whirlwind of Thought"
+      ],
+      "finishers": [
+        "Guttersnipe"
+      ],
+      "failure_modes": [
+        "engine creature removed before spell chain",
+        "insufficient noncreature spell density"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.91,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-independent-draw",
+      "version": "1.0.0",
+      "name": "RogShai independent draw",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "midrange",
+      "core_cards": [
+        "Whirlwind of Thought",
+        "Faerie Mastermind",
+        "Loyal Drake"
+      ],
+      "support_cards": [
+        "Chandra, Torch of Defiance",
+        "Narset, Parter of Veils",
+        "Consider",
+        "Preordain"
+      ],
+      "optional_cards": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "minimum_density": 4,
+      "redundancy": 3,
+      "enablers": [
+        "Whirlwind of Thought",
+        "Faerie Mastermind",
+        "Loyal Drake",
+        "Chandra, Torch of Defiance",
+        "Narset, Parter of Veils"
+      ],
+      "payoffs": [
+        "Whirlwind of Thought",
+        "Faerie Mastermind",
+        "Loyal Drake"
+      ],
+      "finishers": [],
+      "failure_modes": [
+        "combat draw counted as independent when Ishai is absent",
+        "draw engines exposed into wipe"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.89,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-wipe-protection",
+      "version": "1.0.0",
+      "name": "RogShai boardwipe plus protection",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "control",
+      "core_cards": [
+        "Farewell",
+        "Winds of Rath",
+        "Boros Charm"
+      ],
+      "support_cards": [
+        "Chain Reaction",
+        "Silence",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Slip Out the Back"
+      ],
+      "optional_cards": [
+        "Bastion Protector"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Farewell",
+        "Winds of Rath",
+        "Chain Reaction"
+      ],
+      "payoffs": [
+        "Boros Charm",
+        "Silence",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Slip Out the Back"
+      ],
+      "finishers": [
+        "Farewell",
+        "Winds of Rath"
+      ],
+      "failure_modes": [
+        "wipe removes own independent engines",
+        "protection does not cover exile effects"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.9,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-rograkh-resource",
+      "version": "1.0.0",
+      "name": "RogShai Rograkh resource conversion",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "tempo",
+      "core_cards": [
+        "Rograkh, Son of Rohgahh",
+        "Springleaf Drum",
+        "Relic of Legends"
+      ],
+      "support_cards": [
+        "Kykar, Wind's Fury",
+        "Flare of Duplication",
+        "Lofty Denial"
+      ],
+      "optional_cards": [
+        "Esior, Wardwing Familiar"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Rograkh, Son of Rohgahh",
+        "Springleaf Drum",
+        "Relic of Legends"
+      ],
+      "payoffs": [
+        "Flare of Duplication",
+        "Lofty Denial",
+        "Kykar, Wind's Fury"
+      ],
+      "finishers": [],
+      "failure_modes": [
+        "Rograkh committed without conversion",
+        "resource card weak after commander tax escalation"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.84,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    }
+  ],
+  "archetype_catalog": [
+    "sacrifice",
+    "land_engine",
+    "graveyard_recursion",
+    "commander_value",
+    "voltron",
+    "tempo",
+    "control",
+    "spellslinger",
+    "artifact_engine",
+    "go_wide",
+    "punisher",
+    "combo",
+    "stax",
+    "midrange",
+    "turbo"
+  ],
+  "notes": [
+    "Curated packages describe the current project deck versions only unless otherwise stated.",
+    "Machine co-occurrence candidates are never promoted automatically.",
+    "No package is applied to a deck automatically."
+  ]
+}

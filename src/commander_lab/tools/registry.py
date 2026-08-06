@@ -30,6 +30,13 @@ from commander_lab.models import (
     RunPilotEnsembleInput,
     TestVariantAcrossPilotsInput,
     GeneratePilotRobustnessReportInput,
+    ExtractArchetypesInput,
+    ExtractPackagesInput,
+    InspectPackageInput,
+    ComparePackageVersionsInput,
+    EvaluatePackageDensityInput,
+    DetectOrphanedCardsInput,
+    GeneratePackageReportInput,
     GoldfishInput,
     HoldoutInput,
     ImportMetaDeckInput,
@@ -121,6 +128,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("run_pilot_ensemble", "Evaluate an equal or custom weighted pilot ensemble, worst pilot and median pilot.", RunPilotEnsembleInput, "run_pilot_ensemble"),
     ToolDefinition("test_variant_across_pilots", "Test a deck variant across multiple pilots without applying the change.", TestVariantAcrossPilotsInput, "test_variant_across_pilots"),
     ToolDefinition("generate_pilot_robustness_report", "Generate a Markdown pilot robustness report from a structural result.", GeneratePilotRobustnessReportInput, "generate_pilot_robustness_report"),
+    ToolDefinition("extract_archetypes", "Extract weighted explainable archetypes from roles and project evidence without changing the deck.", ExtractArchetypesInput, "extract_archetypes"),
+    ToolDefinition("extract_packages", "Extract curated packages and conservative unconfirmed machine candidates for a deck.", ExtractPackagesInput, "extract_packages"),
+    ToolDefinition("inspect_package", "Inspect one package definition and optionally evaluate it against a compatible deck.", InspectPackageInput, "inspect_package"),
+    ToolDefinition("compare_package_versions", "Compare two immutable versions of one curated package.", ComparePackageVersionsInput, "compare_package_versions"),
+    ToolDefinition("evaluate_package_density", "Evaluate package completeness, density, redundancy and failure modes.", EvaluatePackageDensityInput, "evaluate_package_density"),
+    ToolDefinition("detect_orphaned_cards", "Detect support cards without payoffs and payoffs without enablers.", DetectOrphanedCardsInput, "detect_orphaned_cards"),
+    ToolDefinition("generate_package_report", "Generate an explainable archetype/package Markdown report.", GeneratePackageReportInput, "generate_package_report"),
 )
 
 

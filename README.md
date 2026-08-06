@@ -387,7 +387,7 @@ holdout, not independent confirmation. Missing real evidence leaves parameters u
 
 ## Phase 10: end-to-end acceptance
 
-The current package version is `1.0.0`. Phase 10 adds current project opponent profiles, a complete non-destructive acceptance workflow, CLI/API/ChatGPT-tool demos and example reports for both current decks.
+The current package version is `1.4.0`. Phase 10 adds current project opponent profiles, a complete non-destructive acceptance workflow, CLI/API/ChatGPT-tool demos and example reports for both current decks.
 
 ```bash
 commander-lab accept-phase10 --iterations 12 --workers 2 --seed 20260805 --root .
@@ -404,3 +404,7 @@ Documentation:
 - `docs/phase10_validation.md`
 - `docs/known_limitations.md`
 - `docs/chatgpt_tool_usage.md`
+
+## Archetype and package extraction
+
+Version 1.4.0 adds weighted archetype profiles and versioned Korvold/RogShai package diagnostics. Package results preserve provenance, format context and status (`candidate`, `machine_extracted`, `curated`, `validated`, or `rejected`). Co-occurrence alone never confirms a package, and no package is automatically applied to a canonical deck. See `docs/archetype_package_extraction.md`.

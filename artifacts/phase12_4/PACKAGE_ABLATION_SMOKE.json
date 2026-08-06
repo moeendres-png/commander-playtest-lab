@@ -1,0 +1,126 @@
+{
+  "generated_at": "2026-08-06T09:56:01.011786Z",
+  "estimate_type": "structural_model_estimates",
+  "sample_size_per_package": 3,
+  "stable_performance_claim_supported": false,
+  "interpretation": "Tiny deterministic smoke only; placement and resource deltas are not empirical win rates or robust package valuations.",
+  "results": {
+    "korvold-mirkwood-table-damage": {
+      "status": "completed",
+      "metadata": {
+        "tool_name": "run_package_ablation",
+        "invocation_id": "run_package_ablation-df99c3a73426",
+        "created_at": "2026-08-06T09:51:47.971013Z",
+        "git_commit": "5de6d51aef505d83f3e2184f34c12a52e3acec5b",
+        "engine_version": "structural-0.6.0",
+        "data_snapshot_hash": "9c039e59803ccb2f73855a911e5b1c25e0c0c304edd572a9cdec2155f9731ea6",
+        "deck_hashes": {
+          "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+          "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+          "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+          "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+        },
+        "scenario_hash": "8562084dd1cf32567a9ca38803d9dd73e4539989f067793f7097971767d4a1d4",
+        "seed": 20260806,
+        "iterations": 3,
+        "estimate_type": "structural_model_estimates",
+        "elapsed_seconds": 0.39916430699850025,
+        "deterministic_game_log_directory": null,
+        "openai_trace_directory": "/mnt/data/phase12_3_12_4/repo_extract/commander-playtest-lab/data/runs/openai_traces"
+      },
+      "result": {
+        "package_id": "korvold-mirkwood-table-damage",
+        "cards": [
+          "Mirkwood Bats",
+          "Tireless Provisioner",
+          "Academy Manufactor",
+          "Pitiless Plunderer",
+          "Ophiomancer",
+          "Pest Infestation",
+          "Eumidian Hatchery",
+          "Scouring Swarm"
+        ],
+        "ablation_comparison": {
+          "games": 3,
+          "baseline_average_placement": 1.0,
+          "variant_average_placement": 1.3333333333333333,
+          "placement_improvement": -0.33333333333333326,
+          "baseline_place_1_share": 1.0,
+          "variant_place_1_share": 0.6666666666666666,
+          "place_1_share_delta": -0.33333333333333337,
+          "baseline_average_damage": 78.986416,
+          "variant_average_damage": 36.458468333333336,
+          "damage_delta": -42.52794766666667,
+          "baseline_average_cards_drawn": 18.0,
+          "variant_average_cards_drawn": 17.333333333333332,
+          "cards_drawn_delta": -0.6666666666666679,
+          "paired_win_count": 0,
+          "paired_loss_count": 1,
+          "paired_tie_count": 2
+        },
+        "automatic_deck_application": false,
+        "estimate_type": "structural_model_estimates"
+      },
+      "warnings": [],
+      "errors": []
+    },
+    "rogshai-combat-draw": {
+      "status": "completed",
+      "metadata": {
+        "tool_name": "run_package_ablation",
+        "invocation_id": "run_package_ablation-ee429b2359e7",
+        "created_at": "2026-08-06T09:51:48.328341Z",
+        "git_commit": "5de6d51aef505d83f3e2184f34c12a52e3acec5b",
+        "engine_version": "structural-0.6.0",
+        "data_snapshot_hash": "9c039e59803ccb2f73855a911e5b1c25e0c0c304edd572a9cdec2155f9731ea6",
+        "deck_hashes": {
+          "rogshai/current": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+          "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+          "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+          "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+        },
+        "scenario_hash": "68f7d702db2d1f195e08108ce770d296dae7e85ccb4e7775d87e589861e99aa0",
+        "seed": 20260806,
+        "iterations": 3,
+        "estimate_type": "structural_model_estimates",
+        "elapsed_seconds": 0.3569724720000522,
+        "deterministic_game_log_directory": null,
+        "openai_trace_directory": "/mnt/data/phase12_3_12_4/repo_extract/commander-playtest-lab/data/runs/openai_traces"
+      },
+      "result": {
+        "package_id": "rogshai-combat-draw",
+        "cards": [
+          "Combat Research",
+          "Curiosity",
+          "Staggering Insight",
+          "Open the Armory",
+          "Duelist's Heritage",
+          "Swiftfoot Boots",
+          "Loyal Drake"
+        ],
+        "ablation_comparison": {
+          "games": 3,
+          "baseline_average_placement": 1.3333333333333333,
+          "variant_average_placement": 1.3333333333333333,
+          "placement_improvement": 0.0,
+          "baseline_place_1_share": 0.6666666666666666,
+          "variant_place_1_share": 0.6666666666666666,
+          "place_1_share_delta": 0.0,
+          "baseline_average_damage": 61.85480822222221,
+          "variant_average_damage": 35.40166666666667,
+          "damage_delta": -26.45314155555554,
+          "baseline_average_cards_drawn": 15.0,
+          "variant_average_cards_drawn": 13.333333333333334,
+          "cards_drawn_delta": -1.666666666666666,
+          "paired_win_count": 0,
+          "paired_loss_count": 0,
+          "paired_tie_count": 3
+        },
+        "automatic_deck_application": false,
+        "estimate_type": "structural_model_estimates"
+      },
+      "warnings": [],
+      "errors": []
+    }
+  }
+}

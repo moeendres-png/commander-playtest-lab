@@ -1,0 +1,1059 @@
+{
+  "deck_id": "rogshai/current",
+  "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+  "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+  "archetype_profile": {
+    "profile_id": "rogshai-current-2f2dab2a26e3",
+    "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+    "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+    "weights": [
+      {
+        "archetype": "voltron",
+        "weight": 0.23529366147642233,
+        "evidence": [
+          "rule_roles"
+        ],
+        "notes": null
+      },
+      {
+        "archetype": "control",
+        "weight": 0.22549035899651584,
+        "evidence": [
+          "rule_roles"
+        ],
+        "notes": null
+      },
+      {
+        "archetype": "midrange",
+        "weight": 0.2058826461937285,
+        "evidence": [
+          "rule_roles"
+        ],
+        "notes": null
+      },
+      {
+        "archetype": "tempo",
+        "weight": 0.11764738465969833,
+        "evidence": [
+          "rule_roles"
+        ],
+        "notes": null
+      },
+      {
+        "archetype": "spellslinger",
+        "weight": 0.1078429743368175,
+        "evidence": [
+          "rule_roles"
+        ],
+        "notes": null
+      },
+      {
+        "archetype": "commander_value",
+        "weight": 0.058823138408362,
+        "evidence": [
+          "rule_roles"
+        ],
+        "notes": null
+      },
+      {
+        "archetype": "punisher",
+        "weight": 0.049019835928455505,
+        "evidence": [
+          "rule_roles"
+        ],
+        "notes": null
+      }
+    ],
+    "sample_size": 1,
+    "small_sample": true,
+    "source_ids": [
+      "local-project-meta-2026-08-05",
+      "structural-role-profiles"
+    ],
+    "confidence": 0.72,
+    "automatic_deck_application": false
+  },
+  "curated_packages": [
+    {
+      "package_id": "rogshai-combat-draw",
+      "version": "1.0.0",
+      "name": "RogShai combat draw",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "support_cards": [
+        "Open the Armory",
+        "Duelist's Heritage",
+        "Swiftfoot Boots"
+      ],
+      "optional_cards": [
+        "Loyal Drake"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Open the Armory",
+        "Swiftfoot Boots"
+      ],
+      "payoffs": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "finishers": [
+        "Duelist's Heritage"
+      ],
+      "failure_modes": [
+        "aura exposed to removal",
+        "no safe combat connection"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.95,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-commander-damage",
+      "version": "1.0.0",
+      "name": "RogShai commander damage",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury"
+      ],
+      "support_cards": [
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion",
+        "Blackblade Reforged",
+        "Jeska, Thrice Reborn"
+      ],
+      "optional_cards": [
+        "Open the Armory"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm"
+      ],
+      "payoffs": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Blackblade Reforged"
+      ],
+      "finishers": [
+        "Jeska, Thrice Reborn",
+        "Psychotic Fury",
+        "Duelist's Heritage",
+        "Sunhome, Fortress of the Legion"
+      ],
+      "failure_modes": [
+        "Ishai removed before combat",
+        "double strike shown without protection"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.94,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-double-strike",
+      "version": "1.0.0",
+      "name": "RogShai double-strike conversion",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm"
+      ],
+      "support_cards": [
+        "Sunhome, Fortress of the Legion",
+        "Open the Armory"
+      ],
+      "optional_cards": [
+        "Flare of Duplication"
+      ],
+      "minimum_density": 2,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Open the Armory"
+      ],
+      "payoffs": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion"
+      ],
+      "finishers": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion"
+      ],
+      "failure_modes": [
+        "combat trick without lethal power",
+        "protection unavailable"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.92,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-independent-draw",
+      "version": "1.0.0",
+      "name": "RogShai independent draw",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "midrange",
+      "core_cards": [
+        "Whirlwind of Thought",
+        "Faerie Mastermind",
+        "Loyal Drake"
+      ],
+      "support_cards": [
+        "Chandra, Torch of Defiance",
+        "Narset, Parter of Veils",
+        "Consider",
+        "Preordain"
+      ],
+      "optional_cards": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "minimum_density": 4,
+      "redundancy": 3,
+      "enablers": [
+        "Whirlwind of Thought",
+        "Faerie Mastermind",
+        "Loyal Drake",
+        "Chandra, Torch of Defiance",
+        "Narset, Parter of Veils"
+      ],
+      "payoffs": [
+        "Whirlwind of Thought",
+        "Faerie Mastermind",
+        "Loyal Drake"
+      ],
+      "finishers": [],
+      "failure_modes": [
+        "combat draw counted as independent when Ishai is absent",
+        "draw engines exposed into wipe"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.89,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-independent-spellslinger",
+      "version": "1.0.0",
+      "name": "RogShai independent spellslinger engine",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "spellslinger",
+      "core_cards": [
+        "Kykar, Wind's Fury",
+        "Whirlwind of Thought",
+        "Guttersnipe"
+      ],
+      "support_cards": [
+        "Storm-Kiln Artist",
+        "Chandra, Torch of Defiance",
+        "Faerie Mastermind",
+        "Consider",
+        "Preordain"
+      ],
+      "optional_cards": [
+        "Loyal Drake"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Kykar, Wind's Fury",
+        "Storm-Kiln Artist",
+        "Whirlwind of Thought"
+      ],
+      "payoffs": [
+        "Guttersnipe",
+        "Whirlwind of Thought"
+      ],
+      "finishers": [
+        "Guttersnipe"
+      ],
+      "failure_modes": [
+        "engine creature removed before spell chain",
+        "insufficient noncreature spell density"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.91,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-jeska-finish",
+      "version": "1.0.0",
+      "name": "RogShai Jeska finish window",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "voltron",
+      "core_cards": [
+        "Jeska, Thrice Reborn",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "support_cards": [
+        "Silence",
+        "Boros Charm",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Psychotic Fury"
+      ],
+      "optional_cards": [
+        "Duelist's Heritage"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Silence",
+        "Boros Charm",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse"
+      ],
+      "payoffs": [
+        "Jeska, Thrice Reborn"
+      ],
+      "finishers": [
+        "Jeska, Thrice Reborn"
+      ],
+      "failure_modes": [
+        "Jeska cast outside lethal window",
+        "Ishai lacks sufficient power"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.94,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-kediss-table-damage",
+      "version": "1.0.0",
+      "name": "RogShai Kediss table damage",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "punisher",
+      "core_cards": [
+        "Kediss, Emberclaw Familiar",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "support_cards": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Jeska, Thrice Reborn"
+      ],
+      "optional_cards": [
+        "Blackblade Reforged"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury"
+      ],
+      "payoffs": [
+        "Kediss, Emberclaw Familiar"
+      ],
+      "finishers": [
+        "Kediss, Emberclaw Familiar",
+        "Jeska, Thrice Reborn"
+      ],
+      "failure_modes": [
+        "Kediss splash damage is not commander damage",
+        "single-target lethal may be preferable"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.95,
+      "format_band": "large_pod",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-protection-counter",
+      "version": "1.0.0",
+      "name": "RogShai protection and counter reserve",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "control",
+      "core_cards": [
+        "Silence",
+        "Counterspell",
+        "Dovin's Veto"
+      ],
+      "support_cards": [
+        "An Offer You Can't Refuse",
+        "Negate",
+        "Lofty Denial",
+        "Wash Away",
+        "Boros Charm",
+        "Blacksmith's Skill",
+        "Loran's Escape",
+        "Slip Out the Back"
+      ],
+      "optional_cards": [
+        "Louisoix's Sacrifice"
+      ],
+      "minimum_density": 6,
+      "redundancy": 3,
+      "enablers": [
+        "Silence",
+        "Counterspell",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Negate",
+        "Lofty Denial",
+        "Wash Away"
+      ],
+      "payoffs": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Jeska, Thrice Reborn"
+      ],
+      "finishers": [
+        "Silence",
+        "Boros Charm"
+      ],
+      "failure_modes": [
+        "counter spent on harmless value",
+        "protection density stranded without threat"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.96,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-rograkh-resource",
+      "version": "1.0.0",
+      "name": "RogShai Rograkh resource conversion",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "tempo",
+      "core_cards": [
+        "Rograkh, Son of Rohgahh",
+        "Springleaf Drum",
+        "Relic of Legends"
+      ],
+      "support_cards": [
+        "Kykar, Wind's Fury",
+        "Flare of Duplication",
+        "Lofty Denial"
+      ],
+      "optional_cards": [
+        "Esior, Wardwing Familiar"
+      ],
+      "minimum_density": 3,
+      "redundancy": 2,
+      "enablers": [
+        "Rograkh, Son of Rohgahh",
+        "Springleaf Drum",
+        "Relic of Legends"
+      ],
+      "payoffs": [
+        "Flare of Duplication",
+        "Lofty Denial",
+        "Kykar, Wind's Fury"
+      ],
+      "finishers": [],
+      "failure_modes": [
+        "Rograkh committed without conversion",
+        "resource card weak after commander tax escalation"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.84,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-wipe-protection",
+      "version": "1.0.0",
+      "name": "RogShai boardwipe plus protection",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "archetype": "control",
+      "core_cards": [
+        "Farewell",
+        "Winds of Rath",
+        "Boros Charm"
+      ],
+      "support_cards": [
+        "Chain Reaction",
+        "Silence",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Slip Out the Back"
+      ],
+      "optional_cards": [
+        "Bastion Protector"
+      ],
+      "minimum_density": 4,
+      "redundancy": 2,
+      "enablers": [
+        "Farewell",
+        "Winds of Rath",
+        "Chain Reaction"
+      ],
+      "payoffs": [
+        "Boros Charm",
+        "Silence",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Slip Out the Back"
+      ],
+      "finishers": [
+        "Farewell",
+        "Winds of Rath"
+      ],
+      "failure_modes": [
+        "wipe removes own independent engines",
+        "protection does not cover exile effects"
+      ],
+      "source_ids": [
+        "local-project-meta-2026-08-05",
+        "edhrec-rogsi-control-2026",
+        "edhrec-rogsi-optimized-2026"
+      ],
+      "confidence": 0.9,
+      "format_band": "local_meta",
+      "status": "curated",
+      "extraction_methods": [
+        "rule_roles",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "sample_size": 4,
+      "notes": null,
+      "automatic_deck_application": false
+    }
+  ],
+  "machine_candidates": [],
+  "machine_rejections": [
+    {
+      "format_band": "cedh_tournament",
+      "sample_size": 1,
+      "reason": "sample below minimum of 3 same-format deck snapshots"
+    },
+    {
+      "format_band": "high_power",
+      "sample_size": 2,
+      "reason": "sample below minimum of 3 same-format deck snapshots"
+    },
+    {
+      "format_band": "local_meta",
+      "sample_size": 1,
+      "reason": "sample below minimum of 3 same-format deck snapshots"
+    }
+  ],
+  "evaluations": [
+    {
+      "package_id": "rogshai-combat-draw",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight",
+        "Open the Armory",
+        "Duelist's Heritage",
+        "Swiftfoot Boots",
+        "Loyal Drake",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 8,
+      "minimum_density": 3,
+      "minimum_density_met": true,
+      "redundancy_present": 3,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Combat Research",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-commander-damage",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion",
+        "Blackblade Reforged",
+        "Jeska, Thrice Reborn",
+        "Open the Armory"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 8,
+      "minimum_density": 4,
+      "minimum_density_met": true,
+      "redundancy_present": 4,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Ishai, Ojutai Dragonspeaker",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-double-strike",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Sunhome, Fortress of the Legion",
+        "Open the Armory",
+        "Flare of Duplication",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 7,
+      "minimum_density": 2,
+      "minimum_density_met": true,
+      "redundancy_present": 4,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Duelist's Heritage",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-independent-draw",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Whirlwind of Thought",
+        "Faerie Mastermind",
+        "Loyal Drake",
+        "Chandra, Torch of Defiance",
+        "Narset, Parter of Veils",
+        "Consider",
+        "Preordain",
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 10,
+      "minimum_density": 4,
+      "minimum_density_met": true,
+      "redundancy_present": 5,
+      "redundancy_required": 3,
+      "redundancy_met": true,
+      "key_card": "Whirlwind of Thought",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-independent-spellslinger",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Kykar, Wind's Fury",
+        "Whirlwind of Thought",
+        "Guttersnipe",
+        "Storm-Kiln Artist",
+        "Chandra, Torch of Defiance",
+        "Faerie Mastermind",
+        "Consider",
+        "Preordain",
+        "Loyal Drake"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 9,
+      "minimum_density": 4,
+      "minimum_density_met": true,
+      "redundancy_present": 3,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Kykar, Wind's Fury",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-jeska-finish",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Jeska, Thrice Reborn",
+        "Ishai, Ojutai Dragonspeaker",
+        "Silence",
+        "Boros Charm",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Psychotic Fury",
+        "Duelist's Heritage"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 8,
+      "minimum_density": 3,
+      "minimum_density_met": true,
+      "redundancy_present": 5,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Jeska, Thrice Reborn",
+      "fragile_card": "Jeska, Thrice Reborn",
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-kediss-table-damage",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Kediss, Emberclaw Familiar",
+        "Ishai, Ojutai Dragonspeaker",
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm",
+        "Jeska, Thrice Reborn",
+        "Blackblade Reforged"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 7,
+      "minimum_density": 3,
+      "minimum_density_met": true,
+      "redundancy_present": 3,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Kediss, Emberclaw Familiar",
+      "fragile_card": "Kediss, Emberclaw Familiar",
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-protection-counter",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Silence",
+        "Counterspell",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Negate",
+        "Lofty Denial",
+        "Wash Away",
+        "Boros Charm",
+        "Blacksmith's Skill",
+        "Loran's Escape",
+        "Slip Out the Back",
+        "Louisoix's Sacrifice",
+        "Ishai, Ojutai Dragonspeaker",
+        "Jeska, Thrice Reborn"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 14,
+      "minimum_density": 6,
+      "minimum_density_met": true,
+      "redundancy_present": 7,
+      "redundancy_required": 3,
+      "redundancy_met": true,
+      "key_card": "Silence",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-rograkh-resource",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Rograkh, Son of Rohgahh",
+        "Springleaf Drum",
+        "Relic of Legends",
+        "Kykar, Wind's Fury",
+        "Flare of Duplication",
+        "Lofty Denial",
+        "Esior, Wardwing Familiar"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 7,
+      "minimum_density": 3,
+      "minimum_density_met": true,
+      "redundancy_present": 3,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Rograkh, Son of Rohgahh",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    },
+    {
+      "package_id": "rogshai-wipe-protection",
+      "package_version": "1.0.0",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "present_cards": [
+        "Farewell",
+        "Winds of Rath",
+        "Boros Charm",
+        "Chain Reaction",
+        "Silence",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Slip Out the Back",
+        "Bastion Protector"
+      ],
+      "missing_core_cards": [],
+      "package_completeness": 1.0,
+      "density": 9,
+      "minimum_density": 4,
+      "minimum_density_met": true,
+      "redundancy_present": 5,
+      "redundancy_required": 2,
+      "redundancy_met": true,
+      "key_card": "Farewell",
+      "fragile_card": null,
+      "dead_support_cards": [],
+      "payoffs_without_enabler": [],
+      "diminishing_marginal_utility": 1.0,
+      "failure_modes_triggered": [],
+      "context_compatible": true,
+      "warnings": [
+        "small evidence sample"
+      ],
+      "automatic_deck_application": false
+    }
+  ],
+  "machine_candidates_are_confirmed": false,
+  "automatic_deck_application": false
+}

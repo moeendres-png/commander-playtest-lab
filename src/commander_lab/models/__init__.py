@@ -155,6 +155,16 @@ from .tooling import (
     GenerateMetaReportInput,
 )
 
+from .tooling import (
+    ExtractArchetypesInput,
+    ExtractPackagesInput,
+    InspectPackageInput,
+    ComparePackageVersionsInput,
+    EvaluatePackageDensityInput,
+    DetectOrphanedCardsInput,
+    GeneratePackageReportInput,
+)
+
 from .primer import (
     PRIMER_RULE_SCHEMA_VERSION,
     ActionPreference,
@@ -175,6 +185,19 @@ from .primer import (
     PrimerRuleStatus,
     RuleValidationIssue,
     RuleValidationReport,
+)
+
+from .packages import (
+    PACKAGE_SCHEMA_VERSION,
+    ArchetypeName,
+    ArchetypeProfile,
+    ArchetypeWeight,
+    ExtractionMethod,
+    PackageDefinition,
+    PackageEvaluation,
+    PackageRegistry,
+    PackageStatus,
+    PackageVersionComparison,
 )
 
 from .simulation import (

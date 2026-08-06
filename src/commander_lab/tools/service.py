@@ -43,6 +43,13 @@ from commander_lab.models import (
     RunPilotEnsembleInput,
     TestVariantAcrossPilotsInput,
     GeneratePilotRobustnessReportInput,
+    ExtractArchetypesInput,
+    ExtractPackagesInput,
+    InspectPackageInput,
+    ComparePackageVersionsInput,
+    EvaluatePackageDensityInput,
+    DetectOrphanedCardsInput,
+    GeneratePackageReportInput,
     PilotEnsembleDefinition,
     PilotEnsembleMember,
     CompiledPilotPolicy,
@@ -128,6 +135,7 @@ from commander_lab.primer import PrimerToPilotCompiler
 from commander_lab.agents.pilots import build_pilot
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
 from commander_lab.reporting import calibration_report_markdown
+from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
 
 from .candidates import load_candidate_profiles
 
@@ -534,6 +542,15 @@ class CommanderToolService:
                     {"card": name, "profile_score": score} for name, score in scores[:10]
                 ],
             }
+            if request.deck_id in {"korvold/current", "rogshai/current"}:
+                package_result = self._package_extractor().packages_for_deck(
+                    request.deck_id, include_machine_candidates=False
+                )
+                payload["package_diagnostics"] = {
+                    "archetype_profile": package_result["archetype_profile"],
+                    "evaluations": package_result["evaluations"],
+                    "automatic_deck_application": False,
+                }
             if request.include_cards:
                 payload["cards"] = [card.model_dump(mode="json") for card in deck.cards]
             return payload
@@ -696,7 +713,13 @@ class CommanderToolService:
             baseline = self._deck(request.deck_id)
             originals = []
             fillers = []
-            for name in request.card_names:
+            selected_names = request.card_names
+            if request.package_id:
+                try:
+                    selected_names = self._package_extractor().package_cards_for_ablation(request.deck_id, request.package_id)
+                except PackageExtractionError as exc:
+                    raise ToolExecutionError(str(exc)) from exc
+            for name in selected_names:
                 card = next((card for card in baseline.cards if card.oracle_name == name), None)
                 if card is None:
                     raise ToolExecutionError(f"card not found: {name}")
@@ -715,7 +738,13 @@ class CommanderToolService:
                 pilot_config=PilotConfig(strength=request.pilot_strength, mode=request.pilot_mode),
                 max_turns=request.max_turns, pair_id=f"package-{sha256_value(originals)[:12]}",
             )
-            return {"cards": originals, "ablation_comparison": metrics.as_dict()}
+            return {
+                "package_id": request.package_id,
+                "cards": originals,
+                "ablation_comparison": metrics.as_dict(),
+                "automatic_deck_application": False,
+                "estimate_type": "structural_model_estimates",
+            }
         return self._invoke("run_package_ablation", request, work, deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations)
 
     def run_commander_denial(self, request: CommanderDenialInput) -> ToolResponse:
@@ -844,6 +873,9 @@ class CommanderToolService:
 
     def _meta_kb(self) -> MetaKnowledgeBase:
         return MetaKnowledgeBase(self.root)
+
+    def _package_extractor(self) -> ArchetypePackageExtractor:
+        return ArchetypePackageExtractor(self.root)
 
     def _stage_meta_record(self, filename: str, payload: dict[str, Any]) -> Path:
         target = self.root / "data/meta/provenance" / filename
@@ -1124,6 +1156,12 @@ class CommanderToolService:
             result = self._meta_kb().compare_deck_to_meta(cards, commander=request.commander, format_band=request.format_band)
             result["local_deck_id"] = request.deck_id
             result["local_deck_hash"] = deck.deck_hash
+            if request.deck_id in {"korvold/current", "rogshai/current"}:
+                package_result = self._package_extractor().packages_for_deck(
+                    request.deck_id, include_machine_candidates=True
+                )
+                result["local_package_evaluations"] = package_result["evaluations"]
+                result["machine_package_candidates"] = package_result["machine_candidates"]
             result["automatic_deck_application"] = False
             return result
         return self._invoke("compare_deck_to_meta", request, work, deck_ids=(request.deck_id,))
@@ -1162,6 +1200,61 @@ class CommanderToolService:
             atomic_write_text(target, "\n".join(lines) + "\n")
             return {"report_path": str(target.relative_to(self.root)), "snapshot_id": snapshot.manifest.snapshot_id, "automatic_deck_application": False}
         return self._invoke("generate_meta_report", request, work)
+
+    def extract_archetypes(self, request: ExtractArchetypesInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._package_extractor().extract_archetypes(request.deck_id).model_dump(mode="json")
+        return self._invoke("extract_archetypes", request, work, deck_ids=(request.deck_id,))
+
+    def extract_packages(self, request: ExtractPackagesInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._package_extractor().packages_for_deck(
+                request.deck_id, include_machine_candidates=request.include_machine_candidates
+            )
+        return self._invoke("extract_packages", request, work, deck_ids=(request.deck_id,))
+
+    def inspect_package(self, request: InspectPackageInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            extractor = self._package_extractor()
+            package = extractor.inspect(request.package_id, request.version)
+            payload = {"package": package.model_dump(mode="json"), "automatic_deck_application": False}
+            if request.deck_id:
+                payload["evaluation"] = extractor.evaluate(
+                    request.deck_id, request.package_id, version=request.version
+                ).model_dump(mode="json")
+            return payload
+        return self._invoke("inspect_package", request, work, deck_ids=((request.deck_id,) if request.deck_id else ()))
+
+    def compare_package_versions(self, request: ComparePackageVersionsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._package_extractor().compare_versions(
+                request.package_id, request.older_version, request.newer_version
+            ).model_dump(mode="json")
+        return self._invoke("compare_package_versions", request, work)
+
+    def evaluate_package_density(self, request: EvaluatePackageDensityInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._package_extractor().evaluate(
+                request.deck_id, request.package_id, version=request.version
+            ).model_dump(mode="json")
+        return self._invoke("evaluate_package_density", request, work, deck_ids=(request.deck_id,))
+
+    def detect_orphaned_cards(self, request: DetectOrphanedCardsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            return self._package_extractor().detect_orphans(request.deck_id)
+        return self._invoke("detect_orphaned_cards", request, work, deck_ids=(request.deck_id,))
+
+    def generate_package_report(self, request: GeneratePackageReportInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            report = self._package_extractor().generate_report(request.deck_id)
+            target = self.root / "data/runs/package_reports" / request.output_name
+            atomic_write_text(target, report)
+            return {
+                "report_path": str(target.relative_to(self.root)),
+                "automatic_deck_application": False,
+                "estimate_type": "structural_model_estimates",
+            }
+        return self._invoke("generate_package_report", request, work, deck_ids=(request.deck_id,))
 
     def generate_swap_matrix(self, request: SwapMatrixInput) -> ToolResponse:
         """Generate every requested cut/add cell, preserving invalid cells as evidence."""
@@ -1484,6 +1577,43 @@ class CommanderToolService:
             constraints = self._optimization_constraints(request.deck_id, request.constraints)
             candidate_ids = self._eligible_candidate_ids(request.deck_id, request.candidate_ids)
             packages = list(request.packages)
+            if request.registry_package_ids:
+                from commander_lab.models import VariantSwap
+                extractor = self._package_extractor()
+                candidate_by_name = {
+                    candidate.card.oracle_name: candidate_id
+                    for candidate_id, candidate in self.candidates.items()
+                    if candidate_id in candidate_ids
+                }
+                present_names = {card.oracle_name for card in baseline.cards}
+                cuts = [
+                    card for card in sorted(baseline.cards, key=profile_score)
+                    if card.oracle_name not in baseline.commander_names
+                    and not self._is_protected(request.deck_id, card.oracle_name)
+                ]
+                for package_id in request.registry_package_ids:
+                    package_def = extractor.inspect(package_id)
+                    if package_def.commander != extractor.commander_label(baseline):
+                        raise ToolExecutionError(
+                            f"registry package {package_id} is incompatible with {request.deck_id}"
+                        )
+                    missing = [
+                        name for name in package_def.all_cards
+                        if name not in present_names and name in candidate_by_name
+                    ][: request.max_package_size]
+                    if not missing:
+                        continue
+                    chosen_cuts = [card for card in cuts if card.oracle_name not in package_def.all_cards][:len(missing)]
+                    if len(chosen_cuts) != len(missing):
+                        continue
+                    packages.append(CandidatePackage(
+                        package_id=f"registry-{package_id}",
+                        swaps=tuple(
+                            VariantSwap(remove=cut.oracle_name, add_candidate_id=candidate_by_name[add])
+                            for cut, add in zip(chosen_cuts, missing, strict=True)
+                        ),
+                        rationale=f"Package-aware completion candidate for {package_id}; not automatically applied.",
+                    ))
             if not packages:
                 singles = all_legal_single_swaps(
                     baseline, self.candidates, candidate_ids, constraints,
@@ -1535,6 +1665,7 @@ class CommanderToolService:
                 )
                 rows.append({
                     "package_id": package.package_id,
+                    "package_rationale": package.rationale,
                     "status": "paired_screened",
                     "swaps": [swap.model_dump(mode="json") for swap in package.swaps],
                     "comparison": metrics.as_dict(),

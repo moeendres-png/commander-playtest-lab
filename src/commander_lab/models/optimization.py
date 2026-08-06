@@ -125,6 +125,7 @@ class BeamSearchInput(SimulationInput):
 class PackageSearchInput(SimulationInput):
     deck_id: str
     packages: tuple[CandidatePackage, ...] = ()
+    registry_package_ids: tuple[str, ...] = ()
     candidate_ids: tuple[str, ...] = ()
     max_package_size: int = Field(default=2, ge=2, le=5)
     max_packages: int = Field(default=12, ge=1, le=100)

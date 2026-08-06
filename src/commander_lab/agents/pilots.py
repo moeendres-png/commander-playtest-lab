@@ -97,6 +97,11 @@ _GENERIC_WEIGHTS: dict[PilotStrength, PilotUtilityWeights] = {
 }
 
 
+
+def _package_ids(action: PilotActionView) -> frozenset[str]:
+    raw = action.metadata.get("package_ids", "")
+    return frozenset(part for part in str(raw).split("|") if part)
+
 class BasePilot:
     """Pure structural action evaluator.
 
@@ -773,6 +778,9 @@ class KorvoldSacrificePilot(KorvoldPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"korvold-token-sacrifice-material", "korvold-free-sacrifice-outlets"}:
+            bonus += 0.35
+
         material = state.tokens + state.resources
         if CardRole.SACRIFICE_OUTLET in action.roles:
             bonus += 1.6 + min(1.6, material * 0.22)
@@ -793,6 +801,9 @@ class KorvoldLandRebuildPilot(KorvoldPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"korvold-land-sacrifice-recursion", "korvold-wipe-rebuild"}:
+            bonus += 0.40
+
         if CardRole.LAND_SYNERGY in action.roles or CardRole.RECURSION in action.roles:
             bonus += 0.65 + min(1.4, state.graveyard_size * 0.08)
         if bool(action.metadata.get("rebuild_line", False)):
@@ -812,6 +823,9 @@ class KorvoldAggressivePilot(KorvoldPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"korvold-independent-finishers", "korvold-mirkwood-table-damage"}:
+            bonus += 0.40
+
         if action.action_kind == "combat_target":
             bonus += 0.75 + float(action.metadata.get("commander_damage_pressure", 0.0)) * 0.20
         if action.card_name in {"Mirkwood Bats", "Exsanguinate", "Massacre Wurm", "Mayhem Devil"}:
@@ -837,6 +851,9 @@ class KorvoldConservativePilot(KorvoldPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"korvold-graveyard-protection", "korvold-wipe-rebuild"}:
+            bonus += 0.40
+
         if CardRole.PROTECTION in action.roles or CardRole.REMOVAL in action.roles:
             bonus += 0.55
         if action.action_kind == "commander" and action.remaining_mana < 1.0:
@@ -856,6 +873,9 @@ class RogShaiTempoPilot(RogShaiPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"rogshai-protection-counter", "rogshai-rograkh-resource"}:
+            bonus += 0.35
+
         if action.mana_cost <= 2 and action.roles.intersection({CardRole.COUNTER, CardRole.REMOVAL, CardRole.SELECTION}):
             bonus += 0.55
         if action.action_kind == "commander" and action.card_name == "Ishai, Ojutai Dragonspeaker" and action.remaining_mana >= 1:
@@ -873,6 +893,9 @@ class RogShaiVoltronPilot(RogShaiPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"rogshai-combat-draw", "rogshai-commander-damage", "rogshai-double-strike", "rogshai-jeska-finish", "rogshai-kediss-table-damage"}:
+            bonus += 0.40
+
         if action.card_name in {"Combat Research", "Curiosity", "Staggering Insight", "Duelist's Heritage", "Psychotic Fury", "Boros Charm", "Sunhome, Fortress of the Legion"}:
             bonus += 0.75
         if action.action_kind == "combat_target":
@@ -890,6 +913,9 @@ class RogShaiSpellslingerPilot(RogShaiPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"rogshai-independent-spellslinger", "rogshai-independent-draw"}:
+            bonus += 0.45
+
         if action.card_name in {"Kykar, Wind's Fury", "Veyran, Voice of Duality", "Storm-Kiln Artist", "Guttersnipe", "Whirlwind of Thought", "Archmage Emeritus"}:
             bonus += 1.0
         if CardRole.ENGINE in action.roles or CardRole.DRAW in action.roles:
@@ -907,6 +933,9 @@ class RogShaiControlPilot(RogShaiPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"rogshai-protection-counter", "rogshai-wipe-protection"}:
+            bonus += 0.40
+
         if action.action_kind == "counter":
             bonus += max(0.0, action.threat_score - 4.0) * 0.20
             if action.threat_score < 4.0:
@@ -926,6 +955,9 @@ class RogShaiProtectedFinishPilot(RogShaiPilot):
 
     def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
         bonus = super().specialist_bonus(state, action, components)
+        if _package_ids(action) & {"rogshai-jeska-finish", "rogshai-commander-damage", "rogshai-protection-counter"}:
+            bonus += 0.45
+
         protected_window = bool(action.metadata.get("protected_finish_window", False)) or action.remaining_mana >= 1.0
         if action.card_name in {"Jeska, Thrice Reborn", "Silence", "Psychotic Fury", "Duelist's Heritage"}:
             bonus += 1.2 if protected_window else -1.4

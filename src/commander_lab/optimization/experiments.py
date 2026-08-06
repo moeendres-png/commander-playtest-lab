@@ -93,9 +93,10 @@ def ablation_filler(card: StructuralCardProfile, *, suffix: str = "ablation") ->
     return StructuralCardProfile(
         oracle_name=f"{card.oracle_name} [{suffix} filler]",
         mana_value=card.mana_value,
-        roles=frozenset(),
+        roles=frozenset({CardRole.MANA_SOURCE}) if card.is_land else frozenset(),
+        role_strengths={CardRole.MANA_SOURCE: 1.0} if card.is_land else {},
         color_requirements=card.color_requirements,
-        produces_colors=frozenset(),
+        produces_colors=card.produces_colors if card.is_land else frozenset(),
         is_land=card.is_land,
         is_permanent=card.is_permanent,
         is_creature=card.is_creature,

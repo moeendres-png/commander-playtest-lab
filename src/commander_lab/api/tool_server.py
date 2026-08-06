@@ -21,7 +21,7 @@ def create_app(root: str | Path) -> FastAPI:
     registry = ToolRegistry(service)
     app = FastAPI(
         title="Commander Playtest Lab Function Tool Server",
-        version="1.3.0",
+        version="1.4.0",
         description=(
             "Local structured tool server. All simulation numbers are "
             "structural_model_estimates."

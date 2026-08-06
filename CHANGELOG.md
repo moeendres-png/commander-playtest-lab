@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 - 2026-08-06
+
+- Add weighted, explainable multi-archetype profiles and a versioned package registry.
+- Add 19 curated Korvold/RogShai package IDs across 20 versioned records.
+- Add package completeness, minimum-density, redundancy, orphan and diminishing-utility diagnostics.
+- Add seven package tools and extend package ablation, package search, deck inspection and meta comparison.
+- Attach package identities to structural cards and expose them to specialized pilot scoring.
+- Reject undersampled same-format co-occurrence clusters instead of treating them as confirmed packages.
+- Preserve canonical decks, inventory and allocation unchanged; no automatic package application.
+
 ## 1.3.0 - 2026-08-06
 
 - Add five realistic Korvold and five realistic RogShai pilot profiles.

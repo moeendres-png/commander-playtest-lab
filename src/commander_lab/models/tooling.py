@@ -136,8 +136,15 @@ class CardAblationInput(SimulationInput):
 
 class PackageAblationInput(SimulationInput):
     deck_id: str
-    card_names: tuple[str, ...]
+    card_names: tuple[str, ...] = ()
+    package_id: str | None = None
     opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+    @model_validator(mode="after")
+    def select_package_or_cards(self) -> "PackageAblationInput":
+        if bool(self.package_id) == bool(self.card_names):
+            raise ValueError("provide exactly one of package_id or card_names")
+        return self
 
 
 class CommanderDenialInput(SimulationInput):
@@ -460,3 +467,39 @@ class TestVariantAcrossPilotsInput(FrozenModel):
 class GeneratePilotRobustnessReportInput(FrozenModel):
     result_path: str
     output_name: str = "pilot_robustness_report.md"
+
+
+class ExtractArchetypesInput(FrozenModel):
+    deck_id: str
+
+
+class ExtractPackagesInput(FrozenModel):
+    deck_id: str
+    include_machine_candidates: bool = True
+
+
+class InspectPackageInput(FrozenModel):
+    package_id: str
+    version: str | None = None
+    deck_id: str | None = None
+
+
+class ComparePackageVersionsInput(FrozenModel):
+    package_id: str
+    older_version: str
+    newer_version: str
+
+
+class EvaluatePackageDensityInput(FrozenModel):
+    deck_id: str
+    package_id: str
+    version: str | None = None
+
+
+class DetectOrphanedCardsInput(FrozenModel):
+    deck_id: str
+
+
+class GeneratePackageReportInput(FrozenModel):
+    deck_id: str
+    output_name: str = "package_report.md"

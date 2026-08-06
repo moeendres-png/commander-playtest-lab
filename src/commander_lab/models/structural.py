@@ -37,6 +37,7 @@ class StructuralCardProfile(FrozenModel):
     turn_cycle_risk: float = Field(default=0.5, ge=0.0, le=1.0)
     multiplayer_scaling: float = Field(default=0.0, ge=-1.0, le=2.0)
     conditional_strength: tuple[ConditionalStrength, ...] = ()
+    package_ids: frozenset[str] = frozenset()
     source_quality: DataQuality = DataQuality.PROJECT_INFERRED
     sources: tuple[SourceRef, ...] = ()
     notes: str | None = None

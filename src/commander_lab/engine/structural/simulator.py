@@ -503,6 +503,7 @@ class StructuralSimulator:
                 "produces_colors": "".join(
                     sorted(color.value for color in card.produces_colors)
                 ),
+                "package_ids": "|".join(sorted(card.package_ids)),
             },
         )
 
@@ -808,7 +809,10 @@ class StructuralSimulator:
             target_threat=target_threat,
             threat_score=threat_score,
             remaining_mana=max(0.0, player.mana_available - card.mana_value),
-            metadata={"conditional_multiplier": round(conditional_multiplier, 6)},
+            metadata={
+                "conditional_multiplier": round(conditional_multiplier, 6),
+                "package_ids": "|".join(sorted(card.package_ids)),
+            },
         )
 
     @staticmethod
