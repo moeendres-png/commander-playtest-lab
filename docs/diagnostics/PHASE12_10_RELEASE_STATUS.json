@@ -1,17 +1,30 @@
 {
-  "schema_version": "1.10.1",
-  "phase": "12.8-12.10-completion-audit",
-  "status": "decision_diagnostics_ready_with_limitations",
-  "package_version": "1.10.1",
-  "branch": "fix/phase12-8-10-completion-audit",
-  "tests": {"passed": 255, "skipped": 1, "failed": 0},
-  "integrated_smoke": {"passed_steps": 10, "total_steps": 10, "status": "passed_with_limitations", "all_steps_executed": true},
-  "tools": {"registered": 92, "unique_names": 92},
-  "real_imported_games": 0,
-  "external_engine_validation": false,
-  "canonical_deck_files_modified": false,
-  "inventory_modified": false,
   "allocation_modified": false,
   "automatic_deck_changes": false,
-  "empirical_diagnosis_claimed": false
+  "branch": "fix/phase12-8-10-completion-audit",
+  "canonical_deck_files_modified": false,
+  "empirical_diagnosis_claimed": false,
+  "external_engine_validation": false,
+  "implementation_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+  "integrated_smoke": {
+    "all_steps_executed": true,
+    "passed_steps": 10,
+    "status": "passed_with_limitations",
+    "total_steps": 10
+  },
+  "inventory_modified": false,
+  "package_version": "1.10.1",
+  "phase": "12.8-12.10-completion-audit",
+  "real_imported_games": 0,
+  "schema_version": "1.10.1",
+  "status": "decision_diagnostics_ready_with_limitations",
+  "tests": {
+    "failed": 0,
+    "passed": 255,
+    "skipped": 1
+  },
+  "tools": {
+    "registered": 92,
+    "unique_names": 92
+  }
 }

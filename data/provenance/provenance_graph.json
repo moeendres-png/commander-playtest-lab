@@ -283,6 +283,139 @@
         "transform-decision-diagnostics-v1.10"
       ],
       "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "mulligan-lab-korvold-result-v1.10.1",
+      "artifact_type": "mulligan_lab_result",
+      "content_hash": "0836aec992c7325180435bc631ae9e0f93d1decce9edb8a3b0671375ec254b90",
+      "created_at": "2026-08-06T20:22:57.117755Z",
+      "derived_from": [
+        "repo-1.10.1-completion-audit",
+        "mulligan-lab-korvold-result-v1.8"
+      ],
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "metadata": {
+        "complete_followup": true,
+        "policies": 8,
+        "samples": 500
+      },
+      "package_version": "1.10.1",
+      "path_or_drive_id": "data/mulligan_lab/results/korvold_mulligan_lab.json",
+      "title": "Korvold Mulligan Lab completion result",
+      "transformation_ids": [
+        "transform-mulligan-completion-v1.10.1"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "mulligan-lab-rogshai-result-v1.10.1",
+      "artifact_type": "mulligan_lab_result",
+      "content_hash": "eb6fc16e53e0625d41c5ba7aa282181afde3eb377c2e5192624ac64776a2f052",
+      "created_at": "2026-08-06T20:22:57.117884Z",
+      "derived_from": [
+        "repo-1.10.1-completion-audit"
+      ],
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "metadata": {
+        "complete_followup": true,
+        "policies": 8,
+        "samples": 500
+      },
+      "package_version": "1.10.1",
+      "path_or_drive_id": "data/mulligan_lab/results/rogshai_mulligan_lab.json",
+      "title": "RogShai Mulligan Lab completion result",
+      "transformation_ids": [
+        "transform-mulligan-completion-v1.10.1"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "counterfactual-korvold-example-v1.10.1",
+      "artifact_type": "counterfactual_result",
+      "content_hash": "8a6309c45f6945cb2de31f6b1f396785680b9da5b8a45b31477078a0cecd127a",
+      "created_at": "2026-08-06T20:22:57.117914Z",
+      "derived_from": [
+        "repo-1.10.1-completion-audit",
+        "counterfactual-korvold-example-v1.9"
+      ],
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "metadata": {
+        "historical_fact": false,
+        "state_diffs_explicit": true,
+        "validation_level": "structural_counterfactual"
+      },
+      "package_version": "1.10.1",
+      "path_or_drive_id": "data/counterfactual/examples/korvold_counterfactual_example.json",
+      "title": "Executed Korvold structural counterfactual example",
+      "transformation_ids": [
+        "transform-counterfactual-completion-v1.10.1"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "diagnostic-integrated-smoke-v1.10.1",
+      "artifact_type": "integrated_validation_report",
+      "content_hash": "7265348d3736169ea3aa1d3bba87e8d285266edff4796923c4c7bca6a7cbcb97",
+      "created_at": "2026-08-06T20:22:57.117943Z",
+      "derived_from": [
+        "repo-1.10.1-completion-audit",
+        "diagnostic-integrated-smoke-v1.10"
+      ],
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "metadata": {
+        "all_steps_executed": true,
+        "external_engine_used": false,
+        "passed_steps": 10
+      },
+      "package_version": "1.10.1",
+      "path_or_drive_id": "data/diagnostics/reports/INTEGRATED_TEN_EXTENSION_SMOKE.json",
+      "title": "Executed ten-extension smoke report",
+      "transformation_ids": [
+        "transform-diagnostics-completion-v1.10.1"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "diagnostic-event-derived-dataset-v1.10.1",
+      "artifact_type": "diagnostic_dataset",
+      "content_hash": "0c8b458ef13c4186175bfe8086e6ec201d6a41241d9d0655ff1b481c57e15797",
+      "created_at": "2026-08-06T20:22:57.117994Z",
+      "derived_from": [
+        "repo-1.10.1-completion-audit"
+      ],
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "metadata": {
+        "empirical": false,
+        "source_event_hashes_retained": true
+      },
+      "package_version": "1.10.1",
+      "path_or_drive_id": "data/diagnostics/examples/integrated_smoke_dataset.json",
+      "title": "Event-derived structural diagnostic dataset",
+      "transformation_ids": [
+        "transform-diagnostics-completion-v1.10.1"
+      ],
+      "verification_status": "hash_verified"
+    },
+    {
+      "artifact_id": "phase12-8-10-completion-audit-v1.10.1",
+      "artifact_type": "completion_audit",
+      "content_hash": "a9c4b4b24a1d172038ceac5873ab10915c51302813fc369e6a3221619f8513e1",
+      "created_at": "2026-08-06T20:22:57.118014Z",
+      "derived_from": [
+        "repo-1.10.1-completion-audit"
+      ],
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "metadata": {
+        "tests_passed": 255,
+        "tests_skipped": 1
+      },
+      "package_version": "1.10.1",
+      "path_or_drive_id": "artifacts/completion_audit/PHASE12_8_10_COMPLETION_AUDIT.json",
+      "title": "Phase 12.8–12.10 completion audit",
+      "transformation_ids": [
+        "transform-diagnostics-completion-v1.10.1"
+      ],
+      "verification_status": "hash_verified"
     }
   ],
   "citations": [
@@ -371,6 +504,44 @@
         "derived-diagnostic-smoke-v1.10"
       ],
       "location": "data/diagnostics/reports/INTEGRATED_TEN_EXTENSION_SMOKE.md",
+      "source_ids": []
+    },
+    {
+      "citation_id": "cite-mulligan-completion-v1.10.1",
+      "claim_id": "claim-mulligan-completion-v1.10.1",
+      "claim_kind": "model_output",
+      "claim_text": "Mulligan follow-ups and primary/holdout/ensemble/multi-pilot validations were executed as Structural model runs.",
+      "confidence": 0.9,
+      "derived_ids": [
+        "derived-mulligan-korvold-v1.10.1",
+        "derived-mulligan-rogshai-v1.10.1"
+      ],
+      "location": "docs/mulligan_lab/MULLIGAN_LAB_USAGE_GUIDE.md",
+      "source_ids": []
+    },
+    {
+      "citation_id": "cite-counterfactual-completion-v1.10.1",
+      "claim_id": "claim-counterfactual-completion-v1.10.1",
+      "claim_kind": "model_output",
+      "claim_text": "Counterfactual outputs contain explicit state differences and preserve the Structural/Tactical/external validation boundary.",
+      "confidence": 0.9,
+      "derived_ids": [
+        "derived-counterfactual-korvold-v1.10.1"
+      ],
+      "location": "docs/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md",
+      "source_ids": []
+    },
+    {
+      "citation_id": "cite-diagnostics-completion-v1.10.1",
+      "claim_id": "claim-diagnostics-completion-v1.10.1",
+      "claim_kind": "model_output",
+      "claim_text": "The ten-step smoke executed every stage and diagnostics were derived from event logs.",
+      "confidence": 0.9,
+      "derived_ids": [
+        "derived-diagnostic-smoke-v1.10.1",
+        "derived-diagnostic-dataset-v1.10.1"
+      ],
+      "location": "docs/diagnostics/DECISION_DIAGNOSTICS_REPORT.md",
       "source_ids": []
     }
   ],
@@ -475,10 +646,90 @@
       "model_label": "model_diagnosis",
       "transformation_id": "transform-decision-diagnostics-v1.10",
       "verification_status": "hash_verified"
+    },
+    {
+      "confidence": 0.65,
+      "content_hash": "0836aec992c7325180435bc631ae9e0f93d1decce9edb8a3b0671375ec254b90",
+      "data_type": "mulligan_model_result",
+      "derived_from": [
+        "mulligan-lab-korvold-result-v1.10.1"
+      ],
+      "derived_id": "derived-mulligan-korvold-v1.10.1",
+      "metadata": {
+        "automatic_deck_change": false,
+        "empirically_proven": false
+      },
+      "model_label": "structural_model_estimates",
+      "transformation_id": "transform-mulligan-completion-v1.10.1",
+      "verification_status": "hash_verified"
+    },
+    {
+      "confidence": 0.65,
+      "content_hash": "eb6fc16e53e0625d41c5ba7aa282181afde3eb377c2e5192624ac64776a2f052",
+      "data_type": "mulligan_model_result",
+      "derived_from": [
+        "mulligan-lab-rogshai-result-v1.10.1"
+      ],
+      "derived_id": "derived-mulligan-rogshai-v1.10.1",
+      "metadata": {
+        "automatic_deck_change": false,
+        "empirically_proven": false
+      },
+      "model_label": "structural_model_estimates",
+      "transformation_id": "transform-mulligan-completion-v1.10.1",
+      "verification_status": "hash_verified"
+    },
+    {
+      "confidence": 0.5,
+      "content_hash": "8a6309c45f6945cb2de31f6b1f396785680b9da5b8a45b31477078a0cecd127a",
+      "data_type": "counterfactual_model_alternative",
+      "derived_from": [
+        "counterfactual-korvold-example-v1.10.1"
+      ],
+      "derived_id": "derived-counterfactual-korvold-v1.10.1",
+      "metadata": {
+        "automatic_deck_change": false,
+        "empirically_proven": false
+      },
+      "model_label": "structural_counterfactual",
+      "transformation_id": "transform-counterfactual-completion-v1.10.1",
+      "verification_status": "hash_verified"
+    },
+    {
+      "confidence": 0.7,
+      "content_hash": "7265348d3736169ea3aa1d3bba87e8d285266edff4796923c4c7bca6a7cbcb97",
+      "data_type": "integrated_diagnostic_smoke",
+      "derived_from": [
+        "diagnostic-integrated-smoke-v1.10.1"
+      ],
+      "derived_id": "derived-diagnostic-smoke-v1.10.1",
+      "metadata": {
+        "automatic_deck_change": false,
+        "empirically_proven": false
+      },
+      "model_label": "mixed_source_structural_model",
+      "transformation_id": "transform-diagnostics-completion-v1.10.1",
+      "verification_status": "hash_verified"
+    },
+    {
+      "confidence": 0.55,
+      "content_hash": "0c8b458ef13c4186175bfe8086e6ec201d6a41241d9d0655ff1b481c57e15797",
+      "data_type": "event_log_diagnostic_dataset",
+      "derived_from": [
+        "diagnostic-event-derived-dataset-v1.10.1"
+      ],
+      "derived_id": "derived-diagnostic-dataset-v1.10.1",
+      "metadata": {
+        "automatic_deck_change": false,
+        "empirically_proven": false
+      },
+      "model_label": "structural_model_estimates",
+      "transformation_id": "transform-diagnostics-completion-v1.10.1",
+      "verification_status": "hash_verified"
     }
   ],
   "generated_at": "2026-08-06T15:20:30.301814Z",
-  "git_commit": "ea993210c7f65d3f84c742bca42ffa73bf7dd27e",
+  "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
   "graph_id": "commander-playtest-lab-provenance-1.5.0",
   "licenses": [
     {
@@ -509,7 +760,7 @@
       ]
     }
   ],
-  "package_version": "1.10.0",
+  "package_version": "1.10.1",
   "schema_version": "1.0.0",
   "sources": [
     {
@@ -801,6 +1052,34 @@
         "project analysis"
       ],
       "verification_status": "hash_verified"
+    },
+    {
+      "author": "Commander Playtest Lab",
+      "confidence": 1.0,
+      "content_hash": "482838c53a5e999a30eb3b3fd4e6d4193a70f8a7ba895a4818698647aad4ccf7",
+      "derived_from": [
+        "repo-1.10.0-implementation"
+      ],
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "license": "project source",
+      "notes": null,
+      "observed": false,
+      "package_version": "1.10.1",
+      "published_at": null,
+      "retrieved_at": "2026-08-06T20:22:57.117564Z",
+      "source_id": "repo-1.10.1-completion-audit",
+      "source_type": "repository",
+      "supersedes": [
+        "repo-1.10.0-implementation"
+      ],
+      "title": "Phase 12.8–12.10 completion audit implementation",
+      "transformation": "completed previously partial execution paths and revalidated all extensions",
+      "url_or_drive_id": "git:191663866b5459937deaa08d3598c1e49a861eb7",
+      "usage_rights": [
+        "project development",
+        "reproducible validation"
+      ],
+      "verification_status": "hash_verified"
     }
   ],
   "supersessions": [
@@ -863,6 +1142,46 @@
       "old_id": "repo-1.9.0",
       "reason": "newer technical repository version; historical record retained",
       "supersession_id": "supersede-repo-1-10"
+    },
+    {
+      "authority_rank_new": 70,
+      "authority_rank_old": 70,
+      "effective_at": "2026-08-06T20:22:57.118357Z",
+      "historical_record_retained": true,
+      "new_id": "repo-1.10.1-completion-audit",
+      "old_id": "repo-1.10.0-implementation",
+      "reason": "completion audit fixes previously partial execution paths; historical record retained",
+      "supersession_id": "supersede-repo-1-10-1-completion"
+    },
+    {
+      "authority_rank_new": 60,
+      "authority_rank_old": 60,
+      "effective_at": "2026-08-06T20:22:57.118360Z",
+      "historical_record_retained": true,
+      "new_id": "mulligan-lab-korvold-result-v1.10.1",
+      "old_id": "mulligan-lab-korvold-result-v1.8",
+      "reason": "full follow-up and executed overfitting validation replace the earlier technical result",
+      "supersession_id": "supersede-mulligan-korvold-1-10-1"
+    },
+    {
+      "authority_rank_new": 60,
+      "authority_rank_old": 60,
+      "effective_at": "2026-08-06T20:22:57.118364Z",
+      "historical_record_retained": true,
+      "new_id": "counterfactual-korvold-example-v1.10.1",
+      "old_id": "counterfactual-korvold-example-v1.9",
+      "reason": "explicit state deltas and executed hidden-information policies replace the earlier utility-only example",
+      "supersession_id": "supersede-counterfactual-1-10-1"
+    },
+    {
+      "authority_rank_new": 60,
+      "authority_rank_old": 60,
+      "effective_at": "2026-08-06T20:22:57.118366Z",
+      "historical_record_retained": true,
+      "new_id": "diagnostic-integrated-smoke-v1.10.1",
+      "old_id": "diagnostic-integrated-smoke-v1.10",
+      "reason": "executed ten-step workflow replaces load-only integration evidence",
+      "supersession_id": "supersede-diagnostic-smoke-1-10-1"
     }
   ],
   "transformations": [
@@ -1011,6 +1330,73 @@
       "package_version": "1.10.0",
       "parameters_hash": "c9aba31453c809a7b18ad6f7b6189be53d4a58acbaa498b19f56bfa9b83490a9",
       "transformation_id": "transform-decision-diagnostics-v1.10"
+    },
+    {
+      "code_hash": "2b3e46f5ec5fbe727111b00a4469345842358c5f81899b9593d033ad36e7d96d",
+      "description": "Inject controlled kept hands into full Structural Simulator games and execute primary, holdout, ensemble and pilot validations.",
+      "deterministic": true,
+      "executed_at": "2026-08-06T20:22:57.118266Z",
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "input_ids": [
+        "repo-1.10.1-completion-audit",
+        "deck-korvold-current",
+        "deck-rogshai-current",
+        "opponent-ensemble-morcant-elves-ensemble-v1",
+        "pilot-registry"
+      ],
+      "name": "Complete Mulligan Lab follow-up and overfitting validation",
+      "output_ids": [
+        "mulligan-lab-korvold-result-v1.10.1",
+        "mulligan-lab-rogshai-result-v1.10.1"
+      ],
+      "package_version": "1.10.1",
+      "parameters_hash": "08165512cdc1da1dfecf1e5c15389a11857a69db000b0bcd74f7bcb5f79f0ead",
+      "transformation_id": "transform-mulligan-completion-v1.10.1"
+    },
+    {
+      "code_hash": "2441355be6d55b7764fa909295c637b412a41d4288d87c3f95a560ad29a044f1",
+      "description": "Verify replay hashes, evaluate recorded legal actions, explicit state deltas, future policies and bounded Tactical Oracle evidence.",
+      "deterministic": true,
+      "executed_at": "2026-08-06T20:22:57.118288Z",
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "input_ids": [
+        "repo-1.10.1-completion-audit",
+        "structural-replay-korvold-example"
+      ],
+      "name": "Execute counterfactual state-difference analysis",
+      "output_ids": [
+        "counterfactual-korvold-example-v1.10.1"
+      ],
+      "package_version": "1.10.1",
+      "parameters_hash": "8a74c3828a8617a546d80bcd37bfcde9d7057f2dbcf5b7b6c82699d4cfed3a7d",
+      "transformation_id": "transform-counterfactual-completion-v1.10.1"
+    },
+    {
+      "code_hash": "c143c9d72d5ea464e3dda5dd34d1de84c4c455295500c16fdba2281266abe91f",
+      "description": "Aggregate card and pilot metrics from Structural event logs and execute all ten integration stages with source hashes.",
+      "deterministic": true,
+      "executed_at": "2026-08-06T20:22:57.118304Z",
+      "git_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
+      "input_ids": [
+        "repo-1.10.1-completion-audit",
+        "meta-snapshot-phase12-1",
+        "primer-policy-korvold-current",
+        "pilot-registry",
+        "package-registry",
+        "local-meta-observation-shells-v1",
+        "opponent-ensemble-morcant-elves-ensemble-v1",
+        "mulligan-lab-korvold-result-v1.10.1",
+        "counterfactual-korvold-example-v1.10.1"
+      ],
+      "name": "Event-derived diagnostics and executed ten-extension smoke",
+      "output_ids": [
+        "diagnostic-integrated-smoke-v1.10.1",
+        "diagnostic-event-derived-dataset-v1.10.1",
+        "phase12-8-10-completion-audit-v1.10.1"
+      ],
+      "package_version": "1.10.1",
+      "parameters_hash": "80ad5fc059a1a1df88098a2edcb7b754da5bc8f180d645e3f486cf83b6ff9fe5",
+      "transformation_id": "transform-diagnostics-completion-v1.10.1"
     }
   ]
 }

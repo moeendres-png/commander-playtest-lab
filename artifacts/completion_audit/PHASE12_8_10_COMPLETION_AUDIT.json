@@ -1,5 +1,6 @@
 {
   "allocation_changes": false,
+  "branch": "fix/phase12-8-10-completion-audit",
   "canonical_deck_changes": false,
   "completed_gaps": [
     "full structural mulligan follow-up games",
@@ -10,6 +11,7 @@
     "executed ten-step integration smoke"
   ],
   "external_engine_validation": false,
+  "implementation_commit": "191663866b5459937deaa08d3598c1e49a861eb7",
   "integrated_smoke": {
     "passed": 10,
     "status": "passed_with_limitations",
@@ -17,6 +19,7 @@
   },
   "inventory_changes": false,
   "model_claims_empirical": false,
+  "package_version": "1.10.1",
   "phase_status": {
     "12.10": "decision_diagnostics_ready_with_limitations",
     "12.8": "mulligan_lab_ready_with_limitations",
@@ -24,5 +27,14 @@
   },
   "real_imported_games": 0,
   "schema_version": "1.10.1",
-  "status": "decision_diagnostics_ready_with_limitations"
+  "status": "decision_diagnostics_ready_with_limitations",
+  "tests": {
+    "failed": 0,
+    "passed": 255,
+    "skipped": 1
+  },
+  "tools": {
+    "registered": 92,
+    "unique": 92
+  }
 }
