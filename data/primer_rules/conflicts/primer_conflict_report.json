@@ -1,0 +1,16 @@
+{
+  "automatic_deck_application": false,
+  "conflicts": [
+    {
+      "conflict_id": "opposing:007987376f84",
+      "conflict_type": "opposing_adjustment",
+      "description": "Rules with the same scope and trigger apply opposing score adjustments.",
+      "resolution_required": true,
+      "rule_ids": [
+        "korvold.current.commander-immediate-value",
+        "korvold.current.commander-immediate-value.opposing-example"
+      ]
+    }
+  ],
+  "resolution": "not_merged"
+}

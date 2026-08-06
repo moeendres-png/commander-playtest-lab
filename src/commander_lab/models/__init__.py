@@ -150,6 +150,28 @@ from .tooling import (
     GenerateMetaReportInput,
 )
 
+from .primer import (
+    PRIMER_RULE_SCHEMA_VERSION,
+    ActionPreference,
+    CompiledPilotPolicy,
+    ConditionOperator,
+    DecisionPoint,
+    PilotRule,
+    PilotRuleCondition,
+    PolicyActionScore,
+    PolicyDecisionTrace,
+    PolicyEvalResult,
+    PolicyEvalScenario,
+    PrimerDocument,
+    PrimerEvidenceType,
+    PrimerFormat,
+    PrimerRegistry,
+    PrimerRuleConflict,
+    PrimerRuleStatus,
+    RuleValidationIssue,
+    RuleValidationReport,
+)
+
 from .simulation import (
     CardContribution,
     CardSwap,
@@ -328,4 +350,23 @@ from .tooling import (
     VariantSwap,
     WorkflowReport,
     WorkflowRequest,
+    ImportPrimerInput,
+    ExtractPrimerRulesInput,
+    ValidatePilotRulesInput,
+    CompilePilotPolicyInput,
+    ComparePolicyVersionsInput,
+    RunPolicyEvalInput,
+    GeneratePrimerConflictReportInput,
 )
+
+
+__all__.extend([
+    "PRIMER_RULE_SCHEMA_VERSION", "ActionPreference", "CompiledPilotPolicy",
+    "ConditionOperator", "DecisionPoint", "PilotRule", "PilotRuleCondition",
+    "PolicyActionScore", "PolicyDecisionTrace", "PolicyEvalResult", "PolicyEvalScenario",
+    "PrimerDocument", "PrimerEvidenceType", "PrimerFormat", "PrimerRegistry",
+    "PrimerRuleConflict", "PrimerRuleStatus", "RuleValidationIssue", "RuleValidationReport",
+    "ImportPrimerInput", "ExtractPrimerRulesInput", "ValidatePilotRulesInput",
+    "CompilePilotPolicyInput", "ComparePolicyVersionsInput", "RunPolicyEvalInput",
+    "GeneratePrimerConflictReportInput",
+])

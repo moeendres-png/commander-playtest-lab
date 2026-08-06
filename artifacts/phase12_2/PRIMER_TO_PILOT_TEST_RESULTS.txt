@@ -1,0 +1,38 @@
+Primer-to-Pilot Compiler – Phase 12.2 validation
+
+Status: primer_compiler_ready_with_limitations
+Package version: 1.2.0
+Branch: feature/primer-to-pilot-compiler
+
+Full regression:
+- 183 passed
+- 1 skipped
+- 0 failed
+- skipped test: external XMage/Forge differential command not configured
+
+Build and smoke tests:
+- python -m compileall -q src tests: passed
+- git diff --check: passed
+- wheel build via pip --no-build-isolation: passed
+- sdist build via setuptools.build_meta: passed
+- wheel import/version: passed (1.2.0)
+- CLI --help: passed
+- commander-lab doctor: passed with environment limitations
+- FastAPI health: passed, 39 tools
+- seven primer tools registered: passed
+- run_policy_eval tool smoke: passed, 3 compatible RogShai scenarios, 1 improved
+- ruff: blocked_not_installed
+- mypy: blocked_not_installed
+
+Policy evaluation:
+- automatic candidates: 8, active 0, all needs_review
+- manually curated active rules: 14 (7 Korvold, 7 RogShai)
+- golden scenarios: 5
+- base correct: 4/5
+- overlay correct: 5/5
+- improved decisions: 1
+
+Truth boundaries:
+- Tactical Oracle is not an external rules engine.
+- Structural scenario outcomes are not empirical winrates.
+- No canonical deck, inventory, or allocation data was modified.

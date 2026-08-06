@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.0 - 2026-08-06
+
+- Added a safe Primer-to-Pilot rule DSL with fixed fields and operators; primer text is never executed.
+- Added Markdown, plaintext, JSON, and manually curated primer imports.
+- Added source-preserving, deck-hash- and format-scoped immutable policy overlays.
+- Added conflict detection, explicit resolution strategies, alternative policies, and manual activation.
+- Added seven structured toolserver functions for primer import, extraction, validation, compilation, comparison, evaluation, and conflict reporting.
+- Added 14 active curated Korvold/RogShai rules and eight disabled automatic candidates.
+- Added Golden, Tactical-Oracle, replay-coverage, security, provenance, and no-deck-mutation tests.
+- External rules-engine validation and real-playtest calibration remain pending.
+
+
 ## 1.0.1 - 2026-08-05
 
 - Run the Phase-10 API self-test by default so clean repository and Git-bundle restores do not depend on an untracked API-demo artifact.

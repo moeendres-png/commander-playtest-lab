@@ -327,3 +327,61 @@ class CompareMetaPeriodsInput(FrozenModel):
 class GenerateMetaReportInput(FrozenModel):
     output_name: str = "meta_report.md"
     commander: str | None = None
+
+# Primer-to-Pilot Compiler inputs. All source content is parsed as data; never executed.
+from .primer import PrimerFormat  # noqa: E402
+
+
+class ImportPrimerInput(FrozenModel):
+    source_path: str
+    primer_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._:-]{2,127}$")
+    source_id: str
+    title: str
+    commander: str
+    deck_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    format_band: FormatBand
+    primer_format: PrimerFormat | None = None
+    license_notes: str = "structured extraction only unless the source is user-provided"
+
+
+class ExtractPrimerRulesInput(FrozenModel):
+    primer_id: str
+    output_name: str | None = None
+
+
+class ValidatePilotRulesInput(FrozenModel):
+    rules_path: str
+    commander: str | None = None
+    deck_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    format_band: FormatBand | None = None
+
+
+class CompilePilotPolicyInput(FrozenModel):
+    rule_paths: tuple[str, ...]
+    policy_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._:-]{2,127}$")
+    version: str = Field(pattern=r"^\d+\.\d+\.\d+$")
+    commander: str
+    deck_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    format_band: FormatBand
+    base_pilot_name: str
+    conflict_strategy: Literal["reject", "prefer_priority", "prefer_confidence"] = "reject"
+    output_name: str | None = None
+
+
+class ComparePolicyVersionsInput(FrozenModel):
+    older_policy_path: str
+    newer_policy_path: str
+
+
+class RunPolicyEvalInput(FrozenModel):
+    policy_path: str
+    scenario_path: str
+    deck_id: str
+    strategy: str
+    seed: int = Field(default=20260806, ge=0)
+    output_name: str = "latest_policy_eval.json"
+
+
+class GeneratePrimerConflictReportInput(FrozenModel):
+    rule_paths: tuple[str, ...]
+    output_name: str = "primer_conflict_report.json"

@@ -1,0 +1,230 @@
+{
+  "automatic_active_rules": 0,
+  "automatic_deck_application": false,
+  "automatic_extracted_rules": 8,
+  "baseline_correct_count": 4,
+  "conflict_fixture_count": 1,
+  "deck_file_sha256_after": {
+    "data/decks/korvold_current.json": "c7dd05677ffb5b62526469f18c64f3d7b45e6417b56252eedcad7dec5b510be1",
+    "data/decks/rogshai_current.json": "63605700e6c8ae3f9a003a10004741b0baf2e586e3eab3a68b293e5be653aef3"
+  },
+  "external_engine_validation_pending": true,
+  "improved_count": 1,
+  "korvold_rules": 7,
+  "manually_curated_rules": 14,
+  "overlay_correct_count": 5,
+  "phase": "12.2",
+  "replay_audit": {
+    "counterfactual_redecision_status": "not_run_missing_complete_alternative_action_context",
+    "estimate_types": [
+      "structural_model_estimates"
+    ],
+    "event_count": 383,
+    "limitations": [
+      "Stored structural replays preserve selected actions but not every Primer DSL context flag.",
+      "Replay inspection is coverage evidence, not proof that the overlay would improve the historical game."
+    ],
+    "pilot_decision_count": 88,
+    "replay_path": "data/runs/tool_runs/matchup-2d03c57b/events/matchup-2d03c57b-00000000.jsonl",
+    "rule_source_mentions": {
+      "rogshai.current.aura-protection-window": true,
+      "rogshai.current.counter-threat-threshold": false,
+      "rogshai.current.independent-spellslinger-axis": false,
+      "rogshai.current.ishai-protection-window": true,
+      "rogshai.current.jeska-finish-window": false,
+      "rogshai.current.kediss-normal-damage-semantics": false,
+      "rogshai.current.silence-window": false
+    }
+  },
+  "results": [
+    {
+      "action_scores": [
+        {
+          "action_id": "cast-korvold",
+          "baseline_score": 2.4857000000000005,
+          "overlay_score": -0.5142999999999995,
+          "triggered_rules": [
+            {
+              "adjustment": -3.0,
+              "reason": "The current list must prepare a sacrifice or other immediate value before committing Korvold.",
+              "rule_id": "korvold.current.commander-immediate-value"
+            }
+          ]
+        },
+        {
+          "action_id": "cast-ophiomancer",
+          "baseline_score": 5.401125,
+          "overlay_score": 6.751125,
+          "triggered_rules": [
+            {
+              "adjustment": 1.35,
+              "reason": "The current deck should establish sacrifice resources before relying on Korvold.",
+              "rule_id": "korvold.current.prepare-sacrifice-resources"
+            }
+          ]
+        }
+      ],
+      "baseline_action_id": "cast-ophiomancer",
+      "baseline_correct": true,
+      "conflicts": [],
+      "expected_action_id": "cast-ophiomancer",
+      "improved": false,
+      "overlay_action_id": "cast-ophiomancer",
+      "overlay_correct": true,
+      "scenario_id": "korvold-prepare-before-commander"
+    },
+    {
+      "action_scores": [
+        {
+          "action_id": "aftermath",
+          "baseline_score": 6.2185,
+          "overlay_score": 8.218499999999999,
+          "triggered_rules": [
+            {
+              "adjustment": 2.0,
+              "reason": "The current deck is designed to rebuild through land and graveyard resources.",
+              "rule_id": "korvold.current.rebuild-after-wipe"
+            }
+          ]
+        },
+        {
+          "action_id": "mirkwood",
+          "baseline_score": 4.24525,
+          "overlay_score": 2.8952500000000003,
+          "triggered_rules": [
+            {
+              "adjustment": -1.35,
+              "reason": "The current list separates resource engines from actual closing windows.",
+              "rule_id": "korvold.current.motor-not-finisher"
+            }
+          ]
+        }
+      ],
+      "baseline_action_id": "aftermath",
+      "baseline_correct": true,
+      "conflicts": [],
+      "expected_action_id": "aftermath",
+      "improved": false,
+      "overlay_action_id": "aftermath",
+      "overlay_correct": true,
+      "scenario_id": "korvold-rebuild-after-wipe"
+    },
+    {
+      "action_scores": [
+        {
+          "action_id": "cast-ishai",
+          "baseline_score": 7.029,
+          "overlay_score": 4.279,
+          "triggered_rules": [
+            {
+              "adjustment": -2.75,
+              "reason": "Ishai is a visible investment and should normally enter with protection or immediate leverage.",
+              "rule_id": "rogshai.current.ishai-protection-window"
+            }
+          ]
+        },
+        {
+          "action_id": "cast-whirlwind",
+          "baseline_score": 7.49,
+          "overlay_score": 9.09,
+          "triggered_rules": [
+            {
+              "adjustment": 1.6,
+              "reason": "RogShai must preserve an independent value and damage axis when commander combat is unsafe.",
+              "rule_id": "rogshai.current.independent-spellslinger-axis"
+            }
+          ]
+        }
+      ],
+      "baseline_action_id": "cast-whirlwind",
+      "baseline_correct": true,
+      "conflicts": [],
+      "expected_action_id": "cast-whirlwind",
+      "improved": false,
+      "overlay_action_id": "cast-whirlwind",
+      "overlay_correct": true,
+      "scenario_id": "rogshai-independent-axis"
+    },
+    {
+      "action_scores": [
+        {
+          "action_id": "cast-jeska",
+          "baseline_score": 4.94125,
+          "overlay_score": 1.9412500000000001,
+          "triggered_rules": [
+            {
+              "adjustment": -3.0,
+              "reason": "Jeska should not advertise the primary commander-damage finish before it can convert.",
+              "rule_id": "rogshai.current.jeska-finish-window"
+            }
+          ]
+        },
+        {
+          "action_id": "cast-archmage",
+          "baseline_score": 5.33125,
+          "overlay_score": 5.33125,
+          "triggered_rules": []
+        }
+      ],
+      "baseline_action_id": "cast-archmage",
+      "baseline_correct": true,
+      "conflicts": [],
+      "expected_action_id": "cast-archmage",
+      "improved": false,
+      "overlay_action_id": "cast-archmage",
+      "overlay_correct": true,
+      "scenario_id": "rogshai-hold-jeska"
+    },
+    {
+      "action_scores": [
+        {
+          "action_id": "counter-value",
+          "baseline_score": 5.109,
+          "overlay_score": 0.859,
+          "triggered_rules": [
+            {
+              "adjustment": -4.25,
+              "reason": "Counterspells are reserved for commanders, engines, wipes, protection fights and real closing attempts; low-threat value should normally pass.",
+              "rule_id": "rogshai.current.counter-threat-threshold"
+            }
+          ]
+        },
+        {
+          "action_id": "pass",
+          "baseline_score": 1.2829500000000003,
+          "overlay_score": 1.2829500000000003,
+          "triggered_rules": []
+        }
+      ],
+      "baseline_action_id": "counter-value",
+      "baseline_correct": false,
+      "conflicts": [],
+      "expected_action_id": "pass",
+      "improved": true,
+      "overlay_action_id": "pass",
+      "overlay_correct": true,
+      "scenario_id": "rogshai-save-counter"
+    }
+  ],
+  "rogshai_rules": 7,
+  "scenario_count": 5,
+  "schema_version": "1.0.0",
+  "status": "primer_compiler_ready_with_limitations",
+  "tactical_oracle_checks": {
+    "jeska": {
+      "commander_damage": 18,
+      "damage": 18
+    },
+    "kediss": {
+      "additional_commander_damage": 0,
+      "normal_damage_each": 7,
+      "other_opponents_hit": 2,
+      "triggered": true
+    },
+    "silence": {
+      "can_activate_ability": true,
+      "can_cast_spell": false,
+      "can_play_land": true
+    }
+  }
+}

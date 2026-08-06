@@ -18,14 +18,17 @@ def test_all_required_tools_are_exposed() -> None:
         "import_meta_deck", "import_tournament_result", "import_primer_reference",
         "create_meta_snapshot", "query_meta_cards", "query_meta_packages",
         "compare_deck_to_meta", "compare_meta_periods", "generate_meta_report",
+        "import_primer", "extract_primer_rules", "validate_pilot_rules",
+        "compile_pilot_policy", "compare_policy_versions", "run_policy_eval",
+        "generate_primer_conflict_report",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 32
-    assert len({schema["name"] for schema in schemas}) == 32
+    assert len(schemas) == 39
+    assert len({schema["name"] for schema in schemas}) == 39
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

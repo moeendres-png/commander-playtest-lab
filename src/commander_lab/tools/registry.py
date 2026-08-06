@@ -16,6 +16,13 @@ from commander_lab.models import (
     CompareMetaPeriodsInput,
     CreateMetaSnapshotInput,
     GenerateMetaReportInput,
+    ImportPrimerInput,
+    ExtractPrimerRulesInput,
+    ValidatePilotRulesInput,
+    CompilePilotPolicyInput,
+    ComparePolicyVersionsInput,
+    RunPolicyEvalInput,
+    GeneratePrimerConflictReportInput,
     GoldfishInput,
     HoldoutInput,
     ImportMetaDeckInput,
@@ -93,6 +100,13 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ToolDefinition("compare_deck_to_meta", "Compare a local deck to external meta references without applying changes.", CompareDeckToMetaInput, "compare_deck_to_meta"),
     ToolDefinition("compare_meta_periods", "Compare two immutable meta snapshots to detect meta drift.", CompareMetaPeriodsInput, "compare_meta_periods"),
     ToolDefinition("generate_meta_report", "Generate a Markdown report summarizing the latest Meta Knowledge Base snapshot.", GenerateMetaReportInput, "generate_meta_report"),
+    ToolDefinition("import_primer", "Import primer metadata and content hash without executing source text.", ImportPrimerInput, "import_primer"),
+    ToolDefinition("extract_primer_rules", "Conservatively extract disabled rule candidates from a registered primer.", ExtractPrimerRulesInput, "extract_primer_rules"),
+    ToolDefinition("validate_pilot_rules", "Validate pilot rules against the fixed safe DSL and optional deck scope.", ValidatePilotRulesInput, "validate_pilot_rules"),
+    ToolDefinition("compile_pilot_policy", "Compile manually approved rules into an immutable reversible pilot policy overlay.", CompilePilotPolicyInput, "compile_pilot_policy"),
+    ToolDefinition("compare_policy_versions", "Compare two immutable compiled pilot policy versions.", ComparePolicyVersionsInput, "compare_policy_versions"),
+    ToolDefinition("run_policy_eval", "Evaluate a compiled pilot policy against controlled golden scenarios.", RunPolicyEvalInput, "run_policy_eval"),
+    ToolDefinition("generate_primer_conflict_report", "Detect and report contradictory primer rules without silently merging them.", GeneratePrimerConflictReportInput, "generate_primer_conflict_report"),
 )
 
 

@@ -29,6 +29,16 @@ from commander_lab.models import (
     CreateMetaSnapshotInput,
     FormatBand,
     GenerateMetaReportInput,
+    ImportPrimerInput,
+    ExtractPrimerRulesInput,
+    ValidatePilotRulesInput,
+    CompilePilotPolicyInput,
+    ComparePolicyVersionsInput,
+    RunPolicyEvalInput,
+    GeneratePrimerConflictReportInput,
+    CompiledPilotPolicy,
+    PilotRule,
+    PolicyEvalScenario,
     ImportMetaDeckInput,
     ImportPrimerReferenceInput,
     ImportTournamentResultInput,
@@ -104,6 +114,8 @@ from commander_lab.storage import (
 from commander_lab.models import Deck
 from commander_lab.meta import MetaKnowledgeBase
 from commander_lab.meta.store import stable_deck_hash
+from commander_lab.primer import PrimerToPilotCompiler
+from commander_lab.agents.pilots import build_pilot
 from commander_lab.reporting import calibration_report_markdown
 
 from .candidates import load_candidate_profiles
@@ -835,6 +847,161 @@ class CommanderToolService:
         existing.append(payload)
         atomic_write_json(target, existing)
         return target
+
+    def _primer_compiler(self) -> PrimerToPilotCompiler:
+        return PrimerToPilotCompiler(self.root)
+
+    def _project_path(self, relative: str) -> Path:
+        path = (self.root / relative).resolve()
+        if self.root not in path.parents and path != self.root:
+            raise ToolExecutionError("path escapes project root")
+        return path
+
+    def _load_primer_rules(self, relative: str) -> tuple[PilotRule, ...]:
+        path = self._project_path(relative)
+        if not path.exists():
+            raise ToolExecutionError(f"pilot rule file missing: {relative}")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        rows = payload.get("rules", payload) if isinstance(payload, dict) else payload
+        if not isinstance(rows, list):
+            raise ToolExecutionError(f"pilot rule file must contain a list: {relative}")
+        return tuple(PilotRule.model_validate(row) for row in rows)
+
+    def import_primer(self, request: ImportPrimerInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            document = self._primer_compiler().import_primer(
+                source_path=request.source_path,
+                primer_id=request.primer_id,
+                source_id=request.source_id,
+                title=request.title,
+                commander=request.commander,
+                deck_hash=request.deck_hash,
+                format_band=request.format_band,
+                primer_format=request.primer_format,
+                license_notes=request.license_notes,
+            )
+            return {
+                "primer": document.model_dump(mode="json"),
+                "automatic_execution": False,
+                "automatic_deck_application": False,
+            }
+        return self._invoke("import_primer", request, work)
+
+    def extract_primer_rules(self, request: ExtractPrimerRulesInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            compiler = self._primer_compiler()
+            registry = compiler.load_registry()
+            document = next((item for item in registry.primers if item.primer_id == request.primer_id), None)
+            if document is None or document.source_path is None:
+                raise ToolExecutionError(f"registered primer not found: {request.primer_id}")
+            content = self._project_path(document.source_path).read_text(encoding="utf-8")
+            rules = compiler.extract_rules(document, content=content)
+            output_name = request.output_name or f"{request.primer_id}-automatic-candidates.json"
+            target = self.root / "data/primer_rules/rules" / output_name
+            atomic_write_json(target, {
+                "rules": [rule.model_dump(mode="json") for rule in rules],
+                "status": "needs_review",
+                "automatic_deck_application": False,
+            })
+            return {
+                "rules_path": str(target.relative_to(self.root)),
+                "rule_count": len(rules),
+                "active_rule_count": 0,
+                "manual_review_required": True,
+                "automatic_deck_application": False,
+            }
+        return self._invoke("extract_primer_rules", request, work)
+
+    def validate_pilot_rules(self, request: ValidatePilotRulesInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            rules = self._load_primer_rules(request.rules_path)
+            report = self._primer_compiler().validate_rules(
+                rules, commander=request.commander, deck_hash=request.deck_hash, format_band=request.format_band
+            )
+            return {"validation": report.model_dump(mode="json"), "automatic_deck_application": False}
+        return self._invoke("validate_pilot_rules", request, work)
+
+    def compile_pilot_policy(self, request: CompilePilotPolicyInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            rules = tuple(rule for path in request.rule_paths for rule in self._load_primer_rules(path))
+            compiler = self._primer_compiler()
+            policy = compiler.compile_policy(
+                policy_id=request.policy_id, version=request.version, commander=request.commander,
+                deck_hash=request.deck_hash, format_band=request.format_band,
+                base_pilot_name=request.base_pilot_name, rules=rules,
+                conflict_strategy=request.conflict_strategy,
+            )
+            path = compiler.write_policy(policy, request.output_name)
+            return {
+                "policy_path": str(path.relative_to(self.root)),
+                "policy": policy.model_dump(mode="json"),
+                "automatic_deck_application": False,
+                "base_pilot_mutated": False,
+            }
+        return self._invoke("compile_pilot_policy", request, work)
+
+    def compare_policy_versions(self, request: ComparePolicyVersionsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            older = CompiledPilotPolicy.model_validate_json(self._project_path(request.older_policy_path).read_text(encoding="utf-8"))
+            newer = CompiledPilotPolicy.model_validate_json(self._project_path(request.newer_policy_path).read_text(encoding="utf-8"))
+            return self._primer_compiler().compare_policy_versions(older, newer)
+        return self._invoke("compare_policy_versions", request, work)
+
+    def run_policy_eval(self, request: RunPolicyEvalInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            policy = CompiledPilotPolicy.model_validate_json(self._project_path(request.policy_path).read_text(encoding="utf-8"))
+            payload = json.loads(self._project_path(request.scenario_path).read_text(encoding="utf-8"))
+            rows = payload.get("scenarios", payload) if isinstance(payload, dict) else payload
+            parsed_scenarios = tuple(PolicyEvalScenario.model_validate(row) for row in rows)
+            scenarios = tuple(
+                scenario for scenario in parsed_scenarios
+                if scenario.commander == policy.commander
+                and scenario.deck_hash == policy.deck_hash
+                and scenario.format_band == policy.format_band
+            )
+            if not scenarios:
+                raise ToolExecutionError("scenario file contains no entries compatible with the selected policy")
+            deck = self._deck(request.deck_id)
+            pilot = build_pilot(PilotConfig(pilot_name=policy.base_pilot_name), strategy=request.strategy)
+            results = self._primer_compiler().evaluate_policy(
+                base_pilot=pilot, policy=policy, scenarios=scenarios,
+                deck_cards=tuple(card.oracle_name for card in deck.cards), seed=request.seed,
+            )
+            target = self.root / "data/primer_rules/evals" / request.output_name
+            atomic_write_json(target, {
+                "policy_id": policy.policy_id,
+                "results": [result.model_dump(mode="json") for result in results],
+                "improved_count": sum(result.improved for result in results),
+                "overlay_correct_count": sum(result.overlay_correct for result in results),
+                "scenario_count": len(results),
+                "automatic_deck_application": False,
+            })
+            return {
+                "eval_path": str(target.relative_to(self.root)),
+                "scenario_count": len(results),
+                "improved_count": sum(result.improved for result in results),
+                "overlay_correct_count": sum(result.overlay_correct for result in results),
+                "automatic_deck_application": False,
+            }
+        return self._invoke("run_policy_eval", request, work)
+
+    def generate_primer_conflict_report(self, request: GeneratePrimerConflictReportInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            rules = tuple(rule for path in request.rule_paths for rule in self._load_primer_rules(path))
+            conflicts = self._primer_compiler().detect_conflicts(rules)
+            target = self.root / "data/primer_rules/conflicts" / request.output_name
+            atomic_write_json(target, {
+                "conflicts": [conflict.model_dump(mode="json") for conflict in conflicts],
+                "conflict_count": len(conflicts),
+                "resolution": "manual_or_explicit_strategy_required",
+                "automatic_deck_application": False,
+            })
+            return {
+                "report_path": str(target.relative_to(self.root)),
+                "conflict_count": len(conflicts),
+                "automatic_merge": False,
+            }
+        return self._invoke("generate_primer_conflict_report", request, work)
 
     def import_meta_deck(self, request: ImportMetaDeckInput) -> ToolResponse:
         def work() -> dict[str, Any]:

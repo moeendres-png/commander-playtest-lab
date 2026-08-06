@@ -1,0 +1,286 @@
+{
+  "automatic_deck_application": false,
+  "base_pilot_name": "KorvoldPilot",
+  "commander": "Korvold, Fae-Cursed King",
+  "conflicts": [],
+  "created_at": "2026-08-06T07:37:31.488158Z",
+  "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+  "format_band": "normal_four_player",
+  "immutable": true,
+  "notes": [
+    "Policy overlay is reversible and never mutates the base pilot or decklist."
+  ],
+  "policy_id": "korvold-current-normal-four-player",
+  "rules": [
+    {
+      "action_preference": {
+        "action_kinds": [
+          "commander"
+        ],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Do not expose Korvold without immediate value",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.commander_immediate_value",
+        "op": "falsy",
+        "value": null
+      },
+      "confidence": 0.96,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 100,
+      "rationale": "The current list must prepare a sacrifice or other immediate value before committing Korvold.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.commander-immediate-value",
+      "score_adjustment": -3.0,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "commander_cast",
+        "exposure"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Avoid committing graveyard resources into visible hate",
+        "match_mode": "any",
+        "roles": [
+          "recursion",
+          "land_synergy"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.graveyard_hate_visible",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.9,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 95,
+      "rationale": "Graveyard and land-rebuild resources should be preserved while opposing hate is active.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.avoid-graveyard-hate-window",
+      "score_adjustment": -2.1,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "graveyard",
+        "sequencing"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "rebuild",
+        "description": "Prioritize land and graveyard rebuild lines after wipes",
+        "match_mode": "any",
+        "roles": [
+          "recursion",
+          "land_synergy"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.boardwipe_resolved",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.94,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 92,
+      "rationale": "The current deck is designed to rebuild through land and graveyard resources.",
+      "requires_cards": [
+        "Aftermath Analyst",
+        "Ramunap Excavator"
+      ],
+      "rule_id": "korvold.current.rebuild-after-wipe",
+      "score_adjustment": 2.0,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "rebuild",
+        "wipe"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [
+          "Mirkwood Bats",
+          "Mayhem Devil",
+          "Massacre Wurm"
+        ],
+        "decision_point": "main_action",
+        "description": "Deploy table-damage pieces near a real closing window",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.finish_window",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.91,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 90,
+      "rationale": "These cards are strongest when their visibility immediately converts into table pressure.",
+      "requires_cards": [
+        "Mirkwood Bats",
+        "Mayhem Devil",
+        "Massacre Wurm"
+      ],
+      "rule_id": "korvold.current.table-damage-finish-window",
+      "score_adjustment": 2.25,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "finisher",
+        "large_pod"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Prepare fodder or a sacrifice outlet",
+        "match_mode": "any",
+        "roles": [
+          "sacrifice_outlet",
+          "token_source"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "state.turn",
+            "op": "le",
+            "value": 5
+          },
+          {
+            "clauses": [],
+            "field": "context.package_complete",
+            "op": "falsy",
+            "value": null
+          }
+        ],
+        "field": null,
+        "op": "all",
+        "value": null
+      },
+      "confidence": 0.9,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 80,
+      "rationale": "The current deck should establish sacrifice resources before relying on Korvold.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.prepare-sacrifice-resources",
+      "score_adjustment": 1.35,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "setup",
+        "sacrifice"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Do not treat every payoff as an immediate finish",
+        "match_mode": "any",
+        "roles": [
+          "finisher"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.finish_window",
+            "op": "falsy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "state.lowest_opponent_life",
+            "op": "gt",
+            "value": 15
+          }
+        ],
+        "field": null,
+        "op": "all",
+        "value": null
+      },
+      "confidence": 0.88,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 70,
+      "rationale": "The current list separates resource engines from actual closing windows.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.motor-not-finisher",
+      "score_adjustment": -1.35,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "finisher",
+        "visibility"
+      ],
+      "version": "1.0.0"
+    }
+  ],
+  "source_ids": [
+    "local-user-korvold-guidance-2026-08-02"
+  ],
+  "version": "1.0.0"
+}
