@@ -49,9 +49,8 @@ def load_engine_runtime_config(env: Mapping[str, str] | None = None) -> EngineRu
         protocol_version=source.get("ENGINE_PROTOCOL_VERSION", ENGINE_PROTOCOL_VERSION),
         java_home=source.get("JAVA_HOME") or None,
         maven_home=source.get("MAVEN_HOME") or None,
-        allow_tactical_oracle_fallback=source.get(
-            "ALLOW_TACTICAL_ORACLE_FALLBACK", "false"
-        ).lower() in {"1", "true", "yes"},
+        allow_tactical_oracle_fallback=source.get("ALLOW_TACTICAL_ORACLE_FALLBACK", "false").lower()
+        in {"1", "true", "yes"},
         log_directory=source.get("ENGINE_LOG_DIRECTORY", ".runtime/engine"),
     )
 
@@ -172,8 +171,7 @@ class EngineProcessManager:
                 engine_version = str(hello.get("engine_version", "unknown"))
                 if engine != self.config.provider:
                     detail = (
-                        f"provider mismatch: configured {self.config.provider}, "
-                        f"received {engine}"
+                        f"provider mismatch: configured {self.config.provider}, received {engine}"
                     )
                     return self._replace(
                         status=EngineProcessStatus.UNHEALTHY,
