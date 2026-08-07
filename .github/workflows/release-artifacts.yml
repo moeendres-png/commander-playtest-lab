@@ -4,10 +4,15 @@ on:
   push:
     branches:
       - "release/**"
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: release-artifacts-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-release:
@@ -49,12 +54,14 @@ jobs:
         run: |
           set -euo pipefail
           git archive --format=zip --output=release/commander-playtest-lab-LATEST-source.zip HEAD
-          git bundle create release/commander-playtest-lab-LATEST.bundle --all
+          git bundle create release/commander-playtest-lab-LATEST.bundle HEAD --branches --tags
           repo_dir="$RUNNER_TEMP/commander-playtest-lab-repository"
           rm -rf "$repo_dir"
           git clone --local --no-hardlinks "$GITHUB_WORKSPACE" "$repo_dir"
+          git -C "$repo_dir" checkout --detach "$GITHUB_SHA"
+          test "$(git -C "$repo_dir" rev-parse HEAD)" = "$GITHUB_SHA"
           (cd "$RUNNER_TEMP" && zip -qr "$GITHUB_WORKSPACE/release/commander-playtest-lab-LATEST-repository.zip" commander-playtest-lab-repository)
-      - name: Write status and manifest
+      - name: Write release status
         shell: bash
         run: |
           set -euo pipefail
@@ -75,6 +82,9 @@ jobs:
               "canonical_deck_mutations": 0,
               "recommendations_applied": 0,
               "runtime_state_directory": ".runtime/engine",
+              "fresh_rebuild_6_current": True,
+              "korvold_frozen_hash": "f708c08a8b00a76f67f7209cca09ace84543be1b4961d8689b7b22b3f63794ac",
+              "rogshai_frozen_hash": "9f92ce26b940642df205c0ad45c4f25ee2405ac82eb5ddd2f59a6d4a65f8cec6",
           }
           (release / "PLAYTEST_LAB_CURRENT_STATUS.json").write_text(
               json.dumps(status, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -86,22 +96,59 @@ jobs:
               "- Final status: `deck_optimization_system_requires_external_work`\n"
               "- Runtime state: `.runtime/engine` (ignored mutable runtime data).\n"
               "- External engine validation: pending; XMage/Forge observations = 0.\n"
-              "- Canonical deck/inventory/allocation changes: none.\n"
+              "- Validation boundary: structural + Tactical Oracle only; no external semantic result.\n"
+              "- Fresh Rebuild 6 is the current deck baseline: Korvold 100/39, RogShai 100/37.\n"
+              "- RogShai Fresh Rebuild contains no Combat-Draw Auras.\n"
+              "- Canonical deck/inventory/allocation changes by this release: none.\n"
               "- Recommendations applied: 0.\n",
               encoding="utf-8",
           )
+          PY
+      - name: Write manifest and validation package
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          release = Path("release")
+          artifacts = [
+              "PLAYTEST_LAB_ARTIFACT_MANIFEST.json",
+              "PLAYTEST_LAB_BUILD_RESULTS.txt",
+              "PLAYTEST_LAB_CURRENT_STATUS.json",
+              "PLAYTEST_LAB_CURRENT_STATUS.md",
+              "PLAYTEST_LAB_REPRODUCIBILITY.txt",
+              "PLAYTEST_LAB_SHA256SUMS.txt",
+              "PLAYTEST_LAB_TEST_RESULTS.txt",
+              "commander-playtest-lab-LATEST-validation.zip",
+              "commander-playtest-lab-LATEST-repository.zip",
+              "commander-playtest-lab-LATEST-source.zip",
+              "commander-playtest-lab-LATEST.bundle",
+              "commander_playtest_lab-1.13.1-py3-none-any.whl",
+              "commander_playtest_lab-1.13.1.tar.gz",
+          ]
           manifest = {
               "schema_version": 1,
               "release": "1.13.1",
-              "git_head": sha,
-              "artifacts": sorted(p.name for p in release.iterdir() if p.is_file()),
+              "git_head": os.environ["GITHUB_SHA"],
+              "artifacts": artifacts,
               "validation_level": "structural_and_tactical_only",
               "external_rules_engine_results": False,
+              "roundtrip_required": True,
           }
           (release / "PLAYTEST_LAB_ARTIFACT_MANIFEST.json").write_text(
               json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
           )
           PY
+          printf 'release=1.13.1\ngit_head=%s\nroundtrip=pending\n' "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
+          (cd release && zip -q commander-playtest-lab-LATEST-validation.zip \
+            PLAYTEST_LAB_TEST_RESULTS.txt \
+            PLAYTEST_LAB_BUILD_RESULTS.txt \
+            PLAYTEST_LAB_CURRENT_STATUS.md \
+            PLAYTEST_LAB_CURRENT_STATUS.json \
+            PLAYTEST_LAB_ARTIFACT_MANIFEST.json)
       - name: Generate checksums
         shell: bash
         run: |
@@ -115,6 +162,7 @@ jobs:
           (cd release && sha256sum -c PLAYTEST_LAB_SHA256SUMS.txt)
           unzip -tq release/commander-playtest-lab-LATEST-source.zip
           unzip -tq release/commander-playtest-lab-LATEST-repository.zip
+          unzip -tq release/commander-playtest-lab-LATEST-validation.zip
           git bundle verify release/commander-playtest-lab-LATEST.bundle
           verify_dir="$RUNNER_TEMP/repository-roundtrip"
           rm -rf "$verify_dir"
@@ -127,7 +175,8 @@ jobs:
           "$RUNNER_TEMP/wheel-verify/bin/python" -m pip install --quiet release/commander_playtest_lab-1.13.1-py3-none-any.whl
           test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "1.13.1"
           printf 'release=1.13.1\ngit_head=%s\nroundtrip=passed\n' "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
-          (cd release && sha256sum PLAYTEST_LAB_REPRODUCIBILITY.txt >> PLAYTEST_LAB_SHA256SUMS.txt)
+          (cd release && grep -v 'PLAYTEST_LAB_REPRODUCIBILITY.txt$' PLAYTEST_LAB_SHA256SUMS.txt > PLAYTEST_LAB_SHA256SUMS.tmp)
+          (cd release && mv PLAYTEST_LAB_SHA256SUMS.tmp PLAYTEST_LAB_SHA256SUMS.txt && sha256sum PLAYTEST_LAB_REPRODUCIBILITY.txt >> PLAYTEST_LAB_SHA256SUMS.txt)
           (cd release && sha256sum -c PLAYTEST_LAB_SHA256SUMS.txt)
       - name: Upload release package
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
