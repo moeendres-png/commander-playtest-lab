@@ -1,0 +1,89 @@
+{
+  "errors": [],
+  "metadata": {
+    "configuration_hash": "45b2d04ce8adebebfb12b92d08339ed2b1ef7937dc1a94c091d97dd88442271e",
+    "created_at": "2026-08-07T01:52:57.092620Z",
+    "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+    "deck_hashes": {
+      "rogshai/current": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+    },
+    "deterministic_game_log_directory": null,
+    "elapsed_seconds": 0.0021606249993055826,
+    "engine_version": "structural-0.6.0",
+    "estimate_type": "structural_model_estimates",
+    "git_commit": "e3d54dd6df177808ffa509e13d3a60dda85e59af",
+    "invocation_id": "generate_candidate_swaps-c2eeec32dbf4",
+    "iterations": null,
+    "openai_trace_directory": "/mnt/data/cplab_work/commander-playtest-lab/data/runs/openai_traces",
+    "opponent_hashes": {},
+    "pilot_version": "unspecified",
+    "scenario_hash": "45b2d04ce8adebebfb12b92d08339ed2b1ef7937dc1a94c091d97dd88442271e",
+    "seed": null,
+    "tool_name": "generate_candidate_swaps"
+  },
+  "result": {
+    "automatic_application": false,
+    "candidates": [
+      {
+        "add": "Talisman of Creativity",
+        "automatic_application": false,
+        "candidate_id": "rogshai/talisman-of-creativity",
+        "candidate_source": "verified local candidate registry",
+        "physical_status": "local_project_verified_owned",
+        "raw_profile_delta": 0.9959999999999998,
+        "recommendation_status": "candidate_swap",
+        "remove": "Arcane Signet",
+        "requires_paired_validation": true,
+        "role_compatibility_adjustment": 1.5,
+        "role_gain": [
+          "mana_source"
+        ],
+        "role_loss": [],
+        "screening_delta": 2.4959999999999996,
+        "validation_level": "structural_only"
+      },
+      {
+        "add": "Talisman of Creativity",
+        "automatic_application": false,
+        "candidate_id": "rogshai/talisman-of-creativity",
+        "candidate_source": "verified local candidate registry",
+        "physical_status": "local_project_verified_owned",
+        "raw_profile_delta": 0.9959999999999998,
+        "recommendation_status": "candidate_swap",
+        "remove": "Fellwar Stone",
+        "requires_paired_validation": true,
+        "role_compatibility_adjustment": 1.5,
+        "role_gain": [
+          "mana_source"
+        ],
+        "role_loss": [],
+        "screening_delta": 2.4959999999999996,
+        "validation_level": "structural_only"
+      },
+      {
+        "add": "Talisman of Creativity",
+        "automatic_application": false,
+        "candidate_id": "rogshai/talisman-of-creativity",
+        "candidate_source": "verified local candidate registry",
+        "physical_status": "local_project_verified_owned",
+        "raw_profile_delta": 0.9959999999999998,
+        "recommendation_status": "candidate_swap",
+        "remove": "Relic of Legends",
+        "requires_paired_validation": true,
+        "role_compatibility_adjustment": 1.5,
+        "role_gain": [
+          "mana_source"
+        ],
+        "role_loss": [],
+        "screening_delta": 2.4959999999999996,
+        "validation_level": "structural_only"
+      }
+    ],
+    "count": 3,
+    "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+    "deck_id": "rogshai/current",
+    "method": "whole_deck_role_package_and_profile_screening"
+  },
+  "status": "completed",
+  "warnings": []
+}

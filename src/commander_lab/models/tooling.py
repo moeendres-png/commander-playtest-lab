@@ -212,6 +212,98 @@ class ValidateUpgradeInput(PairedVariantInput):
     require_sensitivity_nonnegative: bool = True
     require_red_team_pass: bool = True
 
+class BuildOptimizationContextInput(FrozenModel):
+    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current")
+    include_kaervek: bool = False
+
+
+class GenerateCandidateSwapsInput(FrozenModel):
+    deck_id: str
+    candidate_ids: tuple[str, ...] = ()
+    max_candidates: int = Field(default=12, ge=1, le=50)
+
+
+class GenerateCandidatePackagesInput(FrozenModel):
+    deck_id: str
+    include_optional_cards: bool = True
+
+
+class OptimizeDeckAgainstMetaInput(SimulationInput):
+    deck_id: str
+    max_candidates: int = Field(default=5, ge=1, le=20)
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class OptimizeMultipleDecksWithAllocationInput(FrozenModel):
+    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current", "kaervek/current")
+    max_candidates_per_deck: int = Field(default=5, ge=1, le=20)
+
+
+class ValidateSwapInput(ValidateUpgradeInput):
+    pass
+
+
+class ValidatePackageChangeInput(SimulationInput):
+    deck_id: str
+    package_id: str
+    remove_cards: tuple[str, ...] = ()
+    add_candidate_ids: tuple[str, ...] = ()
+    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+
+
+class ValidateLandChangeInput(ValidateUpgradeInput):
+    pass
+
+
+class ValidateMulliganPolicyInput(FrozenModel):
+    deck_id: str
+    baseline_policy: str = "balanced"
+    candidate_policy: str = "commander_plan"
+    samples: int = Field(default=500, ge=20, le=100000)
+    seed: int = Field(default=20260804, ge=0)
+
+
+class RunMultifidelityComparisonInput(ValidateUpgradeInput):
+    include_tactical_oracle: bool = True
+    request_external_engine: bool = True
+
+
+class RunEngineBackedMatchupInput(SimulationInput):
+    deck_ids: tuple[str, ...]
+    provider: Literal["xmage", "forge"] = "xmage"
+
+
+class RunRobustnessSuiteInput(ValidateUpgradeInput):
+    include_politics: bool = True
+    include_pod_sizes: tuple[int, ...] = (3, 4, 5)
+
+
+class RunRulesCoverageGateInput(FrozenModel):
+    deck_id: str
+    card_names: tuple[str, ...] = ()
+    require_external: bool = False
+
+
+class RankVariantsInput(FrozenModel):
+    variants: tuple[dict[str, Any], ...]
+    prefer_worst_case: bool = True
+
+
+class ExplainRecommendationInput(FrozenModel):
+    evidence: dict[str, Any]
+
+
+class ExportRecommendationEvidenceInput(FrozenModel):
+    evidence: dict[str, Any]
+    output_name: str = "recommendation-evidence.json"
+
+
+class CreateDeckImprovementReportInput(FrozenModel):
+    deck_id: str
+    evidence_items: tuple[dict[str, Any], ...]
+    output_name: str = "deck-improvement-report.md"
+
+
 class CreateReportInput(FrozenModel):
     title: str
     tool_responses: tuple[dict[str, Any], ...]

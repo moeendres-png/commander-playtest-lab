@@ -48,14 +48,23 @@ def test_all_required_tools_are_exposed() -> None:
         "diagnose_card_performance", "diagnose_pilot_behavior",
         "compare_deck_and_pilot_effects", "classify_failure_cause",
         "recommend_next_experiment", "generate_diagnostic_report",
+        "build_optimization_context", "generate_candidate_swaps",
+        "generate_candidate_packages", "optimize_deck_against_meta",
+        "optimize_multiple_decks_with_allocation", "validate_swap",
+        "validate_package_change", "validate_land_change",
+        "validate_mulligan_policy", "run_multifidelity_comparison",
+        "run_engine_backed_matchup", "run_robustness_suite",
+        "run_rules_coverage_gate", "rank_variants",
+        "explain_recommendation", "export_recommendation_evidence",
+        "create_deck_improvement_report",
     }
 
 
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 83
-    assert len({schema["name"] for schema in schemas}) == 83
+    assert len(schemas) == 100
+    assert len({schema["name"] for schema in schemas}) == 100
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

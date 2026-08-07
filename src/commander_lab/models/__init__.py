@@ -128,6 +128,26 @@ from .meta import (
 )
 
 from .tooling import (
+    BuildOptimizationContextInput,
+    GenerateCandidateSwapsInput,
+    GenerateCandidatePackagesInput,
+    OptimizeDeckAgainstMetaInput,
+    OptimizeMultipleDecksWithAllocationInput,
+    ValidateSwapInput,
+    ValidatePackageChangeInput,
+    ValidateLandChangeInput,
+    ValidateMulliganPolicyInput,
+    RunMultifidelityComparisonInput,
+    RunEngineBackedMatchupInput,
+    RunRobustnessSuiteInput,
+    RunRulesCoverageGateInput,
+    RankVariantsInput,
+    ExplainRecommendationInput,
+    ExportRecommendationEvidenceInput,
+    CreateDeckImprovementReportInput,
+)
+
+from .tooling import (
     ImportMetaDeckInput,
     ImportTournamentResultInput,
     ImportPrimerReferenceInput,
@@ -498,4 +518,16 @@ __all__.extend([
     "DiagnoseCardPerformanceInput", "DiagnosePilotBehaviorInput",
     "CompareDeckAndPilotEffectsInput", "ClassifyFailureCauseInput",
     "RecommendNextExperimentInput", "GenerateDiagnosticReportInput",
+])
+
+__all__.extend([
+    "BuildOptimizationContextInput", "GenerateCandidateSwapsInput",
+    "GenerateCandidatePackagesInput", "OptimizeDeckAgainstMetaInput",
+    "OptimizeMultipleDecksWithAllocationInput", "ValidateSwapInput",
+    "ValidatePackageChangeInput", "ValidateLandChangeInput",
+    "ValidateMulliganPolicyInput", "RunMultifidelityComparisonInput",
+    "RunEngineBackedMatchupInput", "RunRobustnessSuiteInput",
+    "RunRulesCoverageGateInput", "RankVariantsInput",
+    "ExplainRecommendationInput", "ExportRecommendationEvidenceInput",
+    "CreateDeckImprovementReportInput",
 ])

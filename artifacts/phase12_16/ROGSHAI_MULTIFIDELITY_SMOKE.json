@@ -1,0 +1,403 @@
+{
+  "errors": [],
+  "metadata": {
+    "configuration_hash": "fd52963b4bd630ddb9a6950e20d26788268b8b4aafbef73420db748ef933f2f5",
+    "created_at": "2026-08-07T01:52:59.201576Z",
+    "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+    "deck_hashes": {
+      "rogshai/current": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+      "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+      "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+    },
+    "deterministic_game_log_directory": null,
+    "elapsed_seconds": 1.067135156000404,
+    "engine_version": "structural-0.6.0",
+    "estimate_type": "structural_model_estimates",
+    "git_commit": "e3d54dd6df177808ffa509e13d3a60dda85e59af",
+    "invocation_id": "run_multifidelity_comparison-77bd0577054d",
+    "iterations": 3,
+    "openai_trace_directory": "/mnt/data/cplab_work/commander-playtest-lab/data/runs/openai_traces",
+    "opponent_hashes": {
+      "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+      "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+      "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+    },
+    "pilot_version": "strong",
+    "scenario_hash": "fd52963b4bd630ddb9a6950e20d26788268b8b4aafbef73420db748ef933f2f5",
+    "seed": 20260804,
+    "tool_name": "run_multifidelity_comparison"
+  },
+  "result": {
+    "automatic_application": false,
+    "coverage_gate": {
+      "cards_checked": 1,
+      "coverage_counts": {
+        "structural_only": 1
+      },
+      "deck_id": "rogshai/current",
+      "external_engine_execution_status": "blocked",
+      "external_gate_passed": false,
+      "gate_status": "blocked",
+      "highest_validation_level": "structural_only",
+      "unsupported_cards": []
+    },
+    "external_rules_result": "blocked",
+    "formal_gate": "passed",
+    "recommendation_status": "insufficient_evidence",
+    "structural_result": {
+      "allocation_effect": "no canonical allocation change",
+      "automatic_application": false,
+      "candidate_card": "Talisman of Creativity",
+      "commander_denial_effect": "not_run",
+      "confidence_interval": null,
+      "current_card": "Izzet Signet",
+      "deck_version": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "failure_diagnosis": {
+        "alternative_explanations": [
+          "Retain the baseline when the effect is small relative to holdout or sensitivity variation."
+        ],
+        "automatic_application_allowed": false,
+        "concerns": [
+          "The primary paired comparison does not improve average placement.",
+          "Paired game outcomes do not favor the variant over the baseline."
+        ],
+        "passed": false
+      },
+      "forge_result": "blocked",
+      "holdout_effect": [
+        {
+          "comparison": {
+            "baseline_average_cards_drawn": 17.666666666666668,
+            "baseline_average_damage": 58.1771445688889,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "cards_drawn_delta": -1.0,
+            "damage_delta": 2.7573119694222115,
+            "games": 3,
+            "paired_loss_count": 0,
+            "paired_tie_count": 3,
+            "paired_win_count": 0,
+            "place_1_share_delta": 0.0,
+            "placement_improvement": 0.0,
+            "variant_average_cards_drawn": 16.666666666666668,
+            "variant_average_damage": 60.93445653831111,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0
+          },
+          "pair_count": 3,
+          "pod": [
+            "synthetic/control",
+            "synthetic/control",
+            "synthetic/engine"
+          ]
+        },
+        {
+          "comparison": {
+            "baseline_average_cards_drawn": 17.0,
+            "baseline_average_damage": 43.30938888888889,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "cards_drawn_delta": -0.6666666666666679,
+            "damage_delta": 5.241566666666664,
+            "games": 3,
+            "paired_loss_count": 0,
+            "paired_tie_count": 3,
+            "paired_win_count": 0,
+            "place_1_share_delta": 0.0,
+            "placement_improvement": 0.0,
+            "variant_average_cards_drawn": 16.333333333333332,
+            "variant_average_damage": 48.550955555555554,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0
+          },
+          "pair_count": 3,
+          "pod": [
+            "synthetic/aggro",
+            "synthetic/aggro",
+            "synthetic/control"
+          ]
+        }
+      ],
+      "inventory_version": "read-only-canonical-2026-08-07",
+      "mana_effect": "structural role/profile estimate",
+      "mulligan_effect": "not_run",
+      "opponent_sensitivity": [
+        {
+          "comparison": {
+            "baseline_average_cards_drawn": 17.666666666666668,
+            "baseline_average_damage": 58.1771445688889,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "cards_drawn_delta": -1.0,
+            "damage_delta": 2.7573119694222115,
+            "games": 3,
+            "paired_loss_count": 0,
+            "paired_tie_count": 3,
+            "paired_win_count": 0,
+            "place_1_share_delta": 0.0,
+            "placement_improvement": 0.0,
+            "variant_average_cards_drawn": 16.666666666666668,
+            "variant_average_damage": 60.93445653831111,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0
+          },
+          "pair_count": 3,
+          "pod": [
+            "synthetic/control",
+            "synthetic/control",
+            "synthetic/engine"
+          ]
+        },
+        {
+          "comparison": {
+            "baseline_average_cards_drawn": 17.0,
+            "baseline_average_damage": 43.30938888888889,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "cards_drawn_delta": -0.6666666666666679,
+            "damage_delta": 5.241566666666664,
+            "games": 3,
+            "paired_loss_count": 0,
+            "paired_tie_count": 3,
+            "paired_win_count": 0,
+            "place_1_share_delta": 0.0,
+            "placement_improvement": 0.0,
+            "variant_average_cards_drawn": 16.333333333333332,
+            "variant_average_damage": 48.550955555555554,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0
+          },
+          "pair_count": 3,
+          "pod": [
+            "synthetic/aggro",
+            "synthetic/aggro",
+            "synthetic/control"
+          ]
+        }
+      ],
+      "package_changes": [],
+      "paired_structural_effect": {
+        "baseline_average_cards_drawn": 15.0,
+        "baseline_average_damage": 64.73639683111111,
+        "baseline_average_placement": 1.0,
+        "baseline_place_1_share": 1.0,
+        "cards_drawn_delta": 6.666666666666668,
+        "damage_delta": 4.737174084302225,
+        "games": 3,
+        "paired_loss_count": 0,
+        "paired_tie_count": 3,
+        "paired_win_count": 0,
+        "place_1_share_delta": 0.0,
+        "placement_improvement": 0.0,
+        "variant_average_cards_drawn": 21.666666666666668,
+        "variant_average_damage": 69.47357091541333,
+        "variant_average_placement": 1.0,
+        "variant_place_1_share": 1.0
+      },
+      "pilot_sensitivity": [],
+      "pod_size_sensitivity": "not_run",
+      "politics_sensitivity": "not_run",
+      "provider_disagreement": false,
+      "raw_validation": {
+        "affected_matchups": [],
+        "automatic_application": false,
+        "canonical_deck_files_modified": false,
+        "constraint_report": {
+          "issues": [],
+          "metrics": {
+            "average_nonland_mana_value": 2.2222222222222223,
+            "colored_sources": {
+              "R": 22,
+              "U": 28,
+              "W": 27
+            },
+            "high_mana_value_cards": 2,
+            "lands": 37,
+            "role_counts": {
+              "combat_payoff": 12,
+              "counter": 8,
+              "draw": 8,
+              "enabler": 6,
+              "engine": 6,
+              "finisher": 3,
+              "graveyard_hate": 2,
+              "land_synergy": 0,
+              "mana_source": 38,
+              "payoff": 2,
+              "protection": 8,
+              "ramp": 11,
+              "recursion": 0,
+              "removal": 13,
+              "sacrifice_outlet": 0,
+              "selection": 4,
+              "token_source": 2,
+              "wipe": 4
+            }
+          },
+          "valid": true
+        },
+        "criteria": {
+          "constraints_passed": true,
+          "holdout_passed": true,
+          "minimum_place_delta": 0.0,
+          "paired_passed": true,
+          "red_team_passed": false,
+          "sensitivity_passed": true
+        },
+        "decision": "rejected",
+        "holdout_tests": [
+          {
+            "comparison": {
+              "baseline_average_cards_drawn": 17.666666666666668,
+              "baseline_average_damage": 58.1771445688889,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "cards_drawn_delta": -1.0,
+              "damage_delta": 2.7573119694222115,
+              "games": 3,
+              "paired_loss_count": 0,
+              "paired_tie_count": 3,
+              "paired_win_count": 0,
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "variant_average_cards_drawn": 16.666666666666668,
+              "variant_average_damage": 60.93445653831111,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0
+            },
+            "pair_count": 3,
+            "pod": [
+              "synthetic/control",
+              "synthetic/control",
+              "synthetic/engine"
+            ]
+          },
+          {
+            "comparison": {
+              "baseline_average_cards_drawn": 17.0,
+              "baseline_average_damage": 43.30938888888889,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "cards_drawn_delta": -0.6666666666666679,
+              "damage_delta": 5.241566666666664,
+              "games": 3,
+              "paired_loss_count": 0,
+              "paired_tie_count": 3,
+              "paired_win_count": 0,
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "variant_average_cards_drawn": 16.333333333333332,
+              "variant_average_damage": 48.550955555555554,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0
+            },
+            "pair_count": 3,
+            "pod": [
+              "synthetic/aggro",
+              "synthetic/aggro",
+              "synthetic/control"
+            ]
+          }
+        ],
+        "pair_sample": [
+          {
+            "baseline_log_sha256": "ac07b3e61aa258e37e6fb7a7b0ae66c35dff0f442d599902cedad0677337905e",
+            "baseline_placement": 1,
+            "comparison": "tie",
+            "index": 0,
+            "seed": 6258503635527529499,
+            "starting_player_seat": 0,
+            "variant_log_sha256": "3e1eee3934f2e886427dabb3b2cdc1fad23cdacdca1f2dc6b5a005b64f27430e",
+            "variant_placement": 1
+          },
+          {
+            "baseline_log_sha256": "cf475971da8d8f3052779a1f400c6878875553075b3ab694ced2b46627099a42",
+            "baseline_placement": 1,
+            "comparison": "tie",
+            "index": 1,
+            "seed": 17000665520688414283,
+            "starting_player_seat": 1,
+            "variant_log_sha256": "6a2ed313d844880063f53beb4b94daadfb315b398fa552fee30a851070c9747b",
+            "variant_placement": 1
+          },
+          {
+            "baseline_log_sha256": "f7aa636f119b22a09e8763a0f765090cb291fc3441d914b8db8be82fc2db68a7",
+            "baseline_placement": 1,
+            "comparison": "tie",
+            "index": 2,
+            "seed": 8837748264973426230,
+            "starting_player_seat": 2,
+            "variant_log_sha256": "ddf2e7c265b308f6f327999a89e0ceebaf8c8ad7adf3c1e3d2d1a02e266d349f",
+            "variant_placement": 1
+          }
+        ],
+        "paired_comparison": {
+          "baseline_average_cards_drawn": 15.0,
+          "baseline_average_damage": 64.73639683111111,
+          "baseline_average_placement": 1.0,
+          "baseline_place_1_share": 1.0,
+          "cards_drawn_delta": 6.666666666666668,
+          "damage_delta": 4.737174084302225,
+          "games": 3,
+          "paired_loss_count": 0,
+          "paired_tie_count": 3,
+          "paired_win_count": 0,
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
+          "variant_average_cards_drawn": 21.666666666666668,
+          "variant_average_damage": 69.47357091541333,
+          "variant_average_placement": 1.0,
+          "variant_place_1_share": 1.0
+        },
+        "proposal_status": "rejected_not_applied",
+        "red_team_review": {
+          "alternative_explanations": [
+            "Retain the baseline when the effect is small relative to holdout or sensitivity variation."
+          ],
+          "automatic_application_allowed": false,
+          "concerns": [
+            "The primary paired comparison does not improve average placement.",
+            "Paired game outcomes do not favor the variant over the baseline."
+          ],
+          "passed": false
+        },
+        "sensitivity_tests": [],
+        "structural_rationale": [
+          "Profile score changes from 1.965 to 2.961.",
+          "Mana value changes from 2.0 to 2.0.",
+          "Gains roles: mana_source.",
+          "No structural role is lost.",
+          "Immediate impact 0.80 → 0.80; turn-cycle risk 0.45 → 0.20."
+        ],
+        "swaps": [
+          {
+            "add": "Talisman of Creativity",
+            "candidate_id": "rogshai/talisman-of-creativity",
+            "physical_status": "local_project_verified_owned",
+            "remove": "Izzet Signet"
+          }
+        ]
+      },
+      "recommendation_status": "insufficient_evidence",
+      "remaining_uncertainty": [
+        "external rules engine blocked",
+        "politics and pod-size full simulation not run"
+      ],
+      "role_changes": [
+        "Profile score changes from 1.965 to 2.961.",
+        "Mana value changes from 2.0 to 2.0.",
+        "Gains roles: mana_source.",
+        "No structural role is lost.",
+        "Immediate impact 0.80 → 0.80; turn-cycle risk 0.45 → 0.20."
+      ],
+      "rules_coverage": "structural_only",
+      "tactical_oracle_result": "not_run",
+      "worst_case_effect": 0.0,
+      "xmage_result": "blocked"
+    },
+    "tactical_oracle_result": "not_run"
+  },
+  "status": "completed",
+  "warnings": []
+}

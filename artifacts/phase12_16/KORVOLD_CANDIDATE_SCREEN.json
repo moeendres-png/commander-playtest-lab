@@ -1,0 +1,92 @@
+{
+  "errors": [],
+  "metadata": {
+    "configuration_hash": "4c5c6a1a90014802a1460c415f954f8d110b4d673acc23c315d278436b97cedb",
+    "created_at": "2026-08-07T01:52:57.090303Z",
+    "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+    "deck_hashes": {
+      "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+    },
+    "deterministic_game_log_directory": null,
+    "elapsed_seconds": 0.0025666459996500635,
+    "engine_version": "structural-0.6.0",
+    "estimate_type": "structural_model_estimates",
+    "git_commit": "e3d54dd6df177808ffa509e13d3a60dda85e59af",
+    "invocation_id": "generate_candidate_swaps-f706c7b1eecb",
+    "iterations": null,
+    "openai_trace_directory": "/mnt/data/cplab_work/commander-playtest-lab/data/runs/openai_traces",
+    "opponent_hashes": {},
+    "pilot_version": "unspecified",
+    "scenario_hash": "4c5c6a1a90014802a1460c415f954f8d110b4d673acc23c315d278436b97cedb",
+    "seed": null,
+    "tool_name": "generate_candidate_swaps"
+  },
+  "result": {
+    "automatic_application": false,
+    "candidates": [
+      {
+        "add": "Lightning Greaves",
+        "automatic_application": false,
+        "candidate_id": "korvold/lightning-greaves",
+        "candidate_source": "verified local candidate registry",
+        "physical_status": "local_project_verified_owned",
+        "raw_profile_delta": 2.306,
+        "recommendation_status": "candidate_swap",
+        "remove": "Snakeskin Veil",
+        "requires_paired_validation": true,
+        "role_compatibility_adjustment": 1.5,
+        "role_gain": [
+          "combat_payoff",
+          "enabler"
+        ],
+        "role_loss": [],
+        "screening_delta": 3.806,
+        "validation_level": "structural_only"
+      },
+      {
+        "add": "Lightning Greaves",
+        "automatic_application": false,
+        "candidate_id": "korvold/lightning-greaves",
+        "candidate_source": "verified local candidate registry",
+        "physical_status": "local_project_verified_owned",
+        "raw_profile_delta": 2.306,
+        "recommendation_status": "candidate_swap",
+        "remove": "Veil of Summer",
+        "requires_paired_validation": true,
+        "role_compatibility_adjustment": 1.5,
+        "role_gain": [
+          "combat_payoff",
+          "enabler"
+        ],
+        "role_loss": [],
+        "screening_delta": 3.806,
+        "validation_level": "structural_only"
+      },
+      {
+        "add": "Lightning Greaves",
+        "automatic_application": false,
+        "candidate_id": "korvold/lightning-greaves",
+        "candidate_source": "verified local candidate registry",
+        "physical_status": "local_project_verified_owned",
+        "raw_profile_delta": 2.306,
+        "recommendation_status": "candidate_swap",
+        "remove": "Tyvar's Stand",
+        "requires_paired_validation": true,
+        "role_compatibility_adjustment": 1.5,
+        "role_gain": [
+          "combat_payoff",
+          "enabler"
+        ],
+        "role_loss": [],
+        "screening_delta": 3.806,
+        "validation_level": "structural_only"
+      }
+    ],
+    "count": 3,
+    "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+    "deck_id": "korvold/current",
+    "method": "whole_deck_role_package_and_profile_screening"
+  },
+  "status": "completed",
+  "warnings": []
+}

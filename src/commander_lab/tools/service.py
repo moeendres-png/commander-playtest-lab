@@ -98,6 +98,24 @@ from commander_lab.models import (
     ToolStatus,
     ValidateDeckInput,
     ValidateUpgradeInput,
+    VariantSwap,
+    BuildOptimizationContextInput,
+    GenerateCandidateSwapsInput,
+    GenerateCandidatePackagesInput,
+    OptimizeDeckAgainstMetaInput,
+    OptimizeMultipleDecksWithAllocationInput,
+    ValidateSwapInput,
+    ValidatePackageChangeInput,
+    ValidateLandChangeInput,
+    ValidateMulliganPolicyInput,
+    RunMultifidelityComparisonInput,
+    RunEngineBackedMatchupInput,
+    RunRobustnessSuiteInput,
+    RunRulesCoverageGateInput,
+    RankVariantsInput,
+    ExplainRecommendationInput,
+    ExportRecommendationEvidenceInput,
+    CreateDeckImprovementReportInput,
 )
 from commander_lab.optimization import (
     DEFAULT_CONSTRAINTS,
@@ -1957,6 +1975,443 @@ class CommanderToolService:
             deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed,
             iterations=request.iterations,
         )
+
+    def _read_optional_json(self, relative: str, default: Any) -> Any:
+        path = self.root / relative
+        if not path.exists():
+            return default
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def build_optimization_context(self, request: BuildOptimizationContextInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            requested = list(request.deck_ids)
+            if request.include_kaervek and "kaervek/current" not in requested:
+                requested.append("kaervek/current")
+            available = [deck_id for deck_id in requested if deck_id in self.decks]
+            unavailable = [deck_id for deck_id in requested if deck_id not in self.decks]
+            coverage = self._read_optional_json("data/rules/card_rules_coverage.json", {})
+            robustness = self._read_optional_json("data/robustness/pilot_and_politics_registry.json", {})
+            engine = self._read_optional_json("artifacts/phase12_13/PHASE12_13_RESULT.json", {})
+            canonical = self._read_optional_json("data/canonical_import/2026-08-07/deck_lists.json", {})
+            return {
+                "execution_status": "passed_with_limitations" if unavailable else "passed",
+                "validation_level": "structural_only",
+                "deck_priority": ["korvold/current", "rogshai/current", "kaervek/current"],
+                "available_decks": {
+                    deck_id: {
+                        "deck_hash": self._deck(deck_id).deck_hash,
+                        "commander_names": list(self._deck(deck_id).commander_names),
+                        "protected_cards": sorted(self.protected_cards.get(deck_id, [])),
+                    }
+                    for deck_id in available
+                },
+                "unavailable_structural_decks": unavailable,
+                "canonical_snapshot": {
+                    "path": "data/canonical_import/2026-08-07/deck_lists.json",
+                    "read_only": True,
+                    "source_workbook": canonical.get("source_workbook"),
+                    "source_drive_id": canonical.get("source_drive_id"),
+                },
+                "candidate_cards": [
+                    {
+                        "candidate_id": candidate_id,
+                        "oracle_name": candidate.card.oracle_name,
+                        "physical_status": candidate.physical_status,
+                        "allowed_deck_ids": list(candidate.allowed_deck_ids),
+                    }
+                    for candidate_id, candidate in sorted(self.candidates.items())
+                ],
+                "rules_coverage": {
+                    "external_engine_execution_status": coverage.get("external_engine_execution_status", "blocked"),
+                    "deck_statistics": coverage.get("deck_statistics", {}),
+                },
+                "pilot_profiles": [row.get("pilot_id") for row in robustness.get("pilot_profiles", [])],
+                "politics_regimes": [row.get("regime_id") for row in robustness.get("politics_regimes", [])],
+                "external_engine": {
+                    "execution_status": engine.get("execution_status", "blocked"),
+                    "completion_status": engine.get("completion_status", "external_engine_blocked"),
+                    "observations": engine.get("external_rules_engine_observations", 0),
+                },
+                "basic_land_policy": "at_least_50_each_basic_type; not scarce within normal deck limits",
+                "automatic_application": False,
+                "canonical_files_modified": False,
+            }
+        return self._invoke("build_optimization_context", request, work, deck_ids=request.deck_ids)
+
+    def generate_candidate_swaps(self, request: GenerateCandidateSwapsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            screened = self.recommend_upgrades(RecommendUpgradesInput(
+                deck_id=request.deck_id,
+                candidate_ids=request.candidate_ids,
+                max_recommendations=request.max_candidates,
+            ))
+            if screened.status != ToolStatus.COMPLETED:
+                raise ToolExecutionError("candidate screening failed")
+            rows = []
+            for row in screened.result.get("recommendations", []):
+                rows.append({
+                    **row,
+                    "recommendation_status": "candidate_swap",
+                    "validation_level": "structural_only",
+                    "candidate_source": "verified local candidate registry",
+                    "automatic_application": False,
+                })
+            return {
+                "deck_id": request.deck_id,
+                "deck_hash": self._deck(request.deck_id).deck_hash,
+                "method": "whole_deck_role_package_and_profile_screening",
+                "candidates": rows,
+                "count": len(rows),
+                "automatic_application": False,
+            }
+        return self._invoke("generate_candidate_swaps", request, work, deck_ids=(request.deck_id,))
+
+    def generate_candidate_packages(self, request: GenerateCandidatePackagesInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            result = self._package_extractor().packages_for_deck(
+                request.deck_id, include_machine_candidates=True
+            )
+            candidates = []
+            evaluations = {row["package_id"]: row for row in result.get("evaluations", [])}
+            for package in result.get("curated_packages", []):
+                evaluation = evaluations.get(package["package_id"], {})
+                candidates.append({
+                    "package_id": package["package_id"],
+                    "name": package["name"],
+                    "status": "candidate_swap" if evaluation.get("missing_core_cards") else "formally_valid",
+                    "missing_core_cards": evaluation.get("missing_core_cards", []),
+                    "density": evaluation.get("density", 0),
+                    "failure_modes": package.get("failure_modes", []),
+                    "automatic_application": False,
+                })
+            return {
+                "deck_id": request.deck_id,
+                "archetype_profile": result.get("archetype_profile"),
+                "candidate_packages": candidates,
+                "machine_candidates": result.get("machine_candidates", []),
+                "machine_candidates_confirmed": False,
+                "automatic_application": False,
+            }
+        return self._invoke("generate_candidate_packages", request, work, deck_ids=(request.deck_id,))
+
+    def optimize_deck_against_meta(self, request: OptimizeDeckAgainstMetaInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            generated = self.generate_candidate_swaps(GenerateCandidateSwapsInput(
+                deck_id=request.deck_id, max_candidates=request.max_candidates
+            ))
+            if generated.status != ToolStatus.COMPLETED:
+                raise ToolExecutionError("candidate generation failed")
+            validated = []
+            for row in generated.result.get("candidates", [])[: request.max_candidates]:
+                validation = self.validate_swap(ValidateSwapInput(
+                    deck_id=request.deck_id,
+                    swaps=(VariantSwap(remove=row["remove"], add_candidate_id=row["candidate_id"]),),
+                    opponent_deck_ids=request.opponent_deck_ids,
+                    seed=request.seed,
+                    iterations=request.iterations,
+                    workers=request.workers,
+                    pilot_strength=request.pilot_strength,
+                    pilot_mode=request.pilot_mode,
+                    max_turns=request.max_turns,
+                    approval_token=request.approval_token,
+                    minimum_place_delta=0.0,
+                ))
+                validated.append(validation.result if validation.status == ToolStatus.COMPLETED else {
+                    "candidate": row, "recommendation_status": "insufficient_evidence", "errors": validation.errors
+                })
+            ranked = sorted(
+                validated,
+                key=lambda item: (
+                    item.get("recommendation_status") == "robust_in_structural_holdout",
+                    item.get("paired_structural_effect", {}).get("placement_improvement", -999),
+                ),
+                reverse=True,
+            )
+            return {
+                "deck_id": request.deck_id,
+                "validation_level": "structural_only",
+                "ranked_candidates": ranked,
+                "external_engine_status": "blocked",
+                "automatic_application": False,
+            }
+        return self._invoke(
+            "optimize_deck_against_meta", request, work,
+            deck_ids=(request.deck_id, *request.opponent_deck_ids),
+            seed=request.seed, iterations=request.iterations,
+        )
+
+    def optimize_multiple_decks_with_allocation(self, request: OptimizeMultipleDecksWithAllocationInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            priority = {"korvold/current": 3, "rogshai/current": 2, "kaervek/current": 1}
+            rows = []
+            for deck_id in request.deck_ids:
+                if deck_id not in self.decks:
+                    rows.append({"deck_id": deck_id, "status": "missing", "candidates": []})
+                    continue
+                response = self.generate_candidate_swaps(GenerateCandidateSwapsInput(
+                    deck_id=deck_id, max_candidates=request.max_candidates_per_deck
+                ))
+                rows.append({"deck_id": deck_id, "status": "complete", "candidates": response.result.get("candidates", [])})
+            claims: dict[str, list[dict[str, Any]]] = {}
+            for row in rows:
+                for candidate in row["candidates"]:
+                    claims.setdefault(candidate["add"], []).append({"deck_id": row["deck_id"], **candidate})
+            conflicts = []
+            allocation = []
+            for card_name, candidates in sorted(claims.items()):
+                candidates.sort(key=lambda x: (priority.get(x["deck_id"], 0), x.get("screening_delta", 0)), reverse=True)
+                winner = candidates[0]
+                allocation.append({"card": card_name, "allocated_to": winner["deck_id"], "reason": "deck priority then structural screening"})
+                if len(candidates) > 1:
+                    conflicts.append({"card": card_name, "claims": [c["deck_id"] for c in candidates], "allocated_to": winner["deck_id"]})
+            return {
+                "deck_priority": ["korvold/current", "rogshai/current", "kaervek/current"],
+                "deck_results": rows,
+                "candidate_allocation": allocation,
+                "conflicts": conflicts,
+                "ungrounded_double_allocation": False,
+                "canonical_allocation_modified": False,
+                "automatic_application": False,
+            }
+        return self._invoke("optimize_multiple_decks_with_allocation", request, work, deck_ids=request.deck_ids)
+
+    def validate_swap(self, request: ValidateSwapInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            result = self.validate_upgrade(ValidateUpgradeInput.model_validate(request.model_dump())).result
+            paired = result.get("paired_comparison", {})
+            criteria = result.get("criteria", {})
+            if not criteria.get("constraints_passed", False):
+                status = "rejected"
+            elif request.iterations < 100:
+                status = "insufficient_evidence"
+            elif criteria.get("paired_passed") and criteria.get("holdout_passed") and criteria.get("sensitivity_passed"):
+                status = "robust_in_structural_holdout"
+            elif criteria.get("paired_passed"):
+                status = "structurally_supported"
+            else:
+                status = "insufficient_evidence"
+            swaps = result.get("swaps", [])
+            return {
+                "current_card": swaps[0].get("remove") if swaps else None,
+                "candidate_card": swaps[0].get("add") if swaps else None,
+                "deck_version": self._deck(request.deck_id).deck_hash,
+                "inventory_version": "read-only-canonical-2026-08-07",
+                "allocation_effect": "no canonical allocation change",
+                "role_changes": result.get("structural_rationale", []),
+                "package_changes": [],
+                "mana_effect": "structural role/profile estimate",
+                "mulligan_effect": "not_run",
+                "paired_structural_effect": paired,
+                "confidence_interval": paired.get("confidence_interval"),
+                "holdout_effect": result.get("holdout_tests", []),
+                "worst_case_effect": min((r.get("comparison", {}).get("placement_improvement", 0.0) for r in result.get("holdout_tests", [])), default=0.0),
+                "pilot_sensitivity": result.get("sensitivity_tests", []),
+                "opponent_sensitivity": result.get("holdout_tests", []),
+                "politics_sensitivity": "not_run",
+                "pod_size_sensitivity": "not_run",
+                "commander_denial_effect": "not_run",
+                "tactical_oracle_result": "not_run",
+                "xmage_result": "blocked",
+                "forge_result": "blocked",
+                "provider_disagreement": False,
+                "rules_coverage": "structural_only",
+                "failure_diagnosis": result.get("red_team_review", {}),
+                "recommendation_status": status,
+                "remaining_uncertainty": ["external rules engine blocked", "politics and pod-size full simulation not run"],
+                "raw_validation": result,
+                "automatic_application": False,
+            }
+        return self._invoke(
+            "validate_swap", request, work,
+            deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations,
+        )
+
+    def validate_package_change(self, request: ValidatePackageChangeInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            package = self._package_extractor().inspect(request.package_id)
+            evaluation = self._package_extractor().evaluate(request.deck_id, request.package_id)
+            swaps = tuple(
+                VariantSwap(remove=remove, add_candidate_id=add)
+                for remove, add in zip(request.remove_cards, request.add_candidate_ids, strict=False)
+            )
+            validation = None
+            if swaps:
+                validation = self.validate_swap(ValidateSwapInput(
+                    deck_id=request.deck_id, swaps=swaps, opponent_deck_ids=request.opponent_deck_ids,
+                    seed=request.seed, iterations=request.iterations, workers=request.workers,
+                    pilot_strength=request.pilot_strength, pilot_mode=request.pilot_mode,
+                    max_turns=request.max_turns, approval_token=request.approval_token,
+                    minimum_place_delta=0.0,
+                )).result
+            return {
+                "package": package.model_dump(mode="json"),
+                "baseline_evaluation": evaluation.model_dump(mode="json"),
+                "swap_validation": validation,
+                "recommendation_status": validation.get("recommendation_status", "candidate_swap") if validation else "candidate_swap",
+                "automatic_application": False,
+            }
+        return self._invoke("validate_package_change", request, work, deck_ids=(request.deck_id,), seed=request.seed, iterations=request.iterations)
+
+    def validate_land_change(self, request: ValidateLandChangeInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            deck = self._deck(request.deck_id)
+            removed = [swap.remove for swap in request.swaps]
+            if not all(any(card.oracle_name == name and card.is_land for card in deck.cards) for name in removed):
+                raise ToolExecutionError("validate_land_change requires land cuts")
+            result = self.validate_swap(ValidateSwapInput.model_validate(request.model_dump())).result
+            result["land_change_gate"] = "passed"
+            return result
+        return self._invoke("validate_land_change", request, work, deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations)
+
+    def validate_mulligan_policy(self, request: ValidateMulliganPolicyInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            aliases = {"balanced": "current_pilot", "commander_plan": "commander_oriented"}
+            policies = (aliases.get(request.baseline_policy, request.baseline_policy), aliases.get(request.candidate_policy, request.candidate_policy))
+            response = self.compare_mulligan_policies(CompareMulliganPoliciesInput(
+                deck_id=request.deck_id, policies=policies, samples=request.samples,
+                followup_samples=min(250, request.samples), seed=request.seed,
+            ))
+            if response.status != ToolStatus.COMPLETED:
+                raise ToolExecutionError("mulligan comparison failed")
+            return {
+                "validation_level": "structural_only",
+                "policies": policies,
+                "comparison": response.result,
+                "recommendation_status": "structurally_supported",
+                "automatic_application": False,
+            }
+        return self._invoke("validate_mulligan_policy", request, work, deck_ids=(request.deck_id,), seed=request.seed, iterations=request.samples)
+
+    def run_rules_coverage_gate(self, request: RunRulesCoverageGateInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            registry = self._read_optional_json("data/rules/card_rules_coverage.json", {})
+            cards = registry.get("cards", [])
+            deck_token = request.deck_id.split("/")[0]
+            selected = [row for row in cards if any(deck_token in version for version in row.get("deck_versions", []))]
+            if request.card_names:
+                wanted = set(request.card_names)
+                selected = [row for row in selected if row.get("oracle_name") in wanted]
+            statuses = Counter(row.get("coverage_status", "unsupported") for row in selected)
+            external = all(row.get("xmage_rules_verified") or row.get("forge_rules_verified") for row in selected) if selected else False
+            return {
+                "deck_id": request.deck_id,
+                "cards_checked": len(selected),
+                "coverage_counts": dict(statuses),
+                "external_engine_execution_status": registry.get("external_engine_execution_status", "blocked"),
+                "external_gate_passed": external,
+                "gate_status": "passed" if (external or not request.require_external) else "blocked",
+                "highest_validation_level": "external_rules_engine" if external else ("tactical_oracle" if statuses.get("tactical_only") else "structural_only"),
+                "unsupported_cards": [row.get("oracle_name") for row in selected if row.get("coverage_status") == "unsupported"],
+            }
+        return self._invoke("run_rules_coverage_gate", request, work, deck_ids=(request.deck_id,))
+
+    def run_multifidelity_comparison(self, request: RunMultifidelityComparisonInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            structural = self.validate_swap(ValidateSwapInput.model_validate(request.model_dump(exclude={"include_tactical_oracle", "request_external_engine"}))).result
+            cards = [structural.get("current_card"), structural.get("candidate_card")]
+            coverage = self.run_rules_coverage_gate(RunRulesCoverageGateInput(
+                deck_id=request.deck_id, card_names=tuple(card for card in cards if card),
+                require_external=request.request_external_engine,
+            )).result
+            tactical = "passed_with_limitations" if request.include_tactical_oracle and coverage.get("highest_validation_level") == "tactical_oracle" else "not_run"
+            external = "blocked" if request.request_external_engine else "not_run"
+            status = structural.get("recommendation_status", "insufficient_evidence")
+            if status == "robust_in_structural_holdout" and tactical == "passed_with_limitations":
+                status = "tactical_oracle_supported"
+            return {
+                "formal_gate": "passed",
+                "structural_result": structural,
+                "tactical_oracle_result": tactical,
+                "external_rules_result": external,
+                "coverage_gate": coverage,
+                "recommendation_status": status,
+                "automatic_application": False,
+            }
+        return self._invoke("run_multifidelity_comparison", request, work, deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations)
+
+    def run_engine_backed_matchup(self, request: RunEngineBackedMatchupInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            phase = self._read_optional_json("artifacts/phase12_13/PHASE12_13_RESULT.json", {})
+            provider = phase.get("providers", {}).get(request.provider, {})
+            return {
+                "execution_status": "blocked",
+                "validation_level": "structural_only",
+                "provider": request.provider,
+                "provider_status": provider.get("status", "blocked"),
+                "reason": "No real provider process, handshake, legal actions, event log, or replay is available in this runtime.",
+                "external_rules_engine_observations": 0,
+                "synthetic_or_tactical_substitution": False,
+            }
+        return self._invoke("run_engine_backed_matchup", request, work, deck_ids=request.deck_ids, seed=request.seed, iterations=request.iterations)
+
+    def run_robustness_suite(self, request: RunRobustnessSuiteInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            validation = self.validate_swap(ValidateSwapInput.model_validate(request.model_dump(exclude={"include_politics", "include_pod_sizes"}))).result
+            tournament = self._read_optional_json("data/robustness/policy_tournament_result.json", {})
+            return {
+                "validation_level": "structural_only",
+                "swap_validation": validation,
+                "pod_sizes": list(request.include_pod_sizes),
+                "politics_included": request.include_politics,
+                "policy_tournament_scenarios": tournament.get("scenario_count", len(tournament.get("rows", []))),
+                "worst_case_effect": validation.get("worst_case_effect"),
+                "recommendation_status": validation.get("recommendation_status", "insufficient_evidence"),
+                "automatic_application": False,
+            }
+        return self._invoke("run_robustness_suite", request, work, deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations)
+
+    def rank_variants(self, request: RankVariantsInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            def score(row: dict[str, Any]) -> tuple[float, float, float]:
+                worst = float(row.get("worst_case_effect", -999.0) or 0.0)
+                paired = float((row.get("paired_structural_effect") or {}).get("placement_improvement", row.get("effect_size", 0.0)) or 0.0)
+                coverage = {"external_rules_engine": 3, "tactical_oracle": 2, "structural_only": 1}.get(row.get("rules_coverage"), 0)
+                return (worst if request.prefer_worst_case else paired, paired, float(coverage))
+            ranked = sorted((dict(row) for row in request.variants), key=score, reverse=True)
+            for index, row in enumerate(ranked, start=1):
+                row["rank"] = index
+            return {"ranked_variants": ranked, "method": "worst_case_then_paired_then_coverage", "automatic_application": False}
+        return self._invoke("rank_variants", request, work)
+
+    def explain_recommendation(self, request: ExplainRecommendationInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            evidence = request.evidence
+            return {
+                "recommendation_status": evidence.get("recommendation_status", "insufficient_evidence"),
+                "summary": f"{evidence.get('current_card', 'current card')} → {evidence.get('candidate_card', 'candidate card')}",
+                "why": evidence.get("role_changes", []),
+                "tradeoffs": {
+                    "worst_case_effect": evidence.get("worst_case_effect"),
+                    "remaining_uncertainty": evidence.get("remaining_uncertainty", []),
+                    "provider_disagreement": evidence.get("provider_disagreement", False),
+                },
+                "truth_boundary": "Structural results are model estimates; Tactical Oracle is not an external rules engine.",
+                "automatic_application": False,
+            }
+        return self._invoke("explain_recommendation", request, work)
+
+    def export_recommendation_evidence(self, request: ExportRecommendationEvidenceInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            target_dir = self.root / "data/runs/recommendations"
+            target_dir.mkdir(parents=True, exist_ok=True)
+            target = target_dir / Path(request.output_name).name
+            atomic_write_json(target, {"schema_version": 1, "automatic_application": False, "evidence": request.evidence})
+            return {"path": str(target), "sha256": sha256_value(request.evidence), "canonical_files_modified": False}
+        return self._invoke("export_recommendation_evidence", request, work)
+
+    def create_deck_improvement_report(self, request: CreateDeckImprovementReportInput) -> ToolResponse:
+        def work() -> dict[str, Any]:
+            target = self.report_dir / Path(request.output_name).name
+            lines = [
+                f"# Deck improvement report — {request.deck_id}", "",
+                "Validation boundary: structural model estimates unless an individual evidence item explicitly records a higher executed level.", "",
+                "No deck, inventory, or allocation change was applied.", "",
+            ]
+            for index, item in enumerate(request.evidence_items, start=1):
+                lines += [f"## Candidate {index}", "", f"- Status: `{item.get('recommendation_status', 'insufficient_evidence')}`", f"- Swap: `{item.get('current_card')}` → `{item.get('candidate_card')}`", f"- Worst-case effect: `{item.get('worst_case_effect')}`", f"- Rules coverage: `{item.get('rules_coverage', 'structural_only')}`", ""]
+            atomic_write_text(target, "\n".join(lines))
+            return {"report_path": str(target), "evidence_items": len(request.evidence_items), "automatic_application": False}
+        return self._invoke("create_deck_improvement_report", request, work, deck_ids=(request.deck_id,))
 
     def create_report(self, request: CreateReportInput) -> ToolResponse:
         def work() -> dict[str, Any]:

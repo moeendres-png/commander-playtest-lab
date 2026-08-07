@@ -11,7 +11,7 @@ def test_function_tool_server_lists_and_invokes_tools() -> None:
     with TestClient(create_app(ROOT)) as client:
         health = client.get("/health")
         assert health.status_code == 200
-        assert health.json()["tool_count"] == 83
+        assert health.json()["tool_count"] == 100
         tools = client.get("/v1/tools")
         assert tools.status_code == 200
         response = client.post(
