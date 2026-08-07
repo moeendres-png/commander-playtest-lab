@@ -63,9 +63,7 @@ def test_process_manager_healthy_requires_external_handshake(
         assert manager.stop().status == EngineProcessStatus.STOPPED
 
 
-def test_tactical_bridge_cannot_be_healthy_external_xmage(
-    repo_root: Path, tmp_path: Path
-) -> None:
+def test_tactical_bridge_cannot_be_healthy_external_xmage(repo_root: Path, tmp_path: Path) -> None:
     config = EngineRuntimeConfig(
         provider="xmage",
         start_command=(sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")),
@@ -96,9 +94,7 @@ def test_replay_rejects_silent_unknown_event_without_snapshot() -> None:
     import hashlib
 
     events = ({"sequence": 0, "event_type": "unknown"},)
-    digest = hashlib.sha256(
-        json.dumps(events, sort_keys=True, default=list).encode()
-    ).hexdigest()
+    digest = hashlib.sha256(json.dumps(events, sort_keys=True, default=list).encode()).hexdigest()
     replay = EngineReplay(
         engine="tactical",
         engine_version="test",
