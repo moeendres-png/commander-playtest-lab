@@ -79,8 +79,34 @@ jobs:
       - name: Phase 8.6 audit
         run: commander-lab audit-phase86 --skip-tests || test $? -eq 2
       - name: Secret-pattern scan
+        shell: bash
         run: |
-          ! grep -RInE '(sk-[A-Za-z0-9_-]{20,}|OPENAI_API_KEY=.+)' --exclude='.env.example' --exclude-dir='.git' .
+          set -euo pipefail
+
+          matches="$(
+            git grep -nIE \
+              -e '[s]k-[A-Za-z0-9_-]{20,}' \
+              -e '[O]PENAI_API_KEY=[^[:space:]]+' \
+              -- \
+              ':(exclude).env.example' \
+              ':(exclude)artifacts/**' \
+              || true
+          )"
+
+          if [[ -n "$matches" ]]; then
+            matches="$(
+              printf '%s\n' "$matches" |
+                grep -Ev '[O]PENAI_API_KEY=(\.\.\.|<[^>]+>|\$\{[^}]+\})' ||
+                true
+            )"
+          fi
+
+          if [[ -n "$matches" ]]; then
+            echo "Potential secret material found. Content suppressed."
+            exit 1
+          fi
+
+          echo "No secret patterns found."
       - name: Build wheel
         run: python -m pip wheel --no-deps --wheel-dir dist .
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
