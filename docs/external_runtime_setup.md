@@ -8,7 +8,7 @@ Phase 8.5 in the build container ended with
 1. Install JDK 21 and Git.
 2. Ensure GitHub and Maven Central are reachable.
 3. Run `scripts/bootstrap_engine_linux.sh`, the macOS wrapper, or the PowerShell script.
-4. Build or install a provider-specific bridge implementing protocol 1.0.0.
+4. Build or install a provider-specific bridge implementing protocol 2.0.0.
 5. Set `ENGINE_START_COMMAND` to that bridge.
 6. Run `scripts/verify_engine.sh`.
 7. Run `commander-lab validate-engine-phase85`.

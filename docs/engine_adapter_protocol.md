@@ -1,4 +1,4 @@
-# Engine adapter protocol 1.0.0
+# Engine adapter protocol 2.0.0
 
 The bridge is a persistent newline-delimited JSON process. The authoritative
 schema is `schemas/engine_adapter_protocol.schema.json`.
@@ -81,3 +81,15 @@ capabilities cause `degraded` or abort. `healthy` additionally requires
 
 Phase-8 `method` and `params` aliases remain accepted for migration tests. Such a
 legacy probe is not sufficient for an external healthy status.
+
+
+## Protocol 2 provider surface
+
+`start_engine`, `get_capabilities`, `get_provider_version`, `import_deck`,
+`create_commander_game`, `add_player`, `start_game`, `get_game_state`,
+`get_legal_actions`, `submit_action`, `pass_priority`, `select_targets`,
+`choose_modes`, `order_triggers`, `resolve_mulligan`, `concede`,
+`export_event_log`, `export_replay`, `shutdown_game`, and `shutdown_engine`.
+
+Phase-8.5 message names remain accepted only as compatibility aliases. A real
+provider must attest `runtime_kind=external_rules_engine` and pass semantic gates.

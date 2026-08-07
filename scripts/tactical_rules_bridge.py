@@ -80,6 +80,13 @@ def capabilities() -> dict:
         "starting_state_injection_supported": True,
         "scenario_injection_supported": True,
         "healthcheck_supported": True,
+        "target_selection_supported": False,
+        "mode_selection_supported": False,
+        "trigger_order_supported": False,
+        "mulligan_supported": True,
+        "concede_supported": True,
+        "game_shutdown_supported": True,
+        "engine_shutdown_supported": True,
         "runtime_kind": "tactical_oracle",
         "notes": [
             "bounded local tactical oracle",
@@ -143,13 +150,17 @@ def main() -> int:
                         "validation_level": RuntimeValidationLevel.TACTICAL_ORACLE.value,
                     },
                 )
-            elif kind == EngineMessageType.ENGINE_CAPABILITIES:
+            elif kind in {EngineMessageType.ENGINE_CAPABILITIES, EngineMessageType.GET_CAPABILITIES}:
                 ok(request, {"capabilities": capabilities()})
-            elif kind == EngineMessageType.LOAD_DECK:
+            elif kind == EngineMessageType.START_ENGINE:
+                ok(request, {"engine": "tactical", "started": True})
+            elif kind == EngineMessageType.GET_PROVIDER_VERSION:
+                ok(request, {"engine": "tactical", "engine_version": ENGINE_VERSION})
+            elif kind in {EngineMessageType.LOAD_DECK, EngineMessageType.IMPORT_DECK}:
                 handle = adapter.load_deck(RulesDeckInput.model_validate(payload["deck"]))
                 loaded[handle.handle_id] = handle.deck_id
                 ok(request, handle.model_dump(mode="json"))
-            elif kind == EngineMessageType.CREATE_GAME:
+            elif kind in {EngineMessageType.CREATE_GAME, EngineMessageType.CREATE_COMMANDER_GAME}:
                 if "scenario" in payload:
                     session = adapter.create_scenario(
                         TacticalScenario.model_validate(payload["scenario"])
@@ -178,7 +189,7 @@ def main() -> int:
                     ActionProposal.model_validate(payload["proposal"]),
                 )
                 ok(request, {"state": state.model_dump(mode="json")}, state.event_sequence)
-            elif kind == EngineMessageType.ADVANCE_PRIORITY:
+            elif kind in {EngineMessageType.ADVANCE_PRIORITY, EngineMessageType.PASS_PRIORITY}:
                 actions = adapter.get_legal_actions(str(request.game_id))
                 passing = next((a for a in actions if a.action_type.value == "pass_priority"), None)
                 if passing is None:
@@ -205,7 +216,7 @@ def main() -> int:
                 )
                 state = adapter.submit_action(str(request.game_id), proposal)
                 ok(request, {"state": state.model_dump(mode="json")}, state.event_sequence)
-            elif kind == EngineMessageType.GET_EVENT_LOG:
+            elif kind in {EngineMessageType.GET_EVENT_LOG, EngineMessageType.EXPORT_EVENT_LOG}:
                 log = adapter.get_logs(str(request.game_id))
                 ok(request, log.model_dump(mode="json"), len(log.events))
             elif kind == EngineMessageType.EXPORT_REPLAY:
@@ -232,9 +243,20 @@ def main() -> int:
                     },
                     len(events),
                 )
-            elif kind == EngineMessageType.SHUTDOWN_GAME:
+            elif kind in {EngineMessageType.SHUTDOWN_GAME, EngineMessageType.SHUTDOWN_ENGINE}:
                 ok(request, {"shutdown": True})
                 return 0
+            elif kind in {
+                EngineMessageType.ADD_PLAYER,
+                EngineMessageType.SELECT_TARGETS,
+                EngineMessageType.CHOOSE_MODES,
+                EngineMessageType.ORDER_TRIGGERS,
+            }:
+                fail(request_id, "unsupported_message", kind.value)
+            elif kind == EngineMessageType.RESOLVE_MULLIGAN:
+                ok(request, {"resolved": True, "validation_level": "tactical_oracle"})
+            elif kind == EngineMessageType.CONCEDE:
+                ok(request, {"conceded": True, "validation_level": "tactical_oracle"})
             else:
                 fail(request_id, "unsupported_message", kind.value)
         except Exception as exc:  # deterministic external contract boundary

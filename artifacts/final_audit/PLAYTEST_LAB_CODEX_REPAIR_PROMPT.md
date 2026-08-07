@@ -13,7 +13,7 @@ Verify SHA-256 against `FINAL_SHA256SUMS.txt`. Start from commit `9721332308dd05
 
 1. Use a networked environment with Java plus Maven or Docker, or verified offline engine sources/binaries.
 2. Re-verify current official XMage and Forge releases; do not trust historical pins without source verification.
-3. Build a real provider-specific JSONL bridge compatible with protocol 1.0.0.
+3. Build a real provider-specific JSONL bridge compatible with protocol 2.0.0.
 4. Execute real gates: process start, provider/version handshake, deck import, four-player Commander, legal actions, action submission, illegal-action rejection, event log, replay, Partner, Commander Tax, Commander Damage, stack and priority.
 5. Never promote Tactical Oracle, fake bridges or fixtures to `external_rules_engine`.
 6. Add integration/regression tests and retain raw provider logs and replay evidence.

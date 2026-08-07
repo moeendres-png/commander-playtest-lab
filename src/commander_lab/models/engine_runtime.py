@@ -8,7 +8,7 @@ from pydantic import Field, model_validator
 
 from .common import FrozenModel, utc_now
 
-ENGINE_PROTOCOL_VERSION = "1.0.0"
+ENGINE_PROTOCOL_VERSION = "2.0.0"
 
 
 class EngineProcessStatus(StrEnum):
@@ -38,20 +38,39 @@ class EngineRuntimeMode(StrEnum):
 
 
 class EngineMessageType(StrEnum):
+    # Protocol 2 surface.  The Phase-8.5 names remain supported below as
+    # compatibility messages during provider-bridge migration.
+    START_ENGINE = "start_engine"
+    GET_CAPABILITIES = "get_capabilities"
+    GET_PROVIDER_VERSION = "get_provider_version"
+    IMPORT_DECK = "import_deck"
+    CREATE_COMMANDER_GAME = "create_commander_game"
+    ADD_PLAYER = "add_player"
+    START_GAME = "start_game"
+    GET_GAME_STATE = "get_game_state"
+    GET_LEGAL_ACTIONS = "get_legal_actions"
+    SUBMIT_ACTION = "submit_action"
+    PASS_PRIORITY = "pass_priority"
+    SELECT_TARGETS = "select_targets"
+    CHOOSE_MODES = "choose_modes"
+    ORDER_TRIGGERS = "order_triggers"
+    RESOLVE_MULLIGAN = "resolve_mulligan"
+    CONCEDE = "concede"
+    EXPORT_EVENT_LOG = "export_event_log"
+    EXPORT_REPLAY = "export_replay"
+    SHUTDOWN_GAME = "shutdown_game"
+    SHUTDOWN_ENGINE = "shutdown_engine"
+
+    # Compatibility contract retained for existing Tactical-Oracle and archived
+    # provider fixtures.  These values are not promoted to external validation.
     ENGINE_HELLO = "engine_hello"
     ENGINE_CAPABILITIES = "engine_capabilities"
     LOAD_DECK = "load_deck"
     CREATE_GAME = "create_game"
     SET_SEED = "set_seed"
-    START_GAME = "start_game"
-    GET_GAME_STATE = "get_game_state"
-    GET_LEGAL_ACTIONS = "get_legal_actions"
-    SUBMIT_ACTION = "submit_action"
     ADVANCE_PRIORITY = "advance_priority"
     ADVANCE_PHASE = "advance_phase"
     GET_EVENT_LOG = "get_event_log"
-    EXPORT_REPLAY = "export_replay"
-    SHUTDOWN_GAME = "shutdown_game"
 
 
 class EngineResponseStatus(StrEnum):
@@ -80,6 +99,13 @@ class EngineCapabilityHandshake(FrozenModel):
     starting_state_injection_supported: bool = False
     scenario_injection_supported: bool = False
     healthcheck_supported: bool = True
+    target_selection_supported: bool = False
+    mode_selection_supported: bool = False
+    trigger_order_supported: bool = False
+    mulligan_supported: bool = False
+    concede_supported: bool = False
+    game_shutdown_supported: bool = False
+    engine_shutdown_supported: bool = False
     runtime_kind: Literal["external_rules_engine", "tactical_oracle", "unknown"] = "unknown"
     notes: tuple[str, ...] = ()
 
@@ -213,7 +239,7 @@ class EngineProcessState(FrozenModel):
     status: EngineProcessStatus
     pid: int | None = Field(default=None, ge=1)
     engine_version: str | None = None
-    adapter_version: str = "commander-lab-protocol-1.0.0"
+    adapter_version: str = "commander-lab-protocol-2.0.0"
     protocol_version: str = ENGINE_PROTOCOL_VERSION
     started_at: datetime | None = None
     stopped_at: datetime | None = None

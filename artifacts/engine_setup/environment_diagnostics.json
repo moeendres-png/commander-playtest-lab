@@ -79,13 +79,13 @@
     "MAVEN_HOME": null
   },
   "filesystem": {
-    "free_bytes": 41666490368,
-    "free_gib": 38.8,
-    "repo": "/mnt/data/commander-playtest-lab-phase8-work",
+    "free_bytes": 41803825152,
+    "free_gib": 38.93,
+    "repo": "/mnt/data/cplab_work/commander-playtest-lab",
     "write_error": null,
     "write_ok": true
   },
-  "generated_at": "2026-08-04T18:59:46.799215Z",
+  "generated_at": "2026-08-07T01:21:36.517977Z",
   "network": {
     "dns": {
       "github.com": {
@@ -146,9 +146,9 @@
   "platform": {
     "machine": "x86_64",
     "python_implementation": "CPython",
-    "release": "6.12.13",
+    "release": "6.18.35",
     "system": "Linux",
-    "version": "#1 SMP Thu Jul 23 17:57:28 UTC 2026"
+    "version": "#1 SMP Mon Jul 27 18:07:50 UTC 2026"
   },
   "ports": {
     "17171": {
@@ -168,9 +168,9 @@
   "resources": {
     "cpu_count": 5,
     "load_average": [
-      0.04541015625,
-      0.15380859375,
-      0.166015625
+      0.19140625,
+      0.35791015625,
+      0.47900390625
     ]
   },
   "subprocess_start": {

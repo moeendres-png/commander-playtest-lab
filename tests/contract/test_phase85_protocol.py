@@ -110,8 +110,11 @@ def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: P
         bufsize=1,
     )
     assert process.stdin is not None and process.stdout is not None
-    kinds = [kind for kind in EngineMessageType if kind != EngineMessageType.SHUTDOWN_GAME]
-    kinds.append(EngineMessageType.SHUTDOWN_GAME)
+    kinds = [
+        kind for kind in EngineMessageType
+        if kind not in {EngineMessageType.SHUTDOWN_GAME, EngineMessageType.SHUTDOWN_ENGINE}
+    ]
+    kinds.append(EngineMessageType.SHUTDOWN_ENGINE)
     try:
         for kind in kinds:
             request = EngineProtocolRequest(

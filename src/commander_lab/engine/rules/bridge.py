@@ -255,8 +255,15 @@ class JsonLineBridgeClient:
             return dict(obj.get("result") or {})
 
     def handshake(self) -> tuple[dict[str, Any], EngineCapabilityHandshake]:
-        hello = self.request(EngineMessageType.ENGINE_HELLO)
-        caps_raw = self.request(EngineMessageType.ENGINE_CAPABILITIES)
+        # Provider bridges may expose protocol-2 names. Compatibility bridges use
+        # the Phase-8.5 names; neither path alone establishes semantic correctness.
+        try:
+            self.request(EngineMessageType.START_ENGINE)
+            hello = self.request(EngineMessageType.GET_PROVIDER_VERSION)
+            caps_raw = self.request(EngineMessageType.GET_CAPABILITIES)
+        except RulesEngineProtocolError:
+            hello = self.request(EngineMessageType.ENGINE_HELLO)
+            caps_raw = self.request(EngineMessageType.ENGINE_CAPABILITIES)
         caps = EngineCapabilityHandshake.model_validate(
             caps_raw.get("capabilities", caps_raw)
         )
@@ -272,7 +279,10 @@ class JsonLineBridgeClient:
             try:
                 if process.poll() is None:
                     try:
-                        self.request(EngineMessageType.SHUTDOWN_GAME, timeout_seconds=2.0)
+                        try:
+                            self.request(EngineMessageType.SHUTDOWN_ENGINE, timeout_seconds=2.0)
+                        except Exception:
+                            self.request(EngineMessageType.SHUTDOWN_GAME, timeout_seconds=2.0)
                     except Exception:
                         process.terminate()
                 try:
@@ -427,6 +437,119 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                     capabilities=RulesEngineCapabilities(),
                     details=(f"{type(exc).__name__}: {exc}",),
                 )
+
+
+    # Protocol-2 provider surface. These methods only route versioned requests;
+    # external validation is granted solely by the separate semantic gate suite.
+    def start_engine(self) -> dict[str, Any]:
+        return self._require_client().request(EngineMessageType.START_ENGINE)
+
+    def get_capabilities(self) -> EngineCapabilityHandshake:
+        raw = self._require_client().request(EngineMessageType.GET_CAPABILITIES)
+        self._capabilities = EngineCapabilityHandshake.model_validate(raw.get("capabilities", raw))
+        return self._capabilities
+
+    def get_provider_version(self) -> dict[str, Any]:
+        return self._require_client().request(EngineMessageType.GET_PROVIDER_VERSION)
+
+    def import_deck(self, deck: RulesDeckInput) -> RulesDeckHandle:
+        self._require_capability("deck_import_supported")
+        result = self._require_client().request(
+            EngineMessageType.IMPORT_DECK, {"deck": deck.model_dump(mode="json")}
+        )
+        return RulesDeckHandle.model_validate(result.get("deck_handle", result))
+
+    def create_commander_game(self, request: RulesGameRequest) -> str:
+        self._require_capability("commander_supported")
+        result = self._require_client().request(
+            EngineMessageType.CREATE_COMMANDER_GAME,
+            {"request": request.model_dump(mode="json")},
+            game_id=request.game_id,
+        )
+        return str(result.get("game_id", request.game_id))
+
+    def add_player(self, game_id: str, *, player: dict[str, Any]) -> dict[str, Any]:
+        return self._require_client().request(
+            EngineMessageType.ADD_PLAYER, {"player": player}, game_id=game_id
+        )
+
+    def start_game(self, game_id: str) -> dict[str, Any]:
+        return self._require_client().request(EngineMessageType.START_GAME, {}, game_id=game_id)
+
+    def get_game_state(self, game_id: str) -> GameState:
+        return self.get_state(game_id)
+
+    def pass_priority(self, game_id: str, *, actor_id: str | None = None) -> GameState:
+        result = self._require_client().request(
+            EngineMessageType.PASS_PRIORITY, {"actor_id": actor_id}, game_id=game_id
+        )
+        return GameState.model_validate(result.get("state", result))
+
+    def select_targets(self, game_id: str, *, choice_id: str, targets: list[str]) -> GameState:
+        self._require_capability("target_selection_supported")
+        result = self._require_client().request(
+            EngineMessageType.SELECT_TARGETS,
+            {"choice_id": choice_id, "targets": targets}, game_id=game_id,
+        )
+        return GameState.model_validate(result.get("state", result))
+
+    def choose_modes(self, game_id: str, *, choice_id: str, modes: list[str]) -> GameState:
+        self._require_capability("mode_selection_supported")
+        result = self._require_client().request(
+            EngineMessageType.CHOOSE_MODES,
+            {"choice_id": choice_id, "modes": modes}, game_id=game_id,
+        )
+        return GameState.model_validate(result.get("state", result))
+
+    def order_triggers(self, game_id: str, *, choice_id: str, trigger_ids: list[str]) -> GameState:
+        self._require_capability("trigger_order_supported")
+        result = self._require_client().request(
+            EngineMessageType.ORDER_TRIGGERS,
+            {"choice_id": choice_id, "trigger_ids": trigger_ids}, game_id=game_id,
+        )
+        return GameState.model_validate(result.get("state", result))
+
+    def resolve_mulligan(self, game_id: str, *, player_id: str, keep: bool,
+                         bottom_card_ids: list[str] | None = None) -> dict[str, Any]:
+        self._require_capability("mulligan_supported")
+        return self._require_client().request(
+            EngineMessageType.RESOLVE_MULLIGAN,
+            {"player_id": player_id, "keep": keep,
+             "bottom_card_ids": bottom_card_ids or []}, game_id=game_id,
+        )
+
+    def concede(self, game_id: str, *, player_id: str) -> GameState:
+        self._require_capability("concede_supported")
+        result = self._require_client().request(
+            EngineMessageType.CONCEDE, {"player_id": player_id}, game_id=game_id
+        )
+        return GameState.model_validate(result.get("state", result))
+
+    def export_event_log(self, game_id: str) -> RulesEngineLog:
+        self._require_capability("event_log_supported")
+        result = self._require_client().request(
+            EngineMessageType.EXPORT_EVENT_LOG, {}, game_id=game_id
+        )
+        return RulesEngineLog.model_validate(result.get("log", result))
+
+    def export_replay(self, game_id: str) -> dict[str, Any]:
+        self._require_capability("replay_supported")
+        return self._require_client().request(
+            EngineMessageType.EXPORT_REPLAY, {}, game_id=game_id
+        )
+
+    def shutdown_game(self, game_id: str) -> dict[str, Any]:
+        self._require_capability("game_shutdown_supported")
+        return self._require_client().request(
+            EngineMessageType.SHUTDOWN_GAME, {}, game_id=game_id
+        )
+
+    def shutdown_engine(self) -> None:
+        client = self._require_client()
+        if self._capabilities is not None and self._capabilities.engine_shutdown_supported:
+            client.request(EngineMessageType.SHUTDOWN_ENGINE, timeout_seconds=2.0)
+        client.close()
+        self._client = None
 
     def _legacy_request(self, method: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Send an old Phase-8 request on the persistent compatibility process."""
