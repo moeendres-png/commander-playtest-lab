@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.13.1 - 2026-08-07
+
+- Stabilized GitHub CI quality/security gates and hardened the secret-pattern scan against generated evidence, documentation placeholders, and self-matches without weakening real-key detection.
+- Fixed Windows-compatible atomic writes by guarding `os.fchmod`, closing temporary descriptors on error, and retaining atomic replace/fsync behavior.
+- Moved mutable engine process state and bridge logs out of tracked release evidence into ignored `.runtime/engine` while preserving explicit runtime-directory overrides.
+- Added Windows runtime-hygiene validation covering the full test suite, `doctor`, structural validation, Tactical Oracle validation, engine probing, and repository-cleanliness checks.
+- Added SQLite WAL/SHM ignore coverage and atomic persisted stop-state writes to avoid transient runtime dirtiness on Windows.
+- Preserved canonical decks, inventory, and allocation data unchanged; no recommendation was automatically applied.
+- External XMage/Forge validation remains pending and is not claimed by this release.
+
 ## 1.10.3 – Phase 12.15–12.17 completion repair
 
 - Replaced synthetic-only policy claims with real Structural Simulator policy-tournament and same-policy self-play execution across 3/4/5-player pods.
@@ -8,7 +18,7 @@
 - Executed politics/pod sensitivity and relevant Tactical Oracle gates in the multi-fidelity optimizer; external provider evidence remains strictly gated on a real runtime.
 - Updated MCP to the stateless 2026-07-28 core with separate 2025-11-25 legacy compatibility and real in-flight stdio cancellation.
 - Added OpenAI Agents SDK stdio configuration, while keeping the live SDK test blocked when `openai-agents` is absent.
-- Preserved canonical deck, inventory and allocation data unchanged and applied no recommendation.
+- Preserved canonical deck, inventory and allocation unchanged and applied no recommendation.
 
 ## 1.10.1 – Phase 12.8–12.10 completion audit
 
