@@ -1,0 +1,9 @@
+# Requested quality tools. Exact pins could not be resolved because the configured package index
+# returned no distributions in the current runtime. Do not treat this as a lock file.
+ruff
+mypy
+hypothesis
+mutmut
+pip-audit
+cyclonedx-bom
+pip-licenses

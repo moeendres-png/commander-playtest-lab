@@ -1,0 +1,158 @@
+{
+  "allocation_changes": false,
+  "canonical_deck_changes": false,
+  "execution_status": "passed_with_limitations",
+  "fallback_checks": {
+    "compileall": "passed",
+    "deterministic_property_mutation_fuzz": "passed",
+    "fallback_license_report": "passed_with_limitations",
+    "fallback_sbom": "passed_with_limitations",
+    "fallback_secret_scan": "passed",
+    "git_diff_check": "passed",
+    "git_fsck_full": "passed"
+  },
+  "inventory_changes": false,
+  "parquet_status": "unused",
+  "performance": {
+    "environment_note": "Single-container measurements; not transferable performance guarantees.",
+    "generated_at": "2026-08-07",
+    "measurements": [
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "deck_import_and_service_initialization",
+        "seconds": 0.011785
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "structural_goldfish_1_games_workers_1",
+        "seconds": 0.029987
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "structural_goldfish_100_games_workers_1",
+        "seconds": 1.179133
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "structural_goldfish_1000_games_workers_1",
+        "seconds": 10.585304
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "four_player_50_games_workers_1",
+        "seconds": 3.412885
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "four_player_50_games_workers_2",
+        "seconds": 57.841002
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "mulligan_sampling_500x2",
+        "seconds": 4.331037
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "opponent_ensemble_evaluation",
+        "seconds": 0.001674
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "paired_variant_comparison_50",
+        "seconds": 5.598594
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "report_generation",
+        "seconds": 0.004227
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "sqlite_write_read_1000",
+        "seconds": 0.526889
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "mcp_initialize_in_process",
+        "seconds": 1.1e-05
+      },
+      {
+        "error": null,
+        "execution_status": "passed",
+        "name": "mcp_tools_list_in_process",
+        "seconds": 0.037417
+      },
+      {
+        "error": "No verified source/binary; GitHub DNS and build dependencies unavailable.",
+        "execution_status": "blocked",
+        "name": "xmage_run",
+        "seconds": null
+      },
+      {
+        "error": "No verified source/binary; GitHub DNS and build dependencies unavailable.",
+        "execution_status": "blocked",
+        "name": "forge_run",
+        "seconds": null
+      },
+      {
+        "error": "Parquet is not an active project feature; pyarrow/fastparquet not required.",
+        "execution_status": "not_run",
+        "name": "parquet_roundtrip",
+        "seconds": null
+      },
+      {
+        "error": "No canonical replay fixture selected for this performance run; functionality remains covered by tests.",
+        "execution_status": "not_run",
+        "name": "counterfactual_replay",
+        "seconds": null
+      },
+      {
+        "error": "No canonical diagnostic dataset selected for this performance run; functionality remains covered by tests.",
+        "execution_status": "not_run",
+        "name": "decision_diagnostics",
+        "seconds": null
+      }
+    ],
+    "schema_version": "1.0.0",
+    "semantic_change_allowed": false
+  },
+  "performance_observation": "Two-worker four-player batch was materially slower than one worker in this container; no semantic or performance change was applied.",
+  "performance_optimization_applied": false,
+  "phase": "12.19",
+  "pip_check": {
+    "detail": "Global moviepy 2.2.1 / pillow 12.2.0 incompatibility.",
+    "execution_status": "failed",
+    "project_attribution": false
+  },
+  "quality_tools": {
+    "cyclonedx_cli": "blocked",
+    "hypothesis": "blocked",
+    "mutmut": "blocked",
+    "mypy": "blocked",
+    "pip_audit": "blocked",
+    "pip_licenses": "blocked",
+    "reason": "Configured package index did not provide the requested distributions or build dependency setuptools>=75.",
+    "ruff": "blocked"
+  },
+  "schema_version": "1.0.0",
+  "status": "quality_security_performance_completed_with_limitations",
+  "tests": {
+    "failed": 0,
+    "passed": 266,
+    "skipped": 1,
+    "warnings_fixed": 2
+  }
+}

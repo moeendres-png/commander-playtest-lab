@@ -1,0 +1,9 @@
+# Upstream versions verified on 2026-08-07. These packages were not installable in the
+# current runtime because the configured package index returned no distributions.
+ruff==0.15.22
+mypy==2.3.0
+hypothesis==6.160.0
+mutmut==3.6.0
+pip-audit==2.10.1
+cyclonedx-bom==7.3.0
+pip-licenses==5.5.5

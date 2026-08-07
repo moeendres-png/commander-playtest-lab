@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import Field, model_validator
 
@@ -519,6 +519,7 @@ class RunPilotEnsembleInput(FrozenModel):
 
 
 class TestVariantAcrossPilotsInput(FrozenModel):
+    __test__: ClassVar[bool] = False
     baseline_deck_id: str
     variant_deck_id: str
     pilot_names: tuple[str, ...]
@@ -691,6 +692,7 @@ class GenerateKeepRulesInput(FrozenModel):
 
 
 class TestKeepRuleInput(FrozenModel):
+    __test__: ClassVar[bool] = False
     rule_path: str
     deck_id: str
     card_names: tuple[str, ...]
