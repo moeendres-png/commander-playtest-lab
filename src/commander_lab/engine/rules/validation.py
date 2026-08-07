@@ -3,13 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from commander_lab.engine.rules.manager import RulesEngineManager
-from commander_lab.engine.rules.project import load_project_rules_decks
-from commander_lab.engine.rules.registry import (
-    build_validation_registry,
-    load_interaction_catalog,
-    write_validation_registry,
-)
 from commander_lab.models import (
     ActionProposal,
     ActionType,
@@ -22,6 +15,10 @@ from commander_lab.models import (
     TurnPhase,
     ZoneState,
 )
+
+from . import manager as rules_manager
+from . import project as rules_project
+from . import registry as rules_registry
 
 
 PHASE8_ENGINE_VERSION = "tactical-0.8.0"
@@ -75,10 +72,10 @@ def run_phase8_validation(
     )
     output.mkdir(parents=True, exist_ok=True)
 
-    manager = RulesEngineManager(root=root_path)
+    manager = rules_manager.RulesEngineManager(root=root_path)
     try:
         probes = manager.probes()
-        decks = load_project_rules_decks(root_path)
+        decks = rules_project.load_project_rules_decks(root_path)
         handles = {
             deck_id: manager.tactical.load_deck(deck)
             for deck_id, deck in decks.items()
@@ -116,23 +113,23 @@ def run_phase8_validation(
         )
         action_logs = manager.tactical.get_logs(scenario_session.session_id)
 
-        interactions = load_interaction_catalog(
+        interactions = rules_registry.load_interaction_catalog(
             root_path / "data/rules/project_critical_interactions.json"
         )
         external = manager.available_external()
-        registry = build_validation_registry(
+        registry = rules_registry.build_validation_registry(
             all_card_names=_catalog_card_names(root_path),
             interactions=interactions,
             tactical_oracle=manager.tactical.oracle,
             external_adapters=external,
             engine_version=PHASE8_ENGINE_VERSION,
         )
-        run_registry_path = write_validation_registry(
+        run_registry_path = rules_registry.write_validation_registry(
             registry, output / "validation_registry.json"
         )
         canonical_registry_path: Path | None = None
         if persist_canonical_registry:
-            canonical_registry_path = write_validation_registry(
+            canonical_registry_path = rules_registry.write_validation_registry(
                 registry, root_path / "data/rules/validation_registry.json"
             )
 
