@@ -5,12 +5,12 @@ import os
 import subprocess
 import sys
 import uuid
+from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from commander_lab.engine.process_manager import EngineProcessManager, load_engine_runtime_config
-from commander_lab.storage.atomic import atomic_write_json
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     EngineMessageType,
@@ -18,6 +18,7 @@ from commander_lab.models import (
     EngineRuntimeConfig,
     RuntimeValidationLevel,
 )
+from commander_lab.storage.atomic import atomic_write_json
 
 from .bridge import JsonLineBridgeClient
 from .protocol import write_protocol_schema
@@ -64,12 +65,17 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
     try:
         for kind in EngineMessageType:
             params: dict[str, Any] = {}
-            game_id = None if kind in {
-                EngineMessageType.ENGINE_HELLO,
-                EngineMessageType.ENGINE_CAPABILITIES,
-                EngineMessageType.LOAD_DECK,
-                EngineMessageType.CREATE_GAME,
-            } else "missing-game"
+            game_id = (
+                None
+                if kind
+                in {
+                    EngineMessageType.ENGINE_HELLO,
+                    EngineMessageType.ENGINE_CAPABILITIES,
+                    EngineMessageType.LOAD_DECK,
+                    EngineMessageType.CREATE_GAME,
+                }
+                else "missing-game"
+            )
             try:
                 payload = client.request(kind, params, game_id=game_id)
                 structured[kind.value] = "success"
@@ -78,8 +84,7 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
                 elif kind == EngineMessageType.ENGINE_CAPABILITIES:
                     caps = payload
             except Exception as exc:
-                # The request reached the bridge and produced a deterministic structured
-                # protocol failure; semantic success is not required for this contract test.
+                # A deterministic structured protocol failure still proves envelope coverage.
                 if "bridge message" in str(exc):
                     structured[kind.value] = "structured_error"
                 else:
@@ -91,7 +96,10 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
         except Exception:
             unknown_rejected = True
     finally:
-        client.close()
+        # Windows may invalidate a completed subprocess pipe before TextIOWrapper.close().
+        # Cleanup must not turn a completed contract exercise into a validation failure.
+        with suppress(OSError):
+            client.close()
 
     declared = [item.value for item in EngineMessageType]
     all_exercised = exercised == declared
@@ -135,12 +143,16 @@ def _replay_contract() -> dict[str, Any]:
                 "commander_cast_count": {"Commander A": 1},
                 "mana_pool": {},
                 "zones": {
-                    "library": ["Card B"], "hand": [], "battlefield": ["Land A"],
-                    "graveyard": [], "exile": [], "command": ["Commander A"]
+                    "library": ["Card B"],
+                    "hand": [],
+                    "battlefield": ["Land A"],
+                    "graveyard": [],
+                    "exile": [],
+                    "command": ["Commander A"],
                 },
                 "land_plays_remaining": 0,
                 "has_lost": False,
-                "loss_reason": None
+                "loss_reason": None,
             },
             {
                 "player_id": "p2",
@@ -151,18 +163,22 @@ def _replay_contract() -> dict[str, Any]:
                 "commander_cast_count": {},
                 "mana_pool": {},
                 "zones": {
-                    "library": ["Card C"], "hand": [], "battlefield": [],
-                    "graveyard": [], "exile": [], "command": ["Commander B"]
+                    "library": ["Card C"],
+                    "hand": [],
+                    "battlefield": [],
+                    "graveyard": [],
+                    "exile": [],
+                    "command": ["Commander B"],
                 },
                 "land_plays_remaining": 1,
                 "has_lost": False,
-                "loss_reason": None
-            }
+                "loss_reason": None,
+            },
         ],
         "stack": [],
         "legal_actions": [],
         "winner_ids": [],
-        "event_sequence": 2
+        "event_sequence": 2,
     }
     event = {
         "sequence": 2,
@@ -192,7 +208,11 @@ def _replay_contract() -> dict[str, Any]:
     }
 
 
-def run_phase85_validation(root: str | Path, *, output_directory: str | Path) -> dict[str, Any]:
+def run_phase85_validation(
+    root: str | Path,
+    *,
+    output_directory: str | Path,
+) -> dict[str, Any]:
     repo = Path(root).resolve()
     output = Path(output_directory)
     if not output.is_absolute():
