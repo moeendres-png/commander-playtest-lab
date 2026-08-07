@@ -62,9 +62,14 @@ def run_phase8_validation(
     *,
     output_directory: str | Path | None = None,
     seed: int = 20260804,
+    persist_canonical_registry: bool = False,
 ) -> dict[str, object]:
     root_path = Path(root)
-    output = Path(output_directory) if output_directory is not None else root_path / "data/runs/phase8_validation"
+    output = (
+        Path(output_directory)
+        if output_directory is not None
+        else root_path / "data/runs/phase8_validation"
+    )
     output.mkdir(parents=True, exist_ok=True)
 
     manager = RulesEngineManager(root=root_path)
@@ -103,7 +108,9 @@ def run_phase8_validation(
             action_type=ActionType.PASS_PRIORITY,
             policy_name="phase8_validation",
         )
-        state_after_action = manager.tactical.submit_action(scenario_session.session_id, proposal)
+        state_after_action = manager.tactical.submit_action(
+            scenario_session.session_id, proposal
+        )
         action_logs = manager.tactical.get_logs(scenario_session.session_id)
 
         interactions = load_interaction_catalog(
@@ -117,12 +124,14 @@ def run_phase8_validation(
             external_adapters=external,
             engine_version=PHASE8_ENGINE_VERSION,
         )
-        registry_path = write_validation_registry(
-            registry, root_path / "data/rules/validation_registry.json"
-        )
         run_registry_path = write_validation_registry(
             registry, output / "validation_registry.json"
         )
+        canonical_registry_path: Path | None = None
+        if persist_canonical_registry:
+            canonical_registry_path = write_validation_registry(
+                registry, root_path / "data/rules/validation_registry.json"
+            )
 
         interaction_results_path = output / "interaction_results.jsonl"
         interaction_results_path.write_text(
@@ -135,7 +144,10 @@ def run_phase8_validation(
         probes_path = output / "backend_probes.json"
         probes_path.write_text(
             json.dumps(
-                {key.value: value.model_dump(mode="json") for key, value in probes.items()},
+                {
+                    key.value: value.model_dump(mode="json")
+                    for key, value in probes.items()
+                },
                 indent=2,
                 ensure_ascii=False,
                 sort_keys=True,
@@ -168,11 +180,18 @@ def run_phase8_validation(
             "rules_engine_passed": registry.rules_engine_passed,
             "cards_total": len(registry.cards),
             "card_status_counts": {
-                level: sum(1 for item in registry.cards.values() if item.level.value == level)
-                for level in ("structural_only", "tactical_oracle", "external_rules_engine")
+                level: sum(
+                    1 for item in registry.cards.values() if item.level.value == level
+                )
+                for level in (
+                    "structural_only",
+                    "tactical_oracle",
+                    "external_rules_engine",
+                )
             },
             "deterministic_starting_state": deterministic_start,
-            "programmatic_action_roundtrip": state_after_action.priority_player_id == "p2",
+            "programmatic_action_roundtrip": state_after_action.priority_player_id
+            == "p2",
             "event_log_captured": len(action_logs.events) >= 2,
             "backend_probes": {
                 key.value: value.model_dump(mode="json") for key, value in probes.items()
@@ -180,7 +199,11 @@ def run_phase8_validation(
             "local_acceptance_passed": local_passed,
             "rules_engine_release_gate_passed": external_passed,
             "artifacts": {
-                "canonical_registry": str(registry_path),
+                "canonical_registry": (
+                    str(canonical_registry_path)
+                    if canonical_registry_path is not None
+                    else None
+                ),
                 "run_registry": str(run_registry_path),
                 "interaction_results": str(interaction_results_path),
                 "backend_probes": str(probes_path),
@@ -189,6 +212,7 @@ def run_phase8_validation(
             "notes": [
                 "All tactical results are bounded tactical validations, not complete rules-engine proofs.",
                 "The external release gate requires at least 50 matching XMage or Forge observations.",
+                "Canonical validation registry persistence is opt-in; normal validation runs write only to the run output directory.",
             ],
         }
         summary_path = output / "phase8_validation_summary.json"
