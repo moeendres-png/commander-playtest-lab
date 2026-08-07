@@ -7,7 +7,7 @@
     "Official precons are fixed structural baselines; locally reported Doom upgrades are represented only as role-bounded uncertainty, not invented card names.",
     "Cosmic Spider-Man has 4 confirmed cards and 96 unresolved role-model slots; unresolved names remain unknown.",
     "High Perfect Morcant has 53 confirmed cards and 47 unresolved slots in the current canonical opponent workbook.",
-    "Kaervek opponent reference remains distinct from the user-owned Kaervek deck."
+    "Kaervek/current is an immutable verified 100-card snapshot derived from the owned canonical Drive deck; it is not an independently maintained deck truth."
   ],
   "profiles": [
     {
@@ -99,29 +99,35 @@
       ]
     },
     {
-      "deck_id": "opponent/kaervek-reference",
-      "name": "Kaervek the Merciless Reference",
+      "deck_id": "kaervek/current",
+      "name": "Kaervek the Merciless — Verified Current Snapshot",
       "commander": "Kaervek the Merciless",
       "commander_cost": 7.0,
-      "commander_power": 5.0,
-      "strategy": "punisher_control_reanimation",
-      "source_status": "project_reference",
-      "data_quality": "project_inferred",
+      "commander_power": 4.0,
+      "strategy": "kaervek",
+      "source_status": "verified_full_deck",
+      "data_quality": "project_verified",
       "land_count": 38,
       "roles": {
-        "ramp": 12,
-        "draw": 9,
-        "removal": 12,
-        "wipe": 5,
-        "recursion": 5,
-        "graveyard_hate": 3,
-        "engine": 8,
-        "payoff": 10,
-        "finisher": 5
+        "ramp": 14,
+        "draw": 12,
+        "selection": 3,
+        "removal": 13,
+        "wipe": 6,
+        "recursion": 7,
+        "graveyard_hate": 4,
+        "protection": 2,
+        "engine": 14,
+        "payoff": 13,
+        "finisher": 15,
+        "sacrifice_outlet": 5
       },
-      "uncertainty": [
-        "Open Path of Ancestry replacement remains unresolved"
-      ]
+      "uncertainty": [],
+      "confirmed_card_count": 100,
+      "unknown_slot_count": 0,
+      "verified_full_list": true,
+      "deck_hash": "c2ff0589415b90c8d1f60b948230b271ec3cede697119ff6ef3ed7fea0765dcd",
+      "snapshot_dir": "data/decks/opponents/kaervek/current"
     },
     {
       "deck_id": "opponent/doom-prevails-precon",
@@ -215,7 +221,7 @@
       "opponent/cosmic-spiderman-midbudget"
     ],
     [
-      "opponent/kaervek-reference",
+      "kaervek/current",
       "opponent/doom-prevails-precon",
       "opponent/dance-elements-precon"
     ],
@@ -227,7 +233,7 @@
     [
       "opponent/blight-curse-precon",
       "opponent/cosmic-spiderman-midbudget",
-      "opponent/kaervek-reference"
+      "kaervek/current"
     ]
   ],
   "holdout_pods": [
@@ -239,7 +245,7 @@
     [
       "opponent/morcant-elves",
       "opponent/blight-curse-precon",
-      "opponent/kaervek-reference"
+      "kaervek/current"
     ]
   ]
 }

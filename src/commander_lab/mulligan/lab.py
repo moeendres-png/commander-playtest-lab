@@ -151,14 +151,14 @@ class MulliganLab:
         primary = {
             "morcant": ("opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget"),
             "cosmic": ("opponent/cosmic-spiderman-midbudget", "opponent/doom-prevails-precon", "opponent/blight-curse-precon"),
-            "doom": ("opponent/doom-prevails-precon", "opponent/kaervek-reference", "opponent/cosmic-spiderman-midbudget"),
+            "doom": ("opponent/doom-prevails-precon", "kaervek/current", "opponent/cosmic-spiderman-midbudget"),
         }
         key = (context.opponent_ensemble_id or "").casefold()
         base = next((rows for token, rows in primary.items() if token in key), (
             "opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget"
         ))
         if holdout == 1:
-            base = ("opponent/kaervek-reference", "opponent/doom-prevails-precon", "opponent/dance-elements-precon")
+            base = ("kaervek/current", "opponent/doom-prevails-precon", "opponent/dance-elements-precon")
         elif holdout == 2:
             base = ("opponent/wakanda-forever-precon", "opponent/cosmic-spiderman-midbudget", "opponent/blight-curse-precon")
         need = max(1, context.pod_size - 1)

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "flow": [
+    "owned_verified_drive_deck",
+    "kaervek/current immutable snapshot",
+    "structural role profile",
+    "KaervekOpponentPilot",
+    "pod/mulligan/holdout resolution",
+    "structural simulation"
+  ],
+  "deck_hash": "c2ff0589415b90c8d1f60b948230b271ec3cede697119ff6ef3ed7fea0765dcd",
+  "source_drive_id": "1n4wUDx7jMheUps8tkqRSa64QSV1DFdI1",
+  "validation_level": "structural_only",
+  "external_engine_validation_pending": true
+}

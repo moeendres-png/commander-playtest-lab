@@ -123,6 +123,70 @@ def build_current_opponent_profiles(
         commander_name = str(spec["commander"])
         quality = DataQuality(str(spec.get("data_quality", "project_inferred")))
         source_status = str(spec.get("source_status", "role_profile_only"))
+        snapshot_dir = spec.get("snapshot_dir")
+        if spec.get("verified_full_list") and snapshot_dir:
+            snapshot_root = Path(config_path).resolve().parents[2] / str(snapshot_dir)
+            deck_payload = json.loads((snapshot_root / "deck.json").read_text(encoding="utf-8"))
+            roles_payload = json.loads((snapshot_root / "roles.json").read_text(encoding="utf-8"))
+            role_by_name = {row["oracle_name"]: row for row in roles_payload["roles"]}
+            exact_cards: list[StructuralCardProfile] = []
+            for entry in deck_payload["cards"]:
+                role_row = role_by_name[entry["oracle_name"]]
+                roles = frozenset(CardRole(value) for value in role_row["roles"])
+                colors = frozenset(
+                    Color(value) for value in str(entry.get("color_identity", "")) if value in {"W", "U", "B", "R", "G"}
+                )
+                produces = frozenset()
+                if role_row.get("is_land"):
+                    if entry["oracle_name"] == "Swamp":
+                        produces = frozenset({Color.BLACK})
+                    elif entry["oracle_name"] == "Mountain":
+                        produces = frozenset({Color.RED})
+                    else:
+                        produces = frozenset({Color.BLACK, Color.RED})
+                requirements: dict[Color, int] = {}
+                mana_cost = str(entry.get("mana_cost", ""))
+                for color in (Color.BLACK, Color.RED):
+                    count = mana_cost.count("{" + color.value + "}")
+                    if count:
+                        requirements[color] = count
+                quantity = int(entry.get("quantity", 1))
+                for _ in range(quantity):
+                    exact_cards.append(
+                        StructuralCardProfile(
+                            oracle_name=str(entry["oracle_name"]),
+                            mana_value=float(entry.get("mana_value", 0.0)),
+                            roles=roles,
+                            role_strengths={role: 1.0 for role in roles},
+                            color_requirements=requirements,
+                            color_identity=colors,
+                            produces_colors=produces,
+                            is_land=bool(role_row.get("is_land")),
+                            is_permanent=not any(token in str(entry.get("card_type", "")) for token in ("Instant", "Sorcery")),
+                            is_creature=bool(role_row.get("is_creature")),
+                            base_power=4.0 if entry["oracle_name"] == commander_name else (3.0 if role_row.get("is_creature") else 0.0),
+                            commander_synergy=1.0 if entry["oracle_name"] == commander_name else (0.55 if roles & {CardRole.ENGINE, CardRole.PAYOFF, CardRole.FINISHER} else 0.2),
+                            floor_value=0.78,
+                            immediate_impact=0.85 if roles & {CardRole.REMOVAL, CardRole.WIPE, CardRole.GRAVEYARD_HATE} else 0.6,
+                            turn_cycle_risk=0.35 if roles & {CardRole.REMOVAL, CardRole.PROTECTION} else 0.5,
+                            multiplayer_scaling=0.55 if roles & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER} else 0.1,
+                            source_quality=quality,
+                            notes=f"Exact verified opponent snapshot card for {deck_id}; source_status={source_status}.",
+                        )
+                    )
+            if len(exact_cards) != 100:
+                raise ValueError(f"verified opponent snapshot {deck_id} contains {len(exact_cards)} cards, expected 100")
+            profiles[deck_id] = StructuralDeckProfile(
+                deck_id=deck_id,
+                deck_hash=str(deck_payload["deck_hash"]),
+                commander_names=(commander_name,),
+                cards=tuple(exact_cards),
+                commander_base_costs={commander_name: float(spec.get("commander_cost", 5.0))},
+                commander_base_power={commander_name: float(spec.get("commander_power", 5.0))},
+                commander_strategy=str(spec.get("strategy", "generic")),
+                data_snapshot_hash=data_snapshot_hash,
+            )
+            continue
         cards: list[StructuralCardProfile] = [
             StructuralCardProfile(
                 oracle_name=commander_name,

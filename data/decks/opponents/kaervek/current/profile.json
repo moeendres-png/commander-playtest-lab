@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "deck_id": "kaervek/current",
+  "deck_hash": "c2ff0589415b90c8d1f60b948230b271ec3cede697119ff6ef3ed7fea0765dcd",
+  "status": "verified_full_deck",
+  "strategy": "kaervek",
+  "land_count": 38,
+  "roles": {
+    "ramp": 14,
+    "draw": 12,
+    "selection": 3,
+    "removal": 13,
+    "wipe": 6,
+    "recursion": 7,
+    "graveyard_hate": 4,
+    "protection": 2,
+    "engine": 14,
+    "payoff": 13,
+    "finisher": 15,
+    "sacrifice_outlet": 5
+  },
+  "pilot_policy": {
+    "early_game": [
+      "develop mana",
+      "draw cards",
+      "use cheap removal only on engines/commanders/escalating threats"
+    ],
+    "midgame": [
+      "hold wipes for developed boards",
+      "deploy Tor Wauki/planeswalkers when exposure is acceptable",
+      "set up recursion"
+    ],
+    "kaervek_window": [
+      "prefer sufficient mana development",
+      "prefer likely multiple opponent spells before next turn",
+      "avoid obvious zero-value exposure"
+    ],
+    "priority_against_korvold": [
+      "Korvold at high-value window",
+      "sacrifice/table-damage engines",
+      "rebuild engines"
+    ],
+    "priority_against_rogshai": [
+      "Ishai near commander-damage kill",
+      "Jeska finish window",
+      "spellslinger/draw engines",
+      "table finishers"
+    ],
+    "rules": [
+      "Kaervek trigger is created when opponent casts a spell; countering that spell later does not remove the already-created trigger"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "snapshot_id": "kaervek/current",
+  "snapshot_date": "2026-08-07",
+  "deck_hash": "c2ff0589415b90c8d1f60b948230b271ec3cede697119ff6ef3ed7fea0765dcd",
+  "source_type": "opponent_snapshot",
+  "derived_from": {
+    "source_type": "owned_verified_deck",
+    "drive_file_id": "1n4wUDx7jMheUps8tkqRSa64QSV1DFdI1",
+    "xlsx_drive_file_id": "1n2z0Vc4pfeE_lwlWynL5IStrGGFrH8R5"
+  },
+  "verified_full_list": true,
+  "canonical_authority": "Google Drive owned deck; simulator snapshot is immutable derivative",
+  "historical_predecessor": {
+    "deck_id": "opponent/kaervek-reference",
+    "structural_hash": "dd74f8cbb9ee1198e9c7d05408b9362efb4e20cf6ca1335c4162a5e7c37910dd",
+    "status": "superseded"
+  }
+}

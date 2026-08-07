@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "data_as_of": "2026-08-07",
+  "current": {
+    "alen_morcant/current": "opponent/morcant-elves",
+    "cosmic_spiderman/current": "opponent/cosmic-spiderman-midbudget",
+    "blight_curse/precon": "opponent/blight-curse-precon",
+    "kaervek/current": "kaervek/current",
+    "doom_prevails/precon": "opponent/doom-prevails-precon",
+    "dance_of_the_elements/precon": "opponent/dance-elements-precon",
+    "wakanda_forever/precon": "opponent/wakanda-forever-precon"
+  },
+  "aliases": {
+    "opponent/kaervek-reference": {
+      "redirect": "kaervek/current",
+      "status": "superseded_alias"
+    }
+  },
+  "kaervek_deck_hash": "c2ff0589415b90c8d1f60b948230b271ec3cede697119ff6ef3ed7fea0765dcd"
+}
