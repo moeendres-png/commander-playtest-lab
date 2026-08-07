@@ -1,0 +1,9 @@
+Final test evidence — 2026-08-07
+
+Final collection: 282 tests.
+Consolidated full-suite execution before release metadata bump: 281 passed, 1 expected external-engine skip, 0 failed.
+Post-release-code focused regression on version/MCP/12.12/12.14/12.16/12.17 paths: 21 passed, 0 failed.
+Final Phase-10 acceptance regression: 5 passed, 0 failed.
+Final collect-only: 282 collected.
+Expected skip: tests/differential/test_phase6_differential.py requires a configured real XMage or Forge differential command.
+Known lifecycle limitation: monolithic pytest can remain alive after completed output because of child-process/pipe cleanup; isolated groups/files were used and no test failure was hidden.

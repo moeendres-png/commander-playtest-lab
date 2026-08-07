@@ -1,0 +1,39 @@
+01 passed repository_identity
+02 passed git_integrity
+03 passed compile_and_diff_check
+04 passed manual_playtest_subsystem_removed
+05 passed canonical_sources_read_only
+06 passed tool_service_registry
+07 passed optimization_context
+08 passed korvold_current_snapshot
+09 passed rogshai_current_snapshot
+10 passed_with_limitations kaervek_maintenance_scope
+11 passed rules_coverage_gate
+12 passed opponent_uncertainty_registry
+13 passed pilot_and_politics_registry
+14 passed korvold_candidate_generation
+15 passed rogshai_candidate_generation
+16 passed package_generation
+17 passed_with_limitations korvold_multifidelity_demo
+18 passed_with_limitations rogshai_multifidelity_demo
+19 passed joint_allocation_demo
+20 passed_with_limitations mulligan_policy_validation
+21 passed_with_limitations statistical_decision_protocol
+22 passed tactical_oracle_73_case_gate
+23 blocked xmage_external_engine_gate
+24 blocked forge_external_engine_gate
+25 passed mcp_2026_stateless_stdio_contract
+26 passed cli_fastapi_contract
+27 passed_with_limitations openai_orchestrator_contract
+28 passed_with_limitations quality_security_performance
+29 passed artifact_packaging_preconditions
+30 passed canonical_nonmutation_and_release_decision
+{
+  "counts": {
+    "passed": 21,
+    "passed_with_limitations": 7,
+    "blocked": 2,
+    "failed": 0
+  },
+  "final_status": "deck_optimization_system_requires_external_work"
+}

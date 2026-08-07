@@ -1,0 +1,7 @@
+{
+  "tracked_text_files_scanned": 751,
+  "secret_findings": [],
+  "ast_security_findings": [],
+  "sql_identifier_note": "storage/database.py dynamically quotes DROP TABLE names, but source values come only from constant LEGACY_MANUAL_PLAYTEST_TABLES.",
+  "status": "passed"
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-07",
+  "package_version": "1.13.0",
+  "product_code_commit": "29e5568197f3660c227ba41116ed068fffc721e2",
+  "final_status": "deck_optimization_system_requires_external_work",
+  "phase12_20_counts": {
+    "blocked": 2,
+    "failed": 0,
+    "passed": 21,
+    "passed_with_limitations": 7
+  },
+  "external_engine_validation_pending": true,
+  "external_quality_work_pending": true,
+  "tests_collected": 282,
+  "tests_passed": 281,
+  "tests_skipped": 1,
+  "tests_failed": 0,
+  "tool_count": 100,
+  "rules_coverage": {
+    "relevant_cards": null,
+    "coverage_counts": {
+      "unsupported": 1460,
+      "tactical_only": 59,
+      "structural_only": 180
+    }
+  },
+  "phase12_15": "opponent_pilot_politics_uncertainty_ready_with_limitations",
+  "phase12_16": "multifidelity_deck_optimizer_ready_with_external_engine_blocked",
+  "phase12_17": "mcp_and_orchestrator_ready_with_runtime_limitations",
+  "phase12_18": "statistical_decision_protocol_ready",
+  "phase12_19": "quality_security_performance_completed_with_limitations",
+  "canonical_deck_changes": false,
+  "inventory_changes": false,
+  "allocation_changes": false,
+  "recommendations_applied": 0,
+  "00_LATEST_update_pending_roundtrip": true
+}

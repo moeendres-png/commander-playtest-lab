@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-08-07",
+  "external_engine_validation_pending": true,
+  "providers": {
+    "xmage": {
+      "role": "primary rules validator",
+      "release": "xmage_1.4.60V3",
+      "pinned_commit": "06d166b098ad36b277edef01116472203d5a047e",
+      "source": "https://github.com/magefree/mage",
+      "runtime_execution_status": "blocked",
+      "external_observations": 0,
+      "reason": "No configured JSONL bridge/external process is visible in this runtime; local user-installed Maven/JDK is not exposed to this sandbox."
+    },
+    "forge": {
+      "role": "secondary differential/fallback validator",
+      "release": "forge-2.0.13",
+      "pinned_commit": "852066bf4f761b302ed17cb011999d8a8fe08ad6",
+      "source": "https://github.com/Card-Forge/forge",
+      "runtime_execution_status": "blocked",
+      "external_observations": 0,
+      "reason": "No configured JSONL bridge/external process is visible in this runtime."
+    },
+    "tactical_oracle": {
+      "role": "local bounded tactical validator",
+      "runtime_execution_status": "passed",
+      "cases": 73,
+      "external_rules_engine": false
+    },
+    "structural_simulator": {
+      "role": "high-volume search and robustness",
+      "runtime_execution_status": "passed",
+      "external_rules_engine": false
+    }
+  }
+}

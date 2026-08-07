@@ -1,0 +1,711 @@
+{
+  "tool_count": 100,
+  "tools": [
+    {
+      "tool": "add_opponent_variant",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "audit_unreferenced_claims",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "build_optimization_context",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "classify_failure_cause",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_counterfactuals",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_deck_and_pilot_effects",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_deck_to_meta",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_decks",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_meta_periods",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_mulligan_policies",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_package_versions",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_pilots",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_policy_versions",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_variant_sensitivity",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compare_variants_paired",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "compile_pilot_policy",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "create_deck_improvement_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "create_meta_snapshot",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "create_mulligan_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "create_opponent_ensemble",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "create_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "detect_orphaned_cards",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "diagnose_card_performance",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "diagnose_pilot_behavior",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "estimate_shapley",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "evaluate_opening_hand",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "evaluate_package_density",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "evaluate_pareto_front",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "evaluate_robust_upgrade",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "explain_recommendation",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "export_minimal_counterfactual_fixture",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "export_recommendation_evidence",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "extract_archetypes",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "extract_packages",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "extract_primer_rules",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "find_counterfactual_branchpoints",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_candidate_packages",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_candidate_swaps",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_decision_regret_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_diagnostic_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_ensemble_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_keep_rules",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_meta_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_package_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_pilot_robustness_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_primer_conflict_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_provenance_report",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "generate_swap_matrix",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "import_meta_deck",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "import_primer",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "import_primer_reference",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "import_tournament_result",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "inspect_deck",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "inspect_package",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "inspect_pilot",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "list_alternative_actions",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "list_pilot_profiles",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "list_superseded_sources",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "optimize_deck_against_meta",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "optimize_multiple_decks_with_allocation",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "query_meta_cards",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "query_meta_packages",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "rank_variants",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "recommend_next_experiment",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "recommend_upgrades",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_beam_search",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_card_ablation",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_commander_denial",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_counterfactual",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_engine_backed_matchup",
+      "maturity": "functional_with_limitations",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": "external engine unavailable"
+    },
+    {
+      "tool": "run_ensemble_matchups",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_goldfish",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_holdout",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_local_search",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_matchup_batch",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_mulligan_lab",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_multifidelity_comparison",
+      "maturity": "functional_with_limitations",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": "external engine unavailable"
+    },
+    {
+      "tool": "run_package_ablation",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_package_search",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_pilot_benchmark",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_pilot_ensemble",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_policy_eval",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_robustness_suite",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "run_rules_coverage_gate",
+      "maturity": "functional_with_limitations",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": "external engine unavailable"
+    },
+    {
+      "tool": "run_sensitivity",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "sample_opening_hands",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "search_variants",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "test_keep_rule",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "test_variant_across_pilots",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "trace_artifact_provenance",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "trace_recommendation_sources",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_deck",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_ensemble",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_land_change",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_mulligan_policy",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_package_change",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_pilot_rules",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_swap",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "validate_upgrade",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    },
+    {
+      "tool": "verify_source_hash",
+      "maturity": "complete",
+      "registered": true,
+      "read_only_deck_changes": true,
+      "limitation": null
+    }
+  ],
+  "removed_manual_playtest_tools": [
+    "ingest_playtest",
+    "calibrate",
+    "ingest_local_game"
+  ],
+  "automatic_application": false
+}

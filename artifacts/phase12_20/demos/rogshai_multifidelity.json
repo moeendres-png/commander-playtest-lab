@@ -1,0 +1,543 @@
+{
+  "tool_status": "completed",
+  "result": {
+    "formal_gate": "passed",
+    "structural_result": {
+      "current_card": "Arcane Signet",
+      "candidate_card": "Talisman of Creativity",
+      "deck_version": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "inventory_version": "read-only-canonical-2026-08-07",
+      "allocation_effect": "no canonical allocation change",
+      "role_changes": [
+        "Profile score changes from 1.965 to 2.961.",
+        "Mana value changes from 2.0 to 2.0.",
+        "Gains roles: mana_source.",
+        "No structural role is lost.",
+        "Immediate impact 0.80 \u2192 0.80; turn-cycle risk 0.45 \u2192 0.20."
+      ],
+      "package_changes": [],
+      "mana_effect": "structural role/profile estimate",
+      "mulligan_effect": "separate mulligan-policy gate required for policy-changing swaps",
+      "paired_structural_effect": {
+        "games": 1,
+        "baseline_average_placement": 1.0,
+        "variant_average_placement": 2.0,
+        "placement_improvement": -1.0,
+        "baseline_place_1_share": 1.0,
+        "variant_place_1_share": 0.0,
+        "place_1_share_delta": -1.0,
+        "baseline_average_damage": 16.1276,
+        "variant_average_damage": 49.65866666666667,
+        "damage_delta": 33.53106666666667,
+        "baseline_average_cards_drawn": 9.0,
+        "variant_average_cards_drawn": 11.0,
+        "cards_drawn_delta": 2.0,
+        "paired_win_count": 0,
+        "paired_loss_count": 1,
+        "paired_tie_count": 0,
+        "requested_runs": 1,
+        "started_runs": 1,
+        "valid_runs": 1,
+        "failed_runs": 0,
+        "discarded_runs": 0,
+        "actual_sample_size": 1,
+        "seeds": [
+          6186750771983869879
+        ],
+        "worker_count": 1,
+        "validation_level": "structural_only",
+        "paired_or_unpaired": "paired",
+        "effect_size": 0.0,
+        "confidence_interval": [
+          -1.0,
+          -1.0
+        ],
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "worst_case_result": -1.0,
+        "scenario_weights": "equal within this paired scenario",
+        "pilot_weights": "single configured pilot: strong",
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "bayesian_shrunk_effect": -0.047619047619047616,
+        "distributionally_robust_lower_bound": -1.0,
+        "quantiles": {
+          "minimum": -1.0,
+          "q10": -1.0,
+          "q25": -1.0,
+          "median": -1.0,
+          "q75": -1.0,
+          "q90": -1.0,
+          "maximum": -1.0,
+          "mean": -1.0
+        }
+      },
+      "confidence_interval": [
+        -1.0,
+        -1.0
+      ],
+      "holdout_effect": [],
+      "worst_case_effect": -1.0,
+      "pilot_sensitivity": [
+        {
+          "seed": 20260807,
+          "pilot_strength": "average",
+          "placement_improvement": 0.0,
+          "place_1_share_delta": 0.0
+        }
+      ],
+      "opponent_sensitivity": [],
+      "politics_sensitivity": [
+        {
+          "politics": "rational_threat_focus",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": -1.0,
+          "place_1_share_delta": -1.0,
+          "confidence_interval": [
+            -1.0,
+            -1.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "current_leader_focus",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": 0.0,
+          "place_1_share_delta": 0.0,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "commander_reputation_focus",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": 0.0,
+          "place_1_share_delta": 0.0,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "combo_prevention",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": -1.0,
+          "place_1_share_delta": -1.0,
+          "confidence_interval": [
+            -1.0,
+            -1.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "revenge_bias",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": -1.0,
+          "place_1_share_delta": -1.0,
+          "confidence_interval": [
+            -1.0,
+            -1.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "random_targeting_noise",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": -1.0,
+          "place_1_share_delta": -1.0,
+          "confidence_interval": [
+            -1.0,
+            -1.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "open_mana_deterrence",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": 1.0,
+          "place_1_share_delta": 1.0,
+          "confidence_interval": [
+            1.0,
+            1.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "visible_engine_focus",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": 0.0,
+          "place_1_share_delta": 0.0,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "low_visibility_tolerance",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": 0.0,
+          "place_1_share_delta": 0.0,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "validation_level": "structural_only"
+        },
+        {
+          "politics": "table_balance",
+          "pod_size": 4,
+          "opponents": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "iterations": 1,
+          "placement_improvement": 0.0,
+          "place_1_share_delta": 0.0,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "validation_level": "structural_only"
+        }
+      ],
+      "pod_size_sensitivity": [
+        {
+          "pod_size": 3,
+          "scenario_count": 10,
+          "mean_placement_improvement": 0.0,
+          "worst_case_placement_improvement": 0.0
+        },
+        {
+          "pod_size": 4,
+          "scenario_count": 10,
+          "mean_placement_improvement": -0.3,
+          "worst_case_placement_improvement": -1.0
+        },
+        {
+          "pod_size": 5,
+          "scenario_count": 10,
+          "mean_placement_improvement": 0.2,
+          "worst_case_placement_improvement": -1.0
+        }
+      ],
+      "commander_denial_effect": {
+        "baseline_dependency_penalty": 0.04360416666666666,
+        "variant_dependency_penalty": 0.04635791446208113,
+        "delta": 0.0027537477954144712
+      },
+      "tactical_oracle_result": {
+        "execution_status": "not_run_no_relevant_case",
+        "validation_level": "structural_only",
+        "cases_attempted": 0,
+        "cases_passed": 0,
+        "cases_failed": 0,
+        "interaction_ids": []
+      },
+      "xmage_result": {
+        "provider": "xmage",
+        "execution_status": "blocked",
+        "availability": "unavailable",
+        "runtime_kind": "unknown",
+        "backend_version": null,
+        "details": [
+          "set COMMANDER_LAB_XMAGE_BRIDGE_CMD to a JSONL bridge command"
+        ]
+      },
+      "forge_result": {
+        "provider": "forge",
+        "execution_status": "blocked",
+        "availability": "unavailable",
+        "runtime_kind": "unknown",
+        "backend_version": null,
+        "details": [
+          "set COMMANDER_LAB_FORGE_BRIDGE_CMD to a JSONL bridge command"
+        ]
+      },
+      "provider_disagreement": false,
+      "rules_coverage": "structural_only",
+      "failure_diagnosis": {
+        "passed": false,
+        "concerns": [
+          "The primary paired comparison does not improve average placement.",
+          "Paired game outcomes do not favor the variant over the baseline."
+        ],
+        "alternative_explanations": [
+          "Retain the baseline when the effect is small relative to holdout or sensitivity variation."
+        ],
+        "automatic_application_allowed": false
+      },
+      "recommendation_status": "insufficient_evidence",
+      "remaining_uncertainty": [
+        "at least one politics/pod-size structural sensitivity is negative",
+        "no passing relevant Tactical Oracle case for every changed interaction",
+        "XMage external rules engine unavailable",
+        "Forge external rules engine unavailable"
+      ],
+      "raw_validation": {
+        "decision": "rejected",
+        "proposal_status": "rejected_not_applied",
+        "swaps": [
+          {
+            "remove": "Arcane Signet",
+            "add": "Talisman of Creativity",
+            "candidate_id": "rogshai/talisman-of-creativity",
+            "physical_status": "canonical_inventory_verified_owned"
+          }
+        ],
+        "structural_rationale": [
+          "Profile score changes from 1.965 to 2.961.",
+          "Mana value changes from 2.0 to 2.0.",
+          "Gains roles: mana_source.",
+          "No structural role is lost.",
+          "Immediate impact 0.80 \u2192 0.80; turn-cycle risk 0.45 \u2192 0.20."
+        ],
+        "affected_matchups": [],
+        "constraint_report": {
+          "valid": true,
+          "issues": [],
+          "metrics": {
+            "lands": 37,
+            "average_nonland_mana_value": 2.2222222222222223,
+            "high_mana_value_cards": 2,
+            "role_counts": {
+              "mana_source": 38,
+              "ramp": 11,
+              "draw": 8,
+              "selection": 4,
+              "removal": 13,
+              "counter": 8,
+              "protection": 8,
+              "wipe": 4,
+              "recursion": 0,
+              "graveyard_hate": 2,
+              "engine": 6,
+              "enabler": 6,
+              "payoff": 2,
+              "finisher": 3,
+              "combat_payoff": 12,
+              "token_source": 2,
+              "sacrifice_outlet": 0,
+              "land_synergy": 0
+            },
+            "colored_sources": {
+              "U": 28,
+              "W": 26,
+              "R": 22
+            }
+          }
+        },
+        "paired_comparison": {
+          "games": 1,
+          "baseline_average_placement": 1.0,
+          "variant_average_placement": 2.0,
+          "placement_improvement": -1.0,
+          "baseline_place_1_share": 1.0,
+          "variant_place_1_share": 0.0,
+          "place_1_share_delta": -1.0,
+          "baseline_average_damage": 16.1276,
+          "variant_average_damage": 49.65866666666667,
+          "damage_delta": 33.53106666666667,
+          "baseline_average_cards_drawn": 9.0,
+          "variant_average_cards_drawn": 11.0,
+          "cards_drawn_delta": 2.0,
+          "paired_win_count": 0,
+          "paired_loss_count": 1,
+          "paired_tie_count": 0,
+          "requested_runs": 1,
+          "started_runs": 1,
+          "valid_runs": 1,
+          "failed_runs": 0,
+          "discarded_runs": 0,
+          "actual_sample_size": 1,
+          "seeds": [
+            6186750771983869879
+          ],
+          "worker_count": 1,
+          "validation_level": "structural_only",
+          "paired_or_unpaired": "paired",
+          "effect_size": 0.0,
+          "confidence_interval": [
+            -1.0,
+            -1.0
+          ],
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "worst_case_result": -1.0,
+          "scenario_weights": "equal within this paired scenario",
+          "pilot_weights": "single configured pilot: strong",
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "bayesian_shrunk_effect": -0.047619047619047616,
+          "distributionally_robust_lower_bound": -1.0,
+          "quantiles": {
+            "minimum": -1.0,
+            "q10": -1.0,
+            "q25": -1.0,
+            "median": -1.0,
+            "q75": -1.0,
+            "q90": -1.0,
+            "maximum": -1.0,
+            "mean": -1.0
+          }
+        },
+        "pair_sample": [
+          {
+            "index": 0,
+            "seed": 6186750771983869879,
+            "starting_player_seat": 0,
+            "baseline_placement": 1,
+            "variant_placement": 2,
+            "comparison": "variant_loss",
+            "baseline_log_sha256": "1f08df8d7ff24e2be8fd28f9f4d41b9490abd69d8a4baea4ae59564ba2e48bb3",
+            "variant_log_sha256": "3559b94fbb828efef9bdc70e13de0dc9b93768fadc066bf195a36ce869531237"
+          }
+        ],
+        "holdout_tests": [],
+        "sensitivity_tests": [
+          {
+            "seed": 20260807,
+            "pilot_strength": "average",
+            "placement_improvement": 0.0,
+            "place_1_share_delta": 0.0
+          }
+        ],
+        "red_team_review": {
+          "passed": false,
+          "concerns": [
+            "The primary paired comparison does not improve average placement.",
+            "Paired game outcomes do not favor the variant over the baseline."
+          ],
+          "alternative_explanations": [
+            "Retain the baseline when the effect is small relative to holdout or sensitivity variation."
+          ],
+          "automatic_application_allowed": false
+        },
+        "criteria": {
+          "minimum_place_delta": 0.01,
+          "paired_passed": false,
+          "holdout_passed": true,
+          "sensitivity_passed": true,
+          "red_team_passed": false,
+          "constraints_passed": true
+        },
+        "automatic_application": false,
+        "canonical_deck_files_modified": false
+      },
+      "automatic_application": false
+    },
+    "tactical_oracle_result": {
+      "execution_status": "not_run_no_relevant_case",
+      "validation_level": "structural_only",
+      "cases_attempted": 0,
+      "cases_passed": 0,
+      "cases_failed": 0,
+      "interaction_ids": []
+    },
+    "external_rules_result": {
+      "xmage": {
+        "execution_status": "blocked",
+        "validation_level": "structural_only",
+        "provider": "xmage",
+        "provider_status": "unavailable",
+        "runtime_kind": "unknown",
+        "reason": "set COMMANDER_LAB_XMAGE_BRIDGE_CMD to a JSONL bridge command",
+        "external_rules_engine_observations": 0,
+        "synthetic_or_tactical_substitution": false
+      },
+      "forge": {
+        "execution_status": "blocked",
+        "validation_level": "structural_only",
+        "provider": "forge",
+        "provider_status": "unavailable",
+        "runtime_kind": "unknown",
+        "reason": "set COMMANDER_LAB_FORGE_BRIDGE_CMD to a JSONL bridge command",
+        "external_rules_engine_observations": 0,
+        "synthetic_or_tactical_substitution": false
+      }
+    },
+    "coverage_gate": {
+      "deck_id": "rogshai/current",
+      "cards_checked": 2,
+      "coverage_counts": {
+        "structural_only": 2
+      },
+      "external_engine_execution_status": "blocked",
+      "external_gate_passed": false,
+      "gate_status": "blocked",
+      "highest_validation_level": "structural_only",
+      "unsupported_cards": []
+    },
+    "recommendation_status": "insufficient_evidence",
+    "evidence_ladder": [
+      "candidate_swap",
+      "formally_valid",
+      "structurally_supported",
+      "robust_in_structural_holdout",
+      "tactical_oracle_supported",
+      "external_engine_supported",
+      "provider_cross_checked",
+      "recommended_upgrade"
+    ],
+    "automatic_application": false
+  },
+  "errors": []
+}

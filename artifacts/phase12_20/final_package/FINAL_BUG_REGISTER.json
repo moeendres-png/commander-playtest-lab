@@ -1,0 +1,36 @@
+{
+  "bugs": [
+    {
+      "bug_id": "BUG-FINAL-001",
+      "severity": "medium",
+      "component": "test process lifecycle",
+      "status": "open_with_workaround",
+      "description": "Monolithic pytest can remain alive after completed test output due to child-process/pipe cleanup.",
+      "workaround": "Isolated group/file runner with process-group cleanup.",
+      "functional_test_failures": 0
+    },
+    {
+      "bug_id": "BUG-FINAL-002",
+      "severity": "low",
+      "component": "host Python environment",
+      "status": "external_environment",
+      "description": "pip check reports global moviepy 2.2.1 vs Pillow 12.2.0 conflict not introduced by Commander Lab metadata."
+    },
+    {
+      "bug_id": "BUG-FINAL-003",
+      "severity": "medium",
+      "component": "MCP release metadata",
+      "status": "fixed",
+      "description": "MCP test had hard-coded 1.10.3 server version after release bump.",
+      "fix": "Server now derives version from commander_lab.__version__; test asserts SERVER_VERSION."
+    },
+    {
+      "bug_id": "BUG-FINAL-004",
+      "severity": "high",
+      "component": "validation truth vocabulary",
+      "status": "fixed",
+      "description": "Integrated branch retained legacy tactical_validated/rules_engine_validated vocabulary and old playtest schemas.",
+      "fix": "Unified active levels to structural_only/tactical_oracle/external_rules_engine and removed manual-playtest/calibration schemas."
+    }
+  ]
+}
