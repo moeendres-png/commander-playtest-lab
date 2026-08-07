@@ -130,7 +130,7 @@ class EngineProtocolRequest(FrozenModel):
     params: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def normalize_compatibility_aliases(self) -> "EngineProtocolRequest":
+    def normalize_compatibility_aliases(self) -> EngineProtocolRequest:
         expected = self.message_type.value
         if self.method is not None and self.method != expected:
             raise ValueError("method must match message_type")
@@ -168,7 +168,7 @@ class EngineProtocolResponse(FrozenModel):
     error: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def validate_result(self) -> "EngineProtocolResponse":
+    def validate_result(self) -> EngineProtocolResponse:
         if self.ok is not None and self.ok != self.success:
             raise ValueError("ok must match success")
         if self.result is not None and self.result != self.payload:
@@ -180,7 +180,7 @@ class EngineProtocolResponse(FrozenModel):
         return self
 
     @classmethod
-    def from_wire(cls, value: dict[str, Any]) -> "EngineProtocolResponse":
+    def from_wire(cls, value: dict[str, Any]) -> EngineProtocolResponse:
         if "success" in value:
             return cls.model_validate(value)
         ok = bool(value.get("ok"))
@@ -231,7 +231,7 @@ class EngineRuntimeConfig(FrozenModel):
     java_home: str | None = None
     maven_home: str | None = None
     allow_tactical_oracle_fallback: bool = False
-    log_directory: str = "artifacts/engine_setup/logs"
+    log_directory: str = ".runtime/engine"
 
 
 class EngineProcessState(FrozenModel):

@@ -8,6 +8,10 @@ htmlcov/
 .venv/
 .env
 *.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-wal
+*.db-shm
 *.parquet
 data/runs/*
 !data/runs/.gitkeep
@@ -16,6 +20,9 @@ data/runs/*
 
 build/
 dist/
+
+# Ephemeral local runtime state
+.runtime/
 
 # Generated Phase-10 demo evidence
 artifacts/phase10/*.json

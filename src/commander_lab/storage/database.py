@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 import shutil
 import sqlite3
+from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from commander_lab.storage.atomic import atomic_write_json
 from commander_lab.storage.hashing import sha256_value
 
 SCHEMA_VERSION = 2
@@ -35,16 +35,14 @@ def connect_database(path: str | Path) -> sqlite3.Connection:
 def migrate_database(path: str | Path) -> dict[str, Any]:
     """Migrate the active database and remove known manual-playtest-only tables.
 
-    Historical Git artifacts are untouched.  The database records whether legacy
+    Historical Git artifacts are untouched. The database records whether legacy
     tables were removed so callers can distinguish a clean database from a migrated one.
     """
     removed: list[str] = []
-    with connect_database(path) as connection:
+    with closing(connect_database(path)) as connection, connection:
         existing = {
             row[0]
-            for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
+            for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
         for table in LEGACY_MANUAL_PLAYTEST_TABLES:
             if table in existing:
@@ -96,9 +94,14 @@ def migrate_database(path: str | Path) -> dict[str, Any]:
 def check_database(path: str | Path) -> dict[str, Any]:
     database = Path(path)
     if not database.exists():
-        return {"status": "missing", "integrity": False, "foreign_keys": False, "schema_version": None}
+        return {
+            "status": "missing",
+            "integrity": False,
+            "foreign_keys": False,
+            "schema_version": None,
+        }
     try:
-        with connect_database(database) as connection:
+        with closing(connect_database(database)) as connection, connection:
             integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
             foreign_keys = connection.execute("PRAGMA foreign_key_check").fetchall()
             row = connection.execute(
@@ -123,8 +126,8 @@ def check_database(path: str | Path) -> dict[str, Any]:
         "integrity": integrity == "ok",
         "foreign_keys": not foreign_keys,
         "schema_version": int(row[0]) if row else None,
-        "manual_playtest_migration_status": migration_row[0] if migration_row else "unknown",
-        "manual_playtest_removed_tables": json.loads(removed_row[0]) if removed_row else [],
+        "manual_playtest_migration_status": (migration_row[0] if migration_row else "unknown"),
+        "manual_playtest_removed_tables": (json.loads(removed_row[0]) if removed_row else []),
     }
 
 
@@ -162,13 +165,21 @@ def restore_database(backup: str | Path, destination: str | Path) -> Path:
 
 
 def seal_experiment(path: str | Path, payload: dict[str, Any]) -> dict[str, Any]:
-    required = {"experiment_id", "hypothesis", "baseline", "variant", "scenarios", "seeds", "acceptance_criteria"}
+    required = {
+        "experiment_id",
+        "hypothesis",
+        "baseline",
+        "variant",
+        "scenarios",
+        "seeds",
+        "acceptance_criteria",
+    }
     missing = sorted(required - payload.keys())
     if missing:
         raise ValueError(f"experiment payload missing fields: {missing}")
     sealed = {key: payload[key] for key in sorted(payload)}
     digest = sha256_value(sealed)
-    with connect_database(path) as connection:
+    with closing(connect_database(path)) as connection, connection:
         existing = connection.execute(
             "SELECT sealed_payload_hash FROM experiments WHERE experiment_id=?",
             (payload["experiment_id"],),
@@ -176,8 +187,14 @@ def seal_experiment(path: str | Path, payload: dict[str, Any]) -> dict[str, Any]
         if existing and existing[0] != digest:
             raise ValueError("sealed experiment hypothesis or design cannot be changed")
         connection.execute(
-            "INSERT OR IGNORE INTO experiments(experiment_id,sealed_payload_json,sealed_payload_hash,created_at) "
-            "VALUES(?,?,?,?)",
-            (payload["experiment_id"], json.dumps(sealed, sort_keys=True), digest, datetime.now(UTC).isoformat()),
+            "INSERT OR IGNORE INTO experiments("
+            "experiment_id,sealed_payload_json,sealed_payload_hash,created_at"
+            ") VALUES(?,?,?,?)",
+            (
+                payload["experiment_id"],
+                json.dumps(sealed, sort_keys=True),
+                digest,
+                datetime.now(UTC).isoformat(),
+            ),
         )
     return {"experiment_id": payload["experiment_id"], "sealed_payload_hash": digest}

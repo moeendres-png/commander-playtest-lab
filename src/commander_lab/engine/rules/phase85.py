@@ -1,23 +1,20 @@
 from __future__ import annotations
 
 import json
-import os
-import subprocess
 import sys
-import uuid
+from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from commander_lab.engine.process_manager import EngineProcessManager, load_engine_runtime_config
-from commander_lab.storage.atomic import atomic_write_json
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     EngineMessageType,
     EngineReplay,
-    EngineRuntimeConfig,
     RuntimeValidationLevel,
 )
+from commander_lab.storage.atomic import atomic_write_json
 
 from .bridge import JsonLineBridgeClient
 from .protocol import write_protocol_schema
@@ -44,56 +41,89 @@ def _utc() -> str:
 
 
 def _tactical_contract(root: Path) -> dict[str, Any]:
-    """Exercise every declared JSONL message against one persistent tactical bridge.
+    """Exercise every declared JSONL envelope without relying on shutdown races.
 
-    A structured error counts as envelope coverage. Reusing a single process avoids the
-    large import/startup cost of launching one Python bridge for every message type.
+    Non-terminal messages share one persistent tactical bridge. Terminal shutdown
+    messages each use their own bridge process because they intentionally end the
+    process. A structured protocol error still counts as envelope coverage, but
+    semantic success is required for the Tactical-Oracle hello/capability evidence.
     This remains local protocol evidence, never external-engine evidence.
     """
-    exercised: list[str] = []
-    structured: dict[str, str] = {}
-    client = JsonLineBridgeClient(
-        (sys.executable, str(root / "scripts/tactical_rules_bridge.py")),
-        cwd=root,
-        engine="tactical",
-        protocol_version=ENGINE_PROTOCOL_VERSION,
-        request_timeout_seconds=5,
+    declared = [item.value for item in EngineMessageType]
+    terminal_kinds = (
+        EngineMessageType.SHUTDOWN_GAME,
+        EngineMessageType.SHUTDOWN_ENGINE,
     )
+    attempted: set[str] = set()
+    execution_order: list[str] = []
+    structured: dict[str, str] = {}
     hello: dict[str, Any] = {}
     caps: dict[str, Any] = {}
-    try:
-        for kind in EngineMessageType:
-            params: dict[str, Any] = {}
-            game_id = None if kind in {
+
+    def make_client() -> JsonLineBridgeClient:
+        return JsonLineBridgeClient(
+            (sys.executable, str(root / "scripts/tactical_rules_bridge.py")),
+            cwd=root,
+            engine="tactical",
+            protocol_version=ENGINE_PROTOCOL_VERSION,
+            request_timeout_seconds=5,
+        )
+
+    def exercise(client: JsonLineBridgeClient, kind: EngineMessageType) -> None:
+        nonlocal hello, caps
+        params: dict[str, Any] = {}
+        game_id = (
+            None
+            if kind
+            in {
                 EngineMessageType.ENGINE_HELLO,
                 EngineMessageType.ENGINE_CAPABILITIES,
                 EngineMessageType.LOAD_DECK,
                 EngineMessageType.CREATE_GAME,
-            } else "missing-game"
-            try:
-                payload = client.request(kind, params, game_id=game_id)
-                structured[kind.value] = "success"
-                if kind == EngineMessageType.ENGINE_HELLO:
-                    hello = payload
-                elif kind == EngineMessageType.ENGINE_CAPABILITIES:
-                    caps = payload
-            except Exception as exc:
-                # The request reached the bridge and produced a deterministic structured
-                # protocol failure; semantic success is not required for this contract test.
-                if "bridge message" in str(exc):
-                    structured[kind.value] = "structured_error"
-                else:
-                    structured[kind.value] = f"client_error:{type(exc).__name__}"
-            exercised.append(kind.value)
+            }
+            else "missing-game"
+        )
+        attempted.add(kind.value)
+        execution_order.append(kind.value)
+        try:
+            payload = client.request(kind, params, game_id=game_id)
+            structured[kind.value] = "success"
+            if kind == EngineMessageType.ENGINE_HELLO:
+                hello = payload
+            elif kind == EngineMessageType.ENGINE_CAPABILITIES:
+                caps = payload
+        except Exception as exc:
+            # A deterministic structured protocol failure still proves envelope coverage.
+            if "bridge message" in str(exc):
+                structured[kind.value] = "structured_error"
+            else:
+                structured[kind.value] = f"client_error:{type(exc).__name__}"
+
+    client = make_client()
+    try:
+        for kind in EngineMessageType:
+            if kind not in terminal_kinds:
+                exercise(client, kind)
         unknown_rejected = False
         try:
             client.request("unknown_message")
         except Exception:
             unknown_rejected = True
     finally:
-        client.close()
+        # Windows may invalidate a completed subprocess pipe before TextIOWrapper.close().
+        # Cleanup must not turn a completed contract exercise into a validation failure.
+        with suppress(OSError):
+            client.close()
 
-    declared = [item.value for item in EngineMessageType]
+    for kind in terminal_kinds:
+        terminal_client = make_client()
+        try:
+            exercise(terminal_client, kind)
+        finally:
+            with suppress(OSError):
+                terminal_client.close()
+
+    exercised = [name for name in declared if name in attempted]
     all_exercised = exercised == declared
     return {
         "status": "passed" if all_exercised and unknown_rejected else "failed",
@@ -104,6 +134,7 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
             and unknown_rejected
         ),
         "exercised": exercised,
+        "execution_order": execution_order,
         "declared_message_types": declared,
         "message_outcomes": structured,
         "all_message_envelopes_covered_by_contract_tests": all_exercised,
@@ -135,12 +166,16 @@ def _replay_contract() -> dict[str, Any]:
                 "commander_cast_count": {"Commander A": 1},
                 "mana_pool": {},
                 "zones": {
-                    "library": ["Card B"], "hand": [], "battlefield": ["Land A"],
-                    "graveyard": [], "exile": [], "command": ["Commander A"]
+                    "library": ["Card B"],
+                    "hand": [],
+                    "battlefield": ["Land A"],
+                    "graveyard": [],
+                    "exile": [],
+                    "command": ["Commander A"],
                 },
                 "land_plays_remaining": 0,
                 "has_lost": False,
-                "loss_reason": None
+                "loss_reason": None,
             },
             {
                 "player_id": "p2",
@@ -151,27 +186,33 @@ def _replay_contract() -> dict[str, Any]:
                 "commander_cast_count": {},
                 "mana_pool": {},
                 "zones": {
-                    "library": ["Card C"], "hand": [], "battlefield": [],
-                    "graveyard": [], "exile": [], "command": ["Commander B"]
+                    "library": ["Card C"],
+                    "hand": [],
+                    "battlefield": [],
+                    "graveyard": [],
+                    "exile": [],
+                    "command": ["Commander B"],
                 },
                 "land_plays_remaining": 1,
                 "has_lost": False,
-                "loss_reason": None
-            }
+                "loss_reason": None,
+            },
         ],
         "stack": [],
         "legal_actions": [],
         "winner_ids": [],
-        "event_sequence": 2
+        "event_sequence": 2,
     }
     event = {
         "sequence": 2,
         "event_type": "state_snapshot",
         "internal_state_after": state,
     }
-    digest = __import__("hashlib").sha256(
-        json.dumps([event], sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    digest = (
+        __import__("hashlib")
+        .sha256(json.dumps([event], sort_keys=True, separators=(",", ":")).encode())
+        .hexdigest()
+    )
     replay = EngineReplay(
         engine="tactical",
         engine_version="tactical-0.8.5",
@@ -192,7 +233,11 @@ def _replay_contract() -> dict[str, Any]:
     }
 
 
-def run_phase85_validation(root: str | Path, *, output_directory: str | Path) -> dict[str, Any]:
+def run_phase85_validation(
+    root: str | Path,
+    *,
+    output_directory: str | Path,
+) -> dict[str, Any]:
     repo = Path(root).resolve()
     output = Path(output_directory)
     if not output.is_absolute():
@@ -230,9 +275,7 @@ def run_phase85_validation(root: str | Path, *, output_directory: str | Path) ->
     ]
     full_external = all(external_tests.values())
     status = (
-        "external_engine_ready"
-        if full_external
-        else "external_runtime_prepared_but_not_executed"
+        "external_engine_ready" if full_external else "external_runtime_prepared_but_not_executed"
     )
     result = {
         "phase": "8.5",
