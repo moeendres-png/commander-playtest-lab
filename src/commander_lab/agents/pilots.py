@@ -1004,6 +1004,42 @@ class GenericCommanderPilot(BasePilot):
     pilot_name = "GenericCommanderPilot"
 
 
+class KaervekOpponentPilot(GenericCommanderPilot):
+    """Visible-state structural policy for the verified Kaervek opponent snapshot.
+
+    It biases toward mana development, board-control timing and independent value before
+    exposing the seven-mana commander. It does not inspect hidden information.
+    """
+
+    pilot_name = "KaervekOpponentPilot"
+
+    def opening_hand_specialist_bonus(self, cards, commander_names):  # type: ignore[no-untyped-def]
+        del commander_names
+        early_ramp = sum(card.strength(CardRole.RAMP) for card in cards if card.mana_cost <= 3)
+        early_draw = sum((card.strength(CardRole.DRAW) + card.strength(CardRole.SELECTION)) for card in cards if card.mana_cost <= 3)
+        early_removal = sum(card.strength(CardRole.REMOVAL) for card in cards if card.mana_cost <= 3)
+        expensive = sum(card.mana_cost >= 6 for card in cards)
+        return min(1.2, early_ramp * 0.3) + min(0.6, early_draw * 0.2) + min(0.5, early_removal * 0.15) - max(0, expensive - 1) * 0.25
+
+    def specialist_bonus(self, state, action, components):  # type: ignore[no-untyped-def]
+        del components
+        name = action.card_name or ""
+        bonus = 0.0
+        if name == "Kaervek the Merciless":
+            # Avoid blind early exposure; reward the commander once mana/turn development is mature.
+            bonus += 1.0 if state.turn >= 6 else -1.0
+            bonus += min(0.5, action.remaining_mana * 0.12)
+        elif name == "Tor Wauki the Younger":
+            bonus += 0.55
+        elif name in {"Sorin Markov", "Chandra Nalaar"}:
+            bonus += 0.25
+        elif CardRole.WIPE in action.roles:
+            bonus += min(0.8, max(0.0, state.enemy_board_total - state.board_power) * 0.08)
+        elif CardRole.GRAVEYARD_HATE in action.roles:
+            bonus += min(0.6, state.max_graveyard_pressure * 0.06)
+        return bonus
+
+
 _PILOT_TYPES: dict[str, type[BasePilot]] = {
     "korvoldpilot": KorvoldPilot,
     "rogshaipilot": RogShaiPilot,
@@ -1013,6 +1049,7 @@ _PILOT_TYPES: dict[str, type[BasePilot]] = {
     "graveyardpilot": GraveyardPilot,
     "artifactpilot": ArtifactPilot,
     "genericcommanderpilot": GenericCommanderPilot,
+    "kaervekopponentpilot": KaervekOpponentPilot,
     "korvoldvaluepilot": KorvoldValuePilot,
     "korvoldsacrificepilot": KorvoldSacrificePilot,
     "korvoldlandrebuildpilot": KorvoldLandRebuildPilot,
@@ -1042,6 +1079,8 @@ def auto_pilot_name(strategy: str) -> str:
         return "GraveyardPilot"
     if normalized == "artifact":
         return "ArtifactPilot"
+    if normalized in {"kaervek", "punisher_control_reanimation"}:
+        return "KaervekOpponentPilot"
     return "GenericCommanderPilot"
 
 
@@ -1061,6 +1100,7 @@ __all__ = [
     "ControlPilot",
     "EnginePilot",
     "GenericCommanderPilot",
+    "KaervekOpponentPilot",
     "GraveyardPilot",
     "KorvoldPilot",
     "KorvoldValuePilot",

@@ -928,9 +928,12 @@ class StructuralSimulator:
         player.commander_tax_paid += tax
         if player.first_commander_cast_turn is None:
             player.first_commander_cast_turn = player.current_turn
-        self._notify_spell_cast(player, players)
+        commander_mv = next((card.mana_value for card in player.deck.cards if card.oracle_name == name), commander.base_cost)
+        pending_cast_triggers = self._notify_spell_cast(player, players, mana_value=commander_mv, recorder=recorder)
         recorder.emit("commander_cast", actor_id=player.player_id, payload={"card": name, "cost": cost, "tax": tax, "turn": player.current_turn})
-        if self._attempt_counter(player, players, score + 1.0, recorder):
+        was_countered = self._attempt_counter(player, players, score + 1.0, recorder)
+        self._resolve_cast_triggers(pending_cast_triggers, recorder)
+        if was_countered:
             recorder.emit("commander_countered", actor_id=player.player_id, payload={"card": name})
             return False
         commander.on_battlefield = True
@@ -956,7 +959,7 @@ class StructuralSimulator:
         player.hand.remove(card)
         self._pay(player, card.mana_value)
         player.spell_count += 1
-        self._notify_spell_cast(player, players)
+        pending_cast_triggers = self._notify_spell_cast(player, players, mana_value=card.mana_value, recorder=recorder)
         recorder.emit(
             "spell_cast",
             actor_id=player.player_id,
@@ -968,14 +971,19 @@ class StructuralSimulator:
                 "turn": player.current_turn,
             },
         )
-        if self._attempt_counter(player, players, score, recorder):
+        was_countered = self._attempt_counter(player, players, score, recorder)
+        self._resolve_cast_triggers(pending_cast_triggers, recorder)
+        if was_countered:
             player.graveyard.append(card)
             recorder.emit("spell_countered", actor_id=player.player_id, payload={"card": card.oracle_name})
             return False
         self._resolve_card(player, card, players, recorder)
         return True
 
-    def _notify_spell_cast(self, actor: _Player, players: Iterable[_Player]) -> None:
+    def _notify_spell_cast(
+        self, actor: _Player, players: Iterable[_Player], *, mana_value: float, recorder: _EventRecorder
+    ) -> list[tuple[_Player, _Player, float]]:
+        pending: list[tuple[_Player, _Player, float]] = []
         for player in players:
             if player.player_id == actor.player_id or not player.alive:
                 continue
@@ -986,6 +994,30 @@ class StructuralSimulator:
                 player.commander_peak_power[ishai.name] = max(
                     player.commander_peak_power.get(ishai.name, 0.0), ishai.power
                 )
+            kaervek = player.commanders.get("Kaervek the Merciless")
+            if kaervek is not None and kaervek.on_battlefield and mana_value > 0:
+                pending.append((player, actor, mana_value))
+                recorder.emit(
+                    "kaervek_trigger_created",
+                    actor_id=player.player_id,
+                    payload={"target_player_id": actor.player_id, "damage": mana_value},
+                )
+        return pending
+
+    @staticmethod
+    def _resolve_cast_triggers(
+        pending: list[tuple[_Player, _Player, float]], recorder: _EventRecorder
+    ) -> None:
+        for source, target, damage in pending:
+            if not source.alive or not target.alive:
+                continue
+            target.life -= damage
+            source.normal_damage_dealt += damage
+            recorder.emit(
+                "kaervek_trigger_resolved",
+                actor_id=source.player_id,
+                payload={"target_player_id": target.player_id, "damage": damage, "trigger_survived_counter": True},
+            )
 
     def _attempt_counter(
         self,
