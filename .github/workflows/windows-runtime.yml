@@ -40,6 +40,9 @@ jobs:
       - name: Atomic and runtime regression tests
         shell: pwsh
         run: python -m pytest -q tests/unit/test_atomic_storage.py tests/unit/test_runtime_hygiene.py
+      - name: Phase 8.5 Windows contract tests
+        shell: pwsh
+        run: python -m pytest -q tests/contract/test_phase86_phase85_claims.py tests/integration/test_phase85_validation.py
       - name: Full Windows test suite
         shell: pwsh
         run: python -m pytest -q
