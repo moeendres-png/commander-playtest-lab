@@ -181,9 +181,11 @@ def _replay_contract() -> dict[str, Any]:
         "event_type": "state_snapshot",
         "internal_state_after": state,
     }
-    digest = __import__("hashlib").sha256(
-        json.dumps([event], sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    digest = (
+        __import__("hashlib")
+        .sha256(json.dumps([event], sort_keys=True, separators=(",", ":")).encode())
+        .hexdigest()
+    )
     replay = EngineReplay(
         engine="tactical",
         engine_version="tactical-0.8.5",
@@ -246,9 +248,7 @@ def run_phase85_validation(
     ]
     full_external = all(external_tests.values())
     status = (
-        "external_engine_ready"
-        if full_external
-        else "external_runtime_prepared_but_not_executed"
+        "external_engine_ready" if full_external else "external_runtime_prepared_but_not_executed"
     )
     result = {
         "phase": "8.5",
