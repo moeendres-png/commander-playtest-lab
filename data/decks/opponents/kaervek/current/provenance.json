@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "snapshot_id": "kaervek/current",
   "snapshot_date": "2026-08-07",
-  "deck_hash": "c2ff0589415b90c8d1f60b948230b271ec3cede697119ff6ef3ed7fea0765dcd",
+  "deck_hash": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
   "source_type": "opponent_snapshot",
   "derived_from": {
     "source_type": "owned_verified_deck",
@@ -15,5 +15,6 @@
     "deck_id": "opponent/kaervek-reference",
     "structural_hash": "dd74f8cbb9ee1198e9c7d05408b9362efb4e20cf6ca1335c4162a5e7c37910dd",
     "status": "superseded"
-  }
+  },
+  "last_user_correction": "2026-08-07 Midnight Reaper -> Warstorm Surge (Leons Box)"
 }

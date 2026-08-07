@@ -5,7 +5,7 @@
   "commander": "Kaervek the Merciless",
   "verified_full_list": true,
   "snapshot_date": "2026-08-07",
-  "deck_hash": "c2ff0589415b90c8d1f60b948230b271ec3cede697119ff6ef3ed7fea0765dcd",
+  "deck_hash": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
   "source_drive_id": "1n4wUDx7jMheUps8tkqRSa64QSV1DFdI1",
   "source_xlsx_drive_id": "1n2z0Vc4pfeE_lwlWynL5IStrGGFrH8R5",
   "cards": [
@@ -262,16 +262,16 @@
       "box_or_source": "Alens Box"
     },
     {
-      "oracle_name": "Midnight Reaper",
-      "printed_name_de": "Mitternachts-Sensenmann",
+      "oracle_name": "Warstorm Surge",
+      "printed_name_de": "Anschwellender Kriegssturm",
       "quantity": 1,
       "zone": "main",
-      "mana_cost": "{2}{B}",
-      "mana_value": 3.0,
-      "color_identity": "B",
-      "card_type": "Creature — Zombie Knight",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "mana_cost": "{5}{R}",
+      "mana_value": 6.0,
+      "color_identity": "R",
+      "card_type": "Enchantment",
+      "source_category": "Leon",
+      "box_or_source": "Leons Box"
     },
     {
       "oracle_name": "Nullpriest of Oblivion",
@@ -933,5 +933,6 @@
       "source_category": "basic-land",
       "box_or_source": "basic-land"
     }
-  ]
+  ],
+  "snapshot_note": "User correction 2026-08-07: Midnight Reaper not found physically; replaced by Warstorm Surge from Leons Box."
 }

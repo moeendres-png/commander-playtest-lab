@@ -7713,9 +7713,9 @@
     },
     {
       "oracle_name": "Midnight Reaper",
-      "quantity": 1,
-      "currently_owned": true,
-      "current_deck_use": "frei / keine aktuelle Deckzuweisung",
+      "quantity": 0,
+      "currently_owned": false,
+      "current_deck_use": "not available — user could not locate physical copy 2026-08-07",
       "commander_legality": "legal",
       "color_identity": "B",
       "mana_cost": "{2}{B}",
