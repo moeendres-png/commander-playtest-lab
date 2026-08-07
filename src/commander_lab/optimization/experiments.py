@@ -15,6 +15,10 @@ from commander_lab.models import (
     VariantSwap,
 )
 from commander_lab.storage import sha256_value
+from commander_lab.decision_statistics import (
+    bayesian_shrunk_mean, distributionally_robust_lower_bound,
+    paired_bootstrap_interval, paired_standardized_effect, quantile_summary,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,6 +39,28 @@ class PairedMetrics:
     paired_win_count: int
     paired_loss_count: int
     paired_tie_count: int
+    requested_runs: int
+    started_runs: int
+    valid_runs: int
+    failed_runs: int
+    discarded_runs: int
+    actual_sample_size: int
+    seeds: tuple[int, ...]
+    worker_count: int
+    validation_level: str
+    paired_or_unpaired: str
+    effect_size: float
+    confidence_interval: tuple[float, float]
+    bootstrap_method: str
+    holdout_definition: str
+    worst_case_result: float
+    scenario_weights: str
+    pilot_weights: str
+    multiple_testing_method: str
+    rounding_policy: str
+    bayesian_shrunk_effect: float
+    distributionally_robust_lower_bound: float
+    quantiles: dict[str, float]
 
     def as_dict(self) -> dict[str, float | int]:
         return {name: getattr(self, name) for name in self.__dataclass_fields__}
@@ -215,6 +241,13 @@ def run_paired_structural_comparison(
     avg = lambda rows, key: fmean(row[key] for row in rows)
     base_place = avg(base_rows, "placement")
     var_place = avg(var_rows, "placement")
+    differences = tuple(
+        float(row["baseline_placement"]) - float(row["variant_placement"])
+        for row in pairs
+    )
+    interval = paired_bootstrap_interval(
+        differences, seed=derive_paired_seed(seed, pair_id, iterations + 1)
+    )
     metrics = PairedMetrics(
         games=iterations,
         baseline_average_placement=base_place,
@@ -232,5 +265,27 @@ def run_paired_structural_comparison(
         paired_win_count=sum(row["comparison"] == "variant_win" for row in pairs),
         paired_loss_count=sum(row["comparison"] == "variant_loss" for row in pairs),
         paired_tie_count=sum(row["comparison"] == "tie" for row in pairs),
+        requested_runs=iterations,
+        started_runs=iterations,
+        valid_runs=len(pairs),
+        failed_runs=0,
+        discarded_runs=0,
+        actual_sample_size=len(pairs),
+        seeds=tuple(int(row["seed"]) for row in pairs),
+        worker_count=1,
+        validation_level="structural_only",
+        paired_or_unpaired="paired",
+        effect_size=paired_standardized_effect(differences),
+        confidence_interval=interval,
+        bootstrap_method="deterministic_paired_percentile_bootstrap_2000",
+        holdout_definition="primary paired scenario; holdouts reported separately",
+        worst_case_result=min(differences),
+        scenario_weights="equal within this paired scenario",
+        pilot_weights=f"single configured pilot: {pilot_config.strength.value}",
+        multiple_testing_method="not_applicable_single_comparison; Holm required for ranked families",
+        rounding_policy="unrounded internal values; presentation may round to six decimals",
+        bayesian_shrunk_effect=bayesian_shrunk_mean(differences),
+        distributionally_robust_lower_bound=distributionally_robust_lower_bound(differences),
+        quantiles=quantile_summary(differences),
     )
     return metrics, pairs

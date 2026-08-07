@@ -134,6 +134,7 @@ from commander_lab.optimization import (
     run_paired_structural_comparison,
     variant_deck,
 )
+from commander_lab.decision_statistics import holm_adjust
 from commander_lab.storage import (
     atomic_write_json,
     atomic_write_text,
@@ -2368,9 +2369,19 @@ class CommanderToolService:
                 coverage = {"external_rules_engine": 3, "tactical_oracle": 2, "structural_only": 1}.get(row.get("rules_coverage"), 0)
                 return (worst if request.prefer_worst_case else paired, paired, float(coverage))
             ranked = sorted((dict(row) for row in request.variants), key=score, reverse=True)
+            p_rows = [(index, row.get("p_value")) for index, row in enumerate(ranked) if row.get("p_value") is not None]
+            if p_rows:
+                adjusted = holm_adjust(float(value) for _, value in p_rows)
+                for (index, _), value in zip(p_rows, adjusted, strict=True):
+                    ranked[index]["holm_adjusted_p_value"] = value
             for index, row in enumerate(ranked, start=1):
                 row["rank"] = index
-            return {"ranked_variants": ranked, "method": "worst_case_then_paired_then_coverage", "automatic_application": False}
+            return {
+                "ranked_variants": ranked,
+                "method": "worst_case_then_paired_then_coverage",
+                "multiple_testing_method": "Holm family-wise correction when p-values are supplied",
+                "automatic_application": False,
+            }
         return self._invoke("rank_variants", request, work)
 
     def explain_recommendation(self, request: ExplainRecommendationInput) -> ToolResponse:

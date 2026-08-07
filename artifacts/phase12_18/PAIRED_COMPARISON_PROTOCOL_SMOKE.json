@@ -1,0 +1,210 @@
+{
+  "errors": [],
+  "metadata": {
+    "configuration_hash": "1b6940ed0a98a606c8d5a810abe2c9051628be9e0d205ce709b34effbeb5e552",
+    "created_at": "2026-08-07T01:58:24.646255Z",
+    "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+    "deck_hashes": {
+      "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+      "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+      "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+    },
+    "deterministic_game_log_directory": null,
+    "elapsed_seconds": 1.224443226999938,
+    "engine_version": "structural-0.6.0",
+    "estimate_type": "structural_model_estimates",
+    "git_commit": "e0db776604b91483a973e8297f3defb3738c8085",
+    "invocation_id": "compare_variants_paired-1db8fdc91f43",
+    "iterations": 10,
+    "openai_trace_directory": "/mnt/data/cplab_work/commander-playtest-lab/data/runs/openai_traces",
+    "opponent_hashes": {
+      "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+      "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+      "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+    },
+    "pilot_version": "strong",
+    "scenario_hash": "1b6940ed0a98a606c8d5a810abe2c9051628be9e0d205ce709b34effbeb5e552",
+    "seed": 20260807,
+    "tool_name": "compare_variants_paired"
+  },
+  "result": {
+    "baseline_deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+    "comparison": {
+      "actual_sample_size": 10,
+      "baseline_average_cards_drawn": 21.5,
+      "baseline_average_damage": 62.89255670136,
+      "baseline_average_placement": 1.0,
+      "baseline_place_1_share": 1.0,
+      "bayesian_shrunk_effect": 0.0,
+      "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+      "cards_drawn_delta": 2.0,
+      "confidence_interval": [
+        0.0,
+        0.0
+      ],
+      "damage_delta": 1.3126264246399941,
+      "discarded_runs": 0,
+      "distributionally_robust_lower_bound": 0.0,
+      "effect_size": 0.0,
+      "failed_runs": 0,
+      "games": 10,
+      "holdout_definition": "primary paired scenario; holdouts reported separately",
+      "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+      "paired_loss_count": 0,
+      "paired_or_unpaired": "paired",
+      "paired_tie_count": 10,
+      "paired_win_count": 0,
+      "pilot_weights": "single configured pilot: strong",
+      "place_1_share_delta": 0.0,
+      "placement_improvement": 0.0,
+      "quantiles": {
+        "maximum": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "minimum": 0.0,
+        "q10": 0.0,
+        "q25": 0.0,
+        "q75": 0.0,
+        "q90": 0.0
+      },
+      "requested_runs": 10,
+      "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+      "scenario_weights": "equal within this paired scenario",
+      "seeds": [
+        479115865244650130,
+        11160862709067575203,
+        3258671234330782297,
+        17773853048394107068,
+        14919504529685619049,
+        3238336106145963542,
+        16050858927043416887,
+        9602592098219382490,
+        18033803285273173545,
+        9857994810223166362
+      ],
+      "started_runs": 10,
+      "valid_runs": 10,
+      "validation_level": "structural_only",
+      "variant_average_cards_drawn": 23.5,
+      "variant_average_damage": 64.205183126,
+      "variant_average_placement": 1.0,
+      "variant_place_1_share": 1.0,
+      "worker_count": 1,
+      "worst_case_result": 0.0
+    },
+    "pair_sample": [
+      {
+        "baseline_log_sha256": "3e7d2ce1eea8a04ae2731751d9edae0792c23063a47fcfeded11d0841c860d8e",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 0,
+        "seed": 479115865244650130,
+        "starting_player_seat": 0,
+        "variant_log_sha256": "6b3c12ad64f3c6f40be1bad32a53094b9cab6a5c64359d023b64919b54e50124",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "c4208b9688d878b00a7c0c1e51a67dabd5c4154645d18de63429c4f302305797",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 1,
+        "seed": 11160862709067575203,
+        "starting_player_seat": 1,
+        "variant_log_sha256": "143fc99a90e9f27d8832507b661cd55677792d6fc768dea0600cb7028f77fbe5",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "06855946f088d0cf49a6fd322db02e5610d8b6617a8871d4de68e6120cfe1e05",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 2,
+        "seed": 3258671234330782297,
+        "starting_player_seat": 2,
+        "variant_log_sha256": "9c0b9507490dc2d034e9c29dc79e59a1445e151aa7fe018e36d360d01489c562",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "c47cb55ced5c411f6deeb029a7b8cf6440b25da1239c0c783f229f6983ec66f1",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 3,
+        "seed": 17773853048394107068,
+        "starting_player_seat": 3,
+        "variant_log_sha256": "a9676b357030b89ecdc9ec88177def66bb56bd54f9d45f1cf2709fe7dc58fa4d",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "c1f82d2597f9878d3cda48d1448d4d3483510c3c3d1978dc4c9217bb3f47ef5c",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 4,
+        "seed": 14919504529685619049,
+        "starting_player_seat": 0,
+        "variant_log_sha256": "1f15147ab14c650d98635de04ef9bf385c8f52523c651b3c19944c6bf5f15df8",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "23ecc2b517e9c6c692a8e88b497454106cd34a10c456521ebd72ce3ee974e095",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 5,
+        "seed": 3238336106145963542,
+        "starting_player_seat": 1,
+        "variant_log_sha256": "116ebbbab58176d7bf9fb8ee1f7e754e902c589a7b318414e416091af1b8506b",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "5f2ac81362d66df975c9cbd1ba6891756abd17ab935f1587b827fbeb28843001",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 6,
+        "seed": 16050858927043416887,
+        "starting_player_seat": 2,
+        "variant_log_sha256": "fc452301cdc3b5be15cb9ca8aec6e7c7b273130c49f993c1bd7af92ddb2342f5",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "c5613137b1dbe8edf922ed65e0bdff672e598ad8816a738f61a2c4246f4c75e9",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 7,
+        "seed": 9602592098219382490,
+        "starting_player_seat": 3,
+        "variant_log_sha256": "fd775e1d1c4246ebcbd66dd753f25ba3c8fcd359f7e73d8ddeeced202cb0b524",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "f7d049ff6d73ce6c9cd563e45f544904da0b9279c2a05e11da77a56f9ef74d17",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 8,
+        "seed": 18033803285273173545,
+        "starting_player_seat": 0,
+        "variant_log_sha256": "2ed0e5caec070c258f4dad32ae0741f1e242637c9729a45ceb959e4606f422c8",
+        "variant_placement": 1
+      },
+      {
+        "baseline_log_sha256": "3a69b36eb101ee4083ff554148cd248ae54f08b1b0a73592cf7069bc6fee6a01",
+        "baseline_placement": 1,
+        "comparison": "tie",
+        "index": 9,
+        "seed": 9857994810223166362,
+        "starting_player_seat": 1,
+        "variant_log_sha256": "9dcccec2074886ad4d76495c648fa95eeef060bf696dbcc94d20db342c34420c",
+        "variant_placement": 1
+      }
+    ],
+    "swaps": [
+      {
+        "add": "Idol of Oblivion",
+        "candidate_id": "korvold/idol-of-oblivion",
+        "physical_status": "local_project_verified_owned",
+        "remove": "Scouring Swarm"
+      }
+    ],
+    "variant_deck_hash": "6a89082e9da4ecf227ec8c9c96298c396659e77ca791dd074b443e2e4430c60f"
+  },
+  "status": "completed",
+  "warnings": []
+}
