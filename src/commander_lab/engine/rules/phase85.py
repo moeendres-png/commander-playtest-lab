@@ -78,8 +78,6 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
                 elif kind == EngineMessageType.ENGINE_CAPABILITIES:
                     caps = payload
             except Exception as exc:
-                # The request reached the bridge and produced a deterministic structured
-                # protocol failure; semantic success is not required for this contract test.
                 if "bridge message" in str(exc):
                     structured[kind.value] = "structured_error"
                 else:
@@ -219,27 +217,33 @@ def run_phase85_validation(root: str | Path, *, output_directory: str | Path) ->
         "event_log": False,
         "illegal_action_rejected": False,
     }
+    full_external = all(external_tests.values())
     scenarios = [
         {
             "scenario": name,
-            "status": "manual_review_required" if not external_ready else "adapter_failed",
+            "status": "manual_review_required",
             "validation_level": RuntimeValidationLevel.STRUCTURAL_ONLY.value,
-            "note": "No external XMage/Forge runtime was executed in this environment.",
+            "note": (
+                "No scenario-level external XMage/Forge result was produced by this validation run."
+            ),
         }
         for name in PROJECT_SCENARIOS
     ]
-    full_external = all(external_tests.values())
     status = (
-        "external_engine_ready"
+        "external_engine_validated"
         if full_external
-        else "external_runtime_prepared_but_not_executed"
+        else (
+            "external_runtime_handshake_only"
+            if external_ready
+            else "external_runtime_prepared_but_not_executed"
+        )
     )
     result = {
         "phase": "8.5",
         "version": PHASE85_VERSION,
         "generated_at": _utc(),
         "status": status,
-        "external_engine_validation_pending": not external_ready,
+        "external_engine_validation_pending": not full_external,
         "primary_engine": "xmage",
         "secondary_engine": "forge",
         "installed_or_pinned": {
@@ -264,7 +268,7 @@ def run_phase85_validation(root: str | Path, *, output_directory: str | Path) ->
         "phase9_may_begin": True,
         "phase9_condition": "external_engine_validation_pending=true",
         "claims_boundary": (
-            "Tactical Oracle results are local fixtures and are not external rules-engine evidence."
+            "Tactical Oracle and handshake-only results are not external rules-engine semantic evidence."
         ),
     }
     target = output / "phase85_validation_output.json"
