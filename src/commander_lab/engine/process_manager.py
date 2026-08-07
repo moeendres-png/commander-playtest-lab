@@ -53,7 +53,7 @@ def load_engine_runtime_config(env: Mapping[str, str] | None = None) -> EngineRu
         allow_tactical_oracle_fallback=source.get(
             "ALLOW_TACTICAL_ORACLE_FALLBACK", "false"
         ).lower() in {"1", "true", "yes"},
-        log_directory=source.get("ENGINE_LOG_DIRECTORY", "artifacts/engine_setup/logs"),
+        log_directory=source.get("ENGINE_LOG_DIRECTORY", ".runtime/engine"),
     )
 
 
@@ -138,6 +138,7 @@ class EngineProcessManager:
                 return preflight
             self._replace(status=EngineProcessStatus.STARTING, started_at=_now(), details=())
             from commander_lab.engine.rules.bridge import JsonLineBridgeClient
+
             self._client = JsonLineBridgeClient(
                 self.config.start_command,
                 cwd=self.config.home or self.root,
@@ -192,9 +193,12 @@ class EngineProcessManager:
                         ),
                     )
                 required = (
-                    "commander_supported", "multiplayer_supported",
-                    "deck_import_supported", "legal_actions_supported",
-                    "action_submission_supported", "event_log_supported",
+                    "commander_supported",
+                    "multiplayer_supported",
+                    "deck_import_supported",
+                    "legal_actions_supported",
+                    "action_submission_supported",
+                    "event_log_supported",
                 )
                 missing = tuple(name for name in required if not capabilities.supports(name))
                 if missing:
@@ -260,28 +264,37 @@ class EngineProcessManager:
         return self.start()
 
 
-def stop_process_from_state(config: EngineRuntimeConfig, *, root: str | Path = ".") -> EngineProcessState:
+def stop_process_from_state(
+    config: EngineRuntimeConfig, *, root: str | Path = "."
+) -> EngineProcessState:
     root_path = Path(root).resolve()
     state_path = root_path / config.log_directory / f"{config.provider}.process-state.json"
     if not state_path.exists():
         return EngineProcessState(
-            provider=config.provider, status=EngineProcessStatus.STOPPED,
-            details=("no persisted process state",)
+            provider=config.provider,
+            status=EngineProcessStatus.STOPPED,
+            details=("no persisted process state",),
         )
     state = EngineProcessState.model_validate_json(state_path.read_text(encoding="utf-8"))
     if state.pid is not None:
         try:
             os.kill(state.pid, signal.SIGTERM)
-        except ProcessLookupError:
+        except (ProcessLookupError, PermissionError):
             pass
-    stopped = state.model_copy(update={
-        "status": EngineProcessStatus.STOPPED, "pid": None, "stopped_at": _now(),
-        "details": ("stop signal sent from persisted state",)
-    })
-    state_path.write_text(stopped.model_dump_json(indent=2), encoding="utf-8")
+    stopped = state.model_copy(
+        update={
+            "status": EngineProcessStatus.STOPPED,
+            "pid": None,
+            "stopped_at": _now(),
+            "details": ("stop signal sent from persisted state",),
+        }
+    )
+    atomic_write_text(state_path, stopped.model_dump_json(indent=2) + "\n")
     return stopped
 
 
 __all__ = [
-    "EngineProcessManager", "load_engine_runtime_config", "stop_process_from_state"
+    "EngineProcessManager",
+    "load_engine_runtime_config",
+    "stop_process_from_state",
 ]
