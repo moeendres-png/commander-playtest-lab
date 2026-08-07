@@ -1,28 +1,26 @@
 from __future__ import annotations
 
-import json
 import os
 import shlex
-import signal
 import shutil
+import signal
 import socket
 import subprocess
 import threading
 import time
+from collections.abc import Mapping
+from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Mapping
-
-from commander_lab.storage.atomic import atomic_write_text
 
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
-    EngineCapabilityHandshake,
     EngineProcessState,
     EngineProcessStatus,
     EngineRuntimeConfig,
     EngineRuntimeMode,
 )
+from commander_lab.storage.atomic import atomic_write_text
 
 
 def _now() -> datetime:
@@ -173,14 +171,16 @@ class EngineProcessManager:
                 engine = str(hello.get("engine", ""))
                 engine_version = str(hello.get("engine_version", "unknown"))
                 if engine != self.config.provider:
+                    detail = (
+                        f"provider mismatch: configured {self.config.provider}, "
+                        f"received {engine}"
+                    )
                     return self._replace(
                         status=EngineProcessStatus.UNHEALTHY,
                         pid=self._client.pid,
                         engine_version=engine_version,
                         last_healthcheck_at=_now(),
-                        details=(
-                            f"provider mismatch: configured {self.config.provider}, received {engine}",
-                        ),
+                        details=(detail,),
                     )
                 if capabilities.runtime_kind != "external_rules_engine":
                     return self._replace(
@@ -247,9 +247,11 @@ class EngineProcessManager:
                         check=False,
                     )
                     if completed.returncode != 0:
-                        details.append(
-                            f"stop command exited {completed.returncode}: {completed.stderr.strip()}"
+                        detail = (
+                            f"stop command exited {completed.returncode}: "
+                            f"{completed.stderr.strip()}"
                         )
+                        details.append(detail)
                 except Exception as exc:
                     details.append(f"stop command failed: {exc}")
             return self._replace(
@@ -278,10 +280,8 @@ def stop_process_from_state(
         )
     state = EngineProcessState.model_validate_json(state_path.read_text(encoding="utf-8"))
     if state.pid is not None:
-        try:
+        with suppress(ProcessLookupError, PermissionError):
             os.kill(state.pid, signal.SIGTERM)
-        except (ProcessLookupError, PermissionError):
-            pass
     stopped = state.model_copy(
         update={
             "status": EngineProcessStatus.STOPPED,
