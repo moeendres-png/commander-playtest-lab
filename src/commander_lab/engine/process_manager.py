@@ -16,6 +16,7 @@ from typing import Mapping
 from commander_lab.storage.atomic import atomic_write_text
 
 from commander_lab.models import (
+    ENGINE_PROTOCOL_VERSION,
     EngineCapabilityHandshake,
     EngineProcessState,
     EngineProcessStatus,
@@ -47,7 +48,7 @@ def load_engine_runtime_config(env: Mapping[str, str] | None = None) -> EngineRu
         stop_command=_split_command(source.get("ENGINE_STOP_COMMAND")),
         healthcheck_timeout_seconds=float(source.get("ENGINE_HEALTHCHECK_TIMEOUT", "20")),
         request_timeout_seconds=float(source.get("ENGINE_REQUEST_TIMEOUT", "20")),
-        protocol_version=source.get("ENGINE_PROTOCOL_VERSION", "1.0.0"),
+        protocol_version=source.get("ENGINE_PROTOCOL_VERSION", ENGINE_PROTOCOL_VERSION),
         java_home=source.get("JAVA_HOME") or None,
         maven_home=source.get("MAVEN_HOME") or None,
         allow_tactical_oracle_fallback=source.get(
