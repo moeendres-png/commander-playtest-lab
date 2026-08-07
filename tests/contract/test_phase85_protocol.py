@@ -198,7 +198,7 @@ def test_timeout_is_reported_without_false_success(repo_root: Path, tmp_path: Pa
         (sys.executable, str(script)), cwd=repo_root, request_timeout_seconds=0.1
     )
     try:
-        with pytest.raises(Exception, match="timeout|closed"):
+        with pytest.raises(Exception, match=r"timeout|closed"):
             client.request(EngineMessageType.ENGINE_HELLO)
     finally:
         client.close()
