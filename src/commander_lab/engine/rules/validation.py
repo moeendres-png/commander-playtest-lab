@@ -18,7 +18,11 @@ from commander_lab.models import (
 
 from . import (
     manager as rules_manager,
+)
+from . import (
     project as rules_project,
+)
+from . import (
     registry as rules_registry,
 )
 
