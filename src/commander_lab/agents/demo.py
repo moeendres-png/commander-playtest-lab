@@ -15,8 +15,15 @@ from commander_lab.models import (
 from commander_lab.tools import CommanderToolService
 
 
-def run_phase5_demo(root: str | Path, *, iterations: int = 80, seed: int = 20260804) -> dict[str, object]:
-    service = CommanderToolService(root)
+def run_phase5_demo(
+    root: str | Path,
+    *,
+    iterations: int = 80,
+    seed: int = 20260804,
+    output_directory: str | Path | None = None,
+) -> dict[str, object]:
+    root_path = Path(root)
+    service = CommanderToolService(root_path)
     validation = service.validate_deck(ValidateDeckInput(deck_id="korvold/current"))
     matchup = service.run_matchup_batch(
         MatchupBatchInput(
@@ -78,6 +85,15 @@ def run_phase5_demo(root: str | Path, *, iterations: int = 80, seed: int = 20260
         "upgrade_validation": validation_result.model_dump(mode="json"),
         "report": report.model_dump(mode="json"),
     }
-    output = Path(root) / "PHASE5_DEMO_OUTPUT.json"
-    output.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+    output_root = (
+        Path(output_directory)
+        if output_directory is not None
+        else root_path / "data/runs/phase5_demo"
+    )
+    output_root.mkdir(parents=True, exist_ok=True)
+    output = output_root / "PHASE5_DEMO_OUTPUT.json"
+    output.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     return payload
