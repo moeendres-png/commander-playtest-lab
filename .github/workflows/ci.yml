@@ -121,7 +121,7 @@ jobs:
 
   windows-hygiene:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -147,12 +147,18 @@ jobs:
 
           commander-lab doctor --root .
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          commander-lab validate-structural --iterations 4 --workers 1 --seed 20260807 --root .
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          commander-lab validate-rules-phase8 --seed 20260807 --root .
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          commander-lab probe-rules-engines --root .
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           if (Test-Path 'artifacts/engine_setup/logs/xmage.process-state.json') {
-            Write-Error 'doctor wrote mutable engine state into tracked artifacts'
+            Write-Error 'runtime command wrote mutable engine state into tracked artifacts'
           }
           if (-not (Test-Path '.runtime/engine/xmage.process-state.json')) {
-            Write-Error 'doctor did not persist engine state in .runtime/engine'
+            Write-Error 'runtime commands did not persist engine state in .runtime/engine'
           }
 
           $after = @(git status --porcelain --untracked-files=all)
