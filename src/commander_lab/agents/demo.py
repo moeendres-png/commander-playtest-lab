@@ -27,7 +27,12 @@ def run_phase5_demo(
     validation = service.validate_deck(ValidateDeckInput(deck_id="korvold/current"))
     matchup = service.run_matchup_batch(
         MatchupBatchInput(
-            deck_ids=("korvold/current", "synthetic/aggro", "synthetic/control", "synthetic/engine"),
+            deck_ids=(
+                "korvold/current",
+                "synthetic/aggro",
+                "synthetic/control",
+                "synthetic/engine",
+            ),
             iterations=iterations,
             seed=seed,
             workers=1,
