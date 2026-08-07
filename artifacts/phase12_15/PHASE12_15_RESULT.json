@@ -1,0 +1,26 @@
+{
+  "phase": "12.15",
+  "execution_status": "passed_with_limitations",
+  "completion_status": "synthetic_uncertainty_system_ready_with_limitations",
+  "validation_level": "structural_only",
+  "pilot_profiles": 16,
+  "politics_regimes": 10,
+  "opponent_variants": 11,
+  "pod_sizes": [
+    3,
+    4,
+    5
+  ],
+  "policy_tournament_scenarios": 5280,
+  "regret_method": "multiplicative_weights",
+  "self_play_status": "synthetic_policy_tournament",
+  "best_response_status": "scenario_best_response_ranked",
+  "hidden_information_access": false,
+  "empirical_weights_used": false,
+  "real_playtests_required": false,
+  "limitations": [
+    "The tournament is a deterministic structural policy stress model, not a complete game-theoretic Commander solver.",
+    "Incomplete opponent lists remain role-bounded uncertainty variants rather than invented exact 100-card lists.",
+    "Policy scores are synthetic utilities, not match win rates."
+  ]
+}

@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "validation_level": "structural_only",
+  "pilot_profiles": [
+    {
+      "pilot_id": "weak",
+      "dimensions": {
+        "pressure": 0.35,
+        "interaction": 0.35,
+        "engine": 0.35,
+        "rebuild": 0.35,
+        "low_visibility": 0.4
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "average",
+      "dimensions": {
+        "pressure": 0.55,
+        "interaction": 0.55,
+        "engine": 0.55,
+        "rebuild": 0.55,
+        "low_visibility": 0.55
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "strong",
+      "dimensions": {
+        "pressure": 0.72,
+        "interaction": 0.72,
+        "engine": 0.72,
+        "rebuild": 0.72,
+        "low_visibility": 0.68
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "near_optimal_heuristic",
+      "dimensions": {
+        "pressure": 0.86,
+        "interaction": 0.86,
+        "engine": 0.84,
+        "rebuild": 0.86,
+        "low_visibility": 0.74
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "aggressive",
+      "dimensions": {
+        "pressure": 0.82,
+        "interaction": 0.45,
+        "engine": 0.48,
+        "rebuild": 0.42,
+        "low_visibility": 0.25
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "conservative",
+      "dimensions": {
+        "pressure": 0.43,
+        "interaction": 0.78,
+        "engine": 0.68,
+        "rebuild": 0.76,
+        "low_visibility": 0.82
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "interaction_holding",
+      "dimensions": {
+        "pressure": 0.48,
+        "interaction": 0.86,
+        "engine": 0.66,
+        "rebuild": 0.66,
+        "low_visibility": 0.72
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "commander_focused",
+      "dimensions": {
+        "pressure": 0.79,
+        "interaction": 0.52,
+        "engine": 0.45,
+        "rebuild": 0.44,
+        "low_visibility": 0.28
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "engine_focused",
+      "dimensions": {
+        "pressure": 0.62,
+        "interaction": 0.55,
+        "engine": 0.88,
+        "rebuild": 0.58,
+        "low_visibility": 0.42
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "anti_leader",
+      "dimensions": {
+        "pressure": 0.52,
+        "interaction": 0.83,
+        "engine": 0.58,
+        "rebuild": 0.62,
+        "low_visibility": 0.56
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "anti_combo",
+      "dimensions": {
+        "pressure": 0.44,
+        "interaction": 0.91,
+        "engine": 0.6,
+        "rebuild": 0.58,
+        "low_visibility": 0.68
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "rebuild_focused",
+      "dimensions": {
+        "pressure": 0.45,
+        "interaction": 0.64,
+        "engine": 0.7,
+        "rebuild": 0.93,
+        "low_visibility": 0.75
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "tempo_focused",
+      "dimensions": {
+        "pressure": 0.75,
+        "interaction": 0.7,
+        "engine": 0.52,
+        "rebuild": 0.48,
+        "low_visibility": 0.45
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "politically_low_visibility",
+      "dimensions": {
+        "pressure": 0.52,
+        "interaction": 0.61,
+        "engine": 0.63,
+        "rebuild": 0.65,
+        "low_visibility": 0.95
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "politically_aggressive",
+      "dimensions": {
+        "pressure": 0.78,
+        "interaction": 0.58,
+        "engine": 0.6,
+        "rebuild": 0.54,
+        "low_visibility": 0.1
+      },
+      "hidden_information_access": false
+    },
+    {
+      "pilot_id": "adversarial_worst_case",
+      "dimensions": {
+        "pressure": 0.68,
+        "interaction": 0.92,
+        "engine": 0.7,
+        "rebuild": 0.72,
+        "low_visibility": 0.38
+      },
+      "hidden_information_access": false
+    }
+  ],
+  "politics_regimes": [
+    {
+      "regime_id": "rational_threat_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "current_leader_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "commander_reputation_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "combo_prevention",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "revenge_bias",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "random_targeting_noise",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "open_mana_deterrence",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "visible_engine_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "low_visibility_tolerance",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    },
+    {
+      "regime_id": "table_balance",
+      "scenario_axis_only": true,
+      "predicted_truth": false
+    }
+  ],
+  "opponent_variants": [
+    {
+      "variant_id": "opponent-morcant-elves-best_case",
+      "deck_id": "opponent/morcant-elves",
+      "commander": "High Perfect Morcant",
+      "variant_kind": "best_case",
+      "pressure": 0.4076,
+      "source_status": "partially_known",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Final 99 not verified",
+        "Exact proliferate and Blight densities unknown"
+      ]
+    },
+    {
+      "variant_id": "opponent-morcant-elves-median",
+      "deck_id": "opponent/morcant-elves",
+      "commander": "High Perfect Morcant",
+      "variant_kind": "median",
+      "pressure": 0.5576,
+      "source_status": "partially_known",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Final 99 not verified",
+        "Exact proliferate and Blight densities unknown"
+      ]
+    },
+    {
+      "variant_id": "opponent-morcant-elves-worst_case",
+      "deck_id": "opponent/morcant-elves",
+      "commander": "High Perfect Morcant",
+      "variant_kind": "worst_case",
+      "pressure": 0.7376,
+      "source_status": "partially_known",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Final 99 not verified",
+        "Exact proliferate and Blight densities unknown"
+      ]
+    },
+    {
+      "variant_id": "opponent-cosmic-spiderman-midbudget-best_case",
+      "deck_id": "opponent/cosmic-spiderman-midbudget",
+      "commander": "Cosmic Spider-Man",
+      "variant_kind": "best_case",
+      "pressure": 0.3722,
+      "source_status": "synthetic_completion",
+      "data_quality": "synthetic_assumption",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Only a subset of cards is known",
+        "Unknown slots filled as a plausible mid-budget list"
+      ]
+    },
+    {
+      "variant_id": "opponent-cosmic-spiderman-midbudget-median",
+      "deck_id": "opponent/cosmic-spiderman-midbudget",
+      "commander": "Cosmic Spider-Man",
+      "variant_kind": "median",
+      "pressure": 0.5222,
+      "source_status": "synthetic_completion",
+      "data_quality": "synthetic_assumption",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Only a subset of cards is known",
+        "Unknown slots filled as a plausible mid-budget list"
+      ]
+    },
+    {
+      "variant_id": "opponent-cosmic-spiderman-midbudget-worst_case",
+      "deck_id": "opponent/cosmic-spiderman-midbudget",
+      "commander": "Cosmic Spider-Man",
+      "variant_kind": "worst_case",
+      "pressure": 0.7022,
+      "source_status": "synthetic_completion",
+      "data_quality": "synthetic_assumption",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Only a subset of cards is known",
+        "Unknown slots filled as a plausible mid-budget list"
+      ]
+    },
+    {
+      "variant_id": "opponent-blight-curse-precon-fixed_reference",
+      "deck_id": "opponent/blight-curse-precon",
+      "commander": "The Reaper, King No More",
+      "variant_kind": "fixed_reference",
+      "pressure": 0.4909,
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Structural reference to the fixed precon; card-by-card engine coverage not asserted"
+      ]
+    },
+    {
+      "variant_id": "opponent-kaervek-reference-fixed_reference",
+      "deck_id": "opponent/kaervek-reference",
+      "commander": "Kaervek the Merciless",
+      "variant_kind": "fixed_reference",
+      "pressure": 0.5111,
+      "source_status": "project_reference",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Open Path of Ancestry replacement remains unresolved"
+      ]
+    },
+    {
+      "variant_id": "opponent-doom-prevails-precon-fixed_reference",
+      "deck_id": "opponent/doom-prevails-precon",
+      "commander": "Doctor Doom",
+      "variant_kind": "fixed_reference",
+      "pressure": 0.503,
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Opponent upgrades intentionally ignored for the fixed-precon reference"
+      ]
+    },
+    {
+      "variant_id": "opponent-dance-elements-precon-fixed_reference",
+      "deck_id": "opponent/dance-elements-precon",
+      "commander": "Dance of the Elements Commander",
+      "variant_kind": "fixed_reference",
+      "pressure": 0.5152,
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Fixed-precon structural reference"
+      ]
+    },
+    {
+      "variant_id": "opponent-wakanda-forever-precon-fixed_reference",
+      "deck_id": "opponent/wakanda-forever-precon",
+      "commander": "Wakanda Forever Commander",
+      "variant_kind": "fixed_reference",
+      "pressure": 0.5333,
+      "source_status": "official_precon_fixed",
+      "data_quality": "project_inferred",
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Fixed-precon structural reference"
+      ]
+    }
+  ]
+}

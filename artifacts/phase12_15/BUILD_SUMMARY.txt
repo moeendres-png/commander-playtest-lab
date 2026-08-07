@@ -1,0 +1,28 @@
+{
+  "pilots": 16,
+  "politics": 10,
+  "opponent_variants": 11,
+  "top_robust": [
+    {
+      "pilot": "near_optimal_heuristic",
+      "mean_score": 2.315383,
+      "worst_case_score": 2.035636,
+      "q10_score": 2.160109,
+      "scenario_count": 330
+    },
+    {
+      "pilot": "strong",
+      "mean_score": 1.976504,
+      "worst_case_score": 1.730609,
+      "q10_score": 1.846505,
+      "scenario_count": 330
+    },
+    {
+      "pilot": "adversarial_worst_case",
+      "mean_score": 1.934084,
+      "worst_case_score": 1.715994,
+      "q10_score": 1.811391,
+      "scenario_count": 330
+    }
+  ]
+}
