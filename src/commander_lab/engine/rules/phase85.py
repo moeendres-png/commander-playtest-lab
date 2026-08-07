@@ -41,51 +41,69 @@ def _utc() -> str:
 
 
 def _tactical_contract(root: Path) -> dict[str, Any]:
-    """Exercise every declared JSONL message against one persistent tactical bridge.
+    """Exercise every declared JSONL envelope without relying on shutdown races.
 
-    A structured error counts as envelope coverage. Reusing a single process avoids the
-    large import/startup cost of launching one Python bridge for every message type.
+    Non-terminal messages share one persistent tactical bridge. Terminal shutdown
+    messages each use their own bridge process because they intentionally end the
+    process. A structured protocol error still counts as envelope coverage, but
+    semantic success is required for the Tactical-Oracle hello/capability evidence.
     This remains local protocol evidence, never external-engine evidence.
     """
-    exercised: list[str] = []
-    structured: dict[str, str] = {}
-    client = JsonLineBridgeClient(
-        (sys.executable, str(root / "scripts/tactical_rules_bridge.py")),
-        cwd=root,
-        engine="tactical",
-        protocol_version=ENGINE_PROTOCOL_VERSION,
-        request_timeout_seconds=5,
+    declared = [item.value for item in EngineMessageType]
+    terminal_kinds = (
+        EngineMessageType.SHUTDOWN_GAME,
+        EngineMessageType.SHUTDOWN_ENGINE,
     )
+    attempted: set[str] = set()
+    execution_order: list[str] = []
+    structured: dict[str, str] = {}
     hello: dict[str, Any] = {}
     caps: dict[str, Any] = {}
+
+    def make_client() -> JsonLineBridgeClient:
+        return JsonLineBridgeClient(
+            (sys.executable, str(root / "scripts/tactical_rules_bridge.py")),
+            cwd=root,
+            engine="tactical",
+            protocol_version=ENGINE_PROTOCOL_VERSION,
+            request_timeout_seconds=5,
+        )
+
+    def exercise(client: JsonLineBridgeClient, kind: EngineMessageType) -> None:
+        nonlocal hello, caps
+        params: dict[str, Any] = {}
+        game_id = (
+            None
+            if kind
+            in {
+                EngineMessageType.ENGINE_HELLO,
+                EngineMessageType.ENGINE_CAPABILITIES,
+                EngineMessageType.LOAD_DECK,
+                EngineMessageType.CREATE_GAME,
+            }
+            else "missing-game"
+        )
+        attempted.add(kind.value)
+        execution_order.append(kind.value)
+        try:
+            payload = client.request(kind, params, game_id=game_id)
+            structured[kind.value] = "success"
+            if kind == EngineMessageType.ENGINE_HELLO:
+                hello = payload
+            elif kind == EngineMessageType.ENGINE_CAPABILITIES:
+                caps = payload
+        except Exception as exc:
+            # A deterministic structured protocol failure still proves envelope coverage.
+            if "bridge message" in str(exc):
+                structured[kind.value] = "structured_error"
+            else:
+                structured[kind.value] = f"client_error:{type(exc).__name__}"
+
+    client = make_client()
     try:
         for kind in EngineMessageType:
-            params: dict[str, Any] = {}
-            game_id = (
-                None
-                if kind
-                in {
-                    EngineMessageType.ENGINE_HELLO,
-                    EngineMessageType.ENGINE_CAPABILITIES,
-                    EngineMessageType.LOAD_DECK,
-                    EngineMessageType.CREATE_GAME,
-                }
-                else "missing-game"
-            )
-            try:
-                payload = client.request(kind, params, game_id=game_id)
-                structured[kind.value] = "success"
-                if kind == EngineMessageType.ENGINE_HELLO:
-                    hello = payload
-                elif kind == EngineMessageType.ENGINE_CAPABILITIES:
-                    caps = payload
-            except Exception as exc:
-                # A deterministic structured protocol failure still proves envelope coverage.
-                if "bridge message" in str(exc):
-                    structured[kind.value] = "structured_error"
-                else:
-                    structured[kind.value] = f"client_error:{type(exc).__name__}"
-            exercised.append(kind.value)
+            if kind not in terminal_kinds:
+                exercise(client, kind)
         unknown_rejected = False
         try:
             client.request("unknown_message")
@@ -97,7 +115,15 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
         with suppress(OSError):
             client.close()
 
-    declared = [item.value for item in EngineMessageType]
+    for kind in terminal_kinds:
+        terminal_client = make_client()
+        try:
+            exercise(terminal_client, kind)
+        finally:
+            with suppress(OSError):
+                terminal_client.close()
+
+    exercised = [name for name in declared if name in attempted]
     all_exercised = exercised == declared
     return {
         "status": "passed" if all_exercised and unknown_rejected else "failed",
@@ -108,6 +134,7 @@ def _tactical_contract(root: Path) -> dict[str, Any]:
             and unknown_rejected
         ),
         "exercised": exercised,
+        "execution_order": execution_order,
         "declared_message_types": declared,
         "message_outcomes": structured,
         "all_message_envelopes_covered_by_contract_tests": all_exercised,
