@@ -3,6 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from commander_lab.engine.rules.manager import RulesEngineManager
+from commander_lab.engine.rules.project import load_project_rules_decks
+from commander_lab.engine.rules.registry import (
+    build_validation_registry,
+    load_interaction_catalog,
+    write_validation_registry,
+)
 from commander_lab.models import (
     ActionProposal,
     ActionType,
@@ -14,14 +21,6 @@ from commander_lab.models import (
     TacticalScenario,
     TurnPhase,
     ZoneState,
-)
-
-from .manager import RulesEngineManager
-from .project import load_project_rules_decks
-from .registry import (
-    build_validation_registry,
-    load_interaction_catalog,
-    write_validation_registry,
 )
 
 
