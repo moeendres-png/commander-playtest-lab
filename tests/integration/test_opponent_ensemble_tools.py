@@ -33,7 +33,10 @@ def test_opponent_ensemble_toolchain_reports_structural_uncertainty() -> None:
     assert matchup.result["estimate_type"] == "structural_model_estimates"
     assert len(matchup.result["per_variant"]) == 4
     assert all("synthetic" in row for row in matchup.result["per_variant"])
-    assert all("known_cards" in row and "assumed_cards" in row for row in matchup.result["per_variant"])
+    assert all(
+        "known_cards" in row and "assumed_cards" in row
+        for row in matchup.result["per_variant"]
+    )
 
     sensitivity = service.compare_variant_sensitivity(
         CompareVariantSensitivityInput(
@@ -57,13 +60,19 @@ def test_opponent_ensemble_toolchain_reports_structural_uncertainty() -> None:
     assert robust.result["automatic_deck_application"] is False
     assert robust.result["robust"] is False
 
-    report = service.generate_ensemble_report(
-        GenerateEnsembleReportInput(
-            ensemble_id=ensemble_id,
-            output_name="test-cosmic-ensemble-report.md",
+    report_path: Path | None = None
+    try:
+        report = service.generate_ensemble_report(
+            GenerateEnsembleReportInput(
+                ensemble_id=ensemble_id,
+                output_name="test-cosmic-ensemble-report.md",
+            )
         )
-    )
-    assert report.status == ToolStatus.COMPLETED
-    text = (ROOT / report.result["report_path"]).read_text(encoding="utf-8")
-    assert "Known cards and synthetic assumptions are stored separately" in text
-    assert "Win axes:" in text
+        assert report.status == ToolStatus.COMPLETED
+        report_path = ROOT / report.result["report_path"]
+        text = report_path.read_text(encoding="utf-8")
+        assert "Known cards and synthetic assumptions are stored separately" in text
+        assert "Win axes:" in text
+    finally:
+        if report_path is not None:
+            report_path.unlink(missing_ok=True)
