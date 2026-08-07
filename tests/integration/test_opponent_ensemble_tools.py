@@ -34,8 +34,7 @@ def test_opponent_ensemble_toolchain_reports_structural_uncertainty() -> None:
     assert len(matchup.result["per_variant"]) == 4
     assert all("synthetic" in row for row in matchup.result["per_variant"])
     assert all(
-        "known_cards" in row and "assumed_cards" in row
-        for row in matchup.result["per_variant"]
+        "known_cards" in row and "assumed_cards" in row for row in matchup.result["per_variant"]
     )
 
     sensitivity = service.compare_variant_sensitivity(
