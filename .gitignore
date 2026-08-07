@@ -8,6 +8,10 @@ htmlcov/
 .venv/
 .env
 *.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-wal
+*.db-shm
 *.parquet
 data/runs/*
 !data/runs/.gitkeep
