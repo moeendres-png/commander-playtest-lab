@@ -127,7 +127,7 @@ jobs:
           "$RUNNER_TEMP/wheel-verify/bin/python" -m pip install --quiet release/commander_playtest_lab-1.13.1-py3-none-any.whl
           test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "1.13.1"
           printf 'release=1.13.1\ngit_head=%s\nroundtrip=passed\n' "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
-          sha256sum release/PLAYTEST_LAB_REPRODUCIBILITY.txt >> release/PLAYTEST_LAB_SHA256SUMS.txt
+          (cd release && sha256sum PLAYTEST_LAB_REPRODUCIBILITY.txt >> PLAYTEST_LAB_SHA256SUMS.txt)
           (cd release && sha256sum -c PLAYTEST_LAB_SHA256SUMS.txt)
       - name: Upload release package
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
