@@ -81,10 +81,7 @@ def run_phase8_validation(
     try:
         probes = manager.probes()
         decks = rules_project.load_project_rules_decks(root_path)
-        handles = {
-            deck_id: manager.tactical.load_deck(deck)
-            for deck_id, deck in decks.items()
-        }
+        handles = {deck_id: manager.tactical.load_deck(deck) for deck_id, deck in decks.items()}
 
         request_a = RulesGameRequest(
             game_id="phase8-repro-a",
@@ -113,9 +110,7 @@ def run_phase8_validation(
             action_type=ActionType.PASS_PRIORITY,
             policy_name="phase8_validation",
         )
-        state_after_action = manager.tactical.submit_action(
-            scenario_session.session_id, proposal
-        )
+        state_after_action = manager.tactical.submit_action(scenario_session.session_id, proposal)
         action_logs = manager.tactical.get_logs(scenario_session.session_id)
 
         interactions = rules_registry.load_interaction_catalog(
@@ -149,10 +144,7 @@ def run_phase8_validation(
         probes_path = output / "backend_probes.json"
         probes_path.write_text(
             json.dumps(
-                {
-                    key.value: value.model_dump(mode="json")
-                    for key, value in probes.items()
-                },
+                {key.value: value.model_dump(mode="json") for key, value in probes.items()},
                 indent=2,
                 ensure_ascii=False,
                 sort_keys=True,
@@ -185,9 +177,7 @@ def run_phase8_validation(
             "rules_engine_passed": registry.rules_engine_passed,
             "cards_total": len(registry.cards),
             "card_status_counts": {
-                level: sum(
-                    1 for item in registry.cards.values() if item.level.value == level
-                )
+                level: sum(1 for item in registry.cards.values() if item.level.value == level)
                 for level in (
                     "structural_only",
                     "tactical_oracle",
@@ -195,8 +185,7 @@ def run_phase8_validation(
                 )
             },
             "deterministic_starting_state": deterministic_start,
-            "programmatic_action_roundtrip": state_after_action.priority_player_id
-            == "p2",
+            "programmatic_action_roundtrip": state_after_action.priority_player_id == "p2",
             "event_log_captured": len(action_logs.events) >= 2,
             "backend_probes": {
                 key.value: value.model_dump(mode="json") for key, value in probes.items()
@@ -205,9 +194,7 @@ def run_phase8_validation(
             "rules_engine_release_gate_passed": external_passed,
             "artifacts": {
                 "canonical_registry": (
-                    str(canonical_registry_path)
-                    if canonical_registry_path is not None
-                    else None
+                    str(canonical_registry_path) if canonical_registry_path is not None else None
                 ),
                 "run_registry": str(run_registry_path),
                 "interaction_results": str(interaction_results_path),
