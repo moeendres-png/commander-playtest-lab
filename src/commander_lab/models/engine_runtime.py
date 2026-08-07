@@ -231,7 +231,7 @@ class EngineRuntimeConfig(FrozenModel):
     java_home: str | None = None
     maven_home: str | None = None
     allow_tactical_oracle_fallback: bool = False
-    log_directory: str = ".runtime/engine"
+    log_directory: str = "artifacts/engine_setup/logs"
 
 
 class EngineProcessState(FrozenModel):
