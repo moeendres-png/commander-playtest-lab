@@ -1,0 +1,52 @@
+{
+  "phase": "12.14",
+  "execution_status": "passed_with_limitations",
+  "completion_status": "card_rules_coverage_ready_with_limitations",
+  "source_drive_file_id": "15SaFU4pgoYugXiimT0uqlw0AF53fCuf9",
+  "source_snapshot": "data/canonical_import/2026-08-07/deck_lists.json",
+  "read_only": true,
+  "card_records": 229,
+  "card_coverage": {
+    "tactical_only": 56,
+    "structural_only": 173,
+    "external_engine_verified": 0,
+    "unsupported": 0
+  },
+  "scenario_records": 37,
+  "scenario_coverage": {
+    "tactical_only": 25,
+    "structural_only": 9,
+    "unsupported": 3,
+    "external_engine_verified": 0
+  },
+  "deck_statistics": {
+    "korvold/current-2026-08-07": {
+      "unique_oracle_names": 85,
+      "coverage": {
+        "tactical_only": 27,
+        "structural_only": 58
+      }
+    },
+    "rogshai/current-2026-08-07": {
+      "unique_oracle_names": 82,
+      "coverage": {
+        "structural_only": 52,
+        "tactical_only": 30
+      }
+    },
+    "kaervek/maintained-2026-08-07": {
+      "unique_oracle_names": 76,
+      "coverage": {
+        "structural_only": 72,
+        "tactical_only": 4
+      }
+    }
+  },
+  "opponent_limitations": [
+    "Exact 100-card lists were unavailable for Cosmic Spider-Man, Doom upgrades, Morcant Elves and multiple official-precon references in the executable repository.",
+    "Only the known commander/profile and explicitly present known/assumed cards were included; no unknown card was invented as confirmed."
+  ],
+  "external_engine_execution_status": "blocked",
+  "provider_difference_status": "not_run",
+  "canonical_changes": false
+}

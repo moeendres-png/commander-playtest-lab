@@ -1,0 +1,647 @@
+{
+  "schema_version": 1,
+  "external_engine_execution_status": "blocked",
+  "scenarios": [
+    {
+      "scenario_id": "korvold_sacrifice_cost_and_trigger",
+      "cards": [
+        "Korvold, Fae-Cursed King",
+        "Zuran Orb"
+      ],
+      "interaction_ids": [
+        "korvold_etb_sacrifice_generates_value",
+        "zuran_orb_sacrifice_is_cost"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_multiple_sacrifices",
+      "cards": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "interaction_ids": [
+        "korvold_etb_sacrifice_generates_value"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_land_sacrifice",
+      "cards": [
+        "Korvold, Fae-Cursed King",
+        "Zuran Orb"
+      ],
+      "interaction_ids": [
+        "zuran_orb_sacrifice_is_cost"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_land_recursion",
+      "cards": [
+        "Ramunap Excavator",
+        "Splendid Reclamation",
+        "Aftermath Analyst"
+      ],
+      "interaction_ids": [
+        "ramunap_uses_land_play",
+        "splendid_reclamation_returns_tapped",
+        "aftermath_analyst_sacrifices_and_returns_lands"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_mazirek",
+      "cards": [
+        "Mazirek, Kraul Death Priest"
+      ],
+      "interaction_ids": [
+        "mazirek_counters_all_your_creatures"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_szarel",
+      "cards": [
+        "Szarel, Genesis Shepherd"
+      ],
+      "interaction_ids": [],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "korvold_mirkwood_bats",
+      "cards": [
+        "Mirkwood Bats"
+      ],
+      "interaction_ids": [
+        "mirkwood_bats_counts_created_and_sacrificed_tokens"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_mayhem_devil",
+      "cards": [
+        "Mayhem Devil"
+      ],
+      "interaction_ids": [
+        "mayhem_devil_triggers_for_any_player"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_massacre_wurm",
+      "cards": [
+        "Massacre Wurm"
+      ],
+      "interaction_ids": [
+        "massacre_wurm_counts_opponent_deaths"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_commander_tax",
+      "cards": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "interaction_ids": [
+        "commander_tax_third_cast"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_boardwipe_rebuild",
+      "cards": [
+        "Splendid Reclamation",
+        "Aftermath Analyst"
+      ],
+      "interaction_ids": [
+        "splendid_reclamation_returns_tapped",
+        "aftermath_analyst_sacrifices_and_returns_lands"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_graveyard_hate",
+      "cards": [
+        "Bojuka Bog",
+        "Rakdos Charm"
+      ],
+      "interaction_ids": [
+        "bojuka_bog_exiles_target_graveyard",
+        "rakdos_charm_graveyard_mode"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_replacement_effects",
+      "cards": [
+        "Academy Manufactor"
+      ],
+      "interaction_ids": [
+        "academy_manufactor_replaces_each_token"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "korvold_simultaneous_triggers",
+      "cards": [
+        "Mazirek, Kraul Death Priest",
+        "Mirkwood Bats"
+      ],
+      "interaction_ids": [
+        "apnap_trigger_order_four_player"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_partner_command_zone",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "interaction_ids": [
+        "commander_damage_not_combined"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_rograkh_resource",
+      "cards": [
+        "Rograkh, Son of Rohgahh"
+      ],
+      "interaction_ids": [],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "rogshai_ishai_opponent_spells",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "interaction_ids": [
+        "ishai_only_opponent_spells_trigger"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_combat_research",
+      "cards": [
+        "Combat Research"
+      ],
+      "interaction_ids": [
+        "combat_research_draw_trigger"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_curiosity",
+      "cards": [
+        "Curiosity"
+      ],
+      "interaction_ids": [],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "rogshai_staggering_insight",
+      "cards": [
+        "Staggering Insight"
+      ],
+      "interaction_ids": [
+        "staggering_insight_draw_and_lifelink"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_duelists_heritage",
+      "cards": [
+        "Duelist's Heritage"
+      ],
+      "interaction_ids": [
+        "double_strike_counts_both_hits"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_double_strike",
+      "cards": [
+        "Duelist's Heritage",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "interaction_ids": [
+        "double_strike_counts_both_hits"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_jeska_triple",
+      "cards": [
+        "Jeska, Thrice Reborn",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "interaction_ids": [
+        "jeska_triples_commander_combat_damage"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_ishai_commander_damage",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "interaction_ids": [
+        "commander_damage_exactly_twenty_one"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_kediss_not_commander_damage",
+      "cards": [
+        "Kediss, Emberclaw Familiar",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "interaction_ids": [
+        "kediss_damage_is_not_commander_damage"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_sunhome",
+      "cards": [
+        "Sunhome, Fortress of the Legion"
+      ],
+      "interaction_ids": [],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "rogshai_protection_counter",
+      "cards": [
+        "Boros Charm",
+        "Counterspell"
+      ],
+      "interaction_ids": [
+        "boros_charm_protects_from_destroy_wipe",
+        "countered_commander_can_return_to_command"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_stack_priority",
+      "cards": [],
+      "interaction_ids": [
+        "stack_resolves_last_in_first_out",
+        "apnap_trigger_order_four_player"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "rogshai_separate_partner_tax",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "interaction_ids": [
+        "commander_tax_third_cast"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "opponent_kaervek_trigger_survives_counter",
+      "cards": [
+        "Kaervek the Merciless",
+        "Counterspell"
+      ],
+      "interaction_ids": [
+        "kaervek_trigger_survives_counter"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "opponent_minus_counters_vs_indestructible",
+      "cards": [
+        "Bastion Protector",
+        "Toxic Deluge"
+      ],
+      "interaction_ids": [
+        "indestructible_fails_minus_toughness",
+        "zero_toughness_is_not_destroy"
+      ],
+      "structural_support": true,
+      "tactical_oracle_support": true,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "tactical_only",
+      "evidence_files": [
+        "data/rules/project_critical_interactions.json"
+      ]
+    },
+    {
+      "scenario_id": "opponent_blight_proliferate",
+      "cards": [],
+      "interaction_ids": [],
+      "structural_support": false,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "unsupported",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "opponent_elf_etb_lords",
+      "cards": [
+        "High Perfect Morcant"
+      ],
+      "interaction_ids": [],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "opponent_wakanda_artifact_equipment",
+      "cards": [],
+      "interaction_ids": [],
+      "structural_support": false,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "unsupported",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "opponent_dance_evoke_recursion",
+      "cards": [],
+      "interaction_ids": [],
+      "structural_support": false,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "unsupported",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "opponent_doctor_doom_artifact_villain",
+      "cards": [
+        "Doctor Doom"
+      ],
+      "interaction_ids": [],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": []
+    },
+    {
+      "scenario_id": "opponent_cosmic_spiderman_legends",
+      "cards": [
+        "Cosmic Spider-Man"
+      ],
+      "interaction_ids": [],
+      "structural_support": true,
+      "tactical_oracle_support": false,
+      "xmage_verified": false,
+      "forge_verified": false,
+      "external_replay_verified": false,
+      "coverage_status": "structural_only",
+      "evidence_files": []
+    }
+  ]
+}
