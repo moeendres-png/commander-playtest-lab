@@ -40,7 +40,9 @@ def test_unknown_message_is_deterministically_rejected(repo_root: Path) -> None:
         client.close()
 
 
-def test_process_manager_healthy_requires_external_handshake(repo_root: Path) -> None:
+def test_process_manager_healthy_requires_external_handshake(
+    repo_root: Path, tmp_path: Path
+) -> None:
     config = EngineRuntimeConfig(
         provider="xmage",
         start_command=(
@@ -49,7 +51,7 @@ def test_process_manager_healthy_requires_external_handshake(repo_root: Path) ->
         ),
         healthcheck_timeout_seconds=2,
         request_timeout_seconds=2,
-        log_directory="artifacts/engine_setup/test-process",
+        log_directory=str(tmp_path / "engine-process"),
     )
     manager = EngineProcessManager(config, root=repo_root)
     state = manager.start()
@@ -61,13 +63,15 @@ def test_process_manager_healthy_requires_external_handshake(repo_root: Path) ->
         assert manager.stop().status == EngineProcessStatus.STOPPED
 
 
-def test_tactical_bridge_cannot_be_healthy_external_xmage(repo_root: Path) -> None:
+def test_tactical_bridge_cannot_be_healthy_external_xmage(
+    repo_root: Path, tmp_path: Path
+) -> None:
     config = EngineRuntimeConfig(
         provider="xmage",
         start_command=(sys.executable, str(repo_root / "scripts/tactical_rules_bridge.py")),
         healthcheck_timeout_seconds=2,
         request_timeout_seconds=2,
-        log_directory="artifacts/engine_setup/test-tactical-process",
+        log_directory=str(tmp_path / "tactical-process"),
     )
     manager = EngineProcessManager(config, root=repo_root)
     state = manager.start()
@@ -79,17 +83,30 @@ def test_tactical_bridge_cannot_be_healthy_external_xmage(repo_root: Path) -> No
 
 def test_replay_rejects_silent_unknown_event_without_snapshot() -> None:
     state = {
-        "game_id":"g","seed":1,"status":"in_progress","turn_number":0,
-        "active_player_id":"p","priority_player_id":"p","phase":"beginning",
-        "players":[{"player_id":"p","seat":0,"zones":{}}],"event_sequence":0
+        "game_id": "g",
+        "seed": 1,
+        "status": "in_progress",
+        "turn_number": 0,
+        "active_player_id": "p",
+        "priority_player_id": "p",
+        "phase": "beginning",
+        "players": [{"player_id": "p", "seat": 0, "zones": {}}],
+        "event_sequence": 0,
     }
     import hashlib
-    events = ({"sequence":0,"event_type":"unknown"},)
-    digest = hashlib.sha256(json.dumps(events, sort_keys=True, default=list).encode()).hexdigest()
+
+    events = ({"sequence": 0, "event_type": "unknown"},)
+    digest = hashlib.sha256(
+        json.dumps(events, sort_keys=True, default=list).encode()
+    ).hexdigest()
     replay = EngineReplay(
-        engine="tactical", engine_version="test",
+        engine="tactical",
+        engine_version="test",
         validation_level=RuntimeValidationLevel.TACTICAL_ORACLE,
-        game_id="g", initial_state=state, events=events, final_state=state,
+        game_id="g",
+        initial_state=state,
+        events=events,
+        final_state=state,
         event_log_sha256=digest,
     )
     with pytest.raises(ReplayValidationError, match="no internal_state_after"):
@@ -98,6 +115,7 @@ def test_replay_rejects_silent_unknown_event_without_snapshot() -> None:
 
 def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: Path) -> None:
     import subprocess
+
     from commander_lab.models import EngineProtocolResponse
 
     process = subprocess.Popen(
@@ -111,7 +129,8 @@ def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: P
     )
     assert process.stdin is not None and process.stdout is not None
     kinds = [
-        kind for kind in EngineMessageType
+        kind
+        for kind in EngineMessageType
         if kind not in {EngineMessageType.SHUTDOWN_GAME, EngineMessageType.SHUTDOWN_ENGINE}
     ]
     kinds.append(EngineMessageType.SHUTDOWN_ENGINE)
@@ -120,12 +139,17 @@ def test_tactical_bridge_returns_a_valid_envelope_for_every_message(repo_root: P
             request = EngineProtocolRequest(
                 request_id=f"wire-{kind.value}",
                 engine="tactical",
-                game_id="missing-game" if kind not in {
-                    EngineMessageType.ENGINE_HELLO,
-                    EngineMessageType.ENGINE_CAPABILITIES,
-                    EngineMessageType.LOAD_DECK,
-                    EngineMessageType.CREATE_GAME,
-                } else None,
+                game_id=(
+                    "missing-game"
+                    if kind
+                    not in {
+                        EngineMessageType.ENGINE_HELLO,
+                        EngineMessageType.ENGINE_CAPABILITIES,
+                        EngineMessageType.LOAD_DECK,
+                        EngineMessageType.CREATE_GAME,
+                    }
+                    else None
+                ),
                 message_type=kind,
                 payload={},
             )
