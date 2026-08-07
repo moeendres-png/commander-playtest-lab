@@ -42,9 +42,7 @@ def migrate_database(path: str | Path) -> dict[str, Any]:
     with closing(connect_database(path)) as connection, connection:
         existing = {
             row[0]
-            for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
+            for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
         for table in LEGACY_MANUAL_PLAYTEST_TABLES:
             if table in existing:
@@ -110,12 +108,10 @@ def check_database(path: str | Path) -> dict[str, Any]:
                 "SELECT value FROM schema_meta WHERE key='schema_version'"
             ).fetchone()
             migration_row = connection.execute(
-                "SELECT value FROM schema_meta "
-                "WHERE key='manual_playtest_migration_status'"
+                "SELECT value FROM schema_meta WHERE key='manual_playtest_migration_status'"
             ).fetchone()
             removed_row = connection.execute(
-                "SELECT value FROM schema_meta "
-                "WHERE key='manual_playtest_removed_tables'"
+                "SELECT value FROM schema_meta WHERE key='manual_playtest_removed_tables'"
             ).fetchone()
     except sqlite3.DatabaseError as exc:
         return {
@@ -130,12 +126,8 @@ def check_database(path: str | Path) -> dict[str, Any]:
         "integrity": integrity == "ok",
         "foreign_keys": not foreign_keys,
         "schema_version": int(row[0]) if row else None,
-        "manual_playtest_migration_status": (
-            migration_row[0] if migration_row else "unknown"
-        ),
-        "manual_playtest_removed_tables": (
-            json.loads(removed_row[0]) if removed_row else []
-        ),
+        "manual_playtest_migration_status": (migration_row[0] if migration_row else "unknown"),
+        "manual_playtest_removed_tables": (json.loads(removed_row[0]) if removed_row else []),
     }
 
 
