@@ -1,0 +1,4 @@
+8 focused MCP/orchestrator tests passed.
+CLI contains serve-mcp and serve-tools.
+Stdio subprocess roundtrip returned 8 responses and clean exit code 0.
+Tool count: 100.

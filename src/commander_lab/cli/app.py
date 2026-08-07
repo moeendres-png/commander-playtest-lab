@@ -21,6 +21,7 @@ from commander_lab.engine.structural import (
     run_structural_batch,
 )
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
+from commander_lab.mcp import CommanderMcpServer
 from commander_lab.models import (
     PilotConfig,
     PilotDecisionMode,
@@ -163,6 +164,14 @@ def serve_tools(
     except ImportError as exc:
         raise RuntimeError("Install the api extra: pip install 'commander-playtest-lab[api]'") from exc
     uvicorn.run(create_app(root), host=host, port=port)
+
+
+@app.command("serve-mcp")
+def serve_mcp(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Start the local MCP JSON-RPC stdio server."""
+    raise typer.Exit(code=CommanderMcpServer(root).serve_stdio())
 
 
 @app.command("demo-phase5")

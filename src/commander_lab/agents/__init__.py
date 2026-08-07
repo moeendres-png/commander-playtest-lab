@@ -45,3 +45,11 @@ __all__ = [
     "auto_pilot_name",
     "build_pilot",
 ]
+
+from .optimization_orchestrator import (
+    OptimizationPlan, RunProfile, build_optimization_plan, select_run_profile,
+)
+
+__all__.extend([
+    "OptimizationPlan", "RunProfile", "build_optimization_plan", "select_run_profile",
+])

@@ -1,0 +1,24 @@
+{
+  "phase": "12.17",
+  "execution_status": "passed_with_limitations",
+  "completion_status": "mcp_and_orchestrator_ready_with_external_engine_blocked",
+  "mcp_transport": "stdio_json_rpc",
+  "mcp_protocol_version": "2025-11-25",
+  "tool_count": 100,
+  "resources": 3,
+  "prompts": 2,
+  "tests": {"passed": 8, "failed": 0},
+  "tested_operations": [
+    "initialize", "notifications/initialized", "tools/list", "tools/call",
+    "resources/list", "resources/read", "prompts/list", "prompts/get",
+    "timeout", "notifications/cancelled", "structured_error", "shutdown", "eof"
+  ],
+  "run_profiles": [
+    "quick_screen", "standard_validation", "deep_validation",
+    "external_engine_validation", "full_optimization"
+  ],
+  "canonical_deck_files_modified": false,
+  "inventory_modified": false,
+  "allocation_modified": false,
+  "recommendations_applied": false
+}

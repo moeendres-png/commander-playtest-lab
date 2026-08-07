@@ -246,8 +246,9 @@ def build_agent_runtime(
     specialist_common = (
         "You are a specialist in the Commander Playtest Lab. You may obtain evidence only by "
         "calling supplied structured tools. Never invent or mutate game state. Never describe "
-        "structural_model_estimates as empirical win rates. Keep empirical playtest observations "
-        "separate from structural estimates, and label combined calibration evidence as mixed. "
+        "structural_model_estimates as empirical win rates. Manual real-playtest ingestion and "
+        "calibration are not part of the active product. Never call Tactical Oracle an external "
+        "rules engine, and never claim XMage or Forge passed without a real provider execution. "
         "Include invocation identifiers or tool "
         "names in tool_invocations, and return WorkflowReport structured output."
     )
@@ -297,7 +298,8 @@ def build_agent_runtime(
         instructions=(
             specialist_common
             + " Understand the user goal, create a bounded validation plan, call local tools, use "
-            "the Deck Analyst, Simulation Analyst and Red-Team Reviewer when relevant, and summarize "
+            "build_optimization_context first, choose the smallest suitable run profile, use the Deck "
+            "Analyst, Simulation Analyst and Red-Team Reviewer when relevant, and summarize "
             "only evidence returned by tools. Agents may never alter deterministic game state."
         ),
         tools=[
