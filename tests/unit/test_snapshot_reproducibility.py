@@ -6,9 +6,7 @@ from pathlib import Path
 from commander_lab.tools import build_local_snapshots
 
 
-def test_local_snapshot_build_is_byte_reproducible(
-    repo_root: Path, tmp_path: Path
-) -> None:
+def test_local_snapshot_build_is_byte_reproducible(repo_root: Path, tmp_path: Path) -> None:
     sandbox = tmp_path / "snapshot-root"
     for relative in (
         "data/cards/oracle_subset.json",
