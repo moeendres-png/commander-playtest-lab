@@ -18,7 +18,11 @@ from commander_lab.models import (
 
 from .manager import RulesEngineManager
 from .project import load_project_rules_decks
-from .registry import build_validation_registry, load_interaction_catalog, write_validation_registry
+from .registry import (
+    build_validation_registry,
+    load_interaction_catalog,
+    write_validation_registry,
+)
 
 
 PHASE8_ENGINE_VERSION = "tactical-0.8.0"
@@ -210,9 +214,18 @@ def run_phase8_validation(
                 "adapter_action_log": str(logs_path),
             },
             "notes": [
-                "All tactical results are bounded tactical validations, not complete rules-engine proofs.",
-                "The external release gate requires at least 50 matching XMage or Forge observations.",
-                "Canonical validation registry persistence is opt-in; normal validation runs write only to the run output directory.",
+                (
+                    "All tactical results are bounded tactical validations, "
+                    "not complete rules-engine proofs."
+                ),
+                (
+                    "The external release gate requires at least 50 matching "
+                    "XMage or Forge observations."
+                ),
+                (
+                    "Canonical validation registry persistence is opt-in; normal "
+                    "validation runs write only to the run output directory."
+                ),
             ],
         }
         summary_path = output / "phase8_validation_summary.json"
