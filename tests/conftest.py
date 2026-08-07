@@ -49,12 +49,8 @@ def structural_profiles(repo_root: Path) -> StructuralProfileCatalog:
 
 
 @pytest.fixture(scope="session")
-def structural_decks(
-    repo_root: Path, structural_profiles: StructuralProfileCatalog
-):
-    manifest = json.loads(
-        (repo_root / "data/decks/manifest.json").read_text(encoding="utf-8")
-    )
+def structural_decks(repo_root: Path, structural_profiles: StructuralProfileCatalog):
+    manifest = json.loads((repo_root / "data/decks/manifest.json").read_text(encoding="utf-8"))
     snapshot_hash = manifest["data_snapshot_hash"]
     result = {}
     for filename in ("korvold_current.json", "rogshai_current.json"):
