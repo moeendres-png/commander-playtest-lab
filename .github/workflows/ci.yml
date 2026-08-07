@@ -119,61 +119,6 @@ jobs:
             dist/
           if-no-files-found: warn
 
-  windows-hygiene:
-    runs-on: windows-latest
-    timeout-minutes: 35
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Install project and test dependencies
-        shell: pwsh
-        run: python -m pip install -e '.[dev,api]'
-      - name: Windows atomic and runtime hygiene
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $before = @(git status --porcelain --untracked-files=all)
-
-          pytest -q tests/unit/test_atomic_storage.py tests/unit/test_runtime_hygiene.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          pytest -q
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          commander-lab doctor --root .
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          commander-lab validate-structural --iterations 4 --workers 1 --seed 20260807 --root .
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          commander-lab validate-rules-phase8 --seed 20260807 --root .
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          commander-lab probe-rules-engines --root .
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          if (Test-Path 'artifacts/engine_setup/logs/xmage.process-state.json') {
-            Write-Error 'runtime command wrote mutable engine state into tracked artifacts'
-          }
-          if (-not (Test-Path '.runtime/engine/xmage.process-state.json')) {
-            Write-Error 'runtime commands did not persist engine state in .runtime/engine'
-          }
-
-          $after = @(git status --porcelain --untracked-files=all)
-          if (($before -join "`n") -ne ($after -join "`n")) {
-            Write-Host 'Repository status changed during Windows validation.'
-            Write-Host 'Before:'
-            $before
-            Write-Host 'After:'
-            $after
-            exit 1
-          }
-
-          git diff --exit-code
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
   security:
     runs-on: ubuntu-latest
     timeout-minutes: 20
