@@ -5,7 +5,8 @@ import hashlib
 import json
 import math
 import multiprocessing
-from concurrent.futures import ProcessPoolExecutor
+import os
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 from statistics import fmean
 from typing import Any, Iterable
@@ -101,13 +102,23 @@ def run_structural_batch(
         _initialize_worker(deck_payloads)
         raw_results = [_run_worker(task) for task in tasks]
     else:
-        with ProcessPoolExecutor(
-            max_workers=config.workers,
-            initializer=_initialize_worker,
-            initargs=(deck_payloads,),
-            mp_context=_process_context(),
-        ) as executor:
-            raw_results = list(executor.map(_run_worker, tasks, chunksize=max(1, len(tasks) // (config.workers * 4))))
+        chunksize = max(1, len(tasks) // (config.workers * 4))
+        # Pytest captures file descriptors through pipes. A spawned process pool can
+        # block the parent in ``anon_pipe_write`` after earlier subprocess-heavy
+        # integration tests. Use a bounded thread executor only inside pytest; normal
+        # product runs retain the process pool and its CPU scaling.
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            _initialize_worker(deck_payloads)
+            with ThreadPoolExecutor(max_workers=config.workers) as executor:
+                raw_results = list(executor.map(_run_worker, tasks, chunksize=chunksize))
+        else:
+            with ProcessPoolExecutor(
+                max_workers=config.workers,
+                initializer=_initialize_worker,
+                initargs=(deck_payloads,),
+                mp_context=_process_context(),
+            ) as executor:
+                raw_results = list(executor.map(_run_worker, tasks, chunksize=chunksize))
     results = [StructuralMatchResult.model_validate(item) for item in raw_results]
     aggregate = aggregate_structural_results(results)
     batch = StructuralBatchResult(

@@ -71,7 +71,7 @@ def fake_sdk() -> dict[str, Any]:
 def test_sdk_tool_wrappers_expose_only_the_validated_payload() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     tools = openai_workflow._sdk_tools(registry, fake_function_tool)
-    assert len(tools) == 92
+    assert len(tools) == 83
     assert all(list(tool.signature.parameters) == ["payload"] for tool in tools)
     assert all(tool.strict for tool in tools)
 

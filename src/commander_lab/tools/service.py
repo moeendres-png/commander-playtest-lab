@@ -11,17 +11,9 @@ from pathlib import Path
 from statistics import fmean
 from typing import Any, Callable
 
-from commander_lab.analysis import (
-    CalibrationPolicy,
-    DeckValidator,
-    assign_playtest_splits,
-    calibrate_playtests,
-    load_structural_batches,
-    validate_collection_quantities,
-)
+from commander_lab.analysis import DeckValidator, validate_collection_quantities
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.structural import ENGINE_VERSION, load_project_structural_decks, run_structural_batch
-from commander_lab.importers import RealPlaytestImporter
 from commander_lab.models import (
     BudgetBand,
     CompareDeckToMetaInput,
@@ -53,9 +45,6 @@ from commander_lab.models import (
     TraceArtifactProvenanceInput, TraceRecommendationSourcesInput,
     ListSupersededSourcesInput, VerifySourceHashInput,
     GenerateProvenanceReportInput, AuditUnreferencedClaimsInput,
-    IngestLocalGameInput, UpdateLocalOpponentProfileInput, InspectLocalMetaInput,
-    CompareObservedToAssumedInput, DetectLocalMetaDriftInput,
-    BuildLocalMetaScenariosInput, GenerateLocalMetaReportInput,
     CreateOpponentEnsembleInput, AddOpponentVariantInput, ValidateEnsembleInput,
     RunEnsembleMatchupsInput, CompareVariantSensitivityInput,
     EvaluateRobustUpgradeInput, GenerateEnsembleReportInput,
@@ -76,7 +65,6 @@ from commander_lab.models import (
     QueryMetaCardsInput,
     QueryMetaPackagesInput,
     TournamentResult,
-    CalibrateInput,
     CardAblationInput,
     Collection,
     CommanderDenialInput,
@@ -85,7 +73,6 @@ from commander_lab.models import (
     CreateReportInput,
     GoldfishInput,
     HoldoutInput,
-    IngestPlaytestInput,
     InspectDeckInput,
     MatchupBatchInput,
     BeamSearchInput,
@@ -103,7 +90,6 @@ from commander_lab.models import (
     RecommendUpgradesInput,
     SearchVariantsInput,
     SensitivityInput,
-    SplitStrategy,
     StructuralBatchConfig,
     StructuralDeckProfile,
     SwapMatrixInput,
@@ -131,7 +117,6 @@ from commander_lab.optimization import (
     variant_deck,
 )
 from commander_lab.storage import (
-    PlaytestRepository,
     atomic_write_json,
     atomic_write_text,
     load_model,
@@ -143,7 +128,6 @@ from commander_lab.meta.store import stable_deck_hash
 from commander_lab.primer import PrimerToPilotCompiler
 from commander_lab.agents.pilots import build_pilot
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
-from commander_lab.reporting import calibration_report_markdown
 from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
 from commander_lab.provenance import ProvenanceStore
 
@@ -156,8 +140,6 @@ from commander_lab.models.tooling import (
     SampleOpeningHandsInput, EvaluateOpeningHandInput, CompareMulliganPoliciesInput,
     RunMulliganLabInput, GenerateKeepRulesInput, TestKeepRuleInput, CreateMulliganReportInput,
 )
-from commander_lab.local_meta import LocalMetaStore
-from commander_lab.models.local_meta import LocalGameRecord
 from commander_lab.opponent_ensembles import OpponentEnsembleStore
 from commander_lab.models.opponent_ensembles import OpponentEnsemble, OpponentVariant
 
@@ -217,9 +199,6 @@ class CommanderToolService:
 
     def _provenance(self) -> ProvenanceStore:
         return ProvenanceStore(self.root)
-
-    def _local_meta(self) -> LocalMetaStore:
-        return LocalMetaStore(self.root)
 
     def _opponent_ensembles(self) -> OpponentEnsembleStore:
         return OpponentEnsembleStore(self.root)
@@ -1341,43 +1320,6 @@ class CommanderToolService:
             target=self.root/"data/opponent_ensembles"/Path(request.output_name).name; atomic_write_text(target,self._opponent_ensembles().report(request.ensemble_id)); return {"report_path":str(target.relative_to(self.root)),"ensemble_id":request.ensemble_id,"automatic_profile_overwrite":False}
         return self._invoke("generate_ensemble_report",request,work)
 
-    def ingest_local_game(self, request: IngestLocalGameInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
-            path=self._project_path(request.source_path); payload=json.loads(path.read_text(encoding="utf-8")); game=LocalGameRecord.model_validate(payload)
-            result=self._local_meta().ingest(game); result.update({"complete_opponent_deck_inferred":False,"append_only":True})
-            return result
-        return self._invoke("ingest_local_game", request, work, estimate_type="empirical_playtest_observations")
-
-    def update_local_opponent_profile(self, request: UpdateLocalOpponentProfileInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
-            p=self._local_meta().update_profile(request.opponent_key,request.commander,request.deck_version_label)
-            return {"profile":p.model_dump(mode="json"),"official_precon_overwritten":False,"complete_deck_inferred":False}
-        return self._invoke("update_local_opponent_profile", request, work, estimate_type="mixed_real_and_structural")
-
-    def inspect_local_meta(self, request: InspectLocalMetaInput) -> ToolResponse:
-        return self._invoke("inspect_local_meta", request, self._local_meta().inspect, estimate_type="empirical_playtest_observations")
-
-    def compare_observed_to_assumed(self, request: CompareObservedToAssumedInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
-            assumed=json.loads(self._project_path(request.assumed_profile_path).read_text()) if request.assumed_profile_path else None
-            return self._local_meta().compare_observed_to_assumed(request.opponent_key,assumed)
-        return self._invoke("compare_observed_to_assumed", request, work, estimate_type="mixed_real_and_structural")
-
-    def detect_local_meta_drift(self, request: DetectLocalMetaDriftInput) -> ToolResponse:
-        return self._invoke("detect_local_meta_drift", request, lambda:self._local_meta().detect_drift(request.opponent_key), estimate_type="empirical_playtest_observations")
-
-    def build_local_meta_scenarios(self, request: BuildLocalMetaScenariosInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
-            result=self._local_meta().build_scenarios(); target=self.root/"data/local_meta/exports"/Path(request.output_name).name; atomic_write_json(target,result); result["output_path"]=str(target.relative_to(self.root)); return result
-        return self._invoke("build_local_meta_scenarios", request, work, estimate_type="mixed_real_and_structural")
-
-    def generate_local_meta_report(self, request: GenerateLocalMetaReportInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
-            data=self._local_meta().inspect(); target=self.root/"data/local_meta"/Path(request.output_name).name
-            lines=["# Local Meta Learning Report","",f"Status: `{'local_meta_learning_ready_with_insufficient_data' if data['real_game_count']<5 else 'local_meta_learning_ready'}`",f"Real imported games: {data['real_game_count']}",f"Profiles: {data['profile_count']}",f"Data quality: {data['data_quality']}","","Missing data are not estimated. Observed cards do not imply a complete list. Official precon profiles are never overwritten automatically."]
-            atomic_write_text(target,"\n".join(lines)+"\n"); return {"report_path":str(target.relative_to(self.root)),**data}
-        return self._invoke("generate_local_meta_report", request, work, estimate_type="mixed_real_and_structural")
-
     def trace_artifact_provenance(self, request: TraceArtifactProvenanceInput) -> ToolResponse:
         return self._invoke("trace_artifact_provenance", request, lambda: self._provenance().trace(request.artifact_id))
 
@@ -2014,147 +1956,6 @@ class CommanderToolService:
             "validate_upgrade", request, work,
             deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed,
             iterations=request.iterations,
-        )
-
-
-    def ingest_playtest(self, request: IngestPlaytestInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
-            source = Path(request.source_path).resolve()
-            if not source.is_file():
-                raise ToolExecutionError(f"playtest file not found: {source}")
-            games = RealPlaytestImporter().import_file(
-                source,
-                sheet_name=request.sheet_name,
-                dataset_version=request.dataset_version,
-            )
-            repository = PlaytestRepository(self.root)
-            manifest = repository.ingest(games, dataset_version=request.dataset_version)
-            return {
-                "games_imported": len(games),
-                "game_ids": [game.game_id for game in games],
-                "validated_games_imported": sum(game.validated for game in games),
-                "games_with_validation_errors": {
-                    game.game_id: game.validation_errors
-                    for game in games
-                    if game.validation_errors
-                },
-                "dataset_manifest": manifest.model_dump(mode="json"),
-                "source_file_modified": False,
-                "canonical_deck_files_modified": False,
-                "google_drive_files_modified": False,
-            }
-        return self._invoke(
-            "ingest_playtest", request, work, estimate_type="empirical_playtest_observations"
-        )
-
-    def calibrate(self, request: CalibrateInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
-            repository = PlaytestRepository(self.root)
-            games = repository.load_games(request.dataset_version)
-            if not games:
-                raise ToolExecutionError(
-                    f"no real playtests found for dataset {request.dataset_version!r}"
-                )
-
-            policy_path = (self.root / request.policy_path).resolve()
-            try:
-                policy_path.relative_to(self.root)
-            except ValueError as exc:
-                raise ToolExecutionError("calibration policy must be inside the project root") from exc
-            if not policy_path.is_file():
-                raise ToolExecutionError(f"calibration policy not found: {policy_path}")
-            policy_payload = json.loads(policy_path.read_text(encoding="utf-8"))
-
-            def configured(name: str, default: Any) -> Any:
-                if name in request.model_fields_set:
-                    return getattr(request, name)
-                return policy_payload.get(name, default)
-
-            split_strategy = SplitStrategy(configured("split_strategy", request.split_strategy))
-            split_seed = int(configured("split_seed", request.split_seed))
-            train_fraction = float(configured("train_fraction", request.train_fraction))
-            assignments = assign_playtest_splits(
-                games,
-                strategy=split_strategy,
-                train_fraction=train_fraction,
-                seed=split_seed,
-            )
-            manifest = repository.seal_split(
-                request.dataset_version,
-                assignments=assignments,
-                strategy=split_strategy,
-                seed=split_seed,
-                train_fraction=train_fraction,
-            )
-            batches, source_hashes = load_structural_batches(
-                Path(path) for path in request.simulation_result_paths
-            )
-            policy = CalibrationPolicy(
-                policy_version=str(policy_payload.get("policy_version", "1.0.0")),
-                train_fraction=train_fraction,
-                split_strategy=split_strategy,
-                split_seed=split_seed,
-                confidence_level=float(configured("confidence_level", request.confidence_level)),
-                bootstrap_samples=int(configured("bootstrap_samples", request.bootstrap_samples)),
-                minimum_train_games=int(configured("minimum_train_games", request.minimum_train_games)),
-                minimum_validation_games=int(configured("minimum_validation_games", request.minimum_validation_games)),
-                minimum_train_observations=int(
-                    configured("minimum_train_observations", request.minimum_train_observations)
-                ),
-                minimum_validation_observations=int(
-                    configured("minimum_validation_observations", request.minimum_validation_observations)
-                ),
-                minimum_validation_improvement=float(
-                    configured("minimum_validation_improvement", request.minimum_validation_improvement)
-                ),
-                prior_strength=float(policy_payload.get("prior_strength", 20.0)),
-                minimum_multiplier=float(policy_payload.get("minimum_multiplier", 0.5)),
-                maximum_multiplier=float(policy_payload.get("maximum_multiplier", 2.0)),
-            )
-            report = calibrate_playtests(
-                manifest=manifest,
-                games=repository.load_games(request.dataset_version),
-                simulation_batches=batches,
-                simulation_source_hashes=source_hashes,
-                policy=policy,
-                target_deck_versions=request.target_deck_versions,
-            )
-            safe_name = Path(request.output_name).name
-            if not safe_name.endswith(".json"):
-                safe_name += ".json"
-            output_dir = self.root / "data" / "playtests" / "calibrations" / report.calibration_id
-            json_path = output_dir / safe_name
-            markdown_path = output_dir / f"{Path(safe_name).stem}.md"
-            profile_path = output_dir / "calibration_profile.json"
-            atomic_write_json(json_path, report.model_dump(mode="json"))
-            atomic_write_text(markdown_path, calibration_report_markdown(report))
-            atomic_write_json(
-                profile_path,
-                {
-                    "schema_version": "1.0.0",
-                    "calibration_id": report.calibration_id,
-                    "dataset_hash": report.dataset_hash,
-                    "policy_hash": report.policy_hash,
-                    "accepted_parameters": report.accepted_parameters,
-                    "status": report.status.value,
-                    "applied": False,
-                    "engine_defaults_modified": False,
-                    "independent_confirmation": False,
-                    "external_engine_validation_pending": True,
-                },
-            )
-            return {
-                **report.model_dump(mode="json"),
-                "policy_path": str(policy_path),
-                "output_path": str(json_path),
-                "markdown_report_path": str(markdown_path),
-                "calibration_profile_path": str(profile_path),
-                "automatic_parameter_application": False,
-                "canonical_deck_files_modified": False,
-                "google_drive_files_modified": False,
-            }
-        return self._invoke(
-            "calibrate", request, work, estimate_type="mixed_real_and_structural"
         )
 
     def create_report(self, request: CreateReportInput) -> ToolResponse:

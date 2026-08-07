@@ -69,8 +69,8 @@
       "verification_status": "hash_verified"
     },
     {
-      "artifact_id": "local-meta-observation-shells-v1",
-      "artifact_type": "local_meta_profiles",
+      "artifact_id": "opponent-uncertainty-shells-v1",
+      "artifact_type": "opponent_uncertainty_profiles",
       "content_hash": "8d2a3e8a19030bf4019191f56f5d4ef2ecd8681b977bc8f6426a07b32eb8d299",
       "created_at": "2026-08-06T11:29:57.807791Z",
       "derived_from": [
@@ -81,13 +81,13 @@
       "metadata": {
         "complete_deck_inferred": false,
         "official_precon_overwritten": false,
-        "real_game_count": 0
+        "manual_game_count": 0
       },
       "package_version": "1.6.0",
-      "path_or_drive_id": "data/local_meta/profiles",
+      "path_or_drive_id": "data/opponent_ensembles",
       "title": "Versioned local opponent observation shells",
       "transformation_ids": [
-        "transform-local-meta-learning"
+        "transform-opponent-uncertainty-modeling"
       ],
       "verification_status": "hash_verified"
     },
@@ -99,7 +99,7 @@
       "derived_from": [
         "user-direct-current-project-rules",
         "synthetic-opponent-fixtures",
-        "local-meta-observation-shells-v1",
+        "opponent-uncertainty-shells-v1",
         "repo-1.6.0"
       ],
       "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
@@ -124,7 +124,7 @@
       "derived_from": [
         "user-direct-current-project-rules",
         "synthetic-opponent-fixtures",
-        "local-meta-observation-shells-v1",
+        "opponent-uncertainty-shells-v1",
         "repo-1.6.0"
       ],
       "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
@@ -149,7 +149,7 @@
       "derived_from": [
         "user-direct-current-project-rules",
         "synthetic-opponent-fixtures",
-        "local-meta-observation-shells-v1",
+        "opponent-uncertainty-shells-v1",
         "repo-1.6.0"
       ],
       "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
@@ -265,7 +265,7 @@
         "primer-policy-korvold-current",
         "pilot-registry",
         "package-registry",
-        "local-meta-observation-shells-v1",
+        "opponent-uncertainty-shells-v1",
         "opponent-ensemble-morcant-elves-ensemble-v1",
         "mulligan-lab-korvold-result-v1.8",
         "counterfactual-korvold-example-v1.9"
@@ -438,9 +438,9 @@
       "claim_text": "No real local Commander games have been imported into the learning layer.",
       "confidence": 1.0,
       "derived_ids": [
-        "derived-local-meta-summary-v1"
+        "derived-opponent-uncertainty-summary-v1"
       ],
-      "location": "data/local_meta/LOCAL_META_REPORT.md",
+      "location": "data/opponent_ensembles/OPPONENT_ENSEMBLE_REPORT.md",
       "source_ids": []
     },
     {
@@ -450,7 +450,7 @@
       "claim_text": "The three opponent ensembles are unweighted because no real games are available for observational weighting.",
       "confidence": 1.0,
       "derived_ids": [
-        "derived-local-meta-summary-v1",
+        "derived-opponent-uncertainty-summary-v1",
         "derived-opponent-ensemble-smoke-v1"
       ],
       "location": "data/opponent_ensembles/OPPONENT_ENSEMBLE_REPORT.md",
@@ -566,18 +566,18 @@
     {
       "confidence": 1.0,
       "content_hash": "d29d8ef72d9a99f0d5a523d756bebf5d0c8bde9358ea032e20c3cd48d7be4b21",
-      "data_type": "local_meta_observation_summary",
+      "data_type": "opponent_uncertainty_summary",
       "derived_from": [
-        "local-meta-observation-shells-v1"
+        "opponent-uncertainty-shells-v1"
       ],
-      "derived_id": "derived-local-meta-summary-v1",
+      "derived_id": "derived-opponent-uncertainty-summary-v1",
       "metadata": {
-        "insufficient_data": true,
+        "uncertainty_explicit": true,
         "missing_data_estimated": false,
-        "real_game_count": 0
+        "manual_game_count": 0
       },
-      "model_label": "empirical_playtest_observations",
-      "transformation_id": "transform-local-meta-learning",
+      "model_label": "structural_only",
+      "transformation_id": "transform-opponent-uncertainty-modeling",
       "verification_status": "verified"
     },
     {
@@ -1233,12 +1233,12 @@
       ],
       "name": "Local meta learning",
       "output_ids": [
-        "local-meta-observation-shells-v1",
-        "derived-local-meta-summary-v1"
+        "opponent-uncertainty-shells-v1",
+        "derived-opponent-uncertainty-summary-v1"
       ],
       "package_version": "1.6.0",
       "parameters_hash": null,
-      "transformation_id": "transform-local-meta-learning"
+      "transformation_id": "transform-opponent-uncertainty-modeling"
     },
     {
       "code_hash": "6f7f4712d38dd23663be0b313b6f2454845826d488b7e4c76f88ac2ddccc9253",
@@ -1249,7 +1249,7 @@
       "input_ids": [
         "user-direct-current-project-rules",
         "synthetic-opponent-fixtures",
-        "local-meta-observation-shells-v1",
+        "opponent-uncertainty-shells-v1",
         "repo-1.6.0"
       ],
       "name": "Opponent ensemble construction and robustness evaluation",
@@ -1317,7 +1317,7 @@
         "primer-policy-korvold-current",
         "pilot-registry",
         "package-registry",
-        "local-meta-observation-shells-v1",
+        "opponent-uncertainty-shells-v1",
         "opponent-ensemble-morcant-elves-ensemble-v1",
         "mulligan-lab-korvold-result-v1.8",
         "counterfactual-korvold-example-v1.9"
@@ -1383,7 +1383,7 @@
         "primer-policy-korvold-current",
         "pilot-registry",
         "package-registry",
-        "local-meta-observation-shells-v1",
+        "opponent-uncertainty-shells-v1",
         "opponent-ensemble-morcant-elves-ensemble-v1",
         "mulligan-lab-korvold-result-v1.10.1",
         "counterfactual-korvold-example-v1.10.1"

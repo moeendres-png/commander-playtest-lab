@@ -1,0 +1,17 @@
+...................s.................................................... [ 28%]
+........................................................................ [ 57%]
+........................................................................ [ 86%]
+..................................                                       [100%]
+=============================== warnings summary ===============================
+src/commander_lab/models/tooling.py:429
+  /mnt/data/cplab_work/commander-playtest-lab/src/commander_lab/models/tooling.py:429: PytestCollectionWarning: cannot collect test class 'TestVariantAcrossPilotsInput' because it has a __init__ constructor (from: tests/unit/test_opponent_ensembles.py)
+    class TestVariantAcrossPilotsInput(FrozenModel):
+
+src/commander_lab/models/tooling.py:601
+  /mnt/data/cplab_work/commander-playtest-lab/src/commander_lab/models/tooling.py:601: PytestCollectionWarning: cannot collect test class 'TestKeepRuleInput' because it has a __init__ constructor (from: tests/unit/test_opponent_ensembles.py)
+    class TestKeepRuleInput(FrozenModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/differential/test_phase6_differential.py:56: requires configured XMage or Forge differential command
+249 passed, 1 skipped, 2 warnings in 73.99s (0:01:13)

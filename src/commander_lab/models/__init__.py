@@ -58,22 +58,6 @@ from .optimization import (
     ParetoFrontInput,
     ShapleyInput,
 )
-from .playtests import (
-    CALIBRATION_SCHEMA_VERSION,
-    PLAYTEST_SCHEMA_VERSION,
-    CalibrationParameterResult,
-    CalibrationReport,
-    CalibrationStatus,
-    CategoryEstimate,
-    DistributionSummary,
-    EvidenceSplit,
-    MetricComparison,
-    ParameterDecision,
-    PlaytestDatasetManifest,
-    PlaytestParticipant,
-    RealPlaytest,
-    SplitStrategy,
-)
 from .roles import CardRole
 from .pilots import (
     PilotActionView,
@@ -247,18 +231,6 @@ __all__ = [
     "OpponentProfile",
     "PhysicalCard",
     "PlayerState",
-    "CALIBRATION_SCHEMA_VERSION",
-    "PLAYTEST_SCHEMA_VERSION",
-    "CalibrationParameterResult",
-    "CalibrationReport",
-    "CalibrationStatus",
-    "CategoryEstimate",
-    "DistributionSummary",
-    "EvidenceSplit",
-    "MetricComparison",
-    "ParameterDecision",
-    "PlaytestDatasetManifest",
-    "PlaytestParticipant",
     "PilotActionView",
     "PilotCommanderView",
     "PilotConfig",
@@ -275,8 +247,6 @@ __all__ = [
     "PilotUtilityBreakdown",
     "PilotUtilityWeights",
     "PurchaseStatus",
-    "RealPlaytest",
-    "SplitStrategy",
     "RunStatus",
     "SimulationConfig",
     "SimulationMode",
@@ -362,7 +332,6 @@ __all__ = [
 
 
 from .tooling import (
-    CalibrateInput,
     CandidateProfile,
     CardAblationInput,
     CommanderDenialInput,
@@ -372,7 +341,6 @@ from .tooling import (
     DeckRefInput,
     GoldfishInput,
     HoldoutInput,
-    IngestPlaytestInput,
     InspectDeckInput,
     MatchupBatchInput,
     PackageAblationInput,
@@ -436,13 +404,10 @@ __all__.extend([
     "GenerateProvenanceReportInput", "AuditUnreferencedClaimsInput",
 ])
 
-from .local_meta import (LOCAL_META_SCHEMA_VERSION, ObservationStatus, LocalCardObservation, LocalRoleObservation, LocalGameParticipant, LocalGameRecord, LocalFrequencyEstimate, LocalOpponentProfileVersion, LocalMetaSnapshot)
-from .tooling import (IngestLocalGameInput, UpdateLocalOpponentProfileInput, InspectLocalMetaInput, CompareObservedToAssumedInput, DetectLocalMetaDriftInput, BuildLocalMetaScenariosInput, GenerateLocalMetaReportInput)
-__all__.extend(["LOCAL_META_SCHEMA_VERSION","ObservationStatus","LocalCardObservation","LocalRoleObservation","LocalGameParticipant","LocalGameRecord","LocalFrequencyEstimate","LocalOpponentProfileVersion","LocalMetaSnapshot","IngestLocalGameInput","UpdateLocalOpponentProfileInput","InspectLocalMetaInput","CompareObservedToAssumedInput","DetectLocalMetaDriftInput","BuildLocalMetaScenariosInput","GenerateLocalMetaReportInput"])
 
-from .opponent_ensembles import (OPPONENT_ENSEMBLE_SCHEMA_VERSION, EnsembleWeightMode, OpponentCardAssumption, ObservedConstraint, UncertaintyDimension, VariantWeight, OpponentVariant, OpponentEnsemble, RobustnessScenario, EnsembleMatchupResult)
+from .opponent_ensembles import (OPPONENT_ENSEMBLE_SCHEMA_VERSION, ObservationStatus, EnsembleWeightMode, OpponentCardAssumption, ObservedConstraint, UncertaintyDimension, VariantWeight, OpponentVariant, OpponentEnsemble, RobustnessScenario, EnsembleMatchupResult)
 from .tooling import (CreateOpponentEnsembleInput, AddOpponentVariantInput, ValidateEnsembleInput, RunEnsembleMatchupsInput, CompareVariantSensitivityInput, EvaluateRobustUpgradeInput, GenerateEnsembleReportInput)
-__all__.extend(["OPPONENT_ENSEMBLE_SCHEMA_VERSION","EnsembleWeightMode","OpponentCardAssumption","ObservedConstraint","UncertaintyDimension","VariantWeight","OpponentVariant","OpponentEnsemble","RobustnessScenario","EnsembleMatchupResult","CreateOpponentEnsembleInput","AddOpponentVariantInput","ValidateEnsembleInput","RunEnsembleMatchupsInput","CompareVariantSensitivityInput","EvaluateRobustUpgradeInput","GenerateEnsembleReportInput"])
+__all__.extend(["OPPONENT_ENSEMBLE_SCHEMA_VERSION","ObservationStatus","EnsembleWeightMode","OpponentCardAssumption","ObservedConstraint","UncertaintyDimension","VariantWeight","OpponentVariant","OpponentEnsemble","RobustnessScenario","EnsembleMatchupResult","CreateOpponentEnsembleInput","AddOpponentVariantInput","ValidateEnsembleInput","RunEnsembleMatchupsInput","CompareVariantSensitivityInput","EvaluateRobustUpgradeInput","GenerateEnsembleReportInput"])
 
 from .mulligan import (
     MULLIGAN_LAB_SCHEMA_VERSION,

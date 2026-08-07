@@ -10,7 +10,15 @@ from typing import Any
 from commander_lab.storage.atomic import atomic_write_json
 from commander_lab.storage.hashing import sha256_value
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+
+LEGACY_MANUAL_PLAYTEST_TABLES = (
+    "calibration_profiles",
+    "local_opponent_profiles",
+    "local_games",
+    "playtest_games",
+    "playtests",
+)
 
 
 def connect_database(path: str | Path) -> sqlite3.Connection:
@@ -25,7 +33,23 @@ def connect_database(path: str | Path) -> sqlite3.Connection:
 
 
 def migrate_database(path: str | Path) -> dict[str, Any]:
+    """Migrate the active database and remove known manual-playtest-only tables.
+
+    Historical Git artifacts are untouched.  The database records whether legacy
+    tables were removed so callers can distinguish a clean database from a migrated one.
+    """
+    removed: list[str] = []
     with connect_database(path) as connection:
+        existing = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
+        for table in LEGACY_MANUAL_PLAYTEST_TABLES:
+            if table in existing:
+                connection.execute(f'DROP TABLE "{table}"')
+                removed.append(table)
         connection.executescript(
             """
             CREATE TABLE IF NOT EXISTS schema_meta (
@@ -50,10 +74,21 @@ def migrate_database(path: str | Path) -> dict[str, Any]:
             CREATE INDEX IF NOT EXISTS idx_run_registry_status ON run_registry(status);
             """
         )
+        migration_status = "removed_legacy_tables" if removed else "not_present"
         connection.execute(
             "INSERT INTO schema_meta(key,value) VALUES('schema_version',?) "
             "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
             (str(SCHEMA_VERSION),),
+        )
+        connection.execute(
+            "INSERT INTO schema_meta(key,value) VALUES('manual_playtest_migration_status',?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (migration_status,),
+        )
+        connection.execute(
+            "INSERT INTO schema_meta(key,value) VALUES('manual_playtest_removed_tables',?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (json.dumps(sorted(removed)),),
         )
     return check_database(path)
 
@@ -69,6 +104,12 @@ def check_database(path: str | Path) -> dict[str, Any]:
             row = connection.execute(
                 "SELECT value FROM schema_meta WHERE key='schema_version'"
             ).fetchone()
+            migration_row = connection.execute(
+                "SELECT value FROM schema_meta WHERE key='manual_playtest_migration_status'"
+            ).fetchone()
+            removed_row = connection.execute(
+                "SELECT value FROM schema_meta WHERE key='manual_playtest_removed_tables'"
+            ).fetchone()
     except sqlite3.DatabaseError as exc:
         return {
             "status": "failed",
@@ -82,6 +123,8 @@ def check_database(path: str | Path) -> dict[str, Any]:
         "integrity": integrity == "ok",
         "foreign_keys": not foreign_keys,
         "schema_version": int(row[0]) if row else None,
+        "manual_playtest_migration_status": migration_row[0] if migration_row else "unknown",
+        "manual_playtest_removed_tables": json.loads(removed_row[0]) if removed_row else [],
     }
 
 

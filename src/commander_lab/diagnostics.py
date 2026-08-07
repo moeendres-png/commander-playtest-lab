@@ -84,10 +84,10 @@ class DecisionDiagnosticEngine:
         if sample_size < self.minimum_evidence:
             evidence.append(f"sample size {sample_size} is below the minimum diagnostic threshold {self.minimum_evidence}")
             cause = FailureCause.INSUFFICIENT_EVIDENCE
-        elif dataset.tactical_structural_disagreement >= 0.5 or dataset.real_structural_disagreement >= 0.5:
+        elif dataset.tactical_structural_disagreement >= 0.5 or dataset.external_rules_structural_disagreement >= 0.5:
             evidence.append("structural results materially disagree with a higher or independent validation level")
             cause = FailureCause.SIMULATION_ABSTRACTION_IS_WRONG
-            next_test = "repair_structural_abstraction_and_repeat_tactical_or_real_validation"
+            next_test = "repair_structural_abstraction_and_repeat_tactical_or_external_validation"
         elif dataset.opponent_observation_conflict or (dataset.opponent_sensitivity >= 0.6 and dataset.opponent_ensemble_count < 3):
             evidence.append("result changes strongly with opponent assumptions or conflicts with observation")
             cause = FailureCause.OPPONENT_MODEL_IS_WRONG
@@ -618,10 +618,10 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
     atomic_write_json(trace_path, trace)
     add(5, "trace_provenance", [relative(provenance_store.path), relative(trace_path)], "provenance_verified", f"traced {trace_id} through {len(trace.get('lineage', trace.get('records', trace.get('trace', []))))} retained records")
 
-    # 6. Load the append-only local observed profile without filling missing data.
-    local_path = root / "data/local_meta/profiles/alen_morcant_observed_v1.json"
-    local_profile = json.loads(local_path.read_text(encoding="utf-8"))
-    add(6, "load_local_opponent_profile", [relative(local_path)], "insufficient_real_data", f"real observations remain {local_profile.get('game_count', 0)}; no missing values inferred")
+    # 6. Load the explicit synthetic uncertainty ensemble; no empirical game data is required.
+    uncertainty_path = root / "data/opponent_ensembles/morcant-elves-ensemble-v1.json"
+    uncertainty_profile = json.loads(uncertainty_path.read_text(encoding="utf-8"))
+    add(6, "load_opponent_uncertainty_ensemble", [relative(uncertainty_path)], "structural_only", f"loaded {len(uncertainty_profile.get('variants', []))} provenance-marked variants without empirical calibration")
 
     # 7. Execute a current opponent-ensemble sensitivity calculation.
     from commander_lab.opponent_ensembles import OpponentEnsembleStore

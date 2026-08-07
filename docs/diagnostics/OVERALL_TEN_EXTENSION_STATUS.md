@@ -15,7 +15,7 @@
 
 ## Prioritized open functions
 
-1. Import and calibrate a meaningful real-game dataset; current real imported game count is zero.
+1. Expand synthetic opponent uncertainty, pilot, politics, and external-engine validation coverage.
 2. Configure and execute real XMage or Forge differential validation.
 3. Validate Mulligan and diagnostic policies on real holdout games and larger paired Structural batches.
 4. Capture external-engine executable states for stronger rules-complete counterfactual branches.

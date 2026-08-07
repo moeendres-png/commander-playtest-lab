@@ -89,7 +89,7 @@ class DiagnosticDataset(FrozenModel):
     deck_variant_effect: float | None = None
     holdout_confirms_problem: bool = False
     tactical_structural_disagreement: float = Field(default=0.0, ge=0.0, le=1.0)
-    real_structural_disagreement: float = Field(default=0.0, ge=0.0, le=1.0)
+    external_rules_structural_disagreement: float = Field(default=0.0, ge=0.0, le=1.0)
     multiple_pods_confirm: bool = False
     source_ids: tuple[str, ...] = ()
     validation_levels: tuple[str, ...] = ("structural_model_estimates",)

@@ -16,7 +16,7 @@ def test_all_required_tools_are_exposed() -> None:
         "run_package_ablation", "run_commander_denial", "generate_swap_matrix",
         "search_variants", "run_local_search", "run_beam_search", "run_package_search",
         "evaluate_pareto_front", "estimate_shapley", "run_holdout", "run_sensitivity", "recommend_upgrades",
-        "validate_upgrade", "ingest_playtest", "calibrate", "create_report",
+        "validate_upgrade", "create_report",
         "import_meta_deck", "import_tournament_result", "import_primer_reference",
         "create_meta_snapshot", "query_meta_cards", "query_meta_packages",
         "compare_deck_to_meta", "compare_meta_periods", "generate_meta_report",
@@ -36,9 +36,6 @@ def test_all_required_tools_are_exposed() -> None:
         "trace_artifact_provenance", "trace_recommendation_sources",
         "list_superseded_sources", "verify_source_hash",
         "generate_provenance_report", "audit_unreferenced_claims",
-        "ingest_local_game", "update_local_opponent_profile", "inspect_local_meta",
-        "compare_observed_to_assumed", "detect_local_meta_drift",
-        "build_local_meta_scenarios", "generate_local_meta_report",
         "create_opponent_ensemble", "add_opponent_variant", "validate_ensemble",
         "run_ensemble_matchups", "compare_variant_sensitivity",
         "evaluate_robust_upgrade", "generate_ensemble_report",
@@ -57,8 +54,8 @@ def test_all_required_tools_are_exposed() -> None:
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 92
-    assert len({schema["name"] for schema in schemas}) == 92
+    assert len(schemas) == 83
+    assert len({schema["name"] for schema in schemas}) == 83
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
 

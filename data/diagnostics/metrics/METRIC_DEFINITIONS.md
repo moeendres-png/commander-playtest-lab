@@ -9,4 +9,4 @@
 - `counterfactual_improvement`: mean model improvement for legal alternative actions.
 - `evidence_strength`: sample-size and validation-level weighted support. It is not a probability that the diagnosis is true.
 
-All metrics are model-dependent unless explicitly paired with real observations.
+All metrics are model-dependent unless explicitly cross-checked by a real external rules engine.

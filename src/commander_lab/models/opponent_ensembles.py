@@ -3,7 +3,16 @@ from enum import StrEnum
 from typing import Any
 from pydantic import Field, model_validator
 from .common import FrozenModel, MutableModel, NumericRange
-from .local_meta import ObservationStatus
+
+class ObservationStatus(StrEnum):
+    """Source status for opponent-card assumptions, not empirical game evidence."""
+
+    DIRECTLY_OBSERVED = "directly_observed"
+    REPORTED_BY_PLAYER = "reported_by_player"
+    INFERRED_ROLE = "inferred_role"
+    UNKNOWN = "unknown"
+    SYNTHETIC_ASSUMPTION = "synthetic_assumption"
+
 
 OPPONENT_ENSEMBLE_SCHEMA_VERSION="1.0.0"
 

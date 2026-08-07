@@ -4,8 +4,12 @@
     {
       "case_id": "agent_validate_deck",
       "goal": "Validate the current Korvold deck for legality and physical allocation.",
-      "expected_tools": ["validate_deck"],
-      "optional_tools": ["inspect_deck"],
+      "expected_tools": [
+        "validate_deck"
+      ],
+      "optional_tools": [
+        "inspect_deck"
+      ],
       "requires_uncertainty": false,
       "recommendation_task": false,
       "required_validation_tools": [],
@@ -14,8 +18,13 @@
     {
       "case_id": "agent_matchup_batch",
       "goal": "Run a bounded four-player matchup batch for Korvold and interpret the structural result.",
-      "expected_tools": ["run_matchup_batch"],
-      "optional_tools": ["run_sensitivity", "create_report"],
+      "expected_tools": [
+        "run_matchup_batch"
+      ],
+      "optional_tools": [
+        "run_sensitivity",
+        "create_report"
+      ],
       "requires_uncertainty": true,
       "recommendation_task": false,
       "required_validation_tools": [],
@@ -32,27 +41,48 @@
         "validate_upgrade",
         "create_report"
       ],
-      "optional_tools": ["run_sensitivity", "run_card_ablation", "generate_swap_matrix"],
+      "optional_tools": [
+        "run_sensitivity",
+        "run_card_ablation",
+        "generate_swap_matrix"
+      ],
       "requires_uncertainty": true,
       "recommendation_task": true,
-      "required_validation_tools": ["compare_variants_paired", "run_holdout", "validate_upgrade"],
+      "required_validation_tools": [
+        "compare_variants_paired",
+        "run_holdout",
+        "validate_upgrade"
+      ],
       "critical": true
     },
     {
       "case_id": "agent_commander_denial",
       "goal": "Assess RogShai commander dependence under commander denial without calling the output a real win rate.",
-      "expected_tools": ["run_commander_denial"],
-      "optional_tools": ["run_sensitivity", "create_report"],
+      "expected_tools": [
+        "run_commander_denial"
+      ],
+      "optional_tools": [
+        "run_sensitivity",
+        "create_report"
+      ],
       "requires_uncertainty": true,
       "recommendation_task": false,
       "required_validation_tools": [],
       "critical": true
     },
     {
-      "case_id": "agent_real_playtest_calibration",
-      "goal": "Ingest a real playtest sheet, calibrate the structural model, and report remaining uncertainty.",
-      "expected_tools": ["ingest_playtest", "calibrate", "create_report"],
-      "optional_tools": [],
+      "case_id": "agent_synthetic_uncertainty_ensemble",
+      "goal": "Build a synthetic uncertainty ensemble for an incomplete opponent list, validate it, run bounded structural matchups, and report remaining uncertainty.",
+      "expected_tools": [
+        "create_opponent_ensemble",
+        "validate_ensemble",
+        "run_ensemble_matchups",
+        "generate_ensemble_report"
+      ],
+      "optional_tools": [
+        "compare_variant_sensitivity",
+        "run_sensitivity"
+      ],
       "requires_uncertainty": true,
       "recommendation_task": false,
       "required_validation_tools": [],

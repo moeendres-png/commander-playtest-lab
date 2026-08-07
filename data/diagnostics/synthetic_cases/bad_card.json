@@ -69,7 +69,7 @@
       "unplayable_rate": 0.28
     }
   ],
-  "real_structural_disagreement": 0.0,
+  "external_rules_structural_disagreement": 0.0,
   "schema_version": "1.0.0",
   "seed_sensitivity": 0.1,
   "source_ids": [

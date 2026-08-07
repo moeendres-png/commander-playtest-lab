@@ -21,5 +21,5 @@ A package result is advisory. `automatic_deck_application` remains false.
 - Structural role annotations can represent the same card differently by deck context, but they are not full card-rules proofs.
 - Three-game package ablations are smoke tests only.
 - No real XMage/Forge runtime was executed.
-- No real-playtest calibration dataset is available.
+- Package evidence is evaluated through synthetic holdouts, pilot sensitivity, and rules-coverage gates; no manual-playtest dataset is used.
 - No package is automatically added to a canonical deck or treated as inventory.

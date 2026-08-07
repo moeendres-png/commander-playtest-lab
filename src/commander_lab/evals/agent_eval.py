@@ -26,8 +26,13 @@ def load_agent_eval_cases(path: str | Path) -> tuple[AgentEvalCase, ...]:
 
 def expected_tools_for_goal(goal: str) -> tuple[str, ...]:
     normalized = goal.casefold()
-    if "calibr" in normalized or "playtest" in normalized:
-        return ("ingest_playtest", "calibrate", "create_report")
+    if "uncertainty" in normalized or "ensemble" in normalized or "unknown opponent" in normalized:
+        return (
+            "create_opponent_ensemble",
+            "validate_ensemble",
+            "run_ensemble_matchups",
+            "generate_ensemble_report",
+        )
     if "upgrade" in normalized or "cut" in normalized or "swap" in normalized:
         return (
             "inspect_deck",
@@ -76,8 +81,8 @@ def _interpretation_score(trajectory: AgentTrajectory) -> tuple[float, list[str]
     details: list[str] = []
     if trajectory.report.estimate_type not in {
         "structural_model_estimates",
-        "empirical_playtest_observations",
-        "mixed_real_and_structural",
+        "tactical_oracle_results",
+        "external_rules_engine_results",
     }:
         details.append("report has incorrect evidence type")
     failed = [

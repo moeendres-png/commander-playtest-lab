@@ -11,7 +11,6 @@ from commander_lab.importers import (
     DeckImportOptions,
     GoogleDriveExportImporter,
     OpponentProfileImporter,
-    RealPlaytestImporter,
     XlsxDeckImporter,
 )
 
@@ -129,35 +128,3 @@ def test_opponent_profile_importer(tmp_path: Path) -> None:
     )
     profiles = OpponentProfileImporter().import_file(path)
     assert profiles[0].uncertainty.synthetic_card_count == 80
-
-
-def test_real_playtest_importer(tmp_path: Path) -> None:
-    path = tmp_path / "playtest.csv"
-    rows = [
-        {
-            "game_id": "g1",
-            "played_on": "2026-08-04",
-            "player_id": f"p{i}",
-            "player_name": f"P{i}",
-            "deck_name": "Korvold" if i == 1 else f"Opponent {i}",
-            "commander_names": "Korvold, Fae-Cursed King" if i == 1 else "Commander",
-            "seat": i - 1,
-            "placement": i,
-            "final_life": 40 - i,
-            "mulligans": 0,
-            "turns": 10,
-            "end_reason": "combat",
-            "starting_player_id": "p1",
-            "freeform_log": "",
-            "player_notes": "",
-        }
-        for i in range(1, 5)
-    ]
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
-        writer.writeheader()
-        writer.writerows(rows)
-    games = RealPlaytestImporter().import_file(path)
-    assert len(games) == 1
-    assert games[0].pod_size == 4
-    assert games[0].winner_player_ids == ["p1"]

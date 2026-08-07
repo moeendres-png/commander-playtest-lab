@@ -87,8 +87,8 @@ def validate_user_goal(goal: str) -> None:
 def validate_tool_output(response: ToolResponse) -> None:
     allowed = {
         "structural_model_estimates",
-        "empirical_playtest_observations",
-        "mixed_real_and_structural",
+        "tactical_oracle_results",
+        "external_rules_engine_results",
     }
     if response.metadata.estimate_type not in allowed:
         raise GuardrailViolation("tool output has invalid evidence label")
@@ -99,8 +99,8 @@ def validate_tool_output(response: ToolResponse) -> None:
 def validate_workflow_report(report: WorkflowReport) -> None:
     allowed = {
         "structural_model_estimates",
-        "empirical_playtest_observations",
-        "mixed_real_and_structural",
+        "tactical_oracle_results",
+        "external_rules_engine_results",
     }
     if report.estimate_type not in allowed:
         raise GuardrailViolation("workflow output has invalid evidence label")

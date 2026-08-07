@@ -8,7 +8,6 @@ from pydantic import Field, model_validator
 
 from .common import FrozenModel, MutableModel
 from .pilots import PilotDecisionMode, PilotStrength
-from .playtests import SplitStrategy
 from .structural import StructuralCardProfile
 
 
@@ -55,8 +54,8 @@ class ToolExecutionMetadata(FrozenModel):
     iterations: int | None = None
     estimate_type: Literal[
         "structural_model_estimates",
-        "empirical_playtest_observations",
-        "mixed_real_and_structural",
+        "tactical_oracle_results",
+        "external_rules_engine_results",
     ] = "structural_model_estimates"
     elapsed_seconds: float = Field(ge=0.0)
     deterministic_game_log_directory: str | None = None
@@ -213,31 +212,6 @@ class ValidateUpgradeInput(PairedVariantInput):
     require_sensitivity_nonnegative: bool = True
     require_red_team_pass: bool = True
 
-
-class IngestPlaytestInput(FrozenModel):
-    source_path: str
-    sheet_name: str | None = None
-    dataset_version: str = Field(default="phase9-current", pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
-
-
-class CalibrateInput(FrozenModel):
-    dataset_version: str = Field(default="phase9-current", pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
-    simulation_result_paths: tuple[str, ...] = ()
-    target_deck_versions: dict[str, str] = Field(default_factory=dict)
-    policy_path: str = "config/calibration_policy.json"
-    split_strategy: SplitStrategy = SplitStrategy.CHRONOLOGICAL
-    split_seed: int = Field(default=20260805, ge=0)
-    train_fraction: float = Field(default=0.7, gt=0.0, lt=1.0)
-    confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
-    bootstrap_samples: int = Field(default=1000, ge=100, le=100_000)
-    minimum_train_games: int = Field(default=20, ge=2)
-    minimum_validation_games: int = Field(default=8, ge=1)
-    minimum_train_observations: int = Field(default=12, ge=2)
-    minimum_validation_observations: int = Field(default=5, ge=1)
-    minimum_validation_improvement: float = Field(default=0.05, ge=0.0, le=1.0)
-    output_name: str = "latest_calibration.json"
-
-
 class CreateReportInput(FrozenModel):
     title: str
     tool_responses: tuple[dict[str, Any], ...]
@@ -264,8 +238,8 @@ class WorkflowReport(FrozenModel):
     estimated_cost_usd: float = Field(default=0.0, ge=0.0)
     estimate_type: Literal[
         "structural_model_estimates",
-        "empirical_playtest_observations",
-        "mixed_real_and_structural",
+        "tactical_oracle_results",
+        "external_rules_engine_results",
     ] = "structural_model_estimates"
 
 # Meta Knowledge Base tool inputs (append-only reference/evidence layer)
@@ -530,32 +504,7 @@ class AuditUnreferencedClaimsInput(FrozenModel):
 
 
 # Local meta learning tool inputs
-class IngestLocalGameInput(FrozenModel):
-    source_path: str
 
-class UpdateLocalOpponentProfileInput(FrozenModel):
-    opponent_key: str
-    commander: str
-    deck_version_label: str = "unknown"
-
-class InspectLocalMetaInput(FrozenModel):
-    include_profiles: bool = True
-
-class CompareObservedToAssumedInput(FrozenModel):
-    opponent_key: str
-    assumed_profile_path: str | None = None
-
-class DetectLocalMetaDriftInput(FrozenModel):
-    opponent_key: str
-
-class BuildLocalMetaScenariosInput(FrozenModel):
-    output_name: str = "local_meta_scenarios.json"
-
-class GenerateLocalMetaReportInput(FrozenModel):
-    output_name: str = "local_meta_report.md"
-
-
-# Opponent ensemble tool inputs
 class CreateOpponentEnsembleInput(FrozenModel):
     source_path: str
 

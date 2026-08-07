@@ -46,7 +46,7 @@
   "package_minimum_met": null,
   "pilot_disagreement": 0.1,
   "pilot_metrics": [],
-  "real_structural_disagreement": 0.0,
+  "external_rules_structural_disagreement": 0.0,
   "schema_version": "1.0.0",
   "seed_sensitivity": 0.9,
   "source_ids": [

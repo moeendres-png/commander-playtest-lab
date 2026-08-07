@@ -84,17 +84,17 @@
       "validation_level": "provenance_verified"
     },
     {
-      "name": "load_local_opponent_profile",
-      "result_summary": "real observations remain 0; no missing values inferred",
+      "name": "load_opponent_uncertainty_ensemble",
+      "result_summary": "synthetic variants are provenance-marked; no empirical calibration used",
       "source_hashes": [
         "eaba8eff03e44d9e5d78d5418937431025c5bd3dfaa41da3726d1c229af74ff4"
       ],
       "source_paths": [
-        "data/local_meta/profiles/alen_morcant_observed_v1.json"
+        "data/opponent_ensembles/morcant-elves-ensemble-v1.json"
       ],
       "status": "passed",
       "step": 6,
-      "validation_level": "insufficient_real_data"
+      "validation_level": "structural_only"
     },
     {
       "name": "simulate_opponent_ensemble",

@@ -1012,7 +1012,7 @@
       "format_band": "normal_four_player",
       "manually_approved": true,
       "priority": 75,
-      "rationale": "The external mulligan heuristic is accepted only for the current Korvold deck hash and remains subject to real-playtest calibration.",
+      "rationale": "The external mulligan heuristic is accepted only for the current Korvold deck hash and remains subject to synthetic holdout, pilot-sensitivity, and rules-coverage validation.",
       "requires_cards": [],
       "rule_id": "korvold.current.mulligan-ramp-without-sacrifice",
       "score_adjustment": -1.4,

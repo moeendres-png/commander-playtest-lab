@@ -622,7 +622,7 @@ def run_phase10_acceptance(
     logs_present = all(Path(path).exists() for path in log_directories)
     estimate_labels_valid = all(
         row.get("metadata", {}).get("estimate_type") in {
-            "structural_model_estimates", "empirical_playtest_observations", "mixed_real_and_structural"
+            "structural_model_estimates", "tactical_oracle_results", "external_rules_engine_results"
         }
         for row in evidence
     )

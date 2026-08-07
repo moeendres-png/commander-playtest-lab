@@ -7,7 +7,7 @@ Local, reproducible foundation for importing, validating, structurally simulatin
 The repository provides:
 
 - Pydantic models for cards, physical inventory, decks, opponents, game state, actions, events, simulation runs, contributions, upgrades, structural role profiles, pilot configuration, utility breakdowns, and structural results;
-- plaintext, CSV, XLSX, local Google-Drive-export, opponent-profile, and real-playtest importers;
+- plaintext, CSV, XLSX, read-only Google-Drive-export, and opponent-profile importers;
 - Oracle-name normalization and local Commander validation;
 - immutable local snapshots of `korvold/current` and `rogshai/current`;
 - a role-based Structural Simulator with deterministic replay;
@@ -205,7 +205,7 @@ Phase 5 introduced a local FastAPI Function-Tool server. The current server expo
 - swap matrices and bounded variant search;
 - holdout and sensitivity runs;
 - upgrade screening and validation;
-- real-playtest ingestion and provisional calibration;
+- synthetic opponent uncertainty ensembles and robust holdout validation;
 - structured Markdown reports.
 
 Start the local server:
@@ -363,27 +363,9 @@ commander-lab runs-verify data/runs/<run-id>
 
 Phase 8.5.1 has not been executed in the sandbox. See `docs/phase851_execution_required.md`. External validation may never be inferred from Tactical Oracle output, and automatic fallback is disabled by default.
 
-## Phase 9: real playtest calibration
+## Manual-playtest subsystem removal
 
-Phase 9 adds append-only real-playtest datasets, deck-version tracking, sealed train/validation
-splits, real-versus-structural distribution comparisons, bootstrap uncertainty intervals and
-non-applied calibration profiles.
-
-```bash
-commander-lab ingest-playtest data/session.csv --dataset-version session-2026-08 --root .
-commander-lab calibrate-playtests \
-  --dataset-version session-2026-08 \
-  --simulation-result data/runs/calibration-reference/structural_results.json \
-  --korvold-version current-2026-08-05 \
-  --rogshai-version current-2026-08-05 \
-  --policy config/calibration_policy.json \
-  --root .
-commander-lab validate-phase9 --root .
-```
-
-Training games are never presented as validation evidence. The validation split is an internal
-holdout, not independent confirmation. Missing real evidence leaves parameters unchanged. See
-`docs/phase9_playtest_calibration.md`.
+The active product does not ingest manually logged games and does not calibrate against an empirical local-game dataset. Active evidence levels are `structural_only`, `tactical_oracle`, and `external_rules_engine`. Historical implementation details remain available through Git history rather than the current product surface.
 
 ## Phase 10: end-to-end acceptance
 
