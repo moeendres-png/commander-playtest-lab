@@ -26,7 +26,6 @@ from . import (
     registry as rules_registry,
 )
 
-
 PHASE8_ENGINE_VERSION = "tactical-0.8.0"
 
 
