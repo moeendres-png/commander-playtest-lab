@@ -16,9 +16,11 @@ from commander_lab.models import (
     ZoneState,
 )
 
-from . import manager as rules_manager
-from . import project as rules_project
-from . import registry as rules_registry
+from . import (
+    manager as rules_manager,
+    project as rules_project,
+    registry as rules_registry,
+)
 
 
 PHASE8_ENGINE_VERSION = "tactical-0.8.0"
