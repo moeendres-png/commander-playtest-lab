@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.10.3 – Phase 12.15–12.17 completion repair
+
+- Replaced synthetic-only policy claims with real Structural Simulator policy-tournament and same-policy self-play execution across 3/4/5-player pods.
+- Preserved exact Cosmic (4/96), Morcant (53/47), and Doom precon-plus-unknown-upgrade uncertainty boundaries without inventing cards.
+- Expanded the read-only physical candidate universe to 569 structurally screenable cards with conservative `project_inferred` semantics and uncertainty penalties.
+- Executed politics/pod sensitivity and relevant Tactical Oracle gates in the multi-fidelity optimizer; external provider evidence remains strictly gated on a real runtime.
+- Updated MCP to the stateless 2026-07-28 core with separate 2025-11-25 legacy compatibility and real in-flight stdio cancellation.
+- Added OpenAI Agents SDK stdio configuration, while keeping the live SDK test blocked when `openai-agents` is absent.
+- Preserved canonical deck, inventory and allocation data unchanged and applied no recommendation.
+
 ## 1.10.1 – Phase 12.8–12.10 completion audit
 
 - Completed Mulligan Lab follow-up evaluation with controlled opening-hand injection into full Structural Simulator games.

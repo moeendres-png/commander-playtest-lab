@@ -1,23 +1,53 @@
 {
   "allocation_modified": false,
+  "candidate_semantics": {
+    "curated": 3,
+    "keyword_inferred_structural_only": 566
+  },
   "canonical_deck_files_modified": false,
-  "completion_status": "deck_optimizer_ready_with_external_engine_blocked",
+  "canonical_inventory_owned_names": 1349,
+  "completion_status": "multifidelity_deck_optimizer_ready_with_external_engine_blocked",
   "execution_status": "passed_with_limitations",
-  "external_engine_status": "blocked",
-  "focused_tests": {
-    "failed": 0,
-    "passed": 21
+  "external_engine_observations": {
+    "korvold": {
+      "forge": 0,
+      "xmage": 0
+    },
+    "rogshai": {
+      "forge": 0,
+      "xmage": 0
+    }
   },
+  "external_engine_status": {
+    "korvold": {
+      "forge": "blocked",
+      "xmage": "blocked"
+    },
+    "rogshai": {
+      "forge": "blocked",
+      "xmage": "blocked"
+    }
+  },
+  "external_rules_engine_gate": "attempted_but_blocked",
+  "formal_gate": "implemented_and_executed",
+  "holdout_gate": "implemented_and_executed",
   "inventory_modified": false,
-  "new_high_level_tools": 17,
+  "korvold_demo_status": "insufficient_evidence",
+  "limitations": [
+    "566 inventory candidates use conservative keyword-inferred structural semantics and therefore remain structural_only/project_inferred until higher-fidelity validation.",
+    "XMage and Forge are not available to this runtime, so no external_rules_engine evidence was generated.",
+    "Smoke comparisons intentionally use tiny samples and are evidence-path tests, not deck recommendations."
+  ],
+  "package_version": "1.10.3",
+  "paired_crn_gate": "implemented_and_executed",
   "phase": "12.16",
+  "politics_and_pod_sensitivity": "implemented_and_executed",
   "recommendations_applied": false,
+  "required_high_level_tools": 17,
+  "rogshai_demo_status": "insufficient_evidence",
   "small_sample_demonstrations": "insufficient_evidence",
+  "structurally_screenable_physical_candidates": 569,
+  "tactical_oracle_gate": "executed_when_relevant",
   "tool_count": 100,
-  "unit_tests": {
-    "failed": 0,
-    "passed": 197,
-    "warnings": 2
-  },
   "validation_level": "structural_only"
 }

@@ -1,15 +1,21 @@
-# Phase 12.15 — Synthetic opponent, pilot, politics and uncertainty model
+# Phase 12.15 – Opponent, pilot, politics and uncertainty robustness
 
-## Result
+Status: `passed_with_limitations`
 
-```text
-execution_status=passed_with_limitations
-completion_status=synthetic_uncertainty_system_ready_with_limitations
-validation_level=structural_only
-```
+Package version: `1.10.3`  
 
-Implemented 16 required pilot profiles, ten politics regimes and eleven explicit opponent uncertainty variants. Partially known opponents receive best-case, median and worst-case structural variants; fixed references remain separate. No assumed card is marked confirmed.
+## Executed
 
-A deterministic policy tournament evaluates every pilot across all politics regimes, 3/4/5-player pods and all opponent variants. It includes scenario best-response ranking, adversarial worst-case scoring, quantile scoring and multiplicative-weights regret minimization. No hidden hand, exact future draw or empirical local weight is used.
+- 16 requested pilot profiles mapped to the 11 utility dimensions actually consumed by the Structural Simulator.
+- 10 politics regimes implemented as deterministic visible-state utility perturbations; no hidden hands, library order or future draws are exposed.
+- Exact uncertainty boundaries preserved: Cosmic Spider-Man 4 confirmed / 96 unknown; Alen Morcant 53 confirmed / 47 unknown; Doom Prevails uses the exact official 100-card precon baseline plus a bounded unknown-upgrade role band.
+- 3-, 4- and 5-player pods.
+- Cheap exhaustive synthetic stress surface: 6240 rows. This is not self-play.
+- Actual Structural Simulator policy tournament: 960 games across 60 scenario contexts, 960 completed, 0 aborted.
+- Actual same-policy-all-seats Structural self-play: 96 games across 6 contexts, 96 completed, 0 aborted.
+- Best-response ranking, adversarial worst-case evaluation and multiplicative-weights regret minimization executed.
+- Common-random-number seeds preserved across competing policies within each structural context.
 
-The generated 5,280 scenario rows are structural utility samples, not simulated empirical win rates. This phase provides robust scenario coverage but not a solved multiplayer game or externally rules-validated self-play.
+## Truth boundary
+
+All outputs are `structural_model_estimates`. They are not empirical win rates and do not claim to predict human politics. No real-playtest calibration is used or required. Unknown opponent cards remain unknown.

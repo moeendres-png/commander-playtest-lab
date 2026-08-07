@@ -7,6 +7,9 @@ from commander_lab.models import (
     GenerateCandidateSwapsInput,
     RunEngineBackedMatchupInput,
     RunRulesCoverageGateInput,
+    RunRobustnessSuiteInput,
+    ValidateSwapInput,
+    VariantSwap,
 )
 from commander_lab.tools.registry import TOOL_DEFINITIONS, ToolRegistry
 from commander_lab.tools.service import CommanderToolService
@@ -81,3 +84,46 @@ def test_engine_backed_matchup_returns_blocked_not_fake_success() -> None:
     assert response.result["execution_status"] == "blocked"
     assert response.result["external_rules_engine_observations"] == 0
     assert response.result["synthetic_or_tactical_substitution"] is False
+
+
+def test_candidate_universe_uses_current_read_only_inventory() -> None:
+    svc = service()
+    assert len(svc.candidates) >= 500
+    assert len(svc.verified_candidate_names) == len(svc.candidates)
+    inferred = [c for c in svc.candidates.values() if c.candidate_id.startswith("inventory/")]
+    assert inferred
+    assert all(c.card.source_quality.value == "project_inferred" for c in inferred)
+    assert all(svc.candidate_inventory[c.card.oracle_name] > 0 for c in svc.candidates.values())
+
+
+def test_validate_swap_executes_politics_pod_tactical_and_external_truth_gates() -> None:
+    svc = service()
+    response = svc.validate_swap(ValidateSwapInput(
+        deck_id="korvold/current",
+        swaps=(VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
+        iterations=1, workers=1, seed=123, max_turns=8,
+        holdout_pods=(), sensitivity_seeds=(), sensitivity_strengths=(),
+    ))
+    assert response.status.value == "completed"
+    assert len(response.result["politics_sensitivity"]) == 10
+    assert {row["pod_size"] for row in response.result["pod_size_sensitivity"]} == {3, 4, 5}
+    assert response.result["tactical_oracle_result"]["execution_status"] == "passed"
+    assert response.result["tactical_oracle_result"]["external_engine_claimed"] is False
+    assert response.result["xmage_result"]["execution_status"] == "blocked"
+    assert response.result["forge_result"]["execution_status"] == "blocked"
+
+
+def test_robustness_suite_runs_structural_scenarios_instead_of_reading_old_artifact() -> None:
+    svc = service()
+    response = svc.run_robustness_suite(RunRobustnessSuiteInput(
+        deck_id="korvold/current",
+        swaps=(VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
+        iterations=1, workers=1, seed=456, max_turns=8,
+        holdout_pods=(), sensitivity_seeds=(), sensitivity_strengths=(),
+        include_politics=True, include_pod_sizes=(3,),
+    ))
+    assert response.status.value == "completed"
+    assert response.result["execution_status"] == "passed"
+    assert response.result["scenario_count"] == 10
+    assert all(row["pod_size"] == 3 for row in response.result["scenario_results"])
+    assert response.result["automatic_application"] is False

@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "data_as_of": "2026-08-07",
+  "transport": "stdio",
+  "server": {
+    "command": "python",
+    "args": ["-m", "commander_lab.mcp.server", "."],
+    "cwd": ".",
+    "stdout_contract": "json_rpc_only",
+    "stderr_contract": "diagnostics_only"
+  },
+  "mcp": {
+    "primary_protocol": "2026-07-28",
+    "legacy_compatibility_protocol": "2025-11-25",
+    "modern_core": "stateless_server_discover_and_per_request_meta",
+    "legacy_initialize_supported": true,
+    "modern_initialize_supported": false,
+    "tool_tasks": "forbidden",
+    "read_only_tools": true
+  },
+  "openai_agents_sdk": {
+    "python_class": "agents.mcp.MCPServerStdio",
+    "dependency": "openai-agents>=0.18.3,<0.19",
+    "live_sdk_test_status": "blocked_not_installed_in_current_runtime",
+    "local_server_transport_test_status": "executed"
+  },
+  "truth_boundary": {
+    "structural_estimates_are_empirical": false,
+    "tactical_oracle_is_external_engine": false,
+    "automatic_deck_application": false
+  }
+}

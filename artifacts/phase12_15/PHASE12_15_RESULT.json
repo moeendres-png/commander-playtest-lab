@@ -1,26 +1,49 @@
 {
-  "phase": "12.15",
+  "completion_status": "opponent_pilot_politics_uncertainty_ready_with_limitations",
+  "empirical_weights_used": false,
+  "estimate_type": "structural_model_estimates",
   "execution_status": "passed_with_limitations",
-  "completion_status": "synthetic_uncertainty_system_ready_with_limitations",
-  "validation_level": "structural_only",
+  "hidden_information_access": false,
+  "limitations": [
+    "All policy and politics outcomes are structural model estimates, not empirical human-behaviour forecasts or win rates.",
+    "Unknown opponent slots remain unknown; no exact unknown card names are fabricated.",
+    "External rules-engine validation is not part of Phase 12.15 and remains blocked separately."
+  ],
+  "opponent_truth": {
+    "alen_morcant": "53 confirmed / 47 unknown",
+    "cosmic_spiderman": "4 confirmed / 96 unknown",
+    "doom_prevails": "official 100-card precon baseline plus unknown local upgrade-role band"
+  },
+  "opponent_variants": 13,
+  "package_version": "1.10.3",
+  "phase": "12.15",
   "pilot_profiles": 16,
-  "politics_regimes": 10,
-  "opponent_variants": 11,
   "pod_sizes": [
     3,
     4,
     5
   ],
-  "policy_tournament_scenarios": 5280,
-  "regret_method": "multiplicative_weights",
-  "self_play_status": "synthetic_policy_tournament",
-  "best_response_status": "scenario_best_response_ranked",
-  "hidden_information_access": false,
-  "empirical_weights_used": false,
+  "politics_regimes": 10,
   "real_playtests_required": false,
-  "limitations": [
-    "The tournament is a deterministic structural policy stress model, not a complete game-theoretic Commander solver.",
-    "Incomplete opponent lists remain role-bounded uncertainty variants rather than invented exact 100-card lists.",
-    "Policy scores are synthetic utilities, not match win rates."
-  ]
+  "structural_policy_tournament": {
+    "aborted": 0,
+    "adversarial_worst_case": "executed",
+    "best_response": "executed",
+    "common_random_numbers": true,
+    "completed": 960,
+    "games": 960,
+    "regret_method": "multiplicative_weights",
+    "scenario_contexts": 60,
+    "workers": 4
+  },
+  "structural_self_play": {
+    "aborted": 0,
+    "completed": 96,
+    "games": 96,
+    "same_policy_all_seats": true,
+    "scenario_contexts": 6
+  },
+  "synthetic_stress_rows": 6240,
+  "unknown_cards_invented": false,
+  "validation_level": "structural_only"
 }

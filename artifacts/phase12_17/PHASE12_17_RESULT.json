@@ -1,24 +1,46 @@
 {
-  "phase": "12.17",
-  "execution_status": "passed_with_limitations",
-  "completion_status": "mcp_and_orchestrator_ready_with_external_engine_blocked",
-  "mcp_transport": "stdio_json_rpc",
-  "mcp_protocol_version": "2025-11-25",
-  "tool_count": 100,
-  "resources": 3,
-  "prompts": 2,
-  "tests": {"passed": 8, "failed": 0},
-  "tested_operations": [
-    "initialize", "notifications/initialized", "tools/list", "tools/call",
-    "resources/list", "resources/read", "prompts/list", "prompts/get",
-    "timeout", "notifications/cancelled", "structured_error", "shutdown", "eof"
-  ],
-  "run_profiles": [
-    "quick_screen", "standard_validation", "deep_validation",
-    "external_engine_validation", "full_optimization"
-  ],
-  "canonical_deck_files_modified": false,
-  "inventory_modified": false,
   "allocation_modified": false,
-  "recommendations_applied": false
+  "canonical_deck_files_modified": false,
+  "completion_status": "mcp_and_orchestrator_ready_with_runtime_limitations",
+  "eof_lifecycle": "passed",
+  "execution_status": "passed_with_limitations",
+  "in_flight_cancellation": "passed",
+  "inventory_modified": false,
+  "legacy_compatibility_protocol": "2025-11-25",
+  "legacy_stdio_roundtrip": "passed",
+  "limitations": [
+    "The current runtime does not have openai-agents installed, so a live Agents SDK client process was not executed; the real local MCP subprocess itself was executed.",
+    "External engine validation remains blocked and is not replaced by MCP or Tactical Oracle.",
+    "Legacy 2025 lifecycle support is compatibility-only; the primary MCP core is the stateless 2026-07-28 path."
+  ],
+  "mcp_transport": "stdio_json_rpc",
+  "modern_stateless_core": true,
+  "modern_stdio_smoke": {
+    "execution_status": "passed",
+    "modern_initialize_rejected": true,
+    "returncode": 0,
+    "stderr": ""
+  },
+  "openai_agents_sdk": {
+    "configured_transport_class": "MCPServerStdio",
+    "installed_in_current_runtime": false,
+    "live_sdk_test_status": "blocked_not_installed",
+    "package_expected": "openai-agents>=0.18.3,<0.19"
+  },
+  "package_version": "1.10.3",
+  "phase": "12.17",
+  "primary_mcp_protocol": "2026-07-28",
+  "prompts": 2,
+  "recommendations_applied": false,
+  "resources": 3,
+  "run_profiles": [
+    "quick_screen",
+    "standard_validation",
+    "deep_validation",
+    "external_engine_validation",
+    "full_optimization"
+  ],
+  "structured_errors": "passed",
+  "timeout": "passed",
+  "tool_count": 100
 }

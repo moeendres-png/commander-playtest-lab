@@ -192,6 +192,7 @@ class PilotEnsembleRunner:
                     pilot_name=name,
                     strength=PilotStrength.STRONG,
                     mode=profile.mode,
+                    weights=profile.weights,
                     profile_version=profile.version,
                     parameter_hash=profile.parameter_hash,
                     source_rule_ids=profile.source_rule_ids,

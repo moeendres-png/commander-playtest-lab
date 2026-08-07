@@ -1,64 +1,30 @@
 {
-  "errors": [],
+  "status": "completed",
   "metadata": {
-    "configuration_hash": "ad4dce1a7c7c191d93b2c7bc22c89988986d5a2b80be2d3a3aba4c8727fbfdcb",
-    "created_at": "2026-08-07T01:52:57.097784Z",
+    "tool_name": "optimize_multiple_decks_with_allocation",
+    "invocation_id": "optimize_multiple_decks_with_allocation-9d5023ca1d38",
+    "created_at": "2026-08-07T03:34:09.173589Z",
+    "git_commit": "393e75823657a5711ed7ed2ddf59618a3888191b",
+    "engine_version": "structural-0.6.0",
     "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
     "deck_hashes": {
       "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
       "rogshai/current": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
     },
-    "deterministic_game_log_directory": null,
-    "elapsed_seconds": 0.0050856930001828005,
-    "engine_version": "structural-0.6.0",
-    "estimate_type": "structural_model_estimates",
-    "git_commit": "e3d54dd6df177808ffa509e13d3a60dda85e59af",
-    "invocation_id": "optimize_multiple_decks_with_allocation-4e3d06d11789",
-    "iterations": null,
-    "openai_trace_directory": "/mnt/data/cplab_work/commander-playtest-lab/data/runs/openai_traces",
+    "scenario_hash": "657168dbe1c393b73964f79e93e0b174c8ce270f6586dd5f501ca89f48d602f3",
+    "configuration_hash": "657168dbe1c393b73964f79e93e0b174c8ce270f6586dd5f501ca89f48d602f3",
     "opponent_hashes": {
       "rogshai/current": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
     },
     "pilot_version": "unspecified",
-    "scenario_hash": "ad4dce1a7c7c191d93b2c7bc22c89988986d5a2b80be2d3a3aba4c8727fbfdcb",
     "seed": null,
-    "tool_name": "optimize_multiple_decks_with_allocation"
+    "iterations": null,
+    "estimate_type": "structural_model_estimates",
+    "elapsed_seconds": 0.04720129599991196,
+    "deterministic_game_log_directory": null,
+    "openai_trace_directory": "/mnt/data/cplab_repair_1215_1217/data/runs/openai_traces"
   },
   "result": {
-    "automatic_application": false,
-    "candidate_allocation": [
-      {
-        "allocated_to": "korvold/current",
-        "card": "Lightning Greaves",
-        "reason": "deck priority then structural screening"
-      },
-      {
-        "allocated_to": "rogshai/current",
-        "card": "Talisman of Creativity",
-        "reason": "deck priority then structural screening"
-      }
-    ],
-    "canonical_allocation_modified": false,
-    "conflicts": [
-      {
-        "allocated_to": "korvold/current",
-        "card": "Lightning Greaves",
-        "claims": [
-          "korvold/current",
-          "korvold/current",
-          "korvold/current"
-        ]
-      },
-      {
-        "allocated_to": "rogshai/current",
-        "card": "Talisman of Creativity",
-        "claims": [
-          "rogshai/current",
-          "rogshai/current",
-          "rogshai/current"
-        ]
-      }
-    ],
     "deck_priority": [
       "korvold/current",
       "rogshai/current",
@@ -66,136 +32,429 @@
     ],
     "deck_results": [
       {
-        "candidates": [
-          {
-            "add": "Lightning Greaves",
-            "automatic_application": false,
-            "candidate_id": "korvold/lightning-greaves",
-            "candidate_source": "verified local candidate registry",
-            "physical_status": "local_project_verified_owned",
-            "raw_profile_delta": 2.306,
-            "recommendation_status": "candidate_swap",
-            "remove": "Snakeskin Veil",
-            "requires_paired_validation": true,
-            "role_compatibility_adjustment": 1.5,
-            "role_gain": [
-              "combat_payoff",
-              "enabler"
-            ],
-            "role_loss": [],
-            "screening_delta": 3.806,
-            "validation_level": "structural_only"
-          },
-          {
-            "add": "Lightning Greaves",
-            "automatic_application": false,
-            "candidate_id": "korvold/lightning-greaves",
-            "candidate_source": "verified local candidate registry",
-            "physical_status": "local_project_verified_owned",
-            "raw_profile_delta": 2.306,
-            "recommendation_status": "candidate_swap",
-            "remove": "Veil of Summer",
-            "requires_paired_validation": true,
-            "role_compatibility_adjustment": 1.5,
-            "role_gain": [
-              "combat_payoff",
-              "enabler"
-            ],
-            "role_loss": [],
-            "screening_delta": 3.806,
-            "validation_level": "structural_only"
-          },
-          {
-            "add": "Lightning Greaves",
-            "automatic_application": false,
-            "candidate_id": "korvold/lightning-greaves",
-            "candidate_source": "verified local candidate registry",
-            "physical_status": "local_project_verified_owned",
-            "raw_profile_delta": 2.306,
-            "recommendation_status": "candidate_swap",
-            "remove": "Tyvar's Stand",
-            "requires_paired_validation": true,
-            "role_compatibility_adjustment": 1.5,
-            "role_gain": [
-              "combat_payoff",
-              "enabler"
-            ],
-            "role_loss": [],
-            "screening_delta": 3.806,
-            "validation_level": "structural_only"
-          }
-        ],
         "deck_id": "korvold/current",
-        "status": "complete"
-      },
-      {
+        "status": "complete",
         "candidates": [
           {
-            "add": "Talisman of Creativity",
-            "automatic_application": false,
-            "candidate_id": "rogshai/talisman-of-creativity",
-            "candidate_source": "verified local candidate registry",
-            "physical_status": "local_project_verified_owned",
-            "raw_profile_delta": 0.9959999999999998,
+            "remove": "Snakeskin Veil",
+            "add": "Lightning Greaves",
+            "candidate_id": "korvold/lightning-greaves",
+            "screening_delta": 3.806,
+            "raw_profile_delta": 2.306,
+            "role_compatibility_adjustment": 1.5,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "combat_payoff",
+              "enabler"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
             "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Veil of Summer",
+            "add": "Lightning Greaves",
+            "candidate_id": "korvold/lightning-greaves",
+            "screening_delta": 3.806,
+            "raw_profile_delta": 2.306,
+            "role_compatibility_adjustment": 1.5,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "combat_payoff",
+              "enabler"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Tyvar's Stand",
+            "add": "Lightning Greaves",
+            "candidate_id": "korvold/lightning-greaves",
+            "screening_delta": 3.806,
+            "raw_profile_delta": 2.306,
+            "role_compatibility_adjustment": 1.5,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "combat_payoff",
+              "enabler"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Scouring Swarm",
+            "add": "Primeval Bounty",
+            "candidate_id": "inventory/primeval-bounty-a4ed5e1b",
+            "screening_delta": 2.9450000000000003,
+            "raw_profile_delta": -0.5549999999999999,
+            "role_compatibility_adjustment": 6.0,
+            "screening_uncertainty_penalty": 2.5,
+            "semantic_quality": "keyword_inferred_structural_only",
+            "role_gain": [
+              "enabler"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Mayhem Devil",
+            "add": "Lightning Greaves",
+            "candidate_id": "korvold/lightning-greaves",
+            "screening_delta": 1.616,
+            "raw_profile_delta": 2.866,
+            "role_compatibility_adjustment": -1.25,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "combat_payoff",
+              "enabler",
+              "protection"
+            ],
+            "role_loss": [
+              "payoff"
+            ],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Scouring Swarm",
+            "add": "Baloth Prime",
+            "candidate_id": "inventory/baloth-prime-ef15cd25",
+            "screening_delta": 1.245,
+            "raw_profile_delta": -0.2549999999999999,
+            "role_compatibility_adjustment": 4.0,
+            "screening_uncertainty_penalty": 2.5,
+            "semantic_quality": "keyword_inferred_structural_only",
+            "role_gain": [
+              "enabler",
+              "sacrifice_outlet"
+            ],
+            "role_loss": [
+              "payoff"
+            ],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
             "remove": "Arcane Signet",
-            "requires_paired_validation": true,
-            "role_compatibility_adjustment": 1.5,
+            "add": "Lightning Greaves",
+            "candidate_id": "korvold/lightning-greaves",
+            "screening_delta": 1.056,
+            "raw_profile_delta": 2.306,
+            "role_compatibility_adjustment": -1.25,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
             "role_gain": [
-              "mana_source"
+              "combat_payoff",
+              "enabler",
+              "protection"
             ],
-            "role_loss": [],
-            "screening_delta": 2.4959999999999996,
-            "validation_level": "structural_only"
+            "role_loss": [
+              "ramp"
+            ],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
           },
           {
-            "add": "Talisman of Creativity",
-            "automatic_application": false,
-            "candidate_id": "rogshai/talisman-of-creativity",
-            "candidate_source": "verified local candidate registry",
-            "physical_status": "local_project_verified_owned",
-            "raw_profile_delta": 0.9959999999999998,
-            "recommendation_status": "candidate_swap",
-            "remove": "Fellwar Stone",
-            "requires_paired_validation": true,
-            "role_compatibility_adjustment": 1.5,
+            "remove": "Llanowar Elves",
+            "add": "Lightning Greaves",
+            "candidate_id": "korvold/lightning-greaves",
+            "screening_delta": 1.056,
+            "raw_profile_delta": 2.306,
+            "role_compatibility_adjustment": -1.25,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
             "role_gain": [
-              "mana_source"
+              "combat_payoff",
+              "enabler",
+              "protection"
             ],
-            "role_loss": [],
-            "screening_delta": 2.4959999999999996,
-            "validation_level": "structural_only"
-          },
-          {
-            "add": "Talisman of Creativity",
-            "automatic_application": false,
-            "candidate_id": "rogshai/talisman-of-creativity",
-            "candidate_source": "verified local candidate registry",
-            "physical_status": "local_project_verified_owned",
-            "raw_profile_delta": 0.9959999999999998,
-            "recommendation_status": "candidate_swap",
-            "remove": "Relic of Legends",
+            "role_loss": [
+              "ramp"
+            ],
+            "physical_status": "canonical_inventory_verified_owned",
             "requires_paired_validation": true,
-            "role_compatibility_adjustment": 1.5,
-            "role_gain": [
-              "mana_source"
-            ],
-            "role_loss": [],
-            "screening_delta": 2.4959999999999996,
-            "validation_level": "structural_only"
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
           }
-        ],
-        "deck_id": "rogshai/current",
-        "status": "complete"
+        ]
       },
       {
-        "candidates": [],
-        "deck_id": "kaervek/current",
-        "status": "missing"
+        "deck_id": "rogshai/current",
+        "status": "complete",
+        "candidates": [
+          {
+            "remove": "Arcane Signet",
+            "add": "Talisman of Creativity",
+            "candidate_id": "rogshai/talisman-of-creativity",
+            "screening_delta": 2.4959999999999996,
+            "raw_profile_delta": 0.9959999999999998,
+            "role_compatibility_adjustment": 1.5,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "mana_source"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Fellwar Stone",
+            "add": "Talisman of Creativity",
+            "candidate_id": "rogshai/talisman-of-creativity",
+            "screening_delta": 2.4959999999999996,
+            "raw_profile_delta": 0.9959999999999998,
+            "role_compatibility_adjustment": 1.5,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "mana_source"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Relic of Legends",
+            "add": "Talisman of Creativity",
+            "candidate_id": "rogshai/talisman-of-creativity",
+            "screening_delta": 2.4959999999999996,
+            "raw_profile_delta": 0.9959999999999998,
+            "role_compatibility_adjustment": 1.5,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "mana_source"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Talisman of Progress",
+            "add": "Talisman of Creativity",
+            "candidate_id": "rogshai/talisman-of-creativity",
+            "screening_delta": 2.4959999999999996,
+            "raw_profile_delta": 0.9959999999999998,
+            "role_compatibility_adjustment": 1.5,
+            "screening_uncertainty_penalty": 0.0,
+            "semantic_quality": "curated_structural_profile",
+            "role_gain": [
+              "mana_source"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Kykar, Wind's Fury",
+            "add": "Inspired Skypainter // Maestro's Gift",
+            "candidate_id": "inventory/inspired-skypainter-maestro-s-gift-6e1bb9f7",
+            "screening_delta": 2.2,
+            "raw_profile_delta": 0.19999999999999996,
+            "role_compatibility_adjustment": 4.5,
+            "screening_uncertainty_penalty": 2.5,
+            "semantic_quality": "keyword_inferred_structural_only",
+            "role_gain": [
+              "combat_payoff"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Kykar, Wind's Fury",
+            "add": "Goldvein Pick",
+            "candidate_id": "inventory/goldvein-pick-70b0b028",
+            "screening_delta": 2.0199999999999996,
+            "raw_profile_delta": 0.019999999999999796,
+            "role_compatibility_adjustment": 4.5,
+            "screening_uncertainty_penalty": 2.5,
+            "semantic_quality": "keyword_inferred_structural_only",
+            "role_gain": [
+              "combat_payoff",
+              "ramp"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Kykar, Wind's Fury",
+            "add": "Leitmotif Composer",
+            "candidate_id": "inventory/leitmotif-composer-bf5d5226",
+            "screening_delta": 2.0199999999999996,
+            "raw_profile_delta": 0.019999999999999796,
+            "role_compatibility_adjustment": 4.5,
+            "screening_uncertainty_penalty": 2.5,
+            "semantic_quality": "keyword_inferred_structural_only",
+            "role_gain": [
+              "combat_payoff",
+              "draw"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          },
+          {
+            "remove": "Kykar, Wind's Fury",
+            "add": "Nadir Kraken",
+            "candidate_id": "inventory/nadir-kraken-b97d7171",
+            "screening_delta": 2.0199999999999996,
+            "raw_profile_delta": 0.019999999999999796,
+            "role_compatibility_adjustment": 4.5,
+            "screening_uncertainty_penalty": 2.5,
+            "semantic_quality": "keyword_inferred_structural_only",
+            "role_gain": [
+              "draw",
+              "payoff"
+            ],
+            "role_loss": [],
+            "physical_status": "canonical_inventory_verified_owned",
+            "requires_paired_validation": true,
+            "recommendation_status": "candidate_swap",
+            "validation_level": "structural_only",
+            "candidate_source": "verified local candidate registry",
+            "automatic_application": false
+          }
+        ]
       }
     ],
-    "ungrounded_double_allocation": false
+    "candidate_allocation": [
+      {
+        "card": "Baloth Prime",
+        "allocated_to": "korvold/current",
+        "reason": "deck priority then structural screening"
+      },
+      {
+        "card": "Goldvein Pick",
+        "allocated_to": "rogshai/current",
+        "reason": "deck priority then structural screening"
+      },
+      {
+        "card": "Inspired Skypainter // Maestro's Gift",
+        "allocated_to": "rogshai/current",
+        "reason": "deck priority then structural screening"
+      },
+      {
+        "card": "Leitmotif Composer",
+        "allocated_to": "rogshai/current",
+        "reason": "deck priority then structural screening"
+      },
+      {
+        "card": "Lightning Greaves",
+        "allocated_to": "korvold/current",
+        "reason": "deck priority then structural screening"
+      },
+      {
+        "card": "Nadir Kraken",
+        "allocated_to": "rogshai/current",
+        "reason": "deck priority then structural screening"
+      },
+      {
+        "card": "Primeval Bounty",
+        "allocated_to": "korvold/current",
+        "reason": "deck priority then structural screening"
+      },
+      {
+        "card": "Talisman of Creativity",
+        "allocated_to": "rogshai/current",
+        "reason": "deck priority then structural screening"
+      }
+    ],
+    "conflicts": [
+      {
+        "card": "Lightning Greaves",
+        "claims": [
+          "korvold/current",
+          "korvold/current",
+          "korvold/current",
+          "korvold/current",
+          "korvold/current",
+          "korvold/current"
+        ],
+        "allocated_to": "korvold/current"
+      },
+      {
+        "card": "Talisman of Creativity",
+        "claims": [
+          "rogshai/current",
+          "rogshai/current",
+          "rogshai/current",
+          "rogshai/current"
+        ],
+        "allocated_to": "rogshai/current"
+      }
+    ],
+    "ungrounded_double_allocation": false,
+    "canonical_allocation_modified": false,
+    "automatic_application": false
   },
-  "status": "completed",
-  "warnings": []
+  "warnings": [],
+  "errors": []
 }

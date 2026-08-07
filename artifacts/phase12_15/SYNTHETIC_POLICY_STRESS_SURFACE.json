@@ -1,5 +1,4 @@
 {
-  "artifact_role": "legacy_compatibility_name_for_synthetic_policy_stress_surface",
   "config": {
     "pod_sizes": [
       3,
@@ -43810,7 +43809,5 @@
   ],
   "schema_version": 2,
   "self_play_executed": false,
-  "superseded_for_real_structural_tournament_by": "STRUCTURAL_POLICY_TOURNAMENT_RESULT.json",
-  "superseded_for_self_play_by": "STRUCTURAL_SELF_PLAY_RESULT.json",
   "validation_level": "structural_only"
 }

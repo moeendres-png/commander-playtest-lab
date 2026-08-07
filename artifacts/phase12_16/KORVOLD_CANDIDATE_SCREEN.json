@@ -1,92 +1,491 @@
 {
-  "errors": [],
+  "status": "completed",
   "metadata": {
-    "configuration_hash": "4c5c6a1a90014802a1460c415f954f8d110b4d673acc23c315d278436b97cedb",
-    "created_at": "2026-08-07T01:52:57.090303Z",
+    "tool_name": "generate_candidate_swaps",
+    "invocation_id": "generate_candidate_swaps-94ed9608f558",
+    "created_at": "2026-08-07T03:34:09.098344Z",
+    "git_commit": "393e75823657a5711ed7ed2ddf59618a3888191b",
+    "engine_version": "structural-0.6.0",
     "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
     "deck_hashes": {
       "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
     },
-    "deterministic_game_log_directory": null,
-    "elapsed_seconds": 0.0025666459996500635,
-    "engine_version": "structural-0.6.0",
-    "estimate_type": "structural_model_estimates",
-    "git_commit": "e3d54dd6df177808ffa509e13d3a60dda85e59af",
-    "invocation_id": "generate_candidate_swaps-f706c7b1eecb",
-    "iterations": null,
-    "openai_trace_directory": "/mnt/data/cplab_work/commander-playtest-lab/data/runs/openai_traces",
+    "scenario_hash": "1a8fc4b4c939e25057c5c4b52f067eeb72204602e7a36097593027d118c3c302",
+    "configuration_hash": "1a8fc4b4c939e25057c5c4b52f067eeb72204602e7a36097593027d118c3c302",
     "opponent_hashes": {},
     "pilot_version": "unspecified",
-    "scenario_hash": "4c5c6a1a90014802a1460c415f954f8d110b4d673acc23c315d278436b97cedb",
     "seed": null,
-    "tool_name": "generate_candidate_swaps"
+    "iterations": null,
+    "estimate_type": "structural_model_estimates",
+    "elapsed_seconds": 0.030390993999390048,
+    "deterministic_game_log_directory": null,
+    "openai_trace_directory": "/mnt/data/cplab_repair_1215_1217/data/runs/openai_traces"
   },
   "result": {
-    "automatic_application": false,
+    "deck_id": "korvold/current",
+    "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+    "method": "whole_deck_role_package_and_profile_screening",
     "candidates": [
       {
-        "add": "Lightning Greaves",
-        "automatic_application": false,
-        "candidate_id": "korvold/lightning-greaves",
-        "candidate_source": "verified local candidate registry",
-        "physical_status": "local_project_verified_owned",
-        "raw_profile_delta": 2.306,
-        "recommendation_status": "candidate_swap",
         "remove": "Snakeskin Veil",
-        "requires_paired_validation": true,
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 3.806,
+        "raw_profile_delta": 2.306,
         "role_compatibility_adjustment": 1.5,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
         "role_gain": [
           "combat_payoff",
           "enabler"
         ],
         "role_loss": [],
-        "screening_delta": 3.806,
-        "validation_level": "structural_only"
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
       },
       {
-        "add": "Lightning Greaves",
-        "automatic_application": false,
-        "candidate_id": "korvold/lightning-greaves",
-        "candidate_source": "verified local candidate registry",
-        "physical_status": "local_project_verified_owned",
-        "raw_profile_delta": 2.306,
-        "recommendation_status": "candidate_swap",
         "remove": "Veil of Summer",
-        "requires_paired_validation": true,
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 3.806,
+        "raw_profile_delta": 2.306,
         "role_compatibility_adjustment": 1.5,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
         "role_gain": [
           "combat_payoff",
           "enabler"
         ],
         "role_loss": [],
-        "screening_delta": 3.806,
-        "validation_level": "structural_only"
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
       },
       {
-        "add": "Lightning Greaves",
-        "automatic_application": false,
-        "candidate_id": "korvold/lightning-greaves",
-        "candidate_source": "verified local candidate registry",
-        "physical_status": "local_project_verified_owned",
-        "raw_profile_delta": 2.306,
-        "recommendation_status": "candidate_swap",
         "remove": "Tyvar's Stand",
-        "requires_paired_validation": true,
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 3.806,
+        "raw_profile_delta": 2.306,
         "role_compatibility_adjustment": 1.5,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
         "role_gain": [
           "combat_payoff",
           "enabler"
         ],
         "role_loss": [],
-        "screening_delta": 3.806,
-        "validation_level": "structural_only"
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Scouring Swarm",
+        "add": "Primeval Bounty",
+        "candidate_id": "inventory/primeval-bounty-a4ed5e1b",
+        "screening_delta": 2.9450000000000003,
+        "raw_profile_delta": -0.5549999999999999,
+        "role_compatibility_adjustment": 6.0,
+        "screening_uncertainty_penalty": 2.5,
+        "semantic_quality": "keyword_inferred_structural_only",
+        "role_gain": [
+          "enabler"
+        ],
+        "role_loss": [],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Mayhem Devil",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.616,
+        "raw_profile_delta": 2.866,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "payoff"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Scouring Swarm",
+        "add": "Baloth Prime",
+        "candidate_id": "inventory/baloth-prime-ef15cd25",
+        "screening_delta": 1.245,
+        "raw_profile_delta": -0.2549999999999999,
+        "role_compatibility_adjustment": 4.0,
+        "screening_uncertainty_penalty": 2.5,
+        "semantic_quality": "keyword_inferred_structural_only",
+        "role_gain": [
+          "enabler",
+          "sacrifice_outlet"
+        ],
+        "role_loss": [
+          "payoff"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Arcane Signet",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.056,
+        "raw_profile_delta": 2.306,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "ramp"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Llanowar Elves",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.056,
+        "raw_profile_delta": 2.306,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "ramp"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Farseek",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.056,
+        "raw_profile_delta": 2.306,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "ramp"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Nature's Lore",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.056,
+        "raw_profile_delta": 2.306,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "ramp"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Orcish Lumberjack",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.056,
+        "raw_profile_delta": 2.306,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "ramp"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Tinder Wall",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.056,
+        "raw_profile_delta": 2.306,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "ramp"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Ignoble Hierarch",
+        "add": "Lightning Greaves",
+        "candidate_id": "korvold/lightning-greaves",
+        "screening_delta": 1.056,
+        "raw_profile_delta": 2.306,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "combat_payoff",
+          "enabler",
+          "protection"
+        ],
+        "role_loss": [
+          "ramp"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Scouring Swarm",
+        "add": "Elfsworn Giant",
+        "candidate_id": "inventory/elfsworn-giant-d90eb1cd",
+        "screening_delta": 0.9300000000000002,
+        "raw_profile_delta": -0.5699999999999998,
+        "role_compatibility_adjustment": 4.0,
+        "screening_uncertainty_penalty": 2.5,
+        "semantic_quality": "keyword_inferred_structural_only",
+        "role_gain": [
+          "enabler"
+        ],
+        "role_loss": [
+          "payoff"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Scouring Swarm",
+        "add": "Nested Ghoul",
+        "candidate_id": "inventory/nested-ghoul-839398ed",
+        "screening_delta": 0.9300000000000002,
+        "raw_profile_delta": -0.5699999999999998,
+        "role_compatibility_adjustment": 4.0,
+        "screening_uncertainty_penalty": 2.5,
+        "semantic_quality": "keyword_inferred_structural_only",
+        "role_gain": [
+          "enabler"
+        ],
+        "role_loss": [
+          "land_synergy"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Scouring Swarm",
+        "add": "Rampaging Baloths",
+        "candidate_id": "inventory/rampaging-baloths-0d9c511a",
+        "screening_delta": 0.7800000000000002,
+        "raw_profile_delta": -0.72,
+        "role_compatibility_adjustment": 4.0,
+        "screening_uncertainty_penalty": 2.5,
+        "semantic_quality": "keyword_inferred_structural_only",
+        "role_gain": [
+          "enabler"
+        ],
+        "role_loss": [
+          "payoff"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Scouring Swarm",
+        "add": "Omnath, Locus of Rage",
+        "candidate_id": "inventory/omnath-locus-of-rage-edcbde26",
+        "screening_delta": 0.6299999999999999,
+        "raw_profile_delta": -0.8699999999999999,
+        "role_compatibility_adjustment": 4.0,
+        "screening_uncertainty_penalty": 2.5,
+        "semantic_quality": "keyword_inferred_structural_only",
+        "role_gain": [
+          "enabler"
+        ],
+        "role_loss": [
+          "payoff"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Scouring Swarm",
+        "add": "Idol of Oblivion",
+        "candidate_id": "korvold/idol-of-oblivion",
+        "screening_delta": 0.41600000000000037,
+        "raw_profile_delta": 0.41600000000000037,
+        "role_compatibility_adjustment": 0.0,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "draw"
+        ],
+        "role_loss": [
+          "land_synergy",
+          "payoff",
+          "token_source"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Mayhem Devil",
+        "add": "Idol of Oblivion",
+        "candidate_id": "korvold/idol-of-oblivion",
+        "screening_delta": -0.32899999999999974,
+        "raw_profile_delta": 0.9210000000000003,
+        "role_compatibility_adjustment": -1.25,
+        "screening_uncertainty_penalty": 0.0,
+        "semantic_quality": "curated_structural_profile",
+        "role_gain": [
+          "draw",
+          "engine"
+        ],
+        "role_loss": [
+          "payoff"
+        ],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
+      },
+      {
+        "remove": "Mayhem Devil",
+        "add": "Garna, Bloodfist of Keld",
+        "candidate_id": "inventory/garna-bloodfist-of-keld-3d0eb80b",
+        "screening_delta": -0.3799999999999999,
+        "raw_profile_delta": 0.6200000000000001,
+        "role_compatibility_adjustment": 1.5,
+        "screening_uncertainty_penalty": 2.5,
+        "semantic_quality": "keyword_inferred_structural_only",
+        "role_gain": [
+          "draw",
+          "enabler",
+          "engine",
+          "finisher"
+        ],
+        "role_loss": [],
+        "physical_status": "canonical_inventory_verified_owned",
+        "requires_paired_validation": true,
+        "recommendation_status": "candidate_swap",
+        "validation_level": "structural_only",
+        "candidate_source": "verified local candidate registry",
+        "automatic_application": false
       }
     ],
-    "count": 3,
-    "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
-    "deck_id": "korvold/current",
-    "method": "whole_deck_role_package_and_profile_screening"
+    "count": 20,
+    "automatic_application": false
   },
-  "status": "completed",
-  "warnings": []
+  "warnings": [],
+  "errors": []
 }

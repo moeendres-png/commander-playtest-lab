@@ -1,6 +1,7 @@
 {
-  "schema_version": 1,
-  "variants": [
+  "schema_version": 2,
+  "validation_level": "structural_only",
+  "opponent_variants": [
     {
       "variant_id": "opponent-morcant-elves-best_case",
       "deck_id": "opponent/morcant-elves",
@@ -9,11 +10,15 @@
       "pressure": 0.4076,
       "source_status": "partially_known",
       "data_quality": "project_inferred",
+      "confirmed_card_count": 53,
+      "unknown_slot_count": 47,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
-        "Final 99 not verified",
-        "Exact proliferate and Blight densities unknown"
+        "53 concrete cards confirmed; final 47 slots unresolved",
+        "Exact final proliferate and Blight densities remain uncertain"
       ]
     },
     {
@@ -24,11 +29,15 @@
       "pressure": 0.5576,
       "source_status": "partially_known",
       "data_quality": "project_inferred",
+      "confirmed_card_count": 53,
+      "unknown_slot_count": 47,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
-        "Final 99 not verified",
-        "Exact proliferate and Blight densities unknown"
+        "53 concrete cards confirmed; final 47 slots unresolved",
+        "Exact final proliferate and Blight densities remain uncertain"
       ]
     },
     {
@@ -39,11 +48,15 @@
       "pressure": 0.7376,
       "source_status": "partially_known",
       "data_quality": "project_inferred",
+      "confirmed_card_count": 53,
+      "unknown_slot_count": 47,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
-        "Final 99 not verified",
-        "Exact proliferate and Blight densities unknown"
+        "53 concrete cards confirmed; final 47 slots unresolved",
+        "Exact final proliferate and Blight densities remain uncertain"
       ]
     },
     {
@@ -54,11 +67,15 @@
       "pressure": 0.3722,
       "source_status": "synthetic_completion",
       "data_quality": "synthetic_assumption",
+      "confirmed_card_count": 4,
+      "unknown_slot_count": 96,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
-        "Only a subset of cards is known",
-        "Unknown slots filled as a plausible mid-budget list"
+        "4 concrete cards confirmed; 96 slots remain role-only",
+        "No unknown card name is asserted as confirmed"
       ]
     },
     {
@@ -69,11 +86,15 @@
       "pressure": 0.5222,
       "source_status": "synthetic_completion",
       "data_quality": "synthetic_assumption",
+      "confirmed_card_count": 4,
+      "unknown_slot_count": 96,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
-        "Only a subset of cards is known",
-        "Unknown slots filled as a plausible mid-budget list"
+        "4 concrete cards confirmed; 96 slots remain role-only",
+        "No unknown card name is asserted as confirmed"
       ]
     },
     {
@@ -84,11 +105,15 @@
       "pressure": 0.7022,
       "source_status": "synthetic_completion",
       "data_quality": "synthetic_assumption",
+      "confirmed_card_count": 4,
+      "unknown_slot_count": 96,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
-        "Only a subset of cards is known",
-        "Unknown slots filled as a plausible mid-budget list"
+        "4 concrete cards confirmed; 96 slots remain role-only",
+        "No unknown card name is asserted as confirmed"
       ]
     },
     {
@@ -99,6 +124,10 @@
       "pressure": 0.4909,
       "source_status": "official_precon_fixed",
       "data_quality": "project_inferred",
+      "confirmed_card_count": null,
+      "unknown_slot_count": null,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
@@ -113,6 +142,10 @@
       "pressure": 0.5111,
       "source_status": "project_reference",
       "data_quality": "project_inferred",
+      "confirmed_card_count": null,
+      "unknown_slot_count": null,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
@@ -120,17 +153,60 @@
       ]
     },
     {
-      "variant_id": "opponent-doom-prevails-precon-fixed_reference",
+      "variant_id": "opponent-doom-prevails-precon-best_case",
       "deck_id": "opponent/doom-prevails-precon",
       "commander": "Doctor Doom",
-      "variant_kind": "fixed_reference",
-      "pressure": 0.503,
-      "source_status": "official_precon_fixed",
+      "variant_kind": "best_case",
+      "pressure": 0.353,
+      "source_status": "official_precon_plus_unknown_upgrades",
       "data_quality": "project_inferred",
+      "confirmed_card_count": null,
+      "unknown_slot_count": null,
+      "baseline_precon_cards": 100,
+      "upgrade_slots_unknown": true,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
-        "Opponent upgrades intentionally ignored for the fixed-precon reference"
+        "Official 100-card precon is the exact baseline",
+        "Concrete local upgrades are unknown and are modelled only as bounded role-pressure variants"
+      ]
+    },
+    {
+      "variant_id": "opponent-doom-prevails-precon-median",
+      "deck_id": "opponent/doom-prevails-precon",
+      "commander": "Doctor Doom",
+      "variant_kind": "median",
+      "pressure": 0.503,
+      "source_status": "official_precon_plus_unknown_upgrades",
+      "data_quality": "project_inferred",
+      "confirmed_card_count": null,
+      "unknown_slot_count": null,
+      "baseline_precon_cards": 100,
+      "upgrade_slots_unknown": true,
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Official 100-card precon is the exact baseline",
+        "Concrete local upgrades are unknown and are modelled only as bounded role-pressure variants"
+      ]
+    },
+    {
+      "variant_id": "opponent-doom-prevails-precon-worst_case",
+      "deck_id": "opponent/doom-prevails-precon",
+      "commander": "Doctor Doom",
+      "variant_kind": "worst_case",
+      "pressure": 0.683,
+      "source_status": "official_precon_plus_unknown_upgrades",
+      "data_quality": "project_inferred",
+      "confirmed_card_count": null,
+      "unknown_slot_count": null,
+      "baseline_precon_cards": 100,
+      "upgrade_slots_unknown": true,
+      "assumed_cards_confirmed": false,
+      "unknown_slots_remain_unknown": true,
+      "uncertainty": [
+        "Official 100-card precon is the exact baseline",
+        "Concrete local upgrades are unknown and are modelled only as bounded role-pressure variants"
       ]
     },
     {
@@ -141,6 +217,10 @@
       "pressure": 0.5152,
       "source_status": "official_precon_fixed",
       "data_quality": "project_inferred",
+      "confirmed_card_count": null,
+      "unknown_slot_count": null,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
@@ -155,11 +235,17 @@
       "pressure": 0.5333,
       "source_status": "official_precon_fixed",
       "data_quality": "project_inferred",
+      "confirmed_card_count": null,
+      "unknown_slot_count": null,
+      "baseline_precon_cards": null,
+      "upgrade_slots_unknown": false,
       "assumed_cards_confirmed": false,
       "unknown_slots_remain_unknown": true,
       "uncertainty": [
         "Fixed-precon structural reference"
       ]
     }
-  ]
+  ],
+  "unknown_cards_invented": false,
+  "empirical_weights_used": false
 }

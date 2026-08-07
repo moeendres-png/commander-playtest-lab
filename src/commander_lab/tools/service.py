@@ -149,6 +149,11 @@ from commander_lab.agents.pilots import build_pilot
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
 from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
 from commander_lab.provenance import ProvenanceStore
+from commander_lab.robustness import POLITICS_REGIMES, pilot_config_for
+from commander_lab.engine.rules import (
+    RulesEngineManager, TacticalRuleOracle, load_interaction_catalog, load_project_rules_decks,
+)
+from commander_lab.models import ActionProposal, RulesGameRequest
 
 from commander_lab.mulligan import MulliganLab
 from commander_lab.models.mulligan import (
@@ -162,7 +167,7 @@ from commander_lab.models.tooling import (
 from commander_lab.opponent_ensembles import OpponentEnsembleStore
 from commander_lab.models.opponent_ensembles import OpponentEnsemble, OpponentVariant
 
-from .candidates import load_candidate_profiles
+from .candidates import load_candidate_profiles, load_canonical_inventory_quantities
 
 
 class ToolExecutionError(RuntimeError):
@@ -202,11 +207,41 @@ class CommanderToolService:
             include_current_opponents=True,
         )
         self.candidates = load_candidate_profiles(self.root)
-        self.candidate_inventory = load_candidate_inventory(self.root)
+        canonical_inventory = load_canonical_inventory_quantities(self.root)
+        if canonical_inventory:
+            baseline_required: Counter[str] = Counter()
+            for deck_id in ("korvold/current", "rogshai/current"):
+                deck = self.decks.get(deck_id)
+                if deck is None:
+                    continue
+                baseline_required.update(
+                    card.oracle_name for card in deck.cards
+                    if card.oracle_name not in {"Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes"}
+                )
+            self.candidate_inventory = {
+                name: max(0, quantity - baseline_required.get(name, 0))
+                for name, quantity in canonical_inventory.items()
+            }
+        else:
+            self.candidate_inventory = load_candidate_inventory(self.root)
+        filtered_candidates = {}
+        for candidate_id, candidate in self.candidates.items():
+            if self.candidate_inventory.get(candidate.card.oracle_name, 0) <= 0:
+                continue
+            allowed = tuple(
+                deck_id for deck_id in candidate.allowed_deck_ids
+                if deck_id not in self.decks
+                or candidate.card.oracle_name not in {card.oracle_name for card in self.decks[deck_id].cards}
+            )
+            if not allowed:
+                continue
+            filtered_candidates[candidate_id] = candidate.model_copy(update={"allowed_deck_ids": allowed})
+        self.candidates = filtered_candidates
         self.verified_candidate_names = {
             candidate.card.oracle_name
             for candidate in self.candidates.values()
-            if candidate.physical_status == "local_project_verified_owned"
+            if candidate.physical_status in {"local_project_verified_owned", "canonical_inventory_verified_owned"}
+            and self.candidate_inventory.get(candidate.card.oracle_name, 0) > 0
         }
         protected_path = self.root / "config/protected_cards.json"
         self.protected_cards = json.loads(protected_path.read_text(encoding="utf-8")) if protected_path.exists() else {}
@@ -896,7 +931,8 @@ class CommanderToolService:
                         - 3.0 * critical_loss
                         - (0.75 if not overlap else 0.0)
                     )
-                    delta = raw_delta + compatibility_adjustment
+                    inference_penalty = 2.5 if candidate_id.startswith("inventory/") else 0.0
+                    delta = raw_delta + compatibility_adjustment - inference_penalty
                     role_gain = sorted(role.value for role in candidate.card.roles - cut.roles)
                     role_loss = sorted(role.value for role in lost_roles)
                     recommendations.append({
@@ -906,6 +942,8 @@ class CommanderToolService:
                         "screening_delta": delta,
                         "raw_profile_delta": raw_delta,
                         "role_compatibility_adjustment": compatibility_adjustment,
+                        "screening_uncertainty_penalty": inference_penalty,
+                        "semantic_quality": ("keyword_inferred_structural_only" if inference_penalty else "curated_structural_profile"),
                         "role_gain": role_gain,
                         "role_loss": role_loss,
                         "physical_status": candidate.physical_status,
@@ -1983,6 +2021,99 @@ class CommanderToolService:
             return default
         return json.loads(path.read_text(encoding="utf-8"))
 
+    def _opponent_pod_for_size(self, requested: tuple[str, ...], pod_size: int) -> tuple[str, ...]:
+        needed = pod_size - 1
+        if needed < 1:
+            raise ToolExecutionError("Commander robustness pods require at least two players")
+        ordered: list[str] = []
+        for deck_id in (*requested,
+                        "opponent/morcant-elves", "opponent/cosmic-spiderman-midbudget",
+                        "opponent/blight-curse-precon", "opponent/kaervek-reference",
+                        "opponent/doom-prevails-precon", "opponent/dance-elements-precon",
+                        "opponent/wakanda-forever-precon",
+                        "synthetic/aggro", "synthetic/control", "synthetic/engine"):
+            if deck_id in self.decks and deck_id not in ordered:
+                ordered.append(deck_id)
+        if len(ordered) < needed:
+            raise ToolExecutionError(f"not enough structural opponents for pod size {pod_size}")
+        return tuple(ordered[:needed])
+
+    def _politics_pod_sensitivity(
+        self, *, baseline: StructuralDeckProfile, variant: StructuralDeckProfile,
+        opponent_deck_ids: tuple[str, ...], pod_sizes: tuple[int, ...],
+        seed: int, iterations: int, max_turns: int, profile_name: str,
+        include_politics: bool = True,
+    ) -> list[dict[str, Any]]:
+        politics = POLITICS_REGIMES if include_politics else ("rational_threat_focus",)
+        sample_iterations = max(1, min(3, iterations))
+        rows: list[dict[str, Any]] = []
+        for pod_size in pod_sizes:
+            opponents = self._opponent_pod_for_size(opponent_deck_ids, pod_size)
+            for regime in politics:
+                config = pilot_config_for(profile_name, regime)
+                metrics, _ = run_paired_structural_comparison(
+                    baseline=baseline, variant=variant,
+                    opponents=tuple(self._deck(deck_id) for deck_id in opponents),
+                    iterations=sample_iterations,
+                    seed=seed + pod_size * 1000 + list(POLITICS_REGIMES).index(regime),
+                    pilot_config=config, max_turns=max_turns,
+                    pair_id=f"robust-{variant.deck_hash[:8]}-{pod_size}-{regime}",
+                )
+                rows.append({
+                    "politics": regime, "pod_size": pod_size, "opponents": list(opponents),
+                    "iterations": sample_iterations,
+                    "placement_improvement": metrics.placement_improvement,
+                    "place_1_share_delta": metrics.place_1_share_delta,
+                    "confidence_interval": metrics.confidence_interval,
+                    "validation_level": "structural_only",
+                })
+        return rows
+
+    def _tactical_interaction_evidence(self, card_names: tuple[str, ...]) -> dict[str, Any]:
+        wanted = {name for name in card_names if name}
+        catalog = load_interaction_catalog(self.root / "data/rules/project_critical_interactions.json")
+        selected = [case for case in catalog if wanted.intersection(case.cards)]
+        if not selected:
+            return {
+                "execution_status": "not_run_no_relevant_case",
+                "validation_level": "structural_only",
+                "cases_attempted": 0, "cases_passed": 0, "cases_failed": 0,
+                "interaction_ids": [],
+            }
+        oracle = TacticalRuleOracle()
+        results = [oracle.validate(case) for case in selected]
+        failed = [result for result in results if not result.passed]
+        return {
+            "execution_status": "passed" if not failed else "failed",
+            "validation_level": "tactical_oracle",
+            "cases_attempted": len(results),
+            "cases_passed": len(results) - len(failed),
+            "cases_failed": len(failed),
+            "interaction_ids": [result.interaction_id for result in results],
+            "mismatches": [m for result in failed for m in result.mismatches],
+            "external_engine_claimed": False,
+        }
+
+    def _external_probe_status(self, provider: str) -> dict[str, Any]:
+        manager = RulesEngineManager(root=self.root)
+        try:
+            adapter = manager.xmage if provider == "xmage" else manager.forge
+            probe = adapter.probe()
+            external = (
+                probe.availability.value == "available"
+                and probe.capabilities.runtime_kind == "external_rules_engine"
+            )
+            return {
+                "provider": provider,
+                "execution_status": "ready_for_real_call" if external else "blocked",
+                "availability": probe.availability.value,
+                "runtime_kind": probe.capabilities.runtime_kind,
+                "backend_version": probe.backend_version,
+                "details": list(probe.details),
+            }
+        finally:
+            manager.close()
+
     def build_optimization_context(self, request: BuildOptimizationContextInput) -> ToolResponse:
         def work() -> dict[str, Any]:
             requested = list(request.deck_ids)
@@ -2181,17 +2312,55 @@ class CommanderToolService:
             result = self.validate_upgrade(ValidateUpgradeInput.model_validate(request.model_dump())).result
             paired = result.get("paired_comparison", {})
             criteria = result.get("criteria", {})
+            baseline, variant, swaps = self._build_variant(request)
+            strength_profile = request.pilot_strength.value
+            robustness_rows = self._politics_pod_sensitivity(
+                baseline=baseline, variant=variant,
+                opponent_deck_ids=request.opponent_deck_ids, pod_sizes=(3, 4, 5),
+                seed=request.seed, iterations=request.iterations, max_turns=request.max_turns,
+                profile_name=strength_profile, include_politics=True,
+            )
+            politics_rows = [row for row in robustness_rows if row["pod_size"] == 4]
+            pod_rows = []
+            for pod_size in (3, 4, 5):
+                values = [row["placement_improvement"] for row in robustness_rows if row["pod_size"] == pod_size]
+                pod_rows.append({
+                    "pod_size": pod_size, "scenario_count": len(values),
+                    "mean_placement_improvement": fmean(values) if values else None,
+                    "worst_case_placement_improvement": min(values) if values else None,
+                })
+            robustness_nonnegative = all(row["placement_improvement"] >= 0 for row in robustness_rows)
+            dependency = {
+                "baseline_dependency_penalty": self._commander_dependency_penalty(baseline),
+                "variant_dependency_penalty": self._commander_dependency_penalty(variant),
+            }
+            dependency["delta"] = dependency["variant_dependency_penalty"] - dependency["baseline_dependency_penalty"]
+            card_names = tuple(
+                name for row in swaps for name in (row.get("remove"), row.get("add")) if name
+            )
+            tactical = self._tactical_interaction_evidence(card_names)
+            xmage = self._external_probe_status("xmage")
+            forge = self._external_probe_status("forge")
             if not criteria.get("constraints_passed", False):
                 status = "rejected"
             elif request.iterations < 100:
                 status = "insufficient_evidence"
-            elif criteria.get("paired_passed") and criteria.get("holdout_passed") and criteria.get("sensitivity_passed"):
+            elif (criteria.get("paired_passed") and criteria.get("holdout_passed")
+                  and criteria.get("sensitivity_passed") and robustness_nonnegative):
                 status = "robust_in_structural_holdout"
             elif criteria.get("paired_passed"):
                 status = "structurally_supported"
             else:
                 status = "insufficient_evidence"
-            swaps = result.get("swaps", [])
+            remaining = []
+            if not robustness_nonnegative:
+                remaining.append("at least one politics/pod-size structural sensitivity is negative")
+            if tactical["execution_status"] != "passed":
+                remaining.append("no passing relevant Tactical Oracle case for every changed interaction")
+            if xmage["execution_status"] != "ready_for_real_call":
+                remaining.append("XMage external rules engine unavailable")
+            if forge["execution_status"] != "ready_for_real_call":
+                remaining.append("Forge external rules engine unavailable")
             return {
                 "current_card": swaps[0].get("remove") if swaps else None,
                 "candidate_card": swaps[0].get("add") if swaps else None,
@@ -2201,24 +2370,27 @@ class CommanderToolService:
                 "role_changes": result.get("structural_rationale", []),
                 "package_changes": [],
                 "mana_effect": "structural role/profile estimate",
-                "mulligan_effect": "not_run",
+                "mulligan_effect": "separate mulligan-policy gate required for policy-changing swaps",
                 "paired_structural_effect": paired,
                 "confidence_interval": paired.get("confidence_interval"),
                 "holdout_effect": result.get("holdout_tests", []),
-                "worst_case_effect": min((r.get("comparison", {}).get("placement_improvement", 0.0) for r in result.get("holdout_tests", [])), default=0.0),
+                "worst_case_effect": min(
+                    [row.get("comparison", {}).get("placement_improvement", 0.0) for row in result.get("holdout_tests", [])]
+                    + [row["placement_improvement"] for row in robustness_rows], default=0.0
+                ),
                 "pilot_sensitivity": result.get("sensitivity_tests", []),
                 "opponent_sensitivity": result.get("holdout_tests", []),
-                "politics_sensitivity": "not_run",
-                "pod_size_sensitivity": "not_run",
-                "commander_denial_effect": "not_run",
-                "tactical_oracle_result": "not_run",
-                "xmage_result": "blocked",
-                "forge_result": "blocked",
+                "politics_sensitivity": politics_rows,
+                "pod_size_sensitivity": pod_rows,
+                "commander_denial_effect": dependency,
+                "tactical_oracle_result": tactical,
+                "xmage_result": xmage,
+                "forge_result": forge,
                 "provider_disagreement": False,
-                "rules_coverage": "structural_only",
+                "rules_coverage": tactical["validation_level"],
                 "failure_diagnosis": result.get("red_team_review", {}),
                 "recommendation_status": status,
-                "remaining_uncertainty": ["external rules engine blocked", "politics and pod-size full simulation not run"],
+                "remaining_uncertainty": remaining,
                 "raw_validation": result,
                 "automatic_application": False,
             }
@@ -2308,58 +2480,163 @@ class CommanderToolService:
 
     def run_multifidelity_comparison(self, request: RunMultifidelityComparisonInput) -> ToolResponse:
         def work() -> dict[str, Any]:
-            structural = self.validate_swap(ValidateSwapInput.model_validate(request.model_dump(exclude={"include_tactical_oracle", "request_external_engine"}))).result
-            cards = [structural.get("current_card"), structural.get("candidate_card")]
-            coverage = self.run_rules_coverage_gate(RunRulesCoverageGateInput(
-                deck_id=request.deck_id, card_names=tuple(card for card in cards if card),
-                require_external=request.request_external_engine,
+            structural = self.validate_swap(ValidateSwapInput.model_validate(
+                request.model_dump(exclude={"include_tactical_oracle", "request_external_engine"})
             )).result
-            tactical = "passed_with_limitations" if request.include_tactical_oracle and coverage.get("highest_validation_level") == "tactical_oracle" else "not_run"
-            external = "blocked" if request.request_external_engine else "not_run"
+            cards = tuple(card for card in (structural.get("current_card"), structural.get("candidate_card")) if card)
+            coverage = self.run_rules_coverage_gate(RunRulesCoverageGateInput(
+                deck_id=request.deck_id, card_names=cards, require_external=request.request_external_engine,
+            )).result
+            tactical = (
+                self._tactical_interaction_evidence(cards)
+                if request.include_tactical_oracle
+                else {"execution_status": "not_run", "validation_level": "structural_only"}
+            )
+            external_results: dict[str, Any] = {}
+            if request.request_external_engine:
+                for provider in ("xmage", "forge"):
+                    external_results[provider] = self.run_engine_backed_matchup(RunEngineBackedMatchupInput(
+                        deck_ids=(request.deck_id, *request.opponent_deck_ids),
+                        provider=provider, seed=request.seed, iterations=1, workers=1,
+                        pilot_strength=request.pilot_strength, pilot_mode=request.pilot_mode,
+                        max_turns=request.max_turns, approval_token=request.approval_token,
+                    )).result
             status = structural.get("recommendation_status", "insufficient_evidence")
-            if status == "robust_in_structural_holdout" and tactical == "passed_with_limitations":
+            if status == "robust_in_structural_holdout" and tactical.get("execution_status") == "passed":
                 status = "tactical_oracle_supported"
+            passed_external = [p for p, row in external_results.items() if row.get("execution_status") == "passed"]
+            if status == "tactical_oracle_supported" and coverage.get("external_gate_passed") and passed_external:
+                status = "external_engine_supported"
+            if status == "external_engine_supported" and set(passed_external) == {"xmage", "forge"}:
+                status = "provider_cross_checked"
+            if status == "provider_cross_checked":
+                status = "recommended_upgrade"
             return {
-                "formal_gate": "passed",
+                "formal_gate": "passed" if structural.get("recommendation_status") != "rejected" else "failed",
                 "structural_result": structural,
                 "tactical_oracle_result": tactical,
-                "external_rules_result": external,
+                "external_rules_result": external_results if request.request_external_engine else {"execution_status": "not_run"},
                 "coverage_gate": coverage,
                 "recommendation_status": status,
+                "evidence_ladder": [
+                    "candidate_swap", "formally_valid", "structurally_supported",
+                    "robust_in_structural_holdout", "tactical_oracle_supported",
+                    "external_engine_supported", "provider_cross_checked", "recommended_upgrade",
+                ],
                 "automatic_application": False,
             }
-        return self._invoke("run_multifidelity_comparison", request, work, deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations)
+        return self._invoke(
+            "run_multifidelity_comparison", request, work,
+            deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations,
+        )
 
     def run_engine_backed_matchup(self, request: RunEngineBackedMatchupInput) -> ToolResponse:
         def work() -> dict[str, Any]:
-            phase = self._read_optional_json("artifacts/phase12_13/PHASE12_13_RESULT.json", {})
-            provider = phase.get("providers", {}).get(request.provider, {})
-            return {
-                "execution_status": "blocked",
-                "validation_level": "structural_only",
-                "provider": request.provider,
-                "provider_status": provider.get("status", "blocked"),
-                "reason": "No real provider process, handshake, legal actions, event log, or replay is available in this runtime.",
-                "external_rules_engine_observations": 0,
-                "synthetic_or_tactical_substitution": False,
-            }
-        return self._invoke("run_engine_backed_matchup", request, work, deck_ids=request.deck_ids, seed=request.seed, iterations=request.iterations)
+            manager = RulesEngineManager(root=self.root)
+            try:
+                adapter = manager.xmage if request.provider == "xmage" else manager.forge
+                probe = adapter.probe()
+                if probe.availability.value != "available" or probe.capabilities.runtime_kind != "external_rules_engine":
+                    return {
+                        "execution_status": "blocked", "validation_level": "structural_only",
+                        "provider": request.provider, "provider_status": probe.availability.value,
+                        "runtime_kind": probe.capabilities.runtime_kind,
+                        "reason": "; ".join(probe.details) or "external provider handshake unavailable",
+                        "external_rules_engine_observations": 0,
+                        "synthetic_or_tactical_substitution": False,
+                    }
+                rules_decks = load_project_rules_decks(self.root)
+                missing = [deck_id for deck_id in request.deck_ids if deck_id not in rules_decks]
+                if missing:
+                    return {
+                        "execution_status": "blocked", "validation_level": "structural_only",
+                        "provider": request.provider, "provider_status": "available",
+                        "reason": f"rules-engine deck exports missing for: {missing}",
+                        "external_rules_engine_observations": 0,
+                        "synthetic_or_tactical_substitution": False,
+                    }
+                observations = []
+                for index in range(request.iterations):
+                    handles = [adapter.load_deck(rules_decks[deck_id]) for deck_id in request.deck_ids]
+                    game = adapter.start_commander_game(RulesGameRequest(
+                        game_id=f"engine-backed-{request.provider}-{request.seed}-{index}",
+                        deck_handles=tuple(handle.handle_id for handle in handles),
+                        seed=request.seed + index,
+                        starting_player_seat=index % len(handles),
+                    ))
+                    actions = adapter.get_legal_actions(game.session_id)
+                    submitted = False
+                    if actions:
+                        action = actions[0]
+                        adapter.submit_action(game.session_id, ActionProposal(
+                            proposal_id=f"engine-backed-action-{index}", actor_id=action.actor_id,
+                            legal_action_id=action.action_id, action_type=action.action_type,
+                            policy_name="external_engine_acceptance",
+                        ))
+                        submitted = True
+                    logs = adapter.get_logs(game.session_id)
+                    replay = adapter.export_replay(game.session_id) if probe.capabilities.replay_supported else None
+                    observations.append({
+                        "game_id": game.game_id, "legal_action_count": len(actions),
+                        "action_submitted": submitted, "event_count": len(logs.events),
+                        "replay_exported": replay is not None,
+                    })
+                full = all(
+                    row["legal_action_count"] > 0 and row["action_submitted"] and row["event_count"] > 0 and row["replay_exported"]
+                    for row in observations
+                )
+                return {
+                    "execution_status": "passed" if full else "passed_with_limitations",
+                    "validation_level": "external_rules_engine",
+                    "provider": request.provider, "provider_status": "available",
+                    "runtime_kind": "external_rules_engine",
+                    "external_rules_engine_observations": len(observations),
+                    "observations": observations,
+                    "synthetic_or_tactical_substitution": False,
+                }
+            except Exception as exc:
+                return {
+                    "execution_status": "failed", "validation_level": "structural_only",
+                    "provider": request.provider, "provider_status": "error",
+                    "reason": f"{type(exc).__name__}: {exc}",
+                    "external_rules_engine_observations": 0,
+                    "synthetic_or_tactical_substitution": False,
+                }
+            finally:
+                manager.close()
+        return self._invoke(
+            "run_engine_backed_matchup", request, work,
+            deck_ids=request.deck_ids, seed=request.seed, iterations=request.iterations,
+        )
 
     def run_robustness_suite(self, request: RunRobustnessSuiteInput) -> ToolResponse:
         def work() -> dict[str, Any]:
-            validation = self.validate_swap(ValidateSwapInput.model_validate(request.model_dump(exclude={"include_politics", "include_pod_sizes"}))).result
-            tournament = self._read_optional_json("data/robustness/policy_tournament_result.json", {})
+            baseline, variant, _ = self._build_variant(request)
+            profile_name = request.pilot_strength.value
+            rows = self._politics_pod_sensitivity(
+                baseline=baseline, variant=variant, opponent_deck_ids=request.opponent_deck_ids,
+                pod_sizes=request.include_pod_sizes, seed=request.seed, iterations=request.iterations,
+                max_turns=request.max_turns, profile_name=profile_name, include_politics=request.include_politics,
+            )
+            worst = min((row["placement_improvement"] for row in rows), default=0.0)
+            mean = fmean(row["placement_improvement"] for row in rows) if rows else 0.0
+            status = "robust_in_structural_holdout" if rows and worst >= 0 else "insufficient_evidence"
             return {
                 "validation_level": "structural_only",
-                "swap_validation": validation,
+                "execution_status": "passed",
+                "scenario_count": len(rows),
                 "pod_sizes": list(request.include_pod_sizes),
                 "politics_included": request.include_politics,
-                "policy_tournament_scenarios": tournament.get("scenario_count", len(tournament.get("rows", []))),
-                "worst_case_effect": validation.get("worst_case_effect"),
-                "recommendation_status": validation.get("recommendation_status", "insufficient_evidence"),
+                "politics_regimes": list(POLITICS_REGIMES) if request.include_politics else ["rational_threat_focus"],
+                "scenario_results": rows,
+                "mean_effect": mean, "worst_case_effect": worst,
+                "recommendation_status": status,
                 "automatic_application": False,
             }
-        return self._invoke("run_robustness_suite", request, work, deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations)
+        return self._invoke(
+            "run_robustness_suite", request, work,
+            deck_ids=(request.deck_id, *request.opponent_deck_ids), seed=request.seed, iterations=request.iterations,
+        )
 
     def rank_variants(self, request: RankVariantsInput) -> ToolResponse:
         def work() -> dict[str, Any]:
