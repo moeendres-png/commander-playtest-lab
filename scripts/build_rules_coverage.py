@@ -52,13 +52,25 @@ REQUESTED_GOLDEN = {
     "opponent_elf_etb_lords": (["High Perfect Morcant"], []),
     "opponent_wakanda_artifact_equipment": ([], []),
     "opponent_dance_evoke_recursion": ([], []),
-    "opponent_doctor_doom_artifact_villain": (["Doctor Doom"], []),
+    "opponent_doctor_doom_artifact_villain": (["Doctor Doom, King of Latveria"], []),
     "opponent_cosmic_spiderman_legends": (["Cosmic Spider-Man"], []),
 }
 
 
 def load(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def slug(text: str) -> str:
+    return "".join(c.lower() if c.isalnum() else "_" for c in text).strip("_")
+
+
+def canonical_opponent_name(text: str) -> str:
+    # Canonical opponent sheets may preserve a localized printed name in a trailing
+    # parenthetical.  The machine registry uses the English Oracle name only.
+    if " (" in text and text.endswith(")"):
+        return text.split(" (", 1)[0].strip()
+    return text.strip()
 
 
 def main() -> int:
@@ -70,7 +82,10 @@ def main() -> int:
     out = (root / args.output).resolve()
     out.mkdir(parents=True, exist_ok=True)
 
-    canonical = load(root / "data/canonical_import/2026-08-07/deck_lists.json")
+    canonical_dir = root / "data/canonical_import/2026-08-07"
+    canonical = load(canonical_dir / "deck_lists.json")
+    inventory = load(canonical_dir / "inventory.json")
+    opponents = load(canonical_dir / "opponents.json")
     validation = load(root / "data/rules/validation_registry.json")
     critical = load(root / "data/rules/project_critical_interactions.json")
     role_data = load(root / "data/cards/structural_role_profiles.json")
@@ -90,6 +105,24 @@ def main() -> int:
                     packages[name].add(pkg.get("package_id", "unknown"))
 
     records: dict[str, dict[str, Any]] = {}
+
+    # Entire active physical inventory is in scope for future candidate generation.
+    for row in inventory.get("cards", []):
+        name = row["oracle_name"]
+        rec = records.setdefault(name, {"oracle_name": name, "deck_versions": [], "source_status": []})
+        rec["inventory_candidate"] = True
+        rec["inventory_quantity"] = row.get("quantity")
+        rec["inventory_metadata"] = {
+            "language": row.get("language"),
+            "edition": row.get("edition"),
+            "condition": row.get("condition"),
+            "box_or_location": row.get("box_or_location"),
+            "current_deck_use": row.get("current_deck_use"),
+            "commander_legality": row.get("commander_legality"),
+            "color_identity": row.get("color_identity"),
+        }
+        rec["source_status"].append(row.get("verification_status") or "inventory")
+
     deck_map = {
         "01_Korvold_100": "korvold/current-2026-08-07",
         "02_RogShai_100": "rogshai/current-2026-08-07",
@@ -103,15 +136,19 @@ def main() -> int:
             rec["source_status"].append(row.get("physischer Status"))
             rec.setdefault("canonical_role", row.get("Primärrolle"))
 
-    opponent_sources: dict[str, list[str]] = defaultdict(list)
-    profiles = load(root / "data/opponents/current_structural_profiles.json")
-    for profile in profiles.get("profiles", []):
-        name = profile.get("commander")
-        if name:
+    # Exact known opponent lists and confirmed partial cores from the canonical opponent workbook.
+    opponent_versions: list[str] = []
+    for deck in opponents.get("decks", []):
+        deck_version = f"opponent/{slug(deck['deck'])}/drive-2026-08-02"
+        opponent_versions.append(deck_version)
+        for row in deck.get("cards", []):
+            name = canonical_opponent_name(row["oracle_name"])
             rec = records.setdefault(name, {"oracle_name": name, "deck_versions": [], "source_status": []})
-            rec["deck_versions"].append(profile["deck_id"])
-            rec["source_status"].append(profile.get("source_status"))
-            opponent_sources[name].append("data/opponents/current_structural_profiles.json")
+            rec["deck_versions"].append(deck_version)
+            rec["source_status"].append(deck.get("data_status"))
+            rec.setdefault("opponent_sources", []).append("data/canonical_import/2026-08-07/opponents.json")
+
+    # Preserve additional explicitly provenance-marked ensemble assumptions as assumptions, never confirmed cards.
     for path in sorted((root / "data/opponent_ensembles").glob("*-v1.json")):
         ensemble = load(path)
         for variant in ensemble.get("variants", []):
@@ -120,20 +157,24 @@ def main() -> int:
                     rec = records.setdefault(name, {"oracle_name": name, "deck_versions": [], "source_status": []})
                     rec["deck_versions"].append(f"{ensemble['ensemble_id']}/{variant['variant_id']}")
                     rec["source_status"].append(label)
-                    opponent_sources[name].append(str(path.relative_to(root)))
+                    rec.setdefault("opponent_sources", []).append(str(path.relative_to(root)))
 
     coverage: list[dict[str, Any]] = []
     for name in sorted(records):
         rec = records[name]
         tact = tactical_cards.get(name, {})
-        structural = bool(roles.get(name) or rec.get("canonical_role") or rec.get("deck_versions"))
+        # Per-card structural support means a card has an actual role/profile or an explicit canonical deck role.
+        structural = bool(roles.get(name) or rec.get("canonical_role"))
         tactical = int(tact.get("tactical_passed", 0)) > 0
         status = "tactical_only" if tactical else "structural_only" if structural else "unsupported"
-        evidence = ["data/rules/validation_registry.json"] if tactical else []
-        if name in opponent_sources:
-            evidence.extend(opponent_sources[name])
+        evidence: list[str] = []
+        if tactical:
+            evidence.append("data/rules/validation_registry.json")
+        if rec.get("inventory_candidate"):
+            evidence.append("data/canonical_import/2026-08-07/inventory.json")
         if any(v.startswith(("korvold/", "rogshai/", "kaervek/")) for v in rec["deck_versions"]):
             evidence.append("data/canonical_import/2026-08-07/deck_lists.json")
+        evidence.extend(rec.get("opponent_sources", []))
         oc = oracle.get(name, {})
         item = {
             "oracle_name": name,
@@ -153,6 +194,9 @@ def main() -> int:
             "known_provider_bug": None,
             "fallback_policy": "tactical_oracle" if tactical else "structural_only" if structural else "unsupported",
             "coverage_status": status,
+            "inventory_candidate": bool(rec.get("inventory_candidate")),
+            "inventory_quantity": rec.get("inventory_quantity"),
+            "inventory_metadata": rec.get("inventory_metadata"),
             "source_status": sorted({str(v) for v in rec.get("source_status", []) if v}),
             "evidence_files": sorted(set(evidence)),
         }
@@ -167,56 +211,91 @@ def main() -> int:
             if cards else True
             for i in found
         )
-        # Interaction-only stack/APNAP cases are validated by the tactical corpus.
         if not cards and found:
             tactical = True
+        supported = bool(cards or found)
         scenarios.append({
             "scenario_id": scenario_id,
             "cards": cards,
             "interaction_ids": found,
-            "structural_support": bool(cards or found),
+            "structural_support": supported,
             "tactical_oracle_support": tactical,
             "xmage_verified": False,
             "forge_verified": False,
             "external_replay_verified": False,
-            "coverage_status": "tactical_only" if tactical else "structural_only" if (cards or found) else "unsupported",
+            "coverage_status": "tactical_only" if tactical else "structural_only" if supported else "unsupported",
             "evidence_files": ["data/rules/project_critical_interactions.json"] if found else [],
         })
 
+    all_versions = sorted({v for r in coverage for v in r["deck_versions"]})
     deck_stats: dict[str, Any] = {}
-    for deck in deck_map.values():
+    for deck in all_versions:
         rows = [r for r in coverage if deck in r["deck_versions"]]
-        counts = defaultdict(int)
+        counts: dict[str, int] = defaultdict(int)
         for row in rows:
             counts[row["coverage_status"]] += 1
         deck_stats[deck] = {"unique_oracle_names": len(rows), "coverage": dict(counts)}
 
+    counts: dict[str, int] = defaultdict(int)
+    for row in coverage:
+        counts[row["coverage_status"]] += 1
+    scenario_counts: dict[str, int] = defaultdict(int)
+    for row in scenarios:
+        scenario_counts[row["coverage_status"]] += 1
+
     card_registry = {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_from_read_only_canonical_drive_snapshot": True,
+        "source_drive_files": {
+            "decks": "15SaFU4pgoYugXiimT0uqlw0AF53fCuf9",
+            "inventory": inventory.get("source_drive_file_id"),
+            "opponents": opponents.get("source_drive_file_id"),
+        },
         "external_engine_execution_status": "blocked",
         "cards": coverage,
+        "coverage_counts": dict(counts),
+        "inventory_candidate_count": sum(1 for r in coverage if r["inventory_candidate"]),
         "deck_statistics": deck_stats,
     }
     scenario_registry = {
-        "schema_version": 1,
+        "schema_version": 2,
         "external_engine_execution_status": "blocked",
         "scenarios": scenarios,
+        "coverage_counts": dict(scenario_counts),
     }
     unsupported = [r for r in coverage if r["coverage_status"] == "unsupported"]
     differences = {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "not_run",
         "provider_comparisons": [],
-        "reason": "No real XMage or Forge execution was available.",
+        "reason": "No real XMage or Forge process could be executed in the current runtime.",
     }
-    (out / "CARD_RULES_COVERAGE.json").write_text(json.dumps(card_registry, indent=2, ensure_ascii=False) + "\n")
-    (out / "GOLDEN_RULES_SCENARIOS.json").write_text(json.dumps(scenario_registry, indent=2, ensure_ascii=False) + "\n")
-    (out / "UNSUPPORTED_CARD_REGISTER.json").write_text(json.dumps({"cards": unsupported}, indent=2, ensure_ascii=False) + "\n")
-    (out / "PROVIDER_DIFFERENCE_REGISTER.json").write_text(json.dumps(differences, indent=2) + "\n")
-    (root / "data/rules/card_rules_coverage.json").write_text(json.dumps(card_registry, indent=2, ensure_ascii=False) + "\n")
-    (root / "data/rules/golden_rules_scenarios.json").write_text(json.dumps(scenario_registry, indent=2, ensure_ascii=False) + "\n")
-    print(json.dumps({"cards": len(coverage), "scenarios": len(scenarios), "deck_statistics": deck_stats}, indent=2))
+    card_text = json.dumps(card_registry, indent=2, ensure_ascii=False) + "\n"
+    scenario_text = json.dumps(scenario_registry, indent=2, ensure_ascii=False) + "\n"
+    unsupported_text = json.dumps({"schema_version": 2, "cards": unsupported}, indent=2, ensure_ascii=False) + "\n"
+    difference_text = json.dumps(differences, indent=2) + "\n"
+
+    (out / "CARD_RULES_COVERAGE.json").write_text(card_text)
+    # Keep explicit names for the user-requested registries/corpus as first-class artifacts.
+    (out / "RULES_SCENARIO_REGISTRY.json").write_text(scenario_text)
+    (out / "GOLDEN_RULES_SCENARIOS.json").write_text(scenario_text)
+    (out / "GOLDEN_RULES_CORPUS.json").write_text(scenario_text)
+    (out / "UNSUPPORTED_CARD_REGISTER.json").write_text(unsupported_text)
+    (out / "PROVIDER_DIFFERENCE_REGISTER.json").write_text(difference_text)
+    (root / "data/rules/card_rules_coverage.json").write_text(card_text)
+    (root / "data/rules/rules_scenario_registry.json").write_text(scenario_text)
+    (root / "data/rules/golden_rules_scenarios.json").write_text(scenario_text)
+    (root / "data/rules/golden_rules_corpus.json").write_text(scenario_text)
+    (root / "data/rules/unsupported_card_register.json").write_text(unsupported_text)
+    (root / "data/rules/provider_difference_register.json").write_text(difference_text)
+    print(json.dumps({
+        "cards": len(coverage),
+        "inventory_candidates": card_registry["inventory_candidate_count"],
+        "coverage_counts": dict(counts),
+        "scenarios": len(scenarios),
+        "scenario_counts": dict(scenario_counts),
+        "deck_statistics": deck_stats,
+    }, indent=2, ensure_ascii=False))
     return 0
 
 

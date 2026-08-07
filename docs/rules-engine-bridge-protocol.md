@@ -82,7 +82,7 @@ A fixed starting state is acceptable for tactical differential tests even when t
 ## Validation labels
 
 - `structural_only`: only the high-volume abstraction covers the card or interaction.
-- `tactical_validated`: the local bounded tactical oracle passed.
-- `rules_engine_validated`: XMage or Forge returned a matching normalized result.
+- `tactical_oracle`: the local bounded tactical oracle passed.
+- `external_rules_engine`: XMage or Forge returned a matching normalized result.
 
-The local bridge in `scripts/tactical_rules_bridge.py` is a contract test and tactical oracle. It cannot produce `rules_engine_validated` evidence.
+The local bridge in `scripts/tactical_rules_bridge.py` is a contract test and tactical oracle. It cannot produce `external_rules_engine` evidence.

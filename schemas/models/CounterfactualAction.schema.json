@@ -1,0 +1,78 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "title": "Action Id",
+      "type": "string"
+    },
+    "action_kind": {
+      "default": "structural_action",
+      "title": "Action Kind",
+      "type": "string"
+    },
+    "legal": {
+      "default": true,
+      "title": "Legal",
+      "type": "boolean"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "public_description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Public Description"
+    },
+    "tactical_input": {
+      "additionalProperties": true,
+      "title": "Tactical Input",
+      "type": "object"
+    },
+    "tactical_rule": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tactical Rule"
+    },
+    "target_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Ids",
+      "type": "array"
+    },
+    "utility": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Utility"
+    }
+  },
+  "required": [
+    "action_id"
+  ],
+  "title": "CounterfactualAction",
+  "type": "object"
+}

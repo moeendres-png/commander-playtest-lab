@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "include_optional_cards": {
+      "default": true,
+      "title": "Include Optional Cards",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "GenerateCandidatePackagesInput",
+  "type": "object"
+}

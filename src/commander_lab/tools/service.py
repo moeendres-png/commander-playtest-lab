@@ -2141,8 +2141,8 @@ class CommanderToolService:
                 "canonical_snapshot": {
                     "path": "data/canonical_import/2026-08-07/deck_lists.json",
                     "read_only": True,
-                    "source_workbook": canonical.get("source_workbook"),
-                    "source_drive_id": canonical.get("source_drive_id"),
+                    "source_workbook": canonical.get("source_file") or canonical.get("source_workbook"),
+                    "source_drive_id": canonical.get("source_drive_file_id") or canonical.get("source_drive_id"),
                 },
                 "candidate_cards": [
                     {

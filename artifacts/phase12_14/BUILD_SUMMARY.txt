@@ -1,7 +1,25 @@
 {
-  "cards": 229,
+  "cards": 1699,
+  "inventory_candidates": 1349,
+  "coverage_counts": {
+    "unsupported": 1460,
+    "tactical_only": 59,
+    "structural_only": 180
+  },
   "scenarios": 37,
+  "scenario_counts": {
+    "tactical_only": 25,
+    "structural_only": 9,
+    "unsupported": 3
+  },
   "deck_statistics": {
+    "kaervek/maintained-2026-08-07": {
+      "unique_oracle_names": 76,
+      "coverage": {
+        "structural_only": 72,
+        "tactical_only": 4
+      }
+    },
     "korvold/current-2026-08-07": {
       "unique_oracle_names": 85,
       "coverage": {
@@ -9,18 +27,70 @@
         "structural_only": 58
       }
     },
+    "opponent/alen___high_perfect_morcant/drive-2026-08-02": {
+      "unique_oracle_names": 53,
+      "coverage": {
+        "unsupported": 46,
+        "structural_only": 7
+      }
+    },
+    "opponent/blight_curse/drive-2026-08-02": {
+      "unique_oracle_names": 85,
+      "coverage": {
+        "unsupported": 62,
+        "structural_only": 22,
+        "tactical_only": 1
+      }
+    },
+    "opponent/cosmic_spider_man/drive-2026-08-02": {
+      "unique_oracle_names": 4,
+      "coverage": {
+        "unsupported": 4
+      }
+    },
+    "opponent/dance_of_the_elements/drive-2026-08-02": {
+      "unique_oracle_names": 89,
+      "coverage": {
+        "unsupported": 73,
+        "structural_only": 15,
+        "tactical_only": 1
+      }
+    },
+    "opponent/doom_prevails/drive-2026-08-02": {
+      "unique_oracle_names": 88,
+      "coverage": {
+        "unsupported": 68,
+        "structural_only": 16,
+        "tactical_only": 4
+      }
+    },
+    "opponent/kaervek___leon/drive-2026-08-02": {
+      "unique_oracle_names": 74,
+      "coverage": {
+        "structural_only": 55,
+        "tactical_only": 5,
+        "unsupported": 14
+      }
+    },
+    "opponent/quandrix_unlimited/drive-2026-08-02": {
+      "unique_oracle_names": 89,
+      "coverage": {
+        "unsupported": 76,
+        "structural_only": 13
+      }
+    },
+    "opponent/wakanda_forever/drive-2026-08-02": {
+      "unique_oracle_names": 78,
+      "coverage": {
+        "unsupported": 66,
+        "structural_only": 12
+      }
+    },
     "rogshai/current-2026-08-07": {
       "unique_oracle_names": 82,
       "coverage": {
         "structural_only": 52,
         "tactical_only": 30
-      }
-    },
-    "kaervek/maintained-2026-08-07": {
-      "unique_oracle_names": 76,
-      "coverage": {
-        "structural_only": 72,
-        "tactical_only": 4
       }
     }
   }

@@ -137,8 +137,8 @@
     "ValidationLevel": {
       "enum": [
         "structural_only",
-        "tactical_validated",
-        "rules_engine_validated"
+        "tactical_oracle",
+        "external_rules_engine"
       ],
       "title": "ValidationLevel",
       "type": "string"

@@ -1,0 +1,459 @@
+{
+  "$defs": {
+    "CounterfactualAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "action_kind": {
+          "default": "structural_action",
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "legal": {
+          "default": true,
+          "title": "Legal",
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "public_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Public Description"
+        },
+        "tactical_input": {
+          "additionalProperties": true,
+          "title": "Tactical Input",
+          "type": "object"
+        },
+        "tactical_rule": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tactical Rule"
+        },
+        "target_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Ids",
+          "type": "array"
+        },
+        "utility": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Utility"
+        }
+      },
+      "required": [
+        "action_id"
+      ],
+      "title": "CounterfactualAction",
+      "type": "object"
+    },
+    "CounterfactualBranchpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_id": {
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "alternative_action": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alternative Action"
+        },
+        "available_actions": {
+          "items": {
+            "$ref": "#/$defs/CounterfactualAction"
+          },
+          "title": "Available Actions",
+          "type": "array"
+        },
+        "branchpoint_id": {
+          "title": "Branchpoint Id",
+          "type": "string"
+        },
+        "chosen_action": {
+          "title": "Chosen Action",
+          "type": "string"
+        },
+        "engine_mode": {
+          "$ref": "#/$defs/CounterfactualEngineMode",
+          "default": "structural"
+        },
+        "event_offset": {
+          "minimum": 0,
+          "title": "Event Offset",
+          "type": "integer"
+        },
+        "event_type": {
+          "default": "pilot_decision",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "game_id": {
+          "title": "Game Id",
+          "type": "string"
+        },
+        "hidden_information_policy": {
+          "$ref": "#/$defs/HiddenInformationPolicy",
+          "default": "public_information_only"
+        },
+        "phase": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phase"
+        },
+        "player_eliminated": {
+          "default": false,
+          "title": "Player Eliminated",
+          "type": "boolean"
+        },
+        "public_state_before": {
+          "additionalProperties": true,
+          "title": "Public State Before",
+          "type": "object"
+        },
+        "realized_future_summary": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Realized Future Summary",
+          "type": "object"
+        },
+        "replay_prefix_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Replay Prefix Hash",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "seed_policy": {
+          "$ref": "#/$defs/SeedPolicy",
+          "default": "same_seed"
+        },
+        "source_path": {
+          "title": "Source Path",
+          "type": "string"
+        },
+        "source_run_id": {
+          "title": "Source Run Id",
+          "type": "string"
+        },
+        "state_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "State Hash",
+          "type": "string"
+        },
+        "validation_level": {
+          "default": "structural_model_estimates",
+          "title": "Validation Level",
+          "type": "string"
+        }
+      },
+      "required": [
+        "branchpoint_id",
+        "source_run_id",
+        "source_path",
+        "game_id",
+        "event_offset",
+        "actor_id",
+        "state_hash",
+        "replay_prefix_hash",
+        "available_actions",
+        "chosen_action"
+      ],
+      "title": "CounterfactualBranchpoint",
+      "type": "object"
+    },
+    "CounterfactualEngineMode": {
+      "enum": [
+        "structural",
+        "tactical_oracle",
+        "external_engine"
+      ],
+      "title": "CounterfactualEngineMode",
+      "type": "string"
+    },
+    "CounterfactualFutureSample": {
+      "additionalProperties": false,
+      "properties": {
+        "alternative_score": {
+          "title": "Alternative Score",
+          "type": "number"
+        },
+        "chosen_score": {
+          "title": "Chosen Score",
+          "type": "number"
+        },
+        "estimated_placement_delta": {
+          "title": "Estimated Placement Delta",
+          "type": "number"
+        },
+        "improvement": {
+          "title": "Improvement",
+          "type": "number"
+        },
+        "sample_index": {
+          "minimum": 0,
+          "title": "Sample Index",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sample_index",
+        "seed",
+        "chosen_score",
+        "alternative_score",
+        "improvement",
+        "estimated_placement_delta"
+      ],
+      "title": "CounterfactualFutureSample",
+      "type": "object"
+    },
+    "CounterfactualStateDiff": {
+      "additionalProperties": false,
+      "properties": {
+        "board_delta": {
+          "default": 0.0,
+          "title": "Board Delta",
+          "type": "number"
+        },
+        "card_advantage_delta": {
+          "default": 0.0,
+          "title": "Card Advantage Delta",
+          "type": "number"
+        },
+        "commander_damage_delta": {
+          "default": 0.0,
+          "title": "Commander Damage Delta",
+          "type": "number"
+        },
+        "hand_delta": {
+          "default": 0.0,
+          "title": "Hand Delta",
+          "type": "number"
+        },
+        "immediate_utility_delta": {
+          "title": "Immediate Utility Delta",
+          "type": "number"
+        },
+        "interaction_reserve_delta": {
+          "default": 0.0,
+          "title": "Interaction Reserve Delta",
+          "type": "number"
+        },
+        "life_delta": {
+          "default": 0.0,
+          "title": "Life Delta",
+          "type": "number"
+        },
+        "mana_delta": {
+          "default": 0.0,
+          "title": "Mana Delta",
+          "type": "number"
+        },
+        "placement_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placement Delta"
+        },
+        "threat_delta": {
+          "default": 0.0,
+          "title": "Threat Delta",
+          "type": "number"
+        },
+        "win_progress_delta": {
+          "default": 0.0,
+          "title": "Win Progress Delta",
+          "type": "number"
+        }
+      },
+      "required": [
+        "immediate_utility_delta"
+      ],
+      "title": "CounterfactualStateDiff",
+      "type": "object"
+    },
+    "HiddenInformationPolicy": {
+      "enum": [
+        "same_realized_future",
+        "resampled_unknown_future",
+        "multiple_future_samples",
+        "public_information_only"
+      ],
+      "title": "HiddenInformationPolicy",
+      "type": "string"
+    },
+    "SeedPolicy": {
+      "enum": [
+        "same_seed",
+        "derived_seeds",
+        "explicit_seeds"
+      ],
+      "title": "SeedPolicy",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alternative_action": {
+      "title": "Alternative Action",
+      "type": "string"
+    },
+    "branchpoint": {
+      "$ref": "#/$defs/CounterfactualBranchpoint"
+    },
+    "conclusion": {
+      "title": "Conclusion",
+      "type": "string"
+    },
+    "counterfactual_id": {
+      "title": "Counterfactual Id",
+      "type": "string"
+    },
+    "external_engine_used": {
+      "default": false,
+      "title": "External Engine Used",
+      "type": "boolean"
+    },
+    "future_samples": {
+      "items": {
+        "$ref": "#/$defs/CounterfactualFutureSample"
+      },
+      "title": "Future Samples",
+      "type": "array"
+    },
+    "historical_fact": {
+      "default": false,
+      "title": "Historical Fact",
+      "type": "boolean"
+    },
+    "improvement_variance": {
+      "minimum": 0.0,
+      "title": "Improvement Variance",
+      "type": "number"
+    },
+    "mean_improvement": {
+      "title": "Mean Improvement",
+      "type": "number"
+    },
+    "median_improvement": {
+      "title": "Median Improvement",
+      "type": "number"
+    },
+    "model_alternative": {
+      "default": true,
+      "title": "Model Alternative",
+      "type": "boolean"
+    },
+    "positive_future_fraction": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Positive Future Fraction",
+      "type": "number"
+    },
+    "provenance": {
+      "additionalProperties": true,
+      "title": "Provenance",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "state_diff": {
+      "$ref": "#/$defs/CounterfactualStateDiff"
+    },
+    "tactical_observations": {
+      "additionalProperties": true,
+      "title": "Tactical Observations",
+      "type": "object"
+    },
+    "tactical_oracle_used": {
+      "default": false,
+      "title": "Tactical Oracle Used",
+      "type": "boolean"
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "counterfactual_id",
+    "branchpoint",
+    "alternative_action",
+    "state_diff",
+    "future_samples",
+    "mean_improvement",
+    "median_improvement",
+    "improvement_variance",
+    "positive_future_fraction",
+    "conclusion"
+  ],
+  "title": "CounterfactualResult",
+  "type": "object"
+}

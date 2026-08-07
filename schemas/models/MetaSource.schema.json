@@ -1,0 +1,132 @@
+{
+  "$defs": {
+    "MetaCategory": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "MetaCategory",
+      "type": "string"
+    },
+    "MetaEvidenceRating": {
+      "enum": [
+        "authoritative_tournament",
+        "verified_decklist",
+        "established_primer",
+        "aggregator",
+        "local_project_context",
+        "partial_or_synthetic"
+      ],
+      "title": "MetaEvidenceRating",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "author": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Author"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/MetaCategory"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "evidence_quality": {
+      "$ref": "#/$defs/MetaEvidenceRating"
+    },
+    "license_notes": {
+      "default": "reference metadata and short structured extraction only",
+      "title": "License Notes",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Published At"
+    },
+    "retrieved_at": {
+      "format": "date-time",
+      "title": "Retrieved At",
+      "type": "string"
+    },
+    "source_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_type": {
+      "enum": [
+        "tournament",
+        "decklist",
+        "primer",
+        "aggregator",
+        "local_context",
+        "synthetic"
+      ],
+      "title": "Source Type",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Url"
+    }
+  },
+  "required": [
+    "source_id",
+    "title",
+    "retrieved_at",
+    "source_type",
+    "categories",
+    "evidence_quality"
+  ],
+  "title": "MetaSource",
+  "type": "object"
+}

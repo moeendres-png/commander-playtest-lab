@@ -1,0 +1,140 @@
+{
+  "$defs": {
+    "ArchetypeName": {
+      "enum": [
+        "sacrifice",
+        "land_engine",
+        "graveyard_recursion",
+        "commander_value",
+        "voltron",
+        "tempo",
+        "control",
+        "spellslinger",
+        "artifact_engine",
+        "go_wide",
+        "punisher",
+        "combo",
+        "stax",
+        "midrange",
+        "turbo"
+      ],
+      "title": "ArchetypeName",
+      "type": "string"
+    },
+    "ArchetypeWeight": {
+      "additionalProperties": false,
+      "properties": {
+        "archetype": {
+          "$ref": "#/$defs/ArchetypeName"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExtractionMethod"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "weight": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "archetype",
+        "weight"
+      ],
+      "title": "ArchetypeWeight",
+      "type": "object"
+    },
+    "ExtractionMethod": {
+      "enum": [
+        "rule_roles",
+        "card_frequency",
+        "co_occurrence",
+        "primer_hint",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "title": "ExtractionMethod",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "automatic_deck_application": {
+      "default": false,
+      "title": "Automatic Deck Application",
+      "type": "boolean"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "confidence": {
+      "default": 0.5,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "profile_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "sample_size": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Sample Size",
+      "type": "integer"
+    },
+    "small_sample": {
+      "default": true,
+      "title": "Small Sample",
+      "type": "boolean"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "weights": {
+      "items": {
+        "$ref": "#/$defs/ArchetypeWeight"
+      },
+      "title": "Weights",
+      "type": "array"
+    }
+  },
+  "required": [
+    "profile_id",
+    "commander",
+    "deck_hash",
+    "weights"
+  ],
+  "title": "ArchetypeProfile",
+  "type": "object"
+}

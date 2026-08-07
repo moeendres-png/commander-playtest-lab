@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "output_name": {
+      "default": "latest_policy_eval.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "policy_path": {
+      "title": "Policy Path",
+      "type": "string"
+    },
+    "scenario_path": {
+      "title": "Scenario Path",
+      "type": "string"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "strategy": {
+      "title": "Strategy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_path",
+    "scenario_path",
+    "deck_id",
+    "strategy"
+  ],
+  "title": "RunPolicyEvalInput",
+  "type": "object"
+}

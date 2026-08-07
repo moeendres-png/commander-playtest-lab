@@ -32,7 +32,7 @@ The local tactical backend is executable and supports:
 - immutable event logs;
 - normalized results.
 
-The container used for Phase 8 did not contain Maven, XMage, or Forge and could not resolve GitHub. Therefore no external result is represented as successful. `rules_engine_validated` remains empty until a real bridge is configured.
+The container used for Phase 8 did not contain Maven, XMage, or Forge and could not resolve GitHub. Therefore no external result is represented as successful. `external_rules_engine` remains empty until a real bridge is configured.
 
 ## Differential interaction catalog
 

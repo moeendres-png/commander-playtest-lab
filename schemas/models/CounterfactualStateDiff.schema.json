@@ -1,0 +1,71 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "board_delta": {
+      "default": 0.0,
+      "title": "Board Delta",
+      "type": "number"
+    },
+    "card_advantage_delta": {
+      "default": 0.0,
+      "title": "Card Advantage Delta",
+      "type": "number"
+    },
+    "commander_damage_delta": {
+      "default": 0.0,
+      "title": "Commander Damage Delta",
+      "type": "number"
+    },
+    "hand_delta": {
+      "default": 0.0,
+      "title": "Hand Delta",
+      "type": "number"
+    },
+    "immediate_utility_delta": {
+      "title": "Immediate Utility Delta",
+      "type": "number"
+    },
+    "interaction_reserve_delta": {
+      "default": 0.0,
+      "title": "Interaction Reserve Delta",
+      "type": "number"
+    },
+    "life_delta": {
+      "default": 0.0,
+      "title": "Life Delta",
+      "type": "number"
+    },
+    "mana_delta": {
+      "default": 0.0,
+      "title": "Mana Delta",
+      "type": "number"
+    },
+    "placement_delta": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Placement Delta"
+    },
+    "threat_delta": {
+      "default": 0.0,
+      "title": "Threat Delta",
+      "type": "number"
+    },
+    "win_progress_delta": {
+      "default": 0.0,
+      "title": "Win Progress Delta",
+      "type": "number"
+    }
+  },
+  "required": [
+    "immediate_utility_delta"
+  ],
+  "title": "CounterfactualStateDiff",
+  "type": "object"
+}

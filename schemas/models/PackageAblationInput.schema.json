@@ -34,6 +34,7 @@
       "title": "Approval Token"
     },
     "card_names": {
+      "default": [],
       "items": {
         "type": "string"
       },
@@ -69,6 +70,18 @@
       "title": "Opponent Deck Ids",
       "type": "array"
     },
+    "package_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Package Id"
+    },
     "pilot_mode": {
       "$ref": "#/$defs/PilotDecisionMode",
       "default": "deterministic"
@@ -92,8 +105,7 @@
     }
   },
   "required": [
-    "deck_id",
-    "card_names"
+    "deck_id"
   ],
   "title": "PackageAblationInput",
   "type": "object"

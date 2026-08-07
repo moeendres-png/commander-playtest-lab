@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_policy": {
+      "default": "balanced",
+      "title": "Baseline Policy",
+      "type": "string"
+    },
+    "candidate_policy": {
+      "default": "commander_plan",
+      "title": "Candidate Policy",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "samples": {
+      "default": 500,
+      "maximum": 100000,
+      "minimum": 20,
+      "title": "Samples",
+      "type": "integer"
+    },
+    "seed": {
+      "default": 20260804,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "ValidateMulliganPolicyInput",
+  "type": "object"
+}

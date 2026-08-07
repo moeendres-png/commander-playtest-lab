@@ -295,6 +295,14 @@
       "$ref": "#/$defs/PilotStrength",
       "default": "strong"
     },
+    "registry_package_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Registry Package Ids",
+      "type": "array"
+    },
     "seed": {
       "default": 20260804,
       "minimum": 0,

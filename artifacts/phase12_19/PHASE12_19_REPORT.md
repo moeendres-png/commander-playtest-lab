@@ -4,37 +4,26 @@
 
 `quality_security_performance_completed_with_limitations`
 
-The complete project suite passed with **266 passed, 1 skipped, 0 failed**. The single skip is the real external-provider differential test, which remains blocked because no verified XMage or Forge runtime is available.
+The final consolidated suite contains **282 tests: 281 passed, 1 expected external-engine skip, 0 failed**. Tests were completed in isolated groups/files because the monolithic process can remain alive after test output due to a known child-process/pipe cleanup issue; this lifecycle defect is recorded rather than misreported as a clean monolithic pass.
 
-## Real tool execution
+## Required quality tools
 
-| Check | Result |
-|---|---|
-| `pytest -q` | `passed` — 266 passed, 1 skipped, 0 failed |
-| `python -m compileall -q src tests` | `passed` |
-| `git diff --check` | `passed` |
-| `git fsck --full` | `passed` |
-| `pip check` | `failed` — global `moviepy` requires Pillow <12, while the runtime has Pillow 12.2.0; not introduced by project dependencies |
-| Ruff / mypy / Hypothesis / mutmut / pip-audit / CycloneDX / pip-licenses | `blocked` — package index unavailable/incomplete |
+A fresh installation attempt was made for Ruff 0.15.22, mypy 2.3.0, Hypothesis 6.160.0, mutmut 3.6.0, pip-audit 2.10.1, CycloneDX BOM 7.3.0 and pip-licenses 5.5.5. The runtime package index could not provide the packages. Therefore none of those commands is claimed as executed.
 
-The deterministic property, mutation-guard, fuzz and regression fallback group passed 14/14. It is evidence for project regressions, but it is not represented as actual Hypothesis or mutmut execution.
+Locally executable checks passed: `compileall`, `git diff --check`, `git fsck --full`, deterministic property tests, mutation guards, boundary fuzzing, tracked-file secret scanning, atomic-write and integrity tests.
 
-## Security and supply chain
+`pip check` reports one global environment conflict: moviepy 2.2.1 requires Pillow <12 while the runtime has Pillow 12.2.0. It is separated from project dependency health.
 
-- Internal tracked-file secret scan: 720 text files, 0 findings.
-- Fallback CycloneDX-shaped SBOM and license inventory generated from `importlib.metadata`; official CycloneDX and pip-licenses runs remain blocked.
-- Direct runtime dependency lock captured in `requirements/runtime.lock`.
-- Current upstream quality-tool pins captured separately; they were not installed or claimed as executed.
-- CI now contains a pinned security job for pip-audit 2.10.1, cyclonedx-bom 7.3.0 and pip-licenses 5.5.5 in a network-enabled runner.
+## Security
+
+- 751 tracked text files scanned for common credential forms; **0 findings**.
+- AST scan found **0** `shell=True`, `eval`, `exec`, or archive `extractall` calls in active source/scripts.
+- The dynamic legacy-table DROP statement is constrained to the constant `LEGACY_MANUAL_PLAYTEST_TABLES` allow-list.
+- Atomic persistence uses temporary files, `fsync`, and atomic rename.
+- Fallback SBOM/license inventories remain clearly labeled as fallbacks; official CycloneDX/pip-licenses execution is blocked.
 
 ## Performance
 
-- Structural goldfish: 1 game 0.030 s; 100 games 1.179 s; 1,000 games 10.585 s.
-- Four-player 50 games: one worker 3.413 s; two workers 57.841 s in this container.
-- Mulligan 500×2 policies: 4.331 s; paired 50-game comparison: 5.599 s.
-- MCP initialize and tools/list passed in-process.
-- XMage and Forge timings are `blocked`; Parquet is `unused`.
+Current final-code measurements include 100-game structural goldfish, 20 four-player games, mulligan sampling, paired comparison, counterfactual branchpoint scan, decision diagnostics and MCP 2026 `server/discover`/`tools/list`. All local measurements passed. XMage and Forge remain blocked; Parquet remains unused because it is not an active persistence requirement.
 
-No optimization was applied because the measured two-worker path was substantially slower and no semantic-preserving improvement was demonstrated.
-
-No canonical deck, inventory, or allocation data was changed.
+No canonical deck, inventory, or allocation files were modified.

@@ -1,0 +1,2353 @@
+{
+  "schema_version": 1,
+  "source_drive_file_id": "1LRzQOZFejMV_d4oMtJHEBgGaOxUEng08",
+  "source_file_name": "MTG_Gegnerdecks_kanonisch_2026-07-30.xlsx",
+  "source_sha256": "c063c95a0be25fadbed513c17fefddcdb3ce2f49b5598c38cd2218b750a9dd2d",
+  "read_only_import": true,
+  "decks": [
+    {
+      "deck": "Cosmic Spider-Man",
+      "commander": "Cosmic Spider-Man",
+      "data_status": "Teilmodell",
+      "declared_slots": 100,
+      "known_card_count": 4,
+      "unknown_slots": 96,
+      "cards": [
+        {
+          "oracle_name": "Cosmic Spider-Man",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Mary Jane Watson",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Scarlet Spider, Ben Reilly",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Guy in the Chair",
+          "quantity": 1
+        }
+      ],
+      "note": "4 bestätigte Karten; 96 Rollenmodellslots",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    },
+    {
+      "deck": "Doom Prevails",
+      "commander": "Doctor Doom, King of Latveria",
+      "data_status": "Precon-Baseline; leicht verbessert",
+      "declared_slots": 100,
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "cards": [
+        {
+          "oracle_name": "Doctor Doom, King of Latveria",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Molecule Man",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Extract Power",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Glorious Purpose",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Helmut Zemo, Mastermind",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kang Dynasty",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Age of Ultron",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Damocles Base, Sword of Kang",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Endless Ranks of HYDRA",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "The Frightful Four",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Iron Monger, Sadistic Tycoon",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Klaw, Master of Sound",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Abomination, World Ravager",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Batroc the Leaper",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Killmonger, Ruthless Usurper",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lady Loki, Agent of Chaos",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Living Laser",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Loki's Scepter",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Puppet Master, String Puller",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Stilt-Man, Towering Terror",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Titania, Proud Pummeler",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Archnemesis",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kang Prime",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Loki, the Deceiver",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Red Ghost, Intangible Genius",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "The Squadron Sinister",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Typhoid Mary, Fractured",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ultron, Unlimited",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Doom's Time Platform",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tri-Sentinel, Act of Vengeance",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Black Market Connections",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kindred Dominance",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lethal Scheme",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Toxic Deluge",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Blasphemous Act",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Chaos Warp",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Bedevil",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Currency Converter",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Progenitor's Icon",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Skullclamp",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Canyon Slough",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Choked Estuary",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Coastal Peak",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dragonskull Summit",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Drowned Catacomb",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Exotic Orchard",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fetid Pools",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Foreboding Ruins",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Frostboil Snarl",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Luxury Suite",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Scavenger Grounds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Scorched Geyser",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Smoldering Marsh",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sulfur Falls",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sunken Hollow",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Spark Double",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Titan of Littjara",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Baron Strucker, HYDRA Overlord",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Moonstone, Harsh Mistress",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kang, Temporal Tyrant",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Madame Hydra",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Villainous Hideout",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Containment Construct",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Chameleon, Master of Disguise",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Propaganda",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Night's Whisper",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Syphon Mind",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tombstone, Career Criminal",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Withering Torment",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Superior Foes of Spider-Man",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vandalblast",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Prowler, Clawed Thief",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Terminate",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Arcane Signet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Patchwork Banner",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sol Ring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Swiftfoot Boots",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Talisman of Dominance",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Talisman of Indulgence",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Command Tower",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Crumbling Necropolis",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path of Ancestry",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Secluded Courtyard",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Terramorphic Expanse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Unclaimed Territory",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Island",
+          "quantity": 4
+        },
+        {
+          "oracle_name": "Swamp",
+          "quantity": 6
+        },
+        {
+          "oracle_name": "Mountain",
+          "quantity": 5
+        }
+      ],
+      "note": "Konkrete Upgrades unbekannt",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    },
+    {
+      "deck": "Blight Curse",
+      "commander": "Auntie Ool, Cursewretch",
+      "data_status": "unverändertes Precon",
+      "declared_slots": 100,
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "cards": [
+        {
+          "oracle_name": "Auntie Ool, Cursewretch",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "The Reaper, King No More",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Wickersmith's Tools",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sinister Gnarlbark",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Eventide's Shadow",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Aberrant Return",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dread Tiller",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Grave Venerations",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Oft-Nabbed Goat",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Village Pillagers",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Puca's Covenant",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ferrafor, Young Yew",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tree of Perdition",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vernal Fen",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Festering Thicket",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Necroskitter",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ignoble Hierarch",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nesting Grounds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Massacre Girl, Known Killer",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Grave Titan",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vraska, Betrayal's Sting",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "The Scorpion God",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Liliana, Death Wielder",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Chimil, the Inner Sun",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Carnifex Demon",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Puppeteer Clique",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dusk Urchins",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Black Sun's Zenith",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Painful Truths",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Persist",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Midnight Banshee",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Chain Reaction",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Archfiend of Ifnir",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Channeler Initiate",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hapatra, Vizier of Poisons",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Glissa Sunslayer",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Everlasting Torment",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Assassin's Trophy",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Grim Poppet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Canyon Slough",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sheltered Thicket",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Exotic Orchard",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Smoldering Marsh",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Cinder Glade",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dragonskull Summit",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rootbound Crag",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Woodland Cemetery",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lasting Tarfire",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Burning Curiosity",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hoarder's Greed",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Blowfly Infestation",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fire Covenant",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sol Ring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Arcane Signet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Command Tower",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Cathartic Reunion",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Skinrender",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Soul Snuffers",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Incremental Blight",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Infernal Grasp",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Evolution Sage",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Devoted Druid",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Flourishing Defenses",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Harmonize",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Putrefy",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Binding the Old Gods",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kulrath Knight",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Contagion Clasp",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Savage Lands",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ifnir Deadlands",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Night's Whisper",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Wickerbough Elder",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Terminate",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Commander's Sphere",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Cathartic Pyre",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Evolving Wilds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Terramorphic Expanse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path of Ancestry",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Riveteers Overlook",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rakdos Carnarium",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gruul Turf",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Golgari Rot Farm",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Swamp",
+          "quantity": 8
+        },
+        {
+          "oracle_name": "Mountain",
+          "quantity": 4
+        },
+        {
+          "oracle_name": "Forest",
+          "quantity": 6
+        }
+      ],
+      "note": "The Reaper alternativer Commander",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    },
+    {
+      "deck": "Kaervek – Leon",
+      "commander": "Kaervek the Merciless",
+      "data_status": "letzter verifizierter gegnerischer Draft",
+      "declared_slots": 100,
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "cards": [
+        {
+          "oracle_name": "Kaervek the Merciless",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Basilisk Collar",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Burnished Hart",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Cultivator's Caravan",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gilded Lotus",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hedron Archive",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Heraldic Banner",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ravenous Amulet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ichor Wellspring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Iron Myr",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Leaden Myr",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Palladium Myr",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Pilgrim's Eye",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rakdos Signet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Arcane Signet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Infernal Grasp",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Night's Whisper",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sol Ring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Swiftfoot Boots",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Feed the Swarm",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hero's Downfall",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Midnight Reaper",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nullpriest of Oblivion",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tribute to Hunger",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Undying Malice",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vile Entomber",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Wishclaw Talisman",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Beacon of Unrest",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Death Wind",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Diabolic Tutor",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Execute",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Executioner's Capsule",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Makeshift Mannequin",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nightscape Familiar",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Phyrexian Rager",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Profane Command",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sign in Blood",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Victim of Night",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Eumidian Wastewaker",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gix's Command",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "God-Eternal Bontu",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Syphon Mind",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Bolt Bend",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gratuitous Violence",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Crush",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Disintegrate",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Flame Slash",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Guttersnipe",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Magma Phoenix",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Manic Vandal",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Seething Song",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Shatter",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Warstorm Surge",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Burn Down the House",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Chain Reaction",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Chaos Warp",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Planetary Annihilation",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Garna, Bloodfist of Keld",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Perforating Artist",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Breath of Malfegor",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rakdos Guildmage",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Skull Rend",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tor Wauki the Younger",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Temple of Malice",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Bojuka Bog",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Canyon Slough",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Command Tower",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Evolving Wilds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Maestros Theater",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Myriad Landscape",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path of Ancestry",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Terramorphic Expanse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Mountain",
+          "quantity": 14
+        },
+        {
+          "oracle_name": "Swamp",
+          "quantity": 14
+        }
+      ],
+      "note": "Von Moritz’ eigenem Kaervek zu unterscheiden",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    },
+    {
+      "deck": "Wakanda Forever",
+      "commander": "T’Challa, the Black Panther",
+      "data_status": "unverändertes Precon",
+      "declared_slots": 100,
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "cards": [
+        {
+          "oracle_name": "T'Challa, the Black Panther",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dora Milaje Elite",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Everett K. Ross, Hapless Attaché",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hatut Zeraze Strike Force",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "King Solomon's Frogs",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Midnight Angel Armor",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Queen Mother Ramonda",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Royal Talon Fighter Jet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "The Spear of Bashenga",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ancestral Communion",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fight for the Throne",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "M'Baku, Jabari Chieftain",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nakia, Wakandan Operative",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "W'Kabi, Shield of the Nation",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Wakanda Forever!",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Zuri, Warrior of Wakanda",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Bast, Panther Goddess",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Okoye, Mighty and Adored",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Shuri, the Black Panther",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Storm, Queen of Wakanda",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "T'Chaka, Venerable King",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Heart-Shaped Herb",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kimoyo Beads",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "N'Yami-Class Mother Ship",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Panther Habit",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Panther Robot",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Shuri's Fabricator",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vibranium Mining Mech",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vibranium Strike Gauntlets",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "The Great Mound",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Divine Visitation",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Loyal Retainers",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Martial Coup",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vanquish the Horde",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Birds of Paradise",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Conduit of Worlds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Greater Good",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nature's Lore",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Overwhelming Stampede",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Coveted Jewel",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gilded Lotus",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Helm of the Host",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Metalwork Colossus",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Solemn Simulacrum",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Trading Post",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Bountiful Promenade",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Canopy Vista",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fortified Village",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Razorverge Thicket",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Scattered Groves",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Scavenger Grounds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sungrass Prairie",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sunpetal Grove",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Throne of the High City",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Scourglass",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fleecemane Lion",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hammer of Nazahn",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Mind's Eye",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sword of the Animist",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Thran Dynamo",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dispatch",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Generous Gift",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ingenious Smith",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Palace Jailer",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Valorous Stance",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Beast Within",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Harmonize",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Loyal Guardian",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Arcane Signet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Meteor Golem",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sol Ring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Whispersilk Cloak",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Command Tower",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Evolving Wilds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path of Ancestry",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Terramorphic Expanse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Plains",
+          "quantity": 12
+        },
+        {
+          "oracle_name": "Forest",
+          "quantity": 12
+        }
+      ],
+      "note": "Shuri alternativer Commander",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    },
+    {
+      "deck": "Quandrix Unlimited",
+      "commander": "Zimone, Infinite Analyst",
+      "data_status": "unverändertes Precon",
+      "declared_slots": 100,
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "cards": [
+        {
+          "oracle_name": "Zimone, Infinite Analyst",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Primo, the Unbounded",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Owlin Spiralmancer",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Expansion Algorithm",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nexus Mentality",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kinetic Ooze",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lattice Library",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nev, the Practical Dean",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Yavimaya Bloomsage",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Striding Shotcaller",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Brass Infiniscope",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Turbulent Wilderness",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Commander's Insight",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ingenious Prodigy",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Pull from Tomorrow",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Benevolent Hydra",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Unbound Flourishing",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fabled Passage",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Curse of the Swine",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Deekah, Fractal Theorist",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Entrancing Melody",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Perplexing Test",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Stroke of Genius",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Zimone's Hypothesis",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Animist's Awakening",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Forgotten Ancient",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fractal Harness",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Goldvein Hydra",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Guardian Augmenter",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hardened Scales",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lifeblood Hydra",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Mana Bloom",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Open the Way",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ozolith, the Shattered Spire",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Primal Might",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Primordial Hydra",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Silkguard",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Steelbane Hydra",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Altered Ego",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Biomass Mutation",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Elusive Otter",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "The Goose Mother",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hydroid Krasis",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Oversimplify",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Quandrix Command",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tanazir Quandrix",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Zimone, All-Questioning",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Astral Cornucopia",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Elementalist's Palette",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hangarback Walker",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Stonecoil Serpent",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Alchemist's Refuge",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Exotic Orchard",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Flooded Grove",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hinterland Harbor",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Oran-Rief, the Vastwood",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Overflowing Basin",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rain-Slicked Copse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sodden Verdure",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Temple of Mystery",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vineglimmer Snarl",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Yavimaya Coast",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Arcane Signet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sol Ring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Command Tower",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Quandrix Charm",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Paradox Gardens",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Terramorphic Expanse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rapid Hybridization",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Beast Within",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kami of Whispered Hopes",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Nature's Lore",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Three Visits",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tyvar's Stand",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Decisive Denial",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Eureka Moment",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Quandrix Apprentice",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Troyan, Gutsy Explorer",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Zimone, Quandrix Prodigy",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Opal Palace",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path of Ancestry",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Quandrix Campus",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Reliquary Tower",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rogue's Passage",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Study Hall",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tangled Islet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Temple of the False God",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Island",
+          "quantity": 7
+        },
+        {
+          "oracle_name": "Forest",
+          "quantity": 6
+        }
+      ],
+      "note": "selten gespielt",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    },
+    {
+      "deck": "Dance of the Elements",
+      "commander": "Ashling, the Limitless",
+      "data_status": "unverändertes offizielles Precon",
+      "declared_slots": 100,
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "cards": [
+        {
+          "oracle_name": "Ashling, the Limitless",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Mass of Mysteries",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Elemental Spectacle",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Springleaf Parade",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Jubilation",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Impulsivity",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lamentation",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Belonging",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Subterfuge",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Rain-Slicked Copse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sodden Verdure",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Abundant Countryside",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Endurance",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fury",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Haunting Voyage",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Avenger of Zendikar",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Cavalier of Thorns",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Greenwarden of Murasa",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Selvala, Heart of the Wilds",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Titan of Industry",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Muldrotha, the Gravetide",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Omnath, Locus of Rage",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Yarok, the Desecrated",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Omnath, Locus of the Roil",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Timeless Lotus",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Shatter the Sky",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hoofprints of the Stag",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Slithermuse",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Descendants' Fury",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Blasphemous Act",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Cream of the Crop",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kindred Summons",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Bane of Progress",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Realmwalker",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Return of the Wildspeaker",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Faeburrow Elder",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Vernal Sovereign",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Horde of Notions",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Maelstrom Wanderer",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Jegantha, the Wellspring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Chromatic Lantern",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Primal Beyond",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Raging Ravine",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Exotic Orchard",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Flamekin Village",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path to Exile",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Mulldrifter",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Reality Shift",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Shriekmaw",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Shimmercreep",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Flamebraider",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Crib Swap",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Secluded Courtyard",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sol Ring",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Command Tower",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Arcane Signet",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Distant Melody",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Incandescent Soulstoke",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Eclipsed Flamekin",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Foundation Breaker",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Garruk's Uprising",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Risen Reef",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fellwar Stone",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Unclaimed Territory",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ancient Ziggurat",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Frontier Bivouac",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sandsteppe Citadel",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Savage Lands",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Opulent Palace",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Seaside Citadel",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Jungle Shrine",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Smokebraider",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Ingot Chewer",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Fertile Ground",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Abundant Growth",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Kodama's Reach",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Cultivate",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path of Ancestry",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Thriving Grove",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Thriving Heath",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Thriving Isle",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Opal Palace",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Thriving Bluff",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Thriving Moor",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Plains",
+          "quantity": 2
+        },
+        {
+          "oracle_name": "Island",
+          "quantity": 2
+        },
+        {
+          "oracle_name": "Swamp",
+          "quantity": 2
+        },
+        {
+          "oracle_name": "Mountain",
+          "quantity": 2
+        },
+        {
+          "oracle_name": "Forest",
+          "quantity": 8
+        }
+      ],
+      "note": "Mass of Mysteries alternativer Commander",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    },
+    {
+      "deck": "Alen – High Perfect Morcant",
+      "commander": "High Perfect Morcant",
+      "data_status": "53 bestätigte Karten: 52 Wants/Kaufkern + Gaze of Granite; Path und Gaze physisch von Moritz übergeben",
+      "declared_slots": 53,
+      "known_card_count": 53,
+      "unknown_slots": 47,
+      "cards": [
+        {
+          "oracle_name": "Devoted Druid (Aufopferungsvoller Druide)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Find // Finality (Auftreiben // Aufreiben)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Grow from the Ashes (Aus Asche erwachsen)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Command Tower (Befehlsturm)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Boseiju Reaches Skyward // Branch of Boseiju (Boseiju greift nach dem Himmel // Zweig des Boseiju)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Scarblade's Malice (Bosheit des Vernarbers)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Twinblade Assassins (Doppelklingenmeuchler)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Durnan of the Yawning Portal (Durnan vom Gähnenden Portal)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dwynen, Gilt-Leaf Daen (Dwynen, Güldenlaub-Daen)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gloom Ripper (Düstere Aufschlitzerin)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Elvish Archdruid (Elfischer Erzdruide)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Unforgiving Aim (Erbarmungslose Zielsicherheit)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Feast of Succession (Erbfolge-Bankett)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Exotic Orchard (Exotischer Obstgarten)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Flourishing Defenses (Florierende Verteidigung)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Mind Stone (Gedankenstein)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gilanra, Caller of Wirewood (Gilanra, Drahtholzwald-Rufer)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Glissa Sunslayer (Glissa die Sonnentöterin)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Golgari Locket (Golgari-Medaillon)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Greenwarden of Murasa (Grünwächter aus Murasa)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gilt-Leaf Winnower (Güldenlaub-Ausdünner)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Hapatra, Vizier of Poisons (Hapatra, Wesirin der Gifte)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Harald Unites the Elves (Harald vereint die Elfen)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Harald, King of Skemfar (Harald, König von Skemfar)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "High Perfect Morcant (Höchste Perfekte Morcant)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Eaten Alive (Lebendig gefressen)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lluwen, Imperfect Naturalist (Lluwen, imperfekter Naturkundler)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Crippling Fear (Lähmende Furcht)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Macabre Waltz (Makabrer Walzer)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Myriad Landscape (Mannigfaltige Landschaft)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Miara, Thorn of the Glade (Miara, Dorn der Lichtung)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Bogslither's Embrace (Moorgleiter-Umklammerung)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Dawnhand Eulogist (Morgenheiler-Lobredner)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Numa, Joraga Chieftain (Numa, Joraga-Häuptling)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Casualties of War (Opfer des Krieges)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Path of Ancestry (Pfad der Ahnen)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Shessra, Death's Whisper (Shessra, Flüstern des Todes)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Evolving Wilds (Sich entfaltende Wildnis)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sol Ring (Sonnenring (V.1))",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Pride of the Perfect (Stolz der Perfekten)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Feign Death (Tod vortäuschen)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Deadbridge Chant (Todesbrücken-Gesang)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Deathreap Ritual (Todesernte-Ritual)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tragic Banshee (Tragische Todesfee)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Tromell, Seymour's Butler (Tromell, Seymour's Butler)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Trystan's Command (Trystans Befehl)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Putrefy (Verfaulen lassen)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Lys Alana Scarblade (Vernarberin aus Lys Alana)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Sylvan Offering (Waldverbundenes Präsent)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Yavimaya Elder (Weiser aus dem Yavimaya)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Windgrace's Judgment (Windgraces Richtspruch)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Black Sun's Zenith (Zenit der Schwarzen Sonne)",
+          "quantity": 1
+        },
+        {
+          "oracle_name": "Gaze of Granite (Granitblick)",
+          "quantity": 1
+        }
+      ],
+      "note": "finale 100 und genaue Foundations-Karten fehlen; Path of Ancestry und Gaze of Granite physisch bestätigt",
+      "source": "siehe Quellenblatt",
+      "target_deck_size": 100
+    }
+  ]
+}

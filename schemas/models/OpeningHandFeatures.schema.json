@@ -1,0 +1,166 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "boardwipe_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Boardwipe Count",
+      "type": "integer"
+    },
+    "cheap_noncreature_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Cheap Noncreature Count",
+      "type": "integer"
+    },
+    "color_stability_score": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Color Stability Score",
+      "type": "number"
+    },
+    "colored_sources": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Colored Sources",
+      "type": "object"
+    },
+    "combat_draw_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Combat Draw Count",
+      "type": "integer"
+    },
+    "commander_immediate_value": {
+      "default": false,
+      "title": "Commander Immediate Value",
+      "type": "boolean"
+    },
+    "commander_synergy_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Commander Synergy Count",
+      "type": "integer"
+    },
+    "dead_high_cost_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Dead High Cost Count",
+      "type": "integer"
+    },
+    "draw_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Draw Count",
+      "type": "integer"
+    },
+    "early_blue_source_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Early Blue Source Count",
+      "type": "integer"
+    },
+    "graveyard_hate_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Graveyard Hate Count",
+      "type": "integer"
+    },
+    "hand_size": {
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Hand Size",
+      "type": "integer"
+    },
+    "independent_engine_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Independent Engine Count",
+      "type": "integer"
+    },
+    "interaction_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Interaction Count",
+      "type": "integer"
+    },
+    "land_count": {
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Land Count",
+      "type": "integer"
+    },
+    "offensive_payoff_without_window_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Offensive Payoff Without Window Count",
+      "type": "integer"
+    },
+    "only_graveyard_plan_without_setup": {
+      "default": false,
+      "title": "Only Graveyard Plan Without Setup",
+      "type": "boolean"
+    },
+    "protection_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Protection Count",
+      "type": "integer"
+    },
+    "ramp_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Ramp Count",
+      "type": "integer"
+    },
+    "sacrifice_resource_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Sacrifice Resource Count",
+      "type": "integer"
+    },
+    "selection_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Selection Count",
+      "type": "integer"
+    },
+    "tapped_source_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Tapped Source Count",
+      "type": "integer"
+    },
+    "wincondition_without_setup_count": {
+      "default": 0,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Wincondition Without Setup Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "hand_size",
+    "land_count"
+  ],
+  "title": "OpeningHandFeatures",
+  "type": "object"
+}

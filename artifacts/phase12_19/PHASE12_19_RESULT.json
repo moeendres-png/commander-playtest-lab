@@ -1,158 +1,157 @@
 {
   "allocation_changes": false,
   "canonical_deck_changes": false,
-  "execution_status": "passed_with_limitations",
-  "fallback_checks": {
+  "completion_status": "quality_security_performance_completed_with_limitations",
+  "core_checks": {
     "compileall": "passed",
-    "deterministic_property_mutation_fuzz": "passed",
-    "fallback_license_report": "passed_with_limitations",
-    "fallback_sbom": "passed_with_limitations",
-    "fallback_secret_scan": "passed",
     "git_diff_check": "passed",
-    "git_fsck_full": "passed"
+    "git_fsck_full": "passed",
+    "pip_check": "failed_environment_conflict"
   },
+  "execution_status": "passed_with_limitations",
+  "external_quality_tools_complete": false,
+  "fallback_checks": {
+    "boundary_fuzz": "passed",
+    "deterministic_property_tests": "passed",
+    "fallback_license_inventory": "present_with_limitations",
+    "fallback_sbom": "present_with_limitations",
+    "mutation_guards": "passed",
+    "tracked_secret_scan": "passed"
+  },
+  "generated_at": "2026-08-07",
   "inventory_changes": false,
   "parquet_status": "unused",
   "performance": {
-    "environment_note": "Single-container measurements; not transferable performance guarantees.",
+    "environment_note": "Local technical timings only; not transferable guarantees.",
     "generated_at": "2026-08-07",
     "measurements": [
       {
         "error": null,
         "execution_status": "passed",
-        "name": "deck_import_and_service_initialization",
-        "seconds": 0.011785
+        "name": "service_initialization",
+        "seconds": 0.085176
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "structural_goldfish_1_games_workers_1",
-        "seconds": 0.029987
+        "name": "structural_goldfish_100",
+        "seconds": 1.102285
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "structural_goldfish_100_games_workers_1",
-        "seconds": 1.179133
+        "name": "four_player_20_workers_1",
+        "seconds": 1.43668
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "structural_goldfish_1000_games_workers_1",
-        "seconds": 10.585304
+        "name": "mulligan_sampling_80x2",
+        "seconds": 4.433775
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "four_player_50_games_workers_1",
-        "seconds": 3.412885
+        "name": "paired_variant_10",
+        "seconds": 1.510522
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "four_player_50_games_workers_2",
-        "seconds": 57.841002
+        "name": "counterfactual_branchpoint_scan",
+        "seconds": 0.00259
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "mulligan_sampling_500x2",
-        "seconds": 4.331037
+        "name": "decision_diagnostic",
+        "seconds": 0.006041
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "opponent_ensemble_evaluation",
-        "seconds": 0.001674
+        "name": "mcp_2026_server_discover",
+        "seconds": 1.5e-05
       },
       {
         "error": null,
         "execution_status": "passed",
-        "name": "paired_variant_comparison_50",
-        "seconds": 5.598594
+        "name": "mcp_2026_tools_list",
+        "seconds": 1.5e-05
       },
       {
-        "error": null,
-        "execution_status": "passed",
-        "name": "report_generation",
-        "seconds": 0.004227
-      },
-      {
-        "error": null,
-        "execution_status": "passed",
-        "name": "sqlite_write_read_1000",
-        "seconds": 0.526889
-      },
-      {
-        "error": null,
-        "execution_status": "passed",
-        "name": "mcp_initialize_in_process",
-        "seconds": 1.1e-05
-      },
-      {
-        "error": null,
-        "execution_status": "passed",
-        "name": "mcp_tools_list_in_process",
-        "seconds": 0.037417
-      },
-      {
-        "error": "No verified source/binary; GitHub DNS and build dependencies unavailable.",
+        "error": "No verified external provider process is configured in this runtime.",
         "execution_status": "blocked",
-        "name": "xmage_run",
+        "name": "xmage_external",
         "seconds": null
       },
       {
-        "error": "No verified source/binary; GitHub DNS and build dependencies unavailable.",
+        "error": "No verified external provider process is configured in this runtime.",
         "execution_status": "blocked",
-        "name": "forge_run",
+        "name": "forge_external",
         "seconds": null
       },
       {
-        "error": "Parquet is not an active project feature; pyarrow/fastparquet not required.",
-        "execution_status": "not_run",
-        "name": "parquet_roundtrip",
-        "seconds": null
-      },
-      {
-        "error": "No canonical replay fixture selected for this performance run; functionality remains covered by tests.",
-        "execution_status": "not_run",
-        "name": "counterfactual_replay",
-        "seconds": null
-      },
-      {
-        "error": "No canonical diagnostic dataset selected for this performance run; functionality remains covered by tests.",
-        "execution_status": "not_run",
-        "name": "decision_diagnostics",
+        "error": "Parquet is not an active persistence requirement in the current product path.",
+        "execution_status": "unused",
+        "name": "parquet",
         "seconds": null
       }
     ],
-    "schema_version": "1.0.0",
     "semantic_change_allowed": false
   },
-  "performance_observation": "Two-worker four-player batch was materially slower than one worker in this container; no semantic or performance change was applied.",
-  "performance_optimization_applied": false,
-  "phase": "12.19",
-  "pip_check": {
-    "detail": "Global moviepy 2.2.1 / pillow 12.2.0 incompatibility.",
-    "execution_status": "failed",
-    "project_attribution": false
-  },
+  "pip_check_detail": "global moviepy 2.2.1 requires Pillow <12 while runtime contains Pillow 12.2.0; this conflict is not introduced by Commander Lab dependency metadata",
   "quality_tools": {
-    "cyclonedx_cli": "blocked",
-    "hypothesis": "blocked",
-    "mutmut": "blocked",
-    "mypy": "blocked",
-    "pip_audit": "blocked",
-    "pip_licenses": "blocked",
-    "reason": "Configured package index did not provide the requested distributions or build dependency setuptools>=75.",
-    "ruff": "blocked"
+    "cyclonedx-bom": {
+      "execution_status": "blocked",
+      "reason": "not installed; package-index install retry failed",
+      "version": "7.3.0"
+    },
+    "hypothesis": {
+      "execution_status": "blocked",
+      "reason": "not installed; package-index install retry failed",
+      "version": "6.160.0"
+    },
+    "mutmut": {
+      "execution_status": "blocked",
+      "reason": "not installed; package-index install retry failed",
+      "version": "3.6.0"
+    },
+    "mypy": {
+      "execution_status": "blocked",
+      "reason": "not installed; package-index install retry failed",
+      "version": "2.3.0"
+    },
+    "pip-audit": {
+      "execution_status": "blocked",
+      "reason": "not installed; package-index install retry failed",
+      "version": "2.10.1"
+    },
+    "pip-licenses": {
+      "execution_status": "blocked",
+      "reason": "not installed; package-index install retry failed",
+      "version": "5.5.5"
+    },
+    "ruff": {
+      "execution_status": "blocked",
+      "reason": "not installed; package-index install retry failed",
+      "version": "0.15.22"
+    }
   },
   "schema_version": "1.0.0",
-  "status": "quality_security_performance_completed_with_limitations",
+  "security_scan": {
+    "ast_security_findings": [],
+    "secret_findings": [],
+    "sql_identifier_note": "storage/database.py dynamically quotes DROP TABLE names, but source values come only from constant LEGACY_MANUAL_PLAYTEST_TABLES.",
+    "status": "passed",
+    "tracked_text_files_scanned": 751
+  },
   "tests": {
+    "collected": 282,
+    "expected_skip": "real XMage/Forge differential command not configured",
     "failed": 0,
-    "passed": 266,
-    "skipped": 1,
-    "warnings_fixed": 2
+    "method": "isolated test groups/files to avoid known process-cleanup hang",
+    "passed": 281,
+    "skipped": 1
   }
 }

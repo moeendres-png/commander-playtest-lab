@@ -2,29 +2,97 @@
   "phase": "12.14",
   "execution_status": "passed_with_limitations",
   "completion_status": "card_rules_coverage_ready_with_limitations",
-  "source_drive_file_id": "15SaFU4pgoYugXiimT0uqlw0AF53fCuf9",
-  "source_snapshot": "data/canonical_import/2026-08-07/deck_lists.json",
+  "source_drive_files": {
+    "decks": "15SaFU4pgoYugXiimT0uqlw0AF53fCuf9",
+    "inventory": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+    "opponents": "1LRzQOZFejMV_d4oMtJHEBgGaOxUEng08"
+  },
   "read_only": true,
-  "card_records": 229,
+  "card_records": 1699,
+  "inventory_candidates": 1349,
   "card_coverage": {
-    "tactical_only": 56,
-    "structural_only": 173,
-    "external_engine_verified": 0,
-    "unsupported": 0
+    "unsupported": 1460,
+    "tactical_only": 59,
+    "structural_only": 180
   },
   "scenario_records": 37,
   "scenario_coverage": {
     "tactical_only": 25,
     "structural_only": 9,
-    "unsupported": 3,
-    "external_engine_verified": 0
+    "unsupported": 3
   },
   "deck_statistics": {
+    "kaervek/maintained-2026-08-07": {
+      "unique_oracle_names": 76,
+      "coverage": {
+        "structural_only": 72,
+        "tactical_only": 4
+      }
+    },
     "korvold/current-2026-08-07": {
       "unique_oracle_names": 85,
       "coverage": {
         "tactical_only": 27,
         "structural_only": 58
+      }
+    },
+    "opponent/alen___high_perfect_morcant/drive-2026-08-02": {
+      "unique_oracle_names": 53,
+      "coverage": {
+        "unsupported": 46,
+        "structural_only": 7
+      }
+    },
+    "opponent/blight_curse/drive-2026-08-02": {
+      "unique_oracle_names": 85,
+      "coverage": {
+        "unsupported": 62,
+        "structural_only": 22,
+        "tactical_only": 1
+      }
+    },
+    "opponent/cosmic_spider_man/drive-2026-08-02": {
+      "unique_oracle_names": 4,
+      "coverage": {
+        "unsupported": 4
+      }
+    },
+    "opponent/dance_of_the_elements/drive-2026-08-02": {
+      "unique_oracle_names": 89,
+      "coverage": {
+        "unsupported": 73,
+        "structural_only": 15,
+        "tactical_only": 1
+      }
+    },
+    "opponent/doom_prevails/drive-2026-08-02": {
+      "unique_oracle_names": 88,
+      "coverage": {
+        "unsupported": 68,
+        "structural_only": 16,
+        "tactical_only": 4
+      }
+    },
+    "opponent/kaervek___leon/drive-2026-08-02": {
+      "unique_oracle_names": 74,
+      "coverage": {
+        "structural_only": 55,
+        "tactical_only": 5,
+        "unsupported": 14
+      }
+    },
+    "opponent/quandrix_unlimited/drive-2026-08-02": {
+      "unique_oracle_names": 89,
+      "coverage": {
+        "unsupported": 76,
+        "structural_only": 13
+      }
+    },
+    "opponent/wakanda_forever/drive-2026-08-02": {
+      "unique_oracle_names": 78,
+      "coverage": {
+        "unsupported": 66,
+        "structural_only": 12
       }
     },
     "rogshai/current-2026-08-07": {
@@ -33,19 +101,50 @@
         "structural_only": 52,
         "tactical_only": 30
       }
-    },
-    "kaervek/maintained-2026-08-07": {
-      "unique_oracle_names": 76,
-      "coverage": {
-        "structural_only": 72,
-        "tactical_only": 4
-      }
     }
   },
-  "opponent_limitations": [
-    "Exact 100-card lists were unavailable for Cosmic Spider-Man, Doom upgrades, Morcant Elves and multiple official-precon references in the executable repository.",
-    "Only the known commander/profile and explicitly present known/assumed cards were included; no unknown card was invented as confirmed."
-  ],
+  "opponent_known_unknown": {
+    "Cosmic Spider-Man": {
+      "known_card_count": 4,
+      "unknown_slots": 96,
+      "data_status": "Teilmodell"
+    },
+    "Doom Prevails": {
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "data_status": "Precon-Baseline; leicht verbessert"
+    },
+    "Blight Curse": {
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "data_status": "unverändertes Precon"
+    },
+    "Kaervek – Leon": {
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "data_status": "letzter verifizierter gegnerischer Draft"
+    },
+    "Wakanda Forever": {
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "data_status": "unverändertes Precon"
+    },
+    "Quandrix Unlimited": {
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "data_status": "unverändertes Precon"
+    },
+    "Dance of the Elements": {
+      "known_card_count": 100,
+      "unknown_slots": 0,
+      "data_status": "unverändertes offizielles Precon"
+    },
+    "Alen – High Perfect Morcant": {
+      "known_card_count": 53,
+      "unknown_slots": 47,
+      "data_status": "53 bestätigte Karten: 52 Wants/Kaufkern + Gaze of Granite; Path und Gaze physisch von Moritz übergeben"
+    }
+  },
   "external_engine_execution_status": "blocked",
   "provider_difference_status": "not_run",
   "canonical_changes": false

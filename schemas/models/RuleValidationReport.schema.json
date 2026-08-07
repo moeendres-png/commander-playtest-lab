@@ -1,0 +1,67 @@
+{
+  "$defs": {
+    "RuleValidationIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "severity",
+        "code",
+        "message"
+      ],
+      "title": "RuleValidationIssue",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "active_rule_count": {
+      "title": "Active Rule Count",
+      "type": "integer"
+    },
+    "issues": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/RuleValidationIssue"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "rule_count": {
+      "title": "Rule Count",
+      "type": "integer"
+    },
+    "valid": {
+      "title": "Valid",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "valid",
+    "rule_count",
+    "active_rule_count"
+  ],
+  "title": "RuleValidationReport",
+  "type": "object"
+}

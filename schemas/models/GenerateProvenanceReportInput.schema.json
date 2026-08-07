@@ -1,0 +1,12 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "default": "provenance_report.md",
+      "title": "Output Name",
+      "type": "string"
+    }
+  },
+  "title": "GenerateProvenanceReportInput",
+  "type": "object"
+}

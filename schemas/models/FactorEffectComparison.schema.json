@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_effect": {
+      "title": "Action Effect",
+      "type": "number"
+    },
+    "deck_effect": {
+      "title": "Deck Effect",
+      "type": "number"
+    },
+    "dominant_factor": {
+      "title": "Dominant Factor",
+      "type": "string"
+    },
+    "interpretation": {
+      "title": "Interpretation",
+      "type": "string"
+    },
+    "opponent_effect": {
+      "title": "Opponent Effect",
+      "type": "number"
+    },
+    "pilot_effect": {
+      "title": "Pilot Effect",
+      "type": "number"
+    },
+    "seed_effect": {
+      "title": "Seed Effect",
+      "type": "number"
+    }
+  },
+  "required": [
+    "deck_effect",
+    "pilot_effect",
+    "opponent_effect",
+    "action_effect",
+    "seed_effect",
+    "dominant_factor",
+    "interpretation"
+  ],
+  "title": "FactorEffectComparison",
+  "type": "object"
+}

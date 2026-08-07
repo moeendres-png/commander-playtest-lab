@@ -659,7 +659,7 @@ class ExternalRulesAdapter(RulesEngineAdapter):
     def get_result(self, session_id: str) -> RulesEngineResult:
         if self._legacy_mode:
             raise RulesEngineProtocolError(
-                "legacy bridge results are unverified and cannot be promoted to rules_engine_validated"
+                "legacy bridge results are unverified and cannot be promoted to external_rules_engine"
             )
         if self._capabilities is None:
             self.probe()
@@ -674,7 +674,7 @@ class ExternalRulesAdapter(RulesEngineAdapter):
             completed=state.status.value == "completed",
             final_state=state,
             normalized_result={},
-            validation_level="rules_engine_validated",
+            validation_level="external_rules_engine",
             backend_version=None,
             warnings=("result derived from versioned state endpoint",),
         )

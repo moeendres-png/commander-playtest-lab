@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "ensemble_id": {
+      "title": "Ensemble Id",
+      "type": "string"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_id",
+    "ensemble_id"
+  ],
+  "title": "CompareVariantSensitivityInput",
+  "type": "object"
+}

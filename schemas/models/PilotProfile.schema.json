@@ -1,0 +1,224 @@
+{
+  "$defs": {
+    "PilotDecisionMode": {
+      "enum": [
+        "deterministic",
+        "stochastic"
+      ],
+      "title": "PilotDecisionMode",
+      "type": "string"
+    },
+    "PilotInformationMode": {
+      "description": "Information boundary available to a structural pilot.\n\nCurrent production pilots are restricted to visible state plus explicitly\nmodelled public/known cards. No mode grants library-order or hidden-hand\naccess.",
+      "enum": [
+        "visible_only",
+        "visible_plus_known_cards"
+      ],
+      "title": "PilotInformationMode",
+      "type": "string"
+    },
+    "PilotInformationPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "exact_future_draws": {
+          "default": false,
+          "title": "Exact Future Draws",
+          "type": "boolean"
+        },
+        "hidden_opponent_hands": {
+          "default": false,
+          "title": "Hidden Opponent Hands",
+          "type": "boolean"
+        },
+        "mode": {
+          "$ref": "#/$defs/PilotInformationMode",
+          "default": "visible_plus_known_cards"
+        },
+        "opponent_hand_model": {
+          "default": "plausible_distribution",
+          "enum": [
+            "none",
+            "plausible_distribution"
+          ],
+          "title": "Opponent Hand Model",
+          "type": "string"
+        },
+        "random_library_order": {
+          "default": false,
+          "title": "Random Library Order",
+          "type": "boolean"
+        }
+      },
+      "title": "PilotInformationPolicy",
+      "type": "object"
+    },
+    "PilotUtilityWeights": {
+      "additionalProperties": false,
+      "properties": {
+        "card_advantage": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Card Advantage",
+          "type": "number"
+        },
+        "commander_value": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Commander Value",
+          "type": "number"
+        },
+        "engine_development": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Engine Development",
+          "type": "number"
+        },
+        "interaction_reserve": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Interaction Reserve",
+          "type": "number"
+        },
+        "mana_efficiency": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Mana Efficiency",
+          "type": "number"
+        },
+        "political_visibility": {
+          "default": -0.65,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Political Visibility",
+          "type": "number"
+        },
+        "rebuild_capacity": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Rebuild Capacity",
+          "type": "number"
+        },
+        "survival": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Survival",
+          "type": "number"
+        },
+        "tempo": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Tempo",
+          "type": "number"
+        },
+        "threat_reduction": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Threat Reduction",
+          "type": "number"
+        },
+        "win_progress": {
+          "default": 1.0,
+          "maximum": 5.0,
+          "minimum": -5.0,
+          "title": "Win Progress",
+          "type": "number"
+        }
+      },
+      "title": "PilotUtilityWeights",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_deviation": {
+      "maximum": 2.0,
+      "minimum": 0.0,
+      "title": "Allowed Deviation",
+      "type": "number"
+    },
+    "commander_family": {
+      "enum": [
+        "korvold",
+        "rogshai",
+        "generic"
+      ],
+      "title": "Commander Family",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "information_policy": {
+      "$ref": "#/$defs/PilotInformationPolicy"
+    },
+    "is_baseline": {
+      "default": false,
+      "title": "Is Baseline",
+      "type": "boolean"
+    },
+    "mode": {
+      "$ref": "#/$defs/PilotDecisionMode"
+    },
+    "parameter_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Parameter Hash",
+      "type": "string"
+    },
+    "pilot_name": {
+      "title": "Pilot Name",
+      "type": "string"
+    },
+    "profile_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "source_rule_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Rule Ids",
+      "type": "array"
+    },
+    "supported_deck_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supported Deck Hashes",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "weights": {
+      "$ref": "#/$defs/PilotUtilityWeights"
+    }
+  },
+  "required": [
+    "profile_id",
+    "pilot_name",
+    "commander_family",
+    "version",
+    "parameter_hash",
+    "source_rule_ids",
+    "weights",
+    "mode",
+    "allowed_deviation",
+    "supported_deck_hashes",
+    "description"
+  ],
+  "title": "PilotProfile",
+  "type": "object"
+}

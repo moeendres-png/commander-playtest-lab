@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "base_pilot_name": {
+      "title": "Base Pilot Name",
+      "type": "string"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "conflict_strategy": {
+      "default": "reject",
+      "enum": [
+        "reject",
+        "prefer_priority",
+        "prefer_confidence"
+      ],
+      "title": "Conflict Strategy",
+      "type": "string"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "output_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Name"
+    },
+    "policy_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "rule_paths": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rule Paths",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rule_paths",
+    "policy_id",
+    "version",
+    "commander",
+    "deck_hash",
+    "format_band",
+    "base_pilot_name"
+  ],
+  "title": "CompilePilotPolicyInput",
+  "type": "object"
+}

@@ -1,0 +1,441 @@
+{
+  "$defs": {
+    "ActionPreference": {
+      "additionalProperties": false,
+      "properties": {
+        "action_kinds": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Action Kinds",
+          "type": "array"
+        },
+        "card_names": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Card Names",
+          "type": "array"
+        },
+        "decision_point": {
+          "$ref": "#/$defs/DecisionPoint",
+          "default": "main_action"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "match_mode": {
+          "default": "any",
+          "enum": [
+            "any",
+            "all"
+          ],
+          "title": "Match Mode",
+          "type": "string"
+        },
+        "roles": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CardRole"
+          },
+          "title": "Roles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "description"
+      ],
+      "title": "ActionPreference",
+      "type": "object"
+    },
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    },
+    "ConditionOperator": {
+      "enum": [
+        "all",
+        "any",
+        "not",
+        "eq",
+        "ne",
+        "gt",
+        "ge",
+        "lt",
+        "le",
+        "contains",
+        "not_contains",
+        "contains_any",
+        "contains_all",
+        "intersects",
+        "truthy",
+        "falsy"
+      ],
+      "title": "ConditionOperator",
+      "type": "string"
+    },
+    "DecisionPoint": {
+      "enum": [
+        "opening_hand",
+        "main_action",
+        "reaction",
+        "combat_target",
+        "sequencing",
+        "rebuild"
+      ],
+      "title": "DecisionPoint",
+      "type": "string"
+    },
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    },
+    "PilotRule": {
+      "additionalProperties": false,
+      "properties": {
+        "action_preference": {
+          "$ref": "#/$defs/ActionPreference"
+        },
+        "commander": {
+          "title": "Commander",
+          "type": "string"
+        },
+        "condition": {
+          "$ref": "#/$defs/PilotRuleCondition"
+        },
+        "confidence": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "deck_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Deck Hash",
+          "type": "string"
+        },
+        "evidence_type": {
+          "$ref": "#/$defs/PrimerEvidenceType"
+        },
+        "forbidden_when": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PilotRuleCondition"
+          },
+          "title": "Forbidden When",
+          "type": "array"
+        },
+        "format_band": {
+          "$ref": "#/$defs/FormatBand"
+        },
+        "manually_approved": {
+          "default": false,
+          "title": "Manually Approved",
+          "type": "boolean"
+        },
+        "priority": {
+          "default": 50,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "requires_cards": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Requires Cards",
+          "type": "array"
+        },
+        "rule_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "score_adjustment": {
+          "maximum": 20.0,
+          "minimum": -20.0,
+          "title": "Score Adjustment",
+          "type": "number"
+        },
+        "source_excerpt": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Excerpt"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/PrimerRuleStatus",
+          "default": "needs_review"
+        },
+        "tags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "version": {
+          "default": "1.0.0",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "source_id",
+        "commander",
+        "deck_hash",
+        "format_band",
+        "condition",
+        "action_preference",
+        "score_adjustment",
+        "evidence_type",
+        "rationale"
+      ],
+      "title": "PilotRule",
+      "type": "object"
+    },
+    "PilotRuleCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "clauses": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PilotRuleCondition"
+          },
+          "title": "Clauses",
+          "type": "array"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "op": {
+          "$ref": "#/$defs/ConditionOperator"
+        },
+        "value": {
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "title": "PilotRuleCondition",
+      "type": "object"
+    },
+    "PrimerEvidenceType": {
+      "enum": [
+        "primer_explicit",
+        "primer_inferred",
+        "local_user_instruction",
+        "golden_scenario",
+        "tactical_oracle",
+        "structural_evaluation"
+      ],
+      "title": "PrimerEvidenceType",
+      "type": "string"
+    },
+    "PrimerRuleConflict": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict_id": {
+          "title": "Conflict Id",
+          "type": "string"
+        },
+        "conflict_type": {
+          "enum": [
+            "opposing_adjustment",
+            "duplicate_rule_id",
+            "deck_version_mismatch",
+            "format_band_mismatch",
+            "source_disagreement"
+          ],
+          "title": "Conflict Type",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "resolution_required": {
+          "default": true,
+          "title": "Resolution Required",
+          "type": "boolean"
+        },
+        "rule_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rule Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "conflict_id",
+        "rule_ids",
+        "conflict_type",
+        "description"
+      ],
+      "title": "PrimerRuleConflict",
+      "type": "object"
+    },
+    "PrimerRuleStatus": {
+      "enum": [
+        "active",
+        "inactive",
+        "needs_review",
+        "rejected"
+      ],
+      "title": "PrimerRuleStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "automatic_deck_application": {
+      "default": false,
+      "title": "Automatic Deck Application",
+      "type": "boolean"
+    },
+    "base_pilot_name": {
+      "title": "Base Pilot Name",
+      "type": "string"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "conflicts": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PrimerRuleConflict"
+      },
+      "title": "Conflicts",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "immutable": {
+      "default": true,
+      "title": "Immutable",
+      "type": "boolean"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "policy_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/PilotRule"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "source_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_id",
+    "version",
+    "created_at",
+    "commander",
+    "deck_hash",
+    "format_band",
+    "base_pilot_name",
+    "source_ids",
+    "rules"
+  ],
+  "title": "CompiledPilotPolicy",
+  "type": "object"
+}

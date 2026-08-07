@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "MetaCategory": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "MetaCategory",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cards",
+      "type": "array"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/MetaCategory"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "package_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{1,127}$",
+      "title": "Package Id",
+      "type": "string"
+    },
+    "roles": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Roles",
+      "type": "array"
+    }
+  },
+  "required": [
+    "package_id",
+    "name",
+    "cards",
+    "roles",
+    "categories"
+  ],
+  "title": "MetaPackage",
+  "type": "object"
+}

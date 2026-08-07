@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "pilot_name": {
+      "title": "Pilot Name",
+      "type": "string"
+    },
+    "weight": {
+      "exclusiveMinimum": 0.0,
+      "maximum": 1.0,
+      "title": "Weight",
+      "type": "number"
+    }
+  },
+  "required": [
+    "pilot_name",
+    "weight"
+  ],
+  "title": "PilotEnsembleMember",
+  "type": "object"
+}

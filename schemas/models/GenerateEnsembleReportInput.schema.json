@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ensemble_id": {
+      "title": "Ensemble Id",
+      "type": "string"
+    },
+    "output_name": {
+      "default": "opponent_ensemble_report.md",
+      "title": "Output Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ensemble_id"
+  ],
+  "title": "GenerateEnsembleReportInput",
+  "type": "object"
+}

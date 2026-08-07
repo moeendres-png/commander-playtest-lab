@@ -28,6 +28,6 @@ def test_rules_deck_input_rejects_non_100_card_deck() -> None:
 def test_validation_levels_are_exactly_the_three_required_values() -> None:
     assert {item.value for item in ValidationLevel} == {
         "structural_only",
-        "tactical_validated",
-        "rules_engine_validated",
+        "tactical_oracle",
+        "external_rules_engine",
     }

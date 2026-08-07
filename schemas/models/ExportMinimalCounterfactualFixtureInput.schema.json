@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "event_offset": {
+      "minimum": 0,
+      "title": "Event Offset",
+      "type": "integer"
+    },
+    "expected_state_hash": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected State Hash"
+    },
+    "output_name": {
+      "default": "counterfactual_golden_fixture.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "source_path": {
+      "title": "Source Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_path",
+    "event_offset"
+  ],
+  "title": "ExportMinimalCounterfactualFixtureInput",
+  "type": "object"
+}

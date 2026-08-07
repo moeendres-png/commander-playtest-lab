@@ -8,9 +8,6 @@ Every result carries one runtime validation level:
 | `tactical_oracle` | Deterministic local tactical fixture/oracle |
 | `external_rules_engine` | Real XMage or Forge execution after a valid handshake |
 
-Legacy card registries retain `tactical_validated` and
-`rules_engine_validated`, but runtime reports use the three values above.
-
 The Tactical Oracle is suitable for offline contract development, deterministic
 fixtures and Structural Simulator differential checks. It is not an external
 engine and cannot satisfy the release gate.

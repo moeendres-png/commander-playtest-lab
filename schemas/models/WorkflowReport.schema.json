@@ -16,8 +16,8 @@
       "default": "structural_model_estimates",
       "enum": [
         "structural_model_estimates",
-        "empirical_playtest_observations",
-        "mixed_real_and_structural"
+        "tactical_oracle_results",
+        "external_rules_engine_results"
       ],
       "title": "Estimate Type",
       "type": "string"

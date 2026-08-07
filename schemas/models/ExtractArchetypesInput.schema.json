@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "ExtractArchetypesInput",
+  "type": "object"
+}

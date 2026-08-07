@@ -339,10 +339,10 @@ commander-lab validate-rules-phase8 --seed 20260804 --root .
 The interaction catalog contains more than 50 project-critical cases under `data/evals/differential/project_critical_interactions.json`. The generated registry marks every local card and interaction as one of:
 
 - `structural_only`;
-- `tactical_validated`;
-- `rules_engine_validated`.
+- `tactical_oracle`;
+- `external_rules_engine`.
 
-A tactical pass is not an external rules proof. `rules_engine_validated` is emitted only after a matching XMage or Forge bridge observation. Missing external engines remain a visible blocked gate.
+A tactical pass is not an external rules proof. `external_rules_engine` is emitted only after a matching XMage or Forge bridge observation. Missing external engines remain a visible blocked gate.
 
 ## External rules-engine runtime (Phase 8.5)
 

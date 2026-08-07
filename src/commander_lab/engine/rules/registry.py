@@ -60,10 +60,10 @@ def validate_with_external_adapter(
     if probe.availability != RulesEngineAvailability.AVAILABLE:
         raise RuntimeError("external rules engine is not available")
     if probe.capabilities.runtime_kind != "external_rules_engine":
-        raise RuntimeError("unverified or legacy bridge cannot produce rules_engine_validated evidence")
+        raise RuntimeError("unverified or legacy bridge cannot produce external_rules_engine evidence")
     session = adapter.create_scenario(_scenario_for_spec(spec))
     result = adapter.get_result(session.session_id)
-    if result.validation_level != ValidationLevel.RULES_ENGINE_VALIDATED:
+    if result.validation_level != ValidationLevel.EXTERNAL_RULES_ENGINE:
         raise RuntimeError("external adapter returned a non-rules-engine validation level")
     observed = result.normalized_result
     mismatches = tuple(
@@ -73,7 +73,7 @@ def validate_with_external_adapter(
     )
     return InteractionValidation(
         interaction_id=spec.interaction_id,
-        level=ValidationLevel.RULES_ENGINE_VALIDATED,
+        level=ValidationLevel.EXTERNAL_RULES_ENGINE,
         passed=not mismatches,
         backend=result.backend,
         expected={key: spec.expected_normalized.get(key) for key in spec.comparison_keys},
@@ -129,15 +129,15 @@ def build_validation_registry(
         tactical = [tactical_results[item] for item in interaction_ids]
         external = [external_results[item] for item in interaction_ids if item in external_results]
         if interaction_ids and len(external) == len(interaction_ids) and all(item.passed for item in external):
-            level = ValidationLevel.RULES_ENGINE_VALIDATED
+            level = ValidationLevel.EXTERNAL_RULES_ENGINE
         elif interaction_ids and all(item.passed for item in tactical):
-            level = ValidationLevel.TACTICAL_VALIDATED
+            level = ValidationLevel.TACTICAL_ORACLE
         else:
             level = ValidationLevel.STRUCTURAL_ONLY
         notes: tuple[str, ...] = ()
         if not interaction_ids:
             notes = ("no project-critical tactical interaction registered",)
-        elif level == ValidationLevel.TACTICAL_VALIDATED:
+        elif level == ValidationLevel.TACTICAL_ORACLE:
             notes = ("local tactical oracle passed; external rules engine not yet recorded",)
         cards[card_name] = CardValidationRecord(
             oracle_name=card_name,
@@ -157,8 +157,8 @@ def build_validation_registry(
         rules_engine_cases=external_attempts,
         rules_engine_passed=len(external_results),
         notes=[
-            "tactical_validated is a bounded local model status, not a complete MTG rules proof",
-            "rules_engine_validated requires a matching XMage or Forge bridge observation",
+            "tactical_oracle is a bounded local model status, not a complete MTG rules proof",
+            "external_rules_engine requires a matching XMage or Forge bridge observation",
         ],
     )
     return registry

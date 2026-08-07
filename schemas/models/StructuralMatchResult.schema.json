@@ -79,6 +79,30 @@
           "default": null,
           "title": "First Commander Cast Turn"
         },
+        "first_independent_draw_engine_turn": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Independent Draw Engine Turn"
+        },
+        "first_ramp_turn": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Ramp Turn"
+        },
         "graveyard_hate_resolved": {
           "title": "Graveyard Hate Resolved",
           "type": "integer"

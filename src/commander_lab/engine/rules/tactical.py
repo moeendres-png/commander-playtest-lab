@@ -60,7 +60,7 @@ class TacticalRuleOracle:
 
     It implements only explicitly registered rule primitives. Passing a tactical case
     proves that the local model follows the encoded expected semantics; it is never
-    promoted to ``rules_engine_validated`` without an XMage or Forge observation.
+    promoted to ``external_rules_engine`` without an XMage or Forge observation.
     """
 
     def __init__(self) -> None:
@@ -151,7 +151,7 @@ class TacticalRuleOracle:
         )
         return InteractionValidation(
             interaction_id=spec.interaction_id,
-            level=ValidationLevel.TACTICAL_VALIDATED,
+            level=ValidationLevel.TACTICAL_ORACLE,
             passed=not mismatches,
             backend=RulesBackend.TACTICAL,
             expected={key: spec.expected_normalized.get(key) for key in spec.comparison_keys},
@@ -680,7 +680,7 @@ class TacticalRulesAdapter(RulesEngineAdapter):
                 maximum_players=10,
                 notes=(
                     "bounded tactical oracle; not a complete Magic rules engine",
-                    "passing cases are tactical_validated, never rules_engine_validated",
+                    "passing cases are tactical_oracle, never external_rules_engine",
                 ),
             ),
         )
@@ -835,7 +835,7 @@ class TacticalRulesAdapter(RulesEngineAdapter):
             completed=session.state.status in {GameStatus.COMPLETED, GameStatus.ABORTED} or scenario is not None,
             final_state=session.state,
             normalized_result=normalized,
-            validation_level=ValidationLevel.TACTICAL_VALIDATED,
+            validation_level=ValidationLevel.TACTICAL_ORACLE,
             backend_version="tactical-0.8.0",
             warnings=("bounded tactical oracle; not a complete rules engine",),
         )

@@ -169,7 +169,7 @@ def run_phase8_validation(
             "cards_total": len(registry.cards),
             "card_status_counts": {
                 level: sum(1 for item in registry.cards.values() if item.level.value == level)
-                for level in ("structural_only", "tactical_validated", "rules_engine_validated")
+                for level in ("structural_only", "tactical_oracle", "external_rules_engine")
             },
             "deterministic_starting_state": deterministic_start,
             "programmatic_action_roundtrip": state_after_action.priority_player_id == "p2",

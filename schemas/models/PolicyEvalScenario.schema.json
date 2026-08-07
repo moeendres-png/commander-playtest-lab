@@ -1,0 +1,506 @@
+{
+  "$defs": {
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    },
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    },
+    "PilotActionView": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "action_kind": {
+          "enum": [
+            "card",
+            "commander",
+            "counter",
+            "protection",
+            "combat_target",
+            "removal_target",
+            "graveyard_target",
+            "pass"
+          ],
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "base_power": {
+          "default": 0.0,
+          "maximum": 10000.0,
+          "minimum": 0.0,
+          "title": "Base Power",
+          "type": "number"
+        },
+        "card_name": {
+          "title": "Card Name",
+          "type": "string"
+        },
+        "commander_synergy": {
+          "default": 0.0,
+          "maximum": 3.0,
+          "minimum": 0.0,
+          "title": "Commander Synergy",
+          "type": "number"
+        },
+        "floor_value": {
+          "default": 0.0,
+          "maximum": 3.0,
+          "minimum": 0.0,
+          "title": "Floor Value",
+          "type": "number"
+        },
+        "immediate_impact": {
+          "default": 0.0,
+          "maximum": 2.0,
+          "minimum": 0.0,
+          "title": "Immediate Impact",
+          "type": "number"
+        },
+        "mana_cost": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Mana Cost",
+          "type": "number"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Metadata",
+          "type": "object"
+        },
+        "multiplayer_scaling": {
+          "default": 0.0,
+          "maximum": 3.0,
+          "minimum": -1.0,
+          "title": "Multiplayer Scaling",
+          "type": "number"
+        },
+        "remaining_mana": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Remaining Mana",
+          "type": "number"
+        },
+        "role_strengths": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/CardRole"
+          },
+          "title": "Role Strengths",
+          "type": "object"
+        },
+        "roles": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CardRole"
+          },
+          "title": "Roles",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "target_player_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Player Id"
+        },
+        "target_threat": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Target Threat",
+          "type": "number"
+        },
+        "threat_score": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Threat Score",
+          "type": "number"
+        },
+        "turn_cycle_risk": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Turn Cycle Risk",
+          "type": "number"
+        }
+      },
+      "required": [
+        "action_id",
+        "action_kind",
+        "card_name"
+      ],
+      "title": "PilotActionView",
+      "type": "object"
+    },
+    "PilotCommanderView": {
+      "additionalProperties": false,
+      "properties": {
+        "base_cost": {
+          "minimum": 0.0,
+          "title": "Base Cost",
+          "type": "number"
+        },
+        "casts": {
+          "minimum": 0,
+          "title": "Casts",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "next_cost": {
+          "minimum": 0.0,
+          "title": "Next Cost",
+          "type": "number"
+        },
+        "on_battlefield": {
+          "default": false,
+          "title": "On Battlefield",
+          "type": "boolean"
+        },
+        "power": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Power",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "base_cost",
+        "next_cost",
+        "casts"
+      ],
+      "title": "PilotCommanderView",
+      "type": "object"
+    },
+    "PilotOpponentView": {
+      "additionalProperties": false,
+      "properties": {
+        "board_power": {
+          "minimum": 0.0,
+          "title": "Board Power",
+          "type": "number"
+        },
+        "commander_damage_from_actor": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Commander Damage From Actor",
+          "type": "object"
+        },
+        "engine_value": {
+          "minimum": 0.0,
+          "title": "Engine Value",
+          "type": "number"
+        },
+        "graveyard_size": {
+          "minimum": 0,
+          "title": "Graveyard Size",
+          "type": "integer"
+        },
+        "hand_size": {
+          "minimum": 0,
+          "title": "Hand Size",
+          "type": "integer"
+        },
+        "life": {
+          "title": "Life",
+          "type": "number"
+        },
+        "player_id": {
+          "title": "Player Id",
+          "type": "string"
+        },
+        "threat": {
+          "minimum": 0.0,
+          "title": "Threat",
+          "type": "number"
+        }
+      },
+      "required": [
+        "player_id",
+        "life",
+        "threat",
+        "board_power",
+        "engine_value",
+        "graveyard_size",
+        "hand_size"
+      ],
+      "title": "PilotOpponentView",
+      "type": "object"
+    },
+    "PilotStateView": {
+      "additionalProperties": false,
+      "properties": {
+        "battlefield_names": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Battlefield Names",
+          "type": "array"
+        },
+        "board_power": {
+          "minimum": 0.0,
+          "title": "Board Power",
+          "type": "number"
+        },
+        "commanders": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PilotCommanderView"
+          },
+          "title": "Commanders",
+          "type": "array"
+        },
+        "deck_id": {
+          "title": "Deck Id",
+          "type": "string"
+        },
+        "engine_value": {
+          "minimum": 0.0,
+          "title": "Engine Value",
+          "type": "number"
+        },
+        "graveyard_size": {
+          "minimum": 0,
+          "title": "Graveyard Size",
+          "type": "integer"
+        },
+        "hand_names": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Hand Names",
+          "type": "array"
+        },
+        "hand_size": {
+          "minimum": 0,
+          "title": "Hand Size",
+          "type": "integer"
+        },
+        "lands": {
+          "minimum": 0,
+          "title": "Lands",
+          "type": "integer"
+        },
+        "life": {
+          "title": "Life",
+          "type": "number"
+        },
+        "mana_available": {
+          "minimum": 0.0,
+          "title": "Mana Available",
+          "type": "number"
+        },
+        "opponents": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PilotOpponentView"
+          },
+          "title": "Opponents",
+          "type": "array"
+        },
+        "player_id": {
+          "title": "Player Id",
+          "type": "string"
+        },
+        "pod_size": {
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Pod Size",
+          "type": "integer"
+        },
+        "ramp_mana": {
+          "minimum": 0.0,
+          "title": "Ramp Mana",
+          "type": "number"
+        },
+        "resources": {
+          "minimum": 0.0,
+          "title": "Resources",
+          "type": "number"
+        },
+        "role_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/CardRole"
+          },
+          "title": "Role Counts",
+          "type": "object"
+        },
+        "strategy": {
+          "title": "Strategy",
+          "type": "string"
+        },
+        "tokens": {
+          "minimum": 0.0,
+          "title": "Tokens",
+          "type": "number"
+        },
+        "turn": {
+          "minimum": 1,
+          "title": "Turn",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "player_id",
+        "deck_id",
+        "strategy",
+        "turn",
+        "pod_size",
+        "life",
+        "hand_size",
+        "mana_available",
+        "lands",
+        "ramp_mana",
+        "resources",
+        "tokens",
+        "board_power",
+        "engine_value",
+        "graveyard_size"
+      ],
+      "title": "PilotStateView",
+      "type": "object"
+    },
+    "PrimerEvidenceType": {
+      "enum": [
+        "primer_explicit",
+        "primer_inferred",
+        "local_user_instruction",
+        "golden_scenario",
+        "tactical_oracle",
+        "structural_evaluation"
+      ],
+      "title": "PrimerEvidenceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "actions": {
+      "items": {
+        "$ref": "#/$defs/PilotActionView"
+      },
+      "title": "Actions",
+      "type": "array"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "context": {
+      "additionalProperties": true,
+      "title": "Context",
+      "type": "object"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "evidence_type": {
+      "$ref": "#/$defs/PrimerEvidenceType"
+    },
+    "expected_action_id": {
+      "title": "Expected Action Id",
+      "type": "string"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/PilotStateView"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "commander",
+    "deck_hash",
+    "format_band",
+    "state",
+    "actions",
+    "expected_action_id",
+    "evidence_type"
+  ],
+  "title": "PolicyEvalScenario",
+  "type": "object"
+}

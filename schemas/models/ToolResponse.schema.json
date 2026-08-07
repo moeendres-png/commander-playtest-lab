@@ -3,6 +3,19 @@
     "ToolExecutionMetadata": {
       "additionalProperties": false,
       "properties": {
+        "configuration_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Configuration Hash"
+        },
         "created_at": {
           "format": "date-time",
           "title": "Created At",
@@ -44,8 +57,8 @@
           "default": "structural_model_estimates",
           "enum": [
             "structural_model_estimates",
-            "empirical_playtest_observations",
-            "mixed_real_and_structural"
+            "tactical_oracle_results",
+            "external_rules_engine_results"
           ],
           "title": "Estimate Type",
           "type": "string"
@@ -89,6 +102,25 @@
           ],
           "default": null,
           "title": "Openai Trace Directory"
+        },
+        "opponent_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Opponent Hashes",
+          "type": "object"
+        },
+        "pilot_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pilot Version"
         },
         "scenario_hash": {
           "title": "Scenario Hash",

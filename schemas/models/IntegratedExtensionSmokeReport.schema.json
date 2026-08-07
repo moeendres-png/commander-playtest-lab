@@ -1,0 +1,113 @@
+{
+  "$defs": {
+    "IntegratedSmokeStep": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "result_summary": {
+          "title": "Result Summary",
+          "type": "string"
+        },
+        "source_hashes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "array"
+        },
+        "source_paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Paths",
+          "type": "array"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "step": {
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Step",
+          "type": "integer"
+        },
+        "validation_level": {
+          "title": "Validation Level",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step",
+        "name",
+        "status",
+        "source_paths",
+        "source_hashes",
+        "validation_level",
+        "result_summary"
+      ],
+      "title": "IntegratedSmokeStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allocation_changes": {
+      "default": false,
+      "title": "Allocation Changes",
+      "type": "boolean"
+    },
+    "canonical_deck_changes": {
+      "default": false,
+      "title": "Canonical Deck Changes",
+      "type": "boolean"
+    },
+    "external_engine_used": {
+      "default": false,
+      "title": "External Engine Used",
+      "type": "boolean"
+    },
+    "inventory_changes": {
+      "default": false,
+      "title": "Inventory Changes",
+      "type": "boolean"
+    },
+    "passed_steps": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Passed Steps",
+      "type": "integer"
+    },
+    "report_id": {
+      "title": "Report Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "title": "Status",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/IntegratedSmokeStep"
+      },
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "report_id",
+    "steps",
+    "passed_steps",
+    "status"
+  ],
+  "title": "IntegratedExtensionSmokeReport",
+  "type": "object"
+}

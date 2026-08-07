@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "diagnosis_paths": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Diagnosis Paths",
+      "type": "array"
+    },
+    "output_name": {
+      "default": "DECISION_DIAGNOSTIC_REPORT.md",
+      "title": "Output Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "diagnosis_paths"
+  ],
+  "title": "GenerateDiagnosticReportInput",
+  "type": "object"
+}

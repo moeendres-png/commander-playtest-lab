@@ -11,13 +11,14 @@ from typing import Any, TextIO
 
 from pydantic import ValidationError
 
+from commander_lab import __version__
 from commander_lab.tools import CommanderToolService, ToolRegistry
 
 CURRENT_MCP_PROTOCOL_VERSION = "2026-07-28"
 LEGACY_MCP_PROTOCOL_VERSION = "2025-11-25"
 MCP_PROTOCOL_VERSION = CURRENT_MCP_PROTOCOL_VERSION
 SERVER_NAME = "commander-playtest-lab"
-SERVER_VERSION = "1.10.3"
+SERVER_VERSION = __version__
 _PROTOCOL_META_KEY = "io.modelcontextprotocol/protocolVersion"
 _CLIENT_INFO_META_KEY = "io.modelcontextprotocol/clientInfo"
 _SERVER_INFO_META_KEY = "io.modelcontextprotocol/serverInfo"

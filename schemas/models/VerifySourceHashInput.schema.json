@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "candidate_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Candidate Path"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_id"
+  ],
+  "title": "VerifySourceHashInput",
+  "type": "object"
+}

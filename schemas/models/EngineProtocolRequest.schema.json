@@ -2,20 +2,34 @@
   "$defs": {
     "EngineMessageType": {
       "enum": [
+        "start_engine",
+        "get_capabilities",
+        "get_provider_version",
+        "import_deck",
+        "create_commander_game",
+        "add_player",
+        "start_game",
+        "get_game_state",
+        "get_legal_actions",
+        "submit_action",
+        "pass_priority",
+        "select_targets",
+        "choose_modes",
+        "order_triggers",
+        "resolve_mulligan",
+        "concede",
+        "export_event_log",
+        "export_replay",
+        "shutdown_game",
+        "shutdown_engine",
         "engine_hello",
         "engine_capabilities",
         "load_deck",
         "create_game",
         "set_seed",
-        "start_game",
-        "get_game_state",
-        "get_legal_actions",
-        "submit_action",
         "advance_priority",
         "advance_phase",
-        "get_event_log",
-        "export_replay",
-        "shutdown_game"
+        "get_event_log"
       ],
       "title": "EngineMessageType",
       "type": "string"
@@ -92,7 +106,7 @@
       "type": "object"
     },
     "protocol_version": {
-      "default": "1.0.0",
+      "default": "2.0.0",
       "title": "Protocol Version",
       "type": "string"
     },

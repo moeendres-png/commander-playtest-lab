@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "assumption_dimension": {
+      "title": "Assumption Dimension",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "ensemble_id": {
+      "title": "Ensemble Id",
+      "type": "string"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "synthetic": {
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "variant_id": {
+      "title": "Variant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "ensemble_id",
+    "variant_id",
+    "assumption_dimension",
+    "synthetic",
+    "confidence"
+  ],
+  "title": "RobustnessScenario",
+  "type": "object"
+}

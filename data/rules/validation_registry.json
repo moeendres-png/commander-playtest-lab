@@ -4,7 +4,7 @@
   "cards": {
     "Academy Manufactor": {
       "oracle_name": "Academy Manufactor",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "academy_manufactor_replaces_each_token",
         "killer_service_with_manufactor"
@@ -27,7 +27,7 @@
     },
     "Aftermath Analyst": {
       "oracle_name": "Aftermath Analyst",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "aftermath_analyst_sacrifices_and_returns_lands"
       ],
@@ -39,7 +39,7 @@
     },
     "An Offer You Can't Refuse": {
       "oracle_name": "An Offer You Can't Refuse",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "offer_counters_noncreature_and_gives_treasures"
       ],
@@ -71,7 +71,7 @@
     },
     "Archmage Emeritus": {
       "oracle_name": "Archmage Emeritus",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "archmage_emeritus_counts_casts_and_copies",
         "veyran_repeats_magecraft_trigger"
@@ -104,7 +104,7 @@
     },
     "Bastion Protector": {
       "oracle_name": "Bastion Protector",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "indestructible_fails_minus_toughness"
       ],
@@ -156,7 +156,7 @@
     },
     "Blasphemous Act": {
       "oracle_name": "Blasphemous Act",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "boros_charm_protects_from_destroy_wipe"
       ],
@@ -168,7 +168,7 @@
     },
     "Bojuka Bog": {
       "oracle_name": "Bojuka Bog",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "bojuka_bog_exiles_target_graveyard"
       ],
@@ -180,7 +180,7 @@
     },
     "Boros Charm": {
       "oracle_name": "Boros Charm",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "boros_charm_protects_from_destroy_wipe",
         "indestructible_fails_exile",
@@ -204,7 +204,7 @@
     },
     "Braids, Arisen Nightmare": {
       "oracle_name": "Braids, Arisen Nightmare",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "braids_draws_for_each_decline"
       ],
@@ -306,7 +306,7 @@
     },
     "Combat Research": {
       "oracle_name": "Combat Research",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "combat_research_draw_trigger"
       ],
@@ -338,7 +338,7 @@
     },
     "Counterspell": {
       "oracle_name": "Counterspell",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "countered_commander_can_return_to_command",
         "kaervek_trigger_survives_counter"
@@ -361,7 +361,7 @@
     },
     "Culling Ritual": {
       "oracle_name": "Culling Ritual",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "culling_ritual_mana_per_destroyed_permanent"
       ],
@@ -413,7 +413,7 @@
     },
     "Dovin's Veto": {
       "oracle_name": "Dovin's Veto",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "dovins_veto_cannot_be_countered"
       ],
@@ -425,7 +425,7 @@
     },
     "Duelist's Heritage": {
       "oracle_name": "Duelist's Heritage",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "double_strike_counts_both_hits"
       ],
@@ -447,7 +447,7 @@
     },
     "Esior, Wardwing Familiar": {
       "oracle_name": "Esior, Wardwing Familiar",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "esior_taxes_opponent_targeting"
       ],
@@ -539,7 +539,7 @@
     },
     "Farewell": {
       "oracle_name": "Farewell",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "farewell_selected_modes_exile",
         "indestructible_fails_exile"
@@ -572,7 +572,7 @@
     },
     "Fire Covenant": {
       "oracle_name": "Fire Covenant",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "fire_covenant_pays_total_life"
       ],
@@ -614,7 +614,7 @@
     },
     "Goblin Bombardment": {
       "oracle_name": "Goblin Bombardment",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "goblin_bombardment_sacrifices_as_cost"
       ],
@@ -626,7 +626,7 @@
     },
     "God-Eternal Bontu": {
       "oracle_name": "God-Eternal Bontu",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "bontu_draws_per_sacrifice"
       ],
@@ -638,7 +638,7 @@
     },
     "Guttersnipe": {
       "oracle_name": "Guttersnipe",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "guttersnipe_hits_each_opponent"
       ],
@@ -680,7 +680,7 @@
     },
     "Idol of Oblivion": {
       "oracle_name": "Idol of Oblivion",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "idol_requires_token_this_turn"
       ],
@@ -732,7 +732,7 @@
     },
     "Ishai, Ojutai Dragonspeaker": {
       "oracle_name": "Ishai, Ojutai Dragonspeaker",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "commander_bounce_uses_replacement",
         "commander_damage_exactly_twenty_one",
@@ -770,7 +770,7 @@
     },
     "Jeska, Thrice Reborn": {
       "oracle_name": "Jeska, Thrice Reborn",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "jeska_triples_commander_combat_damage"
       ],
@@ -792,7 +792,7 @@
     },
     "Kaervek the Merciless": {
       "oracle_name": "Kaervek the Merciless",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "kaervek_trigger_survives_counter"
       ],
@@ -814,7 +814,7 @@
     },
     "Kediss, Emberclaw Familiar": {
       "oracle_name": "Kediss, Emberclaw Familiar",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "kediss_damage_is_not_commander_damage"
       ],
@@ -826,7 +826,7 @@
     },
     "Killer Service": {
       "oracle_name": "Killer Service",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "killer_service_scales_with_opponents",
         "killer_service_with_manufactor"
@@ -839,7 +839,7 @@
     },
     "Korvold, Fae-Cursed King": {
       "oracle_name": "Korvold, Fae-Cursed King",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "commander_dies_before_command_move",
         "commander_tax_third_cast",
@@ -855,7 +855,7 @@
     },
     "Kykar, Wind's Fury": {
       "oracle_name": "Kykar, Wind's Fury",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "kykar_creates_and_sacrifices_spirits"
       ],
@@ -877,7 +877,7 @@
     },
     "Lightning Greaves": {
       "oracle_name": "Lightning Greaves",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "lightning_greaves_shroud_blocks_own_target"
       ],
@@ -909,7 +909,7 @@
     },
     "Lofty Denial": {
       "oracle_name": "Lofty Denial",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "lofty_denial_tax_with_flyer"
       ],
@@ -931,7 +931,7 @@
     },
     "Loran's Escape": {
       "oracle_name": "Loran's Escape",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "lorans_escape_protection_package"
       ],
@@ -963,7 +963,7 @@
     },
     "Massacre Wurm": {
       "oracle_name": "Massacre Wurm",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "massacre_wurm_counts_opponent_deaths"
       ],
@@ -975,7 +975,7 @@
     },
     "Mayhem Devil": {
       "oracle_name": "Mayhem Devil",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "mayhem_devil_triggers_for_any_player"
       ],
@@ -987,7 +987,7 @@
     },
     "Mazirek, Kraul Death Priest": {
       "oracle_name": "Mazirek, Kraul Death Priest",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "mazirek_counters_all_your_creatures"
       ],
@@ -999,7 +999,7 @@
     },
     "Mirkwood Bats": {
       "oracle_name": "Mirkwood Bats",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "mirkwood_bats_counts_created_and_sacrificed_tokens"
       ],
@@ -1031,7 +1031,7 @@
     },
     "Narset, Parter of Veils": {
       "oracle_name": "Narset, Parter of Veils",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "narset_limits_opponent_draws"
       ],
@@ -1093,7 +1093,7 @@
     },
     "Ophiomancer": {
       "oracle_name": "Ophiomancer",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "ophiomancer_creates_snake_when_none",
         "ophiomancer_does_not_duplicate_snake"
@@ -1146,7 +1146,7 @@
     },
     "Pitiless Plunderer": {
       "oracle_name": "Pitiless Plunderer",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "pitiless_plunderer_ignores_tokens_and_self"
       ],
@@ -1208,7 +1208,7 @@
     },
     "Rakdos Charm": {
       "oracle_name": "Rakdos Charm",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "rakdos_charm_creature_mode",
         "rakdos_charm_graveyard_mode"
@@ -1221,7 +1221,7 @@
     },
     "Ramunap Excavator": {
       "oracle_name": "Ramunap Excavator",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "ramunap_uses_land_play"
       ],
@@ -1273,7 +1273,7 @@
     },
     "Rograkh, Son of Rohgahh": {
       "oracle_name": "Rograkh, Son of Rohgahh",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "commander_damage_not_combined"
       ],
@@ -1315,7 +1315,7 @@
     },
     "Silence": {
       "oracle_name": "Silence",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "silence_blocks_spells_not_abilities"
       ],
@@ -1337,7 +1337,7 @@
     },
     "Slip Out the Back": {
       "oracle_name": "Slip Out the Back",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "slip_out_avoids_wipe"
       ],
@@ -1399,7 +1399,7 @@
     },
     "Soul-Guide Lantern": {
       "oracle_name": "Soul-Guide Lantern",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "soul_guide_lantern_mass_exile"
       ],
@@ -1411,7 +1411,7 @@
     },
     "Splendid Reclamation": {
       "oracle_name": "Splendid Reclamation",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "splendid_reclamation_returns_tapped"
       ],
@@ -1453,7 +1453,7 @@
     },
     "Staggering Insight": {
       "oracle_name": "Staggering Insight",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "staggering_insight_draw_and_lifelink"
       ],
@@ -1465,7 +1465,7 @@
     },
     "Storm-Kiln Artist": {
       "oracle_name": "Storm-Kiln Artist",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "storm_kiln_artist_counts_casts_and_copies"
       ],
@@ -1527,7 +1527,7 @@
     },
     "Swiftfoot Boots": {
       "oracle_name": "Swiftfoot Boots",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "swiftfoot_boots_hexproof_allows_own_target"
       ],
@@ -1619,7 +1619,7 @@
     },
     "Tireless Provisioner": {
       "oracle_name": "Tireless Provisioner",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "tireless_provisioner_treasure_choice"
       ],
@@ -1631,7 +1631,7 @@
     },
     "Tireless Tracker": {
       "oracle_name": "Tireless Tracker",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "tireless_tracker_clue_and_counter"
       ],
@@ -1643,7 +1643,7 @@
     },
     "Titania, Protector of Argoth": {
       "oracle_name": "Titania, Protector of Argoth",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "titania_land_death_creates_elemental"
       ],
@@ -1655,7 +1655,7 @@
     },
     "Toxic Deluge": {
       "oracle_name": "Toxic Deluge",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "indestructible_fails_minus_toughness",
         "toxic_deluge_ignores_indestructible",
@@ -1699,7 +1699,7 @@
     },
     "Vandalblast": {
       "oracle_name": "Vandalblast",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "vandalblast_overload_has_no_targets"
       ],
@@ -1731,7 +1731,7 @@
     },
     "Veyran, Voice of Duality": {
       "oracle_name": "Veyran, Voice of Duality",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "veyran_repeats_magecraft_trigger"
       ],
@@ -1743,7 +1743,7 @@
     },
     "Wash Away": {
       "oracle_name": "Wash Away",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "wash_away_uncleaved_counters_commander"
       ],
@@ -1755,7 +1755,7 @@
     },
     "Wear // Tear": {
       "oracle_name": "Wear // Tear",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "wear_tear_fuse_from_hand"
       ],
@@ -1767,7 +1767,7 @@
     },
     "Whirlwind of Thought": {
       "oracle_name": "Whirlwind of Thought",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "whirlwind_triggers_on_cast_not_copy"
       ],
@@ -1789,7 +1789,7 @@
     },
     "Winds of Rath": {
       "oracle_name": "Winds of Rath",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "winds_of_rath_preserves_enchanted_creatures"
       ],
@@ -1801,7 +1801,7 @@
     },
     "Zuran Orb": {
       "oracle_name": "Zuran Orb",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "interaction_ids": [
         "zuran_orb_sacrifice_is_cost"
       ],
@@ -1815,7 +1815,7 @@
   "interactions": {
     "commander_tax_third_cast": {
       "interaction_id": "commander_tax_third_cast",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -1839,7 +1839,7 @@
     },
     "commander_damage_not_combined": {
       "interaction_id": "commander_damage_not_combined",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -1863,7 +1863,7 @@
     },
     "commander_damage_exactly_twenty_one": {
       "interaction_id": "commander_damage_exactly_twenty_one",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -1887,7 +1887,7 @@
     },
     "normal_damage_zero_life": {
       "interaction_id": "normal_damage_zero_life",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -1911,7 +1911,7 @@
     },
     "kediss_damage_is_not_commander_damage": {
       "interaction_id": "kediss_damage_is_not_commander_damage",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -1938,7 +1938,7 @@
     },
     "jeska_triples_commander_combat_damage": {
       "interaction_id": "jeska_triples_commander_combat_damage",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -1959,7 +1959,7 @@
     },
     "double_strike_counts_both_hits": {
       "interaction_id": "double_strike_counts_both_hits",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -1986,7 +1986,7 @@
     },
     "kaervek_trigger_survives_counter": {
       "interaction_id": "kaervek_trigger_survives_counter",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2010,7 +2010,7 @@
     },
     "silence_blocks_spells_not_abilities": {
       "interaction_id": "silence_blocks_spells_not_abilities",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2034,7 +2034,7 @@
     },
     "indestructible_survives_destroy": {
       "interaction_id": "indestructible_survives_destroy",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2055,7 +2055,7 @@
     },
     "indestructible_fails_minus_toughness": {
       "interaction_id": "indestructible_fails_minus_toughness",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2076,7 +2076,7 @@
     },
     "indestructible_fails_exile": {
       "interaction_id": "indestructible_fails_exile",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2097,7 +2097,7 @@
     },
     "boros_charm_protects_from_destroy_wipe": {
       "interaction_id": "boros_charm_protects_from_destroy_wipe",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2121,7 +2121,7 @@
     },
     "toxic_deluge_ignores_indestructible": {
       "interaction_id": "toxic_deluge_ignores_indestructible",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2152,7 +2152,7 @@
     },
     "fire_covenant_pays_total_life": {
       "interaction_id": "fire_covenant_pays_total_life",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2173,7 +2173,7 @@
     },
     "massacre_wurm_counts_opponent_deaths": {
       "interaction_id": "massacre_wurm_counts_opponent_deaths",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2194,7 +2194,7 @@
     },
     "culling_ritual_mana_per_destroyed_permanent": {
       "interaction_id": "culling_ritual_mana_per_destroyed_permanent",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2215,7 +2215,7 @@
     },
     "farewell_selected_modes_exile": {
       "interaction_id": "farewell_selected_modes_exile",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2245,7 +2245,7 @@
     },
     "vandalblast_overload_has_no_targets": {
       "interaction_id": "vandalblast_overload_has_no_targets",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2269,7 +2269,7 @@
     },
     "wear_tear_fuse_from_hand": {
       "interaction_id": "wear_tear_fuse_from_hand",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2296,7 +2296,7 @@
     },
     "countered_commander_can_return_to_command": {
       "interaction_id": "countered_commander_can_return_to_command",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2323,7 +2323,7 @@
     },
     "commander_dies_before_command_move": {
       "interaction_id": "commander_dies_before_command_move",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2347,7 +2347,7 @@
     },
     "commander_bounce_uses_replacement": {
       "interaction_id": "commander_bounce_uses_replacement",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2371,7 +2371,7 @@
     },
     "korvold_etb_sacrifice_generates_value": {
       "interaction_id": "korvold_etb_sacrifice_generates_value",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2398,7 +2398,7 @@
     },
     "korvold_no_other_permanent": {
       "interaction_id": "korvold_no_other_permanent",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2425,7 +2425,7 @@
     },
     "zuran_orb_sacrifice_is_cost": {
       "interaction_id": "zuran_orb_sacrifice_is_cost",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2452,7 +2452,7 @@
     },
     "academy_manufactor_replaces_each_token": {
       "interaction_id": "academy_manufactor_replaces_each_token",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2476,7 +2476,7 @@
     },
     "killer_service_scales_with_opponents": {
       "interaction_id": "killer_service_scales_with_opponents",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2503,7 +2503,7 @@
     },
     "killer_service_with_manufactor": {
       "interaction_id": "killer_service_with_manufactor",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2530,7 +2530,7 @@
     },
     "ophiomancer_creates_snake_when_none": {
       "interaction_id": "ophiomancer_creates_snake_when_none",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2548,7 +2548,7 @@
     },
     "ophiomancer_does_not_duplicate_snake": {
       "interaction_id": "ophiomancer_does_not_duplicate_snake",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2566,7 +2566,7 @@
     },
     "idol_requires_token_this_turn": {
       "interaction_id": "idol_requires_token_this_turn",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2587,7 +2587,7 @@
     },
     "titania_land_death_creates_elemental": {
       "interaction_id": "titania_land_death_creates_elemental",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2614,7 +2614,7 @@
     },
     "ramunap_uses_land_play": {
       "interaction_id": "ramunap_uses_land_play",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2635,7 +2635,7 @@
     },
     "splendid_reclamation_returns_tapped": {
       "interaction_id": "splendid_reclamation_returns_tapped",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2656,7 +2656,7 @@
     },
     "aftermath_analyst_sacrifices_and_returns_lands": {
       "interaction_id": "aftermath_analyst_sacrifices_and_returns_lands",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2680,7 +2680,7 @@
     },
     "tireless_provisioner_treasure_choice": {
       "interaction_id": "tireless_provisioner_treasure_choice",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2701,7 +2701,7 @@
     },
     "tireless_tracker_clue_and_counter": {
       "interaction_id": "tireless_tracker_clue_and_counter",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2725,7 +2725,7 @@
     },
     "mirkwood_bats_counts_created_and_sacrificed_tokens": {
       "interaction_id": "mirkwood_bats_counts_created_and_sacrificed_tokens",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2749,7 +2749,7 @@
     },
     "mayhem_devil_triggers_for_any_player": {
       "interaction_id": "mayhem_devil_triggers_for_any_player",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2770,7 +2770,7 @@
     },
     "mazirek_counters_all_your_creatures": {
       "interaction_id": "mazirek_counters_all_your_creatures",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2794,7 +2794,7 @@
     },
     "braids_draws_for_each_decline": {
       "interaction_id": "braids_draws_for_each_decline",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2818,7 +2818,7 @@
     },
     "bontu_draws_per_sacrifice": {
       "interaction_id": "bontu_draws_per_sacrifice",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2839,7 +2839,7 @@
     },
     "pitiless_plunderer_ignores_tokens_and_self": {
       "interaction_id": "pitiless_plunderer_ignores_tokens_and_self",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2857,7 +2857,7 @@
     },
     "goblin_bombardment_sacrifices_as_cost": {
       "interaction_id": "goblin_bombardment_sacrifices_as_cost",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2881,7 +2881,7 @@
     },
     "rakdos_charm_creature_mode": {
       "interaction_id": "rakdos_charm_creature_mode",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2905,7 +2905,7 @@
     },
     "rakdos_charm_graveyard_mode": {
       "interaction_id": "rakdos_charm_graveyard_mode",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2929,7 +2929,7 @@
     },
     "soul_guide_lantern_mass_exile": {
       "interaction_id": "soul_guide_lantern_mass_exile",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2956,7 +2956,7 @@
     },
     "bojuka_bog_exiles_target_graveyard": {
       "interaction_id": "bojuka_bog_exiles_target_graveyard",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2977,7 +2977,7 @@
     },
     "combat_research_draw_trigger": {
       "interaction_id": "combat_research_draw_trigger",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -2998,7 +2998,7 @@
     },
     "staggering_insight_draw_and_lifelink": {
       "interaction_id": "staggering_insight_draw_and_lifelink",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3019,7 +3019,7 @@
     },
     "ishai_only_opponent_spells_trigger": {
       "interaction_id": "ishai_only_opponent_spells_trigger",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3040,7 +3040,7 @@
     },
     "veyran_repeats_magecraft_trigger": {
       "interaction_id": "veyran_repeats_magecraft_trigger",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3058,7 +3058,7 @@
     },
     "guttersnipe_hits_each_opponent": {
       "interaction_id": "guttersnipe_hits_each_opponent",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3079,7 +3079,7 @@
     },
     "kykar_creates_and_sacrifices_spirits": {
       "interaction_id": "kykar_creates_and_sacrifices_spirits",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3100,7 +3100,7 @@
     },
     "storm_kiln_artist_counts_casts_and_copies": {
       "interaction_id": "storm_kiln_artist_counts_casts_and_copies",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3118,7 +3118,7 @@
     },
     "archmage_emeritus_counts_casts_and_copies": {
       "interaction_id": "archmage_emeritus_counts_casts_and_copies",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3136,7 +3136,7 @@
     },
     "whirlwind_triggers_on_cast_not_copy": {
       "interaction_id": "whirlwind_triggers_on_cast_not_copy",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3157,7 +3157,7 @@
     },
     "narset_limits_opponent_draws": {
       "interaction_id": "narset_limits_opponent_draws",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3178,7 +3178,7 @@
     },
     "esior_taxes_opponent_targeting": {
       "interaction_id": "esior_taxes_opponent_targeting",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3199,7 +3199,7 @@
     },
     "slip_out_avoids_wipe": {
       "interaction_id": "slip_out_avoids_wipe",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3223,7 +3223,7 @@
     },
     "lofty_denial_tax_with_flyer": {
       "interaction_id": "lofty_denial_tax_with_flyer",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3244,7 +3244,7 @@
     },
     "wash_away_uncleaved_counters_commander": {
       "interaction_id": "wash_away_uncleaved_counters_commander",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3265,7 +3265,7 @@
     },
     "offer_counters_noncreature_and_gives_treasures": {
       "interaction_id": "offer_counters_noncreature_and_gives_treasures",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3286,7 +3286,7 @@
     },
     "dovins_veto_cannot_be_countered": {
       "interaction_id": "dovins_veto_cannot_be_countered",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3310,7 +3310,7 @@
     },
     "winds_of_rath_preserves_enchanted_creatures": {
       "interaction_id": "winds_of_rath_preserves_enchanted_creatures",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3331,7 +3331,7 @@
     },
     "lorans_escape_protection_package": {
       "interaction_id": "lorans_escape_protection_package",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3358,7 +3358,7 @@
     },
     "lightning_greaves_shroud_blocks_own_target": {
       "interaction_id": "lightning_greaves_shroud_blocks_own_target",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3382,7 +3382,7 @@
     },
     "swiftfoot_boots_hexproof_allows_own_target": {
       "interaction_id": "swiftfoot_boots_hexproof_allows_own_target",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3406,7 +3406,7 @@
     },
     "apnap_trigger_order_four_player": {
       "interaction_id": "apnap_trigger_order_four_player",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3441,7 +3441,7 @@
     },
     "stack_resolves_last_in_first_out": {
       "interaction_id": "stack_resolves_last_in_first_out",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3467,7 +3467,7 @@
     },
     "zero_toughness_is_not_destroy": {
       "interaction_id": "zero_toughness_is_not_destroy",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3491,7 +3491,7 @@
     },
     "token_ceases_after_zone_change": {
       "interaction_id": "token_ceases_after_zone_change",
-      "level": "tactical_validated",
+      "level": "tactical_oracle",
       "passed": true,
       "backend": "tactical",
       "expected": {
@@ -3516,7 +3516,7 @@
   "rules_engine_cases": 0,
   "rules_engine_passed": 0,
   "notes": [
-    "tactical_validated is a bounded local model status, not a complete MTG rules proof",
-    "rules_engine_validated requires a matching XMage or Forge bridge observation"
+    "tactical_oracle is a bounded local model status, not a complete MTG rules proof",
+    "external_rules_engine requires a matching XMage or Forge bridge observation"
   ]
 }

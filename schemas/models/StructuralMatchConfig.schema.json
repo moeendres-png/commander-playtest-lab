@@ -3,6 +3,16 @@
     "PilotConfig": {
       "additionalProperties": false,
       "properties": {
+        "allowed_deviation": {
+          "default": 0.0,
+          "maximum": 2.0,
+          "minimum": 0.0,
+          "title": "Allowed Deviation",
+          "type": "number"
+        },
+        "information_policy": {
+          "$ref": "#/$defs/PilotInformationPolicy"
+        },
         "mistake_rate": {
           "anyOf": [
             {
@@ -21,9 +31,28 @@
           "$ref": "#/$defs/PilotDecisionMode",
           "default": "deterministic"
         },
+        "parameter_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameter Hash"
+        },
         "pilot_name": {
           "default": "auto",
           "title": "Pilot Name",
+          "type": "string"
+        },
+        "profile_version": {
+          "default": "1.0.0",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Profile Version",
           "type": "string"
         },
         "reserve_mana_target": {
@@ -40,9 +69,25 @@
           "default": null,
           "title": "Reserve Mana Target"
         },
+        "source_rule_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Rule Ids",
+          "type": "array"
+        },
         "strength": {
           "$ref": "#/$defs/PilotStrength",
           "default": "average"
+        },
+        "supported_deck_hashes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Supported Deck Hashes",
+          "type": "array"
         },
         "temperature": {
           "anyOf": [
@@ -80,6 +125,50 @@
       ],
       "title": "PilotDecisionMode",
       "type": "string"
+    },
+    "PilotInformationMode": {
+      "description": "Information boundary available to a structural pilot.\n\nCurrent production pilots are restricted to visible state plus explicitly\nmodelled public/known cards. No mode grants library-order or hidden-hand\naccess.",
+      "enum": [
+        "visible_only",
+        "visible_plus_known_cards"
+      ],
+      "title": "PilotInformationMode",
+      "type": "string"
+    },
+    "PilotInformationPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "exact_future_draws": {
+          "default": false,
+          "title": "Exact Future Draws",
+          "type": "boolean"
+        },
+        "hidden_opponent_hands": {
+          "default": false,
+          "title": "Hidden Opponent Hands",
+          "type": "boolean"
+        },
+        "mode": {
+          "$ref": "#/$defs/PilotInformationMode",
+          "default": "visible_plus_known_cards"
+        },
+        "opponent_hand_model": {
+          "default": "plausible_distribution",
+          "enum": [
+            "none",
+            "plausible_distribution"
+          ],
+          "title": "Opponent Hand Model",
+          "type": "string"
+        },
+        "random_library_order": {
+          "default": false,
+          "title": "Random Library Order",
+          "type": "boolean"
+        }
+      },
+      "title": "PilotInformationPolicy",
+      "type": "object"
     },
     "PilotStrength": {
       "enum": [
@@ -236,6 +325,24 @@
     "match_id": {
       "title": "Match Id",
       "type": "string"
+    },
+    "opening_hand_overrides": {
+      "default": [],
+      "items": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Opening Hand Overrides",
+      "type": "array"
     },
     "pilot_configs": {
       "default": [],

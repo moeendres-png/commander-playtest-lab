@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "commander": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commander"
+    },
+    "newer_snapshot_id": {
+      "title": "Newer Snapshot Id",
+      "type": "string"
+    },
+    "older_snapshot_id": {
+      "title": "Older Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "older_snapshot_id",
+    "newer_snapshot_id"
+  ],
+  "title": "CompareMetaPeriodsInput",
+  "type": "object"
+}

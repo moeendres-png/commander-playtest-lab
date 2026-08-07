@@ -20,7 +20,7 @@ def test_all_registered_tactical_interactions_match_expected_results(repo_root) 
     )
     results = [oracle.validate(case) for case in cases]
     assert all(result.passed for result in results)
-    assert all(result.level == ValidationLevel.TACTICAL_VALIDATED for result in results)
+    assert all(result.level == ValidationLevel.TACTICAL_ORACLE for result in results)
 
 
 def test_unknown_tactical_rule_is_rejected() -> None:

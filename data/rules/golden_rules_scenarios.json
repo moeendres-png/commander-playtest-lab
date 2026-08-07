@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "external_engine_execution_status": "blocked",
   "scenarios": [
     {
@@ -618,7 +618,7 @@
     {
       "scenario_id": "opponent_doctor_doom_artifact_villain",
       "cards": [
-        "Doctor Doom"
+        "Doctor Doom, King of Latveria"
       ],
       "interaction_ids": [],
       "structural_support": true,
@@ -643,5 +643,10 @@
       "coverage_status": "structural_only",
       "evidence_files": []
     }
-  ]
+  ],
+  "coverage_counts": {
+    "tactical_only": 25,
+    "structural_only": 9,
+    "unsupported": 3
+  }
 }

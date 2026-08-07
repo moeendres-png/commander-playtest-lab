@@ -1,0 +1,97 @@
+{
+  "$defs": {
+    "MulliganGamePlan": {
+      "enum": [
+        "balanced",
+        "commander_value",
+        "protected_commander",
+        "independent_engine",
+        "control",
+        "fast_pressure",
+        "rebuild"
+      ],
+      "title": "MulliganGamePlan",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "deck_hash": {
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "game_plan": {
+      "$ref": "#/$defs/MulliganGamePlan",
+      "default": "balanced"
+    },
+    "opponent_ensemble_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Opponent Ensemble Hash"
+    },
+    "opponent_ensemble_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Opponent Ensemble Id"
+    },
+    "pilot_profile_id": {
+      "default": "baseline",
+      "title": "Pilot Profile Id",
+      "type": "string"
+    },
+    "pilot_version": {
+      "default": "unspecified",
+      "title": "Pilot Version",
+      "type": "string"
+    },
+    "pod_size": {
+      "default": 4,
+      "maximum": 10,
+      "minimum": 2,
+      "title": "Pod Size",
+      "type": "integer"
+    },
+    "seat_position": {
+      "default": 1,
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Seat Position",
+      "type": "integer"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "starting_player": {
+      "default": false,
+      "title": "Starting Player",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "deck_id",
+    "deck_hash"
+  ],
+  "title": "MulliganContext",
+  "type": "object"
+}

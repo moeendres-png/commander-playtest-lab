@@ -10,6 +10,7 @@ from commander_lab.mcp import (
     LEGACY_MCP_PROTOCOL_VERSION,
     CommanderMcpServer,
 )
+from commander_lab.mcp.server import SERVER_VERSION
 
 ROOT = Path(__file__).resolve().parents[2]
 PROTOCOL_META = "io.modelcontextprotocol/protocolVersion"
@@ -134,5 +135,5 @@ def test_stdio_cancellation_interrupts_protocol_wrapper_without_waiting_for_tool
 
     assert code == 0
     assert 77 not in by_id
-    assert by_id[78]["result"]["_meta"][SERVER_META]["version"] == "1.10.3"
+    assert by_id[78]["result"]["_meta"][SERVER_META]["version"] == SERVER_VERSION
     assert elapsed < 0.75, f"cancellation wrapper blocked for {elapsed:.3f}s"

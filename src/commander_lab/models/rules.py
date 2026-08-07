@@ -11,8 +11,8 @@ from .game import ActionProposal, GameEvent, GameState, LegalAction
 
 class ValidationLevel(StrEnum):
     STRUCTURAL_ONLY = "structural_only"
-    TACTICAL_VALIDATED = "tactical_validated"
-    RULES_ENGINE_VALIDATED = "rules_engine_validated"
+    TACTICAL_ORACLE = "tactical_oracle"
+    EXTERNAL_RULES_ENGINE = "external_rules_engine"
 
 
 class RulesBackend(StrEnum):

@@ -21,4 +21,4 @@ def test_phase85_restricted_acceptance_is_explicit(repo_root: Path, tmp_path: Pa
     assert result["external_engine_validation_pending"] is True
     assert result["phase9_condition"] == "external_engine_validation_pending=true"
     assert canonical_state.read_bytes() == state_before
-    assert all(item["status"] != "rules_engine_validated" for item in result["project_scenarios"])
+    assert all(item["status"] != "external_rules_engine" for item in result["project_scenarios"])

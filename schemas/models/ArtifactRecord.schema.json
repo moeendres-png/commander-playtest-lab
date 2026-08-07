@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "VerificationStatus": {
+      "enum": [
+        "verified",
+        "hash_verified",
+        "partially_verified",
+        "unverified",
+        "superseded",
+        "missing"
+      ],
+      "title": "VerificationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_id": {
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "artifact_type": {
+      "title": "Artifact Type",
+      "type": "string"
+    },
+    "content_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Content Hash",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "derived_from": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Derived From",
+      "type": "array"
+    },
+    "git_commit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Git Commit"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "package_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Package Version"
+    },
+    "path_or_drive_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Path Or Drive Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "transformation_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Transformation Ids",
+      "type": "array"
+    },
+    "verification_status": {
+      "$ref": "#/$defs/VerificationStatus",
+      "default": "unverified"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "artifact_type",
+    "title",
+    "content_hash"
+  ],
+  "title": "ArtifactRecord",
+  "type": "object"
+}

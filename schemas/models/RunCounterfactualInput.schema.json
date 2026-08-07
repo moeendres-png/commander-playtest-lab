@@ -1,0 +1,78 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "alternative_action": {
+      "title": "Alternative Action",
+      "type": "string"
+    },
+    "engine_mode": {
+      "default": "structural",
+      "title": "Engine Mode",
+      "type": "string"
+    },
+    "event_offset": {
+      "minimum": 0,
+      "title": "Event Offset",
+      "type": "integer"
+    },
+    "expected_state_hash": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected State Hash"
+    },
+    "future_samples": {
+      "default": 1,
+      "maximum": 10000,
+      "minimum": 1,
+      "title": "Future Samples",
+      "type": "integer"
+    },
+    "hidden_information_policy": {
+      "default": "public_information_only",
+      "title": "Hidden Information Policy",
+      "type": "string"
+    },
+    "output_name": {
+      "default": "counterfactual_result.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "seed_policy": {
+      "default": "same_seed",
+      "title": "Seed Policy",
+      "type": "string"
+    },
+    "source_path": {
+      "title": "Source Path",
+      "type": "string"
+    },
+    "workers": {
+      "default": 1,
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "source_path",
+    "event_offset",
+    "alternative_action"
+  ],
+  "title": "RunCounterfactualInput",
+  "type": "object"
+}

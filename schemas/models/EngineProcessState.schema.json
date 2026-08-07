@@ -23,14 +23,29 @@
           "title": "Commander Tax Visible",
           "type": "boolean"
         },
+        "concede_supported": {
+          "default": false,
+          "title": "Concede Supported",
+          "type": "boolean"
+        },
         "deck_import_supported": {
           "default": false,
           "title": "Deck Import Supported",
           "type": "boolean"
         },
+        "engine_shutdown_supported": {
+          "default": false,
+          "title": "Engine Shutdown Supported",
+          "type": "boolean"
+        },
         "event_log_supported": {
           "default": false,
           "title": "Event Log Supported",
+          "type": "boolean"
+        },
+        "game_shutdown_supported": {
+          "default": false,
+          "title": "Game Shutdown Supported",
           "type": "boolean"
         },
         "headless_supported": {
@@ -60,6 +75,16 @@
           ],
           "default": null,
           "title": "Max Players"
+        },
+        "mode_selection_supported": {
+          "default": false,
+          "title": "Mode Selection Supported",
+          "type": "boolean"
+        },
+        "mulligan_supported": {
+          "default": false,
+          "title": "Mulligan Supported",
+          "type": "boolean"
         },
         "multiplayer_supported": {
           "default": false,
@@ -118,6 +143,16 @@
           "default": false,
           "title": "Starting State Injection Supported",
           "type": "boolean"
+        },
+        "target_selection_supported": {
+          "default": false,
+          "title": "Target Selection Supported",
+          "type": "boolean"
+        },
+        "trigger_order_supported": {
+          "default": false,
+          "title": "Trigger Order Supported",
+          "type": "boolean"
         }
       },
       "title": "EngineCapabilityHandshake",
@@ -144,7 +179,7 @@
   "additionalProperties": false,
   "properties": {
     "adapter_version": {
-      "default": "commander-lab-protocol-1.0.0",
+      "default": "commander-lab-protocol-2.0.0",
       "title": "Adapter Version",
       "type": "string"
     },
@@ -206,7 +241,7 @@
       "title": "Pid"
     },
     "protocol_version": {
-      "default": "1.0.0",
+      "default": "2.0.0",
       "title": "Protocol Version",
       "type": "string"
     },

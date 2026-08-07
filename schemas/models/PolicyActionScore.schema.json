@@ -1,0 +1,58 @@
+{
+  "$defs": {
+    "PolicyDecisionTrace": {
+      "additionalProperties": false,
+      "properties": {
+        "adjustment": {
+          "title": "Adjustment",
+          "type": "number"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "adjustment",
+        "reason"
+      ],
+      "title": "PolicyDecisionTrace",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "title": "Action Id",
+      "type": "string"
+    },
+    "baseline_score": {
+      "title": "Baseline Score",
+      "type": "number"
+    },
+    "overlay_score": {
+      "title": "Overlay Score",
+      "type": "number"
+    },
+    "triggered_rules": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PolicyDecisionTrace"
+      },
+      "title": "Triggered Rules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "action_id",
+    "baseline_score",
+    "overlay_score"
+  ],
+  "title": "PolicyActionScore",
+  "type": "object"
+}

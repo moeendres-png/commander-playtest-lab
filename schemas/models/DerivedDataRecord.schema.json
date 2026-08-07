@@ -1,0 +1,80 @@
+{
+  "$defs": {
+    "VerificationStatus": {
+      "enum": [
+        "verified",
+        "hash_verified",
+        "partially_verified",
+        "unverified",
+        "superseded",
+        "missing"
+      ],
+      "title": "VerificationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "content_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Content Hash",
+      "type": "string"
+    },
+    "data_type": {
+      "title": "Data Type",
+      "type": "string"
+    },
+    "derived_from": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Derived From",
+      "type": "array"
+    },
+    "derived_id": {
+      "title": "Derived Id",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "model_label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model Label"
+    },
+    "transformation_id": {
+      "title": "Transformation Id",
+      "type": "string"
+    },
+    "verification_status": {
+      "$ref": "#/$defs/VerificationStatus",
+      "default": "unverified"
+    }
+  },
+  "required": [
+    "derived_id",
+    "data_type",
+    "content_hash",
+    "derived_from",
+    "transformation_id"
+  ],
+  "title": "DerivedDataRecord",
+  "type": "object"
+}

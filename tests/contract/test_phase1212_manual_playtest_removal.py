@@ -6,6 +6,8 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from commander_lab.cli.app import app
+from commander_lab.models import RuntimeValidationLevel
+from commander_lab.models.rules import ValidationLevel
 from commander_lab.storage import check_database, migrate_database
 from commander_lab.tools.registry import TOOL_DEFINITIONS
 
@@ -74,3 +76,26 @@ def test_database_migration_removes_known_legacy_manual_playtest_tables(tmp_path
         }
     )
     assert check_database(database)["manual_playtest_migration_status"] == "removed_legacy_tables"
+
+
+def test_active_validation_levels_are_exactly_the_non_empirical_three() -> None:
+    expected = {"structural_only", "tactical_oracle", "external_rules_engine"}
+    assert {item.value for item in ValidationLevel} == expected
+    assert {item.value for item in RuntimeValidationLevel} == expected
+
+
+def test_removed_manual_playtest_models_and_schemas_are_not_active(repo_root: Path) -> None:
+    schema_names = {path.name.lower() for path in (repo_root / "schemas/models").glob("*.json")}
+    assert not any("playtest" in name or "calibrat" in name for name in schema_names)
+    source_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in (repo_root / "src").rglob("*.py")
+    )
+    for token in (
+        "real_playtest_observed",
+        "real_playtest_calibration_status",
+        "real_imported_games",
+        "ingest_playtest",
+        "ingest_local_game",
+    ):
+        assert token not in source_text

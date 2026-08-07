@@ -1,0 +1,75 @@
+{
+  "$defs": {
+    "ArchetypeName": {
+      "enum": [
+        "sacrifice",
+        "land_engine",
+        "graveyard_recursion",
+        "commander_value",
+        "voltron",
+        "tempo",
+        "control",
+        "spellslinger",
+        "artifact_engine",
+        "go_wide",
+        "punisher",
+        "combo",
+        "stax",
+        "midrange",
+        "turbo"
+      ],
+      "title": "ArchetypeName",
+      "type": "string"
+    },
+    "ExtractionMethod": {
+      "enum": [
+        "rule_roles",
+        "card_frequency",
+        "co_occurrence",
+        "primer_hint",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "title": "ExtractionMethod",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "archetype": {
+      "$ref": "#/$defs/ArchetypeName"
+    },
+    "evidence": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExtractionMethod"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "weight": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Weight",
+      "type": "number"
+    }
+  },
+  "required": [
+    "archetype",
+    "weight"
+  ],
+  "title": "ArchetypeWeight",
+  "type": "object"
+}

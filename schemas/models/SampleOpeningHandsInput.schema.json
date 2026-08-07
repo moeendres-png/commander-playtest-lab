@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "max_mulligans": {
+      "default": 6,
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Max Mulligans",
+      "type": "integer"
+    },
+    "samples": {
+      "default": 1000,
+      "maximum": 5000000,
+      "minimum": 1,
+      "title": "Samples",
+      "type": "integer"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "SampleOpeningHandsInput",
+  "type": "object"
+}

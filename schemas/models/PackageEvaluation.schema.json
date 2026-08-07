@@ -1,0 +1,160 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "automatic_deck_application": {
+      "default": false,
+      "title": "Automatic Deck Application",
+      "type": "boolean"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "context_compatible": {
+      "title": "Context Compatible",
+      "type": "boolean"
+    },
+    "dead_support_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Dead Support Cards",
+      "type": "array"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "density": {
+      "minimum": 0,
+      "title": "Density",
+      "type": "integer"
+    },
+    "diminishing_marginal_utility": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Diminishing Marginal Utility",
+      "type": "number"
+    },
+    "failure_modes_triggered": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Modes Triggered",
+      "type": "array"
+    },
+    "fragile_card": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fragile Card"
+    },
+    "key_card": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Key Card"
+    },
+    "minimum_density": {
+      "minimum": 1,
+      "title": "Minimum Density",
+      "type": "integer"
+    },
+    "minimum_density_met": {
+      "title": "Minimum Density Met",
+      "type": "boolean"
+    },
+    "missing_core_cards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Core Cards",
+      "type": "array"
+    },
+    "package_completeness": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Package Completeness",
+      "type": "number"
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "package_version": {
+      "title": "Package Version",
+      "type": "string"
+    },
+    "payoffs_without_enabler": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Payoffs Without Enabler",
+      "type": "array"
+    },
+    "present_cards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Present Cards",
+      "type": "array"
+    },
+    "redundancy_met": {
+      "title": "Redundancy Met",
+      "type": "boolean"
+    },
+    "redundancy_present": {
+      "minimum": 0,
+      "title": "Redundancy Present",
+      "type": "integer"
+    },
+    "redundancy_required": {
+      "minimum": 1,
+      "title": "Redundancy Required",
+      "type": "integer"
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "package_id",
+    "package_version",
+    "deck_hash",
+    "commander",
+    "present_cards",
+    "missing_core_cards",
+    "package_completeness",
+    "density",
+    "minimum_density",
+    "minimum_density_met",
+    "redundancy_present",
+    "redundancy_required",
+    "redundancy_met",
+    "diminishing_marginal_utility",
+    "context_compatible"
+  ],
+  "title": "PackageEvaluation",
+  "type": "object"
+}

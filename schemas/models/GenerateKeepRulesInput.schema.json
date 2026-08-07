@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "default": "generated_keep_rules.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "result_path": {
+      "title": "Result Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "result_path"
+  ],
+  "title": "GenerateKeepRulesInput",
+  "type": "object"
+}
