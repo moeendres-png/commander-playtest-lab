@@ -120,9 +120,10 @@ jobs:
         with:
           name: ci-evidence
           path: |
-            artifacts/audit/
-            PHASE86_VALIDATION_OUTPUT.json
+            .runtime/audit/phase86/artifacts/audit/
+            .runtime/audit/phase86/PHASE86_VALIDATION_OUTPUT.json
             dist/
+          include-hidden-files: true
           if-no-files-found: warn
 
   security:
