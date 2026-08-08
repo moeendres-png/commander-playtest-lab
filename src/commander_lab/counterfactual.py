@@ -330,8 +330,11 @@ class CounterfactualReplayLab:
         self.verify_branchpoint(branch, expected_state_hash)
         if workers < 1:
             raise CounterfactualError("workers must be positive")
-        if engine_mode == CounterfactualEngineMode.EXTERNAL_ENGINE and not self.external_engine_available:
-            raise CounterfactualError("external engine is not available; no external validation can be claimed")
+        if engine_mode == CounterfactualEngineMode.EXTERNAL_ENGINE:
+            raise CounterfactualError(
+                "external engine is not available for counterfactual execution; "
+                "no external validation can be claimed until an executor is implemented"
+            )
         if future_samples < 1:
             raise CounterfactualError("future_samples must be positive")
         if hidden_information_policy == HiddenInformationPolicy.SAME_REALIZED_FUTURE:
@@ -464,6 +467,7 @@ class CounterfactualReplayLab:
                 "engine_mode": engine_mode,
                 "seed_policy": seed_policy,
                 "hidden_information_policy": hidden_information_policy,
+                "validation_level": validation_level,
             }),
             alternative_action=alternative_action,
             state_diff=diff,

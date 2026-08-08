@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import itertools
 import json
 import subprocess
@@ -275,6 +276,115 @@ class CommanderToolService:
         except (OSError, subprocess.CalledProcessError):
             return None
 
+    @staticmethod
+    def _raw_file_hash(path: Path) -> str:
+        if not path.is_file():
+            raise ToolExecutionError(f"run identity source is missing: {path}")
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    def _aggregate_file_hash(self, paths: tuple[Path, ...]) -> str:
+        rows = []
+        for path in sorted(paths, key=lambda item: item.as_posix()):
+            if not path.is_file():
+                continue
+            rows.append({
+                "path": path.relative_to(self.root).as_posix(),
+                "sha256": self._raw_file_hash(path),
+            })
+        if not rows:
+            raise ToolExecutionError("run identity requires at least one existing source file")
+        return sha256_value(rows)
+
+    def _run_identity(self, scenario: object, deck_ids: tuple[str, ...]) -> dict[str, Any]:
+        source_registry = self.root / "data/sync/current_sources.json"
+        source_payload = json.loads(source_registry.read_text(encoding="utf-8"))
+        inventory_spec = source_payload.get("sources", {}).get("inventory", {})
+        inventory_import_path = inventory_spec.get("import_path")
+        if not inventory_import_path:
+            raise ToolExecutionError("canonical inventory source has no import_path")
+        inventory_path = self._project_path(str(inventory_import_path))
+        pilot_registry = self.root / "data/pilots/pilot_registry.json"
+        robustness_registry = self.root / "data/robustness/pilot_and_politics_registry.json"
+        opponent_registry = self.root / "data/opponents/opponent_registry.json"
+        opponent_profiles = self.root / "data/opponents/current_structural_profiles.json"
+        deck_manifest = self.root / "data/decks/manifest.json"
+        allocation_snapshot = self.root / "data/collections/current_deck_allocations.json"
+        structural_profiles = self.root / "data/cards/structural_role_profiles.json"
+        candidate_snapshot = self.root / "data/cards/phase5_upgrade_candidates.json"
+        meta_latest = self.root / "data/meta/manifests/latest.json"
+        mulligan_registry = self.root / "data/mulligan_lab/policies/policy_registry.json"
+        robustness_policy = self.root / "data/robustness/policy_tournament_result.json"
+
+        meta_pointer = json.loads(meta_latest.read_text(encoding="utf-8"))
+        meta_path = self._project_path(str(meta_pointer["path"]))
+        pilot_payload = json.loads(pilot_registry.read_text(encoding="utf-8"))
+        pilot_parameter_hashes = {
+            str(row["profile_id"]): str(row["parameter_hash"])
+            for row in pilot_payload.get("profiles", [])
+            if row.get("profile_id") and row.get("parameter_hash")
+        }
+        if not pilot_parameter_hashes:
+            raise ToolExecutionError("pilot registry contains no parameter hashes")
+
+        policy_paths = tuple((self.root / "data/primer_rules/policies").glob("*.json")) + (
+            mulligan_registry,
+            robustness_policy,
+        )
+        policy_hash = self._aggregate_file_hash(policy_paths)
+        ensemble_paths = tuple((self.root / "data/opponent_ensembles").glob("*.json"))
+        ensemble_hash = self._aggregate_file_hash(ensemble_paths)
+        data_snapshot_hashes = {
+            "deck_manifest": self._raw_file_hash(deck_manifest),
+            "allocation_snapshot": self._raw_file_hash(allocation_snapshot),
+            "structural_profiles": self._raw_file_hash(structural_profiles),
+            "candidate_snapshot": self._raw_file_hash(candidate_snapshot),
+            "source_registry": self._raw_file_hash(source_registry),
+            "pilot_registry": self._raw_file_hash(pilot_registry),
+            "robustness_registry": self._raw_file_hash(robustness_registry),
+            "opponent_registry": self._raw_file_hash(opponent_registry),
+            "opponent_profiles": self._raw_file_hash(opponent_profiles),
+            "opponent_ensembles": ensemble_hash,
+            "meta_manifest": self._raw_file_hash(meta_latest),
+            "meta_snapshot": self._raw_file_hash(meta_path),
+            "policy_set": policy_hash,
+        }
+        for source_name, spec in source_payload.get("sources", {}).items():
+            import_path = spec.get("import_path") if isinstance(spec, dict) else None
+            if import_path:
+                data_snapshot_hashes[f"source:{source_name}"] = self._raw_file_hash(
+                    self._project_path(str(import_path))
+                )
+        deck_hashes = {
+            deck_id: self._deck(deck_id).deck_hash
+            for deck_id in deck_ids
+            if deck_id in self.decks
+        }
+        opponent_hashes = {
+            deck_id: self._deck(deck_id).deck_hash
+            for deck_id in deck_ids[1:]
+            if deck_id in self.decks
+        }
+        identity = {
+            "git_commit": self.git_commit,
+            "engine_version": ENGINE_VERSION,
+            "data_snapshot_hash": str(self.manifest["data_snapshot_hash"]),
+            "data_snapshot_hashes": data_snapshot_hashes,
+            "inventory_hash": self._raw_file_hash(inventory_path),
+            "deck_hashes": deck_hashes,
+            "opponent_hashes": opponent_hashes,
+            "opponent_registry_hash": data_snapshot_hashes["opponent_registry"],
+            "pilot_hashes": {
+                "pilot_registry": data_snapshot_hashes["pilot_registry"],
+                "robustness_registry": data_snapshot_hashes["robustness_registry"],
+            },
+            "pilot_parameter_hashes": pilot_parameter_hashes,
+            "policy_hash": policy_hash,
+            "meta_snapshot_hash": data_snapshot_hashes["meta_snapshot"],
+            "scenario_hash": sha256_value(scenario),
+        }
+        identity["run_identity_hash"] = sha256_value(identity)
+        return identity
+
     def _check_iterations(self, iterations: int, approval_token: str | None) -> None:
         if iterations > self.limits.hard_max_iterations:
             raise ToolExecutionError(
@@ -515,18 +625,28 @@ class CommanderToolService:
         iterations: int | None = None,
         log_dir: str | None = None,
         estimate_type: str = "structural_model_estimates",
+        run_identity: dict[str, Any] | None = None,
     ) -> ToolExecutionMetadata:
+        identity = run_identity or self._run_identity(scenario, deck_ids)
         return ToolExecutionMetadata(
             tool_name=tool_name,
             invocation_id=invocation_id,
             created_at=datetime.now(UTC),
             git_commit=self.git_commit,
             engine_version=ENGINE_VERSION,
-            data_snapshot_hash=str(self.manifest["data_snapshot_hash"]),
-            deck_hashes={deck_id: self._deck(deck_id).deck_hash for deck_id in deck_ids if deck_id in self.decks},
-            scenario_hash=sha256_value(scenario),
+            data_snapshot_hash=identity["data_snapshot_hash"],
+            data_snapshot_hashes=identity["data_snapshot_hashes"],
+            inventory_hash=identity["inventory_hash"],
+            deck_hashes=identity["deck_hashes"],
+            opponent_hashes=identity["opponent_hashes"],
+            opponent_registry_hash=identity["opponent_registry_hash"],
+            pilot_hashes=identity["pilot_hashes"],
+            pilot_parameter_hashes=identity["pilot_parameter_hashes"],
+            policy_hash=identity["policy_hash"],
+            meta_snapshot_hash=identity["meta_snapshot_hash"],
+            scenario_hash=identity["scenario_hash"],
             configuration_hash=sha256_value(scenario),
-            opponent_hashes={deck_id: self._deck(deck_id).deck_hash for deck_id in deck_ids[1:] if deck_id in self.decks},
+            run_identity_hash=identity["run_identity_hash"],
             pilot_version=(scenario.get("pilot_version") if isinstance(scenario, dict) else None) or (str(scenario.get("pilot_strength")) if isinstance(scenario, dict) and scenario.get("pilot_strength") else "unspecified"),
             seed=seed,
             iterations=iterations,
@@ -550,8 +670,17 @@ class CommanderToolService:
     ) -> ToolResponse:
         started = time.monotonic()
         invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"
+        scenario = request.model_dump(mode="json") if hasattr(request, "model_dump") else request
+        identity_before = self._run_identity(scenario, deck_ids)
+        identity_mutators = {"create_meta_snapshot", "compile_pilot_policy"}
         try:
             result = fn()
+            if tool_name not in identity_mutators:
+                identity_after = self._run_identity(scenario, deck_ids)
+                if identity_after["run_identity_hash"] != identity_before["run_identity_hash"]:
+                    raise ToolExecutionError(
+                        "run identity drift detected during tool execution; result rejected"
+                    )
             elapsed = time.monotonic() - started
             if elapsed > self.limits.max_simulation_seconds:
                 raise ToolExecutionError(
@@ -574,12 +703,13 @@ class CommanderToolService:
             tool_name=tool_name,
             invocation_id=invocation_id,
             started=started,
-            scenario=request.model_dump(mode="json") if hasattr(request, "model_dump") else request,
+            scenario=scenario,
             deck_ids=deck_ids,
             seed=seed,
             iterations=iterations,
             log_dir=log_dir,
             estimate_type=estimate_type,
+            run_identity=identity_before,
         )
         return ToolResponse(status=status, metadata=metadata, result=result, warnings=warnings, errors=errors)
 
@@ -1080,6 +1210,11 @@ class CommanderToolService:
     def run_policy_eval(self, request: RunPolicyEvalInput) -> ToolResponse:
         def work() -> dict[str, Any]:
             policy = CompiledPilotPolicy.model_validate_json(self._project_path(request.policy_path).read_text(encoding="utf-8"))
+            deck = self._deck(request.deck_id)
+            if policy.deck_hash != deck.deck_hash:
+                raise ToolExecutionError(
+                    f"policy deck_hash {policy.deck_hash} does not match current deck {deck.deck_hash}"
+                )
             payload = json.loads(self._project_path(request.scenario_path).read_text(encoding="utf-8"))
             rows = payload.get("scenarios", payload) if isinstance(payload, dict) else payload
             parsed_scenarios = tuple(PolicyEvalScenario.model_validate(row) for row in rows)
@@ -1091,7 +1226,6 @@ class CommanderToolService:
             )
             if not scenarios:
                 raise ToolExecutionError("scenario file contains no entries compatible with the selected policy")
-            deck = self._deck(request.deck_id)
             pilot = build_pilot(PilotConfig(pilot_name=policy.base_pilot_name), strategy=request.strategy)
             results = self._primer_compiler().evaluate_policy(
                 base_pilot=pilot, policy=policy, scenarios=scenarios,

@@ -45,10 +45,18 @@ class ToolExecutionMetadata(FrozenModel):
     git_commit: str | None = None
     engine_version: str
     data_snapshot_hash: str
+    data_snapshot_hashes: dict[str, str]
+    inventory_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     deck_hashes: dict[str, str] = Field(default_factory=dict)
+    opponent_hashes: dict[str, str] = Field(default_factory=dict)
+    opponent_registry_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    pilot_hashes: dict[str, str]
+    pilot_parameter_hashes: dict[str, str]
+    policy_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    meta_snapshot_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     scenario_hash: str
     configuration_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
-    opponent_hashes: dict[str, str] = Field(default_factory=dict)
+    run_identity_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     pilot_version: str | None = None
     seed: int | None = None
     iterations: int | None = None
