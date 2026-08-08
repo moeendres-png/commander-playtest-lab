@@ -74,8 +74,11 @@ def build_synthetic_deck_profile(
         mv: float,
         roles: set[CardRole],
         *,
+        strength: float = 1.0,
         power: float = 0.0,
         permanent: bool = False,
+        creature: bool = False,
+        multiplayer: float = 0.0,
         colors: frozenset[Color] = frozenset(),
     ) -> None:
         for index in range(count):
@@ -84,8 +87,11 @@ def build_synthetic_deck_profile(
                     f"{prefix} {label} {index:02d}",
                     mv,
                     roles,
+                    strength=strength,
                     power=power,
                     permanent=permanent,
+                    creature=creature,
+                    multiplayer=multiplayer,
                     colors=colors,
                 )
             )
@@ -339,9 +345,9 @@ def build_current_opponent_profiles(
                 slot = (role_index * 11 + offset * 7) % slot_count
                 slot_roles[slot].add(role)
         for index, role_set in enumerate(slot_roles):
-            roles = role_set or {CardRole.ENABLER}
+            card_roles = role_set or {CardRole.ENABLER}
             creature = bool(
-                roles
+                card_roles
                 & {
                     CardRole.ENGINE,
                     CardRole.ENABLER,
@@ -351,32 +357,32 @@ def build_current_opponent_profiles(
                     CardRole.TOKEN_SOURCE,
                 }
             )
-            mana_value = sum(role_mv.get(role, 3.0) for role in roles) / len(roles)
+            mana_value = sum(role_mv.get(role, 3.0) for role in card_roles) / len(card_roles)
             cards.append(
                 StructuralCardProfile(
                     oracle_name=f"{deck_id} role card {index:03d}",
                     mana_value=mana_value,
-                    roles=frozenset(roles),
-                    role_strengths={role: 1.0 for role in roles},
+                    roles=frozenset(card_roles),
+                    role_strengths={role: 1.0 for role in card_roles},
                     is_permanent=not bool(
-                        roles
+                        card_roles
                         & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.SELECTION}
                     ),
                     is_creature=creature,
                     base_power=3.0 if creature else 0.0,
                     commander_synergy=0.45
-                    if roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF}
+                    if card_roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF}
                     else 0.15,
                     floor_value=0.72,
                     immediate_impact=0.8
-                    if roles
+                    if card_roles
                     & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.PROTECTION}
                     else 0.55,
                     turn_cycle_risk=0.25
-                    if roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION}
+                    if card_roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION}
                     else 0.5,
                     multiplayer_scaling=0.45
-                    if roles
+                    if card_roles
                     & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER, CardRole.TOKEN_SOURCE}
                     else 0.1,
                     source_quality=quality,

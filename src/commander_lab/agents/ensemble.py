@@ -66,10 +66,12 @@ def _profile(
         "description": description,
         "is_baseline": baseline,
     }
-    return PilotProfile(
-        profile_id=f"{family}.{pilot_name.casefold()}.v1",
-        parameter_hash=_canonical_hash(body),
-        **body,
+    return PilotProfile.model_validate(
+        {
+            "profile_id": f"{family}.{pilot_name.casefold()}.v1",
+            "parameter_hash": _canonical_hash(body),
+            **body,
+        }
     )
 
 

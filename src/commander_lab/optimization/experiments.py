@@ -184,11 +184,6 @@ def run_paired_structural_comparison(
         baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
         variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
         configs = (pilot_config,) * len(baseline_ids)
-        common = dict(
-            seed=match_seed,
-            starting_player_seat=start,
-            pilot_configs=configs,
-        )
         from commander_lab.models import StructuralAbortLimits
 
         limits = StructuralAbortLimits(max_turns=max_turns)
@@ -197,7 +192,9 @@ def run_paired_structural_comparison(
                 match_id=f"{pair_id}-base-{index:08d}",
                 deck_ids=baseline_ids,
                 limits=limits,
-                **common,
+                seed=match_seed,
+                starting_player_seat=start,
+                pilot_configs=configs,
             ),
             run_id=f"{pair_id}-baseline",
         )
@@ -206,7 +203,9 @@ def run_paired_structural_comparison(
                 match_id=f"{pair_id}-variant-{index:08d}",
                 deck_ids=variant_ids,
                 limits=limits,
-                **common,
+                seed=match_seed,
+                starting_player_seat=start,
+                pilot_configs=configs,
             ),
             run_id=f"{pair_id}-variant",
         )
@@ -244,13 +243,14 @@ def run_paired_structural_comparison(
             }
         )
 
-    def avg(rows, key):
+    def avg(rows: list[dict[str, float]], key: str) -> float:
         return fmean(row[key] for row in rows)
 
     base_place = avg(base_rows, "placement")
     var_place = avg(var_rows, "placement")
     differences = tuple(
-        float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs
+        base_row["placement"] - variant_row["placement"]
+        for base_row, variant_row in zip(base_rows, var_rows, strict=True)
     )
     interval = paired_bootstrap_interval(
         differences, seed=derive_paired_seed(seed, pair_id, iterations + 1)
@@ -278,7 +278,7 @@ def run_paired_structural_comparison(
         failed_runs=0,
         discarded_runs=0,
         actual_sample_size=len(pairs),
-        seeds=tuple(int(row["seed"]) for row in pairs),
+        seeds=tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations)),
         worker_count=1,
         validation_level="structural_only",
         paired_or_unpaired="paired",

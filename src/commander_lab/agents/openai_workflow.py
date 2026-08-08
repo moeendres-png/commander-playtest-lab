@@ -154,7 +154,7 @@ def _budget_hooks(
     tracker: WorkflowBudgetTracker,
     trace: LocalAgentTraceRecorder,
 ) -> Any:
-    class BudgetHooks(sdk["RunHooks"]):
+    class BudgetHookMethods:
         def __init__(self) -> None:
             self.started_calls = 0
 
@@ -233,7 +233,20 @@ def _budget_hooks(
                 },
             )
 
-    return BudgetHooks()
+    run_hooks_base = sdk["RunHooks"]
+    budget_hooks_type = type(
+        "BudgetHooks",
+        (run_hooks_base,),
+        {
+            "__init__": BudgetHookMethods.__init__,
+            "_usage": staticmethod(BudgetHookMethods._usage),
+            "on_llm_start": BudgetHookMethods.on_llm_start,
+            "on_llm_end": BudgetHookMethods.on_llm_end,
+            "on_tool_start": BudgetHookMethods.on_tool_start,
+            "on_tool_end": BudgetHookMethods.on_tool_end,
+        },
+    )
+    return budget_hooks_type()
 
 
 def build_agent_runtime(
