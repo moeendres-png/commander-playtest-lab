@@ -8,7 +8,7 @@ from .common import Color, DataQuality, FrozenModel, MutableModel, SourceRef
 from .pilots import PilotConfig
 from .roles import CardRole
 
-STRUCTURAL_ESTIMATE_TYPE = "structural_model_estimates"
+STRUCTURAL_ESTIMATE_TYPE: Literal["structural_model_estimates"] = "structural_model_estimates"
 
 
 class ConditionalStrength(FrozenModel):

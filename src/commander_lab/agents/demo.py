@@ -80,7 +80,7 @@ def run_phase5_demo(
             ),
         )
     )
-    payload = {
+    payload: dict[str, object] = {
         "estimate_type": "structural_model_estimates",
         "deck_imported": "korvold/current",
         "validation": validation.model_dump(mode="json"),

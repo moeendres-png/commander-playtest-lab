@@ -46,12 +46,28 @@ def _inventory_rows(root: Path) -> list[dict[str, object]]:
     return [dict(row) for row in payload.get("cards", [])]
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return int(value)
+    raise ValueError(f"unsupported integer value: {value!r}")
+
+
+def _as_float(value: object, default: float = 0.0) -> float:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return float(value)
+    raise ValueError(f"unsupported float value: {value!r}")
+
+
 def load_canonical_inventory_quantities(root: str | Path) -> dict[str, int]:
     rows = _inventory_rows(Path(root))
     return {
-        str(row["oracle_name"]): int(row.get("quantity", 0))
+        str(row["oracle_name"]): _as_int(row.get("quantity", 0))
         for row in rows
-        if row.get("currently_owned") and int(row.get("quantity", 0)) > 0
+        if row.get("currently_owned") and _as_int(row.get("quantity", 0)) > 0
     }
 
 
@@ -68,7 +84,7 @@ def _identity_from_inventory(row: dict[str, object]) -> CardIdentity:
     return CardIdentity(
         oracle_name=name,
         mana_cost=str(row.get("mana_cost", "") or "") or None,
-        mana_value=float(row.get("mana_value", 0.0) or 0.0),
+        mana_value=_as_float(row.get("mana_value", 0.0), 0.0),
         color_identity=colors,
         type_line=type_line,
         oracle_text=str(row.get("oracle_text", "") or "") or None,
@@ -349,7 +365,7 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
     candidates: dict[str, CandidateProfile] = {}
 
     for row in _inventory_rows(root_path):
-        if not row.get("currently_owned") or int(row.get("quantity", 0)) <= 0:
+        if not row.get("currently_owned") or _as_int(row.get("quantity", 0)) <= 0:
             continue
         if str(row.get("commander_legality", "")).casefold() != "legal":
             continue

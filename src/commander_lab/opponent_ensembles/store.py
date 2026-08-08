@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 import json
 import math
 from pathlib import Path
@@ -132,10 +133,10 @@ class OpponentEnsembleStore:
             1.5,
             0.38 * speed + 0.28 * interaction + 0.18 * wipes + 0.16 * role_concentration,
         )
-        return pressure, max(dimensions, key=dimensions.get)
+        return pressure, max(dimensions, key=lambda name: dimensions[name])
 
     @staticmethod
-    def _normalized_weights(ensemble: OpponentEnsemble) -> list[float]:
+    def _normalized_weights(ensemble: OpponentEnsemble) -> builtins.list[float]:
         if ensemble.weight_mode.value in {"unweighted", "equal", "worst_case"}:
             return [1.0 / len(ensemble.variants)] * len(ensemble.variants)
         values = [variant.weight.value for variant in ensemble.variants]
@@ -175,10 +176,10 @@ class OpponentEnsembleStore:
                 }
             )
 
-        weighted_average = sum(
+        weighted_average: float = sum(
             value * weight for value, weight in zip(values, weights, strict=True)
         )
-        positive_share = sum(
+        positive_share: float = sum(
             weight for value, weight in zip(values, weights, strict=True) if value > 0
         )
         return EnsembleMatchupResult(
@@ -193,7 +194,7 @@ class OpponentEnsembleStore:
             spread=pstdev(values) if len(values) > 1 else 0.0,
             positive_variant_share=positive_share,
             most_sensitive_assumption=(
-                max(sensitivities, key=sensitivities.get) if sensitivities else None
+                max(sensitivities, key=lambda name: sensitivities[name]) if sensitivities else None
             ),
             weight_mode=ensemble.weight_mode,
             aggregate_interpretation=(

@@ -68,9 +68,27 @@ def build_synthetic_deck_profile(
     for index in range(land_count):
         cards.append(_card(f"{prefix} land {index:02d}", 0, {CardRole.MANA_SOURCE}, colors=colors))
 
-    def add_many(label: str, count: int, mv: float, roles: set[CardRole], **kwargs: object) -> None:
+    def add_many(
+        label: str,
+        count: int,
+        mv: float,
+        roles: set[CardRole],
+        *,
+        power: float = 0.0,
+        permanent: bool = False,
+        colors: frozenset[Color] = frozenset(),
+    ) -> None:
         for index in range(count):
-            cards.append(_card(f"{prefix} {label} {index:02d}", mv, roles, **kwargs))
+            cards.append(
+                _card(
+                    f"{prefix} {label} {index:02d}",
+                    mv,
+                    roles,
+                    power=power,
+                    permanent=permanent,
+                    colors=colors,
+                )
+            )
 
     add_many("ramp", 10, 2, {CardRole.RAMP}, permanent=True)
     if archetype == "aggro":
@@ -180,7 +198,7 @@ def build_current_opponent_profiles(
                     for value in str(entry.get("color_identity", ""))
                     if value in {"W", "U", "B", "R", "G"}
                 )
-                produces = frozenset()
+                produces: frozenset[Color] = frozenset()
                 if role_row.get("is_land"):
                     if entry["oracle_name"] == "Swamp":
                         produces = frozenset({Color.BLACK})
@@ -320,9 +338,8 @@ def build_current_opponent_profiles(
             for offset in range(capped):
                 slot = (role_index * 11 + offset * 7) % slot_count
                 slot_roles[slot].add(role)
-        for index, roles in enumerate(slot_roles):
-            if not roles:
-                roles = {CardRole.ENABLER}
+        for index, role_set in enumerate(slot_roles):
+            roles = role_set or {CardRole.ENABLER}
             creature = bool(
                 roles
                 & {

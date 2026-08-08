@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from datetime import date
 from pathlib import Path
 
@@ -43,17 +44,23 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
     for deck_id, spec in DECK_SPECS.items():
         source_file = deck_dir / str(spec["filename"])
         source_path = source_file.relative_to(root_path).as_posix()
+        raw_commanders = spec["commanders"]
+        if not isinstance(raw_commanders, Iterable) or isinstance(raw_commanders, (str, bytes)):
+            raise TypeError(f"invalid commanders for {deck_id}")
+        commander_names = tuple(str(name) for name in raw_commanders)
         deck = importer.import_text(
             source_file.read_text(encoding="utf-8-sig"),
             DeckImportOptions(
                 deck_id=deck_id,
                 name=str(spec["name"]),
-                commander_names=tuple(spec["commanders"]),
+                commander_names=commander_names,
                 uses_partner=bool(spec["uses_partner"]),
                 data_as_of="2026-08-07",
             ),
             source_path=source_path,
         )
+        if deck.source is None:
+            raise ValueError(f"imported deck {deck_id} is missing source provenance")
         deck = deck.model_copy(
             update={"source": deck.source.model_copy(update={"source_path": source_path})}
         )

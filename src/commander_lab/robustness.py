@@ -674,6 +674,7 @@ def build_registry(root: str | Path) -> dict[str, Any]:
             / 15.0,
         )
         status = p.get("source_status")
+        bands: tuple[tuple[str, float], ...]
         if status in {
             "partially_known",
             "synthetic_completion",
@@ -707,9 +708,12 @@ def build_registry(root: str | Path) -> dict[str, Any]:
         "pilot_profiles": [
             {
                 "pilot_id": name,
-                "utility_weights": pilot_config_for(
-                    name, "rational_threat_focus"
-                ).weights.model_dump(mode="json"),
+                "utility_weights": (
+                    weights.model_dump(mode="json")
+                    if (weights := pilot_config_for(name, "rational_threat_focus").weights)
+                    is not None
+                    else {}
+                ),
                 "hidden_information_access": False,
                 "empirical_fit": False,
             }

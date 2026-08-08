@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
@@ -31,7 +32,7 @@ REQUIRED_EXTERNAL_MESSAGE_TYPES = (
 )
 
 
-def build_protocol_schema() -> dict:
+def build_protocol_schema() -> dict[str, Any]:
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": (

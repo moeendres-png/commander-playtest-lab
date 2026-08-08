@@ -4,7 +4,7 @@ import json
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 from commander_lab.models.meta import (
     FormatBand,
@@ -30,6 +30,13 @@ def stable_deck_hash(cards: tuple[str, ...]) -> str:
 
 def _now() -> datetime:
     return datetime.now(UTC)
+
+
+class _DriftRow(TypedDict):
+    card: str
+    frequency_delta: float
+    old_count: int
+    new_count: int
 
 
 class MetaKnowledgeBase:
@@ -259,7 +266,7 @@ class MetaKnowledgeBase:
         new_n = max(
             1, sum(1 for d in newer.deck_snapshots if not commander or d.commander == commander)
         )
-        drift = []
+        drift: list[_DriftRow] = []
         for card in all_cards:
             delta = new_counts[card] / new_n - old_counts[card] / old_n
             if abs(delta) > 0:

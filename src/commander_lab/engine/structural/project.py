@@ -81,7 +81,10 @@ def _attach_package_membership(
             "payoffs",
             "finishers",
         ):
-            for card_name in package.get(field, []):
+            raw_names = package.get(field, [])
+            if not isinstance(raw_names, list):
+                continue
+            for card_name in raw_names:
                 memberships.setdefault(str(card_name), set()).add(package_id)
     cards = tuple(
         card.model_copy(update={"package_ids": frozenset(memberships.get(card.oracle_name, set()))})

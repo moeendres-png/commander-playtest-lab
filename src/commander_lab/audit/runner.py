@@ -488,8 +488,10 @@ def _web_research_markdown() -> str:
 
 
 def _schema_exports(root: Path) -> list[str]:
+    import commander_lab.models as model_module
     from commander_lab.models import EngineProtocolRequest, EngineProtocolResponse
-    from commander_lab.models import __dict__ as model_namespace
+
+    model_namespace = vars(model_module)
 
     output_root = root / "schemas"
     for sub in ("models", "engine_protocol", "tools", "reports"):

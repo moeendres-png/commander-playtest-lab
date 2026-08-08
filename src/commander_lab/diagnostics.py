@@ -255,7 +255,7 @@ class DecisionDiagnosticEngine:
             "action": abs(float(dataset.counterfactual_improvement or 0.0)),
             "seed": dataset.seed_sensitivity,
         }
-        dominant = max(effects, key=effects.get)
+        dominant = max(effects, key=lambda name: effects[name])
         return FactorEffectComparison(
             deck_effect=effects["deck"],
             pilot_effect=effects["pilot"],

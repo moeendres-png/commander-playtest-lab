@@ -237,9 +237,9 @@ def evaluate_condition(
     )
     expected = condition.value
     if condition.op == ConditionOperator.EQ:
-        return actual == expected
+        return bool(actual == expected)
     if condition.op == ConditionOperator.NE:
-        return actual != expected
+        return bool(actual != expected)
     if condition.op == ConditionOperator.GT:
         return actual is not None and actual > expected
     if condition.op == ConditionOperator.GE:
@@ -562,8 +562,8 @@ class PrimerToPilotCompiler:
             rows = payload.get("rules", payload) if isinstance(payload, dict) else payload
             if not isinstance(rows, list):
                 raise RuleDslError("JSON primer must contain a rules list")
-            rules = tuple(PilotRule.model_validate(row) for row in rows)
-            return rules
+            parsed_rules = tuple(PilotRule.model_validate(row) for row in rows)
+            return parsed_rules
 
         sentences = []
         for raw_line in content.splitlines():

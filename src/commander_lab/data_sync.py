@@ -6,7 +6,10 @@ from typing import Any
 
 
 def _load(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"expected JSON object in {path}")
+    return {str(key): value for key, value in payload.items()}
 
 
 def _source_observation(root: Path, key: str, spec: dict[str, Any]) -> dict[str, Any]:

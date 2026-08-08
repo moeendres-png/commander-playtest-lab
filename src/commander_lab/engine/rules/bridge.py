@@ -9,7 +9,7 @@ import threading
 import time
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
@@ -31,6 +31,7 @@ from commander_lab.models import (
     RulesGameRequest,
     RulesSession,
     TacticalScenario,
+    ValidationLevel,
 )
 
 from .base import RulesEngineAdapter, RulesEngineProtocolError, RulesEngineUnavailable
@@ -205,7 +206,10 @@ class JsonLineBridgeClient:
             request = EngineProtocolRequest(
                 protocol_version=self.protocol_version,
                 request_id=str(uuid.uuid4()),
-                engine=self.engine if self.engine in {"xmage", "forge", "tactical"} else "unknown",
+                engine=cast(
+                    Literal["xmage", "forge", "tactical", "unknown"],
+                    self.engine if self.engine in {"xmage", "forge", "tactical"} else "unknown",
+                ),
                 engine_version=self.engine_version,
                 game_id=game_id,
                 message_type=message_type,
@@ -708,7 +712,7 @@ class ExternalRulesAdapter(RulesEngineAdapter):
             completed=state.status.value == "completed",
             final_state=state,
             normalized_result={},
-            validation_level="external_rules_engine",
+            validation_level=ValidationLevel.EXTERNAL_RULES_ENGINE,
             backend_version=None,
             warnings=("result derived from versioned state endpoint",),
         )
