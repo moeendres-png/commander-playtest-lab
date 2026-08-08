@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import queue
 import sys
@@ -57,7 +58,7 @@ class McpSession:
 class CommanderMcpServer:
     """Dependency-free MCP stdio server over the central ToolRegistry.
 
-    Primary protocol: MCP 2026-07-28 stateless core.  A deliberately isolated
+    Primary protocol: MCP 2026-07-28 stateless core. A deliberately isolated
     2025-11-25 compatibility path remains for clients that still use
     initialize/initialized and notifications/cancelled.
 
@@ -76,11 +77,19 @@ class CommanderMcpServer:
             "name": SERVER_NAME,
             "title": "Commander Playtest Lab",
             "version": SERVER_VERSION,
-            "description": "Read-only multifidelity Commander deck analysis and optimization tools.",
+            "description": (
+                "Read-only multifidelity Commander deck analysis and optimization tools."
+            ),
         }
 
     @classmethod
-    def _error(cls, request_id: Any, error: McpProtocolError, *, modern: bool = False) -> dict[str, Any]:
+    def _error(
+        cls,
+        request_id: Any,
+        error: McpProtocolError,
+        *,
+        modern: bool = False,
+    ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "jsonrpc": "2.0",
             "id": request_id,
@@ -93,7 +102,13 @@ class CommanderMcpServer:
         return payload
 
     @classmethod
-    def _result(cls, request_id: Any, result: dict[str, Any], *, modern: bool = False) -> dict[str, Any]:
+    def _result(
+        cls,
+        request_id: Any,
+        result: dict[str, Any],
+        *,
+        modern: bool = False,
+    ) -> dict[str, Any]:
         body = dict(result)
         if modern:
             meta = dict(body.get("_meta") or {})
@@ -123,7 +138,10 @@ class CommanderMcpServer:
         if version != CURRENT_MCP_PROTOCOL_VERSION:
             raise McpProtocolError(
                 -32602,
-                f"2026-07-28 requests require params._meta['{_PROTOCOL_META_KEY}']='{CURRENT_MCP_PROTOCOL_VERSION}'",
+                (
+                    "2026-07-28 requests require "
+                    f"params._meta['{_PROTOCOL_META_KEY}']='{CURRENT_MCP_PROTOCOL_VERSION}'"
+                ),
             )
         client_info = meta.get(_CLIENT_INFO_META_KEY)
         if client_info is not None and not isinstance(client_info, dict):
@@ -157,7 +175,9 @@ class CommanderMcpServer:
             for phase in ("12_12", "12_13", "12_14", "12_15", "12_16", "12_17"):
                 path = self.root / f"artifacts/phase{phase}/PHASE{phase}_RESULT.json"
                 if path.exists():
-                    rows[phase.replace("_", ".")] = json.loads(path.read_text(encoding="utf-8"))
+                    rows[phase.replace("_", ".")] = json.loads(
+                        path.read_text(encoding="utf-8")
+                    )
             payload = {
                 "server": SERVER_NAME,
                 "version": SERVER_VERSION,
@@ -173,11 +193,13 @@ class CommanderMcpServer:
         else:
             raise McpProtocolError(-32602, f"Unknown resource URI: {uri}")
         return {
-            "contents": [{
-                "uri": uri,
-                "mimeType": "application/json",
-                "text": json.dumps(payload, ensure_ascii=False, sort_keys=True),
-            }],
+            "contents": [
+                {
+                    "uri": uri,
+                    "mimeType": "application/json",
+                    "text": json.dumps(payload, ensure_ascii=False, sort_keys=True),
+                }
+            ],
             "ttlMs": 30_000,
             "cacheScope": "private",
         }
@@ -198,8 +220,19 @@ class CommanderMcpServer:
                 "name": "optimize-deck",
                 "description": "Build a read-only multifidelity optimization plan for one deck.",
                 "arguments": [
-                    {"name": "deck_id", "description": "Current deck ID", "required": True},
-                    {"name": "profile", "description": "quick_screen, standard_validation, deep_validation, external_engine_validation, or full_optimization", "required": False},
+                    {
+                        "name": "deck_id",
+                        "description": "Current deck ID",
+                        "required": True,
+                    },
+                    {
+                        "name": "profile",
+                        "description": (
+                            "quick_screen, standard_validation, deep_validation, "
+                            "external_engine_validation, or full_optimization"
+                        ),
+                        "required": False,
+                    },
                 ],
             },
         ]
@@ -216,8 +249,8 @@ class CommanderMcpServer:
         elif name == "compare-swap":
             text = (
                 f"Validate {arguments.get('current_card')} to {arguments.get('candidate_id')} in "
-                f"{arguments.get('deck_id')}. Report formal, structural, holdout, tactical coverage, "
-                "external provider status, uncertainty, and do not apply the swap."
+                f"{arguments.get('deck_id')}. Report formal, structural, holdout, tactical "
+                "coverage, external provider status, uncertainty, and do not apply the swap."
             )
         else:
             raise McpProtocolError(-32602, f"Unknown prompt: {name}")
@@ -257,12 +290,14 @@ class CommanderMcpServer:
             try:
                 done.put(("ok", self.registry.invoke(name, arguments)))
             except BaseException as exc:  # daemon worker boundary; re-raised on protocol thread
-                try:
+                with contextlib.suppress(queue.Full):
                     done.put(("error", exc))
-                except queue.Full:
-                    pass
 
-        worker = threading.Thread(target=invoke, name=f"mcp-tool-{request_id}", daemon=True)
+        worker = threading.Thread(
+            target=invoke,
+            name=f"mcp-tool-{request_id}",
+            daemon=True,
+        )
         worker.start()
         deadline = time.monotonic() + timeout_ms / 1000
         while True:
@@ -280,7 +315,12 @@ class CommanderMcpServer:
             response = value
             body = response.model_dump(mode="json")
             return {
-                "content": [{"type": "text", "text": json.dumps(body, ensure_ascii=False, sort_keys=True)}],
+                "content": [
+                    {
+                        "type": "text",
+                        "text": json.dumps(body, ensure_ascii=False, sort_keys=True),
+                    }
+                ],
                 "structuredContent": body,
                 "isError": body.get("status") != "completed",
             }
@@ -293,7 +333,10 @@ class CommanderMcpServer:
                 "resources": {"listChanged": False},
                 "prompts": {"listChanged": False},
             },
-            "instructions": "Never treat structural estimates as empirical winrates or Tactical Oracle as an external engine.",
+            "instructions": (
+                "Never treat structural estimates as empirical winrates or Tactical Oracle "
+                "as an external engine."
+            ),
             "ttlMs": 300_000,
             "cacheScope": "private",
         }
@@ -307,7 +350,11 @@ class CommanderMcpServer:
         request_id = message.get("id")
         method = message.get("method")
         params = message.get("params", {})
-        modern = isinstance(method, str) and isinstance(params, dict) and self._modern_request(method, params)
+        modern = (
+            isinstance(method, str)
+            and isinstance(params, dict)
+            and self._modern_request(method, params)
+        )
         try:
             if message.get("jsonrpc") != "2.0":
                 raise McpProtocolError(-32600, "jsonrpc must be '2.0'")
@@ -324,21 +371,35 @@ class CommanderMcpServer:
             if method == "initialize":
                 requested = params.get("protocolVersion", LEGACY_MCP_PROTOCOL_VERSION)
                 if requested == CURRENT_MCP_PROTOCOL_VERSION:
-                    raise McpProtocolError(-32602, "MCP 2026-07-28 removed initialize; use server/discover and per-request _meta")
+                    raise McpProtocolError(
+                        -32602,
+                        (
+                            "MCP 2026-07-28 removed initialize; use server/discover "
+                            "and per-request _meta"
+                        ),
+                    )
                 if requested != LEGACY_MCP_PROTOCOL_VERSION:
-                    raise McpProtocolError(-32602, f"Unsupported initialize-era protocol version: {requested}")
+                    raise McpProtocolError(
+                        -32602,
+                        f"Unsupported initialize-era protocol version: {requested}",
+                    )
                 self.session.client_info = dict(params.get("clientInfo") or {})
                 self.session.legacy_initialized = True
-                return self._result(request_id, {
-                    "protocolVersion": LEGACY_MCP_PROTOCOL_VERSION,
-                    "capabilities": {
-                        "tools": {"listChanged": False},
-                        "resources": {"listChanged": False},
-                        "prompts": {"listChanged": False},
+                return self._result(
+                    request_id,
+                    {
+                        "protocolVersion": LEGACY_MCP_PROTOCOL_VERSION,
+                        "capabilities": {
+                            "tools": {"listChanged": False},
+                            "resources": {"listChanged": False},
+                            "prompts": {"listChanged": False},
+                        },
+                        "serverInfo": self._server_info(),
+                        "instructions": (
+                            "Legacy compatibility mode; prefer MCP 2026-07-28 server/discover."
+                        ),
                     },
-                    "serverInfo": self._server_info(),
-                    "instructions": "Legacy compatibility mode; prefer MCP 2026-07-28 server/discover.",
-                })
+                )
             if method == "notifications/initialized":
                 self._require_legacy_initialized()
                 return None
@@ -358,35 +419,66 @@ class CommanderMcpServer:
             if method == "ping":
                 return self._result(request_id, {}, modern=modern)
             if method == "tools/list":
-                tools = sorted((
+                tools = sorted(
+                    (
+                        {
+                            "name": row["name"],
+                            "description": row["description"],
+                            "inputSchema": row["parameters"],
+                            "annotations": {
+                                "readOnlyHint": True,
+                                "destructiveHint": False,
+                            },
+                            "execution": {"taskSupport": "forbidden"},
+                        }
+                        for row in self.registry.list_schemas()
+                    ),
+                    key=lambda row: row["name"],
+                )
+                return self._result(
+                    request_id,
                     {
-                        "name": row["name"],
-                        "description": row["description"],
-                        "inputSchema": row["parameters"],
-                        "annotations": {"readOnlyHint": True, "destructiveHint": False},
-                        "execution": {"taskSupport": "forbidden"},
-                    }
-                    for row in self.registry.list_schemas()
-                ), key=lambda row: row["name"])
-                return self._result(request_id, {
-                    "tools": tools, "ttlMs": 300_000, "cacheScope": "private",
-                }, modern=modern)
+                        "tools": tools,
+                        "ttlMs": 300_000,
+                        "cacheScope": "private",
+                    },
+                    modern=modern,
+                )
             if method == "tools/call":
-                return self._result(request_id, self._call_tool(request_id, params, cancel_event=cancel_event), modern=modern)
+                return self._result(
+                    request_id,
+                    self._call_tool(request_id, params, cancel_event=cancel_event),
+                    modern=modern,
+                )
             if method == "resources/list":
-                return self._result(request_id, {
-                    "resources": sorted(self._resources(), key=lambda row: row["uri"]),
-                    "ttlMs": 300_000, "cacheScope": "private",
-                }, modern=modern)
+                return self._result(
+                    request_id,
+                    {
+                        "resources": sorted(self._resources(), key=lambda row: row["uri"]),
+                        "ttlMs": 300_000,
+                        "cacheScope": "private",
+                    },
+                    modern=modern,
+                )
             if method == "resources/read":
                 uri = params.get("uri")
                 if not isinstance(uri, str):
                     raise McpProtocolError(-32602, "resources/read requires uri")
-                return self._result(request_id, self._read_resource(uri), modern=modern)
+                return self._result(
+                    request_id,
+                    self._read_resource(uri),
+                    modern=modern,
+                )
             if method == "prompts/list":
-                return self._result(request_id, {
-                    "prompts": self._prompts(), "ttlMs": 300_000, "cacheScope": "private",
-                }, modern=modern)
+                return self._result(
+                    request_id,
+                    {
+                        "prompts": self._prompts(),
+                        "ttlMs": 300_000,
+                        "cacheScope": "private",
+                    },
+                    modern=modern,
+                )
             if method == "prompts/get":
                 name = params.get("name")
                 if not isinstance(name, str):
@@ -394,21 +486,42 @@ class CommanderMcpServer:
                 arguments = params.get("arguments") or {}
                 if not isinstance(arguments, dict):
                     raise McpProtocolError(-32602, "prompt arguments must be an object")
-                return self._result(request_id, self._get_prompt(name, arguments), modern=modern)
+                return self._result(
+                    request_id,
+                    self._get_prompt(name, arguments),
+                    modern=modern,
+                )
             if method == "shutdown":
                 if modern:
-                    raise McpProtocolError(-32601, "shutdown is not a 2026-07-28 core method; close stdio/HTTP transport instead")
+                    raise McpProtocolError(
+                        -32601,
+                        (
+                            "shutdown is not a 2026-07-28 core method; close stdio/HTTP "
+                            "transport instead"
+                        ),
+                    )
                 self.session.shutdown_requested = True
                 return self._result(request_id, {})
             raise McpProtocolError(-32601, f"Method not found: {method}")
         except McpCancelled:
             return None
         except ValidationError as exc:
-            return self._error(request_id, McpProtocolError(-32602, "Invalid tool arguments", exc.errors()), modern=modern)
+            return self._error(
+                request_id,
+                McpProtocolError(-32602, "Invalid tool arguments", exc.errors()),
+                modern=modern,
+            )
         except McpProtocolError as exc:
             return self._error(request_id, exc, modern=modern)
         except Exception as exc:  # protocol boundary
-            return self._error(request_id, McpProtocolError(-32603, f"Internal error: {type(exc).__name__}: {exc}"), modern=modern)
+            return self._error(
+                request_id,
+                McpProtocolError(
+                    -32603,
+                    f"Internal error: {type(exc).__name__}: {exc}",
+                ),
+                modern=modern,
+            )
 
     def serve_stdio(self, stdin: TextIO = sys.stdin, stdout: TextIO = sys.stdout) -> int:
         write_lock = threading.Lock()
@@ -420,7 +533,9 @@ class CommanderMcpServer:
             with write_lock:
                 # JSON-RPC is an ASCII-safe wire format. Escaping non-ASCII here keeps
                 # stdio interoperable even when Windows inherits a legacy code page.
-                stdout.write(json.dumps(response, ensure_ascii=True, separators=(",", ":")) + "\n")
+                stdout.write(
+                    json.dumps(response, ensure_ascii=True, separators=(",", ":")) + "\n"
+                )
                 stdout.flush()
 
         def run_tool(message: dict[str, Any], key: str, event: threading.Event) -> None:
@@ -440,7 +555,9 @@ class CommanderMcpServer:
                 if not isinstance(message, dict):
                     raise ValueError("message must be an object")
             except (json.JSONDecodeError, ValueError) as exc:
-                write_response(self._error(None, McpProtocolError(-32700, f"Parse error: {exc}")))
+                write_response(
+                    self._error(None, McpProtocolError(-32700, f"Parse error: {exc}"))
+                )
                 continue
 
             method = message.get("method")
@@ -458,10 +575,20 @@ class CommanderMcpServer:
             if method == "tools/call" and message.get("id") is not None:
                 key = str(message["id"])
                 if key in inflight:
-                    write_response(self._error(message["id"], McpProtocolError(-32600, "duplicate in-flight request id")))
+                    write_response(
+                        self._error(
+                            message["id"],
+                            McpProtocolError(-32600, "duplicate in-flight request id"),
+                        )
+                    )
                     continue
                 event = threading.Event()
-                thread = threading.Thread(target=run_tool, args=(message, key, event), name=f"mcp-request-{key}", daemon=True)
+                thread = threading.Thread(
+                    target=run_tool,
+                    args=(message, key, event),
+                    name=f"mcp-request-{key}",
+                    daemon=True,
+                )
                 inflight[key] = (event, thread)
                 thread.start()
                 continue
