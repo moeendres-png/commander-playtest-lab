@@ -418,7 +418,9 @@ class CommanderMcpServer:
             if response is None:
                 return
             with write_lock:
-                stdout.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\n")
+                # JSON-RPC is an ASCII-safe wire format. Escaping non-ASCII here keeps
+                # stdio interoperable even when Windows inherits a legacy code page.
+                stdout.write(json.dumps(response, ensure_ascii=True, separators=(",", ":")) + "\n")
                 stdout.flush()
 
         def run_tool(message: dict[str, Any], key: str, event: threading.Event) -> None:
