@@ -261,7 +261,8 @@ class EngineProcessManager:
                     capabilities=capabilities,
                     last_healthcheck_at=_now(),
                     details=(
-                        "real external capability handshake succeeded; runtime attestation recorded",
+                        "real external capability handshake succeeded; "
+                        "runtime attestation recorded",
                     ),
                 )
             except Exception as exc:
