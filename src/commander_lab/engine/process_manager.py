@@ -1,27 +1,31 @@
 from __future__ import annotations
 
-import json
 import os
 import shlex
-import signal
 import shutil
+import signal
 import socket
 import subprocess
 import threading
 import time
+from collections.abc import Mapping
+from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Mapping
 
-from commander_lab.storage.atomic import atomic_write_text
-
+from commander_lab.engine.runtime_evidence import (
+    build_runtime_attestation,
+    rotate_runtime_log,
+    write_runtime_attestation,
+)
 from commander_lab.models import (
-    EngineCapabilityHandshake,
+    ENGINE_PROTOCOL_VERSION,
     EngineProcessState,
     EngineProcessStatus,
     EngineRuntimeConfig,
     EngineRuntimeMode,
 )
+from commander_lab.storage.atomic import atomic_write_text
 
 
 def _now() -> datetime:
@@ -47,13 +51,12 @@ def load_engine_runtime_config(env: Mapping[str, str] | None = None) -> EngineRu
         stop_command=_split_command(source.get("ENGINE_STOP_COMMAND")),
         healthcheck_timeout_seconds=float(source.get("ENGINE_HEALTHCHECK_TIMEOUT", "20")),
         request_timeout_seconds=float(source.get("ENGINE_REQUEST_TIMEOUT", "20")),
-        protocol_version=source.get("ENGINE_PROTOCOL_VERSION", "1.0.0"),
+        protocol_version=source.get("ENGINE_PROTOCOL_VERSION", ENGINE_PROTOCOL_VERSION),
         java_home=source.get("JAVA_HOME") or None,
         maven_home=source.get("MAVEN_HOME") or None,
-        allow_tactical_oracle_fallback=source.get(
-            "ALLOW_TACTICAL_ORACLE_FALLBACK", "false"
-        ).lower() in {"1", "true", "yes"},
-        log_directory=source.get("ENGINE_LOG_DIRECTORY", "artifacts/engine_setup/logs"),
+        allow_tactical_oracle_fallback=source.get("ALLOW_TACTICAL_ORACLE_FALLBACK", "false").lower()
+        in {"1", "true", "yes"},
+        log_directory=source.get("ENGINE_LOG_DIRECTORY", ".runtime/engine"),
     )
 
 
@@ -72,6 +75,7 @@ class EngineProcessManager:
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self._client: object | None = None
         self.state_path = self.log_dir / f"{config.provider}.process-state.json"
+        self.attestation_path = self.log_dir / f"{config.provider}.runtime-attestation.json"
         self._state = EngineProcessState(
             provider=config.provider,
             status=EngineProcessStatus.NOT_CONFIGURED,
@@ -126,6 +130,18 @@ class EngineProcessManager:
             sock.settimeout(0.2)
             return sock.connect_ex((self.config.host, self.config.port)) != 0
 
+    def _rotate_logs(self) -> None:
+        rotate_runtime_log(self.log_dir / f"{self.config.provider}.bridge.stdout.jsonl")
+        rotate_runtime_log(self.log_dir / f"{self.config.provider}.bridge.stderr.log")
+
+    def _resolved_start_executable(self) -> str:
+        executable = self.config.start_command[0]
+        candidate = Path(executable)
+        if candidate.is_file():
+            return str(candidate.resolve())
+        resolved = shutil.which(executable)
+        return resolved or executable
+
     def start(self) -> EngineProcessState:
         with self._lock:
             preflight = self.diagnose()
@@ -136,8 +152,18 @@ class EngineProcessManager:
                 EngineProcessStatus.DEGRADED,
             }:
                 return preflight
+            if self.port_available() is False:
+                return self._replace(
+                    status=EngineProcessStatus.UNHEALTHY,
+                    details=(
+                        f"configured engine port is already in use: "
+                        f"{self.config.host}:{self.config.port}",
+                    ),
+                )
+            self._rotate_logs()
             self._replace(status=EngineProcessStatus.STARTING, started_at=_now(), details=())
             from commander_lab.engine.rules.bridge import JsonLineBridgeClient
+
             self._client = JsonLineBridgeClient(
                 self.config.start_command,
                 cwd=self.config.home or self.root,
@@ -171,14 +197,15 @@ class EngineProcessManager:
                 engine = str(hello.get("engine", ""))
                 engine_version = str(hello.get("engine_version", "unknown"))
                 if engine != self.config.provider:
+                    detail = (
+                        f"provider mismatch: configured {self.config.provider}, received {engine}"
+                    )
                     return self._replace(
                         status=EngineProcessStatus.UNHEALTHY,
                         pid=self._client.pid,
                         engine_version=engine_version,
                         last_healthcheck_at=_now(),
-                        details=(
-                            f"provider mismatch: configured {self.config.provider}, received {engine}",
-                        ),
+                        details=(detail,),
                     )
                 if capabilities.runtime_kind != "external_rules_engine":
                     return self._replace(
@@ -192,9 +219,12 @@ class EngineProcessManager:
                         ),
                     )
                 required = (
-                    "commander_supported", "multiplayer_supported",
-                    "deck_import_supported", "legal_actions_supported",
-                    "action_submission_supported", "event_log_supported",
+                    "commander_supported",
+                    "multiplayer_supported",
+                    "deck_import_supported",
+                    "legal_actions_supported",
+                    "action_submission_supported",
+                    "event_log_supported",
                 )
                 missing = tuple(name for name in required if not capabilities.supports(name))
                 if missing:
@@ -206,13 +236,32 @@ class EngineProcessManager:
                         last_healthcheck_at=_now(),
                         details=("missing required capabilities: " + ", ".join(missing),),
                     )
+                pid = self._client.pid
+                if pid is None:
+                    return self._replace(
+                        status=EngineProcessStatus.UNHEALTHY,
+                        last_healthcheck_at=_now(),
+                        details=("bridge process reported no pid after handshake",),
+                    )
+                attestation = build_runtime_attestation(
+                    provider=self.config.provider,
+                    engine_version=engine_version,
+                    protocol_version=self.config.protocol_version,
+                    pid=pid,
+                    runtime_kind=capabilities.runtime_kind,
+                    start_executable=self._resolved_start_executable(),
+                )
+                write_runtime_attestation(self.attestation_path, attestation)
                 return self._replace(
                     status=EngineProcessStatus.HEALTHY,
-                    pid=self._client.pid,
+                    pid=pid,
                     engine_version=engine_version,
                     capabilities=capabilities,
                     last_healthcheck_at=_now(),
-                    details=("real external capability handshake succeeded",),
+                    details=(
+                        "real external capability handshake succeeded; "
+                        "runtime attestation recorded",
+                    ),
                 )
             except Exception as exc:
                 return self._replace(
@@ -242,9 +291,11 @@ class EngineProcessManager:
                         check=False,
                     )
                     if completed.returncode != 0:
-                        details.append(
-                            f"stop command exited {completed.returncode}: {completed.stderr.strip()}"
+                        detail = (
+                            f"stop command exited {completed.returncode}: "
+                            f"{completed.stderr.strip()}"
                         )
+                        details.append(detail)
                 except Exception as exc:
                     details.append(f"stop command failed: {exc}")
             return self._replace(
@@ -260,28 +311,35 @@ class EngineProcessManager:
         return self.start()
 
 
-def stop_process_from_state(config: EngineRuntimeConfig, *, root: str | Path = ".") -> EngineProcessState:
+def stop_process_from_state(
+    config: EngineRuntimeConfig, *, root: str | Path = "."
+) -> EngineProcessState:
     root_path = Path(root).resolve()
     state_path = root_path / config.log_directory / f"{config.provider}.process-state.json"
     if not state_path.exists():
         return EngineProcessState(
-            provider=config.provider, status=EngineProcessStatus.STOPPED,
-            details=("no persisted process state",)
+            provider=config.provider,
+            status=EngineProcessStatus.STOPPED,
+            details=("no persisted process state",),
         )
     state = EngineProcessState.model_validate_json(state_path.read_text(encoding="utf-8"))
     if state.pid is not None:
-        try:
+        with suppress(ProcessLookupError, PermissionError):
             os.kill(state.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-    stopped = state.model_copy(update={
-        "status": EngineProcessStatus.STOPPED, "pid": None, "stopped_at": _now(),
-        "details": ("stop signal sent from persisted state",)
-    })
-    state_path.write_text(stopped.model_dump_json(indent=2), encoding="utf-8")
+    stopped = state.model_copy(
+        update={
+            "status": EngineProcessStatus.STOPPED,
+            "pid": None,
+            "stopped_at": _now(),
+            "details": ("stop signal sent from persisted state",),
+        }
+    )
+    atomic_write_text(state_path, stopped.model_dump_json(indent=2) + "\n")
     return stopped
 
 
 __all__ = [
-    "EngineProcessManager", "load_engine_runtime_config", "stop_process_from_state"
+    "EngineProcessManager",
+    "load_engine_runtime_config",
+    "stop_process_from_state",
 ]

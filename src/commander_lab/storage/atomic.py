@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
@@ -21,18 +22,33 @@ def _fsync_directory(path: Path) -> None:
 def atomic_write_bytes(path: str | Path, data: bytes, *, mode: int = 0o600) -> Path:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temp_name = tempfile.mkstemp(prefix=f".{target.name}.", dir=target.parent)
+    descriptor, temp_name = tempfile.mkstemp(
+        prefix=f".{target.name}.",
+        dir=target.parent,
+    )
     temp_path = Path(temp_name)
+    descriptor_open = True
+
     try:
-        os.fchmod(descriptor, mode)
+        fchmod = getattr(os, "fchmod", None)
+        if fchmod is not None:
+            fchmod(descriptor, mode)
+
         with os.fdopen(descriptor, "wb") as handle:
+            descriptor_open = False
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
+
         os.replace(temp_path, target)
         _fsync_directory(target.parent)
         return target
+
     except BaseException:
+        if descriptor_open:
+            with suppress(OSError):
+                os.close(descriptor)
+
         try:
             temp_path.unlink(missing_ok=True)
         finally:
