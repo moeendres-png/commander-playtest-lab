@@ -55,16 +55,6 @@ jobs:
           EOF
           cat ruff-diagnostics.txt
           exit 0
-      - name: Upload Ruff diagnostics
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: strict-quality-ruff-diagnostics
-          path: |
-            ruff-diagnostics.txt
-            ruff-status.env
-          if-no-files-found: error
-          retention-days: 7
       - name: Commit mechanical quality cleanup
         shell: bash
         run: |
@@ -77,12 +67,38 @@ jobs:
           git add -A
           git commit -m "style: repository-wide Ruff cleanup [strict-quality-autofix]"
           git push origin HEAD:fix/1.13.4-strict-quality
-      - name: Enforce residual Ruff gate
+      - name: Capture strict mypy diagnostics
+        shell: bash
+        run: |
+          set +e
+          mypy src/commander_lab >mypy-diagnostics.txt 2>&1
+          MYPY_RC=$?
+          echo "MYPY_RC=$MYPY_RC" > mypy-status.env
+          cat mypy-diagnostics.txt
+          exit 0
+      - name: Archive exact checked-out branch source
+        shell: bash
+        run: git archive --format=tar.gz --output=quality-branch-source.tar.gz HEAD
+      - name: Upload strict-quality diagnostics and source
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: strict-quality-diagnostics
+          path: |
+            ruff-diagnostics.txt
+            ruff-status.env
+            mypy-diagnostics.txt
+            mypy-status.env
+            quality-branch-source.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+      - name: Enforce strict quality gate
         if: always()
         shell: bash
         run: |
           source ruff-status.env
-          if [ "$FORMAT_RC" -ne 0 ] || [ "$FIX_RC" -ne 0 ] || [ "$CHECK_RC" -ne 0 ] || [ "$FORMAT_CHECK_RC" -ne 0 ] || [ "$DIFF_RC" -ne 0 ]; then
-            echo "Residual Ruff or diff issues remain; see uploaded diagnostics."
+          source mypy-status.env
+          if [ "$FORMAT_RC" -ne 0 ] || [ "$FIX_RC" -ne 0 ] || [ "$CHECK_RC" -ne 0 ] || [ "$FORMAT_CHECK_RC" -ne 0 ] || [ "$DIFF_RC" -ne 0 ] || [ "$MYPY_RC" -ne 0 ]; then
+            echo "Strict quality issues remain; see uploaded diagnostics."
             exit 1
           fi
