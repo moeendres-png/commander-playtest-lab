@@ -1,0 +1,26 @@
+name: Audit F Final Branch Cleanup
+
+on:
+  push:
+    branches:
+      - docs/f-closeout-g-handoff
+    paths:
+      - .github/workflows/f-final-branch-cleanup.yml
+
+permissions:
+  contents: write
+
+jobs:
+  delete-merged-f-evidence-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Verify containment and delete merged F evidence branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main audit/f-cleanup-evidence
+          git merge-base --is-ancestor origin/audit/f-cleanup-evidence origin/main
+          git push origin --delete audit/f-cleanup-evidence
