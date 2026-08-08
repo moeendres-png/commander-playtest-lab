@@ -2006,9 +2006,9 @@ class CommanderToolService:
                     for candidate_id in candidate_ids:
                         if candidate_id in used_candidates:
                             continue
-                        swaps = tuple(
-                            cumulative_swaps
-                            + [self.models_variant_swap(cut.oracle_name, candidate_id)]
+                        swaps = (
+                            *cumulative_swaps,
+                            self.models_variant_swap(cut.oracle_name, candidate_id),
                         )
                         try:
                             neighbor = build_search_candidate(

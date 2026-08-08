@@ -175,8 +175,12 @@ class OpponentEnsembleStore:
                 }
             )
 
-        weighted_average = sum(value * weight for value, weight in zip(values, weights))
-        positive_share = sum(weight for value, weight in zip(values, weights) if value > 0)
+        weighted_average = sum(
+            value * weight for value, weight in zip(values, weights, strict=True)
+        )
+        positive_share = sum(
+            weight for value, weight in zip(values, weights, strict=True) if value > 0
+        )
         return EnsembleMatchupResult(
             deck_id=deck.deck_id,
             deck_hash=deck.deck_hash,
@@ -223,6 +227,7 @@ class OpponentEnsembleStore:
             for baseline_row, candidate_row in zip(
                 baseline_result.per_variant,
                 candidate_result.per_variant,
+                strict=True,
             )
         ]
         positive_count = sum(delta > 0 for delta in deltas)

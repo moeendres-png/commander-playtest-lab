@@ -330,7 +330,7 @@ class CounterfactualReplayLab:
         return tuple(output)
 
     def branchpoint_at(self, source_path: str, event_offset: int) -> CounterfactualBranchpoint:
-        path, rows = self.load(source_path)
+        _path, rows = self.load(source_path)
         if event_offset < 0 or event_offset >= len(rows):
             raise CounterfactualError("invalid event offset")
         matches = [

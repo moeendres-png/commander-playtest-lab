@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import random
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -316,7 +317,7 @@ def _decision_quality_benchmark(seed: int, trials: int) -> dict[str, object]:
         "scenarios": [scenario[0] for scenario in scenarios],
         "by_strength": result,
         "monotonic_non_decreasing": all(
-            later + 1e-12 >= earlier for earlier, later in zip(rates, rates[1:])
+            later + 1e-12 >= earlier for earlier, later in pairwise(rates)
         ),
         "purpose": "controlled action-choice calibration, not match win-rate validation",
     }

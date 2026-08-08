@@ -290,7 +290,7 @@ class PilotEnsembleRunner:
             / "data/runs/pilot_ensembles"
             / (output_name or f"benchmark-{deck_id.replace('/', '-')}-{seed}")
         )
-        for index, name in enumerate(names):
+        for name in names:
             profile = self.registry.profile(name)
             self._validate_profile_scope(profile, deck)
             run_dir = output_root / name
@@ -565,7 +565,7 @@ class PilotEnsembleRunner:
         baseline = results.get(baseline_name)
         if baseline is None:
             return
-        for name, row in results.items():
+        for row in results.values():
             row["deviation_from_baseline"] = {
                 "average_placement": float(row["average_placement"])
                 - float(baseline["average_placement"]),

@@ -616,9 +616,8 @@ class TacticalRuleOracle:
 
     @staticmethod
     def _phase_out(s: dict[str, Any]) -> dict[str, Any]:
-        wipe = _bool(s.get("wipe_resolves", True))
         return {
-            "affected_by_wipe": False if wipe else False,
+            "affected_by_wipe": False,
             "returns_next_untap": True,
             "attachments_phase_out": True,
         }

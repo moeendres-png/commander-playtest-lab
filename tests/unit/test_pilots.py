@@ -617,7 +617,8 @@ def test_korvold_opening_hand_score_rewards_sacrifice_and_land_package() -> None
         )
         for index in range(3)
     )
-    synergy = lands + (
+    synergy = (
+        *lands,
         _action("ramp", "Nature's Lore", cost=2, roles={CardRole.RAMP}),
         _action("token", "Ophiomancer", cost=3, roles={CardRole.TOKEN_SOURCE}),
         _action(

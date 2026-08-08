@@ -18,7 +18,7 @@ def test_name_normalization_is_idempotent_for_generated_variants() -> None:
     ]
     for _ in range(500):
         base = rng.choice(base_names)
-        variant = base.replace("'", rng.choice(["'", "’", "‘", "`"])).replace(
+        variant = base.replace("'", rng.choice(["'", "\u2019", "\u2018", "`"])).replace(
             " // ", rng.choice(["//", " / / ", "  //  "])
         )
         variant = (" " * rng.randint(0, 3)) + variant + (" " * rng.randint(0, 3))

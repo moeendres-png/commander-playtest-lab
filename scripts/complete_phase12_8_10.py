@@ -168,7 +168,7 @@ def main(root: Path) -> None:
     atomic_write_json(target, audit)
     atomic_write_text(
         target.with_suffix(".md"),
-        """# Phase 12.8–12.10 completion audit\n\nStatus: `decision_diagnostics_ready_with_limitations`\n\nThe previously partial integration paths were completed and executed. Mulligan follow-ups now run complete Structural Simulator games; keep-rule candidates are actually checked across primary, holdout, ensemble and pilot contexts; counterfactual state differences and Tactical Oracle calls are evaluated; diagnostics are generated from event logs; and the ten-step smoke executes every stage.\n\nLimits remain: zero imported real games, no real XMage/Forge execution, model-based policies and diagnoses are not empirical proof, and no canonical deck, inventory or allocation data changed.\n""",
+        """# Phase 12.8\u201312.10 completion audit\n\nStatus: `decision_diagnostics_ready_with_limitations`\n\nThe previously partial integration paths were completed and executed. Mulligan follow-ups now run complete Structural Simulator games; keep-rule candidates are actually checked across primary, holdout, ensemble and pilot contexts; counterfactual state differences and Tactical Oracle calls are evaluated; diagnostics are generated from event logs; and the ten-step smoke executes every stage.\n\nLimits remain: zero imported real games, no real XMage/Forge execution, model-based policies and diagnoses are not empirical proof, and no canonical deck, inventory or allocation data changed.\n""",
     )
 
 

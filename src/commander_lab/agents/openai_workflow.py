@@ -75,21 +75,21 @@ def _sdk_tools(registry: ToolRegistry, function_tool: Any) -> list[Any]:
         description = definition.description
 
         def make_invoke(name: str, model: type[Any]) -> Any:
-            async def invoke(payload: Any) -> dict[str, Any]:
+            async def invoke_tool(payload: Any) -> dict[str, Any]:
                 validated = model.model_validate(payload)
                 response = registry.invoke(name, validated.model_dump(mode="json"))
                 validate_tool_output(response)
                 return response.model_dump(mode="json")
 
-            invoke.__annotations__ = {"payload": model, "return": dict[str, Any]}
-            return invoke
+            invoke_tool.__annotations__ = {"payload": model, "return": dict[str, Any]}
+            return invoke_tool
 
-        invoke = make_invoke(tool_name, input_model)
-        invoke.__name__ = tool_name
-        invoke.__doc__ = description
+        tool_callable = make_invoke(tool_name, input_model)
+        tool_callable.__name__ = tool_name
+        tool_callable.__doc__ = description
         tools.append(
             function_tool(
-                invoke,
+                tool_callable,
                 name_override=tool_name,
                 description_override=description,
                 strict_mode=True,

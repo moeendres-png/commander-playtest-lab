@@ -479,17 +479,6 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
 
     commit = _git(project, "rev-parse", "HEAD")
     external_ready = False
-    phase85_path = project / "PHASE85_VALIDATION_OUTPUT.json"
-    if not phase85_path.exists():
-        phase85_path = (
-            project / "artifacts" / "engine_setup" / "phase85_validation" / "validation_result.json"
-        )
-    phase85: dict[str, Any] = {}
-    if phase85_path.exists():
-        try:
-            phase85 = json.loads(phase85_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            phase85 = {}
     external_pending = not external_ready
 
     static_lines = ["# Static analysis", ""]

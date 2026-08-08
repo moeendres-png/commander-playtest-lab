@@ -10,26 +10,27 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from commander_lab.agents.demo import run_phase5_demo
-from commander_lab.engine.rules import run_phase8_validation
-from commander_lab.models import (
-    CardAblationInput,
-    CreateReportInput,
-    HoldoutInput,
-    MatchupBatchInput,
-    PairedVariantInput,
-    VariantSwap,
-)
-from commander_lab.storage.atomic import atomic_write_json
-from commander_lab.tools import CommanderToolService
-from commander_lab.tools.local_snapshots import build_local_snapshots
-
 
 def serialized(response):
     return response.model_dump(mode="json")
 
 
 def main() -> int:
+    from commander_lab.agents.demo import run_phase5_demo
+    from commander_lab.engine.rules import run_phase8_validation
+    from commander_lab.models import (
+        CardAblationInput,
+        CreateReportInput,
+        HoldoutInput,
+        MatchupBatchInput,
+        PairedVariantInput,
+        ValidateDeckInput,
+        VariantSwap,
+    )
+    from commander_lab.storage.atomic import atomic_write_json
+    from commander_lab.tools import CommanderToolService
+    from commander_lab.tools.local_snapshots import build_local_snapshots
+
     output = ROOT / "artifacts" / "audit" / "acceptance"
     output.mkdir(parents=True, exist_ok=True)
     steps = []
@@ -37,10 +38,7 @@ def main() -> int:
     steps.append({"step": "local_snapshots", "status": "passed", "result": manifest})
 
     service = CommanderToolService(ROOT)
-    validation = [serialized(service.validate_deck.model.__self__)] if False else []
     for deck_id in ("korvold/current", "rogshai/current"):
-        from commander_lab.models import ValidateDeckInput
-
         response = service.validate_deck(ValidateDeckInput(deck_id=deck_id))
         steps.append(
             {

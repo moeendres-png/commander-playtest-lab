@@ -5,16 +5,16 @@ import unicodedata
 
 _APOSTROPHES = str.maketrans(
     {
-        "’": "'",
-        "‘": "'",
+        "\u2019": "'",
+        "\u2018": "'",
         "`": "'",
-        "´": "'",
+        "\u00b4": "'",
         "“": '"',
         "”": '"',
-        "–": "-",
-        "—": "-",
-        "−": "-",
-        "／": "/",
+        "\u2013": "-",
+        "\u2014": "-",
+        "\u2212": "-",
+        "\uff0f": "/",
     }
 )
 
@@ -22,7 +22,7 @@ _SET_SUFFIX = re.compile(
     r"\s+(?:\([A-Za-z0-9]{2,8}\)|\[[A-Za-z0-9]{2,8}\])(?:\s+[#A-Za-z0-9-]+)?\s*$"
 )
 _COLLECTOR_SUFFIX = re.compile(r"\s+#?\d+[A-Za-z]?\s*$")
-_QUANTITY_PREFIX = re.compile(r"^\s*(\d+)\s*[xX×]?\s+(.+?)\s*$")
+_QUANTITY_PREFIX = re.compile(r"^\s*(\d+)\s*[xX\u00d7]?\s+(.+?)\s*$")
 
 
 def normalize_unicode(value: str) -> str:

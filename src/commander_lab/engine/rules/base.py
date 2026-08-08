@@ -75,6 +75,7 @@ class RulesEngineAdapter(ABC):
 
     def close(self) -> None:
         """Release subprocesses or temporary resources."""
+        return None
 
 
 __all__ = [

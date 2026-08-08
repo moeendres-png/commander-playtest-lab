@@ -42,7 +42,7 @@ def test_curly_apostrophe_normalizes_to_oracle_name(catalog) -> None:
 [Commander]
 1 Korvold, Fae-Cursed King
 [Mainboard]
-1 Nature’s Claim
+1 Nature\u2019s Claim
 98 Forest
 """
     deck = PlaintextDeckImporter(catalog).import_text(

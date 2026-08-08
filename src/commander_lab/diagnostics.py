@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 from statistics import fmean
-from typing import Any
+from typing import Any, ClassVar
 
 from commander_lab.models.diagnostics import (
     CardPerformanceInstrumentation,
@@ -306,7 +306,7 @@ class DiagnosticInstrumentationCollector:
     auditable counters from immutable JSONL events and retains the source hashes in the dataset.
     """
 
-    SUCCESS_EVENTS = {
+    SUCCESS_EVENTS: ClassVar[set[str]] = {
         "ramp_resolved",
         "permanent_resolved",
         "selection_resolved",

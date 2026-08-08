@@ -90,10 +90,10 @@ def test_partial_opponents_do_not_invent_unknown_cards_as_confirmed(repo_root: P
     by_name = {row["deck"]: row for row in opponents["decks"]}
     assert by_name["Cosmic Spider-Man"]["known_card_count"] == 4
     assert by_name["Cosmic Spider-Man"]["unknown_slots"] == 96
-    assert by_name["Alen – High Perfect Morcant"]["known_card_count"] == 54
-    assert by_name["Alen – High Perfect Morcant"]["provisional_completion_count"] == 18
-    assert by_name["Alen – High Perfect Morcant"]["synthetic_basic_count"] == 28
-    assert by_name["Alen – High Perfect Morcant"]["unknown_slots"] == 0
+    assert by_name["Alen \u2013 High Perfect Morcant"]["known_card_count"] == 54
+    assert by_name["Alen \u2013 High Perfect Morcant"]["provisional_completion_count"] == 18
+    assert by_name["Alen \u2013 High Perfect Morcant"]["synthetic_basic_count"] == 28
+    assert by_name["Alen \u2013 High Perfect Morcant"]["unknown_slots"] == 0
 
 
 def test_required_golden_scenarios_and_named_registry_exports_exist(repo_root: Path) -> None:

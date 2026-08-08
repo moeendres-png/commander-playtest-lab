@@ -409,7 +409,6 @@ class ExternalRulesAdapter(RulesEngineAdapter):
             except RulesEngineProtocolError:
                 # Phase-8 legacy bridge compatibility. A legacy probe is never
                 # sufficient for the process manager's `healthy` status.
-                result = client.request("engine_hello") if False else None
                 raise
         except Exception as exc:
             # Old fixtures can still expose a `probe` only. This is deliberately
@@ -442,7 +441,9 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                     notes=("legacy Phase-8 probe; not sufficient for external health",),
                 )
                 return probe.model_copy(
-                    update={"details": tuple(probe.details) + ("legacy protocol compatibility",)}
+                    update={
+                        "details": (*probe.details, "legacy protocol compatibility"),
+                    }
                 )
             except Exception:
                 return RulesEngineProbe(
