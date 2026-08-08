@@ -246,7 +246,7 @@ def run_phase85_validation(
     if not output.is_absolute():
         output = repo / output
     output.mkdir(parents=True, exist_ok=True)
-    write_protocol_schema(repo / "schemas/engine_adapter_protocol.schema.json")
+    write_protocol_schema(output / "engine_adapter_protocol.schema.json")
 
     config = load_engine_runtime_config()
     process_manager = EngineProcessManager(config, root=repo)
