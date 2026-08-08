@@ -6,7 +6,6 @@ from pathlib import Path
 
 from commander_lab.tools import build_local_snapshots
 
-
 _INPUTS = (
     "data/cards/oracle_subset.json",
     "data/collections/current_deck_allocations.json",
