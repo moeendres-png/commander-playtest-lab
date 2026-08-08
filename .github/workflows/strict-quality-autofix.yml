@@ -1,19 +1,18 @@
-name: Strict Quality Autofix
+name: Strict Quality Gate
 
 on:
   push:
     branches:
-      - fix/1.13.4-strict-quality
+      - fix/1.13.4-strict-quality-controlled
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  ruff-autofix:
-    if: ${{ !contains(github.event.head_commit.message || '', '[strict-quality-autofix]') }}
+  strict-quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -23,106 +22,26 @@ jobs:
           python-version: "3.12"
       - name: Install quality tools
         run: python -m pip install -e '.[dev,api,openai]'
-      - name: Normalize public model exports and ensemble test imports
-        shell: bash
-        run: |
-          python - <<'PY'
-          import ast
-          from pathlib import Path
-
-          models_path = Path("src/commander_lab/models/__init__.py")
-          source = models_path.read_text(encoding="utf-8")
-          tree = ast.parse(source)
-          imported_names: set[str] = set()
-          removal_ranges: list[tuple[int, int]] = []
-
-          for node in tree.body:
-              if isinstance(node, ast.ImportFrom) and node.level > 0:
-                  for alias in node.names:
-                      public_name = alias.asname or alias.name
-                      if public_name != "*" and not public_name.startswith("_"):
-                          imported_names.add(public_name)
-              if isinstance(node, ast.Assign) and any(
-                  isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
-              ):
-                  removal_ranges.append((node.lineno, node.end_lineno or node.lineno))
-              elif (
-                  isinstance(node, ast.Expr)
-                  and isinstance(node.value, ast.Call)
-                  and isinstance(node.value.func, ast.Attribute)
-                  and isinstance(node.value.func.value, ast.Name)
-                  and node.value.func.value.id == "__all__"
-                  and node.value.func.attr == "extend"
-              ):
-                  removal_ranges.append((node.lineno, node.end_lineno or node.lineno))
-
-          lines = source.splitlines()
-          remove_lines = {
-              line_no
-              for start, end in removal_ranges
-              for line_no in range(start, end + 1)
-          }
-          kept = [line for number, line in enumerate(lines, start=1) if number not in remove_lines]
-          while kept and not kept[-1].strip():
-              kept.pop()
-          export_lines = ["", "__all__ = ["]
-          export_lines.extend(f'    "{name}",' for name in sorted(imported_names))
-          export_lines.append("]")
-          models_path.write_text("\n".join(kept + export_lines) + "\n", encoding="utf-8")
-
-          test_path = Path("tests/unit/test_opponent_ensembles.py")
-          test_source = test_path.read_text(encoding="utf-8")
-          wildcard = "from commander_lab.models import *"
-          explicit = """from commander_lab.models import (\n    EnsembleWeightMode,\n    ObservationStatus,\n    ObservedConstraint,\n    OpponentCardAssumption,\n    OpponentEnsemble,\n    OpponentVariant,\n    VariantWeight,\n)"""
-          if wildcard in test_source:
-              test_source = test_source.replace(wildcard, explicit, 1)
-              test_path.write_text(test_source, encoding="utf-8")
-          PY
-      - name: Apply repository-wide Ruff formatting and safe fixes
+      - name: Ruff check
         id: ruff
         shell: bash
         run: |
           set +e
           : > ruff-diagnostics.txt
-          ruff format . >>ruff-diagnostics.txt 2>&1
+          ruff check . >>ruff-diagnostics.txt 2>&1
+          RUFF_RC=$?
+          ruff format --check . >>ruff-diagnostics.txt 2>&1
           FORMAT_RC=$?
-          if [ "$FORMAT_RC" -eq 0 ]; then
-            ruff check . --fix >>ruff-diagnostics.txt 2>&1
-            FIX_RC=$?
-            ruff check . >>ruff-diagnostics.txt 2>&1
-            CHECK_RC=$?
-            ruff format --check . >>ruff-diagnostics.txt 2>&1
-            FORMAT_CHECK_RC=$?
-            git diff --check >>ruff-diagnostics.txt 2>&1
-            DIFF_RC=$?
-          else
-            FIX_RC=0
-            CHECK_RC=0
-            FORMAT_CHECK_RC=0
-            DIFF_RC=0
-          fi
+          git diff --check >>ruff-diagnostics.txt 2>&1
+          DIFF_RC=$?
           cat > ruff-status.env <<EOF
+          RUFF_RC=$RUFF_RC
           FORMAT_RC=$FORMAT_RC
-          FIX_RC=$FIX_RC
-          CHECK_RC=$CHECK_RC
-          FORMAT_CHECK_RC=$FORMAT_CHECK_RC
           DIFF_RC=$DIFF_RC
           EOF
           cat ruff-diagnostics.txt
           exit 0
-      - name: Commit mechanical quality cleanup
-        shell: bash
-        run: |
-          if git diff --quiet; then
-            echo "No tracked Ruff changes required."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -u
-          git commit -m "style: repository-wide Ruff cleanup [strict-quality-autofix]"
-          git push origin HEAD:fix/1.13.4-strict-quality
-      - name: Capture strict mypy diagnostics
+      - name: Strict mypy
         shell: bash
         run: |
           set +e
@@ -153,7 +72,7 @@ jobs:
         run: |
           source ruff-status.env
           source mypy-status.env
-          if [ "$FORMAT_RC" -ne 0 ] || [ "$FIX_RC" -ne 0 ] || [ "$CHECK_RC" -ne 0 ] || [ "$FORMAT_CHECK_RC" -ne 0 ] || [ "$DIFF_RC" -ne 0 ] || [ "$MYPY_RC" -ne 0 ]; then
+          if [ "$RUFF_RC" -ne 0 ] || [ "$FORMAT_RC" -ne 0 ] || [ "$DIFF_RC" -ne 0 ] || [ "$MYPY_RC" -ne 0 ]; then
             echo "Strict quality issues remain; see uploaded diagnostics."
             exit 1
           fi
