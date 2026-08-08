@@ -1,37 +1,40 @@
 # NEXT STEP HANDOFF — F TO G
 
 Date: 2026-08-08
-Status: `PENDING_F_FINAL_CI_AND_MERGE`
+Status: `AUTHORITATIVE_AFTER_THIS_CLOSEOUT_MERGE`
 
 ## F result
 
-Point F performed organizational cleanup only. No decklist, inventory quantity, allocation, opponent content, or simulation semantics were changed.
+Point F is complete. It performed organizational cleanup only. No decklist, inventory quantity, allocation, opponent content, or simulation semantics were changed.
 
-### Completed cleanup
+### Verified cleanup
 
-- Audit E was completed before F and merged to `main` as `ae7be044fb9edc86ed353422dbc4e16766261ad2`.
-- GitHub branch cleanup deleted 24 branches proven fully contained in `main`.
-- 14 branches with exclusive commits were retained fail-closed.
-- The stale/mixed Drive `00_LATEST` was archived under `99_Historical`; F did not invent a replacement release pointer.
-- One proven-empty duplicate Drive folder `17_Mulligan_Lab` was permanently deleted.
-- Obsolete/superseded 1.13.3 sync phases, old pretest/audit folders, stale canonical-entry material, and old repair/intermediate material were moved to historical areas rather than destroyed.
-- `artifacts/audit/DELETION_LOG.json` and `docs/POST_CLEANUP_INVENTORY.md` record the cleanup evidence.
+- Audit E was completed first and merged to `main` as `ae7be044fb9edc86ed353422dbc4e16766261ad2`.
+- GitHub branch cleanup deleted 24 branches only after proving each branch tip was already contained in `main`.
+- 14 branches with exclusive commits were retained fail-closed for later semantic/historical review.
+- The stale/mixed Drive `00_LATEST` was removed from the active surface and archived under `99_Historical`; F did not invent a replacement release pointer.
+- One proven-empty duplicate Drive folder `17_Mulligan_Lab` was permanently deleted; the populated folder remains.
+- Obsolete/superseded 1.13.3 sync phases, the old 1.13.4 pretest release folder, the superseded 2026-08-06 system audit, stale canonical-entry material, the historical external-engine-fix note, and old repair/intermediate folders were archived rather than destroyed.
+- Key deleted branch names were searched in current repository content; no active code/document references were found for the checked canonical/release/data-sync branch names.
+- `artifacts/audit/DELETION_LOG.json` and `docs/POST_CLEANUP_INVENTORY.md` contain the machine-readable and human-readable cleanup evidence.
 
-## Activation condition for G
+### F verification
 
-G becomes authoritative only after this F evidence PR has:
+The F evidence head `5041aa0e51283c042e435306f0499d710761cdf5` passed all required public GitHub gates before merge:
 
-1. public GitHub CI/quality/security = SUCCESS;
-2. Release Artifacts = SUCCESS, including full tests, clean-tree assertion and recovery roundtrip;
-3. Windows Runtime Hygiene = SUCCESS;
-4. the F evidence PR is merged;
-5. `main` ancestry is verified;
-6. Drive receives the final F evidence with the exact merge commit;
-7. this handoff is amended to `F_COMPLETE=true` and `G_READY=true`.
+- CI / quality / security: `SUCCESS`;
+- Release Artifacts: `SUCCESS`, including full tests, clean-tree assertion, build, SHA-256 checks and recovery roundtrip;
+- Windows Runtime Hygiene: `SUCCESS`.
 
-## G scope after activation
+The F evidence PR was then merged to `main` as:
 
-Point G should then work from the exact merged F `main` commit and focus on modeling quality rather than further general cleanup:
+`80e894875497d088d3c48caf23b88a5c3b226c0d`
+
+This closeout file is the only change in the final F closeout PR. G may start only once this closeout PR itself has passed the same repository gates and has been merged; the resulting `main` descendant is the authoritative G starting point.
+
+## G scope
+
+Point G should focus on modeling quality rather than general cleanup:
 
 - high-impact Structural card-profile coverage, starting with Kaervek and relevant opponent cards;
 - structural modeling gaps that materially affect deckbuilding decisions;
@@ -45,8 +48,9 @@ Point G should then work from the exact merged F `main` commit and focus on mode
 - Tactical Oracle is not an external rules engine.
 - Real XMage/Forge validation remains pending.
 - Real-playtest calibration remains inactive project scope.
-- The 14 retained exclusive-commit branches are not current software truth; `main` remains authoritative.
+- The retained exclusive-commit branches are not current software truth; `main` remains authoritative.
+- Strict-quality branches remain review candidates until useful exclusive typing work is either adopted or rejected.
 - Do not modify canonical decklists or inventory/allocation in G without an explicit user decision.
 
-F_COMPLETE: false
-G_READY: false
+F_COMPLETE: true
+G_READY: true
