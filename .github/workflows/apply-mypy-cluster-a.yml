@@ -1,0 +1,122 @@
+name: Apply Strict Mypy Cluster A
+
+on:
+  push:
+    branches:
+      - fix/1.13.4-strict-quality-controlled
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message || '', '[mypy-cluster-a]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+      - name: Install quality tools
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Apply structural, ensemble, experiment and SDK hook fixes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(rel: str, old: str, new: str) -> None:
+              path = Path(rel)
+              text = path.read_text(encoding="utf-8")
+              if old not in text:
+                  raise RuntimeError(f"expected cluster-A pattern missing in {rel}: {old[:90]!r}")
+              path.write_text(text.replace(old, new), encoding="utf-8")
+
+          # Structural simulator: selected action has already been checked against None/pass.
+          replace(
+              "src/commander_lab/engine/structural/simulator.py",
+              '        if decision.selected_action_id in {None, "pass"}:\n            return False\n        protection = mapping[decision.selected_action_id]\n',
+              '        selected_action_id = decision.selected_action_id\n        if selected_action_id in {None, "pass"}:\n            return False\n        if selected_action_id is None:\n            return False\n        protection = mapping[selected_action_id]\n',
+          )
+
+          # Synthetic fixture helper should expose every keyword already accepted by _card.
+          replace(
+              "src/commander_lab/engine/structural/fixtures.py",
+              '''        *,\n        power: float = 0.0,\n        permanent: bool = False,\n        colors: frozenset[Color] = frozenset(),\n    ) -> None:\n''',
+              '''        *,\n        strength: float = 1.0,\n        power: float = 0.0,\n        permanent: bool = False,\n        creature: bool = False,\n        multiplayer: float = 0.0,\n        colors: frozenset[Color] = frozenset(),\n    ) -> None:\n''',
+          )
+          replace(
+              "src/commander_lab/engine/structural/fixtures.py",
+              '''                    roles,\n                    power=power,\n                    permanent=permanent,\n                    colors=colors,\n''',
+              '''                    roles,\n                    strength=strength,\n                    power=power,\n                    permanent=permanent,\n                    creature=creature,\n                    multiplayer=multiplayer,\n                    colors=colors,\n''',
+          )
+          path = Path("src/commander_lab/engine/structural/fixtures.py")
+          text = path.read_text(encoding="utf-8")
+          old_block = '''        for index, role_set in enumerate(slot_roles):\n            roles = role_set or {CardRole.ENABLER}\n            creature = bool(\n                roles\n                & {\n                    CardRole.ENGINE,\n                    CardRole.ENABLER,\n                    CardRole.PAYOFF,\n                    CardRole.FINISHER,\n                    CardRole.COMBAT_PAYOFF,\n                    CardRole.TOKEN_SOURCE,\n                }\n            )\n            mana_value = sum(role_mv.get(role, 3.0) for role in roles) / len(roles)\n            cards.append(\n                StructuralCardProfile(\n                    oracle_name=f"{deck_id} role card {index:03d}",\n                    mana_value=mana_value,\n                    roles=frozenset(roles),\n                    role_strengths={role: 1.0 for role in roles},\n                    is_permanent=not bool(\n                        roles\n                        & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.SELECTION}\n                    ),\n                    is_creature=creature,\n                    base_power=3.0 if creature else 0.0,\n                    commander_synergy=0.45\n                    if roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF}\n                    else 0.15,\n                    floor_value=0.72,\n                    immediate_impact=0.8\n                    if roles\n                    & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.PROTECTION}\n                    else 0.55,\n                    turn_cycle_risk=0.25\n                    if roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION}\n                    else 0.5,\n                    multiplayer_scaling=0.45\n                    if roles\n                    & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER, CardRole.TOKEN_SOURCE}\n'''
+          new_block = '''        for index, role_set in enumerate(slot_roles):\n            card_roles = role_set or {CardRole.ENABLER}\n            creature = bool(\n                card_roles\n                & {\n                    CardRole.ENGINE,\n                    CardRole.ENABLER,\n                    CardRole.PAYOFF,\n                    CardRole.FINISHER,\n                    CardRole.COMBAT_PAYOFF,\n                    CardRole.TOKEN_SOURCE,\n                }\n            )\n            mana_value = sum(role_mv.get(role, 3.0) for role in card_roles) / len(card_roles)\n            cards.append(\n                StructuralCardProfile(\n                    oracle_name=f"{deck_id} role card {index:03d}",\n                    mana_value=mana_value,\n                    roles=frozenset(card_roles),\n                    role_strengths={role: 1.0 for role in card_roles},\n                    is_permanent=not bool(\n                        card_roles\n                        & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.SELECTION}\n                    ),\n                    is_creature=creature,\n                    base_power=3.0 if creature else 0.0,\n                    commander_synergy=0.45\n                    if card_roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF}\n                    else 0.15,\n                    floor_value=0.72,\n                    immediate_impact=0.8\n                    if card_roles\n                    & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.PROTECTION}\n                    else 0.55,\n                    turn_cycle_risk=0.25\n                    if card_roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION}\n                    else 0.5,\n                    multiplayer_scaling=0.45\n                    if card_roles\n                    & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER, CardRole.TOKEN_SOURCE}\n'''
+          if old_block not in text:
+              raise RuntimeError("fixture role block missing")
+          text = text.replace(old_block, new_block)
+          path.write_text(text, encoding="utf-8")
+
+          # Pydantic validates the dynamic body while preserving a typed constructor boundary.
+          replace(
+              "src/commander_lab/agents/ensemble.py",
+              '''    return PilotProfile(\n        profile_id=f"{family}.{pilot_name.casefold()}.v1",\n        parameter_hash=_canonical_hash(body),\n        **body,\n    )\n''',
+              '''    return PilotProfile.model_validate(\n        {\n            "profile_id": f"{family}.{pilot_name.casefold()}.v1",\n            "parameter_hash": _canonical_hash(body),\n            **body,\n        }\n    )\n''',
+          )
+
+          # Avoid untyped **dict expansion into StructuralMatchConfig and type paired metrics directly.
+          path = Path("src/commander_lab/optimization/experiments.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''        configs = (pilot_config,) * len(baseline_ids)\n        common = dict(\n            seed=match_seed,\n            starting_player_seat=start,\n            pilot_configs=configs,\n        )\n        from commander_lab.models import StructuralAbortLimits\n\n        limits = StructuralAbortLimits(max_turns=max_turns)\n        base_result = base_sim.simulate(\n            StructuralMatchConfig(\n                match_id=f"{pair_id}-base-{index:08d}",\n                deck_ids=baseline_ids,\n                limits=limits,\n                **common,\n            ),\n'''
+          new = '''        configs = (pilot_config,) * len(baseline_ids)\n        from commander_lab.models import StructuralAbortLimits\n\n        limits = StructuralAbortLimits(max_turns=max_turns)\n        base_result = base_sim.simulate(\n            StructuralMatchConfig(\n                match_id=f"{pair_id}-base-{index:08d}",\n                deck_ids=baseline_ids,\n                limits=limits,\n                seed=match_seed,\n                starting_player_seat=start,\n                pilot_configs=configs,\n            ),\n'''
+          if old not in text:
+              raise RuntimeError("paired base config block missing")
+          text = text.replace(old, new)
+          text = text.replace(
+              '''            StructuralMatchConfig(\n                match_id=f"{pair_id}-variant-{index:08d}",\n                deck_ids=variant_ids,\n                limits=limits,\n                **common,\n            ),\n''',
+              '''            StructuralMatchConfig(\n                match_id=f"{pair_id}-variant-{index:08d}",\n                deck_ids=variant_ids,\n                limits=limits,\n                seed=match_seed,\n                starting_player_seat=start,\n                pilot_configs=configs,\n            ),\n''',
+          )
+          text = text.replace(
+              '''    def avg(rows, key):\n        return fmean(row[key] for row in rows)\n\n    base_place = avg(base_rows, "placement")\n''',
+              '''    def avg(rows: list[dict[str, float]], key: str) -> float:\n        return fmean(row[key] for row in rows)\n\n    base_place = avg(base_rows, "placement")\n''',
+          )
+          text = text.replace(
+              '''    differences = tuple(\n        float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs\n    )\n''',
+              '''    differences = tuple(\n        base_row["placement"] - variant_row["placement"]\n        for base_row, variant_row in zip(base_rows, var_rows, strict=True)\n    )\n''',
+          )
+          text = text.replace(
+              '        seeds=tuple(int(row["seed"]) for row in pairs),\n',
+              '        seeds=tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations)),\n',
+          )
+          path.write_text(text, encoding="utf-8")
+
+          # Keep runtime subclassing of the current Agents SDK RunHooks, but construct it dynamically
+          # so static typing does not mistake a runtime dictionary lookup for a type expression.
+          path = Path("src/commander_lab/agents/openai_workflow.py")
+          text = path.read_text(encoding="utf-8")
+          start = text.index("def _budget_hooks(\n")
+          end = text.index("\n\ndef build_agent_runtime(\n", start)
+          replacement = '''def _budget_hooks(\n    sdk: dict[str, Any],\n    tracker: WorkflowBudgetTracker,\n    trace: LocalAgentTraceRecorder,\n) -> Any:\n    class BudgetHookMethods:\n        def __init__(self) -> None:\n            self.started_calls = 0\n\n        @staticmethod\n        def _usage(context: Any) -> tuple[int, int, int]:\n            usage = context.usage\n            return (\n                int(getattr(usage, "requests", 0) or 0),\n                int(getattr(usage, "input_tokens", 0) or 0),\n                int(getattr(usage, "output_tokens", 0) or 0),\n            )\n\n        async def on_llm_start(\n            self,\n            context: Any,\n            agent: Any,\n            system_prompt: str | None,\n            input_items: list[Any],\n        ) -> None:\n            del system_prompt, input_items\n            requests, input_tokens, output_tokens = self._usage(context)\n            current_cost = (\n                input_tokens / 1_000_000 * tracker.limits.input_cost_per_million_usd\n                + output_tokens / 1_000_000 * tracker.limits.output_cost_per_million_usd\n            )\n            if self.started_calls >= tracker.limits.max_model_calls:\n                raise GuardrailViolation("maximum model calls exceeded before next call")\n            if input_tokens + output_tokens >= tracker.limits.max_total_tokens:\n                raise GuardrailViolation("maximum token budget reached before next call")\n            if current_cost >= tracker.limits.max_estimated_cost_usd:\n                raise GuardrailViolation("maximum estimated API cost reached before next call")\n            self.started_calls += 1\n            trace.emit(\n                "llm_started",\n                {\n                    "agent": getattr(agent, "name", type(agent).__name__),\n                    "call_index": self.started_calls,\n                    "usage_requests_before_call": requests,\n                    "tokens_before_call": input_tokens + output_tokens,\n                },\n            )\n\n        async def on_llm_end(self, context: Any, agent: Any, response: Any) -> None:\n            del response\n            requests, input_tokens, output_tokens = self._usage(context)\n            trace.emit(\n                "llm_completed",\n                {\n                    "agent": getattr(agent, "name", type(agent).__name__),\n                    "requests": requests,\n                    "input_tokens": input_tokens,\n                    "output_tokens": output_tokens,\n                },\n            )\n            if input_tokens + output_tokens > tracker.limits.max_total_tokens:\n                raise GuardrailViolation("maximum total token budget exceeded")\n\n        async def on_tool_start(self, context: Any, agent: Any, tool: Any) -> None:\n            trace.emit(\n                "tool_started",\n                {\n                    "agent": getattr(agent, "name", type(agent).__name__),\n                    "tool": getattr(tool, "name", type(tool).__name__),\n                    "tool_call_id": getattr(context, "tool_call_id", None),\n                },\n            )\n\n        async def on_tool_end(\n            self, context: Any, agent: Any, tool: Any, result: object\n        ) -> None:\n            trace.emit(\n                "tool_completed",\n                {\n                    "agent": getattr(agent, "name", type(agent).__name__),\n                    "tool": getattr(tool, "name", type(tool).__name__),\n                    "tool_call_id": getattr(context, "tool_call_id", None),\n                    "result_type": type(result).__name__,\n                },\n            )\n\n    run_hooks_base = sdk["RunHooks"]\n    budget_hooks_type = type(\n        "BudgetHooks",\n        (run_hooks_base,),\n        {\n            "__init__": BudgetHookMethods.__init__,\n            "_usage": staticmethod(BudgetHookMethods._usage),\n            "on_llm_start": BudgetHookMethods.on_llm_start,\n            "on_llm_end": BudgetHookMethods.on_llm_end,\n            "on_tool_start": BudgetHookMethods.on_tool_start,\n            "on_tool_end": BudgetHookMethods.on_tool_end,\n        },\n    )\n    return budget_hooks_type()\n'''
+          text = text[:start] + replacement + text[end:]
+          path.write_text(text, encoding="utf-8")
+          PY
+          ruff check . --fix
+          ruff format .
+          ruff check .
+          ruff format --check .
+          python -m compileall -q src tests scripts
+          git diff --check
+      - name: Commit cluster A and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-mypy-cluster-a.yml
+          git add -u
+          git commit -m "fix: resolve strict-mypy structural and agent clusters [mypy-cluster-a]"
+          git push origin HEAD:fix/1.13.4-strict-quality-controlled
