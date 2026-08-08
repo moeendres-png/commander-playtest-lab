@@ -1,0 +1,111 @@
+name: Audit G Bootstrap Apply
+
+on:
+  push:
+    branches:
+      - audit/g-modeling-data-quality
+
+permissions:
+  contents: write
+
+jobs:
+  apply-frozen-g:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Verify and apply frozen G patch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat .g-bootstrap/part{00..05}.b64 .g-bootstrap/rem{00..17}.b64 > /tmp/g.patch.xz.b64
+          base64 --decode /tmp/g.patch.xz.b64 > /tmp/g.patch.xz
+          echo "5bda00cc596ecd9246ee35c75070445ae5c6e3f510235baf7269e1d5e2954069  /tmp/g.patch.xz" | sha256sum -c -
+          xz -dc /tmp/g.patch.xz > /tmp/g.patch
+
+          git apply --check /tmp/g.patch
+          git apply /tmp/g.patch
+
+          rm -rf .g-bootstrap
+          rm .github/workflows/audit-g-bootstrap.yml
+          git diff --check
+
+          while read -r expected path; do
+            actual="$(git hash-object "$path")"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "Blob mismatch: $path expected=$expected actual=$actual" >&2
+              exit 1
+            fi
+          done <<'EOF'
+          e737104bad94769225d1e7096321e75c7564e56f artifacts/audit/G_BASELINE_DECISION_EVAL.json
+          a3cd24ffdc9416cb12fc09094c523f61d2e77dc8 artifacts/audit/G_GAP_REGISTER.json
+          f2f99d25e32f144b371189062116461f0b6835ef artifacts/audit/G_HOLDOUT_EVAL_RESULTS.json
+          ef76f53e6b48d8942fcc4f2a4b2fa43685084222 artifacts/audit/G_LOCAL_VALIDATION.json
+          d036ec4f3bc74b0c58a87822b959d99cf18b70d8 data/cards/structural_role_profiles.json
+          8106318b1aacaa9c0c93643e64996f6c5f54a05b data/decks/opponents/kaervek/current/roles.json
+          03588206108adbb3657669f64bef3de23c31a3ba data/evals/golden/pilot_decisions_g.json
+          5dd17af51e9a071139365ca000e42b78f0914704 data/evals/holdout/pilot_decisions_g.json
+          64c6aff0eb07e41b5124d0de93ea02d50512838c data/opponents/current_structural_profiles.json
+          fc70c9cf7c752bc0b27e7c1ed381566093cf3b8c docs/CARD_COVERAGE_CURRENT.md
+          169dfda2f31c17acc8ca47cae8e69107f5b18b0d docs/META_KB_REFRESH_REPORT.md
+          7720598d73fc5402ec03d13b56465e583bdb7f45 docs/MODELING_IMPROVEMENT_REPORT.md
+          2f2190679d89873763de803f0e82d9109155f88f docs/PILOT_GOLDEN_SCENARIOS.md
+          78a4511da1266f59bde98e9082c9b9f38bd46f26 src/commander_lab/agents/pilots.py
+          f71d13d0b81661afb9139b62feee753c1159fdb6 src/commander_lab/engine/structural/fixtures.py
+          1778e1fa98b74595290b8794177365a8491d8bfd src/commander_lab/engine/structural/profiles.py
+          2d908861557d825536af9633ab49a36ab2d68d65 src/commander_lab/engine/structural/simulator.py
+          07a4e27d2a8a77b64f17087b54f41b54814c5b84 src/commander_lab/evals/golden.py
+          a42656d7a82e379805335824c2ec3c0b57310461 src/commander_lab/evals/models.py
+          526c2819ba47d4bb02ab44cbd85cf8a584186c04 src/commander_lab/models/__init__.py
+          b5b996c2c38ef4902097663fdd244774220bef62 src/commander_lab/models/meta.py
+          7bf7858e3723aa4e95b683399542821737d04f72 src/commander_lab/models/pilots.py
+          8765b649251f651995825cd26ae40999a36b30f2 src/commander_lab/models/roles.py
+          9050cbcab073f2e7cc6ab30b735238f3d6671355 src/commander_lab/models/structural.py
+          813778b36675cb4ea68a0d2c236eff0c86f88d4f tests/golden/test_g_decision_quality.py
+          c68248139c4bc20067d65dfe59b9ec3adbfa82c2 tests/unit/test_g_modeling_quality.py
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(G): improve structural decision quality"
+
+          cat > /tmp/expected-files <<'EOF'
+          artifacts/audit/G_BASELINE_DECISION_EVAL.json
+          artifacts/audit/G_GAP_REGISTER.json
+          artifacts/audit/G_HOLDOUT_EVAL_RESULTS.json
+          artifacts/audit/G_LOCAL_VALIDATION.json
+          data/cards/structural_role_profiles.json
+          data/decks/opponents/kaervek/current/roles.json
+          data/evals/golden/pilot_decisions_g.json
+          data/evals/holdout/pilot_decisions_g.json
+          data/opponents/current_structural_profiles.json
+          docs/CARD_COVERAGE_CURRENT.md
+          docs/META_KB_REFRESH_REPORT.md
+          docs/MODELING_IMPROVEMENT_REPORT.md
+          docs/PILOT_GOLDEN_SCENARIOS.md
+          src/commander_lab/agents/pilots.py
+          src/commander_lab/engine/structural/fixtures.py
+          src/commander_lab/engine/structural/profiles.py
+          src/commander_lab/engine/structural/simulator.py
+          src/commander_lab/evals/golden.py
+          src/commander_lab/evals/models.py
+          src/commander_lab/models/__init__.py
+          src/commander_lab/models/meta.py
+          src/commander_lab/models/pilots.py
+          src/commander_lab/models/roles.py
+          src/commander_lab/models/structural.py
+          tests/golden/test_g_decision_quality.py
+          tests/unit/test_g_modeling_quality.py
+          EOF
+
+          git diff --name-only origin/main...HEAD | sort > /tmp/actual-files
+          diff -u /tmp/expected-files /tmp/actual-files
+          git diff --check origin/main...HEAD
+          test -z "$(git status --porcelain)"
+          git push origin HEAD:audit/g-modeling-data-quality
