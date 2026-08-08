@@ -13,6 +13,11 @@ from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 
+from commander_lab.engine.runtime_evidence import (
+    build_runtime_attestation,
+    rotate_runtime_log,
+    write_runtime_attestation,
+)
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     EngineProcessState,
@@ -70,6 +75,7 @@ class EngineProcessManager:
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self._client: object | None = None
         self.state_path = self.log_dir / f"{config.provider}.process-state.json"
+        self.attestation_path = self.log_dir / f"{config.provider}.runtime-attestation.json"
         self._state = EngineProcessState(
             provider=config.provider,
             status=EngineProcessStatus.NOT_CONFIGURED,
@@ -124,6 +130,18 @@ class EngineProcessManager:
             sock.settimeout(0.2)
             return sock.connect_ex((self.config.host, self.config.port)) != 0
 
+    def _rotate_logs(self) -> None:
+        rotate_runtime_log(self.log_dir / f"{self.config.provider}.bridge.stdout.jsonl")
+        rotate_runtime_log(self.log_dir / f"{self.config.provider}.bridge.stderr.log")
+
+    def _resolved_start_executable(self) -> str:
+        executable = self.config.start_command[0]
+        candidate = Path(executable)
+        if candidate.is_file():
+            return str(candidate.resolve())
+        resolved = shutil.which(executable)
+        return resolved or executable
+
     def start(self) -> EngineProcessState:
         with self._lock:
             preflight = self.diagnose()
@@ -134,6 +152,15 @@ class EngineProcessManager:
                 EngineProcessStatus.DEGRADED,
             }:
                 return preflight
+            if self.port_available() is False:
+                return self._replace(
+                    status=EngineProcessStatus.UNHEALTHY,
+                    details=(
+                        f"configured engine port is already in use: "
+                        f"{self.config.host}:{self.config.port}",
+                    ),
+                )
+            self._rotate_logs()
             self._replace(status=EngineProcessStatus.STARTING, started_at=_now(), details=())
             from commander_lab.engine.rules.bridge import JsonLineBridgeClient
 
@@ -209,13 +236,32 @@ class EngineProcessManager:
                         last_healthcheck_at=_now(),
                         details=("missing required capabilities: " + ", ".join(missing),),
                     )
+                pid = self._client.pid
+                if pid is None:
+                    return self._replace(
+                        status=EngineProcessStatus.UNHEALTHY,
+                        last_healthcheck_at=_now(),
+                        details=("bridge process reported no pid after handshake",),
+                    )
+                attestation = build_runtime_attestation(
+                    provider=self.config.provider,
+                    engine_version=engine_version,
+                    protocol_version=self.config.protocol_version,
+                    pid=pid,
+                    runtime_kind=capabilities.runtime_kind,
+                    start_executable=self._resolved_start_executable(),
+                )
+                write_runtime_attestation(self.attestation_path, attestation)
                 return self._replace(
                     status=EngineProcessStatus.HEALTHY,
-                    pid=self._client.pid,
+                    pid=pid,
                     engine_version=engine_version,
                     capabilities=capabilities,
                     last_healthcheck_at=_now(),
-                    details=("real external capability handshake succeeded",),
+                    details=(
+                        "real external capability handshake succeeded; "
+                        "runtime attestation recorded",
+                    ),
                 )
             except Exception as exc:
                 return self._replace(
