@@ -149,6 +149,23 @@ def backup_database(path: str | Path, destination: str | Path) -> Path:
     return target
 
 
+def _restore_integrity_ok(path: Path) -> bool:
+    """Check a restore candidate without enabling WAL or mutating the file.
+
+    The normal lab connection enables WAL. On Windows that can leave a transient
+    filesystem lock around a candidate that must immediately be atomically replaced.
+    Restore verification therefore uses a short-lived query-only connection.
+    """
+    connection = sqlite3.connect(path, timeout=30)
+    try:
+        connection.execute("PRAGMA query_only=ON")
+        integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
+        foreign_keys = connection.execute("PRAGMA foreign_key_check").fetchall()
+        return integrity == "ok" and not foreign_keys
+    finally:
+        connection.close()
+
+
 def restore_database(backup: str | Path, destination: str | Path) -> Path:
     source = Path(backup)
     if not source.is_file():
@@ -156,8 +173,9 @@ def restore_database(backup: str | Path, destination: str | Path) -> Path:
     target = Path(destination)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(target.suffix + ".restore.tmp")
+    temporary.unlink(missing_ok=True)
     shutil.copy2(source, temporary)
-    if check_database(temporary)["status"] != "passed":
+    if not _restore_integrity_ok(temporary):
         temporary.unlink(missing_ok=True)
         raise ValueError("backup database failed integrity check")
     temporary.replace(target)
