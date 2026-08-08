@@ -84,5 +84,47 @@
     "root_cause": "Incomplete sealed payload.",
     "severity": "medium",
     "validation_status": "passed"
+  },
+  {
+    "affected_versions": [
+      "1.13.4"
+    ],
+    "bug_id": "BUG-AUDIT-001",
+    "component": "audit runtime hygiene",
+    "discovered_by": "Audit Point E clean-tree reproduction",
+    "fix": "Execute the legacy Phase 8.6 generator in an isolated Git worktree and publish generated evidence only under .runtime/audit/phase86.",
+    "regression_test": "tests/unit/test_audit_e_runtime_hygiene.py",
+    "reproduction": "audit-phase86 --skip-tests modified 13 tracked audit, schema, and validation files on a clean checkout.",
+    "root_cause": "The legacy Phase 8.6 generator wrote generated evidence directly into tracked project paths.",
+    "severity": "high",
+    "validation_status": "passed"
+  },
+  {
+    "affected_versions": [
+      "1.13.4"
+    ],
+    "bug_id": "BUG-AUDIT-002",
+    "component": "audit evidence truthfulness",
+    "discovered_by": "Audit Point E reproduction",
+    "fix": "Normalize published runtime evidence from actual executed check states and installed-tool availability.",
+    "regression_test": "tests/unit/test_audit_e_runtime_hygiene.py",
+    "reproduction": "Generated audit prose could report Ruff, mypy, and Hypothesis as unavailable on a runner where those tools were installed and executed.",
+    "root_cause": "Tool-availability prose was partly hard-coded instead of derived from runtime state.",
+    "severity": "medium",
+    "validation_status": "passed"
+  },
+  {
+    "affected_versions": [
+      "1.13.4"
+    ],
+    "bug_id": "BUG-PERF-001",
+    "component": "structural batch process scheduling",
+    "discovered_by": "Audit Point E controlled benchmark and cProfile run",
+    "fix": "Cap effective workers by available CPUs and use the existing serial path when there are fewer than 32 games per effective process worker.",
+    "regression_test": "tests/unit/test_audit_e_performance_scheduler.py",
+    "reproduction": "On a 2-vCPU GitHub runner, a 32-game batch was about 20.8% slower with two requested workers and about 51.8% slower with four requested workers than with one worker. Resource-tracker/semaphore warnings did not reproduce in the controlled run.",
+    "root_cause": "Process startup, wait, and shutdown dominated the undersized workload while task construction and deck serialization were negligible.",
+    "severity": "medium",
+    "validation_status": "passed"
   }
 ]

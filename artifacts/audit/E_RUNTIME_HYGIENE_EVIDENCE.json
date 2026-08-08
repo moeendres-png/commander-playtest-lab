@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "audit_point": "E",
+  "bug_ids": ["BUG-AUDIT-001", "BUG-AUDIT-002"],
+  "generated_date": "2026-08-08",
+  "canonical_start_commit": "6937a95479db55924b92a9cc55c6b05b516ac855",
+  "status": "reproduced_and_fixed_locally_pending_final_ci",
+  "bug_audit_001": {
+    "reproduced": true,
+    "command": "commander-lab audit-phase86 --skip-tests",
+    "tracked_files_changed_before_fix": [
+      "PHASE86_VALIDATION_OUTPUT.json",
+      "artifacts/audit/dependency_graph.md",
+      "artifacts/audit/executive_summary.md",
+      "artifacts/audit/repository_inventory.json",
+      "artifacts/audit/reproducibility_report.md",
+      "artifacts/audit/security_report.md",
+      "artifacts/audit/static_analysis_raw.json",
+      "artifacts/audit/static_analysis_report.md",
+      "schemas/models/CounterfactualBranchpoint.schema.json",
+      "schemas/models/CounterfactualResult.schema.json",
+      "schemas/models/EngineRuntimeConfig.schema.json",
+      "schemas/models/ToolExecutionMetadata.schema.json",
+      "schemas/models/ToolResponse.schema.json"
+    ],
+    "root_cause": "legacy Phase 8.6 generation wrote runtime evidence and regenerated schemas directly into version-controlled project paths",
+    "fix": "run the legacy generator in a detached temporary Git worktree at the exact source commit and publish generated outputs only under .runtime/audit/phase86",
+    "runtime_output_root": ".runtime/audit/phase86",
+    "gitignored_runtime_root": true,
+    "regression_test": "tests/unit/test_audit_e_runtime_hygiene.py",
+    "regression_contract": "full git status --porcelain=v1 --untracked-files=all is byte-identical before and after the audit"
+  },
+  "bug_audit_002": {
+    "reproduced": true,
+    "root_cause": "quality-tool availability/readiness prose was partly hard-coded instead of derived from executed check states",
+    "fix": "runtime publication derives Ruff/mypy status from AuditCheck values and Hypothesis availability from the active runtime",
+    "regression_test": "tests/unit/test_audit_e_runtime_hygiene.py"
+  },
+  "local_validation": {
+    "targeted_e_and_audit_batch_tests": "14 passed",
+    "non_unit_batch": "43 passed, 1 expected external-engine differential skip",
+    "structural_and_rules_integration_batch": "14 passed",
+    "remaining_integration_batch": "13 passed",
+    "unit_batch_a": "96 passed",
+    "unit_batch_b": "148 passed",
+    "aggregate": "314 passed, 1 expected skip",
+    "compileall": "passed",
+    "git_diff_check": "passed"
+  },
+  "final_ci_boundary": "Ruff, repository Mypy-baseline, Security, Release Artifacts, and Windows Runtime Hygiene must still run on the final compact PR head before merge."
+}
