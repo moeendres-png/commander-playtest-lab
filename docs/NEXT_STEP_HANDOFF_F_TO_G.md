@@ -1,7 +1,7 @@
 # NEXT STEP HANDOFF — F TO G
 
 Date: 2026-08-08
-Status: `AUTHORITATIVE_AFTER_THIS_CLOSEOUT_MERGE`
+Status: `AUTHORITATIVE_AFTER_SCOPE_CORRECTION_MERGE`
 
 ## F result
 
@@ -16,7 +16,6 @@ Point F is complete. It performed organizational cleanup only. No decklist, inve
 - One proven-empty duplicate Drive folder `17_Mulligan_Lab` was permanently deleted; the populated folder remains.
 - Obsolete/superseded 1.13.3 sync phases, the old 1.13.4 pretest release folder, the superseded 2026-08-06 system audit, stale canonical-entry material, the historical external-engine-fix note, and old repair/intermediate folders were archived rather than destroyed.
 - Key deleted branch names were searched in current repository content; no active code/document references were found for the checked canonical/release/data-sync branch names.
-- The stale, unmerged Audit-D PR #16 was closed during final F review; its branch/history remains retained because it contains exclusive commits and therefore stays `REVIEW_REQUIRED` rather than being destructively deleted.
 - `artifacts/audit/DELETION_LOG.json` and `docs/POST_CLEANUP_INVENTORY.md` contain the machine-readable and human-readable cleanup evidence.
 
 ### F verification
@@ -27,35 +26,35 @@ The F evidence head `5041aa0e51283c042e435306f0499d710761cdf5` passed all requir
 - Release Artifacts: `SUCCESS`, including full tests, clean-tree assertion, build, SHA-256 checks and recovery roundtrip;
 - Windows Runtime Hygiene: `SUCCESS`.
 
-The F evidence PR was then merged to `main` as:
+The F evidence PR was merged as `80e894875497d088d3c48caf23b88a5c3b226c0d`.
+The F closeout PR was merged as `618280095165e81eae8045945b05530491f2576e` after the same green gates.
+Post-merge cleanup helper commits produced zero net file changes and removed their temporary workflow/branch; pre-correction `main` was `4f2ca55a917be9fccb79f6058a250886a9005cb6`, with final push CI and Windows Runtime Hygiene green.
 
-`80e894875497d088d3c48caf23b88a5c3b226c0d`
+## G scope
 
-This closeout is documentation-only. G may start only once this closeout PR itself has passed the same repository gates and has been merged; the resulting `main` descendant is the authoritative G starting point.
+The authoritative G scope is the user-approved modeling-quality scope from the D–I sequence. G should focus on improving the parts of the Commander Playtest Lab that most affect deckbuilding decisions, without silently changing canonical decklists or inventory.
 
-## G scope — direct user override
+G should address, in priority order:
 
-The direct user instruction of 2026-08-08 overrides the broader earlier G handoff scope:
+1. high-impact Structural card-profile coverage, beginning with Kaervek and relevant opponent cards;
+2. structural model gaps that materially affect Commander deckbuilding decisions;
+3. opponent uncertainty while strictly preserving `verified`, `observed`, `reported`, `synthetic`, and `unknown` evidence boundaries;
+4. current meta/research knowledge refresh with provenance and without treating research/model estimates as empirical local win rates;
+5. adversarial pilot/golden scenarios for Korvold and RogShai that test protection timing, wipe timing, stack interaction, engine-vs-threat decisions, finisher windows, rebuild, pod size, seat effects, and archenemy states.
 
-> For Point G, perform **only work inside Google Drive**.
-
-Therefore, unless the user later explicitly changes this scope:
-
-- G may inspect, organize, reconcile, archive, update and document relevant material inside Google Drive;
-- G must not modify GitHub branches, pull requests, repository source code, workflows, tests, simulator logic, pilots, schemas or other repository files;
-- G must not implement code-side structural card-profile/modeling changes merely because they appeared in an older G plan;
-- non-Drive G tasks are deferred, not silently treated as completed;
-- canonical decklists and inventory/allocation remain unchanged unless the user explicitly decides otherwise.
+G may make focused repository/code/test changes when required to complete those modeling-quality tasks, using the normal small-branch → tests → PR → CI → merge process.
 
 ## Carry-forward boundaries
 
 - Structural Simulator remains structural evidence, not empirical win rate.
 - Tactical Oracle is not an external rules engine.
-- Real XMage/Forge validation remains pending.
+- Real XMage/Forge validation remains pending for the later external-engine phase.
 - Real-playtest calibration remains inactive project scope.
 - The retained exclusive-commit branches are not current software truth; `main` remains authoritative.
-- Strict-quality branches remain review candidates until useful exclusive typing work is either adopted or rejected.
-- Repository-wide or code-side G work is explicitly out of scope under the current user instruction.
+- Strict-quality branches remain review candidates until useful exclusive typing work is adopted or rejected.
+- Do not modify canonical Korvold, RogShai, Kaervek decklists, inventory quantities, or cross-deck allocations without explicit user instruction.
+
+The earlier repository-only statement that G was restricted to Google Drive had no verified supporting direct-user instruction in the current project context and is superseded by this corrected handoff.
 
 F_COMPLETE: true
 G_READY: true
