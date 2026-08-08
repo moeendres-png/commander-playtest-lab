@@ -2,6 +2,7 @@
 
 Date: 2026-08-08
 Baseline: `1.13.4` / `main` / `c969fef5f0e78caade87187d44524d959568d434`
+Merged D implementation: PR #15 / `b70dda42778f61a8be5b62c79f39a385ad7c07e1`
 Scope: technical truth/binding limitations only. No deck, inventory, opponent-content, or modeling changes.
 
 ## D register
@@ -62,7 +63,7 @@ Identity-mutating authoring tools (`create_meta_snapshot`, `compile_pilot_policy
 
 The project already enforced deck hashes in compiled rules and pilot profiles. D adds the missing service-level guard: `run_policy_eval` rejects a compiled policy whose `deck_hash` differs from the requested current deck before scenario evaluation.
 
-## Verification
+## Final verification
 
 Local verification on the D patch:
 
@@ -73,11 +74,37 @@ Local verification on the D patch:
 - property/golden/contract/regression: 27 PASS
 - integration batch A: 8 PASS
 - integration batch B: 14 PASS
-- test collection: 309 tests collected
-- Ruff: unavailable in the local isolated package index; required on GitHub CI
-- Mypy: unavailable in the local isolated package index; required on GitHub CI
+- test collection: 309 tests
 
-One local unit batch completed all 134 tests successfully but the harness reported a timeout during process cleanup after pytest had printed the final PASS summary. This is not counted as a test failure and belongs to the existing runtime/performance cleanup work in E.
+GitHub validation on the final focused D PR head:
+
+- CI workflow run `31273590294`: SUCCESS
+  - changed-file Ruff lint: PASS
+  - changed-file Ruff format check: PASS
+  - full test suite: 308 PASS, 1 SKIP, 0 FAIL
+  - `compileall`: PASS
+  - secret-pattern scan: PASS
+  - wheel build: PASS
+  - Phase 8.6 audit command executed under the existing acceptance contract
+- Security job: SUCCESS
+  - dependency audit: PASS
+  - CycloneDX SBOM: PASS
+  - license report: PASS
+- Release Artifacts workflow run `31273590309`: SUCCESS
+  - full suite, build, manifests/checksums and roundtrip verification: PASS
+- Windows Runtime Hygiene workflow run `31273590256`: SUCCESS
+  - Windows full suite and clean-tree/runtime-hygiene checks: PASS
+
+### Mypy status
+
+`mypy src/commander_lab` was executed by CI. The repository still has an established strict-type baseline of 268 errors in 36 files, so this is **not** represented as a clean strict-Mypy pass. The CI `Mypy baseline` gate completed successfully under the repository's existing baseline policy, and D does not broaden scope into repository-wide type-debt cleanup. This debt remains explicit rather than being hidden or reclassified.
+
+### Known E reproduction signals retained
+
+The Phase 8.6 audit output still reports tracked/runtime audit-generation concerns and the local D run previously showed post-test process-cleanup delay. These are intentionally not reclassified as D failures; they are the inputs to E and must be reproduced before repair:
+
+- `BUG-AUDIT-001`: audit/acceptance execution may dirty tracked audit/schema artifacts.
+- `BUG-PERF-001`: multiprocessing may show negative scaling and/or resource-cleanup warnings.
 
 ## Deliberately not remediated in D
 
@@ -91,5 +118,6 @@ The following are real limits, not D-level technical binding defects:
 - meta research freshness
 - real XMage/Forge execution
 - external legal actions / external counterfactual executor
+- repository-wide strict-Mypy debt
 
-These remain correctly scoped to G and the later J roadmap.
+These remain correctly scoped to later audit/roadmap work.
