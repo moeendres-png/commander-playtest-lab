@@ -59,9 +59,5 @@ def test_rogshai_fresh_delta_is_exactly_three_land_swaps() -> None:
     old = _cards(VARIANT_DIR / "rogshai_V0.1.1.txt")
     new = _cards(VARIANT_DIR / "rogshai_V0.1.2.txt")
     removed, added = _delta(old, new)
-    assert removed == Counter(
-        {"Mystic Monastery": 1, "Temple of Epiphany": 1, "Coastal Peak": 1}
-    )
-    assert added == Counter(
-        {"Frostboil Snarl": 1, "Scorched Geyser": 1, "Turbulent Springs": 1}
-    )
+    assert removed == Counter({"Mystic Monastery": 1, "Temple of Epiphany": 1, "Coastal Peak": 1})
+    assert added == Counter({"Frostboil Snarl": 1, "Scorched Geyser": 1, "Turbulent Springs": 1})
