@@ -99,10 +99,8 @@ def _inferred_roles(identity: CardIdentity) -> frozenset[CardRole]:
     if (
         ("add {" in text and not is_land)
         or "treasure token" in text
-        or ("search your library for" in text
-        and "land card" in text)
-        or ("put a land card" in text
-        and "battlefield" in text)
+        or ("search your library for" in text and "land card" in text)
+        or ("put a land card" in text and "battlefield" in text)
     ):
         roles.add(CardRole.RAMP)
     if (
