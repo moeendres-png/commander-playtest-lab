@@ -2028,7 +2028,7 @@ class CommanderToolService:
         ordered: list[str] = []
         for deck_id in (*requested,
                         "opponent/morcant-elves", "opponent/cosmic-spiderman-midbudget",
-                        "opponent/blight-curse-precon", "opponent/kaervek-reference",
+                        "opponent/blight-curse-precon", "kaervek/current",
                         "opponent/doom-prevails-precon", "opponent/dance-elements-precon",
                         "opponent/wakanda-forever-precon",
                         "synthetic/aggro", "synthetic/control", "synthetic/engine"):

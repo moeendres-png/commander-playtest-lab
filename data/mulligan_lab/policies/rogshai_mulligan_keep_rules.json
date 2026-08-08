@@ -78,7 +78,7 @@
           "estimate_level": "structural_followup",
           "keep_agreement_rate": 1.0,
           "opponent_deck_ids": [
-            "opponent/kaervek-reference",
+            "kaervek/current",
             "opponent/doom-prevails-precon",
             "opponent/dance-elements-precon"
           ],

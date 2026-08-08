@@ -37,7 +37,7 @@ def test_every_paired_comparison_exposes_required_protocol_fields() -> None:
     response = service.compare_variants_paired(PairedVariantInput(
         deck_id="korvold/current",
         swaps=(VariantSwap(
-            remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"
+            remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"
         ),),
         iterations=3,
         workers=1,

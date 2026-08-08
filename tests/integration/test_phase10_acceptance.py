@@ -18,7 +18,7 @@ def test_current_opponent_profiles_are_loaded(project_root: Path = Path.cwd()) -
         "opponent/morcant-elves",
         "opponent/cosmic-spiderman-midbudget",
         "opponent/blight-curse-precon",
-        "opponent/kaervek-reference",
+        "kaervek/current",
         "opponent/doom-prevails-precon",
         "opponent/dance-elements-precon",
         "opponent/wakanda-forever-precon",

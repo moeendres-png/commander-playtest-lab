@@ -3,7 +3,7 @@
     {
       "commander": "Korvold, Fae-Cursed King",
       "content_sha256": "abd2d0afaef2cfa57dd131a45bdac97e69974d0f5df91e1dbe059bfd5c1b6de7",
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "format_band": "normal_four_player",
       "imported_at": "2026-08-06T07:37:31.450145Z",
       "license_notes": "structured extraction only unless the source is user-provided",
@@ -18,7 +18,7 @@
     {
       "commander": "Korvold, Fae-Cursed King",
       "content_sha256": "dbc690c6b3e2ef510cb401eba8c2596bf1b3e01f0f9f983abbf7b95dfcd115d0",
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "format_band": "normal_four_player",
       "imported_at": "2026-08-06T07:37:31.458542Z",
       "license_notes": "user-provided project guidance",
@@ -33,7 +33,7 @@
     {
       "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
       "content_sha256": "d63f05458096dec516d4e83d3a8f4e685900c67f5d313fca68f41e0ddf98bc59",
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "format_band": "normal_four_player",
       "imported_at": "2026-08-06T07:37:31.465449Z",
       "license_notes": "user-provided project guidance",
@@ -79,7 +79,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -115,7 +115,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -153,7 +153,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -191,7 +191,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -241,7 +241,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -280,7 +280,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -317,7 +317,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -354,7 +354,7 @@
         "value": null
       },
       "confidence": 0.45,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "primer_inferred",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -392,7 +392,7 @@
         "value": null
       },
       "confidence": 0.96,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -444,7 +444,7 @@
         "value": null
       },
       "confidence": 0.9,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -483,7 +483,7 @@
         "value": null
       },
       "confidence": 0.9,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -534,7 +534,7 @@
         "value": null
       },
       "confidence": 0.88,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -574,7 +574,7 @@
         "value": null
       },
       "confidence": 0.91,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -617,7 +617,7 @@
         "value": null
       },
       "confidence": 0.94,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -660,7 +660,7 @@
         "value": null
       },
       "confidence": 0.96,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -715,13 +715,13 @@
         "value": null
       },
       "confidence": 0.95,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
       "manually_approved": true,
       "priority": 95,
-      "rationale": "The current list wants these auras to produce value immediately or remain protected.",
+      "rationale": "The current list wants these auras to produce value immediately or remain protected. Historical/stale for current 2026-08-07 deck.",
       "requires_cards": [
         "Combat Research",
         "Curiosity",
@@ -731,7 +731,7 @@
       "score_adjustment": -2.2,
       "source_excerpt": null,
       "source_id": "local-user-rogshai-guidance-2026-08-02",
-      "status": "active",
+      "status": "inactive",
       "tags": [
         "aura",
         "sequencing"
@@ -757,7 +757,7 @@
         "value": null
       },
       "confidence": 0.98,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -810,7 +810,7 @@
         "value": null
       },
       "confidence": 1.0,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "tactical_oracle",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -863,7 +863,7 @@
         "value": null
       },
       "confidence": 0.95,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -903,7 +903,7 @@
         "value": 3.0
       },
       "confidence": 0.92,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -955,7 +955,7 @@
         "value": null
       },
       "confidence": 0.93,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -1006,7 +1006,7 @@
         "value": null
       },
       "confidence": 0.72,
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "primer_explicit",
       "forbidden_when": [],
       "format_band": "normal_four_player",

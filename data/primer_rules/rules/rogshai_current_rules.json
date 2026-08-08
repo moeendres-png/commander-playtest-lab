@@ -22,7 +22,7 @@
         "value": null
       },
       "confidence": 0.96,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -77,13 +77,13 @@
         "value": null
       },
       "confidence": 0.95,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
       "manually_approved": true,
       "priority": 95,
-      "rationale": "The current list wants these auras to produce value immediately or remain protected.",
+      "rationale": "The current list wants these auras to produce value immediately or remain protected. Historical/stale for current 2026-08-07 deck: required combat-draw auras are absent. Historical/stale for current 2026-08-07 deck.",
       "requires_cards": [
         "Combat Research",
         "Curiosity",
@@ -93,7 +93,7 @@
       "score_adjustment": -2.2,
       "source_excerpt": null,
       "source_id": "local-user-rogshai-guidance-2026-08-02",
-      "status": "active",
+      "status": "inactive",
       "tags": [
         "aura",
         "sequencing"
@@ -119,7 +119,7 @@
         "value": null
       },
       "confidence": 0.98,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -172,7 +172,7 @@
         "value": null
       },
       "confidence": 1.0,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "tactical_oracle",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -225,7 +225,7 @@
         "value": null
       },
       "confidence": 0.95,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -265,7 +265,7 @@
         "value": 3.0
       },
       "confidence": 0.92,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -317,7 +317,7 @@
         "value": null
       },
       "confidence": 0.93,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",

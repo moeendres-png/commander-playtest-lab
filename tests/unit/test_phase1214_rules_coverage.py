@@ -46,17 +46,17 @@ def test_card_coverage_registry_has_complete_scope_and_strict_external_defaults(
     assert data["schema_version"] == 2
     assert data["generated_from_read_only_canonical_drive_snapshot"] is True
     assert data["source_drive_files"] == {
-        "decks": "15SaFU4pgoYugXiimT0uqlw0AF53fCuf9",
+        "decks": "1mO0pnm1thoRrjAg7TGuGSXmrTTYDivJHxrUCdEtY5GQ",
         "inventory": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
-        "opponents": "1LRzQOZFejMV_d4oMtJHEBgGaOxUEng08",
+        "opponents": "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
     }
     assert data["external_engine_execution_status"] == "blocked"
-    assert len(data["cards"]) == 1699
-    assert data["inventory_candidate_count"] == 1349
+    assert len(data["cards"]) == 1698
+    assert data["inventory_candidate_count"] == 1335
     assert data["coverage_counts"] == {
-        "unsupported": 1460,
+        "unsupported": 1443,
         "tactical_only": 59,
-        "structural_only": 180,
+        "structural_only": 196,
     }
     for card in data["cards"]:
         assert REQUIRED_CARD_FIELDS <= set(card)
@@ -67,11 +67,11 @@ def test_card_coverage_registry_has_complete_scope_and_strict_external_defaults(
         assert card["coverage_status"] in ALLOWED_COVERAGE
 
     stats = data["deck_statistics"]
-    assert stats["korvold/current-2026-08-07"]["unique_oracle_names"] == 85
-    assert stats["rogshai/current-2026-08-07"]["unique_oracle_names"] == 82
+    assert stats["korvold/current-2026-08-07"]["unique_oracle_names"] == 86
+    assert stats["rogshai/current-2026-08-07"]["unique_oracle_names"] == 85
     assert stats["kaervek/maintained-2026-08-07"]["unique_oracle_names"] == 76
     assert stats["opponent/cosmic_spider_man/drive-2026-08-02"]["unique_oracle_names"] == 4
-    assert stats["opponent/alen___high_perfect_morcant/drive-2026-08-02"]["unique_oracle_names"] == 53
+    assert stats["opponent/alen___high_perfect_morcant/drive-2026-08-02"]["unique_oracle_names"] == 54
 
 
 def test_partial_opponents_do_not_invent_unknown_cards_as_confirmed(repo_root: Path) -> None:
@@ -89,8 +89,10 @@ def test_partial_opponents_do_not_invent_unknown_cards_as_confirmed(repo_root: P
     by_name = {row["deck"]: row for row in opponents["decks"]}
     assert by_name["Cosmic Spider-Man"]["known_card_count"] == 4
     assert by_name["Cosmic Spider-Man"]["unknown_slots"] == 96
-    assert by_name["Alen – High Perfect Morcant"]["known_card_count"] == 53
-    assert by_name["Alen – High Perfect Morcant"]["unknown_slots"] == 47
+    assert by_name["Alen – High Perfect Morcant"]["known_card_count"] == 54
+    assert by_name["Alen – High Perfect Morcant"]["provisional_completion_count"] == 18
+    assert by_name["Alen – High Perfect Morcant"]["synthetic_basic_count"] == 28
+    assert by_name["Alen – High Perfect Morcant"]["unknown_slots"] == 0
 
 
 def test_required_golden_scenarios_and_named_registry_exports_exist(repo_root: Path) -> None:
@@ -129,7 +131,7 @@ def test_unsupported_and_provider_difference_registers_are_truthful(repo_root: P
     unsupported = _load(repo_root, "data/rules/unsupported_card_register.json")
     differences = _load(repo_root, "data/rules/provider_difference_register.json")
     assert unsupported["schema_version"] == 2
-    assert len(unsupported["cards"]) == 1460
+    assert len(unsupported["cards"]) == 1443
     assert all(row["coverage_status"] == "unsupported" for row in unsupported["cards"])
     assert differences["status"] == "not_run"
     assert differences["provider_comparisons"] == []

@@ -22,22 +22,22 @@ from commander_lab.tools import CommanderToolService, ToolRegistry
 
 PRIMARY_CANDIDATES: dict[str, list[dict[str, str]]] = {
     "korvold/current": [
-        {"remove": "Scouring Swarm", "add_candidate_id": "korvold/idol-of-oblivion"},
-        {"remove": "Evendo Brushrazer", "add_candidate_id": "korvold/lightning-greaves"},
+        {"remove": "Vampiric Rites", "add_candidate_id": "korvold/mazirek-smoke"},
+        {"remove": "Necrogenesis", "add_candidate_id": "korvold/szarel-smoke"},
     ],
     "rogshai/current": [
-        {"remove": "Izzet Signet", "add_candidate_id": "rogshai/talisman-of-creativity"},
+        {"remove": "Opt", "add_candidate_id": "rogshai/curiosity-smoke"},
     ],
 }
 
 ABLATION_CARDS: dict[str, tuple[str, ...]] = {
-    "korvold/current": ("Scouring Swarm", "Evendo Brushrazer", "Academy Manufactor"),
-    "rogshai/current": ("Izzet Signet", "Blackblade Reforged", "Bastion Protector"),
+    "korvold/current": ("Vampiric Rites", "Necrogenesis", "Ichor Wellspring"),
+    "rogshai/current": ("Opt", "Chart a Course", "Aether Spellbomb"),
 }
 
 ABLATION_PACKAGES: dict[str, tuple[str, ...]] = {
-    "korvold/current": ("Academy Manufactor", "Tireless Provisioner", "Tireless Tracker"),
-    "rogshai/current": ("Combat Research", "Curiosity", "Staggering Insight"),
+    "korvold/current": ("Ichor Wellspring", "Tireless Provisioner", "Tireless Tracker"),
+    "rogshai/current": ("Archmage Emeritus", "Prismari Charm", "Psychosis Crawler"),
 }
 
 

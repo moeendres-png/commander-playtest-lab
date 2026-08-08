@@ -4,10 +4,11 @@
   "estimate_type": "structural_model_estimates",
   "weighting": "unweighted_representative_scenarios",
   "notes": [
-    "Official precons are fixed structural baselines; locally reported Doom upgrades are represented only as role-bounded uncertainty, not invented card names.",
-    "Cosmic Spider-Man has 4 confirmed cards and 96 unresolved role-model slots; unresolved names remain unknown.",
-    "High Perfect Morcant has 53 confirmed cards and 47 unresolved slots in the current canonical opponent workbook.",
-    "Kaervek opponent reference remains distinct from the user-owned Kaervek deck."
+    "Current opponent evidence follows MTG_GEGNER_BASELINES_AKTUELL_2026-08-07.md; hard observations and synthetic completions remain separate.",
+    "High Perfect Morcant: 54 hard slots, 18 provisional completion slots, 28 synthetic basic slots; 100-card/35-land working baseline.",
+    "Cosmic Spider-Man: 4 hard-known cards; public-deck completion remains synthetic and is not promoted to observed.",
+    "Official precon baselines remain fixed unless a newer direct observation overrides them.",
+    "Kaervek/current is the verified full 100-card opponent snapshot with Midnight Reaper -> Warstorm Surge correction."
   ],
   "profiles": [
     {
@@ -17,9 +18,9 @@
       "commander_cost": 4.0,
       "commander_power": 4.0,
       "strategy": "aggro_engine",
-      "source_status": "partially_known",
+      "source_status": "partially_observed_synthetic_completion_pool_constrained",
       "data_quality": "project_inferred",
-      "land_count": 37,
+      "land_count": 35,
       "roles": {
         "ramp": 10,
         "draw": 8,
@@ -34,11 +35,14 @@
         "finisher": 5
       },
       "uncertainty": [
-        "53 concrete cards confirmed; final 47 slots unresolved",
-        "Exact final proliferate and Blight densities remain uncertain"
+        "54 hard/provenance-confirmed slots",
+        "18 provisional Foundations slots are synthetic assumptions",
+        "28 basic-land slots are synthetic assumptions"
       ],
-      "confirmed_card_count": 53,
-      "unknown_slot_count": 47
+      "confirmed_card_count": 54,
+      "unknown_slot_count": 0,
+      "provisional_completion_count": 18,
+      "synthetic_basic_count": 28
     },
     {
       "deck_id": "opponent/cosmic-spiderman-midbudget",
@@ -47,7 +51,7 @@
       "commander_cost": 5.0,
       "commander_power": 5.0,
       "strategy": "multicolor_legends_combat",
-      "source_status": "synthetic_completion",
+      "source_status": "partially_observed_synthetic_completion_public_deck",
       "data_quality": "synthetic_assumption",
       "land_count": 38,
       "roles": {
@@ -65,8 +69,8 @@
         "finisher": 5
       },
       "uncertainty": [
-        "4 concrete cards confirmed; 96 slots remain role-only",
-        "No unknown card name is asserted as confirmed"
+        "4 hard-known cards",
+        "Public-deck completion is synthetic and replaceable by newer observation"
       ],
       "confirmed_card_count": 4,
       "unknown_slot_count": 96
@@ -78,7 +82,7 @@
       "commander_cost": 5.0,
       "commander_power": 5.0,
       "strategy": "minus_counters_enchantments_recursion",
-      "source_status": "official_precon_fixed",
+      "source_status": "official_precon_baseline_commander_preference_observed",
       "data_quality": "project_inferred",
       "land_count": 38,
       "roles": {
@@ -99,29 +103,36 @@
       ]
     },
     {
-      "deck_id": "opponent/kaervek-reference",
-      "name": "Kaervek the Merciless Reference",
+      "deck_id": "kaervek/current",
+      "name": "Kaervek the Merciless — Verified Current Snapshot",
       "commander": "Kaervek the Merciless",
       "commander_cost": 7.0,
-      "commander_power": 5.0,
-      "strategy": "punisher_control_reanimation",
-      "source_status": "project_reference",
-      "data_quality": "project_inferred",
+      "commander_power": 4.0,
+      "strategy": "kaervek",
+      "source_status": "verified_full_deck",
+      "data_quality": "project_verified",
       "land_count": 38,
       "roles": {
-        "ramp": 12,
-        "draw": 9,
-        "removal": 12,
-        "wipe": 5,
-        "recursion": 5,
-        "graveyard_hate": 3,
-        "engine": 8,
-        "payoff": 10,
-        "finisher": 5
+        "ramp": 14,
+        "draw": 11,
+        "selection": 3,
+        "removal": 13,
+        "wipe": 6,
+        "recursion": 7,
+        "graveyard_hate": 4,
+        "protection": 2,
+        "engine": 14,
+        "payoff": 14,
+        "finisher": 16,
+        "sacrifice_outlet": 5
       },
-      "uncertainty": [
-        "Open Path of Ancestry replacement remains unresolved"
-      ]
+      "uncertainty": [],
+      "confirmed_card_count": 100,
+      "unknown_slot_count": 0,
+      "verified_full_list": true,
+      "deck_hash": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
+      "snapshot_dir": "data/decks/opponents/kaervek/current",
+      "user_correction": "Midnight Reaper -> Warstorm Surge"
     },
     {
       "deck_id": "opponent/doom-prevails-precon",
@@ -130,7 +141,7 @@
       "commander_cost": 5.0,
       "commander_power": 5.0,
       "strategy": "villains_artifacts_reuse",
-      "source_status": "official_precon_plus_unknown_upgrades",
+      "source_status": "official_precon_baseline",
       "data_quality": "project_inferred",
       "land_count": 38,
       "roles": {
@@ -147,8 +158,7 @@
         "finisher": 5
       },
       "uncertainty": [
-        "Official 100-card precon is the exact baseline",
-        "Concrete local upgrades are unknown and are modelled only as bounded role-pressure variants"
+        "Official unchanged precon baseline; concrete local upgrades are not asserted"
       ],
       "baseline_precon_cards": 100,
       "upgrade_slots_unknown": true
@@ -160,7 +170,7 @@
       "commander_cost": 5.0,
       "commander_power": 5.0,
       "strategy": "elemental_etb_evoke_recursion",
-      "source_status": "official_precon_fixed",
+      "source_status": "official_precon_baseline",
       "data_quality": "project_inferred",
       "land_count": 38,
       "roles": {
@@ -187,7 +197,7 @@
       "commander_cost": 5.0,
       "commander_power": 5.0,
       "strategy": "artifacts_equipment_tokens",
-      "source_status": "official_precon_fixed",
+      "source_status": "official_precon_baseline",
       "data_quality": "project_inferred",
       "land_count": 38,
       "roles": {
@@ -215,7 +225,7 @@
       "opponent/cosmic-spiderman-midbudget"
     ],
     [
-      "opponent/kaervek-reference",
+      "kaervek/current",
       "opponent/doom-prevails-precon",
       "opponent/dance-elements-precon"
     ],
@@ -227,7 +237,7 @@
     [
       "opponent/blight-curse-precon",
       "opponent/cosmic-spiderman-midbudget",
-      "opponent/kaervek-reference"
+      "kaervek/current"
     ]
   ],
   "holdout_pods": [
@@ -239,7 +249,7 @@
     [
       "opponent/morcant-elves",
       "opponent/blight-curse-precon",
-      "opponent/kaervek-reference"
+      "kaervek/current"
     ]
   ]
 }

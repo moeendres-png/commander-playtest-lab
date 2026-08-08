@@ -1,13 +1,13 @@
 {
   "schema_version": "0.2.0",
-  "data_as_of": "2026-08-02",
+  "data_as_of": "2026-08-07",
   "generated_from_local_files_only": true,
   "google_drive_modified": false,
   "authoritative_oracle_snapshot": false,
-  "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+  "data_snapshot_hash": "34e983012b886556d6becc41e1f4877cce0362a36a04d4bf33516191faecf752",
   "decks": {
     "korvold/current": {
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "total_cards": 100,
       "library_cards": 99,
       "commanders": [
@@ -21,7 +21,7 @@
         "metrics": {
           "total_cards": 100,
           "library_cards": 99,
-          "unique_oracle_names": 85,
+          "unique_oracle_names": 86,
           "commander_count": 1,
           "commander_identity": [
             "B",
@@ -32,7 +32,7 @@
       }
     },
     "rogshai/current": {
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "total_cards": 100,
       "library_cards": 98,
       "commanders": [
@@ -47,7 +47,7 @@
         "metrics": {
           "total_cards": 100,
           "library_cards": 98,
-          "unique_oracle_names": 82,
+          "unique_oracle_names": 85,
           "commander_count": 2,
           "commander_identity": [
             "R",
@@ -62,10 +62,10 @@
     "valid": true,
     "issues": [],
     "metrics": {
-      "required_unique_cards": 161,
-      "available_unique_cards": 161,
+      "required_unique_cards": 160,
+      "available_unique_cards": 1335,
       "required_total_cards": 200,
-      "available_total_cards": 200
+      "available_total_cards": 2003
     }
   }
 }

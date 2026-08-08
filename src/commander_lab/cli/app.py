@@ -30,9 +30,36 @@ from commander_lab.models import (
     StructuralBatchConfig,
 )
 from commander_lab.storage import compute_deck_hash
+from commander_lab.data_sync import audit_current_sources, sync_current_sources
 from commander_lab.tools.local_snapshots import build_local_snapshots
 
 app = typer.Typer(no_args_is_help=True, help="Commander Playtest Lab utilities")
+
+
+data_app = typer.Typer(no_args_is_help=True, help="Canonical Drive-to-program data synchronization audit")
+app.add_typer(data_app, name="data")
+
+
+@data_app.command("audit")
+def data_audit(
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Audit prepared canonical imports against their Drive IDs, hashes, and current deck hashes."""
+    result = audit_current_sources(root)
+    typer.echo(json.dumps(result, indent=2, ensure_ascii=False))
+    if result["status"] != "MATCH":
+        raise typer.Exit(code=1)
+
+
+@data_app.command("sync")
+def data_sync(
+    dry_run: bool = typer.Option(False, "--dry-run", help="Report changes without mutating prepared imports."),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Finalize already-prepared canonical imports; never fetch Drive or optimize a deck implicitly."""
+    result = sync_current_sources(root, dry_run=dry_run)
+    typer.echo(json.dumps(result, indent=2, ensure_ascii=False))
+
 
 
 @app.command("validate-local")

@@ -1,8 +1,8 @@
 {
   "schema_version": "0.2.0",
-  "generated_at": "2026-08-04T13:20:29.040568+00:00",
-  "data_as_of": "2026-08-02",
-  "catalog_scope": "Only cards in korvold/current and rogshai/current.",
+  "generated_at": "2026-08-08T08:00:00+00:00",
+  "data_as_of": "2026-08-07",
+  "catalog_scope": "Cards retained for current Korvold/RogShai plus technical historical fixtures; current decks have complete identity coverage.",
   "authoritative_oracle_snapshot": false,
   "cards": [
     {
@@ -56,6 +56,74 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Aerial Extortionist",
+      "aliases": [],
+      "mana_cost": "{3}{W}{W}",
+      "mana_value": 5.0,
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Creature — Bird Soldier",
+      "oracle_text": "Flying\nWhenever this creature enters or deals combat damage to a player, exile up to one target nonland permanent. For as long as that card remains exiled, its owner may cast it.\nWhenever another player casts a spell from anywhere other than their hand, draw a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Aether Spellbomb",
+      "aliases": [],
+      "mana_cost": "{1}",
+      "mana_value": 1.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Artifact",
+      "oracle_text": "{U}, Sacrifice this artifact: Return target creature to its owner's hand.\n{1}, Sacrifice this artifact: Draw a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -148,6 +216,74 @@
       ]
     },
     {
+      "oracle_name": "Angel of Finality",
+      "aliases": [],
+      "mana_cost": "{3}{W}",
+      "mana_value": 4.0,
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Creature — Angel",
+      "oracle_text": "Flying\nWhen this creature enters, exile target player's graveyard.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Arcane Denial",
+      "aliases": [],
+      "mana_cost": "{1}{U}",
+      "mana_value": 2.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Counter target spell. Its controller may draw up to two cards at the beginning of the next turn's upkeep.\nYou draw a card at the beginning of the next turn's upkeep.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Arcane Signet",
       "aliases": [],
       "colors": [],
@@ -168,6 +304,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Archmage Emeritus",
+      "aliases": [],
+      "mana_cost": "{2}{U}{U}",
+      "mana_value": 4.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Creature — Human Wizard",
+      "oracle_text": "Magecraft — Whenever you cast or copy an instant or sorcery spell, draw a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -572,6 +742,42 @@
       ]
     },
     {
+      "oracle_name": "Cascade Bluffs",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [
+        "U",
+        "R"
+      ],
+      "color_identity": [
+        "U",
+        "R"
+      ],
+      "type_line": "Land",
+      "oracle_text": "{T}: Add {C}.\n{U/R}, {T}: Add {U}{U}, {U}{R}, or {R}{R}.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Celestial Purge",
       "aliases": [],
       "colors": [
@@ -680,6 +886,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Chart a Course",
+      "aliases": [],
+      "mana_cost": "{1}{U}",
+      "mana_value": 2.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Sorcery",
+      "oracle_text": "Draw two cards. Then discard a card unless you attacked this turn.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -908,6 +1148,36 @@
       ]
     },
     {
+      "oracle_name": "Cryptic Caves",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "oracle_text": "{T}: Add {C}.\n{1}, {T}, Sacrifice this land: Draw a card. Activate only if you control five or more lands.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Culling Ritual",
       "aliases": [],
       "colors": [
@@ -1042,6 +1312,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Dispel",
+      "aliases": [],
+      "mana_cost": "{U}",
+      "mana_value": 1.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Counter target instant spell.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -1304,6 +1608,40 @@
       ]
     },
     {
+      "oracle_name": "Explore",
+      "aliases": [],
+      "mana_cost": "{1}{G}",
+      "mana_value": 2.0,
+      "colors": [
+        "G"
+      ],
+      "color_identity": [
+        "G"
+      ],
+      "type_line": "Sorcery",
+      "oracle_text": "You may play an additional land this turn.\nDraw a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Exsanguinate",
       "aliases": [],
       "colors": [
@@ -1464,6 +1802,76 @@
       ]
     },
     {
+      "oracle_name": "Festering Thicket",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Land — Swamp Forest",
+      "oracle_text": "({T}: Add {B} or {G}.)\nThis land enters tapped.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Finale of Revelation",
+      "aliases": [],
+      "mana_cost": "{X}{U}{U}",
+      "mana_value": 2.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Sorcery",
+      "oracle_text": "Draw X cards. If X is 10 or more, instead shuffle your graveyard into your library, draw X cards, untap up to five lands, and you have no maximum hand size for the rest of the game.\nExile Finale of Revelation.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Fire Covenant",
       "aliases": [],
       "colors": [
@@ -1550,6 +1958,110 @@
       ]
     },
     {
+      "oracle_name": "Frostboil Snarl",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [
+        "U",
+        "R"
+      ],
+      "color_identity": [
+        "U",
+        "R"
+      ],
+      "type_line": "Land",
+      "oracle_text": "As this land enters, you may reveal an Island or Mountain card from your hand. If you don't, this land enters tapped.\n{T}: Add {U} or {R}.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Fumigate",
+      "aliases": [],
+      "mana_cost": "{3}{W}{W}",
+      "mana_value": 5.0,
+      "colors": [
+        "W"
+      ],
+      "color_identity": [
+        "W"
+      ],
+      "type_line": "Sorcery",
+      "oracle_text": "Destroy all creatures. You gain 1 life for each creature destroyed this way.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Gix's Command",
+      "aliases": [],
+      "mana_cost": "{3}{B}{B}",
+      "mana_value": 5.0,
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Sorcery",
+      "oracle_text": "Choose two —\n• Put two +1/+1 counters on up to one creature. It gains lifelink until end of turn.\n• Destroy each creature with power 2 or less.\n• Return up to two creature cards from your graveyard to your hand.\n• Each opponent sacrifices a creature with the greatest power among creatures they control.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Glacial Fortress",
       "aliases": [],
       "colors": [
@@ -1632,6 +2144,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Grim Discovery",
+      "aliases": [],
+      "mana_cost": "{1}{B}",
+      "mana_value": 2.0,
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Sorcery",
+      "oracle_text": "Choose one or both —\n• Return target creature card from your graveyard to your hand.\n• Return target land card from your graveyard to your hand.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -1756,6 +2302,66 @@
       ]
     },
     {
+      "oracle_name": "Ichor Wellspring",
+      "aliases": [],
+      "mana_cost": "{2}",
+      "mana_value": 2.0,
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Artifact",
+      "oracle_text": "When this artifact enters or is put into a graveyard from the battlefield, draw a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Idol of Oblivion",
+      "aliases": [],
+      "mana_cost": "{2}",
+      "mana_value": 2.0,
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Artifact",
+      "oracle_text": "{T}: Draw a card. Activate only if you created a token this turn.\n{8}, {T}, Sacrifice this artifact: Create a 10/10 colorless Eldrazi creature token.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Ignoble Hierarch",
       "aliases": [],
       "colors": [
@@ -1870,6 +2476,42 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Irrigated Farmland",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [
+        "W",
+        "U"
+      ],
+      "color_identity": [
+        "W",
+        "U"
+      ],
+      "type_line": "Land — Plains Island",
+      "oracle_text": "({T}: Add {W} or {U}.)\nThis land enters tapped.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -2167,6 +2809,36 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Lightning Greaves",
+      "aliases": [],
+      "mana_cost": "{2}",
+      "mana_value": 2.0,
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Artifact — Equipment",
+      "oracle_text": "Equipped creature has haste and shroud. (It can't be the target of spells or abilities.)\nEquip {0}",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -2541,6 +3213,36 @@
       ]
     },
     {
+      "oracle_name": "Myriad Landscape",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Land",
+      "oracle_text": "This land enters tapped.\n{T}: Add {C}.\n{2}, {T}, Sacrifice this land: Search your library for up to two basic land cards that share a land type, put them onto the battlefield tapped, then shuffle.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Narset, Parter of Veils",
       "aliases": [],
       "colors": [
@@ -2625,6 +3327,42 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Necrogenesis",
+      "aliases": [],
+      "mana_cost": "{B}{G}",
+      "mana_value": 2.0,
+      "colors": [
+        "B",
+        "G"
+      ],
+      "color_identity": [
+        "B",
+        "G"
+      ],
+      "type_line": "Enchantment",
+      "oracle_text": "{2}: Exile target creature card from a graveyard. Create a 1/1 green Saproling creature token.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -2733,6 +3471,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Opt",
+      "aliases": [],
+      "mana_cost": "{U}",
+      "mana_value": 1.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Scry 1. (Look at the top card of your library. You may put that card on the bottom.)\nDraw a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -2993,6 +3765,142 @@
       ]
     },
     {
+      "oracle_name": "Prismari Charm",
+      "aliases": [],
+      "mana_cost": "{U}{R}",
+      "mana_value": 2.0,
+      "colors": [
+        "U",
+        "R"
+      ],
+      "color_identity": [
+        "U",
+        "R"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Choose one —\n• Surveil 2, then draw a card.\n• Prismari Charm deals 1 damage to each of one or two targets.\n• Return target nonland permanent to its owner's hand.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Prismari Command",
+      "aliases": [],
+      "mana_cost": "{1}{U}{R}",
+      "mana_value": 3.0,
+      "colors": [
+        "U",
+        "R"
+      ],
+      "color_identity": [
+        "U",
+        "R"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Choose two —\n• Prismari Command deals 2 damage to any target.\n• Target player draws two cards, then discards two cards.\n• Target player creates a Treasure token.\n• Destroy target artifact.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Profane Command",
+      "aliases": [],
+      "mana_cost": "{X}{B}{B}",
+      "mana_value": 2.0,
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Sorcery",
+      "oracle_text": "Choose two —\n• Target player loses X life.\n• Return target creature card with mana value X or less from your graveyard to the battlefield.\n• Target creature gets -X/-X until end of turn.\n• Up to X target creatures gain fear until end of turn. (They can't be blocked except by artifact creatures and/or black creatures.)",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Psychosis Crawler",
+      "aliases": [],
+      "mana_cost": "{5}",
+      "mana_value": 5.0,
+      "colors": [],
+      "color_identity": [],
+      "type_line": "Artifact Creature — Phyrexian Horror",
+      "oracle_text": "Psychosis Crawler's power and toughness are each equal to the number of cards in your hand.\nWhenever you draw a card, each opponent loses 1 life.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Psychotic Fury",
       "aliases": [],
       "colors": [
@@ -3107,6 +4015,40 @@
       ]
     },
     {
+      "oracle_name": "Refute",
+      "aliases": [],
+      "mana_cost": "{1}{U}{U}",
+      "mana_value": 3.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Counter target spell. Draw a card, then discard a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Relic of Legends",
       "aliases": [],
       "colors": [],
@@ -3127,6 +4069,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Resculpt",
+      "aliases": [],
+      "mana_cost": "{1}{U}",
+      "mana_value": 2.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Exile target artifact or creature. Its controller creates a 4/4 blue and red Elemental creature token.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -3239,6 +4215,42 @@
       ]
     },
     {
+      "oracle_name": "Scorched Geyser",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [
+        "U",
+        "R"
+      ],
+      "color_identity": [
+        "U",
+        "R"
+      ],
+      "type_line": "Land — Island Mountain",
+      "oracle_text": "({T}: Add {U} or {R}.)\nThis land enters tapped unless you control two or more basic lands.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Scouring Swarm",
       "aliases": [],
       "colors": [
@@ -3267,6 +4279,42 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Color identity bounded by the validated Korvold deck context; replace with pinned Oracle data later."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Sheltered Thicket",
+      "aliases": [],
+      "mana_cost": null,
+      "mana_value": 0.0,
+      "colors": [
+        "R",
+        "G"
+      ],
+      "color_identity": [
+        "R",
+        "G"
+      ],
+      "type_line": "Land — Mountain Forest",
+      "oracle_text": "({T}: Add {R} or {G}.)\nThis land enters tapped.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -3951,6 +4999,42 @@
       ]
     },
     {
+      "oracle_name": "Talisman of Creativity",
+      "aliases": [],
+      "mana_cost": "{2}",
+      "mana_value": 2.0,
+      "colors": [
+        "U",
+        "R"
+      ],
+      "color_identity": [
+        "U",
+        "R"
+      ],
+      "type_line": "Artifact",
+      "oracle_text": "{T}: Add {C}.\n{T}: Add {U} or {R}. This artifact deals 1 damage to you.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
+        }
+      ]
+    },
+    {
       "oracle_name": "Talisman of Progress",
       "aliases": [],
       "colors": [
@@ -4091,6 +5175,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Thirst for Knowledge",
+      "aliases": [],
+      "mana_cost": "{2}{U}",
+      "mana_value": 3.0,
+      "colors": [
+        "U"
+      ],
+      "color_identity": [
+        "U"
+      ],
+      "type_line": "Instant",
+      "oracle_text": "Draw three cards. Then discard two cards unless you discard an artifact card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },
@@ -4323,6 +5441,40 @@
           "sha256": "5377bcd4ef896d675346164caad288f8d009d52289f51d22b1722abb7e016800",
           "quality": "project_verified",
           "notes": "Current deck lists were extracted from the Phase 1/2 local project handover."
+        }
+      ]
+    },
+    {
+      "oracle_name": "Vampiric Rites",
+      "aliases": [],
+      "mana_cost": "{B}",
+      "mana_value": 1.0,
+      "colors": [
+        "B"
+      ],
+      "color_identity": [
+        "B"
+      ],
+      "type_line": "Enchantment",
+      "oracle_text": "{1}{B}, Sacrifice a creature: You gain 1 life and draw a card.",
+      "keywords": [],
+      "can_be_commander": false,
+      "partner_with": [],
+      "legalities": {
+        "commander": "legal"
+      },
+      "is_basic_land": false,
+      "max_deck_copies": 1,
+      "data_quality": "project_inferred",
+      "provenance": [
+        {
+          "source_type": "google_drive_export",
+          "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+          "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+          "data_as_of": "2026-08-07T00:00:00Z",
+          "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+          "quality": "project_verified",
+          "notes": "Identity fields derived from current canonical inventory; structural semantics remain project-inferred."
         }
       ]
     },

@@ -41,7 +41,7 @@ def run_phase5_demo(
     recommendations = service.recommend_upgrades(
         RecommendUpgradesInput(
             deck_id="korvold/current",
-            candidate_ids=("korvold/idol-of-oblivion",),
+            candidate_ids=("korvold/mazirek-smoke",),
             max_recommendations=1,
         )
     )

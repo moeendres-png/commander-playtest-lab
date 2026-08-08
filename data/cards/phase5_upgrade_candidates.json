@@ -1,25 +1,106 @@
 {
   "schema_version": "0.7.0",
   "estimate_type": "structural_model_estimates",
-  "notes": "Candidate profiles support screening and paired tests. Physical status must be independently certified before a final deck change.",
+  "notes": "Technical smoke candidates only after canonical 2026-08-07 deck sync; none is an upgrade recommendation or automatic deck change.",
   "candidates": [
     {
-      "candidate_id": "korvold/idol-of-oblivion",
+      "candidate_id": "korvold/mazirek-smoke",
       "allowed_deck_ids": [
         "korvold/current"
       ],
-      "physical_status": "local_project_verified_owned",
-      "notes": "Independent draw candidate from prior project analysis. Locally certified for Phase 7 candidate-pool allocation; canonical Drive inventory was not modified.",
+      "physical_status": "technical_fixture_only",
+      "notes": "Technical smoke candidate retained to exercise ablation/swap/Pareto/validation. Not an upgrade recommendation and not automatically applicable.",
       "card": {
-        "oracle_name": "Idol of Oblivion",
-        "mana_value": 2.0,
+        "oracle_name": "Mazirek, Kraul Death Priest",
+        "mana_value": 5.0,
+        "roles": [
+          "engine",
+          "payoff"
+        ],
+        "role_strengths": {
+          "engine": 1.0,
+          "payoff": 1.0
+        },
+        "color_requirements": {},
+        "produces_colors": [],
+        "is_land": false,
+        "is_permanent": true,
+        "is_creature": true,
+        "base_power": 0.0,
+        "commander_synergy": 0.5,
+        "floor_value": 0.6,
+        "immediate_impact": 0.4,
+        "turn_cycle_risk": 0.4,
+        "multiplayer_scaling": 0.3,
+        "conditional_strength": [],
+        "source_quality": "project_inferred",
+        "sources": [],
+        "notes": "Technical structural fixture only.",
+        "color_identity": [
+          "B",
+          "G"
+        ]
+      }
+    },
+    {
+      "candidate_id": "korvold/szarel-smoke",
+      "allowed_deck_ids": [
+        "korvold/current"
+      ],
+      "physical_status": "technical_fixture_only",
+      "notes": "Technical smoke candidate retained to exercise ablation/swap/Pareto/validation. Not an upgrade recommendation and not automatically applicable.",
+      "card": {
+        "oracle_name": "Szarel, Genesis Shepherd",
+        "mana_value": 5.0,
+        "roles": [
+          "engine",
+          "recursion",
+          "payoff"
+        ],
+        "role_strengths": {
+          "engine": 1.0,
+          "recursion": 1.0,
+          "payoff": 1.0
+        },
+        "color_requirements": {},
+        "produces_colors": [],
+        "is_land": false,
+        "is_permanent": true,
+        "is_creature": true,
+        "base_power": 0.0,
+        "commander_synergy": 0.5,
+        "floor_value": 0.6,
+        "immediate_impact": 0.4,
+        "turn_cycle_risk": 0.4,
+        "multiplayer_scaling": 0.3,
+        "conditional_strength": [],
+        "source_quality": "project_inferred",
+        "sources": [],
+        "notes": "Technical structural fixture only.",
+        "color_identity": [
+          "B",
+          "R",
+          "G"
+        ]
+      }
+    },
+    {
+      "candidate_id": "rogshai/curiosity-smoke",
+      "allowed_deck_ids": [
+        "rogshai/current"
+      ],
+      "physical_status": "technical_fixture_only",
+      "notes": "Technical smoke candidate retained to exercise ablation/swap/Pareto/validation. Not an upgrade recommendation and not automatically applicable.",
+      "card": {
+        "oracle_name": "Curiosity",
+        "mana_value": 1.0,
         "roles": [
           "draw",
           "engine"
         ],
         "role_strengths": {
-          "draw": 1.2,
-          "engine": 0.85
+          "draw": 1.0,
+          "engine": 1.0
         },
         "color_requirements": {},
         "produces_colors": [],
@@ -27,105 +108,17 @@
         "is_permanent": true,
         "is_creature": false,
         "base_power": 0.0,
-        "commander_synergy": 0.35,
-        "floor_value": 0.9,
-        "immediate_impact": 0.35,
-        "turn_cycle_risk": 0.35,
-        "multiplayer_scaling": 0.2,
-        "conditional_strength": [
-          {
-            "condition": "token_source_online",
-            "multiplier": 1.35
-          }
-        ],
-        "source_quality": "project_inferred",
-        "sources": [],
-        "notes": "Structural candidate profile, not full rules equivalence.",
-        "color_identity": []
-      }
-    },
-    {
-      "candidate_id": "korvold/lightning-greaves",
-      "allowed_deck_ids": [
-        "korvold/current"
-      ],
-      "physical_status": "local_project_verified_owned",
-      "notes": "Protection and haste candidate. Locally certified for Phase 7 candidate-pool allocation; canonical Drive inventory was not modified.",
-      "card": {
-        "oracle_name": "Lightning Greaves",
-        "mana_value": 2.0,
-        "roles": [
-          "protection",
-          "enabler",
-          "combat_payoff"
-        ],
-        "role_strengths": {
-          "protection": 1.2,
-          "enabler": 1.0,
-          "combat_payoff": 0.6
-        },
-        "color_requirements": {},
-        "produces_colors": [],
-        "is_land": false,
-        "is_permanent": true,
-        "is_creature": false,
-        "base_power": 0.0,
-        "commander_synergy": 1.2,
-        "floor_value": 0.95,
-        "immediate_impact": 0.95,
-        "turn_cycle_risk": 0.15,
-        "multiplayer_scaling": 0.15,
-        "conditional_strength": [
-          {
-            "condition": "commander_castable",
-            "multiplier": 1.4
-          }
-        ],
-        "source_quality": "project_inferred",
-        "sources": [],
-        "notes": "Structural candidate profile, not full rules equivalence.",
-        "color_identity": []
-      }
-    },
-    {
-      "candidate_id": "rogshai/talisman-of-creativity",
-      "allowed_deck_ids": [
-        "rogshai/current"
-      ],
-      "physical_status": "local_project_verified_owned",
-      "notes": "Two-mana colored ramp candidate. Locally certified for Phase 7 candidate-pool allocation; canonical Drive inventory was not modified.",
-      "card": {
-        "oracle_name": "Talisman of Creativity",
-        "mana_value": 2.0,
-        "roles": [
-          "ramp",
-          "mana_source"
-        ],
-        "role_strengths": {
-          "ramp": 1.05,
-          "mana_source": 1.0
-        },
-        "color_requirements": {},
-        "produces_colors": [
-          "U",
-          "R"
-        ],
-        "is_land": false,
-        "is_permanent": true,
-        "is_creature": false,
-        "base_power": 0.0,
-        "commander_synergy": 0.4,
-        "floor_value": 0.95,
-        "immediate_impact": 0.8,
-        "turn_cycle_risk": 0.2,
-        "multiplayer_scaling": 0.0,
+        "commander_synergy": 0.5,
+        "floor_value": 0.6,
+        "immediate_impact": 0.4,
+        "turn_cycle_risk": 0.4,
+        "multiplayer_scaling": 0.3,
         "conditional_strength": [],
         "source_quality": "project_inferred",
         "sources": [],
-        "notes": "Structural candidate profile, not full rules equivalence.",
+        "notes": "Technical structural fixture only.",
         "color_identity": [
-          "U",
-          "R"
+          "U"
         ]
       }
     }

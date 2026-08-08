@@ -20,6 +20,7 @@ data/runs/*
 
 build/
 dist/
+release/
 
 # Ephemeral local runtime state
 .runtime/

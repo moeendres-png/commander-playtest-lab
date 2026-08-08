@@ -15,11 +15,11 @@ root = r"ROOT"
 decks = load_project_structural_decks(root, include_current_opponents=True)
 candidates = load_candidate_profiles(root)
 baseline = decks["korvold/current"]
-card = candidates["korvold/idol-of-oblivion"].card
+card = candidates["korvold/mazirek-smoke"].card
 variant = variant_deck(
     baseline,
     variant_id="cross-process-test",
-    removals=("Scouring Swarm",),
+    removals=("Vampiric Rites",),
     additions=(card,),
 )
 print(variant.deck_hash)

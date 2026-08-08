@@ -4,11 +4,12 @@
   "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
   "conflicts": [],
   "created_at": "2026-08-06T07:39:30.891640Z",
-  "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+  "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
   "format_band": "normal_four_player",
   "immutable": true,
   "notes": [
-    "Policy overlay is reversible and never mutates the base pilot or decklist."
+    "Policy overlay is reversible and never mutates the base pilot or decklist.",
+    "Migrated to canonical 2026-08-07 deck hash; stale card-dependent rules excluded."
   ],
   "policy_id": "rogshai-current-normal-four-player",
   "rules": [
@@ -31,7 +32,7 @@
         "value": null
       },
       "confidence": 0.98,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -73,7 +74,7 @@
         "value": null
       },
       "confidence": 0.96,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -91,63 +92,6 @@
       "tags": [
         "commander_cast",
         "protection"
-      ],
-      "version": "1.0.0"
-    },
-    {
-      "action_preference": {
-        "action_kinds": [],
-        "card_names": [
-          "Combat Research",
-          "Curiosity",
-          "Staggering Insight"
-        ],
-        "decision_point": "main_action",
-        "description": "Avoid exposing combat-draw auras without a protected attack window",
-        "match_mode": "any",
-        "roles": []
-      },
-      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
-      "condition": {
-        "clauses": [
-          {
-            "clauses": [],
-            "field": "context.ishai_online",
-            "op": "falsy",
-            "value": null
-          },
-          {
-            "clauses": [],
-            "field": "context.protection_available",
-            "op": "falsy",
-            "value": null
-          }
-        ],
-        "field": null,
-        "op": "any",
-        "value": null
-      },
-      "confidence": 0.95,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
-      "evidence_type": "local_user_instruction",
-      "forbidden_when": [],
-      "format_band": "normal_four_player",
-      "manually_approved": true,
-      "priority": 95,
-      "rationale": "The current list wants these auras to produce value immediately or remain protected.",
-      "requires_cards": [
-        "Combat Research",
-        "Curiosity",
-        "Staggering Insight"
-      ],
-      "rule_id": "rogshai.current.aura-protection-window",
-      "score_adjustment": -2.2,
-      "source_excerpt": null,
-      "source_id": "local-user-rogshai-guidance-2026-08-02",
-      "status": "active",
-      "tags": [
-        "aura",
-        "sequencing"
       ],
       "version": "1.0.0"
     },
@@ -183,7 +127,7 @@
         "value": null
       },
       "confidence": 0.95,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -237,7 +181,7 @@
         "value": null
       },
       "confidence": 0.93,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -277,7 +221,7 @@
         "value": 3.0
       },
       "confidence": 0.92,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "local_user_instruction",
       "forbidden_when": [],
       "format_band": "normal_four_player",
@@ -328,7 +272,7 @@
         "value": null
       },
       "confidence": 1.0,
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "tactical_oracle",
       "forbidden_when": [],
       "format_band": "normal_four_player",
