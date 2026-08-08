@@ -42,8 +42,10 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
     decks = {}
     validations = {}
     for deck_id, spec in DECK_SPECS.items():
-        deck = importer.import_file(
-            deck_dir / str(spec["filename"]),
+        source_file = deck_dir / str(spec["filename"])
+        source_path = source_file.relative_to(root_path).as_posix()
+        deck = importer.import_text(
+            source_file.read_text(encoding="utf-8-sig"),
             DeckImportOptions(
                 deck_id=deck_id,
                 name=str(spec["name"]),
@@ -51,6 +53,7 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
                 uses_partner=bool(spec["uses_partner"]),
                 data_as_of="2026-08-07",
             ),
+            source_path=source_path,
         )
         deck.deck_hash = compute_deck_hash(deck)
         report = validator.validate(deck)
