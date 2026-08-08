@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
@@ -56,16 +56,22 @@ class CounterfactualBranchpoint(FrozenModel):
     alternative_action: str | None = None
     engine_mode: CounterfactualEngineMode = CounterfactualEngineMode.STRUCTURAL
     seed_policy: SeedPolicy = SeedPolicy.SAME_SEED
-    hidden_information_policy: HiddenInformationPolicy = HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
+    hidden_information_policy: HiddenInformationPolicy = (
+        HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
+    )
     event_type: str = "pilot_decision"
     phase: str | None = None
     player_eliminated: bool = False
     public_state_before: dict[str, Any] = Field(default_factory=dict)
     realized_future_summary: dict[str, float] = Field(default_factory=dict)
-    validation_level: str = "structural_model_estimates"
+    validation_level: Literal[
+        "structural_model_estimates",
+        "tactical_oracle",
+        "external_rules_engine",
+    ] = "structural_model_estimates"
 
     @model_validator(mode="after")
-    def validate_actions(self) -> "CounterfactualBranchpoint":
+    def validate_actions(self) -> CounterfactualBranchpoint:
         ids = [row.action_id for row in self.available_actions]
         if len(ids) != len(set(ids)):
             raise ValueError("available action ids must be unique")
@@ -73,6 +79,13 @@ class CounterfactualBranchpoint(FrozenModel):
             raise ValueError("chosen action must be available")
         if self.alternative_action is not None and self.alternative_action not in ids:
             raise ValueError("alternative action must be available")
+        expected = {
+            CounterfactualEngineMode.STRUCTURAL: "structural_model_estimates",
+            CounterfactualEngineMode.TACTICAL_ORACLE: "tactical_oracle",
+            CounterfactualEngineMode.EXTERNAL_ENGINE: "external_rules_engine",
+        }[self.engine_mode]
+        if self.validation_level != expected:
+            raise ValueError(f"engine mode {self.engine_mode} requires validation_level={expected}")
         return self
 
 
@@ -118,6 +131,30 @@ class CounterfactualResult(FrozenModel):
     tactical_observations: dict[str, Any] = Field(default_factory=dict)
     warnings: tuple[str, ...] = ()
     provenance: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def enforce_evidence_truth_boundary(self) -> CounterfactualResult:
+        if not self.model_alternative or self.historical_fact:
+            raise ValueError(
+                "counterfactual results must remain model alternatives, not historical facts"
+            )
+        level = self.provenance.get("validation_level", self.branchpoint.validation_level)
+        if level != self.branchpoint.validation_level:
+            raise ValueError(
+                "counterfactual provenance and branchpoint validation levels must match"
+            )
+        if self.external_engine_used:
+            if level != "external_rules_engine":
+                raise ValueError(
+                    "external_engine_used requires external_rules_engine validation level"
+                )
+            if not self.provenance.get("external_engine_evidence"):
+                raise ValueError("external engine claims require explicit external_engine_evidence")
+        elif level == "external_rules_engine":
+            raise ValueError("external_rules_engine validation requires external_engine_used=true")
+        if self.tactical_oracle_used != (level == "tactical_oracle"):
+            raise ValueError("tactical_oracle_used must match tactical validation level")
+        return self
 
 
 class DecisionRegretRecord(FrozenModel):
