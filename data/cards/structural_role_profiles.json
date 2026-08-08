@@ -2,23 +2,24 @@
   "schema_version": "0.3.0",
   "estimate_type": "structural_model_estimates",
   "data_as_of": "2026-08-02",
-  "source_hash": "b58c83730ea596f1947e01c0c0ce3e9254e292415081d074c9e75c1bc6f2b4b2",
-  "profile_count": 161,
+  "source_hash": "f73592e361653723c32acca3099fe032b4a07653e5b2bc82fc51b944458e03ff",
+  "profile_count": 195,
   "profiles": [
     {
       "oracle_name": "Academy Manufactor",
       "mana_value": 3.0,
       "roles": [
-        "enabler",
         "payoff",
-        "engine"
+        "engine",
+        "enabler"
       ],
       "role_strengths": {
-        "enabler": 1.0,
         "payoff": 1.0,
-        "engine": 1.0
+        "engine": 1.0,
+        "enabler": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -41,6 +42,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -55,6 +57,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -69,7 +72,72 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Aerial Extortionist",
+      "mana_value": 5.0,
+      "roles": [
+        "draw",
+        "removal"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.7,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Aether Spellbomb",
+      "mana_value": 1.0,
+      "roles": [
+        "draw",
+        "enabler",
+        "removal"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "enabler": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -77,16 +145,17 @@
       "oracle_name": "Aftermath Analyst",
       "mana_value": 2.0,
       "roles": [
-        "recursion",
-        "land_synergy"
+        "land_synergy",
+        "recursion"
       ],
       "role_strengths": {
-        "recursion": 1.0,
-        "land_synergy": 1.0
+        "land_synergy": 1.0,
+        "recursion": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -104,6 +173,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -120,6 +190,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -131,6 +202,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -148,6 +220,7 @@
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -159,7 +232,68 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Angel of Finality",
+      "mana_value": 4.0,
+      "roles": [
+        "graveyard_hate"
+      ],
+      "role_strengths": {
+        "graveyard_hate": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Arcane Denial",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "counter"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -173,12 +307,13 @@
         "ramp": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": false,
       "is_permanent": true,
@@ -190,7 +325,45 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Archmage Emeritus",
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -207,6 +380,7 @@
         "B": 1,
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -218,6 +392,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -235,6 +410,7 @@
         "U": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -249,6 +425,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -265,6 +442,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -276,6 +454,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -290,9 +469,10 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "W",
-        "R"
+        "R",
+        "W"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -304,6 +484,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -320,6 +501,7 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -331,6 +513,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -345,6 +528,7 @@
         "combat_payoff": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -362,6 +546,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -378,6 +563,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -389,6 +575,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -405,6 +592,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -416,6 +604,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.6,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -424,14 +613,15 @@
       "oracle_name": "Bojuka Bog",
       "mana_value": 0.0,
       "roles": [
-        "mana_source",
-        "graveyard_hate"
+        "graveyard_hate",
+        "mana_source"
       ],
       "role_strengths": {
-        "mana_source": 1.0,
-        "graveyard_hate": 1.0
+        "graveyard_hate": 1.0,
+        "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B"
       ],
@@ -445,6 +635,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -453,17 +644,18 @@
       "oracle_name": "Boros Charm",
       "mana_value": 2.0,
       "roles": [
-        "protection",
-        "combat_payoff"
+        "combat_payoff",
+        "protection"
       ],
       "role_strengths": {
-        "protection": 1.0,
-        "combat_payoff": 1.0
+        "combat_payoff": 1.0,
+        "protection": 1.0
       },
       "color_requirements": {
         "R": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -481,6 +673,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -498,9 +691,10 @@
         "R": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [
-        "W",
-        "R"
+        "R",
+        "W"
       ],
       "is_land": false,
       "is_permanent": true,
@@ -512,6 +706,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -521,17 +716,18 @@
       "mana_value": 3.0,
       "roles": [
         "draw",
-        "sacrifice_outlet",
-        "engine"
+        "engine",
+        "sacrifice_outlet"
       ],
       "role_strengths": {
         "draw": 1.0,
-        "sacrifice_outlet": 1.0,
-        "engine": 1.0
+        "engine": 1.0,
+        "sacrifice_outlet": 1.0
       },
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -554,6 +750,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -568,12 +765,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -585,6 +783,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -599,6 +798,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B",
         "R"
@@ -613,7 +813,38 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Cascade Bluffs",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "U",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -629,6 +860,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -640,6 +872,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -656,6 +889,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -667,6 +901,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.6,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -687,6 +922,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -704,6 +940,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -720,6 +957,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -731,7 +969,39 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Chart a Course",
+      "mana_value": 2.0,
+      "roles": [
+        "selection",
+        "draw"
+      ],
+      "role_strengths": {
+        "selection": 1.0,
+        "draw": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -739,17 +1009,18 @@
       "oracle_name": "Cinder Glade",
       "mana_value": 0.0,
       "roles": [
-        "mana_source",
-        "ramp"
+        "ramp",
+        "mana_source"
       ],
       "role_strengths": {
-        "mana_source": 1.0,
-        "ramp": 1.0
+        "ramp": 1.0,
+        "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "G",
-        "R"
+        "R",
+        "G"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -761,6 +1032,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -777,6 +1049,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -788,6 +1061,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -802,9 +1076,10 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "W",
-        "R"
+        "R",
+        "W"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -816,6 +1091,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -834,6 +1110,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -851,6 +1128,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -865,12 +1143,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -882,6 +1161,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -890,16 +1170,17 @@
       "oracle_name": "Consider",
       "mana_value": 1.0,
       "roles": [
-        "draw",
-        "selection"
+        "selection",
+        "draw"
       ],
       "role_strengths": {
-        "draw": 1.0,
-        "selection": 1.0
+        "selection": 1.0,
+        "draw": 1.0
       },
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -911,6 +1192,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -927,6 +1209,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -938,6 +1221,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -947,17 +1231,18 @@
       "mana_value": 1.0,
       "roles": [
         "selection",
-        "ramp",
-        "land_synergy"
+        "land_synergy",
+        "ramp"
       ],
       "role_strengths": {
         "selection": 1.0,
-        "ramp": 1.0,
-        "land_synergy": 1.0
+        "land_synergy": 1.0,
+        "ramp": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -975,7 +1260,41 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Cryptic Caves",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "R",
+        "W",
+        "G",
+        "U",
+        "B"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -992,6 +1311,7 @@
         "B": 1,
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1003,6 +1323,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.7,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1021,6 +1342,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1038,6 +1360,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1054,6 +1377,7 @@
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1065,6 +1389,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1085,6 +1410,7 @@
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1102,6 +1428,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1116,12 +1443,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -1133,7 +1461,37 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Dispel",
+      "mana_value": 1.0,
+      "roles": [
+        "counter"
+      ],
+      "role_strengths": {
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -1150,6 +1508,7 @@
         "U": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1161,6 +1520,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1177,6 +1537,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1194,6 +1555,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1208,12 +1570,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -1225,6 +1588,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1241,6 +1605,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1252,6 +1617,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1260,16 +1626,17 @@
       "oracle_name": "Eumidian Hatchery",
       "mana_value": 0.0,
       "roles": [
-        "mana_source",
+        "land_synergy",
         "token_source",
-        "land_synergy"
+        "mana_source"
       ],
       "role_strengths": {
-        "mana_source": 1.0,
+        "land_synergy": 1.0,
         "token_source": 1.0,
-        "land_synergy": 1.0
+        "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B"
       ],
@@ -1289,6 +1656,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1299,15 +1667,15 @@
       "roles": [
         "ramp",
         "sacrifice_outlet",
-        "enabler",
         "engine",
-        "draw"
+        "draw",
+        "enabler"
       ],
       "role_strengths": {
-        "enabler": 1.0,
         "engine": 1.0,
-        "ramp": 1.0,
         "draw": 1.0,
+        "enabler": 1.0,
+        "ramp": 1.0,
         "sacrifice_outlet": 1.0
       },
       "color_requirements": {
@@ -1315,6 +1683,7 @@
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1337,6 +1706,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [
         {
@@ -1362,12 +1732,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -1379,6 +1750,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1393,12 +1765,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -1410,6 +1783,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1420,22 +1794,23 @@
       "roles": [
         "recursion",
         "ramp",
-        "enabler",
         "engine",
-        "land_synergy"
+        "land_synergy",
+        "enabler"
       ],
       "role_strengths": {
-        "enabler": 1.0,
-        "recursion": 1.0,
-        "ramp": 1.0,
         "engine": 1.0,
-        "land_synergy": 1.0
+        "recursion": 1.0,
+        "land_synergy": 1.0,
+        "enabler": 1.0,
+        "ramp": 1.0
       },
       "color_requirements": {
         "B": 1,
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1458,6 +1833,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [
         {
@@ -1474,6 +1850,37 @@
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
     {
+      "oracle_name": "Explore",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "ramp"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "G": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
       "oracle_name": "Exsanguinate",
       "mana_value": 4.0,
       "roles": [
@@ -1485,6 +1892,7 @@
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1496,6 +1904,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 1.3,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1510,12 +1919,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -1527,6 +1937,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1545,6 +1956,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1562,6 +1974,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1570,16 +1983,17 @@
       "oracle_name": "Farewell",
       "mana_value": 6.0,
       "roles": [
-        "wipe",
-        "graveyard_hate"
+        "graveyard_hate",
+        "wipe"
       ],
       "role_strengths": {
-        "wipe": 2.0,
-        "graveyard_hate": 1.8
+        "graveyard_hate": 1.8,
+        "wipe": 2.0
       },
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1591,6 +2005,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.7,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1607,12 +2022,13 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": false,
       "is_permanent": false,
@@ -1624,6 +2040,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1638,12 +2055,13 @@
         "ramp": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": false,
       "is_permanent": true,
@@ -1655,7 +2073,69 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Festering Thicket",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "B",
+        "G"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Finale of Revelation",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "finisher"
+      ],
+      "role_strengths": {
+        "finisher": 1.0,
+        "draw": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -1674,6 +2154,7 @@
         "B": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1685,6 +2166,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1701,6 +2183,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1712,6 +2195,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1726,6 +2210,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "G"
       ],
@@ -1739,7 +2224,98 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Frostboil Snarl",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "U",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Fumigate",
+      "mana_value": 5.0,
+      "roles": [
+        "wipe"
+      ],
+      "role_strengths": {
+        "wipe": 1.0
+      },
+      "color_requirements": {
+        "W": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.6,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Gix's Command",
+      "mana_value": 5.0,
+      "roles": [
+        "wipe",
+        "removal"
+      ],
+      "role_strengths": {
+        "wipe": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -1753,6 +2329,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -1767,6 +2344,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1785,6 +2363,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1802,6 +2381,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1811,17 +2391,18 @@
       "mana_value": 5.0,
       "roles": [
         "draw",
-        "sacrifice_outlet",
-        "engine"
+        "engine",
+        "sacrifice_outlet"
       ],
       "role_strengths": {
         "draw": 1.0,
-        "sacrifice_outlet": 1.0,
-        "engine": 1.0
+        "engine": 1.0,
+        "sacrifice_outlet": 1.0
       },
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1844,7 +2425,37 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Grim Discovery",
+      "mana_value": 2.0,
+      "roles": [
+        "recursion"
+      ],
+      "role_strengths": {
+        "recursion": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -1862,6 +2473,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1879,6 +2491,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1887,20 +2500,21 @@
       "oracle_name": "Harrow",
       "mana_value": 3.0,
       "roles": [
+        "land_synergy",
         "enabler",
-        "sacrifice_outlet",
         "ramp",
-        "land_synergy"
+        "sacrifice_outlet"
       ],
       "role_strengths": {
+        "land_synergy": 1.0,
         "enabler": 1.0,
-        "sacrifice_outlet": 1.0,
         "ramp": 1.0,
-        "land_synergy": 1.0
+        "sacrifice_outlet": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -1923,6 +2537,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -1933,17 +2548,17 @@
       "roles": [
         "payoff",
         "sacrifice_outlet",
-        "engine",
         "finisher",
-        "land_synergy",
-        "draw"
+        "engine",
+        "draw",
+        "land_synergy"
       ],
       "role_strengths": {
-        "engine": 1.0,
         "finisher": 1.6,
-        "land_synergy": 1.0,
-        "draw": 1.6,
+        "engine": 1.0,
         "payoff": 1.8,
+        "draw": 1.6,
+        "land_synergy": 1.0,
         "sacrifice_outlet": 1.0
       },
       "color_requirements": {
@@ -1951,6 +2566,7 @@
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -1978,6 +2594,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [
         {
@@ -1997,22 +2614,23 @@
       "oracle_name": "Horizon Explorer",
       "mana_value": 3.0,
       "roles": [
+        "land_synergy",
         "enabler",
-        "ramp",
         "token_source",
-        "land_synergy"
+        "ramp"
       ],
       "role_strengths": {
-        "enabler": 1.0,
+        "land_synergy": 1.0,
         "token_source": 1.0,
-        "ramp": 1.0,
-        "land_synergy": 1.0
+        "enabler": 1.0,
+        "ramp": 1.0
       },
       "color_requirements": {
         "B": 1,
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2030,6 +2648,77 @@
           "notes": null
         }
       ],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Ichor Wellspring",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Idol of Oblivion",
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "engine"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "package_ids": [],
       "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2048,12 +2737,13 @@
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": false,
       "is_permanent": true,
@@ -2065,6 +2755,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2082,6 +2773,7 @@
         "B": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2093,6 +2785,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2109,6 +2802,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2120,6 +2814,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2136,6 +2831,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -2147,7 +2843,38 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Irrigated Farmland",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "U",
+        "W"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -2164,6 +2891,7 @@
         "U": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2181,6 +2909,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2195,6 +2924,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U"
       ],
@@ -2208,6 +2938,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2225,6 +2956,7 @@
         "R": 1,
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [
         "U",
         "R"
@@ -2239,6 +2971,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2247,16 +2980,17 @@
       "oracle_name": "Jeska, Thrice Reborn",
       "mana_value": 3.0,
       "roles": [
-        "combat_payoff",
-        "finisher"
+        "finisher",
+        "combat_payoff"
       ],
       "role_strengths": {
-        "combat_payoff": 2.0,
-        "finisher": 1.7
+        "finisher": 1.7,
+        "combat_payoff": 2.0
       },
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2274,6 +3008,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2288,12 +3023,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -2305,6 +3041,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2319,9 +3056,10 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "G",
-        "R"
+        "R",
+        "G"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -2333,6 +3071,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2341,16 +3080,17 @@
       "oracle_name": "Kediss, Emberclaw Familiar",
       "mana_value": 2.0,
       "roles": [
-        "combat_payoff",
-        "finisher"
+        "finisher",
+        "combat_payoff"
       ],
       "role_strengths": {
-        "combat_payoff": 1.8,
-        "finisher": 1.5
+        "finisher": 1.5,
+        "combat_payoff": 1.8
       },
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2368,6 +3108,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2376,22 +3117,23 @@
       "oracle_name": "Korvold, Fae-Cursed King",
       "mana_value": 5.0,
       "roles": [
-        "draw",
         "payoff",
-        "sacrifice_outlet",
-        "engine"
+        "draw",
+        "engine",
+        "sacrifice_outlet"
       ],
       "role_strengths": {
-        "draw": 1.8,
         "payoff": 1.6,
-        "sacrifice_outlet": 1.0,
-        "engine": 1.9
+        "draw": 1.8,
+        "engine": 1.9,
+        "sacrifice_outlet": 1.0
       },
       "color_requirements": {
         "B": 1,
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2414,6 +3156,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2422,13 +3165,13 @@
       "oracle_name": "Kykar, Wind's Fury",
       "mana_value": 4.0,
       "roles": [
-        "enabler",
         "engine",
+        "enabler",
         "token_source"
       ],
       "role_strengths": {
-        "enabler": 1.0,
         "engine": 1.0,
+        "enabler": 1.0,
         "token_source": 1.0
       },
       "color_requirements": {
@@ -2436,6 +3179,7 @@
         "U": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2453,6 +3197,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2469,6 +3214,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -2480,7 +3226,37 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Lightning Greaves",
+      "mana_value": 2.0,
+      "roles": [
+        "enabler",
+        "protection"
+      ],
+      "role_strengths": {
+        "enabler": 1.0,
+        "protection": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -2496,6 +3272,7 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [
         "G"
       ],
@@ -2509,6 +3286,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2523,6 +3301,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B",
         "G"
@@ -2537,6 +3316,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2553,6 +3333,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -2564,6 +3345,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2580,6 +3362,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2591,6 +3374,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2607,6 +3391,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -2618,6 +3403,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2634,6 +3420,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -2645,6 +3432,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2661,6 +3449,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2672,6 +3461,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2684,12 +3474,13 @@
         "finisher"
       ],
       "role_strengths": {
-        "wipe": 1.0,
-        "finisher": 1.0
+        "finisher": 1.0,
+        "wipe": 1.0
       },
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2701,6 +3492,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 1.1,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2718,6 +3510,7 @@
         "B": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2735,6 +3528,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2744,18 +3538,19 @@
       "mana_value": 5.0,
       "roles": [
         "payoff",
-        "engine",
-        "finisher"
+        "finisher",
+        "engine"
       ],
       "role_strengths": {
         "payoff": 1.0,
-        "engine": 1.0,
-        "finisher": 1.0
+        "finisher": 1.0,
+        "engine": 1.0
       },
       "color_requirements": {
         "B": 1,
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2778,6 +3573,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2787,17 +3583,18 @@
       "mana_value": 4.0,
       "roles": [
         "payoff",
-        "engine",
-        "finisher"
+        "finisher",
+        "engine"
       ],
       "role_strengths": {
         "payoff": 1.8,
-        "engine": 1.0,
-        "finisher": 1.5
+        "finisher": 1.5,
+        "engine": 1.0
       },
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2820,6 +3617,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2834,6 +3632,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "R"
       ],
@@ -2847,6 +3646,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2861,12 +3661,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -2878,7 +3679,41 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Myriad Landscape",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "R",
+        "W",
+        "G",
+        "U",
+        "B"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -2896,6 +3731,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -2913,6 +3749,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2929,6 +3766,7 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -2940,6 +3778,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -2956,12 +3795,13 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": false,
       "is_permanent": false,
@@ -2973,7 +3813,42 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Necrogenesis",
+      "mana_value": 2.0,
+      "roles": [
+        "graveyard_hate",
+        "enabler",
+        "token_source"
+      ],
+      "role_strengths": {
+        "graveyard_hate": 1.0,
+        "enabler": 1.0,
+        "token_source": 1.0
+      },
+      "color_requirements": {
+        "B": 1,
+        "G": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -2989,6 +3864,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3000,6 +3876,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3014,12 +3891,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -3031,6 +3909,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3047,6 +3926,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3058,6 +3938,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3066,18 +3947,19 @@
       "oracle_name": "Ophiomancer",
       "mana_value": 3.0,
       "roles": [
-        "enabler",
         "engine",
+        "enabler",
         "token_source"
       ],
       "role_strengths": {
-        "enabler": 1.0,
         "engine": 1.0,
+        "enabler": 1.0,
         "token_source": 1.0
       },
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3095,7 +3977,39 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Opt",
+      "mana_value": 1.0,
+      "roles": [
+        "selection",
+        "draw"
+      ],
+      "role_strengths": {
+        "selection": 1.0,
+        "draw": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -3103,18 +4017,19 @@
       "oracle_name": "Oracle of Mul Daya",
       "mana_value": 4.0,
       "roles": [
-        "engine",
+        "land_synergy",
         "ramp",
-        "land_synergy"
+        "engine"
       ],
       "role_strengths": {
+        "land_synergy": 1.0,
         "engine": 1.0,
-        "ramp": 1.0,
-        "land_synergy": 1.0
+        "ramp": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3137,6 +4052,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3153,6 +4069,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3164,6 +4081,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3180,6 +4098,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3191,6 +4110,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3200,17 +4120,18 @@
       "mana_value": 3.0,
       "roles": [
         "wipe",
-        "removal",
-        "token_source"
+        "token_source",
+        "removal"
       ],
       "role_strengths": {
         "wipe": 1.0,
-        "removal": 1.0,
-        "token_source": 1.0
+        "token_source": 1.0,
+        "removal": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3222,6 +4143,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.5,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3230,16 +4152,17 @@
       "oracle_name": "Pitiless Plunderer",
       "mana_value": 4.0,
       "roles": [
-        "enabler",
-        "engine"
+        "engine",
+        "enabler"
       ],
       "role_strengths": {
-        "enabler": 1.0,
-        "engine": 1.0
+        "engine": 1.0,
+        "enabler": 1.0
       },
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3257,6 +4180,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3271,6 +4195,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "W"
       ],
@@ -3284,6 +4209,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3298,6 +4224,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -3312,6 +4239,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3326,6 +4254,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -3340,6 +4269,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3356,6 +4286,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3367,7 +4298,157 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Prismari Charm",
+      "mana_value": 2.0,
+      "roles": [
+        "selection",
+        "removal"
+      ],
+      "role_strengths": {
+        "selection": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Prismari Command",
+      "mana_value": 3.0,
+      "roles": [
+        "selection",
+        "removal"
+      ],
+      "role_strengths": {
+        "selection": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Profane Command",
+      "mana_value": 2.0,
+      "roles": [
+        "payoff",
+        "finisher",
+        "removal",
+        "recursion"
+      ],
+      "role_strengths": {
+        "payoff": 1.0,
+        "finisher": 1.0,
+        "recursion": 1.0,
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        }
+      ],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Psychosis Crawler",
+      "mana_value": 5.0,
+      "roles": [
+        "payoff",
+        "draw",
+        "finisher",
+        "engine"
+      ],
+      "role_strengths": {
+        "payoff": 1.0,
+        "finisher": 1.0,
+        "draw": 1.0,
+        "engine": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": true,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 1.1,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -3383,6 +4464,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3400,6 +4482,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3408,17 +4491,18 @@
       "oracle_name": "Rakdos Charm",
       "mana_value": 2.0,
       "roles": [
-        "removal",
-        "graveyard_hate"
+        "graveyard_hate",
+        "removal"
       ],
       "role_strengths": {
-        "removal": 1.0,
-        "graveyard_hate": 1.0
+        "graveyard_hate": 1.0,
+        "removal": 1.0
       },
       "color_requirements": {
         "B": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3430,6 +4514,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3438,16 +4523,17 @@
       "oracle_name": "Ramunap Excavator",
       "mana_value": 3.0,
       "roles": [
-        "recursion",
-        "land_synergy"
+        "land_synergy",
+        "recursion"
       ],
       "role_strengths": {
-        "recursion": 1.0,
-        "land_synergy": 1.0
+        "land_synergy": 1.0,
+        "recursion": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3465,6 +4551,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3481,6 +4568,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3492,7 +4580,39 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Refute",
+      "mana_value": 3.0,
+      "roles": [
+        "draw",
+        "counter"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "counter": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -3506,12 +4626,13 @@
         "ramp": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": false,
       "is_permanent": true,
@@ -3523,7 +4644,37 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Resculpt",
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "role_strengths": {
+        "removal": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 1.1,
+      "turn_cycle_risk": 0.15,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -3537,12 +4688,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -3554,6 +4706,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3568,12 +4721,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -3585,6 +4739,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3599,6 +4754,7 @@
         "enabler": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3610,6 +4766,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3628,6 +4785,7 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3639,7 +4797,38 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Scorched Geyser",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "U",
+        "R"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -3649,20 +4838,21 @@
       "roles": [
         "payoff",
         "engine",
-        "token_source",
-        "land_synergy"
+        "land_synergy",
+        "token_source"
       ],
       "role_strengths": {
         "payoff": 1.0,
         "engine": 1.0,
-        "token_source": 1.0,
-        "land_synergy": 1.0
+        "land_synergy": 1.0,
+        "token_source": 1.0
       },
       "color_requirements": {
         "B": 1,
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3690,6 +4880,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [
         {
@@ -3706,6 +4897,36 @@
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
     {
+      "oracle_name": "Sheltered Thicket",
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "role_strengths": {
+        "mana_source": 1.0
+      },
+      "color_requirements": {},
+      "color_identity": [],
+      "produces_colors": [
+        "R",
+        "G"
+      ],
+      "is_land": true,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.45,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
       "oracle_name": "Shivan Reef",
       "mana_value": 0.0,
       "roles": [
@@ -3715,6 +4936,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "R"
@@ -3729,6 +4951,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3737,16 +4960,17 @@
       "oracle_name": "Silence",
       "mana_value": 1.0,
       "roles": [
-        "counter",
-        "protection"
+        "protection",
+        "counter"
       ],
       "role_strengths": {
-        "counter": 1.0,
-        "protection": 1.0
+        "protection": 1.0,
+        "counter": 1.0
       },
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3758,6 +4982,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3772,6 +4997,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -3786,6 +5012,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3802,6 +5029,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3813,6 +5041,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3827,6 +5056,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B",
         "R"
@@ -3841,6 +5071,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3857,6 +5088,7 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3868,6 +5100,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3884,6 +5117,7 @@
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -3895,6 +5129,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3909,6 +5144,7 @@
         "ramp": 2.2
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3920,6 +5156,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3928,22 +5165,23 @@
       "oracle_name": "Soul of Windgrace",
       "mana_value": 4.0,
       "roles": [
-        "engine",
-        "recursion",
+        "land_synergy",
         "ramp",
-        "land_synergy"
+        "recursion",
+        "engine"
       ],
       "role_strengths": {
         "land_synergy": 1.0,
-        "recursion": 1.0,
+        "engine": 1.0,
         "ramp": 1.0,
-        "engine": 1.0
+        "recursion": 1.0
       },
       "color_requirements": {
         "B": 1,
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3966,6 +5204,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3980,6 +5219,7 @@
         "graveyard_hate": 1.4
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -3991,6 +5231,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -3999,16 +5240,17 @@
       "oracle_name": "Splendid Reclamation",
       "mana_value": 4.0,
       "roles": [
-        "recursion",
-        "land_synergy"
+        "land_synergy",
+        "recursion"
       ],
       "role_strengths": {
-        "recursion": 1.0,
-        "land_synergy": 1.0
+        "land_synergy": 1.0,
+        "recursion": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4026,6 +5268,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4034,18 +5277,19 @@
       "oracle_name": "Springbloom Druid",
       "mana_value": 3.0,
       "roles": [
+        "land_synergy",
         "enabler",
-        "ramp",
-        "land_synergy"
+        "ramp"
       ],
       "role_strengths": {
+        "land_synergy": 1.0,
         "enabler": 1.0,
-        "ramp": 1.0,
-        "land_synergy": 1.0
+        "ramp": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4063,6 +5307,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4079,12 +5324,13 @@
         "ramp": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": false,
       "is_permanent": true,
@@ -4096,6 +5342,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4104,17 +5351,18 @@
       "oracle_name": "Sprouting Goblin",
       "mana_value": 2.0,
       "roles": [
-        "ramp",
-        "land_synergy"
+        "land_synergy",
+        "ramp"
       ],
       "role_strengths": {
-        "ramp": 1.0,
-        "land_synergy": 1.0
+        "land_synergy": 1.0,
+        "ramp": 1.0
       },
       "color_requirements": {
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4132,6 +5380,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4151,6 +5400,7 @@
         "U": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4168,6 +5418,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4176,20 +5427,21 @@
       "oracle_name": "Storm-Kiln Artist",
       "mana_value": 4.0,
       "roles": [
-        "enabler",
-        "ramp",
         "engine",
-        "token_source"
+        "enabler",
+        "token_source",
+        "ramp"
       ],
       "role_strengths": {
-        "enabler": 1.0,
         "token_source": 1.0,
         "engine": 1.0,
+        "enabler": 1.0,
         "ramp": 1.0
       },
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4207,6 +5459,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4223,6 +5476,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4234,6 +5488,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4248,6 +5503,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "R"
@@ -4262,6 +5518,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4276,6 +5533,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B",
         "R"
@@ -4290,6 +5548,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4298,17 +5557,18 @@
       "oracle_name": "Sunhome, Fortress of the Legion",
       "mana_value": 0.0,
       "roles": [
-        "mana_source",
-        "combat_payoff"
+        "combat_payoff",
+        "mana_source"
       ],
       "role_strengths": {
-        "mana_source": 1.0,
-        "combat_payoff": 1.0
+        "combat_payoff": 1.0,
+        "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "W",
-        "R"
+        "R",
+        "W"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -4326,6 +5586,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4340,6 +5601,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B"
       ],
@@ -4353,6 +5615,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4361,14 +5624,15 @@
       "oracle_name": "Swiftfoot Boots",
       "mana_value": 2.0,
       "roles": [
-        "protection",
-        "combat_payoff"
+        "combat_payoff",
+        "protection"
       ],
       "role_strengths": {
-        "protection": 1.0,
-        "combat_payoff": 1.0
+        "combat_payoff": 1.0,
+        "protection": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4386,6 +5650,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4402,6 +5667,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4413,6 +5679,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4423,14 +5690,14 @@
       "roles": [
         "recursion",
         "payoff",
-        "engine",
         "finisher",
+        "engine",
         "land_synergy"
       ],
       "role_strengths": {
-        "recursion": 1.0,
-        "engine": 1.0,
         "finisher": 1.0,
+        "engine": 1.0,
+        "recursion": 1.0,
         "payoff": 1.0,
         "land_synergy": 1.0
       },
@@ -4439,6 +5706,7 @@
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4466,6 +5734,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [
         {
@@ -4482,6 +5751,36 @@
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
     {
+      "oracle_name": "Talisman of Creativity",
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "role_strengths": {
+        "ramp": 1.0
+      },
+      "color_requirements": {
+        "R": 1,
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
       "oracle_name": "Talisman of Progress",
       "mana_value": 2.0,
       "roles": [
@@ -4494,6 +5793,7 @@
         "U": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -4508,6 +5808,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4525,6 +5826,7 @@
         "B": 1,
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4536,6 +5838,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4550,6 +5853,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "W"
@@ -4564,6 +5868,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4578,12 +5883,13 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
-        "B",
-        "U",
-        "G",
         "R",
-        "W"
+        "W",
+        "G",
+        "U",
+        "B"
       ],
       "is_land": true,
       "is_permanent": true,
@@ -4595,6 +5901,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4603,14 +5910,14 @@
       "oracle_name": "The Gitrog Monster",
       "mana_value": 5.0,
       "roles": [
-        "draw",
         "payoff",
+        "draw",
         "engine",
         "land_synergy"
       ],
       "role_strengths": {
-        "draw": 1.0,
         "payoff": 1.0,
+        "draw": 1.0,
         "engine": 1.0,
         "land_synergy": 1.0
       },
@@ -4618,6 +5925,7 @@
         "B": 1,
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4645,7 +5953,39 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Thirst for Knowledge",
+      "mana_value": 3.0,
+      "roles": [
+        "selection",
+        "draw"
+      ],
+      "role_strengths": {
+        "selection": 1.0,
+        "draw": 1.0
+      },
+      "color_requirements": {
+        "U": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": false,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.0,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -4662,6 +6002,7 @@
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4673,6 +6014,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4682,21 +6024,22 @@
       "mana_value": 3.0,
       "roles": [
         "ramp",
-        "enabler",
         "engine",
+        "token_source",
         "land_synergy",
-        "token_source"
+        "enabler"
       ],
       "role_strengths": {
-        "enabler": 1.0,
         "engine": 1.0,
-        "ramp": 1.0,
+        "token_source": 1.0,
         "land_synergy": 1.0,
-        "token_source": 1.0
+        "enabler": 1.0,
+        "ramp": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4719,6 +6062,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4728,19 +6072,20 @@
       "mana_value": 3.0,
       "roles": [
         "draw",
-        "engine",
+        "land_synergy",
         "token_source",
-        "land_synergy"
+        "engine"
       ],
       "role_strengths": {
+        "land_synergy": 1.0,
         "draw": 1.0,
         "engine": 1.0,
-        "token_source": 1.0,
-        "land_synergy": 1.0
+        "token_source": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4763,6 +6108,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4772,19 +6118,20 @@
       "mana_value": 5.0,
       "roles": [
         "payoff",
-        "recursion",
+        "land_synergy",
         "token_source",
-        "land_synergy"
+        "recursion"
       ],
       "role_strengths": {
         "payoff": 1.0,
-        "recursion": 1.0,
+        "land_synergy": 1.0,
         "token_source": 1.0,
-        "land_synergy": 1.0
+        "recursion": 1.0
       },
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -4807,6 +6154,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4823,6 +6171,7 @@
       "color_requirements": {
         "B": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4834,6 +6183,7 @@
       "turn_cycle_risk": 0.15,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4848,6 +6198,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "U",
         "R"
@@ -4862,6 +6213,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4876,6 +6228,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B",
         "G"
@@ -4890,6 +6243,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4906,6 +6260,7 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4917,7 +6272,52 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
+      "sources": [],
+      "notes": "Structural abstraction; not a claim of full rules equivalence."
+    },
+    {
+      "oracle_name": "Vampiric Rites",
+      "mana_value": 1.0,
+      "roles": [
+        "draw",
+        "engine",
+        "sacrifice_outlet"
+      ],
+      "role_strengths": {
+        "draw": 1.0,
+        "engine": 1.0,
+        "sacrifice_outlet": 1.0
+      },
+      "color_requirements": {
+        "B": 1
+      },
+      "color_identity": [],
+      "produces_colors": [],
+      "is_land": false,
+      "is_permanent": true,
+      "is_creature": false,
+      "base_power": 0.0,
+      "commander_synergy": 0.7,
+      "floor_value": 0.85,
+      "immediate_impact": 0.8,
+      "turn_cycle_risk": 0.45,
+      "multiplayer_scaling": 0.0,
+      "conditional_strength": [
+        {
+          "condition": "sacrifice_package_online",
+          "multiplier": 1.35,
+          "notes": null
+        },
+        {
+          "condition": "survives_turn_cycle",
+          "multiplier": 1.25,
+          "notes": null
+        }
+      ],
+      "package_ids": [],
+      "source_quality": "project_inferred",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
     },
@@ -4935,6 +6335,7 @@
       "color_requirements": {
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4946,6 +6347,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4962,6 +6364,7 @@
       "color_requirements": {
         "G": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -4973,6 +6376,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -4987,6 +6391,7 @@
         "mana_source": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [
         "B",
         "G"
@@ -5001,6 +6406,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -5009,16 +6415,17 @@
       "oracle_name": "Wash Away",
       "mana_value": 1.0,
       "roles": [
-        "counter",
-        "removal"
+        "removal",
+        "counter"
       ],
       "role_strengths": {
-        "counter": 1.0,
-        "removal": 1.0
+        "removal": 1.0,
+        "counter": 1.0
       },
       "color_requirements": {
         "U": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -5030,6 +6437,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -5047,6 +6455,7 @@
         "R": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -5058,6 +6467,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -5066,13 +6476,13 @@
       "oracle_name": "Whirlwind of Thought",
       "mana_value": 4.0,
       "roles": [
-        "draw",
         "payoff",
+        "draw",
         "engine"
       ],
       "role_strengths": {
-        "draw": 1.7,
         "payoff": 1.0,
+        "draw": 1.7,
         "engine": 1.7
       },
       "color_requirements": {
@@ -5080,6 +6490,7 @@
         "U": 1,
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -5102,6 +6513,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -5120,6 +6532,7 @@
         "G": 1,
         "R": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -5131,6 +6544,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.8,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -5147,6 +6561,7 @@
       "color_requirements": {
         "W": 1
       },
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": false,
@@ -5158,6 +6573,7 @@
       "turn_cycle_risk": 0.45,
       "multiplayer_scaling": 0.0,
       "conditional_strength": [],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."
@@ -5166,16 +6582,17 @@
       "oracle_name": "Zuran Orb",
       "mana_value": 0.0,
       "roles": [
+        "land_synergy",
         "enabler",
-        "sacrifice_outlet",
-        "land_synergy"
+        "sacrifice_outlet"
       ],
       "role_strengths": {
+        "land_synergy": 1.0,
         "enabler": 1.0,
-        "sacrifice_outlet": 1.0,
-        "land_synergy": 1.0
+        "sacrifice_outlet": 1.0
       },
       "color_requirements": {},
+      "color_identity": [],
       "produces_colors": [],
       "is_land": false,
       "is_permanent": true,
@@ -5198,6 +6615,7 @@
           "notes": null
         }
       ],
+      "package_ids": [],
       "source_quality": "project_verified",
       "sources": [],
       "notes": "Structural abstraction; not a claim of full rules equivalence."

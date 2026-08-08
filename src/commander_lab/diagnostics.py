@@ -557,7 +557,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
     policy = compiler.compile_policy(
         policy_id="phase12-10-smoke-policy", version="1.0.1",
         commander="Korvold, Fae-Cursed King",
-        deck_hash="4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+        deck_hash="72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
         format_band=FormatBand.NORMAL_FOUR_PLAYER,
         base_pilot_name="KorvoldPilot", rules=rules, conflict_strategy="reject",
     )

@@ -153,9 +153,11 @@ def test_package_membership_is_attached_to_structural_cards() -> None:
     from commander_lab.engine.structural import load_project_structural_decks
     decks = load_project_structural_decks(ROOT)
     provisioner = next(card for card in decks["korvold/current"].cards if card.oracle_name == "Tireless Provisioner")
-    assert "korvold-treasure-clue-food" in provisioner.package_ids
-    curiosity = next(card for card in decks["rogshai/current"].cards if card.oracle_name == "Curiosity")
-    assert "rogshai-combat-draw" in curiosity.package_ids
+    assert "korvold-token-sacrifice-material" in provisioner.package_ids
+    assert "korvold-treasure-clue-food" not in provisioner.package_ids
+    spellslinger = next(card for card in decks["rogshai/current"].cards if card.oracle_name == "Whirlwind of Thought")
+    assert "rogshai-independent-spellslinger" in spellslinger.package_ids
+    assert "rogshai-combat-draw" not in spellslinger.package_ids
 
 
 def test_package_membership_influences_specialized_pilot_score() -> None:

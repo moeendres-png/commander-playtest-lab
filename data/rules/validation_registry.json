@@ -25,6 +25,26 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Aerial Extortionist": {
+      "oracle_name": "Aerial Extortionist",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Aether Spellbomb": {
+      "oracle_name": "Aether Spellbomb",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Aftermath Analyst": {
       "oracle_name": "Aftermath Analyst",
       "level": "tactical_oracle",
@@ -51,6 +71,26 @@
     },
     "Ancient Grudge": {
       "oracle_name": "Ancient Grudge",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Angel of Finality": {
+      "oracle_name": "Angel of Finality",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Arcane Denial": {
+      "oracle_name": "Arcane Denial",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -234,6 +274,16 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Cascade Bluffs": {
+      "oracle_name": "Cascade Bluffs",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Celestial Purge": {
       "oracle_name": "Celestial Purge",
       "level": "structural_only",
@@ -266,6 +316,16 @@
     },
     "Chaos Warp": {
       "oracle_name": "Chaos Warp",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Chart a Course": {
+      "oracle_name": "Chart a Course",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -359,6 +419,16 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Cryptic Caves": {
+      "oracle_name": "Cryptic Caves",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Culling Ritual": {
       "oracle_name": "Culling Ritual",
       "level": "tactical_oracle",
@@ -403,6 +473,16 @@
     },
     "Demolition Field": {
       "oracle_name": "Demolition Field",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Dispel": {
+      "oracle_name": "Dispel",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -507,6 +587,16 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Explore": {
+      "oracle_name": "Explore",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Exsanguinate": {
       "oracle_name": "Exsanguinate",
       "level": "structural_only",
@@ -570,6 +660,26 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Festering Thicket": {
+      "oracle_name": "Festering Thicket",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Finale of Revelation": {
+      "oracle_name": "Finale of Revelation",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Fire Covenant": {
       "oracle_name": "Fire Covenant",
       "level": "tactical_oracle",
@@ -594,6 +704,36 @@
     },
     "Forest": {
       "oracle_name": "Forest",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Frostboil Snarl": {
+      "oracle_name": "Frostboil Snarl",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Fumigate": {
+      "oracle_name": "Fumigate",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Gix's Command": {
+      "oracle_name": "Gix's Command",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -636,6 +776,16 @@
         "local tactical oracle passed; external rules engine not yet recorded"
       ]
     },
+    "Grim Discovery": {
+      "oracle_name": "Grim Discovery",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Guttersnipe": {
       "oracle_name": "Guttersnipe",
       "level": "tactical_oracle",
@@ -670,6 +820,16 @@
     },
     "Horizon Explorer": {
       "oracle_name": "Horizon Explorer",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Ichor Wellspring": {
+      "oracle_name": "Ichor Wellspring",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -722,6 +882,16 @@
     },
     "Into the Roil": {
       "oracle_name": "Into the Roil",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Irrigated Farmland": {
+      "oracle_name": "Irrigated Farmland",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -1029,6 +1199,16 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Myriad Landscape": {
+      "oracle_name": "Myriad Landscape",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Narset, Parter of Veils": {
       "oracle_name": "Narset, Parter of Veils",
       "level": "tactical_oracle",
@@ -1053,6 +1233,16 @@
     },
     "Nature's Lore": {
       "oracle_name": "Nature's Lore",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Necrogenesis": {
+      "oracle_name": "Necrogenesis",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -1102,6 +1292,16 @@
       "rules_engine_passed": 0,
       "notes": [
         "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Opt": {
+      "oracle_name": "Opt",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
       ]
     },
     "Oracle of Mul Daya": {
@@ -1196,6 +1396,46 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Prismari Charm": {
+      "oracle_name": "Prismari Charm",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Prismari Command": {
+      "oracle_name": "Prismari Command",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Profane Command": {
+      "oracle_name": "Profane Command",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Psychosis Crawler": {
+      "oracle_name": "Psychosis Crawler",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Psychotic Fury": {
       "oracle_name": "Psychotic Fury",
       "level": "structural_only",
@@ -1241,8 +1481,28 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Refute": {
+      "oracle_name": "Refute",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Relic of Legends": {
       "oracle_name": "Relic of Legends",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Resculpt": {
+      "oracle_name": "Resculpt",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -1293,8 +1553,28 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Scorched Geyser": {
+      "oracle_name": "Scorched Geyser",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Scouring Swarm": {
       "oracle_name": "Scouring Swarm",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Sheltered Thicket": {
+      "oracle_name": "Sheltered Thicket",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -1557,6 +1837,16 @@
         "no project-critical tactical interaction registered"
       ]
     },
+    "Talisman of Creativity": {
+      "oracle_name": "Talisman of Creativity",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
     "Talisman of Progress": {
       "oracle_name": "Talisman of Progress",
       "level": "structural_only",
@@ -1599,6 +1889,16 @@
     },
     "The Gitrog Monster": {
       "oracle_name": "The Gitrog Monster",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Thirst for Knowledge": {
+      "oracle_name": "Thirst for Knowledge",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,
@@ -1689,6 +1989,16 @@
     },
     "Tyvar's Stand": {
       "oracle_name": "Tyvar's Stand",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Vampiric Rites": {
+      "oracle_name": "Vampiric Rites",
       "level": "structural_only",
       "interaction_ids": [],
       "tactical_passed": 0,

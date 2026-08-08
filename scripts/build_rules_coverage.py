@@ -147,6 +147,14 @@ def main() -> int:
             rec["deck_versions"].append(deck_version)
             rec["source_status"].append(deck.get("data_status"))
             rec.setdefault("opponent_sources", []).append("data/canonical_import/2026-08-07/opponents.json")
+        # Provisional opponent completion cards remain explicit synthetic assumptions.
+        # They are useful for rules-coverage scoping but are never counted as hard-known slots.
+        for row in deck.get("provisional_cards", []):
+            name = canonical_opponent_name(row["oracle_name"])
+            rec = records.setdefault(name, {"oracle_name": name, "deck_versions": [], "source_status": []})
+            rec["deck_versions"].append(f"{deck_version}/provisional-completion")
+            rec["source_status"].append("synthetic_assumption")
+            rec.setdefault("opponent_sources", []).append("data/canonical_import/2026-08-07/opponents.json")
 
     # Preserve additional explicitly provenance-marked ensemble assumptions as assumptions, never confirmed cards.
     for path in sorted((root / "data/opponent_ensembles").glob("*-v1.json")):
@@ -247,7 +255,7 @@ def main() -> int:
         "schema_version": 2,
         "generated_from_read_only_canonical_drive_snapshot": True,
         "source_drive_files": {
-            "decks": "15SaFU4pgoYugXiimT0uqlw0AF53fCuf9",
+            "decks": canonical.get("source_drive_file_id"),
             "inventory": inventory.get("source_drive_file_id"),
             "opponents": opponents.get("source_drive_file_id"),
         },

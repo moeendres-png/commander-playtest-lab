@@ -1,0 +1,1025 @@
+{
+  "schema_version": "1.0.0",
+  "deck_id": "kaervek/current",
+  "deck_hash": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
+  "roles": [
+    {
+      "oracle_name": "Kaervek the Merciless",
+      "quantity": 1,
+      "mana_value": 7.0,
+      "roles": [
+        "engine",
+        "finisher",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "BR",
+      "card_type": "Legendary Creature — Human Shaman"
+    },
+    {
+      "oracle_name": "Arcane Signet",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Basilisk Collar",
+      "quantity": 1,
+      "mana_value": 1.0,
+      "roles": [
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact — Equipment"
+    },
+    {
+      "oracle_name": "Burnished Hart",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "ramp",
+        "sacrifice_outlet"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "C",
+      "card_type": "Artifact Creature — Elk"
+    },
+    {
+      "oracle_name": "Cultivator's Caravan",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact — Vehicle"
+    },
+    {
+      "oracle_name": "Gilded Lotus",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Hedron Archive",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Mazemind Tome",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "engine",
+        "selection"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact — Book"
+    },
+    {
+      "oracle_name": "Meteor Golem",
+      "quantity": 1,
+      "mana_value": 7.0,
+      "roles": [
+        "removal",
+        "enabler"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "C",
+      "card_type": "Artifact Creature — Golem"
+    },
+    {
+      "oracle_name": "Swiftfoot Boots",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "protection"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact — Equipment"
+    },
+    {
+      "oracle_name": "Culling Dais",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "engine",
+        "sacrifice_outlet"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Iron Myr",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "R",
+      "card_type": "Artifact Creature — Myr"
+    },
+    {
+      "oracle_name": "Leaden Myr",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Artifact Creature — Myr"
+    },
+    {
+      "oracle_name": "Mortarpod",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "engine",
+        "sacrifice_outlet",
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact — Equipment"
+    },
+    {
+      "oracle_name": "Palladium Myr",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "C",
+      "card_type": "Artifact Creature — Myr"
+    },
+    {
+      "oracle_name": "Rakdos Signet",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "BR",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Solemn Simulacrum",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "ramp",
+        "recursion"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "C",
+      "card_type": "Artifact Creature — Golem"
+    },
+    {
+      "oracle_name": "Mind Stone",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "draw",
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "quantity": 1,
+      "mana_value": 1.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Feed the Swarm",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Hero's Downfall",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Warstorm Surge",
+      "quantity": 1,
+      "mana_value": 6.0,
+      "roles": [
+        "engine",
+        "finisher",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Enchantment"
+    },
+    {
+      "oracle_name": "Nullpriest of Oblivion",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "recursion"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Vampire Cleric"
+    },
+    {
+      "oracle_name": "Soul-Shackled Zombie",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "graveyard_hate",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Zombie"
+    },
+    {
+      "oracle_name": "Vile Entomber",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "recursion",
+        "selection"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Zombie Warlock"
+    },
+    {
+      "oracle_name": "Zombify",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "recursion"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Avatar of Woe",
+      "quantity": 1,
+      "mana_value": 8.0,
+      "roles": [
+        "finisher",
+        "enabler",
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Avatar"
+    },
+    {
+      "oracle_name": "Beacon of Unrest",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "finisher",
+        "recursion"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Butcher of Malakir",
+      "quantity": 1,
+      "mana_value": 7.0,
+      "roles": [
+        "engine",
+        "finisher",
+        "payoff",
+        "wipe"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Vampire Warrior"
+    },
+    {
+      "oracle_name": "Cemetery Reaper",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "engine",
+        "graveyard_hate",
+        "recursion"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Zombie"
+    },
+    {
+      "oracle_name": "Executioner's Capsule",
+      "quantity": 1,
+      "mana_value": 1.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Artifact"
+    },
+    {
+      "oracle_name": "Infest",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "removal",
+        "wipe"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Makeshift Mannequin",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "recursion"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Phyrexian Rager",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "draw"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Phyrexian Horror"
+    },
+    {
+      "oracle_name": "Reassembling Skeleton",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "recursion",
+        "sacrifice_outlet"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Skeleton Warrior"
+    },
+    {
+      "oracle_name": "Shriekmaw",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "removal",
+        "enabler"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "B",
+      "card_type": "Creature — Elemental"
+    },
+    {
+      "oracle_name": "Sign in Blood",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "draw"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Sorin Markov",
+      "quantity": 1,
+      "mana_value": 6.0,
+      "roles": [
+        "finisher",
+        "payoff",
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Legendary Planeswalker — Sorin"
+    },
+    {
+      "oracle_name": "Infernal Grasp",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Night's Whisper",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "draw"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Syphon Mind",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Bolt Bend",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "removal",
+        "protection"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Gratuitous Violence",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "engine",
+        "finisher",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Enchantment"
+    },
+    {
+      "oracle_name": "Seismic Rupture",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "removal",
+        "wipe"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Chain Reaction",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "removal",
+        "wipe"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Chandra Nalaar",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "finisher",
+        "payoff",
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Legendary Planeswalker — Chandra"
+    },
+    {
+      "oracle_name": "Guttersnipe",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "engine",
+        "finisher",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "R",
+      "card_type": "Creature — Goblin Shaman"
+    },
+    {
+      "oracle_name": "Hoard-Smelter Dragon",
+      "quantity": 1,
+      "mana_value": 6.0,
+      "roles": [
+        "removal",
+        "finisher"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "R",
+      "card_type": "Creature — Dragon"
+    },
+    {
+      "oracle_name": "Inferno Titan",
+      "quantity": 1,
+      "mana_value": 6.0,
+      "roles": [
+        "finisher",
+        "enabler",
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "R",
+      "card_type": "Creature — Giant"
+    },
+    {
+      "oracle_name": "Magma Phoenix",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "removal",
+        "payoff",
+        "recursion",
+        "wipe"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "R",
+      "card_type": "Creature — Phoenix"
+    },
+    {
+      "oracle_name": "Manic Vandal",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "R",
+      "card_type": "Creature — Human Warrior"
+    },
+    {
+      "oracle_name": "Oxidda Scrapmelter",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "R",
+      "card_type": "Creature — Beast"
+    },
+    {
+      "oracle_name": "Seething Song",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "ramp"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Abrade",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Big Score",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "ramp",
+        "selection"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Burn Down the House",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "finisher",
+        "removal",
+        "wipe"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Sorcery"
+    },
+    {
+      "oracle_name": "Garna, Bloodfist of Keld",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "draw",
+        "engine",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "BR",
+      "card_type": "Legendary Creature — Human Berserker"
+    },
+    {
+      "oracle_name": "Immersturm Predator",
+      "quantity": 1,
+      "mana_value": 4.0,
+      "roles": [
+        "engine",
+        "finisher",
+        "graveyard_hate",
+        "protection",
+        "sacrifice_outlet"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "BR",
+      "card_type": "Creature — Vampire Dragon"
+    },
+    {
+      "oracle_name": "Perforating Artist",
+      "quantity": 1,
+      "mana_value": 3.0,
+      "roles": [
+        "finisher",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "BR",
+      "card_type": "Creature — Devil"
+    },
+    {
+      "oracle_name": "Breath of Malfegor",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "finisher",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "BR",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Terminate",
+      "quantity": 1,
+      "mana_value": 2.0,
+      "roles": [
+        "removal"
+      ],
+      "is_land": false,
+      "is_creature": false,
+      "color_identity": "BR",
+      "card_type": "Instant"
+    },
+    {
+      "oracle_name": "Tor Wauki the Younger",
+      "quantity": 1,
+      "mana_value": 5.0,
+      "roles": [
+        "engine",
+        "finisher",
+        "payoff"
+      ],
+      "is_land": false,
+      "is_creature": true,
+      "color_identity": "BR",
+      "card_type": "Legendary Creature — Human Archer"
+    },
+    {
+      "oracle_name": "Bloodfell Caves",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "BR",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Evolving Wilds",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Temple of Malice",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "BR",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Barren Moor",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Bojuka Bog",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "graveyard_hate",
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Grixis Panorama",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Rakdos Carnarium",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "BR",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Terramorphic Expanse",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Command Tower",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Exotic Orchard",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Hall of Oracles",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Path of Ancestry",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Spire of Industry",
+      "quantity": 1,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "C",
+      "card_type": "Land"
+    },
+    {
+      "oracle_name": "Mountain",
+      "quantity": 12,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "R",
+      "card_type": "Basic Land — Mountain"
+    },
+    {
+      "oracle_name": "Swamp",
+      "quantity": 13,
+      "mana_value": 0.0,
+      "roles": [
+        "mana_source"
+      ],
+      "is_land": true,
+      "is_creature": false,
+      "color_identity": "B",
+      "card_type": "Basic Land — Swamp"
+    }
+  ],
+  "extended_tags": {
+    "artifact_removal": [
+      "Abrade",
+      "Manic Vandal",
+      "Oxidda Scrapmelter",
+      "Meteor Golem",
+      "Hoard-Smelter Dragon"
+    ],
+    "punisher": [
+      "Kaervek the Merciless",
+      "Tor Wauki the Younger",
+      "Guttersnipe",
+      "Breath of Malfegor",
+      "Perforating Artist"
+    ],
+    "damage_amplifier": [
+      "Tor Wauki the Younger",
+      "Gratuitous Violence"
+    ],
+    "planeswalker": [
+      "Sorin Markov",
+      "Chandra Nalaar"
+    ],
+    "large_threat": [
+      "Kaervek the Merciless",
+      "Butcher of Malakir",
+      "Inferno Titan",
+      "Avatar of Woe",
+      "Hoard-Smelter Dragon",
+      "Meteor Golem"
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+1 Kaervek the Merciless
+1 Arcane Signet
+1 Basilisk Collar
+1 Burnished Hart
+1 Cultivator's Caravan
+1 Gilded Lotus
+1 Hedron Archive
+1 Mazemind Tome
+1 Meteor Golem
+1 Swiftfoot Boots
+1 Culling Dais
+1 Iron Myr
+1 Leaden Myr
+1 Mortarpod
+1 Palladium Myr
+1 Rakdos Signet
+1 Solemn Simulacrum
+1 Mind Stone
+1 Sol Ring
+1 Feed the Swarm
+1 Hero's Downfall
+1 Warstorm Surge
+1 Nullpriest of Oblivion
+1 Soul-Shackled Zombie
+1 Vile Entomber
+1 Zombify
+1 Avatar of Woe
+1 Beacon of Unrest
+1 Butcher of Malakir
+1 Cemetery Reaper
+1 Executioner's Capsule
+1 Infest
+1 Makeshift Mannequin
+1 Phyrexian Rager
+1 Reassembling Skeleton
+1 Shriekmaw
+1 Sign in Blood
+1 Sorin Markov
+1 Infernal Grasp
+1 Night's Whisper
+1 Syphon Mind
+1 Bolt Bend
+1 Gratuitous Violence
+1 Seismic Rupture
+1 Chain Reaction
+1 Chandra Nalaar
+1 Guttersnipe
+1 Hoard-Smelter Dragon
+1 Inferno Titan
+1 Magma Phoenix
+1 Manic Vandal
+1 Oxidda Scrapmelter
+1 Seething Song
+1 Abrade
+1 Big Score
+1 Burn Down the House
+1 Garna, Bloodfist of Keld
+1 Immersturm Predator
+1 Perforating Artist
+1 Breath of Malfegor
+1 Terminate
+1 Tor Wauki the Younger
+1 Bloodfell Caves
+1 Evolving Wilds
+1 Temple of Malice
+1 Barren Moor
+1 Bojuka Bog
+1 Grixis Panorama
+1 Rakdos Carnarium
+1 Terramorphic Expanse
+1 Command Tower
+1 Exotic Orchard
+1 Hall of Oracles
+1 Path of Ancestry
+1 Spire of Industry
+12 Mountain
+13 Swamp
