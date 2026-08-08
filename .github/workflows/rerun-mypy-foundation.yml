@@ -1,0 +1,79 @@
+name: Reapply Strict Mypy Foundation
+
+on:
+  push:
+    branches:
+      - fix/1.13.4-strict-quality-controlled
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message || '', '[mypy-foundation-applied]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+      - name: Install quality tools
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Reapply the existing typed-boundary transform safely
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          workflow = Path('.github/workflows/apply-mypy-foundation.yml')
+          raw = workflow.read_text(encoding='utf-8')
+          start_marker = "          python - <<'PY'\n"
+          end_marker = "\n          PY\n"
+          start = raw.index(start_marker) + len(start_marker)
+          end = raw.index(end_marker, start)
+          script = textwrap.dedent(raw[start:end])
+          exec(compile(script, str(workflow), 'exec'), {'__name__': '__main__'})
+
+          def replace(path_str: str, old: str, new: str) -> None:
+              path = Path(path_str)
+              text = path.read_text(encoding='utf-8')
+              if old not in text:
+                  raise RuntimeError(f'expected post-foundation wrap pattern missing in {path_str}: {old!r}')
+              path.write_text(text.replace(old, new), encoding='utf-8')
+
+          replace(
+              'src/commander_lab/engine/structural/simulator.py',
+              '                roles=commander_card.roles if commander_card else frozenset({CardRole.ENGINE, CardRole.PAYOFF}),\n',
+              '                roles=(\n                    commander_card.roles\n                    if commander_card\n                    else frozenset({CardRole.ENGINE, CardRole.PAYOFF})\n                ),\n',
+          )
+          replace(
+              'src/commander_lab/engine/structural/simulator.py',
+              '                commander_synergy=max(1.0, commander_card.commander_synergy if commander_card else 1.0),\n',
+              '                commander_synergy=max(\n                    1.0,\n                    commander_card.commander_synergy if commander_card else 1.0,\n                ),\n',
+          )
+          replace(
+              'src/commander_lab/optimization/search.py',
+              '    deltas = sorted(\n        _metric_float(row, "baseline_placement") - _metric_float(row, "variant_placement") for row in pairs\n    )\n',
+              '    deltas = sorted(\n        _metric_float(row, "baseline_placement")\n        - _metric_float(row, "variant_placement")\n        for row in pairs\n    )\n',
+          )
+          PY
+          ruff check . --fix || true
+          ruff format .
+          ruff check .
+          ruff format --check .
+          python -m compileall -q src tests scripts
+          git diff --check
+      - name: Commit typed-boundary fixes and remove one-shot helpers
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-mypy-foundation.yml
+          git rm .github/workflows/rerun-mypy-foundation.yml
+          git add -u
+          git commit -m "fix: establish strict-mypy typed boundaries [mypy-foundation-applied]"
+          git push origin HEAD:fix/1.13.4-strict-quality-controlled
