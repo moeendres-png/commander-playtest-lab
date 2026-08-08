@@ -56,7 +56,9 @@ class CounterfactualBranchpoint(FrozenModel):
     alternative_action: str | None = None
     engine_mode: CounterfactualEngineMode = CounterfactualEngineMode.STRUCTURAL
     seed_policy: SeedPolicy = SeedPolicy.SAME_SEED
-    hidden_information_policy: HiddenInformationPolicy = HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
+    hidden_information_policy: HiddenInformationPolicy = (
+        HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
+    )
     event_type: str = "pilot_decision"
     phase: str | None = None
     player_eliminated: bool = False
@@ -69,7 +71,7 @@ class CounterfactualBranchpoint(FrozenModel):
     ] = "structural_model_estimates"
 
     @model_validator(mode="after")
-    def validate_actions(self) -> "CounterfactualBranchpoint":
+    def validate_actions(self) -> CounterfactualBranchpoint:
         ids = [row.action_id for row in self.available_actions]
         if len(ids) != len(set(ids)):
             raise ValueError("available action ids must be unique")
@@ -83,9 +85,7 @@ class CounterfactualBranchpoint(FrozenModel):
             CounterfactualEngineMode.EXTERNAL_ENGINE: "external_rules_engine",
         }[self.engine_mode]
         if self.validation_level != expected:
-            raise ValueError(
-                f"engine mode {self.engine_mode} requires validation_level={expected}"
-            )
+            raise ValueError(f"engine mode {self.engine_mode} requires validation_level={expected}")
         return self
 
 
@@ -133,7 +133,7 @@ class CounterfactualResult(FrozenModel):
     provenance: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def enforce_evidence_truth_boundary(self) -> "CounterfactualResult":
+    def enforce_evidence_truth_boundary(self) -> CounterfactualResult:
         if not self.model_alternative or self.historical_fact:
             raise ValueError(
                 "counterfactual results must remain model alternatives, not historical facts"
@@ -149,17 +149,11 @@ class CounterfactualResult(FrozenModel):
                     "external_engine_used requires external_rules_engine validation level"
                 )
             if not self.provenance.get("external_engine_evidence"):
-                raise ValueError(
-                    "external engine claims require explicit external_engine_evidence"
-                )
+                raise ValueError("external engine claims require explicit external_engine_evidence")
         elif level == "external_rules_engine":
-            raise ValueError(
-                "external_rules_engine validation requires external_engine_used=true"
-            )
+            raise ValueError("external_rules_engine validation requires external_engine_used=true")
         if self.tactical_oracle_used != (level == "tactical_oracle"):
-            raise ValueError(
-                "tactical_oracle_used must match tactical validation level"
-            )
+            raise ValueError("tactical_oracle_used must match tactical validation level")
         return self
 
 
