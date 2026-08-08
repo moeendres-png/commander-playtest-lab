@@ -279,6 +279,48 @@ FLEXIBLE_LANDS = {
 }
 
 
+# Canonical 2026-08-07 current-deck additions. These are structural role
+# classifications only; they do not claim full Oracle/rules-engine equivalence.
+ROLE_GROUPS[CardRole.RAMP].update({"Explore", "Talisman of Creativity"})
+ROLE_GROUPS[CardRole.DRAW].update({
+    "Explore", "Ichor Wellspring", "Idol of Oblivion", "Vampiric Rites",
+    "Aerial Extortionist", "Aether Spellbomb", "Arcane Denial", "Archmage Emeritus",
+    "Chart a Course", "Finale of Revelation", "Opt", "Psychosis Crawler", "Refute",
+    "Thirst for Knowledge",
+})
+ROLE_GROUPS[CardRole.SELECTION].update({"Chart a Course", "Opt", "Prismari Charm", "Prismari Command", "Thirst for Knowledge"})
+ROLE_GROUPS[CardRole.REMOVAL].update({"Gix's Command", "Profane Command", "Aerial Extortionist", "Aether Spellbomb", "Prismari Charm", "Prismari Command", "Resculpt"})
+ROLE_GROUPS[CardRole.COUNTER].update({"Arcane Denial", "Dispel", "Refute"})
+ROLE_GROUPS[CardRole.PROTECTION].update({"Lightning Greaves"})
+ROLE_GROUPS[CardRole.WIPE].update({"Gix's Command", "Fumigate"})
+ROLE_GROUPS[CardRole.RECURSION].update({"Grim Discovery", "Profane Command"})
+ROLE_GROUPS[CardRole.GRAVEYARD_HATE].update({"Necrogenesis", "Angel of Finality"})
+ROLE_GROUPS[CardRole.ENGINE].update({"Ichor Wellspring", "Idol of Oblivion", "Vampiric Rites", "Archmage Emeritus", "Psychosis Crawler"})
+ROLE_GROUPS[CardRole.ENABLER].update({"Lightning Greaves", "Necrogenesis", "Aether Spellbomb"})
+ROLE_GROUPS[CardRole.PAYOFF].update({"Profane Command", "Psychosis Crawler"})
+ROLE_GROUPS[CardRole.FINISHER].update({"Profane Command", "Finale of Revelation", "Psychosis Crawler"})
+ROLE_GROUPS[CardRole.SACRIFICE_OUTLET].update({"Vampiric Rites"})
+ROLE_GROUPS[CardRole.TOKEN_SOURCE].update({"Necrogenesis"})
+
+PERMANENT_EXCEPTIONS.update({
+    "Explore", "Gix's Command", "Grim Discovery", "Profane Command",
+    "Arcane Denial", "Chart a Course", "Dispel", "Finale of Revelation", "Fumigate",
+    "Opt", "Prismari Charm", "Prismari Command", "Refute", "Resculpt", "Thirst for Knowledge",
+})
+
+LAND_PRODUCES.update({
+    "Festering Thicket": frozenset({Color.BLACK, Color.GREEN}),
+    "Sheltered Thicket": frozenset({Color.RED, Color.GREEN}),
+    "Cascade Bluffs": frozenset({Color.BLUE, Color.RED}),
+    "Frostboil Snarl": frozenset({Color.BLUE, Color.RED}),
+    "Irrigated Farmland": frozenset({Color.WHITE, Color.BLUE}),
+    "Scorched Geyser": frozenset({Color.BLUE, Color.RED}),
+})
+FLEXIBLE_LANDS.update({"Cryptic Caves", "Myriad Landscape"})
+HIGH_IMMEDIATE.update({"Gix's Command", "Arcane Denial", "Dispel", "Fumigate", "Prismari Charm", "Prismari Command", "Refute", "Resculpt"})
+MULTIPLAYER_SCALING.update({"Aerial Extortionist": 0.7, "Psychosis Crawler": 1.1, "Fumigate": 0.6})
+
+
 def _roles_for(card: CardIdentity) -> frozenset[CardRole]:
     roles = {role for role, names in ROLE_GROUPS.items() if card.oracle_name in names}
     is_land = "Land" in card.type_line or card.is_basic_land

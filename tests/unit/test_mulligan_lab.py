@@ -48,7 +48,7 @@ def names(deck, wanted):
 def test_london_mulligan_uses_free_first_multiplayer_and_commanders_stay_out(repo_root: Path) -> None:
     lab=MulliganLab(repo_root); deck=lab.deck("korvold/current")
     assert all(card.oracle_name not in deck.commander_names for card in lab._library(deck))
-    bad=names(deck,("Forest","Swamp","Mountain","Massacre Wurm","The Gitrog Monster","Mazirek, Kraul Death Priest","Szarel, Genesis Shepherd"))
+    bad=names(deck,("Forest","Swamp","Mountain","Massacre Wurm","The Gitrog Monster","Gix's Command","Profane Command"))
     good=names(deck,("Forest","Forest","Swamp","Sol Ring","Zuran Orb","Deadly Dispute","Mirkwood Bats"))
     result=lab.london_mulligan_from_draws(deck,(bad,good),MulliganPolicyName.PRIMER_POLICY,context(deck))
     assert result.mulligans_taken == 1
@@ -65,8 +65,8 @@ def test_korvold_and_rogshai_golden_hands(repo_root: Path) -> None:
     assert good.keep is True
     assert bad.keep is False
     r=lab.deck("rogshai/current")
-    rg=lab.evaluate(r,names(r,("Island","Plains","Sol Ring","Consider","Counterspell","Slip Out the Back","Combat Research")),MulliganPolicyName.PRIMER_POLICY,context(r))
-    rb=lab.evaluate(r,names(r,("Plains","Mountain","Blackblade Reforged","Duelist's Heritage","Jeska, Thrice Reborn","Kediss, Emberclaw Familiar","Farewell")),MulliganPolicyName.PRIMER_POLICY,context(r))
+    rg=lab.evaluate(r,names(r,("Island","Plains","Sol Ring","Consider","Counterspell","Slip Out the Back","Opt")),MulliganPolicyName.PRIMER_POLICY,context(r))
+    rb=lab.evaluate(r,names(r,("Plains","Mountain","Aether Spellbomb","Duelist's Heritage","Jeska, Thrice Reborn","Kediss, Emberclaw Familiar","Farewell")),MulliganPolicyName.PRIMER_POLICY,context(r))
     assert rg.keep is True
     assert rb.keep is False
 
@@ -96,7 +96,7 @@ def test_tool_surface_runs_and_generates_non_absolute_rule(repo_root: Path, tmp_
     service=CommanderToolService(repo_root)
     eval_response=service.evaluate_opening_hand(EvaluateOpeningHandInput(
         deck_id="rogshai/current",
-        card_names=("Island","Plains","Sol Ring","Consider","Counterspell","Slip Out the Back","Combat Research"),
+        card_names=("Island","Plains","Sol Ring","Consider","Counterspell","Slip Out the Back","Opt"),
         policy="primer_policy",
     ))
     assert eval_response.status.value == "completed"
@@ -122,7 +122,7 @@ def test_large_materialization_is_forbidden_but_streaming_supported(repo_root: P
 
 def test_context_dimensions_change_model_score(repo_root: Path) -> None:
     lab=MulliganLab(repo_root); deck=lab.deck("rogshai/current")
-    hand=names(deck,("Island","Plains","Sol Ring","Consider","Counterspell","Slip Out the Back","Combat Research"))
+    hand=names(deck,("Island","Plains","Sol Ring","Consider","Counterspell","Slip Out the Back","Opt"))
     base=context(deck)
     control=base.model_copy(update={"seat_position":4,"starting_player":False,"pilot_profile_id":"RogShaiControlPilot","game_plan":MulliganGamePlan.CONTROL})
     tempo=base.model_copy(update={"seat_position":1,"starting_player":True,"pilot_profile_id":"RogShaiTempoPilot","game_plan":MulliganGamePlan.FAST_PRESSURE})

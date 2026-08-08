@@ -29,7 +29,7 @@ def run_phase5_demo(root: str | Path, *, iterations: int = 80, seed: int = 20260
     recommendations = service.recommend_upgrades(
         RecommendUpgradesInput(
             deck_id="korvold/current",
-            candidate_ids=("korvold/idol-of-oblivion",),
+            candidate_ids=("korvold/mazirek-smoke",),
             max_recommendations=1,
         )
     )

@@ -100,7 +100,7 @@ def test_validate_swap_executes_politics_pod_tactical_and_external_truth_gates()
     svc = service()
     response = svc.validate_swap(ValidateSwapInput(
         deck_id="korvold/current",
-        swaps=(VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
+        swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
         iterations=1, workers=1, seed=123, max_turns=8,
         holdout_pods=(), sensitivity_seeds=(), sensitivity_strengths=(),
     ))
@@ -117,7 +117,7 @@ def test_robustness_suite_runs_structural_scenarios_instead_of_reading_old_artif
     svc = service()
     response = svc.run_robustness_suite(RunRobustnessSuiteInput(
         deck_id="korvold/current",
-        swaps=(VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
+        swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
         iterations=1, workers=1, seed=456, max_turns=8,
         holdout_pods=(), sensitivity_seeds=(), sensitivity_strengths=(),
         include_politics=True, include_pod_sizes=(3,),

@@ -470,7 +470,7 @@ def build_registry(root: str | Path) -> dict[str, Any]:
         quality = p.get("data_quality", "project_inferred")
         base_pressure = min(1.0, (sum(float(v) for v in p.get("roles", {}).values()) / max(1, len(p.get("roles", {})))) / 15.0)
         status = p.get("source_status")
-        if status in {"partially_known", "synthetic_completion", "official_precon_plus_unknown_upgrades"}:
+        if status in {"partially_known", "synthetic_completion", "official_precon_plus_unknown_upgrades"} or p.get("upgrade_slots_unknown", False):
             bands = (("best_case", -0.15), ("median", 0.0), ("worst_case", 0.18))
         else:
             bands = (("fixed_reference", 0.0),)

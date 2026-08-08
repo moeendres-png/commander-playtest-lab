@@ -14,14 +14,14 @@
       },
       "is_baseline": true,
       "mode": "deterministic",
-      "parameter_hash": "03b338d96710bac54bd75a827fdc96018cce3e5512d12d6bd22f9f9fed7856f5",
+      "parameter_hash": "7dfbb6bb4e1b14ceca82d510c63fb3cf1de5e22c56ba7b4e3c6aa99fec516440",
       "pilot_name": "KorvoldPilot",
       "profile_id": "korvold.korvoldpilot.v1",
       "source_rule_ids": [
         "korvold.current.commander-immediate-value"
       ],
       "supported_deck_hashes": [
-        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+        "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
       ],
       "version": "1.0.0",
       "weights": {
@@ -51,7 +51,7 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "9e2ed46f7b70600a8048052d95c013d867a720cd1e84bee2d2e6612c1b3f7e6c",
+      "parameter_hash": "c17c161ed551eb6b15e9707e0ed0fbef0976b01c992ddb31be7f3ebbc35d29d8",
       "pilot_name": "KorvoldValuePilot",
       "profile_id": "korvold.korvoldvaluepilot.v1",
       "source_rule_ids": [
@@ -59,7 +59,7 @@
         "korvold.current.motor-vs-finisher"
       ],
       "supported_deck_hashes": [
-        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+        "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
       ],
       "version": "1.0.0",
       "weights": {
@@ -89,14 +89,14 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "e9439ab10cb9b96e360d93f7986c3cf0871528a66aa3b5fc297e89b14aa2805c",
+      "parameter_hash": "e8e7de46f66b1728eda4e9eda2d5cb57eff2ddf18f35f451662017919d41c4be",
       "pilot_name": "KorvoldSacrificePilot",
       "profile_id": "korvold.korvoldsacrificepilot.v1",
       "source_rule_ids": [
         "korvold.current.prepare-sacrifice-resources"
       ],
       "supported_deck_hashes": [
-        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+        "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
       ],
       "version": "1.0.0",
       "weights": {
@@ -126,7 +126,7 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "552b8958758cbc88f02a89e876b3313e15db4a69a2d65f8bf5a981302249301b",
+      "parameter_hash": "56a8f2bdc6e33eebd59676e6c7cb0361396ae95092e73036e5bbf5602b832273",
       "pilot_name": "KorvoldLandRebuildPilot",
       "profile_id": "korvold.korvoldlandrebuildpilot.v1",
       "source_rule_ids": [
@@ -134,7 +134,7 @@
         "korvold.current.rebuild-after-wipe"
       ],
       "supported_deck_hashes": [
-        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+        "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
       ],
       "version": "1.0.0",
       "weights": {
@@ -164,14 +164,14 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "31967d67b4368db3c3a48b6f10c5c15104b9b9aca6209e466cee005e4b060191",
+      "parameter_hash": "de5df72bfef90ba4155da2a164f82eaca7a16eb20c6ff64c7b50e85905442a57",
       "pilot_name": "KorvoldAggressivePilot",
       "profile_id": "korvold.korvoldaggressivepilot.v1",
       "source_rule_ids": [
         "korvold.current.table-damage-window"
       ],
       "supported_deck_hashes": [
-        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+        "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
       ],
       "version": "1.0.0",
       "weights": {
@@ -201,7 +201,7 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "5c377a05676050b0a1caffd96751fbc8c16fccc164289952be49df8e6b1ae093",
+      "parameter_hash": "a1a993d02716114eac9bd99d130b79430de4132b189ddc8749ef9394f272e2bb",
       "pilot_name": "KorvoldConservativePilot",
       "profile_id": "korvold.korvoldconservativepilot.v1",
       "source_rule_ids": [
@@ -209,7 +209,7 @@
         "korvold.current.rebuild-after-wipe"
       ],
       "supported_deck_hashes": [
-        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+        "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
       ],
       "version": "1.0.0",
       "weights": {
@@ -239,14 +239,14 @@
       },
       "is_baseline": true,
       "mode": "deterministic",
-      "parameter_hash": "64573d2f34de8fcd396ee79445b84bec39091b248053bf3b09b89e9db7e2d487",
+      "parameter_hash": "5d398030f779e7be55a85f81c669172a1423a6648366d791fa8404b8203a6a0c",
       "pilot_name": "RogShaiPilot",
       "profile_id": "rogshai.rogshaipilot.v1",
       "source_rule_ids": [
         "rogshai.current.ishai-protection-window"
       ],
       "supported_deck_hashes": [
-        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+        "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
       ],
       "version": "1.0.0",
       "weights": {
@@ -276,7 +276,7 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "7494c672afce15dbaa33353f391fa9333c88471dea7b1f98e1fa42471ebfc7df",
+      "parameter_hash": "9bab2bfb7d5064c2927cf3993c413d47b9fcfbe5c9e2fc62517b4f1a685270a2",
       "pilot_name": "RogShaiTempoPilot",
       "profile_id": "rogshai.rogshaitempopilot.v1",
       "source_rule_ids": [
@@ -284,7 +284,7 @@
         "rogshai.current.counter-priority"
       ],
       "supported_deck_hashes": [
-        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+        "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
       ],
       "version": "1.0.0",
       "weights": {
@@ -314,7 +314,7 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "9a1c4370fded8c89ef96f80937f9de50e53dd76005c42768f564b5d48408a7a3",
+      "parameter_hash": "a79b885b56e5e031ed10bdc8c51deb6fd9831cf38838d732f1c8c39abe4b9906",
       "pilot_name": "RogShaiVoltronPilot",
       "profile_id": "rogshai.rogshaivoltronpilot.v1",
       "source_rule_ids": [
@@ -322,7 +322,7 @@
         "rogshai.current.kediss-not-commander-damage"
       ],
       "supported_deck_hashes": [
-        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+        "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
       ],
       "version": "1.0.0",
       "weights": {
@@ -352,14 +352,14 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "341562dd9d6ca75c1a503bd6236fa4999add3c0a3cea71eb9dc1e63942bf320c",
+      "parameter_hash": "0f061044ad5700cba0fdef9f1079da40425f3c53606b4924aa17af5af0c245fc",
       "pilot_name": "RogShaiSpellslingerPilot",
       "profile_id": "rogshai.rogshaispellslingerpilot.v1",
       "source_rule_ids": [
         "rogshai.current.independent-spellslinger-axis"
       ],
       "supported_deck_hashes": [
-        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+        "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
       ],
       "version": "1.0.0",
       "weights": {
@@ -389,14 +389,14 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "24717e5c1e0f5d7f54637663116baf4abb726105c7e492a963d9224658fa3b6a",
+      "parameter_hash": "8d68f24f4c89e4710381b108a39a931cc1b70eba3f6c5101a1bed2e94ecce58b",
       "pilot_name": "RogShaiControlPilot",
       "profile_id": "rogshai.rogshaicontrolpilot.v1",
       "source_rule_ids": [
         "rogshai.current.counter-priority"
       ],
       "supported_deck_hashes": [
-        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+        "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
       ],
       "version": "1.0.0",
       "weights": {
@@ -426,7 +426,7 @@
       },
       "is_baseline": false,
       "mode": "deterministic",
-      "parameter_hash": "e3ca7e279337e09c26192dffb11cd6b16a906addaf2fb97dbec9b2df4db65dd1",
+      "parameter_hash": "055b1df783df88b1d06a79c4bcf791d6bf57c8bbc6d6f2375e0b5e3876c499b5",
       "pilot_name": "RogShaiProtectedFinishPilot",
       "profile_id": "rogshai.rogshaiprotectedfinishpilot.v1",
       "source_rule_ids": [
@@ -434,7 +434,7 @@
         "rogshai.current.silence-window"
       ],
       "supported_deck_hashes": [
-        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+        "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
       ],
       "version": "1.0.0",
       "weights": {

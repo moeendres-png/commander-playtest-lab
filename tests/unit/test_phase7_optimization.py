@@ -22,8 +22,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_phase7_candidate_pool_is_locally_verified() -> None:
     service = CommanderToolService(ROOT)
-    assert service.candidate_inventory["Idol of Oblivion"] == 1
-    assert "Lightning Greaves" in service.verified_candidate_names
+    assert service.candidate_inventory["Mazirek, Kraul Death Priest"] == 1
+    assert "Szarel, Genesis Shepherd" in service.verified_candidate_names
 
 
 def test_complete_swap_matrix_preserves_every_requested_cell() -> None:
@@ -31,8 +31,8 @@ def test_complete_swap_matrix_preserves_every_requested_cell() -> None:
     response = service.generate_swap_matrix(
         SwapMatrixInput(
             deck_id="korvold/current",
-            remove_cards=("Scouring Swarm", "Horizon Explorer"),
-            add_candidate_ids=("korvold/idol-of-oblivion", "korvold/lightning-greaves"),
+            remove_cards=("Vampiric Rites", "Necrogenesis"),
+            add_candidate_ids=("korvold/mazirek-smoke", "korvold/szarel-smoke"),
             simulate_valid_cells=False,
             iterations_per_cell=1,
         )
@@ -49,7 +49,7 @@ def test_local_and_beam_search_return_candidates_not_edits() -> None:
     local = service.run_local_search(
         LocalSearchInput(
             deck_id="korvold/current",
-            candidate_ids=("korvold/idol-of-oblivion",),
+            candidate_ids=("korvold/mazirek-smoke",),
             max_steps=1,
             cuts_per_step=2,
             iterations=2,
@@ -59,7 +59,7 @@ def test_local_and_beam_search_return_candidates_not_edits() -> None:
     beam = service.run_beam_search(
         BeamSearchInput(
             deck_id="korvold/current",
-            candidate_ids=("korvold/idol-of-oblivion", "korvold/lightning-greaves"),
+            candidate_ids=("korvold/mazirek-smoke", "korvold/szarel-smoke"),
             beam_width=2,
             depth=1,
             max_cuts_per_node=2,
@@ -78,8 +78,8 @@ def test_package_search_enforces_constraints_and_returns_evidence() -> None:
     package = CandidatePackage(
         package_id="korvold-draw-protection",
         swaps=(
-            VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),
-            VariantSwap(remove="Horizon Explorer", add_candidate_id="korvold/lightning-greaves"),
+            VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),
+            VariantSwap(remove="Necrogenesis", add_candidate_id="korvold/szarel-smoke"),
         ),
     )
     response = service.run_package_search(
@@ -103,8 +103,8 @@ def test_pareto_front_contains_only_non_dominated_valid_variants() -> None:
         ParetoFrontInput(
             deck_id="korvold/current",
             variants=(
-                (VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
-                (VariantSwap(remove="Horizon Explorer", add_candidate_id="korvold/lightning-greaves"),),
+                (VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
+                (VariantSwap(remove="Necrogenesis", add_candidate_id="korvold/szarel-smoke"),),
             ),
             iterations=2,
             holdout_pods=(("synthetic/control", "synthetic/control", "synthetic/engine"),),
@@ -121,7 +121,7 @@ def test_shapley_approximation_is_seed_reproducible() -> None:
     service = CommanderToolService(ROOT)
     request = ShapleyInput(
         deck_id="korvold/current",
-        card_names=("Scouring Swarm", "Horizon Explorer"),
+        card_names=("Vampiric Rites", "Necrogenesis"),
         permutations=16,
         iterations=2,
         seed=29,
@@ -138,7 +138,7 @@ def test_validate_upgrade_runs_full_chain_and_never_applies() -> None:
     response = service.validate_upgrade(
         ValidateUpgradeInput(
             deck_id="korvold/current",
-            swaps=(VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
+            swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
             iterations=2,
             seed=31,
             holdout_pods=(("synthetic/control", "synthetic/control", "synthetic/engine"),),
@@ -162,14 +162,14 @@ def test_validate_upgrade_runs_full_chain_and_never_applies() -> None:
 def test_constraint_report_rejects_wrong_color_candidate() -> None:
     service = CommanderToolService(ROOT)
     baseline = service._deck("korvold/current")
-    talisman = service.candidates["rogshai/talisman-of-creativity"].card
+    talisman = service.candidates["rogshai/curiosity-smoke"].card
     variant = baseline.model_copy(update={"cards": tuple([*baseline.cards[:-1], talisman])})
     report = evaluate_constraints(
         variant,
         DEFAULT_CONSTRAINTS["korvold/current"],
-        candidate_inventory={"Talisman of Creativity": 1},
-        added_card_names=("Talisman of Creativity",),
-        verified_physical_names={"Talisman of Creativity"},
+        candidate_inventory={"Curiosity": 1},
+        added_card_names=("Curiosity",),
+        verified_physical_names={"Curiosity"},
     )
     assert report.valid is False
     assert any(issue.code == "color_identity" for issue in report.issues)

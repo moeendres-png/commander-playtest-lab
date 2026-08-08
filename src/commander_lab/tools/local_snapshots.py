@@ -49,7 +49,7 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
                 name=str(spec["name"]),
                 commander_names=tuple(spec["commanders"]),
                 uses_partner=bool(spec["uses_partner"]),
-                data_as_of="2026-08-02",
+                data_as_of="2026-08-07",
             ),
         )
         deck.deck_hash = compute_deck_hash(deck)
@@ -76,7 +76,7 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
     data_hash = compute_data_snapshot_hash(snapshot_files, root=root_path)
     manifest = {
         "schema_version": "0.2.0",
-        "data_as_of": date(2026, 8, 2).isoformat(),
+        "data_as_of": date(2026, 8, 7).isoformat(),
         "generated_from_local_files_only": True,
         "google_drive_modified": False,
         "authoritative_oracle_snapshot": False,

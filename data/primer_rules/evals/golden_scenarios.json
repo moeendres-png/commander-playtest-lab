@@ -53,7 +53,7 @@
         "commander_immediate_value": false,
         "package_complete": false
       },
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "golden_scenario",
       "expected_action_id": "cast-ophiomancer",
       "format_band": "normal_four_player",
@@ -186,7 +186,7 @@
         "boardwipe_resolved": true,
         "finish_window": false
       },
-      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
       "evidence_type": "golden_scenario",
       "expected_action_id": "aftermath",
       "format_band": "normal_four_player",
@@ -312,7 +312,7 @@
         "protection_available": false,
         "spellslinger_axis_available": true
       },
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "golden_scenario",
       "expected_action_id": "cast-whirlwind",
       "format_band": "normal_four_player",
@@ -454,7 +454,7 @@
         "protection_available": true,
         "spellslinger_axis_available": true
       },
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "golden_scenario",
       "expected_action_id": "cast-archmage",
       "format_band": "normal_four_player",
@@ -586,7 +586,7 @@
         "always": true,
         "protection_available": true
       },
-      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
       "evidence_type": "golden_scenario",
       "expected_action_id": "pass",
       "format_band": "normal_four_player",

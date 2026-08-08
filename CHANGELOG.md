@@ -1,9 +1,21 @@
+# Changelog
+
+## 1.13.3 - 2026-08-08
+
+- Synchronized Korvold and RogShai program snapshots to the canonical 2026-08-07 final workbook without performing a new deck optimization.
+- Synchronized the current physical inventory and opponent evidence boundaries, including Morcant 54 hard / 18 provisional / 28 synthetic-basic slots and verified Kaervek correction.
+- Expanded structural identity/profile coverage from 161 to 195 retained card profiles and rebuilt rules coverage for the current candidate universe.
+- Added explicit `commander-lab data audit` and non-mutating `commander-lab data sync --dry-run` source gates.
+- Migrated 12 pilot profiles to current deck hashes, retained 13 compatible active primer rules, deactivated one stale combat-draw-aura rule, and classified 14 compatible versus 6 historical/stale package records.
+- Replaced obsolete current-deck optimization test fixtures with explicit technical smoke candidates; no smoke candidate is an upgrade recommendation.
+- Real playtest calibration remains outside the active project scope; external XMage/Forge validation remains pending with zero external observations.
+
 
 ## 1.13.2 - 2026-08-07
+
 - Sync direct physical correction for `kaervek/current`: Midnight Reaper removed because the copy could not be found; Warstorm Surge / Anschwellender Kriegssturm from Leons Box added.
 - Refresh Kaervek hash, role profile, registry, provenance and current inventory derivatives.
 - Historical Kaervek snapshots/imports remain unchanged for reproducibility.
-# Changelog
 
 ## 1.10.3 – Phase 12.15–12.17 completion repair
 
