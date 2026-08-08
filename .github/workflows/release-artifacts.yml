@@ -83,8 +83,8 @@ jobs:
               "recommendations_applied": 0,
               "runtime_state_directory": ".runtime/engine",
               "fresh_rebuild_6_current": True,
-              "korvold_frozen_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
-              "rogshai_frozen_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+              "korvold_frozen_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
+              "rogshai_frozen_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
           }
           (release / "PLAYTEST_LAB_CURRENT_STATUS.json").write_text(
               json.dumps(status, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -97,8 +97,9 @@ jobs:
               "- Runtime state: `.runtime/engine` (ignored mutable runtime data).\n"
               "- External engine validation: pending; XMage/Forge observations = 0.\n"
               "- Validation boundary: structural + Tactical Oracle only; no external semantic result.\n"
-              "- Fresh Rebuild 6 is the current deck baseline: Korvold 100/39, RogShai 100/37.\n"
-              "- RogShai retains its current Combat Research, Curiosity and Staggering Insight package.\n"
+              "- Fresh Rebuild 6 remains the current deck baseline lineage: Korvold 100/39, RogShai 100/37.\n"
+              "- Current finalized deck hashes are 72c0cb6a...bf1f (Korvold) and 3827c359...9932 (RogShai).\n"
+              "- RogShai's current finalized list does not contain Combat Research, Curiosity, or Staggering Insight.\n"
               "- Canonical deck/inventory/allocation changes by this release: none.\n"
               "- Recommendations applied: 0.\n",
               encoding="utf-8",
