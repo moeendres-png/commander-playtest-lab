@@ -23,9 +23,7 @@ from commander_lab.models import (
 def test_protocol_schema_tracks_runtime_protocol_version() -> None:
     schema = build_protocol_schema()
 
-    assert schema["$id"].endswith(
-        f"engine-adapter-protocol-{ENGINE_PROTOCOL_VERSION}.json"
-    )
+    assert schema["$id"].endswith(f"engine-adapter-protocol-{ENGINE_PROTOCOL_VERSION}.json")
     assert schema["x-commander-lab-protocol-version"] == ENGINE_PROTOCOL_VERSION
 
 
