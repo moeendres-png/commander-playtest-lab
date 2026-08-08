@@ -315,7 +315,8 @@ def run_phase85_validation(
         "phase9_may_begin": True,
         "phase9_condition": "external_engine_validation_pending=true",
         "claims_boundary": (
-            "Tactical Oracle and handshake-only results are not external rules-engine semantic evidence."
+            "Tactical Oracle and handshake-only results are not external "
+            "rules-engine semantic evidence."
         ),
     }
     target = output / "phase85_validation_output.json"
