@@ -46,16 +46,23 @@ jobs:
             FORMAT_CHECK_RC=0
             DIFF_RC=0
           fi
+          cat > ruff-status.env <<EOF
+          FORMAT_RC=$FORMAT_RC
+          FIX_RC=$FIX_RC
+          CHECK_RC=$CHECK_RC
+          FORMAT_CHECK_RC=$FORMAT_CHECK_RC
+          DIFF_RC=$DIFF_RC
+          EOF
           cat ruff-diagnostics.txt
-          if [ "$FORMAT_RC" -ne 0 ] || [ "$FIX_RC" -ne 0 ] || [ "$CHECK_RC" -ne 0 ] || [ "$FORMAT_CHECK_RC" -ne 0 ] || [ "$DIFF_RC" -ne 0 ]; then
-            exit 1
-          fi
+          exit 0
       - name: Upload Ruff diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: strict-quality-ruff-diagnostics
-          path: ruff-diagnostics.txt
+          path: |
+            ruff-diagnostics.txt
+            ruff-status.env
           if-no-files-found: error
           retention-days: 7
       - name: Commit mechanical quality cleanup
@@ -70,3 +77,12 @@ jobs:
           git add -A
           git commit -m "style: repository-wide Ruff cleanup [strict-quality-autofix]"
           git push origin HEAD:fix/1.13.4-strict-quality
+      - name: Enforce residual Ruff gate
+        if: always()
+        shell: bash
+        run: |
+          source ruff-status.env
+          if [ "$FORMAT_RC" -ne 0 ] || [ "$FIX_RC" -ne 0 ] || [ "$CHECK_RC" -ne 0 ] || [ "$FORMAT_CHECK_RC" -ne 0 ] || [ "$DIFF_RC" -ne 0 ]; then
+            echo "Residual Ruff or diff issues remain; see uploaded diagnostics."
+            exit 1
+          fi
