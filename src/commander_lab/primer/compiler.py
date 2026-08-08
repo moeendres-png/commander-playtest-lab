@@ -1026,7 +1026,9 @@ class PrimerToPilotCompiler:
             "pilot_decision_count": len(decisions),
             "estimate_types": estimate_types,
             "rule_source_mentions": rule_mentions,
-            "counterfactual_redecision_status": "not_run_missing_complete_alternative_action_context",
+            "counterfactual_redecision_status": (
+                "not_run_missing_complete_alternative_action_context"
+            ),
             "limitations": [
                 "Stored structural replays preserve selected actions but "
                 "not every Primer DSL context flag.",

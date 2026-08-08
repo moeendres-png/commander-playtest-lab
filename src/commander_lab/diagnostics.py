@@ -96,7 +96,8 @@ class DecisionDiagnosticEngine:
 
         if sample_size < self.minimum_evidence:
             evidence.append(
-                f"sample size {sample_size} is below the minimum diagnostic threshold {self.minimum_evidence}"
+                f"sample size {sample_size} is below the minimum diagnostic threshold "
+                f"{self.minimum_evidence}"
             )
             cause = FailureCause.INSUFFICIENT_EVIDENCE
         elif (
@@ -815,7 +816,10 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
         "analyze_packages",
         [relative(root / "data/packages/package_registry.json"), relative(package_path)],
         "curated_project_package",
-        f"evaluated {len(package_output['evaluations'])} curated packages; machine candidates remain unconfirmed",
+        (
+            f"evaluated {len(package_output['evaluations'])} curated packages; "
+            "machine candidates remain unconfirmed"
+        ),
     )
 
     # 5. Execute a provenance graph trace, not just a JSON load.
@@ -835,7 +839,11 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
         "trace_provenance",
         [relative(provenance_store.path), relative(trace_path)],
         "provenance_verified",
-        f"traced {trace_id} through {len(trace.get('lineage', trace.get('records', trace.get('trace', []))))} retained records",
+        (
+            f"traced {trace_id} through "
+            f"{len(trace.get('lineage', trace.get('records', trace.get('trace', []))))} "
+            "retained records"
+        ),
     )
 
     # 6. Load the explicit synthetic uncertainty ensemble; no empirical game data is required.
@@ -846,7 +854,10 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
         "load_opponent_uncertainty_ensemble",
         [relative(uncertainty_path)],
         "structural_only",
-        f"loaded {len(uncertainty_profile.get('variants', []))} provenance-marked variants without empirical calibration",
+        (
+            f"loaded {len(uncertainty_profile.get('variants', []))} provenance-marked variants "
+            "without empirical calibration"
+        ),
     )
 
     # 7. Execute a current opponent-ensemble sensitivity calculation.
@@ -866,7 +877,10 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
             relative(ensemble_path),
         ],
         "structural_model_estimates",
-        f"executed {len(ensemble_result.per_variant)} variants; worst={ensemble_result.worst:.4f}, spread={ensemble_result.spread:.4f}",
+        (
+            f"executed {len(ensemble_result.per_variant)} variants; "
+            f"worst={ensemble_result.worst:.4f}, spread={ensemble_result.spread:.4f}"
+        ),
     )
 
     # 8. Execute all eight Mulligan policies with full structural follow-ups and holdouts.
@@ -944,7 +958,10 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
             relative(counter_path),
         ],
         "structural_counterfactual",
-        f"executed {len(counter.future_samples)} futures; {counter.conclusion}; mean={counter.mean_improvement:.4f}",
+        (
+            f"executed {len(counter.future_samples)} futures; {counter.conclusion}; "
+            f"mean={counter.mean_improvement:.4f}"
+        ),
     )
 
     # 10. Derive instrumentation from the actual logs and classify conservatively.
@@ -982,7 +999,10 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
         "diagnose_failure_cause",
         [relative(dataset_path), relative(diagnosis_path)],
         "model_diagnosis",
-        f"executed event-derived diagnosis for {subject}: {diagnosis.hypothesis.value}; cut_gate={diagnosis.cut_release_gate}",
+        (
+            f"executed event-derived diagnosis for {subject}: {diagnosis.hypothesis.value}; "
+            f"cut_gate={diagnosis.cut_release_gate}"
+        ),
     )
 
     report = IntegratedExtensionSmokeReport(

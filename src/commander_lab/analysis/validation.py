@@ -157,12 +157,14 @@ class DeckValidator:
                 continue
             illegal_colors = set(card.color_identity) - commander_identity
             if illegal_colors:
+                card_identity = sorted(color.value for color in card.color_identity)
+                commander_colors = sorted(color.value for color in commander_identity)
                 issues.append(
                     ValidationIssue(
                         code="color_identity",
                         message=(
-                            f"{name} has color identity {sorted(c.value for c in card.color_identity)} "
-                            f"outside commander identity {sorted(c.value for c in commander_identity)}"
+                            f"{name} has color identity {card_identity} "
+                            f"outside commander identity {commander_colors}"
                         ),
                         card_name=name,
                         context={"illegal_colors": sorted(color.value for color in illegal_colors)},

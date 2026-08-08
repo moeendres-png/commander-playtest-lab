@@ -232,12 +232,16 @@ def build_current_opponent_profiles(
                             if roles & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER}
                             else 0.1,
                             source_quality=quality,
-                            notes=f"Exact verified opponent snapshot card for {deck_id}; source_status={source_status}.",
+                            notes=(
+                                f"Exact verified opponent snapshot card for {deck_id}; "
+                                f"source_status={source_status}."
+                            ),
                         )
                     )
             if len(exact_cards) != 100:
                 raise ValueError(
-                    f"verified opponent snapshot {deck_id} contains {len(exact_cards)} cards, expected 100"
+                    f"verified opponent snapshot {deck_id} contains {len(exact_cards)} "
+                    "cards, expected 100"
                 )
             profiles[deck_id] = StructuralDeckProfile(
                 deck_id=deck_id,
@@ -359,7 +363,10 @@ def build_current_opponent_profiles(
                     & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER, CardRole.TOKEN_SOURCE}
                     else 0.1,
                     source_quality=quality,
-                    notes=f"Structural role-density card for {deck_id}; source_status={source_status}.",
+                    notes=(
+                        f"Structural role-density card for {deck_id}; "
+                        f"source_status={source_status}."
+                    ),
                 )
             )
         while len(cards) < 100:

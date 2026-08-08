@@ -96,7 +96,10 @@ def evaluate_constraints(
         issues.append(
             ConstraintIssue(
                 code="card_count",
-                message=f"variant contains {len(deck.cards)} cards, expected {constraints.exact_card_count}",
+                message=(
+                    f"variant contains {len(deck.cards)} cards, "
+                    f"expected {constraints.exact_card_count}"
+                ),
                 context={"actual": len(deck.cards), "expected": constraints.exact_card_count},
             )
         )
@@ -136,7 +139,10 @@ def evaluate_constraints(
         issues.append(
             ConstraintIssue(
                 code="land_count",
-                message=f"land count {lands} outside {constraints.minimum_lands}-{constraints.maximum_lands}",
+                message=(
+                    f"land count {lands} outside "
+                    f"{constraints.minimum_lands}-{constraints.maximum_lands}"
+                ),
             )
         )
     if average_mv > constraints.maximum_average_nonland_mana_value:
@@ -153,7 +159,10 @@ def evaluate_constraints(
         issues.append(
             ConstraintIssue(
                 code="mana_curve_top_end",
-                message=f"{high_mv} high-mana cards exceed maximum {constraints.maximum_high_mana_value_cards}",
+                message=(
+                    f"{high_mv} high-mana cards exceed maximum "
+                    f"{constraints.maximum_high_mana_value_cards}"
+                ),
             )
         )
 
@@ -196,7 +205,10 @@ def evaluate_constraints(
                 issues.append(
                     ConstraintIssue(
                         code="physical_inventory",
-                        message=f"{name}: requires {quantity}, verified optimization pool has {available}",
+                        message=(
+                            f"{name}: requires {quantity}, verified optimization pool "
+                            f"has {available}"
+                        ),
                         context={"card": name, "required": quantity, "available": available},
                     )
                 )
@@ -230,7 +242,9 @@ def evaluate_simultaneous_allocation(
             issues.append(
                 ConstraintIssue(
                     code="simultaneous_physical_allocation",
-                    message=f"{name}: {quantity} simultaneous copies required, {available} available",
+                    message=(
+                        f"{name}: {quantity} simultaneous copies required, {available} available"
+                    ),
                     context={"card": name, "required": quantity, "available": available},
                 )
             )

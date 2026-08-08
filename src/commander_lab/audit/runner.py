@@ -558,7 +558,8 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     static_lines = ["# Static analysis", ""]
     for name, result in checks_raw.items():
         static_lines.append(
-            f"- **{name}:** `{result.get('status')}` (return code `{result.get('returncode', 'n/a')}`)"
+            f"- **{name}:** `{result.get('status')}` "
+            f"(return code `{result.get('returncode', 'n/a')}`)"
         )
         if result.get("status") == "blocked":
             static_lines.append(f"  - Blocker: {result.get('error')}")
@@ -609,7 +610,14 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     )
     atomic_write_text(
         audit_dir / "reproducibility_report.md",
-        f"# Reproducibility\n\n- Baseline commit: `{baseline_commit}`\n- Audit working commit: `{commit}`\n- Python: `{platform.python_version()}`\n- Platform: `{platform.platform()}`\n- Deterministic same-process, subprocess and worker-count tests are included in the pytest suite.\n- Run manifests use SHA-256 and atomic writes.\n",
+        (
+            f"# Reproducibility\n\n- Baseline commit: `{baseline_commit}`\n"
+            f"- Audit working commit: `{commit}`\n"
+            f"- Python: `{platform.python_version()}`\n"
+            f"- Platform: `{platform.platform()}`\n"
+            "- Deterministic same-process, subprocess and worker-count tests are included "
+            "in the pytest suite.\n- Run manifests use SHA-256 and atomic writes.\n"
+        ),
     )
     atomic_write_text(
         audit_dir / "performance_report.md",
@@ -623,7 +631,17 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     )
     atomic_write_text(
         audit_dir / "security_report.md",
-        f"# Security and supply chain\n\n- Secret-bearing values are redacted from structured logs.\n- Subprocess commands remain explicit argument arrays; shell execution is not used for untrusted tool payloads.\n- Run paths are constrained and manifests reject path traversal.\n- SQLite integrity: `{db_check}`\n- Project dependency versions are bounded in `pyproject.toml`; a fully resolved lock/audit requires network-enabled CI.\n- External-engine binaries are not bundled or claimed present.\n",
+        (
+            "# Security and supply chain\n\n"
+            "- Secret-bearing values are redacted from structured logs.\n"
+            "- Subprocess commands remain explicit argument arrays; shell execution is not used "
+            "for untrusted tool payloads.\n"
+            "- Run paths are constrained and manifests reject path traversal.\n"
+            f"- SQLite integrity: `{db_check}`\n"
+            "- Project dependency versions are bounded in `pyproject.toml`; a fully resolved "
+            "lock/audit requires network-enabled CI.\n"
+            "- External-engine binaries are not bundled or claimed present.\n"
+        ),
     )
     atomic_write_text(
         audit_dir / "agent_eval_report.md",
@@ -682,7 +700,15 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
         "`external_engine_validation_pending=true`.\n"
     )
     atomic_write_text(audit_dir / "phase_9_readiness.md", readiness)
-    summary = f"# Executive summary\n\n- Baseline: `{baseline_commit}`\n- Audit commit/worktree: `{commit}`\n- Bugs found: {len(bugs)} (1 critical, 3 high, 2 medium)\n- Locally fixed with regression tests: {len(bugs)}\n- External engine: not executed\n- Final status: `{status}`\n- Canonical deck/Drive changes: none\n"
+    summary = (
+        f"# Executive summary\n\n- Baseline: `{baseline_commit}`\n"
+        f"- Audit commit/worktree: `{commit}`\n"
+        f"- Bugs found: {len(bugs)} (1 critical, 3 high, 2 medium)\n"
+        f"- Locally fixed with regression tests: {len(bugs)}\n"
+        "- External engine: not executed\n"
+        f"- Final status: `{status}`\n"
+        "- Canonical deck/Drive changes: none\n"
+    )
     atomic_write_text(audit_dir / "executive_summary.md", summary)
 
     checks = []

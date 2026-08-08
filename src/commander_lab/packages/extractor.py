@@ -224,7 +224,8 @@ class ArchetypePackageExtractor:
         commander = self.commander_label(deck)
         if package.commander != commander:
             raise PackageExtractionError(
-                f"package commander mismatch: {package.commander!r} cannot be evaluated for {commander!r}"
+                f"package commander mismatch: {package.commander!r} cannot be evaluated "
+                f"for {commander!r}"
             )
         names = {card.oracle_name for card in deck.cards}
         present = tuple(card for card in package.all_cards if card in names)
@@ -360,14 +361,17 @@ class ArchetypePackageExtractor:
             result["curated_packages"], result["evaluations"], strict=True
         ):
             lines.append(
-                f"- `{package['package_id']}` — status={package['status']}, density={evaluation['density']}/{evaluation['minimum_density']}, "
-                f"completeness={evaluation['package_completeness']:.2f}, failures={', '.join(evaluation['failure_modes_triggered']) or 'none'}"
+                f"- `{package['package_id']}` — status={package['status']}, "
+                f"density={evaluation['density']}/{evaluation['minimum_density']}, "
+                f"completeness={evaluation['package_completeness']:.2f}, "
+                f"failures={', '.join(evaluation['failure_modes_triggered']) or 'none'}"
             )
         lines.extend(["", "## Machine candidates"])
         if result["machine_candidates"]:
             for package in result["machine_candidates"]:
                 lines.append(
-                    f"- `{package['package_id']}` — candidate only; confidence={package['confidence']:.2f}"
+                    f"- `{package['package_id']}` — candidate only; "
+                    f"confidence={package['confidence']:.2f}"
                 )
         else:
             lines.append(
@@ -377,6 +381,7 @@ class ArchetypePackageExtractor:
             lines.extend(["", "## Rejected machine clusters"])
             for row in result["machine_rejections"]:
                 lines.append(
-                    f"- {row.get('format_band', 'unknown')}: sample={row.get('sample_size', 0)} — {row['reason']}"
+                    f"- {row.get('format_band', 'unknown')}: "
+                    f"sample={row.get('sample_size', 0)} — {row['reason']}"
                 )
         return "\n".join(lines) + "\n"

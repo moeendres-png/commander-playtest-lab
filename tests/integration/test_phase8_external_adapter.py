@@ -53,7 +53,16 @@ for raw in sys.stdin:
         print(json.dumps({'request_id':rid,'ok':True,'result':{'shutdown':True}}), flush=True)
         break
     else:
-        print(json.dumps({'request_id':rid,'ok':False,'error':{'code':'unsupported','message':method}}), flush=True)
+        print(
+            json.dumps(
+                {
+                    'request_id': rid,
+                    'ok': False,
+                    'error': {'code': 'unsupported', 'message': method},
+                }
+            ),
+            flush=True,
+        )
         continue
     print(json.dumps({'request_id':rid,'ok':True,'result':result}), flush=True)
 """.strip(),

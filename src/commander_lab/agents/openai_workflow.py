@@ -259,8 +259,8 @@ def build_agent_runtime(
         name="Deck Analyst",
         model=request.model,
         instructions=(
-            specialist_common
-            + " Evaluate roles, weaknesses, cuts and upgrade candidates. Do not confirm a candidate "
+            specialist_common + " Evaluate roles, weaknesses, cuts and upgrade candidates. "
+            "Do not confirm a candidate "
             "without paired validation."
         ),
         tools=tools,

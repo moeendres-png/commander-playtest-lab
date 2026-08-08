@@ -379,7 +379,9 @@ class CounterfactualReplayLab:
         *,
         alternative_action: str,
         expected_state_hash: str | None = None,
-        hidden_information_policy: HiddenInformationPolicy = HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY,
+        hidden_information_policy: HiddenInformationPolicy = (
+            HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
+        ),
         engine_mode: CounterfactualEngineMode = CounterfactualEngineMode.STRUCTURAL,
         seed_policy: SeedPolicy = SeedPolicy.SAME_SEED,
         seed: int = 20260806,

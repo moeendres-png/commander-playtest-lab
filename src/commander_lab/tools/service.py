@@ -340,7 +340,8 @@ class CommanderToolService:
         ) > profile_score(original)
         if not same_role_upgrade:
             raise ToolExecutionError(
-                f"{remove} is protected by current deckbuilding rules and may only be tested against "
+                f"{remove} is protected by current deckbuilding rules and may only be "
+                "tested against "
                 "a clear direct upgrade covering the same roles"
             )
 
@@ -631,7 +632,8 @@ class CommanderToolService:
             elapsed = time.monotonic() - started
             if elapsed > self.limits.max_simulation_seconds:
                 raise ToolExecutionError(
-                    f"tool exceeded simulation budget: {elapsed:.3f}s > {self.limits.max_simulation_seconds:.3f}s"
+                    f"tool exceeded simulation budget: {elapsed:.3f}s > "
+                    f"{self.limits.max_simulation_seconds:.3f}s"
                 )
             status = ToolStatus.COMPLETED
             warnings: list[str] = []
@@ -2276,7 +2278,10 @@ class CommanderToolService:
                                 )
                                 for cut, add in zip(chosen_cuts, missing, strict=True)
                             ),
-                            rationale=f"Package-aware completion candidate for {package_id}; not automatically applied.",
+                            rationale=(
+                                f"Package-aware completion candidate for {package_id}; "
+                                "not automatically applied."
+                            ),
                         )
                     )
             if not packages:
@@ -3591,7 +3596,10 @@ class CommanderToolService:
                 "recommendation_status": evidence.get(
                     "recommendation_status", "insufficient_evidence"
                 ),
-                "summary": f"{evidence.get('current_card', 'current card')} → {evidence.get('candidate_card', 'candidate card')}",
+                "summary": (
+                    f"{evidence.get('current_card', 'current card')} → "
+                    f"{evidence.get('candidate_card', 'candidate card')}"
+                ),
                 "why": evidence.get("role_changes", []),
                 "tradeoffs": {
                     "worst_case_effect": evidence.get("worst_case_effect"),
@@ -4158,7 +4166,8 @@ class CommanderToolService:
                     else f"{row.structural_placement_mean:.3f}"
                 )
                 lines.append(
-                    f"| {row.policy.value} | {row.keep_rate_first_seven:.3f} | {row.mulligan_rate:.3f} | "
+                    f"| {row.policy.value} | {row.keep_rate_first_seven:.3f} | "
+                    f"{row.mulligan_rate:.3f} | "
                     f"{row.average_mulligans:.3f} | {row.color_problem_rate:.3f} | {placement} |"
                 )
             lines.extend(

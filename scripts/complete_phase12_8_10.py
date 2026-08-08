@@ -17,6 +17,9 @@ from commander_lab.storage import atomic_write_json, atomic_write_text
 
 
 def _mulligan_report(name: str, result) -> str:
+    context_kinds = ", ".join(sorted({row.context_kind for row in result.overfitting_validation}))
+    supported_contexts = sum(row.supported for row in result.overfitting_validation)
+    total_contexts = len(result.overfitting_validation)
     lines = [
         f"# {name} Mulligan Lab 1.10.1",
         "",
@@ -45,8 +48,8 @@ def _mulligan_report(name: str, result) -> str:
         "## Overfitting checks",
         "",
         f"- Executed validation contexts: {len(result.overfitting_validation)}",
-        f"- Context kinds: {', '.join(sorted({row.context_kind for row in result.overfitting_validation}))}",
-        f"- Supported contexts: {sum(row.supported for row in result.overfitting_validation)}/{len(result.overfitting_validation)}",
+        f"- Context kinds: {context_kinds}",
+        f"- Supported contexts: {supported_contexts}/{total_contexts}",
         "- Primary pod, two holdouts, one opponent ensemble and "
         "three pilot profiles were actually executed.",
         "",

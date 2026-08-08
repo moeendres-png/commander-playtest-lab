@@ -244,7 +244,8 @@ class JsonLineBridgeClient:
                 error = response.errors[0] if response.errors else None
                 raise RulesEngineProtocolError(
                     f"bridge message {message_type.value!r} failed: "
-                    f"{error.code if error else 'unknown'}: {error.message if error else 'unknown error'}"
+                    f"{error.code if error else 'unknown'}: "
+                    f"{error.message if error else 'unknown error'}"
                 )
             return response.payload
 
@@ -381,7 +382,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                 hello, caps = client.handshake()
                 if hello.get("engine") != self.backend.value:
                     raise RulesEngineProtocolError(
-                        f"configured {self.backend.value} bridge identified itself as {hello.get('engine')}"
+                        f"configured {self.backend.value} bridge identified itself as "
+                        f"{hello.get('engine')}"
                     )
                 self._capabilities = caps
                 compatibility = RulesEngineCapabilities(
@@ -420,7 +422,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                 probe = RulesEngineProbe.model_validate(raw)
                 if probe.backend != self.backend:
                     raise RulesEngineProtocolError(
-                        f"configured {self.backend.value} bridge identified itself as {probe.backend.value}"
+                        f"configured {self.backend.value} bridge identified itself as "
+                        f"{probe.backend.value}"
                     )
                 self._legacy_mode = True
                 self._capabilities = EngineCapabilityHandshake(
