@@ -617,7 +617,7 @@
   "source": {
     "source_type": "plaintext",
     "source_name": "korvold_current.txt",
-    "source_path": "/mnt/data/cplab_1133/data/decks/korvold_current.txt",
+    "source_path": "data/decks/korvold_current.txt",
     "retrieved_at": null,
     "data_as_of": null,
     "sha256": null,
