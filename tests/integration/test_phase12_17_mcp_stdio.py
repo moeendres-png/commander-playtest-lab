@@ -30,6 +30,9 @@ def test_real_stdio_mcp_roundtrip() -> None:
     ]
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src")
+    # Reproduce the legacy Windows stdio code page even on UTF-8 CI hosts.
+    # The MCP JSON-RPC wire must remain ASCII-safe regardless of inherited encoding.
+    env["PYTHONIOENCODING"] = "cp1252"
     completed = subprocess.run(
         [sys.executable, "-m", "commander_lab.mcp.server", str(ROOT)],
         input="".join(json.dumps(row) + "\n" for row in messages),
