@@ -25,6 +25,8 @@ dev = [
   "httpx2>=2.7,<3",
   "ruff>=0.9,<1",
   "mypy>=1.14,<2",
+  "types-openpyxl>=3.1,<4",
+  "types-PyYAML>=6.0,<7",
 ]
 api = [
   "fastapi>=0.115,<1",
