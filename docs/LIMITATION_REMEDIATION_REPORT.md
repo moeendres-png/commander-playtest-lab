@@ -68,11 +68,15 @@ Local verification on the D patch:
 
 - `python -m compileall -q src tests`: PASS
 - `git diff --check`: PASS
-- targeted D/unit regression set: 71 PASS
+- targeted D regression tests: 4 PASS
+- relevant D cross-suite: 111 PASS
 - complete unit suite split into two batches: 134 PASS + 104 PASS = 238 PASS
 - property/golden/contract/regression: 27 PASS
-- integration batch A: 8 PASS
+- integration batch A: 13 PASS
 - integration batch B: 14 PASS
+- agent_evals/architecture/differential/fuzz/mutation: 12 PASS, 1 legitimate external-engine SKIP
+- root pretest deck variants: 4 PASS
+- segmented complete suite: 308 PASS, 1 SKIP, 0 FAIL
 - test collection: 309 tests collected
 - Ruff: unavailable in the local isolated package index; required on GitHub CI
 - Mypy: unavailable in the local isolated package index; required on GitHub CI
