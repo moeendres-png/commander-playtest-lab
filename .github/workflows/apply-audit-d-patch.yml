@@ -20,14 +20,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base64 -d .github/audit-d.patch.gz.b64 | gunzip > /tmp/audit-d.patch
+          echo 'ba7273559508f050b09724467386c633eb282981784a7ad66a0903e730c19760  .github/audit-d.patch.part-00' | sha256sum -c -
+          echo 'f21c03612b4e5202e063b649114a3e02745c7208bcb8f5eb3b63faf168edf38a  .github/audit-d.patch.part-01' | sha256sum -c -
+          echo 'c46df82ad6f5e230247624f9089be0f6f3e78b7aa7ef906846513f946088513b  .github/audit-d.patch.part-02' | sha256sum -c -
+          echo '0f29cbeee13408cd039d0628fbee064b26c74d4c441e257b942e477b941c1f39  .github/audit-d.patch.part-03' | sha256sum -c -
+          echo 'fa8ff65003f51aafd9d964e07e4bf4e6e6d39c9eb174fd0f2a8858cc70bb611b  .github/audit-d.patch.part-04' | sha256sum -c -
+          cat .github/audit-d.patch.part-* > /tmp/audit-d.patch.gz.b64
+          echo 'b7801da7062069511433213769a0cc5484a4766972708b539d24fcba522e1f93  /tmp/audit-d.patch.gz.b64' | sha256sum -c -
+          base64 -d /tmp/audit-d.patch.gz.b64 | gunzip > /tmp/audit-d.patch
           echo 'c788973aa9326b9b297c7caf3a2d706b41dda0f5ce63b8dfec4eeff3856e0b06  /tmp/audit-d.patch' | sha256sum -c -
           git apply --check /tmp/audit-d.patch
           git apply --index /tmp/audit-d.patch
       - name: Remove transfer helpers
         shell: bash
         run: |
-          git rm .github/audit-d.patch.gz.b64 .github/workflows/apply-audit-d-patch.yml
+          git rm .github/audit-d.patch.gz.b64 .github/audit-d.patch.part-* .github/workflows/apply-audit-d-patch.yml
       - name: Commit focused remediation
         shell: bash
         run: |
