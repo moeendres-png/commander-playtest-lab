@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 from collections import Counter
 from pathlib import Path
@@ -26,8 +24,8 @@ def _delta(left: Counter[str], right: Counter[str]) -> tuple[Counter[str], Count
 def test_pretest_registry_references_four_100_card_variants() -> None:
     registry = json.loads((VARIANT_DIR / "registry.json").read_text(encoding="utf-8"))
     assert registry["status"] == "pretest_variants_not_ranked"
-    assert registry["selection_policy"]["deduplicate_exact_card_multisets"] is True
-    assert registry["selection_policy"]["automatic_winner"] is False
+    assert registry["selection_policy"]["deduplicate_exact_card_multisets"]
+    assert not registry["selection_policy"]["automatic_winner"]
 
     for deck in ("korvold", "rogshai"):
         versions = registry["variants"][deck]
