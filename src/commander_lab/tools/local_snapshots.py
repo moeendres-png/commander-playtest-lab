@@ -10,7 +10,6 @@ from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
 from commander_lab.models import Collection
 from commander_lab.storage import compute_data_snapshot_hash, compute_deck_hash, save_model
 
-
 DECK_SPECS = {
     "korvold/current": {
         "filename": "korvold_current.txt",
