@@ -54,9 +54,7 @@ def load_engine_runtime_config(env: Mapping[str, str] | None = None) -> EngineRu
         protocol_version=source.get("ENGINE_PROTOCOL_VERSION", ENGINE_PROTOCOL_VERSION),
         java_home=source.get("JAVA_HOME") or None,
         maven_home=source.get("MAVEN_HOME") or None,
-        allow_tactical_oracle_fallback=source.get(
-            "ALLOW_TACTICAL_ORACLE_FALLBACK", "false"
-        ).lower()
+        allow_tactical_oracle_fallback=source.get("ALLOW_TACTICAL_ORACLE_FALLBACK", "false").lower()
         in {"1", "true", "yes"},
         log_directory=source.get("ENGINE_LOG_DIRECTORY", ".runtime/engine"),
     )
