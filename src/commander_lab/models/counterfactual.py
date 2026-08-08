@@ -56,7 +56,9 @@ class CounterfactualBranchpoint(FrozenModel):
     alternative_action: str | None = None
     engine_mode: CounterfactualEngineMode = CounterfactualEngineMode.STRUCTURAL
     seed_policy: SeedPolicy = SeedPolicy.SAME_SEED
-    hidden_information_policy: HiddenInformationPolicy = HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
+    hidden_information_policy: HiddenInformationPolicy = (
+        HiddenInformationPolicy.PUBLIC_INFORMATION_ONLY
+    )
     event_type: str = "pilot_decision"
     phase: str | None = None
     player_eliminated: bool = False
@@ -65,7 +67,7 @@ class CounterfactualBranchpoint(FrozenModel):
     validation_level: str = "structural_model_estimates"
 
     @model_validator(mode="after")
-    def validate_actions(self) -> "CounterfactualBranchpoint":
+    def validate_actions(self) -> CounterfactualBranchpoint:
         ids = [row.action_id for row in self.available_actions]
         if len(ids) != len(set(ids)):
             raise ValueError("available action ids must be unique")

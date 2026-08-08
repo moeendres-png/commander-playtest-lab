@@ -41,7 +41,9 @@ def test_safe_dsl_rejects_unknown_field() -> None:
     compiler = PrimerToPilotCompiler(ROOT)
     rule = _rules("data/primer_rules/rules/korvold_current_rules.json")[0]
     unsafe = rule.model_copy(
-        update={"condition": PilotRuleCondition(op=ConditionOperator.TRUTHY, field="context.__class__")}
+        update={
+            "condition": PilotRuleCondition(op=ConditionOperator.TRUTHY, field="context.__class__")
+        }
     )
     report = compiler.validate_rules((unsafe,))
     assert report.valid is False
@@ -98,15 +100,21 @@ def test_deck_hash_scope_is_enforced() -> None:
 def test_policy_overlay_improves_controlled_counter_decision() -> None:
     compiler = PrimerToPilotCompiler(ROOT)
     policy = CompiledPilotPolicy.model_validate_json(
-        (ROOT / "data/primer_rules/policies/rogshai_current_policy-1.0.1.json").read_text(encoding="utf-8")
+        (ROOT / "data/primer_rules/policies/rogshai_current_policy-1.0.1.json").read_text(
+            encoding="utf-8"
+        )
     )
-    payload = json.loads((ROOT / "data/primer_rules/evals/golden_scenarios.json").read_text(encoding="utf-8"))
+    payload = json.loads(
+        (ROOT / "data/primer_rules/evals/golden_scenarios.json").read_text(encoding="utf-8")
+    )
     scenario = next(
         PolicyEvalScenario.model_validate(row)
         for row in payload["scenarios"]
         if row["scenario_id"] == "rogshai-save-counter"
     )
-    decks = load_project_structural_decks(ROOT, include_synthetic_fixtures=True, include_current_opponents=True)
+    decks = load_project_structural_decks(
+        ROOT, include_synthetic_fixtures=True, include_current_opponents=True
+    )
     deck = decks["rogshai/current"]
     pilot = build_pilot(PilotConfig(pilot_name="RogShaiPilot"), strategy="rogshai")
     result = compiler.evaluate_policy(
@@ -148,16 +156,28 @@ def test_opening_hand_overlay_applies_curated_mulligan_rule() -> None:
     from commander_lab.primer import PilotPolicyOverlay
 
     policy = CompiledPilotPolicy.model_validate_json(
-        (ROOT / "data/primer_rules/policies/korvold_current_policy-1.0.1.json").read_text(encoding="utf-8")
+        (ROOT / "data/primer_rules/policies/korvold_current_policy-1.0.1.json").read_text(
+            encoding="utf-8"
+        )
     )
-    decks = load_project_structural_decks(ROOT, include_synthetic_fixtures=True, include_current_opponents=True)
+    decks = load_project_structural_decks(
+        ROOT, include_synthetic_fixtures=True, include_current_opponents=True
+    )
     deck = decks["korvold/current"]
     pilot = build_pilot(PilotConfig(pilot_name="KorvoldPilot"), strategy="korvold")
-    overlay = PilotPolicyOverlay(pilot, policy, deck_cards=tuple(card.oracle_name for card in deck.cards))
+    overlay = PilotPolicyOverlay(
+        pilot, policy, deck_cards=tuple(card.oracle_name for card in deck.cards)
+    )
     hand = (
-        PilotActionView(action_id="land-a", action_kind="card", card_name="Forest", metadata={"is_land": True}),
-        PilotActionView(action_id="land-b", action_kind="card", card_name="Swamp", metadata={"is_land": True}),
-        PilotActionView(action_id="ramp", action_kind="card", card_name="Nature's Lore", mana_cost=2),
+        PilotActionView(
+            action_id="land-a", action_kind="card", card_name="Forest", metadata={"is_land": True}
+        ),
+        PilotActionView(
+            action_id="land-b", action_kind="card", card_name="Swamp", metadata={"is_land": True}
+        ),
+        PilotActionView(
+            action_id="ramp", action_kind="card", card_name="Nature's Lore", mana_cost=2
+        ),
     )
     baseline = pilot.opening_hand_score(hand, commander_names=("Korvold, Fae-Cursed King",))
     adjusted, traces = overlay.opening_hand_score_with_trace(
@@ -166,7 +186,9 @@ def test_opening_hand_overlay_applies_curated_mulligan_rule() -> None:
         context={"always": True, "ramp_count": 1, "sacrifice_material_count": 0},
     )
     assert adjusted < baseline
-    assert any(trace.rule_id == "korvold.current.mulligan-ramp-without-sacrifice" for trace in traces)
+    assert any(
+        trace.rule_id == "korvold.current.mulligan-ramp-without-sacrifice" for trace in traces
+    )
 
 
 def test_tool_service_policy_eval_is_scoped_and_does_not_change_decks() -> None:
@@ -197,9 +219,13 @@ def test_rule_with_missing_required_card_does_not_trigger() -> None:
     from commander_lab.primer import PilotPolicyOverlay
 
     policy = CompiledPilotPolicy.model_validate_json(
-        (ROOT / "data/primer_rules/policies/rogshai_current_policy-1.0.1.json").read_text(encoding="utf-8")
+        (ROOT / "data/primer_rules/policies/rogshai_current_policy-1.0.1.json").read_text(
+            encoding="utf-8"
+        )
     )
-    payload = json.loads((ROOT / "data/primer_rules/evals/golden_scenarios.json").read_text(encoding="utf-8"))
+    payload = json.loads(
+        (ROOT / "data/primer_rules/evals/golden_scenarios.json").read_text(encoding="utf-8")
+    )
     scenario = next(
         PolicyEvalScenario.model_validate(row)
         for row in payload["scenarios"]
@@ -214,7 +240,9 @@ def test_rule_with_missing_required_card_does_not_trigger() -> None:
 
 def test_saved_replay_evidence_is_structural_and_parseable() -> None:
     replay = ROOT / "tests/fixtures/replays/phase12_2_structural_replay.jsonl"
-    rows = [json.loads(line) for line in replay.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line) for line in replay.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
     assert rows
     assert all(row["estimate_type"] == "structural_model_estimates" for row in rows)
     assert any(row["event_type"] == "london_mulligan" for row in rows)
@@ -223,7 +251,9 @@ def test_saved_replay_evidence_is_structural_and_parseable() -> None:
 def test_replay_audit_reports_coverage_without_counterfactual_claim() -> None:
     compiler = PrimerToPilotCompiler(ROOT)
     policy = CompiledPilotPolicy.model_validate_json(
-        (ROOT / "data/primer_rules/policies/rogshai_current_policy-1.0.1.json").read_text(encoding="utf-8")
+        (ROOT / "data/primer_rules/policies/rogshai_current_policy-1.0.1.json").read_text(
+            encoding="utf-8"
+        )
     )
     report = compiler.audit_replay_coverage(
         policy=policy,

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Any
 
 from pydantic import Field, field_validator, model_validator
 
@@ -65,7 +64,7 @@ class ArchetypeProfile(FrozenModel):
     automatic_deck_application: bool = False
 
     @model_validator(mode="after")
-    def validate_weights(self) -> "ArchetypeProfile":
+    def validate_weights(self) -> ArchetypeProfile:
         if not self.weights:
             raise ValueError("at least one archetype weight is required")
         total = sum(item.weight for item in self.weights)
@@ -99,7 +98,9 @@ class PackageDefinition(FrozenModel):
     notes: str | None = None
     automatic_deck_application: bool = False
 
-    @field_validator("core_cards", "support_cards", "optional_cards", "enablers", "payoffs", "finishers")
+    @field_validator(
+        "core_cards", "support_cards", "optional_cards", "enablers", "payoffs", "finishers"
+    )
     @classmethod
     def normalize_cards(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         normalized = tuple(dict.fromkeys(" ".join(card.split()) for card in value if card.strip()))
@@ -108,19 +109,40 @@ class PackageDefinition(FrozenModel):
         return normalized
 
     @model_validator(mode="after")
-    def validate_package(self) -> "PackageDefinition":
+    def validate_package(self) -> PackageDefinition:
         if not self.core_cards:
             raise ValueError("core_cards may not be empty")
-        available = set(self.core_cards) | set(self.support_cards) | set(self.optional_cards) | set(self.enablers) | set(self.payoffs) | set(self.finishers)
+        available = (
+            set(self.core_cards)
+            | set(self.support_cards)
+            | set(self.optional_cards)
+            | set(self.enablers)
+            | set(self.payoffs)
+            | set(self.finishers)
+        )
         if self.minimum_density > len(available):
             raise ValueError("minimum_density exceeds package card count")
-        if self.status in {PackageStatus.CURATED, PackageStatus.VALIDATED} and ExtractionMethod.MANUAL_CURRATION not in self.extraction_methods:
+        if (
+            self.status in {PackageStatus.CURATED, PackageStatus.VALIDATED}
+            and ExtractionMethod.MANUAL_CURRATION not in self.extraction_methods
+        ):
             raise ValueError("curated or validated packages require manual_curation evidence")
         return self
 
     @property
     def all_cards(self) -> tuple[str, ...]:
-        return tuple(dict.fromkeys((*self.core_cards, *self.support_cards, *self.optional_cards, *self.enablers, *self.payoffs, *self.finishers)))
+        return tuple(
+            dict.fromkeys(
+                (
+                    *self.core_cards,
+                    *self.support_cards,
+                    *self.optional_cards,
+                    *self.enablers,
+                    *self.payoffs,
+                    *self.finishers,
+                )
+            )
+        )
 
 
 class PackageEvaluation(FrozenModel):
@@ -170,7 +192,7 @@ class PackageRegistry(MutableModel):
     notes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def unique_versions(self) -> "PackageRegistry":
+    def unique_versions(self) -> PackageRegistry:
         keys = [(item.package_id, item.version) for item in self.packages]
         if len(keys) != len(set(keys)):
             raise ValueError("duplicate package_id/version in registry")

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from commander_lab.models import (
@@ -9,8 +8,10 @@ from commander_lab.models import (
     ListPilotProfilesInput,
     RunPilotBenchmarkInput,
     RunPilotEnsembleInput,
-    TestVariantAcrossPilotsInput as VariantAcrossPilotsInput,
     ToolStatus,
+)
+from commander_lab.models import (
+    TestVariantAcrossPilotsInput as VariantAcrossPilotsInput,
 )
 from commander_lab.tools import CommanderToolService
 
@@ -32,14 +33,18 @@ def test_pilot_toolchain_smoke_and_reproducibility() -> None:
         output_name="test-pilot-benchmark-a",
     )
     first = service.run_pilot_benchmark(request)
-    second = service.run_pilot_benchmark(request.model_copy(update={"output_name": "test-pilot-benchmark-b"}))
+    second = service.run_pilot_benchmark(
+        request.model_copy(update={"output_name": "test-pilot-benchmark-b"})
+    )
     assert first.status == second.status == ToolStatus.COMPLETED
     assert first.result["results"] == second.result["results"]
     assert first.result["legal_actions_only"] is True
     assert first.result["omniscient_information_used"] is False
 
     compared = service.compare_pilots(
-        ComparePilotsInput.model_validate({**request.model_dump(), "output_name": "test-pilot-compare"})
+        ComparePilotsInput.model_validate(
+            {**request.model_dump(), "output_name": "test-pilot-compare"}
+        )
     )
     assert compared.status == ToolStatus.COMPLETED
     assert len(compared.result["pairwise"]) == 1

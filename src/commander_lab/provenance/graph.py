@@ -153,9 +153,7 @@ class ProvenanceStore:
         if source is None:
             raise ProvenanceError(f"unknown source: {source_id}")
         path = (
-            Path(candidate_path)
-            if candidate_path
-            else self.root / (source.url_or_drive_id or "")
+            Path(candidate_path) if candidate_path else self.root / (source.url_or_drive_id or "")
         )
         if not path.exists():
             return {
@@ -177,11 +175,7 @@ class ProvenanceStore:
         graph = self.load()
         known_claims = {item.claim_id for item in graph.citations}
         claims_path = self.base / "claims.json"
-        claims = (
-            json.loads(claims_path.read_text(encoding="utf-8"))
-            if claims_path.exists()
-            else []
-        )
+        claims = json.loads(claims_path.read_text(encoding="utf-8")) if claims_path.exists() else []
         missing = [
             item
             for item in claims

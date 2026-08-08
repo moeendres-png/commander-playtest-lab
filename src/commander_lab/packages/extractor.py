@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import json
 from collections import Counter
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from commander_lab.engine.structural import load_project_structural_decks
 from commander_lab.meta import MetaKnowledgeBase
@@ -21,7 +20,6 @@ from commander_lab.models.packages import (
 )
 from commander_lab.storage.hashing import sha256_value
 
-
 COMMANDER_LABELS = {
     "korvold/current": "Korvold, Fae-Cursed King",
     "rogshai/current": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
@@ -36,8 +34,12 @@ class ArchetypePackageExtractor:
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root)
         self.registry_path = self.root / "data/packages/package_registry.json"
-        self.registry = PackageRegistry.model_validate_json(self.registry_path.read_text(encoding="utf-8"))
-        self.decks = load_project_structural_decks(self.root, include_synthetic_fixtures=True, include_current_opponents=True)
+        self.registry = PackageRegistry.model_validate_json(
+            self.registry_path.read_text(encoding="utf-8")
+        )
+        self.decks = load_project_structural_decks(
+            self.root, include_synthetic_fixtures=True, include_current_opponents=True
+        )
 
     def deck(self, deck_id: str) -> StructuralDeckProfile:
         try:
@@ -72,11 +74,17 @@ class ArchetypePackageExtractor:
                 counts[ArchetypeName.CONTROL] += 1
             if CardRole.SELECTION in roles or CardRole.DRAW in roles:
                 counts[ArchetypeName.SPELLSLINGER] += 1
-            if any(token in card.oracle_name.lower() for token in ("manufactor", "clue", "treasure", "food", "artifact")):
+            if any(
+                token in card.oracle_name.lower()
+                for token in ("manufactor", "clue", "treasure", "food", "artifact")
+            ):
                 counts[ArchetypeName.ARTIFACT_ENGINE] += 1
             if CardRole.TOKEN_SOURCE in roles:
                 counts[ArchetypeName.GO_WIDE] += 1
-            if card.multiplayer_scaling >= 0.7 or any(token in card.oracle_name.lower() for token in ("bats", "gutter", "massacre", "exsanguinate", "mayhem")):
+            if card.multiplayer_scaling >= 0.7 or any(
+                token in card.oracle_name.lower()
+                for token in ("bats", "gutter", "massacre", "exsanguinate", "mayhem")
+            ):
                 counts[ArchetypeName.PUNISHER] += 1
             if CardRole.FINISHER in roles and card.immediate_impact >= 0.8:
                 counts[ArchetypeName.COMBO] += 1
@@ -97,7 +105,9 @@ class ArchetypePackageExtractor:
         )
         selected_total = sum(item.weight for item in weights)
         if selected_total > 0:
-            weights = tuple(item.model_copy(update={"weight": item.weight / selected_total}) for item in weights)
+            weights = tuple(
+                item.model_copy(update={"weight": item.weight / selected_total}) for item in weights
+            )
         return ArchetypeProfile(
             profile_id=f"{deck.deck_id.replace('/', '-')}-{deck.deck_hash[:12]}",
             commander=self.commander_label(deck),
@@ -109,11 +119,15 @@ class ArchetypePackageExtractor:
             confidence=0.72,
         )
 
-    def packages_for_deck(self, deck_id: str, *, include_machine_candidates: bool = True) -> dict[str, Any]:
+    def packages_for_deck(
+        self, deck_id: str, *, include_machine_candidates: bool = True
+    ) -> dict[str, Any]:
         deck = self.deck(deck_id)
         commander = self.commander_label(deck)
         curated = list(self.registry.by_commander(commander))
-        machine, machine_rejections = self._machine_candidates(commander) if include_machine_candidates else ([], [])
+        machine, machine_rejections = (
+            self._machine_candidates(commander) if include_machine_candidates else ([], [])
+        )
         evaluations = [self.evaluate(deck_id, p.package_id, version=p.version) for p in curated]
         return {
             "deck_id": deck_id,
@@ -128,7 +142,9 @@ class ArchetypePackageExtractor:
             "automatic_deck_application": False,
         }
 
-    def _machine_candidates(self, commander: str) -> tuple[list[PackageDefinition], list[dict[str, Any]]]:
+    def _machine_candidates(
+        self, commander: str
+    ) -> tuple[list[PackageDefinition], list[dict[str, Any]]]:
         try:
             snapshot = MetaKnowledgeBase(self.root).load_snapshot()
         except (FileNotFoundError, ValueError):
@@ -142,41 +158,51 @@ class ArchetypePackageExtractor:
         package_cards = {card for package in snapshot.packages for card in package.cards}
         for format_band, decks in sorted(groups.items(), key=lambda item: str(item[0])):
             if len(decks) < 3:
-                rejections.append({
-                    "format_band": str(format_band),
-                    "sample_size": len(decks),
-                    "reason": "sample below minimum of 3 same-format deck snapshots",
-                })
+                rejections.append(
+                    {
+                        "format_band": str(format_band),
+                        "sample_size": len(decks),
+                        "reason": "sample below minimum of 3 same-format deck snapshots",
+                    }
+                )
                 continue
             pair_counts: Counter[tuple[str, str]] = Counter()
             for deck in decks:
                 relevant = sorted(set(deck.decklist) & package_cards)
                 for i, left in enumerate(relevant):
-                    for right in relevant[i + 1:]:
+                    for right in relevant[i + 1 :]:
                         pair_counts[(left, right)] += 1
             threshold = max(2, round(len(decks) * 0.6))
             for (left, right), count in pair_counts.most_common(5):
                 if count < threshold:
                     continue
                 pid = f"machine-{sha256_value((commander, str(format_band), left, right))[:16]}"
-                candidates.append(PackageDefinition(
-                    package_id=pid,
-                    version="0.1.0",
-                    name=f"Machine co-occurrence: {left} + {right}",
-                    commander=commander,
-                    archetype=ArchetypeName.MIDRANGE,
-                    core_cards=(left, right),
-                    minimum_density=2,
-                    redundancy=1,
-                    source_ids=tuple(sorted({deck.source_id for deck in decks})),
-                    confidence=min(0.69, count / len(decks)),
-                    format_band=format_band,
-                    status=PackageStatus.MACHINE_EXTRACTED,
-                    extraction_methods=(ExtractionMethod.CO_OCCURRENCE, ExtractionMethod.CARD_FREQUENCY),
-                    sample_size=len(decks),
-                    failure_modes=("co-occurrence does not prove synergy", "manual domain review required"),
-                    notes="Candidate only; manual domain review is required before curated status.",
-                ))
+                candidates.append(
+                    PackageDefinition(
+                        package_id=pid,
+                        version="0.1.0",
+                        name=f"Machine co-occurrence: {left} + {right}",
+                        commander=commander,
+                        archetype=ArchetypeName.MIDRANGE,
+                        core_cards=(left, right),
+                        minimum_density=2,
+                        redundancy=1,
+                        source_ids=tuple(sorted({deck.source_id for deck in decks})),
+                        confidence=min(0.69, count / len(decks)),
+                        format_band=format_band,
+                        status=PackageStatus.MACHINE_EXTRACTED,
+                        extraction_methods=(
+                            ExtractionMethod.CO_OCCURRENCE,
+                            ExtractionMethod.CARD_FREQUENCY,
+                        ),
+                        sample_size=len(decks),
+                        failure_modes=(
+                            "co-occurrence does not prove synergy",
+                            "manual domain review required",
+                        ),
+                        notes="Candidate only; manual domain review is required before curated status.",
+                    )
+                )
         return candidates, rejections
 
     def inspect(self, package_id: str, version: str | None = None) -> PackageDefinition:
@@ -187,7 +213,9 @@ class ArchetypePackageExtractor:
                 return package
         raise PackageExtractionError(f"unknown package version: {package_id}@{version}")
 
-    def evaluate(self, deck_id: str, package_id: str, *, version: str | None = None) -> PackageEvaluation:
+    def evaluate(
+        self, deck_id: str, package_id: str, *, version: str | None = None
+    ) -> PackageEvaluation:
         deck = self.deck(deck_id)
         package = self.inspect(package_id, version)
         commander = self.commander_label(deck)
@@ -205,8 +233,14 @@ class ArchetypePackageExtractor:
         support_present = tuple(card for card in package.support_cards if card in names)
         dead_support = support_present if not payoffs_present else ()
         payoffs_without = payoffs_present if package.enablers and not enablers_present else ()
-        redundancy_present = max(len(enablers_present), len(payoffs_present), len(set(present) & set(package.core_cards)))
-        key_card = missing_core[0] if missing_core else (package.core_cards[0] if package.core_cards else None)
+        redundancy_present = max(
+            len(enablers_present), len(payoffs_present), len(set(present) & set(package.core_cards))
+        )
+        key_card = (
+            missing_core[0]
+            if missing_core
+            else (package.core_cards[0] if package.core_cards else None)
+        )
         fragile_card = None
         if len(enablers_present) == 1:
             fragile_card = enablers_present[0]
@@ -254,7 +288,9 @@ class ArchetypePackageExtractor:
             warnings=tuple(warnings),
         )
 
-    def compare_versions(self, package_id: str, older_version: str, newer_version: str) -> PackageVersionComparison:
+    def compare_versions(
+        self, package_id: str, older_version: str, newer_version: str
+    ) -> PackageVersionComparison:
         old = self.inspect(package_id, older_version)
         new = self.inspect(package_id, newer_version)
         return PackageVersionComparison(
@@ -274,7 +310,10 @@ class ArchetypePackageExtractor:
     def detect_orphans(self, deck_id: str) -> dict[str, Any]:
         deck = self.deck(deck_id)
         commander = self.commander_label(deck)
-        evaluations = [self.evaluate(deck_id, pkg.package_id, version=pkg.version) for pkg in self.registry.by_commander(commander)]
+        evaluations = [
+            self.evaluate(deck_id, pkg.package_id, version=pkg.version)
+            for pkg in self.registry.by_commander(commander)
+        ]
         support = sorted({card for item in evaluations for card in item.dead_support_cards})
         payoff = sorted({card for item in evaluations for card in item.payoffs_without_enabler})
         incomplete = sorted(item.package_id for item in evaluations if not item.minimum_density_met)
@@ -290,7 +329,9 @@ class ArchetypePackageExtractor:
     def package_cards_for_ablation(self, deck_id: str, package_id: str) -> tuple[str, ...]:
         deck = self.deck(deck_id)
         evaluation = self.evaluate(deck_id, package_id)
-        removable = tuple(card for card in evaluation.present_cards if card not in deck.commander_names)
+        removable = tuple(
+            card for card in evaluation.present_cards if card not in deck.commander_names
+        )
         if not removable:
             raise PackageExtractionError("package has no removable present cards to ablate")
         return removable
@@ -311,7 +352,9 @@ class ArchetypePackageExtractor:
         for row in result["archetype_profile"]["weights"]:
             lines.append(f"- {row['archetype']}: {row['weight']:.3f}")
         lines.extend(["", "## Curated packages"])
-        for package, evaluation in zip(result["curated_packages"], result["evaluations"], strict=True):
+        for package, evaluation in zip(
+            result["curated_packages"], result["evaluations"], strict=True
+        ):
             lines.append(
                 f"- `{package['package_id']}` — status={package['status']}, density={evaluation['density']}/{evaluation['minimum_density']}, "
                 f"completeness={evaluation['package_completeness']:.2f}, failures={', '.join(evaluation['failure_modes_triggered']) or 'none'}"
@@ -319,11 +362,17 @@ class ArchetypePackageExtractor:
         lines.extend(["", "## Machine candidates"])
         if result["machine_candidates"]:
             for package in result["machine_candidates"]:
-                lines.append(f"- `{package['package_id']}` — candidate only; confidence={package['confidence']:.2f}")
+                lines.append(
+                    f"- `{package['package_id']}` — candidate only; confidence={package['confidence']:.2f}"
+                )
         else:
-            lines.append("- None passed the conservative same-format sample/co-occurrence threshold.")
+            lines.append(
+                "- None passed the conservative same-format sample/co-occurrence threshold."
+            )
         if result.get("machine_rejections"):
-            lines.extend(["", "## Rejected machine clusters"] )
+            lines.extend(["", "## Rejected machine clusters"])
             for row in result["machine_rejections"]:
-                lines.append(f"- {row.get('format_band', 'unknown')}: sample={row.get('sample_size', 0)} — {row['reason']}")
+                lines.append(
+                    f"- {row.get('format_band', 'unknown')}: sample={row.get('sample_size', 0)} — {row['reason']}"
+                )
         return "\n".join(lines) + "\n"

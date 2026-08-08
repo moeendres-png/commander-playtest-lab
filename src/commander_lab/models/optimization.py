@@ -36,7 +36,7 @@ class OptimizationConstraints(FrozenModel):
     simultaneous_deck_ids: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_ranges(self) -> "OptimizationConstraints":
+    def validate_ranges(self) -> OptimizationConstraints:
         if self.minimum_lands > self.maximum_lands:
             raise ValueError("minimum_lands cannot exceed maximum_lands")
         return self
@@ -89,7 +89,7 @@ class CandidatePackage(FrozenModel):
     rationale: str | None = None
 
     @model_validator(mode="after")
-    def nonempty_package(self) -> "CandidatePackage":
+    def nonempty_package(self) -> CandidatePackage:
         if not self.swaps:
             raise ValueError("package must contain at least one swap")
         if len({swap.remove for swap in self.swaps}) != len(self.swaps):
@@ -105,7 +105,9 @@ class LocalSearchInput(SimulationInput):
     max_steps: int = Field(default=3, ge=1, le=12)
     cuts_per_step: int = Field(default=8, ge=1, le=30)
     opponent_deck_ids: tuple[str, ...] = (
-        "synthetic/aggro", "synthetic/control", "synthetic/engine"
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
     )
     constraints: OptimizationConstraints | None = None
 
@@ -117,7 +119,9 @@ class BeamSearchInput(SimulationInput):
     depth: int = Field(default=2, ge=1, le=5)
     max_cuts_per_node: int = Field(default=6, ge=1, le=20)
     opponent_deck_ids: tuple[str, ...] = (
-        "synthetic/aggro", "synthetic/control", "synthetic/engine"
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
     )
     constraints: OptimizationConstraints | None = None
 
@@ -130,7 +134,9 @@ class PackageSearchInput(SimulationInput):
     max_package_size: int = Field(default=2, ge=2, le=5)
     max_packages: int = Field(default=12, ge=1, le=100)
     opponent_deck_ids: tuple[str, ...] = (
-        "synthetic/aggro", "synthetic/control", "synthetic/engine"
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
     )
     constraints: OptimizationConstraints | None = None
 
@@ -139,7 +145,9 @@ class ParetoFrontInput(SimulationInput):
     deck_id: str
     variants: tuple[tuple[VariantSwap, ...], ...]
     opponent_deck_ids: tuple[str, ...] = (
-        "synthetic/aggro", "synthetic/control", "synthetic/engine"
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
     )
     holdout_pods: tuple[tuple[str, ...], ...] = (
         ("synthetic/control", "synthetic/control", "synthetic/engine"),
@@ -153,11 +161,13 @@ class ShapleyInput(SimulationInput):
     card_names: tuple[str, ...]
     permutations: int = Field(default=128, ge=8, le=4096)
     opponent_deck_ids: tuple[str, ...] = (
-        "synthetic/aggro", "synthetic/control", "synthetic/engine"
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
     )
 
     @model_validator(mode="after")
-    def validate_cards(self) -> "ShapleyInput":
+    def validate_cards(self) -> ShapleyInput:
         if not 2 <= len(self.card_names) <= 12:
             raise ValueError("Shapley approximation requires 2 to 12 cards")
         if len(set(self.card_names)) != len(self.card_names):
@@ -169,7 +179,9 @@ class OptimizationValidationInput(SimulationInput):
     deck_id: str
     swaps: tuple[VariantSwap, ...]
     opponent_deck_ids: tuple[str, ...] = (
-        "synthetic/aggro", "synthetic/control", "synthetic/engine"
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
     )
     holdout_pods: tuple[tuple[str, ...], ...] = (
         ("synthetic/control", "synthetic/control", "synthetic/engine"),

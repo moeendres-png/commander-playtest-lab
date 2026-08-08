@@ -9,7 +9,9 @@ from commander_lab.evals import (
 from commander_lab.models import WorkflowReport
 
 
-def _trajectory(case, calls, *, conclusion="Tool-backed structural analysis complete.", caveats=None):
+def _trajectory(
+    case, calls, *, conclusion="Tool-backed structural analysis complete.", caveats=None
+):
     outputs = tuple(
         {
             "status": "completed",
@@ -31,10 +33,13 @@ def _trajectory(case, calls, *, conclusion="Tool-backed structural analysis comp
             goal=case.goal,
             conclusion=conclusion,
             evidence=tuple(f"Tool result: {tool}" for tool in calls),
-            caveats=tuple(caveats or (
-                "These are structural_model_estimates, not empirical or real win rates.",
-                "Synthetic opponents and incomplete profiles remain uncertain.",
-            )),
+            caveats=tuple(
+                caveats
+                or (
+                    "These are structural_model_estimates, not empirical or real win rates.",
+                    "Synthetic opponents and incomplete profiles remain uncertain.",
+                )
+            ),
             tool_invocations=tuple(calls),
         ),
     )

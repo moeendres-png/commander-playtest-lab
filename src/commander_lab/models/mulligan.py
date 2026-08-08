@@ -7,7 +7,6 @@ from pydantic import Field, model_validator
 
 from .common import FrozenModel
 
-
 MULLIGAN_LAB_SCHEMA_VERSION = "1.0.0"
 
 
@@ -109,8 +108,6 @@ class HypergeometricBaseline(FrozenModel):
     category: str
 
 
-
-
 class MulliganHandTypeSummary(FrozenModel):
     hand_type: str
     samples: int = Field(ge=1)
@@ -184,7 +181,7 @@ class GeneratedKeepRule(FrozenModel):
     absolute_rule: bool = False
 
     @model_validator(mode="after")
-    def forbid_absolute_model_claim(self) -> "GeneratedKeepRule":
+    def forbid_absolute_model_claim(self) -> GeneratedKeepRule:
         if self.model_based and self.absolute_rule:
             raise ValueError("model-based keep rules cannot be marked absolute")
         return self

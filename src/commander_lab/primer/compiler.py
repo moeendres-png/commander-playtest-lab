@@ -10,7 +10,12 @@ from typing import Any, Literal
 
 from commander_lab.agents.pilots import BasePilot
 from commander_lab.models.meta import FormatBand
-from commander_lab.models.pilots import PilotActionView, PilotDecision, PilotStateView, PilotUtilityBreakdown
+from commander_lab.models.pilots import (
+    PilotActionView,
+    PilotDecision,
+    PilotStateView,
+    PilotUtilityBreakdown,
+)
 from commander_lab.models.primer import (
     ActionPreference,
     CompiledPilotPolicy,
@@ -33,7 +38,6 @@ from commander_lab.models.primer import (
 )
 from commander_lab.models.roles import CardRole
 from commander_lab.storage import atomic_write_json
-
 
 
 class RuleDslError(ValueError):
@@ -280,7 +284,11 @@ def _preference_matches(preference: ActionPreference, action: PilotActionView | 
         tests.append(_normalize_card(action.card_name) in allowed)
     if preference.roles:
         selected = set(preference.roles)
-        tests.append(selected.issubset(action.roles) if preference.match_mode == "all" else bool(selected & action.roles))
+        tests.append(
+            selected.issubset(action.roles)
+            if preference.match_mode == "all"
+            else bool(selected & action.roles)
+        )
     if not tests:
         return False
     return all(tests) if preference.match_mode == "all" else any(tests)
@@ -294,7 +302,11 @@ def _rule_scope_matches(
     format_band: FormatBand,
     deck_cards: Sequence[str],
 ) -> bool:
-    if rule.commander != commander or rule.deck_hash != deck_hash or rule.format_band != format_band:
+    if (
+        rule.commander != commander
+        or rule.deck_hash != deck_hash
+        or rule.format_band != format_band
+    ):
         return False
     cards = {_normalize_card(card) for card in deck_cards}
     return all(_normalize_card(card) in cards for card in rule.requires_cards)
@@ -369,7 +381,9 @@ class PilotPolicyOverlay:
     ) -> tuple[PilotUtilityBreakdown, tuple[PolicyDecisionTrace, ...]]:
         baseline = self.base_pilot.evaluate_action(state, action)
         traces: list[PolicyDecisionTrace] = []
-        for rule in sorted(self.policy.rules, key=lambda item: (item.priority, item.rule_id), reverse=True):
+        for rule in sorted(
+            self.policy.rules, key=lambda item: (item.priority, item.rule_id), reverse=True
+        ):
             if _rule_matches(
                 rule,
                 state=state,
@@ -408,7 +422,9 @@ class PilotPolicyOverlay:
         card_list = tuple(cards)
         baseline = self.base_pilot.opening_hand_score(card_list, commander_names=commander_names)
         traces: list[PolicyDecisionTrace] = []
-        for rule in sorted(self.policy.rules, key=lambda item: (item.priority, item.rule_id), reverse=True):
+        for rule in sorted(
+            self.policy.rules, key=lambda item: (item.priority, item.rule_id), reverse=True
+        ):
             if rule.action_preference.decision_point != DecisionPoint.OPENING_HAND:
                 continue
             if _rule_matches(
@@ -421,7 +437,13 @@ class PilotPolicyOverlay:
                 format_band=self.policy.format_band,
                 deck_cards=self.deck_cards,
             ):
-                traces.append(PolicyDecisionTrace(rule_id=rule.rule_id, adjustment=rule.score_adjustment, reason=rule.rationale))
+                traces.append(
+                    PolicyDecisionTrace(
+                        rule_id=rule.rule_id,
+                        adjustment=rule.score_adjustment,
+                        reason=rule.rationale,
+                    )
+                )
         return baseline + sum(trace.adjustment for trace in traces), tuple(traces)
 
     def choose_action(
@@ -441,14 +463,16 @@ class PilotPolicyOverlay:
         ]
         scored.sort(key=lambda item: (item[1].total_utility, item[0].action_id), reverse=True)
         scored = scored[: self.base_pilot.policy.shortlist]
-        selected_action, selected_breakdown = self.base_pilot._select(scored, rng)  # noqa: SLF001
+        selected_action, selected_breakdown = self.base_pilot._select(scored, rng)
         return PilotDecision(
             pilot_name=self.pilot_name,
             strength=self.base_pilot.config.strength,
             mode=self.base_pilot.config.mode,
             selected_action_id=selected_action.action_id,
             selected_utility=selected_breakdown.total_utility,
-            candidates=tuple((action.action_id, breakdown.total_utility) for action, breakdown in scored),
+            candidates=tuple(
+                (action.action_id, breakdown.total_utility) for action, breakdown in scored
+            ),
             selected_breakdown=selected_breakdown,
         )
 
@@ -486,7 +510,11 @@ class PrimerToPilotCompiler:
         primer_format: PrimerFormat | None = None,
         license_notes: str = "structured extraction only unless the source is user-provided",
     ) -> PrimerDocument:
-        path = (self.root / source_path).resolve() if not Path(source_path).is_absolute() else Path(source_path).resolve()
+        path = (
+            (self.root / source_path).resolve()
+            if not Path(source_path).is_absolute()
+            else Path(source_path).resolve()
+        )
         if self.root not in path.parents and path != self.root:
             raise RuleDslError("primer import path must remain inside the project root")
         if not path.exists() or not path.is_file():
@@ -515,7 +543,9 @@ class PrimerToPilotCompiler:
         registry = self.load_registry()
         existing = {item.primer_id: item for item in registry.primers}
         if primer_id in existing and existing[primer_id].content_sha256 != doc.content_sha256:
-            raise RuleDslError("primer_id already exists with different content; use a versioned primer_id")
+            raise RuleDslError(
+                "primer_id already exists with different content; use a versioned primer_id"
+            )
         if primer_id not in existing:
             registry = registry.model_copy(update={"primers": (*registry.primers, doc)})
             self.write_registry(registry)
@@ -547,7 +577,9 @@ class PrimerToPilotCompiler:
                 rules.append(candidate)
         return tuple(rules)
 
-    def _heuristic_rule(self, document: PrimerDocument, sentence: str, index: int) -> PilotRule | None:
+    def _heuristic_rule(
+        self, document: PrimerDocument, sentence: str, index: int
+    ) -> PilotRule | None:
         lower = sentence.casefold()
         condition = PilotRuleCondition(op=ConditionOperator.TRUTHY, field="context.always")
         preference = ActionPreference(
@@ -567,17 +599,27 @@ class PrimerToPilotCompiler:
                 condition = PilotRuleCondition(
                     op=ConditionOperator.ALL,
                     clauses=(
-                        PilotRuleCondition(op=ConditionOperator.GE, field="context.ramp_count", value=1),
-                        PilotRuleCondition(op=ConditionOperator.LE, field="context.sacrifice_material_count", value=0),
+                        PilotRuleCondition(
+                            op=ConditionOperator.GE, field="context.ramp_count", value=1
+                        ),
+                        PilotRuleCondition(
+                            op=ConditionOperator.LE,
+                            field="context.sacrifice_material_count",
+                            value=0,
+                        ),
                     ),
                 )
                 adjustment = -1.5
             tags = ("mulligan",)
-        elif "commander" in lower and any(token in lower for token in ("empty resources", "immediate value", "sofortwert")):
+        elif "commander" in lower and any(
+            token in lower for token in ("empty resources", "immediate value", "sofortwert")
+        ):
             condition = PilotRuleCondition(
                 op=ConditionOperator.ANY,
                 clauses=(
-                    PilotRuleCondition(op=ConditionOperator.FALSY, field="context.commander_immediate_value"),
+                    PilotRuleCondition(
+                        op=ConditionOperator.FALSY, field="context.commander_immediate_value"
+                    ),
                     PilotRuleCondition(op=ConditionOperator.LE, field="state.resources", value=0),
                 ),
             )
@@ -588,7 +630,9 @@ class PrimerToPilotCompiler:
             adjustment = -2.0
             tags = ("commander_cast", "exposure")
         elif "protection" in lower or "schutz" in lower:
-            condition = PilotRuleCondition(op=ConditionOperator.FALSY, field="context.protection_available")
+            condition = PilotRuleCondition(
+                op=ConditionOperator.FALSY, field="context.protection_available"
+            )
             preference = ActionPreference(
                 action_kinds=("commander",),
                 description="Prefer a protection window for commander deployment",
@@ -657,22 +701,64 @@ class PrimerToPilotCompiler:
         seen: set[str] = set()
         for rule in rules:
             if rule.rule_id in seen:
-                issues.append(RuleValidationIssue(rule_id=rule.rule_id, severity="error", code="duplicate_rule_id", message="rule_id is duplicated"))
+                issues.append(
+                    RuleValidationIssue(
+                        rule_id=rule.rule_id,
+                        severity="error",
+                        code="duplicate_rule_id",
+                        message="rule_id is duplicated",
+                    )
+                )
             seen.add(rule.rule_id)
             if commander is not None and rule.commander != commander:
-                issues.append(RuleValidationIssue(rule_id=rule.rule_id, severity="error", code="commander_mismatch", message="rule commander does not match compilation target"))
+                issues.append(
+                    RuleValidationIssue(
+                        rule_id=rule.rule_id,
+                        severity="error",
+                        code="commander_mismatch",
+                        message="rule commander does not match compilation target",
+                    )
+                )
             if deck_hash is not None and rule.deck_hash != deck_hash:
-                issues.append(RuleValidationIssue(rule_id=rule.rule_id, severity="error", code="deck_hash_mismatch", message="rule targets a different deck version"))
+                issues.append(
+                    RuleValidationIssue(
+                        rule_id=rule.rule_id,
+                        severity="error",
+                        code="deck_hash_mismatch",
+                        message="rule targets a different deck version",
+                    )
+                )
             if format_band is not None and rule.format_band != format_band:
-                issues.append(RuleValidationIssue(rule_id=rule.rule_id, severity="error", code="format_band_mismatch", message="rule format band differs from compilation target"))
+                issues.append(
+                    RuleValidationIssue(
+                        rule_id=rule.rule_id,
+                        severity="error",
+                        code="format_band_mismatch",
+                        message="rule format band differs from compilation target",
+                    )
+                )
             try:
                 self._validate_condition_fields(rule.condition)
                 for forbidden in rule.forbidden_when:
                     self._validate_condition_fields(forbidden)
             except RuleDslError as exc:
-                issues.append(RuleValidationIssue(rule_id=rule.rule_id, severity="error", code="unsafe_condition", message=str(exc)))
+                issues.append(
+                    RuleValidationIssue(
+                        rule_id=rule.rule_id,
+                        severity="error",
+                        code="unsafe_condition",
+                        message=str(exc),
+                    )
+                )
             if rule.status == PrimerRuleStatus.NEEDS_REVIEW:
-                issues.append(RuleValidationIssue(rule_id=rule.rule_id, severity="warning", code="manual_review_required", message="rule is not active until explicitly reviewed"))
+                issues.append(
+                    RuleValidationIssue(
+                        rule_id=rule.rule_id,
+                        severity="warning",
+                        code="manual_review_required",
+                        message="rule is not active until explicitly reviewed",
+                    )
+                )
         return RuleValidationReport(
             valid=not any(issue.severity == "error" for issue in issues),
             rule_count=len(rules),
@@ -717,9 +803,17 @@ class PrimerToPilotCompiler:
                     continue
                 if left.format_band != right.format_band:
                     continue
-                same_condition = _canonical(left.condition.model_dump(mode="json")) == _canonical(right.condition.model_dump(mode="json"))
-                same_preference = _canonical(left.action_preference.model_dump(mode="json")) == _canonical(right.action_preference.model_dump(mode="json"))
-                if same_condition and same_preference and left.score_adjustment * right.score_adjustment < 0:
+                same_condition = _canonical(left.condition.model_dump(mode="json")) == _canonical(
+                    right.condition.model_dump(mode="json")
+                )
+                same_preference = _canonical(
+                    left.action_preference.model_dump(mode="json")
+                ) == _canonical(right.action_preference.model_dump(mode="json"))
+                if (
+                    same_condition
+                    and same_preference
+                    and left.score_adjustment * right.score_adjustment < 0
+                ):
                     pair = tuple(sorted((left.rule_id, right.rule_id)))
                     conflicts.append(
                         PrimerRuleConflict(
@@ -743,7 +837,9 @@ class PrimerToPilotCompiler:
         if not approved_by.strip() or not approval_reason.strip():
             raise RuleDslError("rule activation requires named approval and a reason")
         if rule.status == PrimerRuleStatus.REJECTED:
-            raise RuleDslError("rejected rules cannot be activated; create a new reviewed rule version")
+            raise RuleDslError(
+                "rejected rules cannot be activated; create a new reviewed rule version"
+            )
         return rule.model_copy(
             update={
                 "version": version,
@@ -766,9 +862,14 @@ class PrimerToPilotCompiler:
         rules: Sequence[PilotRule],
         conflict_strategy: Literal["reject", "prefer_priority", "prefer_confidence"] = "reject",
     ) -> CompiledPilotPolicy:
-        report = self.validate_rules(rules, commander=commander, deck_hash=deck_hash, format_band=format_band)
+        report = self.validate_rules(
+            rules, commander=commander, deck_hash=deck_hash, format_band=format_band
+        )
         if not report.valid:
-            raise RuleDslError("rule validation failed: " + "; ".join(issue.message for issue in report.issues if issue.severity == "error"))
+            raise RuleDslError(
+                "rule validation failed: "
+                + "; ".join(issue.message for issue in report.issues if issue.severity == "error")
+            )
         active = [rule for rule in rules if rule.status == PrimerRuleStatus.ACTIVE]
         conflicts = self.detect_conflicts(active)
         unresolved = list(conflicts)
@@ -785,11 +886,16 @@ class PrimerToPilotCompiler:
                     else (lambda item: (item.confidence, item.priority, item.rule_id))
                 )
                 winner = max(candidates, key=key)
-                remove_ids.update(rule.rule_id for rule in candidates if rule.rule_id != winner.rule_id)
+                remove_ids.update(
+                    rule.rule_id for rule in candidates if rule.rule_id != winner.rule_id
+                )
             selected = [rule for rule in selected if rule.rule_id not in remove_ids]
             unresolved = []
         if unresolved:
-            raise RuleDslError("unresolved rule conflicts: " + ", ".join(conflict.conflict_id for conflict in unresolved))
+            raise RuleDslError(
+                "unresolved rule conflicts: "
+                + ", ".join(conflict.conflict_id for conflict in unresolved)
+            )
         return CompiledPilotPolicy(
             policy_id=policy_id,
             version=version,
@@ -799,7 +905,9 @@ class PrimerToPilotCompiler:
             format_band=format_band,
             base_pilot_name=base_pilot_name,
             source_ids=tuple(sorted({rule.source_id for rule in selected})),
-            rules=tuple(sorted(selected, key=lambda item: (item.priority, item.rule_id), reverse=True)),
+            rules=tuple(
+                sorted(selected, key=lambda item: (item.priority, item.rule_id), reverse=True)
+            ),
             conflicts=conflicts,
             notes=("Policy overlay is reversible and never mutates the base pilot or decklist.",),
         )
@@ -816,28 +924,48 @@ class PrimerToPilotCompiler:
         rules: Sequence[PilotRule],
     ) -> tuple[CompiledPilotPolicy, ...]:
         """Return explicit alternatives for opposing conflicts; never silently combine them."""
-        conflicts = tuple(conflict for conflict in self.detect_conflicts(rules) if conflict.conflict_type == "opposing_adjustment")
+        conflicts = tuple(
+            conflict
+            for conflict in self.detect_conflicts(rules)
+            if conflict.conflict_type == "opposing_adjustment"
+        )
         if not conflicts:
-            return (self.compile_policy(
-                policy_id=policy_id, version=version, commander=commander, deck_hash=deck_hash,
-                format_band=format_band, base_pilot_name=base_pilot_name, rules=rules,
-            ),)
+            return (
+                self.compile_policy(
+                    policy_id=policy_id,
+                    version=version,
+                    commander=commander,
+                    deck_hash=deck_hash,
+                    format_band=format_band,
+                    base_pilot_name=base_pilot_name,
+                    rules=rules,
+                ),
+            )
         variants: list[CompiledPilotPolicy] = []
         for conflict_index, conflict in enumerate(conflicts, start=1):
             for choice_index, selected_id in enumerate(conflict.rule_ids, start=1):
                 selected_rules = tuple(
-                    rule for rule in rules
+                    rule
+                    for rule in rules
                     if rule.rule_id == selected_id or rule.rule_id not in conflict.rule_ids
                 )
-                variants.append(self.compile_policy(
-                    policy_id=f"{policy_id}.alternative-{conflict_index}-{choice_index}",
-                    version=version, commander=commander, deck_hash=deck_hash,
-                    format_band=format_band, base_pilot_name=base_pilot_name, rules=selected_rules,
-                ))
+                variants.append(
+                    self.compile_policy(
+                        policy_id=f"{policy_id}.alternative-{conflict_index}-{choice_index}",
+                        version=version,
+                        commander=commander,
+                        deck_hash=deck_hash,
+                        format_band=format_band,
+                        base_pilot_name=base_pilot_name,
+                        rules=selected_rules,
+                    )
+                )
         return tuple(variants)
 
     def write_policy(self, policy: CompiledPilotPolicy, file_name: str | None = None) -> Path:
-        target = self.data_root / "policies" / (file_name or f"{policy.policy_id}-{policy.version}.json")
+        target = (
+            self.data_root / "policies" / (file_name or f"{policy.policy_id}-{policy.version}.json")
+        )
         if target.exists():
             existing = CompiledPilotPolicy.model_validate_json(target.read_text(encoding="utf-8"))
             if existing != policy:
@@ -846,10 +974,14 @@ class PrimerToPilotCompiler:
         atomic_write_json(target, policy.model_dump(mode="json"))
         return target
 
-    def compare_policy_versions(self, older: CompiledPilotPolicy, newer: CompiledPilotPolicy) -> dict[str, Any]:
+    def compare_policy_versions(
+        self, older: CompiledPilotPolicy, newer: CompiledPilotPolicy
+    ) -> dict[str, Any]:
         old = {rule.rule_id: rule for rule in older.rules}
         new = {rule.rule_id: rule for rule in newer.rules}
-        changed = sorted(rule_id for rule_id in old.keys() & new.keys() if old[rule_id] != new[rule_id])
+        changed = sorted(
+            rule_id for rule_id in old.keys() & new.keys() if old[rule_id] != new[rule_id]
+        )
         return {
             "older_policy_id": older.policy_id,
             "older_version": older.version,
@@ -871,14 +1003,20 @@ class PrimerToPilotCompiler:
         path = Path(replay_path)
         if not path.is_absolute():
             path = self._project_path(path)
-        rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        rows = [
+            json.loads(line)
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
         estimate_types = sorted({str(row.get("estimate_type", "unknown")) for row in rows})
         decisions = [row for row in rows if row.get("event_type") == "pilot_decision"]
         searchable = _canonical(rows).casefold()
         rule_mentions: dict[str, bool] = {}
         for rule in policy.rules:
             names = rule.action_preference.card_names
-            rule_mentions[rule.rule_id] = any(_normalize_card(name) in searchable for name in names) if names else False
+            rule_mentions[rule.rule_id] = (
+                any(_normalize_card(name) in searchable for name in names) if names else False
+            )
         return {
             "replay_path": str(path.relative_to(self.root)),
             "event_count": len(rows),
@@ -914,7 +1052,9 @@ class PrimerToPilotCompiler:
         for scenario_index, scenario in enumerate(scenarios):
             if scenario.deck_hash != policy.deck_hash or scenario.commander != policy.commander:
                 raise RuleDslError(f"scenario {scenario.scenario_id} is incompatible with policy")
-            baseline = base_pilot.choose_action(scenario.state, scenario.actions, random.Random(seed + scenario_index))
+            baseline = base_pilot.choose_action(
+                scenario.state, scenario.actions, random.Random(seed + scenario_index)
+            )
             overlay_decision = overlay.choose_action(
                 scenario.state,
                 scenario.actions,
@@ -924,7 +1064,9 @@ class PrimerToPilotCompiler:
             rows: list[PolicyActionScore] = []
             for action in scenario.actions:
                 baseline_score = base_pilot.evaluate_action(scenario.state, action).total_utility
-                overlay_score, traces = overlay.evaluate_action_with_trace(scenario.state, action, context=scenario.context)
+                overlay_score, traces = overlay.evaluate_action_with_trace(
+                    scenario.state, action, context=scenario.context
+                )
                 rows.append(
                     PolicyActionScore(
                         action_id=action.action_id,

@@ -52,9 +52,13 @@ class OpponentProfile(MutableModel):
 
     @model_validator(mode="after")
     def verified_profiles_need_deck(self) -> OpponentProfile:
-        if self.list_status in {
-            OpponentListStatus.VERIFIED_COMPLETE,
-            OpponentListStatus.OFFICIAL_PRECON,
-        } and self.deck is None:
+        if (
+            self.list_status
+            in {
+                OpponentListStatus.VERIFIED_COMPLETE,
+                OpponentListStatus.OFFICIAL_PRECON,
+            }
+            and self.deck is None
+        ):
             raise ValueError("complete or official-precon profiles require a concrete deck")
         return self

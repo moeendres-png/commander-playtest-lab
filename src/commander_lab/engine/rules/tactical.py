@@ -3,8 +3,8 @@ from __future__ import annotations
 import hashlib
 import random
 import uuid
-from collections import Counter
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from commander_lab.engine.action_validation import validate_action_proposal
 from commander_lab.models import (
@@ -296,7 +296,9 @@ class TacticalRuleOracle:
         indestructible = [bool(v) for v in s.get("indestructible", [False] * len(toughnesses))]
         dead = sum(
             1
-            for damage, toughness, protected in zip(assignments, toughnesses, indestructible, strict=True)
+            for damage, toughness, protected in zip(
+                assignments, toughnesses, indestructible, strict=True
+            )
             if damage >= toughness and not protected
         )
         return {"life_paid": sum(assignments), "creatures_died": dead}
@@ -311,7 +313,8 @@ class TacticalRuleOracle:
     def _culling_ritual(s: dict[str, Any]) -> dict[str, Any]:
         permanents = list(s["permanents"])
         destroyed = [
-            item for item in permanents
+            item
+            for item in permanents
             if not item.get("is_land", False) and int(item.get("mana_value", 0)) <= 2
         ]
         return {"destroyed": len(destroyed), "mana_generated": len(destroyed)}
@@ -344,7 +347,8 @@ class TacticalRuleOracle:
         return {
             "legal": not fused or cast_from_hand,
             "artifact_destroyed": _bool(s.get("artifact_target")),
-            "enchantment_destroyed": _bool(s.get("enchantment_target")) and (fused or not s.get("artifact_target")),
+            "enchantment_destroyed": _bool(s.get("enchantment_target"))
+            and (fused or not s.get("artifact_target")),
             "spells_cast": 1,
         }
 
@@ -414,7 +418,10 @@ class TacticalRuleOracle:
 
     @staticmethod
     def _idol_of_oblivion(s: dict[str, Any]) -> dict[str, Any]:
-        return {"can_activate_draw": _bool(s.get("created_token_this_turn")), "cards_drawn": 1 if s.get("created_token_this_turn") else 0}
+        return {
+            "can_activate_draw": _bool(s.get("created_token_this_turn")),
+            "cards_drawn": 1 if s.get("created_token_this_turn") else 0,
+        }
 
     @staticmethod
     def _titania(s: dict[str, Any]) -> dict[str, Any]:
@@ -429,7 +436,8 @@ class TacticalRuleOracle:
     @staticmethod
     def _ramunap(s: dict[str, Any]) -> dict[str, Any]:
         return {
-            "can_play_land_from_graveyard": _bool(s.get("land_in_graveyard")) and int(s.get("land_plays_remaining", 1)) > 0,
+            "can_play_land_from_graveyard": _bool(s.get("land_in_graveyard"))
+            and int(s.get("land_plays_remaining", 1)) > 0,
             "uses_land_play": True,
         }
 
@@ -447,19 +455,30 @@ class TacticalRuleOracle:
     def _tireless_provisioner(s: dict[str, Any]) -> dict[str, Any]:
         landfall = int(s.get("landfall_events", 1))
         choice = str(s.get("choice", "treasure"))
-        return {"foods": landfall if choice == "food" else 0, "treasures": landfall if choice == "treasure" else 0}
+        return {
+            "foods": landfall if choice == "food" else 0,
+            "treasures": landfall if choice == "treasure" else 0,
+        }
 
     @staticmethod
     def _tireless_tracker(s: dict[str, Any]) -> dict[str, Any]:
         landfall = int(s.get("landfall_events", 1))
         clues_sacrificed = int(s.get("clues_sacrificed", 0))
-        return {"clues_created": landfall, "counters_added": clues_sacrificed, "cards_drawn": clues_sacrificed}
+        return {
+            "clues_created": landfall,
+            "counters_added": clues_sacrificed,
+            "cards_drawn": clues_sacrificed,
+        }
 
     @staticmethod
     def _mirkwood_bats(s: dict[str, Any]) -> dict[str, Any]:
         events = int(s.get("tokens_created", 0)) + int(s.get("tokens_sacrificed", 0))
         opponents = int(s.get("opponent_count", 0))
-        return {"triggers": events, "life_loss_each_opponent": events, "total_life_loss": events * opponents}
+        return {
+            "triggers": events,
+            "life_loss_each_opponent": events,
+            "total_life_loss": events * opponents,
+        }
 
     @staticmethod
     def _mayhem_devil(s: dict[str, Any]) -> dict[str, Any]:
@@ -470,7 +489,11 @@ class TacticalRuleOracle:
     def _mazirek(s: dict[str, Any]) -> dict[str, Any]:
         sacrifices = int(s.get("sacrifice_events", 0))
         creatures = int(s.get("creatures_controlled", 0))
-        return {"triggers": sacrifices, "counters_each": sacrifices, "total_counters": sacrifices * creatures}
+        return {
+            "triggers": sacrifices,
+            "counters_each": sacrifices,
+            "total_counters": sacrifices * creatures,
+        }
 
     @staticmethod
     def _braids(s: dict[str, Any]) -> dict[str, Any]:
@@ -497,8 +520,12 @@ class TacticalRuleOracle:
         mode = str(s["mode"])
         return {
             "artifact_destroyed": mode == "artifact",
-            "graveyard_cards_exiled": int(s.get("graveyard_cards", 0)) if mode == "graveyard" else 0,
-            "creature_damage_to_controller": int(s.get("creatures_controlled", 0)) if mode == "creatures" else 0,
+            "graveyard_cards_exiled": int(s.get("graveyard_cards", 0))
+            if mode == "graveyard"
+            else 0,
+            "creature_damage_to_controller": int(s.get("creatures_controlled", 0))
+            if mode == "creatures"
+            else 0,
         }
 
     @staticmethod
@@ -506,19 +533,27 @@ class TacticalRuleOracle:
         mode = str(s["mode"])
         return {
             "single_card_exiled": 1 if mode == "etb" and s.get("target_available", True) else 0,
-            "opponent_graveyards_exiled": int(s.get("opponent_graveyard_cards", 0)) if mode == "mass_exile" else 0,
+            "opponent_graveyards_exiled": int(s.get("opponent_graveyard_cards", 0))
+            if mode == "mass_exile"
+            else 0,
             "cards_drawn": 1 if mode == "draw" else 0,
             "lantern_sacrificed": mode in {"mass_exile", "draw"},
         }
 
     @staticmethod
     def _bojuka_bog(s: dict[str, Any]) -> dict[str, Any]:
-        return {"enters_tapped": True, "graveyard_cards_exiled": int(s.get("target_graveyard_cards", 0))}
+        return {
+            "enters_tapped": True,
+            "graveyard_cards_exiled": int(s.get("target_graveyard_cards", 0)),
+        }
 
     @staticmethod
     def _combat_draw(s: dict[str, Any]) -> dict[str, Any]:
         events = int(s.get("combat_damage_events_to_player", 0))
-        return {"cards_drawn": events, "life_gained": int(s.get("damage", 0)) if s.get("lifelink") else 0}
+        return {
+            "cards_drawn": events,
+            "life_gained": int(s.get("damage", 0)) if s.get("lifelink") else 0,
+        }
 
     @staticmethod
     def _ishai_trigger(s: dict[str, Any]) -> dict[str, Any]:
@@ -541,7 +576,9 @@ class TacticalRuleOracle:
     @staticmethod
     def _kykar(s: dict[str, Any]) -> dict[str, Any]:
         spells = int(s.get("noncreature_spells_cast", 0))
-        sacrificed = min(int(s.get("spirits_sacrificed", 0)), int(s.get("spirits_available", spells)))
+        sacrificed = min(
+            int(s.get("spirits_sacrificed", 0)), int(s.get("spirits_available", spells))
+        )
         return {"spirits_created": spells, "red_mana_generated": sacrificed}
 
     @staticmethod
@@ -565,7 +602,10 @@ class TacticalRuleOracle:
         already = int(s.get("cards_drawn_this_turn", 0))
         attempted = int(s.get("attempted_additional_draws", 0))
         allowed = max(0, min(attempted, 1 - already))
-        return {"additional_draws_allowed": allowed, "additional_draws_prevented": attempted - allowed}
+        return {
+            "additional_draws_allowed": allowed,
+            "additional_draws_prevented": attempted - allowed,
+        }
 
     @staticmethod
     def _esior_tax(s: dict[str, Any]) -> dict[str, Any]:
@@ -577,7 +617,11 @@ class TacticalRuleOracle:
     @staticmethod
     def _phase_out(s: dict[str, Any]) -> dict[str, Any]:
         wipe = _bool(s.get("wipe_resolves", True))
-        return {"affected_by_wipe": False if wipe else False, "returns_next_untap": True, "attachments_phase_out": True}
+        return {
+            "affected_by_wipe": False if wipe else False,
+            "returns_next_untap": True,
+            "attachments_phase_out": True,
+        }
 
     @staticmethod
     def _lofty_denial(s: dict[str, Any]) -> dict[str, Any]:
@@ -595,12 +639,19 @@ class TacticalRuleOracle:
     @staticmethod
     def _offer(s: dict[str, Any]) -> dict[str, Any]:
         noncreature = _bool(s.get("target_is_noncreature_spell", True))
-        return {"spell_countered": noncreature, "treasures_created_for_controller": 2 if noncreature else 0}
+        return {
+            "spell_countered": noncreature,
+            "treasures_created_for_controller": 2 if noncreature else 0,
+        }
 
     @staticmethod
     def _dovins_veto(s: dict[str, Any]) -> dict[str, Any]:
         noncreature = _bool(s.get("target_is_noncreature_spell", True))
-        return {"legal_target": noncreature, "spell_countered": noncreature, "veto_can_be_countered": False}
+        return {
+            "legal_target": noncreature,
+            "spell_countered": noncreature,
+            "veto_can_be_countered": False,
+        }
 
     @staticmethod
     def _winds_of_rath(s: dict[str, Any]) -> dict[str, Any]:
@@ -626,14 +677,21 @@ class TacticalRuleOracle:
             equip_cost = 1
         else:
             raise TacticalRuleError(f"unsupported equipment: {equipment}")
-        return {"can_target_with_own_spell": can_target, "protection": protection, "equip_cost": equip_cost}
+        return {
+            "can_target_with_own_spell": can_target,
+            "protection": protection,
+            "equip_cost": equip_cost,
+        }
 
     @staticmethod
     def _apnap_trigger_order(s: dict[str, Any]) -> dict[str, Any]:
         active = list(s.get("active_player_triggers", []))
         nonactive = [list(group) for group in s.get("nonactive_player_triggers_in_turn_order", [])]
         stack_bottom_to_top = active + [item for group in nonactive for item in group]
-        return {"stack_bottom_to_top": stack_bottom_to_top, "resolves_first": stack_bottom_to_top[-1] if stack_bottom_to_top else None}
+        return {
+            "stack_bottom_to_top": stack_bottom_to_top,
+            "resolves_first": stack_bottom_to_top[-1] if stack_bottom_to_top else None,
+        }
 
     @staticmethod
     def _stack_lifo(s: dict[str, Any]) -> dict[str, Any]:
@@ -643,12 +701,19 @@ class TacticalRuleOracle:
     @staticmethod
     def _zero_toughness(s: dict[str, Any]) -> dict[str, Any]:
         toughness = int(s["toughness"])
-        return {"put_into_graveyard": toughness <= 0, "is_destroyed": False, "indestructible_relevant": False}
+        return {
+            "put_into_graveyard": toughness <= 0,
+            "is_destroyed": False,
+            "indestructible_relevant": False,
+        }
 
     @staticmethod
     def _token_zone_change(s: dict[str, Any]) -> dict[str, Any]:
         destination = str(s["destination"])
-        return {"enters_destination": True, "ceases_to_exist_next_sba": destination != "battlefield"}
+        return {
+            "enters_destination": True,
+            "ceases_to_exist_next_sba": destination != "battlefield",
+        }
 
 
 class TacticalRulesAdapter(RulesEngineAdapter):
@@ -751,7 +816,13 @@ class TacticalRulesAdapter(RulesEngineAdapter):
         )
         self._sessions[session_id] = session
         self._logs[session_id] = [
-            self._event(state, 0, "game_started", None, {"seed": request.seed, "decks": list(request.deck_handles)})
+            self._event(
+                state,
+                0,
+                "game_started",
+                None,
+                {"seed": request.seed, "decks": list(request.deck_handles)},
+            )
         ]
         return session
 
@@ -832,7 +903,8 @@ class TacticalRulesAdapter(RulesEngineAdapter):
         return RulesEngineResult(
             backend=RulesBackend.TACTICAL,
             session_id=session_id,
-            completed=session.state.status in {GameStatus.COMPLETED, GameStatus.ABORTED} or scenario is not None,
+            completed=session.state.status in {GameStatus.COMPLETED, GameStatus.ABORTED}
+            or scenario is not None,
             final_state=session.state,
             normalized_result=normalized,
             validation_level=ValidationLevel.TACTICAL_ORACLE,
@@ -872,7 +944,9 @@ class TacticalRulesAdapter(RulesEngineAdapter):
         if legal.action_type == ActionType.PASS_PRIORITY:
             living = [player for player in state.players if not player.has_lost]
             current_index = next(
-                index for index, player in enumerate(living) if player.player_id == proposal.actor_id
+                index
+                for index, player in enumerate(living)
+                if player.player_id == proposal.actor_id
             )
             next_player = living[(current_index + 1) % len(living)].player_id
             return state.model_copy(

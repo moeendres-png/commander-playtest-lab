@@ -13,5 +13,6 @@ __all__ = [
 def __getattr__(name: str) -> Any:
     if name in __all__:
         from . import server
+
         return getattr(server, name)
     raise AttributeError(name)

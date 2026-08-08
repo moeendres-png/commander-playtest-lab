@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable
 from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -28,7 +29,10 @@ def _canonicalize(value: Any) -> Any:
             for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
         }
     if isinstance(value, (set, frozenset)):
-        return sorted((_canonicalize(item) for item in value), key=lambda item: json.dumps(item, sort_keys=True))
+        return sorted(
+            (_canonicalize(item) for item in value),
+            key=lambda item: json.dumps(item, sort_keys=True),
+        )
     if isinstance(value, (list, tuple)):
         return [_canonicalize(item) for item in value]
     if isinstance(value, Enum):
@@ -76,7 +80,9 @@ def compute_deck_hash(deck: Deck) -> str:
     return sha256_value(payload)
 
 
-def compute_data_snapshot_hash(paths: Iterable[str | Path], *, root: str | Path | None = None) -> str:
+def compute_data_snapshot_hash(
+    paths: Iterable[str | Path], *, root: str | Path | None = None
+) -> str:
     root_path = Path(root).resolve() if root is not None else None
     records: list[dict[str, str | int]] = []
     for input_path in sorted((Path(path).resolve() for path in paths), key=str):

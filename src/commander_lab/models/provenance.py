@@ -10,6 +10,7 @@ from .common import FrozenModel, MutableModel
 
 PROVENANCE_SCHEMA_VERSION = "1.0.0"
 
+
 class SourceType(StrEnum):
     DIRECT_USER_STATEMENT = "direct_user_statement"
     CHAT_CONVERSATION = "chat_conversation"
@@ -24,6 +25,7 @@ class SourceType(StrEnum):
     MODEL_INFERENCE = "model_inference"
     WEB_RESEARCH = "web_research"
 
+
 class VerificationStatus(StrEnum):
     VERIFIED = "verified"
     HASH_VERIFIED = "hash_verified"
@@ -32,10 +34,12 @@ class VerificationStatus(StrEnum):
     SUPERSEDED = "superseded"
     MISSING = "missing"
 
+
 class ClaimKind(StrEnum):
     SOURCE_FACT = "source_fact"
     MODEL_OUTPUT = "model_output"
     INFERENCE = "inference"
+
 
 class LicenseRecord(FrozenModel):
     license_id: str
@@ -44,6 +48,7 @@ class LicenseRecord(FrozenModel):
     restrictions: tuple[str, ...] = ()
     full_text_storage_allowed: bool = False
     notes: str | None = None
+
 
 class SourceRecord(FrozenModel):
     source_id: str
@@ -67,10 +72,14 @@ class SourceRecord(FrozenModel):
     notes: str | None = None
 
     @model_validator(mode="after")
-    def synthetic_not_observed(self) -> "SourceRecord":
-        if self.source_type in {SourceType.SYNTHETIC_ASSUMPTION, SourceType.MODEL_INFERENCE} and self.observed:
+    def synthetic_not_observed(self) -> SourceRecord:
+        if (
+            self.source_type in {SourceType.SYNTHETIC_ASSUMPTION, SourceType.MODEL_INFERENCE}
+            and self.observed
+        ):
             raise ValueError("synthetic assumptions and model inferences cannot be marked observed")
         return self
+
 
 class ArtifactRecord(FrozenModel):
     artifact_id: str
@@ -86,6 +95,7 @@ class ArtifactRecord(FrozenModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+
 class DerivedDataRecord(FrozenModel):
     derived_id: str
     data_type: str
@@ -96,6 +106,7 @@ class DerivedDataRecord(FrozenModel):
     verification_status: VerificationStatus = VerificationStatus.UNVERIFIED
     model_label: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
 
 class TransformationRecord(FrozenModel):
     transformation_id: str
@@ -110,6 +121,7 @@ class TransformationRecord(FrozenModel):
     parameters_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     executed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
+
 class CitationRecord(FrozenModel):
     citation_id: str
     claim_id: str
@@ -121,10 +133,11 @@ class CitationRecord(FrozenModel):
     location: str | None = None
 
     @model_validator(mode="after")
-    def evidence_required(self) -> "CitationRecord":
+    def evidence_required(self) -> CitationRecord:
         if not self.source_ids and not self.derived_ids:
             raise ValueError("citation requires a source or derived record")
         return self
+
 
 class SupersessionRecord(FrozenModel):
     supersession_id: str
@@ -137,12 +150,13 @@ class SupersessionRecord(FrozenModel):
     historical_record_retained: bool = True
 
     @model_validator(mode="after")
-    def newer_authority_required(self) -> "SupersessionRecord":
+    def newer_authority_required(self) -> SupersessionRecord:
         if self.old_id == self.new_id:
             raise ValueError("a record cannot supersede itself")
         if self.authority_rank_new < self.authority_rank_old:
             raise ValueError("superseding record cannot have lower authority")
         return self
+
 
 class ProvenanceGraph(MutableModel):
     schema_version: str = PROVENANCE_SCHEMA_VERSION

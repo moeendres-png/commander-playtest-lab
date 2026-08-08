@@ -8,9 +8,7 @@ from .common import Color, DataQuality, FrozenModel, MutableModel, SourceRef
 from .pilots import PilotConfig
 from .roles import CardRole
 
-
 STRUCTURAL_ESTIMATE_TYPE = "structural_model_estimates"
-
 
 
 class ConditionalStrength(FrozenModel):
@@ -43,7 +41,7 @@ class StructuralCardProfile(FrozenModel):
     notes: str | None = None
 
     @model_validator(mode="after")
-    def validate_role_strengths(self) -> "StructuralCardProfile":
+    def validate_role_strengths(self) -> StructuralCardProfile:
         missing = set(self.role_strengths) - set(self.roles)
         if missing:
             raise ValueError(f"role strengths reference absent roles: {sorted(missing)}")
@@ -68,7 +66,7 @@ class StructuralDeckProfile(FrozenModel):
     data_snapshot_hash: str
 
     @model_validator(mode="after")
-    def commanders_have_costs(self) -> "StructuralDeckProfile":
+    def commanders_have_costs(self) -> StructuralDeckProfile:
         missing = set(self.commander_names) - set(self.commander_base_costs)
         if missing:
             raise ValueError(f"missing commander base costs: {sorted(missing)}")
@@ -94,12 +92,14 @@ class StructuralMatchConfig(FrozenModel):
     estimate_type: Literal["structural_model_estimates"] = STRUCTURAL_ESTIMATE_TYPE
 
     @model_validator(mode="after")
-    def validate_starting_seat(self) -> "StructuralMatchConfig":
+    def validate_starting_seat(self) -> StructuralMatchConfig:
         if not self.deck_ids:
             raise ValueError("at least one deck is required")
         if len(self.deck_ids) > 10:
             raise ValueError("at most ten players are supported")
-        if self.starting_player_seat is not None and self.starting_player_seat >= len(self.deck_ids):
+        if self.starting_player_seat is not None and self.starting_player_seat >= len(
+            self.deck_ids
+        ):
             raise ValueError("starting_player_seat is outside the pod")
         if self.pilot_configs and len(self.pilot_configs) != len(self.deck_ids):
             raise ValueError("pilot_configs must be empty or contain one config per seat")
@@ -123,7 +123,7 @@ class StructuralBatchConfig(FrozenModel):
     estimate_type: Literal["structural_model_estimates"] = STRUCTURAL_ESTIMATE_TYPE
 
     @model_validator(mode="after")
-    def validate_decks(self) -> "StructuralBatchConfig":
+    def validate_decks(self) -> StructuralBatchConfig:
         if not self.deck_ids:
             raise ValueError("at least one deck is required")
         if len(self.deck_ids) > 10:

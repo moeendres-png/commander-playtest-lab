@@ -137,13 +137,25 @@ class JsonLineBridgeClient:
             assert self._process.stderr is not None
             self._stdout_queue = queue.Queue()
             self._stderr_lines = []
-            stdout_log = self.log_directory / f"{self.engine}.bridge.stdout.jsonl" if self.log_directory else None
-            stderr_log = self.log_directory / f"{self.engine}.bridge.stderr.log" if self.log_directory else None
+            stdout_log = (
+                self.log_directory / f"{self.engine}.bridge.stdout.jsonl"
+                if self.log_directory
+                else None
+            )
+            stderr_log = (
+                self.log_directory / f"{self.engine}.bridge.stderr.log"
+                if self.log_directory
+                else None
+            )
             self._stdout_thread = threading.Thread(
-                target=self._pump, args=(self._process.stdout, self._stdout_queue, stdout_log), daemon=True
+                target=self._pump,
+                args=(self._process.stdout, self._stdout_queue, stdout_log),
+                daemon=True,
             )
             self._stderr_thread = threading.Thread(
-                target=self._pump, args=(self._process.stderr, self._stderr_lines, stderr_log), daemon=True
+                target=self._pump,
+                args=(self._process.stderr, self._stderr_lines, stderr_log),
+                daemon=True,
             )
             self._stdout_thread.start()
             self._stderr_thread.start()
@@ -183,7 +195,11 @@ class JsonLineBridgeClient:
                 if isinstance(method, EngineMessageType):
                     message_type = method
                 else:
-                    message_type = legacy_aliases[method] if method in legacy_aliases else EngineMessageType(method)
+                    message_type = (
+                        legacy_aliases[method]
+                        if method in legacy_aliases
+                        else EngineMessageType(method)
+                    )
             except ValueError as exc:
                 raise RulesEngineProtocolError(f"unknown bridge message type: {method}") from exc
             request = EngineProtocolRequest(
@@ -238,7 +254,8 @@ class JsonLineBridgeClient:
             assert self._process is not None and self._process.stdin is not None
             request_id = str(uuid.uuid4())
             self._process.stdin.write(
-                json.dumps({"request_id": request_id, "method": method, "params": params or {}}) + "\n"
+                json.dumps({"request_id": request_id, "method": method, "params": params or {}})
+                + "\n"
             )
             self._process.stdin.flush()
             try:
@@ -264,9 +281,7 @@ class JsonLineBridgeClient:
         except RulesEngineProtocolError:
             hello = self.request(EngineMessageType.ENGINE_HELLO)
             caps_raw = self.request(EngineMessageType.ENGINE_CAPABILITIES)
-        caps = EngineCapabilityHandshake.model_validate(
-            caps_raw.get("capabilities", caps_raw)
-        )
+        caps = EngineCapabilityHandshake.model_validate(caps_raw.get("capabilities", caps_raw))
         return hello, caps
 
     def close(self) -> None:
@@ -438,7 +453,6 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                     details=(f"{type(exc).__name__}: {exc}",),
                 )
 
-
     # Protocol-2 provider surface. These methods only route versioned requests;
     # external validation is granted solely by the separate semantic gate suite.
     def start_engine(self) -> dict[str, Any]:
@@ -489,7 +503,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
         self._require_capability("target_selection_supported")
         result = self._require_client().request(
             EngineMessageType.SELECT_TARGETS,
-            {"choice_id": choice_id, "targets": targets}, game_id=game_id,
+            {"choice_id": choice_id, "targets": targets},
+            game_id=game_id,
         )
         return GameState.model_validate(result.get("state", result))
 
@@ -497,7 +512,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
         self._require_capability("mode_selection_supported")
         result = self._require_client().request(
             EngineMessageType.CHOOSE_MODES,
-            {"choice_id": choice_id, "modes": modes}, game_id=game_id,
+            {"choice_id": choice_id, "modes": modes},
+            game_id=game_id,
         )
         return GameState.model_validate(result.get("state", result))
 
@@ -505,17 +521,19 @@ class ExternalRulesAdapter(RulesEngineAdapter):
         self._require_capability("trigger_order_supported")
         result = self._require_client().request(
             EngineMessageType.ORDER_TRIGGERS,
-            {"choice_id": choice_id, "trigger_ids": trigger_ids}, game_id=game_id,
+            {"choice_id": choice_id, "trigger_ids": trigger_ids},
+            game_id=game_id,
         )
         return GameState.model_validate(result.get("state", result))
 
-    def resolve_mulligan(self, game_id: str, *, player_id: str, keep: bool,
-                         bottom_card_ids: list[str] | None = None) -> dict[str, Any]:
+    def resolve_mulligan(
+        self, game_id: str, *, player_id: str, keep: bool, bottom_card_ids: list[str] | None = None
+    ) -> dict[str, Any]:
         self._require_capability("mulligan_supported")
         return self._require_client().request(
             EngineMessageType.RESOLVE_MULLIGAN,
-            {"player_id": player_id, "keep": keep,
-             "bottom_card_ids": bottom_card_ids or []}, game_id=game_id,
+            {"player_id": player_id, "keep": keep, "bottom_card_ids": bottom_card_ids or []},
+            game_id=game_id,
         )
 
     def concede(self, game_id: str, *, player_id: str) -> GameState:
@@ -534,15 +552,11 @@ class ExternalRulesAdapter(RulesEngineAdapter):
 
     def export_replay(self, game_id: str) -> dict[str, Any]:
         self._require_capability("replay_supported")
-        return self._require_client().request(
-            EngineMessageType.EXPORT_REPLAY, {}, game_id=game_id
-        )
+        return self._require_client().request(EngineMessageType.EXPORT_REPLAY, {}, game_id=game_id)
 
     def shutdown_game(self, game_id: str) -> dict[str, Any]:
         self._require_capability("game_shutdown_supported")
-        return self._require_client().request(
-            EngineMessageType.SHUTDOWN_GAME, {}, game_id=game_id
-        )
+        return self._require_client().request(EngineMessageType.SHUTDOWN_GAME, {}, game_id=game_id)
 
     def shutdown_engine(self) -> None:
         client = self._require_client()
@@ -575,32 +589,47 @@ class ExternalRulesAdapter(RulesEngineAdapter):
         self._require_capability("multiplayer_supported")
         if self._legacy_mode:
             return RulesSession.model_validate(
-                self._legacy_request("start_commander_game", {"request": request.model_dump(mode="json")})
+                self._legacy_request(
+                    "start_commander_game", {"request": request.model_dump(mode="json")}
+                )
             )
         result = self._require_client().request(
-            EngineMessageType.CREATE_GAME, {"request": request.model_dump(mode="json")}, game_id=request.game_id
+            EngineMessageType.CREATE_GAME,
+            {"request": request.model_dump(mode="json")},
+            game_id=request.game_id,
         )
         game_id = str(result.get("game_id", request.game_id))
         self._require_client().request(EngineMessageType.START_GAME, {}, game_id=game_id)
-        state_payload = self._require_client().request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
+        state_payload = self._require_client().request(
+            EngineMessageType.GET_GAME_STATE, {}, game_id=game_id
+        )
         state = GameState.model_validate(state_payload.get("state", state_payload))
         return RulesSession(
-            backend=self.backend, session_id=game_id, game_id=game_id, state=state,
-            seed=request.seed, deck_handles=request.deck_handles, created_from="game"
+            backend=self.backend,
+            session_id=game_id,
+            game_id=game_id,
+            state=state,
+            seed=request.seed,
+            deck_handles=request.deck_handles,
+            created_from="game",
         )
 
     def create_scenario(self, scenario: TacticalScenario) -> RulesSession:
         self._require_capability("scenario_injection_supported")
         if self._legacy_mode:
             return RulesSession.model_validate(
-                self._legacy_request("create_scenario", {"scenario": scenario.model_dump(mode="json")})
+                self._legacy_request(
+                    "create_scenario", {"scenario": scenario.model_dump(mode="json")}
+                )
             )
         result = self._require_client().request(
             EngineMessageType.CREATE_GAME,
             {"scenario": scenario.model_dump(mode="json")},
             game_id=scenario.state.game_id,
         )
-        state = GameState.model_validate(result.get("state", scenario.state.model_dump(mode="json")))
+        state = GameState.model_validate(
+            result.get("state", scenario.state.model_dump(mode="json"))
+        )
         return RulesSession(
             backend=self.backend,
             session_id=str(result.get("game_id", scenario.state.game_id)),

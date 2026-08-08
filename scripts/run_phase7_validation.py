@@ -38,8 +38,8 @@ def run(*, full: bool) -> dict[str, object]:
     validation_iterations = 20 if full else 4
     sensitivity_seeds = (20260804, 20260805, 20260806) if full else (20260804, 20260805)
     sensitivity_strengths = (
-        "average", "strong", "near_optimal_heuristic"
-    ) if full else ("average", "strong")
+        ("average", "strong", "near_optimal_heuristic") if full else ("average", "strong")
+    )
 
     korvold_matrix = dump(
         "korvold_complete_swap_matrix",
@@ -116,8 +116,16 @@ def run(*, full: bool) -> dict[str, object]:
             ParetoFrontInput(
                 deck_id="korvold/current",
                 variants=(
-                    (VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
-                    (VariantSwap(remove="Evendo Brushrazer", add_candidate_id="korvold/lightning-greaves"),),
+                    (
+                        VariantSwap(
+                            remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"
+                        ),
+                    ),
+                    (
+                        VariantSwap(
+                            remove="Evendo Brushrazer", add_candidate_id="korvold/lightning-greaves"
+                        ),
+                    ),
                     package.swaps,
                 ),
                 iterations=8 if full else 4,
@@ -150,7 +158,11 @@ def run(*, full: bool) -> dict[str, object]:
         service.validate_upgrade(
             ValidateUpgradeInput(
                 deck_id="korvold/current",
-                swaps=(VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
+                swaps=(
+                    VariantSwap(
+                        remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"
+                    ),
+                ),
                 **common_validation,
             )
         ),
@@ -160,7 +172,11 @@ def run(*, full: bool) -> dict[str, object]:
         service.validate_upgrade(
             ValidateUpgradeInput(
                 deck_id="rogshai/current",
-                swaps=(VariantSwap(remove="Izzet Signet", add_candidate_id="rogshai/talisman-of-creativity"),),
+                swaps=(
+                    VariantSwap(
+                        remove="Izzet Signet", add_candidate_id="rogshai/talisman-of-creativity"
+                    ),
+                ),
                 **common_validation,
             )
         ),
@@ -211,13 +227,22 @@ def main() -> None:
     )
     args = parser.parse_args()
     summary = run(full=args.full)
-    print(json.dumps({
-        "validation_mode": summary["validation_mode"],
-        "complete_swap_matrices": summary["complete_swap_matrices"],
-        "korvold_decision": summary["validation_chains"]["korvold_scouring_swarm_to_idol"].get("decision"),
-        "rogshai_decision": summary["validation_chains"]["rogshai_izzet_signet_to_talisman"].get("decision"),
-        "automatic_application": summary["automatic_application"],
-    }, indent=2))
+    print(
+        json.dumps(
+            {
+                "validation_mode": summary["validation_mode"],
+                "complete_swap_matrices": summary["complete_swap_matrices"],
+                "korvold_decision": summary["validation_chains"][
+                    "korvold_scouring_swarm_to_idol"
+                ].get("decision"),
+                "rogshai_decision": summary["validation_chains"][
+                    "rogshai_izzet_signet_to_talisman"
+                ].get("decision"),
+                "automatic_application": summary["automatic_application"],
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

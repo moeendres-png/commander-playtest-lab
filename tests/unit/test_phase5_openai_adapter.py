@@ -91,7 +91,9 @@ def test_runtime_has_four_separate_agents_sessions_and_guardrails(monkeypatch) -
     assert len(runtime.orchestrator.output_guardrails) == 1
     assert runtime.session.session_id == request.session_id
     assert runtime.orchestrator.model_settings.reasoning.effort == "high"
-    assert runtime.orchestrator.model_settings.max_tokens == request.budget.max_output_tokens_per_call
+    assert (
+        runtime.orchestrator.model_settings.max_tokens == request.budget.max_output_tokens_per_call
+    )
 
 
 def test_unsupported_reasoning_effort_fails_before_live_run() -> None:
@@ -101,6 +103,7 @@ def test_unsupported_reasoning_effort_fails_before_live_run() -> None:
     )
     with pytest.raises(ValueError):
         openai_workflow._reasoning_settings(fake_sdk(), request)
+
 
 class FakeRunConfig:
     def __init__(self, **kwargs: Any) -> None:

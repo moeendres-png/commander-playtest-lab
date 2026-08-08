@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable, Mapping
 from datetime import date
 from pathlib import Path
-from typing import Iterable, Mapping
 
 from commander_lab.models import CommanderConfiguration, Deck, DeckEntry, DeckZone
 
@@ -105,7 +105,9 @@ class CsvDeckImporter(CatalogAwareImporter):
         if not commanders:
             raise ImportErrorWithContext("no commander specified", source=source_path)
         if explicit_commanders and option_commanders and set(commanders) != set(option_commanders):
-            raise ImportErrorWithContext("commander mismatch between rows and options", source=source_path)
+            raise ImportErrorWithContext(
+                "commander mismatch between rows and options", source=source_path
+            )
 
         if not explicit_commanders:
             commander_set = set(commanders)
@@ -120,7 +122,9 @@ class CsvDeckImporter(CatalogAwareImporter):
                 for entry in entries
             ]
 
-        uses_partner = options.uses_partner if options.uses_partner is not None else len(commanders) == 2
+        uses_partner = (
+            options.uses_partner if options.uses_partner is not None else len(commanders) == 2
+        )
         parsed_date = date.fromisoformat(options.data_as_of) if options.data_as_of else None
         return Deck(
             deck_id=options.deck_id,

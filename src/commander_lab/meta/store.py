@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import json
@@ -8,12 +7,10 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.models.meta import (
-    BudgetBand,
     FormatBand,
     MetaCardFrequency,
     MetaCategory,
     MetaDeckSnapshot,
-    MetaEvidenceRating,
     MetaKnowledgeBaseSnapshot,
     MetaSnapshotManifest,
     MetaSource,
@@ -46,8 +43,14 @@ class MetaKnowledgeBase:
         self.root = Path(root).resolve()
         self.meta_root = self.root / META_ROOT
         for subdir in (
-            "snapshots", "tournament_results", "primers", "archetypes", "packages",
-            "card_frequencies", "provenance", "manifests",
+            "snapshots",
+            "tournament_results",
+            "primers",
+            "archetypes",
+            "packages",
+            "card_frequencies",
+            "provenance",
+            "manifests",
         ):
             (self.meta_root / subdir).mkdir(parents=True, exist_ok=True)
 
@@ -61,25 +64,42 @@ class MetaKnowledgeBase:
                 raise FileNotFoundError("no meta latest pointer exists")
             payload = json.loads(pointer.read_text(encoding="utf-8"))
             snapshot_id = payload["snapshot_id"]
-        return MetaKnowledgeBaseSnapshot.model_validate_json(self.snapshot_path(snapshot_id).read_text(encoding="utf-8"))
+        return MetaKnowledgeBaseSnapshot.model_validate_json(
+            self.snapshot_path(snapshot_id).read_text(encoding="utf-8")
+        )
 
     def write_snapshot(self, snapshot: MetaKnowledgeBaseSnapshot) -> Path:
         path = self.snapshot_path(snapshot.manifest.snapshot_id)
         if path.exists():
-            raise FileExistsError(f"immutable snapshot already exists: {snapshot.manifest.snapshot_id}")
+            raise FileExistsError(
+                f"immutable snapshot already exists: {snapshot.manifest.snapshot_id}"
+            )
         atomic_write_json(path, snapshot.model_dump(mode="json"))
-        atomic_write_json(self.meta_root / "manifests" / "latest.json", {
-            "snapshot_id": snapshot.manifest.snapshot_id,
-            "created_at": snapshot.manifest.created_at.isoformat(),
-            "path": str(path.relative_to(self.root)),
-        })
+        atomic_write_json(
+            self.meta_root / "manifests" / "latest.json",
+            {
+                "snapshot_id": snapshot.manifest.snapshot_id,
+                "created_at": snapshot.manifest.created_at.isoformat(),
+                "path": str(path.relative_to(self.root)),
+            },
+        )
         for frequency in snapshot.card_frequencies:
-            safe_commander = frequency.commander.lower().replace(" ", "_").replace("/", "-").replace(",", "")
-            atomic_write_json(self.meta_root / "card_frequencies" / f"{safe_commander}-{frequency.format_band}.json", frequency.model_dump(mode="json"))
-        atomic_write_json(self.meta_root / "provenance" / f"{snapshot.manifest.snapshot_id}-sources.json", {
-            "snapshot_id": snapshot.manifest.snapshot_id,
-            "sources": [source.model_dump(mode="json") for source in snapshot.sources],
-        })
+            safe_commander = (
+                frequency.commander.lower().replace(" ", "_").replace("/", "-").replace(",", "")
+            )
+            atomic_write_json(
+                self.meta_root
+                / "card_frequencies"
+                / f"{safe_commander}-{frequency.format_band}.json",
+                frequency.model_dump(mode="json"),
+            )
+        atomic_write_json(
+            self.meta_root / "provenance" / f"{snapshot.manifest.snapshot_id}-sources.json",
+            {
+                "snapshot_id": snapshot.manifest.snapshot_id,
+                "sources": [source.model_dump(mode="json") for source in snapshot.sources],
+            },
+        )
         return path
 
     def create_snapshot(
@@ -94,7 +114,9 @@ class MetaKnowledgeBase:
         packages: tuple[Any, ...] = (),
         notes: str | None = None,
     ) -> MetaKnowledgeBaseSnapshot:
-        categories = tuple(sorted({cat for source in sources for cat in source.categories}, key=str))
+        categories = tuple(
+            sorted({cat for source in sources for cat in source.categories}, key=str)
+        )
         frequencies: list[MetaCardFrequency] = []
         seen_pairs: set[tuple[str, FormatBand]] = set()
         for deck in deck_snapshots:
@@ -121,7 +143,12 @@ class MetaKnowledgeBase:
             card_frequencies=tuple(frequencies),
         )
 
-    def query_cards(self, commander: str | None = None, format_band: FormatBand | None = None, min_frequency: float = 0.0) -> dict[str, Any]:
+    def query_cards(
+        self,
+        commander: str | None = None,
+        format_band: FormatBand | None = None,
+        min_frequency: float = 0.0,
+    ) -> dict[str, Any]:
         snapshot = self.load_snapshot()
         rows: list[dict[str, Any]] = []
         for freq in snapshot.card_frequencies:
@@ -131,11 +158,22 @@ class MetaKnowledgeBase:
                 continue
             for card, value in freq.card_frequencies.items():
                 if value >= min_frequency:
-                    rows.append({"commander": freq.commander, "format_band": freq.format_band, "card": card, "frequency": value, "sample_size": freq.sample_size, "small_sample": freq.small_sample})
+                    rows.append(
+                        {
+                            "commander": freq.commander,
+                            "format_band": freq.format_band,
+                            "card": card,
+                            "frequency": value,
+                            "sample_size": freq.sample_size,
+                            "small_sample": freq.small_sample,
+                        }
+                    )
         rows.sort(key=lambda r: (r["frequency"], r["card"]), reverse=True)
         return {"cards": rows, "snapshot_id": snapshot.manifest.snapshot_id}
 
-    def query_packages(self, commander: str | None = None, category: MetaCategory | None = None) -> dict[str, Any]:
+    def query_packages(
+        self, commander: str | None = None, category: MetaCategory | None = None
+    ) -> dict[str, Any]:
         snapshot = self.load_snapshot()
         package_map = {pkg.package_id: pkg for pkg in snapshot.packages}
         observed: Counter[str] = Counter()
@@ -148,19 +186,27 @@ class MetaKnowledgeBase:
         rows = []
         for package_id, count in sorted(observed.items()):
             package = package_map.get(package_id)
-            rows.append({
-                "package_id": package_id,
-                "count": count,
-                "name": package.name if package else package_id,
-                "cards": list(package.cards) if package else [],
-                "roles": list(package.roles) if package else [],
-            })
+            rows.append(
+                {
+                    "package_id": package_id,
+                    "count": count,
+                    "name": package.name if package else package_id,
+                    "cards": list(package.cards) if package else [],
+                    "roles": list(package.roles) if package else [],
+                }
+            )
         return {"packages": rows, "snapshot_id": snapshot.manifest.snapshot_id}
 
-    def compare_deck_to_meta(self, deck_cards: tuple[str, ...], *, commander: str, format_band: FormatBand | None = None) -> dict[str, Any]:
+    def compare_deck_to_meta(
+        self, deck_cards: tuple[str, ...], *, commander: str, format_band: FormatBand | None = None
+    ) -> dict[str, Any]:
         snapshot = self.load_snapshot()
         own = set(deck_cards)
-        refs = [d for d in snapshot.deck_snapshots if d.commander == commander and (format_band is None or d.format_band == format_band)]
+        refs = [
+            d
+            for d in snapshot.deck_snapshots
+            if d.commander == commander and (format_band is None or d.format_band == format_band)
+        ]
         if not refs:
             raise ValueError("no matching meta snapshots")
         meta_cards = set().union(*(set(d.decklist) for d in refs))
@@ -180,15 +226,20 @@ class MetaKnowledgeBase:
             "common_cards": common,
             "own_only_cards": only_own,
             "meta_only_cards": only_meta,
-            "meta_top_cards_not_in_own": [card for card, _ in meta_counter.most_common() if card not in own][:25],
+            "meta_top_cards_not_in_own": [
+                card for card, _ in meta_counter.most_common() if card not in own
+            ][:25],
             "own_role_density": role_estimate,
             "meta_role_density": meta_role_estimate,
             "context_warning": "Meta overlap is evidence only; it must not automatically change the current deck, inventory or allocation.",
         }
 
-    def compare_periods(self, older_snapshot_id: str, newer_snapshot_id: str, *, commander: str | None = None) -> dict[str, Any]:
+    def compare_periods(
+        self, older_snapshot_id: str, newer_snapshot_id: str, *, commander: str | None = None
+    ) -> dict[str, Any]:
         older = self.load_snapshot(older_snapshot_id)
         newer = self.load_snapshot(newer_snapshot_id)
+
         def counts(snapshot: MetaKnowledgeBaseSnapshot) -> Counter[str]:
             c: Counter[str] = Counter()
             for deck in snapshot.deck_snapshots:
@@ -196,15 +247,27 @@ class MetaKnowledgeBase:
                     continue
                 c.update(set(deck.decklist))
             return c
+
         old_counts, new_counts = counts(older), counts(newer)
         all_cards = set(old_counts) | set(new_counts)
-        old_n = max(1, sum(1 for d in older.deck_snapshots if not commander or d.commander == commander))
-        new_n = max(1, sum(1 for d in newer.deck_snapshots if not commander or d.commander == commander))
+        old_n = max(
+            1, sum(1 for d in older.deck_snapshots if not commander or d.commander == commander)
+        )
+        new_n = max(
+            1, sum(1 for d in newer.deck_snapshots if not commander or d.commander == commander)
+        )
         drift = []
         for card in all_cards:
             delta = new_counts[card] / new_n - old_counts[card] / old_n
             if abs(delta) > 0:
-                drift.append({"card": card, "frequency_delta": delta, "old_count": old_counts[card], "new_count": new_counts[card]})
+                drift.append(
+                    {
+                        "card": card,
+                        "frequency_delta": delta,
+                        "old_count": old_counts[card],
+                        "new_count": new_counts[card],
+                    }
+                )
         drift.sort(key=lambda r: abs(r["frequency_delta"]), reverse=True)
         return {
             "older_snapshot_id": older_snapshot_id,
@@ -213,19 +276,99 @@ class MetaKnowledgeBase:
             "sample_warning": "small sample" if min(old_n, new_n) < 5 else None,
             "rising_cards": [r for r in drift if r["frequency_delta"] > 0][:25],
             "falling_cards": [r for r in drift if r["frequency_delta"] < 0][:25],
-            "new_packages": sorted(set(p for d in newer.deck_snapshots for p in d.packages) - set(p for d in older.deck_snapshots for p in d.packages)),
-            "disappeared_packages": sorted(set(p for d in older.deck_snapshots for p in d.packages) - set(p for d in newer.deck_snapshots for p in d.packages)),
+            "new_packages": sorted(
+                set(p for d in newer.deck_snapshots for p in d.packages)
+                - set(p for d in older.deck_snapshots for p in d.packages)
+            ),
+            "disappeared_packages": sorted(
+                set(p for d in older.deck_snapshots for p in d.packages)
+                - set(p for d in newer.deck_snapshots for p in d.packages)
+            ),
         }
 
     @staticmethod
     def _role_density(cards: tuple[str, ...]) -> dict[str, int]:
         names = {c.lower() for c in cards}
         return {
-            "ramp_proxy": sum(any(k in n for k in ("sol ring", "mox", "signet", "ritual", "lotus", "talisman", "birds", "hierarch", "treasure")) for n in names),
-            "draw_proxy": sum(any(k in n for k in ("study", "remora", "necropotence", "draw", "clamp", "curiosity", "insight")) for n in names),
-            "interaction_proxy": sum(any(k in n for k in ("counter", "force", "blast", "swords", "decay", "claim", "silence", "vigor", "bolt")) for n in names),
-            "protection_proxy": sum(any(k in n for k in ("veil", "swat", "silence", "boots", "greaves", "safekeeper", "deflecting")) for n in names),
-            "finisher_proxy": sum(any(k in n for k in ("breach", "oracle", "brain freeze", "food chain", "ad nauseam", "exsanguinate", "bats")) for n in names),
+            "ramp_proxy": sum(
+                any(
+                    k in n
+                    for k in (
+                        "sol ring",
+                        "mox",
+                        "signet",
+                        "ritual",
+                        "lotus",
+                        "talisman",
+                        "birds",
+                        "hierarch",
+                        "treasure",
+                    )
+                )
+                for n in names
+            ),
+            "draw_proxy": sum(
+                any(
+                    k in n
+                    for k in (
+                        "study",
+                        "remora",
+                        "necropotence",
+                        "draw",
+                        "clamp",
+                        "curiosity",
+                        "insight",
+                    )
+                )
+                for n in names
+            ),
+            "interaction_proxy": sum(
+                any(
+                    k in n
+                    for k in (
+                        "counter",
+                        "force",
+                        "blast",
+                        "swords",
+                        "decay",
+                        "claim",
+                        "silence",
+                        "vigor",
+                        "bolt",
+                    )
+                )
+                for n in names
+            ),
+            "protection_proxy": sum(
+                any(
+                    k in n
+                    for k in (
+                        "veil",
+                        "swat",
+                        "silence",
+                        "boots",
+                        "greaves",
+                        "safekeeper",
+                        "deflecting",
+                    )
+                )
+                for n in names
+            ),
+            "finisher_proxy": sum(
+                any(
+                    k in n
+                    for k in (
+                        "breach",
+                        "oracle",
+                        "brain freeze",
+                        "food chain",
+                        "ad nauseam",
+                        "exsanguinate",
+                        "bats",
+                    )
+                )
+                for n in names
+            ),
         }
 
 

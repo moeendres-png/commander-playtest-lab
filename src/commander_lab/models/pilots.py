@@ -41,9 +41,11 @@ class PilotInformationPolicy(FrozenModel):
     opponent_hand_model: Literal["none", "plausible_distribution"] = "plausible_distribution"
 
     @model_validator(mode="after")
-    def prohibit_omniscience(self) -> "PilotInformationPolicy":
+    def prohibit_omniscience(self) -> PilotInformationPolicy:
         if self.hidden_opponent_hands or self.random_library_order or self.exact_future_draws:
-            raise ValueError("pilot information policies may not enable hidden or future information")
+            raise ValueError(
+                "pilot information policies may not enable hidden or future information"
+            )
         return self
 
 
@@ -109,7 +111,7 @@ class PilotEnsembleDefinition(FrozenModel):
     estimate_type: Literal["structural_model_estimates"] = "structural_model_estimates"
 
     @model_validator(mode="after")
-    def valid_weights(self) -> "PilotEnsembleDefinition":
+    def valid_weights(self) -> PilotEnsembleDefinition:
         if not self.members:
             raise ValueError("pilot ensemble must contain at least one member")
         if abs(sum(member.weight for member in self.members) - 1.0) > 1e-9:
@@ -211,7 +213,7 @@ class PilotActionView(FrozenModel):
     metadata: dict[str, float | int | str | bool] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def role_strength_keys_exist(self) -> "PilotActionView":
+    def role_strength_keys_exist(self) -> PilotActionView:
         missing = set(self.role_strengths) - set(self.roles)
         if missing:
             raise ValueError(f"role strengths reference absent roles: {sorted(missing)}")

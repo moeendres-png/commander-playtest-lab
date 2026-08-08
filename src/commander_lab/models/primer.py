@@ -69,10 +69,10 @@ class PilotRuleCondition(FrozenModel):
     op: ConditionOperator
     field: str | None = None
     value: Any = None
-    clauses: tuple["PilotRuleCondition", ...] = ()
+    clauses: tuple[PilotRuleCondition, ...] = ()
 
     @model_validator(mode="after")
-    def validate_shape(self) -> "PilotRuleCondition":
+    def validate_shape(self) -> PilotRuleCondition:
         logical = {ConditionOperator.ALL, ConditionOperator.ANY, ConditionOperator.NOT}
         if self.op in logical:
             if self.field is not None:
@@ -98,7 +98,7 @@ class ActionPreference(FrozenModel):
     description: str
 
     @model_validator(mode="after")
-    def require_selector_or_opening_hand(self) -> "ActionPreference":
+    def require_selector_or_opening_hand(self) -> ActionPreference:
         if self.decision_point != DecisionPoint.OPENING_HAND and not (
             self.action_kinds or self.card_names or self.roles
         ):
@@ -128,10 +128,11 @@ class PilotRule(FrozenModel):
     tags: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def require_approval_for_inferred_active_rule(self) -> "PilotRule":
+    def require_approval_for_inferred_active_rule(self) -> PilotRule:
         if (
             self.status == PrimerRuleStatus.ACTIVE
-            and self.evidence_type in {
+            and self.evidence_type
+            in {
                 PrimerEvidenceType.PRIMER_EXPLICIT,
                 PrimerEvidenceType.PRIMER_INFERRED,
             }
@@ -207,7 +208,7 @@ class CompiledPilotPolicy(FrozenModel):
     notes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_policy(self) -> "CompiledPilotPolicy":
+    def validate_policy(self) -> CompiledPilotPolicy:
         if not self.immutable:
             raise ValueError("compiled pilot policies must be immutable")
         if self.automatic_deck_application:

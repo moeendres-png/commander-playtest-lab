@@ -9,12 +9,17 @@ from typing import Any
 
 from commander_lab.storage.atomic import atomic_write_json
 
-SENSITIVE_KEYS = frozenset({"api_key", "authorization", "token", "secret", "password", "openai_api_key"})
+SENSITIVE_KEYS = frozenset(
+    {"api_key", "authorization", "token", "secret", "password", "openai_api_key"}
+)
 
 
 def _redact(value: Any) -> Any:
     if isinstance(value, dict):
-        return {key: ("[REDACTED]" if key.lower() in SENSITIVE_KEYS else _redact(item)) for key, item in value.items()}
+        return {
+            key: ("[REDACTED]" if key.lower() in SENSITIVE_KEYS else _redact(item))
+            for key, item in value.items()
+        }
     if isinstance(value, list):
         return [_redact(item) for item in value]
     return value
@@ -44,12 +49,14 @@ class StructuredLogger:
         self._lock = threading.Lock()
 
     def emit(self, *, level: str, event: str, **fields: Any) -> None:
-        record = _redact({
-            "timestamp": datetime.now(UTC).isoformat(),
-            "level": level,
-            "event": event,
-            **fields,
-        })
+        record = _redact(
+            {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "level": level,
+                "event": event,
+                **fields,
+            }
+        )
         line = json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
         with self._lock, self.path.open("a", encoding="utf-8", newline="\n") as handle:
             handle.write(line)

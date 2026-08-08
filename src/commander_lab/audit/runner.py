@@ -1,11 +1,8 @@
 from __future__ import annotations
 
 import ast
-import importlib.metadata
 import json
-import os
 import platform
-import shutil
 import subprocess
 import sys
 import time
@@ -14,11 +11,16 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from commander_lab.audit.models import AuditCheck, AuditStatus, BugRecord, FeatureCandidate, FeatureDecision, Phase86Result
+from commander_lab.audit.models import (
+    AuditCheck,
+    AuditStatus,
+    BugRecord,
+    FeatureCandidate,
+    FeatureDecision,
+    Phase86Result,
+)
 from commander_lab.storage.atomic import atomic_write_json, atomic_write_text
 from commander_lab.storage.database import check_database, migrate_database
-from commander_lab.storage.hashing import sha256_value
-from commander_lab.storage.run_integrity import verify_run
 
 _REQUIRED_AUDIT_FILES = (
     "executive_summary.md",
@@ -48,13 +50,22 @@ def _run(command: list[str], cwd: Path, timeout: int = 180) -> dict[str, Any]:
     started = time.perf_counter()
     try:
         import tempfile
+
         with tempfile.TemporaryDirectory(prefix="commander-lab-audit-") as tmp:
             stdout_path = Path(tmp) / "stdout.log"
             stderr_path = Path(tmp) / "stderr.log"
-            with stdout_path.open("w", encoding="utf-8") as stdout_handle, stderr_path.open("w", encoding="utf-8") as stderr_handle:
+            with (
+                stdout_path.open("w", encoding="utf-8") as stdout_handle,
+                stderr_path.open("w", encoding="utf-8") as stderr_handle,
+            ):
                 completed = subprocess.run(
-                    command, cwd=cwd, stdout=stdout_handle, stderr=stderr_handle,
-                    text=True, timeout=timeout, check=False,
+                    command,
+                    cwd=cwd,
+                    stdout=stdout_handle,
+                    stderr=stderr_handle,
+                    text=True,
+                    timeout=timeout,
+                    check=False,
                 )
             stdout = stdout_path.read_text(encoding="utf-8", errors="replace")[-20000:]
             stderr = stderr_path.read_text(encoding="utf-8", errors="replace")[-20000:]
@@ -67,7 +78,12 @@ def _run(command: list[str], cwd: Path, timeout: int = 180) -> dict[str, Any]:
             "duration_seconds": round(time.perf_counter() - started, 6),
         }
     except FileNotFoundError as exc:
-        return {"command": command, "status": "blocked", "error": str(exc), "duration_seconds": round(time.perf_counter() - started, 6)}
+        return {
+            "command": command,
+            "status": "blocked",
+            "error": str(exc),
+            "duration_seconds": round(time.perf_counter() - started, 6),
+        }
     except subprocess.TimeoutExpired as exc:
         return {
             "command": command,
@@ -125,17 +141,27 @@ def _module_inventory(root: Path) -> dict[str, Any]:
                     subprocess_calls.append(f"{rel}:{node.lineno}:{target}")
         if "sqlite3." in text and "/storage/" not in f"/{rel}":
             direct_sql.append(rel)
-        modules.append({
-            "path": rel,
-            "module": module,
-            "lines": len(text.splitlines()),
-            "functions": functions,
-            "classes": classes,
-            "imports": sorted(imports[module]),
-        })
-    root_files = [p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file() and ".git" not in p.parts]
+        modules.append(
+            {
+                "path": rel,
+                "module": module,
+                "lines": len(text.splitlines()),
+                "functions": functions,
+                "classes": classes,
+                "imports": sorted(imports[module]),
+            }
+        )
+    root_files = [
+        p.relative_to(root).as_posix()
+        for p in root.rglob("*")
+        if p.is_file() and ".git" not in p.parts
+    ]
     by_suffix = Counter(Path(p).suffix or "<none>" for p in root_files)
-    duplicates = {name: locs for name, locs in duplicate_functions.items() if len(locs) > 2 and not name.startswith("test_")}
+    duplicates = {
+        name: locs
+        for name, locs in duplicate_functions.items()
+        if len(locs) > 2 and not name.startswith("test_")
+    }
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "root": str(root),
@@ -143,9 +169,15 @@ def _module_inventory(root: Path) -> dict[str, Any]:
             "files": len(root_files),
             "python_modules": len(modules),
             "tests": len(list((root / "tests").rglob("test_*.py"))),
-            "schemas": len(list((root / "schemas").rglob("*.json"))) if (root / "schemas").exists() else 0,
-            "scripts": len(list((root / "scripts").glob("*"))) if (root / "scripts").exists() else 0,
-            "documentation": len(list((root / "docs").rglob("*.md"))) if (root / "docs").exists() else 0,
+            "schemas": len(list((root / "schemas").rglob("*.json")))
+            if (root / "schemas").exists()
+            else 0,
+            "scripts": len(list((root / "scripts").glob("*")))
+            if (root / "scripts").exists()
+            else 0,
+            "documentation": len(list((root / "docs").rglob("*.md")))
+            if (root / "docs").exists()
+            else 0,
         },
         "files_by_suffix": dict(sorted(by_suffix.items())),
         "modules": modules,
@@ -160,7 +192,14 @@ def _module_inventory(root: Path) -> dict[str, Any]:
 
 
 def _dependency_markdown(inventory: dict[str, Any]) -> str:
-    rows = ["# Dependency graph", "", "Generated from Python AST imports.", "", "```mermaid", "graph TD"]
+    rows = [
+        "# Dependency graph",
+        "",
+        "Generated from Python AST imports.",
+        "",
+        "```mermaid",
+        "graph TD",
+    ]
     internal_edges: set[tuple[str, str]] = set()
     for module in inventory["modules"]:
         source = module.get("module", "").replace(".", "_")
@@ -170,7 +209,17 @@ def _dependency_markdown(inventory: dict[str, Any]) -> str:
                 internal_edges.add((source, target_node))
     for source, target in sorted(internal_edges):
         rows.append(f"    {source} --> {target}")
-    rows.extend(["```", "", "## Enforced boundaries", "", "- Deterministic engine modules may not import agents or OpenAI integration.", "- Storage access is centralized under `commander_lab.storage`.", "- External-engine specifics stay under `commander_lab.engine.rules`."])
+    rows.extend(
+        [
+            "```",
+            "",
+            "## Enforced boundaries",
+            "",
+            "- Deterministic engine modules may not import agents or OpenAI integration.",
+            "- Storage access is centralized under `commander_lab.storage`.",
+            "- External-engine specifics stay under `commander_lab.engine.rules`.",
+        ]
+    )
     return "\n".join(rows) + "\n"
 
 
@@ -180,27 +229,183 @@ def _ownership_markdown() -> str:
 
 def _feature_candidates() -> list[FeatureCandidate]:
     return [
-        FeatureCandidate(feature="Atomic run artifacts and manifests", source="SQLite atomic commit/event-sourcing practice", benefit="Prevents partial/corrupt runs from entering analysis", effort="medium", risk="low", project_fit="very high", decision=FeatureDecision.IMPLEMENT_NOW, rationale="Direct data-integrity gain."),
-        FeatureCandidate(feature="Strict validation-level attestation", source="Existing adapter protocol and trust-boundary audit", benefit="Prevents mocks or legacy bridges being labeled as external rules validation", effort="low", risk="low", project_fit="critical", decision=FeatureDecision.IMPLEMENT_NOW, rationale="Eliminates false validation claims."),
-        FeatureCandidate(feature="Scenario editor", source="Property/golden test workflow", benefit="Creates reproducible tactical fixtures", effort="medium", risk="low", project_fit="high", decision=FeatureDecision.IMPLEMENT_NOW, rationale="High debugging and validation value."),
-        FeatureCandidate(feature="Replay debugger", source="Event-sourcing/replay debugging", benefit="State diffs and minimal reproductions", effort="medium", risk="medium", project_fit="high", decision=FeatureDecision.IMPLEMENT_NOW, rationale="Strong debugging leverage."),
-        FeatureCandidate(feature="Experiment registry", source="Pre-registration and immutable experiment metadata", benefit="Prevents post-hoc hypothesis changes", effort="medium", risk="low", project_fit="high", decision=FeatureDecision.IMPLEMENT_NOW, rationale="Required for trustworthy optimization."),
-        FeatureCandidate(feature="Hypothesis RuleBasedStateMachine", source="Hypothesis official stateful testing documentation", benefit="Automatic shrinking of transition failures", effort="medium", risk="low", project_fit="high", decision=FeatureDecision.IMPLEMENT_LATER, rationale="Dependency unavailable in current sandbox; workflow prepared."),
-        FeatureCandidate(feature="Ruff and mypy gates", source="Official Ruff and mypy documentation", benefit="Static defect detection and consistent style", effort="low", risk="low", project_fit="high", decision=FeatureDecision.IMPLEMENT_LATER, rationale="Configured already; execution blocked by unavailable packages."),
-        FeatureCandidate(feature="Mutation testing with mutmut", source="Mutation-testing practice", benefit="Measures whether tests detect semantic defects", effort="medium", risk="medium", project_fit="medium", decision=FeatureDecision.EXPERIMENTAL, rationale="Target only critical modules; tool unavailable here."),
-        FeatureCandidate(feature="Full local dashboard", source="Observability feature review", benefit="Convenient visualization", effort="high", risk="medium", project_fit="medium", decision=FeatureDecision.IMPLEMENT_LATER, rationale="Lower priority than correctness and validation gates."),
-        FeatureCandidate(feature="GUI automation of XMage", source="XMage client architecture", benefit="Could automate otherwise inaccessible flows", effort="very high", risk="high", project_fit="low", decision=FeatureDecision.REJECT, rationale="Brittle and not a stable rules-engine API."),
+        FeatureCandidate(
+            feature="Atomic run artifacts and manifests",
+            source="SQLite atomic commit/event-sourcing practice",
+            benefit="Prevents partial/corrupt runs from entering analysis",
+            effort="medium",
+            risk="low",
+            project_fit="very high",
+            decision=FeatureDecision.IMPLEMENT_NOW,
+            rationale="Direct data-integrity gain.",
+        ),
+        FeatureCandidate(
+            feature="Strict validation-level attestation",
+            source="Existing adapter protocol and trust-boundary audit",
+            benefit="Prevents mocks or legacy bridges being labeled as external rules validation",
+            effort="low",
+            risk="low",
+            project_fit="critical",
+            decision=FeatureDecision.IMPLEMENT_NOW,
+            rationale="Eliminates false validation claims.",
+        ),
+        FeatureCandidate(
+            feature="Scenario editor",
+            source="Property/golden test workflow",
+            benefit="Creates reproducible tactical fixtures",
+            effort="medium",
+            risk="low",
+            project_fit="high",
+            decision=FeatureDecision.IMPLEMENT_NOW,
+            rationale="High debugging and validation value.",
+        ),
+        FeatureCandidate(
+            feature="Replay debugger",
+            source="Event-sourcing/replay debugging",
+            benefit="State diffs and minimal reproductions",
+            effort="medium",
+            risk="medium",
+            project_fit="high",
+            decision=FeatureDecision.IMPLEMENT_NOW,
+            rationale="Strong debugging leverage.",
+        ),
+        FeatureCandidate(
+            feature="Experiment registry",
+            source="Pre-registration and immutable experiment metadata",
+            benefit="Prevents post-hoc hypothesis changes",
+            effort="medium",
+            risk="low",
+            project_fit="high",
+            decision=FeatureDecision.IMPLEMENT_NOW,
+            rationale="Required for trustworthy optimization.",
+        ),
+        FeatureCandidate(
+            feature="Hypothesis RuleBasedStateMachine",
+            source="Hypothesis official stateful testing documentation",
+            benefit="Automatic shrinking of transition failures",
+            effort="medium",
+            risk="low",
+            project_fit="high",
+            decision=FeatureDecision.IMPLEMENT_LATER,
+            rationale="Dependency unavailable in current sandbox; workflow prepared.",
+        ),
+        FeatureCandidate(
+            feature="Ruff and mypy gates",
+            source="Official Ruff and mypy documentation",
+            benefit="Static defect detection and consistent style",
+            effort="low",
+            risk="low",
+            project_fit="high",
+            decision=FeatureDecision.IMPLEMENT_LATER,
+            rationale="Configured already; execution blocked by unavailable packages.",
+        ),
+        FeatureCandidate(
+            feature="Mutation testing with mutmut",
+            source="Mutation-testing practice",
+            benefit="Measures whether tests detect semantic defects",
+            effort="medium",
+            risk="medium",
+            project_fit="medium",
+            decision=FeatureDecision.EXPERIMENTAL,
+            rationale="Target only critical modules; tool unavailable here.",
+        ),
+        FeatureCandidate(
+            feature="Full local dashboard",
+            source="Observability feature review",
+            benefit="Convenient visualization",
+            effort="high",
+            risk="medium",
+            project_fit="medium",
+            decision=FeatureDecision.IMPLEMENT_LATER,
+            rationale="Lower priority than correctness and validation gates.",
+        ),
+        FeatureCandidate(
+            feature="GUI automation of XMage",
+            source="XMage client architecture",
+            benefit="Could automate otherwise inaccessible flows",
+            effort="very high",
+            risk="high",
+            project_fit="low",
+            decision=FeatureDecision.REJECT,
+            rationale="Brittle and not a stable rules-engine API.",
+        ),
     ]
 
 
 def _bugs() -> list[BugRecord]:
     return [
-        BugRecord(bug_id="BUG-86-001", severity="critical", component="external validation trust boundary", discovered_by="contract audit", reproduction="A legacy/fake bridge response could be accepted by the external adapter and promoted.", root_cause="Result validation trusted response shape without an attested external runtime probe.", fix="Require a successful external runtime probe and reject legacy/unattested bridge results.", regression_test="tests/contract/test_phase86_phase85_claims.py", affected_versions=("0.8.0", "0.8.5"), validation_status=AuditStatus.PASSED),
-        BugRecord(bug_id="BUG-86-002", severity="high", component="Phase 8.5 contract evidence", discovered_by="evidence audit", reproduction="Validation output listed all protocol messages as exercised although only hello/capabilities were sent.", root_cause="Coverage was populated from enum values rather than executed requests.", fix="Execute every message type against the bridge and record actual structured responses/errors.", regression_test="tests/contract/test_phase86_phase85_claims.py", affected_versions=("0.8.5",), validation_status=AuditStatus.PASSED),
-        BugRecord(bug_id="BUG-86-003", severity="high", component="external readiness state", discovered_by="status-model audit", reproduction="Handshake alone could result in ready-with-limitations despite missing deck/action/multiplayer tests.", root_cause="Readiness gate conflated transport health with integration acceptance.", fix="Keep prepared status until all real integration gates pass.", regression_test="tests/contract/test_phase86_phase85_claims.py", affected_versions=("0.8.5",), validation_status=AuditStatus.PASSED),
-        BugRecord(bug_id="BUG-86-004", severity="high", component="artifact persistence", discovered_by="storage audit", reproduction="Interrupted writes could leave truncated JSON or logs.", root_cause="Direct writes without fsync and atomic rename.", fix="Introduce atomic write helpers and apply them to key run, process-state and registry artifacts.", regression_test="tests/unit/test_phase86_atomic_and_integrity.py", affected_versions=("0.2.0", "0.8.5"), validation_status=AuditStatus.PASSED),
-        BugRecord(bug_id="BUG-86-005", severity="medium", component="SQLite backup", discovered_by="new integrity test", reproduction="WAL-backed database backup could omit recent committed data.", root_cause="File copy semantics did not account for WAL state.", fix="Use SQLite backup API with checkpoint and validate restored database.", regression_test="tests/unit/test_phase86_database.py", affected_versions=("0.8.5",), validation_status=AuditStatus.PASSED),
-        BugRecord(bug_id="BUG-86-006", severity="medium", component="experiment registry", discovered_by="feature integrity audit", reproduction="Experiment record did not guarantee immutable hypothesis, scenarios, seeds and acceptance criteria together.", root_cause="Incomplete sealed payload.", fix="Seal complete experiment design and reject changes under the same ID.", regression_test="tests/unit/test_phase86_database.py", affected_versions=("0.8.5",), validation_status=AuditStatus.PASSED),
+        BugRecord(
+            bug_id="BUG-86-001",
+            severity="critical",
+            component="external validation trust boundary",
+            discovered_by="contract audit",
+            reproduction="A legacy/fake bridge response could be accepted by the external adapter and promoted.",
+            root_cause="Result validation trusted response shape without an attested external runtime probe.",
+            fix="Require a successful external runtime probe and reject legacy/unattested bridge results.",
+            regression_test="tests/contract/test_phase86_phase85_claims.py",
+            affected_versions=("0.8.0", "0.8.5"),
+            validation_status=AuditStatus.PASSED,
+        ),
+        BugRecord(
+            bug_id="BUG-86-002",
+            severity="high",
+            component="Phase 8.5 contract evidence",
+            discovered_by="evidence audit",
+            reproduction="Validation output listed all protocol messages as exercised although only hello/capabilities were sent.",
+            root_cause="Coverage was populated from enum values rather than executed requests.",
+            fix="Execute every message type against the bridge and record actual structured responses/errors.",
+            regression_test="tests/contract/test_phase86_phase85_claims.py",
+            affected_versions=("0.8.5",),
+            validation_status=AuditStatus.PASSED,
+        ),
+        BugRecord(
+            bug_id="BUG-86-003",
+            severity="high",
+            component="external readiness state",
+            discovered_by="status-model audit",
+            reproduction="Handshake alone could result in ready-with-limitations despite missing deck/action/multiplayer tests.",
+            root_cause="Readiness gate conflated transport health with integration acceptance.",
+            fix="Keep prepared status until all real integration gates pass.",
+            regression_test="tests/contract/test_phase86_phase85_claims.py",
+            affected_versions=("0.8.5",),
+            validation_status=AuditStatus.PASSED,
+        ),
+        BugRecord(
+            bug_id="BUG-86-004",
+            severity="high",
+            component="artifact persistence",
+            discovered_by="storage audit",
+            reproduction="Interrupted writes could leave truncated JSON or logs.",
+            root_cause="Direct writes without fsync and atomic rename.",
+            fix="Introduce atomic write helpers and apply them to key run, process-state and registry artifacts.",
+            regression_test="tests/unit/test_phase86_atomic_and_integrity.py",
+            affected_versions=("0.2.0", "0.8.5"),
+            validation_status=AuditStatus.PASSED,
+        ),
+        BugRecord(
+            bug_id="BUG-86-005",
+            severity="medium",
+            component="SQLite backup",
+            discovered_by="new integrity test",
+            reproduction="WAL-backed database backup could omit recent committed data.",
+            root_cause="File copy semantics did not account for WAL state.",
+            fix="Use SQLite backup API with checkpoint and validate restored database.",
+            regression_test="tests/unit/test_phase86_database.py",
+            affected_versions=("0.8.5",),
+            validation_status=AuditStatus.PASSED,
+        ),
+        BugRecord(
+            bug_id="BUG-86-006",
+            severity="medium",
+            component="experiment registry",
+            discovered_by="feature integrity audit",
+            reproduction="Experiment record did not guarantee immutable hypothesis, scenarios, seeds and acceptance criteria together.",
+            root_cause="Incomplete sealed payload.",
+            fix="Seal complete experiment design and reject changes under the same ID.",
+            regression_test="tests/unit/test_phase86_database.py",
+            affected_versions=("0.8.5",),
+            validation_status=AuditStatus.PASSED,
+        ),
     ]
 
 
@@ -209,8 +414,9 @@ def _web_research_markdown() -> str:
 
 
 def _schema_exports(root: Path) -> list[str]:
-    from commander_lab.models import __dict__ as model_namespace
     from commander_lab.models import EngineProtocolRequest, EngineProtocolResponse
+    from commander_lab.models import __dict__ as model_namespace
+
     output_root = root / "schemas"
     for sub in ("models", "engine_protocol", "tools", "reports"):
         (output_root / sub).mkdir(parents=True, exist_ok=True)
@@ -231,7 +437,12 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     project = Path(root).resolve()
     audit_dir = project / "artifacts" / "audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
-    baseline_commit = _git(project, "rev-parse", "audit/phase-8.6-baseline") if "audit/phase-8.6-baseline" in _git(project, "branch", "--list", "audit/phase-8.6-baseline") else _git(project, "rev-parse", "HEAD")
+    baseline_commit = (
+        _git(project, "rev-parse", "audit/phase-8.6-baseline")
+        if "audit/phase-8.6-baseline"
+        in _git(project, "branch", "--list", "audit/phase-8.6-baseline")
+        else _git(project, "rev-parse", "HEAD")
+    )
     inventory = _module_inventory(project)
     atomic_write_json(audit_dir / "repository_inventory.json", inventory)
     atomic_write_text(audit_dir / "dependency_graph.md", _dependency_markdown(inventory))
@@ -239,14 +450,20 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     atomic_write_text(audit_dir / "web_research.md", _web_research_markdown())
     features = _feature_candidates()
     bugs = _bugs()
-    atomic_write_json(audit_dir / "feature_candidates.json", [f.model_dump(mode="json") for f in features])
+    atomic_write_json(
+        audit_dir / "feature_candidates.json", [f.model_dump(mode="json") for f in features]
+    )
     atomic_write_json(audit_dir / "bug_register.json", [b.model_dump(mode="json") for b in bugs])
 
     checks_raw: dict[str, Any] = {}
     if run_tests:
-        checks_raw["pytest_collect"] = _run([sys.executable, "-m", "pytest", "--collect-only", "-q"], project, 180)
+        checks_raw["pytest_collect"] = _run(
+            [sys.executable, "-m", "pytest", "--collect-only", "-q"], project, 180
+        )
         checks_raw["pytest"] = _run([sys.executable, "-m", "pytest", "-q"], project, 300)
-        checks_raw["compileall"] = _run([sys.executable, "-m", "compileall", "-q", "src", "tests"], project, 120)
+        checks_raw["compileall"] = _run(
+            [sys.executable, "-m", "compileall", "-q", "src", "tests"], project, 120
+        )
     for tool, command in {
         "ruff_check": ["ruff", "check", "."],
         "ruff_format": ["ruff", "format", "--check", "."],
@@ -264,7 +481,9 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     external_ready = False
     phase85_path = project / "PHASE85_VALIDATION_OUTPUT.json"
     if not phase85_path.exists():
-        phase85_path = project / "artifacts" / "engine_setup" / "phase85_validation" / "validation_result.json"
+        phase85_path = (
+            project / "artifacts" / "engine_setup" / "phase85_validation" / "validation_result.json"
+        )
     phase85: dict[str, Any] = {}
     if phase85_path.exists():
         try:
@@ -275,22 +494,64 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
 
     static_lines = ["# Static analysis", ""]
     for name, result in checks_raw.items():
-        static_lines.append(f"- **{name}:** `{result.get('status')}` (return code `{result.get('returncode', 'n/a')}`)")
+        static_lines.append(
+            f"- **{name}:** `{result.get('status')}` (return code `{result.get('returncode', 'n/a')}`)"
+        )
         if result.get("status") == "blocked":
             static_lines.append(f"  - Blocker: {result.get('error')}")
-    static_lines.extend(["", "Ruff, mypy and Hypothesis could not be installed in the current sandbox because the configured package index had no matching distributions and external DNS was unavailable."])
+    static_lines.extend(
+        [
+            "",
+            "Ruff, mypy and Hypothesis could not be installed in the current sandbox because the configured package index had no matching distributions and external DNS was unavailable.",
+        ]
+    )
     atomic_write_text(audit_dir / "static_analysis_report.md", "\n".join(static_lines) + "\n")
 
-    atomic_write_text(audit_dir / "property_test_report.md", "# Property tests\n\nDeterministic property-style tests and invariant checks were executed through pytest. Native Hypothesis `RuleBasedStateMachine` execution is blocked in this sandbox because Hypothesis is unavailable; the CI workflow installs and runs it when network/package access exists.\n")
-    atomic_write_text(audit_dir / "fuzzing_report.md", "# Fuzzing\n\nDeterministic boundary fuzz cases cover malformed JSONL, Unicode deck names, truncated replays, duplicate events, unknown protocol versions, extreme integers and path traversal attempts. Coverage-guided fuzzing is deferred to nightly CI because no fuzzing package is available locally.\n")
-    atomic_write_text(audit_dir / "mutation_report.md", "# Mutation testing\n\nTargeted manual mutation guards verify commander-damage thresholds, seed use, validation-level promotion, external failure handling and holdout rejection. Automated mutmut execution is blocked by the unavailable dependency and is configured as a nightly CI job.\n")
-    atomic_write_text(audit_dir / "differential_test_report.md", "# Differential testing\n\nStructural and Tactical Oracle fixtures are available. External XMage/Forge comparisons remain `not_run` because no external runtime can be built or started in this sandbox. No mock result was promoted.\n")
-    atomic_write_text(audit_dir / "reproducibility_report.md", f"# Reproducibility\n\n- Baseline commit: `{baseline_commit}`\n- Audit working commit: `{commit}`\n- Python: `{platform.python_version()}`\n- Platform: `{platform.platform()}`\n- Deterministic same-process, subprocess and worker-count tests are included in the pytest suite.\n- Run manifests use SHA-256 and atomic writes.\n")
-    atomic_write_text(audit_dir / "performance_report.md", "# Performance\n\nThe full baseline suite completed in approximately 39 seconds in this sandbox. Structural simulation throughput remains appropriate for local batches; external-engine performance was not measured because no external runtime could execute. Optimization changes were limited to integrity and correctness paths, not speculative micro-optimization.\n")
-    atomic_write_text(audit_dir / "security_report.md", f"# Security and supply chain\n\n- Secret-bearing values are redacted from structured logs.\n- Subprocess commands remain explicit argument arrays; shell execution is not used for untrusted tool payloads.\n- Run paths are constrained and manifests reject path traversal.\n- SQLite integrity: `{db_check}`\n- Project dependency versions are bounded in `pyproject.toml`; a fully resolved lock/audit requires network-enabled CI.\n- External-engine binaries are not bundled or claimed present.\n")
-    atomic_write_text(audit_dir / "agent_eval_report.md", "# Agent evals\n\nExisting agent evals cover tool choice, uncertainty, validation-level separation and refusal to finalize unvalidated upgrades. Phase 8.6 adds trust-boundary regression coverage so failed, partial or Tactical-Oracle runs cannot be described as external validation. A larger 15-case eval set is prepared for CI/OpenAI Evals when model access and budget are configured.\n")
-    atomic_write_text(audit_dir / "feature_implementation_report.md", "# Feature implementation\n\nImplemented now:\n\n- Atomic artifact writes and run manifests\n- Run verification and quarantine\n- SQLite check/migrate/backup/restore helpers\n- Sealed experiment designs\n- Scenario fixture editor\n- Replay debugger\n- Structured local logs and metrics\n- Architecture-boundary tests\n- Stronger state invariants\n- External validation attestation\n\nDeferred: dashboard, adaptive planning, full Hypothesis/mutmut/fuzz tooling and real XMage Java bridge.\n")
-    atomic_write_text(audit_dir / "bugfix_report.md", "# Bugfix report\n\n" + "\n".join(f"- **{b.bug_id} ({b.severity})**: {b.fix} — `{b.validation_status.value}`" for b in bugs) + "\n")
+    atomic_write_text(
+        audit_dir / "property_test_report.md",
+        "# Property tests\n\nDeterministic property-style tests and invariant checks were executed through pytest. Native Hypothesis `RuleBasedStateMachine` execution is blocked in this sandbox because Hypothesis is unavailable; the CI workflow installs and runs it when network/package access exists.\n",
+    )
+    atomic_write_text(
+        audit_dir / "fuzzing_report.md",
+        "# Fuzzing\n\nDeterministic boundary fuzz cases cover malformed JSONL, Unicode deck names, truncated replays, duplicate events, unknown protocol versions, extreme integers and path traversal attempts. Coverage-guided fuzzing is deferred to nightly CI because no fuzzing package is available locally.\n",
+    )
+    atomic_write_text(
+        audit_dir / "mutation_report.md",
+        "# Mutation testing\n\nTargeted manual mutation guards verify commander-damage thresholds, seed use, validation-level promotion, external failure handling and holdout rejection. Automated mutmut execution is blocked by the unavailable dependency and is configured as a nightly CI job.\n",
+    )
+    atomic_write_text(
+        audit_dir / "differential_test_report.md",
+        "# Differential testing\n\nStructural and Tactical Oracle fixtures are available. External XMage/Forge comparisons remain `not_run` because no external runtime can be built or started in this sandbox. No mock result was promoted.\n",
+    )
+    atomic_write_text(
+        audit_dir / "reproducibility_report.md",
+        f"# Reproducibility\n\n- Baseline commit: `{baseline_commit}`\n- Audit working commit: `{commit}`\n- Python: `{platform.python_version()}`\n- Platform: `{platform.platform()}`\n- Deterministic same-process, subprocess and worker-count tests are included in the pytest suite.\n- Run manifests use SHA-256 and atomic writes.\n",
+    )
+    atomic_write_text(
+        audit_dir / "performance_report.md",
+        "# Performance\n\nThe full baseline suite completed in approximately 39 seconds in this sandbox. Structural simulation throughput remains appropriate for local batches; external-engine performance was not measured because no external runtime could execute. Optimization changes were limited to integrity and correctness paths, not speculative micro-optimization.\n",
+    )
+    atomic_write_text(
+        audit_dir / "security_report.md",
+        f"# Security and supply chain\n\n- Secret-bearing values are redacted from structured logs.\n- Subprocess commands remain explicit argument arrays; shell execution is not used for untrusted tool payloads.\n- Run paths are constrained and manifests reject path traversal.\n- SQLite integrity: `{db_check}`\n- Project dependency versions are bounded in `pyproject.toml`; a fully resolved lock/audit requires network-enabled CI.\n- External-engine binaries are not bundled or claimed present.\n",
+    )
+    atomic_write_text(
+        audit_dir / "agent_eval_report.md",
+        "# Agent evals\n\nExisting agent evals cover tool choice, uncertainty, validation-level separation and refusal to finalize unvalidated upgrades. Phase 8.6 adds trust-boundary regression coverage so failed, partial or Tactical-Oracle runs cannot be described as external validation. A larger 15-case eval set is prepared for CI/OpenAI Evals when model access and budget are configured.\n",
+    )
+    atomic_write_text(
+        audit_dir / "feature_implementation_report.md",
+        "# Feature implementation\n\nImplemented now:\n\n- Atomic artifact writes and run manifests\n- Run verification and quarantine\n- SQLite check/migrate/backup/restore helpers\n- Sealed experiment designs\n- Scenario fixture editor\n- Replay debugger\n- Structured local logs and metrics\n- Architecture-boundary tests\n- Stronger state invariants\n- External validation attestation\n\nDeferred: dashboard, adaptive planning, full Hypothesis/mutmut/fuzz tooling and real XMage Java bridge.\n",
+    )
+    atomic_write_text(
+        audit_dir / "bugfix_report.md",
+        "# Bugfix report\n\n"
+        + "\n".join(
+            f"- **{b.bug_id} ({b.severity})**: {b.fix} — `{b.validation_status.value}`"
+            for b in bugs
+        )
+        + "\n",
+    )
 
     remaining = [
         "Phase 8.5.1 external XMage runtime was not executed; DNS/Maven/Docker are unavailable.",
@@ -298,7 +559,10 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
         "Ruff, mypy, Hypothesis, automated mutation testing, dependency audit and SBOM generation were not executable in this sandbox.",
         "External-engine multiplayer/action-loop/critical-scenario gates remain not_run.",
     ]
-    atomic_write_text(audit_dir / "remaining_risks.md", "# Remaining risks\n\n" + "\n".join(f"- {item}" for item in remaining) + "\n")
+    atomic_write_text(
+        audit_dir / "remaining_risks.md",
+        "# Remaining risks\n\n" + "\n".join(f"- {item}" for item in remaining) + "\n",
+    )
     phase9_allowed = False
     status = "phase_9_blocked"
     readiness = "# Phase 9 readiness\n\n**Status: `phase_9_blocked`.**\n\nThe local correctness hardening is substantially complete, but the requested Phase 8.5.1 real external-engine execution and the mandatory Ruff/mypy/Hypothesis/security gates were not executable. Phase 9 should begin only after the provided network-enabled CI/local commands pass. `external_engine_validation_pending=true`.\n"
@@ -308,10 +572,38 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
 
     checks = []
     for name, raw in checks_raw.items():
-        status_value = AuditStatus(raw["status"]) if raw["status"] in AuditStatus._value2member_map_ else AuditStatus.FAILED
-        checks.append(AuditCheck(check_id=name, component="quality", status=status_value, summary=f"{name}: {raw['status']}", evidence=(str(audit_dir / "static_analysis_raw.json"),)))
-    checks.append(AuditCheck(check_id="database_integrity", component="storage", status=AuditStatus.PASSED if db_check.get("status") == "passed" else AuditStatus.FAILED, summary=f"SQLite integrity: {db_check.get('status')}", evidence=(str(database_path),)))
-    checks.append(AuditCheck(check_id="external_engine", component="engine", status=AuditStatus.BLOCKED, summary="Real XMage/Forge runtime not executable in current sandbox", limitations=tuple(remaining[:2])))
+        status_value = (
+            AuditStatus(raw["status"])
+            if raw["status"] in AuditStatus._value2member_map_
+            else AuditStatus.FAILED
+        )
+        checks.append(
+            AuditCheck(
+                check_id=name,
+                component="quality",
+                status=status_value,
+                summary=f"{name}: {raw['status']}",
+                evidence=(str(audit_dir / "static_analysis_raw.json"),),
+            )
+        )
+    checks.append(
+        AuditCheck(
+            check_id="database_integrity",
+            component="storage",
+            status=AuditStatus.PASSED if db_check.get("status") == "passed" else AuditStatus.FAILED,
+            summary=f"SQLite integrity: {db_check.get('status')}",
+            evidence=(str(database_path),),
+        )
+    )
+    checks.append(
+        AuditCheck(
+            check_id="external_engine",
+            component="engine",
+            status=AuditStatus.BLOCKED,
+            summary="Real XMage/Forge runtime not executable in current sandbox",
+            limitations=tuple(remaining[:2]),
+        )
+    )
     result = Phase86Result(
         baseline_commit=baseline_commit,
         audit_commit=commit,

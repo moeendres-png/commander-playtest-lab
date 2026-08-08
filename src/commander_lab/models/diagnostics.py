@@ -45,10 +45,19 @@ class CardPerformanceInstrumentation(FrozenModel):
     counterfactual_outcome_delta: float | None = None
 
     @model_validator(mode="after")
-    def counts_do_not_exceed_samples(self) -> "CardPerformanceInstrumentation":
+    def counts_do_not_exceed_samples(self) -> CardPerformanceInstrumentation:
         for field in (
-            "drawn", "opening_hand", "mulliganed", "kept", "played", "unplayable",
-            "discarded", "removed", "successful", "without_value", "dead_in_hand",
+            "drawn",
+            "opening_hand",
+            "mulliganed",
+            "kept",
+            "played",
+            "unplayable",
+            "discarded",
+            "removed",
+            "successful",
+            "without_value",
+            "dead_in_hand",
             "synergy_partner_present",
         ):
             if getattr(self, field) > self.sample_size:

@@ -14,7 +14,7 @@ from commander_lab.models import (
     ValidateUpgradeInput,
     VariantSwap,
 )
-from commander_lab.optimization import DEFAULT_CONSTRAINTS, evaluate_constraints, pareto_front
+from commander_lab.optimization import DEFAULT_CONSTRAINTS, evaluate_constraints
 from commander_lab.tools import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[2]

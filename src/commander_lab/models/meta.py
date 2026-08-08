@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from collections import Counter
@@ -58,14 +57,16 @@ class MetaSource(FrozenModel):
     author: str | None = None
     retrieved_at: datetime
     published_at: datetime | None = None
-    source_type: Literal["tournament", "decklist", "primer", "aggregator", "local_context", "synthetic"]
+    source_type: Literal[
+        "tournament", "decklist", "primer", "aggregator", "local_context", "synthetic"
+    ]
     categories: tuple[MetaCategory, ...]
     evidence_quality: MetaEvidenceRating
     license_notes: str = "reference metadata and short structured extraction only"
     notes: str | None = None
 
     @model_validator(mode="after")
-    def validate_categories(self) -> "MetaSource":
+    def validate_categories(self) -> MetaSource:
         if not self.categories:
             raise ValueError("at least one meta category is required")
         return self
@@ -108,9 +109,11 @@ class TournamentResult(FrozenModel):
     notes: str | None = None
 
     @model_validator(mode="after")
-    def validate_pod_context(self) -> "TournamentResult":
+    def validate_pod_context(self) -> TournamentResult:
         if self.format_band == FormatBand.CEDH_TOURNAMENT and self.pod_size != 4:
-            raise ValueError("cEDH tournament results in this project must be modeled as 4-player pods")
+            raise ValueError(
+                "cEDH tournament results in this project must be modeled as 4-player pods"
+            )
         return self
 
 
@@ -159,11 +162,21 @@ class MetaDeckSnapshot(FrozenModel):
         return normalized
 
     @model_validator(mode="after")
-    def validate_transfer_rules(self) -> "MetaDeckSnapshot":
-        if self.format_band == FormatBand.CEDH_TOURNAMENT and MetaCategory.CEDH_TOURNAMENT not in self.categories:
-            raise ValueError("cEDH tournament deck snapshots must include the cedh_tournament category")
-        if MetaCategory.LOCAL_META in self.categories and self.format_band == FormatBand.CEDH_TOURNAMENT:
-            raise ValueError("local meta and cEDH tournament must not be collapsed into one context")
+    def validate_transfer_rules(self) -> MetaDeckSnapshot:
+        if (
+            self.format_band == FormatBand.CEDH_TOURNAMENT
+            and MetaCategory.CEDH_TOURNAMENT not in self.categories
+        ):
+            raise ValueError(
+                "cEDH tournament deck snapshots must include the cedh_tournament category"
+            )
+        if (
+            MetaCategory.LOCAL_META in self.categories
+            and self.format_band == FormatBand.CEDH_TOURNAMENT
+        ):
+            raise ValueError(
+                "local meta and cEDH tournament must not be collapsed into one context"
+            )
         return self
 
 
@@ -199,7 +212,7 @@ class MetaKnowledgeBaseSnapshot(MutableModel):
     card_frequencies: tuple[MetaCardFrequency, ...] = ()
 
     @model_validator(mode="after")
-    def validate_references(self) -> "MetaKnowledgeBaseSnapshot":
+    def validate_references(self) -> MetaKnowledgeBaseSnapshot:
         source_ids = {source.source_id for source in self.sources}
         if len(source_ids) != len(self.sources):
             raise ValueError("duplicate source_id in snapshot")
@@ -208,7 +221,9 @@ class MetaKnowledgeBaseSnapshot(MutableModel):
                 raise ValueError(f"deck references unknown source_id: {deck.source_id}")
         for result in self.tournament_results:
             if result.source_id not in source_ids:
-                raise ValueError(f"tournament result references unknown source_id: {result.source_id}")
+                raise ValueError(
+                    f"tournament result references unknown source_id: {result.source_id}"
+                )
         for primer in self.primer_references:
             if primer.source_id not in source_ids:
                 raise ValueError(f"primer references unknown source_id: {primer.source_id}")
@@ -217,8 +232,14 @@ class MetaKnowledgeBaseSnapshot(MutableModel):
         return self
 
 
-def card_frequency(commander: str, format_band: FormatBand, snapshots: tuple[MetaDeckSnapshot, ...]) -> MetaCardFrequency:
-    relevant = [snapshot for snapshot in snapshots if snapshot.commander == commander and snapshot.format_band == format_band]
+def card_frequency(
+    commander: str, format_band: FormatBand, snapshots: tuple[MetaDeckSnapshot, ...]
+) -> MetaCardFrequency:
+    relevant = [
+        snapshot
+        for snapshot in snapshots
+        if snapshot.commander == commander and snapshot.format_band == format_band
+    ]
     if not relevant:
         raise ValueError("no matching snapshots for frequency calculation")
     counts: Counter[str] = Counter()

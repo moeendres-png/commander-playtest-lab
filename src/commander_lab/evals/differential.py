@@ -6,7 +6,6 @@ import shlex
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Any
 
 from .models import (
     DifferentialCase,

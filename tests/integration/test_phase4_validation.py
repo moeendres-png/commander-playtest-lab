@@ -22,4 +22,7 @@ def test_phase4_validation_is_reproducible_and_audited(tmp_path, repo_root) -> N
     rates = benchmark["by_strength"]
     assert rates["weak"]["expected_choice_rate"] < rates["average"]["expected_choice_rate"]
     assert rates["average"]["expected_choice_rate"] <= rates["strong"]["expected_choice_rate"]
-    assert rates["strong"]["expected_choice_rate"] <= rates["near_optimal_heuristic"]["expected_choice_rate"]
+    assert (
+        rates["strong"]["expected_choice_rate"]
+        <= rates["near_optimal_heuristic"]["expected_choice_rate"]
+    )

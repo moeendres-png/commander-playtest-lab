@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.cards.catalog import UnknownCardError
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
 
 

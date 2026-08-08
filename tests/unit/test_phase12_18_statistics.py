@@ -34,24 +34,37 @@ def test_deterministic_paired_statistics_and_multiple_testing() -> None:
 
 def test_every_paired_comparison_exposes_required_protocol_fields() -> None:
     service = CommanderToolService(ROOT)
-    response = service.compare_variants_paired(PairedVariantInput(
-        deck_id="korvold/current",
-        swaps=(VariantSwap(
-            remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"
-        ),),
-        iterations=3,
-        workers=1,
-        seed=123,
-    ))
+    response = service.compare_variants_paired(
+        PairedVariantInput(
+            deck_id="korvold/current",
+            swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
+            iterations=3,
+            workers=1,
+            seed=123,
+        )
+    )
     assert response.status.value == "completed"
     metrics = response.result["comparison"]
     required = {
-        "requested_runs", "started_runs", "valid_runs", "failed_runs",
-        "discarded_runs", "actual_sample_size", "seeds", "worker_count",
-        "validation_level", "paired_or_unpaired", "effect_size",
-        "confidence_interval", "bootstrap_method", "holdout_definition",
-        "worst_case_result", "scenario_weights", "pilot_weights",
-        "multiple_testing_method", "rounding_policy",
+        "requested_runs",
+        "started_runs",
+        "valid_runs",
+        "failed_runs",
+        "discarded_runs",
+        "actual_sample_size",
+        "seeds",
+        "worker_count",
+        "validation_level",
+        "paired_or_unpaired",
+        "effect_size",
+        "confidence_interval",
+        "bootstrap_method",
+        "holdout_definition",
+        "worst_case_result",
+        "scenario_weights",
+        "pilot_weights",
+        "multiple_testing_method",
+        "rounding_policy",
     }
     assert required <= set(metrics)
     assert metrics["requested_runs"] == metrics["actual_sample_size"] == 3

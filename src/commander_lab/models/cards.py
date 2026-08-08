@@ -174,9 +174,7 @@ class Deck(MutableModel):
     @model_validator(mode="after")
     def commanders_match_entries(self) -> Deck:
         commander_entries = {
-            entry.oracle_name
-            for entry in self.cards
-            if entry.zone == DeckZone.COMMANDER
+            entry.oracle_name for entry in self.cards if entry.zone == DeckZone.COMMANDER
         }
         expected = set(self.commander.commanders)
         if commander_entries != expected:
@@ -210,7 +208,9 @@ class Deck(MutableModel):
             grouped[(entry.oracle_name, entry.zone)] += entry.quantity
         return [
             DeckEntry(oracle_name=name, zone=zone, quantity=quantity)
-            for (name, zone), quantity in sorted(grouped.items(), key=lambda item: (item[0][1], item[0][0]))
+            for (name, zone), quantity in sorted(
+                grouped.items(), key=lambda item: (item[0][1], item[0][0])
+            )
         ]
 
 

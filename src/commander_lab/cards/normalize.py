@@ -3,18 +3,20 @@ from __future__ import annotations
 import re
 import unicodedata
 
-_APOSTROPHES = str.maketrans({
-    "’": "'",
-    "‘": "'",
-    "`": "'",
-    "´": "'",
-    "“": '"',
-    "”": '"',
-    "–": "-",
-    "—": "-",
-    "−": "-",
-    "／": "/",
-})
+_APOSTROPHES = str.maketrans(
+    {
+        "’": "'",
+        "‘": "'",
+        "`": "'",
+        "´": "'",
+        "“": '"',
+        "”": '"',
+        "–": "-",
+        "—": "-",
+        "−": "-",
+        "／": "/",
+    }
+)
 
 _SET_SUFFIX = re.compile(
     r"\s+(?:\([A-Za-z0-9]{2,8}\)|\[[A-Za-z0-9]{2,8}\])(?:\s+[#A-Za-z0-9-]+)?\s*$"

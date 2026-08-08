@@ -36,7 +36,13 @@ def _source(source_id: str = "src-a", *, categories=(MetaCategory.CEDH_TOURNAMEN
     )
 
 
-def _deck(source_id: str = "src-a", cards=("Sol Ring", "Silence", "Brain Freeze"), *, fmt=FormatBand.CEDH_TOURNAMENT, categories=(MetaCategory.CEDH_TOURNAMENT,)) -> MetaDeckSnapshot:
+def _deck(
+    source_id: str = "src-a",
+    cards=("Sol Ring", "Silence", "Brain Freeze"),
+    *,
+    fmt=FormatBand.CEDH_TOURNAMENT,
+    categories=(MetaCategory.CEDH_TOURNAMENT,),
+) -> MetaDeckSnapshot:
     return MetaDeckSnapshot(
         source_id=source_id,
         commander="Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
@@ -62,7 +68,9 @@ def test_duplicate_sources_are_rejected() -> None:
         categories=(MetaCategory.CEDH_TOURNAMENT,),
     )
     with pytest.raises(ValueError, match="duplicate source_id"):
-        MetaKnowledgeBaseSnapshot(manifest=manifest, sources=(_source(), _source()), deck_snapshots=(_deck(),))
+        MetaKnowledgeBaseSnapshot(
+            manifest=manifest, sources=(_source(), _source()), deck_snapshots=(_deck(),)
+        )
 
 
 def test_same_decklist_from_multiple_sources_keeps_same_hash() -> None:
@@ -71,7 +79,10 @@ def test_same_decklist_from_multiple_sources_keeps_same_hash() -> None:
 
 
 def test_different_version_of_same_list_changes_hash() -> None:
-    assert _deck(cards=("Sol Ring", "Silence")).deck_hash != _deck(cards=("Sol Ring", "Silence", "Brain Freeze")).deck_hash
+    assert (
+        _deck(cards=("Sol Ring", "Silence")).deck_hash
+        != _deck(cards=("Sol Ring", "Silence", "Brain Freeze")).deck_hash
+    )
 
 
 def test_missing_event_data_allowed_but_wrong_cedh_pod_rejected() -> None:
@@ -79,17 +90,24 @@ def test_missing_event_data_allowed_but_wrong_cedh_pod_rejected() -> None:
     with pytest.raises(ValueError, match="cEDH tournament"):
         from commander_lab.models import TournamentResult
 
-        TournamentResult(source_id="src-a", event_name="bad", format_band=FormatBand.CEDH_TOURNAMENT, pod_size=5)
+        TournamentResult(
+            source_id="src-a", event_name="bad", format_band=FormatBand.CEDH_TOURNAMENT, pod_size=5
+        )
 
 
 def test_cedh_and_local_meta_are_not_collapsed() -> None:
     with pytest.raises(ValueError, match="local meta"):
-        _deck(fmt=FormatBand.CEDH_TOURNAMENT, categories=(MetaCategory.CEDH_TOURNAMENT, MetaCategory.LOCAL_META))
+        _deck(
+            fmt=FormatBand.CEDH_TOURNAMENT,
+            categories=(MetaCategory.CEDH_TOURNAMENT, MetaCategory.LOCAL_META),
+        )
 
 
 def test_snapshot_is_immutable_on_write(tmp_path: Path) -> None:
     kb = MetaKnowledgeBase(tmp_path)
-    snapshot = kb.create_snapshot(snapshot_id="meta-test", sources=(_source(),), deck_snapshots=(_deck(),))
+    snapshot = kb.create_snapshot(
+        snapshot_id="meta-test", sources=(_source(),), deck_snapshots=(_deck(),)
+    )
     kb.write_snapshot(snapshot)
     with pytest.raises(FileExistsError):
         kb.write_snapshot(snapshot)
@@ -104,7 +122,9 @@ def test_unknown_source_reference_is_rejected() -> None:
         categories=(MetaCategory.CEDH_TOURNAMENT,),
     )
     with pytest.raises(ValueError, match="unknown source_id"):
-        MetaKnowledgeBaseSnapshot(manifest=manifest, sources=(_source(),), deck_snapshots=(_deck("src-missing"),))
+        MetaKnowledgeBaseSnapshot(
+            manifest=manifest, sources=(_source(),), deck_snapshots=(_deck("src-missing"),)
+        )
 
 
 def test_tool_queries_do_not_mutate_local_decks() -> None:
@@ -129,6 +149,8 @@ def test_tool_queries_do_not_mutate_local_decks() -> None:
 
 def test_create_meta_snapshot_rejects_existing_snapshot() -> None:
     service = CommanderToolService(Path.cwd())
-    response = service.create_meta_snapshot(CreateMetaSnapshotInput(snapshot_id="meta-2026-08-05-phase12-1"))
+    response = service.create_meta_snapshot(
+        CreateMetaSnapshotInput(snapshot_id="meta-2026-08-05-phase12-1")
+    )
     assert response.status == "failed"
     assert "immutable snapshot already exists" in response.errors[0]
