@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "family_id": "korvold_rogshai_pretest_v0_1",
+  "status": "pretest_variants_not_ranked",
+  "created_at": "2026-08-08",
+  "purpose": "Preserve distinct active Drive deck ideas before the first comparative simulations without replacing the current baseline.",
+  "selection_policy": {
+    "include": [
+      "active current/final/fresh-rebuild sources with a distinct 100-card multiset"
+    ],
+    "deduplicate_exact_card_multisets": true,
+    "exclude": [
+      "ARCHIV_*",
+      "SUPERSEDED*",
+      "90_HISTORISCHE_*",
+      "99_Prüfung_offen"
+    ],
+    "automatic_winner": false,
+    "automatic_deck_mutation": false
+  },
+  "current_baseline": {
+    "korvold": "V0.1.2",
+    "rogshai": "V0.1.2",
+    "note": "The existing data/decks/*_current files remain the technical current baseline; the family exists for comparison."
+  },
+  "variants": {
+    "korvold": [
+      {
+        "version": "V0.1.1",
+        "label": "Fresh Rebuild joint optimum",
+        "path": "data/decks/pretest_variants/korvold_V0.1.1.txt",
+        "cards": 100,
+        "lands": 39,
+        "hash_status": "compute_and_record_when_loaded",
+        "source_drive_ids": [
+          "1lyflXSaFOo16mBMRWbj4V-if27-MAHM8eNKfn8nxuyE"
+        ],
+        "source_titles": [
+          "MTG_Korvold_RogShai_Fresh_Rebuild_2026-08-07"
+        ],
+        "differences_to_V0.1.2": [
+          "Exploration Broodship -> Eumidian Wastewaker",
+          "Orcish Lumberjack -> Llanowar Elves"
+        ]
+      },
+      {
+        "version": "V0.1.2",
+        "label": "Phase07/current validated candidate",
+        "path": "data/decks/pretest_variants/korvold_V0.1.2.txt",
+        "cards": 100,
+        "lands": 39,
+        "expected_deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
+        "hash_status": "frozen_from_active_drive_and_current_manifest",
+        "source_drive_ids": [
+          "1nDVdTnCXoGEuCnf5uL4Gu6YXbvTthNVNLMMi1Y_1PD8",
+          "1mO0pnm1thoRrjAg7TGuGSXmrTTYDivJHxrUCdEtY5GQ",
+          "1yEfG1UDSEIObmsGYrnYx0vYm5wnZV7MT"
+        ],
+        "source_titles": [
+          "MTG_Korvold_RogShai_FINAL_2026-08-08",
+          "MTG_Korvold_RogShai_FINAL_2026-08-07",
+          "FINAL_KORVOLD_PROPOSED.md"
+        ],
+        "deduplicated_aliases": true
+      }
+    ],
+    "rogshai": [
+      {
+        "version": "V0.1.1",
+        "label": "Fresh Rebuild joint optimum",
+        "path": "data/decks/pretest_variants/rogshai_V0.1.1.txt",
+        "cards": 100,
+        "lands": 37,
+        "hash_status": "compute_and_record_when_loaded",
+        "source_drive_ids": [
+          "1lyflXSaFOo16mBMRWbj4V-if27-MAHM8eNKfn8nxuyE"
+        ],
+        "source_titles": [
+          "MTG_Korvold_RogShai_Fresh_Rebuild_2026-08-07"
+        ],
+        "differences_to_V0.1.2": [
+          "Frostboil Snarl -> Mystic Monastery",
+          "Scorched Geyser -> Temple of Epiphany",
+          "Turbulent Springs -> Coastal Peak"
+        ]
+      },
+      {
+        "version": "V0.1.2",
+        "label": "Phase07/current validated candidate",
+        "path": "data/decks/pretest_variants/rogshai_V0.1.2.txt",
+        "cards": 100,
+        "lands": 37,
+        "expected_deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
+        "hash_status": "frozen_from_active_drive_and_current_manifest",
+        "source_drive_ids": [
+          "1nDVdTnCXoGEuCnf5uL4Gu6YXbvTthNVNLMMi1Y_1PD8",
+          "1mO0pnm1thoRrjAg7TGuGSXmrTTYDivJHxrUCdEtY5GQ",
+          "19x0ZLgmNiaZaXw9-KpmxB2wEea6BALq9"
+        ],
+        "source_titles": [
+          "MTG_Korvold_RogShai_FINAL_2026-08-08",
+          "MTG_Korvold_RogShai_FINAL_2026-08-07",
+          "FINAL_ROGSHAI_PROPOSED.md"
+        ],
+        "deduplicated_aliases": true
+      }
+    ]
+  },
+  "truth_boundaries": {
+    "structural_results": "structural_model_estimates",
+    "tactical_oracle_is_external_engine": false,
+    "xmage_real_observations": 0,
+    "forge_real_observations": 0
+  }
+}
