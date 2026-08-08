@@ -1,0 +1,240 @@
+name: Apply Strict Mypy Foundation
+
+on:
+  push:
+    branches:
+      - fix/1.13.4-strict-quality-controlled
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message || '', '[mypy-foundation]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+      - name: Install quality tools
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Apply typed-boundary fixes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace(rel: str, old: str, new: str) -> None:
+              path = Path(rel)
+              text = path.read_text(encoding="utf-8")
+              if old not in text:
+                  raise RuntimeError(f"expected foundation pattern missing in {rel}: {old[:80]!r}")
+              path.write_text(text.replace(old, new), encoding="utf-8")
+
+          replace(
+              "src/commander_lab/data_sync.py",
+              'def _load(path: Path) -> dict[str, Any]:\n    return json.loads(path.read_text(encoding="utf-8"))\n',
+              'def _load(path: Path) -> dict[str, Any]:\n    payload = json.loads(path.read_text(encoding="utf-8"))\n    if not isinstance(payload, dict):\n        raise ValueError(f"expected JSON object in {path}")\n    return {str(key): value for key, value in payload.items()}\n',
+          )
+
+          replace("src/commander_lab/observability/local.py", "from collections import Counter\n", "")
+          replace("src/commander_lab/observability/local.py", "        self._values: Counter[str] = Counter()\n", "        self._values: dict[str, int | float] = {}\n")
+          replace("src/commander_lab/observability/local.py", "            self._values[name] += value\n", "            self._values[name] = self._values.get(name, 0) + value\n")
+
+          replace("src/commander_lab/models/game.py", "from typing import Any\n", "from typing import Any, cast\n")
+          replace("src/commander_lab/models/game.py", "        return getattr(self, zone.value)\n", "        return cast(tuple[str, ...], getattr(self, zone.value))\n")
+          replace("src/commander_lab/models/structural.py", 'STRUCTURAL_ESTIMATE_TYPE = "structural_model_estimates"', 'STRUCTURAL_ESTIMATE_TYPE: Literal["structural_model_estimates"] = "structural_model_estimates"')
+          replace("src/commander_lab/storage/hashing.py", "    if is_dataclass(value):\n        return _canonicalize(asdict(value))\n", "    if is_dataclass(value) and not isinstance(value, type):\n        return _canonicalize(asdict(value))\n")
+
+          path = Path("src/commander_lab/engine/rules/protocol.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("from __future__ import annotations\n", "from __future__ import annotations\n\nfrom typing import Any\n", 1)
+          text = text.replace("def build_protocol_schema() -> dict:\n", "def build_protocol_schema() -> dict[str, Any]:\n")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/opponent_ensembles/store.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("from __future__ import annotations\n", "from __future__ import annotations\n\nimport builtins\n", 1)
+          text = text.replace("return pressure, max(dimensions, key=dimensions.get)", "return pressure, max(dimensions, key=lambda name: dimensions[name])")
+          text = text.replace("def _normalized_weights(ensemble: OpponentEnsemble) -> list[float]:", "def _normalized_weights(ensemble: OpponentEnsemble) -> builtins.list[float]:")
+          text = text.replace("        weighted_average = sum(\n", "        weighted_average: float = sum(\n")
+          text = text.replace("        positive_share = sum(\n", "        positive_share: float = sum(\n")
+          text = text.replace("max(sensitivities, key=sensitivities.get) if sensitivities else None", "max(sensitivities, key=lambda name: sensitivities[name]) if sensitivities else None")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/engine/rules/bridge.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("from typing import Any\n", "from typing import Any, Literal, cast\n")
+          if "    ValidationLevel,\n" not in text:
+              text = text.replace("    TacticalScenario,\n", "    TacticalScenario,\n    ValidationLevel,\n")
+          text = text.replace(
+              'engine=self.engine if self.engine in {"xmage", "forge", "tactical"} else "unknown",',
+              'engine=cast(\n                    Literal["xmage", "forge", "tactical", "unknown"],\n                    self.engine if self.engine in {"xmage", "forge", "tactical"} else "unknown",\n                ),',
+          )
+          text = text.replace('validation_level="external_rules_engine",', 'validation_level=ValidationLevel.EXTERNAL_RULES_ENGINE,')
+          path.write_text(text, encoding="utf-8")
+
+          replace(
+              "src/commander_lab/audit/runner.py",
+              "    from commander_lab.models import EngineProtocolRequest, EngineProtocolResponse\n    from commander_lab.models import __dict__ as model_namespace\n",
+              "    import commander_lab.models as model_module\n    from commander_lab.models import EngineProtocolRequest, EngineProtocolResponse\n\n    model_namespace = vars(model_module)\n",
+          )
+
+          path = Path("src/commander_lab/engine/process_manager.py")
+          text = path.read_text(encoding="utf-8")
+          match = re.search(r"from typing import ([^\n]+)", text)
+          if match:
+              names = [item.strip() for item in match.group(1).split(",")]
+              for name in ("TYPE_CHECKING", "Literal", "cast"):
+                  if name not in names:
+                      names.append(name)
+              text = text[: match.start()] + "from typing import " + ", ".join(names) + text[match.end() :]
+          else:
+              text = text.replace("from pathlib import Path\n", "from pathlib import Path\nfrom typing import TYPE_CHECKING, Literal, cast\n")
+          anchor = "from commander_lab.storage.atomic import atomic_write_text\n"
+          if "if TYPE_CHECKING:" not in text:
+              text = text.replace(anchor, anchor + "\nif TYPE_CHECKING:\n    from commander_lab.engine.rules.bridge import JsonLineBridgeClient\n")
+          text = text.replace(
+              '    mode = source.get("ENGINE_MODE", "external")\n    return EngineRuntimeConfig(\n        provider=source.get("ENGINE_PROVIDER", "xmage"),',
+              '    mode = source.get("ENGINE_MODE", "external")\n    provider_value = source.get("ENGINE_PROVIDER", "xmage").casefold()\n    if provider_value not in {"xmage", "forge"}:\n        raise ValueError(f"unsupported ENGINE_PROVIDER: {provider_value}")\n    provider = cast(Literal["xmage", "forge"], provider_value)\n    return EngineRuntimeConfig(\n        provider=provider,',
+          )
+          text = text.replace("        self._client: object | None = None", "        self._client: JsonLineBridgeClient | None = None")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/importers/csv_importer.py")
+          text = path.read_text(encoding="utf-8")
+          anchor = 'def _truthy(value: object) -> bool:\n    return str(value or "").strip().casefold() in {"1", "true", "yes", "y", "ja", "x"}\n\n\n'
+          helper = 'def _int_value(value: object, default: int = 1) -> int:\n    if value is None or value == "":\n        return default\n    if isinstance(value, (str, bytes, bytearray, int, float)):\n        return int(value)\n    raise ValueError(f"unsupported integer value: {value!r}")\n\n\n'
+          if "def _int_value(" not in text:
+              text = text.replace(anchor, anchor + helper)
+          text = text.replace("quantity = int(row.get(quantity_column, 1) or 1) if quantity_column else 1", "quantity = _int_value(row.get(quantity_column), 1) if quantity_column else 1")
+          text = text.replace("zone = _zone_from_value(row.get(zone_column), is_commander=is_commander)", "zone_value = row.get(zone_column) if zone_column is not None else None\n                zone = _zone_from_value(zone_value, is_commander=is_commander)")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/primer/compiler.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("        return actual == expected\n", "        return bool(actual == expected)\n")
+          text = text.replace("        return actual != expected\n", "        return bool(actual != expected)\n")
+          text = text.replace("            rules = tuple(PilotRule.model_validate(row) for row in rows)\n            return rules\n", "            parsed_rules = tuple(PilotRule.model_validate(row) for row in rows)\n            return parsed_rules\n")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/meta/store.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("from typing import Any", "from typing import Any, TypedDict")
+          if "class _DriftRow(TypedDict):" not in text:
+              idx = text.find("\nclass ")
+              text = text[:idx] + "\n\nclass _DriftRow(TypedDict):\n    card: str\n    frequency_delta: float\n    old_count: int\n    new_count: int\n" + text[idx:]
+          text = text.replace("        drift = []\n", "        drift: list[_DriftRow] = []\n")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/engine/structural/simulator.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              "                else:\n                    resolved = self._cast_card(active, card_or_name, players, recorder, score)\n",
+              "                else:\n                    if not isinstance(card_or_name, StructuralCardProfile):\n                        raise TypeError(\"card action must resolve to StructuralCardProfile\")\n                    resolved = self._cast_card(active, card_or_name, players, recorder, score)\n",
+          )
+          text = text.replace("            card = next(\n                (item for item in player.deck.cards if item.oracle_name == commander.name), None\n            )\n", "            commander_card = next(\n                (item for item in player.deck.cards if item.oracle_name == commander.name), None\n            )\n")
+          for old, new in (("roles=card.roles if card else", "roles=commander_card.roles if commander_card else"), ("role_strengths=card.role_strengths if card else", "role_strengths=commander_card.role_strengths if commander_card else"), ("floor_value=card.floor_value if card else", "floor_value=commander_card.floor_value if commander_card else"), ("immediate_impact=card.immediate_impact if card else", "immediate_impact=commander_card.immediate_impact if commander_card else"), ("turn_cycle_risk=card.turn_cycle_risk if card else", "turn_cycle_risk=commander_card.turn_cycle_risk if commander_card else"), ("multiplayer_scaling=card.multiplayer_scaling if card else", "multiplayer_scaling=commander_card.multiplayer_scaling if commander_card else"), ("card.commander_synergy if card else", "commander_card.commander_synergy if commander_card else")):
+              text = text.replace(old, new)
+          text = text.replace("        kind, item = mapping[decision.selected_action_id]\n        return kind, item, float(decision.selected_utility or 0.0)\n", "        selected_action_id = decision.selected_action_id\n        if selected_action_id is None:\n            return None\n        kind, item = mapping[selected_action_id]\n        return kind, item, float(decision.selected_utility or 0.0)\n", 1)
+          text = text.replace("            counter = mapping[decision.selected_action_id]\n", "            selected_action_id = decision.selected_action_id\n            if selected_action_id is None:\n                continue\n            counter = mapping[selected_action_id]\n", 1)
+          text = text.replace("            protection = mapping[decision.selected_action_id]\n", "            selected_action_id = decision.selected_action_id\n            if selected_action_id is None:\n                continue\n            protection = mapping[selected_action_id]\n", 1)
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/engine/structural/fixtures.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              '    def add_many(label: str, count: int, mv: float, roles: set[CardRole], **kwargs: object) -> None:\n        for index in range(count):\n            cards.append(_card(f"{prefix} {label} {index:02d}", mv, roles, **kwargs))\n',
+              '    def add_many(\n        label: str,\n        count: int,\n        mv: float,\n        roles: set[CardRole],\n        *,\n        power: float = 0.0,\n        permanent: bool = False,\n        colors: frozenset[Color] = frozenset(),\n    ) -> None:\n        for index in range(count):\n            cards.append(\n                _card(\n                    f"{prefix} {label} {index:02d}",\n                    mv,\n                    roles,\n                    power=power,\n                    permanent=permanent,\n                    colors=colors,\n                )\n            )\n',
+          )
+          text = text.replace("                produces = frozenset()\n", "                produces: frozenset[Color] = frozenset()\n")
+          text = text.replace("        for index, roles in enumerate(slot_roles):\n            if not roles:\n                roles = {CardRole.ENABLER}\n", "        for index, role_set in enumerate(slot_roles):\n            roles = role_set or {CardRole.ENABLER}\n")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/importers/xlsx_importer.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("from openpyxl.worksheet.worksheet import Worksheet\n", "from openpyxl.worksheet.worksheet import Worksheet\n\nfrom commander_lab.models import Deck\n")
+          text = text.replace("        sheet_name: str | None = None,\n    ):\n", "        sheet_name: str | None = None,\n    ) -> Deck:\n")
+          text = text.replace("            worksheet = workbook[sheet_name] if sheet_name else workbook.active\n            rows = self._worksheet_rows(worksheet, source_path=path)\n", "            worksheet = workbook[sheet_name] if sheet_name else workbook.active\n            if not isinstance(worksheet, Worksheet):\n                raise ImportErrorWithContext(\"selected sheet is not a worksheet\", source=path)\n            rows = self._worksheet_rows(worksheet, source_path=path)\n")
+          text = text.replace("            record = {\n                header: row[column] if column < len(row) else None\n                for column, header in enumerate(headers)\n                if header\n            }\n", "            record: dict[str, object] = {\n                header: row[column] if column < len(row) else None\n                for column, header in enumerate(headers)\n                if header\n            }\n")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/engine/structural/batch.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("    ) -> dict[str, dict[str, float | int]]:\n        summary: dict[str, dict[str, float | int]] = {}\n", "    ) -> dict[str, dict[str, float | int | None]]:\n        summary: dict[str, dict[str, float | int | None]] = {}\n")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/tools/candidates.py")
+          text = path.read_text(encoding="utf-8")
+          if "def _as_int(" not in text:
+              marker = "\ndef load_canonical_inventory_quantities("
+              helper = '\n\ndef _as_int(value: object, default: int = 0) -> int:\n    if value is None or value == "":\n        return default\n    if isinstance(value, (str, bytes, bytearray, int, float)):\n        return int(value)\n    raise ValueError(f"unsupported integer value: {value!r}")\n\n\ndef _as_float(value: object, default: float = 0.0) -> float:\n    if value is None or value == "":\n        return default\n    if isinstance(value, (str, bytes, bytearray, int, float)):\n        return float(value)\n    raise ValueError(f"unsupported float value: {value!r}")\n'
+              text = text.replace(marker, helper + marker)
+          text = text.replace('int(row.get("quantity", 0))', '_as_int(row.get("quantity", 0))')
+          text = text.replace('float(row.get("mana_value", 0.0) or 0.0)', '_as_float(row.get("mana_value", 0.0), 0.0)')
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/engine/structural/project.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("            for card_name in package.get(field, []):\n                memberships.setdefault(str(card_name), set()).add(package_id)\n", "            raw_names = package.get(field, [])\n            if not isinstance(raw_names, list):\n                continue\n            for card_name in raw_names:\n                memberships.setdefault(str(card_name), set()).add(package_id)\n")
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/tools/local_snapshots.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("from __future__ import annotations\n", "from __future__ import annotations\n\nfrom collections.abc import Iterable\n", 1)
+          text = text.replace(
+              '        deck = importer.import_text(\n            source_file.read_text(encoding="utf-8-sig"),\n            DeckImportOptions(\n                deck_id=deck_id,\n                name=str(spec["name"]),\n                commander_names=tuple(spec["commanders"]),\n                uses_partner=bool(spec["uses_partner"]),\n                data_as_of="2026-08-07",\n            ),\n            source_path=source_path,\n        )\n        deck = deck.model_copy(\n            update={"source": deck.source.model_copy(update={"source_path": source_path})}\n        )\n',
+              '        raw_commanders = spec["commanders"]\n        if not isinstance(raw_commanders, Iterable) or isinstance(raw_commanders, (str, bytes)):\n            raise TypeError(f"invalid commanders for {deck_id}")\n        commander_names = tuple(str(name) for name in raw_commanders)\n        deck = importer.import_text(\n            source_file.read_text(encoding="utf-8-sig"),\n            DeckImportOptions(\n                deck_id=deck_id,\n                name=str(spec["name"]),\n                commander_names=commander_names,\n                uses_partner=bool(spec["uses_partner"]),\n                data_as_of="2026-08-07",\n            ),\n            source_path=source_path,\n        )\n        if deck.source is None:\n            raise ValueError(f"imported deck {deck_id} is missing source provenance")\n        deck = deck.model_copy(\n            update={"source": deck.source.model_copy(update={"source_path": source_path})}\n        )\n',
+          )
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/robustness.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("        if status in {\n", "        bands: tuple[tuple[str, float], ...]\n        if status in {\n", 1)
+          text = text.replace('                "utility_weights": pilot_config_for(\n                    name, "rational_threat_focus"\n                ).weights.model_dump(mode="json"),\n', '                "utility_weights": (\n                    weights.model_dump(mode="json")\n                    if (weights := pilot_config_for(name, "rational_threat_focus").weights)\n                    is not None\n                    else {}\n                ),\n')
+          path.write_text(text, encoding="utf-8")
+
+          path = Path("src/commander_lab/optimization/search.py")
+          text = path.read_text(encoding="utf-8")
+          match = re.search(r"from collections\.abc import ([^\n]+)", text)
+          if match:
+              names = [item.strip() for item in match.group(1).split(",")]
+              if "Collection" not in names:
+                  names.append("Collection")
+              text = text[: match.start()] + "from collections.abc import " + ", ".join(names) + text[match.end() :]
+          else:
+              text = text.replace("from __future__ import annotations\n", "from __future__ import annotations\n\nfrom collections.abc import Collection\n")
+          text = text.replace("protected: set[str] = frozenset(),", "protected: Collection[str] = frozenset(),")
+          marker = "def worst_quartile_improvement("
+          if "def _metric_float(" not in text:
+              idx = text.index(marker)
+              text = text[:idx] + 'def _metric_float(row: dict[str, object], key: str) -> float:\n    value = row[key]\n    if isinstance(value, (str, bytes, bytearray, int, float)):\n        return float(value)\n    raise TypeError(f"metric {key} is not numeric: {value!r}")\n\n\n' + text[idx:]
+          text = text.replace('float(row["baseline_placement"]) - float(row["variant_placement"])', '_metric_float(row, "baseline_placement") - _metric_float(row, "variant_placement")')
+          path.write_text(text, encoding="utf-8")
+
+          replace("src/commander_lab/diagnostics.py", "        dominant = max(effects, key=effects.get)\n", "        dominant = max(effects, key=lambda name: effects[name])\n")
+          replace("src/commander_lab/agents/demo.py", "    payload = {\n", "    payload: dict[str, object] = {\n")
+          replace(
+              "src/commander_lab/acceptance/phase10.py",
+              'def _load_opponent_policy(root: Path) -> dict[str, Any]:\n    return json.loads(\n        (root / "data/opponents/current_structural_profiles.json").read_text(encoding="utf-8")\n    )\n',
+              'def _load_opponent_policy(root: Path) -> dict[str, Any]:\n    payload = json.loads(\n        (root / "data/opponents/current_structural_profiles.json").read_text(encoding="utf-8")\n    )\n    if not isinstance(payload, dict):\n        raise ValueError("opponent policy must be a JSON object")\n    return {str(key): value for key, value in payload.items()}\n',
+          )
+          PY
+          ruff check . --fix
+          ruff format .
+          python -m compileall -q src tests scripts
+          git diff --check
+      - name: Commit foundation fixes and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-mypy-foundation.yml
+          git add -u
+          git commit -m "fix: establish strict-mypy typed boundaries [mypy-foundation]"
+          git push origin HEAD:fix/1.13.4-strict-quality-controlled
