@@ -23,6 +23,61 @@ jobs:
           python-version: "3.12"
       - name: Install quality tools
         run: python -m pip install -e '.[dev,api,openai]'
+      - name: Normalize public model exports and ensemble test imports
+        shell: bash
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          models_path = Path("src/commander_lab/models/__init__.py")
+          source = models_path.read_text(encoding="utf-8")
+          tree = ast.parse(source)
+          imported_names: set[str] = set()
+          removal_ranges: list[tuple[int, int]] = []
+
+          for node in tree.body:
+              if isinstance(node, ast.ImportFrom) and node.level > 0:
+                  for alias in node.names:
+                      public_name = alias.asname or alias.name
+                      if public_name != "*" and not public_name.startswith("_"):
+                          imported_names.add(public_name)
+              if isinstance(node, ast.Assign) and any(
+                  isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
+              ):
+                  removal_ranges.append((node.lineno, node.end_lineno or node.lineno))
+              elif (
+                  isinstance(node, ast.Expr)
+                  and isinstance(node.value, ast.Call)
+                  and isinstance(node.value.func, ast.Attribute)
+                  and isinstance(node.value.func.value, ast.Name)
+                  and node.value.func.value.id == "__all__"
+                  and node.value.func.attr == "extend"
+              ):
+                  removal_ranges.append((node.lineno, node.end_lineno or node.lineno))
+
+          lines = source.splitlines()
+          remove_lines = {
+              line_no
+              for start, end in removal_ranges
+              for line_no in range(start, end + 1)
+          }
+          kept = [line for number, line in enumerate(lines, start=1) if number not in remove_lines]
+          while kept and not kept[-1].strip():
+              kept.pop()
+          export_lines = ["", "__all__ = ["]
+          export_lines.extend(f'    "{name}",' for name in sorted(imported_names))
+          export_lines.append("]")
+          models_path.write_text("\n".join(kept + export_lines) + "\n", encoding="utf-8")
+
+          test_path = Path("tests/unit/test_opponent_ensembles.py")
+          test_source = test_path.read_text(encoding="utf-8")
+          wildcard = "from commander_lab.models import *"
+          explicit = """from commander_lab.models import (\n    EnsembleWeightMode,\n    ObservationStatus,\n    ObservedConstraint,\n    OpponentCardAssumption,\n    OpponentEnsemble,\n    OpponentVariant,\n    VariantWeight,\n)"""
+          if wildcard in test_source:
+              test_source = test_source.replace(wildcard, explicit, 1)
+              test_path.write_text(test_source, encoding="utf-8")
+          PY
       - name: Apply repository-wide Ruff formatting and safe fixes
         id: ruff
         shell: bash
