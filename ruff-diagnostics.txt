@@ -1,4 +1,4 @@
-1 file reformatted, 354 files left unchanged
+355 files left unchanged
 E501 Line too long (114 > 100)
    --> scripts/build_rules_coverage.py:245:101
     |
