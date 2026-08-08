@@ -32,7 +32,7 @@ class CostLimits(FrozenModel):
     max_swap_matrix_cells: int = Field(default=500, ge=1, le=100_000)
 
     @model_validator(mode="after")
-    def validate_iteration_limits(self) -> "CostLimits":
+    def validate_iteration_limits(self) -> CostLimits:
         if self.approval_threshold_iterations > self.hard_max_iterations:
             raise ValueError("approval threshold cannot exceed hard maximum")
         return self
@@ -45,10 +45,18 @@ class ToolExecutionMetadata(FrozenModel):
     git_commit: str | None = None
     engine_version: str
     data_snapshot_hash: str
+    data_snapshot_hashes: dict[str, str]
+    inventory_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     deck_hashes: dict[str, str] = Field(default_factory=dict)
+    opponent_hashes: dict[str, str] = Field(default_factory=dict)
+    opponent_registry_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    pilot_hashes: dict[str, str]
+    pilot_parameter_hashes: dict[str, str]
+    policy_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    meta_snapshot_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     scenario_hash: str
     configuration_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
-    opponent_hashes: dict[str, str] = Field(default_factory=dict)
+    run_identity_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     pilot_version: str | None = None
     seed: int | None = None
     iterations: int | None = None
@@ -100,7 +108,7 @@ class MatchupBatchInput(SimulationInput):
     deck_ids: tuple[str, ...]
 
     @model_validator(mode="after")
-    def validate_pod(self) -> "MatchupBatchInput":
+    def validate_pod(self) -> MatchupBatchInput:
         if not 2 <= len(self.deck_ids) <= 10:
             raise ValueError("matchup requires two to ten decks")
         return self
@@ -108,7 +116,11 @@ class MatchupBatchInput(SimulationInput):
 
 class CompareDecksInput(SimulationInput):
     deck_ids: tuple[str, str]
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
 
 class CandidateProfile(FrozenModel):
@@ -127,23 +139,35 @@ class VariantSwap(FrozenModel):
 class PairedVariantInput(SimulationInput):
     deck_id: str
     swaps: tuple[VariantSwap, ...]
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
 
 class CardAblationInput(SimulationInput):
     deck_id: str
     card_name: str
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
 
 class PackageAblationInput(SimulationInput):
     deck_id: str
     card_names: tuple[str, ...] = ()
     package_id: str | None = None
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
     @model_validator(mode="after")
-    def select_package_or_cards(self) -> "PackageAblationInput":
+    def select_package_or_cards(self) -> PackageAblationInput:
         if bool(self.package_id) == bool(self.card_names):
             raise ValueError("provide exactly one of package_id or card_names")
         return self
@@ -153,14 +177,22 @@ class CommanderDenialInput(SimulationInput):
     deck_id: str
     additional_commander_tax: int = Field(default=6, ge=2, le=30)
     suppress_commander_synergy: bool = True
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
 
 class SwapMatrixInput(SimulationInput):
     deck_id: str
     remove_cards: tuple[str, ...] = ()
     add_candidate_ids: tuple[str, ...] = ()
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
     iterations_per_cell: int = Field(default=20, ge=1)
     simulate_valid_cells: bool = True
 
@@ -170,7 +202,11 @@ class SearchVariantsInput(SimulationInput):
     candidate_ids: tuple[str, ...] = ()
     max_cuts: int = Field(default=6, ge=1, le=30)
     max_results: int = Field(default=8, ge=1, le=100)
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
 
 class HoldoutInput(PairedVariantInput):
@@ -212,6 +248,7 @@ class ValidateUpgradeInput(PairedVariantInput):
     require_sensitivity_nonnegative: bool = True
     require_red_team_pass: bool = True
 
+
 class BuildOptimizationContextInput(FrozenModel):
     deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current")
     include_kaervek: bool = False
@@ -231,7 +268,11 @@ class GenerateCandidatePackagesInput(FrozenModel):
 class OptimizeDeckAgainstMetaInput(SimulationInput):
     deck_id: str
     max_candidates: int = Field(default=5, ge=1, le=20)
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
 
 class OptimizeMultipleDecksWithAllocationInput(FrozenModel):
@@ -248,7 +289,11 @@ class ValidatePackageChangeInput(SimulationInput):
     package_id: str
     remove_cards: tuple[str, ...] = ()
     add_candidate_ids: tuple[str, ...] = ()
-    opponent_deck_ids: tuple[str, ...] = ("synthetic/aggro", "synthetic/control", "synthetic/engine")
+    opponent_deck_ids: tuple[str, ...] = (
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+    )
 
 
 class ValidateLandChangeInput(ValidateUpgradeInput):
@@ -334,6 +379,7 @@ class WorkflowReport(FrozenModel):
         "external_rules_engine_results",
     ] = "structural_model_estimates"
 
+
 # Meta Knowledge Base tool inputs (append-only reference/evidence layer)
 from .meta import FormatBand, MetaCategory  # noqa: E402
 
@@ -403,6 +449,7 @@ class CompareMetaPeriodsInput(FrozenModel):
 class GenerateMetaReportInput(FrozenModel):
     output_name: str = "meta_report.md"
     commander: str | None = None
+
 
 # Primer-to-Pilot Compiler inputs. All source content is parsed as data; never executed.
 from .primer import PrimerFormat  # noqa: E402
@@ -510,10 +557,13 @@ class RunPilotEnsembleInput(FrozenModel):
     output_name: str = "latest_pilot_ensemble"
 
     @model_validator(mode="after")
-    def require_one_weight_source(self) -> "RunPilotEnsembleInput":
+    def require_one_weight_source(self) -> RunPilotEnsembleInput:
         if bool(self.ensemble_id) == bool(self.custom_weights):
             raise ValueError("provide exactly one of ensemble_id or custom_weights")
-        if self.custom_weights and abs(sum(item.weight for item in self.custom_weights) - 1.0) > 1e-9:
+        if (
+            self.custom_weights
+            and abs(sum(item.weight for item in self.custom_weights) - 1.0) > 1e-9
+        ):
             raise ValueError("custom pilot weights must sum to 1.0")
         return self
 
@@ -579,18 +629,23 @@ class GeneratePackageReportInput(FrozenModel):
 class TraceArtifactProvenanceInput(FrozenModel):
     artifact_id: str
 
+
 class TraceRecommendationSourcesInput(FrozenModel):
     recommendation_id: str
 
+
 class ListSupersededSourcesInput(FrozenModel):
     include_historical: bool = True
+
 
 class VerifySourceHashInput(FrozenModel):
     source_id: str
     candidate_path: str | None = None
 
+
 class GenerateProvenanceReportInput(FrozenModel):
     output_name: str = "provenance_report.md"
+
 
 class AuditUnreferencedClaimsInput(FrozenModel):
     fail_on_unreferenced: bool = False
@@ -598,32 +653,39 @@ class AuditUnreferencedClaimsInput(FrozenModel):
 
 # Local meta learning tool inputs
 
+
 class CreateOpponentEnsembleInput(FrozenModel):
     source_path: str
+
 
 class AddOpponentVariantInput(FrozenModel):
     ensemble_id: str
     variant_path: str
     new_ensemble_id: str
 
+
 class ValidateEnsembleInput(FrozenModel):
     ensemble_id: str
+
 
 class RunEnsembleMatchupsInput(FrozenModel):
     deck_id: str
     ensemble_id: str
-    seed: int = Field(default=20260806,ge=0)
+    seed: int = Field(default=20260806, ge=0)
+
 
 class CompareVariantSensitivityInput(FrozenModel):
     deck_id: str
     ensemble_id: str
-    seed: int = Field(default=20260806,ge=0)
+    seed: int = Field(default=20260806, ge=0)
+
 
 class EvaluateRobustUpgradeInput(FrozenModel):
     baseline_deck_id: str
     candidate_deck_id: str
     ensemble_id: str
-    seed: int = Field(default=20260806,ge=0)
+    seed: int = Field(default=20260806, ge=0)
+
 
 class GenerateEnsembleReportInput(FrozenModel):
     ensemble_id: str
@@ -651,7 +713,7 @@ class EvaluateOpeningHandInput(FrozenModel):
     seed: int = Field(default=20260806, ge=0)
 
     @model_validator(mode="after")
-    def validate_hand_size(self) -> "EvaluateOpeningHandInput":
+    def validate_hand_size(self) -> EvaluateOpeningHandInput:
         if not 1 <= len(self.card_names) <= 7:
             raise ValueError("opening hand must contain one to seven cards")
         return self
