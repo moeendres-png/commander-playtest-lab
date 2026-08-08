@@ -175,9 +175,7 @@ class CommanderMcpServer:
             for phase in ("12_12", "12_13", "12_14", "12_15", "12_16", "12_17"):
                 path = self.root / f"artifacts/phase{phase}/PHASE{phase}_RESULT.json"
                 if path.exists():
-                    rows[phase.replace("_", ".")] = json.loads(
-                        path.read_text(encoding="utf-8")
-                    )
+                    rows[phase.replace("_", ".")] = json.loads(path.read_text(encoding="utf-8"))
             payload = {
                 "server": SERVER_NAME,
                 "version": SERVER_VERSION,
@@ -464,11 +462,7 @@ class CommanderMcpServer:
                 uri = params.get("uri")
                 if not isinstance(uri, str):
                     raise McpProtocolError(-32602, "resources/read requires uri")
-                return self._result(
-                    request_id,
-                    self._read_resource(uri),
-                    modern=modern,
-                )
+                return self._result(request_id, self._read_resource(uri), modern=modern)
             if method == "prompts/list":
                 return self._result(
                     request_id,
@@ -533,9 +527,7 @@ class CommanderMcpServer:
             with write_lock:
                 # JSON-RPC is an ASCII-safe wire format. Escaping non-ASCII here keeps
                 # stdio interoperable even when Windows inherits a legacy code page.
-                stdout.write(
-                    json.dumps(response, ensure_ascii=True, separators=(",", ":")) + "\n"
-                )
+                stdout.write(json.dumps(response, ensure_ascii=True, separators=(",", ":")) + "\n")
                 stdout.flush()
 
         def run_tool(message: dict[str, Any], key: str, event: threading.Event) -> None:
@@ -555,9 +547,7 @@ class CommanderMcpServer:
                 if not isinstance(message, dict):
                     raise ValueError("message must be an object")
             except (json.JSONDecodeError, ValueError) as exc:
-                write_response(
-                    self._error(None, McpProtocolError(-32700, f"Parse error: {exc}"))
-                )
+                write_response(self._error(None, McpProtocolError(-32700, f"Parse error: {exc}")))
                 continue
 
             method = message.get("method")
