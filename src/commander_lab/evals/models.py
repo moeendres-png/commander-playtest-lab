@@ -100,13 +100,42 @@ class GoldenDecisionCase(FrozenModel):
     strength: PilotStrength = PilotStrength.NEAR_OPTIMAL_HEURISTIC
     state: PilotStateView
     actions: tuple[PilotActionView, ...]
-    expected_action_id: str
+    expected_action_id: str | None = None
+    acceptable_action_ids: tuple[str, ...] = ()
+    bad_action_ids: tuple[str, ...] = ()
+    preferred_action_class: str | None = None
+    scenario_group: Literal["development", "holdout"] = "development"
+    seat: int = Field(default=1, ge=1, le=10)
+    known_information: tuple[str, ...] = ()
+    uncertainty: tuple[str, ...] = ()
+    stack_state_if_relevant: str | None = None
+    strategic_reason: str | None = None
+    failure_mode: str | None = None
+    expected_utility_dimensions: tuple[str, ...] = ()
     critical: bool = True
 
+    @property
+    def accepted_actions(self) -> frozenset[str]:
+        accepted = set(self.acceptable_action_ids)
+        if self.expected_action_id is not None:
+            accepted.add(self.expected_action_id)
+        return frozenset(accepted)
+
     @model_validator(mode="after")
-    def expected_action_exists(self) -> "GoldenDecisionCase":
-        if self.expected_action_id not in {action.action_id for action in self.actions}:
-            raise ValueError("expected action must exist in actions")
+    def validate_actions(self) -> "GoldenDecisionCase":
+        action_ids = {action.action_id for action in self.actions}
+        if not self.accepted_actions:
+            raise ValueError("golden case requires expected_action_id or acceptable_action_ids")
+        if not self.accepted_actions.issubset(action_ids):
+            raise ValueError("accepted actions must exist in actions")
+        if not set(self.bad_action_ids).issubset(action_ids):
+            raise ValueError("bad actions must exist in actions")
+        if self.accepted_actions.intersection(self.bad_action_ids):
+            raise ValueError("an action cannot be both acceptable and bad")
+        if self.seat > self.state.pod_size:
+            raise ValueError("seat must be within the scenario pod")
+        if self.state.turn < 1:
+            raise ValueError("scenario turn must be positive")
         return self
 
 

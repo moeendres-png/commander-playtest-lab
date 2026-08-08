@@ -15,6 +15,7 @@ from commander_lab.models import (
     PilotStrength,
     PilotUtilityBreakdown,
     PilotUtilityWeights,
+    StructuralMechanic,
 )
 
 
@@ -348,6 +349,7 @@ class BasePilot:
 
     def _base_components(self, state: PilotStateView, action: PilotActionView) -> dict[str, float]:
         roles = action.roles
+        mechanics = action.mechanic_tags
         opponent_count = max(0, state.pod_size - 1)
         life_pressure = max(0.0, (22.0 - state.life) / 10.0)
         enemy_pressure = max(0.0, state.enemy_board_total - state.board_power - state.engine_value)
@@ -423,6 +425,12 @@ class BasePilot:
             + action.strength(CardRole.TOKEN_SOURCE) * 0.8
             + action.strength(CardRole.PAYOFF) * min(2.2, package_density * 0.18)
         )
+        if StructuralMechanic.TOKEN_ENGINE in mechanics:
+            engine_development += 0.45 + min(0.8, state.tokens * 0.08)
+        if StructuralMechanic.ARTIFACT_ENGINE in mechanics:
+            engine_development += 0.45
+        if StructuralMechanic.GO_WIDE in mechanics:
+            engine_development += 0.25 + min(0.8, state.tokens * 0.06)
 
         if self.reserve_mana_target > 0 and interaction_in_hand:
             reserve_ratio = min(1.5, remaining_mana / self.reserve_mana_target)
@@ -450,6 +458,12 @@ class BasePilot:
             commander_value += 1.2 + action.base_power * 0.15
         if CardRole.COMBAT_PAYOFF in roles and state.commander_online:
             commander_value += action.strength(CardRole.COMBAT_PAYOFF) * 1.15
+        if StructuralMechanic.COMMANDER_DAMAGE_SUPPORT in mechanics:
+            commander_value += 1.0 if state.commander_online else -0.45
+        if StructuralMechanic.COMMANDER_DEPENDENT in mechanics and not state.commander_online and action.action_kind != "commander":
+            commander_value -= 0.6
+        if StructuralMechanic.COMMANDER_INDEPENDENT in mechanics and not state.commander_online:
+            commander_value += 0.35
         if CardRole.PROTECTION in roles and state.commander_online:
             max_commander_power = max(
                 (commander.power for commander in state.commanders if commander.on_battlefield),
@@ -475,6 +489,17 @@ class BasePilot:
         if action.action_kind == "combat_target":
             win_progress += max(0.0, 18.0 - float(action.metadata.get("target_life", 40.0))) * 0.12
             win_progress += float(action.metadata.get("commander_damage_pressure", 0.0)) * 0.18
+        if StructuralMechanic.TABLE_DAMAGE in mechanics:
+            win_progress += max(0, opponent_count - 1) * (0.35 + max(0.0, action.multiplayer_scaling) * 0.18)
+        if StructuralMechanic.FINISHER_COMPRESSION in mechanics:
+            win_progress += 0.65 + max(0, opponent_count - 1) * 0.22
+        if StructuralMechanic.COMMANDER_DAMAGE_SUPPORT in mechanics and state.commander_online:
+            win_progress += 0.55
+        if StructuralMechanic.COMMANDER_DEPENDENT in mechanics and not state.commander_online:
+            # Commander-dependent payoffs should not retain their full finishing
+            # value after the commander has been removed.  This keeps collateral
+            # table-damage/combat payoffs distinct from independent finish axes.
+            win_progress *= 0.35
 
         political_visibility = (
             action.strength(CardRole.ENGINE) * (1.0 - action.immediate_impact * 0.35)
@@ -495,6 +520,14 @@ class BasePilot:
             + action.strength(CardRole.ENGINE) * max(0.0, 0.8 - action.turn_cycle_risk * 0.5)
             + action.strength(CardRole.PROTECTION) * 0.6
         )
+        if StructuralMechanic.REBUILD in mechanics:
+            rebuild_capacity += 1.2
+        if StructuralMechanic.LAND_RECURSION in mechanics:
+            rebuild_capacity += 0.9 + min(0.8, state.graveyard_size * 0.04)
+        if StructuralMechanic.GRAVEYARD_RECURSION in mechanics:
+            rebuild_capacity += 0.75 + min(0.8, state.graveyard_size * 0.035)
+        if StructuralMechanic.COMMANDER_INDEPENDENT in mechanics and not state.commander_online:
+            rebuild_capacity += 0.35
 
         return {
             "survival": survival,
@@ -610,6 +643,14 @@ class KorvoldPilot(BasePilot):
             bonus += action.floor_value * 0.45
         if CardRole.RECURSION in action.roles:
             bonus += min(1.6, state.graveyard_size * 0.09)
+        if StructuralMechanic.SACRIFICE_PAYOFF in action.mechanic_tags:
+            bonus += min(1.3, sacrifice_material * 0.16 + outlets * 0.18)
+        if StructuralMechanic.REBUILD in action.mechanic_tags and state.board_power <= 4.0:
+            bonus += 0.75 + min(1.0, state.graveyard_size * 0.05)
+        if StructuralMechanic.COMMANDER_INDEPENDENT in action.mechanic_tags and not korvold_online:
+            bonus += 0.45
+        if StructuralMechanic.TABLE_DAMAGE in action.mechanic_tags:
+            bonus += max(0, state.pod_size - 3) * 0.32
         if action.card_name in {"Mirkwood Bats", "Exsanguinate", "Massacre Wurm", "Hearthhull, the Worldseed"}:
             bonus += 0.9 + max(0, state.pod_size - 3) * 0.35
         if CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5:
@@ -708,6 +749,16 @@ class RogShaiPilot(BasePilot):
                 bonus += 1.4 + (ishai.power if ishai else 1.0) * 0.08
                 if reserve_after >= 1.0 or has_protection:
                     bonus += 0.8
+                # Do not expose a combat-draw aura into a developed hostile
+                # engine/interaction window when doing so consumes the reserve.
+                if state.max_opponent_threat >= 9.0 and reserve_after < 1.0:
+                    bonus -= 10.0
+                elif state.max_opponent_threat >= 9.0:
+                    bonus -= 7.5
+                elif state.max_opponent_threat >= 8.0 and reserve_after < 1.0:
+                    bonus -= 9.0
+                elif state.max_opponent_threat >= 7.0 and reserve_after < 1.0 and not has_protection:
+                    bonus -= 5.0
             else:
                 bonus -= 2.0 if rograkh_online else 6.0
         if action.card_name == "Jeska, Thrice Reborn":
@@ -719,7 +770,15 @@ class RogShaiPilot(BasePilot):
             if ishai_online:
                 bonus += 0.9 + max(0, state.pod_size - 2) * 0.35
             else:
-                bonus -= 0.45
+                # Kediss needs a commander that actually connects; Rograkh is
+                # not a meaningful substitute for an offline Ishai damage axis.
+                bonus -= 2.2
+        if StructuralMechanic.COMMANDER_DAMAGE_SUPPORT in action.mechanic_tags:
+            bonus += 0.65 + (0.35 if ishai_online else -0.9)
+        if StructuralMechanic.TABLE_DAMAGE in action.mechanic_tags and ishai_online:
+            bonus += max(0, state.pod_size - 3) * 0.4
+        if StructuralMechanic.COMMANDER_INDEPENDENT in action.mechanic_tags and not ishai_online:
+            bonus += 0.5
         if action.card_name in {"Duelist's Heritage", "Psychotic Fury", "Boros Charm", "Sunhome, Fortress of the Legion"}:
             if ishai_online:
                 bonus += 0.8 + max(0.0, (ishai.power - 4.0) * 0.12 if ishai else 0.0)
@@ -735,6 +794,10 @@ class RogShaiPilot(BasePilot):
                 bonus -= 1.0
             if action.action_kind == "counter":
                 bonus += min(2.4, action.threat_score * 0.25)
+        if action.action_kind == "pass" and (has_counter or has_protection):
+            # In uncertain/high-threat pods, holding flexible interaction is a
+            # positive action rather than a zero-value non-action.
+            bonus += max(0.0, state.max_opponent_threat - 6.0) * 0.55
         if action.card_name in {"Kykar, Wind's Fury", "Whirlwind of Thought", "Storm-Kiln Artist", "Guttersnipe"}:
             bonus += 0.45
             if not ishai_online or spellslinger_online:

@@ -6,6 +6,7 @@ from commander_lab.models import (
     DataQuality,
     StructuralCardProfile,
     StructuralDeckProfile,
+    StructuralMechanic,
 )
 from commander_lab.storage import sha256_value
 from pathlib import Path
@@ -133,15 +134,19 @@ def build_current_opponent_profiles(
             for entry in deck_payload["cards"]:
                 role_row = role_by_name[entry["oracle_name"]]
                 roles = frozenset(CardRole(value) for value in role_row["roles"])
+                mechanics = frozenset(StructuralMechanic(value) for value in role_row.get("mechanic_tags", []))
                 colors = frozenset(
                     Color(value) for value in str(entry.get("color_identity", "")) if value in {"W", "U", "B", "R", "G"}
                 )
                 produces = frozenset()
                 if role_row.get("is_land"):
-                    if entry["oracle_name"] == "Swamp":
+                    land_name = str(entry["oracle_name"])
+                    if land_name in {"Swamp", "Barren Moor", "Bojuka Bog"}:
                         produces = frozenset({Color.BLACK})
-                    elif entry["oracle_name"] == "Mountain":
+                    elif land_name == "Mountain":
                         produces = frozenset({Color.RED})
+                    elif land_name == "Hall of Oracles":
+                        produces = frozenset({Color.BLACK, Color.RED})
                     else:
                         produces = frozenset({Color.BLACK, Color.RED})
                 requirements: dict[Color, int] = {}
@@ -158,6 +163,7 @@ def build_current_opponent_profiles(
                             mana_value=float(entry.get("mana_value", 0.0)),
                             roles=roles,
                             role_strengths={role: 1.0 for role in roles},
+                            mechanic_tags=mechanics,
                             color_requirements=requirements,
                             color_identity=colors,
                             produces_colors=produces,
@@ -187,24 +193,58 @@ def build_current_opponent_profiles(
                 data_snapshot_hash=data_snapshot_hash,
             )
             continue
+        commander_roles = frozenset(
+            CardRole(value)
+            for value in spec.get("commander_roles", ["engine", "payoff", "combat_payoff"])
+        )
+        commander_mechanics = frozenset(
+            StructuralMechanic(value) for value in spec.get("commander_mechanics", [])
+        )
         cards: list[StructuralCardProfile] = [
             StructuralCardProfile(
                 oracle_name=commander_name,
                 mana_value=float(spec.get("commander_cost", 5.0)),
-                roles=frozenset({CardRole.ENGINE, CardRole.PAYOFF, CardRole.COMBAT_PAYOFF}),
-                role_strengths={CardRole.ENGINE: 1.15, CardRole.PAYOFF: 1.1, CardRole.COMBAT_PAYOFF: 0.8},
+                roles=commander_roles,
+                role_strengths={role: 1.15 if role in {CardRole.ENGINE, CardRole.PAYOFF} else 1.0 for role in commander_roles},
+                mechanic_tags=commander_mechanics,
                 is_permanent=True,
                 is_creature=True,
                 base_power=float(spec.get("commander_power", 5.0)),
                 commander_synergy=1.0,
                 floor_value=0.75,
-                immediate_impact=0.65,
+                immediate_impact=float(spec.get("commander_immediate_impact", 0.65)),
                 turn_cycle_risk=0.45,
-                multiplayer_scaling=0.35,
+                multiplayer_scaling=float(spec.get("commander_multiplayer_scaling", 0.35)),
                 source_quality=quality,
-                notes=f"Current opponent commander role profile; source_status={source_status}.",
+                notes=f"Current opponent commander role profile; source_status={source_status}; evidence_status={spec.get('evidence_status', 'unknown')}.",
             )
         ]
+        native_role_counts: dict[CardRole, int] = {}
+        for native in spec.get("native_cards", []):
+            native_roles = frozenset(CardRole(value) for value in native.get("roles", ["enabler"]))
+            native_mechanics = frozenset(StructuralMechanic(value) for value in native.get("mechanic_tags", []))
+            for role in native_roles:
+                native_role_counts[role] = native_role_counts.get(role, 0) + 1
+            cards.append(
+                StructuralCardProfile(
+                    oracle_name=str(native["oracle_name"]),
+                    mana_value=float(native.get("mana_value", 3.0)),
+                    roles=native_roles,
+                    role_strengths={role: float(native.get("role_strength", 1.0)) for role in native_roles},
+                    mechanic_tags=native_mechanics,
+                    is_permanent=bool(native.get("is_permanent", True)),
+                    is_creature=bool(native.get("is_creature", False)),
+                    base_power=float(native.get("base_power", 0.0)),
+                    commander_synergy=float(native.get("commander_synergy", 0.35)),
+                    floor_value=float(native.get("floor_value", 0.75)),
+                    immediate_impact=float(native.get("immediate_impact", 0.65)),
+                    turn_cycle_risk=float(native.get("turn_cycle_risk", 0.45)),
+                    multiplayer_scaling=float(native.get("multiplayer_scaling", 0.0)),
+                    source_quality=quality,
+                    notes=f"Decision-relevant named opponent profile; source_status={source_status}; evidence_status={spec.get('evidence_status', 'unknown')}.",
+                )
+            )
+
         land_count = int(spec.get("land_count", 38))
         for index in range(land_count):
             cards.append(
@@ -222,7 +262,10 @@ def build_current_opponent_profiles(
                     notes=f"Abstract mana source for {deck_id}.",
                 )
             )
-        role_counts = {CardRole(key): int(value) for key, value in spec.get("roles", {}).items()}
+        role_counts = {
+            CardRole(key): max(0, int(value) - native_role_counts.get(CardRole(key), 0))
+            for key, value in spec.get("roles", {}).items()
+        }
         role_mv = {
             CardRole.RAMP: 2.0, CardRole.DRAW: 3.0, CardRole.SELECTION: 2.0,
             CardRole.REMOVAL: 2.5, CardRole.COUNTER: 2.0, CardRole.PROTECTION: 1.5,

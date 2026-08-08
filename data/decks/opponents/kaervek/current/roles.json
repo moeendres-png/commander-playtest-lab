@@ -15,7 +15,11 @@
       "is_land": false,
       "is_creature": true,
       "color_identity": "BR",
-      "card_type": "Legendary Creature — Human Shaman"
+      "card_type": "Legendary Creature — Human Shaman",
+      "mechanic_tags": [
+        "commander_dependent",
+        "finisher_compression"
+      ]
     },
     {
       "oracle_name": "Arcane Signet",
@@ -281,7 +285,11 @@
       "is_land": false,
       "is_creature": false,
       "color_identity": "R",
-      "card_type": "Enchantment"
+      "card_type": "Enchantment",
+      "mechanic_tags": [
+        "finisher_compression",
+        "commander_independent"
+      ]
     },
     {
       "oracle_name": "Nullpriest of Oblivion",
@@ -449,7 +457,12 @@
       "is_land": false,
       "is_creature": true,
       "color_identity": "B",
-      "card_type": "Creature — Skeleton Warrior"
+      "card_type": "Creature — Skeleton Warrior",
+      "mechanic_tags": [
+        "graveyard_recursion",
+        "rebuild",
+        "commander_independent"
+      ]
     },
     {
       "oracle_name": "Shriekmaw",
@@ -606,7 +619,12 @@
       "is_land": false,
       "is_creature": true,
       "color_identity": "R",
-      "card_type": "Creature — Goblin Shaman"
+      "card_type": "Creature — Goblin Shaman",
+      "mechanic_tags": [
+        "table_damage",
+        "finisher_compression",
+        "commander_independent"
+      ]
     },
     {
       "oracle_name": "Hoard-Smelter Dragon",
@@ -780,7 +798,12 @@
       "is_land": false,
       "is_creature": false,
       "color_identity": "BR",
-      "card_type": "Instant"
+      "card_type": "Instant",
+      "mechanic_tags": [
+        "table_damage",
+        "finisher_compression",
+        "commander_independent"
+      ]
     },
     {
       "oracle_name": "Terminate",
@@ -837,7 +860,8 @@
       "quantity": 1,
       "mana_value": 0.0,
       "roles": [
-        "mana_source"
+        "mana_source",
+        "selection"
       ],
       "is_land": true,
       "is_creature": false,
@@ -849,7 +873,8 @@
       "quantity": 1,
       "mana_value": 0.0,
       "roles": [
-        "mana_source"
+        "mana_source",
+        "selection"
       ],
       "is_land": true,
       "is_creature": false,
@@ -946,7 +971,8 @@
       "quantity": 1,
       "mana_value": 0.0,
       "roles": [
-        "mana_source"
+        "mana_source",
+        "selection"
       ],
       "is_land": true,
       "is_creature": false,

@@ -17,6 +17,7 @@ from commander_lab.models import (
     SourceRef,
     StructuralCardProfile,
     StructuralDeckProfile,
+    StructuralMechanic,
 )
 from commander_lab.storage import compute_data_snapshot_hash, compute_deck_hash
 
@@ -246,6 +247,55 @@ MULTIPLAYER_SCALING: dict[str, float] = {
 }
 
 
+MECHANIC_TAGS_BY_CARD: dict[str, frozenset[StructuralMechanic]] = {
+    # Korvold: independent resource, rebuild, sacrifice and table-compression axes.
+    "Korvold, Fae-Cursed King": frozenset({StructuralMechanic.SACRIFICE_COST, StructuralMechanic.SACRIFICE_PAYOFF, StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Mirkwood Bats": frozenset({StructuralMechanic.SACRIFICE_PAYOFF, StructuralMechanic.TABLE_DAMAGE, StructuralMechanic.FINISHER_COMPRESSION, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Exsanguinate": frozenset({StructuralMechanic.TABLE_DAMAGE, StructuralMechanic.FINISHER_COMPRESSION, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Massacre Wurm": frozenset({StructuralMechanic.TABLE_DAMAGE, StructuralMechanic.FINISHER_COMPRESSION, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Mayhem Devil": frozenset({StructuralMechanic.SACRIFICE_PAYOFF, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Goblin Bombardment": frozenset({StructuralMechanic.SACRIFICE_OUTLET, StructuralMechanic.SACRIFICE_PAYOFF, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Zuran Orb": frozenset({StructuralMechanic.SACRIFICE_COST, StructuralMechanic.SACRIFICE_OUTLET, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Ophiomancer": frozenset({StructuralMechanic.TOKEN_ENGINE, StructuralMechanic.REPEATABLE_TOKEN_SOURCE, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Tireless Provisioner": frozenset({StructuralMechanic.TOKEN_ENGINE, StructuralMechanic.REPEATABLE_TOKEN_SOURCE, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Academy Manufactor": frozenset({StructuralMechanic.TOKEN_ENGINE, StructuralMechanic.ARTIFACT_ENGINE, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Mazirek, Kraul Death Priest": frozenset({StructuralMechanic.SACRIFICE_PAYOFF, StructuralMechanic.GO_WIDE, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Szarel, Genesis Shepherd": frozenset({StructuralMechanic.SACRIFICE_PAYOFF, StructuralMechanic.GO_WIDE, StructuralMechanic.REBUILD, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Aftermath Analyst": frozenset({StructuralMechanic.LAND_RECURSION, StructuralMechanic.GRAVEYARD_RECURSION, StructuralMechanic.REBUILD, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Splendid Reclamation": frozenset({StructuralMechanic.LAND_RECURSION, StructuralMechanic.GRAVEYARD_RECURSION, StructuralMechanic.REBUILD, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Ramunap Excavator": frozenset({StructuralMechanic.LAND_RECURSION, StructuralMechanic.GRAVEYARD_RECURSION, StructuralMechanic.REBUILD, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Soul of Windgrace": frozenset({StructuralMechanic.LAND_RECURSION, StructuralMechanic.GRAVEYARD_RECURSION, StructuralMechanic.REBUILD, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Titania, Protector of Argoth": frozenset({StructuralMechanic.LAND_RECURSION, StructuralMechanic.TOKEN_ENGINE, StructuralMechanic.GO_WIDE, StructuralMechanic.REBUILD, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Hearthhull, the Worldseed": frozenset({StructuralMechanic.FINISHER_COMPRESSION, StructuralMechanic.REBUILD, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    # RogShai: commander-damage and independent table-reach are deliberately distinct.
+    "Ishai, Ojutai Dragonspeaker": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT, StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Jeska, Thrice Reborn": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT, StructuralMechanic.FINISHER_COMPRESSION, StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Kediss, Emberclaw Familiar": frozenset({StructuralMechanic.TABLE_DAMAGE, StructuralMechanic.FINISHER_COMPRESSION, StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Duelist's Heritage": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT, StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Psychotic Fury": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT, StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Boros Charm": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT, StructuralMechanic.STACK_INTERACTION}),
+    "Sunhome, Fortress of the Legion": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT, StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Combat Research": frozenset({StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Curiosity": frozenset({StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Staggering Insight": frozenset({StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Guttersnipe": frozenset({StructuralMechanic.TABLE_DAMAGE, StructuralMechanic.FINISHER_COMPRESSION, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Kykar, Wind's Fury": frozenset({StructuralMechanic.TOKEN_ENGINE, StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Whirlwind of Thought": frozenset({StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Archmage Emeritus": frozenset({StructuralMechanic.COMMANDER_INDEPENDENT}),
+    "Silence": frozenset({StructuralMechanic.STACK_INTERACTION, StructuralMechanic.FINISHER_COMPRESSION}),
+    "Counterspell": frozenset({StructuralMechanic.STACK_INTERACTION}),
+    "Dovin's Veto": frozenset({StructuralMechanic.STACK_INTERACTION}),
+    "An Offer You Can't Refuse": frozenset({StructuralMechanic.STACK_INTERACTION}),
+    "Arcane Denial": frozenset({StructuralMechanic.STACK_INTERACTION}),
+    "Negate": frozenset({StructuralMechanic.STACK_INTERACTION}),
+    "Refute": frozenset({StructuralMechanic.STACK_INTERACTION}),
+    "Wash Away": frozenset({StructuralMechanic.STACK_INTERACTION}),
+    "Bastion Protector": frozenset({StructuralMechanic.COMMANDER_DEPENDENT}),
+    "Lightning Greaves": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT}),
+    "Swiftfoot Boots": frozenset({StructuralMechanic.COMMANDER_DAMAGE_SUPPORT}),
+}
+
+
 CARD_SOURCE_URLS: dict[str, str] = {
     "Exploration Broodship": "https://mtg.wtf/card/eoc/14/Exploration-Broodship",
     "Hearthhull, the Worldseed": "https://mtg.wtf/card/eoc/1/Hearthhull-the-Worldseed",
@@ -405,6 +455,7 @@ def build_default_profile(card: CardIdentity) -> StructuralCardProfile:
         mana_value=mana_value,
         roles=roles,
         role_strengths=role_strengths,
+        mechanic_tags=MECHANIC_TAGS_BY_CARD.get(card.oracle_name, frozenset()),
         color_requirements=_color_requirements(card, mana_value),
         produces_colors=produced,
         is_land=is_land,
@@ -449,7 +500,7 @@ class StructuralProfileCatalog:
 
     def save(self, path: str | Path, *, data_as_of: str, source_hash: str) -> None:
         payload = {
-            "schema_version": "0.3.0",
+            "schema_version": "0.4.0",
             "estimate_type": "structural_model_estimates",
             "data_as_of": data_as_of,
             "source_hash": source_hash,
@@ -500,7 +551,7 @@ def generate_project_profiles(root: str | Path) -> Path:
     profiles = StructuralProfileCatalog.from_card_catalog(catalog)
     source_hash = compute_data_snapshot_hash([oracle_path], root=root_path)
     output = root_path / "data/cards/structural_role_profiles.json"
-    profiles.save(output, data_as_of="2026-08-02", source_hash=source_hash)
+    profiles.save(output, data_as_of="2026-08-09", source_hash=source_hash)
     return output
 
 

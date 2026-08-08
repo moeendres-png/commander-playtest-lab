@@ -6,7 +6,7 @@ from typing import Literal
 from pydantic import Field, model_validator
 
 from .common import FrozenModel
-from .roles import CardRole
+from .roles import CardRole, StructuralMechanic
 
 
 class PilotStrength(StrEnum):
@@ -198,6 +198,7 @@ class PilotActionView(FrozenModel):
     mana_cost: float = Field(default=0.0, ge=0.0)
     roles: frozenset[CardRole] = frozenset()
     role_strengths: dict[CardRole, float] = Field(default_factory=dict)
+    mechanic_tags: frozenset[StructuralMechanic] = frozenset()
     floor_value: float = Field(default=0.0, ge=0.0, le=3.0)
     immediate_impact: float = Field(default=0.0, ge=0.0, le=2.0)
     turn_cycle_risk: float = Field(default=0.0, ge=0.0, le=1.0)

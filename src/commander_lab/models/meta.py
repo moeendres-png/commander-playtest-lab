@@ -16,6 +16,8 @@ META_SCHEMA_VERSION = "1.0.0"
 class MetaCategory(StrEnum):
     LOCAL_META = "local_meta"
     NORMAL_FOUR_PLAYER = "normal_four_player"
+    COMMANDER_THREE_PLAYER = "commander_3_player"
+    COMMANDER_FIVE_PLAYER = "commander_5_player"
     HIGH_POWER = "high_power"
     CEDH_TOURNAMENT = "cedh_tournament"
     LARGE_POD = "large_pod"
@@ -35,6 +37,8 @@ class MetaEvidenceRating(StrEnum):
 class FormatBand(StrEnum):
     LOCAL_META = "local_meta"
     NORMAL_FOUR_PLAYER = "normal_four_player"
+    COMMANDER_THREE_PLAYER = "commander_3_player"
+    COMMANDER_FIVE_PLAYER = "commander_5_player"
     HIGH_POWER = "high_power"
     CEDH_TOURNAMENT = "cedh_tournament"
     LARGE_POD = "large_pod"

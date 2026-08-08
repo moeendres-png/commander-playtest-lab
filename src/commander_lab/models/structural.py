@@ -6,7 +6,7 @@ from pydantic import Field, model_validator
 
 from .common import Color, DataQuality, FrozenModel, MutableModel, SourceRef
 from .pilots import PilotConfig
-from .roles import CardRole
+from .roles import CardRole, StructuralMechanic
 
 
 STRUCTURAL_ESTIMATE_TYPE = "structural_model_estimates"
@@ -24,6 +24,7 @@ class StructuralCardProfile(FrozenModel):
     mana_value: float = Field(default=3.0, ge=0.0, le=20.0)
     roles: frozenset[CardRole]
     role_strengths: dict[CardRole, float] = Field(default_factory=dict)
+    mechanic_tags: frozenset[StructuralMechanic] = frozenset()
     color_requirements: dict[Color, int] = Field(default_factory=dict)
     color_identity: frozenset[Color] = frozenset()
     produces_colors: frozenset[Color] = frozenset()

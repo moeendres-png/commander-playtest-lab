@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "data_as_of": "2026-08-07",
+  "schema_version": "1.1.0",
+  "data_as_of": "2026-08-09",
   "estimate_type": "structural_model_estimates",
   "weighting": "unweighted_representative_scenarios",
   "notes": [
@@ -8,7 +8,10 @@
     "High Perfect Morcant: 54 hard slots, 18 provisional completion slots, 28 synthetic basic slots; 100-card/35-land working baseline.",
     "Cosmic Spider-Man: 4 hard-known cards; public-deck completion remains synthetic and is not promoted to observed.",
     "Official precon baselines remain fixed unless a newer direct observation overrides them.",
-    "Kaervek/current is the verified full 100-card opponent snapshot with Midnight Reaper -> Warstorm Surge correction."
+    "Kaervek/current is the verified full 100-card opponent snapshot with Midnight Reaper -> Warstorm Surge correction.",
+    "Audit G: named native cards are included only when decision-relevant and supported by current project/official evidence; residual slots remain structural role-density abstractions.",
+    "evidence_status is intentionally separate from data_quality: verified official baselines may still use project-inferred structural role annotations.",
+    "Unknown or upgraded local opponent slots are never assigned fabricated probabilities."
   ],
   "profiles": [
     {
@@ -42,7 +45,144 @@
       "confirmed_card_count": 54,
       "unknown_slot_count": 0,
       "provisional_completion_count": 18,
-      "synthetic_basic_count": 28
+      "synthetic_basic_count": 28,
+      "evidence_status": "observed",
+      "commander_roles": [
+        "engine",
+        "payoff",
+        "enabler"
+      ],
+      "commander_mechanics": [
+        "go_wide",
+        "commander_dependent"
+      ],
+      "commander_immediate_impact": 0.78,
+      "commander_multiplayer_scaling": 0.85,
+      "native_cards": [
+        {
+          "oracle_name": "Elvish Archdruid",
+          "mana_value": 3,
+          "roles": [
+            "ramp",
+            "engine",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "go_wide",
+            "commander_independent"
+          ],
+          "is_permanent": true,
+          "is_creature": true,
+          "base_power": 2,
+          "commander_synergy": 0.65,
+          "multiplayer_scaling": 0.35
+        },
+        {
+          "oracle_name": "Flourishing Defenses",
+          "mana_value": 5,
+          "roles": [
+            "engine",
+            "token_source",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "repeatable_token_source",
+            "go_wide",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.8,
+          "multiplayer_scaling": 0.75
+        },
+        {
+          "oracle_name": "Hapatra, Vizier of Poisons",
+          "mana_value": 2,
+          "roles": [
+            "engine",
+            "token_source",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "repeatable_token_source",
+            "go_wide",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 2,
+          "commander_synergy": 0.8,
+          "multiplayer_scaling": 0.7
+        },
+        {
+          "oracle_name": "Deathreap Ritual",
+          "mana_value": 4,
+          "roles": [
+            "draw",
+            "engine"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "commander_synergy": 0.45,
+          "multiplayer_scaling": 0.55
+        },
+        {
+          "oracle_name": "Black Sun's Zenith",
+          "mana_value": 2,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.95,
+          "multiplayer_scaling": 0.8
+        },
+        {
+          "oracle_name": "Gaze of Granite",
+          "mana_value": 3,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.95,
+          "multiplayer_scaling": 0.8
+        },
+        {
+          "oracle_name": "Crippling Fear",
+          "mana_value": 4,
+          "roles": [
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.9,
+          "multiplayer_scaling": 0.7
+        },
+        {
+          "oracle_name": "Casualties of War",
+          "mana_value": 6,
+          "roles": [
+            "removal"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.95,
+          "multiplayer_scaling": 0.45
+        },
+        {
+          "oracle_name": "Devoted Druid",
+          "mana_value": 2,
+          "roles": [
+            "ramp",
+            "enabler"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 0,
+          "commander_synergy": 0.45
+        }
+      ]
     },
     {
       "deck_id": "opponent/cosmic-spiderman-midbudget",
@@ -73,7 +213,68 @@
         "Public-deck completion is synthetic and replaceable by newer observation"
       ],
       "confirmed_card_count": 4,
-      "unknown_slot_count": 96
+      "unknown_slot_count": 96,
+      "evidence_status": "observed",
+      "commander_roles": [
+        "engine",
+        "payoff",
+        "combat_payoff",
+        "finisher"
+      ],
+      "commander_mechanics": [
+        "go_wide",
+        "finisher_compression",
+        "commander_dependent"
+      ],
+      "commander_immediate_impact": 0.9,
+      "commander_multiplayer_scaling": 0.65,
+      "native_cards": [
+        {
+          "oracle_name": "Mary Jane Watson",
+          "mana_value": 2,
+          "roles": [
+            "draw",
+            "engine"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 2,
+          "commander_synergy": 0.8,
+          "multiplayer_scaling": 0.35
+        },
+        {
+          "oracle_name": "Scarlet Spider, Ben Reilly",
+          "mana_value": 3,
+          "roles": [
+            "payoff",
+            "combat_payoff"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 4,
+          "commander_synergy": 0.7,
+          "multiplayer_scaling": 0.15
+        },
+        {
+          "oracle_name": "Guy in the Chair",
+          "mana_value": 3,
+          "roles": [
+            "ramp",
+            "enabler",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 2,
+          "commander_synergy": 0.7
+        }
+      ]
     },
     {
       "deck_id": "opponent/blight-curse-precon",
@@ -100,6 +301,148 @@
       },
       "uncertainty": [
         "Structural reference to the fixed precon; card-by-card engine coverage not asserted"
+      ],
+      "evidence_status": "verified",
+      "commander_roles": [
+        "removal",
+        "recursion",
+        "engine",
+        "payoff"
+      ],
+      "commander_mechanics": [
+        "graveyard_recursion",
+        "rebuild",
+        "commander_dependent"
+      ],
+      "commander_immediate_impact": 0.9,
+      "commander_multiplayer_scaling": 0.55,
+      "native_cards": [
+        {
+          "oracle_name": "Necroskitter",
+          "mana_value": 3,
+          "roles": [
+            "engine",
+            "recursion",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "graveyard_recursion",
+            "rebuild",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 1,
+          "commander_synergy": 0.85,
+          "multiplayer_scaling": 0.6
+        },
+        {
+          "oracle_name": "Massacre Girl, Known Killer",
+          "mana_value": 4,
+          "roles": [
+            "engine",
+            "draw",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 4,
+          "commander_synergy": 0.65,
+          "multiplayer_scaling": 0.55
+        },
+        {
+          "oracle_name": "Vraska, Betrayal's Sting",
+          "mana_value": 6,
+          "roles": [
+            "removal",
+            "engine",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "commander_synergy": 0.5,
+          "immediate_impact": 0.9
+        },
+        {
+          "oracle_name": "The Scorpion God",
+          "mana_value": 5,
+          "roles": [
+            "engine",
+            "draw",
+            "removal",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "commander_independent",
+            "rebuild"
+          ],
+          "is_creature": true,
+          "base_power": 6,
+          "commander_synergy": 0.85,
+          "multiplayer_scaling": 0.55
+        },
+        {
+          "oracle_name": "Black Sun's Zenith",
+          "mana_value": 2,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.95,
+          "multiplayer_scaling": 0.85
+        },
+        {
+          "oracle_name": "Hapatra, Vizier of Poisons",
+          "mana_value": 2,
+          "roles": [
+            "engine",
+            "token_source",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "repeatable_token_source",
+            "go_wide",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 2,
+          "commander_synergy": 0.85,
+          "multiplayer_scaling": 0.7
+        },
+        {
+          "oracle_name": "Blowfly Infestation",
+          "mana_value": 3,
+          "roles": [
+            "engine",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "commander_synergy": 0.8,
+          "multiplayer_scaling": 0.65
+        },
+        {
+          "oracle_name": "Flourishing Defenses",
+          "mana_value": 5,
+          "roles": [
+            "engine",
+            "token_source",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "repeatable_token_source",
+            "go_wide",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.85,
+          "multiplayer_scaling": 0.75
+        }
       ]
     },
     {
@@ -132,14 +475,15 @@
       "verified_full_list": true,
       "deck_hash": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
       "snapshot_dir": "data/decks/opponents/kaervek/current",
-      "user_correction": "Midnight Reaper -> Warstorm Surge"
+      "user_correction": "Midnight Reaper -> Warstorm Surge",
+      "evidence_status": "verified"
     },
     {
       "deck_id": "opponent/doom-prevails-precon",
       "name": "Doom Prevails Official Precon Reference",
-      "commander": "Doctor Doom",
-      "commander_cost": 5.0,
-      "commander_power": 5.0,
+      "commander": "Doctor Doom, King of Latveria",
+      "commander_cost": 4.0,
+      "commander_power": 3.0,
       "strategy": "villains_artifacts_reuse",
       "source_status": "official_precon_baseline",
       "data_quality": "project_inferred",
@@ -161,14 +505,117 @@
         "Official unchanged precon baseline; concrete local upgrades are not asserted"
       ],
       "baseline_precon_cards": 100,
-      "upgrade_slots_unknown": true
+      "upgrade_slots_unknown": true,
+      "evidence_status": "verified",
+      "commander_roles": [
+        "engine",
+        "selection",
+        "payoff",
+        "combat_payoff"
+      ],
+      "commander_mechanics": [
+        "table_damage",
+        "commander_dependent"
+      ],
+      "commander_immediate_impact": 0.82,
+      "commander_multiplayer_scaling": 0.8,
+      "native_cards": [
+        {
+          "oracle_name": "Black Market Connections",
+          "mana_value": 3,
+          "roles": [
+            "draw",
+            "ramp",
+            "token_source",
+            "engine"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.4,
+          "multiplayer_scaling": 0.35
+        },
+        {
+          "oracle_name": "Skullclamp",
+          "mana_value": 1,
+          "roles": [
+            "draw",
+            "engine"
+          ],
+          "mechanic_tags": [
+            "artifact_engine",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.5
+        },
+        {
+          "oracle_name": "Currency Converter",
+          "mana_value": 1,
+          "roles": [
+            "selection",
+            "engine",
+            "token_source"
+          ],
+          "mechanic_tags": [
+            "artifact_engine",
+            "token_engine",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.55
+        },
+        {
+          "oracle_name": "Toxic Deluge",
+          "mana_value": 3,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 1.0,
+          "multiplayer_scaling": 0.9
+        },
+        {
+          "oracle_name": "Blasphemous Act",
+          "mana_value": 9,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.98,
+          "multiplayer_scaling": 0.9
+        },
+        {
+          "oracle_name": "Vandalblast",
+          "mana_value": 1,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.95,
+          "multiplayer_scaling": 0.85
+        },
+        {
+          "oracle_name": "Kindred Dominance",
+          "mana_value": 7,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.95,
+          "multiplayer_scaling": 0.9
+        }
+      ]
     },
     {
       "deck_id": "opponent/dance-elements-precon",
       "name": "Dance of the Elements Official Precon Reference",
-      "commander": "Dance of the Elements Commander",
-      "commander_cost": 5.0,
-      "commander_power": 5.0,
+      "commander": "Ashling, the Limitless",
+      "commander_cost": 3.0,
+      "commander_power": 2.0,
       "strategy": "elemental_etb_evoke_recursion",
       "source_status": "official_precon_baseline",
       "data_quality": "project_inferred",
@@ -188,14 +635,167 @@
       },
       "uncertainty": [
         "Fixed-precon structural reference"
+      ],
+      "evidence_status": "verified",
+      "commander_roles": [
+        "engine",
+        "enabler",
+        "token_source",
+        "payoff"
+      ],
+      "commander_mechanics": [
+        "sacrifice_cost",
+        "sacrifice_payoff",
+        "token_engine",
+        "repeatable_token_source",
+        "commander_dependent"
+      ],
+      "commander_immediate_impact": 0.72,
+      "commander_multiplayer_scaling": 0.55,
+      "native_cards": [
+        {
+          "oracle_name": "Avenger of Zendikar",
+          "mana_value": 7,
+          "roles": [
+            "token_source",
+            "payoff",
+            "finisher"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "go_wide",
+            "finisher_compression",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 5,
+          "multiplayer_scaling": 0.85
+        },
+        {
+          "oracle_name": "Muldrotha, the Gravetide",
+          "mana_value": 6,
+          "roles": [
+            "engine",
+            "recursion"
+          ],
+          "mechanic_tags": [
+            "graveyard_recursion",
+            "rebuild",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 6,
+          "multiplayer_scaling": 0.35
+        },
+        {
+          "oracle_name": "Risen Reef",
+          "mana_value": 3,
+          "roles": [
+            "draw",
+            "ramp",
+            "engine"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 1,
+          "commander_synergy": 0.85,
+          "multiplayer_scaling": 0.45
+        },
+        {
+          "oracle_name": "Horde of Notions",
+          "mana_value": 5,
+          "roles": [
+            "engine",
+            "recursion",
+            "combat_payoff"
+          ],
+          "mechanic_tags": [
+            "graveyard_recursion",
+            "rebuild",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 5,
+          "commander_synergy": 0.85
+        },
+        {
+          "oracle_name": "Bane of Progress",
+          "mana_value": 6,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "mechanic_tags": [
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 2,
+          "immediate_impact": 0.98,
+          "multiplayer_scaling": 0.9
+        },
+        {
+          "oracle_name": "Foundation Breaker",
+          "mana_value": 4,
+          "roles": [
+            "removal",
+            "enabler"
+          ],
+          "mechanic_tags": [
+            "sacrifice_cost",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 2,
+          "commander_synergy": 0.75,
+          "immediate_impact": 0.9
+        },
+        {
+          "oracle_name": "Omnath, Locus of Rage",
+          "mana_value": 7,
+          "roles": [
+            "engine",
+            "token_source",
+            "payoff",
+            "finisher"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "repeatable_token_source",
+            "table_damage",
+            "finisher_compression",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 5,
+          "commander_synergy": 0.65,
+          "multiplayer_scaling": 0.8
+        },
+        {
+          "oracle_name": "Greenwarden of Murasa",
+          "mana_value": 6,
+          "roles": [
+            "recursion",
+            "engine"
+          ],
+          "mechanic_tags": [
+            "graveyard_recursion",
+            "rebuild",
+            "commander_independent"
+          ],
+          "is_creature": true,
+          "base_power": 5,
+          "commander_synergy": 0.6
+        }
       ]
     },
     {
       "deck_id": "opponent/wakanda-forever-precon",
       "name": "Wakanda Forever Official Precon Reference",
-      "commander": "Wakanda Forever Commander",
-      "commander_cost": 5.0,
-      "commander_power": 5.0,
+      "commander": "T'Challa, the Black Panther",
+      "commander_cost": 3.0,
+      "commander_power": 2.0,
       "strategy": "artifacts_equipment_tokens",
       "source_status": "official_precon_baseline",
       "data_quality": "project_inferred",
@@ -215,6 +815,171 @@
       },
       "uncertainty": [
         "Fixed-precon structural reference"
+      ],
+      "evidence_status": "verified",
+      "commander_roles": [
+        "engine",
+        "enabler",
+        "token_source",
+        "combat_payoff",
+        "payoff"
+      ],
+      "commander_mechanics": [
+        "artifact_engine",
+        "token_engine",
+        "commander_dependent"
+      ],
+      "commander_immediate_impact": 0.78,
+      "commander_multiplayer_scaling": 0.45,
+      "native_cards": [
+        {
+          "oracle_name": "Divine Visitation",
+          "mana_value": 5,
+          "roles": [
+            "engine",
+            "token_source",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "token_engine",
+            "go_wide",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.65,
+          "multiplayer_scaling": 0.65
+        },
+        {
+          "oracle_name": "Martial Coup",
+          "mana_value": 7,
+          "roles": [
+            "wipe",
+            "token_source",
+            "finisher"
+          ],
+          "mechanic_tags": [
+            "go_wide",
+            "finisher_compression",
+            "commander_independent"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.98,
+          "multiplayer_scaling": 0.9
+        },
+        {
+          "oracle_name": "Vanquish the Horde",
+          "mana_value": 8,
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.98,
+          "multiplayer_scaling": 0.9
+        },
+        {
+          "oracle_name": "Conduit of Worlds",
+          "mana_value": 4,
+          "roles": [
+            "recursion",
+            "land_synergy",
+            "engine"
+          ],
+          "mechanic_tags": [
+            "land_recursion",
+            "rebuild",
+            "artifact_engine",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.5
+        },
+        {
+          "oracle_name": "Greater Good",
+          "mana_value": 4,
+          "roles": [
+            "draw",
+            "engine",
+            "sacrifice_outlet"
+          ],
+          "mechanic_tags": [
+            "sacrifice_outlet",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.45
+        },
+        {
+          "oracle_name": "Overwhelming Stampede",
+          "mana_value": 5,
+          "roles": [
+            "combat_payoff",
+            "finisher"
+          ],
+          "mechanic_tags": [
+            "go_wide",
+            "finisher_compression",
+            "commander_independent"
+          ],
+          "is_permanent": false,
+          "immediate_impact": 0.95,
+          "multiplayer_scaling": 0.8
+        },
+        {
+          "oracle_name": "Trading Post",
+          "mana_value": 4,
+          "roles": [
+            "engine",
+            "recursion",
+            "token_source",
+            "sacrifice_outlet"
+          ],
+          "mechanic_tags": [
+            "artifact_engine",
+            "rebuild",
+            "token_engine",
+            "sacrifice_outlet",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.5
+        },
+        {
+          "oracle_name": "Scourglass",
+          "mana_value": 5,
+          "roles": [
+            "wipe"
+          ],
+          "mechanic_tags": [
+            "artifact_engine",
+            "commander_independent"
+          ],
+          "immediate_impact": 0.55,
+          "multiplayer_scaling": 0.9
+        },
+        {
+          "oracle_name": "Hammer of Nazahn",
+          "mana_value": 4,
+          "roles": [
+            "protection",
+            "combat_payoff",
+            "payoff"
+          ],
+          "mechanic_tags": [
+            "artifact_engine",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.45
+        },
+        {
+          "oracle_name": "Sword of the Animist",
+          "mana_value": 2,
+          "roles": [
+            "ramp",
+            "combat_payoff"
+          ],
+          "mechanic_tags": [
+            "artifact_engine",
+            "commander_independent"
+          ],
+          "commander_synergy": 0.45
+        }
       ]
     }
   ],

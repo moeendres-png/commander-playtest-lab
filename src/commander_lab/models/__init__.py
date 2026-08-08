@@ -58,7 +58,7 @@ from .optimization import (
     ParetoFrontInput,
     ShapleyInput,
 )
-from .roles import CardRole
+from .roles import CardRole, StructuralMechanic
 from .pilots import (
     PilotActionView,
     PilotCommanderView,
@@ -279,6 +279,7 @@ __all__ = [
     "ZoneName",
     "STRUCTURAL_ESTIMATE_TYPE",
     "CardRole",
+    "StructuralMechanic",
     "ConditionalStrength",
     "StructuralAbortLimits",
     "StructuralBatchConfig",
