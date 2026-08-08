@@ -59,12 +59,12 @@ jobs:
         shell: bash
         run: |
           if git diff --quiet; then
-            echo "No Ruff changes required."
+            echo "No tracked Ruff changes required."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add -u
           git commit -m "style: repository-wide Ruff cleanup [strict-quality-autofix]"
           git push origin HEAD:fix/1.13.4-strict-quality
       - name: Capture strict mypy diagnostics
