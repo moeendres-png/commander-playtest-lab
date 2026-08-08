@@ -587,7 +587,8 @@ class MulliganLab:
     ) -> tuple[tuple[tuple[StructuralCardProfile, ...], ...], ...]:
         if samples > 100_000:
             raise MulliganLabError(
-                "materialized sampling is capped at 100,000; use iter_draw_sequences for larger runs"
+                "materialized sampling is capped at 100,000; use "
+                "iter_draw_sequences for larger runs"
             )
         return tuple(
             self.iter_draw_sequences(deck, samples=samples, seed=seed, max_mulligans=max_mulligans)
@@ -891,7 +892,8 @@ class MulliganLab:
             overfitting_validation=validations,
             warnings=(
                 "Keep rules are model-based candidates, not universal or empirical facts.",
-                "Follow-up placement comes from complete Structural Simulator games with forced public opening hands.",
+                "Follow-up placement comes from complete Structural "
+                "Simulator games with forced public opening hands.",
                 "Structural follow-up games are not comprehensive MTG rules-engine games.",
                 "No external engine validation was performed.",
             ),

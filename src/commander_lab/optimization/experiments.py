@@ -289,7 +289,9 @@ def run_paired_structural_comparison(
         worst_case_result=min(differences),
         scenario_weights="equal within this paired scenario",
         pilot_weights=f"single configured pilot: {pilot_config.strength.value}",
-        multiple_testing_method="not_applicable_single_comparison; Holm required for ranked families",
+        multiple_testing_method=(
+            "not_applicable_single_comparison; Holm required for ranked families"
+        ),
         rounding_policy="unrounded internal values; presentation may round to six decimals",
         bayesian_shrunk_effect=bayesian_shrunk_mean(differences),
         distributionally_robust_lower_bound=distributionally_robust_lower_bound(differences),

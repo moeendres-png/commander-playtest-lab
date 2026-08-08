@@ -242,7 +242,8 @@ def main() -> int:
                 "data/canonical_import/2026-08-07/opponents.json"
             )
 
-    # Preserve additional explicitly provenance-marked ensemble assumptions as assumptions, never confirmed cards.
+    # Preserve additional explicitly provenance-marked ensemble assumptions as assumptions,
+    # never confirmed cards.
     for path in sorted((root / "data/opponent_ensembles").glob("*-v1.json")):
         ensemble = load(path)
         for variant in ensemble.get("variants", []):
@@ -261,7 +262,8 @@ def main() -> int:
     for name in sorted(records):
         rec = records[name]
         tact = tactical_cards.get(name, {})
-        # Per-card structural support means a card has an actual role/profile or an explicit canonical deck role.
+        # Per-card structural support means a card has an actual role/profile or an explicit
+        # canonical deck role.
         structural = bool(roles.get(name) or rec.get("canonical_role"))
         tactical = int(tact.get("tactical_passed", 0)) > 0
         status = "tactical_only" if tactical else "structural_only" if structural else "unsupported"

@@ -82,7 +82,9 @@ def sync_current_sources(root: str | Path, *, dry_run: bool = True) -> dict[str,
         )
     if not dry_run and audit["status"] != "MATCH":
         raise RuntimeError(
-            "Canonical source bytes differ from the prepared imports. Provide and import the canonical Drive exports before sync; this command has no hidden Google access."
+            "Canonical source bytes differ from the prepared imports. "
+            "Provide and import the canonical Drive exports before "
+            "sync; this command has no hidden Google access."
         )
     return {
         "schema_version": 1,
@@ -90,5 +92,8 @@ def sync_current_sources(root: str | Path, *, dry_run: bool = True) -> dict[str,
         "status": audit["status"],
         "actions": actions,
         "mutated": False,
-        "note": "Sync finalizes only already-prepared canonical imports; it never optimizes decks or fetches Drive sources implicitly.",
+        "note": (
+            "Sync finalizes only already-prepared canonical imports; it "
+            "never optimizes decks or fetches Drive sources implicitly."
+        ),
     }

@@ -126,7 +126,9 @@ def _phase10_report_markdown(result: dict[str, Any]) -> str:
         "",
         f"Status: **{result['status']}**",
         "",
-        "All numerical simulation outputs are `structural_model_estimates`; they are not empirical win rates.",
+        "All numerical simulation outputs are "
+        "`structural_model_estimates`; they are not empirical win "
+        "rates.",
         "",
         "## Local acceptance criteria",
         "",

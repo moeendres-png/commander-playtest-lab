@@ -300,7 +300,8 @@ def build_agent_runtime(
         instructions=(
             specialist_common
             + " Understand the user goal, create a bounded validation plan, call local tools, use "
-            "build_optimization_context first, choose the smallest suitable run profile, use the Deck "
+            "build_optimization_context first, choose the smallest "
+            "suitable run profile, use the Deck "
             "Analyst, Simulation Analyst and Red-Team Reviewer when relevant, and summarize "
             "only evidence returned by tools. Agents may never alter deterministic game state."
         ),
@@ -316,7 +317,9 @@ def build_agent_runtime(
             ),
             red_team.as_tool(
                 tool_name="red_team_reviewer",
-                tool_description="Challenge conclusions for overfitting and alternative explanations.",
+                tool_description=(
+                    "Challenge conclusions for overfitting and alternative explanations."
+                ),
             ),
         ],
         model_settings=settings,

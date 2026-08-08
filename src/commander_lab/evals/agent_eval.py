@@ -15,7 +15,8 @@ REAL_WINRATE_TERMS = re.compile(
     r"\b(empirical win ?rate|real win ?rate|true win ?rate)\b", re.IGNORECASE
 )
 UNCERTAINTY_TERMS = re.compile(
-    r"\b(structural|model|estimate|synthetic|holdout|uncertain|uncertainty|not empirical|not a win ?rate)\b",
+    "\\b(structural|model|estimate|synthetic|holdout|uncertain|u"
+    "ncertainty|not empirical|not a win ?rate)\\b",
     re.IGNORECASE,
 )
 

@@ -68,7 +68,8 @@ def data_sync(
     ),
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
-    """Finalize already-prepared canonical imports; never fetch Drive or optimize a deck implicitly."""
+    "Finalize already-prepared canonical imports; never fetch"
+    "Drive or optimize a deck implicitly."
     result = sync_current_sources(root, dry_run=dry_run)
     typer.echo(json.dumps(result, indent=2, ensure_ascii=False))
 

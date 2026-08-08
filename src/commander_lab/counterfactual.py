@@ -426,7 +426,8 @@ class CounterfactualReplayLab:
             ):
                 if not action.tactical_rule:
                     raise CounterfactualError(
-                        "tactical_oracle mode requires recorded tactical_rule metadata for both actions"
+                        "tactical_oracle mode requires recorded tactical_rule "
+                        "metadata for both actions"
                     )
                 try:
                     tactical_observations[label] = oracle.evaluate(
@@ -537,7 +538,8 @@ class CounterfactualReplayLab:
             placement_delta=fmean(row.estimated_placement_delta for row in rows),
         )
         warnings = [
-            "Counterfactuals are model alternatives, not facts about what historically would have happened.",
+            "Counterfactuals are model alternatives, not facts about "
+            "what historically would have happened.",
             "Only actions recorded as legal at the verified branchpoint are evaluated.",
         ]
         if engine_mode == CounterfactualEngineMode.STRUCTURAL:
@@ -657,6 +659,8 @@ class CounterfactualReplayLab:
             "",
             "## Boundary",
             "",
-            "This is a counterfactual model alternative. It is not evidence that history would certainly have unfolded this way.",
+            "This is a counterfactual model alternative. It is not "
+            "evidence that history would certainly have unfolded this "
+            "way.",
         ]
         atomic_write_text(target, "\n".join(lines) + "\n")

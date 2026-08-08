@@ -820,7 +820,10 @@ class PrimerToPilotCompiler:
                             conflict_id=f"opposing:{_content_hash(':'.join(pair))[:12]}",
                             rule_ids=pair,
                             conflict_type="opposing_adjustment",
-                            description="Rules with the same scope and trigger apply opposing score adjustments.",
+                            description=(
+                                "Rules with the same scope and trigger apply opposing score "
+                                "adjustments."
+                            ),
                         )
                     )
         return tuple(conflicts)
@@ -1025,8 +1028,10 @@ class PrimerToPilotCompiler:
             "rule_source_mentions": rule_mentions,
             "counterfactual_redecision_status": "not_run_missing_complete_alternative_action_context",
             "limitations": [
-                "Stored structural replays preserve selected actions but not every Primer DSL context flag.",
-                "Replay inspection is coverage evidence, not proof that the overlay would improve the historical game.",
+                "Stored structural replays preserve selected actions but "
+                "not every Primer DSL context flag.",
+                "Replay inspection is coverage evidence, not proof that the "
+                "overlay would improve the historical game.",
             ],
         }
 

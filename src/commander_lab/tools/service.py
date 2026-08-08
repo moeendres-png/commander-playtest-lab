@@ -492,10 +492,12 @@ class CommanderToolService:
                 concerns.append(f"Net role loss detected: {role.value}.")
         if len(swaps) > 1:
             alternatives.append(
-                "Validate each swap separately to distinguish package synergy from a weak component."
+                "Validate each swap separately to distinguish package "
+                "synergy from a weak component."
             )
         alternatives.append(
-            "Retain the baseline when the effect is small relative to holdout or sensitivity variation."
+            "Retain the baseline when the effect is small relative to "
+            "holdout or sensitivity variation."
         )
         passed = not concerns
         return {
@@ -1561,8 +1563,11 @@ class CommanderToolService:
                 "",
                 "## Transfer policy",
                 "",
-                "Meta records are evidence only. They do not replace decklists, inventory, allocation, or local-opponent data.",
-                "cEDH records are structure, package, sequencing and interaction benchmarks unless a matching local context is explicitly established.",
+                "Meta records are evidence only. They do not replace "
+                "decklists, inventory, allocation, or local-opponent data.",
+                "cEDH records are structure, package, sequencing and "
+                "interaction benchmarks unless a matching local context is "
+                "explicitly established.",
                 "",
                 "## Sources",
             ]
@@ -2471,7 +2476,10 @@ class CommanderToolService:
                 "permutations": request.permutations,
                 "contributions": values,
                 "paired_ablation_evidence": ablations,
-                "warning": "Shapley values are approximate structural contribution estimates, not causal real-game values.",
+                "warning": (
+                    "Shapley values are approximate structural contribution "
+                    "estimates, not causal real-game values."
+                ),
             }
 
         return self._invoke(
@@ -2799,7 +2807,9 @@ class CommanderToolService:
                     "completion_status": engine.get("completion_status", "external_engine_blocked"),
                     "observations": engine.get("external_rules_engine_observations", 0),
                 },
-                "basic_land_policy": "at_least_50_each_basic_type; not scarce within normal deck limits",
+                "basic_land_policy": (
+                    "at_least_50_each_basic_type; not scarce within normal deck limits"
+                ),
                 "automatic_application": False,
                 "canonical_files_modified": False,
             }
@@ -3090,7 +3100,9 @@ class CommanderToolService:
                 "role_changes": result.get("structural_rationale", []),
                 "package_changes": [],
                 "mana_effect": "structural role/profile estimate",
-                "mulligan_effect": "separate mulligan-policy gate required for policy-changing swaps",
+                "mulligan_effect": (
+                    "separate mulligan-policy gate required for policy-changing swaps"
+                ),
                 "paired_structural_effect": paired,
                 "confidence_interval": paired.get("confidence_interval"),
                 "holdout_effect": result.get("holdout_tests", []),
@@ -3586,7 +3598,10 @@ class CommanderToolService:
                     "remaining_uncertainty": evidence.get("remaining_uncertainty", []),
                     "provider_disagreement": evidence.get("provider_disagreement", False),
                 },
-                "truth_boundary": "Structural results are model estimates; Tactical Oracle is not an external rules engine.",
+                "truth_boundary": (
+                    "Structural results are model estimates; Tactical Oracle is "
+                    "not an external rules engine."
+                ),
                 "automatic_application": False,
             }
 
@@ -3619,7 +3634,9 @@ class CommanderToolService:
             lines = [
                 f"# Deck improvement report — {request.deck_id}",
                 "",
-                "Validation boundary: structural model estimates unless an individual evidence item explicitly records a higher executed level.",
+                "Validation boundary: structural model estimates unless an "
+                "individual evidence item explicitly records a higher "
+                "executed level.",
                 "",
                 "No deck, inventory, or allocation change was applied.",
                 "",
@@ -4130,7 +4147,8 @@ class CommanderToolService:
                 "",
                 "## Policy comparison",
                 "",
-                "| Policy | First-seven keep | Mulligan rate | Avg mulligans | Color issues | Structural placement |",
+                "| Policy | First-seven keep | Mulligan rate | Avg "
+                "mulligans | Color issues | Structural placement |",
                 "|---|---:|---:|---:|---:|---:|",
             ]
             for row in result.policies:

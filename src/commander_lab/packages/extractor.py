@@ -200,7 +200,10 @@ class ArchetypePackageExtractor:
                             "co-occurrence does not prove synergy",
                             "manual domain review required",
                         ),
-                        notes="Candidate only; manual domain review is required before curated status.",
+                        notes=(
+                            "Candidate only; manual domain review is required before "
+                            "curated status."
+                        ),
                     )
                 )
         return candidates, rejections
@@ -345,7 +348,8 @@ class ArchetypePackageExtractor:
             f"Deck hash: `{result['deck_hash']}`",
             f"Commander: {result['commander']}",
             "",
-            "All results are structural/reference diagnostics. No package is automatically added to the deck.",
+            "All results are structural/reference diagnostics. No "
+            "package is automatically added to the deck.",
             "",
             "## Archetypes",
         ]

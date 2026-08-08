@@ -22,9 +22,13 @@ def _mulligan_report(name: str, result) -> str:
         "",
         "Status: `mulligan_lab_ready_with_limitations`",
         "",
-        "All keep rules and placement values are model-based Structural estimates, not absolute rules or empirical win rates.",
+        "All keep rules and placement values are model-based "
+        "Structural estimates, not absolute rules or empirical win "
+        "rates.",
         "",
-        "| Policy | First-seven keep | Mulligan rate | Avg. mulligans | Color issues | Full follow-ups | Avg. placement |",
+        "| Policy | First-seven keep | Mulligan rate | Avg. "
+        "mulligans | Color issues | Full follow-ups | Avg. "
+        "placement |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for row in result.policies:
@@ -43,7 +47,8 @@ def _mulligan_report(name: str, result) -> str:
         f"- Executed validation contexts: {len(result.overfitting_validation)}",
         f"- Context kinds: {', '.join(sorted({row.context_kind for row in result.overfitting_validation}))}",
         f"- Supported contexts: {sum(row.supported for row in result.overfitting_validation)}/{len(result.overfitting_validation)}",
-        "- Primary pod, two holdouts, one opponent ensemble and three pilot profiles were actually executed.",
+        "- Primary pod, two holdouts, one opponent ensemble and "
+        "three pilot profiles were actually executed.",
         "",
         "## Boundaries",
         "",
@@ -168,7 +173,19 @@ def main(root: Path) -> None:
     atomic_write_json(target, audit)
     atomic_write_text(
         target.with_suffix(".md"),
-        """# Phase 12.8\u201312.10 completion audit\n\nStatus: `decision_diagnostics_ready_with_limitations`\n\nThe previously partial integration paths were completed and executed. Mulligan follow-ups now run complete Structural Simulator games; keep-rule candidates are actually checked across primary, holdout, ensemble and pilot contexts; counterfactual state differences and Tactical Oracle calls are evaluated; diagnostics are generated from event logs; and the ten-step smoke executes every stage.\n\nLimits remain: zero imported real games, no real XMage/Forge execution, model-based policies and diagnoses are not empirical proof, and no canonical deck, inventory or allocation data changed.\n""",
+        "# Phase 12.8\u201312.10 completion audit\n\nStatus: "
+        "`decision_diagnostics_ready_with_limitations`\n\nThe "
+        "previously partial integration paths were completed and "
+        "executed. Mulligan follow-ups now run complete Structural "
+        "Simulator games; keep-rule candidates are actually checked "
+        "across primary, holdout, ensemble and pilot contexts; "
+        "counterfactual state differences and Tactical Oracle calls "
+        "are evaluated; diagnostics are generated from event logs; "
+        "and the ten-step smoke executes every stage.\n\nLimits "
+        "remain: zero imported real games, no real XMage/Forge "
+        "execution, model-based policies and diagnoses are not "
+        "empirical proof, and no canonical deck, inventory or "
+        "allocation data changed.\n",
     )
 
 

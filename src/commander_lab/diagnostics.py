@@ -104,7 +104,8 @@ class DecisionDiagnosticEngine:
             or dataset.external_rules_structural_disagreement >= 0.5
         ):
             evidence.append(
-                "structural results materially disagree with a higher or independent validation level"
+                "structural results materially disagree with a higher or "
+                "independent validation level"
             )
             cause = FailureCause.SIMULATION_ABSTRACTION_IS_WRONG
             next_test = "repair_structural_abstraction_and_repeat_tactical_or_external_validation"
@@ -130,7 +131,8 @@ class DecisionDiagnosticEngine:
             and dataset.pilot_disagreement >= 0.35
         ):
             evidence.append(
-                "alternative legal lines improve across sampled futures and stronger pilots identify them"
+                "alternative legal lines improve across sampled futures and "
+                "stronger pilots identify them"
             )
             cause = FailureCause.PILOT_DOES_NOT_RECOGNIZE_LINE
             next_test = "add_golden_line_and_retest_same_deck_across_pilots"
@@ -154,13 +156,15 @@ class DecisionDiagnosticEngine:
             and abs(metrics.counterfactual_improvement) <= 0.1
         ):
             evidence.append(
-                "persistent weakness remains across pilots, pods, holdout, seeds and legal counterfactuals"
+                "persistent weakness remains across pilots, pods, holdout, "
+                "seeds and legal counterfactuals"
             )
             cause = FailureCause.GENUINE_DECK_CONSTRUCTION_ISSUE
             next_test = "paired_replacement_test_with_role_coverage_gate"
         elif metrics.dead_card_rate >= 0.3 or metrics.unplayable_rate >= 0.3:
             evidence.append(
-                "card remains frequently dead or unplayable, but construction-level robustness is incomplete"
+                "card remains frequently dead or unplayable, but "
+                "construction-level robustness is incomplete"
             )
             cause = FailureCause.CARD_IS_WEAK
             next_test = "complete_holdout_package_and_pilot_sensitivity_checks"
@@ -276,7 +280,8 @@ class DecisionDiagnosticEngine:
         lines = [
             "# Deck, Pilot and Model Diagnostics",
             "",
-            "All diagnoses are model-dependent unless an explicit empirical validation level is listed.",
+            "All diagnoses are model-dependent unless an explicit "
+            "empirical validation level is listed.",
             "",
         ]
         for row in diagnoses:

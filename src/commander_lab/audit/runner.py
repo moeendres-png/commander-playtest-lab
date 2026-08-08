@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import json
 import platform
 import subprocess
 import sys
@@ -224,7 +223,26 @@ def _dependency_markdown(inventory: dict[str, Any]) -> str:
 
 
 def _ownership_markdown() -> str:
-    return """# Module ownership\n\n| Layer | Modules | Responsibility | Forbidden dependency |\n|---|---|---|---|\n| deterministic_state_and_rules | `models`, `engine.structural` | State, legal transitions, deterministic simulation | agents/OpenAI |\n| engine_adapters | `engine.rules`, `engine.process_manager` | External process/protocol boundary | reporting truth promotion |\n| tactical_oracle | `engine.rules.tactical` | Offline tactical fixtures only | external validation claims |\n| pilot_decision_logic | `agents.pilots` | Select among legal actions | direct state mutation |\n| agent_orchestration | `agents`, `tools`, `api` | Tool planning and reports | deterministic state mutation |\n| analysis_and_optimization | `analysis`, `optimization` | Statistics and candidate validation | canonical deck writes |\n| storage_and_reporting | `storage`, `reporting`, `observability` | Atomic persistence, manifests, reports | game semantics |\n"""
+    return (
+        "# Module ownership\n\n| Layer | Modules | Responsibility | "
+        "Forbidden dependency |\n|---|---|---|---|\n| "
+        "deterministic_state_and_rules | `models`, "
+        "`engine.structural` | State, legal transitions, "
+        "deterministic simulation | agents/OpenAI |\n| "
+        "engine_adapters | `engine.rules`, `engine.process_manager` "
+        "| External process/protocol boundary | reporting truth "
+        "promotion |\n| tactical_oracle | `engine.rules.tactical` | "
+        "Offline tactical fixtures only | external validation "
+        "claims |\n| pilot_decision_logic | `agents.pilots` | Select "
+        "among legal actions | direct state mutation |\n| "
+        "agent_orchestration | `agents`, `tools`, `api` | Tool "
+        "planning and reports | deterministic state mutation |\n| "
+        "analysis_and_optimization | `analysis`, `optimization` | "
+        "Statistics and candidate validation | canonical deck "
+        "writes |\n| storage_and_reporting | `storage`, `reporting`, "
+        "`observability` | Atomic persistence, manifests, reports | "
+        "game semantics |\n"
+    )
 
 
 def _feature_candidates() -> list[FeatureCandidate]:
@@ -339,9 +357,18 @@ def _bugs() -> list[BugRecord]:
             severity="critical",
             component="external validation trust boundary",
             discovered_by="contract audit",
-            reproduction="A legacy/fake bridge response could be accepted by the external adapter and promoted.",
-            root_cause="Result validation trusted response shape without an attested external runtime probe.",
-            fix="Require a successful external runtime probe and reject legacy/unattested bridge results.",
+            reproduction=(
+                "A legacy/fake bridge response could be accepted by the "
+                "external adapter and promoted."
+            ),
+            root_cause=(
+                "Result validation trusted response shape without an "
+                "attested external runtime probe."
+            ),
+            fix=(
+                "Require a successful external runtime probe and reject "
+                "legacy/unattested bridge results."
+            ),
             regression_test="tests/contract/test_phase86_phase85_claims.py",
             affected_versions=("0.8.0", "0.8.5"),
             validation_status=AuditStatus.PASSED,
@@ -351,9 +378,15 @@ def _bugs() -> list[BugRecord]:
             severity="high",
             component="Phase 8.5 contract evidence",
             discovered_by="evidence audit",
-            reproduction="Validation output listed all protocol messages as exercised although only hello/capabilities were sent.",
+            reproduction=(
+                "Validation output listed all protocol messages as "
+                "exercised although only hello/capabilities were sent."
+            ),
             root_cause="Coverage was populated from enum values rather than executed requests.",
-            fix="Execute every message type against the bridge and record actual structured responses/errors.",
+            fix=(
+                "Execute every message type against the bridge and record "
+                "actual structured responses/errors."
+            ),
             regression_test="tests/contract/test_phase86_phase85_claims.py",
             affected_versions=("0.8.5",),
             validation_status=AuditStatus.PASSED,
@@ -363,7 +396,10 @@ def _bugs() -> list[BugRecord]:
             severity="high",
             component="external readiness state",
             discovered_by="status-model audit",
-            reproduction="Handshake alone could result in ready-with-limitations despite missing deck/action/multiplayer tests.",
+            reproduction=(
+                "Handshake alone could result in ready-with-limitations "
+                "despite missing deck/action/multiplayer tests."
+            ),
             root_cause="Readiness gate conflated transport health with integration acceptance.",
             fix="Keep prepared status until all real integration gates pass.",
             regression_test="tests/contract/test_phase86_phase85_claims.py",
@@ -377,7 +413,10 @@ def _bugs() -> list[BugRecord]:
             discovered_by="storage audit",
             reproduction="Interrupted writes could leave truncated JSON or logs.",
             root_cause="Direct writes without fsync and atomic rename.",
-            fix="Introduce atomic write helpers and apply them to key run, process-state and registry artifacts.",
+            fix=(
+                "Introduce atomic write helpers and apply them to key run, "
+                "process-state and registry artifacts."
+            ),
             regression_test="tests/unit/test_phase86_atomic_and_integrity.py",
             affected_versions=("0.2.0", "0.8.5"),
             validation_status=AuditStatus.PASSED,
@@ -399,7 +438,10 @@ def _bugs() -> list[BugRecord]:
             severity="medium",
             component="experiment registry",
             discovered_by="feature integrity audit",
-            reproduction="Experiment record did not guarantee immutable hypothesis, scenarios, seeds and acceptance criteria together.",
+            reproduction=(
+                "Experiment record did not guarantee immutable hypothesis, "
+                "scenarios, seeds and acceptance criteria together."
+            ),
             root_cause="Incomplete sealed payload.",
             fix="Seal complete experiment design and reject changes under the same ID.",
             regression_test="tests/unit/test_phase86_database.py",
@@ -410,7 +452,39 @@ def _bugs() -> list[BugRecord]:
 
 
 def _web_research_markdown() -> str:
-    return """# Web research\n\nResearch was restricted to official documentation, repositories, standards-oriented project documentation and official release pages.\n\n## High-value findings\n\n- XMage remains suitable as an external Commander/tactical oracle, but the repository does not expose a stable ready-made JSONL action API; a provider-specific Java bridge remains necessary.\n- Forge remains a secondary differential backend because its CLI/AI path is useful but AI quality and GPL integration constraints limit its role.\n- Ruff supports one configuration for lint and format; `ruff check` and `ruff format --check` should be CI gates.\n- mypy strict mode is an appropriate target for public production interfaces, but adoption should be incremental for an existing codebase.\n- Hypothesis stateful testing can generate and shrink sequences of legal/illegal state transitions; it is a high-value future dependency.\n- OpenAI Agents SDK supports function tools, sessions, tracing, usage accounting and guardrails; deterministic game logs must remain separate from model traces.\n- GitHub Actions should pin action revisions, set timeouts and upload artifacts/checksums for external-engine evidence.\n\n## Sources reviewed\n\n- Official XMage and Forge repositories/releases.\n- Official OpenAI Agents SDK documentation for tools, sessions, tracing, guardrails and usage.\n- Official Ruff, mypy and Hypothesis documentation.\n- Official GitHub Actions repositories/releases for checkout, setup-python, setup-java and upload-artifact.\n\nThe current sandbox could browse these sources through the web research tool, but local DNS and package-manager access remained unavailable to the subprocess environment.\n"""
+    return (
+        "# Web research\n\nResearch was restricted to official "
+        "documentation, repositories, standards-oriented project "
+        "documentation and official release pages.\n\n## High-value "
+        "findings\n\n- XMage remains suitable as an external "
+        "Commander/tactical oracle, but the repository does not "
+        "expose a stable ready-made JSONL action API; a "
+        "provider-specific Java bridge remains necessary.\n- Forge "
+        "remains a secondary differential backend because its "
+        "CLI/AI path is useful but AI quality and GPL integration "
+        "constraints limit its role.\n- Ruff supports one "
+        "configuration for lint and format; `ruff check` and `ruff "
+        "format --check` should be CI gates.\n- mypy strict mode is "
+        "an appropriate target for public production interfaces, "
+        "but adoption should be incremental for an existing "
+        "codebase.\n- Hypothesis stateful testing can generate and "
+        "shrink sequences of legal/illegal state transitions; it is "
+        "a high-value future dependency.\n- OpenAI Agents SDK "
+        "supports function tools, sessions, tracing, usage "
+        "accounting and guardrails; deterministic game logs must "
+        "remain separate from model traces.\n- GitHub Actions should "
+        "pin action revisions, set timeouts and upload "
+        "artifacts/checksums for external-engine evidence.\n\n## "
+        "Sources reviewed\n\n- Official XMage and Forge "
+        "repositories/releases.\n- Official OpenAI Agents SDK "
+        "documentation for tools, sessions, tracing, guardrails and "
+        "usage.\n- Official Ruff, mypy and Hypothesis documentation.\n"
+        "- Official GitHub Actions repositories/releases for "
+        "checkout, setup-python, setup-java and upload-artifact.\n\n"
+        "The current sandbox could browse these sources through the "
+        "web research tool, but local DNS and package-manager "
+        "access remained unavailable to the subprocess environment.\n"
+    )
 
 
 def _schema_exports(root: Path) -> list[str]:
@@ -491,26 +565,47 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     static_lines.extend(
         [
             "",
-            "Ruff, mypy and Hypothesis could not be installed in the current sandbox because the configured package index had no matching distributions and external DNS was unavailable.",
+            "Ruff, mypy and Hypothesis could not be installed in the "
+            "current sandbox because the configured package index had "
+            "no matching distributions and external DNS was "
+            "unavailable.",
         ]
     )
     atomic_write_text(audit_dir / "static_analysis_report.md", "\n".join(static_lines) + "\n")
 
     atomic_write_text(
         audit_dir / "property_test_report.md",
-        "# Property tests\n\nDeterministic property-style tests and invariant checks were executed through pytest. Native Hypothesis `RuleBasedStateMachine` execution is blocked in this sandbox because Hypothesis is unavailable; the CI workflow installs and runs it when network/package access exists.\n",
+        "# Property tests\n\nDeterministic property-style tests and "
+        "invariant checks were executed through pytest. Native "
+        "Hypothesis `RuleBasedStateMachine` execution is blocked in "
+        "this sandbox because Hypothesis is unavailable; the CI "
+        "workflow installs and runs it when network/package access "
+        "exists.\n",
     )
     atomic_write_text(
         audit_dir / "fuzzing_report.md",
-        "# Fuzzing\n\nDeterministic boundary fuzz cases cover malformed JSONL, Unicode deck names, truncated replays, duplicate events, unknown protocol versions, extreme integers and path traversal attempts. Coverage-guided fuzzing is deferred to nightly CI because no fuzzing package is available locally.\n",
+        "# Fuzzing\n\nDeterministic boundary fuzz cases cover "
+        "malformed JSONL, Unicode deck names, truncated replays, "
+        "duplicate events, unknown protocol versions, extreme "
+        "integers and path traversal attempts. Coverage-guided "
+        "fuzzing is deferred to nightly CI because no fuzzing "
+        "package is available locally.\n",
     )
     atomic_write_text(
         audit_dir / "mutation_report.md",
-        "# Mutation testing\n\nTargeted manual mutation guards verify commander-damage thresholds, seed use, validation-level promotion, external failure handling and holdout rejection. Automated mutmut execution is blocked by the unavailable dependency and is configured as a nightly CI job.\n",
+        "# Mutation testing\n\nTargeted manual mutation guards verify "
+        "commander-damage thresholds, seed use, validation-level "
+        "promotion, external failure handling and holdout "
+        "rejection. Automated mutmut execution is blocked by the "
+        "unavailable dependency and is configured as a nightly CI "
+        "job.\n",
     )
     atomic_write_text(
         audit_dir / "differential_test_report.md",
-        "# Differential testing\n\nStructural and Tactical Oracle fixtures are available. External XMage/Forge comparisons remain `not_run` because no external runtime can be built or started in this sandbox. No mock result was promoted.\n",
+        "# Differential testing\n\nStructural and Tactical Oracle "
+        "fixtures are available. External XMage/Forge comparisons "
+        "remain `not_run` because no external runtime can be built "
+        "or started in this sandbox. No mock result was promoted.\n",
     )
     atomic_write_text(
         audit_dir / "reproducibility_report.md",
@@ -518,7 +613,13 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     )
     atomic_write_text(
         audit_dir / "performance_report.md",
-        "# Performance\n\nThe full baseline suite completed in approximately 39 seconds in this sandbox. Structural simulation throughput remains appropriate for local batches; external-engine performance was not measured because no external runtime could execute. Optimization changes were limited to integrity and correctness paths, not speculative micro-optimization.\n",
+        "# Performance\n\nThe full baseline suite completed in "
+        "approximately 39 seconds in this sandbox. Structural "
+        "simulation throughput remains appropriate for local "
+        "batches; external-engine performance was not measured "
+        "because no external runtime could execute. Optimization "
+        "changes were limited to integrity and correctness paths, "
+        "not speculative micro-optimization.\n",
     )
     atomic_write_text(
         audit_dir / "security_report.md",
@@ -526,11 +627,26 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     )
     atomic_write_text(
         audit_dir / "agent_eval_report.md",
-        "# Agent evals\n\nExisting agent evals cover tool choice, uncertainty, validation-level separation and refusal to finalize unvalidated upgrades. Phase 8.6 adds trust-boundary regression coverage so failed, partial or Tactical-Oracle runs cannot be described as external validation. A larger 15-case eval set is prepared for CI/OpenAI Evals when model access and budget are configured.\n",
+        "# Agent evals\n\nExisting agent evals cover tool choice, "
+        "uncertainty, validation-level separation and refusal to "
+        "finalize unvalidated upgrades. Phase 8.6 adds "
+        "trust-boundary regression coverage so failed, partial or "
+        "Tactical-Oracle runs cannot be described as external "
+        "validation. A larger 15-case eval set is prepared for "
+        "CI/OpenAI Evals when model access and budget are "
+        "configured.\n",
     )
     atomic_write_text(
         audit_dir / "feature_implementation_report.md",
-        "# Feature implementation\n\nImplemented now:\n\n- Atomic artifact writes and run manifests\n- Run verification and quarantine\n- SQLite check/migrate/backup/restore helpers\n- Sealed experiment designs\n- Scenario fixture editor\n- Replay debugger\n- Structured local logs and metrics\n- Architecture-boundary tests\n- Stronger state invariants\n- External validation attestation\n\nDeferred: dashboard, adaptive planning, full Hypothesis/mutmut/fuzz tooling and real XMage Java bridge.\n",
+        "# Feature implementation\n\nImplemented now:\n\n- Atomic "
+        "artifact writes and run manifests\n- Run verification and "
+        "quarantine\n- SQLite check/migrate/backup/restore helpers\n- "
+        "Sealed experiment designs\n- Scenario fixture editor\n- "
+        "Replay debugger\n- Structured local logs and metrics\n- "
+        "Architecture-boundary tests\n- Stronger state invariants\n- "
+        "External validation attestation\n\nDeferred: dashboard, "
+        "adaptive planning, full Hypothesis/mutmut/fuzz tooling and "
+        "real XMage Java bridge.\n",
     )
     atomic_write_text(
         audit_dir / "bugfix_report.md",
@@ -545,7 +661,9 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     remaining = [
         "Phase 8.5.1 external XMage runtime was not executed; DNS/Maven/Docker are unavailable.",
         "Provider-specific Java bridge against real XMage APIs is not implemented or built.",
-        "Ruff, mypy, Hypothesis, automated mutation testing, dependency audit and SBOM generation were not executable in this sandbox.",
+        "Ruff, mypy, Hypothesis, automated mutation testing, "
+        "dependency audit and SBOM generation were not executable "
+        "in this sandbox.",
         "External-engine multiplayer/action-loop/critical-scenario gates remain not_run.",
     ]
     atomic_write_text(
@@ -554,7 +672,15 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     )
     phase9_allowed = False
     status = "phase_9_blocked"
-    readiness = "# Phase 9 readiness\n\n**Status: `phase_9_blocked`.**\n\nThe local correctness hardening is substantially complete, but the requested Phase 8.5.1 real external-engine execution and the mandatory Ruff/mypy/Hypothesis/security gates were not executable. Phase 9 should begin only after the provided network-enabled CI/local commands pass. `external_engine_validation_pending=true`.\n"
+    readiness = (
+        "# Phase 9 readiness\n\n**Status: `phase_9_blocked`.**\n\nThe "
+        "local correctness hardening is substantially complete, but "
+        "the requested Phase 8.5.1 real external-engine execution "
+        "and the mandatory Ruff/mypy/Hypothesis/security gates were "
+        "not executable. Phase 9 should begin only after the "
+        "provided network-enabled CI/local commands pass. "
+        "`external_engine_validation_pending=true`.\n"
+    )
     atomic_write_text(audit_dir / "phase_9_readiness.md", readiness)
     summary = f"# Executive summary\n\n- Baseline: `{baseline_commit}`\n- Audit commit/worktree: `{commit}`\n- Bugs found: {len(bugs)} (1 critical, 3 high, 2 medium)\n- Locally fixed with regression tests: {len(bugs)}\n- External engine: not executed\n- Final status: `{status}`\n- Canonical deck/Drive changes: none\n"
     atomic_write_text(audit_dir / "executive_summary.md", summary)

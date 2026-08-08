@@ -252,7 +252,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "build_optimization_context",
-        "Load the current read-only deck, inventory, allocation, opponent, pilot, politics, coverage and engine context.",
+        "Load the current read-only deck, inventory, allocation, "
+        "opponent, pilot, politics, coverage and engine context.",
         BuildOptimizationContextInput,
         "build_optimization_context",
     ),
@@ -282,7 +283,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "validate_swap",
-        "Validate one or more swaps through formal, paired structural, holdout, sensitivity and red-team gates.",
+        "Validate one or more swaps through formal, paired "
+        "structural, holdout, sensitivity and red-team gates.",
         ValidateSwapInput,
         "validate_swap",
     ),
@@ -306,13 +308,16 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "run_multifidelity_comparison",
-        "Run the available formal, structural, Tactical Oracle coverage and external-engine gates without overstating evidence.",
+        "Run the available formal, structural, Tactical Oracle "
+        "coverage and external-engine gates without overstating "
+        "evidence.",
         RunMultifidelityComparisonInput,
         "run_multifidelity_comparison",
     ),
     ToolDefinition(
         "run_engine_backed_matchup",
-        "Run a real XMage or Forge matchup only when a provider process is available; otherwise return blocked evidence.",
+        "Run a real XMage or Forge matchup only when a provider "
+        "process is available; otherwise return blocked evidence.",
         RunEngineBackedMatchupInput,
         "run_engine_backed_matchup",
     ),
@@ -360,7 +365,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "import_meta_deck",
-        "Import a meta deck into the append-only Meta Knowledge Base staging layer without changing local decks.",
+        "Import a meta deck into the append-only Meta Knowledge "
+        "Base staging layer without changing local decks.",
         ImportMetaDeckInput,
         "import_meta_deck",
     ),
@@ -498,7 +504,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "extract_archetypes",
-        "Extract weighted explainable archetypes from roles and project evidence without changing the deck.",
+        "Extract weighted explainable archetypes from roles and "
+        "project evidence without changing the deck.",
         ExtractArchetypesInput,
         "extract_archetypes",
     ),
@@ -618,7 +625,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "sample_opening_hands",
-        "Sample deterministic London-mulligan opening-hand sequences without commanders in the library.",
+        "Sample deterministic London-mulligan opening-hand "
+        "sequences without commanders in the library.",
         SampleOpeningHandsInput,
         "sample_opening_hands",
     ),
@@ -630,7 +638,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "compare_mulligan_policies",
-        "Compare mulligan policies using common random numbers and separate hand/follow-up estimates.",
+        "Compare mulligan policies using common random numbers and "
+        "separate hand/follow-up estimates.",
         CompareMulliganPoliciesInput,
         "compare_mulligan_policies",
     ),
@@ -672,7 +681,8 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "run_counterfactual",
-        "Run a structural or tactical counterfactual model alternative with explicit hidden-information policy.",
+        "Run a structural or tactical counterfactual model "
+        "alternative with explicit hidden-information policy.",
         RunCounterfactualInput,
         "run_counterfactual",
     ),

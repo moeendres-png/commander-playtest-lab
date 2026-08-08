@@ -689,7 +689,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
     def get_result(self, session_id: str) -> RulesEngineResult:
         if self._legacy_mode:
             raise RulesEngineProtocolError(
-                "legacy bridge results are unverified and cannot be promoted to external_rules_engine"
+                "legacy bridge results are unverified and cannot be "
+                "promoted to external_rules_engine"
             )
         if self._capabilities is None:
             self.probe()

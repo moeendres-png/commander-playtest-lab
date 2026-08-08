@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+
 from pydantic import BaseModel
 
 from .atomic import atomic_write_text

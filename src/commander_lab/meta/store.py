@@ -231,7 +231,10 @@ class MetaKnowledgeBase:
             ][:25],
             "own_role_density": role_estimate,
             "meta_role_density": meta_role_estimate,
-            "context_warning": "Meta overlap is evidence only; it must not automatically change the current deck, inventory or allocation.",
+            "context_warning": (
+                "Meta overlap is evidence only; it must not automatically "
+                "change the current deck, inventory or allocation."
+            ),
         }
 
     def compare_periods(

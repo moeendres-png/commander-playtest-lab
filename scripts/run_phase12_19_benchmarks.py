@@ -197,13 +197,19 @@ rows.extend(
             "name": "counterfactual_replay",
             "execution_status": "not_run",
             "seconds": None,
-            "error": "No canonical replay fixture selected for this performance run; functionality remains covered by tests.",
+            "error": (
+                "No canonical replay fixture selected for this performance "
+                "run; functionality remains covered by tests."
+            ),
         },
         {
             "name": "decision_diagnostics",
             "execution_status": "not_run",
             "seconds": None,
-            "error": "No canonical diagnostic dataset selected for this performance run; functionality remains covered by tests.",
+            "error": (
+                "No canonical diagnostic dataset selected for this "
+                "performance run; functionality remains covered by tests."
+            ),
         },
     ]
 )
