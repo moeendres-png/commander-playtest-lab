@@ -42,32 +42,32 @@ jobs:
               exit 1
             fi
           done <<'EOF'
-          e737104bad94769225d1e7096321e75c7564e56f artifacts/audit/G_BASELINE_DECISION_EVAL.json
-          a3cd24ffdc9416cb12fc09094c523f61d2e77dc8 artifacts/audit/G_GAP_REGISTER.json
-          f2f99d25e32f144b371189062116461f0b6835ef artifacts/audit/G_HOLDOUT_EVAL_RESULTS.json
-          ef76f53e6b48d8942fcc4f2a4b2fa43685084222 artifacts/audit/G_LOCAL_VALIDATION.json
-          d036ec4f3bc74b0c58a87822b959d99cf18b70d8 data/cards/structural_role_profiles.json
-          8106318b1aacaa9c0c93643e64996f6c5f54a05b data/decks/opponents/kaervek/current/roles.json
-          03588206108adbb3657669f64bef3de23c31a3ba data/evals/golden/pilot_decisions_g.json
-          5dd17af51e9a071139365ca000e42b78f0914704 data/evals/holdout/pilot_decisions_g.json
-          64c6aff0eb07e41b5124d0de93ea02d50512838c data/opponents/current_structural_profiles.json
-          fc70c9cf7c752bc0b27e7c1ed381566093cf3b8c docs/CARD_COVERAGE_CURRENT.md
-          169dfda2f31c17acc8ca47cae8e69107f5b18b0d docs/META_KB_REFRESH_REPORT.md
-          7720598d73fc5402ec03d13b56465e583bdb7f45 docs/MODELING_IMPROVEMENT_REPORT.md
-          2f2190679d89873763de803f0e82d9109155f88f docs/PILOT_GOLDEN_SCENARIOS.md
-          78a4511da1266f59bde98e9082c9b9f38bd46f26 src/commander_lab/agents/pilots.py
-          f71d13d0b81661afb9139b62feee753c1159fdb6 src/commander_lab/engine/structural/fixtures.py
-          1778e1fa98b74595290b8794177365a8491d8bfd src/commander_lab/engine/structural/profiles.py
-          2d908861557d825536af9633ab49a36ab2d68d65 src/commander_lab/engine/structural/simulator.py
-          07a4e27d2a8a77b64f17087b54f41b54814c5b84 src/commander_lab/evals/golden.py
-          a42656d7a82e379805335824c2ec3c0b57310461 src/commander_lab/evals/models.py
-          526c2819ba47d4bb02ab44cbd85cf8a584186c04 src/commander_lab/models/__init__.py
-          b5b996c2c38ef4902097663fdd244774220bef62 src/commander_lab/models/meta.py
-          7bf7858e3723aa4e95b683399542821737d04f72 src/commander_lab/models/pilots.py
-          8765b649251f651995825cd26ae40999a36b30f2 src/commander_lab/models/roles.py
-          9050cbcab073f2e7cc6ab30b735238f3d6671355 src/commander_lab/models/structural.py
-          813778b36675cb4ea68a0d2c236eff0c86f88d4f tests/golden/test_g_decision_quality.py
-          c68248139c4bc20067d65dfe59b9ec3adbfa82c2 tests/unit/test_g_modeling_quality.py
+          e737104ea024c7cdf2e6ac1fe879a3c148b86e56 artifacts/audit/G_BASELINE_DECISION_EVAL.json
+          a3cd24fe8111da776c0e35e322c28b35c54de581 artifacts/audit/G_GAP_REGISTER.json
+          f2f99d296a969e61dae9909f4b1992157f0f93bb artifacts/audit/G_HOLDOUT_EVAL_RESULTS.json
+          ef76f5316ef68f164b31d5b30c26ed3b7f7cb209 artifacts/audit/G_LOCAL_VALIDATION.json
+          d036ec4f7a0e65cb82139c0a707c72ff22270460 data/cards/structural_role_profiles.json
+          8106318c95749200fad1ad3b3387c36934071589 data/decks/opponents/kaervek/current/roles.json
+          0358820665a8ed1a3d003f2b89120a7ea164a996 data/evals/golden/pilot_decisions_g.json
+          5dd17af689b43687cde86ba9d708cf2d27c412bb data/evals/holdout/pilot_decisions_g.json
+          64c6aff2cf4395c9cd58f22cad6ec69fa3b0c1f2 data/opponents/current_structural_profiles.json
+          fc70c9c799b18683ba3284bdee05e669328e1b4c docs/CARD_COVERAGE_CURRENT.md
+          169dfda950f12b15edce2b42a207e5006210a541 docs/META_KB_REFRESH_REPORT.md
+          7720598c6e8f2c70db82b66a1d728f14f5a318ad docs/MODELING_IMPROVEMENT_REPORT.md
+          2f219062d215c37fe403e7b1954964390f9d108f docs/PILOT_GOLDEN_SCENARIOS.md
+          78a45110b62237805cd27fda523d3d77102f2e4a src/commander_lab/agents/pilots.py
+          f71d13ddd1180c97fe5b24aed9c874fd3326d213 src/commander_lab/engine/structural/fixtures.py
+          1778e1fab3703081eeea78140c9c4ec957534f72 src/commander_lab/engine/structural/profiles.py
+          2d90886d19ab450145b82815ae960e5a25553efe src/commander_lab/engine/structural/simulator.py
+          07a4e270c32e83d005cf7ca575e7dd33af1e9ca7 src/commander_lab/evals/golden.py
+          a42656d0a1d17cf5dbceee26e6f08709a9e67299 src/commander_lab/evals/models.py
+          526c281e7e588304f1bae96de9a47c539e6a91f3 src/commander_lab/models/__init__.py
+          b5b996c30eb6c152380b020e1069a9a7319faf8f src/commander_lab/models/meta.py
+          7bf7858a11b9405b938290de474ce28629745fac src/commander_lab/models/pilots.py
+          8765b644f301d7944f1c0e543e9c97398d71c4b7 src/commander_lab/models/roles.py
+          9050cbcc362785aeefb169b593bbc83752c994ac src/commander_lab/models/structural.py
+          813778b89427e44b2eef3911f9c840f6f7bb457a tests/golden/test_g_decision_quality.py
+          c682481efa1b8d98f4c0b134391615e1db1584e6 tests/unit/test_g_modeling_quality.py
           EOF
 
           git config user.name "github-actions[bot]"
