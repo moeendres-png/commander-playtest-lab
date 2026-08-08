@@ -1,5 +1,5 @@
 {
-  "$id": "https://commander-playtest-lab.local/schemas/engine-adapter-protocol-1.0.0.json",
+  "$id": "https://commander-playtest-lab.local/schemas/engine-adapter-protocol-2.0.0.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "oneOf": [
     {
@@ -271,5 +271,22 @@
       "type": "object"
     }
   ],
-  "title": "Commander Lab Engine Adapter Protocol"
+  "title": "Commander Lab Engine Adapter Protocol",
+  "x-commander-lab-protocol-version": "2.0.0",
+  "x-required-external-message-types": [
+    "engine_hello",
+    "engine_capabilities",
+    "load_deck",
+    "create_game",
+    "set_seed",
+    "start_game",
+    "get_game_state",
+    "get_legal_actions",
+    "submit_action",
+    "advance_priority",
+    "advance_phase",
+    "get_event_log",
+    "export_replay",
+    "shutdown_game"
+  ]
 }
