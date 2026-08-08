@@ -1,7 +1,7 @@
 name: Strict Quality Gate
 
 # Non-mutating branch gate used until strict quality is integrated into main CI.
-# Verification refresh: typed-boundary foundation applied.
+# Verification refresh: structural, experiment, ensemble, and agent hook fixes applied.
 on:
   push:
     branches:
