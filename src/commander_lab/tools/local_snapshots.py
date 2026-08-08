@@ -54,6 +54,9 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
             ),
             source_path=source_path,
         )
+        deck = deck.model_copy(
+            update={"source": deck.source.model_copy(update={"source_path": source_path})}
+        )
         deck.deck_hash = compute_deck_hash(deck)
         report = validator.validate(deck)
         if not report.valid:
