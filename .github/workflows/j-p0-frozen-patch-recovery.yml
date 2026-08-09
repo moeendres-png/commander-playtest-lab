@@ -1,0 +1,58 @@
+name: J P0 Frozen Patch Transport Recovery
+
+on:
+  push:
+    branches:
+      - roadmap/j-p0-integrity-run-identity
+
+permissions:
+  contents: write
+
+jobs:
+  apply-frozen-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify canonical base is unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "85af667c2bda54c3d1370dc0f83046dca9d34c1c"
+          test "$(git merge-base HEAD origin/main)" = "85af667c2bda54c3d1370dc0f83046dca9d34c1c"
+
+      - name: Recover, verify, and apply frozen payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          awk '
+            /^[[:space:]]*PATCH_B64: >-$/ {capture=1; next}
+            capture && /^[[:space:]]*run: \|$/ {exit}
+            capture {print}
+          ' .github/workflows/j-p0-frozen-patch-transport.yml \
+            | tr -cd 'A-Za-z0-9+/=' \
+            > /tmp/jp0.patch.b64
+          base64 -d /tmp/jp0.patch.b64 > /tmp/jp0.patch.gz
+          echo '07b7838799dad20180253eb253a846d2c454b00b54af40ea13443c2dc992b1ed  /tmp/jp0.patch.gz' | sha256sum -c -
+          gzip -dc /tmp/jp0.patch.gz > /tmp/jp0.patch
+          echo '78c3dc76ca1703562e191dd11a5d93a5025256d10927eeeb12d59f65f54d826d  /tmp/jp0.patch' | sha256sum -c -
+          git apply --check /tmp/jp0.patch
+          git apply /tmp/jp0.patch
+          rm .github/workflows/j-p0-frozen-patch-transport.yml
+          rm .github/workflows/j-p0-frozen-patch-recovery.yml
+          git diff --check
+          git add -A
+          test "$(git write-tree)" = "210c649dfec42fab975f1131f3c93eed7de5ac15"
+
+      - name: Commit exact frozen tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'commander-playtest-lab automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'feat(J-P0): add fail-closed universal RunIdentity'
+          test "$(git rev-parse HEAD^{tree})" = "210c649dfec42fab975f1131f3c93eed7de5ac15"
+          git push origin HEAD:roadmap/j-p0-integrity-run-identity
