@@ -77,7 +77,6 @@ def data_sync(
     typer.echo(json.dumps(result, indent=2, ensure_ascii=False))
 
 
-
 @app.command("validate-local")
 def validate_local(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
@@ -153,10 +152,7 @@ def run_structural_batch_command(
         iterations=iterations,
         deck_ids=tuple(deck),
         workers=workers,
-        pilot_configs=tuple(
-            PilotConfig(strength=pilot_strength, mode=pilot_mode)
-            for _ in deck
-        ),
+        pilot_configs=tuple(PilotConfig(strength=pilot_strength, mode=pilot_mode) for _ in deck),
         output_directory=str(root / output),
         limits=StructuralAbortLimits(max_turns=max_turns),
     )
@@ -287,8 +283,7 @@ def probe_rules_engines(
     manager = RulesEngineManager(root=root)
     try:
         payload = {
-            key.value: value.model_dump(mode="json")
-            for key, value in manager.probes().items()
+            key.value: value.model_dump(mode="json") for key, value in manager.probes().items()
         }
     finally:
         manager.close()
@@ -324,6 +319,7 @@ def engine_start(
 ) -> None:
     """Start and handshake with the configured external bridge."""
     import time
+
     manager = EngineProcessManager(load_engine_runtime_config(), root=root)
     state = manager.start()
     typer.echo(state.model_dump_json(indent=2))
@@ -416,6 +412,7 @@ def db_check(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     from commander_lab.storage.database import check_database
+
     payload = check_database(root / database)
     typer.echo(json.dumps(payload, indent=2, sort_keys=True))
     if payload.get("status") != "passed":
@@ -428,6 +425,7 @@ def db_migrate(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     from commander_lab.storage.database import migrate_database
+
     typer.echo(json.dumps(migrate_database(root / database), indent=2, sort_keys=True))
 
 
@@ -438,6 +436,7 @@ def db_backup(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     from commander_lab.storage.database import backup_database
+
     typer.echo(str(backup_database(root / database, root / output)))
 
 
@@ -448,6 +447,7 @@ def db_restore(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     from commander_lab.storage.database import restore_database
+
     typer.echo(str(restore_database(backup, root / database)))
 
 
@@ -456,6 +456,7 @@ def runs_verify(
     run_directory: Path = typer.Argument(..., exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     from commander_lab.storage.run_integrity import verify_run
+
     result = verify_run(run_directory)
     typer.echo(
         json.dumps(
@@ -478,12 +479,11 @@ def audit_phase86(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     from commander_lab.audit import run_phase86_audit
+
     result = run_phase86_audit(root, run_tests=not skip_tests)
     typer.echo(result.model_dump_json(indent=2))
     if result.status == "phase_9_blocked":
         raise typer.Exit(code=2)
-
-
 
 
 if __name__ == "__main__":

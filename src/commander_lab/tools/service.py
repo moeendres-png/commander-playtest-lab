@@ -660,9 +660,7 @@ class CommanderToolService:
             supported = set(row.get("supported_deck_hashes", []))
             family = str(row.get("commander_family", ""))
             relevant = [
-                deck_hashes[deck_id]
-                for deck_id in deck_hashes
-                if deck_id.startswith(f"{family}/")
+                deck_hashes[deck_id] for deck_id in deck_hashes if deck_id.startswith(f"{family}/")
             ]
             if relevant and not any(deck_hash in supported for deck_hash in relevant):
                 stale_reasons.append(

@@ -32,9 +32,7 @@ class RunIdentity(FrozenModel):
     package_version: str | None = None
 
     deck_hashes: dict[str, str] = Field(default_factory=dict)
-    commander_configuration_hash: str | None = Field(
-        default=None, pattern=r"^[0-9a-f]{64}$"
-    )
+    commander_configuration_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
 
     inventory_source_id: str | None = None
     inventory_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
