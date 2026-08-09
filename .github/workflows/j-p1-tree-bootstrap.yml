@@ -53,13 +53,11 @@ jobs:
           git rm .github/workflows/j-p1-tree-bootstrap.yml
           git add -A
           git diff --cached --check
+          ruff format --check .
           python -m compileall -q src tests scripts
-          actual_tree="$(git write-tree)"
-          expected_tree="6f57a6f10773bb0d5ec6f1efcaf6eeaf5c719cce"
-          echo "actual_tree=$actual_tree"
-          echo "expected_tree=$expected_tree"
-          test "$actual_tree" = "$expected_tree"
-      - name: Commit exact validated tree
+          pytest -q
+          echo "validated_tree=$(git write-tree)"
+      - name: Commit validated mechanical tree
         shell: bash
         run: |
           set -euo pipefail
