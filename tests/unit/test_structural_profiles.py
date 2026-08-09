@@ -9,7 +9,9 @@ from commander_lab.models import CardRole, StructuralCardProfile
 
 
 def test_profile_snapshot_is_valid_and_complete(repo_root, structural_profiles) -> None:
-    raw = json.loads((repo_root / "data/cards/structural_role_profiles.json").read_text(encoding="utf-8"))
+    raw = json.loads(
+        (repo_root / "data/cards/structural_role_profiles.json").read_text(encoding="utf-8")
+    )
     assert raw["estimate_type"] == "structural_model_estimates"
     assert raw["profile_count"] == 195
     assert len(structural_profiles.profiles) == 195

@@ -11,8 +11,6 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from commander_lab.agents.demo import run_phase5_demo
-from commander_lab.analysis import validate_collection_quantities
-from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.rules import run_phase8_validation
 from commander_lab.models import (
     CardAblationInput,
@@ -23,7 +21,7 @@ from commander_lab.models import (
     VariantSwap,
 )
 from commander_lab.storage.atomic import atomic_write_json
-from commander_lab.tools import ApprovalRequired, CommanderToolService
+from commander_lab.tools import CommanderToolService
 from commander_lab.tools.local_snapshots import build_local_snapshots
 
 
@@ -39,46 +37,89 @@ def main() -> int:
     steps.append({"step": "local_snapshots", "status": "passed", "result": manifest})
 
     service = CommanderToolService(ROOT)
-    validation = [serialized(service.validate_deck.model.__self__) ] if False else []
+    validation = [serialized(service.validate_deck.model.__self__)] if False else []
     for deck_id in ("korvold/current", "rogshai/current"):
         from commander_lab.models import ValidateDeckInput
+
         response = service.validate_deck(ValidateDeckInput(deck_id=deck_id))
-        steps.append({"step": f"validate_{deck_id}", "status": response.status.value, "result": serialized(response)})
+        steps.append(
+            {
+                "step": f"validate_{deck_id}",
+                "status": response.status.value,
+                "result": serialized(response),
+            }
+        )
 
     matchup = service.run_matchup_batch(
         MatchupBatchInput(
-            deck_ids=("korvold/current", "synthetic/aggro", "synthetic/control", "synthetic/engine"),
+            deck_ids=(
+                "korvold/current",
+                "synthetic/aggro",
+                "synthetic/control",
+                "synthetic/engine",
+            ),
             iterations=4,
             workers=1,
             seed=20260805,
             max_turns=20,
         )
     )
-    steps.append({"step": "structural_matchup", "status": matchup.status.value, "result": serialized(matchup)})
+    steps.append(
+        {
+            "step": "structural_matchup",
+            "status": matchup.status.value,
+            "result": serialized(matchup),
+        }
+    )
 
     tactical = run_phase8_validation(ROOT, output_directory=output / "tactical", seed=20260805)
-    steps.append({"step": "tactical_validation", "status": "passed" if tactical["local_acceptance_passed"] else "failed", "result": tactical})
+    steps.append(
+        {
+            "step": "tactical_validation",
+            "status": "passed" if tactical["local_acceptance_passed"] else "failed",
+            "result": tactical,
+        }
+    )
 
     ablation = service.run_card_ablation(
-        CardAblationInput(deck_id="korvold/current", card_name="Scouring Swarm", iterations=4, seed=20260805, max_turns=20)
+        CardAblationInput(
+            deck_id="korvold/current",
+            card_name="Scouring Swarm",
+            iterations=4,
+            seed=20260805,
+            max_turns=20,
+        )
     )
-    steps.append({"step": "card_ablation", "status": ablation.status.value, "result": serialized(ablation)})
+    steps.append(
+        {"step": "card_ablation", "status": ablation.status.value, "result": serialized(ablation)}
+    )
 
     swap = VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion")
     paired = service.compare_variants_paired(
-        PairedVariantInput(deck_id="korvold/current", swaps=(swap,), iterations=4, seed=20260805, max_turns=20)
+        PairedVariantInput(
+            deck_id="korvold/current", swaps=(swap,), iterations=4, seed=20260805, max_turns=20
+        )
     )
-    steps.append({"step": "paired_comparison", "status": paired.status.value, "result": serialized(paired)})
+    steps.append(
+        {"step": "paired_comparison", "status": paired.status.value, "result": serialized(paired)}
+    )
 
     holdout = service.run_holdout(
-        HoldoutInput(deck_id="korvold/current", swaps=(swap,), iterations=4, seed=20260805, max_turns=20)
+        HoldoutInput(
+            deck_id="korvold/current", swaps=(swap,), iterations=4, seed=20260805, max_turns=20
+        )
     )
     steps.append({"step": "holdout", "status": holdout.status.value, "result": serialized(holdout)})
 
     report = service.create_report(
         CreateReportInput(
             title="Phase 8.6 local acceptance",
-            tool_responses=(serialized(matchup), serialized(ablation), serialized(paired), serialized(holdout)),
+            tool_responses=(
+                serialized(matchup),
+                serialized(ablation),
+                serialized(paired),
+                serialized(holdout),
+            ),
             output_name="phase86_acceptance.md",
         )
     )
@@ -89,7 +130,12 @@ def main() -> int:
 
     guardrail_response = service.run_matchup_batch(
         MatchupBatchInput(
-            deck_ids=("korvold/current", "synthetic/aggro", "synthetic/control", "synthetic/engine"),
+            deck_ids=(
+                "korvold/current",
+                "synthetic/aggro",
+                "synthetic/control",
+                "synthetic/engine",
+            ),
             iterations=service.limits.approval_threshold_iterations + 1,
             seed=20260805,
         )

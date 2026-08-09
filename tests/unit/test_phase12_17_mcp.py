@@ -41,32 +41,46 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
     assert tools["result"]["ttlMs"] == 300_000
     assert tools["result"]["cacheScope"] == "private"
 
-    called = request(server, 3, "tools/call", modern_params(
-        name="validate_deck", arguments={"deck_id": "korvold/current"}
-    ))
+    called = request(
+        server,
+        3,
+        "tools/call",
+        modern_params(name="validate_deck", arguments={"deck_id": "korvold/current"}),
+    )
     assert called["result"]["isError"] is False
     assert called["result"]["structuredContent"]["status"] == "completed"
 
     resources = request(server, 4, "resources/list", modern_params())
     assert {row["uri"] for row in resources["result"]["resources"]} >= {
-        "commander-lab://status", "commander-lab://rules-coverage"
+        "commander-lab://status",
+        "commander-lab://rules-coverage",
     }
     read = request(server, 5, "resources/read", modern_params(uri="commander-lab://status"))
     assert read["result"]["contents"][0]["mimeType"] == "application/json"
 
     prompts = request(server, 6, "prompts/list", modern_params())
     assert {row["name"] for row in prompts["result"]["prompts"]} == {
-        "optimize-deck", "compare-swap"
+        "optimize-deck",
+        "compare-swap",
     }
-    prompt = request(server, 7, "prompts/get", modern_params(
-        name="optimize-deck", arguments={"deck_id": "korvold/current"}
-    ))
+    prompt = request(
+        server,
+        7,
+        "prompts/get",
+        modern_params(name="optimize-deck", arguments={"deck_id": "korvold/current"}),
+    )
     assert prompt["result"]["messages"][0]["role"] == "user"
 
-    timeout = request(server, 8, "tools/call", modern_params(
-        name="validate_deck", arguments={"deck_id": "korvold/current"},
-        _meta={"timeoutMs": 0},
-    ))
+    timeout = request(
+        server,
+        8,
+        "tools/call",
+        modern_params(
+            name="validate_deck",
+            arguments={"deck_id": "korvold/current"},
+            _meta={"timeoutMs": 0},
+        ),
+    )
     assert timeout["error"]["code"] == -32001
 
     unknown = request(server, 9, "tools/call", modern_params(name="does_not_exist", arguments={}))
@@ -75,11 +89,16 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
     assert malformed["error"]["code"] == -32602
 
     # 2026-07-28 removed initialize and the custom shutdown lifecycle from the core.
-    init = request(server, 11, "initialize", {
-        "protocolVersion": CURRENT_MCP_PROTOCOL_VERSION,
-        "capabilities": {},
-        "clientInfo": {"name": "pytest", "version": "1"},
-    })
+    init = request(
+        server,
+        11,
+        "initialize",
+        {
+            "protocolVersion": CURRENT_MCP_PROTOCOL_VERSION,
+            "capabilities": {},
+            "clientInfo": {"name": "pytest", "version": "1"},
+        },
+    )
     assert init["error"]["code"] == -32602
     stopped = request(server, 12, "shutdown", modern_params())
     assert stopped["error"]["code"] == -32601
@@ -91,11 +110,16 @@ def test_legacy_2025_compatibility_requires_initialize_and_can_shutdown() -> Non
     before = request(server, 1, "tools/list")
     assert before["error"]["code"] == -32002
 
-    initialized = request(server, 2, "initialize", {
-        "protocolVersion": LEGACY_MCP_PROTOCOL_VERSION,
-        "capabilities": {},
-        "clientInfo": {"name": "pytest-legacy", "version": "1"},
-    })
+    initialized = request(
+        server,
+        2,
+        "initialize",
+        {
+            "protocolVersion": LEGACY_MCP_PROTOCOL_VERSION,
+            "capabilities": {},
+            "clientInfo": {"name": "pytest-legacy", "version": "1"},
+        },
+    )
     assert initialized["result"]["protocolVersion"] == LEGACY_MCP_PROTOCOL_VERSION
     assert server.handle({"jsonrpc": "2.0", "method": "notifications/initialized"}) is None
     assert request(server, 3, "ping")["result"] == {}
@@ -104,7 +128,9 @@ def test_legacy_2025_compatibility_requires_initialize_and_can_shutdown() -> Non
     assert server.session.shutdown_requested is True
 
 
-def test_stdio_cancellation_interrupts_protocol_wrapper_without_waiting_for_tool(monkeypatch) -> None:
+def test_stdio_cancellation_interrupts_protocol_wrapper_without_waiting_for_tool(
+    monkeypatch,
+) -> None:
     server = CommanderMcpServer(ROOT)
 
     original = server.registry.invoke
@@ -116,11 +142,14 @@ def test_stdio_cancellation_interrupts_protocol_wrapper_without_waiting_for_tool
 
     monkeypatch.setattr(server.registry, "invoke", slow_invoke)
     call = {
-        "jsonrpc": "2.0", "id": 77, "method": "tools/call",
+        "jsonrpc": "2.0",
+        "id": 77,
+        "method": "tools/call",
         "params": modern_params(name="validate_deck", arguments={"deck_id": "korvold/current"}),
     }
     cancel = {
-        "jsonrpc": "2.0", "method": "notifications/cancelled",
+        "jsonrpc": "2.0",
+        "method": "notifications/cancelled",
         "params": {"requestId": 77, "reason": "test cancellation"},
     }
     ping = {"jsonrpc": "2.0", "id": 78, "method": "ping", "params": modern_params()}

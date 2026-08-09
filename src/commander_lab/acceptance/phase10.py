@@ -51,7 +51,9 @@ def _git_commit(root: Path) -> str | None:
 
 
 def _load_opponent_policy(root: Path) -> dict[str, Any]:
-    return json.loads((root / "data/opponents/current_structural_profiles.json").read_text(encoding="utf-8"))
+    return json.loads(
+        (root / "data/opponents/current_structural_profiles.json").read_text(encoding="utf-8")
+    )
 
 
 def _response_dict(response: ToolResponse) -> dict[str, Any]:
@@ -88,8 +90,6 @@ def _rule_status(root: Path, card_names: list[str]) -> dict[str, Any]:
         )
         for name in card_names
     }
-
-
 
 
 def _repository_secret_scan(root: Path) -> dict[str, Any]:
@@ -140,28 +140,32 @@ def _phase10_report_markdown(result: dict[str, Any]) -> str:
     lines.extend(["", "## Final recommendations", ""])
     for deck_id, recommendation in result["final_recommendations"].items():
         candidate = recommendation["candidate"]
-        lines.extend([
-            f"### {deck_id}",
+        lines.extend(
+            [
+                f"### {deck_id}",
+                "",
+                f"- Candidate: `{candidate['remove']} → {candidate['add']}`",
+                f"- Status: `{recommendation['status']}`",
+                f"- Summary: {recommendation['summary']}",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "## External rules engine",
             "",
-            f"- Candidate: `{candidate['remove']} → {candidate['add']}`",
-            f"- Status: `{recommendation['status']}`",
-            f"- Summary: {recommendation['summary']}",
+            f"- Pending: `{result['external_engine_validation_pending']}`",
+            f"- Release gate passed: `{result['external_rules_engine_release_gate_passed']}`",
+            "- Tactical-oracle evidence is not external rules-engine validation.",
             "",
-        ])
-    lines.extend([
-        "## External rules engine",
-        "",
-        f"- Pending: `{result['external_engine_validation_pending']}`",
-        f"- Release gate passed: `{result['external_rules_engine_release_gate_passed']}`",
-        "- Tactical-oracle evidence is not external rules-engine validation.",
-        "",
-        "## Modification safety",
-        "",
-        f"- Canonical deck files modified: `{result['canonical_deck_files_modified']}`",
-        f"- Google Drive files modified: `{result['google_drive_files_modified']}`",
-        f"- API key found in tracked repository files: `{not result['secret_scan']['passed']}`",
-        "",
-    ])
+            "## Modification safety",
+            "",
+            f"- Canonical deck files modified: `{result['canonical_deck_files_modified']}`",
+            f"- Google Drive files modified: `{result['google_drive_files_modified']}`",
+            f"- API key found in tracked repository files: `{not result['secret_scan']['passed']}`",
+            "",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -202,7 +206,7 @@ def _write_deck_report(
         f"- Candidate: `{candidate.get('remove', 'none')} → {candidate.get('add', 'none')}`",
         f"- Structural decision: `{candidate.get('structural_decision', 'not_run')}`",
         f"- Final status: `{recommendation.get('status')}`",
-        f"- Automatically applied: `false`",
+        "- Automatically applied: `false`",
         "",
         "## Rules sample",
         "",
@@ -255,8 +259,7 @@ def _run_api_self_test_isolated(
     )
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join(
-        [str(root_path / "src")]
-        + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else [])
+        [str(root_path / "src")] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else [])
     )
     try:
         completed = subprocess.run(
@@ -273,9 +276,7 @@ def _run_api_self_test_isolated(
             f"isolated API self-test timed out after {timeout_seconds:.1f}s"
         ) from exc
     if completed.returncode != 0:
-        raise RuntimeError(
-            f"isolated API self-test failed: {completed.stderr.strip()}"
-        )
+        raise RuntimeError(f"isolated API self-test failed: {completed.stderr.strip()}")
     lines = [line for line in completed.stdout.splitlines() if line.strip()]
     if len(lines) != 1:
         raise RuntimeError(f"invalid isolated API output: {completed.stdout!r}")
@@ -332,7 +333,11 @@ def run_phase10_acceptance(
     include_api_self_test: bool = True,
 ) -> dict[str, Any]:
     root_path = Path(root).resolve()
-    output = Path(output_directory).resolve() if output_directory else root_path / "data/runs/phase10_acceptance"
+    output = (
+        Path(output_directory).resolve()
+        if output_directory
+        else root_path / "data/runs/phase10_acceptance"
+    )
     output.mkdir(parents=True, exist_ok=True)
     service = CommanderToolService(root_path)
     registry = ToolRegistry(service)
@@ -345,7 +350,9 @@ def run_phase10_acceptance(
 
     for deck_id in decks:
         validation = _invoke(registry, evidence, "validate_deck", {"deck_id": deck_id})
-        inspection = _invoke(registry, evidence, "inspect_deck", {"deck_id": deck_id, "include_cards": False})
+        inspection = _invoke(
+            registry, evidence, "inspect_deck", {"deck_id": deck_id, "include_cards": False}
+        )
         matchup_rows = []
         for pod_index, pod in enumerate(primary_pods):
             matchup_rows.append(
@@ -404,7 +411,9 @@ def run_phase10_acceptance(
                 "seed": seed + 7001,
             },
         )
-        recommendation_screen = _invoke(registry, evidence, "recommend_upgrades", {"deck_id": deck_id})
+        recommendation_screen = _invoke(
+            registry, evidence, "recommend_upgrades", {"deck_id": deck_id}
+        )
         targeted_cuts = [row["remove"] for row in PRIMARY_CANDIDATES[deck_id]]
         candidate_ids = [row["add_candidate_id"] for row in PRIMARY_CANDIDATES[deck_id]]
         swap_matrix = _invoke(
@@ -519,8 +528,12 @@ def run_phase10_acceptance(
         rules_sample = {
             "cards": _rule_status(root_path, rule_cards),
             "tactical_sample_passed": bool(rules_summary.get("local_acceptance_passed")),
-            "external_rules_engine_attempted": bool(rules_summary.get("rules_engine_cases_attempted")),
-            "external_rules_engine_passed": bool(rules_summary.get("rules_engine_release_gate_passed")),
+            "external_rules_engine_attempted": bool(
+                rules_summary.get("rules_engine_cases_attempted")
+            ),
+            "external_rules_engine_passed": bool(
+                rules_summary.get("rules_engine_release_gate_passed")
+            ),
             "validation_level": "tactical_oracle",
             "external_engine_validation_pending": True,
         }
@@ -557,13 +570,16 @@ def run_phase10_acceptance(
             "sensitivity": sensitivity,
             "validation": validated,
             "rules_sample": rules_sample,
-            "red_team_summary": "; ".join(red_team.get("concerns", [])) or "No red-team concerns recorded.",
+            "red_team_summary": "; ".join(red_team.get("concerns", []))
+            or "No red-team concerns recorded.",
             "summary": summary,
             "automatic_application": False,
             "canonical_deck_files_modified": False,
         }
 
-    joint_allocation = json.loads((root_path / "data/decks/manifest.json").read_text(encoding="utf-8"))["allocation_validation"]
+    joint_allocation = json.loads(
+        (root_path / "data/decks/manifest.json").read_text(encoding="utf-8")
+    )["allocation_validation"]
     api_demo: dict[str, Any]
     if include_api_self_test:
         try:
@@ -608,7 +624,11 @@ def run_phase10_acceptance(
     }
 
     reports = {
-        deck_id: str(_write_deck_report(root_path, output, deck_id, deck_evidence[deck_id], final_recommendations[deck_id]))
+        deck_id: str(
+            _write_deck_report(
+                root_path, output, deck_id, deck_evidence[deck_id], final_recommendations[deck_id]
+            )
+        )
         for deck_id in decks
     }
     failed_tools = [
@@ -616,15 +636,20 @@ def run_phase10_acceptance(
         for row in evidence
         if row.get("status") != "completed"
     ]
-    log_directories = sorted({
-        row.get("metadata", {}).get("deterministic_game_log_directory")
-        for row in evidence
-        if row.get("metadata", {}).get("deterministic_game_log_directory")
-    })
+    log_directories = sorted(
+        {
+            row.get("metadata", {}).get("deterministic_game_log_directory")
+            for row in evidence
+            if row.get("metadata", {}).get("deterministic_game_log_directory")
+        }
+    )
     logs_present = all(Path(path).exists() for path in log_directories)
     estimate_labels_valid = all(
-        row.get("metadata", {}).get("estimate_type") in {
-            "structural_model_estimates", "tactical_oracle_results", "external_rules_engine_results"
+        row.get("metadata", {}).get("estimate_type")
+        in {
+            "structural_model_estimates",
+            "tactical_oracle_results",
+            "external_rules_engine_results",
         }
         for row in evidence
     )
@@ -642,7 +667,8 @@ def run_phase10_acceptance(
         "tactical_rules_sample_passed": bool(rules_summary.get("local_acceptance_passed")),
         "deterministic_log_directories_present": logs_present,
         "estimate_labels_valid": estimate_labels_valid,
-        "cost_limits_active": service.limits.hard_max_iterations > 0 and service.limits.max_model_calls > 0,
+        "cost_limits_active": service.limits.hard_max_iterations > 0
+        and service.limits.max_model_calls > 0,
         "api_demo_passed": api_demo_passed,
         "repository_secret_scan_passed": secret_scan["passed"],
         "no_automatic_deck_application": all(
@@ -655,7 +681,8 @@ def run_phase10_acceptance(
         "iterations": iterations,
         "workers": workers,
         "deck_hashes": {
-            deck_id: deck_evidence[deck_id]["validation"]["result"].get("deck_hash") for deck_id in decks
+            deck_id: deck_evidence[deck_id]["validation"]["result"].get("deck_hash")
+            for deck_id in decks
         },
         "opponent_policy_hash": sha256_value(opponent_policy),
         "recommendations": {
@@ -690,7 +717,9 @@ def run_phase10_acceptance(
         "rules_sample": rules_summary,
         "final_recommendations": final_recommendations,
         "validated_upgrades": [
-            deck_id for deck_id, item in final_recommendations.items() if item["status"] == "validated_upgrade"
+            deck_id
+            for deck_id, item in final_recommendations.items()
+            if item["status"] == "validated_upgrade"
         ],
         "canonical_deck_files_modified": False,
         "google_drive_files_modified": False,
@@ -707,13 +736,26 @@ def run_phase10_acceptance(
         "local_acceptance_passed": local_acceptance_passed,
         "reproducibility_fingerprint": sha256_value(deterministic_core),
         "productive_functions": [
-            "deck_import_and_validation", "structural_simulation", "pilot_agents",
-            "paired_comparison", "ablation", "constrained_search", "pareto_filter",
-            "holdout", "sensitivity", "playtest_import", "local_tool_server", "reporting"
+            "deck_import_and_validation",
+            "structural_simulation",
+            "pilot_agents",
+            "paired_comparison",
+            "ablation",
+            "constrained_search",
+            "pareto_filter",
+            "holdout",
+            "sensitivity",
+            "playtest_import",
+            "local_tool_server",
+            "reporting",
         ],
         "experimental_functions": [
-            "tactical_oracle", "current_opponent_role_profiles", "cosmic_midbudget_completion",
-            "approximate_shapley", "live_openai_agent_workflow", "external_rules_engine_adapter"
+            "tactical_oracle",
+            "current_opponent_role_profiles",
+            "cosmic_midbudget_completion",
+            "approximate_shapley",
+            "live_openai_agent_workflow",
+            "external_rules_engine_adapter",
         ],
     }
     atomic_write_json(output / "tool_evidence.json", evidence)

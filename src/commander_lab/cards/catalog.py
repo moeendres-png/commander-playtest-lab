@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import difflib
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 from commander_lab.models import CardIdentity
 
@@ -81,4 +81,6 @@ class CardCatalog:
 
     @property
     def cards(self) -> tuple[CardIdentity, ...]:
-        return tuple(sorted(self._cards_by_name.values(), key=lambda card: card.oracle_name.casefold()))
+        return tuple(
+            sorted(self._cards_by_name.values(), key=lambda card: card.oracle_name.casefold())
+        )

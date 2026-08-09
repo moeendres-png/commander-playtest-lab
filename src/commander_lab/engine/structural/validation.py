@@ -8,7 +8,6 @@ from commander_lab.models import StructuralAbortLimits, StructuralBatchConfig
 from .batch import run_structural_batch
 from .project import load_project_structural_decks
 
-
 VALIDATION_SCENARIOS: dict[str, tuple[str, ...]] = {
     "goldfish_korvold": ("korvold/current",),
     "goldfish_rogshai": ("rogshai/current",),

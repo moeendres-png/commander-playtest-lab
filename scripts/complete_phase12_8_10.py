@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from statistics import fmean
 
 from commander_lab.counterfactual import CounterfactualReplayLab
 from commander_lab.diagnostics import DecisionDiagnosticEngine, run_integrated_extension_smoke
@@ -29,19 +28,25 @@ def _mulligan_report(name: str, result) -> str:
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for row in result.policies:
-        placement = "—" if row.structural_placement_mean is None else f"{row.structural_placement_mean:.3f}"
+        placement = (
+            "—" if row.structural_placement_mean is None else f"{row.structural_placement_mean:.3f}"
+        )
         lines.append(
             f"| `{row.policy.value}` | {row.keep_rate_first_seven:.3f} | {row.mulligan_rate:.3f} | "
             f"{row.average_mulligans:.3f} | {row.color_problem_rate:.3f} | "
             f"{row.completed_followup_games}/{row.full_followup_games} | {placement} |"
         )
     lines += [
-        "", "## Overfitting checks", "",
+        "",
+        "## Overfitting checks",
+        "",
         f"- Executed validation contexts: {len(result.overfitting_validation)}",
         f"- Context kinds: {', '.join(sorted({row.context_kind for row in result.overfitting_validation}))}",
         f"- Supported contexts: {sum(row.supported for row in result.overfitting_validation)}/{len(result.overfitting_validation)}",
         "- Primary pod, two holdouts, one opponent ensemble and three pilot profiles were actually executed.",
-        "", "## Boundaries", "",
+        "",
+        "## Boundaries",
+        "",
         "- Full follow-ups use the Structural Simulator with a forced public opening hand.",
         "- No Tactical Oracle or external rules engine was used for complete games.",
         "- No deck list, inventory or allocation was changed.",
@@ -76,34 +81,64 @@ def main(root: Path) -> None:
         rules_path = root / f"data/mulligan_lab/policies/{slug}_mulligan_keep_rules.json"
         report_path = root / f"docs/mulligan_lab/{slug}_mulligan_lab.md"
         atomic_write_json(result_path, result.model_dump(mode="json"))
-        atomic_write_json(rules_path, {
-            "schema_version": "1.10.1",
-            "deck_id": deck.deck_id,
-            "deck_hash": deck.deck_hash,
-            "rules": [row.model_dump(mode="json") for row in result.generated_rules],
-            "truth_boundary": "model_based_not_absolute",
-        })
+        atomic_write_json(
+            rules_path,
+            {
+                "schema_version": "1.10.1",
+                "deck_id": deck.deck_id,
+                "deck_hash": deck.deck_hash,
+                "rules": [row.model_dump(mode="json") for row in result.generated_rules],
+                "truth_boundary": "model_based_not_absolute",
+            },
+        )
         atomic_write_text(report_path, _mulligan_report(slug.title(), result))
 
     smoke_path = root / "data/diagnostics/reports/INTEGRATED_TEN_EXTENSION_SMOKE.json"
     smoke = run_integrated_extension_smoke(root, smoke_path)
     smoke_lines = [
-        "# Integrated ten-extension smoke 1.10.1", "",
-        f"Status: `{smoke.status}`", f"Passed steps: {smoke.passed_steps}/10", "",
-        "| Step | Name | Validation level | Result |", "|---:|---|---|---|",
+        "# Integrated ten-extension smoke 1.10.1",
+        "",
+        f"Status: `{smoke.status}`",
+        f"Passed steps: {smoke.passed_steps}/10",
+        "",
+        "| Step | Name | Validation level | Result |",
+        "|---:|---|---|---|",
     ]
     for row in smoke.steps:
-        smoke_lines.append(f"| {row.step} | {row.name} | `{row.validation_level}` | {row.result_summary} |")
-    smoke_lines += ["", "Every step was executed in this run and stores source paths plus SHA-256 hashes.", "No external rules engine was used."]
-    atomic_write_text(root / "data/diagnostics/reports/INTEGRATED_TEN_EXTENSION_SMOKE.md", "\n".join(smoke_lines) + "\n")
+        smoke_lines.append(
+            f"| {row.step} | {row.name} | `{row.validation_level}` | {row.result_summary} |"
+        )
+    smoke_lines += [
+        "",
+        "Every step was executed in this run and stores source paths plus SHA-256 hashes.",
+        "No external rules engine was used.",
+    ]
+    atomic_write_text(
+        root / "data/diagnostics/reports/INTEGRATED_TEN_EXTENSION_SMOKE.md",
+        "\n".join(smoke_lines) + "\n",
+    )
 
     run_dir = root / "data/runs/integrated_extension_smoke"
-    counter = CounterfactualResult.model_validate_json((run_dir / "counterfactual.json").read_text(encoding="utf-8"))
-    CounterfactualReplayLab.report(counter, root / "data/counterfactual/reports/DECISION_REGRET_REPORT.md")
-    atomic_write_json(root / "data/counterfactual/examples/korvold_counterfactual_example.json", counter.model_dump(mode="json"))
-    diagnosis = DiagnosisRecord.model_validate_json((run_dir / "diagnosis.json").read_text(encoding="utf-8"))
-    DecisionDiagnosticEngine.report([diagnosis], root / "data/diagnostics/reports/DECISION_DIAGNOSTIC_REPORT.md")
-    atomic_write_json(root / "data/diagnostics/examples/integrated_smoke_dataset.json", json.loads((run_dir / "diagnostic_dataset.json").read_text(encoding="utf-8")))
+    counter = CounterfactualResult.model_validate_json(
+        (run_dir / "counterfactual.json").read_text(encoding="utf-8")
+    )
+    CounterfactualReplayLab.report(
+        counter, root / "data/counterfactual/reports/DECISION_REGRET_REPORT.md"
+    )
+    atomic_write_json(
+        root / "data/counterfactual/examples/korvold_counterfactual_example.json",
+        counter.model_dump(mode="json"),
+    )
+    diagnosis = DiagnosisRecord.model_validate_json(
+        (run_dir / "diagnosis.json").read_text(encoding="utf-8")
+    )
+    DecisionDiagnosticEngine.report(
+        [diagnosis], root / "data/diagnostics/reports/DECISION_DIAGNOSTIC_REPORT.md"
+    )
+    atomic_write_json(
+        root / "data/diagnostics/examples/integrated_smoke_dataset.json",
+        json.loads((run_dir / "diagnostic_dataset.json").read_text(encoding="utf-8")),
+    )
 
     audit = {
         "schema_version": "1.10.1",
@@ -131,7 +166,10 @@ def main(root: Path) -> None:
     }
     target = root / "artifacts/completion_audit/PHASE12_8_10_COMPLETION_AUDIT.json"
     atomic_write_json(target, audit)
-    atomic_write_text(target.with_suffix(".md"), """# Phase 12.8–12.10 completion audit\n\nStatus: `decision_diagnostics_ready_with_limitations`\n\nThe previously partial integration paths were completed and executed. Mulligan follow-ups now run complete Structural Simulator games; keep-rule candidates are actually checked across primary, holdout, ensemble and pilot contexts; counterfactual state differences and Tactical Oracle calls are evaluated; diagnostics are generated from event logs; and the ten-step smoke executes every stage.\n\nLimits remain: zero imported real games, no real XMage/Forge execution, model-based policies and diagnoses are not empirical proof, and no canonical deck, inventory or allocation data changed.\n""")
+    atomic_write_text(
+        target.with_suffix(".md"),
+        """# Phase 12.8–12.10 completion audit\n\nStatus: `decision_diagnostics_ready_with_limitations`\n\nThe previously partial integration paths were completed and executed. Mulligan follow-ups now run complete Structural Simulator games; keep-rule candidates are actually checked across primary, holdout, ensemble and pilot contexts; counterfactual state differences and Tactical Oracle calls are evaluated; diagnostics are generated from event logs; and the ten-step smoke executes every stage.\n\nLimits remain: zero imported real games, no real XMage/Forge execution, model-based policies and diagnoses are not empirical proof, and no canonical deck, inventory or allocation data changed.\n""",
+    )
 
 
 if __name__ == "__main__":

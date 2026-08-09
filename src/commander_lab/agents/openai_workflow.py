@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from commander_lab.models import WorkflowReport, WorkflowRequest
@@ -51,8 +50,7 @@ def _load_sdk() -> dict[str, Any]:
         from openai.types.shared import Reasoning
     except ImportError as exc:
         raise AgentsSdkUnavailable(
-            "Install the optional dependency with: "
-            "pip install 'commander-playtest-lab[openai]'"
+            "Install the optional dependency with: pip install 'commander-playtest-lab[openai]'"
         ) from exc
     return {
         "Agent": Agent,
@@ -110,7 +108,11 @@ def _agent_guardrails(sdk: dict[str, Any]) -> tuple[Any, Any]:
 
     async def structural_output_only(_context: Any, _agent: Any, output: Any) -> Any:
         try:
-            report = output if isinstance(output, WorkflowReport) else WorkflowReport.model_validate(output)
+            report = (
+                output
+                if isinstance(output, WorkflowReport)
+                else WorkflowReport.model_validate(output)
+            )
             validate_workflow_report(report)
         except (ValueError, GuardrailViolation) as exc:
             return sdk["GuardrailFunctionOutput"](

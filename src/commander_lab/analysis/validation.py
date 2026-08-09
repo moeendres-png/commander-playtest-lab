@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Iterable
 from enum import StrEnum
-from typing import Iterable
 
 from pydantic import Field
 
@@ -39,7 +39,7 @@ class ValidationReport(MutableModel):
     @classmethod
     def from_issues(
         cls, issues: list[ValidationIssue], *, metrics: dict[str, object] | None = None
-    ) -> "ValidationReport":
+    ) -> ValidationReport:
         valid = not any(issue.severity == ValidationSeverity.ERROR for issue in issues)
         return cls(valid=valid, issues=issues, metrics=metrics or {})
 
@@ -88,7 +88,9 @@ class DeckValidator:
                 resolved[name] = self.catalog.resolve(name)
             except UnknownCardError as exc:
                 severity = (
-                    ValidationSeverity.ERROR if self.strict_unknown_cards else ValidationSeverity.WARNING
+                    ValidationSeverity.ERROR
+                    if self.strict_unknown_cards
+                    else ValidationSeverity.WARNING
                 )
                 issues.append(
                     ValidationIssue(
@@ -188,9 +190,7 @@ class DeckValidator:
                     )
                 )
 
-        commander_entries = [
-            entry for entry in deck.cards if entry.zone == DeckZone.COMMANDER
-        ]
+        commander_entries = [entry for entry in deck.cards if entry.zone == DeckZone.COMMANDER]
         if any(entry.quantity != 1 for entry in commander_entries):
             issues.append(
                 ValidationIssue(

@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def _variant_hash(root: Path, hash_seed: str) -> str:
-    code = r'''
+    code = r"""
 from commander_lab.engine.structural import load_project_structural_decks
 from commander_lab.tools.candidates import load_candidate_profiles
 from commander_lab.optimization.experiments import variant_deck
@@ -23,7 +23,7 @@ variant = variant_deck(
     additions=(card,),
 )
 print(variant.deck_hash)
-'''.replace("ROOT", str(root))
+""".replace("ROOT", str(root))
     env = os.environ.copy()
     env["PYTHONHASHSEED"] = hash_seed
     env["PYTHONPATH"] = str(root / "src")

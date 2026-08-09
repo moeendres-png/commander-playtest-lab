@@ -7,12 +7,13 @@ from typing import Any
 
 from .models import AgentEvalCase, AgentEvalScores, AgentTrajectory
 
-
 RECOMMENDATION_TERMS = re.compile(
     r"\b(recommend|recommended|confirm|confirmed|accept|accepted|upgrade should|swap should)\b",
     re.IGNORECASE,
 )
-REAL_WINRATE_TERMS = re.compile(r"\b(empirical win ?rate|real win ?rate|true win ?rate)\b", re.IGNORECASE)
+REAL_WINRATE_TERMS = re.compile(
+    r"\b(empirical win ?rate|real win ?rate|true win ?rate)\b", re.IGNORECASE
+)
 UNCERTAINTY_TERMS = re.compile(
     "\\b(structural|model|estimate|synthetic|holdout|uncertain|u"
     "ncertainty|not empirical|not a win ?rate)\\b",
@@ -69,9 +70,7 @@ def _no_fabrication_score(trajectory: AgentTrajectory) -> tuple[float, list[str]
     if unsupported_invocations:
         details.append(f"report cites unexecuted tools: {sorted(unsupported_invocations)}")
     completed_outputs = [
-        output
-        for output in trajectory.tool_outputs
-        if output.get("status") == "completed"
+        output for output in trajectory.tool_outputs if output.get("status") == "completed"
     ]
     if trajectory.report.evidence and not completed_outputs:
         details.append("report provides evidence but no completed tool output exists")

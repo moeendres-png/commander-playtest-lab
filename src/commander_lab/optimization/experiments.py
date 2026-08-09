@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Iterable
 from dataclasses import dataclass
 from statistics import fmean
-from typing import Iterable
 
+from commander_lab.decision_statistics import (
+    bayesian_shrunk_mean,
+    distributionally_robust_lower_bound,
+    paired_bootstrap_interval,
+    paired_standardized_effect,
+    quantile_summary,
+)
 from commander_lab.engine.structural import ENGINE_VERSION, StructuralSimulator
 from commander_lab.models import (
     CardRole,
@@ -12,13 +19,8 @@ from commander_lab.models import (
     StructuralCardProfile,
     StructuralDeckProfile,
     StructuralMatchConfig,
-    VariantSwap,
 )
 from commander_lab.storage import sha256_value
-from commander_lab.decision_statistics import (
-    bayesian_shrunk_mean, distributionally_robust_lower_bound,
-    paired_bootstrap_interval, paired_standardized_effect, quantile_summary,
-)
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,7 +69,7 @@ class PairedMetrics:
 
 
 def derive_paired_seed(master_seed: int, pair_id: str, index: int) -> int:
-    payload = f"{ENGINE_VERSION}|paired|{master_seed}|{pair_id}|{index}".encode("utf-8")
+    payload = f"{ENGINE_VERSION}|paired|{master_seed}|{pair_id}|{index}".encode()
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big", signed=False)
 
 
@@ -115,7 +117,9 @@ def variant_deck(
     )
 
 
-def ablation_filler(card: StructuralCardProfile, *, suffix: str = "ablation") -> StructuralCardProfile:
+def ablation_filler(
+    card: StructuralCardProfile, *, suffix: str = "ablation"
+) -> StructuralCardProfile:
     return StructuralCardProfile(
         oracle_name=f"{card.oracle_name} [{suffix} filler]",
         mana_value=card.mana_value,
@@ -181,6 +185,7 @@ def run_paired_structural_comparison(
         variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
         configs = (pilot_config,) * len(baseline_ids)
         from commander_lab.models import StructuralAbortLimits
+
         limits = StructuralAbortLimits(max_turns=max_turns)
         base_result = base_sim.simulate(
             StructuralMatchConfig(
@@ -241,8 +246,7 @@ def run_paired_structural_comparison(
     base_place = avg(base_rows, "placement")
     var_place = avg(var_rows, "placement")
     differences = tuple(
-        float(row["baseline_placement"]) - float(row["variant_placement"])
-        for row in pairs
+        float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs
     )
     interval = paired_bootstrap_interval(
         differences, seed=derive_paired_seed(seed, pair_id, iterations + 1)

@@ -60,8 +60,7 @@ def audit_current_sources(root: str | Path) -> dict[str, Any]:
     root_path = Path(root)
     registry = _load(root_path / "data/sync/current_sources.json")
     checks = [
-        _source_observation(root_path, key, spec)
-        for key, spec in registry["sources"].items()
+        _source_observation(root_path, key, spec) for key, spec in registry["sources"].items()
     ]
     return {
         "schema_version": 1,

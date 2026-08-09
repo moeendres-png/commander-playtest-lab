@@ -6,6 +6,7 @@ import sqlite3
 import time
 from pathlib import Path
 
+from commander_lab.mcp.server import CommanderMcpServer
 from commander_lab.models import (
     CompareMulliganPoliciesInput,
     CreateReportInput,
@@ -16,7 +17,6 @@ from commander_lab.models import (
     VariantSwap,
 )
 from commander_lab.tools.service import CommanderToolService
-from commander_lab.mcp.server import CommanderMcpServer
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts/phase12_19"
@@ -34,7 +34,12 @@ def timed(name: str, fn):
         status = "failed"
         error = f"{type(exc).__name__}: {exc}"
     elapsed = time.perf_counter() - start
-    return {"name": name, "execution_status": status, "seconds": round(elapsed, 6), "error": error}, value
+    return {
+        "name": name,
+        "execution_status": status,
+        "seconds": round(elapsed, 6),
+        "error": error,
+    }, value
 
 
 rows: list[dict[str, object]] = []
@@ -52,7 +57,9 @@ for iterations in (1, 100, 1000):
     row, _ = timed(
         f"structural_goldfish_{iterations}_games_workers_1",
         lambda iterations=iterations: service.run_goldfish(
-            GoldfishInput(deck_id="korvold/current", iterations=iterations, workers=1, seed=20260807)
+            GoldfishInput(
+                deck_id="korvold/current", iterations=iterations, workers=1, seed=20260807
+            )
         ),
     )
     rows.append(row)
@@ -96,7 +103,9 @@ row, paired = timed(
     lambda: service.compare_variants_paired(
         PairedVariantInput(
             deck_id="korvold/current",
-            swaps=(VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),),
+            swaps=(
+                VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),
+            ),
             iterations=50,
             workers=1,
             seed=20260807,
@@ -126,7 +135,9 @@ def sqlite_benchmark() -> dict[str, int]:
     try:
         con.execute("PRAGMA journal_mode=WAL")
         con.execute("CREATE TABLE measurements(id INTEGER PRIMARY KEY, value REAL NOT NULL)")
-        con.executemany("INSERT INTO measurements(value) VALUES (?)", [(float(i),) for i in range(1000)])
+        con.executemany(
+            "INSERT INTO measurements(value) VALUES (?)", [(float(i),) for i in range(1000)]
+        )
         con.commit()
         count = con.execute("SELECT COUNT(*) FROM measurements").fetchone()[0]
         total = con.execute("SELECT SUM(value) FROM measurements").fetchone()[0]
@@ -134,13 +145,25 @@ def sqlite_benchmark() -> dict[str, int]:
     finally:
         con.close()
 
+
 row, _ = timed("sqlite_write_read_1000", sqlite_benchmark)
 rows.append(row)
 
 server = CommanderMcpServer(ROOT)
 row, _ = timed(
     "mcp_initialize_in_process",
-    lambda: server.handle({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "phase12.19", "version": "1"}}}),
+    lambda: server.handle(
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2025-11-25",
+                "capabilities": {},
+                "clientInfo": {"name": "phase12.19", "version": "1"},
+            },
+        }
+    ),
 )
 rows.append(row)
 row, _ = timed(
@@ -150,13 +173,40 @@ row, _ = timed(
 rows.append(row)
 
 # External providers were really probed in phase 12.13 and are unavailable in this runtime.
-rows.extend([
-    {"name": "xmage_run", "execution_status": "blocked", "seconds": None, "error": "No verified source/binary; GitHub DNS and build dependencies unavailable."},
-    {"name": "forge_run", "execution_status": "blocked", "seconds": None, "error": "No verified source/binary; GitHub DNS and build dependencies unavailable."},
-    {"name": "parquet_roundtrip", "execution_status": "not_run", "seconds": None, "error": "Parquet is not an active project feature; pyarrow/fastparquet not required."},
-    {"name": "counterfactual_replay", "execution_status": "not_run", "seconds": None, "error": "No canonical replay fixture selected for this performance run; functionality remains covered by tests."},
-    {"name": "decision_diagnostics", "execution_status": "not_run", "seconds": None, "error": "No canonical diagnostic dataset selected for this performance run; functionality remains covered by tests."},
-])
+rows.extend(
+    [
+        {
+            "name": "xmage_run",
+            "execution_status": "blocked",
+            "seconds": None,
+            "error": "No verified source/binary; GitHub DNS and build dependencies unavailable.",
+        },
+        {
+            "name": "forge_run",
+            "execution_status": "blocked",
+            "seconds": None,
+            "error": "No verified source/binary; GitHub DNS and build dependencies unavailable.",
+        },
+        {
+            "name": "parquet_roundtrip",
+            "execution_status": "not_run",
+            "seconds": None,
+            "error": "Parquet is not an active project feature; pyarrow/fastparquet not required.",
+        },
+        {
+            "name": "counterfactual_replay",
+            "execution_status": "not_run",
+            "seconds": None,
+            "error": "No canonical replay fixture selected for this performance run; functionality remains covered by tests.",
+        },
+        {
+            "name": "decision_diagnostics",
+            "execution_status": "not_run",
+            "seconds": None,
+            "error": "No canonical diagnostic dataset selected for this performance run; functionality remains covered by tests.",
+        },
+    ]
+)
 
 payload = {
     "schema_version": "1.0.0",
@@ -165,9 +215,18 @@ payload = {
     "semantic_change_allowed": False,
     "measurements": rows,
 }
-(OUT / "PHASE12_19_PERFORMANCE.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+(OUT / "PHASE12_19_PERFORMANCE.json").write_text(
+    json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+)
 
-lines = ["# Phase 12.19 Performance Report", "", "Measurements are local technical timings, not cross-machine guarantees.", "", "| Operation | Status | Seconds | Note |", "|---|---|---:|---|"]
+lines = [
+    "# Phase 12.19 Performance Report",
+    "",
+    "Measurements are local technical timings, not cross-machine guarantees.",
+    "",
+    "| Operation | Status | Seconds | Note |",
+    "|---|---|---:|---|",
+]
 for item in rows:
     seconds = "—" if item["seconds"] is None else f"{item['seconds']:.6f}"
     note = str(item["error"] or "")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, cast
+from typing import cast
 
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet

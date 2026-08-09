@@ -19,7 +19,9 @@ def load_project_structural_decks(
     root_path = Path(root)
     manifest = json.loads((root_path / "data/decks/manifest.json").read_text(encoding="utf-8"))
     snapshot_hash = str(manifest["data_snapshot_hash"])
-    profiles = StructuralProfileCatalog.from_json(root_path / "data/cards/structural_role_profiles.json")
+    profiles = StructuralProfileCatalog.from_json(
+        root_path / "data/cards/structural_role_profiles.json"
+    )
     decks: dict[str, StructuralDeckProfile] = {}
     for filename in ("korvold_current.json", "rogshai_current.json"):
         deck = load_model(root_path / "data/decks" / filename, Deck)
@@ -33,7 +35,9 @@ def load_project_structural_decks(
     if include_current_opponents:
         opponent_path = root_path / "data/opponents/current_structural_profiles.json"
         if opponent_path.exists():
-            decks.update(build_current_opponent_profiles(opponent_path, data_snapshot_hash=snapshot_hash))
+            decks.update(
+                build_current_opponent_profiles(opponent_path, data_snapshot_hash=snapshot_hash)
+            )
     return decks
 
 
@@ -41,7 +45,9 @@ def _version_key(version: str) -> tuple[int, int, int]:
     return tuple(int(part) for part in version.split("."))  # type: ignore[return-value]
 
 
-def _attach_package_membership(profile: StructuralDeckProfile, root_path: Path) -> StructuralDeckProfile:
+def _attach_package_membership(
+    profile: StructuralDeckProfile, root_path: Path
+) -> StructuralDeckProfile:
     registry_path = root_path / "data/packages/package_registry.json"
     if not registry_path.exists():
         return profile
@@ -55,14 +61,26 @@ def _attach_package_membership(profile: StructuralDeckProfile, root_path: Path) 
     )
     latest: dict[str, dict[str, object]] = {}
     for package in payload.get("packages", []):
-        if package.get("commander") != commander or package.get("status") not in {"curated", "validated"}:
+        if package.get("commander") != commander or package.get("status") not in {
+            "curated",
+            "validated",
+        }:
             continue
         previous = latest.get(str(package["package_id"]))
-        if previous is None or _version_key(str(package["version"])) > _version_key(str(previous["version"])):
+        if previous is None or _version_key(str(package["version"])) > _version_key(
+            str(previous["version"])
+        ):
             latest[str(package["package_id"])] = package
     memberships: dict[str, set[str]] = {}
     for package_id, package in latest.items():
-        for field in ("core_cards", "support_cards", "optional_cards", "enablers", "payoffs", "finishers"):
+        for field in (
+            "core_cards",
+            "support_cards",
+            "optional_cards",
+            "enablers",
+            "payoffs",
+            "finishers",
+        ):
             for card_name in package.get(field, []):
                 memberships.setdefault(str(card_name), set()).add(package_id)
     cards = tuple(

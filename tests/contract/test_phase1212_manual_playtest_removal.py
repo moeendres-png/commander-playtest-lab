@@ -11,7 +11,6 @@ from commander_lab.models.rules import ValidationLevel
 from commander_lab.storage import check_database, migrate_database
 from commander_lab.tools.registry import TOOL_DEFINITIONS
 
-
 FORBIDDEN_TOOLS = {
     "ingest_playtest",
     "calibrate",
@@ -62,9 +61,7 @@ def test_database_migration_removes_known_legacy_manual_playtest_tables(tmp_path
     with sqlite3.connect(database) as connection:
         tables = {
             row[0]
-            for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
+            for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
     assert not tables.intersection(
         {

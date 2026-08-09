@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import math
 import random
+from collections.abc import Iterable
 from statistics import fmean, stdev
-from typing import Iterable
 
 
 def _values(values: Iterable[float]) -> tuple[float, ...]:
@@ -41,10 +41,7 @@ def paired_bootstrap_interval(
     if resamples < 100:
         raise ValueError("at least 100 bootstrap resamples are required")
     rng = random.Random(seed)
-    means = [
-        fmean(values[rng.randrange(len(values))] for _ in values)
-        for _ in range(resamples)
-    ]
+    means = [fmean(values[rng.randrange(len(values))] for _ in values) for _ in range(resamples)]
     alpha = (1 - confidence) / 2
     return percentile(means, alpha), percentile(means, 1 - alpha)
 

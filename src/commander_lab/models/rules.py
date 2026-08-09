@@ -6,7 +6,7 @@ from typing import Any, Literal
 from pydantic import Field, model_validator
 
 from .common import FrozenModel, MutableModel
-from .game import ActionProposal, GameEvent, GameState, LegalAction
+from .game import GameEvent, GameState
 
 
 class ValidationLevel(StrEnum):
@@ -72,12 +72,14 @@ class RulesEngineCapabilities(FrozenModel):
             "seed_supported": self.seed_supported or self.deterministic_seed,
             "deck_import_supported": self.deck_import_supported or self.deck_loading,
             "legal_actions_supported": self.legal_actions_supported or self.legal_action_query,
-            "action_submission_supported": self.action_submission_supported or self.action_submission,
+            "action_submission_supported": self.action_submission_supported
+            or self.action_submission,
             "event_log_supported": self.event_log_supported or self.event_logs,
             "starting_state_injection_supported": (
                 self.starting_state_injection_supported or self.reproducible_starting_state
             ),
-            "scenario_injection_supported": self.scenario_injection_supported or self.scenario_injection,
+            "scenario_injection_supported": self.scenario_injection_supported
+            or self.scenario_injection,
         }
         if capability in aliases:
             return bool(aliases[capability])
@@ -105,7 +107,7 @@ class RulesDeckInput(FrozenModel):
     source_path: str | None = None
 
     @model_validator(mode="after")
-    def validate_commander_deck_size(self) -> "RulesDeckInput":
+    def validate_commander_deck_size(self) -> RulesDeckInput:
         total = len(self.mainboard) + len(self.commander_names)
         if total != 100:
             raise ValueError(f"Commander deck must contain exactly 100 cards; observed {total}")
@@ -135,7 +137,7 @@ class RulesGameRequest(FrozenModel):
     deterministic_starting_state: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def validate_pod(self) -> "RulesGameRequest":
+    def validate_pod(self) -> RulesGameRequest:
         if not 1 <= len(self.deck_handles) <= 10:
             raise ValueError("rules-engine game requires between one and ten decks")
         if self.starting_player_seat >= len(self.deck_handles):
@@ -246,7 +248,7 @@ class BridgeResponse(FrozenModel):
     error: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def result_or_error(self) -> "BridgeResponse":
+    def result_or_error(self) -> BridgeResponse:
         if self.ok and self.result is None:
             raise ValueError("successful bridge response requires result")
         if not self.ok and self.error is None:

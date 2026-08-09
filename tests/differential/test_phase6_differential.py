@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 import sys
 from pathlib import Path
@@ -19,9 +18,7 @@ from commander_lab.evals import (
 def test_differential_subprocess_adapter_with_normalized_fake_backend(
     tmp_path: Path, repo_root: Path
 ) -> None:
-    case = load_differential_cases(
-        repo_root / "data/evals/differential/rules_cases.json"
-    )[0]
+    case = load_differential_cases(repo_root / "data/evals/differential/rules_cases.json")[0]
     script = tmp_path / "fake_backend.py"
     script.write_text(
         """
@@ -61,9 +58,7 @@ def test_external_differential_gate_is_explicitly_unavailable_without_configurat
 def test_real_xmage_or_forge_differential_cases(repo_root: Path) -> None:
     from commander_lab.evals import run_configured_differential_cases
 
-    cases = load_differential_cases(
-        repo_root / "data/evals/differential/rules_cases.json"
-    )
+    cases = load_differential_cases(repo_root / "data/evals/differential/rules_cases.json")
     results = run_configured_differential_cases(cases)
     assert len(results) >= 3
     assert all(result.status == EvalStatus.PASSED for result in results)

@@ -63,7 +63,7 @@ def test_simulation_config_requires_one_deck_per_seat() -> None:
 
 
 def test_requested_phase2_models_are_publicly_importable() -> None:
-    from commander_lab.models import (  # noqa: PLC0415
+    from commander_lab.models import (
         ActionProposal,
         CardContribution,
         CardIdentity,
@@ -110,7 +110,7 @@ def test_requested_phase2_models_are_publicly_importable() -> None:
 
 
 def test_pilot_config_count_must_match_pod_size() -> None:
-    from commander_lab.models import PilotConfig, StructuralMatchConfig  # noqa: PLC0415
+    from commander_lab.models import PilotConfig, StructuralMatchConfig
 
     with pytest.raises(ValidationError):
         StructuralMatchConfig(
@@ -122,7 +122,7 @@ def test_pilot_config_count_must_match_pod_size() -> None:
 
 
 def test_phase4_pilot_models_are_publicly_importable() -> None:
-    from commander_lab.models import (  # noqa: PLC0415
+    from commander_lab.models import (
         PilotActionView,
         PilotCommanderView,
         PilotConfig,

@@ -1,25 +1,23 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
-
-from commander_lab.storage.atomic import atomic_write_text
 
 from commander_lab.models import (
+    CardValidationRecord,
     GameState,
     GameStatus,
     InteractionSpec,
     InteractionValidation,
     PlayerState,
-    RulesBackend,
     RulesEngineAvailability,
     TacticalScenario,
     ValidationLevel,
     ValidationRegistry,
-    CardValidationRecord,
     ZoneState,
 )
+from commander_lab.storage.atomic import atomic_write_text
 
 from .base import RulesEngineAdapter
 from .tactical import TacticalRuleOracle
@@ -60,7 +58,9 @@ def validate_with_external_adapter(
     if probe.availability != RulesEngineAvailability.AVAILABLE:
         raise RuntimeError("external rules engine is not available")
     if probe.capabilities.runtime_kind != "external_rules_engine":
-        raise RuntimeError("unverified or legacy bridge cannot produce external_rules_engine evidence")
+        raise RuntimeError(
+            "unverified or legacy bridge cannot produce external_rules_engine evidence"
+        )
     session = adapter.create_scenario(_scenario_for_spec(spec))
     result = adapter.get_result(session.session_id)
     if result.validation_level != ValidationLevel.EXTERNAL_RULES_ENGINE:
@@ -128,7 +128,11 @@ def build_validation_registry(
     for card_name, interaction_ids in sorted(by_card.items()):
         tactical = [tactical_results[item] for item in interaction_ids]
         external = [external_results[item] for item in interaction_ids if item in external_results]
-        if interaction_ids and len(external) == len(interaction_ids) and all(item.passed for item in external):
+        if (
+            interaction_ids
+            and len(external) == len(interaction_ids)
+            and all(item.passed for item in external)
+        ):
             level = ValidationLevel.EXTERNAL_RULES_ENGINE
         elif interaction_ids and all(item.passed for item in tactical):
             level = ValidationLevel.TACTICAL_ORACLE

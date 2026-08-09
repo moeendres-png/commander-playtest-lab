@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
-from commander_lab.storage import sha256_value
-
-from commander_lab.models import EngineReplay, GameState
 from commander_lab.engine.rules.replay import replay_into_internal_model
+from commander_lab.models import EngineReplay, GameState
+from commander_lab.storage import sha256_value
 
 
 @dataclass(frozen=True)
@@ -32,13 +32,18 @@ class ReplayDebugger:
     def step(self, index: int) -> ReplayStep:
         if index < 0 or index >= len(self.replay.events):
             raise IndexError(index)
-        return ReplayStep(index=index, event=self.replay.events[index], state=self._states[index + 1])
+        return ReplayStep(
+            index=index, event=self.replay.events[index], state=self._states[index + 1]
+        )
 
     def diff(self, before: int, after: int) -> dict[str, tuple[Any, Any]]:
         first = self._states[before].model_dump(mode="json")
         second = self._states[after].model_dump(mode="json")
-        return {key: (first.get(key), second.get(key)) for key in sorted(first | second) if first.get(key) != second.get(key)}
-
+        return {
+            key: (first.get(key), second.get(key))
+            for key in sorted(first | second)
+            if first.get(key) != second.get(key)
+        }
 
     def branch_marker(self, index: int) -> dict[str, Any]:
         """Return a deterministic marker for a replay branch without mutating the replay."""
@@ -83,7 +88,9 @@ class ReplayDebugger:
             "deterministic_identity": True,
         }
 
-    def batch_alternative_futures(self, index: int, alternatives: Iterable[str]) -> tuple[dict[str, Any], ...]:
+    def batch_alternative_futures(
+        self, index: int, alternatives: Iterable[str]
+    ) -> tuple[dict[str, Any], ...]:
         return tuple(self.action_comparison(index, action) for action in alternatives)
 
     def export_golden_scenario(self, index: int, alternative_action_id: str) -> dict[str, Any]:
@@ -95,7 +102,9 @@ class ReplayDebugger:
             "truth_boundary": "counterfactual_model_alternative",
         }
 
-    def filter_events(self, *, player_id: str | None = None, event_type: str | None = None) -> tuple[dict[str, Any], ...]:
+    def filter_events(
+        self, *, player_id: str | None = None, event_type: str | None = None
+    ) -> tuple[dict[str, Any], ...]:
         rows = []
         for event in self.replay.events:
             if player_id is not None and event.get("actor_id") != player_id:

@@ -63,7 +63,8 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-ignore = ["B008"]
+# Ruff format is authoritative for wrapping; E501 can conflict with formatter output.
+ignore = ["B008", "E501"]
 
 [tool.mypy]
 python_version = "3.12"

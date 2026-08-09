@@ -72,8 +72,8 @@ def test_seeded_stochastic_pilots_replay_identically(tmp_path, structural_decks)
 
 
 def test_stochastic_pilot_batch_is_worker_count_independent(structural_decks) -> None:
-    from commander_lab.engine.structural import run_structural_batch  # noqa: PLC0415
-    from commander_lab.models import StructuralBatchConfig  # noqa: PLC0415
+    from commander_lab.engine.structural import run_structural_batch
+    from commander_lab.models import StructuralBatchConfig
 
     pilot_configs = (
         PilotConfig(

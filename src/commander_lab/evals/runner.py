@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 import subprocess
 import sys
@@ -8,7 +7,6 @@ import uuid
 from collections import defaultdict
 from pathlib import Path
 from statistics import fmean
-from typing import Any
 
 import yaml
 
@@ -76,7 +74,9 @@ def _pytest_unit_case(root: Path, output_dir: Path) -> EvalCaseResult:
     passed_match = re.search(r"(\d+) passed", text)
     failed_match = re.search(r"(\d+) failed", text)
     passed_count = int(passed_match.group(1)) if passed_match else 0
-    failed_count = int(failed_match.group(1)) if failed_match else (0 if completed.returncode == 0 else 1)
+    failed_count = (
+        int(failed_match.group(1)) if failed_match else (0 if completed.returncode == 0 else 1)
+    )
     total = passed_count + failed_count
     rate = passed_count / total if total else 0.0
     return EvalCaseResult(
@@ -222,7 +222,9 @@ def _seed_and_action_properties(root: Path, output_dir: Path, *, seed: int) -> l
     )
     first = run_structural_batch(config, decks)
     second = run_structural_batch(
-        config.model_copy(update={"workers": 2, "output_directory": str(output_dir / "property" / "seed-b")}),
+        config.model_copy(
+            update={"workers": 2, "output_directory": str(output_dir / "property" / "seed-b")}
+        ),
         decks,
     )
     sig_a = [
@@ -365,7 +367,11 @@ def _summarize_tier(tier: EvalTier, cases: list[EvalCaseResult]) -> EvalTierSumm
     skipped = sum(case.status == EvalStatus.SKIPPED for case in selected)
     blocked = sum(case.status == EvalStatus.BLOCKED for case in selected)
     evaluated = passed + failed
-    critical = [case for case in selected if case.critical and case.status not in {EvalStatus.SKIPPED, EvalStatus.BLOCKED}]
+    critical = [
+        case
+        for case in selected
+        if case.critical and case.status not in {EvalStatus.SKIPPED, EvalStatus.BLOCKED}
+    ]
     critical_passed = sum(case.status == EvalStatus.PASSED for case in critical)
     return EvalTierSummary(
         tier=tier,
@@ -390,7 +396,9 @@ def run_phase6_evaluation(
     output_directory: str | Path | None = None,
 ) -> EvalSuiteResult:
     project_root = Path(root).resolve()
-    output_dir = Path(output_directory) if output_directory else project_root / "data/runs/phase6_evals"
+    output_dir = (
+        Path(output_directory) if output_directory else project_root / "data/runs/phase6_evals"
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
     thresholds = _load_thresholds(project_root)
     cases: list[EvalCaseResult] = []
@@ -405,9 +413,7 @@ def run_phase6_evaluation(
     )
     cases.extend(property_cases)
     cases.extend(
-        run_golden_cases(
-            load_golden_cases(project_root / "data/evals/golden/pilot_decisions.json")
-        )
+        run_golden_cases(load_golden_cases(project_root / "data/evals/golden/pilot_decisions.json"))
     )
     differential_cases = run_configured_differential_cases(
         load_differential_cases(project_root / "data/evals/differential/rules_cases.json")
@@ -425,9 +431,7 @@ def run_phase6_evaluation(
     executed_external = differential.passed + differential.failed
     diff_rate = differential.pass_rate if executed_external else 0.0
     abort_rate = aborted_games / property_games if property_games else 1.0
-    metric_means = {
-        key: fmean(values) if values else 0.0 for key, values in agent_metrics.items()
-    }
+    metric_means = {key: fmean(values) if values else 0.0 for key, values in agent_metrics.items()}
     gates = [
         AcceptanceGate(
             gate_name="unit_pass_rate",

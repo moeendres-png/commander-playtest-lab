@@ -3,13 +3,13 @@ from __future__ import annotations
 import math
 import random
 from collections import Counter
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from statistics import fmean
-from typing import Iterable, Sequence
 
 from commander_lab.models import (
-    CardRole,
     CandidateProfile,
+    CardRole,
     ConstraintReport,
     ObjectiveVector,
     OptimizationConstraints,
@@ -36,7 +36,11 @@ class SearchCandidate:
     parent_variant_id: str | None = None
 
 
-def default_constraints(deck_id: str, supplied: OptimizationConstraints | None, defaults: dict[str, OptimizationConstraints]) -> OptimizationConstraints:
+def default_constraints(
+    deck_id: str,
+    supplied: OptimizationConstraints | None,
+    defaults: dict[str, OptimizationConstraints],
+) -> OptimizationConstraints:
     if supplied is not None:
         return supplied
     try:
@@ -67,7 +71,9 @@ def card_matchup_tags(card: StructuralCardProfile) -> set[str]:
     return tags
 
 
-def structural_rationale(remove: StructuralCardProfile, add: StructuralCardProfile) -> tuple[str, ...]:
+def structural_rationale(
+    remove: StructuralCardProfile, add: StructuralCardProfile
+) -> tuple[str, ...]:
     gained = sorted(role.value for role in add.roles - remove.roles)
     lost = sorted(role.value for role in remove.roles - add.roles)
     reasons = [
@@ -75,8 +81,10 @@ def structural_rationale(remove: StructuralCardProfile, add: StructuralCardProfi
         f"Mana value changes from {remove.mana_value:.1f} to {add.mana_value:.1f}.",
         (f"Gains roles: {', '.join(gained)}." if gained else "No new structural role is added."),
         (f"Loses roles: {', '.join(lost)}." if lost else "No structural role is lost."),
-        (f"Immediate impact {remove.immediate_impact:.2f} → {add.immediate_impact:.2f}; "
-         f"turn-cycle risk {remove.turn_cycle_risk:.2f} → {add.turn_cycle_risk:.2f}."),
+        (
+            f"Immediate impact {remove.immediate_impact:.2f} → {add.immediate_impact:.2f}; "
+            f"turn-cycle risk {remove.turn_cycle_risk:.2f} → {add.turn_cycle_risk:.2f}."
+        ),
     ]
     return tuple(reasons)
 
@@ -85,11 +93,16 @@ def screening_delta(remove: StructuralCardProfile, add: StructuralCardProfile) -
     overlap = add.roles & remove.roles
     lost = remove.roles - add.roles
     critical = {
-        CardRole.GRAVEYARD_HATE, CardRole.REMOVAL, CardRole.COUNTER,
-        CardRole.PROTECTION, CardRole.WIPE, CardRole.RECURSION,
+        CardRole.GRAVEYARD_HATE,
+        CardRole.REMOVAL,
+        CardRole.COUNTER,
+        CardRole.PROTECTION,
+        CardRole.WIPE,
+        CardRole.RECURSION,
     }
     return (
-        profile_score(add) - profile_score(remove)
+        profile_score(add)
+        - profile_score(remove)
         + 0.45 * len(overlap)
         - 0.35 * len(lost)
         - 1.5 * len(lost & critical)
@@ -117,7 +130,9 @@ def build_search_candidate(
         original = next((card for card in baseline.cards if card.oracle_name == swap.remove), None)
         if original is None:
             raise ValueError(f"card not found in variant parent: {swap.remove}")
-        if candidate.card.oracle_name in {card.oracle_name for card in baseline.cards if card.oracle_name != swap.remove}:
+        if candidate.card.oracle_name in {
+            card.oracle_name for card in baseline.cards if card.oracle_name != swap.remove
+        }:
             raise ValueError(f"candidate would violate singleton: {candidate.card.oracle_name}")
         removals.append(swap.remove)
         additions.append(candidate.card)
@@ -125,7 +140,9 @@ def build_search_candidate(
         rationales.extend(structural_rationale(original, candidate.card))
         matchup_tags.update(card_matchup_tags(original) | card_matchup_tags(candidate.card))
         total_screening += screening_delta(original, candidate.card)
-    variant_id = f"{baseline.deck_id}/search/{sha256_value([s.model_dump(mode='json') for s in swaps])[:12]}"
+    variant_id = (
+        f"{baseline.deck_id}/search/{sha256_value([s.model_dump(mode='json') for s in swaps])[:12]}"
+    )
     variant = variant_deck(
         baseline,
         variant_id=variant_id,
@@ -162,12 +179,15 @@ def all_legal_single_swaps(
     protected: Collection[str] = frozenset(),
 ) -> list[SearchCandidate]:
     results: list[SearchCandidate] = []
-    cuts = list({
-        card.oracle_name: card for card in deck.cards
-        if card.oracle_name not in deck.commander_names
-        and card.oracle_name not in protected
-        and not card.is_land
-    }.values())
+    cuts = list(
+        {
+            card.oracle_name: card
+            for card in deck.cards
+            if card.oracle_name not in deck.commander_names
+            and card.oracle_name not in protected
+            and not card.is_land
+        }.values()
+    )
     for cut in cuts:
         for candidate_id in candidate_ids:
             candidate = candidates[candidate_id]
@@ -204,7 +224,8 @@ def profile_rebuild_score(deck: StructuralDeckProfile) -> float:
 
 def profile_closing_score(deck: StructuralDeckProfile) -> float:
     finishers = [
-        card for card in deck.cards
+        card
+        for card in deck.cards
         if card.roles & {CardRole.FINISHER, CardRole.PAYOFF, CardRole.COMBAT_PAYOFF}
     ]
     if not finishers:
@@ -223,7 +244,9 @@ def profile_closing_score(deck: StructuralDeckProfile) -> float:
 def worst_quartile_improvement(pairs: Sequence[dict[str, object]]) -> float:
     if not pairs:
         return 0.0
-    deltas = sorted(float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs)
+    deltas = sorted(
+        float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs
+    )
     size = max(1, math.ceil(len(deltas) * 0.25))
     return fmean(deltas[:size])
 
@@ -237,7 +260,9 @@ def objective_vector(
     holdout_improvements: Sequence[float],
     physical_valid: bool,
 ) -> ObjectiveVector:
-    robustness = min(holdout_improvements) if holdout_improvements else metrics.placement_improvement
+    robustness = (
+        min(holdout_improvements) if holdout_improvements else metrics.placement_improvement
+    )
     return ObjectiveVector(
         four_player_performance=metrics.placement_improvement,
         worst_quartile=worst_quartile_improvement(pairs),
@@ -258,9 +283,14 @@ def dominates(a: ObjectiveVector, b: ObjectiveVector, *, epsilon: float = 1e-12)
 
 
 def pareto_front(variants: Sequence[OptimizationVariant]) -> list[OptimizationVariant]:
-    eligible = [variant for variant in variants if variant.objectives is not None and variant.constraint_report.valid]
+    eligible = [
+        variant
+        for variant in variants
+        if variant.objectives is not None and variant.constraint_report.valid
+    ]
     front = [
-        candidate for candidate in eligible
+        candidate
+        for candidate in eligible
         if not any(
             other.variant_id != candidate.variant_id
             and dominates(other.objectives, candidate.objectives)  # type: ignore[arg-type]

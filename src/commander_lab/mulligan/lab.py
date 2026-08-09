@@ -2,26 +2,32 @@ from __future__ import annotations
 
 import math
 import random
-from collections import Counter, defaultdict
+from collections import defaultdict
+from collections.abc import Iterable
 from pathlib import Path
 from statistics import fmean, median
-from typing import Iterable
 
 from commander_lab.agents.ensemble import PilotRegistry
 from commander_lab.engine.structural import StructuralSimulator, load_project_structural_decks
 from commander_lab.models import (
-    CardRole, PilotConfig, PilotDecisionMode, PilotStrength, StructuralAbortLimits,
-    StructuralCardProfile, StructuralDeckProfile, StructuralMatchConfig,
+    CardRole,
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    StructuralAbortLimits,
+    StructuralCardProfile,
+    StructuralDeckProfile,
+    StructuralMatchConfig,
 )
 from commander_lab.models.mulligan import (
     GeneratedKeepRule,
     HypergeometricBaseline,
-    KeepRuleValidationResult,
-    MulliganHandTypeSummary,
     KeepRuleClause,
+    KeepRuleValidationResult,
     LondonMulliganResult,
     MulliganContext,
     MulliganEstimateLevel,
+    MulliganHandTypeSummary,
     MulliganLabResult,
     MulliganPolicyName,
     MulliganPolicySummary,
@@ -85,10 +91,13 @@ class MulliganLab:
         if context.seat_position > context.pod_size:
             raise MulliganLabError("seat_position is outside the pod")
         if context.opponent_ensemble_id and context.opponent_ensemble_hash:
-            path = self.root / "data" / "opponent_ensembles" / f"{context.opponent_ensemble_id}.json"
+            path = (
+                self.root / "data" / "opponent_ensembles" / f"{context.opponent_ensemble_id}.json"
+            )
             if not path.is_file():
                 raise MulliganLabError("opponent ensemble hash supplied for an unknown ensemble")
             import json
+
             actual = sha256_value(json.loads(path.read_text(encoding="utf-8")))
             if actual != context.opponent_ensemble_hash:
                 raise MulliganLabError("opponent ensemble hash mismatch")
@@ -149,18 +158,43 @@ class MulliganLab:
 
     def _opponent_ids(self, context: MulliganContext, *, holdout: int = 0) -> tuple[str, ...]:
         primary = {
-            "morcant": ("opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget"),
-            "cosmic": ("opponent/cosmic-spiderman-midbudget", "opponent/doom-prevails-precon", "opponent/blight-curse-precon"),
-            "doom": ("opponent/doom-prevails-precon", "kaervek/current", "opponent/cosmic-spiderman-midbudget"),
+            "morcant": (
+                "opponent/morcant-elves",
+                "opponent/blight-curse-precon",
+                "opponent/cosmic-spiderman-midbudget",
+            ),
+            "cosmic": (
+                "opponent/cosmic-spiderman-midbudget",
+                "opponent/doom-prevails-precon",
+                "opponent/blight-curse-precon",
+            ),
+            "doom": (
+                "opponent/doom-prevails-precon",
+                "kaervek/current",
+                "opponent/cosmic-spiderman-midbudget",
+            ),
         }
         key = (context.opponent_ensemble_id or "").casefold()
-        base = next((rows for token, rows in primary.items() if token in key), (
-            "opponent/morcant-elves", "opponent/blight-curse-precon", "opponent/cosmic-spiderman-midbudget"
-        ))
+        base = next(
+            (rows for token, rows in primary.items() if token in key),
+            (
+                "opponent/morcant-elves",
+                "opponent/blight-curse-precon",
+                "opponent/cosmic-spiderman-midbudget",
+            ),
+        )
         if holdout == 1:
-            base = ("kaervek/current", "opponent/doom-prevails-precon", "opponent/dance-elements-precon")
+            base = (
+                "kaervek/current",
+                "opponent/doom-prevails-precon",
+                "opponent/dance-elements-precon",
+            )
         elif holdout == 2:
-            base = ("opponent/wakanda-forever-precon", "opponent/cosmic-spiderman-midbudget", "opponent/blight-curse-precon")
+            base = (
+                "opponent/wakanda-forever-precon",
+                "opponent/cosmic-spiderman-midbudget",
+                "opponent/blight-curse-precon",
+            )
         need = max(1, context.pod_size - 1)
         expanded = []
         while len(expanded) < need:
@@ -169,19 +203,31 @@ class MulliganLab:
 
     @staticmethod
     def _hand_type(features: OpeningHandFeatures) -> str:
-        lands = "0-1" if features.land_count <= 1 else "5+" if features.land_count >= 5 else str(features.land_count)
+        lands = (
+            "0-1"
+            if features.land_count <= 1
+            else "5+"
+            if features.land_count >= 5
+            else str(features.land_count)
+        )
         color = "stable" if features.color_stability_score >= 2 / 3 else "unstable"
         plan = (
-            "ramp" if features.ramp_count else
-            "interaction" if features.interaction_count else
-            "engine" if features.independent_engine_count else
-            "payoff" if features.commander_synergy_count else
-            "other"
+            "ramp"
+            if features.ramp_count
+            else "interaction"
+            if features.interaction_count
+            else "engine"
+            if features.independent_engine_count
+            else "payoff"
+            if features.commander_synergy_count
+            else "other"
         )
         return f"lands={lands}|colors={color}|plan={plan}"
 
     @staticmethod
-    def _context_adjustment(context: MulliganContext, f: OpeningHandFeatures) -> tuple[float, float, list[str]]:
+    def _context_adjustment(
+        context: MulliganContext, f: OpeningHandFeatures
+    ) -> tuple[float, float, list[str]]:
         score = 0.0
         threshold = 0.0
         reasons: list[str] = []
@@ -200,7 +246,9 @@ class MulliganLab:
             score += min(0.7, f.independent_engine_count * 0.3 + f.draw_count * 0.2)
         plan = context.game_plan.value
         if plan == "protected_commander":
-            score += min(1.0, f.protection_count * 0.45) + (0.45 if f.commander_immediate_value else -0.25)
+            score += min(1.0, f.protection_count * 0.45) + (
+                0.45 if f.commander_immediate_value else -0.25
+            )
         elif plan == "independent_engine":
             score += min(1.0, f.independent_engine_count * 0.55 + f.draw_count * 0.2)
         elif plan == "control":
@@ -226,7 +274,11 @@ class MulliganLab:
             deck_color_values = {
                 color.value
                 for card in deck.cards
-                for color in (*card.color_identity, *card.color_requirements.keys(), *card.produces_colors)
+                for color in (
+                    *card.color_identity,
+                    *card.color_requirements.keys(),
+                    *card.produces_colors,
+                )
             }
         colors = {value: 0 for value in deck_color_values}
         for card in hand:
@@ -239,14 +291,11 @@ class MulliganLab:
         ramp = sum(self._has_role(card, CardRole.RAMP) and card.mana_value <= 3 for card in hand)
         draw = sum(self._has_role(card, CardRole.DRAW) for card in hand)
         selection = sum(self._has_role(card, CardRole.SELECTION) for card in hand)
-        interaction = sum(
-            bool(card.roles & {CardRole.REMOVAL, CardRole.COUNTER}) for card in hand
-        )
+        interaction = sum(bool(card.roles & {CardRole.REMOVAL, CardRole.COUNTER}) for card in hand)
         protection = sum(self._has_role(card, CardRole.PROTECTION) for card in hand)
         commander_synergy = sum(card.commander_synergy >= 0.8 for card in hand)
         independent_engine = sum(
-            self._has_role(card, CardRole.ENGINE) and card.commander_synergy < 1.2
-            for card in hand
+            self._has_role(card, CardRole.ENGINE) and card.commander_synergy < 1.2 for card in hand
         )
         expensive = sum(card.mana_value >= 5 and not card.is_land for card in hand)
         graveyard_hate = sum(self._has_role(card, CardRole.GRAVEYARD_HATE) for card in hand)
@@ -287,7 +336,10 @@ class MulliganLab:
         commander_immediate = False
         if deck.deck_id == "korvold/current":
             immediate_sacrifice = sum(
-                bool(card.roles & {CardRole.SACRIFICE_OUTLET, CardRole.TOKEN_SOURCE, CardRole.ENABLER})
+                bool(
+                    card.roles
+                    & {CardRole.SACRIFICE_OUTLET, CardRole.TOKEN_SOURCE, CardRole.ENABLER}
+                )
                 and card.mana_value <= 3
                 for card in hand
             )
@@ -344,9 +396,11 @@ class MulliganLab:
         score += 3.0 - abs(f.land_count - ideal_lands) * 1.15
         if deck.deck_id == "korvold/current":
             if not 2 <= f.land_count <= 4:
-                score -= 3.0; reasons.append("Korvold hand outside two-to-four-land band")
+                score -= 3.0
+                reasons.append("Korvold hand outside two-to-four-land band")
             if f.colored_sources.get("G", 0) == 0:
-                score -= 2.4; reasons.append("missing green source")
+                score -= 2.4
+                reasons.append("missing green source")
             score += min(1.8, f.ramp_count * 0.9)
             score += min(1.5, f.sacrifice_resource_count * 0.55)
             score += min(1.0, f.independent_engine_count * 0.6)
@@ -354,23 +408,29 @@ class MulliganLab:
             if f.commander_immediate_value:
                 score += 0.8
             if f.only_graveyard_plan_without_setup:
-                score -= 1.5; reasons.append("graveyard plan lacks setup")
+                score -= 1.5
+                reasons.append("graveyard plan lacks setup")
             if f.dead_high_cost_count >= 3:
-                score -= 1.3; reasons.append("too many expensive engines")
+                score -= 1.3
+                reasons.append("too many expensive engines")
         elif deck.deck_id == "rogshai/current":
             if not 2 <= f.land_count <= 3:
-                score -= 2.7; reasons.append("RogShai hand outside two-to-three-land band")
+                score -= 2.7
+                reasons.append("RogShai hand outside two-to-three-land band")
             if f.early_blue_source_count == 0:
-                score -= 2.5; reasons.append("missing early blue")
+                score -= 2.5
+                reasons.append("missing early blue")
             score += min(1.4, f.ramp_count * 0.75)
             score += min(1.2, f.cheap_noncreature_count * 0.35)
             score += min(1.2, f.interaction_count * 0.45)
             score += min(1.0, f.protection_count * 0.5)
             score += min(0.8, f.combat_draw_count * 0.5)
             if f.offensive_payoff_without_window_count >= 2:
-                score -= 1.25; reasons.append("offensive payoffs lack protected Ishai window")
+                score -= 1.25
+                reasons.append("offensive payoffs lack protected Ishai window")
             if f.color_stability_score < 2 / 3:
-                score -= 1.4; reasons.append("unstable colors")
+                score -= 1.4
+                reasons.append("unstable colors")
         else:
             score += min(1.5, f.ramp_count * 0.7)
             score += min(1.0, (f.draw_count + f.selection_count) * 0.4)
@@ -386,7 +446,9 @@ class MulliganLab:
             score -= f.dead_high_cost_count * 0.25
             threshold = 3.0
         elif policy == MulliganPolicyName.COMMANDER_ORIENTED:
-            score += f.commander_synergy_count * 0.35 + (1.2 if f.commander_immediate_value else -0.4)
+            score += f.commander_synergy_count * 0.35 + (
+                1.2 if f.commander_immediate_value else -0.4
+            )
             threshold = 3.0
         elif policy == MulliganPolicyName.INTERACTION_ORIENTED:
             score += min(1.5, f.interaction_count * 0.55 + f.protection_count * 0.35)
@@ -476,11 +538,19 @@ class MulliganLab:
         bottom_count = max(0, mulligans - (1 if multiplayer_free and mulligans > 0 else 0))
         ranked = sorted(
             enumerate(selected),
-            key=lambda row: (self._card_bottom_value(row[1], deck.deck_id), -row[1].mana_value, row[0]),
+            key=lambda row: (
+                self._card_bottom_value(row[1], deck.deck_id),
+                -row[1].mana_value,
+                row[0],
+            ),
         )
         bottom_indexes = {index for index, _ in ranked[:bottom_count]}
-        kept = tuple(card.oracle_name for index, card in enumerate(selected) if index not in bottom_indexes)
-        bottomed = tuple(card.oracle_name for index, card in enumerate(selected) if index in bottom_indexes)
+        kept = tuple(
+            card.oracle_name for index, card in enumerate(selected) if index not in bottom_indexes
+        )
+        bottomed = tuple(
+            card.oracle_name for index, card in enumerate(selected) if index in bottom_indexes
+        )
         return LondonMulliganResult(
             initial_draws=tuple(tuple(card.oracle_name for card in hand) for hand in draws),
             kept_cards=kept,
@@ -505,10 +575,7 @@ class MulliganLab:
         library = self._library(deck)
         rng = random.Random(seed)
         for _ in range(samples):
-            yield tuple(
-                tuple(rng.sample(library, 7))
-                for _attempt in range(max_mulligans + 1)
-            )
+            yield tuple(tuple(rng.sample(library, 7)) for _attempt in range(max_mulligans + 1))
 
     def sample_draw_sequences(
         self,
@@ -519,10 +586,12 @@ class MulliganLab:
         max_mulligans: int = 6,
     ) -> tuple[tuple[tuple[StructuralCardProfile, ...], ...], ...]:
         if samples > 100_000:
-            raise MulliganLabError("materialized sampling is capped at 100,000; use iter_draw_sequences for larger runs")
-        return tuple(self.iter_draw_sequences(
-            deck, samples=samples, seed=seed, max_mulligans=max_mulligans
-        ))
+            raise MulliganLabError(
+                "materialized sampling is capped at 100,000; use iter_draw_sequences for larger runs"
+            )
+        return tuple(
+            self.iter_draw_sequences(deck, samples=samples, seed=seed, max_mulligans=max_mulligans)
+        )
 
     @staticmethod
     def hypergeometric(
@@ -555,8 +624,12 @@ class MulliganLab:
         library = self._library(deck)
         categories = {
             "lands": sum(card.is_land for card in library),
-            "early_ramp": sum(CardRole.RAMP in card.roles and card.mana_value <= 2 for card in library),
-            "interaction": sum(bool(card.roles & {CardRole.REMOVAL, CardRole.COUNTER}) for card in library),
+            "early_ramp": sum(
+                CardRole.RAMP in card.roles and card.mana_value <= 2 for card in library
+            ),
+            "interaction": sum(
+                bool(card.roles & {CardRole.REMOVAL, CardRole.COUNTER}) for card in library
+            ),
             "protection": sum(CardRole.PROTECTION in card.roles for card in library),
             "independent_draw_engine": sum(
                 bool(card.roles & {CardRole.DRAW, CardRole.ENGINE}) and card.commander_synergy < 1.2
@@ -602,14 +675,19 @@ class MulliganLab:
         pilot_configs[target_seat] = target_config
         opening_hands: list[tuple[str, ...] | None] = [None for _ in deck_ids]
         opening_hands[target_seat] = result.kept_cards
-        seed = int(sha256_value({
-            "seed": context.seed,
-            "policy": policy.value,
-            "sample": sample_index,
-            "holdout": holdout,
-            "pilot": target_config.pilot_name,
-            "opening": result.kept_cards,
-        })[:16], 16)
+        seed = int(
+            sha256_value(
+                {
+                    "seed": context.seed,
+                    "policy": policy.value,
+                    "sample": sample_index,
+                    "holdout": holdout,
+                    "pilot": target_config.pilot_name,
+                    "opening": result.kept_cards,
+                }
+            )[:16],
+            16,
+        )
         match = self.simulator.simulate(
             StructuralMatchConfig(
                 match_id=f"mulligan-{policy.value}-{holdout}-{sample_index}",
@@ -626,9 +704,12 @@ class MulliganLab:
         metrics = match.player_metrics[f"p{target_seat + 1}"]
         return (
             float(metrics.first_ramp_turn) if metrics.first_ramp_turn is not None else None,
-            float(metrics.first_commander_cast_turn) if metrics.first_commander_cast_turn is not None else None,
+            float(metrics.first_commander_cast_turn)
+            if metrics.first_commander_cast_turn is not None
+            else None,
             float(metrics.first_independent_draw_engine_turn)
-            if metrics.first_independent_draw_engine_turn is not None else None,
+            if metrics.first_independent_draw_engine_turn is not None
+            else None,
             float(metrics.placement),
             match.completed,
         )
@@ -645,20 +726,24 @@ class MulliganLab:
         rows: list[MulliganHandTypeSummary] = []
         for key, bucket in sorted(buckets.items()):
             samples = int(bucket["samples"])
-            rows.append(MulliganHandTypeSummary(
-                hand_type=key,
-                samples=samples,
-                keep_rate=float(bucket["first_keeps"]) / samples,
-                mulligan_rate=float(bucket["mulligans"]) / samples,
-                average_mulligans=float(bucket["mulligan_total"]) / samples,
-                color_problem_rate=float(bucket["color_issues"]) / samples,
-                average_dead_cards=float(bucket["dead_total"]) / samples,
-                first_ramp_turn_mean=self._mean_present(bucket["ramp_rows"]),
-                commander_cast_turn_mean=self._mean_present(bucket["commander_rows"]),
-                first_draw_engine_turn_mean=self._mean_present(bucket["draw_rows"]),
-                structural_placement_mean=self._mean_present(bucket["placement_rows"]),
-                uncertainty_half_width_95=self._wilson_half_width(int(bucket["first_keeps"]), samples),
-            ))
+            rows.append(
+                MulliganHandTypeSummary(
+                    hand_type=key,
+                    samples=samples,
+                    keep_rate=float(bucket["first_keeps"]) / samples,
+                    mulligan_rate=float(bucket["mulligans"]) / samples,
+                    average_mulligans=float(bucket["mulligan_total"]) / samples,
+                    color_problem_rate=float(bucket["color_issues"]) / samples,
+                    average_dead_cards=float(bucket["dead_total"]) / samples,
+                    first_ramp_turn_mean=self._mean_present(bucket["ramp_rows"]),
+                    commander_cast_turn_mean=self._mean_present(bucket["commander_rows"]),
+                    first_draw_engine_turn_mean=self._mean_present(bucket["draw_rows"]),
+                    structural_placement_mean=self._mean_present(bucket["placement_rows"]),
+                    uncertainty_half_width_95=self._wilson_half_width(
+                        int(bucket["first_keeps"]), samples
+                    ),
+                )
+            )
         return tuple(rows)
 
     def run(
@@ -684,12 +769,23 @@ class MulliganLab:
             commander_rows: list[float | None] = []
             draw_rows: list[float | None] = []
             placement_rows: list[float | None] = []
-            buckets: dict[str, dict[str, list[float] | int]] = defaultdict(lambda: {
-                "samples": 0, "first_keeps": 0, "mulligans": 0, "mulligan_total": 0,
-                "color_issues": 0, "dead_total": 0, "ramp_rows": [],
-                "commander_rows": [], "draw_rows": [], "placement_rows": [],
-            })
-            for index, seq in enumerate(self.iter_draw_sequences(deck, samples=samples, seed=context.seed)):
+            buckets: dict[str, dict[str, list[float] | int]] = defaultdict(
+                lambda: {
+                    "samples": 0,
+                    "first_keeps": 0,
+                    "mulligans": 0,
+                    "mulligan_total": 0,
+                    "color_issues": 0,
+                    "dead_total": 0,
+                    "ramp_rows": [],
+                    "commander_rows": [],
+                    "draw_rows": [],
+                    "placement_rows": [],
+                }
+            )
+            for index, seq in enumerate(
+                self.iter_draw_sequences(deck, samples=samples, seed=context.seed)
+            ):
                 first_eval = self.evaluate(deck, seq[0], policy, context)
                 result = self.london_mulligan_from_draws(deck, seq, policy, context)
                 is_first_keep = result.mulligans_taken == 0
@@ -715,45 +811,59 @@ class MulliganLab:
                         score_reservoir[replacement] = result.evaluation.score
                 if index < followup_samples:
                     row = self._full_followup_metrics(deck, result, context, policy, index)
-                    ramp_rows.append(row[0]); commander_rows.append(row[1])
-                    draw_rows.append(row[2]); placement_rows.append(row[3])
+                    ramp_rows.append(row[0])
+                    commander_rows.append(row[1])
+                    draw_rows.append(row[2])
+                    placement_rows.append(row[3])
                     completed_followups += int(row[4])
-                    bucket["ramp_rows"].append(row[0]); bucket["commander_rows"].append(row[1])
-                    bucket["draw_rows"].append(row[2]); bucket["placement_rows"].append(row[3])
-            summaries.append(MulliganPolicySummary(
-                policy=policy,
-                samples=samples,
-                keep_rate_first_seven=first_keep / samples,
-                final_keep_rate=1.0,
-                mulligan_rate=mulligan_count / samples,
-                average_mulligans=mulligan_total / samples,
-                color_problem_rate=color_issues / samples,
-                average_dead_cards=dead_total / samples,
-                median_hand_score=median(score_reservoir),
-                first_ramp_turn_mean=self._mean_present(ramp_rows),
-                commander_cast_turn_mean=self._mean_present(commander_rows),
-                first_draw_engine_turn_mean=self._mean_present(draw_rows),
-                structural_placement_mean=self._mean_present(placement_rows),
-                uncertainty_half_width_95=self._wilson_half_width(first_keep, samples),
-                full_followup_games=len(placement_rows),
-                completed_followup_games=completed_followups,
-                hand_type_summaries=self._summarize_hand_types(buckets),
-                validation_contexts=(
-                    "primary_pod", "holdout_pod_a", "holdout_pod_b",
-                    "opponent_ensemble", "multiple_pilots",
-                ) if followup_samples else (),
-                estimate_level=(
-                    MulliganEstimateLevel.STRUCTURAL_FOLLOWUP
-                    if placement_rows else MulliganEstimateLevel.MONTE_CARLO_HAND_QUALITY
-                ),
-            ))
-        run_hash = sha256_value({
-            "context": context.model_dump(mode="json"),
-            "policies": [p.value for p in policies],
-            "samples": samples,
-            "followup_samples": followup_samples,
-            "summaries": [s.model_dump(mode="json") for s in summaries],
-        })
+                    bucket["ramp_rows"].append(row[0])
+                    bucket["commander_rows"].append(row[1])
+                    bucket["draw_rows"].append(row[2])
+                    bucket["placement_rows"].append(row[3])
+            summaries.append(
+                MulliganPolicySummary(
+                    policy=policy,
+                    samples=samples,
+                    keep_rate_first_seven=first_keep / samples,
+                    final_keep_rate=1.0,
+                    mulligan_rate=mulligan_count / samples,
+                    average_mulligans=mulligan_total / samples,
+                    color_problem_rate=color_issues / samples,
+                    average_dead_cards=dead_total / samples,
+                    median_hand_score=median(score_reservoir),
+                    first_ramp_turn_mean=self._mean_present(ramp_rows),
+                    commander_cast_turn_mean=self._mean_present(commander_rows),
+                    first_draw_engine_turn_mean=self._mean_present(draw_rows),
+                    structural_placement_mean=self._mean_present(placement_rows),
+                    uncertainty_half_width_95=self._wilson_half_width(first_keep, samples),
+                    full_followup_games=len(placement_rows),
+                    completed_followup_games=completed_followups,
+                    hand_type_summaries=self._summarize_hand_types(buckets),
+                    validation_contexts=(
+                        "primary_pod",
+                        "holdout_pod_a",
+                        "holdout_pod_b",
+                        "opponent_ensemble",
+                        "multiple_pilots",
+                    )
+                    if followup_samples
+                    else (),
+                    estimate_level=(
+                        MulliganEstimateLevel.STRUCTURAL_FOLLOWUP
+                        if placement_rows
+                        else MulliganEstimateLevel.MONTE_CARLO_HAND_QUALITY
+                    ),
+                )
+            )
+        run_hash = sha256_value(
+            {
+                "context": context.model_dump(mode="json"),
+                "policies": [p.value for p in policies],
+                "samples": samples,
+                "followup_samples": followup_samples,
+                "summaries": [s.model_dump(mode="json") for s in summaries],
+            }
+        )
         rules = self.generate_keep_rules(context, summaries, run_hash)
         validations: tuple[KeepRuleValidationResult, ...] = ()
         if rules:
@@ -765,11 +875,13 @@ class MulliganLab:
             status = "holdout_checked" if required.issubset(kinds) else "candidate"
             if validations and sum(row.supported for row in validations) < len(validations) / 2:
                 status = "rejected"
-            rules[0] = rules[0].model_copy(update={
-                "validation_results": validations,
-                "validation_status": status,
-                "validation_contexts": tuple(row.context_id for row in validations),
-            })
+            rules[0] = rules[0].model_copy(
+                update={
+                    "validation_results": validations,
+                    "validation_status": status,
+                    "validation_contexts": tuple(row.context_id for row in validations),
+                }
+            )
         return MulliganLabResult(
             context=context,
             sample_count=samples,
@@ -804,12 +916,27 @@ class MulliganLab:
             ("primary", "primary_pod", context, 0, pilot_names[0]),
             ("holdout-a", "holdout_pod", context, 1, pilot_names[0]),
             ("holdout-b", "holdout_pod", context, 2, pilot_names[0]),
-            ("ensemble", "opponent_ensemble", context.model_copy(update={
-                "opponent_ensemble_id": context.opponent_ensemble_id or "morcant-elves-ensemble-v1"
-            }), 0, pilot_names[0]),
+            (
+                "ensemble",
+                "opponent_ensemble",
+                context.model_copy(
+                    update={
+                        "opponent_ensemble_id": context.opponent_ensemble_id
+                        or "morcant-elves-ensemble-v1"
+                    }
+                ),
+                0,
+                pilot_names[0],
+            ),
         ]
         contexts.extend(
-            (f"pilot-{name}", "pilot_profile", context.model_copy(update={"pilot_profile_id": name}), 0, name)
+            (
+                f"pilot-{name}",
+                "pilot_profile",
+                context.model_copy(update={"pilot_profile_id": name}),
+                0,
+                name,
+            )
             for name in pilot_names
         )
         output: list[KeepRuleValidationResult] = []
@@ -817,7 +944,9 @@ class MulliganLab:
             agreements = 0
             placements: list[float] = []
             baselines: list[float] = []
-            for index, seq in enumerate(self.iter_draw_sequences(deck, samples=samples, seed=context.seed + 1009)):
+            for index, seq in enumerate(
+                self.iter_draw_sequences(deck, samples=samples, seed=context.seed + 1009)
+            ):
                 first = seq[0]
                 features = self.features(deck, first)
                 rule_keep = bool(self.test_rule(rule, features)["keep"])
@@ -827,38 +956,56 @@ class MulliganLab:
                     forced = LondonMulliganResult(
                         initial_draws=(tuple(card.oracle_name for card in first),),
                         kept_cards=tuple(card.oracle_name for card in first),
-                        bottomed_cards=(), mulligans_taken=0, effective_bottom_count=0,
+                        bottomed_cards=(),
+                        mulligans_taken=0,
+                        effective_bottom_count=0,
                         free_multiplayer_mulligan_used=False,
                         evaluation=baseline_eval.model_copy(update={"keep": True}),
                         commander_names=deck.commander_names,
                     )
-                    placements.append(self._full_followup_metrics(
-                        deck, forced, test_context, baseline_policy, index,
-                        holdout=holdout, pilot_profile_id=pilot_name,
-                    )[3])
+                    placements.append(
+                        self._full_followup_metrics(
+                            deck,
+                            forced,
+                            test_context,
+                            baseline_policy,
+                            index,
+                            holdout=holdout,
+                            pilot_profile_id=pilot_name,
+                        )[3]
+                    )
                 baseline_result = self.london_mulligan_from_draws(
                     deck, seq, baseline_policy, test_context
                 )
-                baselines.append(self._full_followup_metrics(
-                    deck, baseline_result, test_context, baseline_policy, index + 10000,
-                    holdout=holdout, pilot_profile_id=pilot_name,
-                )[3])
+                baselines.append(
+                    self._full_followup_metrics(
+                        deck,
+                        baseline_result,
+                        test_context,
+                        baseline_policy,
+                        index + 10000,
+                        holdout=holdout,
+                        pilot_profile_id=pilot_name,
+                    )[3]
+                )
             placement = fmean(placements) if placements else None
             baseline = fmean(baselines) if baselines else None
             delta = placement - baseline if placement is not None and baseline is not None else None
             agreement = agreements / samples
-            output.append(KeepRuleValidationResult(
-                context_id=context_id,
-                context_kind=kind,
-                pilot_profile_id=pilot_name,
-                opponent_deck_ids=self._opponent_ids(test_context, holdout=holdout),
-                samples=samples,
-                keep_agreement_rate=agreement,
-                average_placement=placement,
-                baseline_average_placement=baseline,
-                placement_delta=delta,
-                supported=agreement >= 0.60 and (delta is None or delta <= 0.35),
-            ))
+            output.append(
+                KeepRuleValidationResult(
+                    context_id=context_id,
+                    context_kind=kind,
+                    pilot_profile_id=pilot_name,
+                    opponent_deck_ids=self._opponent_ids(test_context, holdout=holdout),
+                    samples=samples,
+                    keep_agreement_rate=agreement,
+                    average_placement=placement,
+                    baseline_average_placement=baseline,
+                    placement_delta=delta,
+                    supported=agreement >= 0.60 and (delta is None or delta <= 0.35),
+                )
+            )
         return tuple(output)
 
     def generate_keep_rules(
@@ -867,23 +1014,72 @@ class MulliganLab:
         summaries: Iterable[MulliganPolicySummary],
         source_run_hash: str,
     ) -> list[GeneratedKeepRule]:
-        best = min(summaries, key=lambda row: (row.structural_placement_mean or 99.0, row.average_mulligans))
+        best = min(
+            summaries,
+            key=lambda row: (row.structural_placement_mean or 99.0, row.average_mulligans),
+        )
         if context.deck_id == "korvold/current":
             clauses = (
-                KeepRuleClause(feature="land_count", operator="between", value=(2.0, 4.0), rationale="current Korvold land band"),
-                KeepRuleClause(feature="colored_sources.G", operator="ge", value=1.0, rationale="green is required for early ramp"),
-                KeepRuleClause(feature="ramp_count", operator="ge", value=1.0, rationale="supports a timely value window"),
-                KeepRuleClause(feature="sacrifice_resource_count", operator="ge", value=1.0, rationale="avoids ramp-only hands without sacrifice material"),
+                KeepRuleClause(
+                    feature="land_count",
+                    operator="between",
+                    value=(2.0, 4.0),
+                    rationale="current Korvold land band",
+                ),
+                KeepRuleClause(
+                    feature="colored_sources.G",
+                    operator="ge",
+                    value=1.0,
+                    rationale="green is required for early ramp",
+                ),
+                KeepRuleClause(
+                    feature="ramp_count",
+                    operator="ge",
+                    value=1.0,
+                    rationale="supports a timely value window",
+                ),
+                KeepRuleClause(
+                    feature="sacrifice_resource_count",
+                    operator="ge",
+                    value=1.0,
+                    rationale="avoids ramp-only hands without sacrifice material",
+                ),
             )
-            exceptions = ("Two-land hands require functional acceleration or selection.", "Visible graveyard hate reduces graveyard-only keeps.")
+            exceptions = (
+                "Two-land hands require functional acceleration or selection.",
+                "Visible graveyard hate reduces graveyard-only keeps.",
+            )
         else:
             clauses = (
-                KeepRuleClause(feature="land_count", operator="between", value=(2.0, 3.0), rationale="current RogShai land band"),
-                KeepRuleClause(feature="early_blue_source_count", operator="ge", value=1.0, rationale="blue enables early interaction and Ishai support"),
-                KeepRuleClause(feature="cheap_noncreature_count", operator="ge", value=1.0, rationale="supports tempo and Ishai growth"),
-                KeepRuleClause(feature="color_stability_score", operator="ge", value=0.66, rationale="avoids unstable Jeskai starts"),
+                KeepRuleClause(
+                    feature="land_count",
+                    operator="between",
+                    value=(2.0, 3.0),
+                    rationale="current RogShai land band",
+                ),
+                KeepRuleClause(
+                    feature="early_blue_source_count",
+                    operator="ge",
+                    value=1.0,
+                    rationale="blue enables early interaction and Ishai support",
+                ),
+                KeepRuleClause(
+                    feature="cheap_noncreature_count",
+                    operator="ge",
+                    value=1.0,
+                    rationale="supports tempo and Ishai growth",
+                ),
+                KeepRuleClause(
+                    feature="color_stability_score",
+                    operator="ge",
+                    value=0.66,
+                    rationale="avoids unstable Jeskai starts",
+                ),
             )
-            exceptions = ("Offensive aura/payoff clusters need a protected Ishai window.", "Interaction-heavy matchups may keep slower hands with reserve counters.")
+            exceptions = (
+                "Offensive aura/payoff clusters need a protected Ishai window.",
+                "Interaction-heavy matchups may keep slower hands with reserve counters.",
+            )
         return [
             GeneratedKeepRule(
                 rule_id=f"{context.deck_id.replace('/', '.')}.{best.policy.value}.candidate-v1",
@@ -893,7 +1089,11 @@ class MulliganLab:
                 clauses=clauses,
                 exceptions=exceptions,
                 source_run_hash=source_run_hash,
-                validation_contexts=("primary_structural", "opponent_ensemble", "multi_pilot_candidate"),
+                validation_contexts=(
+                    "primary_structural",
+                    "opponent_ensemble",
+                    "multi_pilot_candidate",
+                ),
                 validation_status="candidate",
             )
         ]

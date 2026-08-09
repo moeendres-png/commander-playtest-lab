@@ -19,12 +19,22 @@ def test_kaervek_current_is_exact_verified_snapshot(repo_root: Path) -> None:
     assert sum(card.oracle_name == "Mountain" for card in deck.cards) == 12
     assert "opponent/kaervek-reference" not in decks
     names = {card.oracle_name for card in deck.cards}
-    assert {"Sorin Markov", "Chandra Nalaar", "Butcher of Malakir", "Chain Reaction", "Tor Wauki the Younger", "Terminate", "Warstorm Surge"} <= names
+    assert {
+        "Sorin Markov",
+        "Chandra Nalaar",
+        "Butcher of Malakir",
+        "Chain Reaction",
+        "Tor Wauki the Younger",
+        "Terminate",
+        "Warstorm Surge",
+    } <= names
     assert "Midnight Reaper" not in names
 
 
 def test_kaervek_current_provenance_and_alias_are_explicit(repo_root: Path) -> None:
-    provenance = json.loads((repo_root / "data/decks/opponents/kaervek/current/provenance.json").read_text())
+    provenance = json.loads(
+        (repo_root / "data/decks/opponents/kaervek/current/provenance.json").read_text()
+    )
     registry = json.loads((repo_root / "data/opponents/opponent_registry.json").read_text())
     assert provenance["verified_full_list"] is True
     assert provenance["deck_hash"] == EXPECTED_HASH
@@ -41,7 +51,9 @@ def test_kaervek_uses_specialized_visible_state_pilot() -> None:
 def test_kaervek_current_warstorm_user_correction(repo_root: Path) -> None:
     deck = json.loads((repo_root / "data/decks/opponents/kaervek/current/deck.json").read_text())
     roles = json.loads((repo_root / "data/decks/opponents/kaervek/current/roles.json").read_text())
-    profile = json.loads((repo_root / "data/decks/opponents/kaervek/current/profile.json").read_text())
+    profile = json.loads(
+        (repo_root / "data/decks/opponents/kaervek/current/profile.json").read_text()
+    )
     by_name = {card["oracle_name"]: card for card in deck["cards"]}
     role_by_name = {card["oracle_name"]: card for card in roles["roles"]}
     assert "Midnight Reaper" not in by_name
