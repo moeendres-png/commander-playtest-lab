@@ -41,8 +41,28 @@
   "static": {
     "compileall": "PASS",
     "git_diff_check": "PASS",
-    "ruff_local": "LOCAL_UNAVAILABLE",
+    "ruff_local": "PASS",
+    "ruff_format_local": "PASS",
+    "ruff_version": "0.16.2",
+    "ruff_origin": "exact executable exported from GitHub CI run 31303755719 and replayed against the reconstructed G source locally",
     "mypy_local": "LOCAL_UNAVAILABLE"
+  },
+  "post_quality_normalization": {
+    "targeted_g_tests": {
+      "passed": 9,
+      "failed": 0,
+      "files": [
+        "tests/golden/test_g_decision_quality.py",
+        "tests/unit/test_g_modeling_quality.py"
+      ]
+    },
+    "development": "24/24",
+    "holdout": "12/12",
+    "post_holdout_tuning": false,
+    "ruff_lint": "PASS",
+    "ruff_format": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
   },
   "performance_sample": {
     "workload": "500 deterministic evaluations of 36 fixed G golden/holdout scenarios",
@@ -51,15 +71,15 @@
     "delta_percent": 6.551894919400536,
     "claim_scope": "local microbenchmark only"
   },
-  "note": "Full monolithic pytest exceeded the local command time limit; all 324 collected tests were then executed in deterministic completed groups. One external differential test skipped by design because XMage/Forge is not configured.",
+  "note": "Full monolithic pytest exceeded the local command time limit; all 324 collected tests were then executed in deterministic completed groups. One external differential test skipped by design because XMage/Forge is not configured. After strict-quality normalization, the G-specific tests were re-run 9/9 and the exact CI Ruff executable passed lint and format checks locally.",
   "runtime_hygiene": {
     "doctor": "EXECUTED; environment reports external engine not configured",
     "probe_rules_engines": "EXECUTED; XMage/Forge unavailable",
     "validate_structural_iterations_1": "PASS",
     "validate_rules_phase8": "PASS at existing tactical/offline boundary; external engine unavailable",
-    "repository_status_after_runtime": "CLEAN",
+    "repository_status_after_runtime": "CLEAN at the recorded grouped-validation checkpoint",
     "phase86_audit_exit": 2,
-    "phase86_audit_interpretation": "EXPECTED_BLOCKED: local ruff/mypy unavailable and real external engine unavailable; database integrity passed; this is not treated as G failure and final GitHub CI must run static gates."
+    "phase86_audit_interpretation": "EXPECTED_BLOCKED at the local runtime boundary because mypy and the real external rules engine are unavailable. Ruff is now independently reproduced and green locally; final GitHub CI remains the authority for mypy and the complete quality gate."
   },
   "build": {
     "pip_wheel_isolated": "LOCAL_UNAVAILABLE: package index could not provide setuptools build dependency",
