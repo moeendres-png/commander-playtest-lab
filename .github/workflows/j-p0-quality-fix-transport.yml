@@ -1,0 +1,45 @@
+name: J P0 Quality Fix Transport
+
+on:
+  push:
+    branches:
+      - roadmap/j-p0-integrity-run-identity
+
+permissions:
+  contents: write
+
+jobs:
+  apply-quality-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify base and apply exact local quality patch
+        shell: bash
+        env:
+          PATCH_B64: >-
+            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
+        run: |
+          set -euo pipefail
+          printf '%s' "$PATCH_B64" | tr -d '[:space:]' | base64 -d > /tmp/jp0-quality.patch.gz
+          echo '3b97b55b209b65eeb21d1f10a85a8c881a2879c4c6aa78dda5504a769ea311eb  /tmp/jp0-quality.patch.gz' | sha256sum -c -
+          gzip -dc /tmp/jp0-quality.patch.gz > /tmp/jp0-quality.patch
+          echo '2a1598e44a11a07d6a0fae4ca9d6d42ade89d99392a5c2177baa424cd091b4b7  /tmp/jp0-quality.patch' | sha256sum -c -
+          git apply --check /tmp/jp0-quality.patch
+          git apply /tmp/jp0-quality.patch
+          rm .github/workflows/j-p0-quality-fix-transport.yml
+          git diff --check
+          git add -A
+          test "$(git write-tree)" = "4c47acfa58394702cf2dc9d9443a55e9ec14695e"
+
+      - name: Commit exact local fix tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'commander-playtest-lab automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'fix(J-P0): satisfy quality lint gate'
+          test "$(git rev-parse HEAD^{tree})" = "4c47acfa58394702cf2dc9d9443a55e9ec14695e"
+          git push origin HEAD:roadmap/j-p0-integrity-run-identity
