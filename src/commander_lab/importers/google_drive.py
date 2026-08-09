@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
+from typing import ClassVar
 
 from openpyxl import load_workbook
 
@@ -66,7 +67,7 @@ class GoogleDriveExportImporter(CatalogAwareImporter):
         for candidate in candidates:
             if candidate in available:
                 return candidate
-        folded = {name.casefold(): name for name in available}
+        folded: dict[str, str] = {str(name).casefold(): str(name) for name in available}
         key_fragment = deck_id.split("/")[0].casefold()
         for folded_name, original in folded.items():
             if key_fragment in folded_name:

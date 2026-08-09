@@ -3,9 +3,10 @@ from __future__ import annotations
 import math
 import random
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from statistics import fmean, median
+from typing import Literal, TypedDict
 
 from commander_lab.agents.ensemble import PilotRegistry
 from commander_lab.engine.structural import StructuralSimulator, load_project_structural_decks
@@ -49,6 +50,22 @@ KNOWN_TAPPED_SOURCES = {
     "Evolving Wilds",
     "Terramorphic Expanse",
 }
+
+
+class _HandTypeBucket(TypedDict):
+    samples: int
+    first_keeps: int
+    mulligans: int
+    mulligan_total: int
+    color_issues: int
+    dead_total: int
+    ramp_rows: list[float | None]
+    commander_rows: list[float | None]
+    draw_rows: list[float | None]
+    placement_rows: list[float | None]
+
+
+KeepRuleContextKind = Literal["primary_pod", "holdout_pod", "opponent_ensemble", "pilot_profile"]
 
 
 class MulliganLab:
@@ -196,7 +213,7 @@ class MulliganLab:
                 "opponent/blight-curse-precon",
             )
         need = max(1, context.pod_size - 1)
-        expanded = []
+        expanded: list[str] = []
         while len(expanded) < need:
             expanded.extend(base)
         return tuple(expanded[:need])
@@ -569,7 +586,7 @@ class MulliganLab:
         samples: int,
         seed: int,
         max_mulligans: int = 6,
-    ):
+    ) -> Iterator[tuple[tuple[StructuralCardProfile, ...], ...]]:
         if not 1 <= samples <= 5_000_000:
             raise MulliganLabError("samples must be between 1 and 5,000,000")
         library = self._library(deck)
@@ -721,7 +738,7 @@ class MulliganLab:
 
     def _summarize_hand_types(
         self,
-        buckets: dict[str, dict[str, list[float] | int]],
+        buckets: dict[str, _HandTypeBucket],
     ) -> tuple[MulliganHandTypeSummary, ...]:
         rows: list[MulliganHandTypeSummary] = []
         for key, bucket in sorted(buckets.items()):
@@ -769,7 +786,7 @@ class MulliganLab:
             commander_rows: list[float | None] = []
             draw_rows: list[float | None] = []
             placement_rows: list[float | None] = []
-            buckets: dict[str, dict[str, list[float] | int]] = defaultdict(
+            buckets: dict[str, _HandTypeBucket] = defaultdict(
                 lambda: {
                     "samples": 0,
                     "first_keeps": 0,
@@ -912,7 +929,7 @@ class MulliganLab:
             if context.deck_id == "korvold/current"
             else ("RogShaiPilot", "RogShaiTempoPilot", "RogShaiControlPilot")
         )
-        contexts: list[tuple[str, str, MulliganContext, int, str]] = [
+        contexts: list[tuple[str, KeepRuleContextKind, MulliganContext, int, str]] = [
             ("primary", "primary_pod", context, 0, pilot_names[0]),
             ("holdout-a", "holdout_pod", context, 1, pilot_names[0]),
             ("holdout-b", "holdout_pod", context, 2, pilot_names[0]),
@@ -1098,6 +1115,17 @@ class MulliganLab:
             )
         ]
 
+    @staticmethod
+    def _numeric_value(value: object) -> float | None:
+        if isinstance(value, bool):
+            return None
+        if isinstance(value, (int, float, str)):
+            try:
+                return float(value)
+            except ValueError:
+                return None
+        return None
+
     def test_rule(
         self,
         rule: GeneratedKeepRule,
@@ -1110,12 +1138,19 @@ class MulliganLab:
             for part in clause.feature.split("."):
                 value = value.get(part) if isinstance(value, dict) else None
             ok = False
-            if clause.operator == "between" and isinstance(clause.value, tuple):
-                ok = value is not None and clause.value[0] <= float(value) <= clause.value[1]
+            numeric = self._numeric_value(value)
+            if clause.operator == "between":
+                if numeric is None or not isinstance(clause.value, tuple):
+                    ok = False
+                else:
+                    low, high = clause.value
+                    ok = low <= numeric <= high
             elif clause.operator == "ge":
-                ok = value is not None and float(value) >= float(clause.value)
+                threshold = self._numeric_value(clause.value)
+                ok = numeric is not None and threshold is not None and numeric >= threshold
             elif clause.operator == "le":
-                ok = value is not None and float(value) <= float(clause.value)
+                threshold = self._numeric_value(clause.value)
+                ok = numeric is not None and threshold is not None and numeric <= threshold
             elif clause.operator == "eq":
                 ok = value == clause.value
             elif clause.operator == "true":

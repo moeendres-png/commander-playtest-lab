@@ -8,7 +8,7 @@ version = "1.14.1"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "Private project - no redistribution license granted" }
+license = "LicenseRef-Proprietary"
 authors = [{ name = "Moritz Endres" }]
 dependencies = [
   "pydantic>=2.10,<3",
@@ -65,6 +65,19 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 # Ruff format is authoritative for wrapping; E501 can conflict with formatter output.
 ignore = ["B008", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Re-export aggregator: imports are the public API and are intentionally staged.
+"src/commander_lab/models/__init__.py" = ["F401", "E402"]
+# Script bootstraps src/ before importing the package.
+"scripts/run_phase86_acceptance.py" = ["E402"]
+# Unicode below is intentional normalization/fuzz/fixture input.
+"src/commander_lab/cards/normalize.py" = ["RUF001"]
+"scripts/complete_phase12_8_10.py" = ["RUF001"]
+"tests/fuzz/test_boundary_fuzz.py" = ["RUF001"]
+"tests/property/test_normalization_properties.py" = ["RUF001"]
+"tests/unit/test_plaintext_importer.py" = ["RUF001"]
+"tests/unit/test_phase1214_rules_coverage.py" = ["RUF001"]
 
 [tool.mypy]
 python_version = "3.12"

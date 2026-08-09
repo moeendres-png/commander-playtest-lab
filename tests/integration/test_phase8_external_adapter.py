@@ -66,7 +66,7 @@ for raw in sys.stdin:
         )[0]
         import pytest
 
-        with pytest.raises(RuntimeError, match="unverified|legacy|external rules engine"):
+        with pytest.raises(RuntimeError, match=r"unverified|legacy|external rules engine"):
             validate_with_external_adapter(case, adapter)
     finally:
         adapter.close()

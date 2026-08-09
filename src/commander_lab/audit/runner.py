@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 import json
 import platform
 import subprocess
@@ -505,12 +506,9 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
         phase85_path = (
             project / "artifacts" / "engine_setup" / "phase85_validation" / "validation_result.json"
         )
-    phase85: dict[str, Any] = {}
     if phase85_path.exists():
-        try:
-            phase85 = json.loads(phase85_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            phase85 = {}
+        with contextlib.suppress(json.JSONDecodeError):
+            json.loads(phase85_path.read_text(encoding="utf-8"))
     external_pending = not external_ready
 
     static_lines = ["# Static analysis", ""]

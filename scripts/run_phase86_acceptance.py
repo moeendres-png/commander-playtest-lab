@@ -37,7 +37,7 @@ def main() -> int:
     steps.append({"step": "local_snapshots", "status": "passed", "result": manifest})
 
     service = CommanderToolService(ROOT)
-    validation = [serialized(service.validate_deck.model.__self__)] if False else []
+    [serialized(service.validate_deck.model.__self__)] if False else []
     for deck_id in ("korvold/current", "rogshai/current"):
         from commander_lab.models import ValidateDeckInput
 

@@ -292,7 +292,7 @@ class PilotEnsembleRunner:
             / "data/runs/pilot_ensembles"
             / (output_name or f"benchmark-{deck_id.replace('/', '-')}-{seed}")
         )
-        for index, name in enumerate(names):
+        for _index, name in enumerate(names):
             profile = self.registry.profile(name)
             self._validate_profile_scope(profile, deck)
             run_dir = output_root / name

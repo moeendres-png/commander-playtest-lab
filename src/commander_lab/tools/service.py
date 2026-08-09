@@ -11,7 +11,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from statistics import fmean
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from commander_lab import __version__
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
@@ -40,7 +40,9 @@ from commander_lab.models import (
     BudgetBand,
     BuildOptimizationContextInput,
     CandidatePackage,
+    CandidateProfile,
     CardAblationInput,
+    CardRole,
     Collection,
     CommanderDenialInput,
     CompareDecksInput,
@@ -164,6 +166,7 @@ from commander_lab.mulligan import MulliganLab
 from commander_lab.opponent_ensembles import OpponentEnsembleStore
 from commander_lab.optimization import (
     DEFAULT_CONSTRAINTS,
+    PairedMetrics,
     SearchCandidate,
     ablation_filler,
     all_legal_single_swaps,
@@ -192,6 +195,16 @@ from commander_lab.storage import (
 from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
 
 from .candidates import load_candidate_profiles, load_canonical_inventory_quantities
+
+if TYPE_CHECKING:
+    from commander_lab.counterfactual import CounterfactualReplayLab
+    from commander_lab.diagnostics import DecisionDiagnosticEngine
+
+EstimateType = Literal[
+    "structural_model_estimates",
+    "tactical_oracle_results",
+    "external_rules_engine_results",
+]
 
 
 class ToolExecutionError(RuntimeError):
@@ -360,7 +373,7 @@ class CommanderToolService:
         deck_ids: tuple[str, ...],
         *,
         tool_name: str = "unspecified",
-        estimate_type: str = "structural_model_estimates",
+        estimate_type: EstimateType = "structural_model_estimates",
     ) -> dict[str, Any]:
         scenario_payload = (
             scenario.model_dump(mode="python", exclude_none=False)
@@ -856,15 +869,18 @@ class CommanderToolService:
         deck_ids: tuple[str, ...] = (),
         *,
         tool_name: str = "python_api",
-        estimate_type: str = "structural_model_estimates",
+        estimate_type: EstimateType = "structural_model_estimates",
     ) -> RunIdentity:
         """Build the canonical fail-closed identity for a decision-level project run."""
-        return self._run_identity(
+        value = self._run_identity(
             scenario,
             deck_ids,
             tool_name=tool_name,
             estimate_type=estimate_type,
         )["run_identity"]
+        if not isinstance(value, RunIdentity):
+            raise ToolExecutionError("RunIdentity builder returned an invalid identity object")
+        return value
 
     def _check_iterations(self, iterations: int, approval_token: str | None) -> None:
         if iterations > self.limits.hard_max_iterations:
@@ -904,7 +920,7 @@ class CommanderToolService:
                 "tested against a clear direct upgrade covering the same roles"
             )
 
-    def _candidate(self, candidate_id: str, deck_id: str):
+    def _candidate(self, candidate_id: str, deck_id: str) -> CandidateProfile:
         try:
             candidate = self.candidates[candidate_id]
         except KeyError as exc:
@@ -951,7 +967,7 @@ class CommanderToolService:
         pilot_mode: Any,
         max_turns: int,
         pair_id: str,
-    ):
+    ) -> tuple[PairedMetrics, list[dict[str, object]]]:
         return run_paired_structural_comparison(
             baseline=baseline,
             variant=variant,
@@ -1038,8 +1054,8 @@ class CommanderToolService:
             and max(sensitivity_values) - min(sensitivity_values) > 0.20
         ):
             concerns.append("The estimated effect is highly sensitive to seed or pilot strength.")
-        removed_roles = Counter()
-        added_roles = Counter()
+        removed_roles: Counter[CardRole] = Counter()
+        added_roles: Counter[CardRole] = Counter()
         for swap in swaps:
             original = next((c for c in baseline.cards if c.oracle_name == swap.remove), None)
             candidate = self.candidates.get(swap.add_candidate_id)
@@ -1137,7 +1153,7 @@ class CommanderToolService:
         seed: int | None = None,
         iterations: int | None = None,
         log_dir: str | None = None,
-        estimate_type: str = "structural_model_estimates",
+        estimate_type: EstimateType = "structural_model_estimates",
         run_identity: dict[str, Any] | None = None,
     ) -> ToolExecutionMetadata:
         identity = run_identity or self._run_identity(
@@ -1190,7 +1206,7 @@ class CommanderToolService:
         seed: int | None = None,
         iterations: int | None = None,
         log_dir: str | None = None,
-        estimate_type: str = "structural_model_estimates",
+        estimate_type: EstimateType = "structural_model_estimates",
     ) -> ToolResponse:
         started = time.monotonic()
         invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"
@@ -1603,7 +1619,7 @@ class CommanderToolService:
                 request.iterations * len(request.holdout_pods), request.approval_token
             )
             baseline, variant, swaps = self._build_variant(request)
-            results = []
+            results: list[dict[str, Any]] = []
             for index, pod in enumerate(request.holdout_pods):
                 opponents = tuple(self._deck(deck_id) for deck_id in pod)
                 metrics, _ = run_paired_structural_comparison(
@@ -1686,7 +1702,7 @@ class CommanderToolService:
                 for candidate_id, candidate in self.candidates.items()
                 if not candidate.allowed_deck_ids or request.deck_id in candidate.allowed_deck_ids
             )
-            recommendations = []
+            recommendations: list[dict[str, Any]] = []
             for cut in cuts:
                 for candidate_id in candidate_ids:
                     candidate = self._candidate(candidate_id, request.deck_id)
@@ -2539,7 +2555,7 @@ class CommanderToolService:
         )
 
     @staticmethod
-    def models_variant_swap(remove: str, candidate_id: str):
+    def models_variant_swap(remove: str, candidate_id: str) -> VariantSwap:
         from commander_lab.models import VariantSwap
 
         return VariantSwap(remove=remove, add_candidate_id=candidate_id)
@@ -2770,7 +2786,7 @@ class CommanderToolService:
                 beam = [row[1] for row in scored[: request.beam_width]]
                 if not beam:
                     break
-            final_rows = []
+            final_rows: list[dict[str, Any]] = []
             for node in beam:
                 metrics, pairs = self._paired_variant_metrics(
                     baseline=baseline,
@@ -3180,7 +3196,7 @@ class CommanderToolService:
                 self._candidate(swap.add_candidate_id, request.deck_id).card
                 for swap in request.swaps
             ]
-            rationale = []
+            rationale: list[str] = []
             matchups: set[str] = set()
             from commander_lab.optimization import card_matchup_tags, structural_rationale
 
@@ -3549,7 +3565,7 @@ class CommanderToolService:
     ) -> ToolResponse:
         def work() -> dict[str, Any]:
             priority = {"korvold/current": 3, "rogshai/current": 2, "kaervek/current": 1}
-            rows = []
+            rows: list[dict[str, Any]] = []
             for deck_id in request.deck_ids:
                 if deck_id not in self.decks:
                     rows.append({"deck_id": deck_id, "status": "missing", "candidates": []})
@@ -3572,8 +3588,8 @@ class CommanderToolService:
                     claims.setdefault(candidate["add"], []).append(
                         {"deck_id": row["deck_id"], **candidate}
                     )
-            conflicts = []
-            allocation = []
+            conflicts: list[dict[str, Any]] = []
+            allocation: list[dict[str, Any]] = []
             for card_name, candidates in sorted(claims.items()):
                 candidates.sort(
                     key=lambda x: (priority.get(x["deck_id"], 0), x.get("screening_delta", 0)),
@@ -4017,7 +4033,7 @@ class CommanderToolService:
                         "external_rules_engine_observations": 0,
                         "synthetic_or_tactical_substitution": False,
                     }
-                observations = []
+                observations: list[dict[str, Any]] = []
                 for index in range(request.iterations):
                     handles = [
                         adapter.load_deck(rules_decks[deck_id]) for deck_id in request.deck_ids
@@ -4155,21 +4171,22 @@ class CommanderToolService:
                     )
                     or 0.0
                 )
+                coverage_key = str(row.get("rules_coverage") or "")
                 coverage = {
                     "external_rules_engine": 3,
                     "tactical_oracle": 2,
                     "structural_only": 1,
-                }.get(row.get("rules_coverage"), 0)
+                }.get(coverage_key, 0)
                 return (worst if request.prefer_worst_case else paired, paired, float(coverage))
 
             ranked = sorted((dict(row) for row in request.variants), key=score, reverse=True)
-            p_rows = [
-                (index, row.get("p_value"))
-                for index, row in enumerate(ranked)
-                if row.get("p_value") is not None
-            ]
+            p_rows: list[tuple[int, float]] = []
+            for index, row in enumerate(ranked):
+                raw_p = row.get("p_value")
+                if isinstance(raw_p, (int, float)) and not isinstance(raw_p, bool):
+                    p_rows.append((index, float(raw_p)))
             if p_rows:
-                adjusted = holm_adjust(float(value) for _, value in p_rows)
+                adjusted = holm_adjust(value for _, value in p_rows)
                 for (index, _), value in zip(p_rows, adjusted, strict=True):
                     ranked[index]["holm_adjusted_p_value"] = value
             for index, row in enumerate(ranked, start=1):
@@ -4783,12 +4800,12 @@ class CommanderToolService:
 
         return self._invoke("create_mulligan_report", request, work)
 
-    def _counterfactual_lab(self):
+    def _counterfactual_lab(self) -> CounterfactualReplayLab:
         from commander_lab.counterfactual import CounterfactualReplayLab
 
         return CounterfactualReplayLab(self.root, external_engine_available=False)
 
-    def find_counterfactual_branchpoints(self, request):
+    def find_counterfactual_branchpoints(self, request: Any) -> ToolResponse:
         def work() -> dict[str, Any]:
             rows = self._counterfactual_lab().find_branchpoints(
                 request.source_path, actor_id=request.actor_id, phase=request.phase
@@ -4801,7 +4818,7 @@ class CommanderToolService:
 
         return self._invoke("find_counterfactual_branchpoints", request, work)
 
-    def list_alternative_actions(self, request):
+    def list_alternative_actions(self, request: Any) -> ToolResponse:
         def work() -> dict[str, Any]:
             lab = self._counterfactual_lab()
             branch = lab.branchpoint_at(request.source_path, request.event_offset)
@@ -4818,7 +4835,7 @@ class CommanderToolService:
 
         return self._invoke("list_alternative_actions", request, work)
 
-    def run_counterfactual(self, request):
+    def run_counterfactual(self, request: Any) -> ToolResponse:
         from commander_lab.models import (
             CounterfactualEngineMode,
             HiddenInformationPolicy,
@@ -4855,7 +4872,7 @@ class CommanderToolService:
             iterations=request.future_samples,
         )
 
-    def compare_counterfactuals(self, request):
+    def compare_counterfactuals(self, request: Any) -> ToolResponse:
         from commander_lab.counterfactual import CounterfactualReplayLab
         from commander_lab.models import CounterfactualResult
 
@@ -4875,7 +4892,7 @@ class CommanderToolService:
 
         return self._invoke("compare_counterfactuals", request, work)
 
-    def generate_decision_regret_report(self, request):
+    def generate_decision_regret_report(self, request: Any) -> ToolResponse:
         from commander_lab.counterfactual import CounterfactualReplayLab
         from commander_lab.models import CounterfactualResult
 
@@ -4894,7 +4911,7 @@ class CommanderToolService:
 
         return self._invoke("generate_decision_regret_report", request, work)
 
-    def export_minimal_counterfactual_fixture(self, request):
+    def export_minimal_counterfactual_fixture(self, request: Any) -> ToolResponse:
         def work() -> dict[str, Any]:
             lab = self._counterfactual_lab()
             branch = lab.branchpoint_at(request.source_path, request.event_offset)
@@ -4905,12 +4922,12 @@ class CommanderToolService:
 
         return self._invoke("export_minimal_counterfactual_fixture", request, work)
 
-    def _diagnostic_engine(self):
+    def _diagnostic_engine(self) -> DecisionDiagnosticEngine:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
         return DecisionDiagnosticEngine()
 
-    def diagnose_card_performance(self, request):
+    def diagnose_card_performance(self, request: Any) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
         def work() -> dict[str, Any]:
@@ -4924,7 +4941,7 @@ class CommanderToolService:
 
         return self._invoke("diagnose_card_performance", request, work)
 
-    def diagnose_pilot_behavior(self, request):
+    def diagnose_pilot_behavior(self, request: Any) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
         def work() -> dict[str, Any]:
@@ -4938,7 +4955,7 @@ class CommanderToolService:
 
         return self._invoke("diagnose_pilot_behavior", request, work)
 
-    def compare_deck_and_pilot_effects(self, request):
+    def compare_deck_and_pilot_effects(self, request: Any) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
         def work() -> dict[str, Any]:
@@ -4948,7 +4965,7 @@ class CommanderToolService:
 
         return self._invoke("compare_deck_and_pilot_effects", request, work)
 
-    def classify_failure_cause(self, request):
+    def classify_failure_cause(self, request: Any) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
         def work() -> dict[str, Any]:
@@ -4962,7 +4979,7 @@ class CommanderToolService:
 
         return self._invoke("classify_failure_cause", request, work)
 
-    def recommend_next_experiment(self, request):
+    def recommend_next_experiment(self, request: Any) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
         from commander_lab.models import DiagnosisRecord
 
@@ -4974,7 +4991,7 @@ class CommanderToolService:
 
         return self._invoke("recommend_next_experiment", request, work)
 
-    def generate_diagnostic_report(self, request):
+    def generate_diagnostic_report(self, request: Any) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
         from commander_lab.models import DiagnosisRecord
 

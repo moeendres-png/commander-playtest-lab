@@ -2,7 +2,15 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.models import *
+from commander_lab.models import (
+    EnsembleWeightMode,
+    ObservationStatus,
+    ObservedConstraint,
+    OpponentCardAssumption,
+    OpponentEnsemble,
+    OpponentVariant,
+    VariantWeight,
+)
 from commander_lab.opponent_ensembles import OpponentEnsembleStore
 
 

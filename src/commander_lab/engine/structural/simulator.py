@@ -34,7 +34,7 @@ def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
     """Return structural commander cost including two generic mana per prior cast."""
     if base_cost < 0 or prior_casts < 0:
         raise ValueError("base_cost and prior_casts must be non-negative")
-    return int(math.ceil(base_cost + 2 * prior_casts))
+    return math.ceil(base_cost + 2 * prior_casts)
 
 
 def commander_damage_is_lethal(
@@ -291,6 +291,8 @@ class StructuralSimulator:
                         active, str(card_or_name), players, recorder, score
                     )
                 else:
+                    if not isinstance(card_or_name, StructuralCardProfile):
+                        raise TypeError("non-commander action must carry a StructuralCardProfile")
                     resolved = self._cast_card(active, card_or_name, players, recorder, score)
                 spells_cast += 1
                 if not resolved and active.mana_available < 1:
@@ -723,7 +725,7 @@ class StructuralSimulator:
                 player, commander.next_cost, requirements
             ):
                 continue
-            card = next(
+            commander_card = next(
                 (item for item in player.deck.cards if item.oracle_name == commander.name), None
             )
             action_id = f"commander:{commander.name}"
@@ -732,14 +734,18 @@ class StructuralSimulator:
                 action_kind="commander",
                 card_name=commander.name,
                 mana_cost=float(commander.next_cost),
-                roles=card.roles if card else frozenset({CardRole.ENGINE, CardRole.PAYOFF}),
-                role_strengths=card.role_strengths if card else {},
-                mechanic_tags=card.mechanic_tags if card else frozenset(),
-                floor_value=card.floor_value if card else 0.8,
-                immediate_impact=card.immediate_impact if card else 0.6,
-                turn_cycle_risk=card.turn_cycle_risk if card else 0.55,
-                multiplayer_scaling=card.multiplayer_scaling if card else 0.0,
-                commander_synergy=max(1.0, card.commander_synergy if card else 1.0),
+                roles=commander_card.roles
+                if commander_card
+                else frozenset({CardRole.ENGINE, CardRole.PAYOFF}),
+                role_strengths=commander_card.role_strengths if commander_card else {},
+                mechanic_tags=commander_card.mechanic_tags if commander_card else frozenset(),
+                floor_value=commander_card.floor_value if commander_card else 0.8,
+                immediate_impact=commander_card.immediate_impact if commander_card else 0.6,
+                turn_cycle_risk=commander_card.turn_cycle_risk if commander_card else 0.55,
+                multiplayer_scaling=commander_card.multiplayer_scaling if commander_card else 0.0,
+                commander_synergy=max(
+                    1.0, commander_card.commander_synergy if commander_card else 1.0
+                ),
                 base_power=commander.base_power,
                 target_threat=state.max_opponent_threat,
                 remaining_mana=max(0.0, player.mana_available - commander.next_cost),
@@ -767,9 +773,10 @@ class StructuralSimulator:
         actions.append(pass_action)
         decision = player.pilot.choose_action(state, actions, player.pilot_rng)
         self._record_pilot_decision(player, decision, recorder, phase="main")
-        if decision.selected_action_id in {None, "pass"}:
+        selected_action_id = decision.selected_action_id
+        if selected_action_id is None or selected_action_id == "pass":
             return None
-        kind, item = mapping[decision.selected_action_id]
+        kind, item = mapping[selected_action_id]
         return kind, item, float(decision.selected_utility or 0.0)
 
     @staticmethod
@@ -1128,9 +1135,10 @@ class StructuralSimulator:
             )
             decision = opponent.pilot.choose_action(state, actions, opponent.pilot_rng)
             self._record_pilot_decision(opponent, decision, recorder, phase="counter")
-            if decision.selected_action_id in {None, "pass"}:
+            selected_action_id = decision.selected_action_id
+            if selected_action_id is None or selected_action_id == "pass":
                 continue
-            counter = mapping[decision.selected_action_id]
+            counter = mapping[selected_action_id]
             opponent.hand.remove(counter)
             caster.hostile_target_events += 1
             self._pay(opponent, counter.mana_value)
@@ -1187,7 +1195,7 @@ class StructuralSimulator:
         ):
             player.first_independent_draw_engine_turn = player.current_turn
         if CardRole.DRAW in card.roles:
-            amount = max(1, int(math.ceil(card.strength(CardRole.DRAW))))
+            amount = max(1, math.ceil(card.strength(CardRole.DRAW)))
             if card.oracle_name == "Korvold, Fae-Cursed King":
                 amount = 0
             if amount:

@@ -242,11 +242,15 @@ def run_paired_structural_comparison(
                 "variant_log_sha256": var_result.log_sha256,
             }
         )
-    avg = lambda rows, key: fmean(row[key] for row in rows)
+
+    def avg(rows: list[dict[str, float]], key: str) -> float:
+        return fmean(row[key] for row in rows)
+
     base_place = avg(base_rows, "placement")
     var_place = avg(var_rows, "placement")
     differences = tuple(
-        float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs
+        base_row["placement"] - variant_row["placement"]
+        for base_row, variant_row in zip(base_rows, var_rows, strict=True)
     )
     interval = paired_bootstrap_interval(
         differences, seed=derive_paired_seed(seed, pair_id, iterations + 1)
