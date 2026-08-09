@@ -19,7 +19,7 @@ class GoogleDriveExportImporter(CatalogAwareImporter):
     by explicit mapping first, then by common current-project sheet names.
     """
 
-    DEFAULT_SHEET_MAP = {
+    DEFAULT_SHEET_MAP: ClassVar[dict[str, tuple[str, ...]]] = {
         "korvold/current": ("01_Korvold", "Korvold", "Korvold_final_100"),
         "rogshai/current": ("02_RogShai", "RogShai", "Ishai_Rograkh_final_100"),
     }

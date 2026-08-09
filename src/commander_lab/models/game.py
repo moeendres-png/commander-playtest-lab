@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Any
+from typing import Any, cast
 
 from pydantic import Field, model_validator
 
@@ -61,7 +61,7 @@ class ZoneState(FrozenModel):
     def cards_in(self, zone: ZoneName) -> tuple[str, ...]:
         if zone == ZoneName.STACK:
             raise ValueError("stack is global and stored on GameState")
-        return getattr(self, zone.value)
+        return cast(tuple[str, ...], getattr(self, zone.value))
 
 
 class PlayerState(FrozenModel):

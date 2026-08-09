@@ -6,6 +6,8 @@ from typing import Iterable
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
+from commander_lab.models import Deck
+
 from .base import CatalogAwareImporter, DeckImportOptions, ImportErrorWithContext
 from .csv_importer import CsvDeckImporter
 
@@ -17,10 +19,12 @@ class XlsxDeckImporter(CatalogAwareImporter):
         options: DeckImportOptions,
         *,
         sheet_name: str | None = None,
-    ):
+    ) -> Deck:
         workbook = load_workbook(filename=path, read_only=True, data_only=True)
         try:
             worksheet = workbook[sheet_name] if sheet_name else workbook.active
+            if not isinstance(worksheet, Worksheet):
+                raise ImportErrorWithContext("selected sheet is not a worksheet", source=path)
             rows = self._worksheet_rows(worksheet, source_path=path)
             return CsvDeckImporter(self.catalog).import_rows(rows, options, source_path=path)
         finally:
@@ -55,7 +59,7 @@ class XlsxDeckImporter(CatalogAwareImporter):
         for row in materialized[header_index + 1 :]:
             if all(value is None or str(value).strip() == "" for value in row):
                 continue
-            record = {
+            record: dict[str, object] = {
                 header: row[column] if column < len(row) else None
                 for column, header in enumerate(headers)
                 if header

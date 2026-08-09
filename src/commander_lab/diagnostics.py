@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 from statistics import fmean
-from typing import Any
+from typing import Any, ClassVar
 
 from commander_lab.models.diagnostics import (
     CardPerformanceInstrumentation,
@@ -208,7 +208,7 @@ class DecisionDiagnosticEngine:
             "action": abs(float(dataset.counterfactual_improvement or 0.0)),
             "seed": dataset.seed_sensitivity,
         }
-        dominant = max(effects, key=effects.get)
+        dominant = max(effects, key=lambda name: effects[name])
         return FactorEffectComparison(
             deck_effect=effects["deck"], pilot_effect=effects["pilot"],
             opponent_effect=effects["opponent"], action_effect=effects["action"],

@@ -680,8 +680,9 @@ class KorvoldPilot(BasePilot):
             "Hearthhull, the Worldseed",
         }:
             bonus += 0.9 + max(0, state.pod_size - 3) * 0.35
-        if (CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5) and korvold_online:
-            bonus += 0.4
+        if CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5:
+            if korvold_online:
+                bonus += 0.4
         if action.action_kind == "combat_target":
             pressure = float(action.metadata.get("commander_damage_pressure", 0.0))
             bonus += pressure * 0.28

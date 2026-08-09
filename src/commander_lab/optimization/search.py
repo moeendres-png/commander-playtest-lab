@@ -159,7 +159,7 @@ def all_legal_single_swaps(
     *,
     inventory: dict[str, int],
     verified_physical_names: set[str],
-    protected: set[str] = frozenset(),
+    protected: Collection[str] = frozenset(),
 ) -> list[SearchCandidate]:
     results: list[SearchCandidate] = []
     cuts = list({

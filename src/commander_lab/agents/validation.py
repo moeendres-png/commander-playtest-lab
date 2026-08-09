@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import random
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 

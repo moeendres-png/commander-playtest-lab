@@ -126,7 +126,9 @@ def _phase10_report_markdown(result: dict[str, Any]) -> str:
         "",
         f"Status: **{result['status']}**",
         "",
-        "All numerical simulation outputs are `structural_model_estimates`; they are not empirical win rates.",
+        "All numerical simulation outputs are "
+        "`structural_model_estimates`; they are not empirical win "
+        "rates.",
         "",
         "## Local acceptance criteria",
         "",
@@ -177,7 +179,7 @@ def _write_deck_report(
     candidate = recommendation.get("candidate") or {}
     rules = recommendation.get("rules_sample") or {}
     lines = [
-        f"# Phase 10 Example Report – {deck_id}",
+        f"# Phase 10 Example Report \u2013 {deck_id}",
         "",
         "All simulation values in this report are `structural_model_estimates`.",
         "They are not empirical win rates and are not external rules-engine proof.",

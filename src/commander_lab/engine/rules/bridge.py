@@ -9,7 +9,7 @@ import threading
 import time
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
@@ -31,6 +31,7 @@ from commander_lab.models import (
     RulesGameRequest,
     RulesSession,
     TacticalScenario,
+    ValidationLevel,
 )
 
 from .base import RulesEngineAdapter, RulesEngineProtocolError, RulesEngineUnavailable
@@ -189,7 +190,10 @@ class JsonLineBridgeClient:
             request = EngineProtocolRequest(
                 protocol_version=self.protocol_version,
                 request_id=str(uuid.uuid4()),
-                engine=self.engine if self.engine in {"xmage", "forge", "tactical"} else "unknown",
+                engine=cast(
+                    Literal["xmage", "forge", "tactical", "unknown"],
+                    self.engine if self.engine in {"xmage", "forge", "tactical"} else "unknown",
+                ),
                 engine_version=self.engine_version,
                 game_id=game_id,
                 message_type=message_type,
@@ -228,7 +232,8 @@ class JsonLineBridgeClient:
                 error = response.errors[0] if response.errors else None
                 raise RulesEngineProtocolError(
                     f"bridge message {message_type.value!r} failed: "
-                    f"{error.code if error else 'unknown'}: {error.message if error else 'unknown error'}"
+                    f"{error.code if error else 'unknown'}: "
+                    f"{error.message if error else 'unknown error'}"
                 )
             return response.payload
 
@@ -366,7 +371,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                 hello, caps = client.handshake()
                 if hello.get("engine") != self.backend.value:
                     raise RulesEngineProtocolError(
-                        f"configured {self.backend.value} bridge identified itself as {hello.get('engine')}"
+                        f"configured {self.backend.value} bridge identified itself as "
+                        f"{hello.get('engine')}"
                     )
                 self._capabilities = caps
                 compatibility = RulesEngineCapabilities(
@@ -394,7 +400,6 @@ class ExternalRulesAdapter(RulesEngineAdapter):
             except RulesEngineProtocolError:
                 # Phase-8 legacy bridge compatibility. A legacy probe is never
                 # sufficient for the process manager's `healthy` status.
-                result = client.request("engine_hello") if False else None
                 raise
         except Exception as exc:
             # Old fixtures can still expose a `probe` only. This is deliberately
@@ -406,7 +411,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                 probe = RulesEngineProbe.model_validate(raw)
                 if probe.backend != self.backend:
                     raise RulesEngineProtocolError(
-                        f"configured {self.backend.value} bridge identified itself as {probe.backend.value}"
+                        f"configured {self.backend.value} bridge identified itself as "
+                        f"{probe.backend.value}"
                     )
                 self._legacy_mode = True
                 self._capabilities = EngineCapabilityHandshake(
@@ -427,7 +433,9 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                     notes=("legacy Phase-8 probe; not sufficient for external health",),
                 )
                 return probe.model_copy(
-                    update={"details": tuple(probe.details) + ("legacy protocol compatibility",)}
+                    update={
+                        "details": (*probe.details, "legacy protocol compatibility"),
+                    }
                 )
             except Exception:
                 return RulesEngineProbe(
@@ -659,7 +667,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
     def get_result(self, session_id: str) -> RulesEngineResult:
         if self._legacy_mode:
             raise RulesEngineProtocolError(
-                "legacy bridge results are unverified and cannot be promoted to external_rules_engine"
+                "legacy bridge results are unverified and cannot be "
+                "promoted to external_rules_engine"
             )
         if self._capabilities is None:
             self.probe()
@@ -674,7 +683,7 @@ class ExternalRulesAdapter(RulesEngineAdapter):
             completed=state.status.value == "completed",
             final_state=state,
             normalized_result={},
-            validation_level="external_rules_engine",
+            validation_level=ValidationLevel.EXTERNAL_RULES_ENGINE,
             backend_version=None,
             warnings=("result derived from versioned state endpoint",),
         )

@@ -47,12 +47,28 @@ def _inventory_rows(root: Path) -> list[dict[str, object]]:
     return [dict(row) for row in payload.get("cards", [])]
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return int(value)
+    raise ValueError(f"unsupported integer value: {value!r}")
+
+
+def _as_float(value: object, default: float = 0.0) -> float:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return float(value)
+    raise ValueError(f"unsupported float value: {value!r}")
+
+
 def load_canonical_inventory_quantities(root: str | Path) -> dict[str, int]:
     rows = _inventory_rows(Path(root))
     return {
-        str(row["oracle_name"]): int(row.get("quantity", 0))
+        str(row["oracle_name"]): _as_int(row.get("quantity", 0))
         for row in rows
-        if row.get("currently_owned") and int(row.get("quantity", 0)) > 0
+        if row.get("currently_owned") and _as_int(row.get("quantity", 0)) > 0
     }
 
 
@@ -67,7 +83,7 @@ def _identity_from_inventory(row: dict[str, object]) -> CardIdentity:
     return CardIdentity(
         oracle_name=name,
         mana_cost=str(row.get("mana_cost", "") or "") or None,
-        mana_value=float(row.get("mana_value", 0.0) or 0.0),
+        mana_value=_as_float(row.get("mana_value", 0.0), 0.0),
         color_identity=colors,
         type_line=type_line,
         oracle_text=str(row.get("oracle_text", "") or "") or None,
@@ -80,7 +96,10 @@ def _identity_from_inventory(row: dict[str, object]) -> CardIdentity:
                 source_name="MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
                 source_path="drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
                 quality=DataQuality.PROJECT_VERIFIED,
-                notes="Physical identity and Oracle fields imported read-only; semantic roles are inferred separately.",
+                notes=(
+                    "Physical identity and Oracle fields imported read-only; "
+                    "semantic roles are inferred separately."
+                ),
             ),
         ),
     )
@@ -178,7 +197,8 @@ def _produced_colors(identity: CardIdentity) -> frozenset[Color]:
 def _inferred_profile(identity: CardIdentity) -> StructuralCardProfile | None:
     baseline = build_default_profile(identity)
     roles = _inferred_roles(identity)
-    # Cards with no machine-identifiable function are not admitted to automatic structural screening.
+    # Cards with no machine-identifiable function are not admitted to automatic structural
+    # screening.
     if roles == frozenset({CardRole.ENABLER}) and baseline.roles == frozenset({CardRole.ENABLER}):
         return None
     roles = frozenset(set(roles) | set(baseline.roles))
@@ -228,7 +248,7 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
     candidates: dict[str, CandidateProfile] = {}
 
     for row in _inventory_rows(root_path):
-        if not row.get("currently_owned") or int(row.get("quantity", 0)) <= 0:
+        if not row.get("currently_owned") or _as_int(row.get("quantity", 0)) <= 0:
             continue
         if str(row.get("commander_legality", "")).casefold() != "legal":
             continue
@@ -258,12 +278,14 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
                 physical_status="canonical_inventory_verified_owned",
                 notes=(
                     "Owned and Commander-legal in canonical inventory 2026-08-07; card function is "
-                    "structural-only keyword inference and requires higher-fidelity validation before recommendation."
+                    "structural-only keyword inference and requires "
+                    "higher-fidelity validation before recommendation."
                 ),
             )
         candidates[candidate.candidate_id] = candidate
 
-    # Preserve the historical curated candidates as a fallback if the canonical snapshot is unavailable.
+    # Preserve the historical curated candidates as a fallback if the canonical snapshot is
+    # unavailable.
     if not candidates:
         return {candidate.candidate_id: candidate for candidate in curated}
     return candidates

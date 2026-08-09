@@ -20,7 +20,7 @@ CANONICAL_JSON_VERSION = 1
 def _canonicalize(value: Any) -> Any:
     if isinstance(value, BaseModel):
         return _canonicalize(value.model_dump(mode="python", exclude_none=True))
-    if is_dataclass(value):
+    if is_dataclass(value) and not isinstance(value, type):
         return _canonicalize(asdict(value))
     if isinstance(value, dict):
         return {

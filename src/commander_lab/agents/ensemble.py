@@ -59,10 +59,12 @@ def _profile(
         "description": description,
         "is_baseline": baseline,
     }
-    return PilotProfile(
-        profile_id=f"{family}.{pilot_name.casefold()}.v1",
-        parameter_hash=_canonical_hash(body),
-        **body,
+    return PilotProfile.model_validate(
+        {
+            "profile_id": f"{family}.{pilot_name.casefold()}.v1",
+            "parameter_hash": _canonical_hash(body),
+            **body,
+        }
     )
 
 
@@ -401,7 +403,7 @@ class PilotEnsembleRunner:
         baseline = results.get(baseline_name)
         if baseline is None:
             return
-        for name, row in results.items():
+        for row in results.values():
             row["deviation_from_baseline"] = {
                 "average_placement": float(row["average_placement"]) - float(baseline["average_placement"]),
                 "place_1_share": float(row["place_1_share"]) - float(baseline["place_1_share"]),

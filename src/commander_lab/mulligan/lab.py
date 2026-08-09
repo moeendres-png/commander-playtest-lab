@@ -779,7 +779,8 @@ class MulliganLab:
             overfitting_validation=validations,
             warnings=(
                 "Keep rules are model-based candidates, not universal or empirical facts.",
-                "Follow-up placement comes from complete Structural Simulator games with forced public opening hands.",
+                "Follow-up placement comes from complete Structural "
+                "Simulator games with forced public opening hands.",
                 "Structural follow-up games are not comprehensive MTG rules-engine games.",
                 "No external engine validation was performed.",
             ),

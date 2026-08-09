@@ -14,7 +14,8 @@ RECOMMENDATION_TERMS = re.compile(
 )
 REAL_WINRATE_TERMS = re.compile(r"\b(empirical win ?rate|real win ?rate|true win ?rate)\b", re.IGNORECASE)
 UNCERTAINTY_TERMS = re.compile(
-    r"\b(structural|model|estimate|synthetic|holdout|uncertain|uncertainty|not empirical|not a win ?rate)\b",
+    "\\b(structural|model|estimate|synthetic|holdout|uncertain|u"
+    "ncertainty|not empirical|not a win ?rate)\\b",
     re.IGNORECASE,
 )
 
@@ -114,9 +115,12 @@ def _model_real_score(trajectory: AgentTrajectory) -> tuple[float, list[str]]:
     )
     if REAL_WINRATE_TERMS.search(text):
         return 0.0, ["report presents structural output as a real or empirical win rate"]
-    if "winrate" in text.casefold() or "win rate" in text.casefold():
-        if "not" not in text.casefold() and "structural" not in text.casefold():
-            return 0.0, ["win-rate wording lacks structural-model qualification"]
+    if (
+        ("winrate" in text.casefold() or "win rate" in text.casefold())
+        and "not" not in text.casefold()
+        and "structural" not in text.casefold()
+    ):
+        return 0.0, ["win-rate wording lacks structural-model qualification"]
     return 1.0, []
 
 

@@ -193,7 +193,8 @@ class ArchetypePackageExtractor:
         commander = self.commander_label(deck)
         if package.commander != commander:
             raise PackageExtractionError(
-                f"package commander mismatch: {package.commander!r} cannot be evaluated for {commander!r}"
+                f"package commander mismatch: {package.commander!r} cannot be evaluated "
+                f"for {commander!r}"
             )
         names = {card.oracle_name for card in deck.cards}
         present = tuple(card for card in package.all_cards if card in names)
@@ -304,7 +305,8 @@ class ArchetypePackageExtractor:
             f"Deck hash: `{result['deck_hash']}`",
             f"Commander: {result['commander']}",
             "",
-            "All results are structural/reference diagnostics. No package is automatically added to the deck.",
+            "All results are structural/reference diagnostics. No "
+            "package is automatically added to the deck.",
             "",
             "## Archetypes",
         ]

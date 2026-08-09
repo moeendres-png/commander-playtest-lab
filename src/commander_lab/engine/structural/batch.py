@@ -182,8 +182,8 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
 
     def summarize(
         grouped: dict[str, dict[str, list[float]]],
-    ) -> dict[str, dict[str, float | int]]:
-        summary: dict[str, dict[str, float | int]] = {}
+    ) -> dict[str, dict[str, float | int | None]]:
+        summary: dict[str, dict[str, float | int | None]] = {}
         for key, values in sorted(grouped.items()):
             summary[key] = {
                 "samples": len(values["placements"]),

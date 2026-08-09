@@ -27,6 +27,14 @@ def _truthy(value: object) -> bool:
     return str(value or "").strip().casefold() in {"1", "true", "yes", "y", "ja", "x"}
 
 
+def _int_value(value: object, default: int = 1) -> int:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return int(value)
+    raise ValueError(f"unsupported integer value: {value!r}")
+
+
 def _zone_from_value(value: object, *, is_commander: bool = False) -> DeckZone:
     if is_commander:
         return DeckZone.COMMANDER
@@ -89,9 +97,10 @@ class CsvDeckImporter(CatalogAwareImporter):
                 continue
             try:
                 name = self.normalize_card_name(raw_name)
-                quantity = int(row.get(quantity_column, 1) or 1) if quantity_column else 1
+                quantity = _int_value(row.get(quantity_column), 1) if quantity_column else 1
                 is_commander = _truthy(row.get(commander_column)) if commander_column else False
-                zone = _zone_from_value(row.get(zone_column), is_commander=is_commander)
+                zone_value = row.get(zone_column) if zone_column is not None else None
+                zone = _zone_from_value(zone_value, is_commander=is_commander)
             except Exception as exc:
                 raise ImportErrorWithContext(str(exc), source=source_path, row=index) from exc
             entries.append(DeckEntry(oracle_name=name, quantity=quantity, zone=zone))

@@ -34,7 +34,7 @@ def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
     """Return structural commander cost including two generic mana per prior cast."""
     if base_cost < 0 or prior_casts < 0:
         raise ValueError("base_cost and prior_casts must be non-negative")
-    return math.ceil(base_cost + 2 * prior_casts)
+    return int(math.ceil(base_cost + 2 * prior_casts))
 
 
 def commander_damage_is_lethal(
@@ -1187,7 +1187,7 @@ class StructuralSimulator:
         ):
             player.first_independent_draw_engine_turn = player.current_turn
         if CardRole.DRAW in card.roles:
-            amount = max(1, math.ceil(card.strength(CardRole.DRAW)))
+            amount = max(1, int(math.ceil(card.strength(CardRole.DRAW))))
             if card.oracle_name == "Korvold, Fae-Cursed King":
                 amount = 0
             if amount:

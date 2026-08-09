@@ -175,7 +175,26 @@ def _dependency_markdown(inventory: dict[str, Any]) -> str:
 
 
 def _ownership_markdown() -> str:
-    return """# Module ownership\n\n| Layer | Modules | Responsibility | Forbidden dependency |\n|---|---|---|---|\n| deterministic_state_and_rules | `models`, `engine.structural` | State, legal transitions, deterministic simulation | agents/OpenAI |\n| engine_adapters | `engine.rules`, `engine.process_manager` | External process/protocol boundary | reporting truth promotion |\n| tactical_oracle | `engine.rules.tactical` | Offline tactical fixtures only | external validation claims |\n| pilot_decision_logic | `agents.pilots` | Select among legal actions | direct state mutation |\n| agent_orchestration | `agents`, `tools`, `api` | Tool planning and reports | deterministic state mutation |\n| analysis_and_optimization | `analysis`, `optimization` | Statistics and candidate validation | canonical deck writes |\n| storage_and_reporting | `storage`, `reporting`, `observability` | Atomic persistence, manifests, reports | game semantics |\n"""
+    return (
+        "# Module ownership\n\n| Layer | Modules | Responsibility | "
+        "Forbidden dependency |\n|---|---|---|---|\n| "
+        "deterministic_state_and_rules | `models`, "
+        "`engine.structural` | State, legal transitions, "
+        "deterministic simulation | agents/OpenAI |\n| "
+        "engine_adapters | `engine.rules`, `engine.process_manager` "
+        "| External process/protocol boundary | reporting truth "
+        "promotion |\n| tactical_oracle | `engine.rules.tactical` | "
+        "Offline tactical fixtures only | external validation "
+        "claims |\n| pilot_decision_logic | `agents.pilots` | Select "
+        "among legal actions | direct state mutation |\n| "
+        "agent_orchestration | `agents`, `tools`, `api` | Tool "
+        "planning and reports | deterministic state mutation |\n| "
+        "analysis_and_optimization | `analysis`, `optimization` | "
+        "Statistics and candidate validation | canonical deck "
+        "writes |\n| storage_and_reporting | `storage`, `reporting`, "
+        "`observability` | Atomic persistence, manifests, reports | "
+        "game semantics |\n"
+    )
 
 
 def _feature_candidates() -> list[FeatureCandidate]:
@@ -295,15 +314,33 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     remaining = [
         "Phase 8.5.1 external XMage runtime was not executed; DNS/Maven/Docker are unavailable.",
         "Provider-specific Java bridge against real XMage APIs is not implemented or built.",
-        "Ruff, mypy, Hypothesis, automated mutation testing, dependency audit and SBOM generation were not executable in this sandbox.",
+        "Ruff, mypy, Hypothesis, automated mutation testing, "
+        "dependency audit and SBOM generation were not executable "
+        "in this sandbox.",
         "External-engine multiplayer/action-loop/critical-scenario gates remain not_run.",
     ]
     atomic_write_text(audit_dir / "remaining_risks.md", "# Remaining risks\n\n" + "\n".join(f"- {item}" for item in remaining) + "\n")
     phase9_allowed = False
     status = "phase_9_blocked"
-    readiness = "# Phase 9 readiness\n\n**Status: `phase_9_blocked`.**\n\nThe local correctness hardening is substantially complete, but the requested Phase 8.5.1 real external-engine execution and the mandatory Ruff/mypy/Hypothesis/security gates were not executable. Phase 9 should begin only after the provided network-enabled CI/local commands pass. `external_engine_validation_pending=true`.\n"
+    readiness = (
+        "# Phase 9 readiness\n\n**Status: `phase_9_blocked`.**\n\nThe "
+        "local correctness hardening is substantially complete, but "
+        "the requested Phase 8.5.1 real external-engine execution "
+        "and the mandatory Ruff/mypy/Hypothesis/security gates were "
+        "not executable. Phase 9 should begin only after the "
+        "provided network-enabled CI/local commands pass. "
+        "`external_engine_validation_pending=true`.\n"
+    )
     atomic_write_text(audit_dir / "phase_9_readiness.md", readiness)
-    summary = f"# Executive summary\n\n- Baseline: `{baseline_commit}`\n- Audit commit/worktree: `{commit}`\n- Bugs found: {len(bugs)} (1 critical, 3 high, 2 medium)\n- Locally fixed with regression tests: {len(bugs)}\n- External engine: not executed\n- Final status: `{status}`\n- Canonical deck/Drive changes: none\n"
+    summary = (
+        f"# Executive summary\n\n- Baseline: `{baseline_commit}`\n"
+        f"- Audit commit/worktree: `{commit}`\n"
+        f"- Bugs found: {len(bugs)} (1 critical, 3 high, 2 medium)\n"
+        f"- Locally fixed with regression tests: {len(bugs)}\n"
+        "- External engine: not executed\n"
+        f"- Final status: `{status}`\n"
+        "- Canonical deck/Drive changes: none\n"
+    )
     atomic_write_text(audit_dir / "executive_summary.md", summary)
 
     checks = []

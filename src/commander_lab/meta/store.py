@@ -5,7 +5,7 @@ import json
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 from commander_lab.models.meta import (
     BudgetBand,
@@ -33,6 +33,13 @@ def stable_deck_hash(cards: tuple[str, ...]) -> str:
 
 def _now() -> datetime:
     return datetime.now(UTC)
+
+
+class _DriftRow(TypedDict):
+    card: str
+    frequency_delta: float
+    old_count: int
+    new_count: int
 
 
 class MetaKnowledgeBase:
@@ -183,7 +190,10 @@ class MetaKnowledgeBase:
             "meta_top_cards_not_in_own": [card for card, _ in meta_counter.most_common() if card not in own][:25],
             "own_role_density": role_estimate,
             "meta_role_density": meta_role_estimate,
-            "context_warning": "Meta overlap is evidence only; it must not automatically change the current deck, inventory or allocation.",
+            "context_warning": (
+                "Meta overlap is evidence only; it must not automatically "
+                "change the current deck, inventory or allocation."
+            ),
         }
 
     def compare_periods(self, older_snapshot_id: str, newer_snapshot_id: str, *, commander: str | None = None) -> dict[str, Any]:

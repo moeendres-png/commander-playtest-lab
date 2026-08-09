@@ -180,11 +180,6 @@ def run_paired_structural_comparison(
         baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
         variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
         configs = (pilot_config,) * len(baseline_ids)
-        common = dict(
-            seed=match_seed,
-            starting_player_seat=start,
-            pilot_configs=configs,
-        )
         from commander_lab.models import StructuralAbortLimits
         limits = StructuralAbortLimits(max_turns=max_turns)
         base_result = base_sim.simulate(
@@ -192,7 +187,9 @@ def run_paired_structural_comparison(
                 match_id=f"{pair_id}-base-{index:08d}",
                 deck_ids=baseline_ids,
                 limits=limits,
-                **common,
+                seed=match_seed,
+                starting_player_seat=start,
+                pilot_configs=configs,
             ),
             run_id=f"{pair_id}-baseline",
         )
@@ -201,7 +198,9 @@ def run_paired_structural_comparison(
                 match_id=f"{pair_id}-variant-{index:08d}",
                 deck_ids=variant_ids,
                 limits=limits,
-                **common,
+                seed=match_seed,
+                starting_player_seat=start,
+                pilot_configs=configs,
             ),
             run_id=f"{pair_id}-variant",
         )
@@ -271,7 +270,7 @@ def run_paired_structural_comparison(
         failed_runs=0,
         discarded_runs=0,
         actual_sample_size=len(pairs),
-        seeds=tuple(int(row["seed"]) for row in pairs),
+        seeds=tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations)),
         worker_count=1,
         validation_level="structural_only",
         paired_or_unpaired="paired",
@@ -282,7 +281,9 @@ def run_paired_structural_comparison(
         worst_case_result=min(differences),
         scenario_weights="equal within this paired scenario",
         pilot_weights=f"single configured pilot: {pilot_config.strength.value}",
-        multiple_testing_method="not_applicable_single_comparison; Holm required for ranked families",
+        multiple_testing_method=(
+            "not_applicable_single_comparison; Holm required for ranked families"
+        ),
         rounding_policy="unrounded internal values; presentation may round to six decimals",
         bayesian_shrunk_effect=bayesian_shrunk_mean(differences),
         distributionally_robust_lower_bound=distributionally_robust_lower_bound(differences),
