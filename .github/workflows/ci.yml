@@ -59,9 +59,13 @@ jobs:
         shell: bash
         run: |
           if [[ -s changed-python-files.txt ]]; then
-            xargs -d '\n' ruff check -- < changed-python-files.txt
+            set +e
+            xargs -d '\n' ruff check -- < changed-python-files.txt > ruff-lint.txt 2>&1
+            status=$?
+            cat ruff-lint.txt
+            exit "$status"
           else
-            echo "No changed Python files to lint."
+            echo "No changed Python files to lint." | tee ruff-lint.txt
           fi
 
       - name: Ruff format changed Python files
@@ -123,6 +127,7 @@ jobs:
             .runtime/audit/phase86/artifacts/audit/
             .runtime/audit/phase86/PHASE86_VALIDATION_OUTPUT.json
             dist/
+            ruff-lint.txt
           include-hidden-files: true
           if-no-files-found: warn
 
