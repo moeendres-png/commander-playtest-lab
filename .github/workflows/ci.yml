@@ -42,18 +42,33 @@ jobs:
           ruff check . --output-format=github || true
           exit "$rc"
       - name: Ruff format
-        run: ruff format --check .
+        if: ${{ success() || failure() }}
+        shell: bash
+        run: |
+          mkdir -p artifacts/quality
+          ruff format --diff . > artifacts/quality/ruff-format.diff || true
+          ruff format --check .
       - name: Mypy strict
-        run: mypy src/commander_lab
+        if: ${{ success() || failure() }}
+        shell: bash
+        run: |
+          mkdir -p artifacts/quality
+          set -o pipefail
+          mypy src/commander_lab 2>&1 | tee artifacts/quality/mypy.txt
       - name: Collect tests
+        if: ${{ success() || failure() }}
         run: pytest --collect-only -q
       - name: Test suite
+        if: ${{ success() || failure() }}
         run: pytest -q
       - name: Compile
+        if: ${{ success() || failure() }}
         run: python -m compileall -q src tests
       - name: Phase 8.6 audit
+        if: ${{ success() || failure() }}
         run: commander-lab audit-phase86 --skip-tests || test $? -eq 2
       - name: Secret-pattern scan
+        if: ${{ success() || failure() }}
         shell: bash
         run: |
           set -euo pipefail
@@ -83,6 +98,7 @@ jobs:
 
           echo "No secret patterns found."
       - name: Build wheel
+        if: ${{ success() || failure() }}
         run: python -m pip wheel --no-deps --wheel-dir dist .
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
         if: always()
