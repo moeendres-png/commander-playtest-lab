@@ -1,4 +1,4 @@
-name: J-P1 Tree Bootstrap
+name: J-P1 Controlled Quality Materialization
 
 on:
   push:
@@ -9,10 +9,10 @@ permissions:
   contents: write
 
 jobs:
-  materialize-validated-tree:
+  materialize-controlled-quality-tree:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -21,9 +21,14 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+      - name: Verify expected starting lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "922921428fa6cbdf57cf46362fbf46824597bd79"
       - name: Install exact project quality toolchain
         run: python -m pip install -e '.[dev,api,openai]'
-      - name: Materialize controlled Ruff formatting and export-surface fix
+      - name: Apply controlled quality-only transformations
         shell: bash
         run: |
           set -euo pipefail
@@ -34,34 +39,48 @@ jobs:
           text = pyproject.read_text(encoding="utf-8")
           old = 'ignore = ["B008"]'
           new = (
-              '# Ruff format is authoritative for wrapping; formatter output may intentionally '
-              'exceed line-length.\nignore = ["B008", "E501"]'
+              '# Ruff format is authoritative for wrapping; E501 can conflict with formatter output.\n'
+              'ignore = ["B008", "E501"]'
           )
-          if old not in text:
-              raise SystemExit("expected Ruff ignore baseline not found")
-          pyproject.write_text(text.replace(old, new), encoding="utf-8")
+          if old in text:
+              text = text.replace(old, new)
+          elif 'ignore = ["B008", "E501"]' not in text:
+              raise SystemExit("unexpected Ruff ignore configuration")
+          pyproject.write_text(text, encoding="utf-8")
 
           models = Path("src/commander_lab/models/__init__.py")
           text = models.read_text(encoding="utf-8")
           marker = "# Explicit public re-exports required by strict type checking."
-          if marker in text:
-              raise SystemExit("export block unexpectedly already present")
-          block = '''\n# Explicit public re-exports required by strict type checking.\n__all__.extend([\n    "ArchetypeName",\n    "ArchetypeProfile",\n    "ArchetypeWeight",\n    "CandidateProfile",\n    "CardAblationInput",\n    "CommanderDenialInput",\n    "CompareDeckToMetaInput",\n    "CompareDecksInput",\n    "CompareMetaPeriodsInput",\n    "ComparePackageVersionsInput",\n    "CostLimits",\n    "CreateMetaSnapshotInput",\n    "CreateReportInput",\n    "DeckRefInput",\n    "DetectOrphanedCardsInput",\n    "EvaluatePackageDensityInput",\n    "ExtractArchetypesInput",\n    "ExtractPackagesInput",\n    "ExtractionMethod",\n    "GenerateMetaReportInput",\n    "GeneratePackageReportInput",\n    "GoldfishInput",\n    "HoldoutInput",\n    "ImportMetaDeckInput",\n    "ImportPrimerReferenceInput",\n    "ImportTournamentResultInput",\n    "InspectDeckInput",\n    "InspectPackageInput",\n    "MatchupBatchInput",\n    "PACKAGE_SCHEMA_VERSION",\n    "PackageAblationInput",\n    "PackageDefinition",\n    "PackageEvaluation",\n    "PackageRegistry",\n    "PackageStatus",\n    "PackageVersionComparison",\n    "PairedVariantInput",\n    "QueryMetaCardsInput",\n    "QueryMetaPackagesInput",\n    "RecommendUpgradesInput",\n    "SearchVariantsInput",\n    "SensitivityInput",\n    "SimulationInput",\n    "SwapMatrixInput",\n    "ToolExecutionMetadata",\n    "ToolResponse",\n    "ToolStatus",\n    "ValidateDeckInput",\n    "ValidateUpgradeInput",\n    "VariantSwap",\n    "WorkflowReport",\n    "WorkflowRequest",\n])\n'''
-          models.write_text(text + block, encoding="utf-8")
+          if marker not in text:
+              block = '''\n# Explicit public re-exports required by strict type checking.\n__all__.extend([\n    "ArchetypeName",\n    "ArchetypeProfile",\n    "ArchetypeWeight",\n    "CandidateProfile",\n    "CardAblationInput",\n    "CommanderDenialInput",\n    "CompareDeckToMetaInput",\n    "CompareDecksInput",\n    "CompareMetaPeriodsInput",\n    "ComparePackageVersionsInput",\n    "CostLimits",\n    "CreateMetaSnapshotInput",\n    "CreateReportInput",\n    "DeckRefInput",\n    "DetectOrphanedCardsInput",\n    "EvaluatePackageDensityInput",\n    "ExtractArchetypesInput",\n    "ExtractPackagesInput",\n    "ExtractionMethod",\n    "GenerateMetaReportInput",\n    "GeneratePackageReportInput",\n    "GoldfishInput",\n    "HoldoutInput",\n    "ImportMetaDeckInput",\n    "ImportPrimerReferenceInput",\n    "ImportTournamentResultInput",\n    "InspectDeckInput",\n    "InspectPackageInput",\n    "MatchupBatchInput",\n    "PACKAGE_SCHEMA_VERSION",\n    "PackageAblationInput",\n    "PackageDefinition",\n    "PackageEvaluation",\n    "PackageRegistry",\n    "PackageStatus",\n    "PackageVersionComparison",\n    "PairedVariantInput",\n    "QueryMetaCardsInput",\n    "QueryMetaPackagesInput",\n    "RecommendUpgradesInput",\n    "SearchVariantsInput",\n    "SensitivityInput",\n    "SimulationInput",\n    "SwapMatrixInput",\n    "ToolExecutionMetadata",\n    "ToolResponse",\n    "ToolStatus",\n    "ValidateDeckInput",\n    "ValidateUpgradeInput",\n    "VariantSwap",\n    "WorkflowReport",\n    "WorkflowRequest",\n])\n'''
+              models.write_text(text + block, encoding="utf-8")
           PY
+
+          # Mechanical formatter plus Ruff's safe fixes only.
           ruff format .
+          ruff check . --fix || true
+          ruff format .
+
+          # Bootstrap is temporary and must not survive in the product tree.
           git rm .github/workflows/j-p1-tree-bootstrap.yml
           git add -A
           git diff --cached --check
           ruff format --check .
           python -m compileall -q src tests scripts
           pytest -q
+
+          # Preserve concise post-transform diagnostics in the log without blocking this
+          # mechanical commit; the normal CI remains the blocking source of truth.
+          set +e
+          ruff check . --statistics
+          mypy src/commander_lab
+          set -e
           echo "validated_tree=$(git write-tree)"
-      - name: Commit validated mechanical tree
+      - name: Commit tested mechanical quality tree
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(J-P1): materialize validated Ruff-format tree"
+          git commit -m "chore(J-P1): materialize tested Ruff quality cleanup"
           git push origin HEAD:roadmap/j-p1-reliability
