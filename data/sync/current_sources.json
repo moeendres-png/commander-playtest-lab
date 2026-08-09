@@ -1,29 +1,37 @@
 {
+  "data_as_of": "2026-08-08",
   "schema_version": 1,
-  "data_as_of": "2026-08-07",
+  "scopes": {
+    "external_rules_engine_validation": "active_pending",
+    "real_playtest_calibration": "inactive_project_scope"
+  },
   "sources": {
     "inventory": {
       "drive_file_id": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
-      "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
-      "import_path": "data/canonical_import/2026-08-07/inventory.json"
+      "import_path": "data/canonical_import/2026-08-07/inventory.json",
+      "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad"
     },
     "korvold_rogshai_decks": {
-      "drive_file_id": "1mO0pnm1thoRrjAg7TGuGSXmrTTYDivJHxrUCdEtY5GQ",
-      "sha256": "1a09530170ecd107f196487839f6608ef8af1ea62be646b971228a3ebe812cde",
-      "import_path": "data/canonical_import/2026-08-07/deck_lists.json",
+      "canonical_alias": {
+        "deck_hashes_verified_unchanged": true,
+        "drive_file_id": "1nDVdTnCXoGEuCnf5uL4Gu6YXbvTthNVNLMMi1Y_1PD8",
+        "note": "Prepared canonical import provenance remains bound to the Aug-07 source bytes; the newer Drive final is the active alias and carries the same canonical deck hashes. No deck content changed in J-P0.",
+        "provenance_source_drive_file_id": "1mO0pnm1thoRrjAg7TGuGSXmrTTYDivJHxrUCdEtY5GQ",
+        "relationship": "supersedes_source_reference_with_identical_canonical_deck_hashes",
+        "title": "MTG_Korvold_RogShai_FINAL_2026-08-08"
+      },
       "deck_hashes": {
         "korvold/current": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
         "rogshai/current": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
-      }
+      },
+      "drive_file_id": "1mO0pnm1thoRrjAg7TGuGSXmrTTYDivJHxrUCdEtY5GQ",
+      "import_path": "data/canonical_import/2026-08-07/deck_lists.json",
+      "sha256": "1a09530170ecd107f196487839f6608ef8af1ea62be646b971228a3ebe812cde"
     },
     "opponent_baselines": {
       "drive_file_id": "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
-      "sha256": "dedca3b44014cafbd37f5689fd0693d58f6f6518b2e7c26aa9675ce79624bff6",
-      "import_path": "data/canonical_import/2026-08-07/opponents.json"
+      "import_path": "data/canonical_import/2026-08-07/opponents.json",
+      "sha256": "dedca3b44014cafbd37f5689fd0693d58f6f6518b2e7c26aa9675ce79624bff6"
     }
-  },
-  "scopes": {
-    "real_playtest_calibration": "inactive_project_scope",
-    "external_rules_engine_validation": "active_pending"
   }
 }

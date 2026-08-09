@@ -8,6 +8,7 @@ from pydantic import Field, model_validator
 
 from .common import FrozenModel, MutableModel
 from .pilots import PilotDecisionMode, PilotStrength
+from .run_identity import RunIdentity
 from .structural import StructuralCardProfile
 
 
@@ -57,6 +58,7 @@ class ToolExecutionMetadata(FrozenModel):
     scenario_hash: str
     configuration_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     run_identity_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    run_identity: RunIdentity
     pilot_version: str | None = None
     seed: int | None = None
     iterations: int | None = None
@@ -80,6 +82,8 @@ class ToolResponse(MutableModel):
 
 class DeckRefInput(FrozenModel):
     deck_id: str
+    canonical_inputs_required: bool = True
+    historical_replay: bool = False
 
 
 class ValidateDeckInput(DeckRefInput):
@@ -91,6 +95,8 @@ class InspectDeckInput(DeckRefInput):
 
 
 class SimulationInput(FrozenModel):
+    canonical_inputs_required: bool = True
+    historical_replay: bool = False
     seed: int = Field(default=20260804, ge=0)
     iterations: int = Field(default=100, ge=1)
     workers: int = Field(default=1, ge=1, le=64)
@@ -497,6 +503,8 @@ class ComparePolicyVersionsInput(FrozenModel):
 
 
 class RunPolicyEvalInput(FrozenModel):
+    canonical_inputs_required: bool = True
+    historical_replay: bool = False
     policy_path: str
     scenario_path: str
     deck_id: str

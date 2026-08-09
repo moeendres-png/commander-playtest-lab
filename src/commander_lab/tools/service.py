@@ -13,6 +13,7 @@ from pathlib import Path
 from statistics import fmean
 from typing import Any
 
+from commander_lab import __version__
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
 from commander_lab.agents.pilots import build_pilot
 from commander_lab.analysis import DeckValidator, validate_collection_quantities
@@ -149,6 +150,7 @@ from commander_lab.models.mulligan import (
     MulliganPolicyName,
 )
 from commander_lab.models.opponent_ensembles import OpponentEnsemble, OpponentVariant
+from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
 from commander_lab.models.tooling import (
     CompareMulliganPoliciesInput,
     CreateMulliganReportInput,
@@ -187,6 +189,7 @@ from commander_lab.storage import (
     load_model,
     sha256_value,
 )
+from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
 
 from .candidates import load_candidate_profiles, load_canonical_inventory_quantities
 
@@ -307,6 +310,29 @@ class CommanderToolService:
         except (OSError, subprocess.CalledProcessError):
             return None
 
+    @property
+    def git_tree(self) -> str | None:
+        try:
+            return subprocess.check_output(
+                ["git", "-C", str(self.root), "rev-parse", "HEAD^{tree}"],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except (OSError, subprocess.CalledProcessError):
+            return None
+
+    @property
+    def tracked_worktree_dirty(self) -> bool:
+        try:
+            output = subprocess.check_output(
+                ["git", "-C", str(self.root), "status", "--porcelain", "--untracked-files=no"],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            )
+            return bool(output.strip())
+        except (OSError, subprocess.CalledProcessError):
+            return False
+
     @staticmethod
     def _raw_file_hash(path: Path) -> str:
         if not path.is_file():
@@ -328,14 +354,34 @@ class CommanderToolService:
             raise ToolExecutionError("run identity requires at least one existing source file")
         return sha256_value(rows)
 
-    def _run_identity(self, scenario: object, deck_ids: tuple[str, ...]) -> dict[str, Any]:
+    def _run_identity(
+        self,
+        scenario: object,
+        deck_ids: tuple[str, ...],
+        *,
+        tool_name: str = "unspecified",
+        estimate_type: str = "structural_model_estimates",
+    ) -> dict[str, Any]:
+        scenario_payload = (
+            scenario.model_dump(mode="python", exclude_none=False)
+            if hasattr(scenario, "model_dump")
+            else scenario
+        )
+        if not isinstance(scenario_payload, dict):
+            scenario_payload = {"value": scenario_payload}
+        scenario_payload = normalize_run_paths(scenario_payload, root=self.root)
+
         source_registry = self.root / "data/sync/current_sources.json"
         source_payload = json.loads(source_registry.read_text(encoding="utf-8"))
         inventory_spec = source_payload.get("sources", {}).get("inventory", {})
         inventory_import_path = inventory_spec.get("import_path")
+        inventory_source_id = inventory_spec.get("drive_file_id")
         if not inventory_import_path:
             raise ToolExecutionError("canonical inventory source has no import_path")
+        if not inventory_source_id:
+            raise ToolExecutionError("canonical inventory source has no drive_file_id")
         inventory_path = self._project_path(str(inventory_import_path))
+
         pilot_registry = self.root / "data/pilots/pilot_registry.json"
         robustness_registry = self.root / "data/robustness/pilot_and_politics_registry.json"
         opponent_registry = self.root / "data/opponents/opponent_registry.json"
@@ -366,7 +412,7 @@ class CommanderToolService:
         )
         policy_hash = self._aggregate_file_hash(policy_paths)
         ensemble_paths = tuple((self.root / "data/opponent_ensembles").glob("*.json"))
-        ensemble_hash = self._aggregate_file_hash(ensemble_paths)
+        ensemble_registry_hash = self._aggregate_file_hash(ensemble_paths)
         data_snapshot_hashes = {
             "deck_manifest": self._raw_file_hash(deck_manifest),
             "allocation_snapshot": self._raw_file_hash(allocation_snapshot),
@@ -377,7 +423,7 @@ class CommanderToolService:
             "robustness_registry": self._raw_file_hash(robustness_registry),
             "opponent_registry": self._raw_file_hash(opponent_registry),
             "opponent_profiles": self._raw_file_hash(opponent_profiles),
-            "opponent_ensembles": ensemble_hash,
+            "opponent_ensembles": ensemble_registry_hash,
             "meta_manifest": self._raw_file_hash(meta_latest),
             "meta_snapshot": self._raw_file_hash(meta_path),
             "policy_set": policy_hash,
@@ -388,34 +434,437 @@ class CommanderToolService:
                 data_snapshot_hashes[f"source:{source_name}"] = self._raw_file_hash(
                     self._project_path(str(import_path))
                 )
-        deck_hashes = {
-            deck_id: self._deck(deck_id).deck_hash for deck_id in deck_ids if deck_id in self.decks
-        }
+
+        referenced_ids: list[str] = list(deck_ids)
+        for key in ("deck_ids", "opponent_deck_ids"):
+            value = scenario_payload.get(key)
+            if isinstance(value, list):
+                referenced_ids.extend(str(item) for item in value)
+        for key in ("deck_id", "baseline_deck_id", "candidate_deck_id", "variant_deck_id"):
+            value = scenario_payload.get(key)
+            if isinstance(value, str):
+                referenced_ids.append(value)
+        unique_ids = tuple(dict.fromkeys(referenced_ids))
+        known_ids = tuple(deck_id for deck_id in unique_ids if deck_id in self.decks)
+
+        deck_hashes = {deck_id: self._deck(deck_id).deck_hash for deck_id in known_ids}
+        primary_id = next((deck_id for deck_id in unique_ids if deck_id in self.decks), None)
+        explicit_opponents = scenario_payload.get("opponent_deck_ids")
+        if isinstance(explicit_opponents, list):
+            opponent_profile_ids = tuple(
+                str(deck_id) for deck_id in explicit_opponents if str(deck_id) in self.decks
+            )
+        else:
+            opponent_profile_ids = tuple(
+                deck_id for deck_id in known_ids if primary_id is not None and deck_id != primary_id
+            )
         opponent_hashes = {
-            deck_id: self._deck(deck_id).deck_hash
-            for deck_id in deck_ids[1:]
-            if deck_id in self.decks
+            deck_id: self._deck(deck_id).deck_hash for deck_id in opponent_profile_ids
         }
+
+        commander_payload = {
+            deck_id: {
+                "commanders": self._deck(deck_id).commander_names,
+                "base_costs": self._deck(deck_id).commander_base_costs,
+            }
+            for deck_id in known_ids
+        }
+        commander_configuration_hash = (
+            sha256_run_value(commander_payload, root=self.root) if commander_payload else None
+        )
+
+        opponent_ensemble_tools = {
+            "add_opponent_variant",
+            "validate_ensemble",
+            "run_ensemble_matchups",
+            "compare_variant_sensitivity",
+            "evaluate_robust_upgrade",
+            "generate_ensemble_report",
+        }
+        ensemble_id = scenario_payload.get("opponent_ensemble_id")
+        if ensemble_id is None and tool_name in opponent_ensemble_tools:
+            ensemble_id = scenario_payload.get("ensemble_id")
+        opponent_ensemble_hash: str | None = None
+        if isinstance(ensemble_id, str) and ensemble_id:
+            ensemble_path = self.root / "data/opponent_ensembles" / f"{ensemble_id}.json"
+            if ensemble_path.is_file():
+                opponent_ensemble_hash = self._raw_file_hash(ensemble_path)
+
+        selected_profiles: list[dict[str, Any]] = []
+        requested_pilot_names = scenario_payload.get("pilot_names")
+        requested_profile_id = scenario_payload.get("pilot_profile_id")
+        if isinstance(requested_pilot_names, list):
+            wanted = {str(name) for name in requested_pilot_names}
+            selected_profiles.extend(
+                row for row in pilot_payload.get("profiles", []) if row.get("pilot_name") in wanted
+            )
+        elif isinstance(requested_profile_id, str) and requested_profile_id not in {"", "baseline"}:
+            selected_profiles.extend(
+                row
+                for row in pilot_payload.get("profiles", [])
+                if row.get("profile_id") == requested_profile_id
+            )
+        else:
+            families = {
+                deck_id.split("/", 1)[0]
+                for deck_id in known_ids
+                if deck_id.startswith(("korvold/", "rogshai/"))
+            }
+            selected_profiles.extend(
+                row
+                for row in pilot_payload.get("profiles", [])
+                if row.get("is_baseline") and row.get("commander_family") in families
+            )
+        selected_profiles = list(
+            {str(row.get("profile_id")): row for row in selected_profiles}.values()
+        )
+        if selected_profiles:
+            pilot_name = ",".join(sorted(str(row.get("pilot_name")) for row in selected_profiles))
+            pilot_version = ",".join(sorted(str(row.get("version")) for row in selected_profiles))
+            pilot_parameter_hash = sha256_run_value(
+                [
+                    {
+                        "profile_id": row.get("profile_id"),
+                        "parameter_hash": row.get("parameter_hash"),
+                    }
+                    for row in sorted(
+                        selected_profiles,
+                        key=lambda item: str(item.get("profile_id")),
+                    )
+                ],
+                root=self.root,
+            )
+        elif scenario_payload.get("pilot_strength") or scenario_payload.get("pilot_mode"):
+            pilot_name = "structural_configured_pilot"
+            pilot_version = str(scenario_payload.get("pilot_strength") or "unspecified")
+            pilot_parameter_hash = sha256_run_value(
+                {
+                    "pilot_strength": scenario_payload.get("pilot_strength"),
+                    "pilot_mode": scenario_payload.get("pilot_mode"),
+                },
+                root=self.root,
+            )
+        else:
+            pilot_name = None
+            pilot_version = None
+            pilot_parameter_hash = None
+
+        scenario_set_id: str | None = None
+        scenario_set_hash: str | None = None
+        scenario_path_value = scenario_payload.get("scenario_path")
+        if isinstance(scenario_path_value, str) and scenario_path_value:
+            scenario_path = self._project_path(scenario_path_value.replace("project://", ""))
+            if scenario_path.is_file():
+                scenario_set_id = scenario_path.relative_to(self.root).as_posix()
+                scenario_set_hash = self._raw_file_hash(scenario_path)
+        elif (
+            tool_name.startswith("run_")
+            or tool_name.startswith("compare_")
+            or tool_name.startswith("validate_")
+        ):
+            scenario_set_id = f"inline:{tool_name}"
+            scenario_set_hash = sha256_run_value(scenario_payload, root=self.root)
+
+        seed_value = scenario_payload.get("seed")
+        seed = int(seed_value) if isinstance(seed_value, int) and seed_value >= 0 else None
+        seed_values: list[int] = []
+        for key in ("seeds", "sensitivity_seeds"):
+            value = scenario_payload.get(key)
+            if isinstance(value, list):
+                seed_values.extend(
+                    int(item) for item in value if isinstance(item, int) and item >= 0
+                )
+        if seed is not None and not seed_values:
+            seed_values = [seed]
+        seed_set_hash = sha256_run_value(seed_values, root=self.root) if seed_values else None
+
+        pod_size_value = scenario_payload.get("pod_size")
+        if isinstance(pod_size_value, int):
+            pod_size = pod_size_value
+        elif len(known_ids) > 1:
+            pod_size = len(known_ids)
+        elif tool_name in {"run_goldfish"}:
+            pod_size = 1
+        else:
+            pod_size = None
+        seat_value = scenario_payload.get("starting_player_seat")
+        if not isinstance(seat_value, int):
+            seat_value = scenario_payload.get("seat")
+        if not isinstance(seat_value, int):
+            seat_position = scenario_payload.get("seat_position")
+            seat_value = int(seat_position) if isinstance(seat_position, int) else None
+        if scenario_payload.get("starting_player_rotation") is True or (
+            seed is not None and pod_size
+        ):
+            turn_order_policy = "deterministic_rotation_or_explicit_seat"
+        elif seat_value is not None:
+            turn_order_policy = "explicit_seat"
+        else:
+            turn_order_policy = None
+
+        engine_mode: str | None
+        engine_provider: str | None
+        engine_provider_version_or_pin: str | None
+        if tool_name == "run_engine_backed_matchup":
+            engine_mode = "external"
+            provider_value = scenario_payload.get("provider")
+            engine_provider = str(provider_value) if provider_value else None
+            engine_provider_version_or_pin = None
+        elif "tactical" in tool_name or estimate_type == "tactical_oracle_results":
+            engine_mode = "tactical_oracle"
+            engine_provider = "tactical_oracle"
+            engine_provider_version_or_pin = "project_tactical_oracle"
+        elif seed is not None or tool_name in {"run_goldfish", "run_matchup_batch"}:
+            engine_mode = "structural"
+            engine_provider = "commander_lab_structural"
+            engine_provider_version_or_pin = ENGINE_VERSION
+        else:
+            engine_mode = None
+            engine_provider = None
+            engine_provider_version_or_pin = None
+
+        rules_paths = (
+            self.root / "data/rules/golden_rules_scenarios.json",
+            self.root / "data/rules/project_critical_interactions.json",
+            self.root / "data/evals/differential/rules_cases.json",
+        )
+        tactical_fixture_version = self._aggregate_file_hash(rules_paths)
+
+        stale_reasons: list[str] = []
+        for source_name, spec in source_payload.get("sources", {}).items():
+            if not isinstance(spec, dict) or not spec.get("import_path"):
+                continue
+            imported_path = self._project_path(str(spec["import_path"]))
+            imported_payload = json.loads(imported_path.read_text(encoding="utf-8"))
+            if imported_payload.get("source_drive_file_id") != spec.get("drive_file_id"):
+                stale_reasons.append(f"canonical source id mismatch: {source_name}")
+            if imported_payload.get("source_sha256") != spec.get("sha256"):
+                stale_reasons.append(f"canonical source hash mismatch: {source_name}")
+
+        deck_manifest_payload = json.loads(deck_manifest.read_text(encoding="utf-8"))
+        expected_decks = deck_manifest_payload.get("decks", {})
+        source_deck_hashes = (
+            source_payload.get("sources", {})
+            .get("korvold_rogshai_decks", {})
+            .get("deck_hashes", {})
+        )
+        for deck_id, actual_hash in deck_hashes.items():
+            manifest_row = expected_decks.get(deck_id)
+            if isinstance(manifest_row, dict) and manifest_row.get("deck_hash") != actual_hash:
+                stale_reasons.append(f"deck manifest hash mismatch: {deck_id}")
+            if deck_id in source_deck_hashes and source_deck_hashes.get(deck_id) != actual_hash:
+                stale_reasons.append(f"canonical source deck hash mismatch: {deck_id}")
+        if ensemble_id and opponent_ensemble_hash is None:
+            stale_reasons.append(f"opponent ensemble missing: {ensemble_id}")
+        for row in selected_profiles:
+            supported = set(row.get("supported_deck_hashes", []))
+            family = str(row.get("commander_family", ""))
+            relevant = [
+                deck_hashes[deck_id] for deck_id in deck_hashes if deck_id.startswith(f"{family}/")
+            ]
+            if relevant and not any(deck_hash in supported for deck_hash in relevant):
+                stale_reasons.append(
+                    f"pilot profile stale for current deck: {row.get('profile_id')}"
+                )
+        if self.tracked_worktree_dirty:
+            stale_reasons.append("tracked software worktree differs from recorded git tree")
+
+        historical_replay = bool(scenario_payload.get("historical_replay", False))
+        canonical_required = bool(scenario_payload.get("canonical_inputs_required", True))
+        if historical_replay:
+            canonical_status = CanonicalInputStatus.HISTORICAL_REPLAY
+        elif stale_reasons:
+            canonical_status = CanonicalInputStatus.STALE
+        else:
+            canonical_status = CanonicalInputStatus.CURRENT
+        if stale_reasons and canonical_required and not historical_replay:
+            raise ToolExecutionError(
+                "stale canonical inputs rejected: " + "; ".join(sorted(set(stale_reasons)))
+            )
+
+        software_commit = self.git_commit
+        software_tree = self.git_tree
+        component_status: dict[str, IdentityStatus] = {}
+
+        def status(
+            name: str,
+            value: Any,
+            *,
+            required: bool = False,
+            applicable: bool = True,
+        ) -> None:
+            if not applicable:
+                component_status[name] = IdentityStatus.NOT_APPLICABLE
+            elif value is None or value == () or value == {}:
+                component_status[name] = (
+                    IdentityStatus.MISSING_REQUIRED if required else IdentityStatus.UNKNOWN
+                )
+            else:
+                component_status[name] = IdentityStatus.PRESENT
+
+        status("software_commit", software_commit, required=True)
+        status("software_tree", software_tree, required=True)
+        status("package_version", __version__, required=True)
+        status("deck_hashes", deck_hashes, required=bool(known_ids), applicable=bool(known_ids))
+        status(
+            "commander_configuration_hash",
+            commander_configuration_hash,
+            required=bool(known_ids),
+            applicable=bool(known_ids),
+        )
+        status("inventory_source_id", inventory_source_id, required=True)
+        inventory_hash = self._raw_file_hash(inventory_path)
+        status("inventory_hash", inventory_hash, required=True)
+        status(
+            "opponent_profile_ids",
+            opponent_profile_ids,
+            required=bool(opponent_profile_ids),
+            applicable=bool(opponent_profile_ids),
+        )
+        status(
+            "opponent_profile_hashes",
+            opponent_hashes,
+            required=bool(opponent_profile_ids),
+            applicable=bool(opponent_profile_ids),
+        )
+        status(
+            "opponent_ensemble_hash",
+            opponent_ensemble_hash,
+            required=bool(ensemble_id),
+            applicable=bool(ensemble_id),
+        )
+        status("pilot_name", pilot_name, applicable=pilot_name is not None)
+        status("pilot_version", pilot_version, applicable=pilot_name is not None)
+        status("pilot_parameter_hash", pilot_parameter_hash, applicable=pilot_name is not None)
+        status("policy_hash", policy_hash, required=True)
+        status("scenario_set_id", scenario_set_id, applicable=scenario_set_id is not None)
+        status("scenario_set_hash", scenario_set_hash, applicable=scenario_set_id is not None)
+        status("pod_size", pod_size, applicable=pod_size is not None)
+        status("seat", seat_value, applicable=seat_value is not None)
+        status("turn_order_policy", turn_order_policy, applicable=turn_order_policy is not None)
+        status("seed", seed, applicable=seed is not None)
+        status("seed_set_hash", seed_set_hash, applicable=seed is not None or bool(seed_values))
+        simulation_config_hash = sha256_run_value(scenario_payload, root=self.root)
+        status("simulation_config_hash", simulation_config_hash, required=True)
+        status("model_version", ENGINE_VERSION, required=True)
+        status("engine_mode", engine_mode, applicable=engine_mode is not None)
+        status("engine_provider", engine_provider, applicable=engine_mode is not None)
+        status(
+            "engine_provider_version_or_pin",
+            engine_provider_version_or_pin,
+            required=engine_mode == "external" and not stale_reasons,
+            applicable=engine_mode is not None,
+        )
+        engine_capability_hash = None
+        status(
+            "engine_capability_hash",
+            engine_capability_hash,
+            applicable=engine_mode in {"external", "tactical_oracle"},
+        )
+        status(
+            "tactical_fixture_version",
+            tactical_fixture_version,
+            applicable=engine_mode in {"external", "tactical_oracle"},
+        )
+        data_source_manifest_hash = data_snapshot_hashes["source_registry"]
+        status("data_source_manifest_hash", data_source_manifest_hash, required=True)
+
+        # External provider version/capability are intentionally unknown before a real provider
+        # handshake. They may not be promoted to external validation by this metadata alone.
+        if engine_mode == "external":
+            component_status["engine_provider_version_or_pin"] = IdentityStatus.UNKNOWN
+            component_status["engine_capability_hash"] = IdentityStatus.UNKNOWN
+
+        run_payload = {
+            "schema_version": "1.0.0",
+            "software_commit": software_commit,
+            "software_tree": software_tree,
+            "package_version": __version__,
+            "deck_hashes": deck_hashes,
+            "commander_configuration_hash": commander_configuration_hash,
+            "inventory_source_id": str(inventory_source_id),
+            "inventory_hash": inventory_hash,
+            "opponent_profile_ids": opponent_profile_ids,
+            "opponent_profile_hashes": opponent_hashes,
+            "opponent_ensemble_hash": opponent_ensemble_hash,
+            "pilot_name": pilot_name,
+            "pilot_version": pilot_version,
+            "pilot_parameter_hash": pilot_parameter_hash,
+            "policy_hash": policy_hash,
+            "scenario_set_id": scenario_set_id,
+            "scenario_set_hash": scenario_set_hash,
+            "pod_size": pod_size,
+            "seat": seat_value,
+            "turn_order_policy": turn_order_policy,
+            "seed": seed,
+            "seed_set_hash": seed_set_hash,
+            "simulation_config_hash": simulation_config_hash,
+            "model_version": ENGINE_VERSION,
+            "engine_mode": engine_mode,
+            "engine_provider": engine_provider,
+            "engine_provider_version_or_pin": engine_provider_version_or_pin,
+            "engine_capability_hash": engine_capability_hash,
+            "tactical_fixture_version": tactical_fixture_version
+            if engine_mode in {"external", "tactical_oracle"}
+            else None,
+            "data_source_manifest_hash": data_source_manifest_hash,
+            "component_status": component_status,
+            "canonical_input_status": canonical_status,
+            "stale_reasons": tuple(sorted(set(stale_reasons))),
+            "historical_replay": historical_replay,
+        }
+        semantic_hash = sha256_run_value(run_payload, root=self.root)
+        run_identity = RunIdentity(**run_payload, run_identity_hash=semantic_hash)
+
         identity = {
-            "git_commit": self.git_commit,
+            "git_commit": software_commit,
+            "software_tree": software_tree,
+            "package_version": __version__,
             "engine_version": ENGINE_VERSION,
             "data_snapshot_hash": str(self.manifest["data_snapshot_hash"]),
             "data_snapshot_hashes": data_snapshot_hashes,
-            "inventory_hash": self._raw_file_hash(inventory_path),
+            "inventory_source_id": str(inventory_source_id),
+            "inventory_hash": inventory_hash,
             "deck_hashes": deck_hashes,
+            "commander_configuration_hash": commander_configuration_hash,
+            "opponent_profile_ids": opponent_profile_ids,
             "opponent_hashes": opponent_hashes,
             "opponent_registry_hash": data_snapshot_hashes["opponent_registry"],
+            "opponent_ensemble_hash": opponent_ensemble_hash,
             "pilot_hashes": {
                 "pilot_registry": data_snapshot_hashes["pilot_registry"],
                 "robustness_registry": data_snapshot_hashes["robustness_registry"],
             },
             "pilot_parameter_hashes": pilot_parameter_hashes,
+            "pilot_parameter_hash": pilot_parameter_hash,
             "policy_hash": policy_hash,
             "meta_snapshot_hash": data_snapshot_hashes["meta_snapshot"],
-            "scenario_hash": sha256_value(scenario),
+            "scenario_hash": sha256_run_value(scenario_payload, root=self.root),
+            "scenario_set_id": scenario_set_id,
+            "scenario_set_hash": scenario_set_hash,
+            "data_source_manifest_hash": data_source_manifest_hash,
+            "canonical_input_status": canonical_status.value,
+            "stale_reasons": tuple(sorted(set(stale_reasons))),
+            "run_identity_hash": semantic_hash,
+            "run_identity": run_identity,
         }
-        identity["run_identity_hash"] = sha256_value(identity)
         return identity
+
+    def build_run_identity(
+        self,
+        scenario: object,
+        deck_ids: tuple[str, ...] = (),
+        *,
+        tool_name: str = "python_api",
+        estimate_type: str = "structural_model_estimates",
+    ) -> RunIdentity:
+        """Build the canonical fail-closed identity for a decision-level project run."""
+        return self._run_identity(
+            scenario,
+            deck_ids,
+            tool_name=tool_name,
+            estimate_type=estimate_type,
+        )["run_identity"]
 
     def _check_iterations(self, iterations: int, approval_token: str | None) -> None:
         if iterations > self.limits.hard_max_iterations:
@@ -691,7 +1140,12 @@ class CommanderToolService:
         estimate_type: str = "structural_model_estimates",
         run_identity: dict[str, Any] | None = None,
     ) -> ToolExecutionMetadata:
-        identity = run_identity or self._run_identity(scenario, deck_ids)
+        identity = run_identity or self._run_identity(
+            scenario,
+            deck_ids,
+            tool_name=tool_name,
+            estimate_type=estimate_type,
+        )
         return ToolExecutionMetadata(
             tool_name=tool_name,
             invocation_id=invocation_id,
@@ -711,6 +1165,7 @@ class CommanderToolService:
             scenario_hash=identity["scenario_hash"],
             configuration_hash=sha256_value(scenario),
             run_identity_hash=identity["run_identity_hash"],
+            run_identity=identity["run_identity"],
             pilot_version=(scenario.get("pilot_version") if isinstance(scenario, dict) else None)
             or (
                 str(scenario.get("pilot_strength"))
@@ -740,12 +1195,22 @@ class CommanderToolService:
         started = time.monotonic()
         invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"
         scenario = request.model_dump(mode="json") if hasattr(request, "model_dump") else request
-        identity_before = self._run_identity(scenario, deck_ids)
+        identity_before = self._run_identity(
+            scenario,
+            deck_ids,
+            tool_name=tool_name,
+            estimate_type=estimate_type,
+        )
         identity_mutators = {"create_meta_snapshot", "compile_pilot_policy"}
         try:
             result = fn()
             if tool_name not in identity_mutators:
-                identity_after = self._run_identity(scenario, deck_ids)
+                identity_after = self._run_identity(
+                    scenario,
+                    deck_ids,
+                    tool_name=tool_name,
+                    estimate_type=estimate_type,
+                )
                 if identity_after["run_identity_hash"] != identity_before["run_identity_hash"]:
                     raise ToolExecutionError(
                         "run identity drift detected during tool execution; result rejected"
@@ -3632,6 +4097,7 @@ class CommanderToolService:
             deck_ids=request.deck_ids,
             seed=request.seed,
             iterations=request.iterations,
+            estimate_type="external_rules_engine_results",
         )
 
     def run_robustness_suite(self, request: RunRobustnessSuiteInput) -> ToolResponse:

@@ -1,0 +1,128 @@
+{
+  "frozen_by_phase": "J-P0",
+  "holdout_policy": {
+    "no_tuning_on_holdout": true,
+    "phase_reopen_after_holdout_requires_new_version_or_loss_of_independence": true
+  },
+  "legacy_evidence": {
+    "G_LEGACY_HOLDOUT": {
+      "first_evaluation_timestamp": null,
+      "hash": "0e7376c9dfc7075992b149d0fc50cfb098fdacd35033c0ceafdfb8ad9f16e937",
+      "id": "G_LEGACY_HOLDOUT",
+      "members": [
+        {
+          "path": "data/evals/holdout/pilot_decisions_g.json",
+          "sha256": "65dc0d3aa5566f36dd5204f5b219f45e42d03840ad5b051b21393594a13eb7c5"
+        }
+      ],
+      "mutable": false,
+      "notes": [
+        "Previously evaluated 12/12 before Roadmap J; never use as a new blind holdout."
+      ],
+      "purpose": "Frozen prior independent regression evidence; not a fresh blind J holdout.",
+      "used_for_tuning": false,
+      "version": "g-final-12"
+    }
+  },
+  "registry_id": "roadmap-j-eval-registry",
+  "schema_version": "1.0.0",
+  "sets": {
+    "DEVELOPMENT_GOLDENS": {
+      "first_evaluation_timestamp": null,
+      "hash": "4eb3f456c24935f9058e598d8b941aa54b9bdadeb0d6ce68a2d13f30ff6a59c0",
+      "id": "DEVELOPMENT_GOLDENS",
+      "members": [
+        {
+          "path": "data/evals/golden/pilot_decisions_g.json",
+          "sha256": "dcb4068fa3f4b5ade5856603616eb48e6188ade545897bfc1ec4fd5c0d1c0a00"
+        }
+      ],
+      "mutable": true,
+      "notes": [
+        "PRE-J baseline is 24/24. Any content change requires a new version/hash."
+      ],
+      "purpose": "Development and regression; may be inspected during phase work.",
+      "used_for_tuning": true,
+      "version": "g-final-24"
+    },
+    "RULES_CRITICAL_FIXTURES": {
+      "first_evaluation_timestamp": null,
+      "hash": "eecbe8ea3efb6dd76b22d6bb331714b9e49ac3a6200b4a58f509e533a1887ecd",
+      "id": "RULES_CRITICAL_FIXTURES",
+      "members": [
+        {
+          "path": "data/rules/golden_rules_scenarios.json",
+          "sha256": "05136fa87695a47b4487aff284959291e6d3ea4c1d898231a4a5af14d2bfd1f7"
+        },
+        {
+          "path": "data/rules/project_critical_interactions.json",
+          "sha256": "1674807a8a758602d6a877c3dcd9219652273d17d8318e03ffafa833a7aca522"
+        },
+        {
+          "path": "data/evals/differential/rules_cases.json",
+          "sha256": "f88a51ac83d056b0e396d525857003532c0cbc41930feeed090f0fad08260568"
+        }
+      ],
+      "mutable": true,
+      "notes": [
+        "External engine execution remains pending; fixture existence is not external validation."
+      ],
+      "purpose": "Rules-critical Tactical/Structural/Differential corpus for later provider-neutral external-engine validation.",
+      "used_for_tuning": true,
+      "version": "pre-j-rules-v1"
+    },
+    "SENSITIVITY_AND_ADVERSARIAL": {
+      "first_evaluation_timestamp": null,
+      "hash": "2eee87444676e95202c585b5863d364e9a3a87773d9f08a593f19804ff9a5cdf",
+      "id": "SENSITIVITY_AND_ADVERSARIAL",
+      "members": [
+        {
+          "path": "data/robustness/pilot_and_politics_registry.json",
+          "sha256": "8fda43e75eb031a1f6d42160afae598bcbb8e9224aae674cae93c99be1235c26"
+        },
+        {
+          "path": "artifacts/phase12_15/OPPONENT_UNCERTAINTY_REGISTRY.json",
+          "sha256": "8429ae2d129a949b9420e6ab7186eb7eab1084bf9f302dd321eea92c94a1c86b"
+        },
+        {
+          "path": "data/opponent_ensembles/ENSEMBLE_INDEX.json",
+          "sha256": "c690378ec82401921859e3c1bf0017d76a43600cc5355bb0574b6bd1ed0570a5"
+        },
+        {
+          "path": "data/mulligan_lab/golden_hands/korvold_golden_hands.json",
+          "sha256": "84de9acbda15ae071dfdb20bf3e0df4cbc17ac952d45b6600d761b2c06745463"
+        },
+        {
+          "path": "data/mulligan_lab/golden_hands/rogshai_golden_hands.json",
+          "sha256": "5f5627148811dcef83a52b9cab1ad4c8041db1c72ef92373a9c6e67ed9c256e1"
+        }
+      ],
+      "mutable": true,
+      "notes": [
+        "Composite of existing pre-J assets; changes require registry version/hash update."
+      ],
+      "purpose": "Pod/seat/politics/opponent-uncertainty/mulligan robustness baseline.",
+      "used_for_tuning": true,
+      "version": "pre-j-composite-v1"
+    },
+    "UNTOUCHED_HOLDOUT": {
+      "first_evaluation_timestamp": null,
+      "hash": "724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6",
+      "id": "J_HOLDOUT_v1",
+      "members": [
+        {
+          "path": "data/evals/holdout/pilot_decisions_j_v1.json",
+          "sha256": "a5875cd1a8edf6bbf79248b3e4ba26151579f628eaeefd4ef2369abb309da8d1"
+        }
+      ],
+      "mutable": false,
+      "notes": [
+        "Sealed in J-P0 and not executed in J-P0.",
+        "If later used for tuning, its independent status is invalidated and a new holdout version is required."
+      ],
+      "purpose": "Independent J decision-quality holdout. Do not inspect results or tune against cases before the phase development gate.",
+      "used_for_tuning": false,
+      "version": "1.0.0"
+    }
+  }
+}

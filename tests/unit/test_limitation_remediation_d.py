@@ -44,7 +44,12 @@ def test_invoke_rejects_run_identity_drift(repo_root: Path) -> None:
     changed["run_identity_hash"] = "0" * 64
     calls = iter((real_identity, changed))
 
-    def fake_identity(self: CommanderToolService, scenario: object, deck_ids: tuple[str, ...]):
+    def fake_identity(
+        self: CommanderToolService,
+        scenario: object,
+        deck_ids: tuple[str, ...],
+        **_: object,
+    ):
         return next(calls)
 
     service._run_identity = MethodType(fake_identity, service)  # type: ignore[method-assign]
