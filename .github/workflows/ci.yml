@@ -30,51 +30,12 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install project and quality tools
-        run: python -m pip install -e '.[dev,api]'
-      - name: Determine changed Python files
-        shell: bash
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git diff --name-only --diff-filter=ACMR \
-              "${{ github.event.pull_request.base.sha }}" \
-              "${{ github.event.pull_request.head.sha }}" \
-              -- '*.py' > changed-python-files.txt
-          elif [[ "${{ github.event_name }}" == "push" ]] && \
-               [[ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
-            git diff --name-only --diff-filter=ACMR \
-              "${{ github.event.before }}" \
-              "${{ github.sha }}" \
-              -- '*.py' > changed-python-files.txt
-          else
-            git diff-tree --no-commit-id --name-only -r HEAD \
-              -- '*.py' > changed-python-files.txt
-          fi
-
-          sort -u -o changed-python-files.txt changed-python-files.txt
-
-          echo "Changed Python files:"
-          cat changed-python-files.txt
-
-      - name: Ruff lint changed Python files
-        shell: bash
-        run: |
-          if [[ -s changed-python-files.txt ]]; then
-            xargs -d '\n' ruff check -- < changed-python-files.txt
-          else
-            echo "No changed Python files to lint."
-          fi
-
-      - name: Ruff format changed Python files
-        shell: bash
-        run: |
-          if [[ -s changed-python-files.txt ]]; then
-            xargs -d '\n' ruff format --check -- < changed-python-files.txt
-          else
-            echo "No changed Python files to format-check."
-          fi
-
-      - name: Mypy baseline
-        continue-on-error: true
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Ruff lint
+        run: ruff check .
+      - name: Ruff format
+        run: ruff format --check .
+      - name: Mypy strict
         run: mypy src/commander_lab
       - name: Collect tests
         run: pytest --collect-only -q
