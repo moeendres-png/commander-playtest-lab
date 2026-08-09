@@ -1,0 +1,129 @@
+name: J-P1 Final Strict Quality Candidate v8
+
+on:
+  push:
+    branches:
+      - roadmap/j-p1-reliability
+
+permissions:
+  contents: write
+
+jobs:
+  validate-final-quality-candidate-v8:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify exact starting lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "e1b6865836cb0b3261c9adec18caaa640ada2043"
+      - name: Install exact project quality toolchain
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Replay fully Ruff-clean v7 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+          import yaml
+
+          workflow = yaml.safe_load(Path('.github/workflows/j-p1-final-quality-bootstrap-v7.yml').read_text(encoding='utf-8'))
+          steps = workflow['jobs']['validate-final-quality-candidate-v7']['steps']
+          for step_name in ('Replay v6 reviewed transformation', 'Apply exact remaining Ruff fixes'):
+              run = next(step['run'] for step in steps if step.get('name') == step_name)
+              completed = subprocess.run(['bash', '-c', run], text=True)
+              if completed.returncode:
+                  raise SystemExit(completed.returncode)
+          PY
+      - name: Apply exact final Mypy fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_required(path: str, old: str, new: str, label: str) -> None:
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'expected source fragment missing: {label}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          replace_required(
+              'src/commander_lab/mulligan/lab.py',
+              '        contexts: list[tuple[str, str, MulliganContext, int, str]] = [\n',
+              '        contexts: list[tuple[str, KeepRuleContextKind, MulliganContext, int, str]] = [\n',
+              'mulligan validation context literal',
+          )
+          replace_required(
+              'src/commander_lab/tools/service.py',
+              '            recommendations = []\n            for cut in cuts:\n',
+              '            recommendations: list[dict[str, Any]] = []\n            for cut in cuts:\n',
+              'recommendation row typing',
+          )
+          replace_required(
+              'src/commander_lab/tools/service.py',
+              '            final_rows = []\n            for node in beam:\n',
+              '            final_rows: list[dict[str, Any]] = []\n            for node in beam:\n',
+              'beam final row typing',
+          )
+
+          service = Path('src/commander_lab/tools/service.py')
+          text = service.read_text(encoding='utf-8')
+          old_result = 'cast(dict[str, Any], result.model_dump(mode="json"))'
+          old_diagnosis = 'cast(dict[str, Any], diagnosis.model_dump(mode="json"))'
+          result_count = text.count(old_result)
+          diagnosis_count = text.count(old_diagnosis)
+          if result_count < 1 or diagnosis_count < 1:
+              raise SystemExit(f'expected redundant model_dump casts missing: result={result_count} diagnosis={diagnosis_count}')
+          text = text.replace(old_result, 'result.model_dump(mode="json")')
+          text = text.replace(old_diagnosis, 'diagnosis.model_dump(mode="json")')
+          old_payload = '            payload = lab.export_fixture(branch, target)\n'
+          new_payload = '            payload = cast(dict[str, Any], lab.export_fixture(branch, target))\n'
+          if old_payload not in text:
+              raise SystemExit('counterfactual fixture payload marker missing')
+          text = text.replace(old_payload, new_payload, 1)
+          service.write_text(text, encoding='utf-8')
+          PY
+
+          ruff check . --fix
+          ruff format .
+          git rm .github/workflows/j-p1-final-quality-bootstrap-v8.yml
+          git add -A
+          git diff --cached --check
+      - name: Blocking Ruff lint
+        run: ruff check .
+      - name: Blocking Ruff format
+        run: ruff format --check .
+      - name: Blocking Mypy strict
+        run: mypy src/commander_lab
+      - name: Commit final strict-quality candidate locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(J-P1): close whole-tree Ruff and strict typing debt"
+          test -z "$(git status --porcelain)"
+          echo "candidate_commit=$(git rev-parse HEAD)"
+          echo "candidate_tree=$(git rev-parse HEAD^{tree})"
+      - name: Compile clean candidate
+        run: python -m compileall -q src tests scripts
+      - name: Test clean candidate
+        run: pytest -q
+      - name: Push only fully validated candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)"
+          git push origin HEAD:roadmap/j-p1-reliability
