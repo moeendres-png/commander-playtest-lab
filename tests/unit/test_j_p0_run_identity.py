@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+from commander_lab import __version__
 from commander_lab.evals.golden import load_golden_cases
 from commander_lab.models import InspectDeckInput, SwapMatrixInput, ToolStatus
 from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
@@ -60,6 +62,13 @@ def test_j_holdout_is_schema_valid_frozen_and_not_pre_evaluated(repo_root: Path)
     assert registry["holdout_policy"]["no_tuning_on_holdout"] is True
 
 
+def test_runtime_version_matches_declared_package_version(repo_root: Path) -> None:
+    declared = tomllib.loads(
+        (repo_root / "pyproject.toml").read_text(encoding="utf-8")
+    )["project"]["version"]
+    assert __version__ == declared
+
+
 def test_tool_metadata_contains_universal_run_identity(repo_root: Path) -> None:
     service = CommanderToolService(repo_root)
     response = service.inspect_deck(InspectDeckInput(deck_id="korvold/current"))
@@ -68,7 +77,7 @@ def test_tool_metadata_contains_universal_run_identity(repo_root: Path) -> None:
     identity = response.metadata.run_identity
     assert identity.software_commit == service.git_commit
     assert identity.software_tree == service.git_tree
-    assert identity.package_version == "1.14.0"
+    assert identity.package_version == __version__
     assert identity.inventory_source_id
     assert identity.inventory_hash
     assert identity.commander_configuration_hash

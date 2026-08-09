@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, cast
 
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
@@ -23,9 +23,14 @@ class XlsxDeckImporter(CatalogAwareImporter):
         workbook = load_workbook(filename=path, read_only=True, data_only=True)
         try:
             worksheet = workbook[sheet_name] if sheet_name else workbook.active
-            if not isinstance(worksheet, Worksheet):
-                raise ImportErrorWithContext("selected sheet is not a worksheet", source=path)
-            rows = self._worksheet_rows(worksheet, source_path=path)
+            if worksheet is None:
+                raise ImportErrorWithContext("selected sheet is unavailable", source=path)
+            # openpyxl returns ReadOnlyWorksheet when read_only=True.  Its public
+            # row-iteration surface is compatible with Worksheet, but it is not a
+            # Worksheet subclass at runtime, so keep the check interface-based.
+            if not hasattr(worksheet, "iter_rows"):
+                raise ImportErrorWithContext("selected sheet is not worksheet-like", source=path)
+            rows = self._worksheet_rows(cast(Worksheet, worksheet), source_path=path)
             return CsvDeckImporter(self.catalog).import_rows(rows, options, source_path=path)
         finally:
             workbook.close()
