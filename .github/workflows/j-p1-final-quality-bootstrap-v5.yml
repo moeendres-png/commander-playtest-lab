@@ -1,0 +1,117 @@
+name: J-P1 Final Strict Quality Candidate v5
+
+on:
+  push:
+    branches:
+      - roadmap/j-p1-reliability
+
+permissions:
+  contents: write
+
+jobs:
+  validate-final-quality-candidate-v5:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify exact starting lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "4b37dfd66d820bad374b587c99197b401ddcaf3f"
+      - name: Install exact project quality toolchain
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Replay reviewed transformation by stable markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in \
+            .github/workflows/j-p1-final-quality-bootstrap-v2.yml \
+            .github/workflows/j-p1-final-quality-bootstrap-v3.yml \
+            .github/workflows/j-p1-final-quality-bootstrap-v4.yml \
+            .github/workflows/j-p1-final-quality-bootstrap-v5.yml; do
+            if [[ -f "$f" ]]; then git rm "$f"; fi
+          done
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+          import yaml
+
+          lab = Path('src/commander_lab/mulligan/lab.py')
+          text = lab.read_text(encoding='utf-8')
+          old_sig = '''    def iter_draw_sequences(\n        self,\n        deck: StructuralDeckProfile,\n        *,\n        samples: int,\n        seed: int,\n        max_mulligans: int = 6,\n    ):\n'''
+          new_sig = '''    def iter_draw_sequences(\n        self,\n        deck: StructuralDeckProfile,\n        *,\n        samples: int,\n        seed: int,\n        max_mulligans: int = 6,\n    ) -> Iterator[tuple[tuple[StructuralCardProfile, ...], ...]]:\n'''
+          if old_sig not in text:
+              raise SystemExit('exact current iter_draw_sequences signature not found')
+          lab.write_text(text.replace(old_sig, new_sig, 1), encoding='utf-8')
+
+          workflow_path = Path('.github/workflows/j-p1-final-quality-bootstrap.yml')
+          workflow = yaml.safe_load(workflow_path.read_text(encoding='utf-8'))
+          steps = workflow['jobs']['validate-final-quality-candidate']['steps']
+          run = next(step['run'] for step in steps if step.get('name') == 'Apply explicit current-tree type and lint boundaries')
+
+          # Current import already includes median.
+          run = run.replace(
+              'text = replace_required(text, "from statistics import fmean\\n", "from statistics import fmean\\nfrom typing import Literal, TypedDict\\n", "mulligan typing imports")',
+              'text = replace_required(text, "from statistics import fmean, median\\n", "from statistics import fmean, median\\nfrom typing import Literal, TypedDict\\n", "mulligan typing imports")',
+          )
+
+          # Generator was annotated above using the exact current signature. Replace the historical
+          # regex section by a presence assertion using stable comment/next-statement markers.
+          start_marker = '          # Locate the draw-sequence generator signature and add Iterator return annotation.\n'
+          end_marker = '          text = replace_required(\n              text,\n              "        buckets: dict[str, dict[str, list[float] | int]],",'
+          start = run.find(start_marker)
+          end = run.find(end_marker, start + 1)
+          if start < 0 or end < 0 or end <= start:
+              raise SystemExit('generator marker section not found in base transform')
+          replacement = '''          # Exact current generator signature was annotated by the wrapper.\n          if "-> Iterator[tuple[tuple[StructuralCardProfile, ...], ...]]:" not in text:\n              raise SystemExit("iter_draw_sequences annotation missing")\n'''
+          run = run[:start] + replacement + run[end:]
+
+          # The current Mulligan rule operators are between/ge/le/eq. Replace the historical
+          # numeric-rewrite call as one marker-bounded unit rather than relying on escaping.
+          rule_start_marker = '          text = replace_required(\n              text,\n              \'\'\'            if clause.operator == "between":'
+          rule_end_marker = '              "mulligan numeric rule comparison",\n          )\n'
+          rs = run.find(rule_start_marker)
+          re_ = run.find(rule_end_marker, rs + 1)
+          if rs < 0 or re_ < 0:
+              raise SystemExit('historical mulligan numeric rewrite section not found')
+          re_ += len(rule_end_marker)
+          rule_replacement = '''          text = replace_required(\n              text,\n              \'\'\'            if clause.operator == "between" and isinstance(clause.value, tuple):\n                ok = value is not None and clause.value[0] <= float(value) <= clause.value[1]\n            elif clause.operator == "ge":\n                ok = value is not None and float(value) >= float(clause.value)\n            elif clause.operator == "le":\n                ok = value is not None and float(value) <= float(clause.value)\'\'\',\n              \'\'\'            numeric = self._numeric_value(value)\n            if clause.operator == "between":\n                if numeric is None or not isinstance(clause.value, tuple):\n                    ok = False\n                else:\n                    low, high = clause.value\n                    ok = low <= numeric <= high\n            elif clause.operator == "ge":\n                threshold = self._numeric_value(clause.value)\n                ok = numeric is not None and threshold is not None and numeric >= threshold\n            elif clause.operator == "le":\n                threshold = self._numeric_value(clause.value)\n                ok = numeric is not None and threshold is not None and numeric <= threshold\'\'\',\n              "mulligan numeric rule comparison",\n          )\n'''
+          run = run[:rs] + rule_replacement + run[re_:]
+
+          completed = subprocess.run(['bash', '-c', run], text=True)
+          raise SystemExit(completed.returncode)
+          PY
+      - name: Blocking Ruff lint
+        run: ruff check .
+      - name: Blocking Ruff format
+        run: ruff format --check .
+      - name: Blocking Mypy strict
+        run: mypy src/commander_lab
+      - name: Commit strict-quality candidate locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(J-P1): close whole-tree Ruff and strict typing debt"
+          test -z "$(git status --porcelain)"
+          echo "candidate_commit=$(git rev-parse HEAD)"
+          echo "candidate_tree=$(git rev-parse HEAD^{tree})"
+      - name: Compile clean candidate
+        run: python -m compileall -q src tests scripts
+      - name: Test clean candidate
+        run: pytest -q
+      - name: Push only fully validated candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)"
+          git push origin HEAD:roadmap/j-p1-reliability
