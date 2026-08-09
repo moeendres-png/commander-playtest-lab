@@ -6,20 +6,29 @@ from pathlib import Path
 
 import typer
 
-from commander_lab.agents.validation import run_phase4_validation
 from commander_lab.agents.demo import run_phase5_demo
-from commander_lab.api import create_app
+from commander_lab.agents.validation import run_phase4_validation
 from commander_lab.analysis import DeckValidator
+from commander_lab.api import create_app
 from commander_lab.cards.catalog import CardCatalog
-from commander_lab.evals import run_phase6_evaluation
-from commander_lab.engine.rules import RulesEngineManager, run_phase8_validation, run_phase85_validation
-from commander_lab.engine.process_manager import EngineProcessManager, load_engine_runtime_config, stop_process_from_state
+from commander_lab.data_sync import audit_current_sources, sync_current_sources
+from commander_lab.engine.process_manager import (
+    EngineProcessManager,
+    load_engine_runtime_config,
+    stop_process_from_state,
+)
+from commander_lab.engine.rules import (
+    RulesEngineManager,
+    run_phase8_validation,
+    run_phase85_validation,
+)
 from commander_lab.engine.structural import (
     generate_project_profiles,
     load_project_structural_decks,
     run_phase3_validation,
     run_structural_batch,
 )
+from commander_lab.evals import run_phase6_evaluation
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
 from commander_lab.mcp import CommanderMcpServer
 from commander_lab.models import (
@@ -30,14 +39,16 @@ from commander_lab.models import (
     StructuralBatchConfig,
 )
 from commander_lab.storage import compute_deck_hash
-from commander_lab.data_sync import audit_current_sources, sync_current_sources
 from commander_lab.tools import CommanderToolService
 from commander_lab.tools.local_snapshots import build_local_snapshots
 
 app = typer.Typer(no_args_is_help=True, help="Commander Playtest Lab utilities")
 
 
-data_app = typer.Typer(no_args_is_help=True, help="Canonical Drive-to-program data synchronization audit")
+data_app = typer.Typer(
+    no_args_is_help=True,
+    help="Canonical Drive-to-program data synchronization audit",
+)
 app.add_typer(data_app, name="data")
 
 
@@ -54,10 +65,14 @@ def data_audit(
 
 @data_app.command("sync")
 def data_sync(
-    dry_run: bool = typer.Option(False, "--dry-run", help="Report changes without mutating prepared imports."),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Report changes without mutating prepared imports.",
+    ),
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
-    """Finalize already-prepared canonical imports; never fetch Drive or optimize a deck implicitly."""
+    """Finalize prepared canonical imports without Drive fetches or deck optimization."""
     result = sync_current_sources(root, dry_run=dry_run)
     typer.echo(json.dumps(result, indent=2, ensure_ascii=False))
 
@@ -213,7 +228,9 @@ def serve_tools(
     try:
         import uvicorn
     except ImportError as exc:
-        raise RuntimeError("Install the api extra: pip install 'commander-playtest-lab[api]'") from exc
+        raise RuntimeError(
+            "Install the api extra: pip install 'commander-playtest-lab[api]'"
+        ) from exc
     uvicorn.run(create_app(root), host=host, port=port)
 
 
@@ -232,7 +249,13 @@ def demo_phase5(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     """Run the offline deterministic Phase-5 end-to-end demonstration."""
-    typer.echo(json.dumps(run_phase5_demo(root, iterations=iterations, seed=seed), indent=2, ensure_ascii=False))
+    typer.echo(
+        json.dumps(
+            run_phase5_demo(root, iterations=iterations, seed=seed),
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
 
 
 @app.command("eval-phase6")
@@ -360,15 +383,25 @@ def doctor(
     import importlib.util
     import platform
     import shutil
+
+    from commander_lab.engine.process_manager import (
+        EngineProcessManager,
+        load_engine_runtime_config,
+    )
     from commander_lab.storage.database import check_database
-    from commander_lab.engine.process_manager import EngineProcessManager, load_engine_runtime_config
 
     manager = EngineProcessManager(load_engine_runtime_config(), root=root)
     payload = {
         "python": platform.python_version(),
         "platform": platform.platform(),
-        "commands": {name: shutil.which(name) for name in ("git", "java", "javac", "mvn", "gradle", "docker", "ruff", "mypy")},
-        "packages": {name: importlib.util.find_spec(name) is not None for name in ("pytest", "hypothesis", "fastapi", "pydantic")},
+        "commands": {
+            name: shutil.which(name)
+            for name in ("git", "java", "javac", "mvn", "gradle", "docker", "ruff", "mypy")
+        },
+        "packages": {
+            name: importlib.util.find_spec(name) is not None
+            for name in ("pytest", "hypothesis", "fastapi", "pydantic")
+        },
         "writable": os.access(root, os.W_OK),
         "database": check_database(root / "data" / "runs" / "audit.sqlite3"),
         "engine": manager.diagnose().model_dump(mode="json"),
@@ -424,7 +457,17 @@ def runs_verify(
 ) -> None:
     from commander_lab.storage.run_integrity import verify_run
     result = verify_run(run_directory)
-    typer.echo(json.dumps({"valid": result.valid, "status": result.status, "errors": result.errors, "checked_files": result.checked_files}, indent=2))
+    typer.echo(
+        json.dumps(
+            {
+                "valid": result.valid,
+                "status": result.status,
+                "errors": result.errors,
+                "checked_files": result.checked_files,
+            },
+            indent=2,
+        )
+    )
     if not result.valid:
         raise typer.Exit(code=1)
 

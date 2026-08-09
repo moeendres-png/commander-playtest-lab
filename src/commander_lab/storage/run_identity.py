@@ -105,7 +105,11 @@ def normalize_run_paths(value: Any, *, root: str | Path) -> Any:
             return {str(k): visit(v, str(k)) for k, v in item.items()}
         if isinstance(item, (list, tuple)):
             return [visit(v, key) for v in item]
-        if isinstance(item, str) and key is not None and any(token in key.casefold() for token in path_tokens):
+        if (
+            isinstance(item, str)
+            and key is not None
+            and any(token in key.casefold() for token in path_tokens)
+        ):
             candidate = Path(item)
             if candidate.is_absolute():
                 try:

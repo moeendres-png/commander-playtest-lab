@@ -77,7 +77,7 @@ class RunIdentity(FrozenModel):
     run_identity_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
 
     @model_validator(mode="after")
-    def validate_statuses(self) -> "RunIdentity":
+    def validate_statuses(self) -> RunIdentity:
         required_components = {
             name
             for name, status in self.component_status.items()
@@ -88,7 +88,10 @@ class RunIdentity(FrozenModel):
                 "run identity contains missing required components: "
                 + ", ".join(sorted(required_components))
             )
-        if self.historical_replay and self.canonical_input_status is not CanonicalInputStatus.HISTORICAL_REPLAY:
+        if (
+            self.historical_replay
+            and self.canonical_input_status is not CanonicalInputStatus.HISTORICAL_REPLAY
+        ):
             raise ValueError("historical replay must use canonical_input_status=historical_replay")
         if self.stale_reasons and self.canonical_input_status is CanonicalInputStatus.CURRENT:
             raise ValueError("stale reasons require stale or historical_replay status")

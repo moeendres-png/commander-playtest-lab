@@ -32,8 +32,6 @@ from commander_lab.engine.structural import (
 )
 from commander_lab.meta import MetaKnowledgeBase
 from commander_lab.meta.store import stable_deck_hash
-from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
-from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
 from commander_lab.models import (
     ActionProposal,
     AddOpponentVariantInput,
@@ -152,6 +150,7 @@ from commander_lab.models.mulligan import (
     MulliganPolicyName,
 )
 from commander_lab.models.opponent_ensembles import OpponentEnsemble, OpponentVariant
+from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
 from commander_lab.models.tooling import (
     CompareMulliganPoliciesInput,
     CreateMulliganReportInput,
@@ -190,6 +189,7 @@ from commander_lab.storage import (
     load_model,
     sha256_value,
 )
+from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
 
 from .candidates import load_candidate_profiles, load_canonical_inventory_quantities
 
@@ -458,7 +458,9 @@ class CommanderToolService:
             opponent_profile_ids = tuple(
                 deck_id for deck_id in known_ids if primary_id is not None and deck_id != primary_id
             )
-        opponent_hashes = {deck_id: self._deck(deck_id).deck_hash for deck_id in opponent_profile_ids}
+        opponent_hashes = {
+            deck_id: self._deck(deck_id).deck_hash for deck_id in opponent_profile_ids
+        }
 
         commander_payload = {
             deck_id: {
@@ -513,7 +515,9 @@ class CommanderToolService:
                 for row in pilot_payload.get("profiles", [])
                 if row.get("is_baseline") and row.get("commander_family") in families
             )
-        selected_profiles = list({str(row.get("profile_id")): row for row in selected_profiles}.values())
+        selected_profiles = list(
+            {str(row.get("profile_id")): row for row in selected_profiles}.values()
+        )
         if selected_profiles:
             pilot_name = ",".join(sorted(str(row.get("pilot_name")) for row in selected_profiles))
             pilot_version = ",".join(sorted(str(row.get("version")) for row in selected_profiles))
@@ -523,7 +527,10 @@ class CommanderToolService:
                         "profile_id": row.get("profile_id"),
                         "parameter_hash": row.get("parameter_hash"),
                     }
-                    for row in sorted(selected_profiles, key=lambda item: str(item.get("profile_id")))
+                    for row in sorted(
+                        selected_profiles,
+                        key=lambda item: str(item.get("profile_id")),
+                    )
                 ],
                 root=self.root,
             )
@@ -550,7 +557,11 @@ class CommanderToolService:
             if scenario_path.is_file():
                 scenario_set_id = scenario_path.relative_to(self.root).as_posix()
                 scenario_set_hash = self._raw_file_hash(scenario_path)
-        elif tool_name.startswith("run_") or tool_name.startswith("compare_") or tool_name.startswith("validate_"):
+        elif (
+            tool_name.startswith("run_")
+            or tool_name.startswith("compare_")
+            or tool_name.startswith("validate_")
+        ):
             scenario_set_id = f"inline:{tool_name}"
             scenario_set_hash = sha256_run_value(scenario_payload, root=self.root)
 
@@ -560,7 +571,9 @@ class CommanderToolService:
         for key in ("seeds", "sensitivity_seeds"):
             value = scenario_payload.get(key)
             if isinstance(value, list):
-                seed_values.extend(int(item) for item in value if isinstance(item, int) and item >= 0)
+                seed_values.extend(
+                    int(item) for item in value if isinstance(item, int) and item >= 0
+                )
         if seed is not None and not seed_values:
             seed_values = [seed]
         seed_set_hash = sha256_run_value(seed_values, root=self.root) if seed_values else None
@@ -580,7 +593,9 @@ class CommanderToolService:
         if not isinstance(seat_value, int):
             seat_position = scenario_payload.get("seat_position")
             seat_value = int(seat_position) if isinstance(seat_position, int) else None
-        if scenario_payload.get("starting_player_rotation") is True or (seed is not None and pod_size):
+        if scenario_payload.get("starting_player_rotation") is True or (
+            seed is not None and pod_size
+        ):
             turn_order_policy = "deterministic_rotation_or_explicit_seat"
         elif seat_value is not None:
             turn_order_policy = "explicit_seat"
@@ -650,7 +665,9 @@ class CommanderToolService:
                 if deck_id.startswith(f"{family}/")
             ]
             if relevant and not any(deck_hash in supported for deck_hash in relevant):
-                stale_reasons.append(f"pilot profile stale for current deck: {row.get('profile_id')}")
+                stale_reasons.append(
+                    f"pilot profile stale for current deck: {row.get('profile_id')}"
+                )
         if self.tracked_worktree_dirty:
             stale_reasons.append("tracked software worktree differs from recorded git tree")
 
@@ -671,7 +688,13 @@ class CommanderToolService:
         software_tree = self.git_tree
         component_status: dict[str, IdentityStatus] = {}
 
-        def status(name: str, value: Any, *, required: bool = False, applicable: bool = True) -> None:
+        def status(
+            name: str,
+            value: Any,
+            *,
+            required: bool = False,
+            applicable: bool = True,
+        ) -> None:
             if not applicable:
                 component_status[name] = IdentityStatus.NOT_APPLICABLE
             elif value is None or value == () or value == {}:
@@ -1119,7 +1142,12 @@ class CommanderToolService:
         estimate_type: str = "structural_model_estimates",
         run_identity: dict[str, Any] | None = None,
     ) -> ToolExecutionMetadata:
-        identity = run_identity or self._run_identity(scenario, deck_ids, tool_name=tool_name, estimate_type=estimate_type)
+        identity = run_identity or self._run_identity(
+            scenario,
+            deck_ids,
+            tool_name=tool_name,
+            estimate_type=estimate_type,
+        )
         return ToolExecutionMetadata(
             tool_name=tool_name,
             invocation_id=invocation_id,
@@ -1169,12 +1197,22 @@ class CommanderToolService:
         started = time.monotonic()
         invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"
         scenario = request.model_dump(mode="json") if hasattr(request, "model_dump") else request
-        identity_before = self._run_identity(scenario, deck_ids, tool_name=tool_name, estimate_type=estimate_type)
+        identity_before = self._run_identity(
+            scenario,
+            deck_ids,
+            tool_name=tool_name,
+            estimate_type=estimate_type,
+        )
         identity_mutators = {"create_meta_snapshot", "compile_pilot_policy"}
         try:
             result = fn()
             if tool_name not in identity_mutators:
-                identity_after = self._run_identity(scenario, deck_ids, tool_name=tool_name, estimate_type=estimate_type)
+                identity_after = self._run_identity(
+                    scenario,
+                    deck_ids,
+                    tool_name=tool_name,
+                    estimate_type=estimate_type,
+                )
                 if identity_after["run_identity_hash"] != identity_before["run_identity_hash"]:
                     raise ToolExecutionError(
                         "run identity drift detected during tool execution; result rejected"

@@ -8,8 +8,8 @@ from pydantic import Field, model_validator
 
 from .common import FrozenModel, MutableModel
 from .pilots import PilotDecisionMode, PilotStrength
-from .structural import StructuralCardProfile
 from .run_identity import RunIdentity
+from .structural import StructuralCardProfile
 
 
 class ToolStatus(StrEnum):

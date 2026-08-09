@@ -44,7 +44,9 @@ def test_missing_required_identity_component_fails_closed() -> None:
 
 def test_j_holdout_is_schema_valid_frozen_and_not_pre_evaluated(repo_root: Path) -> None:
     holdout_path = repo_root / "data/evals/holdout/pilot_decisions_j_v1.json"
-    registry = json.loads((repo_root / "data/evals/j_eval_registry.json").read_text(encoding="utf-8"))
+    registry = json.loads(
+        (repo_root / "data/evals/j_eval_registry.json").read_text(encoding="utf-8")
+    )
     cases = load_golden_cases(holdout_path)
     holdout = registry["sets"]["UNTOUCHED_HOLDOUT"]
 
