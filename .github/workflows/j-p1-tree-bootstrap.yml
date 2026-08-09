@@ -27,7 +27,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ruff format .
           python - <<'PY'
           from pathlib import Path
 
@@ -50,6 +49,7 @@ jobs:
           block = '''\n# Explicit public re-exports required by strict type checking.\n__all__.extend([\n    "ArchetypeName",\n    "ArchetypeProfile",\n    "ArchetypeWeight",\n    "CandidateProfile",\n    "CardAblationInput",\n    "CommanderDenialInput",\n    "CompareDeckToMetaInput",\n    "CompareDecksInput",\n    "CompareMetaPeriodsInput",\n    "ComparePackageVersionsInput",\n    "CostLimits",\n    "CreateMetaSnapshotInput",\n    "CreateReportInput",\n    "DeckRefInput",\n    "DetectOrphanedCardsInput",\n    "EvaluatePackageDensityInput",\n    "ExtractArchetypesInput",\n    "ExtractPackagesInput",\n    "ExtractionMethod",\n    "GenerateMetaReportInput",\n    "GeneratePackageReportInput",\n    "GoldfishInput",\n    "HoldoutInput",\n    "ImportMetaDeckInput",\n    "ImportPrimerReferenceInput",\n    "ImportTournamentResultInput",\n    "InspectDeckInput",\n    "InspectPackageInput",\n    "MatchupBatchInput",\n    "PACKAGE_SCHEMA_VERSION",\n    "PackageAblationInput",\n    "PackageDefinition",\n    "PackageEvaluation",\n    "PackageRegistry",\n    "PackageStatus",\n    "PackageVersionComparison",\n    "PairedVariantInput",\n    "QueryMetaCardsInput",\n    "QueryMetaPackagesInput",\n    "RecommendUpgradesInput",\n    "SearchVariantsInput",\n    "SensitivityInput",\n    "SimulationInput",\n    "SwapMatrixInput",\n    "ToolExecutionMetadata",\n    "ToolResponse",\n    "ToolStatus",\n    "ValidateDeckInput",\n    "ValidateUpgradeInput",\n    "VariantSwap",\n    "WorkflowReport",\n    "WorkflowRequest",\n])\n'''
           models.write_text(text + block, encoding="utf-8")
           PY
+          ruff format .
           git rm .github/workflows/j-p1-tree-bootstrap.yml
           git add -A
           git diff --cached --check
