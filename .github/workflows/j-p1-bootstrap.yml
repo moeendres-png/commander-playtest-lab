@@ -17,10 +17,14 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-      - name: Apply exact locally reviewed J-P1 patch
+      - name: Verify and apply exact locally reviewed J-P1 patch
         shell: bash
         run: |
           set -euo pipefail
+          echo "c3798a0b216530c656f1f09950c4f42ef196a1d067acbea7419bf4a13fb246b0  .github/jp1_patch.part1" | sha256sum -c -
+          echo "ca549f4f144183a83cf2233af6e19c7be174140645e4ec41e650d64be51fc756  .github/jp1_patch.part2" | sha256sum -c -
+          echo "0fcad2022afbf089596e9c06a59e90e0a0cf9d299a3252ebb72c0fa2d6f77152  .github/jp1_patch.part3" | sha256sum -c -
+          echo "ce0e90e3227ec486a35bf10a0a5d5672750206dd7e0693e49916e153ea6b5e09  .github/jp1_patch.part4" | sha256sum -c -
           cat .github/jp1_patch.part1 .github/jp1_patch.part2 .github/jp1_patch.part3 .github/jp1_patch.part4 > /tmp/jp1.patch.gz.b64
           base64 -d /tmp/jp1.patch.gz.b64 | gzip -d > /tmp/jp1.patch
           echo "f75cdf8fef3367793bc1a01c5b3520b9d39f9e87fa4b607bed699cf246e75e04  /tmp/jp1.patch" | sha256sum -c -
