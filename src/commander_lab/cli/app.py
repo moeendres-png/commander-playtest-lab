@@ -31,6 +31,7 @@ from commander_lab.models import (
 )
 from commander_lab.storage import compute_deck_hash
 from commander_lab.data_sync import audit_current_sources, sync_current_sources
+from commander_lab.tools import CommanderToolService
 from commander_lab.tools.local_snapshots import build_local_snapshots
 
 app = typer.Typer(no_args_is_help=True, help="Commander Playtest Lab utilities")
@@ -144,8 +145,31 @@ def run_structural_batch_command(
         output_directory=str(root / output),
         limits=StructuralAbortLimits(max_turns=max_turns),
     )
+    service = CommanderToolService(root)
+    run_identity = service.build_run_identity(
+        config,
+        tuple(deck),
+        tool_name="cli.run-structural-batch",
+        estimate_type="structural_model_estimates",
+    )
     result = run_structural_batch(config, decks)
-    typer.echo(json.dumps(result.aggregate, indent=2, ensure_ascii=False, sort_keys=True))
+    output_dir = root / output
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "run_identity.json").write_text(
+        run_identity.model_dump_json(indent=2),
+        encoding="utf-8",
+    )
+    typer.echo(
+        json.dumps(
+            {
+                "run_identity": run_identity.model_dump(mode="json"),
+                "aggregate": result.aggregate,
+            },
+            indent=2,
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+    )
 
 
 @app.command("validate-structural")
