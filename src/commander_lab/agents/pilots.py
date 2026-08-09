@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import math
 import random
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 from commander_lab.models import (
     CardRole,
@@ -15,8 +15,8 @@ from commander_lab.models import (
     PilotStrength,
     PilotUtilityBreakdown,
     PilotUtilityWeights,
-    StructuralMechanic,
 )
+from commander_lab.models.roles import StructuralMechanic
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,9 +29,15 @@ class _StrengthPolicy:
 
 
 _STRENGTH_POLICIES: dict[PilotStrength, _StrengthPolicy] = {
-    PilotStrength.WEAK: _StrengthPolicy(temperature=1.35, mistake_rate=0.18, reserve_mana_target=0.5, shortlist=8, precision=0),
-    PilotStrength.AVERAGE: _StrengthPolicy(temperature=0.75, mistake_rate=0.08, reserve_mana_target=1.0, shortlist=6, precision=1),
-    PilotStrength.STRONG: _StrengthPolicy(temperature=0.32, mistake_rate=0.02, reserve_mana_target=1.5, shortlist=4, precision=3),
+    PilotStrength.WEAK: _StrengthPolicy(
+        temperature=1.35, mistake_rate=0.18, reserve_mana_target=0.5, shortlist=8, precision=0
+    ),
+    PilotStrength.AVERAGE: _StrengthPolicy(
+        temperature=0.75, mistake_rate=0.08, reserve_mana_target=1.0, shortlist=6, precision=1
+    ),
+    PilotStrength.STRONG: _StrengthPolicy(
+        temperature=0.32, mistake_rate=0.02, reserve_mana_target=1.5, shortlist=4, precision=3
+    ),
     PilotStrength.NEAR_OPTIMAL_HEURISTIC: _StrengthPolicy(
         temperature=0.12,
         mistake_rate=0.0,
@@ -98,10 +104,10 @@ _GENERIC_WEIGHTS: dict[PilotStrength, PilotUtilityWeights] = {
 }
 
 
-
 def _package_ids(action: PilotActionView) -> frozenset[str]:
     raw = action.metadata.get("package_ids", "")
     return frozenset(part for part in str(raw).split("|") if part)
+
 
 class BasePilot:
     """Pure structural action evaluator.
@@ -116,7 +122,11 @@ class BasePilot:
         self.policy = _STRENGTH_POLICIES[self.config.strength]
         self.weights = self.config.weights or self.default_weights(self.config.strength)
         self.temperature = self.config.temperature or self.policy.temperature
-        self.mistake_rate = self.policy.mistake_rate if self.config.mistake_rate is None else self.config.mistake_rate
+        self.mistake_rate = (
+            self.policy.mistake_rate
+            if self.config.mistake_rate is None
+            else self.config.mistake_rate
+        )
         self.reserve_mana_target = (
             self.policy.reserve_mana_target
             if self.config.reserve_mana_target is None
@@ -134,11 +144,7 @@ class BasePilot:
     ) -> float:
         card_list = list(cards)
         lands = sum(bool(card.metadata.get("is_land", False)) for card in card_list)
-        early_ramp = sum(
-            card.strength(CardRole.RAMP)
-            for card in card_list
-            if card.mana_cost <= 2
-        )
+        early_ramp = sum(card.strength(CardRole.RAMP) for card in card_list if card.mana_cost <= 2)
         early_velocity = sum(
             card.strength(CardRole.DRAW) + card.strength(CardRole.SELECTION)
             for card in card_list
@@ -237,13 +243,12 @@ class BasePilot:
         value -= card.turn_cycle_risk * 0.25
         return value
 
-    def evaluate_action(self, state: PilotStateView, action: PilotActionView) -> PilotUtilityBreakdown:
+    def evaluate_action(
+        self, state: PilotStateView, action: PilotActionView
+    ) -> PilotUtilityBreakdown:
         components = self._base_components(state, action)
         specialist_bonus = self.specialist_bonus(state, action, components)
-        weighted = sum(
-            components[name] * weight
-            for name, weight in self.weights.as_dict().items()
-        )
+        weighted = sum(components[name] * weight for name, weight in self.weights.as_dict().items())
         total = weighted + specialist_bonus
         return PilotUtilityBreakdown(
             **components,
@@ -274,7 +279,9 @@ class BasePilot:
             mode=self.config.mode,
             selected_action_id=selected_action.action_id,
             selected_utility=selected_breakdown.total_utility,
-            candidates=tuple((action.action_id, breakdown.total_utility) for action, breakdown in scored),
+            candidates=tuple(
+                (action.action_id, breakdown.total_utility) for action, breakdown in scored
+            ),
             selected_breakdown=selected_breakdown,
         )
 
@@ -289,7 +296,9 @@ class BasePilot:
         breakdown = self.evaluate_action(state, action)
         if self.config.mode == PilotDecisionMode.DETERMINISTIC:
             return breakdown.total_utility >= threshold, breakdown
-        probability = self._logistic((breakdown.total_utility - threshold) / max(0.05, self.temperature))
+        probability = self._logistic(
+            (breakdown.total_utility - threshold) / max(0.05, self.temperature)
+        )
         if rng.random() < self.mistake_rate:
             probability = 1.0 - probability
         return rng.random() < probability, breakdown
@@ -337,7 +346,10 @@ class BasePilot:
         if self.mistake_rate and rng.random() < self.mistake_rate:
             return scored[rng.randrange(len(scored))]
         best = max(item[1].total_utility for item in scored)
-        logits = [math.exp(max(-40.0, (item[1].total_utility - best) / self.temperature)) for item in scored]
+        logits = [
+            math.exp(max(-40.0, (item[1].total_utility - best) / self.temperature))
+            for item in scored
+        ]
         total = sum(logits)
         roll = rng.random() * total
         cumulative = 0.0
@@ -356,10 +368,7 @@ class BasePilot:
         max_threat = max(action.target_threat, state.max_opponent_threat)
         remaining_mana = max(0.0, action.remaining_mana)
         interaction_roles = {CardRole.COUNTER, CardRole.PROTECTION, CardRole.REMOVAL}
-        interaction_in_hand = sum(
-            state.role_counts.get(role, 0)
-            for role in interaction_roles
-        )
+        interaction_in_hand = sum(state.role_counts.get(role, 0) for role in interaction_roles)
 
         survival = 0.0
         survival += action.strength(CardRole.PROTECTION) * (1.5 + life_pressure)
@@ -460,7 +469,11 @@ class BasePilot:
             commander_value += action.strength(CardRole.COMBAT_PAYOFF) * 1.15
         if StructuralMechanic.COMMANDER_DAMAGE_SUPPORT in mechanics:
             commander_value += 1.0 if state.commander_online else -0.45
-        if StructuralMechanic.COMMANDER_DEPENDENT in mechanics and not state.commander_online and action.action_kind != "commander":
+        if (
+            StructuralMechanic.COMMANDER_DEPENDENT in mechanics
+            and not state.commander_online
+            and action.action_kind != "commander"
+        ):
             commander_value -= 0.6
         if StructuralMechanic.COMMANDER_INDEPENDENT in mechanics and not state.commander_online:
             commander_value += 0.35
@@ -469,7 +482,9 @@ class BasePilot:
                 (commander.power for commander in state.commanders if commander.on_battlefield),
                 default=0.0,
             )
-            commander_value += action.strength(CardRole.PROTECTION) * (0.6 + max_commander_power * 0.08)
+            commander_value += action.strength(CardRole.PROTECTION) * (
+                0.6 + max_commander_power * 0.08
+            )
 
         threat_reduction = (
             action.strength(CardRole.REMOVAL) * min(3.0, action.target_threat * 0.2)
@@ -481,7 +496,8 @@ class BasePilot:
         lethal_pressure = max(0.0, (22.0 - state.lowest_opponent_life) / 7.0)
         win_progress = (
             action.strength(CardRole.FINISHER) * (1.3 + lethal_pressure)
-            + action.strength(CardRole.COMBAT_PAYOFF) * (0.6 + (0.8 if state.commander_online else 0.0))
+            + action.strength(CardRole.COMBAT_PAYOFF)
+            * (0.6 + (0.8 if state.commander_online else 0.0))
             + action.strength(CardRole.PAYOFF) * 0.45
             + action.base_power * 0.12
             + action.multiplayer_scaling * opponent_count * 0.25
@@ -490,7 +506,9 @@ class BasePilot:
             win_progress += max(0.0, 18.0 - float(action.metadata.get("target_life", 40.0))) * 0.12
             win_progress += float(action.metadata.get("commander_damage_pressure", 0.0)) * 0.18
         if StructuralMechanic.TABLE_DAMAGE in mechanics:
-            win_progress += max(0, opponent_count - 1) * (0.35 + max(0.0, action.multiplayer_scaling) * 0.18)
+            win_progress += max(0, opponent_count - 1) * (
+                0.35 + max(0.0, action.multiplayer_scaling) * 0.18
+            )
         if StructuralMechanic.FINISHER_COMPRESSION in mechanics:
             win_progress += 0.65 + max(0, opponent_count - 1) * 0.22
         if StructuralMechanic.COMMANDER_DAMAGE_SUPPORT in mechanics and state.commander_online:
@@ -574,11 +592,7 @@ class KorvoldPilot(BasePilot):
         land_synergy = sum(card.strength(CardRole.LAND_SYNERGY) for card in cards)
         token_sources = sum(card.strength(CardRole.TOKEN_SOURCE) for card in cards)
         outlets = sum(card.strength(CardRole.SACRIFICE_OUTLET) for card in cards)
-        ramp = sum(
-            card.strength(CardRole.RAMP)
-            for card in cards
-            if card.mana_cost <= 2
-        )
+        ramp = sum(card.strength(CardRole.RAMP) for card in cards if card.mana_cost <= 2)
         protection = sum(card.strength(CardRole.PROTECTION) for card in cards)
         bonus = min(1.2, land_synergy * 0.25) + min(1.0, ramp * 0.35)
         if token_sources and outlets:
@@ -608,7 +622,9 @@ class KorvoldPilot(BasePilot):
     ) -> float:
         del components
         names = set(state.battlefield_names)
-        commander = next((item for item in state.commanders if item.name == "Korvold, Fae-Cursed King"), None)
+        commander = next(
+            (item for item in state.commanders if item.name == "Korvold, Fae-Cursed King"), None
+        )
         korvold_online = bool(commander and commander.on_battlefield)
         sacrifice_material = state.tokens + state.resources * 0.55
         sacrifice_material += state.role_counts.get(CardRole.TOKEN_SOURCE, 0) * 0.45
@@ -619,11 +635,17 @@ class KorvoldPilot(BasePilot):
         if action.action_kind == "commander" and action.card_name == "Korvold, Fae-Cursed King":
             immediate_value = sacrifice_material + outlets * 0.8 + land_package * 0.35
             bonus += min(4.5, immediate_value * 0.42)
-            if state.mana_available - action.mana_cost >= 1.0 or "Lightning Greaves" in names or "Swiftfoot Boots" in names:
+            if (
+                state.mana_available - action.mana_cost >= 1.0
+                or "Lightning Greaves" in names
+                or "Swiftfoot Boots" in names
+            ):
                 bonus += 0.8
             if immediate_value < 1.0:
                 bonus -= 4.85
-                if state.mana_available - action.mana_cost < 1.0 and not ({"Lightning Greaves", "Swiftfoot Boots"} & names):
+                if state.mana_available - action.mana_cost < 1.0 and not (
+                    {"Lightning Greaves", "Swiftfoot Boots"} & names
+                ):
                     bonus -= 1.0
         if CardRole.SACRIFICE_OUTLET in action.roles:
             bonus += 0.7 + min(2.0, sacrifice_material * 0.3)
@@ -651,11 +673,15 @@ class KorvoldPilot(BasePilot):
             bonus += 0.45
         if StructuralMechanic.TABLE_DAMAGE in action.mechanic_tags:
             bonus += max(0, state.pod_size - 3) * 0.32
-        if action.card_name in {"Mirkwood Bats", "Exsanguinate", "Massacre Wurm", "Hearthhull, the Worldseed"}:
+        if action.card_name in {
+            "Mirkwood Bats",
+            "Exsanguinate",
+            "Massacre Wurm",
+            "Hearthhull, the Worldseed",
+        }:
             bonus += 0.9 + max(0, state.pod_size - 3) * 0.35
-        if CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5:
-            if korvold_online:
-                bonus += 0.4
+        if (CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5) and korvold_online:
+            bonus += 0.4
         if action.action_kind == "combat_target":
             pressure = float(action.metadata.get("commander_damage_pressure", 0.0))
             bonus += pressure * 0.28
@@ -722,14 +748,21 @@ class RogShaiPilot(BasePilot):
     ) -> float:
         del components
         names = set(state.battlefield_names)
-        ishai = next((item for item in state.commanders if item.name == "Ishai, Ojutai Dragonspeaker"), None)
-        rograkh = next((item for item in state.commanders if item.name == "Rograkh, Son of Rohgahh"), None)
+        ishai = next(
+            (item for item in state.commanders if item.name == "Ishai, Ojutai Dragonspeaker"), None
+        )
+        rograkh = next(
+            (item for item in state.commanders if item.name == "Rograkh, Son of Rohgahh"), None
+        )
         ishai_online = bool(ishai and ishai.on_battlefield)
         rograkh_online = bool(rograkh and rograkh.on_battlefield)
         reserve_after = action.remaining_mana
         has_protection = state.role_counts.get(CardRole.PROTECTION, 0) > 0
         has_counter = state.role_counts.get(CardRole.COUNTER, 0) > 0
-        spellslinger_online = bool({"Kykar, Wind's Fury", "Whirlwind of Thought", "Storm-Kiln Artist", "Guttersnipe"} & names)
+        spellslinger_online = bool(
+            {"Kykar, Wind's Fury", "Whirlwind of Thought", "Storm-Kiln Artist", "Guttersnipe"}
+            & names
+        )
         bonus = 0.0
 
         if action.action_kind == "commander" and action.card_name == "Rograkh, Son of Rohgahh":
@@ -757,7 +790,9 @@ class RogShaiPilot(BasePilot):
                     bonus -= 7.5
                 elif state.max_opponent_threat >= 8.0 and reserve_after < 1.0:
                     bonus -= 9.0
-                elif state.max_opponent_threat >= 7.0 and reserve_after < 1.0 and not has_protection:
+                elif (
+                    state.max_opponent_threat >= 7.0 and reserve_after < 1.0 and not has_protection
+                ):
                     bonus -= 5.0
             else:
                 bonus -= 2.0 if rograkh_online else 6.0
@@ -779,7 +814,12 @@ class RogShaiPilot(BasePilot):
             bonus += max(0, state.pod_size - 3) * 0.4
         if StructuralMechanic.COMMANDER_INDEPENDENT in action.mechanic_tags and not ishai_online:
             bonus += 0.5
-        if action.card_name in {"Duelist's Heritage", "Psychotic Fury", "Boros Charm", "Sunhome, Fortress of the Legion"}:
+        if action.card_name in {
+            "Duelist's Heritage",
+            "Psychotic Fury",
+            "Boros Charm",
+            "Sunhome, Fortress of the Legion",
+        }:
             if ishai_online:
                 bonus += 0.8 + max(0.0, (ishai.power - 4.0) * 0.12 if ishai else 0.0)
             else:
@@ -798,11 +838,20 @@ class RogShaiPilot(BasePilot):
             # In uncertain/high-threat pods, holding flexible interaction is a
             # positive action rather than a zero-value non-action.
             bonus += max(0.0, state.max_opponent_threat - 6.0) * 0.55
-        if action.card_name in {"Kykar, Wind's Fury", "Whirlwind of Thought", "Storm-Kiln Artist", "Guttersnipe"}:
+        if action.card_name in {
+            "Kykar, Wind's Fury",
+            "Whirlwind of Thought",
+            "Storm-Kiln Artist",
+            "Guttersnipe",
+        }:
             bonus += 0.45
             if not ishai_online or spellslinger_online:
                 bonus += 0.55
-        if not ishai_online and action.roles.intersection({CardRole.ENGINE, CardRole.DRAW}) and action.floor_value >= 0.7:
+        if (
+            not ishai_online
+            and action.roles.intersection({CardRole.ENGINE, CardRole.DRAW})
+            and action.floor_value >= 0.7
+        ):
             bonus += 0.35
         if rograkh_online and action.card_name in {"Springleaf Drum", "Relic of Legends"}:
             bonus += 0.7
@@ -819,10 +868,15 @@ class KorvoldValuePilot(KorvoldPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(card_advantage=base["card_advantage"] + 0.35, engine_development=base["engine_development"] + 0.30)
+        base.update(
+            card_advantage=base["card_advantage"] + 0.35,
+            engine_development=base["engine_development"] + 0.30,
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
         if CardRole.DRAW in action.roles or CardRole.ENGINE in action.roles:
             bonus += 0.55 + action.floor_value * 0.25
@@ -836,12 +890,20 @@ class KorvoldSacrificePilot(KorvoldPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(engine_development=base["engine_development"] + 0.25, win_progress=base["win_progress"] + 0.15)
+        base.update(
+            engine_development=base["engine_development"] + 0.25,
+            win_progress=base["win_progress"] + 0.15,
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
-        if _package_ids(action) & {"korvold-token-sacrifice-material", "korvold-free-sacrifice-outlets"}:
+        if _package_ids(action) & {
+            "korvold-token-sacrifice-material",
+            "korvold-free-sacrifice-outlets",
+        }:
             bonus += 0.35
 
         material = state.tokens + state.resources
@@ -859,10 +921,14 @@ class KorvoldLandRebuildPilot(KorvoldPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(rebuild_capacity=base["rebuild_capacity"] + 0.55, survival=base["survival"] + 0.15)
+        base.update(
+            rebuild_capacity=base["rebuild_capacity"] + 0.55, survival=base["survival"] + 0.15
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
         if _package_ids(action) & {"korvold-land-sacrifice-recursion", "korvold-wipe-rebuild"}:
             bonus += 0.40
@@ -881,12 +947,21 @@ class KorvoldAggressivePilot(KorvoldPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(tempo=base["tempo"] + 0.45, win_progress=base["win_progress"] + 0.55, political_visibility=-0.15)
+        base.update(
+            tempo=base["tempo"] + 0.45,
+            win_progress=base["win_progress"] + 0.55,
+            political_visibility=-0.15,
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
-        if _package_ids(action) & {"korvold-independent-finishers", "korvold-mirkwood-table-damage"}:
+        if _package_ids(action) & {
+            "korvold-independent-finishers",
+            "korvold-mirkwood-table-damage",
+        }:
             bonus += 0.40
 
         if action.action_kind == "combat_target":
@@ -903,16 +978,25 @@ class KorvoldConservativePilot(KorvoldPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(survival=base["survival"] + 0.45, interaction_reserve=base["interaction_reserve"] + 0.35, political_visibility=-1.15, rebuild_capacity=base["rebuild_capacity"] + 0.30)
+        base.update(
+            survival=base["survival"] + 0.45,
+            interaction_reserve=base["interaction_reserve"] + 0.35,
+            political_visibility=-1.15,
+            rebuild_capacity=base["rebuild_capacity"] + 0.30,
+        )
         return PilotUtilityWeights(**base)
 
-    def opening_hand_specialist_bonus(self, cards: list[PilotActionView], commander_names: tuple[str, ...]) -> float:
+    def opening_hand_specialist_bonus(
+        self, cards: list[PilotActionView], commander_names: tuple[str, ...]
+    ) -> float:
         bonus = super().opening_hand_specialist_bonus(cards, commander_names)
         protection = sum(card.strength(CardRole.PROTECTION) for card in cards)
         interaction = sum(card.strength(CardRole.REMOVAL) for card in cards)
         return bonus + min(1.0, (protection + interaction) * 0.25)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
         if _package_ids(action) & {"korvold-graveyard-protection", "korvold-wipe-rebuild"}:
             bonus += 0.40
@@ -931,17 +1015,27 @@ class RogShaiTempoPilot(RogShaiPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(tempo=base["tempo"] + 0.55, interaction_reserve=base["interaction_reserve"] + 0.25)
+        base.update(
+            tempo=base["tempo"] + 0.55, interaction_reserve=base["interaction_reserve"] + 0.25
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
         if _package_ids(action) & {"rogshai-protection-counter", "rogshai-rograkh-resource"}:
             bonus += 0.35
 
-        if action.mana_cost <= 2 and action.roles.intersection({CardRole.COUNTER, CardRole.REMOVAL, CardRole.SELECTION}):
+        if action.mana_cost <= 2 and action.roles.intersection(
+            {CardRole.COUNTER, CardRole.REMOVAL, CardRole.SELECTION}
+        ):
             bonus += 0.55
-        if action.action_kind == "commander" and action.card_name == "Ishai, Ojutai Dragonspeaker" and action.remaining_mana >= 1:
+        if (
+            action.action_kind == "commander"
+            and action.card_name == "Ishai, Ojutai Dragonspeaker"
+            and action.remaining_mana >= 1
+        ):
             bonus += 0.45
         return bonus
 
@@ -951,15 +1045,35 @@ class RogShaiVoltronPilot(RogShaiPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(commander_value=base["commander_value"] + 0.50, win_progress=base["win_progress"] + 0.55, political_visibility=-0.20)
+        base.update(
+            commander_value=base["commander_value"] + 0.50,
+            win_progress=base["win_progress"] + 0.55,
+            political_visibility=-0.20,
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
-        if _package_ids(action) & {"rogshai-combat-draw", "rogshai-commander-damage", "rogshai-double-strike", "rogshai-jeska-finish", "rogshai-kediss-table-damage"}:
+        if _package_ids(action) & {
+            "rogshai-combat-draw",
+            "rogshai-commander-damage",
+            "rogshai-double-strike",
+            "rogshai-jeska-finish",
+            "rogshai-kediss-table-damage",
+        }:
             bonus += 0.40
 
-        if action.card_name in {"Combat Research", "Curiosity", "Staggering Insight", "Duelist's Heritage", "Psychotic Fury", "Boros Charm", "Sunhome, Fortress of the Legion"}:
+        if action.card_name in {
+            "Combat Research",
+            "Curiosity",
+            "Staggering Insight",
+            "Duelist's Heritage",
+            "Psychotic Fury",
+            "Boros Charm",
+            "Sunhome, Fortress of the Legion",
+        }:
             bonus += 0.75
         if action.action_kind == "combat_target":
             bonus += float(action.metadata.get("commander_damage_pressure", 0.0)) * 0.35
@@ -971,15 +1085,28 @@ class RogShaiSpellslingerPilot(RogShaiPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(card_advantage=base["card_advantage"] + 0.35, engine_development=base["engine_development"] + 0.50, commander_value=base["commander_value"] - 0.20)
+        base.update(
+            card_advantage=base["card_advantage"] + 0.35,
+            engine_development=base["engine_development"] + 0.50,
+            commander_value=base["commander_value"] - 0.20,
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
         if _package_ids(action) & {"rogshai-independent-spellslinger", "rogshai-independent-draw"}:
             bonus += 0.45
 
-        if action.card_name in {"Kykar, Wind's Fury", "Veyran, Voice of Duality", "Storm-Kiln Artist", "Guttersnipe", "Whirlwind of Thought", "Archmage Emeritus"}:
+        if action.card_name in {
+            "Kykar, Wind's Fury",
+            "Veyran, Voice of Duality",
+            "Storm-Kiln Artist",
+            "Guttersnipe",
+            "Whirlwind of Thought",
+            "Archmage Emeritus",
+        }:
             bonus += 1.0
         if CardRole.ENGINE in action.roles or CardRole.DRAW in action.roles:
             bonus += 0.35
@@ -991,10 +1118,17 @@ class RogShaiControlPilot(RogShaiPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(survival=base["survival"] + 0.35, interaction_reserve=base["interaction_reserve"] + 0.65, threat_reduction=base["threat_reduction"] + 0.45, win_progress=base["win_progress"] - 0.15)
+        base.update(
+            survival=base["survival"] + 0.35,
+            interaction_reserve=base["interaction_reserve"] + 0.65,
+            threat_reduction=base["threat_reduction"] + 0.45,
+            win_progress=base["win_progress"] - 0.15,
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
         if _package_ids(action) & {"rogshai-protection-counter", "rogshai-wipe-protection"}:
             bonus += 0.40
@@ -1003,7 +1137,11 @@ class RogShaiControlPilot(RogShaiPilot):
             bonus += max(0.0, action.threat_score - 4.0) * 0.20
             if action.threat_score < 4.0:
                 bonus -= 1.1
-        if action.action_kind == "card" and CardRole.COUNTER in action.roles and action.remaining_mana < 1.0:
+        if (
+            action.action_kind == "card"
+            and CardRole.COUNTER in action.roles
+            and action.remaining_mana < 1.0
+        ):
             bonus -= 0.9
         return bonus
 
@@ -1013,27 +1151,50 @@ class RogShaiProtectedFinishPilot(RogShaiPilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = super().default_weights(strength).model_dump()
-        base.update(survival=base["survival"] + 0.25, interaction_reserve=base["interaction_reserve"] + 0.45, win_progress=base["win_progress"] + 0.35)
+        base.update(
+            survival=base["survival"] + 0.25,
+            interaction_reserve=base["interaction_reserve"] + 0.45,
+            win_progress=base["win_progress"] + 0.35,
+        )
         return PilotUtilityWeights(**base)
 
-    def specialist_bonus(self, state: PilotStateView, action: PilotActionView, components: dict[str, float]) -> float:
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
         bonus = super().specialist_bonus(state, action, components)
-        if _package_ids(action) & {"rogshai-jeska-finish", "rogshai-commander-damage", "rogshai-protection-counter"}:
+        if _package_ids(action) & {
+            "rogshai-jeska-finish",
+            "rogshai-commander-damage",
+            "rogshai-protection-counter",
+        }:
             bonus += 0.45
 
-        protected_window = bool(action.metadata.get("protected_finish_window", False)) or action.remaining_mana >= 1.0
-        if action.card_name in {"Jeska, Thrice Reborn", "Silence", "Psychotic Fury", "Duelist's Heritage"}:
+        protected_window = (
+            bool(action.metadata.get("protected_finish_window", False))
+            or action.remaining_mana >= 1.0
+        )
+        if action.card_name in {
+            "Jeska, Thrice Reborn",
+            "Silence",
+            "Psychotic Fury",
+            "Duelist's Heritage",
+        }:
             bonus += 1.2 if protected_window else -1.4
         if CardRole.PROTECTION in action.roles:
             bonus += 0.75
         return bonus
+
 
 class AggroPilot(BasePilot):
     pilot_name = "AggroPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = _GENERIC_WEIGHTS[strength].model_dump()
-        base.update(tempo=base["tempo"] + 0.35, win_progress=base["win_progress"] + 0.45, political_visibility=-0.2)
+        base.update(
+            tempo=base["tempo"] + 0.35,
+            win_progress=base["win_progress"] + 0.45,
+            political_visibility=-0.2,
+        )
         return PilotUtilityWeights(**base)
 
 
@@ -1042,7 +1203,11 @@ class ControlPilot(BasePilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = _GENERIC_WEIGHTS[strength].model_dump()
-        base.update(survival=base["survival"] + 0.3, interaction_reserve=base["interaction_reserve"] + 0.5, threat_reduction=base["threat_reduction"] + 0.35)
+        base.update(
+            survival=base["survival"] + 0.3,
+            interaction_reserve=base["interaction_reserve"] + 0.5,
+            threat_reduction=base["threat_reduction"] + 0.35,
+        )
         return PilotUtilityWeights(**base)
 
 
@@ -1051,7 +1216,11 @@ class EnginePilot(BasePilot):
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         base = _GENERIC_WEIGHTS[strength].model_dump()
-        base.update(engine_development=base["engine_development"] + 0.45, card_advantage=base["card_advantage"] + 0.25, rebuild_capacity=base["rebuild_capacity"] + 0.2)
+        base.update(
+            engine_development=base["engine_development"] + 0.45,
+            card_advantage=base["card_advantage"] + 0.25,
+            rebuild_capacity=base["rebuild_capacity"] + 0.2,
+        )
         return PilotUtilityWeights(**base)
 
 
@@ -1079,10 +1248,21 @@ class KaervekOpponentPilot(GenericCommanderPilot):
     def opening_hand_specialist_bonus(self, cards, commander_names):  # type: ignore[no-untyped-def]
         del commander_names
         early_ramp = sum(card.strength(CardRole.RAMP) for card in cards if card.mana_cost <= 3)
-        early_draw = sum((card.strength(CardRole.DRAW) + card.strength(CardRole.SELECTION)) for card in cards if card.mana_cost <= 3)
-        early_removal = sum(card.strength(CardRole.REMOVAL) for card in cards if card.mana_cost <= 3)
+        early_draw = sum(
+            (card.strength(CardRole.DRAW) + card.strength(CardRole.SELECTION))
+            for card in cards
+            if card.mana_cost <= 3
+        )
+        early_removal = sum(
+            card.strength(CardRole.REMOVAL) for card in cards if card.mana_cost <= 3
+        )
         expensive = sum(card.mana_cost >= 6 for card in cards)
-        return min(1.2, early_ramp * 0.3) + min(0.6, early_draw * 0.2) + min(0.5, early_removal * 0.15) - max(0, expensive - 1) * 0.25
+        return (
+            min(1.2, early_ramp * 0.3)
+            + min(0.6, early_draw * 0.2)
+            + min(0.5, early_removal * 0.15)
+            - max(0, expensive - 1) * 0.25
+        )
 
     def specialist_bonus(self, state, action, components):  # type: ignore[no-untyped-def]
         del components
@@ -1148,7 +1328,9 @@ def auto_pilot_name(strategy: str) -> str:
 
 
 def build_pilot(config: PilotConfig, *, strategy: str) -> BasePilot:
-    requested = auto_pilot_name(strategy) if config.pilot_name.casefold() == "auto" else config.pilot_name
+    requested = (
+        auto_pilot_name(strategy) if config.pilot_name.casefold() == "auto" else config.pilot_name
+    )
     pilot_type = _PILOT_TYPES.get(requested.casefold())
     if pilot_type is None:
         raise ValueError(f"unknown pilot: {requested}")
@@ -1163,20 +1345,20 @@ __all__ = [
     "ControlPilot",
     "EnginePilot",
     "GenericCommanderPilot",
-    "KaervekOpponentPilot",
     "GraveyardPilot",
-    "KorvoldPilot",
-    "KorvoldValuePilot",
-    "KorvoldSacrificePilot",
-    "KorvoldLandRebuildPilot",
+    "KaervekOpponentPilot",
     "KorvoldAggressivePilot",
     "KorvoldConservativePilot",
+    "KorvoldLandRebuildPilot",
+    "KorvoldPilot",
+    "KorvoldSacrificePilot",
+    "KorvoldValuePilot",
+    "RogShaiControlPilot",
     "RogShaiPilot",
+    "RogShaiProtectedFinishPilot",
+    "RogShaiSpellslingerPilot",
     "RogShaiTempoPilot",
     "RogShaiVoltronPilot",
-    "RogShaiSpellslingerPilot",
-    "RogShaiControlPilot",
-    "RogShaiProtectedFinishPilot",
     "auto_pilot_name",
     "build_pilot",
 ]

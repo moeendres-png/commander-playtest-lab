@@ -4,9 +4,10 @@ import hashlib
 import json
 import math
 import random
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from commander_lab.agents import BasePilot, build_pilot
 from commander_lab.models import (
@@ -26,7 +27,6 @@ from commander_lab.models import (
 )
 from commander_lab.storage import atomic_write_text, canonical_json_bytes
 
-
 ENGINE_VERSION = "structural-0.6.0"
 
 
@@ -34,7 +34,7 @@ def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
     """Return structural commander cost including two generic mana per prior cast."""
     if base_cost < 0 or prior_casts < 0:
         raise ValueError("base_cost and prior_casts must be non-negative")
-    return int(math.ceil(base_cost + 2 * prior_casts))
+    return math.ceil(base_cost + 2 * prior_casts)
 
 
 def commander_damage_is_lethal(
@@ -118,7 +118,9 @@ class _Player:
     current_turn: int = 1
 
     def threat(self) -> float:
-        commander_power = sum(commander.power for commander in self.commanders.values() if commander.on_battlefield)
+        commander_power = sum(
+            commander.power for commander in self.commanders.values() if commander.on_battlefield
+        )
         return self.board_power + commander_power + self.engine_value * 1.5 + self.resources * 0.35
 
     def commander_online(self) -> bool:
@@ -137,7 +139,9 @@ class _EventRecorder:
         self.sequence = 0
         self._hash = hashlib.sha256()
 
-    def emit(self, event_type: str, *, actor_id: str | None = None, payload: dict[str, Any] | None = None) -> None:
+    def emit(
+        self, event_type: str, *, actor_id: str | None = None, payload: dict[str, Any] | None = None
+    ) -> None:
         event = {
             "event_id": f"{self.game_id}:{self.sequence:06d}",
             "game_id": self.game_id,
@@ -232,7 +236,9 @@ class StructuralSimulator:
         while True:
             living = [player for player in players if player.alive]
             if len(players) == 1:
-                if goldfish_life <= 0 or any(value >= 21 for value in goldfish_commander_damage.values()):
+                if goldfish_life <= 0 or any(
+                    value >= 21 for value in goldfish_commander_damage.values()
+                ):
                     players[0].placement = 1
                     end_reason = "goldfish_lethal"
                     break
@@ -268,7 +274,12 @@ class StructuralSimulator:
             self._upkeep(active, players, recorder, turn_number)
             self._draw(active, 1, recorder, reason="turn_draw")
             self._play_land(active, recorder)
-            active.mana_available = active.lands + active.ramp_mana + active.temporary_mana + min(3.0, active.resources * 0.25)
+            active.mana_available = (
+                active.lands
+                + active.ramp_mana
+                + active.temporary_mana
+                + min(3.0, active.resources * 0.25)
+            )
             spells_cast = 0
             while spells_cast < config.limits.max_spells_per_turn:
                 action = self._choose_action(active, players, turn_number, recorder)
@@ -276,7 +287,9 @@ class StructuralSimulator:
                     break
                 kind, card_or_name, score = action
                 if kind == "commander":
-                    resolved = self._cast_commander(active, str(card_or_name), players, recorder, score)
+                    resolved = self._cast_commander(
+                        active, str(card_or_name), players, recorder, score
+                    )
                 else:
                     resolved = self._cast_card(active, card_or_name, players, recorder, score)
                 spells_cast += 1
@@ -390,7 +403,7 @@ class StructuralSimulator:
             pilot_config = config.pilot_configs[seat] if config.pilot_configs else PilotConfig()
             pilot = build_pilot(pilot_config, strategy=deck.commander_strategy)
             pilot_seed_raw = hashlib.sha256(
-                f"{ENGINE_VERSION}|{config.seed}|{config.match_id}|pilot|{seat}".encode("utf-8")
+                f"{ENGINE_VERSION}|{config.seed}|{config.match_id}|pilot|{seat}".encode()
             ).digest()
             player = _Player(
                 player_id=f"p{seat + 1}",
@@ -415,12 +428,13 @@ class StructuralSimulator:
                 )
             else:
                 self._london_mulligan(
-                    player, rng, recorder,
+                    player,
+                    rng,
+                    recorder,
                     config.free_multiplayer_mulligan and len(config.deck_ids) >= 3,
                 )
             players.append(player)
         return players
-
 
     def _apply_opening_hand_override(
         self,
@@ -484,10 +498,7 @@ class StructuralSimulator:
             trial = list(original)
             rng.shuffle(trial)
             hand = trial[:7]
-            views = [
-                self._opening_hand_action(card, index)
-                for index, card in enumerate(hand)
-            ]
+            views = [self._opening_hand_action(card, index) for index, card in enumerate(hand)]
             keep, hand_score = player.pilot.should_keep_opening_hand(
                 views,
                 mulligans=mulligans,
@@ -561,9 +572,7 @@ class StructuralSimulator:
             metadata={
                 "is_land": card.is_land,
                 "is_creature": card.is_creature,
-                "produces_colors": "".join(
-                    sorted(color.value for color in card.produces_colors)
-                ),
+                "produces_colors": "".join(sorted(color.value for color in card.produces_colors)),
                 "package_ids": "|".join(sorted(card.package_ids)),
             },
         )
@@ -602,9 +611,15 @@ class StructuralSimulator:
             recorder.emit(
                 "engine_upkeep",
                 actor_id=player.player_id,
-                payload={"turn": turn_number, "resources": round(generated, 4), "extra_draw": extra_draw},
+                payload={
+                    "turn": turn_number,
+                    "resources": round(generated, 4),
+                    "extra_draw": extra_draw,
+                },
             )
-        payoff = sum(card.strength(CardRole.PAYOFF) * card.multiplayer_scaling for card in player.battlefield)
+        payoff = sum(
+            card.strength(CardRole.PAYOFF) * card.multiplayer_scaling for card in player.battlefield
+        )
         if payoff > 0.4:
             damage = payoff * 0.45
             for opponent in players:
@@ -629,7 +644,9 @@ class StructuralSimulator:
             player.cards_drawn += 1
             drawn.append(card.oracle_name)
         if drawn:
-            recorder.emit("cards_drawn", actor_id=player.player_id, payload={"reason": reason, "cards": drawn})
+            recorder.emit(
+                "cards_drawn", actor_id=player.player_id, payload={"reason": reason, "cards": drawn}
+            )
 
     def _play_land(self, player: _Player, recorder: _EventRecorder) -> None:
         lands = [card for card in player.hand if card.is_land]
@@ -657,7 +674,11 @@ class StructuralSimulator:
         recorder.emit(
             "land_played",
             actor_id=player.player_id,
-            payload={"card": land.oracle_name, "lands": player.lands, "colors": sorted(color.value for color in player.available_colors)},
+            payload={
+                "card": land.oracle_name,
+                "lands": player.lands,
+                "colors": sorted(color.value for color in player.available_colors),
+            },
         )
 
     @staticmethod
@@ -698,9 +719,13 @@ class StructuralSimulator:
             mapping[action_id] = ("card", card)
         for commander in player.commanders.values():
             requirements = self._commander_color_requirements(player, commander.name)
-            if commander.on_battlefield or not self._can_pay(player, commander.next_cost, requirements):
+            if commander.on_battlefield or not self._can_pay(
+                player, commander.next_cost, requirements
+            ):
                 continue
-            card = next((item for item in player.deck.cards if item.oracle_name == commander.name), None)
+            card = next(
+                (item for item in player.deck.cards if item.oracle_name == commander.name), None
+            )
             action_id = f"commander:{commander.name}"
             action = PilotActionView(
                 action_id=action_id,
@@ -729,11 +754,15 @@ class StructuralSimulator:
             remaining_mana=player.mana_available,
             immediate_impact=0.15,
             floor_value=0.2,
-            metadata={"reactive_cards_held": sum(
-                1
-                for card in player.hand
-                if card.roles.intersection({CardRole.COUNTER, CardRole.PROTECTION, CardRole.REMOVAL})
-            )},
+            metadata={
+                "reactive_cards_held": sum(
+                    1
+                    for card in player.hand
+                    if card.roles.intersection(
+                        {CardRole.COUNTER, CardRole.PROTECTION, CardRole.REMOVAL}
+                    )
+                )
+            },
         )
         actions.append(pass_action)
         decision = player.pilot.choose_action(state, actions, player.pilot_rng)
@@ -931,9 +960,18 @@ class StructuralSimulator:
         player.commander_tax_paid += tax
         if player.first_commander_cast_turn is None:
             player.first_commander_cast_turn = player.current_turn
-        commander_mv = next((card.mana_value for card in player.deck.cards if card.oracle_name == name), commander.base_cost)
-        pending_cast_triggers = self._notify_spell_cast(player, players, mana_value=commander_mv, recorder=recorder)
-        recorder.emit("commander_cast", actor_id=player.player_id, payload={"card": name, "cost": cost, "tax": tax, "turn": player.current_turn})
+        commander_mv = next(
+            (card.mana_value for card in player.deck.cards if card.oracle_name == name),
+            commander.base_cost,
+        )
+        pending_cast_triggers = self._notify_spell_cast(
+            player, players, mana_value=commander_mv, recorder=recorder
+        )
+        recorder.emit(
+            "commander_cast",
+            actor_id=player.player_id,
+            payload={"card": name, "cost": cost, "tax": tax, "turn": player.current_turn},
+        )
         was_countered = self._attempt_counter(player, players, score + 1.0, recorder)
         self._resolve_cast_triggers(pending_cast_triggers, recorder)
         if was_countered:
@@ -948,7 +986,11 @@ class StructuralSimulator:
             player.ishai_peak_power = max(player.ishai_peak_power, commander.power)
         if name == "Korvold, Fae-Cursed King":
             self._sacrifice_trigger(player, 1.0, recorder, reason="korvold_cast")
-        recorder.emit("commander_resolved", actor_id=player.player_id, payload={"card": name, "power": commander.power})
+        recorder.emit(
+            "commander_resolved",
+            actor_id=player.player_id,
+            payload={"card": name, "power": commander.power},
+        )
         return True
 
     def _cast_card(
@@ -962,7 +1004,9 @@ class StructuralSimulator:
         player.hand.remove(card)
         self._pay(player, card.mana_value)
         player.spell_count += 1
-        pending_cast_triggers = self._notify_spell_cast(player, players, mana_value=card.mana_value, recorder=recorder)
+        pending_cast_triggers = self._notify_spell_cast(
+            player, players, mana_value=card.mana_value, recorder=recorder
+        )
         recorder.emit(
             "spell_cast",
             actor_id=player.player_id,
@@ -978,13 +1022,20 @@ class StructuralSimulator:
         self._resolve_cast_triggers(pending_cast_triggers, recorder)
         if was_countered:
             player.graveyard.append(card)
-            recorder.emit("spell_countered", actor_id=player.player_id, payload={"card": card.oracle_name})
+            recorder.emit(
+                "spell_countered", actor_id=player.player_id, payload={"card": card.oracle_name}
+            )
             return False
         self._resolve_card(player, card, players, recorder)
         return True
 
     def _notify_spell_cast(
-        self, actor: _Player, players: Iterable[_Player], *, mana_value: float, recorder: _EventRecorder
+        self,
+        actor: _Player,
+        players: Iterable[_Player],
+        *,
+        mana_value: float,
+        recorder: _EventRecorder,
     ) -> list[tuple[_Player, _Player, float]]:
         pending: list[tuple[_Player, _Player, float]] = []
         for player in players:
@@ -1019,7 +1070,11 @@ class StructuralSimulator:
             recorder.emit(
                 "kaervek_trigger_resolved",
                 actor_id=source.player_id,
-                payload={"target_player_id": target.player_id, "damage": damage, "trigger_survived_counter": True},
+                payload={
+                    "target_player_id": target.player_id,
+                    "damage": damage,
+                    "trigger_survived_counter": True,
+                },
             )
 
     def _attempt_counter(
@@ -1118,7 +1173,11 @@ class StructuralSimulator:
             player.ramp_resolved += 1
             if player.first_ramp_turn is None:
                 player.first_ramp_turn = player.current_turn
-            recorder.emit("ramp_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "strength": strength})
+            recorder.emit(
+                "ramp_resolved",
+                actor_id=player.player_id,
+                payload={"card": card.oracle_name, "strength": strength},
+            )
         if CardRole.SELECTION in card.roles:
             self._resolve_selection(player, recorder, card)
         if (
@@ -1128,12 +1187,15 @@ class StructuralSimulator:
         ):
             player.first_independent_draw_engine_turn = player.current_turn
         if CardRole.DRAW in card.roles:
-            amount = max(1, int(math.ceil(card.strength(CardRole.DRAW))))
+            amount = max(1, math.ceil(card.strength(CardRole.DRAW)))
             if card.oracle_name == "Korvold, Fae-Cursed King":
                 amount = 0
             if amount:
                 self._draw(player, min(3, amount), recorder, reason=f"{card.oracle_name}:draw")
-        if CardRole.SACRIFICE_OUTLET in card.roles or card.oracle_name in {"Harrow", "Deadly Dispute"}:
+        if CardRole.SACRIFICE_OUTLET in card.roles or card.oracle_name in {
+            "Harrow",
+            "Deadly Dispute",
+        }:
             self._sacrifice_trigger(player, 1.0, recorder, reason=card.oracle_name)
         if CardRole.FINISHER in card.roles and not card.is_permanent:
             self._resolve_finisher(player, card, players, recorder)
@@ -1142,19 +1204,25 @@ class StructuralSimulator:
             if card.is_creature:
                 player.board_power += card.base_power
             if CardRole.ENGINE in card.roles:
-                player.engine_value += card.strength(CardRole.ENGINE) * (1.0 - card.turn_cycle_risk * 0.25)
+                player.engine_value += card.strength(CardRole.ENGINE) * (
+                    1.0 - card.turn_cycle_risk * 0.25
+                )
             if CardRole.TOKEN_SOURCE in card.roles:
                 tokens = card.strength(CardRole.TOKEN_SOURCE) * 0.8
                 player.tokens += tokens
                 player.board_power += tokens
             if CardRole.PROTECTION in card.roles:
                 player.protections_resolved += 1
-            recorder.emit("permanent_resolved", actor_id=player.player_id, payload={"card": card.oracle_name})
+            recorder.emit(
+                "permanent_resolved", actor_id=player.player_id, payload={"card": card.oracle_name}
+            )
         else:
             player.graveyard.append(card)
         self._trigger_spellslinger(player, players, card, recorder)
 
-    def _resolve_selection(self, player: _Player, recorder: _EventRecorder, card: StructuralCardProfile) -> None:
+    def _resolve_selection(
+        self, player: _Player, recorder: _EventRecorder, card: StructuralCardProfile
+    ) -> None:
         if not player.library:
             return
         look = player.library[: min(3, len(player.library))]
@@ -1162,9 +1230,19 @@ class StructuralSimulator:
         player.library.remove(chosen)
         player.hand.append(chosen)
         player.cards_drawn += 1
-        recorder.emit("selection_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "selected": chosen.oracle_name})
+        recorder.emit(
+            "selection_resolved",
+            actor_id=player.player_id,
+            payload={"card": card.oracle_name, "selected": chosen.oracle_name},
+        )
 
-    def _resolve_removal(self, player: _Player, card: StructuralCardProfile, players: list[_Player], recorder: _EventRecorder) -> None:
+    def _resolve_removal(
+        self,
+        player: _Player,
+        card: StructuralCardProfile,
+        players: list[_Player],
+        recorder: _EventRecorder,
+    ) -> None:
         targets = [
             opponent
             for opponent in players
@@ -1216,21 +1294,35 @@ class StructuralSimulator:
         target = target_mapping.get(decision.selected_action_id or "", targets[0])
         target.hostile_target_events += 1
         if self._attempt_protection(target, players, recorder, against=card.oracle_name):
-            recorder.emit("removal_prevented", actor_id=target.player_id, payload={"against": card.oracle_name})
+            recorder.emit(
+                "removal_prevented",
+                actor_id=target.player_id,
+                payload={"against": card.oracle_name},
+            )
             return
-        commanders = [commander for commander in target.commanders.values() if commander.on_battlefield]
+        commanders = [
+            commander for commander in target.commanders.values() if commander.on_battlefield
+        ]
         permanent = max(target.battlefield, key=self._permanent_value, default=None)
         commander_value = max((commander.power + 3 for commander in commanders), default=-1)
         permanent_value = self._permanent_value(permanent) if permanent is not None else -1
         if commanders and commander_value >= permanent_value:
             commander = max(commanders, key=lambda item: item.power)
             commander.on_battlefield = False
-            recorder.emit("commander_removed", actor_id=player.player_id, payload={"target": target.player_id, "commander": commander.name})
+            recorder.emit(
+                "commander_removed",
+                actor_id=player.player_id,
+                payload={"target": target.player_id, "commander": commander.name},
+            )
         elif permanent is not None:
             target.battlefield.remove(permanent)
             target.graveyard.append(permanent)
             self._remove_permanent_value(target, permanent)
-            recorder.emit("permanent_removed", actor_id=player.player_id, payload={"target": target.player_id, "card": permanent.oracle_name})
+            recorder.emit(
+                "permanent_removed",
+                actor_id=player.player_id,
+                payload={"target": target.player_id, "card": permanent.oracle_name},
+            )
         else:
             return
         player.removals_resolved += 1
@@ -1252,7 +1344,11 @@ class StructuralSimulator:
         if card.is_creature:
             player.board_power = max(0.0, player.board_power - card.base_power)
         if CardRole.ENGINE in card.roles:
-            player.engine_value = max(0.0, player.engine_value - card.strength(CardRole.ENGINE) * (1.0 - card.turn_cycle_risk * 0.25))
+            player.engine_value = max(
+                0.0,
+                player.engine_value
+                - card.strength(CardRole.ENGINE) * (1.0 - card.turn_cycle_risk * 0.25),
+            )
 
     def _attempt_protection(
         self,
@@ -1314,7 +1410,13 @@ class StructuralSimulator:
         )
         return True
 
-    def _resolve_wipe(self, player: _Player, card: StructuralCardProfile, players: list[_Player], recorder: _EventRecorder) -> None:
+    def _resolve_wipe(
+        self,
+        player: _Player,
+        card: StructuralCardProfile,
+        players: list[_Player],
+        recorder: _EventRecorder,
+    ) -> None:
         affected = 0
         for target in players:
             if not target.alive:
@@ -1339,7 +1441,11 @@ class StructuralSimulator:
                     commander.on_battlefield = False
             affected += len(destroyed)
         player.wipes_resolved += 1
-        recorder.emit("boardwipe_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "destroyed_permanents": affected})
+        recorder.emit(
+            "boardwipe_resolved",
+            actor_id=player.player_id,
+            payload={"card": card.oracle_name, "destroyed_permanents": affected},
+        )
 
     def _attempt_board_protection(
         self,
@@ -1395,7 +1501,13 @@ class StructuralSimulator:
         )
         return True
 
-    def _resolve_graveyard_hate(self, player: _Player, card: StructuralCardProfile, players: list[_Player], recorder: _EventRecorder) -> None:
+    def _resolve_graveyard_hate(
+        self,
+        player: _Player,
+        card: StructuralCardProfile,
+        players: list[_Player],
+        recorder: _EventRecorder,
+    ) -> None:
         targets = [
             opponent
             for opponent in players
@@ -1438,9 +1550,15 @@ class StructuralSimulator:
         del target.graveyard[-count:]
         target.exile.extend(exiled)
         player.graveyard_hate_resolved += 1
-        recorder.emit("graveyard_hate_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "target": target.player_id, "exiled": count})
+        recorder.emit(
+            "graveyard_hate_resolved",
+            actor_id=player.player_id,
+            payload={"card": card.oracle_name, "target": target.player_id, "exiled": count},
+        )
 
-    def _resolve_recursion(self, player: _Player, card: StructuralCardProfile, recorder: _EventRecorder) -> None:
+    def _resolve_recursion(
+        self, player: _Player, card: StructuralCardProfile, recorder: _EventRecorder
+    ) -> None:
         candidates = [item for item in player.graveyard if not item.is_land]
         if not candidates:
             return
@@ -1448,30 +1566,70 @@ class StructuralSimulator:
         player.graveyard.remove(recovered)
         player.hand.append(recovered)
         player.recursions_resolved += 1
-        recorder.emit("recursion_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "recovered": recovered.oracle_name})
+        recorder.emit(
+            "recursion_resolved",
+            actor_id=player.player_id,
+            payload={"card": card.oracle_name, "recovered": recovered.oracle_name},
+        )
 
-    def _resolve_finisher(self, player: _Player, card: StructuralCardProfile, players: list[_Player], recorder: _EventRecorder) -> None:
-        opponents = [opponent for opponent in players if opponent.alive and opponent.player_id != player.player_id]
+    def _resolve_finisher(
+        self,
+        player: _Player,
+        card: StructuralCardProfile,
+        players: list[_Player],
+        recorder: _EventRecorder,
+    ) -> None:
+        opponents = [
+            opponent
+            for opponent in players
+            if opponent.alive and opponent.player_id != player.player_id
+        ]
         strength = card.strength(CardRole.FINISHER)
         if not opponents:
-            damage = (3.0 + max(0.0, player.mana_spent - card.mana_value) * 0.7 + player.resources * 0.2) * strength
+            damage = (
+                3.0 + max(0.0, player.mana_spent - card.mana_value) * 0.7 + player.resources * 0.2
+            ) * strength
             player.pending_direct_damage += damage
-            recorder.emit("finisher_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "goldfish_damage": round(damage, 4)})
+            recorder.emit(
+                "finisher_resolved",
+                actor_id=player.player_id,
+                payload={"card": card.oracle_name, "goldfish_damage": round(damage, 4)},
+            )
             return
-        damage = (3.0 + max(0.0, player.mana_spent - card.mana_value) * 0.7 + player.resources * 0.2) * strength
+        damage = (
+            3.0 + max(0.0, player.mana_spent - card.mana_value) * 0.7 + player.resources * 0.2
+        ) * strength
         damage *= 1.0 + card.multiplayer_scaling * 0.1 * max(0, len(opponents) - 1)
         for opponent in opponents:
             opponent.life -= damage
             player.normal_damage_dealt += damage
-        recorder.emit("finisher_resolved", actor_id=player.player_id, payload={"card": card.oracle_name, "damage_each_opponent": round(damage, 4)})
+        recorder.emit(
+            "finisher_resolved",
+            actor_id=player.player_id,
+            payload={"card": card.oracle_name, "damage_each_opponent": round(damage, 4)},
+        )
 
-    def _trigger_spellslinger(self, player: _Player, players: list[_Player], card: StructuralCardProfile, recorder: _EventRecorder) -> None:
+    def _trigger_spellslinger(
+        self,
+        player: _Player,
+        players: list[_Player],
+        card: StructuralCardProfile,
+        recorder: _EventRecorder,
+    ) -> None:
         if card.is_permanent:
             return
-        guttersnipe = sum(1 for permanent in player.battlefield if permanent.oracle_name == "Guttersnipe")
-        whirlwind = sum(1 for permanent in player.battlefield if permanent.oracle_name == "Whirlwind of Thought")
-        stormkiln = sum(1 for permanent in player.battlefield if permanent.oracle_name == "Storm-Kiln Artist")
-        kykar = sum(1 for permanent in player.battlefield if permanent.oracle_name == "Kykar, Wind's Fury")
+        guttersnipe = sum(
+            1 for permanent in player.battlefield if permanent.oracle_name == "Guttersnipe"
+        )
+        whirlwind = sum(
+            1 for permanent in player.battlefield if permanent.oracle_name == "Whirlwind of Thought"
+        )
+        stormkiln = sum(
+            1 for permanent in player.battlefield if permanent.oracle_name == "Storm-Kiln Artist"
+        )
+        kykar = sum(
+            1 for permanent in player.battlefield if permanent.oracle_name == "Kykar, Wind's Fury"
+        )
         if whirlwind:
             self._draw(player, whirlwind, recorder, reason="whirlwind_of_thought")
         if stormkiln:
@@ -1487,9 +1645,15 @@ class StructuralSimulator:
                 if opponent.alive and opponent.player_id != player.player_id:
                     opponent.life -= damage
                     player.normal_damage_dealt += damage
-            recorder.emit("spellslinger_payoff", actor_id=player.player_id, payload={"damage_each_opponent": damage})
+            recorder.emit(
+                "spellslinger_payoff",
+                actor_id=player.player_id,
+                payload={"damage_each_opponent": damage},
+            )
 
-    def _sacrifice_trigger(self, player: _Player, count: float, recorder: _EventRecorder, *, reason: str) -> None:
+    def _sacrifice_trigger(
+        self, player: _Player, count: float, recorder: _EventRecorder, *, reason: str
+    ) -> None:
         korvold = player.commanders.get("Korvold, Fae-Cursed King")
         if korvold is not None and korvold.on_battlefield:
             korvold.power += count
@@ -1499,11 +1663,23 @@ class StructuralSimulator:
                 player.commander_peak_power.get(korvold.name, 0.0), korvold.power
             )
             self._draw(player, draw_count, recorder, reason="korvold_trigger")
-        bats = sum(card.strength(CardRole.PAYOFF) for card in player.battlefield if card.oracle_name == "Mirkwood Bats")
-        hearthhull = sum(card.strength(CardRole.PAYOFF) for card in player.battlefield if card.oracle_name == "Hearthhull, the Worldseed")
+        bats = sum(
+            card.strength(CardRole.PAYOFF)
+            for card in player.battlefield
+            if card.oracle_name == "Mirkwood Bats"
+        )
+        hearthhull = sum(
+            card.strength(CardRole.PAYOFF)
+            for card in player.battlefield
+            if card.oracle_name == "Hearthhull, the Worldseed"
+        )
         player.resources += count * 0.25
         player.resources_generated += count * 0.25
-        recorder.emit("sacrifice_event", actor_id=player.player_id, payload={"reason": reason, "count": count, "bats": bats, "hearthhull": hearthhull})
+        recorder.emit(
+            "sacrifice_event",
+            actor_id=player.player_id,
+            payload={"reason": reason, "count": count, "bats": bats, "hearthhull": hearthhull},
+        )
 
     def _combat(
         self,
@@ -1514,9 +1690,14 @@ class StructuralSimulator:
         goldfish_life: float,
         goldfish_commander_damage: dict[str, float],
     ) -> tuple[float, float]:
-        commander_attackers = [commander for commander in player.commanders.values() if commander.on_battlefield]
+        commander_attackers = [
+            commander for commander in player.commanders.values() if commander.on_battlefield
+        ]
         combat_multiplier = 1.0
-        if any(card.oracle_name in {"Duelist's Heritage", "Psychotic Fury"} for card in player.battlefield):
+        if any(
+            card.oracle_name in {"Duelist's Heritage", "Psychotic Fury"}
+            for card in player.battlefield
+        ):
             combat_multiplier *= 1.75
         if any(card.oracle_name == "Jeska, Thrice Reborn" for card in player.battlefield):
             combat_multiplier *= 3.0
@@ -1532,11 +1713,25 @@ class StructuralSimulator:
             player.normal_damage_dealt += max(0.0, attack * combat_multiplier)
             for commander in commander_attackers:
                 amount = commander.power * combat_multiplier
-                goldfish_commander_damage[commander.name] = goldfish_commander_damage.get(commander.name, 0.0) + amount
+                goldfish_commander_damage[commander.name] = (
+                    goldfish_commander_damage.get(commander.name, 0.0) + amount
+                )
                 player.commander_damage_dealt += amount
-            recorder.emit("combat_damage", actor_id=player.player_id, payload={"target": "goldfish", "damage": round(damage, 4), "target_life": round(goldfish_life, 4)})
+            recorder.emit(
+                "combat_damage",
+                actor_id=player.player_id,
+                payload={
+                    "target": "goldfish",
+                    "damage": round(damage, 4),
+                    "target_life": round(goldfish_life, 4),
+                },
+            )
             return damage, goldfish_life
-        targets = [opponent for opponent in players if opponent.alive and opponent.player_id != player.player_id]
+        targets = [
+            opponent
+            for opponent in players
+            if opponent.alive and opponent.player_id != player.player_id
+        ]
         state = self._pilot_state(player, players, turn)
         target_actions: list[PilotActionView] = []
         target_mapping: dict[str, _Player] = {}
@@ -1579,28 +1774,61 @@ class StructuralSimulator:
         target.life -= damage
         player.normal_damage_dealt += max(0.0, damage - commander_attack * combat_multiplier)
         for commander in commander_attackers:
-            amount = max(0.0, commander.power * combat_multiplier - blockers / max(1, len(commander_attackers) + 1))
+            amount = max(
+                0.0,
+                commander.power * combat_multiplier
+                - blockers / max(1, len(commander_attackers) + 1),
+            )
             key = f"{player.player_id}:{commander.name}"
-            target.commander_damage_received[key] = target.commander_damage_received.get(key, 0.0) + amount
+            target.commander_damage_received[key] = (
+                target.commander_damage_received.get(key, 0.0) + amount
+            )
             player.commander_damage_dealt += amount
-        if any(card.oracle_name == "Kediss, Emberclaw Familiar" for card in player.battlefield) and commander_attackers:
+        if (
+            any(card.oracle_name == "Kediss, Emberclaw Familiar" for card in player.battlefield)
+            and commander_attackers
+        ):
             splash = max(commander.power for commander in commander_attackers) * combat_multiplier
             for opponent in targets:
                 if opponent.player_id != target.player_id:
                     opponent.life -= splash
                     player.normal_damage_dealt += splash
-            recorder.emit("kediss_splash", actor_id=player.player_id, payload={"damage_each_other_opponent": round(splash, 4)})
-        recorder.emit("combat_damage", actor_id=player.player_id, payload={"target": target.player_id, "damage": round(damage, 4), "target_life": round(target.life, 4)})
+            recorder.emit(
+                "kediss_splash",
+                actor_id=player.player_id,
+                payload={"damage_each_other_opponent": round(splash, 4)},
+            )
+        recorder.emit(
+            "combat_damage",
+            actor_id=player.player_id,
+            payload={
+                "target": target.player_id,
+                "damage": round(damage, 4),
+                "target_life": round(target.life, 4),
+            },
+        )
         return damage, goldfish_life
 
-    def _end_step(self, player: _Player, players: list[_Player], recorder: _EventRecorder, turn: int) -> None:
+    def _end_step(
+        self, player: _Player, players: list[_Player], recorder: _EventRecorder, turn: int
+    ) -> None:
         if player.tokens > 0:
             conversion = min(player.tokens * 0.08, 1.5)
             player.resources += conversion
             player.resources_generated += conversion
-        recorder.emit("end_step", actor_id=player.player_id, payload={"turn": turn, "hand_size": len(player.hand), "resources": round(player.resources, 4)})
+        recorder.emit(
+            "end_step",
+            actor_id=player.player_id,
+            payload={
+                "turn": turn,
+                "hand_size": len(player.hand),
+                "resources": round(player.resources, 4),
+            },
+        )
 
-    def _check_eliminations(self, players: list[_Player], turn: int, recorder: _EventRecorder) -> None:
+    def _check_eliminations(
+        self, players: list[_Player], turn: int, recorder: _EventRecorder
+    ) -> None:
         for player in players:
             if not player.alive:
                 continue
@@ -1611,13 +1839,25 @@ class StructuralSimulator:
                 player.placement = alive_before
                 player.eliminated_turn = turn
                 if player.elimination_reason is None:
-                    player.elimination_reason = "commander_damage" if commander_lethal else "life_total"
-                recorder.emit("player_eliminated", actor_id=player.player_id, payload={"placement": player.placement, "reason": player.elimination_reason, "turn": turn})
+                    player.elimination_reason = (
+                        "commander_damage" if commander_lethal else "life_total"
+                    )
+                recorder.emit(
+                    "player_eliminated",
+                    actor_id=player.player_id,
+                    payload={
+                        "placement": player.placement,
+                        "reason": player.elimination_reason,
+                        "turn": turn,
+                    },
+                )
 
     @staticmethod
     def _assign_abort_placements(players: list[_Player]) -> None:
         remaining = [player for player in players if player.placement is None]
-        remaining.sort(key=lambda player: (player.life, player.threat(), len(player.hand)), reverse=True)
+        remaining.sort(
+            key=lambda player: (player.life, player.threat(), len(player.hand)), reverse=True
+        )
         for placement, player in enumerate(remaining, start=1):
             player.placement = placement
 

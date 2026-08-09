@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 
 from commander_lab.engine.structural.fixtures import build_current_opponent_profiles
-from commander_lab.models import CardRole, FormatBand, MetaCategory, StructuralMechanic
+from commander_lab.models import CardRole, FormatBand, MetaCategory
+from commander_lab.models.roles import StructuralMechanic
 
 
 def _by_name(deck):
@@ -11,7 +12,9 @@ def _by_name(deck):
 
 
 def test_opponent_evidence_statuses_and_unknowns_are_explicit(repo_root) -> None:
-    raw = json.loads((repo_root / "data/opponents/current_structural_profiles.json").read_text(encoding="utf-8"))
+    raw = json.loads(
+        (repo_root / "data/opponents/current_structural_profiles.json").read_text(encoding="utf-8")
+    )
     specs = {row["deck_id"]: row for row in raw["profiles"]}
     allowed = {"verified", "observed", "reported", "synthetic", "unknown"}
     assert all(spec.get("evidence_status") in allowed for spec in specs.values())
@@ -27,7 +30,9 @@ def test_opponent_evidence_statuses_and_unknowns_are_explicit(repo_root) -> None
     assert doom["upgrade_slots_unknown"] is True
 
 
-def test_official_precon_commanders_and_native_decision_cards_are_structurally_named(repo_root) -> None:
+def test_official_precon_commanders_and_native_decision_cards_are_structurally_named(
+    repo_root,
+) -> None:
     decks = build_current_opponent_profiles(
         repo_root / "data/opponents/current_structural_profiles.json",
         data_snapshot_hash="0" * 64,
@@ -45,7 +50,9 @@ def test_official_precon_commanders_and_native_decision_cards_are_structurally_n
 
     assert {"Black Market Connections", "Toxic Deluge", "Vandalblast"}.issubset(_by_name(doom))
     assert {"Muldrotha, the Gravetide", "Risen Reef", "Bane of Progress"}.issubset(_by_name(dance))
-    assert {"Conduit of Worlds", "Trading Post", "Overwhelming Stampede"}.issubset(_by_name(wakanda))
+    assert {"Conduit of Worlds", "Trading Post", "Overwhelming Stampede"}.issubset(
+        _by_name(wakanda)
+    )
     assert all(len(deck.cards) == 100 for deck in (doom, dance, wakanda))
 
 
@@ -56,11 +63,28 @@ def test_partial_opponents_gain_native_cards_without_faking_completion(repo_root
     )
     morcant = _by_name(decks["opponent/morcant-elves"])
     cosmic = _by_name(decks["opponent/cosmic-spiderman-midbudget"])
-    assert {"Elvish Archdruid", "Flourishing Defenses", "Hapatra, Vizier of Poisons", "Deathreap Ritual"}.issubset(morcant)
-    assert {"Cosmic Spider-Man", "Mary Jane Watson", "Scarlet Spider, Ben Reilly", "Guy in the Chair"}.issubset(cosmic)
-    # The model stays a 100-card structural completion; only the four hard-known Cosmic names are represented natively.
+    assert {
+        "Elvish Archdruid",
+        "Flourishing Defenses",
+        "Hapatra, Vizier of Poisons",
+        "Deathreap Ritual",
+    }.issubset(morcant)
+    assert {
+        "Cosmic Spider-Man",
+        "Mary Jane Watson",
+        "Scarlet Spider, Ben Reilly",
+        "Guy in the Chair",
+    }.issubset(cosmic)
+    # The model stays a 100-card structural completion; only the four hard-known Cosmic names
+    # are represented natively.
     assert len(decks["opponent/cosmic-spiderman-midbudget"].cards) == 100
-    assert sum("role card" in card.oracle_name for card in decks["opponent/cosmic-spiderman-midbudget"].cards) > 0
+    assert (
+        sum(
+            "role card" in card.oracle_name
+            for card in decks["opponent/cosmic-spiderman-midbudget"].cards
+        )
+        > 0
+    )
 
 
 def test_kaervek_native_nonbasic_utility_and_color_production(repo_root) -> None:
@@ -78,7 +102,9 @@ def test_kaervek_native_nonbasic_utility_and_color_production(repo_root) -> None
     assert {color.value for color in cards["Mountain"].produces_colors} == {"R"}
 
 
-def test_mechanic_tags_distinguish_table_and_commander_damage_and_rebuild(structural_profiles) -> None:
+def test_mechanic_tags_distinguish_table_and_commander_damage_and_rebuild(
+    structural_profiles,
+) -> None:
     kediss = structural_profiles.resolve("Kediss, Emberclaw Familiar")
     jeska = structural_profiles.resolve("Jeska, Thrice Reborn")
     bats = structural_profiles.resolve("Mirkwood Bats")
@@ -90,7 +116,9 @@ def test_mechanic_tags_distinguish_table_and_commander_damage_and_rebuild(struct
     assert StructuralMechanic.COMMANDER_DAMAGE_SUPPORT in jeska.mechanic_tags
     assert StructuralMechanic.TABLE_DAMAGE not in jeska.mechanic_tags
     assert StructuralMechanic.TABLE_DAMAGE in bats.mechanic_tags
-    assert {StructuralMechanic.REBUILD, StructuralMechanic.LAND_RECURSION}.issubset(analyst.mechanic_tags)
+    assert {StructuralMechanic.REBUILD, StructuralMechanic.LAND_RECURSION}.issubset(
+        analyst.mechanic_tags
+    )
     assert StructuralMechanic.STACK_INTERACTION in counterspell.mechanic_tags
 
 

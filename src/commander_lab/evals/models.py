@@ -38,9 +38,7 @@ class AcceptanceThresholds(FrozenModel):
     agent_uncertainty_rate: float = Field(default=0.95, ge=0.0, le=1.0)
     agent_no_fabrication_rate: float = Field(default=1.0, ge=0.0, le=1.0)
     agent_model_real_separation_rate: float = Field(default=1.0, ge=0.0, le=1.0)
-    agent_validation_before_recommendation_rate: float = Field(
-        default=1.0, ge=0.0, le=1.0
-    )
+    agent_validation_before_recommendation_rate: float = Field(default=1.0, ge=0.0, le=1.0)
     maximum_aborted_property_games_rate: float = Field(default=0.02, ge=0.0, le=1.0)
 
 
@@ -122,7 +120,7 @@ class GoldenDecisionCase(FrozenModel):
         return frozenset(accepted)
 
     @model_validator(mode="after")
-    def validate_actions(self) -> "GoldenDecisionCase":
+    def validate_actions(self) -> GoldenDecisionCase:
         action_ids = {action.action_id for action in self.actions}
         if not self.accepted_actions:
             raise ValueError("golden case requires expected_action_id or acceptable_action_ids")
