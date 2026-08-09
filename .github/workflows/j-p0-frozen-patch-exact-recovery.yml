@@ -1,0 +1,70 @@
+name: J P0 Frozen Patch Exact Recovery
+
+on:
+  push:
+    branches:
+      - roadmap/j-p0-integrity-run-identity
+
+permissions:
+  contents: write
+
+jobs:
+  apply-frozen-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify canonical base is unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "85af667c2bda54c3d1370dc0f83046dca9d34c1c"
+          test "$(git merge-base HEAD origin/main)" = "85af667c2bda54c3d1370dc0f83046dca9d34c1c"
+
+      - name: Extract and verify exact frozen payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, gzip, hashlib, pathlib, re
+
+          src = pathlib.Path('.github/workflows/j-p0-frozen-patch-transport.yml').read_text(encoding='utf-8')
+          match = re.search(r'PATCH_B64:\s*>-\s*\n(?P<body>.*?)\n\s*run:\s*\|', src, flags=re.S)
+          if not match:
+              raise SystemExit('PATCH_B64 scalar not found')
+          encoded = ''.join(match.group('body').split())
+          print('encoded_length=', len(encoded))
+          print('encoded_sha256=', hashlib.sha256(encoded.encode('ascii')).hexdigest())
+          if len(encoded) != 30180:
+              raise SystemExit('encoded payload length mismatch')
+          if hashlib.sha256(encoded.encode('ascii')).hexdigest() != 'daa70c26ce5316cd1f03bb32b29e6085ce42d491ba50287804d74ac5cbbc06e1':
+              raise SystemExit('encoded payload sha mismatch')
+          compressed = base64.b64decode(encoded, validate=True)
+          if hashlib.sha256(compressed).hexdigest() != '07b7838799dad20180253eb253a846d2c454b00b54af40ea13443c2dc992b1ed':
+              raise SystemExit('compressed payload sha mismatch')
+          patch = gzip.decompress(compressed)
+          if hashlib.sha256(patch).hexdigest() != '78c3dc76ca1703562e191dd11a5d93a5025256d10927eeeb12d59f65f54d826d':
+              raise SystemExit('patch sha mismatch')
+          pathlib.Path('/tmp/jp0.patch').write_bytes(patch)
+          PY
+          git apply --check /tmp/jp0.patch
+          git apply /tmp/jp0.patch
+          rm .github/workflows/j-p0-frozen-patch-transport.yml
+          rm .github/workflows/j-p0-frozen-patch-recovery.yml
+          rm .github/workflows/j-p0-frozen-patch-exact-recovery.yml
+          git diff --check
+          git add -A
+          test "$(git write-tree)" = "210c649dfec42fab975f1131f3c93eed7de5ac15"
+
+      - name: Commit exact frozen tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'commander-playtest-lab automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'feat(J-P0): add fail-closed universal RunIdentity'
+          test "$(git rev-parse HEAD^{tree})" = "210c649dfec42fab975f1131f3c93eed7de5ac15"
+          git push origin HEAD:roadmap/j-p0-integrity-run-identity
