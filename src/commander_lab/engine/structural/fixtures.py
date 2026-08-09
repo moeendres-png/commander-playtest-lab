@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from commander_lab.models import (
     CardRole,
     Color,
@@ -7,8 +9,8 @@ from commander_lab.models import (
     StructuralCardProfile,
     StructuralDeckProfile,
 )
+from commander_lab.models.roles import StructuralMechanic
 from commander_lab.storage import sha256_value
-from pathlib import Path
 
 
 def _card(
@@ -44,14 +46,23 @@ def _card(
     )
 
 
-def build_synthetic_deck_profile(archetype: str, *, data_snapshot_hash: str) -> StructuralDeckProfile:
+def build_synthetic_deck_profile(
+    archetype: str, *, data_snapshot_hash: str
+) -> StructuralDeckProfile:
     archetype = archetype.casefold()
     if archetype not in {"aggro", "control", "engine"}:
         raise ValueError(f"unknown synthetic archetype: {archetype}")
     prefix = f"synthetic/{archetype}"
     commander_name = f"Synthetic {archetype.title()} Commander"
     cards: list[StructuralCardProfile] = [
-        _card(commander_name, 4, {CardRole.ENGINE, CardRole.PAYOFF}, strength=1.2, power=4, creature=True)
+        _card(
+            commander_name,
+            4,
+            {CardRole.ENGINE, CardRole.PAYOFF},
+            strength=1.2,
+            power=4,
+            creature=True,
+        )
     ]
     land_count = 37 if archetype != "control" else 38
     colors = frozenset({Color.WHITE, Color.BLUE, Color.BLACK, Color.RED, Color.GREEN})
@@ -67,9 +78,20 @@ def build_synthetic_deck_profile(archetype: str, *, data_snapshot_hash: str) -> 
         add_many("draw", 7, 2, {CardRole.DRAW, CardRole.SELECTION}, permanent=False)
         add_many("removal", 8, 2, {CardRole.REMOVAL}, permanent=False)
         add_many("wipe", 2, 4, {CardRole.WIPE}, permanent=False)
-        add_many("threat", 22, 3, {CardRole.ENABLER, CardRole.COMBAT_PAYOFF}, power=3, creature=True)
+        add_many(
+            "threat", 22, 3, {CardRole.ENABLER, CardRole.COMBAT_PAYOFF}, power=3, creature=True
+        )
         add_many("token", 7, 3, {CardRole.TOKEN_SOURCE, CardRole.PAYOFF}, power=2, creature=True)
-        add_many("finisher", 6, 5, {CardRole.FINISHER, CardRole.COMBAT_PAYOFF}, strength=1.3, power=5, creature=True, multiplayer=0.4)
+        add_many(
+            "finisher",
+            6,
+            5,
+            {CardRole.FINISHER, CardRole.COMBAT_PAYOFF},
+            strength=1.3,
+            power=5,
+            creature=True,
+            multiplayer=0.4,
+        )
     elif archetype == "control":
         add_many("draw", 10, 3, {CardRole.DRAW, CardRole.SELECTION}, permanent=False)
         add_many("counter", 10, 2, {CardRole.COUNTER}, permanent=False)
@@ -77,17 +99,39 @@ def build_synthetic_deck_profile(archetype: str, *, data_snapshot_hash: str) -> 
         add_many("wipe", 5, 5, {CardRole.WIPE}, strength=1.3, permanent=False, multiplayer=0.4)
         add_many("protection", 4, 1, {CardRole.PROTECTION}, permanent=False)
         add_many("engine", 7, 4, {CardRole.ENGINE, CardRole.DRAW}, strength=1.2)
-        add_many("finisher", 5, 6, {CardRole.FINISHER}, strength=1.4, power=5, creature=True, multiplayer=0.8)
+        add_many(
+            "finisher",
+            5,
+            6,
+            {CardRole.FINISHER},
+            strength=1.4,
+            power=5,
+            creature=True,
+            multiplayer=0.8,
+        )
     else:
         add_many("draw", 9, 3, {CardRole.DRAW, CardRole.SELECTION}, permanent=False)
         add_many("removal", 8, 2, {CardRole.REMOVAL}, permanent=False)
         add_many("wipe", 3, 5, {CardRole.WIPE}, permanent=False)
         add_many("engine", 11, 3, {CardRole.ENGINE, CardRole.ENABLER}, strength=1.2)
         add_many("token", 8, 3, {CardRole.TOKEN_SOURCE, CardRole.ENABLER}, power=2, creature=True)
-        add_many("payoff", 8, 4, {CardRole.PAYOFF, CardRole.FINISHER}, strength=1.25, power=3, creature=True, multiplayer=0.7)
+        add_many(
+            "payoff",
+            8,
+            4,
+            {CardRole.PAYOFF, CardRole.FINISHER},
+            strength=1.25,
+            power=3,
+            creature=True,
+            multiplayer=0.7,
+        )
         add_many("recursion", 5, 4, {CardRole.RECURSION, CardRole.ENGINE}, strength=1.1)
     while len(cards) < 100:
-        cards.append(_card(f"{prefix} filler {len(cards):02d}", 3, {CardRole.ENABLER}, power=2, creature=True))
+        cards.append(
+            _card(
+                f"{prefix} filler {len(cards):02d}", 3, {CardRole.ENABLER}, power=2, creature=True
+            )
+        )
     cards = cards[:100]
     deck_hash = sha256_value([card.oracle_name for card in cards])
     return StructuralDeckProfile(
@@ -100,7 +144,6 @@ def build_synthetic_deck_profile(archetype: str, *, data_snapshot_hash: str) -> 
         commander_strategy=archetype,
         data_snapshot_hash=data_snapshot_hash,
     )
-
 
 
 def build_current_opponent_profiles(
@@ -133,15 +176,23 @@ def build_current_opponent_profiles(
             for entry in deck_payload["cards"]:
                 role_row = role_by_name[entry["oracle_name"]]
                 roles = frozenset(CardRole(value) for value in role_row["roles"])
+                mechanics = frozenset(
+                    StructuralMechanic(value) for value in role_row.get("mechanic_tags", [])
+                )
                 colors = frozenset(
-                    Color(value) for value in str(entry.get("color_identity", "")) if value in {"W", "U", "B", "R", "G"}
+                    Color(value)
+                    for value in str(entry.get("color_identity", ""))
+                    if value in {"W", "U", "B", "R", "G"}
                 )
                 produces = frozenset()
                 if role_row.get("is_land"):
-                    if entry["oracle_name"] == "Swamp":
+                    land_name = str(entry["oracle_name"])
+                    if land_name in {"Swamp", "Barren Moor", "Bojuka Bog"}:
                         produces = frozenset({Color.BLACK})
-                    elif entry["oracle_name"] == "Mountain":
+                    elif land_name == "Mountain":
                         produces = frozenset({Color.RED})
+                    elif land_name == "Hall of Oracles":
+                        produces = frozenset({Color.BLACK, Color.RED})
                     else:
                         produces = frozenset({Color.BLACK, Color.RED})
                 requirements: dict[Color, int] = {}
@@ -158,24 +209,48 @@ def build_current_opponent_profiles(
                             mana_value=float(entry.get("mana_value", 0.0)),
                             roles=roles,
                             role_strengths={role: 1.0 for role in roles},
+                            mechanic_tags=mechanics,
                             color_requirements=requirements,
                             color_identity=colors,
                             produces_colors=produces,
                             is_land=bool(role_row.get("is_land")),
-                            is_permanent=not any(token in str(entry.get("card_type", "")) for token in ("Instant", "Sorcery")),
+                            is_permanent=not any(
+                                token in str(entry.get("card_type", ""))
+                                for token in ("Instant", "Sorcery")
+                            ),
                             is_creature=bool(role_row.get("is_creature")),
-                            base_power=4.0 if entry["oracle_name"] == commander_name else (3.0 if role_row.get("is_creature") else 0.0),
-                            commander_synergy=1.0 if entry["oracle_name"] == commander_name else (0.55 if roles & {CardRole.ENGINE, CardRole.PAYOFF, CardRole.FINISHER} else 0.2),
+                            base_power=4.0
+                            if entry["oracle_name"] == commander_name
+                            else (3.0 if role_row.get("is_creature") else 0.0),
+                            commander_synergy=1.0
+                            if entry["oracle_name"] == commander_name
+                            else (
+                                0.55
+                                if roles & {CardRole.ENGINE, CardRole.PAYOFF, CardRole.FINISHER}
+                                else 0.2
+                            ),
                             floor_value=0.78,
-                            immediate_impact=0.85 if roles & {CardRole.REMOVAL, CardRole.WIPE, CardRole.GRAVEYARD_HATE} else 0.6,
-                            turn_cycle_risk=0.35 if roles & {CardRole.REMOVAL, CardRole.PROTECTION} else 0.5,
-                            multiplayer_scaling=0.55 if roles & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER} else 0.1,
+                            immediate_impact=0.85
+                            if roles & {CardRole.REMOVAL, CardRole.WIPE, CardRole.GRAVEYARD_HATE}
+                            else 0.6,
+                            turn_cycle_risk=0.35
+                            if roles & {CardRole.REMOVAL, CardRole.PROTECTION}
+                            else 0.5,
+                            multiplayer_scaling=0.55
+                            if roles & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER}
+                            else 0.1,
                             source_quality=quality,
-                            notes=f"Exact verified opponent snapshot card for {deck_id}; source_status={source_status}.",
+                            notes=(
+                                f"Exact verified opponent snapshot card for {deck_id}; "
+                                f"source_status={source_status}."
+                            ),
                         )
                     )
             if len(exact_cards) != 100:
-                raise ValueError(f"verified opponent snapshot {deck_id} contains {len(exact_cards)} cards, expected 100")
+                raise ValueError(
+                    f"verified opponent snapshot {deck_id} contains {len(exact_cards)} cards, "
+                    "expected 100"
+                )
             profiles[deck_id] = StructuralDeckProfile(
                 deck_id=deck_id,
                 deck_hash=str(deck_payload["deck_hash"]),
@@ -187,24 +262,73 @@ def build_current_opponent_profiles(
                 data_snapshot_hash=data_snapshot_hash,
             )
             continue
+        commander_roles = frozenset(
+            CardRole(value)
+            for value in spec.get("commander_roles", ["engine", "payoff", "combat_payoff"])
+        )
+        commander_mechanics = frozenset(
+            StructuralMechanic(value) for value in spec.get("commander_mechanics", [])
+        )
         cards: list[StructuralCardProfile] = [
             StructuralCardProfile(
                 oracle_name=commander_name,
                 mana_value=float(spec.get("commander_cost", 5.0)),
-                roles=frozenset({CardRole.ENGINE, CardRole.PAYOFF, CardRole.COMBAT_PAYOFF}),
-                role_strengths={CardRole.ENGINE: 1.15, CardRole.PAYOFF: 1.1, CardRole.COMBAT_PAYOFF: 0.8},
+                roles=commander_roles,
+                role_strengths={
+                    role: 1.15 if role in {CardRole.ENGINE, CardRole.PAYOFF} else 1.0
+                    for role in commander_roles
+                },
+                mechanic_tags=commander_mechanics,
                 is_permanent=True,
                 is_creature=True,
                 base_power=float(spec.get("commander_power", 5.0)),
                 commander_synergy=1.0,
                 floor_value=0.75,
-                immediate_impact=0.65,
+                immediate_impact=float(spec.get("commander_immediate_impact", 0.65)),
                 turn_cycle_risk=0.45,
-                multiplayer_scaling=0.35,
+                multiplayer_scaling=float(spec.get("commander_multiplayer_scaling", 0.35)),
                 source_quality=quality,
-                notes=f"Current opponent commander role profile; source_status={source_status}.",
+                notes=(
+                    "Current opponent commander role profile; "
+                    f"source_status={source_status}; "
+                    f"evidence_status={spec.get('evidence_status', 'unknown')}."
+                ),
             )
         ]
+        native_role_counts: dict[CardRole, int] = {}
+        for native in spec.get("native_cards", []):
+            native_roles = frozenset(CardRole(value) for value in native.get("roles", ["enabler"]))
+            native_mechanics = frozenset(
+                StructuralMechanic(value) for value in native.get("mechanic_tags", [])
+            )
+            for role in native_roles:
+                native_role_counts[role] = native_role_counts.get(role, 0) + 1
+            cards.append(
+                StructuralCardProfile(
+                    oracle_name=str(native["oracle_name"]),
+                    mana_value=float(native.get("mana_value", 3.0)),
+                    roles=native_roles,
+                    role_strengths={
+                        role: float(native.get("role_strength", 1.0)) for role in native_roles
+                    },
+                    mechanic_tags=native_mechanics,
+                    is_permanent=bool(native.get("is_permanent", True)),
+                    is_creature=bool(native.get("is_creature", False)),
+                    base_power=float(native.get("base_power", 0.0)),
+                    commander_synergy=float(native.get("commander_synergy", 0.35)),
+                    floor_value=float(native.get("floor_value", 0.75)),
+                    immediate_impact=float(native.get("immediate_impact", 0.65)),
+                    turn_cycle_risk=float(native.get("turn_cycle_risk", 0.45)),
+                    multiplayer_scaling=float(native.get("multiplayer_scaling", 0.0)),
+                    source_quality=quality,
+                    notes=(
+                        "Decision-relevant named opponent profile; "
+                        f"source_status={source_status}; "
+                        f"evidence_status={spec.get('evidence_status', 'unknown')}."
+                    ),
+                )
+            )
+
         land_count = int(spec.get("land_count", 38))
         for index in range(land_count):
             cards.append(
@@ -222,14 +346,28 @@ def build_current_opponent_profiles(
                     notes=f"Abstract mana source for {deck_id}.",
                 )
             )
-        role_counts = {CardRole(key): int(value) for key, value in spec.get("roles", {}).items()}
+        role_counts = {
+            CardRole(key): max(0, int(value) - native_role_counts.get(CardRole(key), 0))
+            for key, value in spec.get("roles", {}).items()
+        }
         role_mv = {
-            CardRole.RAMP: 2.0, CardRole.DRAW: 3.0, CardRole.SELECTION: 2.0,
-            CardRole.REMOVAL: 2.5, CardRole.COUNTER: 2.0, CardRole.PROTECTION: 1.5,
-            CardRole.WIPE: 5.0, CardRole.RECURSION: 4.0, CardRole.GRAVEYARD_HATE: 2.5,
-            CardRole.ENGINE: 3.5, CardRole.ENABLER: 3.0, CardRole.PAYOFF: 4.0,
-            CardRole.FINISHER: 6.0, CardRole.COMBAT_PAYOFF: 3.5, CardRole.TOKEN_SOURCE: 3.5,
-            CardRole.SACRIFICE_OUTLET: 2.5, CardRole.LAND_SYNERGY: 3.0,
+            CardRole.RAMP: 2.0,
+            CardRole.DRAW: 3.0,
+            CardRole.SELECTION: 2.0,
+            CardRole.REMOVAL: 2.5,
+            CardRole.COUNTER: 2.0,
+            CardRole.PROTECTION: 1.5,
+            CardRole.WIPE: 5.0,
+            CardRole.RECURSION: 4.0,
+            CardRole.GRAVEYARD_HATE: 2.5,
+            CardRole.ENGINE: 3.5,
+            CardRole.ENABLER: 3.0,
+            CardRole.PAYOFF: 4.0,
+            CardRole.FINISHER: 6.0,
+            CardRole.COMBAT_PAYOFF: 3.5,
+            CardRole.TOKEN_SOURCE: 3.5,
+            CardRole.SACRIFICE_OUTLET: 2.5,
+            CardRole.LAND_SYNERGY: 3.0,
         }
         slot_count = 100 - len(cards)
         slot_roles: list[set[CardRole]] = [set() for _ in range(slot_count)]
@@ -241,7 +379,17 @@ def build_current_opponent_profiles(
         for index, roles in enumerate(slot_roles):
             if not roles:
                 roles = {CardRole.ENABLER}
-            creature = bool(roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF, CardRole.FINISHER, CardRole.COMBAT_PAYOFF, CardRole.TOKEN_SOURCE})
+            creature = bool(
+                roles
+                & {
+                    CardRole.ENGINE,
+                    CardRole.ENABLER,
+                    CardRole.PAYOFF,
+                    CardRole.FINISHER,
+                    CardRole.COMBAT_PAYOFF,
+                    CardRole.TOKEN_SOURCE,
+                }
+            )
             mana_value = sum(role_mv.get(role, 3.0) for role in roles) / len(roles)
             cards.append(
                 StructuralCardProfile(
@@ -249,16 +397,32 @@ def build_current_opponent_profiles(
                     mana_value=mana_value,
                     roles=frozenset(roles),
                     role_strengths={role: 1.0 for role in roles},
-                    is_permanent=not bool(roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.SELECTION}),
+                    is_permanent=not bool(
+                        roles
+                        & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.SELECTION}
+                    ),
                     is_creature=creature,
                     base_power=3.0 if creature else 0.0,
-                    commander_synergy=0.45 if roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF} else 0.15,
+                    commander_synergy=0.45
+                    if roles & {CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF}
+                    else 0.15,
                     floor_value=0.72,
-                    immediate_impact=0.8 if roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.PROTECTION} else 0.55,
-                    turn_cycle_risk=0.25 if roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION} else 0.5,
-                    multiplayer_scaling=0.45 if roles & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER, CardRole.TOKEN_SOURCE} else 0.1,
+                    immediate_impact=0.8
+                    if roles
+                    & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE, CardRole.PROTECTION}
+                    else 0.55,
+                    turn_cycle_risk=0.25
+                    if roles & {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION}
+                    else 0.5,
+                    multiplayer_scaling=0.45
+                    if roles
+                    & {CardRole.WIPE, CardRole.PAYOFF, CardRole.FINISHER, CardRole.TOKEN_SOURCE}
+                    else 0.1,
                     source_quality=quality,
-                    notes=f"Structural role-density card for {deck_id}; source_status={source_status}.",
+                    notes=(
+                        f"Structural role-density card for {deck_id}; "
+                        f"source_status={source_status}."
+                    ),
                 )
             )
         while len(cards) < 100:

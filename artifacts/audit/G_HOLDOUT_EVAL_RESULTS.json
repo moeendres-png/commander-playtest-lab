@@ -1,0 +1,1361 @@
+{
+  "schema_version": "1.0.0",
+  "audit_point": "G",
+  "generated": "2026-08-09",
+  "estimate_type": "structural_model_estimates",
+  "method": {
+    "development_tuned": true,
+    "holdout_used_for_tuning": false,
+    "deterministic": true,
+    "seed": 0,
+    "note": "Holdout was first evaluated only after development reached 24/24; no post-holdout tuning was performed."
+  },
+  "baseline": {
+    "development": {
+      "summary": {
+        "passed": 18,
+        "total": 24,
+        "failed": 6,
+        "pass_rate": 0.75
+      },
+      "results": [
+        {
+          "case_id": "g_k_hold_exposed_commander",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "develop"
+          ],
+          "observed": "develop",
+          "details": [
+            "Hold Korvold when there is no sacrifice material and no protection",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_protected_commander_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "korvold"
+          ],
+          "observed": "korvold",
+          "details": [
+            "Cast Korvold when sacrifice value and protection are both available",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_offline_independent_payoff",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "bats"
+          ],
+          "observed": "bats",
+          "details": [
+            "Prefer an independent table-damage payoff while Korvold is offline",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_rebuild_after_wipe",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "analyst"
+          ],
+          "observed": "analyst",
+          "details": [
+            "Use multi-zone land rebuild after a wipe instead of a generic value spell",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_five_player_compressed_finish",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "exs"
+          ],
+          "observed": "exs",
+          "details": [
+            "Prefer compressed table finish in a five-player pod",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_boardwipe_timing",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Wipe a developed hostile board rather than add another engine",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_engine_vs_threat",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "remove",
+          "details": [
+            "Answer a central engine instead of greedily developing",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_token_engine_without_commander",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "ophi"
+          ],
+          "observed": "ophi",
+          "details": [
+            "Build repeatable sacrifice material without requiring Korvold",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_morcant_blight_multi_threat",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Use a broad answer when Morcant and Blight engines are simultaneously developed",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_kaervek_doom_priority",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "remove",
+          "details": [
+            "Remove Kaervek before committing to a longer own spell sequence",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_wakanda_cosmic_artifact_pressure",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "artifact"
+          ],
+          "observed": "value",
+          "details": [
+            "Prefer broad artifact interaction against a developed Wakanda/Cosmic table",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_k_archenemy_survival",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "protect"
+          ],
+          "observed": "protect",
+          "details": [
+            "As archenemy under pressure, preserve survival before visible payoff development",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_hold_aura_unprotected",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "pass"
+          ],
+          "observed": "aura",
+          "details": [
+            "Do not expose a combat-draw aura into high interaction with no reserve",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_protected_aura_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "aura"
+          ],
+          "observed": "aura",
+          "details": [
+            "Deploy combat draw when Ishai is online and protection remains available",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_jeska_commander_damage_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "jeska"
+          ],
+          "observed": "jeska",
+          "details": [
+            "Use Jeska for a genuine Ishai commander-damage finishing window",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_kediss_large_pod_spread",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "kediss"
+          ],
+          "observed": "kediss",
+          "details": [
+            "Prefer Kediss table spread when no single commander-damage kill is ready in five players",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_offline_independent_axis",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "gutter"
+          ],
+          "observed": "kediss",
+          "details": [
+            "Develop an independent spellslinger axis when Ishai is offline",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_counter_kaervek",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "counter"
+          ],
+          "observed": "counter",
+          "details": [
+            "Counter Kaervek before an own multi-spell sequence",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_bligh_engine_answer",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "aura",
+          "details": [
+            "Answer a Blight engine rather than advance a nonlethal aura",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_cosmic_flexible_response",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "pass"
+          ],
+          "observed": "value",
+          "details": [
+            "Keep instant-speed flexible interaction for Cosmic Spider-Man",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_doom_wakanda_artifact_answer",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "aura",
+          "details": [
+            "Use flexible artifact interaction against Doom/Wakanda engines",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_boardwipe_vs_reserve",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Use a wipe when multiple boards are already beyond single-counter containment",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_silence_finish_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "silence"
+          ],
+          "observed": "silence",
+          "details": [
+            "Use Silence to protect an immediate finishing sequence",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        },
+        {
+          "case_id": "g_r_archenemy_protect_commander",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "protect"
+          ],
+          "observed": "protect",
+          "details": [
+            "As archenemy, prioritize protecting the grown Ishai over adding visibility",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-development"
+        }
+      ]
+    },
+    "holdout": {
+      "summary": {
+        "passed": 9,
+        "total": 12,
+        "failed": 3,
+        "pass_rate": 0.75
+      },
+      "results": [
+        {
+          "case_id": "g_h_k_3p_land_rebuild",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "rebuild"
+          ],
+          "observed": "rebuild",
+          "details": [
+            "3-player Korvold rebuild holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_4p_independent_finish",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "bats"
+          ],
+          "observed": "bats",
+          "details": [
+            "4-player Korvold independent finish holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_5p_repeated_removal",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "analyst"
+          ],
+          "observed": "analyst",
+          "details": [
+            "5-player repeated-removal Korvold holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_multiple_engines",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "broad"
+          ],
+          "observed": "broad",
+          "details": [
+            "Morcant plus Doom multi-engine holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_5p_finish_vs_engine",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "drain"
+          ],
+          "observed": "drain",
+          "details": [
+            "Five-player finisher compression holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_3p_low_threat_engine",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "tokens"
+          ],
+          "observed": "tokens",
+          "details": [
+            "Three-player low-threat development holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_3p_jeska_lethal",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "jeska"
+          ],
+          "observed": "kediss",
+          "details": [
+            "3-player Jeska commander-damage holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_5p_kediss_spread",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "kediss"
+          ],
+          "observed": "kediss",
+          "details": [
+            "5-player Kediss table-damage holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_4p_offline_axis",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "gutter"
+          ],
+          "observed": "aura",
+          "details": [
+            "RogShai independent-axis holdout after Ishai removal",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_kaervek_stack",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "counter"
+          ],
+          "observed": "counter",
+          "details": [
+            "Kaervek stack-interaction holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_bligh_cosmic_multi",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Blight plus Cosmic multi-threat holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_archenemy_hold_protection",
+          "tier": "golden",
+          "status": "failed",
+          "passed": false,
+          "critical": true,
+          "score": 0.0,
+          "expected": [
+            "pass"
+          ],
+          "observed": "aura",
+          "details": [
+            "Five-player archenemy protection-reserve holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "baseline-pre-G-holdout"
+        }
+      ]
+    }
+  },
+  "post_change": {
+    "development": {
+      "summary": {
+        "passed": 24,
+        "total": 24,
+        "failed": 0,
+        "pass_rate": 1.0
+      },
+      "results": [
+        {
+          "case_id": "g_k_hold_exposed_commander",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "develop"
+          ],
+          "observed": "develop",
+          "details": [
+            "Hold Korvold when there is no sacrifice material and no protection",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_protected_commander_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "korvold"
+          ],
+          "observed": "korvold",
+          "details": [
+            "Cast Korvold when sacrifice value and protection are both available",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_offline_independent_payoff",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "bats"
+          ],
+          "observed": "bats",
+          "details": [
+            "Prefer an independent table-damage payoff while Korvold is offline",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_rebuild_after_wipe",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "analyst"
+          ],
+          "observed": "analyst",
+          "details": [
+            "Use multi-zone land rebuild after a wipe instead of a generic value spell",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_five_player_compressed_finish",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "exs"
+          ],
+          "observed": "exs",
+          "details": [
+            "Prefer compressed table finish in a five-player pod",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_boardwipe_timing",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Wipe a developed hostile board rather than add another engine",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_engine_vs_threat",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "remove",
+          "details": [
+            "Answer a central engine instead of greedily developing",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_token_engine_without_commander",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "ophi"
+          ],
+          "observed": "ophi",
+          "details": [
+            "Build repeatable sacrifice material without requiring Korvold",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_morcant_blight_multi_threat",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Use a broad answer when Morcant and Blight engines are simultaneously developed",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_kaervek_doom_priority",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "remove",
+          "details": [
+            "Remove Kaervek before committing to a longer own spell sequence",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_wakanda_cosmic_artifact_pressure",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "artifact"
+          ],
+          "observed": "artifact",
+          "details": [
+            "Prefer broad artifact interaction against a developed Wakanda/Cosmic table",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_k_archenemy_survival",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "protect"
+          ],
+          "observed": "protect",
+          "details": [
+            "As archenemy under pressure, preserve survival before visible payoff development",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_hold_aura_unprotected",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "pass"
+          ],
+          "observed": "pass",
+          "details": [
+            "Do not expose a combat-draw aura into high interaction with no reserve",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_protected_aura_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "aura"
+          ],
+          "observed": "aura",
+          "details": [
+            "Deploy combat draw when Ishai is online and protection remains available",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_jeska_commander_damage_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "jeska"
+          ],
+          "observed": "jeska",
+          "details": [
+            "Use Jeska for a genuine Ishai commander-damage finishing window",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_kediss_large_pod_spread",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "kediss"
+          ],
+          "observed": "kediss",
+          "details": [
+            "Prefer Kediss table spread when no single commander-damage kill is ready in five players",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_offline_independent_axis",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "gutter"
+          ],
+          "observed": "gutter",
+          "details": [
+            "Develop an independent spellslinger axis when Ishai is offline",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_counter_kaervek",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "counter"
+          ],
+          "observed": "counter",
+          "details": [
+            "Counter Kaervek before an own multi-spell sequence",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_bligh_engine_answer",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "remove",
+          "details": [
+            "Answer a Blight engine rather than advance a nonlethal aura",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_cosmic_flexible_response",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "pass"
+          ],
+          "observed": "pass",
+          "details": [
+            "Keep instant-speed flexible interaction for Cosmic Spider-Man",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_doom_wakanda_artifact_answer",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "remove"
+          ],
+          "observed": "remove",
+          "details": [
+            "Use flexible artifact interaction against Doom/Wakanda engines",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_boardwipe_vs_reserve",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Use a wipe when multiple boards are already beyond single-counter containment",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_silence_finish_window",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "silence"
+          ],
+          "observed": "silence",
+          "details": [
+            "Use Silence to protect an immediate finishing sequence",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        },
+        {
+          "case_id": "g_r_archenemy_protect_commander",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "protect"
+          ],
+          "observed": "protect",
+          "details": [
+            "As archenemy, prioritize protecting the grown Ishai over adding visibility",
+            "group=development",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-development"
+        }
+      ]
+    },
+    "holdout": {
+      "summary": {
+        "passed": 12,
+        "total": 12,
+        "failed": 0,
+        "pass_rate": 1.0
+      },
+      "results": [
+        {
+          "case_id": "g_h_k_3p_land_rebuild",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "rebuild"
+          ],
+          "observed": "rebuild",
+          "details": [
+            "3-player Korvold rebuild holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_4p_independent_finish",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "bats"
+          ],
+          "observed": "bats",
+          "details": [
+            "4-player Korvold independent finish holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_5p_repeated_removal",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "analyst"
+          ],
+          "observed": "analyst",
+          "details": [
+            "5-player repeated-removal Korvold holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_multiple_engines",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "broad"
+          ],
+          "observed": "broad",
+          "details": [
+            "Morcant plus Doom multi-engine holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_5p_finish_vs_engine",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "drain"
+          ],
+          "observed": "drain",
+          "details": [
+            "Five-player finisher compression holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_k_3p_low_threat_engine",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "tokens"
+          ],
+          "observed": "tokens",
+          "details": [
+            "Three-player low-threat development holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_3p_jeska_lethal",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "jeska"
+          ],
+          "observed": "jeska",
+          "details": [
+            "3-player Jeska commander-damage holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_5p_kediss_spread",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "kediss"
+          ],
+          "observed": "kediss",
+          "details": [
+            "5-player Kediss table-damage holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_4p_offline_axis",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "gutter"
+          ],
+          "observed": "gutter",
+          "details": [
+            "RogShai independent-axis holdout after Ishai removal",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_kaervek_stack",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "counter"
+          ],
+          "observed": "counter",
+          "details": [
+            "Kaervek stack-interaction holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_bligh_cosmic_multi",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "wipe"
+          ],
+          "observed": "wipe",
+          "details": [
+            "Blight plus Cosmic multi-threat holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        },
+        {
+          "case_id": "g_h_r_archenemy_hold_protection",
+          "tier": "golden",
+          "status": "passed",
+          "passed": true,
+          "critical": true,
+          "score": 1.0,
+          "expected": [
+            "pass"
+          ],
+          "observed": "pass",
+          "details": [
+            "Five-player archenemy protection-reserve holdout",
+            "group=holdout",
+            "preferred_action_class=unspecified"
+          ],
+          "source": "post-G-holdout"
+        }
+      ]
+    }
+  },
+  "deltas": {
+    "development_passes": 6,
+    "holdout_passes": 3
+  },
+  "regressions": [],
+  "deck_changes_applied": false,
+  "real_playtest_claim": false,
+  "external_rules_engine_claim": false
+}

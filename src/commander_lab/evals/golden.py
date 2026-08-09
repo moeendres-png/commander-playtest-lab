@@ -15,7 +15,11 @@ def load_golden_cases(path: str | Path) -> tuple[GoldenDecisionCase, ...]:
     return tuple(GoldenDecisionCase.model_validate(item) for item in payload["cases"])
 
 
-def run_golden_cases(cases: tuple[GoldenDecisionCase, ...]) -> list[EvalCaseResult]:
+def run_golden_cases(
+    cases: tuple[GoldenDecisionCase, ...],
+    *,
+    source: str = "data/evals/golden/pilot_decisions.json",
+) -> list[EvalCaseResult]:
     results: list[EvalCaseResult] = []
     for case in cases:
         pilot = build_pilot(
@@ -28,7 +32,7 @@ def run_golden_cases(cases: tuple[GoldenDecisionCase, ...]) -> list[EvalCaseResu
             strategy=case.strategy,
         )
         decision = pilot.choose_action(case.state, case.actions, random.Random(0))
-        passed = decision.selected_action_id == case.expected_action_id
+        passed = decision.selected_action_id in case.accepted_actions
         results.append(
             EvalCaseResult(
                 case_id=case.case_id,
@@ -37,10 +41,14 @@ def run_golden_cases(cases: tuple[GoldenDecisionCase, ...]) -> list[EvalCaseResu
                 passed=passed,
                 critical=case.critical,
                 score=1.0 if passed else 0.0,
-                expected=case.expected_action_id,
+                expected=sorted(case.accepted_actions),
                 observed=decision.selected_action_id,
-                details=(case.description,),
-                source="data/evals/golden/pilot_decisions.json",
+                details=(
+                    case.description,
+                    f"group={case.scenario_group}",
+                    f"preferred_action_class={case.preferred_action_class or 'unspecified'}",
+                ),
+                source=source,
             )
         )
     return results
