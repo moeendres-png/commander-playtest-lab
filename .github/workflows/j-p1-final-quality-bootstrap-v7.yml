@@ -1,0 +1,148 @@
+name: J-P1 Final Strict Quality Candidate v7
+
+on:
+  push:
+    branches:
+      - roadmap/j-p1-reliability
+
+permissions:
+  contents: write
+
+jobs:
+  validate-final-quality-candidate-v7:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify exact starting lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "62fff7a27b9f0d2fd41fb8cd484b93122acd353c"
+      - name: Install exact project quality toolchain
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Replay v6 reviewed transformation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+          import yaml
+
+          workflow = yaml.safe_load(Path('.github/workflows/j-p1-final-quality-bootstrap-v6.yml').read_text(encoding='utf-8'))
+          steps = workflow['jobs']['validate-final-quality-candidate-v6']['steps']
+          run = next(step['run'] for step in steps if step.get('name') == 'Replay reviewed transformation without YAML indentation assumptions')
+          completed = subprocess.run(['bash', '-c', run], text=True)
+          raise SystemExit(completed.returncode)
+          PY
+      - name: Apply exact remaining Ruff fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_required(path: str, old: str, new: str, label: str) -> None:
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'expected source fragment missing: {label}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          # The base transform used an obsolete ValueError marker. Insert the intended Literal alias
+          # at the actual RuntimeError boundary so all estimate_type annotations resolve.
+          service = Path('src/commander_lab/tools/service.py')
+          text = service.read_text(encoding='utf-8')
+          if 'EstimateType = Literal[' not in text:
+              marker = '\n\nclass ToolExecutionError(RuntimeError):'
+              if marker not in text:
+                  raise SystemExit('ToolExecutionError RuntimeError marker missing')
+              alias = '''\n\nEstimateType = Literal[\n    "structural_model_estimates",\n    "tactical_oracle_results",\n    "external_rules_engine_results",\n]\n'''
+              text = text.replace(marker, alias + marker, 1)
+              service.write_text(text, encoding='utf-8')
+
+          replace_required(
+              'src/commander_lab/agents/pilots.py',
+              '''        if CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5:\n            if korvold_online:\n                bonus += 0.4''',
+              '''        if (CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5) and korvold_online:\n            bonus += 0.4''',
+              'pilots nested if',
+          )
+          replace_required(
+              'src/commander_lab/diagnostics.py',
+              'from typing import Any\n',
+              'from typing import Any, ClassVar\n',
+              'diagnostics ClassVar import',
+          )
+          replace_required(
+              'src/commander_lab/diagnostics.py',
+              '    SUCCESS_EVENTS = {\n',
+              '    SUCCESS_EVENTS: ClassVar[set[str]] = {\n',
+              'diagnostics class constant annotation',
+          )
+          replace_required(
+              'src/commander_lab/engine/rules/tactical.py',
+              '''    def _phase_out(s: dict[str, Any]) -> dict[str, Any]:\n        wipe = _bool(s.get("wipe_resolves", True))\n        return {\n            "affected_by_wipe": False if wipe else False,''',
+              '''    def _phase_out(s: dict[str, Any]) -> dict[str, Any]:\n        return {\n            "affected_by_wipe": False,''',
+              'phase-out constant result',
+          )
+          replace_required(
+              'tests/integration/test_phase8_external_adapter.py',
+              'match="unverified|legacy|external rules engine"',
+              'match=r"unverified|legacy|external rules engine"',
+              'external adapter raw regex',
+          )
+          replace_required(
+              'tests/property/test_quantity_properties.py',
+              '        def make_deck(deck_id: str, required: int) -> Deck:\n',
+              '        def make_deck(deck_id: str, required: int, *, commander_name: str = commander) -> Deck:\n',
+              'quantity closure binding signature',
+          )
+          p = Path('tests/property/test_quantity_properties.py')
+          text = p.read_text(encoding='utf-8')
+          old = '''            entries = [DeckEntry(oracle_name=commander, zone=DeckZone.COMMANDER)]\n            if required:\n                entries.append(DeckEntry(oracle_name="Shared Card", quantity=required))\n            if filler:\n                entries.append(DeckEntry(oracle_name="Forest", quantity=filler))\n            return Deck(\n                deck_id=deck_id,\n                name=deck_id,\n                commander=CommanderConfiguration(commanders=(commander,)),'''
+          new = '''            entries = [DeckEntry(oracle_name=commander_name, zone=DeckZone.COMMANDER)]\n            if required:\n                entries.append(DeckEntry(oracle_name="Shared Card", quantity=required))\n            if filler:\n                entries.append(DeckEntry(oracle_name="Forest", quantity=filler))\n            return Deck(\n                deck_id=deck_id,\n                name=deck_id,\n                commander=CommanderConfiguration(commanders=(commander_name,)),'''
+          if old not in text:
+              raise SystemExit('quantity closure body marker missing')
+          p.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+          # Resolve only Ruff-declared safe mechanical leftovers such as import ordering.
+          ruff check . --fix
+          ruff format .
+          git rm .github/workflows/j-p1-final-quality-bootstrap-v7.yml
+          git add -A
+          git diff --cached --check
+      - name: Blocking Ruff lint
+        run: ruff check .
+      - name: Blocking Ruff format
+        run: ruff format --check .
+      - name: Blocking Mypy strict
+        run: mypy src/commander_lab
+      - name: Commit strict-quality candidate locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(J-P1): close whole-tree Ruff and strict typing debt"
+          test -z "$(git status --porcelain)"
+          echo "candidate_commit=$(git rev-parse HEAD)"
+          echo "candidate_tree=$(git rev-parse HEAD^{tree})"
+      - name: Compile clean candidate
+        run: python -m compileall -q src tests scripts
+      - name: Test clean candidate
+        run: pytest -q
+      - name: Push only fully validated candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)"
+          git push origin HEAD:roadmap/j-p1-reliability
