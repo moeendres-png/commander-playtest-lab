@@ -1,0 +1,60 @@
+name: J P0 Chunked Frozen Patch Finalize
+
+on:
+  push:
+    branches:
+      - roadmap/j-p0-integrity-run-identity
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-frozen-tree:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify canonical base and chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "85af667c2bda54c3d1370dc0f83046dca9d34c1c"
+          test "$(git merge-base HEAD origin/main)" = "85af667c2bda54c3d1370dc0f83046dca9d34c1c"
+          echo '3a5708dd60076201c7c73ee379dbbd88a63b255d67fadd40ca91e2ee4d88c4d7  .jp0-transfer/part00' | sha256sum -c -
+          echo '47d88c9ae8a56badf07f3eb03f9411e82215d6826f1a0145ba1cb79291d5cf65  .jp0-transfer/part01' | sha256sum -c -
+          echo '6065b74031767cc8e2918f4e1ca304527b6c42d3f5ab4a4749fee53fe5b38cbc  .jp0-transfer/part02' | sha256sum -c -
+          cat .jp0-transfer/part00 .jp0-transfer/part01 .jp0-transfer/part02 > /tmp/jp0.patch.b64
+          test "$(wc -c < /tmp/jp0.patch.b64)" = "30180"
+          echo 'daa70c26ce5316cd1f03bb32b29e6085ce42d491ba50287804d74ac5cbbc06e1  /tmp/jp0.patch.b64' | sha256sum -c -
+          base64 -d /tmp/jp0.patch.b64 > /tmp/jp0.patch.gz
+          echo '07b7838799dad20180253eb253a846d2c454b00b54af40ea13443c2dc992b1ed  /tmp/jp0.patch.gz' | sha256sum -c -
+          gzip -dc /tmp/jp0.patch.gz > /tmp/jp0.patch
+          echo '78c3dc76ca1703562e191dd11a5d93a5025256d10927eeeb12d59f65f54d826d  /tmp/jp0.patch' | sha256sum -c -
+
+      - name: Apply exact local P0 tree and remove transport artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/jp0.patch
+          git apply /tmp/jp0.patch
+          rm -rf .jp0-transfer
+          rm -f .github/workflows/j-p0-frozen-patch-transport.yml
+          rm -f .github/workflows/j-p0-frozen-patch-recovery.yml
+          rm -f .github/workflows/j-p0-frozen-patch-exact-recovery.yml
+          rm -f .github/workflows/j-p0-chunked-finalize.yml
+          git diff --check
+          git add -A
+          test "$(git write-tree)" = "210c649dfec42fab975f1131f3c93eed7de5ac15"
+
+      - name: Commit and push exact frozen tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'commander-playtest-lab automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'feat(J-P0): add fail-closed universal RunIdentity'
+          test "$(git rev-parse HEAD^{tree})" = "210c649dfec42fab975f1131f3c93eed7de5ac15"
+          git push origin HEAD:roadmap/j-p0-integrity-run-identity
