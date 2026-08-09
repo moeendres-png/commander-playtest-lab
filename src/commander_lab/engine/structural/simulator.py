@@ -1396,9 +1396,12 @@ class StructuralSimulator:
         )
         decision = target.pilot.choose_action(state, actions, target.pilot_rng)
         self._record_pilot_decision(target, decision, recorder, phase="protection")
-        if decision.selected_action_id in {None, "pass"}:
+        selected_action_id = decision.selected_action_id
+        if selected_action_id in {None, "pass"}:
             return False
-        protection = mapping[decision.selected_action_id]
+        if selected_action_id is None:
+            return False
+        protection = mapping[selected_action_id]
         target.hand.remove(protection)
         self._pay(target, protection.mana_value)
         target.graveyard.append(protection)

@@ -51,9 +51,12 @@ def _git_commit(root: Path) -> str | None:
 
 
 def _load_opponent_policy(root: Path) -> dict[str, Any]:
-    return json.loads(
+    payload = json.loads(
         (root / "data/opponents/current_structural_profiles.json").read_text(encoding="utf-8")
     )
+    if not isinstance(payload, dict):
+        raise ValueError("opponent policy must be a JSON object")
+    return {str(key): value for key, value in payload.items()}
 
 
 def _response_dict(response: ToolResponse) -> dict[str, Any]:

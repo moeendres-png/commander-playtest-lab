@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import random
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable, Sequence
 from dataclasses import dataclass
 from statistics import fmean
 
@@ -241,11 +241,19 @@ def profile_closing_score(deck: StructuralDeckProfile) -> float:
     return min(1.0, raw / 8.0)
 
 
+def _metric_float(row: dict[str, object], key: str) -> float:
+    value = row[key]
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return float(value)
+    raise TypeError(f"metric {key} is not numeric: {value!r}")
+
+
 def worst_quartile_improvement(pairs: Sequence[dict[str, object]]) -> float:
     if not pairs:
         return 0.0
     deltas = sorted(
-        float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs
+        _metric_float(row, "baseline_placement") - _metric_float(row, "variant_placement")
+        for row in pairs
     )
     size = max(1, math.ceil(len(deltas) * 0.25))
     return fmean(deltas[:size])

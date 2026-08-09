@@ -266,7 +266,7 @@ class MetaKnowledgeBase:
         new_n = max(
             1, sum(1 for d in newer.deck_snapshots if not commander or d.commander == commander)
         )
-        drift = []
+        drift: list[_DriftRow] = []
         for card in all_cards:
             delta = new_counts[card] / new_n - old_counts[card] / old_n
             if abs(delta) > 0:
