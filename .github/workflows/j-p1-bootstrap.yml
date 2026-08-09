@@ -21,16 +21,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "c3798a0b216530c656f1f09950c4f42ef196a1d067acbea7419bf4a13fb246b0  .github/jp1_patch.part1" | sha256sum -c -
+          echo "c8cdd234aa99a8c17b5dc23930f726f80af73f83b8fa5cb2451bd6d3590c7489  .github/jp1_patch.part1a" | sha256sum -c -
+          echo "da48e8ad14e932afe34e0a7aa2ed846ff30f058a84f80f7aabf6c81d865bd3e7  .github/jp1_patch.part1b" | sha256sum -c -
+          echo "e655d7a8de83e63677b74c9be796848b95a0581c79af77e8373d553ae825bbca  .github/jp1_patch.part1c" | sha256sum -c -
+          echo "4d7b765090e7793ff5c289f7393a36d56a11dda0e172f751b9eeba6ad1afc948  .github/jp1_patch.part1d" | sha256sum -c -
           echo "ca549f4f144183a83cf2233af6e19c7be174140645e4ec41e650d64be51fc756  .github/jp1_patch.part2" | sha256sum -c -
           echo "0fcad2022afbf089596e9c06a59e90e0a0cf9d299a3252ebb72c0fa2d6f77152  .github/jp1_patch.part3" | sha256sum -c -
           echo "ce0e90e3227ec486a35bf10a0a5d5672750206dd7e0693e49916e153ea6b5e09  .github/jp1_patch.part4" | sha256sum -c -
-          cat .github/jp1_patch.part1 .github/jp1_patch.part2 .github/jp1_patch.part3 .github/jp1_patch.part4 > /tmp/jp1.patch.gz.b64
+          cat .github/jp1_patch.part1a .github/jp1_patch.part1b .github/jp1_patch.part1c .github/jp1_patch.part1d .github/jp1_patch.part2 .github/jp1_patch.part3 .github/jp1_patch.part4 > /tmp/jp1.patch.gz.b64
           base64 -d /tmp/jp1.patch.gz.b64 | gzip -d > /tmp/jp1.patch
           echo "f75cdf8fef3367793bc1a01c5b3520b9d39f9e87fa4b607bed699cf246e75e04  /tmp/jp1.patch" | sha256sum -c -
           git apply --check /tmp/jp1.patch
           git apply /tmp/jp1.patch
-          rm -f .github/jp1_patch.part1 .github/jp1_patch.part2 .github/jp1_patch.part3 .github/jp1_patch.part4 .github/workflows/j-p1-bootstrap.yml
+          rm -f .github/jp1_patch.part1 .github/jp1_patch.part1a .github/jp1_patch.part1b .github/jp1_patch.part1c .github/jp1_patch.part1d .github/jp1_patch.part2 .github/jp1_patch.part3 .github/jp1_patch.part4 .github/workflows/j-p1-bootstrap.yml
           python -m compileall -q src tests
           git diff --check
           git config user.name "github-actions[bot]"
