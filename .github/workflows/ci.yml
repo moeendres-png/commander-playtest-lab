@@ -59,6 +59,7 @@ jobs:
         shell: bash
         run: |
           if [[ -s changed-python-files.txt ]]; then
+            cp "$(command -v ruff)" ruff-bin
             set +e
             xargs -d '\n' ruff check -- < changed-python-files.txt > ruff-lint.txt 2>&1
             status=$?
@@ -128,6 +129,7 @@ jobs:
             .runtime/audit/phase86/PHASE86_VALIDATION_OUTPUT.json
             dist/
             ruff-lint.txt
+            ruff-bin
           include-hidden-files: true
           if-no-files-found: warn
 
