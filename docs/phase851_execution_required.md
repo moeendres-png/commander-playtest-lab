@@ -1,36 +1,48 @@
-# Phase 8.5.1: required real execution
+# Phase 8.5.1: external-provider execution boundary
 
-Phase 8.5.1 is **not complete** in the sandbox. DNS to GitHub and Maven Central fails, and Maven/Docker are absent. No XMage build, Java bridge, external handshake, action loop or multiplayer game has been executed.
+Real external rules-engine validation remains **pending** until an actual external provider is built, started, controlled programmatically, and validated with raw evidence.
 
-## Fastest reliable route
+Tactical Oracle, mocks, fixtures, handshake-only probes, or structural simulations do not satisfy this boundary.
 
-Use GitHub Actions from a GitHub repository containing this project:
+## Current provider strategy
 
-1. Push the repository without secrets.
-2. Open **Actions → External XMage Integration → Run workflow**.
-3. Keep the full XMage commit SHA unless release verification shows a mismatch.
-4. The workflow will deliberately fail at `Require real provider-specific bridge` until `engine-bridge/` contains the real XMage API binding.
-5. Implement the bridge in a network-enabled Codex/local environment after inspecting the pinned XMage source. Do not use the Tactical Oracle implementation in the bridge.
-6. Rerun until build, handshake, action loop, four-player Commander game, replay and critical scenarios all pass.
-7. Download `external-engine-evidence` and import the evidence into `artifacts/external_engine/`.
+No production provider has been selected.
 
-## Local alternative
+The active sequence is:
 
-```bash
-unzip commander-playtest-lab-phase86-repository.zip
-cd commander-playtest-lab
-git checkout phase/8.6-system-audit
-python3.12 -m venv .venv
-. .venv/bin/activate
-pip install -e '.[dev,api,openai]'
-./scripts/bootstrap_engine_linux.sh xmage
-# Implement/build engine-bridge against the downloaded pinned source.
-export ENGINE_PROVIDER=xmage
-export ENGINE_MODE=external
-export ALLOW_TACTICAL_ORACLE_FALLBACK=false
-export ENGINE_START_COMMAND='java -jar /absolute/path/to/bridge.jar'
-./scripts/verify_engine.sh
-commander-lab validate-engine-phase85
+1. reliability and structural/modeling quality first;
+2. external-engine feasibility preparation;
+3. run an equivalent XMage spike;
+4. run an equivalent Forge spike;
+5. compare both providers against the same acceptance criteria;
+6. select one primary production bridge only after evidence supports the choice.
+
+Current provider status:
+
+```text
+external_engine_provider_status = INSUFFICIENT_EVIDENCE_RUN_BOTH_SPIKES
 ```
 
-The final status may be changed to `external_engine_ready` only after real evidence exists. A mock, fixture bridge or Tactical Oracle is insufficient.
+## Required evidence for either provider spike
+
+A provider spike must preserve the same truth boundaries and, where technically supported, exercise the same core contract:
+
+- pinned/provider-identifiable source or binary;
+- process start and bounded shutdown;
+- capability handshake;
+- deck import;
+- multiplayer Commander setup;
+- deterministic/reproducible seed handling where supported;
+- legal-action retrieval;
+- programmatic action submission;
+- event/replay evidence;
+- critical Commander/rules scenarios;
+- raw logs and provider/runtime attestation.
+
+A provider-specific spike may be rejected early if a documented knock-out criterion is met. A failed or incomplete spike must not be reported as external rules-engine validation.
+
+## Execution environment
+
+Run future provider spikes only from a network/build environment that can actually obtain and build the selected pinned provider source and its bridge dependencies. Do not use an obsolete historical branch checkout as the active starting point; begin from the currently verified `main` state and isolate spike work in a dedicated future J-P3 branch/worktree.
+
+The final project status may change from `external_engine_validation_pending` only after real external evidence exists and the corresponding acceptance gate is satisfied.
