@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Read-only technical delta from the checked-in 2026-08-07 inventory snapshot to the current canonical Google Drive inventory. This file does not mutate canonical inventory, decklists, allocations, or purchases.",
+  "canonical_inventory_drive_file_id": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+  "base_repo_snapshot": "data/canonical_import/2026-08-07/inventory_snapshot.json",
+  "verified_at": "2026-08-10",
+  "cards": [
+    {
+      "oracle_name": "Portent of Betrayal",
+      "quantity": 2,
+      "currently_owned": true,
+      "commander_legality": "legal",
+      "color_identity": "R",
+      "mana_cost": "{3}{R}",
+      "mana_value": 4,
+      "card_type": "Sorcery",
+      "oracle_text": "Gain control of target creature until end of turn. Untap that creature. It gains haste until end of turn. Scry 1.",
+      "physical_available_qty": 2,
+      "pool_status": "own_available",
+      "reserved_quantity": 0,
+      "location": "Moritz Box",
+      "printing_ref": "CMR#194/361|en|nonfoil",
+      "condition": "NM",
+      "card_id": "card:project:d7cfb8d3-dfde-541c-a59f-dda0eeea45c8",
+      "physical_lot_id": "lot:project:b5d6292b-9d31-52a2-ae57-f4cb73d9a3d0",
+      "source_class": "current_drive_canonical_inventory"
+    },
+    {
+      "oracle_name": "Fanatical Strength",
+      "quantity": 1,
+      "currently_owned": true,
+      "commander_legality": "legal",
+      "color_identity": "G",
+      "mana_cost": "{1}{G}",
+      "mana_value": 2,
+      "card_type": "Instant",
+      "oracle_text": "Target creature gets +3/+3 and gains trample until end of turn.",
+      "physical_available_qty": 1,
+      "pool_status": "own_available",
+      "reserved_quantity": 0,
+      "location": "Moritz Box",
+      "printing_ref": "MKM#310|en|foil",
+      "card_id": "card:project:74333daa-fb0f-57d0-8e5b-7ccb79f4faba",
+      "physical_lot_id": "lot:project:7028bb14-a22f-550e-ae0e-fc7118bbaa72",
+      "source_class": "current_drive_canonical_inventory"
+    }
+  ]
+}
