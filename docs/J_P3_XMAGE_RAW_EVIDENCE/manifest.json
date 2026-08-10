@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "provider": "xmage",
+  "provider_release": "xmage_1.4.60V3",
+  "provider_commit": "06d166b098ad36b277edef01116472203d5a047e",
+  "provider_tree": "f4cadfdddd9271d71103a2e092a5a27f64089305",
+  "contract_hash": "89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6",
+  "scoring_hash": "67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227",
+  "fixture_hash": "cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb",
+  "runtime_evidence": {
+    "run_id": 31398027517,
+    "controller_commit": "52fb1654d22d128d9962741f9908e92f5d4781ad",
+    "artifact_id": 9066656227,
+    "artifact_sha256": "9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926",
+    "artifact_size_bytes": 63302,
+    "internal_manifest_sha256": "02f6553fa099f38814bbb9f7a4e6818f158bf42d8ce94e75df4ecc2f57c7a2f5",
+    "drive_id": "1SYlE4AVJqCw9REOVCaCmrFHNoSJtjPx9",
+    "drive_roundtrip_sha256": "9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926"
+  },
+  "fixture_evidence": {
+    "run_id": 31399104522,
+    "workflow_commit": "09132ca8b43b9c61d92343b290cce4b2b8047fbe",
+    "artifact_id": 9067034754,
+    "artifact_sha256": "fa2cff928f75d74b519eb7984d0bb272809c30a9c0f8a2ce59debed1884b8d18",
+    "artifact_size_bytes": 34682,
+    "internal_manifest_sha256": "669ec1a30603b17e77152f60e26e481ac49a00cd67655d70cc08170c17484025",
+    "drive_id": "197zw-jJt4YPQwKY2oID9tukg1S1bXtVI"
+  },
+  "truth_boundary": {
+    "real_xmage_executed": true,
+    "mock_evidence_used": false,
+    "tactical_oracle_used_as_xmage_evidence": false,
+    "valid_live_gameplay_action_submission_proven": false,
+    "semantic_illegal_action_rejection_proven": false,
+    "live_machine_listable_legal_actions_proven": false,
+    "provider_replay_exercised": false
+  }
+}
