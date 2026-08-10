@@ -392,9 +392,9 @@ def build_fresh_rogshai_profile(
             "data_snapshot_hash": active.runtime_sha256,
         }
     )
-    safe_label = "".join(
-        ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"}
-    )[:32]
+    safe_label = "".join(ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"})[
+        :32
+    ]
     return StructuralDeckProfile(
         deck_id=f"{FRESH_ROGSHAI_PREFIX}{safe_label or deck_hash[:12]}-{deck_hash[:10]}",
         deck_hash=deck_hash,
@@ -458,8 +458,7 @@ def run_k2_bias_suite(root: str | Path) -> dict[str, object]:
             == universe.structurally_scorable_count + universe.review_required_count
         ),
         "K2-BIAS-F-synthetic-boundary": (
-            bias.get("synthetic_opponent_completion_is_observation") is False
-            and synthetic_boundary
+            bias.get("synthetic_opponent_completion_is_observation") is False and synthetic_boundary
         ),
         "K2-BIAS-G-control-isolation": (
             bias.get("control_deck_visible_in_independent_stage") is False

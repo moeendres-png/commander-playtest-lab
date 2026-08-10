@@ -8,7 +8,6 @@ from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION, StructuralSimulator
 from commander_lab.engine.structural.fixtures import build_current_opponent_profiles
 from commander_lab.fresh_rebuild import (
-    BASIC_LANDS,
     ROGSHAI_COMMANDERS,
     FreshRebuildDataError,
     FreshRogShaiUniverse,
@@ -40,6 +39,7 @@ from commander_lab.optimization import (
     variant_deck,
 )
 from commander_lab.storage.run_identity import sha256_run_value
+from commander_lab.tools.candidates import BASIC_LANDS
 
 PRIMARY_OPPONENT_IDS = (
     "opponent/morcant-elves",
