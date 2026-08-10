@@ -1,9 +1,6 @@
 name: J-P3B XMage Native Fixtures
 
 on:
-  push:
-    branches:
-      - roadmap/j-p3b-xmage-real-spike
   workflow_dispatch:
 
 permissions:
