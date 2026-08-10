@@ -28,7 +28,7 @@ jobs:
           printf '%s  %s\n' 'bf45a6b0e672b76ac5b4d05991ca0d646bfe23de9a32cdbaadfa18b31881199a' 'data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64' | sha256sum -c -
       - name: Install development dependencies
         run: python -m pip install -e '.[dev]'
-      - name: Close remaining strict-typing gaps
+      - name: Close remaining strict-typing and transport-pointer gaps
         shell: bash
         run: |
           set -euo pipefail
@@ -58,6 +58,14 @@ jobs:
               '    pair_id: str,\n) -> tuple[Any, list[dict[str, object]]]:\n    return run_paired_structural_comparison(',
           )
           acceptance.write_text(text, encoding='utf-8')
+
+          contract = Path('data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json')
+          text = contract.read_text(encoding='utf-8')
+          text = text.replace(
+              '9573d74eb9f80a7302cf74a9c88876885bcdaca1823c441f666c57fe741ef3d9',
+              'bf45a6b0e672b76ac5b4d05991ca0d646bfe23de9a32cdbaadfa18b31881199a',
+          )
+          contract.write_text(text, encoding='utf-8')
           PY
       - name: Normalize MVP scope
         shell: bash
