@@ -28,7 +28,7 @@ jobs:
           printf '%s  %s\n' 'bf45a6b0e672b76ac5b4d05991ca0d646bfe23de9a32cdbaadfa18b31881199a' 'data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64' | sha256sum -c -
       - name: Install development dependencies
         run: python -m pip install -e '.[dev]'
-      - name: Close remaining strict-typing and transport-pointer gaps
+      - name: Close remaining strict-typing and runtime-schema gaps
         shell: bash
         run: |
           set -euo pipefail
@@ -48,6 +48,10 @@ jobs:
           text = text.replace(
               'list(raw.get("targets", [])) if isinstance(raw.get("targets"), list) else []',
               'list(cast(list[object], raw.get("targets", []))) if isinstance(raw.get("targets"), list) else []',
+          )
+          text = text.replace(
+              '        if observed_coverage != compact.get("coverage_counts"):\n            raise FreshRebuildDataError("coverage-count drift in current Drive runtime")',
+              '        expected_coverage = compact.get("coverage_counts", compact.get("coverage"))\n        if observed_coverage != expected_coverage:\n            raise FreshRebuildDataError("coverage-count drift in current Drive runtime")',
           )
           fresh.write_text(text, encoding='utf-8')
 
