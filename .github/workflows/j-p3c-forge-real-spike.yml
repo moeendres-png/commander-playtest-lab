@@ -27,7 +27,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: maven
 
       - name: Record host and frozen identities
         shell: bash
@@ -76,7 +75,7 @@ jobs:
           RC=$?
           echo "$RC" > ../J_P3_FORGE_RAW_EVIDENCE/build/exit-code.txt
           find forge-gui-desktop/target -maxdepth 1 -type f -printf '%f %s bytes\n' 2>/dev/null | sort > ../J_P3_FORGE_RAW_EVIDENCE/build/artifacts.txt || true
-          tail -n 140 ../J_P3_FORGE_RAW_EVIDENCE/build/maven-build.log
+          tail -n 160 ../J_P3_FORGE_RAW_EVIDENCE/build/maven-build.log
           exit "$RC"
 
       - name: Configure isolated Forge profile and Commander decks
@@ -86,7 +85,7 @@ jobs:
           set -eu
           PROFILE_ROOT="$GITHUB_WORKSPACE/forge-profile"
           DECK_DIR="$PROFILE_ROOT/decks/commander"
-          mkdir -p "$DECK_DIR" "$PROFILE_ROOT/cache"
+          mkdir -p "$DECK_DIR" "$PROFILE_ROOT/cache" "$PROFILE_ROOT/decks/constructed"
           cat > forge-provider/forge-gui/forge.profile.properties <<EOF
           userDir=$PROFILE_ROOT/
           cacheDir=$PROFILE_ROOT/cache/
@@ -131,7 +130,7 @@ jobs:
           RC=$?
           END=$(date +%s)
           printf 'exit_code=%s\nelapsed_seconds=%s\n' "$RC" "$((END-START))" > "$GITHUB_WORKSPACE/J_P3_FORGE_RAW_EVIDENCE/runtime/commander-4p-run1-exit.txt"
-          grep -E 'Simulation mode|game of Commander|seed 424242|Game Result|Could not load deck|Exception|ERROR|Error' "$GITHUB_WORKSPACE/J_P3_FORGE_RAW_EVIDENCE/runtime/commander-4p-run1.log" | tail -n 120 || true
+          grep -E 'Simulation mode|game of Commander|seed 424242|Game Result|Could not load deck|Exception|ERROR|Error' "$GITHUB_WORKSPACE/J_P3_FORGE_RAW_EVIDENCE/runtime/commander-4p-run1.log" | tail -n 160 || true
           exit "$RC"
 
       - name: Repeat same seeded Commander run for reproducibility evidence
@@ -164,22 +163,18 @@ jobs:
         shell: bash
         run: |
           set -eu
+          if [ ! -d forge-provider ]; then echo 'Forge source unavailable' > J_P3_FORGE_RAW_EVIDENCE/failures/source-unavailable.txt; exit 0; fi
           cd forge-provider
-          {
-            grep -RIn --include='*.java' -E 'class PlayerController|abstract class PlayerController|class PlayerControllerAi' forge-game forge-ai forge-gui | head -n 80 || true
-          } > ../J_P3_FORGE_RAW_EVIDENCE/controller/controller-surfaces.txt
-          {
-            grep -RIn --include='*.java' -E 'AvailableActions|chooseSpellAbilityToPlay|playSpellAbility|GameView|GameLog|EventBus|getStack|getPhaseHandler' forge-game forge-ai forge-gui | head -n 240 || true
-          } > ../J_P3_FORGE_RAW_EVIDENCE/controller/state-action-event-surfaces.txt
-          {
-            grep -RIn --include='*.java' -E 'Commander|Partner|commander damage|CommanderDamage|commanderDamage' forge-game forge-ai forge-gui | head -n 240 || true
-          } > ../J_P3_FORGE_RAW_EVIDENCE/controller/commander-surfaces.txt
+          grep -RIn --include='*.java' -E 'class PlayerController|abstract class PlayerController|class PlayerControllerAi' forge-game forge-ai forge-gui | head -n 80 > ../J_P3_FORGE_RAW_EVIDENCE/controller/controller-surfaces.txt || true
+          grep -RIn --include='*.java' -E 'AvailableActions|chooseSpellAbilityToPlay|playSpellAbility|GameView|GameLog|EventBus|getStack|getPhaseHandler' forge-game forge-ai forge-gui | head -n 240 > ../J_P3_FORGE_RAW_EVIDENCE/controller/state-action-event-surfaces.txt || true
+          grep -RIn --include='*.java' -E 'Commander|Partner|commander damage|CommanderDamage|commanderDamage' forge-game forge-ai forge-gui | head -n 240 > ../J_P3_FORGE_RAW_EVIDENCE/controller/commander-surfaces.txt || true
 
       - name: Summarize evidence and hash manifest
         if: always()
         shell: bash
         run: |
           set -eu
+          mkdir -p J_P3_FORGE_RAW_EVIDENCE/runtime
           {
             echo "build_outcome=${{ steps.build.outcome }}"
             echo "commander_sim_outcome=${{ steps.sim.outcome }}"
