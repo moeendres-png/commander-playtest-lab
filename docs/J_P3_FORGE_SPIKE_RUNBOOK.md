@@ -1,6 +1,6 @@
 # J-P3C Runbook — Forge Feasibility Spike
 
-Status: `FROZEN_BY_J_P3A_NOT_EXECUTED`
+Status: `FROZEN_BY_J_P3A_READY_FOR_P3C_NOT_EXECUTED`
 
 Forge wird ausschließlich gegen denselben in J-P3A eingefrorenen, provider-neutralen Vertrag getestet. Kriterien, Gewichte, Fixtures und Knock-outs dürfen nicht günstiger als bei XMage ausgelegt oder nach XMage-Ergebnissen verändert werden.
 
@@ -10,8 +10,10 @@ Forge wird ausschließlich gegen denselben in J-P3A eingefrorenen, provider-neut
 contract_hash = 89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6
 scoring_hash = 67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227
 fixture_hash = cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb
-provider_pin = forge-2.0.14 @ 187a592e79bc83d324fc792252878fde9ed83498
+provider_pin = forge-2.0.14 @ a37a865a53280dd8ad6fad3384d69611e8c5a42f
 ```
+
+Provider-pin amendment: the originally recorded `187a592e79bc83d324fc792252878fde9ed83498` was non-resolvable in the official repository and was corrected provider-neutrally during P3A closeout, before any real XMage or Forge spike. The verified annotated tag object remains `266c96e466895136feb56e26681753f572b6053c`. Contract/scoring/fixture payloads were unchanged.
 
 Vor jeder Providerarbeit alle vier Identitäten erneut verifizieren. Ein Mismatch ist fail-closed zu behandeln und darf nicht durch stilles Repinning repariert werden.
 
