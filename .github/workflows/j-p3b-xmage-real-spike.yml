@@ -1,9 +1,6 @@
 name: J-P3B XMage Real Spike
 
 on:
-  push:
-    branches:
-      - roadmap/j-p3b-xmage-real-spike
   workflow_dispatch:
 
 permissions:
@@ -187,11 +184,10 @@ jobs:
 
                   UUID room = session.getMainRoomId();
                   System.out.println("main_room_id=" + room);
-                  int tablesBefore = session.getTables(room).size();
-                  System.out.println("tables_before=" + tablesBefore);
+                  System.out.println("tables_before=" + session.getTables(room).size());
 
                   MatchOptions options = new MatchOptions("J-P3B XMage remote probe", "Commander Free For All", true);
-                  options.setDeckType("Commander");
+                  options.setDeckType("Variant Magic - Commander");
                   options.setWinsNeeded(1);
                   options.setFreeMulligans(1);
                   options.setAttackOption(MultiplayerAttackOption.MULTIPLE);
@@ -200,7 +196,6 @@ jobs:
                   System.out.println("commander_table_created=" + (table != null));
                   if (table != null) {
                       System.out.println("created_table_id=" + table.getTableId());
-                      System.out.println("tables_after_create=" + session.getTables(room).size());
                   }
 
                   UUID bogusGame = UUID.randomUUID();
@@ -210,9 +205,7 @@ jobs:
                   System.out.println("bogus_action_note=transport return is not treated as semantic illegal-action rejection evidence");
 
                   if (table != null) {
-                      boolean removed = session.removeTable(room, table.getTableId());
-                      System.out.println("table_remove_return=" + removed);
-                      System.out.println("tables_after_remove=" + session.getTables(room).size());
+                      System.out.println("table_remove_return=" + session.removeTable(room, table.getTableId()));
                   }
                   session.connectStop(false, false);
                   System.out.println("remote_probe_complete=true");
