@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from commander_lab.storage import canonical_json_bytes
-
 
 ACTION_EVENT_TYPES = frozenset(
     {
@@ -73,9 +73,7 @@ def validate_event_log(events: list[dict[str, Any]]) -> tuple[str, ...]:
         if event_type == "player_eliminated" and actor:
             eliminated_at[str(actor)] = sequence
         elif actor in eliminated_at and event_type in ACTION_EVENT_TYPES:
-            errors.append(
-                f"eliminated player {actor} acted at event {sequence}: {event_type}"
-            )
+            errors.append(f"eliminated player {actor} acted at event {sequence}: {event_type}")
         if event_type != "state_checkpoint":
             continue
         checkpoint_count += 1

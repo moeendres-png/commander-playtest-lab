@@ -3,9 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from pathlib import Path
 from statistics import fmean, median
-from typing import Any, Iterable
+from typing import Any
 
 from commander_lab.engine.structural import run_structural_batch
 from commander_lab.models import (
@@ -29,7 +30,9 @@ REGISTRY_SCHEMA_VERSION = "1.0.0"
 
 
 def _canonical_hash(payload: dict[str, Any]) -> str:
-    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
+        "utf-8"
+    )
     return hashlib.sha256(raw).hexdigest()
 
 
@@ -43,7 +46,11 @@ def _profile(
     baseline: bool = False,
 ) -> PilotProfile:
     pilot = build_pilot(
-        PilotConfig(pilot_name=pilot_name, strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC),
+        PilotConfig(
+            pilot_name=pilot_name,
+            strength=PilotStrength.STRONG,
+            mode=PilotDecisionMode.DETERMINISTIC,
+        ),
         strategy=family,
     )
     body = {
@@ -59,10 +66,12 @@ def _profile(
         "description": description,
         "is_baseline": baseline,
     }
-    return PilotProfile(
-        profile_id=f"{family}.{pilot_name.casefold()}.v1",
-        parameter_hash=_canonical_hash(body),
-        **body,
+    return PilotProfile.model_validate(
+        {
+            "profile_id": f"{family}.{pilot_name.casefold()}.v1",
+            "parameter_hash": _canonical_hash(body),
+            **body,
+        }
     )
 
 
@@ -70,37 +79,121 @@ def default_pilot_profiles() -> tuple[PilotProfile, ...]:
     korvold_hash = "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
     rogshai_hash = "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
     return (
-        _profile("KorvoldPilot", "korvold", korvold_hash, ("korvold.current.commander-immediate-value",), "Phase-12.2 baseline Korvold pilot.", baseline=True),
-        _profile("KorvoldValuePilot", "korvold", korvold_hash, ("korvold.current.commander-immediate-value", "korvold.current.motor-vs-finisher"), "Maximizes independent value and card advantage."),
-        _profile("KorvoldSacrificePilot", "korvold", korvold_hash, ("korvold.current.prepare-sacrifice-resources",), "Prioritizes sacrifice outlets and renewable material."),
-        _profile("KorvoldLandRebuildPilot", "korvold", korvold_hash, ("korvold.current.graveyard-hate-risk", "korvold.current.rebuild-after-wipe"), "Preserves and converts land/graveyard rebuild lines."),
-        _profile("KorvoldAggressivePilot", "korvold", korvold_hash, ("korvold.current.table-damage-window",), "Accepts visibility to advance table damage and commander pressure."),
-        _profile("KorvoldConservativePilot", "korvold", korvold_hash, ("korvold.current.commander-immediate-value", "korvold.current.rebuild-after-wipe"), "Reserves protection and minimizes exposed commander casts."),
-        _profile("RogShaiPilot", "rogshai", rogshai_hash, ("rogshai.current.ishai-protection-window",), "Phase-12.2 baseline RogShai pilot.", baseline=True),
-        _profile("RogShaiTempoPilot", "rogshai", rogshai_hash, ("rogshai.current.ishai-protection-window", "rogshai.current.counter-priority"), "Develops Ishai while preserving cheap tempo interaction."),
-        _profile("RogShaiVoltronPilot", "rogshai", rogshai_hash, ("rogshai.current.aura-exposure", "rogshai.current.kediss-not-commander-damage"), "Concentrates on combat draw and commander-damage pressure."),
-        _profile("RogShaiSpellslingerPilot", "rogshai", rogshai_hash, ("rogshai.current.independent-spellslinger-axis",), "Builds independent Kykar/Veyran/Storm-Kiln/Guttersnipe axes."),
-        _profile("RogShaiControlPilot", "rogshai", rogshai_hash, ("rogshai.current.counter-priority",), "Reserves interaction for engines and real win attempts."),
-        _profile("RogShaiProtectedFinishPilot", "rogshai", rogshai_hash, ("rogshai.current.jeska-finish-window", "rogshai.current.silence-window"), "Waits for protected Jeska, double-strike or Silence finish windows."),
+        _profile(
+            "KorvoldPilot",
+            "korvold",
+            korvold_hash,
+            ("korvold.current.commander-immediate-value",),
+            "Phase-12.2 baseline Korvold pilot.",
+            baseline=True,
+        ),
+        _profile(
+            "KorvoldValuePilot",
+            "korvold",
+            korvold_hash,
+            ("korvold.current.commander-immediate-value", "korvold.current.motor-vs-finisher"),
+            "Maximizes independent value and card advantage.",
+        ),
+        _profile(
+            "KorvoldSacrificePilot",
+            "korvold",
+            korvold_hash,
+            ("korvold.current.prepare-sacrifice-resources",),
+            "Prioritizes sacrifice outlets and renewable material.",
+        ),
+        _profile(
+            "KorvoldLandRebuildPilot",
+            "korvold",
+            korvold_hash,
+            ("korvold.current.graveyard-hate-risk", "korvold.current.rebuild-after-wipe"),
+            "Preserves and converts land/graveyard rebuild lines.",
+        ),
+        _profile(
+            "KorvoldAggressivePilot",
+            "korvold",
+            korvold_hash,
+            ("korvold.current.table-damage-window",),
+            "Accepts visibility to advance table damage and commander pressure.",
+        ),
+        _profile(
+            "KorvoldConservativePilot",
+            "korvold",
+            korvold_hash,
+            ("korvold.current.commander-immediate-value", "korvold.current.rebuild-after-wipe"),
+            "Reserves protection and minimizes exposed commander casts.",
+        ),
+        _profile(
+            "RogShaiPilot",
+            "rogshai",
+            rogshai_hash,
+            ("rogshai.current.ishai-protection-window",),
+            "Phase-12.2 baseline RogShai pilot.",
+            baseline=True,
+        ),
+        _profile(
+            "RogShaiTempoPilot",
+            "rogshai",
+            rogshai_hash,
+            ("rogshai.current.ishai-protection-window", "rogshai.current.counter-priority"),
+            "Develops Ishai while preserving cheap tempo interaction.",
+        ),
+        _profile(
+            "RogShaiVoltronPilot",
+            "rogshai",
+            rogshai_hash,
+            ("rogshai.current.aura-exposure", "rogshai.current.kediss-not-commander-damage"),
+            "Concentrates on combat draw and commander-damage pressure.",
+        ),
+        _profile(
+            "RogShaiSpellslingerPilot",
+            "rogshai",
+            rogshai_hash,
+            ("rogshai.current.independent-spellslinger-axis",),
+            "Builds independent Kykar/Veyran/Storm-Kiln/Guttersnipe axes.",
+        ),
+        _profile(
+            "RogShaiControlPilot",
+            "rogshai",
+            rogshai_hash,
+            ("rogshai.current.counter-priority",),
+            "Reserves interaction for engines and real win attempts.",
+        ),
+        _profile(
+            "RogShaiProtectedFinishPilot",
+            "rogshai",
+            rogshai_hash,
+            ("rogshai.current.jeska-finish-window", "rogshai.current.silence-window"),
+            "Waits for protected Jeska, double-strike or Silence finish windows.",
+        ),
     )
 
 
 def default_ensembles() -> tuple[PilotEnsembleDefinition, ...]:
     korvold = (
-        "KorvoldValuePilot", "KorvoldSacrificePilot", "KorvoldLandRebuildPilot",
-        "KorvoldAggressivePilot", "KorvoldConservativePilot",
+        "KorvoldValuePilot",
+        "KorvoldSacrificePilot",
+        "KorvoldLandRebuildPilot",
+        "KorvoldAggressivePilot",
+        "KorvoldConservativePilot",
     )
     rogshai = (
-        "RogShaiTempoPilot", "RogShaiVoltronPilot", "RogShaiSpellslingerPilot",
-        "RogShaiControlPilot", "RogShaiProtectedFinishPilot",
+        "RogShaiTempoPilot",
+        "RogShaiVoltronPilot",
+        "RogShaiSpellslingerPilot",
+        "RogShaiControlPilot",
+        "RogShaiProtectedFinishPilot",
     )
     return (
         PilotEnsembleDefinition(
-            ensemble_id="korvold.equal.v1", version="1.0.0", deck_id="korvold/current",
+            ensemble_id="korvold.equal.v1",
+            version="1.0.0",
+            deck_id="korvold/current",
             members=tuple(PilotEnsembleMember(pilot_name=name, weight=0.2) for name in korvold),
         ),
         PilotEnsembleDefinition(
-            ensemble_id="rogshai.equal.v1", version="1.0.0", deck_id="rogshai/current",
+            ensemble_id="rogshai.equal.v1",
+            version="1.0.0",
+            deck_id="rogshai/current",
             members=tuple(PilotEnsembleMember(pilot_name=name, weight=0.2) for name in rogshai),
         ),
     )
@@ -137,20 +230,26 @@ class PilotRegistry:
         raise KeyError(f"unknown pilot ensemble: {ensemble_id}")
 
     def write_defaults(self) -> None:
-        atomic_write_json(self.registry_path, {
-            "schema_version": REGISTRY_SCHEMA_VERSION,
-            "estimate_type": ESTIMATE_TYPE,
-            "profiles": [p.model_dump(mode="json") for p in default_pilot_profiles()],
-            "truth_boundaries": {
-                "legal_actions_only": True,
-                "hidden_information_access": False,
-                "automatic_deck_changes": False,
+        atomic_write_json(
+            self.registry_path,
+            {
+                "schema_version": REGISTRY_SCHEMA_VERSION,
+                "estimate_type": ESTIMATE_TYPE,
+                "profiles": [p.model_dump(mode="json") for p in default_pilot_profiles()],
+                "truth_boundaries": {
+                    "legal_actions_only": True,
+                    "hidden_information_access": False,
+                    "automatic_deck_changes": False,
+                },
             },
-        })
-        atomic_write_json(self.ensemble_path, {
-            "schema_version": REGISTRY_SCHEMA_VERSION,
-            "ensembles": [e.model_dump(mode="json") for e in default_ensembles()],
-        })
+        )
+        atomic_write_json(
+            self.ensemble_path,
+            {
+                "schema_version": REGISTRY_SCHEMA_VERSION,
+                "ensembles": [e.model_dump(mode="json") for e in default_ensembles()],
+            },
+        )
 
 
 class PilotEnsembleRunner:
@@ -161,7 +260,9 @@ class PilotEnsembleRunner:
 
     def _validate_profile_scope(self, profile: PilotProfile, deck: StructuralDeckProfile) -> None:
         if profile.supported_deck_hashes and deck.deck_hash not in profile.supported_deck_hashes:
-            raise ValueError(f"pilot {profile.pilot_name} does not support deck hash {deck.deck_hash}")
+            raise ValueError(
+                f"pilot {profile.pilot_name} does not support deck hash {deck.deck_hash}"
+            )
         policy = profile.information_policy
         if policy.hidden_opponent_hands or policy.random_library_order or policy.exact_future_draws:
             raise ValueError("omniscient pilot profile rejected")
@@ -180,10 +281,18 @@ class PilotEnsembleRunner:
         deck = self.decks[deck_id]
         names = tuple(pilot_names)
         if not names:
-            names = tuple(p.pilot_name for p in self.registry.profiles() if p.commander_family == deck.commander_strategy)
+            names = tuple(
+                p.pilot_name
+                for p in self.registry.profiles()
+                if p.commander_family == deck.commander_strategy
+            )
         results: dict[str, dict[str, Any]] = {}
-        output_root = self.root / "data/runs/pilot_ensembles" / (output_name or f"benchmark-{deck_id.replace('/', '-')}-{seed}")
-        for index, name in enumerate(names):
+        output_root = (
+            self.root
+            / "data/runs/pilot_ensembles"
+            / (output_name or f"benchmark-{deck_id.replace('/', '-')}-{seed}")
+        )
+        for _index, name in enumerate(names):
             profile = self.registry.profile(name)
             self._validate_profile_scope(profile, deck)
             run_dir = output_root / name
@@ -216,7 +325,9 @@ class PilotEnsembleRunner:
                 self.decks,
             )
             rows = [
-                metrics for match in batch.match_results for metrics in match.player_metrics.values()
+                metrics
+                for match in batch.match_results
+                for metrics in match.player_metrics.values()
                 if metrics.deck_id == deck_id and metrics.pilot_name == name
             ]
             if not rows:
@@ -227,16 +338,23 @@ class PilotEnsembleRunner:
                 "games": len(rows),
                 "average_placement": fmean(float(row.placement) for row in rows),
                 "place_1_share": fmean(1.0 if row.placement == 1 else 0.0 for row in rows),
-                "average_first_commander_cast_turn": self._nullable_mean(row.first_commander_cast_turn for row in rows),
+                "average_first_commander_cast_turn": self._nullable_mean(
+                    row.first_commander_cast_turn for row in rows
+                ),
                 "average_commander_casts": fmean(float(row.commander_casts) for row in rows),
-                "average_commander_damage": fmean(float(row.commander_damage_dealt) for row in rows),
+                "average_commander_damage": fmean(
+                    float(row.commander_damage_dealt) for row in rows
+                ),
                 "average_normal_damage": fmean(float(row.normal_damage_dealt) for row in rows),
                 "average_counters": fmean(float(row.counters_resolved) for row in rows),
                 "average_protections": fmean(float(row.protections_resolved) for row in rows),
                 "average_wipes": fmean(float(row.wipes_resolved) for row in rows),
                 "average_recursions": fmean(float(row.recursions_resolved) for row in rows),
                 "average_engine_value": fmean(float(row.engine_value) for row in rows),
-                "political_visibility": fmean((1.0 if row.was_archenemy else 0.0) + row.hostile_target_events / 20.0 for row in rows),
+                "political_visibility": fmean(
+                    (1.0 if row.was_archenemy else 0.0) + row.hostile_target_events / 20.0
+                    for row in rows
+                ),
                 "interaction_usage": {
                     "average_counters": fmean(float(row.counters_resolved) for row in rows),
                     "average_protections": fmean(float(row.protections_resolved) for row in rows),
@@ -266,30 +384,50 @@ class PilotEnsembleRunner:
         atomic_write_json(output_root / "pilot_benchmark.json", payload)
         return payload
 
-    def ensemble_summary(self, benchmark: dict[str, Any], ensemble: PilotEnsembleDefinition) -> dict[str, Any]:
+    def ensemble_summary(
+        self, benchmark: dict[str, Any], ensemble: PilotEnsembleDefinition
+    ) -> dict[str, Any]:
         rows = benchmark["results"]
         selected = [(member, rows[member.pilot_name]) for member in ensemble.members]
-        metrics = ("average_placement", "place_1_share", "average_commander_damage", "average_normal_damage", "average_engine_value", "political_visibility")
+        metrics = (
+            "average_placement",
+            "place_1_share",
+            "average_commander_damage",
+            "average_normal_damage",
+            "average_engine_value",
+            "political_visibility",
+        )
         weighted = {
             metric: sum(member.weight * float(row[metric]) for member, row in selected)
             for metric in metrics
         }
         ordered = sorted(selected, key=lambda item: float(item[1]["average_placement"]))
-        worst_member, worst_row = max(selected, key=lambda item: float(item[1]["average_placement"]))
+        worst_member, worst_row = max(
+            selected, key=lambda item: float(item[1]["average_placement"])
+        )
         median_member, median_row = ordered[len(ordered) // 2]
-        placement_spread = max(float(row["average_placement"]) for _, row in selected) - min(float(row["average_placement"]) for _, row in selected)
+        placement_spread = max(float(row["average_placement"]) for _, row in selected) - min(
+            float(row["average_placement"]) for _, row in selected
+        )
         return {
             "ensemble": ensemble.model_dump(mode="json"),
             "weighted_metrics": weighted,
-            "worst_pilot": {"pilot_name": worst_member.pilot_name, "average_placement": worst_row["average_placement"]},
-            "median_pilot": {"pilot_name": median_member.pilot_name, "average_placement": median_row["average_placement"]},
+            "worst_pilot": {
+                "pilot_name": worst_member.pilot_name,
+                "average_placement": worst_row["average_placement"],
+            },
+            "median_pilot": {
+                "pilot_name": median_member.pilot_name,
+                "average_placement": median_row["average_placement"],
+            },
             "pilot_robustness": {
                 "placement_spread": placement_spread,
                 "robust": placement_spread <= 0.75,
                 "criterion": "structural placement spread <= 0.75 across the ensemble",
             },
             "deck_pilot_interaction": {
-                name: row["deviation_from_baseline"] for name, row in rows.items()
+                name: row["deviation_from_baseline"]
+                for name, row in rows.items()
                 if any(member.pilot_name == name for member in ensemble.members)
             },
             "estimate_type": ESTIMATE_TYPE,
@@ -306,10 +444,15 @@ class PilotEnsembleRunner:
                 {
                     "left": left,
                     "right": right,
-                    "average_placement_delta_left_minus_right": float(rows[left]["average_placement"]) - float(rows[right]["average_placement"]),
-                    "win_share_delta_left_minus_right": float(rows[left]["place_1_share"]) - float(rows[right]["place_1_share"]),
+                    "average_placement_delta_left_minus_right": float(
+                        rows[left]["average_placement"]
+                    )
+                    - float(rows[right]["average_placement"]),
+                    "win_share_delta_left_minus_right": float(rows[left]["place_1_share"])
+                    - float(rows[right]["place_1_share"]),
                 }
-                for index, left in enumerate(pilot_names) for right in pilot_names[index + 1:]
+                for index, left in enumerate(pilot_names)
+                for right in pilot_names[index + 1 :]
             ],
             "estimate_type": ESTIMATE_TYPE,
         }
@@ -321,11 +464,15 @@ class PilotEnsembleRunner:
         for name in shared:
             before = baseline["results"][name]
             after = variant["results"][name]
-            rows.append({
-                "pilot_name": name,
-                "placement_improvement": float(before["average_placement"]) - float(after["average_placement"]),
-                "win_share_improvement": float(after["place_1_share"]) - float(before["place_1_share"]),
-            })
+            rows.append(
+                {
+                    "pilot_name": name,
+                    "placement_improvement": float(before["average_placement"])
+                    - float(after["average_placement"]),
+                    "win_share_improvement": float(after["place_1_share"])
+                    - float(before["place_1_share"]),
+                }
+            )
         placement = [row["placement_improvement"] for row in rows]
         return {
             "pilots": rows,
@@ -341,10 +488,27 @@ class PilotEnsembleRunner:
     def markdown_report(payload: dict[str, Any]) -> str:
         lines = ["# Pilot Robustness Report", "", f"Estimate type: `{ESTIMATE_TYPE}`", ""]
         if "weighted_metrics" in payload:
-            lines += ["## Ensemble", "", f"- Worst pilot: `{payload['worst_pilot']['pilot_name']}`", f"- Median pilot: `{payload['median_pilot']['pilot_name']}`", f"- Robust: `{payload['pilot_robustness']['robust']}`", ""]
+            lines += [
+                "## Ensemble",
+                "",
+                f"- Worst pilot: `{payload['worst_pilot']['pilot_name']}`",
+                f"- Median pilot: `{payload['median_pilot']['pilot_name']}`",
+                f"- Robust: `{payload['pilot_robustness']['robust']}`",
+                "",
+            ]
         elif "pilots" in payload:
-            lines += ["## Variant across pilots", "", f"- Median placement improvement: `{payload['median_placement_improvement']:.4f}`", f"- Worst-pilot improvement: `{payload['worst_pilot_placement_improvement']:.4f}`", f"- Robust: `{payload['robust']}`", ""]
-        lines += ["All values are Structural Estimates. No deck change is applied automatically.", ""]
+            lines += [
+                "## Variant across pilots",
+                "",
+                f"- Median placement improvement: `{payload['median_placement_improvement']:.4f}`",
+                f"- Worst-pilot improvement: `{payload['worst_pilot_placement_improvement']:.4f}`",
+                f"- Robust: `{payload['robust']}`",
+                "",
+            ]
+        lines += [
+            "All values are Structural Estimates. No deck change is applied automatically.",
+            "",
+        ]
         return "\n".join(lines)
 
     @staticmethod
@@ -379,7 +543,9 @@ class PilotEnsembleRunner:
             "decision_count": total,
             "trigger_phases": dict(phase_counts.most_common()),
             "selected_actions": dict(action_counts.most_common(20)),
-            "average_utility_decomposition": {key: fmean(values) for key, values in sorted(components.items()) if values},
+            "average_utility_decomposition": {
+                key: fmean(values) for key, values in sorted(components.items()) if values
+            },
         }
 
     @staticmethod
@@ -401,11 +567,15 @@ class PilotEnsembleRunner:
         baseline = results.get(baseline_name)
         if baseline is None:
             return
-        for name, row in results.items():
+        for row in results.values():
             row["deviation_from_baseline"] = {
-                "average_placement": float(row["average_placement"]) - float(baseline["average_placement"]),
+                "average_placement": float(row["average_placement"])
+                - float(baseline["average_placement"]),
                 "place_1_share": float(row["place_1_share"]) - float(baseline["place_1_share"]),
-                "commander_damage": float(row["average_commander_damage"]) - float(baseline["average_commander_damage"]),
-                "engine_value": float(row["average_engine_value"]) - float(baseline["average_engine_value"]),
-                "political_visibility": float(row["political_visibility"]) - float(baseline["political_visibility"]),
+                "commander_damage": float(row["average_commander_damage"])
+                - float(baseline["average_commander_damage"]),
+                "engine_value": float(row["average_engine_value"])
+                - float(baseline["average_engine_value"]),
+                "political_visibility": float(row["political_visibility"])
+                - float(baseline["political_visibility"]),
             }

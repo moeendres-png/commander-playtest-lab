@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commander-playtest-lab"
-version = "1.14.0"
+version = "1.14.1"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "Private project - no redistribution license granted" }
+license = "LicenseRef-Proprietary"
 authors = [{ name = "Moritz Endres" }]
 dependencies = [
   "pydantic>=2.10,<3",
@@ -25,6 +25,8 @@ dev = [
   "httpx2>=2.7,<3",
   "ruff>=0.9,<1",
   "mypy>=1.14,<2",
+  "types-openpyxl>=3.1,<4",
+  "types-PyYAML>=6.0,<7",
 ]
 api = [
   "fastapi>=0.115,<1",
@@ -61,7 +63,21 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-ignore = ["B008"]
+# Ruff format is authoritative for wrapping; E501 can conflict with formatter output.
+ignore = ["B008", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Re-export aggregator: imports are the public API and are intentionally staged.
+"src/commander_lab/models/__init__.py" = ["F401", "E402"]
+# Script bootstraps src/ before importing the package.
+"scripts/run_phase86_acceptance.py" = ["E402"]
+# Unicode below is intentional normalization/fuzz/fixture input.
+"src/commander_lab/cards/normalize.py" = ["RUF001"]
+"scripts/complete_phase12_8_10.py" = ["RUF001"]
+"tests/fuzz/test_boundary_fuzz.py" = ["RUF001"]
+"tests/property/test_normalization_properties.py" = ["RUF001"]
+"tests/unit/test_plaintext_importer.py" = ["RUF001"]
+"tests/unit/test_phase1214_rules_coverage.py" = ["RUF001"]
 
 [tool.mypy]
 python_version = "3.12"

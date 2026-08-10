@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-
 REQUIRED_CARD_FIELDS = {
     "oracle_name",
     "oracle_id",
@@ -59,7 +58,7 @@ def test_card_coverage_registry_has_complete_scope_and_strict_external_defaults(
         "structural_only": 196,
     }
     for card in data["cards"]:
-        assert REQUIRED_CARD_FIELDS <= set(card)
+        assert set(card) >= REQUIRED_CARD_FIELDS
         assert card["xmage_recognized"] is False
         assert card["xmage_rules_verified"] is False
         assert card["forge_recognized"] is False
@@ -71,7 +70,9 @@ def test_card_coverage_registry_has_complete_scope_and_strict_external_defaults(
     assert stats["rogshai/current-2026-08-07"]["unique_oracle_names"] == 85
     assert stats["kaervek/maintained-2026-08-07"]["unique_oracle_names"] == 76
     assert stats["opponent/cosmic_spider_man/drive-2026-08-02"]["unique_oracle_names"] == 4
-    assert stats["opponent/alen___high_perfect_morcant/drive-2026-08-02"]["unique_oracle_names"] == 54
+    assert (
+        stats["opponent/alen___high_perfect_morcant/drive-2026-08-02"]["unique_oracle_names"] == 54
+    )
 
 
 def test_partial_opponents_do_not_invent_unknown_cards_as_confirmed(repo_root: Path) -> None:
@@ -122,8 +123,7 @@ def test_required_golden_scenarios_and_named_registry_exports_exist(repo_root: P
         "opponent_cosmic_spiderman_legends",
     } <= ids
     assert all(
-        not row["xmage_verified"] and not row["forge_verified"]
-        for row in canonical["scenarios"]
+        not row["xmage_verified"] and not row["forge_verified"] for row in canonical["scenarios"]
     )
 
 

@@ -180,8 +180,14 @@ def test_near_optimal_rogshai_preserves_interaction_mana() -> None:
     weak = RogShaiPilot(
         PilotConfig(strength=PilotStrength.WEAK, mode=PilotDecisionMode.DETERMINISTIC)
     )
-    assert near.choose_action(state, (engine, pass_action), random.Random(1)).selected_action_id == "pass"
-    assert weak.choose_action(state, (engine, pass_action), random.Random(1)).selected_action_id == "engine"
+    assert (
+        near.choose_action(state, (engine, pass_action), random.Random(1)).selected_action_id
+        == "pass"
+    )
+    assert (
+        weak.choose_action(state, (engine, pass_action), random.Random(1)).selected_action_id
+        == "engine"
+    )
 
 
 def test_korvold_pilot_values_sacrifice_outlet_with_material_and_commander() -> None:
@@ -263,7 +269,10 @@ def test_korvold_pilot_delays_commander_without_immediate_value() -> None:
             mode=PilotDecisionMode.DETERMINISTIC,
         )
     )
-    assert pilot.choose_action(state, (commander, engine), random.Random(1)).selected_action_id == "token-engine"
+    assert (
+        pilot.choose_action(state, (commander, engine), random.Random(1)).selected_action_id
+        == "token-engine"
+    )
 
 
 def test_rogshai_pilot_casts_rograkh_as_early_resource() -> None:
@@ -309,7 +318,10 @@ def test_rogshai_pilot_casts_rograkh_as_early_resource() -> None:
     pilot = RogShaiPilot(
         PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
     )
-    assert pilot.choose_action(state, (rograkh, selection), random.Random(1)).selected_action_id == "rograkh"
+    assert (
+        pilot.choose_action(state, (rograkh, selection), random.Random(1)).selected_action_id
+        == "rograkh"
+    )
 
 
 def test_rogshai_pilot_prioritizes_jeska_with_large_ishai() -> None:
@@ -421,7 +433,10 @@ def test_korvold_pilot_values_land_rebuild_from_large_graveyard() -> None:
     pilot = KorvoldPilot(
         PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
     )
-    assert pilot.choose_action(state, (reclamation, draw), random.Random(1)).selected_action_id == "reclamation"
+    assert (
+        pilot.choose_action(state, (reclamation, draw), random.Random(1)).selected_action_id
+        == "reclamation"
+    )
 
 
 def test_korvold_pilot_values_table_damage_in_five_player_pod() -> None:
@@ -602,15 +617,11 @@ def test_korvold_opening_hand_score_rewards_sacrifice_and_land_package() -> None
         )
         for index in range(3)
     )
-    synergy = lands + (
+    synergy = (
+        *lands,
         _action("ramp", "Nature's Lore", cost=2, roles={CardRole.RAMP}),
         _action("token", "Ophiomancer", cost=3, roles={CardRole.TOKEN_SOURCE}),
-        _action(
-            "outlet",
-            "Goblin Bombardment",
-            cost=2,
-            roles={CardRole.SACRIFICE_OUTLET},
-        ),
+        _action("outlet", "Goblin Bombardment", cost=2, roles={CardRole.SACRIFICE_OUTLET}),
         _action("land-engine", "Ramunap Excavator", cost=3, roles={CardRole.LAND_SYNERGY}),
     )
     disconnected = lands + tuple(
@@ -637,10 +648,14 @@ def test_rogshai_bottoms_slow_combat_aura_before_cheap_interaction() -> None:
         _action("counter", "Counterspell", cost=2, roles={CardRole.COUNTER}),
         _action("protect", "Loran's Escape", cost=1, roles={CardRole.PROTECTION}),
     )
-    assert pilot.choose_bottom_cards(cards, 1, commander_names=(
-        "Ishai, Ojutai Dragonspeaker",
-        "Rograkh, Son of Rohgahh",
-    )) == ("aura",)
+    assert pilot.choose_bottom_cards(
+        cards,
+        1,
+        commander_names=(
+            "Ishai, Ojutai Dragonspeaker",
+            "Rograkh, Son of Rohgahh",
+        ),
+    ) == ("aura",)
 
 
 def test_pilot_removal_target_prefers_largest_threat_reduction() -> None:
@@ -684,4 +699,6 @@ def test_pilot_graveyard_target_prefers_larger_recursion_resource() -> None:
         roles={CardRole.GRAVEYARD_HATE},
         kind="graveyard_target",
     ).model_copy(update={"threat_score": 12.0})
-    assert pilot.choose_target(state, (small, large), random.Random(1)).selected_action_id == "large"
+    assert (
+        pilot.choose_target(state, (small, large), random.Random(1)).selected_action_id == "large"
+    )

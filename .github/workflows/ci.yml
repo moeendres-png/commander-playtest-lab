@@ -30,61 +30,45 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install project and quality tools
-        run: python -m pip install -e '.[dev,api]'
-      - name: Determine changed Python files
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Ruff lint
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git diff --name-only --diff-filter=ACMR \
-              "${{ github.event.pull_request.base.sha }}" \
-              "${{ github.event.pull_request.head.sha }}" \
-              -- '*.py' > changed-python-files.txt
-          elif [[ "${{ github.event_name }}" == "push" ]] && \
-               [[ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
-            git diff --name-only --diff-filter=ACMR \
-              "${{ github.event.before }}" \
-              "${{ github.sha }}" \
-              -- '*.py' > changed-python-files.txt
-          else
-            git diff-tree --no-commit-id --name-only -r HEAD \
-              -- '*.py' > changed-python-files.txt
-          fi
-
-          sort -u -o changed-python-files.txt changed-python-files.txt
-
-          echo "Changed Python files:"
-          cat changed-python-files.txt
-
-      - name: Ruff lint changed Python files
+          set -uo pipefail
+          mkdir -p artifacts/quality
+          set +e
+          ruff check . --output-format=json > artifacts/quality/ruff.json
+          rc=$?
+          ruff check . --output-format=github || true
+          exit "$rc"
+      - name: Ruff format
+        if: ${{ success() || failure() }}
         shell: bash
         run: |
-          if [[ -s changed-python-files.txt ]]; then
-            xargs -d '\n' ruff check -- < changed-python-files.txt
-          else
-            echo "No changed Python files to lint."
-          fi
-
-      - name: Ruff format changed Python files
+          mkdir -p artifacts/quality
+          ruff format --diff . > artifacts/quality/ruff-format.diff || true
+          ruff format --check .
+      - name: Mypy strict
+        if: ${{ success() || failure() }}
         shell: bash
         run: |
-          if [[ -s changed-python-files.txt ]]; then
-            xargs -d '\n' ruff format --check -- < changed-python-files.txt
-          else
-            echo "No changed Python files to format-check."
-          fi
-
-      - name: Mypy baseline
-        continue-on-error: true
-        run: mypy src/commander_lab
+          mkdir -p artifacts/quality
+          set -o pipefail
+          mypy src/commander_lab 2>&1 | tee artifacts/quality/mypy.txt
       - name: Collect tests
+        if: ${{ success() || failure() }}
         run: pytest --collect-only -q
       - name: Test suite
+        if: ${{ success() || failure() }}
         run: pytest -q
       - name: Compile
+        if: ${{ success() || failure() }}
         run: python -m compileall -q src tests
       - name: Phase 8.6 audit
+        if: ${{ success() || failure() }}
         run: commander-lab audit-phase86 --skip-tests || test $? -eq 2
       - name: Secret-pattern scan
+        if: ${{ success() || failure() }}
         shell: bash
         run: |
           set -euo pipefail
@@ -114,6 +98,7 @@ jobs:
 
           echo "No secret patterns found."
       - name: Build wheel
+        if: ${{ success() || failure() }}
         run: python -m pip wheel --no-deps --wheel-dir dist .
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
         if: always()
@@ -123,7 +108,7 @@ jobs:
             .runtime/audit/phase86/artifacts/audit/
             .runtime/audit/phase86/PHASE86_VALIDATION_OUTPUT.json
             dist/
-          include-hidden-files: true
+            artifacts/quality/
           if-no-files-found: warn
 
   security:

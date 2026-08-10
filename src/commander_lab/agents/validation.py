@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import json
 import random
 from pathlib import Path
@@ -21,7 +22,6 @@ from commander_lab.models import (
     StructuralBatchConfig,
     StructuralMatchConfig,
 )
-
 
 _PHASE4_ESTIMATE_TYPE = "structural_model_estimates"
 
@@ -317,8 +317,7 @@ def _decision_quality_benchmark(seed: int, trials: int) -> dict[str, object]:
         "scenarios": [scenario[0] for scenario in scenarios],
         "by_strength": result,
         "monotonic_non_decreasing": all(
-            later + 1e-12 >= earlier
-            for earlier, later in zip(rates, rates[1:])
+            later + 1e-12 >= earlier for earlier, later in itertools.pairwise(rates)
         ),
         "purpose": "controlled action-choice calibration, not match win-rate validation",
     }
@@ -352,10 +351,7 @@ def _audit_decision_log(root: Path, output_directory: Path, seed: int) -> dict[s
         ),
     )
     result = StructuralSimulator(decks).simulate(config, event_log_path=event_path)
-    events = [
-        json.loads(line)
-        for line in event_path.read_text(encoding="utf-8").splitlines()
-    ]
+    events = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
     decisions = [event for event in events if event["event_type"] == "pilot_decision"]
     phases: dict[str, int] = {}
     dimensions: set[str] = set()

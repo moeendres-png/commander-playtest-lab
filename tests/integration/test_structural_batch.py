@@ -11,12 +11,15 @@ def test_batch_is_reproducible_across_worker_counts(structural_decks) -> None:
     common = dict(
         run_id="worker-repro",
         seed=20260804,
-        iterations=8,
+        iterations=64,
         deck_ids=("korvold/current", "rogshai/current", "synthetic/aggro"),
         limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=20),
     )
     serial = run_structural_batch(StructuralBatchConfig(**common, workers=1), structural_decks)
     parallel = run_structural_batch(StructuralBatchConfig(**common, workers=2), structural_decks)
+    representative = run_structural_batch(
+        StructuralBatchConfig(**common, workers=4), structural_decks
+    )
     serial_key = [
         (item.seed, item.placements, item.winner_ids, item.turns, item.log_sha256, item.end_reason)
         for item in serial.match_results
@@ -25,8 +28,12 @@ def test_batch_is_reproducible_across_worker_counts(structural_decks) -> None:
         (item.seed, item.placements, item.winner_ids, item.turns, item.log_sha256, item.end_reason)
         for item in parallel.match_results
     ]
-    assert serial_key == parallel_key
-    assert serial.aggregate == parallel.aggregate
+    representative_key = [
+        (item.seed, item.placements, item.winner_ids, item.turns, item.log_sha256, item.end_reason)
+        for item in representative.match_results
+    ]
+    assert serial_key == parallel_key == representative_key
+    assert serial.aggregate == parallel.aggregate == representative.aggregate
 
 
 @pytest.mark.integration

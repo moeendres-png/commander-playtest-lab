@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Iterable
 from dataclasses import dataclass
 from statistics import fmean
-from typing import Iterable
 
+from commander_lab.decision_statistics import (
+    bayesian_shrunk_mean,
+    distributionally_robust_lower_bound,
+    paired_bootstrap_interval,
+    paired_standardized_effect,
+    quantile_summary,
+)
 from commander_lab.engine.structural import ENGINE_VERSION, StructuralSimulator
 from commander_lab.models import (
     CardRole,
@@ -12,13 +19,8 @@ from commander_lab.models import (
     StructuralCardProfile,
     StructuralDeckProfile,
     StructuralMatchConfig,
-    VariantSwap,
 )
 from commander_lab.storage import sha256_value
-from commander_lab.decision_statistics import (
-    bayesian_shrunk_mean, distributionally_robust_lower_bound,
-    paired_bootstrap_interval, paired_standardized_effect, quantile_summary,
-)
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,7 +69,7 @@ class PairedMetrics:
 
 
 def derive_paired_seed(master_seed: int, pair_id: str, index: int) -> int:
-    payload = f"{ENGINE_VERSION}|paired|{master_seed}|{pair_id}|{index}".encode("utf-8")
+    payload = f"{ENGINE_VERSION}|paired|{master_seed}|{pair_id}|{index}".encode()
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big", signed=False)
 
 
@@ -115,7 +117,9 @@ def variant_deck(
     )
 
 
-def ablation_filler(card: StructuralCardProfile, *, suffix: str = "ablation") -> StructuralCardProfile:
+def ablation_filler(
+    card: StructuralCardProfile, *, suffix: str = "ablation"
+) -> StructuralCardProfile:
     return StructuralCardProfile(
         oracle_name=f"{card.oracle_name} [{suffix} filler]",
         mana_value=card.mana_value,
@@ -180,19 +184,17 @@ def run_paired_structural_comparison(
         baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
         variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
         configs = (pilot_config,) * len(baseline_ids)
-        common = dict(
-            seed=match_seed,
-            starting_player_seat=start,
-            pilot_configs=configs,
-        )
         from commander_lab.models import StructuralAbortLimits
+
         limits = StructuralAbortLimits(max_turns=max_turns)
         base_result = base_sim.simulate(
             StructuralMatchConfig(
                 match_id=f"{pair_id}-base-{index:08d}",
                 deck_ids=baseline_ids,
                 limits=limits,
-                **common,
+                seed=match_seed,
+                starting_player_seat=start,
+                pilot_configs=configs,
             ),
             run_id=f"{pair_id}-baseline",
         )
@@ -201,7 +203,9 @@ def run_paired_structural_comparison(
                 match_id=f"{pair_id}-variant-{index:08d}",
                 deck_ids=variant_ids,
                 limits=limits,
-                **common,
+                seed=match_seed,
+                starting_player_seat=start,
+                pilot_configs=configs,
             ),
             run_id=f"{pair_id}-variant",
         )
@@ -238,12 +242,15 @@ def run_paired_structural_comparison(
                 "variant_log_sha256": var_result.log_sha256,
             }
         )
-    avg = lambda rows, key: fmean(row[key] for row in rows)
+
+    def avg(rows: list[dict[str, float]], key: str) -> float:
+        return fmean(row[key] for row in rows)
+
     base_place = avg(base_rows, "placement")
     var_place = avg(var_rows, "placement")
     differences = tuple(
-        float(row["baseline_placement"]) - float(row["variant_placement"])
-        for row in pairs
+        base_row["placement"] - variant_row["placement"]
+        for base_row, variant_row in zip(base_rows, var_rows, strict=True)
     )
     interval = paired_bootstrap_interval(
         differences, seed=derive_paired_seed(seed, pair_id, iterations + 1)
@@ -271,7 +278,7 @@ def run_paired_structural_comparison(
         failed_runs=0,
         discarded_runs=0,
         actual_sample_size=len(pairs),
-        seeds=tuple(int(row["seed"]) for row in pairs),
+        seeds=tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations)),
         worker_count=1,
         validation_level="structural_only",
         paired_or_unpaired="paired",
@@ -282,7 +289,9 @@ def run_paired_structural_comparison(
         worst_case_result=min(differences),
         scenario_weights="equal within this paired scenario",
         pilot_weights=f"single configured pilot: {pilot_config.strength.value}",
-        multiple_testing_method="not_applicable_single_comparison; Holm required for ranked families",
+        multiple_testing_method=(
+            "not_applicable_single_comparison; Holm required for ranked families"
+        ),
         rounding_policy="unrounded internal values; presentation may round to six decimals",
         bayesian_shrunk_effect=bayesian_shrunk_mean(differences),
         distributionally_robust_lower_bound=distributionally_robust_lower_bound(differences),

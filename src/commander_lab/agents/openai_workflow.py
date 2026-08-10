@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from commander_lab.models import WorkflowReport, WorkflowRequest
@@ -51,8 +50,7 @@ def _load_sdk() -> dict[str, Any]:
         from openai.types.shared import Reasoning
     except ImportError as exc:
         raise AgentsSdkUnavailable(
-            "Install the optional dependency with: "
-            "pip install 'commander-playtest-lab[openai]'"
+            "Install the optional dependency with: pip install 'commander-playtest-lab[openai]'"
         ) from exc
     return {
         "Agent": Agent,
@@ -77,21 +75,21 @@ def _sdk_tools(registry: ToolRegistry, function_tool: Any) -> list[Any]:
         description = definition.description
 
         def make_invoke(name: str, model: type[Any]) -> Any:
-            async def invoke(payload: Any) -> dict[str, Any]:
+            async def invoke_tool(payload: Any) -> dict[str, Any]:
                 validated = model.model_validate(payload)
                 response = registry.invoke(name, validated.model_dump(mode="json"))
                 validate_tool_output(response)
                 return response.model_dump(mode="json")
 
-            invoke.__annotations__ = {"payload": model, "return": dict[str, Any]}
-            return invoke
+            invoke_tool.__annotations__ = {"payload": model, "return": dict[str, Any]}
+            return invoke_tool
 
-        invoke = make_invoke(tool_name, input_model)
-        invoke.__name__ = tool_name
-        invoke.__doc__ = description
+        tool_callable = make_invoke(tool_name, input_model)
+        tool_callable.__name__ = tool_name
+        tool_callable.__doc__ = description
         tools.append(
             function_tool(
-                invoke,
+                tool_callable,
                 name_override=tool_name,
                 description_override=description,
                 strict_mode=True,
@@ -110,7 +108,11 @@ def _agent_guardrails(sdk: dict[str, Any]) -> tuple[Any, Any]:
 
     async def structural_output_only(_context: Any, _agent: Any, output: Any) -> Any:
         try:
-            report = output if isinstance(output, WorkflowReport) else WorkflowReport.model_validate(output)
+            report = (
+                output
+                if isinstance(output, WorkflowReport)
+                else WorkflowReport.model_validate(output)
+            )
             validate_workflow_report(report)
         except (ValueError, GuardrailViolation) as exc:
             return sdk["GuardrailFunctionOutput"](
@@ -152,7 +154,7 @@ def _budget_hooks(
     tracker: WorkflowBudgetTracker,
     trace: LocalAgentTraceRecorder,
 ) -> Any:
-    class BudgetHooks(sdk["RunHooks"]):
+    class BudgetHookMethods:
         def __init__(self) -> None:
             self.started_calls = 0
 
@@ -231,7 +233,20 @@ def _budget_hooks(
                 },
             )
 
-    return BudgetHooks()
+    run_hooks_base = sdk["RunHooks"]
+    budget_hooks_type = type(
+        "BudgetHooks",
+        (run_hooks_base,),
+        {
+            "__init__": BudgetHookMethods.__init__,
+            "_usage": staticmethod(BudgetHookMethods._usage),
+            "on_llm_start": BudgetHookMethods.on_llm_start,
+            "on_llm_end": BudgetHookMethods.on_llm_end,
+            "on_tool_start": BudgetHookMethods.on_tool_start,
+            "on_tool_end": BudgetHookMethods.on_tool_end,
+        },
+    )
+    return budget_hooks_type()
 
 
 def build_agent_runtime(
@@ -257,8 +272,8 @@ def build_agent_runtime(
         name="Deck Analyst",
         model=request.model,
         instructions=(
-            specialist_common
-            + " Evaluate roles, weaknesses, cuts and upgrade candidates. Do not confirm a candidate "
+            specialist_common + " Evaluate roles, weaknesses, cuts and upgrade candidates. "
+            "Do not confirm a candidate "
             "without paired validation."
         ),
         tools=tools,
@@ -298,7 +313,8 @@ def build_agent_runtime(
         instructions=(
             specialist_common
             + " Understand the user goal, create a bounded validation plan, call local tools, use "
-            "build_optimization_context first, choose the smallest suitable run profile, use the Deck "
+            "build_optimization_context first, choose the smallest "
+            "suitable run profile, use the Deck "
             "Analyst, Simulation Analyst and Red-Team Reviewer when relevant, and summarize "
             "only evidence returned by tools. Agents may never alter deterministic game state."
         ),
@@ -314,7 +330,9 @@ def build_agent_runtime(
             ),
             red_team.as_tool(
                 tool_name="red_team_reviewer",
-                tool_description="Challenge conclusions for overfitting and alternative explanations.",
+                tool_description=(
+                    "Challenge conclusions for overfitting and alternative explanations."
+                ),
             ),
         ],
         model_settings=settings,

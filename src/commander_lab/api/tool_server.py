@@ -23,8 +23,7 @@ def create_app(root: str | Path) -> FastAPI:
         title="Commander Playtest Lab Function Tool Server",
         version="1.4.0",
         description=(
-            "Local structured tool server. All simulation numbers are "
-            "structural_model_estimates."
+            "Local structured tool server. All simulation numbers are structural_model_estimates."
         ),
     )
 
@@ -63,9 +62,7 @@ def create_app(root: str | Path) -> FastAPI:
         iterations: int = 4, seed: int = 20260805, workers: int = 1
     ) -> dict[str, object]:
         if iterations < 1 or iterations > 100:
-            raise HTTPException(
-                status_code=422, detail="demo iterations must be between 1 and 100"
-            )
+            raise HTTPException(status_code=422, detail="demo iterations must be between 1 and 100")
         return run_phase10_acceptance(
             root,
             iterations=iterations,

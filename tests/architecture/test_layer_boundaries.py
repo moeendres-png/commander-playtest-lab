@@ -3,7 +3,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-
 FORBIDDEN_PREFIXES = {
     "commander_lab.engine.structural": ("commander_lab.agents.openai_workflow", "openai", "agents"),
     "commander_lab.engine.rules": ("commander_lab.agents.openai_workflow", "openai", "agents"),

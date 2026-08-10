@@ -20,7 +20,9 @@ def test_placements_form_valid_range_for_many_seeds(structural_decks) -> None:
                 match_id=f"placement-{seed}",
                 seed=seed,
                 deck_ids=deck_ids,
-                limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=20),
+                limits=StructuralAbortLimits(
+                    max_turns=30, max_events=20_000, max_no_progress_turns=20
+                ),
             )
         )
         assert set(result.placements) == {"p1", "p2", "p3", "p4"}

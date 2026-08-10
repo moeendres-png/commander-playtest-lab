@@ -21,7 +21,11 @@ def test_large_run_requires_approval() -> None:
 def test_recommendation_is_screening_not_confirmation() -> None:
     service = CommanderToolService(ROOT)
     result = service.recommend_upgrades(
-        RecommendUpgradesInput(deck_id="korvold/current", candidate_ids=("korvold/mazirek-smoke",), max_recommendations=2)
+        RecommendUpgradesInput(
+            deck_id="korvold/current",
+            candidate_ids=("korvold/mazirek-smoke",),
+            max_recommendations=2,
+        )
     )
     assert result.status == ToolStatus.COMPLETED
     assert result.result["method"] == "role_profile_screening_only"

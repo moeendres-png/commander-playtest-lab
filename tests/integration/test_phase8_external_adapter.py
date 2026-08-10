@@ -8,7 +8,7 @@ from commander_lab.engine.rules import (
     load_interaction_catalog,
     validate_with_external_adapter,
 )
-from commander_lab.models import RulesBackend, ValidationLevel
+from commander_lab.models import RulesBackend
 
 
 def test_legacy_or_mock_adapter_cannot_promote_observation_to_rules_engine_validated(
@@ -59,15 +59,14 @@ for raw in sys.stdin:
 """.strip(),
         encoding="utf-8",
     )
-    adapter = ExternalRulesAdapter(
-        RulesBackend.FORGE, (sys.executable, str(script)), cwd=repo_root
-    )
+    adapter = ExternalRulesAdapter(RulesBackend.FORGE, (sys.executable, str(script)), cwd=repo_root)
     try:
         case = load_interaction_catalog(
             repo_root / "data/rules/project_critical_interactions.json"
         )[0]
         import pytest
-        with pytest.raises(RuntimeError, match="unverified|legacy|external rules engine"):
+
+        with pytest.raises(RuntimeError, match=r"unverified|legacy|external rules engine"):
             validate_with_external_adapter(case, adapter)
     finally:
         adapter.close()

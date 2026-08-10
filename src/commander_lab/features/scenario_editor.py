@@ -21,7 +21,7 @@ class ScenarioFixture(FrozenModel):
     fixture_hash: str | None = None
 
     @model_validator(mode="after")
-    def validate_hash(self) -> "ScenarioFixture":
+    def validate_hash(self) -> ScenarioFixture:
         value = self.model_dump(mode="json", exclude={"fixture_hash"})
         expected = sha256_value(value)
         if self.fixture_hash is not None and self.fixture_hash != expected:

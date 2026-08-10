@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 import json
 import math
 from pathlib import Path
@@ -45,9 +46,7 @@ class OpponentEnsembleStore:
         if target.exists():
             if allow_existing_identical and target.read_text(encoding="utf-8") == payload:
                 return target
-            raise EnsembleConflictError(
-                "ensemble ID already exists with different content"
-            )
+            raise EnsembleConflictError("ensemble ID already exists with different content")
         target.write_text(payload, encoding="utf-8")
         return target
 
@@ -55,19 +54,13 @@ class OpponentEnsembleStore:
         target = self.path(ensemble_id)
         if not target.exists():
             raise KeyError(ensemble_id)
-        return OpponentEnsemble.model_validate_json(
-            target.read_text(encoding="utf-8")
-        )
+        return OpponentEnsemble.model_validate_json(target.read_text(encoding="utf-8"))
 
     def list(self) -> list[OpponentEnsemble]:
         """List only versioned ensemble documents, never generated reports."""
         results: list[OpponentEnsemble] = []
         for target in sorted(self.base.glob("*-ensemble-v*.json")):
-            results.append(
-                OpponentEnsemble.model_validate_json(
-                    target.read_text(encoding="utf-8")
-                )
-            )
+            results.append(OpponentEnsemble.model_validate_json(target.read_text(encoding="utf-8")))
         return results
 
     def add_variant(
@@ -124,14 +117,10 @@ class OpponentEnsembleStore:
         if variant.speed_turn_range is not None:
             speed = max(0.0, min(1.0, (10.0 - variant.speed_turn_range.minimum) / 7.0))
         interaction = (
-            variant.interaction_density.maximum
-            if variant.interaction_density is not None
-            else 0.25
+            variant.interaction_density.maximum if variant.interaction_density is not None else 0.25
         )
         wipes = (
-            variant.wipe_count_range.maximum / 8.0
-            if variant.wipe_count_range is not None
-            else 0.15
+            variant.wipe_count_range.maximum / 8.0 if variant.wipe_count_range is not None else 0.15
         )
         role_concentration = max(variant.role_distribution.values(), default=0.2)
         dimensions = {
@@ -142,15 +131,12 @@ class OpponentEnsembleStore:
         }
         pressure = min(
             1.5,
-            0.38 * speed
-            + 0.28 * interaction
-            + 0.18 * wipes
-            + 0.16 * role_concentration,
+            0.38 * speed + 0.28 * interaction + 0.18 * wipes + 0.16 * role_concentration,
         )
-        return pressure, max(dimensions, key=dimensions.get)
+        return pressure, max(dimensions, key=lambda name: dimensions[name])
 
     @staticmethod
-    def _normalized_weights(ensemble: OpponentEnsemble) -> list[float]:
+    def _normalized_weights(ensemble: OpponentEnsemble) -> builtins.list[float]:
         if ensemble.weight_mode.value in {"unweighted", "equal", "worst_case"}:
             return [1.0 / len(ensemble.variants)] * len(ensemble.variants)
         values = [variant.weight.value for variant in ensemble.variants]
@@ -190,9 +176,11 @@ class OpponentEnsembleStore:
                 }
             )
 
-        weighted_average = sum(value * weight for value, weight in zip(values, weights))
+        weighted_average = sum(
+            value * weight for value, weight in zip(values, weights, strict=False)
+        )
         positive_share = sum(
-            weight for value, weight in zip(values, weights) if value > 0
+            weight for value, weight in zip(values, weights, strict=False) if value > 0
         )
         return EnsembleMatchupResult(
             deck_id=deck.deck_id,
@@ -206,7 +194,7 @@ class OpponentEnsembleStore:
             spread=pstdev(values) if len(values) > 1 else 0.0,
             positive_variant_share=positive_share,
             most_sensitive_assumption=(
-                max(sensitivities, key=sensitivities.get) if sensitivities else None
+                max(sensitivities, key=lambda name: sensitivities[name]) if sensitivities else None
             ),
             weight_mode=ensemble.weight_mode,
             aggregate_interpretation=(
@@ -240,6 +228,7 @@ class OpponentEnsembleStore:
             for baseline_row, candidate_row in zip(
                 baseline_result.per_variant,
                 candidate_result.per_variant,
+                strict=True,
             )
         ]
         positive_count = sum(delta > 0 for delta in deltas)
@@ -252,10 +241,7 @@ class OpponentEnsembleStore:
             "worst_delta": min(deltas),
             "best_delta": max(deltas),
             "positive_variant_share": positive_count / len(deltas),
-            "robust": (
-                min(deltas) >= 0
-                and positive_count >= max(2, math.ceil(len(deltas) / 2))
-            ),
+            "robust": (min(deltas) >= 0 and positive_count >= max(2, math.ceil(len(deltas) / 2))),
             "automatic_deck_application": False,
             "estimate_type": "structural_model_estimates",
         }

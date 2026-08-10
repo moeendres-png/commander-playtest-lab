@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections import Counter
 from pathlib import Path
 
 from commander_lab.engine.structural.profiles import build_default_profile
@@ -47,12 +46,28 @@ def _inventory_rows(root: Path) -> list[dict[str, object]]:
     return [dict(row) for row in payload.get("cards", [])]
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return int(value)
+    raise ValueError(f"unsupported integer value: {value!r}")
+
+
+def _as_float(value: object, default: float = 0.0) -> float:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return float(value)
+    raise ValueError(f"unsupported float value: {value!r}")
+
+
 def load_canonical_inventory_quantities(root: str | Path) -> dict[str, int]:
     rows = _inventory_rows(Path(root))
     return {
-        str(row["oracle_name"]): int(row.get("quantity", 0))
+        str(row["oracle_name"]): _as_int(row.get("quantity", 0))
         for row in rows
-        if row.get("currently_owned") and int(row.get("quantity", 0)) > 0
+        if row.get("currently_owned") and _as_int(row.get("quantity", 0)) > 0
     }
 
 
@@ -61,13 +76,15 @@ def _identity_from_inventory(row: dict[str, object]) -> CardIdentity:
     colors = _colors(str(row.get("color_identity", "")))
     type_line = str(row.get("card_type", "Unknown") or "Unknown")
     legality_text = str(row.get("commander_legality", "unknown")).casefold()
-    legality = CardLegality.LEGAL if legality_text == "legal" else (
-        CardLegality.BANNED if legality_text == "banned" else CardLegality.UNKNOWN
+    legality = (
+        CardLegality.LEGAL
+        if legality_text == "legal"
+        else (CardLegality.BANNED if legality_text == "banned" else CardLegality.UNKNOWN)
     )
     return CardIdentity(
         oracle_name=name,
         mana_cost=str(row.get("mana_cost", "") or "") or None,
-        mana_value=float(row.get("mana_value", 0.0) or 0.0),
+        mana_value=_as_float(row.get("mana_value", 0.0), 0.0),
         color_identity=colors,
         type_line=type_line,
         oracle_text=str(row.get("oracle_text", "") or "") or None,
@@ -80,7 +97,10 @@ def _identity_from_inventory(row: dict[str, object]) -> CardIdentity:
                 source_name="MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
                 source_path="drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
                 quality=DataQuality.PROJECT_VERIFIED,
-                notes="Physical identity and Oracle fields imported read-only; semantic roles are inferred separately.",
+                notes=(
+                    "Physical identity and Oracle fields imported read-only; "
+                    "semantic roles are inferred separately."
+                ),
             ),
         ),
     )
@@ -98,67 +118,153 @@ def _inferred_roles(identity: CardIdentity) -> frozenset[CardRole]:
     if (
         ("add {" in text and not is_land)
         or "treasure token" in text
-        or "search your library for" in text and "land card" in text
-        or "put a land card" in text and "battlefield" in text
+        or ("search your library for" in text and "land card" in text)
+        or ("put a land card" in text and "battlefield" in text)
     ):
         roles.add(CardRole.RAMP)
-    if "draw a card" in text or "draw two cards" in text or "draw three cards" in text or "draw x cards" in text:
+    if (
+        "draw a card" in text
+        or "draw two cards" in text
+        or "draw three cards" in text
+        or "draw x cards" in text
+    ):
         roles.add(CardRole.DRAW)
-    if any(token in text for token in ("scry ", "surveil ", "look at the top", "look at the top ", "reveal the top")):
+    if any(
+        token in text
+        for token in ("scry ", "surveil ", "look at the top", "look at the top ", "reveal the top")
+    ):
         roles.add(CardRole.SELECTION)
-    if any(token in text for token in (
-        "destroy target", "exile target", "return target creature", "return target nonland permanent",
-        "return target permanent", "target creature gets -", "deals damage to target creature",
-        "damage to target creature or planeswalker",
-    )):
+    if any(
+        token in text
+        for token in (
+            "destroy target",
+            "exile target",
+            "return target creature",
+            "return target nonland permanent",
+            "return target permanent",
+            "target creature gets -",
+            "deals damage to target creature",
+            "damage to target creature or planeswalker",
+        )
+    ):
         roles.add(CardRole.REMOVAL)
-    if "counter target spell" in text or "counter target activated" in text or "counter target triggered" in text:
+    if (
+        "counter target spell" in text
+        or "counter target activated" in text
+        or "counter target triggered" in text
+    ):
         roles.add(CardRole.COUNTER)
-    if any(token in text for token in (
-        "gains hexproof", "gain hexproof", "gains indestructible", "gain indestructible",
-        "phases out", "phase out", "protection from", "can't be countered",
-    )):
+    if any(
+        token in text
+        for token in (
+            "gains hexproof",
+            "gain hexproof",
+            "gains indestructible",
+            "gain indestructible",
+            "phases out",
+            "phase out",
+            "protection from",
+            "can't be countered",
+        )
+    ):
         roles.add(CardRole.PROTECTION)
-    if any(token in text for token in (
-        "destroy all creatures", "exile all creatures", "destroy all nonland permanents",
-        "exile all nonland permanents", "all creatures get -", "each creature gets -",
-        "damage to each creature", "destroy all artifacts", "destroy all enchantments",
-    )):
+    if any(
+        token in text
+        for token in (
+            "destroy all creatures",
+            "exile all creatures",
+            "destroy all nonland permanents",
+            "exile all nonland permanents",
+            "all creatures get -",
+            "each creature gets -",
+            "damage to each creature",
+            "destroy all artifacts",
+            "destroy all enchantments",
+        )
+    ):
         roles.add(CardRole.WIPE)
-    if any(token in text for token in (
-        "from your graveyard to your hand", "from your graveyard to the battlefield",
-        "return target card from your graveyard", "return target creature card from your graveyard",
-        "play lands from your graveyard", "cast spells from your graveyard",
-    )):
+    if any(
+        token in text
+        for token in (
+            "from your graveyard to your hand",
+            "from your graveyard to the battlefield",
+            "return target card from your graveyard",
+            "return target creature card from your graveyard",
+            "play lands from your graveyard",
+            "cast spells from your graveyard",
+        )
+    ):
         roles.add(CardRole.RECURSION)
-    if any(token in text for token in (
-        "exile target card from a graveyard", "exile all cards from target player's graveyard",
-        "exile all graveyards", "cards in graveyards", "from opponents' graveyards",
-    )):
+    if any(
+        token in text
+        for token in (
+            "exile target card from a graveyard",
+            "exile all cards from target player's graveyard",
+            "exile all graveyards",
+            "cards in graveyards",
+            "from opponents' graveyards",
+        )
+    ):
         roles.add(CardRole.GRAVEYARD_HATE)
     if "create " in text and " token" in text:
         roles.add(CardRole.TOKEN_SOURCE)
-    if re.search(r"sacrifice (?:a|an|another|one|two|three|x) ", text) or "sacrifice a permanent:" in text:
+    if (
+        re.search(r"sacrifice (?:a|an|another|one|two|three|x) ", text)
+        or "sacrifice a permanent:" in text
+    ):
         roles.add(CardRole.SACRIFICE_OUTLET)
-    if any(token in text for token in (
-        "landfall", "whenever a land enters", "whenever one or more lands enter", "land card from your graveyard",
-        "play an additional land", "lands you control", "sacrifice a land",
-    )):
+    if any(
+        token in text
+        for token in (
+            "landfall",
+            "whenever a land enters",
+            "whenever one or more lands enter",
+            "land card from your graveyard",
+            "play an additional land",
+            "lands you control",
+            "sacrifice a land",
+        )
+    ):
         roles.add(CardRole.LAND_SYNERGY)
-    if any(token in text for token in (
-        "double strike", "combat damage to a player", "combat damage to an opponent", "can't be blocked",
-        "additional combat phase", "extra combat phase",
-    )):
+    if any(
+        token in text
+        for token in (
+            "double strike",
+            "combat damage to a player",
+            "combat damage to an opponent",
+            "can't be blocked",
+            "additional combat phase",
+            "extra combat phase",
+        )
+    ):
         roles.add(CardRole.COMBAT_PAYOFF)
-    if any(token in text for token in (
-        "each opponent loses", "damage to each opponent", "deals damage to each opponent", "you win the game",
-    )):
+    if any(
+        token in text
+        for token in (
+            "each opponent loses",
+            "damage to each opponent",
+            "deals damage to each opponent",
+            "you win the game",
+        )
+    ):
         roles.update({CardRole.PAYOFF, CardRole.FINISHER})
-    if "whenever" in text and roles.intersection({CardRole.DRAW, CardRole.RAMP, CardRole.TOKEN_SOURCE, CardRole.PAYOFF, CardRole.LAND_SYNERGY}):
+    if "whenever" in text and roles.intersection(
+        {
+            CardRole.DRAW,
+            CardRole.RAMP,
+            CardRole.TOKEN_SOURCE,
+            CardRole.PAYOFF,
+            CardRole.LAND_SYNERGY,
+        }
+    ):
         roles.add(CardRole.ENGINE)
-    if roles.intersection({CardRole.TOKEN_SOURCE, CardRole.SACRIFICE_OUTLET, CardRole.LAND_SYNERGY, CardRole.RAMP}):
+    if roles.intersection(
+        {CardRole.TOKEN_SOURCE, CardRole.SACRIFICE_OUTLET, CardRole.LAND_SYNERGY, CardRole.RAMP}
+    ):
         roles.add(CardRole.ENABLER)
-    if "whenever" in text and any(token in text for token in ("loses life", "deals damage", "+1/+1 counter")):
+    if "whenever" in text and any(
+        token in text for token in ("loses life", "deals damage", "+1/+1 counter")
+    ):
         roles.add(CardRole.PAYOFF)
     if not roles:
         roles.add(CardRole.ENABLER)
@@ -167,9 +273,17 @@ def _inferred_roles(identity: CardIdentity) -> frozenset[CardRole]:
 
 def _produced_colors(identity: CardIdentity) -> frozenset[Color]:
     text = identity.oracle_text or ""
-    produced = {Color(symbol) for symbol in "WUBRG" if f"{{{symbol}}}" in text and "add" in text.casefold()}
+    produced = {
+        Color(symbol) for symbol in "WUBRG" if f"{{{symbol}}}" in text and "add" in text.casefold()
+    }
     type_line = identity.type_line.casefold()
-    for subtype, color in (("plains", Color.WHITE), ("island", Color.BLUE), ("swamp", Color.BLACK), ("mountain", Color.RED), ("forest", Color.GREEN)):
+    for subtype, color in (
+        ("plains", Color.WHITE),
+        ("island", Color.BLUE),
+        ("swamp", Color.BLACK),
+        ("mountain", Color.RED),
+        ("forest", Color.GREEN),
+    ):
         if subtype in type_line:
             produced.add(color)
     return frozenset(produced)
@@ -178,34 +292,55 @@ def _produced_colors(identity: CardIdentity) -> frozenset[Color]:
 def _inferred_profile(identity: CardIdentity) -> StructuralCardProfile | None:
     baseline = build_default_profile(identity)
     roles = _inferred_roles(identity)
-    # Cards with no machine-identifiable function are not admitted to automatic structural screening.
+    # Cards with no machine-identifiable function are not admitted to automatic structural
+    # screening.
     if roles == frozenset({CardRole.ENABLER}) and baseline.roles == frozenset({CardRole.ENABLER}):
         return None
     roles = frozenset(set(roles) | set(baseline.roles))
-    role_strengths = {
-        role: min(0.75, baseline.role_strengths.get(role, 1.0))
-        for role in roles
-    }
-    is_instant_or_sorcery = "instant" in identity.type_line.casefold() or "sorcery" in identity.type_line.casefold()
-    floor = 0.60 if roles.intersection({CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION, CardRole.RAMP, CardRole.DRAW}) else 0.45
-    immediate = 0.65 if is_instant_or_sorcery or roles.intersection({CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE}) else 0.45
-    risk = 0.25 if is_instant_or_sorcery else (0.60 if roles.intersection({CardRole.ENGINE, CardRole.PAYOFF}) else 0.45)
-    scaling = 0.45 if roles.intersection({CardRole.WIPE, CardRole.FINISHER}) else (0.25 if roles.intersection({CardRole.ENGINE, CardRole.PAYOFF}) else 0.05)
+    role_strengths = {role: min(0.75, baseline.role_strengths.get(role, 1.0)) for role in roles}
+    is_instant_or_sorcery = (
+        "instant" in identity.type_line.casefold() or "sorcery" in identity.type_line.casefold()
+    )
+    floor = (
+        0.60
+        if roles.intersection(
+            {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION, CardRole.RAMP, CardRole.DRAW}
+        )
+        else 0.45
+    )
+    immediate = (
+        0.65
+        if is_instant_or_sorcery
+        or roles.intersection({CardRole.REMOVAL, CardRole.COUNTER, CardRole.WIPE})
+        else 0.45
+    )
+    risk = (
+        0.25
+        if is_instant_or_sorcery
+        else (0.60 if roles.intersection({CardRole.ENGINE, CardRole.PAYOFF}) else 0.45)
+    )
+    scaling = (
+        0.45
+        if roles.intersection({CardRole.WIPE, CardRole.FINISHER})
+        else (0.25 if roles.intersection({CardRole.ENGINE, CardRole.PAYOFF}) else 0.05)
+    )
     produced = _produced_colors(identity) or baseline.produces_colors
-    return baseline.model_copy(update={
-        "roles": roles,
-        "role_strengths": role_strengths,
-        "produces_colors": produced,
-        "floor_value": floor,
-        "immediate_impact": immediate,
-        "turn_cycle_risk": risk,
-        "multiplayer_scaling": scaling,
-        "source_quality": DataQuality.PROJECT_INFERRED,
-        "notes": (
-            "Structural-only keyword inference from the read-only canonical inventory Oracle text. "
-            "Suitable for candidate screening, not Tactical Oracle or external-rules validation."
-        ),
-    })
+    return baseline.model_copy(
+        update={
+            "roles": roles,
+            "role_strengths": role_strengths,
+            "produces_colors": produced,
+            "floor_value": floor,
+            "immediate_impact": immediate,
+            "turn_cycle_risk": risk,
+            "multiplayer_scaling": scaling,
+            "source_quality": DataQuality.PROJECT_INFERRED,
+            "notes": (
+                "Structural-only keyword inference from the read-only canonical inventory Oracle text. "
+                "Suitable for candidate screening, not Tactical Oracle or external-rules validation."
+            ),
+        }
+    )
 
 
 def _allowed_decks(identity: CardIdentity) -> tuple[str, ...]:
@@ -228,7 +363,7 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
     candidates: dict[str, CandidateProfile] = {}
 
     for row in _inventory_rows(root_path):
-        if not row.get("currently_owned") or int(row.get("quantity", 0)) <= 0:
+        if not row.get("currently_owned") or _as_int(row.get("quantity", 0)) <= 0:
             continue
         if str(row.get("commander_legality", "")).casefold() != "legal":
             continue
@@ -241,12 +376,18 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
             continue
         curated_candidate = curated_by_name.get(name)
         if curated_candidate is not None:
-            allowed = tuple(deck for deck in allowed if deck in curated_candidate.allowed_deck_ids) or curated_candidate.allowed_deck_ids
-            candidate = curated_candidate.model_copy(update={
-                "allowed_deck_ids": allowed,
-                "physical_status": "canonical_inventory_verified_owned",
-                "notes": (curated_candidate.notes or "") + " Reverified against canonical inventory 2026-08-07.",
-            })
+            allowed = (
+                tuple(deck for deck in allowed if deck in curated_candidate.allowed_deck_ids)
+                or curated_candidate.allowed_deck_ids
+            )
+            candidate = curated_candidate.model_copy(
+                update={
+                    "allowed_deck_ids": allowed,
+                    "physical_status": "canonical_inventory_verified_owned",
+                    "notes": (curated_candidate.notes or "")
+                    + " Reverified against canonical inventory 2026-08-07.",
+                }
+            )
         else:
             profile = _inferred_profile(identity)
             if profile is None:
@@ -258,12 +399,14 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
                 physical_status="canonical_inventory_verified_owned",
                 notes=(
                     "Owned and Commander-legal in canonical inventory 2026-08-07; card function is "
-                    "structural-only keyword inference and requires higher-fidelity validation before recommendation."
+                    "structural-only keyword inference and requires "
+                    "higher-fidelity validation before recommendation."
                 ),
             )
         candidates[candidate.candidate_id] = candidate
 
-    # Preserve the historical curated candidates as a fallback if the canonical snapshot is unavailable.
+    # Preserve the historical curated candidates as a fallback if the canonical snapshot is
+    # unavailable.
     if not candidates:
         return {candidate.candidate_id: candidate for candidate in curated}
     return candidates

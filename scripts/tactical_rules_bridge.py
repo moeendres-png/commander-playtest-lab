@@ -51,11 +51,7 @@ def fail(request_id: str, code: str, message: str, *, details: dict | None = Non
             request_id=request_id,
             success=False,
             status=EngineResponseStatus.ERROR,
-            errors=(
-                EngineProtocolErrorDetail(
-                    code=code, message=message, details=details or {}
-                ),
-            ),
+            errors=(EngineProtocolErrorDetail(code=code, message=message, details=details or {}),),
         )
     )
 
@@ -150,7 +146,10 @@ def main() -> int:
                         "validation_level": RuntimeValidationLevel.TACTICAL_ORACLE.value,
                     },
                 )
-            elif kind in {EngineMessageType.ENGINE_CAPABILITIES, EngineMessageType.GET_CAPABILITIES}:
+            elif kind in {
+                EngineMessageType.ENGINE_CAPABILITIES,
+                EngineMessageType.GET_CAPABILITIES,
+            }:
                 ok(request, {"capabilities": capabilities()})
             elif kind == EngineMessageType.START_ENGINE:
                 ok(request, {"engine": "tactical", "started": True})
@@ -174,10 +173,7 @@ def main() -> int:
                     raise ValueError("set_seed requires game_id")
                 seeds[request.game_id] = int(payload["seed"])
                 ok(request, {"game_id": request.game_id, "seed": seeds[request.game_id]})
-            elif kind == EngineMessageType.START_GAME:
-                state = adapter.get_state(str(request.game_id))
-                ok(request, {"state": state.model_dump(mode="json")})
-            elif kind == EngineMessageType.GET_GAME_STATE:
+            elif kind == EngineMessageType.START_GAME or kind == EngineMessageType.GET_GAME_STATE:
                 state = adapter.get_state(str(request.game_id))
                 ok(request, {"state": state.model_dump(mode="json")})
             elif kind == EngineMessageType.GET_LEGAL_ACTIONS:

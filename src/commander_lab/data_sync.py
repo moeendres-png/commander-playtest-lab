@@ -6,7 +6,10 @@ from typing import Any
 
 
 def _load(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"expected JSON object in {path}")
+    return {str(key): value for key, value in payload.items()}
 
 
 def _source_observation(root: Path, key: str, spec: dict[str, Any]) -> dict[str, Any]:
@@ -57,8 +60,7 @@ def audit_current_sources(root: str | Path) -> dict[str, Any]:
     root_path = Path(root)
     registry = _load(root_path / "data/sync/current_sources.json")
     checks = [
-        _source_observation(root_path, key, spec)
-        for key, spec in registry["sources"].items()
+        _source_observation(root_path, key, spec) for key, spec in registry["sources"].items()
     ]
     return {
         "schema_version": 1,
@@ -83,7 +85,9 @@ def sync_current_sources(root: str | Path, *, dry_run: bool = True) -> dict[str,
         )
     if not dry_run and audit["status"] != "MATCH":
         raise RuntimeError(
-            "Canonical source bytes differ from the prepared imports. Provide and import the canonical Drive exports before sync; this command has no hidden Google access."
+            "Canonical source bytes differ from the prepared imports. "
+            "Provide and import the canonical Drive exports before "
+            "sync; this command has no hidden Google access."
         )
     return {
         "schema_version": 1,
@@ -91,5 +95,8 @@ def sync_current_sources(root: str | Path, *, dry_run: bool = True) -> dict[str,
         "status": audit["status"],
         "actions": actions,
         "mutated": False,
-        "note": "Sync finalizes only already-prepared canonical imports; it never optimizes decks or fetches Drive sources implicitly.",
+        "note": (
+            "Sync finalizes only already-prepared canonical imports; it "
+            "never optimizes decks or fetches Drive sources implicitly."
+        ),
     }

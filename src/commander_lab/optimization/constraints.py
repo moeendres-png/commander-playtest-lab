@@ -93,63 +93,81 @@ def evaluate_constraints(
     verified_physical_names = verified_physical_names or set()
 
     if len(deck.cards) != constraints.exact_card_count:
-        issues.append(ConstraintIssue(
-            code="card_count",
-            message=f"variant contains {len(deck.cards)} cards, expected {constraints.exact_card_count}",
-            context={"actual": len(deck.cards), "expected": constraints.exact_card_count},
-        ))
+        issues.append(
+            ConstraintIssue(
+                code="card_count",
+                message=f"variant contains {len(deck.cards)} cards, expected {constraints.exact_card_count}",
+                context={"actual": len(deck.cards), "expected": constraints.exact_card_count},
+            )
+        )
 
     names = Counter(card.oracle_name for card in deck.cards)
     if constraints.singleton:
         for name, quantity in names.items():
             if quantity > 1 and name not in BASIC_LANDS:
-                issues.append(ConstraintIssue(
-                    code="singleton",
-                    message=f"{name} appears {quantity} times",
-                    context={"card": name, "quantity": quantity},
-                ))
+                issues.append(
+                    ConstraintIssue(
+                        code="singleton",
+                        message=f"{name} appears {quantity} times",
+                        context={"card": name, "quantity": quantity},
+                    )
+                )
 
     for card in deck.cards:
         card_colors = set(card.color_identity) or set(card.color_requirements)
         illegal = card_colors - set(constraints.allowed_colors)
         if illegal:
-            issues.append(ConstraintIssue(
-                code="color_identity",
-                message=f"{card.oracle_name} requires colors outside the Commander identity",
-                context={"illegal_colors": sorted(color.value for color in illegal)},
-            ))
+            issues.append(
+                ConstraintIssue(
+                    code="color_identity",
+                    message=f"{card.oracle_name} requires colors outside the Commander identity",
+                    context={"illegal_colors": sorted(color.value for color in illegal)},
+                )
+            )
 
     lands = sum(card.is_land for card in deck.cards)
     nonlands = [card for card in deck.cards if not card.is_land]
     average_mv = fmean(card.mana_value for card in nonlands) if nonlands else 0.0
     high_mv = sum(card.mana_value >= constraints.high_mana_value_threshold for card in nonlands)
-    metrics.update({"lands": lands, "average_nonland_mana_value": average_mv, "high_mana_value_cards": high_mv})
+    metrics.update(
+        {"lands": lands, "average_nonland_mana_value": average_mv, "high_mana_value_cards": high_mv}
+    )
     if not constraints.minimum_lands <= lands <= constraints.maximum_lands:
-        issues.append(ConstraintIssue(
-            code="land_count",
-            message=f"land count {lands} outside {constraints.minimum_lands}-{constraints.maximum_lands}",
-        ))
+        issues.append(
+            ConstraintIssue(
+                code="land_count",
+                message=f"land count {lands} outside {constraints.minimum_lands}-{constraints.maximum_lands}",
+            )
+        )
     if average_mv > constraints.maximum_average_nonland_mana_value:
-        issues.append(ConstraintIssue(
-            code="mana_curve_average",
-            message=(f"average nonland mana value {average_mv:.3f} exceeds "
-                     f"{constraints.maximum_average_nonland_mana_value:.3f}"),
-        ))
+        issues.append(
+            ConstraintIssue(
+                code="mana_curve_average",
+                message=(
+                    f"average nonland mana value {average_mv:.3f} exceeds "
+                    f"{constraints.maximum_average_nonland_mana_value:.3f}"
+                ),
+            )
+        )
     if high_mv > constraints.maximum_high_mana_value_cards:
-        issues.append(ConstraintIssue(
-            code="mana_curve_top_end",
-            message=f"{high_mv} high-mana cards exceed maximum {constraints.maximum_high_mana_value_cards}",
-        ))
+        issues.append(
+            ConstraintIssue(
+                code="mana_curve_top_end",
+                message=f"{high_mv} high-mana cards exceed maximum {constraints.maximum_high_mana_value_cards}",
+            )
+        )
 
     counts = role_counts(deck)
     metrics["role_counts"] = {role.value: counts[role] for role in CardRole}
     for role, minimum in constraints.role_minima.items():
         if counts[role] < minimum:
-            issues.append(ConstraintIssue(
-                code="role_minimum",
-                message=f"role {role.value} has {counts[role]}, minimum is {minimum}",
-                context={"role": role.value, "actual": counts[role], "minimum": minimum},
-            ))
+            issues.append(
+                ConstraintIssue(
+                    code="role_minimum",
+                    message=f"role {role.value} has {counts[role]}, minimum is {minimum}",
+                    context={"role": role.value, "actual": counts[role], "minimum": minimum},
+                )
+            )
 
     sources: Counter[Color] = Counter()
     for card in deck.cards:
@@ -157,31 +175,39 @@ def evaluate_constraints(
             for color in card.produces_colors:
                 if color in constraints.allowed_colors:
                     sources[color] += 1
-    metrics["colored_sources"] = {color.value: sources[color] for color in constraints.allowed_colors}
+    metrics["colored_sources"] = {
+        color.value: sources[color] for color in constraints.allowed_colors
+    }
     for color, minimum in constraints.minimum_colored_sources.items():
         if sources[color] < minimum:
-            issues.append(ConstraintIssue(
-                code="colored_sources",
-                message=f"{color.value} sources {sources[color]} below minimum {minimum}",
-                context={"color": color.value, "actual": sources[color], "minimum": minimum},
-            ))
+            issues.append(
+                ConstraintIssue(
+                    code="colored_sources",
+                    message=f"{color.value} sources {sources[color]} below minimum {minimum}",
+                    context={"color": color.value, "actual": sources[color], "minimum": minimum},
+                )
+            )
 
     if constraints.require_verified_inventory:
         added_counts = Counter(added_card_names)
         for name, quantity in added_counts.items():
             available = candidate_inventory.get(name, 0)
             if available < quantity:
-                issues.append(ConstraintIssue(
-                    code="physical_inventory",
-                    message=f"{name}: requires {quantity}, verified optimization pool has {available}",
-                    context={"card": name, "required": quantity, "available": available},
-                ))
+                issues.append(
+                    ConstraintIssue(
+                        code="physical_inventory",
+                        message=f"{name}: requires {quantity}, verified optimization pool has {available}",
+                        context={"card": name, "required": quantity, "available": available},
+                    )
+                )
             if name not in verified_physical_names:
-                issues.append(ConstraintIssue(
-                    code="physical_verification",
-                    message=f"{name} is not marked locally verified for optimization",
-                    context={"card": name},
-                ))
+                issues.append(
+                    ConstraintIssue(
+                        code="physical_verification",
+                        message=f"{name} is not marked locally verified for optimization",
+                        context={"card": name},
+                    )
+                )
 
     return ConstraintReport(
         valid=not any(issue.severity == "error" for issue in issues),
@@ -201,11 +227,13 @@ def evaluate_simultaneous_allocation(
     for name, quantity in sorted(required.items()):
         available = candidate_inventory.get(name, 0)
         if quantity > available:
-            issues.append(ConstraintIssue(
-                code="simultaneous_physical_allocation",
-                message=f"{name}: {quantity} simultaneous copies required, {available} available",
-                context={"card": name, "required": quantity, "available": available},
-            ))
+            issues.append(
+                ConstraintIssue(
+                    code="simultaneous_physical_allocation",
+                    message=f"{name}: {quantity} simultaneous copies required, {available} available",
+                    context={"card": name, "required": quantity, "available": available},
+                )
+            )
     return ConstraintReport(
         valid=not issues,
         issues=tuple(issues),

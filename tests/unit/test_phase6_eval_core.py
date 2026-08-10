@@ -53,9 +53,10 @@ def test_abstract_trigger_order_uses_apnap_and_deterministic_controller_order() 
         "p2-second",
         "p3",
     ]
-    assert [item.trigger_id for item in trigger_resolution_order(
-        triggers, active_player_seat=0, pod_size=3
-    )] == ["p3", "p2-second", "p2-first", "p1"]
+    assert [
+        item.trigger_id
+        for item in trigger_resolution_order(triggers, active_player_seat=0, pod_size=3)
+    ] == ["p3", "p2-second", "p2-first", "p1"]
 
 
 def test_action_proposal_must_match_one_legal_action() -> None:
@@ -122,4 +123,6 @@ def test_mulligan_and_event_log_invariants(tmp_path: Path, structural_decks) -> 
     assert validate_event_log(events) == ()
     assert event_log_sha256(events) == result.log_sha256
     assert any(event["event_type"] == "state_checkpoint" for event in events)
-    assert json.loads(path.read_text(encoding="utf-8").splitlines()[-1])["event_type"] == "game_ended"
+    assert (
+        json.loads(path.read_text(encoding="utf-8").splitlines()[-1])["event_type"] == "game_ended"
+    )

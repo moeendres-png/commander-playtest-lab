@@ -8,7 +8,7 @@ from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ def _canonicalize_run(value: Any, *, root: Path | None = None) -> Any:
     if isinstance(value, BaseModel):
         return _canonicalize_run(value.model_dump(mode="python", exclude_none=False), root=root)
     if is_dataclass(value):
-        return _canonicalize_run(asdict(value), root=root)
+        return _canonicalize_run(asdict(cast(Any, value)), root=root)
     if isinstance(value, dict):
         return {
             _normalized_text(str(key)): _canonicalize_run(item, root=root)

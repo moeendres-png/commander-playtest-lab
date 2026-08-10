@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import cast
 
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
+
+from commander_lab.models import Deck
 
 from .base import CatalogAwareImporter, DeckImportOptions, ImportErrorWithContext
 from .csv_importer import CsvDeckImporter
@@ -17,11 +19,18 @@ class XlsxDeckImporter(CatalogAwareImporter):
         options: DeckImportOptions,
         *,
         sheet_name: str | None = None,
-    ):
+    ) -> Deck:
         workbook = load_workbook(filename=path, read_only=True, data_only=True)
         try:
             worksheet = workbook[sheet_name] if sheet_name else workbook.active
-            rows = self._worksheet_rows(worksheet, source_path=path)
+            if worksheet is None:
+                raise ImportErrorWithContext("selected sheet is unavailable", source=path)
+            # openpyxl returns ReadOnlyWorksheet when read_only=True.  Its public
+            # row-iteration surface is compatible with Worksheet, but it is not a
+            # Worksheet subclass at runtime, so keep the check interface-based.
+            if not hasattr(worksheet, "iter_rows"):
+                raise ImportErrorWithContext("selected sheet is not worksheet-like", source=path)
+            rows = self._worksheet_rows(cast(Worksheet, worksheet), source_path=path)
             return CsvDeckImporter(self.catalog).import_rows(rows, options, source_path=path)
         finally:
             workbook.close()
@@ -55,7 +64,7 @@ class XlsxDeckImporter(CatalogAwareImporter):
         for row in materialized[header_index + 1 :]:
             if all(value is None or str(value).strip() == "" for value in row):
                 continue
-            record = {
+            record: dict[str, object] = {
                 header: row[column] if column < len(row) else None
                 for column, header in enumerate(headers)
                 if header

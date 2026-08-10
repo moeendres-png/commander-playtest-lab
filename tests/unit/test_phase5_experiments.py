@@ -2,7 +2,11 @@ from pathlib import Path
 
 from commander_lab.engine.structural import load_project_structural_decks
 from commander_lab.models import PilotConfig
-from commander_lab.optimization import ablation_filler, run_paired_structural_comparison, variant_deck
+from commander_lab.optimization import (
+    ablation_filler,
+    run_paired_structural_comparison,
+    variant_deck,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -26,7 +30,10 @@ def test_paired_comparison_is_reproducible() -> None:
     baseline = decks["korvold/current"]
     card = next(card for card in baseline.cards if card.oracle_name == "Vampiric Rites")
     variant = variant_deck(
-        baseline, variant_id="test/repro", removals=(card.oracle_name,), additions=(ablation_filler(card),)
+        baseline,
+        variant_id="test/repro",
+        removals=(card.oracle_name,),
+        additions=(ablation_filler(card),),
     )
     kwargs = dict(
         baseline=baseline,

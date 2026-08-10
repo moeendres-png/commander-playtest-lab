@@ -12,6 +12,7 @@ from collections.abc import Mapping
 from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING, Literal, cast
 
 from commander_lab.engine.runtime_evidence import (
     build_runtime_attestation,
@@ -27,6 +28,9 @@ from commander_lab.models import (
 )
 from commander_lab.storage.atomic import atomic_write_text
 
+if TYPE_CHECKING:
+    from commander_lab.engine.rules.bridge import JsonLineBridgeClient
+
 
 def _now() -> datetime:
     return datetime.now(UTC)
@@ -39,8 +43,12 @@ def _split_command(value: str | None) -> tuple[str, ...]:
 def load_engine_runtime_config(env: Mapping[str, str] | None = None) -> EngineRuntimeConfig:
     source = os.environ if env is None else env
     mode = source.get("ENGINE_MODE", "external")
+    provider_value = source.get("ENGINE_PROVIDER", "xmage").casefold()
+    if provider_value not in {"xmage", "forge"}:
+        raise ValueError(f"unsupported ENGINE_PROVIDER: {provider_value}")
+    provider = cast(Literal["xmage", "forge"], provider_value)
     return EngineRuntimeConfig(
-        provider=source.get("ENGINE_PROVIDER", "xmage"),
+        provider=provider,
         mode=EngineRuntimeMode(mode),
         home=source.get("ENGINE_HOME") or None,
         source_path=source.get("ENGINE_SOURCE_PATH") or None,
@@ -73,7 +81,7 @@ class EngineProcessManager:
         self.root = Path(root).resolve()
         self.log_dir = (self.root / config.log_directory).resolve()
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self._client: object | None = None
+        self._client: JsonLineBridgeClient | None = None
         self.state_path = self.log_dir / f"{config.provider}.process-state.json"
         self.attestation_path = self.log_dir / f"{config.provider}.runtime-attestation.json"
         self._state = EngineProcessState(

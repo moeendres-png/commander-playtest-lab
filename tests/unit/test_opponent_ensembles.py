@@ -1,32 +1,97 @@
 from pathlib import Path
-import pytest
-from commander_lab.models import *
-from commander_lab.opponent_ensembles import OpponentEnsembleStore, EnsembleConflictError
 
-def v(vid='v',known=(),assumed=(),weight=None,colors=frozenset({'U'})):
- return OpponentVariant(variant_id=vid,name=vid,commander='C',commander_color_identity=colors,known_cards=known,assumed_cards=assumed,weight=VariantWeight(mode=EnsembleWeightMode.UNWEIGHTED,value=weight))
+import pytest
+
+from commander_lab.models import (
+    EnsembleWeightMode,
+    ObservationStatus,
+    ObservedConstraint,
+    OpponentCardAssumption,
+    OpponentEnsemble,
+    OpponentVariant,
+    VariantWeight,
+)
+from commander_lab.opponent_ensembles import OpponentEnsembleStore
+
+
+def v(vid="v", known=(), assumed=(), weight=None, colors=frozenset({"U"})):
+    return OpponentVariant(
+        variant_id=vid,
+        name=vid,
+        commander="C",
+        commander_color_identity=colors,
+        known_cards=known,
+        assumed_cards=assumed,
+        weight=VariantWeight(mode=EnsembleWeightMode.UNWEIGHTED, value=weight),
+    )
+
 
 def test_empty_and_weight_sum_rejected():
- with pytest.raises(ValueError): OpponentEnsemble(ensemble_id='e',name='e',commander='C',commander_color_identity=frozenset({'U'}),variants=[])
- a=v('a'); b=v('b'); a=a.model_copy(update={'weight':VariantWeight(mode=EnsembleWeightMode.MANUAL,value=.8)}); b=b.model_copy(update={'weight':VariantWeight(mode=EnsembleWeightMode.MANUAL,value=.3)})
- with pytest.raises(ValueError): OpponentEnsemble(ensemble_id='e',name='e',commander='C',commander_color_identity=frozenset({'U'}),variants=[a,b],weight_mode=EnsembleWeightMode.MANUAL)
+    with pytest.raises(ValueError):
+        OpponentEnsemble(
+            ensemble_id="e",
+            name="e",
+            commander="C",
+            commander_color_identity=frozenset({"U"}),
+            variants=[],
+        )
+    a = v("a")
+    b = v("b")
+    a = a.model_copy(update={"weight": VariantWeight(mode=EnsembleWeightMode.MANUAL, value=0.8)})
+    b = b.model_copy(update={"weight": VariantWeight(mode=EnsembleWeightMode.MANUAL, value=0.3)})
+    with pytest.raises(ValueError):
+        OpponentEnsemble(
+            ensemble_id="e",
+            name="e",
+            commander="C",
+            commander_color_identity=frozenset({"U"}),
+            variants=[a, b],
+            weight_mode=EnsembleWeightMode.MANUAL,
+        )
+
 
 def test_color_identity_and_known_assumed_separation():
- c=OpponentCardAssumption(card_name='x',status=ObservationStatus.SYNTHETIC_ASSUMPTION,color_identity=frozenset({'R'}))
- with pytest.raises(ValueError): v(assumed=(c,))
- k=OpponentCardAssumption(card_name='x',status=ObservationStatus.REPORTED_BY_PLAYER)
- a=OpponentCardAssumption(card_name='x',status=ObservationStatus.SYNTHETIC_ASSUMPTION)
- with pytest.raises(ValueError): v(known=(k,),assumed=(a,))
+    c = OpponentCardAssumption(
+        card_name="x",
+        status=ObservationStatus.SYNTHETIC_ASSUMPTION,
+        color_identity=frozenset({"R"}),
+    )
+    with pytest.raises(ValueError):
+        v(assumed=(c,))
+    k = OpponentCardAssumption(card_name="x", status=ObservationStatus.REPORTED_BY_PLAYER)
+    a = OpponentCardAssumption(card_name="x", status=ObservationStatus.SYNTHETIC_ASSUMPTION)
+    with pytest.raises(ValueError):
+        v(known=(k,), assumed=(a,))
+
 
 def test_observed_constraint_enforced():
- c=ObservedConstraint(constraint_id='c',kind='card_present',value='Known')
- with pytest.raises(ValueError): OpponentEnsemble(ensemble_id='e',name='e',commander='C',commander_color_identity=frozenset({'U'}),variants=[v()],observed_constraints=(c,))
+    c = ObservedConstraint(constraint_id="c", kind="card_present", value="Known")
+    with pytest.raises(ValueError):
+        OpponentEnsemble(
+            ensemble_id="e",
+            name="e",
+            commander="C",
+            commander_color_identity=frozenset({"U"}),
+            variants=[v()],
+            observed_constraints=(c,),
+        )
 
-def test_seed_ensembles_unweighted_and_no_confirmed_assumptions(repo_root:Path):
- s=OpponentEnsembleStore(repo_root); ens=s.list(); assert len(ens)==3
- assert all(e.weight_mode==EnsembleWeightMode.UNWEIGHTED for e in ens)
- assert all(not any(c.status==ObservationStatus.DIRECTLY_OBSERVED for v in e.variants for c in v.assumed_cards) for e in ens)
- assert all(not e.automatic_profile_overwrite for e in ens)
+
+def test_seed_ensembles_unweighted_and_no_confirmed_assumptions(repo_root: Path):
+    s = OpponentEnsembleStore(repo_root)
+    ens = s.list()
+    assert len(ens) == 3
+    assert all(e.weight_mode == EnsembleWeightMode.UNWEIGHTED for e in ens)
+    assert all(
+        not any(
+            c.status == ObservationStatus.DIRECTLY_OBSERVED
+            for v in e.variants
+            for c in v.assumed_cards
+        )
+        for e in ens
+    )
+    assert all(not e.automatic_profile_overwrite for e in ens)
+
 
 def test_equal_and_worst_case_modes_need_no_fake_percentages():
     for mode in (EnsembleWeightMode.EQUAL, EnsembleWeightMode.WORST_CASE):

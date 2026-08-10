@@ -33,9 +33,9 @@ def test_quantity_validation_matches_arithmetic_for_generated_cases() -> None:
             ],
         )
 
-        def make_deck(deck_id: str, required: int) -> Deck:
+        def make_deck(deck_id: str, required: int, *, commander_name: str = commander) -> Deck:
             filler = 99 - required
-            entries = [DeckEntry(oracle_name=commander, zone=DeckZone.COMMANDER)]
+            entries = [DeckEntry(oracle_name=commander_name, zone=DeckZone.COMMANDER)]
             if required:
                 entries.append(DeckEntry(oracle_name="Shared Card", quantity=required))
             if filler:
@@ -43,7 +43,7 @@ def test_quantity_validation_matches_arithmetic_for_generated_cases() -> None:
             return Deck(
                 deck_id=deck_id,
                 name=deck_id,
-                commander=CommanderConfiguration(commanders=(commander,)),
+                commander=CommanderConfiguration(commanders=(commander_name,)),
                 cards=entries,
             )
 

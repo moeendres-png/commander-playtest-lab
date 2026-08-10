@@ -6,7 +6,6 @@ from typing import Any
 
 from commander_lab.models import CostLimits, ToolResponse, ToolStatus, WorkflowReport
 
-
 FORBIDDEN_DIRECT_STATE_TERMS = frozenset(
     {
         "set_life",

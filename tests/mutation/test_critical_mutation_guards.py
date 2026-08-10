@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import pytest
-
-from commander_lab.engine.structural.simulator import commander_cast_cost, commander_damage_is_lethal
+from commander_lab.engine.structural.simulator import (
+    commander_cast_cost,
+    commander_damage_is_lethal,
+)
 from commander_lab.models import RuntimeValidationLevel
 
 

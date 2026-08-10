@@ -5,7 +5,13 @@ import json
 from pathlib import Path
 
 from commander_lab.features import ReplayDebugger, ScenarioFixture, save_scenario_fixture
-from commander_lab.models import EngineReplay, GameState, GameStatus, PlayerState, RuntimeValidationLevel
+from commander_lab.models import (
+    EngineReplay,
+    GameState,
+    GameStatus,
+    PlayerState,
+    RuntimeValidationLevel,
+)
 
 
 def _state(life: int) -> dict[str, object]:
@@ -36,8 +42,15 @@ def test_scenario_fixture_is_hashed_and_roundtrips(tmp_path: Path) -> None:
 
 
 def test_replay_debugger_steps_and_diffs() -> None:
-    event = {"sequence": 0, "event_type": "damage", "actor_id": "p1", "internal_state_after": _state(37)}
-    digest = hashlib.sha256(json.dumps([event], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    event = {
+        "sequence": 0,
+        "event_type": "damage",
+        "actor_id": "p1",
+        "internal_state_after": _state(37),
+    }
+    digest = hashlib.sha256(
+        json.dumps([event], sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
     replay = EngineReplay(
         engine="tactical",
         engine_version="test",

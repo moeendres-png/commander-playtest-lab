@@ -27,7 +27,9 @@ def test_tactical_adapter_loads_decks_and_reproduces_starting_state(repo_root) -
     )
     a = adapter.start_commander_game(request)
     b = adapter.start_commander_game(request.model_copy(update={"game_id": "b"}))
-    assert [player.zones for player in a.state.players] == [player.zones for player in b.state.players]
+    assert [player.zones for player in a.state.players] == [
+        player.zones for player in b.state.players
+    ]
     assert all(len(player.zones.hand) == 7 for player in a.state.players)
     assert len(a.state.players) == 4
 

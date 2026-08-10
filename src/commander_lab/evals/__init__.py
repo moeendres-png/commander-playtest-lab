@@ -14,7 +14,6 @@ from .differential import (
 )
 from .golden import load_golden_cases, run_golden_cases
 from .invariants import event_log_sha256, load_jsonl, validate_event_log
-from .runner import run_phase6_evaluation
 from .models import (
     AcceptanceGate,
     AcceptanceThresholds,
@@ -30,6 +29,7 @@ from .models import (
     EvalTierSummary,
     GoldenDecisionCase,
 )
+from .runner import run_phase6_evaluation
 
 __all__ = [
     "AcceptanceGate",
@@ -58,7 +58,7 @@ __all__ = [
     "run_configured_differential_cases",
     "run_external_case",
     "run_golden_cases",
+    "run_phase6_evaluation",
     "score_agent_trajectory",
     "validate_event_log",
-    "run_phase6_evaluation",
 ]

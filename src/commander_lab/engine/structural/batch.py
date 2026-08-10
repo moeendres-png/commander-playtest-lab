@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-import __main__
 import hashlib
 import json
 import math
 import multiprocessing
 import os
+from collections.abc import Iterable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 from statistics import fmean
-from typing import Any, Iterable
+from typing import Any
 
+import __main__
 from commander_lab.models import (
     StructuralBatchConfig,
     StructuralBatchResult,
@@ -20,7 +21,6 @@ from commander_lab.models import (
 )
 
 from .simulator import ENGINE_VERSION, StructuralSimulator
-
 
 _WORKER_DECKS: dict[str, StructuralDeckProfile] = {}
 
@@ -138,7 +138,9 @@ def run_structural_batch(
         result_path = output_dir / "structural_results.json"
         payload = batch.model_dump(mode="json")
         payload["result_path"] = str(result_path)
-        result_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+        result_path.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True), encoding="utf-8"
+        )
         batch.result_path = str(result_path)
     return batch
 
@@ -158,7 +160,9 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
                 "cards_drawn": float(metrics.cards_drawn),
                 "ramp": float(metrics.ramp_resolved),
                 "engine_value": float(metrics.engine_value),
-                "commander_cast_turn": float(metrics.first_commander_cast_turn) if metrics.first_commander_cast_turn is not None else math.nan,
+                "commander_cast_turn": float(metrics.first_commander_cast_turn)
+                if metrics.first_commander_cast_turn is not None
+                else math.nan,
                 "removal_events": float(metrics.removals_resolved),
                 "boardwipes": float(metrics.wipes_resolved),
                 "ishai_peak_power": float(metrics.ishai_peak_power),
@@ -169,9 +173,7 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
                 metrics.deck_id,
                 {name: [] for name in values},
             )
-            pilot_key = (
-                f"{metrics.pilot_name}:{metrics.pilot_strength}:{metrics.pilot_mode}"
-            )
+            pilot_key = f"{metrics.pilot_name}:{metrics.pilot_strength}:{metrics.pilot_mode}"
             pilot_bucket = by_pilot.setdefault(
                 pilot_key,
                 {name: [] for name in values},
@@ -182,8 +184,8 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
 
     def summarize(
         grouped: dict[str, dict[str, list[float]]],
-    ) -> dict[str, dict[str, float | int]]:
-        summary: dict[str, dict[str, float | int]] = {}
+    ) -> dict[str, dict[str, float | int | None]]:
+        summary: dict[str, dict[str, float | int | None]] = {}
         for key, values in sorted(grouped.items()):
             summary[key] = {
                 "samples": len(values["placements"]),
@@ -196,7 +198,9 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
                 "average_ramp_resolved": fmean(values["ramp"]),
                 "average_engine_value": fmean(values["engine_value"]),
                 "average_first_commander_cast_turn": (
-                    fmean([value for value in values["commander_cast_turn"] if not math.isnan(value)])
+                    fmean(
+                        [value for value in values["commander_cast_turn"] if not math.isnan(value)]
+                    )
                     if any(not math.isnan(value) for value in values["commander_cast_turn"])
                     else None
                 ),
@@ -214,9 +218,7 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
         "completed_games": sum(result.completed for result in result_list),
         "aborted_games": sum(result.aborted for result in result_list),
         "average_turns": (
-            fmean([float(result.turns) for result in result_list])
-            if result_list
-            else 0.0
+            fmean([float(result.turns) for result in result_list]) if result_list else 0.0
         ),
         "deck_metrics": summarize(by_deck),
         "pilot_metrics": summarize(by_pilot),

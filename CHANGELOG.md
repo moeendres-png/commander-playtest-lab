@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.14.1 - 2026-08-10
+
+- Hardened Roadmap J-P1 reliability and reproducibility without changing canonical decks, inventory, purchases, allocations, opponent assumptions, pilot strategy, optimizer objectives, or simulation-model tuning.
+- Added blocking whole-tree Ruff lint/format and strict Mypy gates; resolved the historical quality debt instead of reverting to changed-files-only checks or making Mypy non-blocking.
+- Verified deterministic ProcessPool execution across workers 1/2/4, stable seed behavior across batch sizes/reruns, runtime clean-tree hygiene, canonical data audit, and package/RunIdentity version consistency.
+- Fixed XLSX read-only worksheet compatibility and retained regression coverage for `read_only=True` imports.
+- Final strict-quality candidate before this documentation-only closeout passed Ruff, Ruff format, Mypy over 127 source files, compileall, and the full suite with 336 PASS / 1 expected configured-XMage-or-Forge differential SKIP.
+- Removed temporary J-P1 bootstrap workflows after controlled materialization of the validated quality fixes.
+- `J_HOLDOUT_v1` remained frozen and unevaluated throughout J-P1; no holdout tuning was performed.
+
+## 1.14.0 - 2026-08-09
+
+- Completed Roadmap J-P0 universal fail-closed `RunIdentity`, canonical hashing/serialization, and Eval Registry foundations.
+- Froze `J_HOLDOUT_v1` with 12 Korvold/RogShai cases across 3/4/5-player pods; mutable=false and used_for_tuning=false.
+- Preserved Tactical Oracle and real external-rules-engine identities as distinct evidence levels and retained the project truth boundaries.
+- Created and roundtrip-verified the P0 main recovery snapshot before opening J-P1.
+
 ## 1.13.3 - 2026-08-08
 
 - Synchronized Korvold and RogShai program snapshots to the canonical 2026-08-07 final workbook without performing a new deck optimization.
@@ -25,7 +42,7 @@
 - Executed politics/pod sensitivity and relevant Tactical Oracle gates in the multi-fidelity optimizer; external provider evidence remains strictly gated on a real runtime.
 - Updated MCP to the stateless 2026-07-28 core with separate 2025-11-25 legacy compatibility and real in-flight stdio cancellation.
 - Added OpenAI Agents SDK stdio configuration, while keeping the live SDK test blocked when `openai-agents` is absent.
-- Preserved canonical deck, inventory and allocation data unchanged and applied no recommendation.
+- Preserved canonical deck, inventory and allocation unchanged and applied no recommendation.
 
 ## 1.10.1 – Phase 12.8–12.10 completion audit
 

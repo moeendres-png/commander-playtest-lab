@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable, Mapping
 from datetime import date
 from pathlib import Path
-from typing import Iterable, Mapping
 
 from commander_lab.models import CommanderConfiguration, Deck, DeckEntry, DeckZone
 
@@ -25,6 +25,14 @@ def _find_column(fieldnames: Iterable[str], aliases: tuple[str, ...]) -> str | N
 
 def _truthy(value: object) -> bool:
     return str(value or "").strip().casefold() in {"1", "true", "yes", "y", "ja", "x"}
+
+
+def _int_value(value: object, default: int = 1) -> int:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return int(value)
+    raise ValueError(f"unsupported integer value: {value!r}")
 
 
 def _zone_from_value(value: object, *, is_commander: bool = False) -> DeckZone:
@@ -89,9 +97,10 @@ class CsvDeckImporter(CatalogAwareImporter):
                 continue
             try:
                 name = self.normalize_card_name(raw_name)
-                quantity = int(row.get(quantity_column, 1) or 1) if quantity_column else 1
+                quantity = _int_value(row.get(quantity_column), 1) if quantity_column else 1
                 is_commander = _truthy(row.get(commander_column)) if commander_column else False
-                zone = _zone_from_value(row.get(zone_column), is_commander=is_commander)
+                zone_value = row.get(zone_column) if zone_column is not None else None
+                zone = _zone_from_value(zone_value, is_commander=is_commander)
             except Exception as exc:
                 raise ImportErrorWithContext(str(exc), source=source_path, row=index) from exc
             entries.append(DeckEntry(oracle_name=name, quantity=quantity, zone=zone))
@@ -105,7 +114,9 @@ class CsvDeckImporter(CatalogAwareImporter):
         if not commanders:
             raise ImportErrorWithContext("no commander specified", source=source_path)
         if explicit_commanders and option_commanders and set(commanders) != set(option_commanders):
-            raise ImportErrorWithContext("commander mismatch between rows and options", source=source_path)
+            raise ImportErrorWithContext(
+                "commander mismatch between rows and options", source=source_path
+            )
 
         if not explicit_commanders:
             commander_set = set(commanders)
@@ -120,7 +131,9 @@ class CsvDeckImporter(CatalogAwareImporter):
                 for entry in entries
             ]
 
-        uses_partner = options.uses_partner if options.uses_partner is not None else len(commanders) == 2
+        uses_partner = (
+            options.uses_partner if options.uses_partner is not None else len(commanders) == 2
+        )
         parsed_date = date.fromisoformat(options.data_as_of) if options.data_as_of else None
         return Deck(
             deck_id=options.deck_id,
