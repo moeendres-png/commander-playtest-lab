@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "J_P3_PROVIDER_MATRIX_v1",
+  "phase_state": "P3C_BOTH_SPIKES_COMPLETE_PROVIDER_NOT_SELECTED",
+  "contract_hash": "89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6",
+  "scoring_hash": "67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227",
+  "fixture_hash": "cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb",
+  "provider_selected": false,
+  "evidence_parity_assessment": "PASS",
+  "xmage": {
+    "frozen_pin": "xmage_1.4.60V3 @ 06d166b098ad36b277edef01116472203d5a047e",
+    "provider_tree": "f4cadfdddd9271d71103a2e092a5a27f64089305",
+    "overall_status": "PARTIAL",
+    "real_provider_executed": true,
+    "knockout": false,
+    "total_score": 36.0,
+    "capabilities": {
+      "process_start": "PASS", "bounded_shutdown": "PASS", "handshake": "PASS", "capabilities": "PARTIAL",
+      "deck_import": "NOT_RUN", "4_player_commander": "PARTIAL", "partner_commanders": "PARTIAL",
+      "seed_or_reproducible_initialization": "NOT_RUN", "state_read": "PARTIAL", "legal_actions": "NOT_RUN",
+      "programmatic_action_submission": "PARTIAL", "illegal_action_rejection": "NOT_RUN", "stack": "NOT_RUN",
+      "priority": "NOT_RUN", "commander_tax": "PARTIAL", "per_opponent_commander_damage": "NOT_RUN",
+      "events": "PARTIAL", "replay_or_equivalent_raw_trace": "PARTIAL"
+    },
+    "scores": {
+      "rules_fidelity": {"level": 0.25, "points": 5.0},
+      "commander_coverage": {"level": 0.5, "points": 6.0},
+      "controllability": {"level": 0.25, "points": 4.5},
+      "observability": {"level": 0.25, "points": 3.5},
+      "deterministic_behavior": {"level": 0.0, "points": 0.0},
+      "headless_automation_and_lifecycle": {"level": 1.0, "points": 8.0},
+      "test_replay_raw_trace_quality": {"level": 0.25, "points": 1.75},
+      "maintenance_activity": {"level": 1.0, "points": 4.0},
+      "build_complexity": {"level": 0.5, "points": 2.0},
+      "integration_complexity": {"level": 0.25, "points": 1.25}
+    },
+    "knockouts": {"KO-01": false, "KO-02": false, "KO-03": false, "KO-04": false, "KO-05": false, "KO-06": false},
+    "fixtures": {
+      "P3-FX-001": "PASS", "P3-FX-002": "PARTIAL", "P3-FX-003": "PARTIAL", "P3-FX-004": "NOT_RUN",
+      "P3-FX-005": "NOT_RUN", "P3-FX-006": "NOT_RUN", "P3-FX-007": "NOT_RUN", "P3-FX-008": "NOT_RUN",
+      "P3-FX-009": "NOT_RUN", "P3-FX-010": "NOT_RUN", "P3-FX-011": "NOT_RUN", "P3-FX-012": "NOT_RUN",
+      "P3-FX-013": "NOT_RUN", "P3-FX-014": "NOT_RUN"
+    },
+    "evidence": {
+      "runtime_run_id": 31398027517, "runtime_artifact_id": 9066656227,
+      "runtime_artifact_sha256": "9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926",
+      "runtime_drive_id": "1SYlE4AVJqCw9REOVCaCmrFHNoSJtjPx9",
+      "fixture_run_id": 31399104522, "fixture_artifact_id": 9067034754,
+      "fixture_artifact_sha256": "fa2cff928f75d74b519eb7984d0bb272809c30a9c0f8a2ce59debed1884b8d18",
+      "fixture_drive_id": "197zw-jJt4YPQwKY2oID9tukg1S1bXtVI"
+    }
+  },
+  "forge": {
+    "frozen_pin": "forge-2.0.14 @ a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "provider_tree": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+    "overall_status": "PARTIAL",
+    "real_provider_executed": true,
+    "knockout": false,
+    "total_score": 47.25,
+    "capabilities": {
+      "process_start": "PASS", "bounded_shutdown": "PASS", "handshake": "PARTIAL", "capabilities": "PARTIAL",
+      "deck_import": "PASS", "4_player_commander": "PASS", "partner_commanders": "PASS",
+      "seed_or_reproducible_initialization": "PARTIAL", "state_read": "PARTIAL", "legal_actions": "PARTIAL",
+      "programmatic_action_submission": "PARTIAL", "illegal_action_rejection": "NOT_RUN", "stack": "PARTIAL",
+      "priority": "PARTIAL", "commander_tax": "PARTIAL", "per_opponent_commander_damage": "PARTIAL",
+      "events": "PASS", "replay_or_equivalent_raw_trace": "PASS"
+    },
+    "scores": {
+      "rules_fidelity": {"level": 0.5, "points": 10.0},
+      "commander_coverage": {"level": 0.75, "points": 9.0},
+      "controllability": {"level": 0.25, "points": 4.5},
+      "observability": {"level": 0.5, "points": 7.0},
+      "deterministic_behavior": {"level": 0.25, "points": 2.0},
+      "headless_automation_and_lifecycle": {"level": 0.5, "points": 4.0},
+      "test_replay_raw_trace_quality": {"level": 0.5, "points": 3.5},
+      "maintenance_activity": {"level": 1.0, "points": 4.0},
+      "build_complexity": {"level": 0.5, "points": 2.0},
+      "integration_complexity": {"level": 0.25, "points": 1.25}
+    },
+    "knockouts": {"KO-01": false, "KO-02": false, "KO-03": false, "KO-04": false, "KO-05": false, "KO-06": false},
+    "fixtures": {
+      "P3-FX-001": "PASS", "P3-FX-002": "PARTIAL", "P3-FX-003": "PASS", "P3-FX-004": "PARTIAL",
+      "P3-FX-005": "NOT_RUN", "P3-FX-006": "NOT_RUN", "P3-FX-007": "PARTIAL", "P3-FX-008": "PARTIAL",
+      "P3-FX-009": "NOT_RUN", "P3-FX-010": "NOT_RUN", "P3-FX-011": "PARTIAL", "P3-FX-012": "PARTIAL",
+      "P3-FX-013": "NOT_RUN", "P3-FX-014": "PARTIAL"
+    },
+    "evidence": {
+      "runtime_run_id": 31429537724,
+      "runtime_workflow_commit": "641db5fc66d0748762cfe649358f5a0273a3a137",
+      "runtime_artifact_id": 9078696345,
+      "runtime_artifact_sha256": "28b5e6c6af0a1602ee083265b20335382e70abbdfbbe67ac16209f489003da87",
+      "runtime_drive_id": "1peoRSZB0aLL_LUvva-EgPR3vW3wlhsDI",
+      "build_controller_run_id": 31429032677,
+      "build_controller_workflow_commit": "fcee69c499f55c04186ab24aad5d7519e3e23b95",
+      "build_controller_artifact_id": 9078423792,
+      "build_controller_artifact_sha256": "f951787f4a68ac843f90648d2c6733e35f45dd69d79af060c04a844a93dadefa",
+      "build_controller_drive_id": "1H69PC2PI5vNpykm5zlxdZ_DUAxu8Se0_"
+    },
+    "remaining_limits": [
+      "No production-style external adapter was built in P3C.",
+      "No complete externally machine-listable live legal-action set was captured.",
+      "No externally selected valid live gameplay action was submitted against a revision-bound choice state.",
+      "No semantic illegal/stale-action rejection was captured.",
+      "Same explicit seed did not reproduce an identical normalized trace across separate processes.",
+      "Provider replay/checkpoint reconstruction was not exercised.",
+      "Five frozen fixtures remain NOT_RUN and seven are only PARTIAL."
+    ]
+  },
+  "next_phase": "J-P3D"
+}
