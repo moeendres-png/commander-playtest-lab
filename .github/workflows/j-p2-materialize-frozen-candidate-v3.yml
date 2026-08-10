@@ -1,0 +1,148 @@
+name: J-P2 Materialize Frozen Candidate v3
+
+on:
+  push:
+    branches:
+      - roadmap/j-p2-modeling-data-quality
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify exact canonical ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 807b3602c48824df40a70d2a715f9dfb6dc3e8c6 HEAD
+          test -f .github/jp2_candidate.patch.gz.b64
+      - name: Decode and apply frozen candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d .github/jp2_candidate.patch.gz.b64 | gzip -dc > /tmp/jp2_candidate.patch
+          echo "5503e564a440923b933240e4f282d118ec7e8d46220ef622c0c6bc08797e0ab2  /tmp/jp2_candidate.patch" | sha256sum -c -
+          git apply --check /tmp/jp2_candidate.patch
+          git apply /tmp/jp2_candidate.patch
+      - name: Apply exact Ruff-gate corrections and remove bootstrap-only files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/commander_lab/tools/service.py')
+          text = p.read_text(encoding='utf-8')
+          old = 'from typing import TYPE_CHECKING, Any, Literal\n'
+          new = 'from typing import TYPE_CHECKING, Any, ClassVar, Literal\n'
+          if old not in text:
+              raise SystemExit('typing import marker missing')
+          text = text.replace(old, new, 1)
+          old = '    COVERAGE_VERSION_PREFIXES = {\n'
+          new = '    COVERAGE_VERSION_PREFIXES: ClassVar[dict[str, tuple[str, ...]]] = {\n'
+          if old not in text:
+              raise SystemExit('coverage class attribute marker missing')
+          text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8')
+          PY
+          python -m pip install -e '.[dev,api,openai]'
+          ruff check . --fix
+          ruff format .
+          rm -f \
+            .github/jp2_candidate.patch.gz.b64 \
+            .github/workflows/j-p2-materialize-frozen-candidate.yml \
+            .github/workflows/j-p2-materialize-frozen-candidate-v2.yml \
+            .github/workflows/j-p2-materialize-frozen-candidate-v3.yml \
+            .github/workflows/j-p2-test-diagnostics.yml \
+            .github/workflows/j-p2-first-failure.yml
+          git add -A
+          git diff --cached --check
+      - name: Verify J-P2 scope and frozen holdout before commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, pathlib, subprocess, tomllib
+          root = pathlib.Path('.')
+          changed = set(subprocess.check_output(['git','diff','--cached','--name-only'], text=True).splitlines())
+          forbidden_prefixes = ('data/decks/', 'data/inventory/')
+          forbidden_exact = {'data/evals/holdout/pilot_decisions_j_v1.json'}
+          bad = sorted(p for p in changed if p.startswith(forbidden_prefixes) or p in forbidden_exact)
+          if bad:
+              raise SystemExit(f'forbidden J-P2 mutation: {bad}')
+          if tomllib.loads((root/'pyproject.toml').read_text())['project']['version'] != '1.15.0':
+              raise SystemExit('pyproject version is not 1.15.0')
+          ns = {}
+          exec((root/'src/commander_lab/__init__.py').read_text(), ns)
+          if ns['__version__'] != '1.15.0':
+              raise SystemExit('runtime version is not 1.15.0')
+          member = root/'data/evals/holdout/pilot_decisions_j_v1.json'
+          if hashlib.sha256(member.read_bytes()).hexdigest() != 'a5875cd1a8edf6bbf79248b3e4ba26151579f628eaeefd4ef2369abb309da8d1':
+              raise SystemExit('J_HOLDOUT_v1 member bytes changed')
+          registry = json.loads((root/'data/evals/j_eval_registry.json').read_text())
+          holdout = registry['sets']['UNTOUCHED_HOLDOUT']
+          if holdout['hash'] != '724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6':
+              raise SystemExit('J_HOLDOUT_v1 set hash changed')
+          if holdout['first_evaluation_timestamp'] is not None or holdout['used_for_tuning'] is not False or holdout['mutable'] is not False:
+              raise SystemExit('J_HOLDOUT_v1 registry state changed')
+          print('scope=PASS version=1.15.0 holdout_v1=FROZEN_UNTOUCHED')
+          PY
+      - name: Static quality before local freeze
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check .
+          ruff format --check .
+          mypy src/commander_lab
+      - name: Freeze candidate in a local clean commit before runtime tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Roadmap J-P2: improve modeling and opponent data quality"
+          test -z "$(git status --porcelain)"
+          echo "candidate_commit=$(git rev-parse HEAD)"
+          echo "candidate_tree=$(git rev-parse HEAD^{tree})"
+      - name: Collect tests from clean frozen candidate
+        run: pytest --collect-only -q
+      - name: Full test suite from clean frozen candidate
+        run: pytest -q
+      - name: Compile
+        run: python -m compileall -q src tests scripts
+      - name: Canonical data audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          commander-lab data audit --root . | tee /tmp/jp2-data-audit.json
+          grep -q '"status": "MATCH"' /tmp/jp2-data-audit.json
+      - name: Recheck holdout and clean tree after all runtime validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)"
+          echo "a5875cd1a8edf6bbf79248b3e4ba26151579f628eaeefd4ef2369abb309da8d1  data/evals/holdout/pilot_decisions_j_v1.json" | sha256sum -c -
+          python - <<'PY'
+          import json, pathlib
+          r=json.loads(pathlib.Path('data/evals/j_eval_registry.json').read_text())['sets']['UNTOUCHED_HOLDOUT']
+          assert r['hash']=='724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6'
+          assert r['first_evaluation_timestamp'] is None
+          assert r['used_for_tuning'] is False
+          assert r['mutable'] is False
+          print('J_HOLDOUT_v1=UNCHANGED_AFTER_VALIDATION')
+          PY
+      - name: Push only fully validated clean candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin HEAD:roadmap/j-p2-modeling-data-quality
