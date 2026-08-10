@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Technical RogShai MVP acceptance facts only; not a canonical deck, inventory, allocation, purchase, or opponent mutation.",
+  "observed_at": "2026-08-10",
+  "rogshai_candidate_pool": {
+    "drive_file_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
+    "content_sha256": "43287c9d372c7d8ae5980f9ceea872fe55aa12e5af80cca2a9dec2e32946e39e",
+    "expected_count": 795,
+    "k1_modeled": 123,
+    "k1_partially_modeled": 588,
+    "k1_unmodeled": 84,
+    "k1_excluded": 0,
+    "candidate_join_orphans": 0
+  },
+  "k1_acceptance": {
+    "drive_file_id": "1PznlTDDxjbkSTK4G18hFWGXtMGI-TRIi",
+    "candidate_coverage": "PASS",
+    "bias_gate": "PASS",
+    "cross_layer_status": "NEEDS_TARGETED_REPAIR",
+    "rogshai_blocked_by_targeted_repair": false,
+    "deferred_issue": "Midnight Reaper -> package:korvold:independent_value"
+  },
+  "k2_acceptance": {
+    "drive_file_id": "1kSiH896qgP1gFjwffGdrCie8XsIHo7nL",
+    "K2_READY": true,
+    "bias_test_suite_pre_mvp_status": "SPECIFIED_NOT_EXECUTED_PRE_J",
+    "fresh_rebuild_contract": "PASS",
+    "candidate_evidence_fairness": "PASS",
+    "commander_mechanics_contract": "PASS",
+    "mana_evaluation_contract": "PASS",
+    "multiobjective_contract": "PASS",
+    "variant_evaluation_protocol": "PASS"
+  },
+  "fresh_rebuild_invariants": {
+    "current_deck_membership_quality_prior": false,
+    "historical_include_cut_quality_prior": false,
+    "protected_status_quality_prior": false,
+    "allocation_quality_prior": false,
+    "structural_coverage_quality_prior": false,
+    "current_control_visible_before_finalist_freeze": false,
+    "unmodeled_cards_remain_in_candidate_universe": true,
+    "unmodeled_cards_require_explicit_profile_before_structural_scoring": true,
+    "synthetic_opponent_completion_is_observation": false
+  },
+  "holdout": {
+    "J_HOLDOUT_v1": "CONSUMED_VALIDATION_EVIDENCE_NOT_FOR_TUNING",
+    "consume_new_blind_holdout_in_mvp_smoke": false
+  }
+}
