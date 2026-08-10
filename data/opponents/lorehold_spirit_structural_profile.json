@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.2.0",
+  "data_as_of": "2026-08-10",
+  "estimate_type": "structural_model_estimates",
+  "notes": [
+    "Lorehold Spirit has an independently verified official 100-card precon profile in lorehold_spirit_precon.json.",
+    "This file is only a structural role-density estimate for simulation; it is not empirical gameplay evidence or an external rules-engine implementation.",
+    "Quintorius, History Chaser is a planeswalker commander. commander_power is 0.0 so the current structural abstraction does not invent creature combat power.",
+    "The commander used in the user-observed real game remains unknown."
+  ],
+  "profiles": [
+    {
+      "deck_id": "opponent/lorehold-spirit-precon",
+      "name": "Lorehold Spirit Official Precon — structural estimate",
+      "commander": "Quintorius, History Chaser",
+      "commander_cost": 4.0,
+      "commander_power": 0.0,
+      "strategy": "spirits_graveyard_history_recursion",
+      "source_status": "official_precon_verified + direct_user_unchanged; structural roles project_inferred",
+      "data_quality": "project_inferred",
+      "land_count": 36,
+      "roles": {
+        "ramp": 9,
+        "draw": 8,
+        "selection": 6,
+        "removal": 9,
+        "protection": 4,
+        "wipe": 3,
+        "recursion": 9,
+        "graveyard_hate": 2,
+        "engine": 12,
+        "enabler": 13,
+        "payoff": 10,
+        "finisher": 5,
+        "combat_payoff": 6,
+        "token_source": 8
+      },
+      "evidence_status": "official_100_verified; real_opponent_directly_confirmed; unchanged_precon_directly_confirmed; actual_observed_commander_unknown",
+      "evidence_kinds": [
+        "official_precon"
+      ],
+      "baseline_precon_cards": 100,
+      "upgrade_slots_unknown": false,
+      "commander_roles": [
+        "engine",
+        "token_source",
+        "payoff"
+      ],
+      "commander_mechanics": [
+        "graveyard_recursion",
+        "token_engine",
+        "go_wide",
+        "rebuild"
+      ],
+      "commander_immediate_impact": 0.45,
+      "commander_multiplayer_scaling": 0.55
+    }
+  ]
+}
