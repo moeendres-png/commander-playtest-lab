@@ -32,7 +32,7 @@ ROGSHAI_COMMANDERS = (
     "Rograkh, Son of Rohgahh",
 )
 FRESH_ROGSHAI_PREFIX = "rogshai/fresh/"
-CURRENT_DRIVE_DELTA = Path("data/rogshai_mvp/CURRENT_DRIVE_INVENTORY_DELTA_2026-08-10.json")
+K1_CANDIDATE_SHA256 = "43287c9d372c7d8ae5980f9ceea872fe55aa12e5af80cca2a9dec2e32946e39e"
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,39 +75,21 @@ class FreshRogShaiUniverse:
 
 
 def _fresh_inventory_rows(root: Path) -> list[dict[str, object]]:
-    """Overlay the minimal verified Drive delta on the checked-in read-only snapshot."""
+    """Return the checked-in read-only inventory snapshot.
 
-    rows = _inventory_rows(root)
-    delta_path = root / CURRENT_DRIVE_DELTA
-    if not delta_path.exists():
-        raise FileNotFoundError(f"current Drive inventory delta missing: {delta_path}")
-    payload = json.loads(delta_path.read_text(encoding="utf-8"))
-    delta_rows = payload.get("cards", [])
-    if not isinstance(delta_rows, list):
-        raise ValueError("current Drive inventory delta must contain a cards list")
+    Current K1 candidate membership is separately pinned and compared by acceptance
+    tests. This function deliberately does not fabricate Drive deltas.
+    """
 
-    seen = {str(row["oracle_name"]) for row in rows}
-    for raw_row in delta_rows:
-        if not isinstance(raw_row, dict):
-            raise ValueError("current Drive inventory delta contains a non-object card row")
-        row = dict(raw_row)
-        name = str(row.get("oracle_name", ""))
-        if not name:
-            raise ValueError("current Drive inventory delta contains a card without oracle_name")
-        if name in seen:
-            raise ValueError(f"current Drive inventory delta duplicates base snapshot card: {name}")
-        rows.append(row)
-        seen.add(name)
-    return rows
+    return _inventory_rows(root)
 
 
 def _fresh_data_snapshot_hash(root: Path) -> str:
     manifest = json.loads((root / "data/decks/manifest.json").read_text(encoding="utf-8"))
-    delta_payload = json.loads((root / CURRENT_DRIVE_DELTA).read_text(encoding="utf-8"))
     return sha256_value(
         {
             "base_data_snapshot_hash": str(manifest["data_snapshot_hash"]),
-            "current_drive_inventory_delta": delta_payload,
+            "k1_rogshai_candidate_sha256": K1_CANDIDATE_SHA256,
         }
     )
 
@@ -158,8 +140,6 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
         quantity = _as_int(row.get("quantity", 0))
         candidate_names.add(name)
 
-        # Project policy: at least 50 of every basic land type are available and basics
-        # are not a scarce Korvold/RogShai cross-deck resource under normal deck sizes.
         if name in BASIC_LANDS:
             available_quantities[name] = max(50, quantity)
         else:
@@ -191,9 +171,6 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             )
             continue
 
-        # Fail closed for scoring while retaining full universe membership. A card in
-        # this mapping must receive an explicit mechanistic profile before it can enter
-        # a simulated finalist or a score-based search.
         review_required[name] = identity
 
     verified = frozenset(name for name in candidate_names if available_quantities.get(name, 0) > 0)
@@ -203,10 +180,7 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
         candidate_names=frozenset(candidate_names),
         available_quantities=available_quantities,
         verified_physical_names=verified,
-        source_inventory_path=(
-            "data/canonical_import/2026-08-07/inventory_snapshot.json + "
-            "data/rogshai_mvp/CURRENT_DRIVE_INVENTORY_DELTA_2026-08-10.json"
-        ),
+        source_inventory_path="data/canonical_import/2026-08-07/inventory_snapshot.json",
         data_snapshot_hash=_fresh_data_snapshot_hash(root_path),
     )
 
