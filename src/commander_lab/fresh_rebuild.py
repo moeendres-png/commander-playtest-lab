@@ -28,7 +28,6 @@ ROGSHAI_COMMANDERS = (
     "Ishai, Ojutai Dragonspeaker",
     "Rograkh, Son of Rohgahh",
 )
-ROGSHAI_COLORS = frozenset({Color.WHITE, Color.BLUE, Color.RED})
 FRESH_ROGSHAI_PREFIX = "rogshai/fresh/"
 RUNTIME_CONTRACT_PATH = Path("data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json")
 RUNTIME_SNAPSHOT_PATH = Path("data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64")
@@ -85,10 +84,16 @@ def _slug(value: str) -> str:
     return f"{cleaned[:52]}-{digest}"
 
 
-def _sha256_file(path: Path) -> str:
-    if not path.is_file():
-        raise FreshRebuildDataError(f"required RogShai MVP input missing: {path}")
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def _as_float(value: object, default: float = 0.0) -> float:
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return float(value)
+    return default
+
+
+def _as_int(value: object, default: int = 0) -> int:
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return int(value)
+    return default
 
 
 def _json_object(path: Path) -> dict[str, Any]:
@@ -104,10 +109,7 @@ def _json_object(path: Path) -> dict[str, Any]:
 def _decode_runtime(path: Path) -> dict[str, Any]:
     try:
         raw = path.read_bytes()
-        if raw.startswith(b"\x1f\x8b"):
-            compressed = raw
-        else:
-            compressed = base64.b64decode(raw.strip(), validate=True)
+        compressed = raw if raw.startswith(b"\x1f\x8b") else base64.b64decode(raw.strip(), validate=True)
         payload = json.loads(gzip.decompress(compressed).decode("utf-8"))
     except (OSError, UnicodeDecodeError, ValueError, gzip.BadGzipFile, json.JSONDecodeError) as exc:
         raise FreshRebuildDataError(f"cannot decode current Drive runtime: {path}") from exc
@@ -117,17 +119,20 @@ def _decode_runtime(path: Path) -> dict[str, Any]:
 
 
 def load_fresh_rebuild_runtime(root: str | Path) -> dict[str, Any]:
-    """Load the checked-in current-Drive projection and reject drift fail-closed."""
+    """Load the current-Drive projection and reject any drift fail-closed."""
 
     root_path = Path(root)
     contract = _json_object(root_path / RUNTIME_CONTRACT_PATH)
-    runtime_spec = contract.get("current_drive_runtime")
-    if not isinstance(runtime_spec, dict):
+    runtime_spec_raw = contract.get("current_drive_runtime")
+    if not isinstance(runtime_spec_raw, dict):
         raise FreshRebuildDataError("current_drive_runtime contract is missing")
+    runtime_spec = cast(dict[str, object], runtime_spec_raw)
 
     relative_path = Path(str(runtime_spec.get("path", RUNTIME_SNAPSHOT_PATH.as_posix())))
     runtime_path = root_path / relative_path
-    observed_sha = _sha256_file(runtime_path)
+    if not runtime_path.is_file():
+        raise FreshRebuildDataError(f"required RogShai MVP input missing: {runtime_path}")
+    observed_sha = hashlib.sha256(runtime_path.read_bytes()).hexdigest()
     expected_sha = str(runtime_spec.get("content_sha256", ""))
     if observed_sha != expected_sha:
         raise FreshRebuildDataError(
@@ -138,16 +143,17 @@ def load_fresh_rebuild_runtime(root: str | Path) -> dict[str, Any]:
     raw_cards = compact.get("cards")
     if not isinstance(raw_cards, list):
         raise FreshRebuildDataError("current Drive runtime cards must be a list")
-    expected_count = int(runtime_spec.get("candidate_count", 0))
-    if len(raw_cards) != expected_count or int(compact.get("expected", -1)) != expected_count:
+    expected_count = _as_int(runtime_spec.get("candidate_count", 0))
+    if len(raw_cards) != expected_count or _as_int(compact.get("expected", -1), -1) != expected_count:
         raise FreshRebuildDataError(
             f"current RogShai candidate universe incomplete: {len(raw_cards)} != {expected_count}"
         )
 
     cards: list[dict[str, object]] = []
-    for raw in raw_cards:
-        if not isinstance(raw, dict):
+    for raw_item in raw_cards:
+        if not isinstance(raw_item, dict):
             raise FreshRebuildDataError("candidate row must be an object")
+        raw = cast(dict[str, object], raw_item)
         cards.append(
             {
                 "card_id": str(raw.get("id", "")),
@@ -155,13 +161,13 @@ def load_fresh_rebuild_runtime(root: str | Path) -> dict[str, Any]:
                 "color_identity": list(str(raw.get("ci", ""))),
                 "commander_legal": raw.get("l") is True,
                 "mana_cost": str(raw.get("mc", "") or ""),
-                "mana_value": float(raw.get("mv", 0.0) or 0.0),
+                "mana_value": _as_float(raw.get("mv", 0.0)),
                 "type_line": str(raw.get("t", "Unknown") or "Unknown"),
                 "oracle_text": str(raw.get("ot", "") or ""),
                 "basic_land": raw.get("b") is True,
                 "physical": {
-                    "available": int(raw.get("a", 0) or 0),
-                    "allocated_to_korvold": int(raw.get("k", 0) or 0),
+                    "available": _as_int(raw.get("a", 0)),
+                    "allocated_to_korvold": _as_int(raw.get("k", 0)),
                 },
                 "coverage": {
                     "status": str(raw.get("cv", "UNKNOWN")),
@@ -188,20 +194,17 @@ def load_fresh_rebuild_runtime(root: str | Path) -> dict[str, Any]:
     observed_coverage = dict(
         sorted(
             Counter(
-                str(cast(dict[str, object], row["coverage"])["status"])
-                for row in cards
+                str(cast(dict[str, object], row["coverage"])["status"]) for row in cards
             ).items()
         )
     )
-    expected_coverage = compact.get("coverage_counts")
-    if observed_coverage != expected_coverage:
-        raise FreshRebuildDataError(
-            f"coverage-count drift: {observed_coverage} != {expected_coverage}"
-        )
+    if observed_coverage != compact.get("coverage_counts"):
+        raise FreshRebuildDataError("coverage-count drift in current Drive runtime")
 
-    bias = compact.get("bias")
-    if not isinstance(bias, dict):
+    bias_raw = compact.get("bias")
+    if not isinstance(bias_raw, dict):
         raise FreshRebuildDataError("fresh-rebuild bias policy is missing")
+    bias = cast(dict[str, object], bias_raw)
     for key, expected in DISABLED_QUALITY_PRIORS.items():
         if bias.get(key) != expected:
             raise FreshRebuildDataError(f"forbidden quality prior is not disabled: {key}")
@@ -218,9 +221,10 @@ def load_fresh_rebuild_runtime(root: str | Path) -> dict[str, Any]:
     if not isinstance(raw_relations, list):
         raise FreshRebuildDataError("runtime relations must be a list")
     relations: list[dict[str, object]] = []
-    for row in raw_relations:
-        if not isinstance(row, dict):
+    for raw_item in raw_relations:
+        if not isinstance(raw_item, dict):
             continue
+        row = cast(dict[str, object], raw_item)
         relations.append(
             {
                 "source_name": str(row.get("s", "")),
@@ -246,7 +250,7 @@ def load_fresh_rebuild_runtime(root: str | Path) -> dict[str, Any]:
             "cards": cards,
             "coverage_counts": observed_coverage,
         },
-        "bias_policy": cast(dict[str, object], bias),
+        "bias_policy": bias,
         "synergy_relations": relations,
         "opponent_registry": cast(dict[str, object], opponent_registry),
         "primary_4p_rogshai": cast(dict[str, object], primary),
@@ -266,15 +270,13 @@ def _identity_from_fact(row: Mapping[str, object]) -> CardIdentity:
     return CardIdentity(
         oracle_name=str(row["oracle_name"]),
         mana_cost=str(row.get("mana_cost", "") or "") or None,
-        mana_value=float(row.get("mana_value", 0.0) or 0.0),
+        mana_value=_as_float(row.get("mana_value", 0.0)),
         color_identity=colors,
         type_line=str(row.get("type_line", "Unknown") or "Unknown"),
         oracle_text=str(row.get("oracle_text", "") or "") or None,
         legalities={
             "commander": (
-                CardLegality.LEGAL
-                if row.get("commander_legal") is True
-                else CardLegality.UNKNOWN
+                CardLegality.LEGAL if row.get("commander_legal") is True else CardLegality.UNKNOWN
             )
         },
         is_basic_land=row.get("basic_land") is True,
@@ -288,10 +290,10 @@ def _load_explicit_profiles(root: Path) -> dict[str, StructuralCardProfile]:
     if not isinstance(rows, list):
         raise FreshRebuildDataError("structural profile registry is malformed")
     profiles: dict[str, StructuralCardProfile] = {}
-    for raw in rows:
-        if not isinstance(raw, dict):
+    for raw_item in rows:
+        if not isinstance(raw_item, dict):
             continue
-        profile = StructuralCardProfile.model_validate(raw)
+        profile = StructuralCardProfile.model_validate(raw_item)
         profiles[profile.oracle_name] = profile
     return profiles
 
@@ -317,47 +319,43 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
         facts_by_name[name] = row
 
         physical = cast(dict[str, object], row["physical"])
-        available = int(physical.get("available", 0) or 0)
-        if name in BASIC_LANDS:
-            available = max(50, available)
-        available_quantities[name] = available
+        available = _as_int(physical.get("available", 0))
+        available_quantities[name] = max(50, available) if name in BASIC_LANDS else available
 
         coverage = cast(dict[str, object], row["coverage"])
         status = str(coverage.get("status", "UNKNOWN"))
         coverage_status_by_name[name] = status
-        if status == "STRUCTURALLY_MODELED":
-            try:
-                profile = explicit_profiles[name]
-            except KeyError as exc:
-                raise FreshRebuildDataError(
-                    f"K1 marks {name!r} structurally modeled but current main has no explicit profile"
-                ) from exc
-            candidate_id = f"fresh/profile/{_slug(name)}"
-            candidates[candidate_id] = CandidateProfile(
-                candidate_id=candidate_id,
-                card=profile,
-                allowed_deck_ids=(ROGSHAI_DECK_ID,),
-                physical_status="current_drive_verified_fresh_availability",
-                notes=(
-                    "Explicit current structural profile. Fresh-rebuild membership is independent "
-                    "of current RogShai deck membership."
-                ),
-            )
-        else:
+        if status != "STRUCTURALLY_MODELED":
             review_required[name] = identity
+            continue
+        try:
+            profile = explicit_profiles[name]
+        except KeyError as exc:
+            raise FreshRebuildDataError(
+                f"K1 marks {name!r} structurally modeled but current main has no explicit profile"
+            ) from exc
+        candidate_id = f"fresh/profile/{_slug(name)}"
+        candidates[candidate_id] = CandidateProfile(
+            candidate_id=candidate_id,
+            card=profile,
+            allowed_deck_ids=(ROGSHAI_DECK_ID,),
+            physical_status="current_drive_verified_fresh_availability",
+            notes=(
+                "Explicit current structural profile. Fresh-rebuild membership is independent "
+                "of current RogShai deck membership."
+            ),
+        )
 
-    coverage_counts = cast(dict[str, int], universe_payload["coverage_counts"])
-    expected_modeled = int(coverage_counts.get("STRUCTURALLY_MODELED", 0))
+    coverage_counts = cast(dict[str, object], universe_payload["coverage_counts"])
+    expected_modeled = _as_int(coverage_counts.get("STRUCTURALLY_MODELED", 0))
     if len(candidates) != expected_modeled:
         raise FreshRebuildDataError(
             f"modeled-candidate join mismatch: {len(candidates)} != {expected_modeled}"
         )
-    if len(candidate_names) != int(universe_payload["count"]):
+    if len(candidate_names) != _as_int(universe_payload["count"]):
         raise FreshRebuildDataError("candidate count changed during runtime materialization")
 
-    verified = frozenset(
-        name for name in candidate_names if available_quantities.get(name, 0) > 0
-    )
+    verified = frozenset(name for name in candidate_names if available_quantities.get(name, 0) > 0)
     return FreshRogShaiUniverse(
         candidates=candidates,
         review_required=review_required,
@@ -376,22 +374,16 @@ def build_independent_smoke_mainboard(
     *,
     universe: FreshRogShaiUniverse | None = None,
 ) -> tuple[str, ...]:
-    """Build a deterministic control-blind technical fixture; never use it for strength inference."""
+    """Build a deterministic control-blind technical fixture, not a strength candidate."""
 
-    if isinstance(root_or_universe, FreshRogShaiUniverse):
-        active = root_or_universe
-    else:
-        active = universe or load_fresh_rogshai_universe(root_or_universe)
-
-    by_name = active.candidate_by_name()
-    required_package_cards = (
-        "Combat Research",
-        "Staggering Insight",
-        "Counterspell",
-        "Boros Charm",
+    active = (
+        root_or_universe
+        if isinstance(root_or_universe, FreshRogShaiUniverse)
+        else universe or load_fresh_rogshai_universe(root_or_universe)
     )
+    by_name = active.candidate_by_name()
     selected: list[str] = []
-    for name in required_package_cards:
+    for name in ("Combat Research", "Staggering Insight", "Counterspell", "Boros Charm"):
         candidate = by_name.get(name)
         if (
             candidate is not None
@@ -421,11 +413,7 @@ def build_independent_smoke_mainboard(
         raise FreshRebuildDataError(
             f"insufficient explicitly modeled nonland candidates for smoke fixture: {len(selected)}"
         )
-
-    mainboard = tuple(selected + ["Plains"] * 12 + ["Island"] * 12 + ["Mountain"] * 12)
-    if len(mainboard) != 98:
-        raise FreshRebuildDataError("internal smoke fixture did not reach 98 cards")
-    return mainboard
+    return tuple(selected + ["Plains"] * 12 + ["Island"] * 12 + ["Mountain"] * 12)
 
 
 def build_fresh_rogshai_profile(
@@ -436,57 +424,39 @@ def build_fresh_rogshai_profile(
     profile_overrides: Mapping[str, StructuralCardProfile] | None = None,
     universe: FreshRogShaiUniverse | None = None,
 ) -> StructuralDeckProfile:
-    """Materialize an arbitrary legal/physical 98-card RogShai mainboard for simulation."""
+    """Materialize a legal/physical 98-card mainboard plus both RogShai commanders."""
 
     root_path = Path(root)
-    universe = universe or load_fresh_rogshai_universe(root_path)
+    active = universe or load_fresh_rogshai_universe(root_path)
     overrides = dict(profile_overrides or {})
-
     if len(mainboard_names) != 98:
-        raise ValueError(
-            f"RogShai fresh mainboard must contain exactly 98 cards; got {len(mainboard_names)}"
-        )
+        raise ValueError(f"RogShai fresh mainboard must contain exactly 98 cards; got {len(mainboard_names)}")
     if any(name in ROGSHAI_COMMANDERS for name in mainboard_names):
         raise ValueError("commanders must not be duplicated in the 98-card mainboard")
 
     counts = Counter(mainboard_names)
-    duplicate_nonbasics = sorted(
-        name for name, count in counts.items() if name not in BASIC_LANDS and count > 1
-    )
-    if duplicate_nonbasics:
-        raise ValueError(f"singleton violation: {duplicate_nonbasics}")
-    over_basic_policy = sorted(
-        name for name, count in counts.items() if name in BASIC_LANDS and count > 50
-    )
-    if over_basic_policy:
-        raise ValueError(f"basic-land project availability exceeded: {over_basic_policy}")
+    duplicates = sorted(name for name, count in counts.items() if name not in BASIC_LANDS and count > 1)
+    if duplicates:
+        raise ValueError(f"singleton violation: {duplicates}")
+    if any(count > 50 for name, count in counts.items() if name in BASIC_LANDS):
+        raise ValueError("basic-land project availability exceeded")
 
-    missing_universe = sorted(set(mainboard_names) - set(universe.candidate_names))
-    if missing_universe:
-        raise ValueError(f"cards outside fresh RogShai candidate universe: {missing_universe}")
-
+    outside = sorted(set(mainboard_names) - set(active.candidate_names))
+    if outside:
+        raise ValueError(f"cards outside fresh RogShai candidate universe: {outside}")
     unavailable = sorted(
-        name
-        for name, count in counts.items()
-        if universe.available_quantities.get(name, 0) < count
+        name for name, count in counts.items() if active.available_quantities.get(name, 0) < count
     )
     if unavailable:
-        raise ValueError(
-            "simultaneous physical buildability failed after Korvold-only availability "
-            f"constraints: {unavailable}"
-        )
+        raise ValueError(f"simultaneous physical buildability failed: {unavailable}")
 
-    by_name = universe.candidate_by_name()
     unresolved = sorted(
-        name
-        for name in set(mainboard_names)
-        if name in universe.review_required and name not in overrides
+        name for name in set(mainboard_names) if name in active.review_required and name not in overrides
     )
     if unresolved:
-        raise ValueError(
-            f"mechanistic profile required before structural scoring/simulation: {unresolved}"
-        )
+        raise ValueError(f"mechanistic profile required before structural scoring/simulation: {unresolved}")
 
+    by_name = active.candidate_by_name()
     cards: list[StructuralCardProfile] = []
     for name in mainboard_names:
         override = overrides.get(name)
@@ -494,38 +464,29 @@ def build_fresh_rogshai_profile(
             if override.oracle_name != name:
                 raise ValueError(f"profile override name mismatch for {name!r}")
             cards.append(override)
-            continue
-        try:
+        else:
             cards.append(by_name[name].card)
-        except KeyError as exc:
-            raise ValueError(f"missing structural profile for {name!r}") from exc
 
     missing_commanders = sorted(set(ROGSHAI_COMMANDERS) - set(by_name))
     if missing_commanders:
-        raise FreshRebuildDataError(
-            f"commander structural profiles missing from current modeled universe: {missing_commanders}"
-        )
+        raise FreshRebuildDataError(f"commander structural profiles missing: {missing_commanders}")
     for commander in ROGSHAI_COMMANDERS:
-        if universe.available_quantities.get(commander, 0) < 1:
+        if active.available_quantities.get(commander, 0) < 1:
             raise ValueError(f"commander is not physically available: {commander}")
         cards.append(by_name[commander].card)
 
-    snapshot_hash = universe.runtime_sha256
     deck_hash = sha256_value(
         {
             "mode": "fresh_rebuild",
             "commanders": ROGSHAI_COMMANDERS,
             "mainboard": sorted(counts.items()),
             "profile_override_names": sorted(overrides),
-            "data_snapshot_hash": snapshot_hash,
+            "data_snapshot_hash": active.runtime_sha256,
         }
     )
-    safe_label = "".join(
-        ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"}
-    )[:32]
-    deck_id = f"{FRESH_ROGSHAI_PREFIX}{safe_label or deck_hash[:12]}-{deck_hash[:10]}"
+    safe_label = "".join(ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"})[:32]
     return StructuralDeckProfile(
-        deck_id=deck_id,
+        deck_id=f"{FRESH_ROGSHAI_PREFIX}{safe_label or deck_hash[:12]}-{deck_hash[:10]}",
         deck_hash=deck_hash,
         commander_names=ROGSHAI_COMMANDERS,
         cards=tuple(cards),
@@ -538,12 +499,12 @@ def build_fresh_rogshai_profile(
             "Rograkh, Son of Rohgahh": 0.0,
         },
         commander_strategy="rogshai",
-        data_snapshot_hash=snapshot_hash,
+        data_snapshot_hash=active.runtime_sha256,
     )
 
 
 def run_k2_bias_suite(root: str | Path) -> dict[str, object]:
-    """Execute the K2 bias invariants against the current runtime, without loading control."""
+    """Execute K2 bias invariants against current runtime without loading the control deck."""
 
     runtime = load_fresh_rebuild_runtime(root)
     universe = load_fresh_rogshai_universe(root)
@@ -552,16 +513,18 @@ def run_k2_bias_suite(root: str | Path) -> dict[str, object]:
     opponent_rows = registry.get("opponents", [])
     synthetic_boundary = True
     if isinstance(opponent_rows, list):
-        for row in opponent_rows:
-            if not isinstance(row, dict):
+        for raw_item in opponent_rows:
+            if not isinstance(raw_item, dict):
                 continue
-            if "synthetic" in str(row.get("deck_source_type", "")):
-                if str(row.get("deck_status", "")).casefold() in {
-                    "observed",
-                    "directly_observed",
-                    "verified_full_deck",
-                }:
-                    synthetic_boundary = False
+            row = cast(dict[str, object], raw_item)
+            synthetic = "synthetic" in str(row.get("deck_source_type", ""))
+            observed = str(row.get("deck_status", "")).casefold() in {
+                "observed",
+                "directly_observed",
+                "verified_full_deck",
+            }
+            if synthetic and observed:
+                synthetic_boundary = False
 
     tests = {
         "K2-BIAS-A-current-deck-blindness": (
@@ -573,9 +536,7 @@ def run_k2_bias_suite(root: str | Path) -> dict[str, object]:
             and bias.get("historical_cut_prior") == "disabled"
             and bias.get("optimizer_history_prior") == "disabled"
         ),
-        "K2-BIAS-C-protected-card-blindness": (
-            bias.get("protected_card_quality_bonus") == "disabled"
-        ),
+        "K2-BIAS-C-protected-card-blindness": bias.get("protected_card_quality_bonus") == "disabled",
         "K2-BIAS-D-allocation-blindness": (
             bias.get("allocation_quality_prior") == "disabled"
             and bias.get("allocation_may_affect_physical_feasibility_only") is True
@@ -587,12 +548,9 @@ def run_k2_bias_suite(root: str | Path) -> dict[str, object]:
             == universe.structurally_scorable_count + universe.review_required_count
         ),
         "K2-BIAS-F-synthetic-boundary": (
-            bias.get("synthetic_opponent_completion_is_observation") is False
-            and synthetic_boundary
+            bias.get("synthetic_opponent_completion_is_observation") is False and synthetic_boundary
         ),
-        "K2-BIAS-G-control-isolation": (
-            bias.get("control_deck_visible_in_independent_stage") is False
-        ),
+        "K2-BIAS-G-control-isolation": bias.get("control_deck_visible_in_independent_stage") is False,
     }
     return {
         "status": "PASS" if all(tests.values()) else "FAIL",
