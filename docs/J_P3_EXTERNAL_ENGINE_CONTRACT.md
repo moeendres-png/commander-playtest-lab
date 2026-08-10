@@ -25,11 +25,30 @@ scoring_hash = 67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227
 fixture_registry = J_P3_RULES_FIXTURES_v1
 fixture_hash = cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb
 
-xmage_pin = xmage_1.4.60V3 @ d2fa0a244708465e9ff7fcb3c37641e749a292a8
-forge_pin = forge-2.0.14 @ 187a592e79bc83d324fc792252878fde9ed83498
+xmage_pin = xmage_1.4.60V3 @ 06d166b098ad36b277edef01116472203d5a047e
+forge_pin = forge-2.0.14 @ a37a865a53280dd8ad6fad3384d69611e8c5a42f
 ```
 
 Hashing rule for the three frozen identities: SHA-256 of canonical UTF-8 JSON with recursively sorted object keys, no insignificant whitespace, `ensure_ascii=false`. The Markdown prose is not the hash payload. The exact structured payloads are represented by this contract, `J_P3_PROVIDER_MATRIX_EMPTY.json`, and `J_P3_RULES_FIXTURE_REGISTRY.json`.
+
+### Pre-spike provider-pin resolution amendment — 2026-08-10
+
+Before any real P3B/P3C provider execution, closeout verification found that the originally recorded `resolved_commit` values for both providers were not resolvable commits in their official repositories. The release names themselves were still the latest official non-draft, non-prerelease releases, but the immutable tag targets had been recorded incorrectly.
+
+The provider pins are therefore corrected provider-neutrally before either spike:
+
+```text
+XMage xmage_1.4.60V3
+old recorded commit = d2fa0a244708465e9ff7fcb3c37641e749a292a8  # non-resolvable
+verified tag target = 06d166b098ad36b277edef01116472203d5a047e
+
+Forge forge-2.0.14
+old recorded commit = 187a592e79bc83d324fc792252878fde9ed83498  # non-resolvable
+verified annotated tag object = 266c96e466895136feb56e26681753f572b6053c
+verified tag commit = a37a865a53280dd8ad6fad3384d69611e8c5a42f
+```
+
+This amendment changes only the separately verified provider-pin identities. The provider-neutral feasibility requirements, knockout criteria, scoring weights/levels, evidence policy and rules fixtures are unchanged; therefore the frozen `contract_hash`, `scoring_hash` and `fixture_hash` remain unchanged. No XMage or Forge spike result existed when this correction was made, so it cannot encode provider-performance hindsight.
 
 ## Truth boundary
 
@@ -62,7 +81,7 @@ A pin may change only through an explicit, documented pre-spike contract amendme
 |---|---|---|
 | official repository | `magefree/mage` | `Card-Forge/forge` |
 | frozen release | `xmage_1.4.60V3` | `forge-2.0.14` |
-| resolved commit | `d2fa0a244708465e9ff7fcb3c37641e749a292a8` | `187a592e79bc83d324fc792252878fde9ed83498` |
+| resolved commit | `06d166b098ad36b277edef01116472203d5a047e` | `a37a865a53280dd8ad6fad3384d69611e8c5a42f` |
 | current head observed | `2dbd5239288d0003261100cfe762b218ffe4363a` | `94a3146a88df68d6e389f4f7adae7bf1dc9caebd` |
 | license | MIT | GPL-3.0 |
 | build | Maven multi-module | Maven multi-module |
