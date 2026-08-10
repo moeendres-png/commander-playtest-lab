@@ -1,6 +1,6 @@
 # J-P3B Runbook — XMage Feasibility Spike
 
-Status: `FROZEN_BY_J_P3A_NOT_EXECUTED`
+Status: `FROZEN_BY_J_P3A_READY_FOR_P3B_NOT_EXECUTED`
 
 XMage wird ausschließlich gegen den in J-P3A eingefrorenen, provider-neutralen Vertrag getestet. Kriterien, Gewichte, Fixtures und Knock-outs dürfen während oder nach dem Spike nicht zugunsten eines Providers verändert werden.
 
@@ -10,8 +10,10 @@ XMage wird ausschließlich gegen den in J-P3A eingefrorenen, provider-neutralen 
 contract_hash = 89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6
 scoring_hash = 67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227
 fixture_hash = cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb
-provider_pin = xmage_1.4.60V3 @ d2fa0a244708465e9ff7fcb3c37641e749a292a8
+provider_pin = xmage_1.4.60V3 @ 06d166b098ad36b277edef01116472203d5a047e
 ```
+
+Provider-pin amendment: the originally recorded `d2fa0a244708465e9ff7fcb3c37641e749a292a8` was non-resolvable in the official repository and was corrected provider-neutrally during P3A closeout, before any real XMage or Forge spike. Contract/scoring/fixture payloads were unchanged.
 
 Vor jeder Providerarbeit alle vier Identitäten erneut verifizieren. Ein Mismatch ist fail-closed zu behandeln und darf nicht durch stilles Repinning repariert werden.
 
