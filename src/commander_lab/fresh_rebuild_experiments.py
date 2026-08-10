@@ -3,15 +3,39 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from commander_lab.fresh_rebuild import FreshRogShaiUniverse
-from commander_lab.models import CandidateProfile, StructuralDeckProfile
+from commander_lab.models import (
+    CandidateProfile,
+    Color,
+    OptimizationConstraints,
+    StructuralDeckProfile,
+)
 from commander_lab.storage import sha256_value
+
+
+def fresh_hard_constraints() -> OptimizationConstraints:
+    """Fresh-rebuild hard constraints only; no Phase-7 role/curve architecture priors."""
+
+    return OptimizationConstraints(
+        exact_card_count=100,
+        singleton=True,
+        allowed_colors=frozenset({Color.WHITE, Color.BLUE, Color.RED}),
+        role_minima={},
+        minimum_lands=0,
+        maximum_lands=100,
+        minimum_colored_sources={},
+        maximum_average_nonland_mana_value=20.0,
+        maximum_high_mana_value_cards=100,
+        high_mana_value_threshold=5.0,
+        require_verified_inventory=True,
+        simultaneous_deck_ids=("korvold/current",),
+    )
 
 
 def candidates_for_fresh_baseline(
     universe: FreshRogShaiUniverse,
     baseline: StructuralDeckProfile,
 ) -> dict[str, CandidateProfile]:
-    """Expose scorable candidates to the generic search engine without current-deck priors."""
+    """Expose all currently scorable fresh candidates without current-deck quality priors."""
 
     return {
         candidate_id: candidate.model_copy(update={"allowed_deck_ids": (baseline.deck_id,)})
@@ -27,12 +51,7 @@ def commander_denial_variant(
     *,
     additional_tax: int = 6,
 ) -> StructuralDeckProfile:
-    """Create a deterministic per-commander denial scenario for partner decks.
-
-    Denial is represented conservatively as additional commander tax for the selected
-    commander(s). This keeps Ishai-only, Rograkh-only and both-denied scenarios distinct
-    without pretending that the structural model is a full rules engine.
-    """
+    """Create a deterministic structural per-commander denial scenario for a partner deck."""
 
     if additional_tax < 0:
         raise ValueError("additional_tax must be nonnegative")
@@ -66,6 +85,6 @@ def commander_denial_variant(
 def fresh_physical_inventory_for_search(
     universe: FreshRogShaiUniverse,
 ) -> Mapping[str, int]:
-    """Return only physical availability; no quality or allocation bonus is encoded."""
+    """Return physical feasibility only; no quality or allocation bonus is encoded."""
 
     return universe.available_quantities

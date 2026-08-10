@@ -1,7 +1,14 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "purpose": "Technical RogShai MVP acceptance facts only; not a canonical deck, inventory, allocation, purchase, or opponent mutation.",
   "observed_at": "2026-08-10",
+  "current_drive_runtime": {
+    "path": "data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64",
+    "content_sha256": "bf45a6b0e672b76ac5b4d05991ca0d646bfe23de9a32cdbaadfa18b31881199a",
+    "candidate_count": 795,
+    "source_policy": "fail_closed_snapshot_of_current_drive_agent_truth",
+    "content_encoding": "base64(gzip(json))"
+  },
   "rogshai_candidate_pool": {
     "drive_file_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
     "content_sha256": "43287c9d372c7d8ae5980f9ceea872fe55aa12e5af80cca2a9dec2e32946e39e",
