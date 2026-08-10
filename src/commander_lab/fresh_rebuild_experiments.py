@@ -14,9 +14,7 @@ def candidates_for_fresh_baseline(
     """Expose scorable candidates to the generic search engine without current-deck priors."""
 
     return {
-        candidate_id: candidate.model_copy(
-            update={"allowed_deck_ids": (baseline.deck_id,)}
-        )
+        candidate_id: candidate.model_copy(update={"allowed_deck_ids": (baseline.deck_id,)})
         for candidate_id, candidate in universe.candidates.items()
         if universe.available_quantities.get(candidate.card.oracle_name, 0) > 0
         and candidate.card.oracle_name not in baseline.commander_names
@@ -32,7 +30,7 @@ def commander_denial_variant(
     """Create a deterministic per-commander denial scenario for partner decks.
 
     Denial is represented conservatively as additional commander tax for the selected
-    commander(s).  This keeps Ishai-only, Rograkh-only and both-denied scenarios distinct
+    commander(s). This keeps Ishai-only, Rograkh-only and both-denied scenarios distinct
     without pretending that the structural model is a full rules engine.
     """
 
