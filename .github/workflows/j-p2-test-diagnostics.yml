@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   diagnose:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -21,30 +20,36 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Verify P1 ancestry and frozen patch
+      - name: Verify P1 ancestry, package and frozen holdout
         shell: bash
         run: |
           set -euo pipefail
           git merge-base --is-ancestor 807b3602c48824df40a70d2a715f9dfb6dc3e8c6 HEAD
-          base64 -d .github/jp2_candidate.patch.gz.b64 | gzip -dc > /tmp/jp2_candidate.patch
-          echo "5503e564a440923b933240e4f282d118ec7e8d46220ef622c0c6bc08797e0ab2  /tmp/jp2_candidate.patch" | sha256sum -c -
-      - name: Materialize candidate in runner only
+          python - <<'PY'
+          import hashlib, json, pathlib, tomllib
+          root = pathlib.Path('.')
+          assert tomllib.loads((root/'pyproject.toml').read_text())['project']['version'] == '1.15.0'
+          ns = {}
+          exec((root/'src/commander_lab/__init__.py').read_text(), ns)
+          assert ns['__version__'] == '1.15.0'
+          member = root/'data/evals/holdout/pilot_decisions_j_v1.json'
+          assert hashlib.sha256(member.read_bytes()).hexdigest() == 'a5875cd1a8edf6bbf79248b3e4ba26151579f628eaeefd4ef2369abb309da8d1'
+          registry = json.loads((root/'data/evals/j_eval_registry.json').read_text())
+          holdout = registry['sets']['UNTOUCHED_HOLDOUT']
+          assert holdout['hash'] == '724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6'
+          assert holdout['used_for_tuning'] is False
+          assert holdout['mutable'] is False
+          print('lineage=PASS package=1.15.0 holdout_bytes=UNCHANGED')
+          PY
+      - name: Install exact project toolchain
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Static quality
         shell: bash
         run: |
           set -euo pipefail
-          git apply --check /tmp/jp2_candidate.patch
-          git apply /tmp/jp2_candidate.patch
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('src/commander_lab/tools/service.py')
-          text = p.read_text(encoding='utf-8')
-          text = text.replace('from typing import TYPE_CHECKING, Any, Literal\n', 'from typing import TYPE_CHECKING, Any, ClassVar, Literal\n', 1)
-          text = text.replace('    COVERAGE_VERSION_PREFIXES = {\n', '    COVERAGE_VERSION_PREFIXES: ClassVar[dict[str, tuple[str, ...]]] = {\n', 1)
-          p.write_text(text, encoding='utf-8')
-          PY
-          python -m pip install -e '.[dev,api,openai]'
-          ruff check . --fix
-          ruff format .
+          ruff check .
+          ruff format --check .
+          mypy src/commander_lab
       - name: Run full suite and capture output
         id: tests
         shell: bash
@@ -64,5 +69,4 @@ jobs:
           if-no-files-found: error
       - name: Preserve test verdict
         shell: bash
-        run: |
-          test "${{ steps.tests.outputs.exit_code }}" = "0"
+        run: test "${{ steps.tests.outputs.exit_code }}" = "0"
