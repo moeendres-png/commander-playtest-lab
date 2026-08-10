@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 
 import commander_lab.fresh_rebuild as fresh_rebuild
@@ -14,7 +15,13 @@ from commander_lab.fresh_rebuild_experiments import (
     candidates_for_fresh_baseline,
     commander_denial_variant,
 )
-from commander_lab.models import Deck, DeckZone, PilotConfig, StructuralAbortLimits, StructuralMatchConfig
+from commander_lab.models import (
+    Deck,
+    DeckZone,
+    PilotConfig,
+    StructuralAbortLimits,
+    StructuralMatchConfig,
+)
 from commander_lab.optimization import (
     DEFAULT_CONSTRAINTS,
     ablation_filler,
@@ -27,9 +34,7 @@ from commander_lab.storage import load_model
 
 def _contract(repo_root: Path) -> dict[str, object]:
     return json.loads(
-        (repo_root / "data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json").read_text(
-            encoding="utf-8"
-        )
+        (repo_root / "data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json").read_text(encoding="utf-8")
     )
 
 
@@ -70,6 +75,58 @@ def test_k2_bias_gate_current_deck_is_not_a_fresh_universe_input(
     assert universe.candidate_count > 0
 
 
+def test_k2_history_protected_and_optimizer_metadata_are_quality_blind(
+    repo_root: Path, monkeypatch
+) -> None:
+    baseline = load_fresh_rogshai_universe(repo_root)
+    rows = fresh_rebuild._fresh_inventory_rows(repo_root)
+    decorated = []
+    for source in rows:
+        row = dict(source)
+        row.update(
+            {
+                "currently_in_deck": True,
+                "historical_cut": True,
+                "protected": True,
+                "optimizer_winner": True,
+                "allocation_quality_bonus": 999999,
+            }
+        )
+        decorated.append(row)
+
+    monkeypatch.setattr(fresh_rebuild, "_fresh_inventory_rows", lambda _root: decorated)
+    decorated_universe = load_fresh_rogshai_universe(repo_root)
+
+    assert decorated_universe.candidate_names == baseline.candidate_names
+    assert decorated_universe.review_required == baseline.review_required
+    assert decorated_universe.candidate_by_name() == baseline.candidate_by_name()
+
+
+def test_k2_allocation_changes_only_physical_availability(repo_root: Path, monkeypatch) -> None:
+    baseline = load_fresh_rogshai_universe(repo_root)
+    candidate = next(
+        row
+        for row in baseline.candidates.values()
+        if not row.card.is_basic_land
+        and row.card.oracle_name not in ROGSHAI_COMMANDERS
+        and baseline.available_quantities.get(row.card.oracle_name, 0) > 0
+    )
+    name = candidate.card.oracle_name
+    reserve_all = baseline.available_quantities[name] + 1
+
+    monkeypatch.setattr(
+        fresh_rebuild,
+        "_korvold_nonbasic_reservations",
+        lambda _root: Counter({name: reserve_all}),
+    )
+    constrained = load_fresh_rogshai_universe(repo_root)
+
+    assert constrained.candidate_names == baseline.candidate_names
+    assert constrained.candidate_by_name()[name].card == baseline.candidate_by_name()[name].card
+    assert baseline.available_quantities[name] > 0
+    assert constrained.available_quantities[name] == 0
+
+
 def test_fresh_universe_matches_k1_and_retains_uncertainty(repo_root: Path) -> None:
     contract = _contract(repo_root)
     expected = contract["rogshai_candidate_pool"]
@@ -82,8 +139,19 @@ def test_fresh_universe_matches_k1_and_retains_uncertainty(repo_root: Path) -> N
     assert universe.review_required_count > 0
     assert set(universe.review_required) <= set(universe.candidate_names)
     assert all(name not in universe.candidate_by_name() for name in universe.review_required)
+    assert "Portent of Betrayal" in universe.candidate_names
+    assert "Portent of Betrayal" in universe.review_required
+    assert universe.available_quantities["Portent of Betrayal"] == 2
+    assert "Fanatical Strength" not in universe.candidate_names
     for basic in ("Plains", "Island", "Mountain"):
         assert universe.available_quantities.get(basic, 0) >= 50
+
+
+def test_k2_synthetic_opponent_boundary_is_explicit(repo_root: Path) -> None:
+    contract = _contract(repo_root)
+    invariants = contract["fresh_rebuild_invariants"]
+    assert isinstance(invariants, dict)
+    assert invariants["synthetic_opponent_completion_is_observation"] is False
 
 
 def test_arbitrary_fresh_profile_is_100_cards_and_uses_rogshai_pilot(repo_root: Path) -> None:
@@ -98,6 +166,7 @@ def test_arbitrary_fresh_profile_is_100_cards_and_uses_rogshai_pilot(repo_root: 
     assert fresh.commander_names == ROGSHAI_COMMANDERS
     assert fresh.commander_strategy == "rogshai"
     assert fresh.deck_id.startswith("rogshai/fresh/")
+    assert fresh.data_snapshot_hash == universe.data_snapshot_hash
 
     opponents = _opponents(repo_root)
     registry = {deck.deck_id: deck for deck in (fresh, *opponents)}
