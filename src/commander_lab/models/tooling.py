@@ -282,7 +282,7 @@ class OptimizeDeckAgainstMetaInput(SimulationInput):
 
 
 class OptimizeMultipleDecksWithAllocationInput(FrozenModel):
-    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current", "kaervek/current")
+    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current")
     max_candidates_per_deck: int = Field(default=5, ge=1, le=20)
 
 

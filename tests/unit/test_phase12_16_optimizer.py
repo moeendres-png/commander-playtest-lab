@@ -57,8 +57,8 @@ def test_optimization_context_is_read_only_and_truth_bounded() -> None:
     assert response.result["deck_priority"] == [
         "korvold/current",
         "rogshai/current",
-        "kaervek/current",
     ]
+    assert response.result["frozen_opponent_only_decks"] == ["kaervek/current"]
     assert response.result["external_engine"]["execution_status"] == "blocked"
     assert response.result["automatic_application"] is False
     assert response.result["canonical_files_modified"] is False

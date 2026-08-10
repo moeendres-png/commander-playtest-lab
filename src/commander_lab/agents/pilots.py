@@ -1312,18 +1312,24 @@ def auto_pilot_name(strategy: str) -> str:
         return "KorvoldPilot"
     if normalized in {"rogshai", "ishai_rograkh"}:
         return "RogShaiPilot"
-    if normalized == "aggro":
-        return "AggroPilot"
-    if normalized == "control":
-        return "ControlPilot"
-    if normalized == "engine":
-        return "EnginePilot"
-    if normalized == "graveyard":
-        return "GraveyardPilot"
-    if normalized == "artifact":
-        return "ArtifactPilot"
     if normalized in {"kaervek", "punisher_control_reanimation"}:
         return "KaervekOpponentPilot"
+
+    # Current opponent structural profiles carry explicit strategy labels rather than the
+    # generic pilot names. Resolve those labels to the closest existing public-information
+    # archetype pilot so opponent turns are not systematically evaluated by the weakest
+    # catch-all policy. This is an archetype-routing boundary, not a hidden-information or
+    # card-list inference.
+    if normalized == "aggro" or "aggro" in normalized or "combat" in normalized:
+        return "AggroPilot"
+    if normalized == "control" or "control" in normalized:
+        return "ControlPilot"
+    if normalized == "artifact" or "artifact" in normalized or "equipment" in normalized:
+        return "ArtifactPilot"
+    if normalized == "graveyard" or "recursion" in normalized or "reanimation" in normalized:
+        return "GraveyardPilot"
+    if normalized == "engine" or "engine" in normalized or "etb" in normalized:
+        return "EnginePilot"
     return "GenericCommanderPilot"
 
 

@@ -11,7 +11,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from statistics import fmean
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from commander_lab import __version__
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
@@ -233,6 +233,20 @@ class CommanderToolService:
     methods and cannot directly mutate game state. Simulation results remain structural estimates.
     """
 
+    ACTIVE_OWN_DECK_IDS = ("korvold/current", "rogshai/current")
+    FROZEN_OPPONENT_ONLY_DECK_IDS = frozenset({"kaervek/current"})
+    COVERAGE_VERSION_PREFIXES: ClassVar[dict[str, tuple[str, ...]]] = {
+        "korvold/current": ("korvold/current-",),
+        "rogshai/current": ("rogshai/current-",),
+        "kaervek/current": ("kaervek/maintained-",),
+        "opponent/morcant-elves": ("opponent/alen___high_perfect_morcant/",),
+        "opponent/cosmic-spiderman-midbudget": ("opponent/cosmic_spider_man/",),
+        "opponent/blight-curse-precon": ("opponent/blight_curse/",),
+        "opponent/doom-prevails-precon": ("opponent/doom_prevails/",),
+        "opponent/dance-elements-precon": ("opponent/dance_of_the_elements/",),
+        "opponent/wakanda-forever-precon": ("opponent/wakanda_forever/",),
+    }
+
     def __init__(self, root: str | Path, *, limits: CostLimits | None = None) -> None:
         self.root = Path(root).resolve()
         self.limits = limits or self._load_limits()
@@ -291,6 +305,18 @@ class CommanderToolService:
             if protected_path.exists()
             else {}
         )
+        stale_protected: dict[str, list[str]] = {}
+        for deck_id, protected in self.protected_cards.items():
+            deck = self.decks.get(deck_id)
+            if deck is None:
+                stale_protected[deck_id] = list(protected)
+                continue
+            current_names = {card.oracle_name for card in deck.cards}
+            missing = sorted(str(name) for name in protected if str(name) not in current_names)
+            if missing:
+                stale_protected[deck_id] = missing
+        if stale_protected:
+            raise ValueError(f"protected-card metadata is stale: {stale_protected}")
         self.manifest = json.loads(
             (self.root / "data/decks/manifest.json").read_text(encoding="utf-8")
         )
@@ -463,14 +489,21 @@ class CommanderToolService:
         deck_hashes = {deck_id: self._deck(deck_id).deck_hash for deck_id in known_ids}
         primary_id = next((deck_id for deck_id in unique_ids if deck_id in self.decks), None)
         explicit_opponents = scenario_payload.get("opponent_deck_ids")
+        implicit_pod_tools = {
+            "run_matchup_batch",
+            "run_sensitivity",
+            "run_engine_backed_matchup",
+        }
         if isinstance(explicit_opponents, list):
             opponent_profile_ids = tuple(
                 str(deck_id) for deck_id in explicit_opponents if str(deck_id) in self.decks
             )
-        else:
+        elif tool_name in implicit_pod_tools:
             opponent_profile_ids = tuple(
                 deck_id for deck_id in known_ids if primary_id is not None and deck_id != primary_id
             )
+        else:
+            opponent_profile_ids = ()
         opponent_hashes = {
             deck_id: self._deck(deck_id).deck_hash for deck_id in opponent_profile_ids
         }
@@ -594,7 +627,9 @@ class CommanderToolService:
         pod_size_value = scenario_payload.get("pod_size")
         if isinstance(pod_size_value, int):
             pod_size = pod_size_value
-        elif len(known_ids) > 1:
+        elif isinstance(explicit_opponents, list) and primary_id is not None:
+            pod_size = 1 + len(opponent_profile_ids)
+        elif tool_name in implicit_pod_tools and known_ids:
             pod_size = len(known_ids)
         elif tool_name in {"run_goldfish"}:
             pod_size = 1
@@ -1422,6 +1457,7 @@ class CommanderToolService:
     def _build_variant(
         self, request: PairedVariantInput
     ) -> tuple[StructuralDeckProfile, StructuralDeckProfile, list[dict[str, Any]]]:
+        self._require_active_optimization_target(request.deck_id)
         baseline = self._deck(request.deck_id)
         additions = []
         removals = []
@@ -1689,6 +1725,7 @@ class CommanderToolService:
 
     def recommend_upgrades(self, request: RecommendUpgradesInput) -> ToolResponse:
         def work() -> dict[str, Any]:
+            self._require_active_optimization_target(request.deck_id)
             deck = self._deck(request.deck_id)
             cuts = [
                 card
@@ -3236,6 +3273,20 @@ class CommanderToolService:
             iterations=request.iterations,
         )
 
+    def _require_active_optimization_target(self, deck_id: str) -> None:
+        if deck_id in self.FROZEN_OPPONENT_ONLY_DECK_IDS:
+            raise ToolExecutionError(
+                f"{deck_id} is frozen opponent-only and cannot be used as an optimization target"
+            )
+        if deck_id not in self.ACTIVE_OWN_DECK_IDS:
+            raise ToolExecutionError(f"{deck_id} is not an active own-deck optimization target")
+
+    def _coverage_version_prefixes(self, deck_id: str) -> tuple[str, ...]:
+        prefixes = self.COVERAGE_VERSION_PREFIXES.get(deck_id)
+        if prefixes is not None:
+            return prefixes
+        return (f"{deck_id}/", f"{deck_id}-")
+
     def _read_optional_json(self, relative: str, default: Any) -> Any:
         path = self.root / relative
         if not path.exists():
@@ -3362,8 +3413,17 @@ class CommanderToolService:
     def build_optimization_context(self, request: BuildOptimizationContextInput) -> ToolResponse:
         def work() -> dict[str, Any]:
             requested = list(request.deck_ids)
-            if request.include_kaervek and "kaervek/current" not in requested:
-                requested.append("kaervek/current")
+            if request.include_kaervek:
+                raise ToolExecutionError(
+                    "kaervek/current is frozen opponent-only; include_kaervek cannot make it an optimization target"
+                )
+            frozen_requested = [
+                deck_id for deck_id in requested if deck_id in self.FROZEN_OPPONENT_ONLY_DECK_IDS
+            ]
+            if frozen_requested:
+                raise ToolExecutionError(
+                    f"frozen opponent-only optimization target requested: {frozen_requested[0]}"
+                )
             available = [deck_id for deck_id in requested if deck_id in self.decks]
             unavailable = [deck_id for deck_id in requested if deck_id not in self.decks]
             coverage = self._read_optional_json("data/rules/card_rules_coverage.json", {})
@@ -3377,7 +3437,8 @@ class CommanderToolService:
             return {
                 "execution_status": "passed_with_limitations" if unavailable else "passed",
                 "validation_level": "structural_only",
-                "deck_priority": ["korvold/current", "rogshai/current", "kaervek/current"],
+                "deck_priority": list(self.ACTIVE_OWN_DECK_IDS),
+                "frozen_opponent_only_decks": sorted(self.FROZEN_OPPONENT_ONLY_DECK_IDS),
                 "available_decks": {
                     deck_id: {
                         "deck_hash": self._deck(deck_id).deck_hash,
@@ -3432,6 +3493,7 @@ class CommanderToolService:
 
     def generate_candidate_swaps(self, request: GenerateCandidateSwapsInput) -> ToolResponse:
         def work() -> dict[str, Any]:
+            self._require_active_optimization_target(request.deck_id)
             screened = self.recommend_upgrades(
                 RecommendUpgradesInput(
                     deck_id=request.deck_id,
@@ -3465,6 +3527,7 @@ class CommanderToolService:
 
     def generate_candidate_packages(self, request: GenerateCandidatePackagesInput) -> ToolResponse:
         def work() -> dict[str, Any]:
+            self._require_active_optimization_target(request.deck_id)
             result = self._package_extractor().packages_for_deck(
                 request.deck_id, include_machine_candidates=True
             )
@@ -3500,6 +3563,7 @@ class CommanderToolService:
 
     def optimize_deck_against_meta(self, request: OptimizeDeckAgainstMetaInput) -> ToolResponse:
         def work() -> dict[str, Any]:
+            self._require_active_optimization_target(request.deck_id)
             generated = self.generate_candidate_swaps(
                 GenerateCandidateSwapsInput(
                     deck_id=request.deck_id, max_candidates=request.max_candidates
@@ -3564,7 +3628,9 @@ class CommanderToolService:
         self, request: OptimizeMultipleDecksWithAllocationInput
     ) -> ToolResponse:
         def work() -> dict[str, Any]:
-            priority = {"korvold/current": 3, "rogshai/current": 2, "kaervek/current": 1}
+            for deck_id in request.deck_ids:
+                self._require_active_optimization_target(deck_id)
+            priority = {"korvold/current": 2, "rogshai/current": 1}
             rows: list[dict[str, Any]] = []
             for deck_id in request.deck_ids:
                 if deck_id not in self.decks:
@@ -3612,7 +3678,8 @@ class CommanderToolService:
                         }
                     )
             return {
-                "deck_priority": ["korvold/current", "rogshai/current", "kaervek/current"],
+                "deck_priority": list(self.ACTIVE_OWN_DECK_IDS),
+                "frozen_opponent_only_decks": sorted(self.FROZEN_OPPONENT_ONLY_DECK_IDS),
                 "deck_results": rows,
                 "candidate_allocation": allocation,
                 "conflicts": conflicts,
@@ -3756,6 +3823,7 @@ class CommanderToolService:
 
     def validate_package_change(self, request: ValidatePackageChangeInput) -> ToolResponse:
         def work() -> dict[str, Any]:
+            self._require_active_optimization_target(request.deck_id)
             package = self._package_extractor().inspect(request.package_id)
             evaluation = self._package_extractor().evaluate(request.deck_id, request.package_id)
             swaps = tuple(
@@ -3826,6 +3894,7 @@ class CommanderToolService:
 
     def validate_mulligan_policy(self, request: ValidateMulliganPolicyInput) -> ToolResponse:
         def work() -> dict[str, Any]:
+            self._require_active_optimization_target(request.deck_id)
             aliases = {"balanced": "current_pilot", "commander_plan": "commander_oriented"}
             policies = (
                 aliases.get(request.baseline_policy, request.baseline_policy),
@@ -3863,11 +3932,15 @@ class CommanderToolService:
         def work() -> dict[str, Any]:
             registry = self._read_optional_json("data/rules/card_rules_coverage.json", {})
             cards = registry.get("cards", [])
-            deck_token = request.deck_id.split("/")[0]
+            prefixes = self._coverage_version_prefixes(request.deck_id)
             selected = [
                 row
                 for row in cards
-                if any(deck_token in version for version in row.get("deck_versions", []))
+                if any(
+                    version.startswith(prefix)
+                    for version in row.get("deck_versions", [])
+                    for prefix in prefixes
+                )
             ]
             if request.card_names:
                 wanted = set(request.card_names)
@@ -3884,6 +3957,7 @@ class CommanderToolService:
             return {
                 "deck_id": request.deck_id,
                 "cards_checked": len(selected),
+                "coverage_version_prefixes": list(prefixes),
                 "coverage_counts": dict(statuses),
                 "external_engine_execution_status": registry.get(
                     "external_engine_execution_status", "blocked"
