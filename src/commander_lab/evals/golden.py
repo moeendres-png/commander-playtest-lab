@@ -31,7 +31,8 @@ def run_golden_cases(
             ),
             strategy=case.strategy,
         )
-        decision = pilot.choose_action(case.state, case.actions, random.Random(0))
+        state = case.state.model_copy(update={"seat_position": case.seat})
+        decision = pilot.choose_action(state, case.actions, random.Random(0))
         passed = decision.selected_action_id in case.accepted_actions
         results.append(
             EvalCaseResult(

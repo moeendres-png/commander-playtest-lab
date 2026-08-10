@@ -6,6 +6,7 @@ from commander_lab.models import (
     CardRole,
     Color,
     DataQuality,
+    OpponentEvidenceKind,
     StructuralCardProfile,
     StructuralDeckProfile,
 )
@@ -286,6 +287,9 @@ def build_current_opponent_profiles(
                 data_snapshot_hash=data_snapshot_hash,
             )
             continue
+        evidence_kinds = tuple(
+            OpponentEvidenceKind(value) for value in spec.get("evidence_kinds", ["unknown"])
+        )
         commander_roles = frozenset(
             CardRole(value)
             for value in spec.get("commander_roles", ["engine", "payoff", "combat_payoff"])
@@ -315,7 +319,7 @@ def build_current_opponent_profiles(
                 notes=(
                     "Current opponent commander role profile; "
                     f"source_status={source_status}; "
-                    f"evidence_status={spec.get('evidence_status', 'unknown')}."
+                    f"evidence_status={spec.get('evidence_status', 'unknown')}; evidence_kinds={','.join(kind.value for kind in evidence_kinds)}."
                 ),
             )
         ]
@@ -348,7 +352,7 @@ def build_current_opponent_profiles(
                     notes=(
                         "Decision-relevant named opponent profile; "
                         f"source_status={source_status}; "
-                        f"evidence_status={spec.get('evidence_status', 'unknown')}."
+                        f"evidence_status={spec.get('evidence_status', 'unknown')}; evidence_kinds={','.join(kind.value for kind in evidence_kinds)}."
                     ),
                 )
             )

@@ -8,6 +8,17 @@ from .cards import CommanderConfiguration, Deck, DeckEntry
 from .common import DataQuality, MutableModel, NumericRange, SourceRef
 
 
+class OpponentEvidenceKind(StrEnum):
+    VERIFIED_FULL_DECK = "verified_full_deck"
+    OFFICIAL_PRECON = "official_precon"
+    DIRECTLY_OBSERVED = "directly_observed"
+    REPORTED = "reported"
+    PARTIALLY_OBSERVED = "partially_observed"
+    INFERRED = "inferred"
+    SYNTHETIC_COMPLETION = "synthetic_completion"
+    UNKNOWN = "unknown"
+
+
 class OpponentListStatus(StrEnum):
     VERIFIED_COMPLETE = "verified_complete"
     OFFICIAL_PRECON = "official_precon"

@@ -63,7 +63,7 @@ from .meta import (
     PrimerReference,
     TournamentResult,
 )
-from .opponents import OpponentListStatus, OpponentProfile, UncertaintyModel
+from .opponents import OpponentEvidenceKind, OpponentListStatus, OpponentProfile, UncertaintyModel
 from .optimization import (
     BeamSearchInput,
     CandidatePackage,
@@ -286,6 +286,7 @@ __all__ = [
     "MutableModel",
     "NumericRange",
     "ObjectiveVector",
+    "OpponentEvidenceKind",
     "OpponentListStatus",
     "OpponentProfile",
     "OptimizationConstraints",
@@ -822,6 +823,7 @@ __all__ = [
     "OpeningHandFeatures",
     "OpponentCardAssumption",
     "OpponentEnsemble",
+    "OpponentEvidenceKind",
     "OpponentListStatus",
     "OpponentProfile",
     "OpponentVariant",

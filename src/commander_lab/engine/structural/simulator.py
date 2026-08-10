@@ -855,6 +855,7 @@ class StructuralSimulator:
             strategy=player.deck.commander_strategy,
             turn=turn_number,
             pod_size=len(players),
+            seat_position=player.seat + 1,
             life=player.life,
             hand_size=len(player.hand),
             mana_available=max(0.0, player.mana_available),

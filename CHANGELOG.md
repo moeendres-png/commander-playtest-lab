@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.15.0 - 2026-08-10
+
+- Roadmap J-P2 modeling/data-quality candidate: separates active own optimization targets (Korvold/RogShai) from frozen opponent-only Kaervek across swap/package/allocation paths.
+- Adds explicit opponent evidence taxonomy and validates current structural opponent evidence kinds without promoting unknown or synthetic slots to observation.
+- Fixes current-opponent rules-coverage scoping so deck-specific gates no longer merge unrelated `opponent/*` versions.
+- Corrects RunIdentity opponent/pod inference for multi-deck analysis contexts and removes stale protected-card metadata that no longer belongs to canonical current decks.
+- Routes current opponent strategy labels to existing public-information archetype pilots instead of the catch-all GenericCommanderPilot, reducing systematic opponent-policy asymmetry without inferring hidden cards.
+- Propagates explicit 1-based seat position into structural pilot decision state and golden-eval state so future seat-sensitive policy logic receives the actual scenario seat.
+- Keeps canonical decks, inventory, purchases, physical allocations and opponent list contents unchanged; `J_HOLDOUT_v1` remains sealed during development.
+
 ## 1.14.1 - 2026-08-10
 
 - Hardened Roadmap J-P1 reliability and reproducibility without changing canonical decks, inventory, purchases, allocations, opponent assumptions, pilot strategy, optimizer objectives, or simulation-model tuning.

@@ -147,6 +147,7 @@ class PilotStateView(FrozenModel):
     strategy: str
     turn: int = Field(ge=1)
     pod_size: int = Field(ge=1, le=10)
+    seat_position: int = Field(default=1, ge=1, le=10)
     life: float
     hand_size: int = Field(ge=0)
     mana_available: float = Field(ge=0.0)
@@ -162,6 +163,12 @@ class PilotStateView(FrozenModel):
     role_counts: dict[CardRole, int] = Field(default_factory=dict)
     commanders: tuple[PilotCommanderView, ...] = ()
     opponents: tuple[PilotOpponentView, ...] = ()
+
+    @model_validator(mode="after")
+    def seat_is_within_pod(self) -> PilotStateView:
+        if self.seat_position > self.pod_size:
+            raise ValueError("seat_position must be within the scenario pod")
+        return self
 
     @property
     def commander_online(self) -> bool:

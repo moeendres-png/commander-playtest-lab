@@ -106,7 +106,7 @@
       "version": "pre-j-composite-v1"
     },
     "UNTOUCHED_HOLDOUT": {
-      "first_evaluation_timestamp": null,
+      "first_evaluation_timestamp": "2026-08-10T08:06:01Z",
       "hash": "724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6",
       "id": "J_HOLDOUT_v1",
       "members": [
@@ -118,9 +118,12 @@
       "mutable": false,
       "notes": [
         "Sealed in J-P0 and not executed in J-P0.",
-        "If later used for tuning, its independent status is invalidated and a new holdout version is required."
+        "One-time independent J-P2 evaluation executed 2026-08-10T08:06:01Z on frozen candidate 4ca5a994882e0da6c55916b392972cdf3a5fc9c7 / tree 82249e61488af5758a9ad1c5f0bf24eaf222eaca / package 1.15.0: 12/12 passed and 12/12 critical passed.",
+        "Evaluation result JSON SHA256 c03af9292359d287c9bcc83fc2ff6d431204f06bddb21063cf19909ee3009ae4; GitHub Actions artifact 9055115957.",
+        "used_for_tuning remains false. Same-set post-holdout tuning is prohibited; reopening P2 model tuning requires a new independent holdout version or explicit loss-of-independence labeling.",
+        "Registry key UNTOUCHED_HOLDOUT is retained for schema stability; after first_evaluation_timestamp it no longer denotes an unseen set."
       ],
-      "purpose": "Independent J decision-quality holdout. Do not inspect results or tune against cases before the phase development gate.",
+      "purpose": "Independent J decision-quality holdout, consumed once after the frozen J-P2 development and remote-gate freeze; retained as independent evaluation evidence and never as a tuning set.",
       "used_for_tuning": false,
       "version": "1.0.0"
     }
