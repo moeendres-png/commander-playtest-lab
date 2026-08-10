@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   cleanup:
-    if: github.event.head_commit.message != 'J-MVP-R: finalize clean RogShai MVP scope'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -20,34 +19,14 @@ jobs:
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
-      - name: Install development dependencies
-        run: python -m pip install -e '.[dev]'
-      - name: Repair strict typing gaps
+      - name: Restore verified current-Drive runtime projection
         shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          fresh = Path('src/commander_lab/fresh_rebuild.py')
-          text = fresh.read_text(encoding='utf-8')
-          marker = 'def _sha256_file(path: Path) -> str:\n'
-          helpers = '''def _as_float(value: object, default: float = 0.0) -> float:\n    if isinstance(value, (str, bytes, bytearray, int, float)):\n        return float(value)\n    return default\n\n\ndef _as_int(value: object, default: int = 0) -> int:\n    if isinstance(value, (str, bytes, bytearray, int, float)):\n        return int(value)\n    return default\n\n\n'''
-          if helpers not in text:
-              text = text.replace(marker, helpers + marker)
-          text = text.replace('float(raw.get("mv", 0.0) or 0.0)', '_as_float(raw.get("mv", 0.0), 0.0)')
-          text = text.replace('int(raw.get("a", 0) or 0)', '_as_int(raw.get("a", 0), 0)')
-          text = text.replace('int(raw.get("k", 0) or 0)', '_as_int(raw.get("k", 0), 0)')
-          text = text.replace('float(row.get("mana_value", 0.0) or 0.0)', '_as_float(row.get("mana_value", 0.0), 0.0)')
-          text = text.replace('int(physical.get("available", 0) or 0)', '_as_int(physical.get("available", 0), 0)')
-          text = text.replace('int(universe_payload["count"])', '_as_int(universe_payload["count"])')
-          text = text.replace('''            if "synthetic" in str(row.get("deck_source_type", "")):\n                if str(row.get("deck_status", "")).casefold() in {\n                    "observed",\n                    "directly_observed",\n                    "verified_full_deck",\n                }:\n                    synthetic_boundary = False''', '''            if "synthetic" in str(row.get("deck_source_type", "")) and str(\n                row.get("deck_status", "")\n            ).casefold() in {\n                "observed",\n                "directly_observed",\n                "verified_full_deck",\n            }:\n                synthetic_boundary = False''')
-          fresh.write_text(text, encoding='utf-8')
-
-          acceptance = Path('src/commander_lab/rogshai_mvp_acceptance.py')
-          text = acceptance.read_text(encoding='utf-8')
-          text = text.replace('''    pair_id: str,\n):\n    return run_paired_structural_comparison(''', '''    pair_id: str,\n) -> tuple[Any, Any]:\n    return run_paired_structural_comparison(''')
-          acceptance.write_text(text, encoding='utf-8')
-          PY
+          set -euo pipefail
+          cat .github/mvp-runtime-chunks/part-* > data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64
+          printf '%s  %s\n' 'bf45a6b0e672b76ac5b4d05991ca0d646bfe23de9a32cdbaadfa18b31881199a' 'data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64' | sha256sum -c -
+      - name: Install development dependencies
+        run: python -m pip install -e '.[dev]'
       - name: Normalize MVP scope
         shell: bash
         run: |
@@ -67,6 +46,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          rm -rf .github/mvp-runtime-chunks
           rm .github/workflows/j-mvp-r-cleanup.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
