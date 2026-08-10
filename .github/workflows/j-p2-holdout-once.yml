@@ -1,0 +1,128 @@
+name: J-P2 One-Time Frozen Holdout
+
+on:
+  push:
+    branches:
+      - eval/j-p2-holdout-2026-08-10
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_SHA: 4ca5a994882e0da6c55916b392972cdf3a5fc9c7
+  CANDIDATE_TREE: 82249e61488af5758a9ad1c5f0bf24eaf222eaca
+  HOLDOUT_FILE_SHA256: a5875cd1a8edf6bbf79248b3e4ba26151579f628eaeefd4ef2369abb309da8d1
+  HOLDOUT_SET_HASH: 724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6
+
+jobs:
+  evaluate-once:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 4ca5a994882e0da6c55916b392972cdf3a5fc9c7
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify exact frozen candidate and untouched holdout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$CANDIDATE_TREE"
+          echo "$HOLDOUT_FILE_SHA256  data/evals/holdout/pilot_decisions_j_v1.json" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          reg = json.loads(Path('data/evals/j_eval_registry.json').read_text())
+          h = reg['sets']['UNTOUCHED_HOLDOUT']
+          assert h['id'] == 'J_HOLDOUT_v1'
+          assert h['hash'] == '724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6'
+          assert h['mutable'] is False
+          assert h['used_for_tuning'] is False
+          assert h['first_evaluation_timestamp'] is None
+          print('pre_eval_registry=SEALED_UNEVALUATED')
+          PY
+      - name: Install frozen candidate
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Execute J_HOLDOUT_v1 exactly once and write raw evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/jp2-holdout
+          python - <<'PY'
+          from __future__ import annotations
+          import hashlib
+          import json
+          import subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import commander_lab
+          from commander_lab.evals.golden import load_golden_cases, run_golden_cases
+
+          candidate_sha = subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          candidate_tree = subprocess.check_output(['git','rev-parse','HEAD^{tree}'], text=True).strip()
+          source = 'data/evals/holdout/pilot_decisions_j_v1.json'
+          source_bytes = Path(source).read_bytes()
+          source_sha = hashlib.sha256(source_bytes).hexdigest()
+          cases = load_golden_cases(source)
+          if len(cases) != 12:
+              raise SystemExit(f'expected 12 holdout cases, got {len(cases)}')
+          if any(case.scenario_group != 'holdout' for case in cases):
+              raise SystemExit('non-holdout case found in J_HOLDOUT_v1')
+          results = run_golden_cases(cases, source=source)
+          passed = sum(1 for r in results if r.passed)
+          critical_total = sum(1 for r in results if r.critical)
+          critical_passed = sum(1 for r in results if r.critical and r.passed)
+          ts = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          payload = {
+              'evaluation_id': 'J_P2_ONE_TIME_J_HOLDOUT_v1',
+              'evaluation_timestamp_utc': ts,
+              'candidate_commit': candidate_sha,
+              'candidate_tree': candidate_tree,
+              'package_version': commander_lab.__version__,
+              'set_id': 'J_HOLDOUT_v1',
+              'set_hash': '724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6',
+              'member_path': source,
+              'member_sha256': source_sha,
+              'cases_total': len(results),
+              'cases_passed': passed,
+              'cases_failed': len(results)-passed,
+              'pass_rate': passed/len(results),
+              'critical_total': critical_total,
+              'critical_passed': critical_passed,
+              'critical_pass_rate': (critical_passed/critical_total if critical_total else 1.0),
+              'estimate_type': 'structural_model_estimates',
+              'used_for_tuning': False,
+              'post_holdout_tuning_allowed_on_same_set': False,
+              'external_rules_engine_evidence': False,
+              'real_playtest_evidence': False,
+              'results': [r.model_dump(mode='json') for r in results],
+          }
+          out = Path('artifacts/jp2-holdout/J_P2_J_HOLDOUT_v1_RESULTS.json')
+          out.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          digest = hashlib.sha256(out.read_bytes()).hexdigest()
+          Path('artifacts/jp2-holdout/J_P2_J_HOLDOUT_v1_RESULTS.sha256').write_text(f'{digest}  {out.name}\n', encoding='utf-8')
+          print(json.dumps({k: payload[k] for k in ('evaluation_timestamp_utc','candidate_commit','candidate_tree','package_version','cases_total','cases_passed','cases_failed','pass_rate','critical_total','critical_passed','critical_pass_rate','estimate_type','used_for_tuning')}, sort_keys=True))
+          print(f'results_sha256={digest}')
+          PY
+      - name: Assert evaluation did not mutate repository truth
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "$HOLDOUT_FILE_SHA256  data/evals/holdout/pilot_decisions_j_v1.json" | sha256sum -c -
+          test -z "$(git status --porcelain --untracked-files=no)"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          h = json.loads(Path('data/evals/j_eval_registry.json').read_text())['sets']['UNTOUCHED_HOLDOUT']
+          assert h['used_for_tuning'] is False and h['mutable'] is False
+          PY
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        with:
+          name: j-p2-one-time-holdout-evidence
+          path: artifacts/jp2-holdout/
+          if-no-files-found: error
