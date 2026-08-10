@@ -27,7 +27,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '8'
-          cache: maven
 
       - name: Record host and frozen identities
         shell: bash
@@ -147,6 +146,7 @@ jobs:
         shell: bash
         run: |
           set -eu
+          mkdir -p J_P3_XMAGE_RAW_EVIDENCE/source
           if [ -d xmage/.git ]; then
             cp xmage/Mage.Common/src/main/java/mage/remote/interfaces/PlayerActions.java J_P3_XMAGE_RAW_EVIDENCE/source/PlayerActions.java
             find xmage -path '*mage/remote/interfaces/*' -name '*.java' -maxdepth 12 -print | sort > J_P3_XMAGE_RAW_EVIDENCE/source/remote-interface-files.txt || true
@@ -158,6 +158,7 @@ jobs:
         shell: bash
         run: |
           set -eu
+          mkdir -p J_P3_XMAGE_RAW_EVIDENCE
           {
             echo "provider=xmage"
             echo "provider_commit=$XMAGE_COMMIT"
@@ -170,7 +171,7 @@ jobs:
             echo "server_outcome=${{ steps.server.outcome }}"
             echo "real_provider_claim_requires_raw_logs=true"
           } > J_P3_XMAGE_RAW_EVIDENCE/manifest-bindings.txt
-          find J_P3_XMAGE_RAW_EVIDENCE -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > J_P3_XMAGE_RAW_EVIDENCE/SHA256SUMS.txt
+          find J_P3_XMAGE_RAW_EVIDENCE -type f ! -name SHA256SUMS.txt ! -name MANIFEST_SHA256.txt -print0 | sort -z | xargs -0 sha256sum > J_P3_XMAGE_RAW_EVIDENCE/SHA256SUMS.txt
           sha256sum J_P3_XMAGE_RAW_EVIDENCE/SHA256SUMS.txt > J_P3_XMAGE_RAW_EVIDENCE/MANIFEST_SHA256.txt
           cat J_P3_XMAGE_RAW_EVIDENCE/manifest-bindings.txt
           cat J_P3_XMAGE_RAW_EVIDENCE/MANIFEST_SHA256.txt
