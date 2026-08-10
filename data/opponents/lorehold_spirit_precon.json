@@ -1,0 +1,147 @@
+{
+  "profile_id": "opponent/lorehold-spirit-precon",
+  "name": "Lorehold Spirit / Kundhort-Geist — official unchanged precon",
+  "commander": {
+    "commanders": [
+      "Quintorius, History Chaser"
+    ],
+    "uses_partner": false
+  },
+  "list_status": "official_precon",
+  "deck": {
+    "deck_id": "opponent/lorehold-spirit-precon",
+    "name": "Secrets of Strixhaven — Lorehold Spirit",
+    "commander": {
+      "commanders": [
+        "Quintorius, History Chaser"
+      ],
+      "uses_partner": false
+    },
+    "cards": [
+      {"oracle_name": "Quintorius, History Chaser", "quantity": 1, "zone": "commander"},
+      {"oracle_name": "Excava, the Risen Past", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Lorehold Archivist", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Augusta, Order Returned", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Ceaseless Conflict", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Vanguard of the Restless", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Advanced Reconstruction", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Fateful Tempest", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Naktamun Lorespinner", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Relic Retriever", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Spirit of Resilience", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Turbulent Steppe", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Moonshaker Cavalry", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Staff of the Storyteller", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Wave of Reckoning", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Fabled Passage", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Angel of Indemnity", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Ao, the Dawn Sky", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Archaeomancer's Map", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Claim Jumper", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Drumbellower", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Guardian of Faith", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Guardian Scalelord", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Karmic Guide", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Monologue Tax", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Remorseful Cleric", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Selfless Spirit", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Serra Paragon", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Sevinne's Reclamation", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Skyclave Apparition", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Sun Titan", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Tocasia's Welcome", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Tragic Arrogance", "quantity": 1, "zone": "main"},
+      {"oracle_name": "White Orchid Phantom", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Atsushi, the Blazing Sky", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Conspiracy Theorist", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Laelia, the Blade Reforged", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Balefire Liege", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Hofri Ghostforge", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Quintorius, Loremaster", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Venerable Warsinger", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Bitterthorn, Nissa's Animus", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Currency Converter", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Battlefield Forge", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Clifftop Retreat", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Emeria, the Sky Ruin", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Exotic Orchard", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Furycalm Snarl", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Glittering Massif", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Lotus Field", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Radiant Summit", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Rugged Prairie", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Sunscorched Divide", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Temple of Triumph", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Arcane Signet", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Sol Ring", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Command Tower", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Primary Research", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Seize the Spoils", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Kirol, History Buff", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Lorehold Charm", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Fields of Strife", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Terramorphic Expanse", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Kami of Ancient Law", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Path to Exile", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Secret Rendezvous", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Swords to Plowshares", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Teshar, Ancestor's Apostle", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Anger", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Faithless Looting", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Squee, Goblin Nabob", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Quintorius, Field Historian", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Rip Apart", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Containment Construct", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Fellwar Stone", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Millikin", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Mind Stone", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Patchwork Banner", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Perpetual Timepiece", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Lorehold Campus", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Mistveil Plains", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Sacred Peaks", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Study Hall", "quantity": 1, "zone": "main"},
+      {"oracle_name": "Plains", "quantity": 11, "zone": "main"},
+      {"oracle_name": "Mountain", "quantity": 6, "zone": "main"}
+    ],
+    "format": "commander",
+    "data_as_of": "2026-08-10",
+    "tags": [
+      "official_precon",
+      "unchanged_precon",
+      "real_opponent",
+      "niko"
+    ],
+    "notes": "Official Wizards 100-card Lorehold Spirit precon, verified 2026-08-10. Exact-list digest 42364017c88d2135ed284706958672a25c419940e85568c8de13dc9b263469c8. Excava, the Risen Past is the second packaged commander card but is in the 99-card main deck when Quintorius is used as face commander."
+  },
+  "archetypes": [
+    "spirits",
+    "graveyard",
+    "recursion",
+    "boros_value"
+  ],
+  "uncertainty": {
+    "confidence": 1.0,
+    "known_card_count": 100,
+    "synthetic_card_count": 0,
+    "unknown_fields": [
+      "actual_observed_commander"
+    ],
+    "assumptions": [
+      "The 100-card list is official_precon evidence, not a claim that all 100 cards were directly observed.",
+      "Niko ownership, real-opponent existence, prior play against the deck, and unchanged-precon status are direct user facts.",
+      "The commander used in the user-observed game is unknown."
+    ]
+  },
+  "sources": [
+    {
+      "source_type": "official_precon",
+      "source_name": "Wizards of the Coast — Secrets of Strixhaven Commander Decklists",
+      "source_path": "https://magic.wizards.com/en/news/announcements/secrets-of-strixhaven-commander-decklists",
+      "quality": "authoritative",
+      "notes": "Official Lorehold Spirit 100-card list; Quintorius, History Chaser is the face commander and Excava, the Risen Past is the second packaged commander."
+    }
+  ],
+  "data_quality": "project_verified",
+  "notes": "Owner: Niko. Real opponent and unchanged-precon status are direct user facts. Full card list and packaged commander configuration are official_precon evidence. actual_observed_commander=unknown."
+}
