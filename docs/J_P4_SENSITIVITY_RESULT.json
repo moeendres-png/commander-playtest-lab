@@ -1,0 +1,237 @@
+{
+  "estimate_type": "structural_model_estimates",
+  "failures": [],
+  "holdout_evaluated": false,
+  "opponent_ensemble_note": "Each current opponent profile is an unweighted structural sensitivity case. Risk values are deterministic transforms of current role densities and uncertainty metadata; they are not observed frequencies or empirical metagame weights.",
+  "opponent_profile_source": "data/opponents/current_structural_profiles.json",
+  "per_pilot": {
+    "korvold": {
+      "bad_rate": 0.0,
+      "contract_preserving_rate": 1.0,
+      "critical_failure_rate": 0.0,
+      "n": 468
+    },
+    "rogshai": {
+      "bad_rate": 0.0,
+      "contract_preserving_rate": 1.0,
+      "critical_failure_rate": 0.0,
+      "n": 494
+    }
+  },
+  "phase": "J-P4",
+  "row_count": 962,
+  "schema_version": "1.0.0",
+  "source": "J_P4_DEVELOPMENT_GOLDENS_v1 only; untouched holdout not loaded",
+  "summary": {
+    "boardwipe": {
+      "0.1": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      },
+      "0.5": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.972972972972973
+      },
+      "0.9": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.972972972972973
+      }
+    },
+    "commander_denial": {
+      "0.1": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.8918918918918919
+      },
+      "0.5": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.918918918918919
+      },
+      "0.9": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.972972972972973
+      }
+    },
+    "opponent_ensemble": {
+      "kaervek/current": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      },
+      "opponent/blight-curse-precon": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      },
+      "opponent/cosmic-spiderman-midbudget": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 1.0
+      },
+      "opponent/dance-elements-precon": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.8918918918918919
+      },
+      "opponent/doom-prevails-precon": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      },
+      "opponent/morcant-elves": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.8918918918918919
+      },
+      "opponent/wakanda-forever-precon": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.918918918918919
+      }
+    },
+    "pilot_strength": {
+      "average": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      },
+      "near_optimal_heuristic": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.972972972972973
+      },
+      "strong": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      },
+      "weak": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.8918918918918919
+      }
+    },
+    "pod_size": {
+      "3": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      },
+      "4": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.972972972972973
+      },
+      "5": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.972972972972973
+      }
+    },
+    "seat": {
+      "1": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.972972972972973
+      },
+      "2": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 31,
+        "preferred_rate": 0.967741935483871
+      },
+      "3": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 7,
+        "preferred_rate": 1.0
+      },
+      "4": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 30,
+        "preferred_rate": 0.9666666666666667
+      },
+      "5": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 6,
+        "preferred_rate": 1.0
+      }
+    },
+    "unknown_opponent_assumption": {
+      "high": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 1.0
+      },
+      "low": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.918918918918919
+      },
+      "medium": {
+        "bad_rate": 0.0,
+        "contract_preserving_rate": 1.0,
+        "critical_failure_rate": 0.0,
+        "n": 37,
+        "preferred_rate": 0.9459459459459459
+      }
+    }
+  }
+}

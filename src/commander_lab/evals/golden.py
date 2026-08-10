@@ -33,7 +33,51 @@ def run_golden_cases(
         )
         state = case.state.model_copy(update={"seat_position": case.seat})
         decision = pilot.choose_action(state, case.actions, random.Random(0))
-        passed = decision.selected_action_id in case.accepted_actions
+        selected = next(
+            (action for action in case.actions if action.action_id == decision.selected_action_id),
+            None,
+        )
+        selected_class = (
+            str(selected.metadata.get("action_class", "")) if selected is not None else ""
+        )
+        preferred_classes = set(case.preferred_action_classes)
+        acceptable_classes = set(case.acceptable_action_classes)
+        bad_classes = set(case.bad_action_classes)
+        critical_failure = decision.selected_action_id in set(case.critical_failure_actions)
+        if critical_failure:
+            passed = False
+            score = 0.0
+            outcome_class = "critical_failure"
+        elif selected_class and selected_class in preferred_classes:
+            passed = True
+            score = 1.0
+            outcome_class = "preferred"
+        elif selected_class and selected_class in acceptable_classes:
+            passed = True
+            score = 0.75
+            outcome_class = "acceptable"
+        elif selected_class and selected_class in bad_classes:
+            passed = False
+            score = 0.0
+            outcome_class = "bad"
+        elif case.accepted_actions:
+            passed = decision.selected_action_id in case.accepted_actions
+            score = 1.0 if passed else 0.0
+            outcome_class = "accepted_id" if passed else "rejected_id"
+        else:
+            passed = False
+            score = 0.25
+            outcome_class = "unclassified"
+        expected = (
+            {
+                "preferred_action_classes": sorted(preferred_classes),
+                "acceptable_action_classes": sorted(acceptable_classes),
+                "bad_action_classes": sorted(bad_classes),
+                "critical_failure_actions": sorted(case.critical_failure_actions),
+            }
+            if preferred_classes or acceptable_classes or bad_classes
+            else sorted(case.accepted_actions)
+        )
         results.append(
             EvalCaseResult(
                 case_id=case.case_id,
@@ -41,13 +85,18 @@ def run_golden_cases(
                 status=EvalStatus.PASSED if passed else EvalStatus.FAILED,
                 passed=passed,
                 critical=case.critical,
-                score=1.0 if passed else 0.0,
-                expected=sorted(case.accepted_actions),
-                observed=decision.selected_action_id,
+                score=score,
+                expected=expected,
+                observed={
+                    "action_id": decision.selected_action_id,
+                    "action_class": selected_class or None,
+                    "outcome_class": outcome_class,
+                },
                 details=(
                     case.description,
                     f"group={case.scenario_group}",
                     f"preferred_action_class={case.preferred_action_class or 'unspecified'}",
+                    f"outcome_class={outcome_class}",
                 ),
                 source=source,
             )
