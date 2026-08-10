@@ -24,6 +24,7 @@ jobs:
         run: |
           set -euo pipefail
           cat .github/mvp-runtime-chunks/part-* > data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64
+          printf '\n' >> data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64
           printf '%s  %s\n' 'bf45a6b0e672b76ac5b4d05991ca0d646bfe23de9a32cdbaadfa18b31881199a' 'data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64' | sha256sum -c -
       - name: Install development dependencies
         run: python -m pip install -e '.[dev]'
