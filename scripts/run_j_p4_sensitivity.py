@@ -4,7 +4,6 @@ import argparse
 import copy
 import json
 import random
-from collections import defaultdict
 from pathlib import Path
 
 from commander_lab.agents import build_pilot
@@ -196,9 +195,7 @@ def main() -> int:
                 / n,
                 "preferred_rate": sum(row["outcome"] == "preferred" for row in subset) / n,
                 "bad_rate": sum(row["outcome"] == "bad" for row in subset) / n,
-                "critical_failure_rate": sum(
-                    row["outcome"] == "critical_failure" for row in subset
-                )
+                "critical_failure_rate": sum(row["outcome"] == "critical_failure" for row in subset)
                 / n,
             }
 
@@ -213,9 +210,7 @@ def main() -> int:
             )
             / n,
             "bad_rate": sum(row["outcome"] == "bad" for row in subset) / n,
-            "critical_failure_rate": sum(
-                row["outcome"] == "critical_failure" for row in subset
-            )
+            "critical_failure_rate": sum(row["outcome"] == "critical_failure" for row in subset)
             / n,
         }
 
@@ -242,8 +237,7 @@ def main() -> int:
     else:
         print(text, end="")
     gate = all(
-        metrics["contract_preserving_rate"] >= 0.95
-        and metrics["critical_failure_rate"] == 0.0
+        metrics["contract_preserving_rate"] >= 0.95 and metrics["critical_failure_rate"] == 0.0
         for levels in summary.values()
         for metrics in levels.values()
     )

@@ -693,9 +693,11 @@ class KorvoldPilot(BasePilot):
             if protected_window:
                 denial_penalty *= 0.35
             bonus -= denial_penalty
-            bonus -= state.boardwipe_risk * float(
-                action.metadata.get("increases_board_exposure", 0.45)
-            ) * 1.1
+            bonus -= (
+                state.boardwipe_risk
+                * float(action.metadata.get("increases_board_exposure", 0.45))
+                * 1.1
+            )
         if CardRole.SACRIFICE_OUTLET in action.roles:
             bonus += 0.7 + min(2.0, sacrifice_material * 0.3)
             if korvold_online:
@@ -863,9 +865,11 @@ class RogShaiPilot(BasePilot):
             bonus -= denial_penalty
             if reserve_after < 1.0 and (has_protection or has_counter):
                 bonus -= 1.4 + exposure_ratio * 1.2
-            bonus -= state.boardwipe_risk * float(
-                action.metadata.get("increases_board_exposure", 0.45)
-            ) * 1.2
+            bonus -= (
+                state.boardwipe_risk
+                * float(action.metadata.get("increases_board_exposure", 0.45))
+                * 1.2
+            )
             if ishai and ishai.next_cost >= 7.0 and not protected_window:
                 bonus -= min(2.5, (ishai.next_cost - 4.0) * 0.45)
         if action.card_name in {"Combat Research", "Curiosity", "Staggering Insight"}:

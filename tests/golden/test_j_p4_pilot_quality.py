@@ -27,7 +27,10 @@ def test_j_p4_development_action_class_corpus(repo_root) -> None:
     assert {case.strategy for case in cases} == {"korvold", "rogshai"}
     assert {case.state.pod_size for case in cases} >= {3, 4, 5}
     assert all(case.preferred_action_classes for case in cases)
-    assert all(case.bad_action_classes or case.critical_failure_actions or case.acceptable_action_classes for case in cases)
+    assert all(
+        case.bad_action_classes or case.critical_failure_actions or case.acceptable_action_classes
+        for case in cases
+    )
     results = run_golden_cases(cases, source=str(path.relative_to(repo_root)))
     assert all(result.passed for result in results), [
         result.model_dump(mode="json") for result in results if not result.passed
@@ -44,8 +47,10 @@ def test_j_p4_required_dimensions_and_adversarial_context_are_covered(repo_root)
     cases = load_golden_cases(repo_root / "data/evals/golden/pilot_decisions_j_p4_v1.json")
     for strategy in ("korvold", "rogshai"):
         strategy_cases = [case for case in cases if case.strategy == strategy]
-        covered = {dimension for case in strategy_cases for dimension in case.expected_utility_dimensions}
-        assert REQUIRED_DIMENSIONS <= covered
+        covered = {
+            dimension for case in strategy_cases for dimension in case.expected_utility_dimensions
+        }
+        assert covered >= REQUIRED_DIMENSIONS
     assert any(case.state.hidden_information_uncertainty >= 0.8 for case in cases)
     assert any(case.state.opponent_intent_uncertainty >= 0.8 for case in cases)
     assert any(case.state.archenemy_player_id for case in cases)
