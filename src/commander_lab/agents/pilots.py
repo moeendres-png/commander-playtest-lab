@@ -369,6 +369,14 @@ class BasePilot:
         remaining_mana = max(0.0, action.remaining_mana)
         interaction_roles = {CardRole.COUNTER, CardRole.PROTECTION, CardRole.REMOVAL}
         interaction_in_hand = sum(state.role_counts.get(role, 0) for role in interaction_roles)
+        exposure_ratio = (
+            state.exposure_before_next_turn / max(1, opponent_count) if opponent_count else 0.0
+        )
+        uncertainty = state.uncertainty_pressure
+        all_in_exposure = float(action.metadata.get("all_in_exposure", 0.0))
+        board_exposure = float(action.metadata.get("increases_board_exposure", 0.0))
+        protected_finish = bool(action.metadata.get("protected_finish_window", False))
+        expected_lethals = int(action.metadata.get("expected_lethal_opponents", 0))
 
         survival = 0.0
         survival += action.strength(CardRole.PROTECTION) * (1.5 + life_pressure)
@@ -383,6 +391,12 @@ class BasePilot:
         survival += action.strength(CardRole.GRAVEYARD_HATE) * min(2.0, graveyard_pressure * 0.12)
         if action.action_kind == "commander" and life_pressure > 0.6:
             survival -= 0.5
+        if action.action_kind == "commander":
+            survival -= state.commander_denial_risk * (0.45 + 0.85 * exposure_ratio)
+            survival -= state.boardwipe_risk * board_exposure * 0.8
+            survival -= all_in_exposure * (0.25 + uncertainty * 0.65)
+        elif board_exposure > 0.0:
+            survival -= state.boardwipe_risk * board_exposure * 0.55
 
         raw_value = (
             action.floor_value
@@ -455,10 +469,16 @@ class BasePilot:
             }[self.config.strength]
             threat_context = min(1.35, 0.35 + state.max_opponent_threat * 0.08 + state.turn * 0.025)
             interaction_reserve += preserve_bonus * threat_context
+            if bool(action.metadata.get("flexible_interaction", False)):
+                interaction_reserve += uncertainty * (0.9 + exposure_ratio * 0.65)
+                interaction_reserve += state.stack_pressure * 0.35
         if roles.intersection(interaction_roles) and action.action_kind in {"card", "commander"}:
             interaction_reserve -= 0.7
         if action.action_kind in {"counter", "protection"}:
             interaction_reserve += min(2.5, action.threat_score * 0.22)
+            urgency = min(1.0, action.threat_score / 8.0)
+            if not bool(action.metadata.get("known_win_attempt", False)):
+                interaction_reserve -= (1.0 - urgency) * uncertainty * (1.2 + 0.7 * exposure_ratio)
         if interaction_in_hand == 0:
             interaction_reserve *= 0.35
 
@@ -492,6 +512,8 @@ class BasePilot:
             + action.strength(CardRole.COUNTER) * min(3.0, action.threat_score * 0.3)
             + action.strength(CardRole.GRAVEYARD_HATE) * min(2.5, graveyard_pressure * 0.13)
         )
+        if state.archenemy_player_id and action.target_player_id == state.archenemy_player_id:
+            threat_reduction += 0.45 + min(0.55, action.target_threat * 0.05)
 
         lethal_pressure = max(0.0, (22.0 - state.lowest_opponent_life) / 7.0)
         win_progress = (
@@ -518,6 +540,13 @@ class BasePilot:
             # value after the commander has been removed.  This keeps collateral
             # table-damage/combat payoffs distinct from independent finish axes.
             win_progress *= 0.35
+        if expected_lethals > 0:
+            win_progress += min(4.5, expected_lethals * 1.35)
+            if protected_finish:
+                win_progress += 0.9
+        finish_probability = float(action.metadata.get("finish_probability", 1.0))
+        if CardRole.FINISHER in roles and expected_lethals == 0 and finish_probability < 0.2:
+            win_progress -= 1.8
 
         political_visibility = (
             action.strength(CardRole.ENGINE) * (1.0 - action.immediate_impact * 0.35)
@@ -530,6 +559,9 @@ class BasePilot:
             political_visibility *= 0.4
         if CardRole.WIPE in roles:
             political_visibility += 0.55
+        political_visibility += board_exposure * (0.45 + state.boardwipe_risk * 0.35)
+        if state.actor_is_archenemy:
+            political_visibility += max(0.0, board_exposure) * 0.75
 
         rebuild_capacity = (
             action.strength(CardRole.RECURSION) * 1.4
@@ -546,6 +578,12 @@ class BasePilot:
             rebuild_capacity += 0.75 + min(0.8, state.graveyard_size * 0.035)
         if StructuralMechanic.COMMANDER_INDEPENDENT in mechanics and not state.commander_online:
             rebuild_capacity += 0.35
+        if bool(action.metadata.get("preserves_rebuild", False)):
+            rebuild_capacity += 0.8 + state.boardwipe_risk * 0.9
+        if StructuralMechanic.REBUILD in mechanics:
+            rebuild_capacity += state.boardwipe_risk * 0.65
+        if StructuralMechanic.COMMANDER_INDEPENDENT in mechanics:
+            rebuild_capacity += state.commander_denial_risk * 0.35
 
         return {
             "survival": survival,
@@ -631,6 +669,7 @@ class KorvoldPilot(BasePilot):
         outlets = state.role_counts.get(CardRole.SACRIFICE_OUTLET, 0)
         land_package = state.role_counts.get(CardRole.LAND_SYNERGY, 0)
         bonus = 0.0
+        exposure_ratio = state.exposure_before_next_turn / max(1, state.pod_size - 1)
 
         if action.action_kind == "commander" and action.card_name == "Korvold, Fae-Cursed King":
             immediate_value = sacrifice_material + outlets * 0.8 + land_package * 0.35
@@ -647,6 +686,18 @@ class KorvoldPilot(BasePilot):
                     {"Lightning Greaves", "Swiftfoot Boots"} & names
                 ):
                     bonus -= 1.0
+            protected_window = bool(action.metadata.get("protected_window", False)) or bool(
+                {"Lightning Greaves", "Swiftfoot Boots"} & names
+            )
+            denial_penalty = state.commander_denial_risk * (1.4 + 1.5 * exposure_ratio)
+            if protected_window:
+                denial_penalty *= 0.35
+            bonus -= denial_penalty
+            bonus -= (
+                state.boardwipe_risk
+                * float(action.metadata.get("increases_board_exposure", 0.45))
+                * 1.1
+            )
         if CardRole.SACRIFICE_OUTLET in action.roles:
             bonus += 0.7 + min(2.0, sacrifice_material * 0.3)
             if korvold_online:
@@ -659,6 +710,15 @@ class KorvoldPilot(BasePilot):
                 bonus += min(2.2, state.graveyard_size * 0.11)
         if CardRole.PROTECTION in action.roles and korvold_online:
             bonus += 1.1 + max(0.0, (commander.power - 4.0) * 0.12 if commander else 0.0)
+        if action.action_kind == "protection":
+            protected_value = float(action.metadata.get("protected_permanent_value", 4.0))
+            protecting_commander = bool(action.metadata.get("protecting_commander", False))
+            if protecting_commander:
+                bonus += 1.0 + min(1.5, protected_value * 0.08)
+            elif protected_value <= 2.0:
+                bonus -= 6.2 + state.uncertainty_pressure * 1.2
+            elif protected_value < 4.0:
+                bonus -= 1.6
         if CardRole.GRAVEYARD_HATE in action.roles:
             bonus += min(1.8, state.max_graveyard_pressure * 0.12)
         if CardRole.ENGINE in action.roles and not korvold_online:
@@ -667,6 +727,8 @@ class KorvoldPilot(BasePilot):
             bonus += min(1.6, state.graveyard_size * 0.09)
         if StructuralMechanic.SACRIFICE_PAYOFF in action.mechanic_tags:
             bonus += min(1.3, sacrifice_material * 0.16 + outlets * 0.18)
+        if "sacrifice_material_quality" in action.metadata:
+            bonus += float(action.metadata["sacrifice_material_quality"]) * 0.65
         if StructuralMechanic.REBUILD in action.mechanic_tags and state.board_power <= 4.0:
             bonus += 0.75 + min(1.0, state.graveyard_size * 0.05)
         if StructuralMechanic.COMMANDER_INDEPENDENT in action.mechanic_tags and not korvold_online:
@@ -680,8 +742,26 @@ class KorvoldPilot(BasePilot):
             "Hearthhull, the Worldseed",
         }:
             bonus += 0.9 + max(0, state.pod_size - 3) * 0.35
+        expected_lethals = int(action.metadata.get("expected_lethal_opponents", 0))
+        if expected_lethals:
+            bonus += min(3.0, expected_lethals * 0.85)
+        if (
+            CardRole.FINISHER in action.roles
+            and expected_lethals == 0
+            and float(action.metadata.get("finish_probability", 1.0)) < 0.2
+        ):
+            bonus -= 2.0
         if (CardRole.COMBAT_PAYOFF in action.roles or action.base_power >= 5) and korvold_online:
             bonus += 0.4
+        all_in_exposure = float(action.metadata.get("all_in_exposure", 0.0))
+        if all_in_exposure >= 0.65 and state.uncertainty_pressure >= 0.6 and exposure_ratio >= 0.75:
+            bonus -= all_in_exposure * (3.3 + state.uncertainty_pressure * 1.2)
+        if (
+            action.action_kind == "commander"
+            and all_in_exposure >= 0.75
+            and state.commander_denial_risk >= 0.6
+        ):
+            bonus -= 1.8 + state.commander_denial_risk * exposure_ratio * 1.8
         if action.action_kind == "combat_target":
             pressure = float(action.metadata.get("commander_damage_pressure", 0.0))
             bonus += pressure * 0.28
@@ -764,6 +844,7 @@ class RogShaiPilot(BasePilot):
             & names
         )
         bonus = 0.0
+        exposure_ratio = state.exposure_before_next_turn / max(1, state.pod_size - 1)
 
         if action.action_kind == "commander" and action.card_name == "Rograkh, Son of Rohgahh":
             bonus += 1.8
@@ -773,10 +854,24 @@ class RogShaiPilot(BasePilot):
                 bonus += 0.8
         if action.action_kind == "commander" and action.card_name == "Ishai, Ojutai Dragonspeaker":
             bonus += 0.55 * max(1, state.pod_size - 1)
-            if reserve_after >= 1.0 and (has_protection or has_counter):
+            protected_window = reserve_after >= 1.0 and (has_protection or has_counter)
+            if protected_window:
                 bonus += 1.4
             elif state.max_opponent_threat >= 7.0:
                 bonus -= 0.9
+            denial_penalty = state.commander_denial_risk * (2.0 + 2.0 * exposure_ratio)
+            if protected_window:
+                denial_penalty *= 0.35
+            bonus -= denial_penalty
+            if reserve_after < 1.0 and (has_protection or has_counter):
+                bonus -= 1.4 + exposure_ratio * 1.2
+            bonus -= (
+                state.boardwipe_risk
+                * float(action.metadata.get("increases_board_exposure", 0.45))
+                * 1.2
+            )
+            if ishai and ishai.next_cost >= 7.0 and not protected_window:
+                bonus -= min(2.5, (ishai.next_cost - 4.0) * 0.45)
         if action.card_name in {"Combat Research", "Curiosity", "Staggering Insight"}:
             if ishai_online:
                 bonus += 1.4 + (ishai.power if ishai else 1.0) * 0.08
@@ -801,6 +896,17 @@ class RogShaiPilot(BasePilot):
                 bonus += 1.0 + max(0.0, (ishai.power - 5.0) * 0.22 if ishai else 0.0)
             else:
                 bonus -= 1.0
+            expected_lethals = int(action.metadata.get("expected_lethal_opponents", 0))
+            protected_finish = bool(action.metadata.get("protected_finish_window", False))
+            if expected_lethals > 0:
+                bonus += 1.6 + min(1.8, expected_lethals * 0.7)
+                if protected_finish:
+                    bonus += 0.8
+            elif (
+                "expected_lethal_opponents" in action.metadata
+                or "protected_finish_window" in action.metadata
+            ) and not protected_finish:
+                bonus -= 4.8 + state.uncertainty_pressure * 1.2
         if action.card_name == "Kediss, Emberclaw Familiar":
             if ishai_online:
                 bonus += 0.9 + max(0, state.pod_size - 2) * 0.35
@@ -829,17 +935,29 @@ class RogShaiPilot(BasePilot):
                 bonus += 1.0 + max(0.0, (ishai.power - 4.0) * 0.1 if ishai else 0.0)
             if action.action_kind == "protection":
                 bonus += min(2.0, action.threat_score * 0.2)
+                protected_value = float(action.metadata.get("protected_permanent_value", 4.0))
+                if bool(action.metadata.get("protecting_commander", False)):
+                    bonus += 1.0 + min(1.8, protected_value * 0.1)
+                elif protected_value <= 2.0:
+                    bonus -= 4.0
+                else:
+                    bonus -= max(0.0, 4.0 - protected_value) * 0.5
         if CardRole.COUNTER in action.roles:
             if reserve_after < 1.0 and action.action_kind == "card":
                 bonus -= 1.0
             if action.action_kind == "counter":
                 bonus += min(2.4, action.threat_score * 0.25)
+                if bool(action.metadata.get("known_win_attempt", False)):
+                    bonus += 1.3
+                elif action.threat_score <= 3.0:
+                    bonus -= 2.6 + state.uncertainty_pressure * 1.6 + exposure_ratio * 0.55
         if action.action_kind == "pass" and (has_counter or has_protection):
             # In uncertain/high-threat pods, holding flexible interaction is a
             # positive action rather than a zero-value non-action.
             bonus += max(0.0, state.max_opponent_threat - 6.0) * 0.55
         if action.card_name in {
             "Kykar, Wind's Fury",
+            "Veyran, Voice of Duality",
             "Whirlwind of Thought",
             "Storm-Kiln Artist",
             "Guttersnipe",
@@ -847,6 +965,10 @@ class RogShaiPilot(BasePilot):
             bonus += 0.45
             if not ishai_online or spellslinger_online:
                 bonus += 0.55
+            bonus += state.commander_denial_risk * 1.1
+            bonus += state.boardwipe_risk * (
+                0.45 if StructuralMechanic.COMMANDER_INDEPENDENT in action.mechanic_tags else 0.0
+            )
         if (
             not ishai_online
             and action.roles.intersection({CardRole.ENGINE, CardRole.DRAW})
@@ -860,6 +982,8 @@ class RogShaiPilot(BasePilot):
             bonus += pressure * 0.42
             if float(action.metadata.get("target_life", 40.0)) <= 12.0:
                 bonus += 0.8
+            if state.archenemy_player_id and action.target_player_id == state.archenemy_player_id:
+                bonus += 0.65
         return bonus
 
 

@@ -163,11 +163,27 @@ class PilotStateView(FrozenModel):
     role_counts: dict[CardRole, int] = Field(default_factory=dict)
     commanders: tuple[PilotCommanderView, ...] = ()
     opponents: tuple[PilotOpponentView, ...] = ()
+    # J-P4 structural decision context.  These are explicit uncertainty/risk
+    # estimates supplied by the scenario/simulator; they are not hidden-card
+    # reads and they do not pretend to model human social intent.
+    hidden_information_uncertainty: float = Field(default=0.0, ge=0.0, le=1.0)
+    opponent_intent_uncertainty: float = Field(default=0.0, ge=0.0, le=1.0)
+    archenemy_player_id: str | None = None
+    boardwipe_risk: float = Field(default=0.0, ge=0.0, le=1.0)
+    commander_denial_risk: float = Field(default=0.0, ge=0.0, le=1.0)
+    stack_pressure: float = Field(default=0.0, ge=0.0, le=1.0)
+    unknown_opponent_fraction: float = Field(default=0.0, ge=0.0, le=1.0)
+    opponents_to_act_before_next_turn: int | None = Field(default=None, ge=0, le=9)
 
     @model_validator(mode="after")
     def seat_is_within_pod(self) -> PilotStateView:
         if self.seat_position > self.pod_size:
             raise ValueError("seat_position must be within the scenario pod")
+        if (
+            self.opponents_to_act_before_next_turn is not None
+            and self.opponents_to_act_before_next_turn > max(0, self.pod_size - 1)
+        ):
+            raise ValueError("opponents_to_act_before_next_turn cannot exceed opponent count")
         return self
 
     @property
@@ -189,6 +205,25 @@ class PilotStateView(FrozenModel):
     @property
     def max_graveyard_pressure(self) -> int:
         return max((opponent.graveyard_size for opponent in self.opponents), default=0)
+
+    @property
+    def exposure_before_next_turn(self) -> int:
+        if self.opponents_to_act_before_next_turn is not None:
+            return self.opponents_to_act_before_next_turn
+        return max(0, self.pod_size - 1)
+
+    @property
+    def uncertainty_pressure(self) -> float:
+        return min(
+            1.0,
+            self.hidden_information_uncertainty * 0.45
+            + self.opponent_intent_uncertainty * 0.30
+            + self.unknown_opponent_fraction * 0.25,
+        )
+
+    @property
+    def actor_is_archenemy(self) -> bool:
+        return self.archenemy_player_id == self.player_id
 
 
 class PilotActionView(FrozenModel):

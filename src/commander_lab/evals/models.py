@@ -101,7 +101,12 @@ class GoldenDecisionCase(FrozenModel):
     expected_action_id: str | None = None
     acceptable_action_ids: tuple[str, ...] = ()
     bad_action_ids: tuple[str, ...] = ()
+    # J-P4 action-class contract.  Existing ID-based corpora remain supported.
     preferred_action_class: str | None = None
+    preferred_action_classes: tuple[str, ...] = ()
+    acceptable_action_classes: tuple[str, ...] = ()
+    bad_action_classes: tuple[str, ...] = ()
+    critical_failure_actions: tuple[str, ...] = ()
     scenario_group: Literal["development", "holdout"] = "development"
     seat: int = Field(default=1, ge=1, le=10)
     known_information: tuple[str, ...] = ()
@@ -122,14 +127,31 @@ class GoldenDecisionCase(FrozenModel):
     @model_validator(mode="after")
     def validate_actions(self) -> GoldenDecisionCase:
         action_ids = {action.action_id for action in self.actions}
-        if not self.accepted_actions:
-            raise ValueError("golden case requires expected_action_id or acceptable_action_ids")
+        action_classes = {
+            str(action.metadata.get("action_class", "")) for action in self.actions
+        } - {""}
+        has_class_contract = bool(self.preferred_action_classes or self.acceptable_action_classes)
+        if not self.accepted_actions and not has_class_contract:
+            raise ValueError(
+                "golden case requires accepted action IDs or preferred/acceptable action classes"
+            )
         if not self.accepted_actions.issubset(action_ids):
             raise ValueError("accepted actions must exist in actions")
         if not set(self.bad_action_ids).issubset(action_ids):
             raise ValueError("bad actions must exist in actions")
+        if not set(self.critical_failure_actions).issubset(action_ids):
+            raise ValueError("critical failure actions must exist in actions")
         if self.accepted_actions.intersection(self.bad_action_ids):
             raise ValueError("an action cannot be both acceptable and bad")
+        preferred_classes = set(self.preferred_action_classes)
+        acceptable_classes = set(self.acceptable_action_classes)
+        bad_classes = set(self.bad_action_classes)
+        if preferred_classes & bad_classes or acceptable_classes & bad_classes:
+            raise ValueError("an action class cannot be both accepted and bad")
+        referenced_classes = preferred_classes | acceptable_classes | bad_classes
+        if not referenced_classes.issubset(action_classes):
+            missing = sorted(referenced_classes - action_classes)
+            raise ValueError(f"action classes missing from actions: {missing}")
         if self.seat > self.state.pod_size:
             raise ValueError("seat must be within the scenario pod")
         if self.state.turn < 1:
