@@ -1,46 +1,39 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "purpose": "Technical RogShai MVP acceptance facts only; not a canonical deck, inventory, allocation, purchase, or opponent mutation.",
   "observed_at": "2026-08-10",
-  "current_drive_runtime": {
-    "path": "data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64",
-    "content_sha256": "9573d74eb9f80a7302cf74a9c88876885bcdaca1823c441f666c57fe741ef3d9",
-    "candidate_count": 795,
-    "source_policy": "fail_closed_snapshot_of_current_drive_agent_truth",
-    "content_encoding": "gzip(json); loader also accepts base64(gzip(json)) transport"
-  },
   "rogshai_candidate_pool": {
     "drive_file_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
     "content_sha256": "43287c9d372c7d8ae5980f9ceea872fe55aa12e5af80cca2a9dec2e32946e39e",
     "expected_count": 795,
+    "sorted_oracle_names_sha256": "44557d429d695d8c634210778c39c0507f5c87ee584c8b29dafedcb2dae64dc7",
     "k1_modeled": 123,
     "k1_partially_modeled": 588,
     "k1_unmodeled": 84,
     "k1_excluded": 0,
     "candidate_join_orphans": 0
   },
-  "k1_acceptance": {
-    "drive_file_id": "1PznlTDDxjbkSTK4G18hFWGXtMGI-TRIi",
-    "candidate_coverage": "PASS",
-    "bias_gate": "PASS",
-    "cross_layer_status": "NEEDS_TARGETED_REPAIR",
-    "rogshai_blocked_by_targeted_repair": false,
-    "deferred_issue": "Midnight Reaper -> package:korvold:independent_value"
-  },
-  "k2_acceptance": {
-    "drive_file_id": "1kSiH896qgP1gFjwffGdrCie8XsIHo7nL",
-    "K2_READY": true,
-    "bias_test_suite_pre_mvp_status": "SPECIFIED_NOT_EXECUTED_PRE_J",
-    "fresh_rebuild_contract": "PASS",
-    "candidate_evidence_fairness": "PASS",
-    "commander_mechanics_contract": "PASS",
-    "mana_evaluation_contract": "PASS",
-    "multiobjective_contract": "PASS",
-    "variant_evaluation_protocol": "PASS"
-  },
+  "current_drive_inventory_delta": [
+    {
+      "oracle_name": "Azorius Arrester",
+      "quantity": 1,
+      "currently_owned": true,
+      "commander_legality": "legal",
+      "color_identity": "W",
+      "mana_cost": "{1}{W}",
+      "mana_value": 2.0,
+      "card_type": "Creature — Human Soldier",
+      "oracle_text": "When this creature enters, detain target creature an opponent controls. (Until your next turn, that creature can't attack or block and its activated abilities can't be activated.)",
+      "current_deck_use": "keine",
+      "card_id": "card:project:535b95eb-3631-58d8-b750-ac62f5e0404c",
+      "coverage_status": "PARTIALLY_MODELED",
+      "source": "current Drive K1/K2 knowledge layer; verified 2026-08-10"
+    }
+  ],
   "fresh_rebuild_invariants": {
     "current_deck_membership_quality_prior": false,
     "historical_include_cut_quality_prior": false,
+    "optimizer_history_quality_prior": false,
     "protected_status_quality_prior": false,
     "allocation_quality_prior": false,
     "structural_coverage_quality_prior": false,
@@ -48,6 +41,69 @@
     "unmodeled_cards_remain_in_candidate_universe": true,
     "unmodeled_cards_require_explicit_profile_before_structural_scoring": true,
     "synthetic_opponent_completion_is_observation": false
+  },
+  "primary_4p_rogshai": {
+    "scenario_id": "primary_4p_rogshai",
+    "pod_size": 4,
+    "opponents": [
+      "High Perfect Morcant",
+      "Doom Prevails",
+      "Cosmic Spider-Man"
+    ],
+    "opponent_profile_ids": [
+      "opponent/morcant-elves",
+      "opponent/doom-prevails-precon",
+      "opponent/cosmic-spiderman-midbudget"
+    ],
+    "frequency_weights": null
+  },
+  "opponent_evidence": [
+    {
+      "opponent_id": "alen_high_perfect_morcant",
+      "deck_name": "High Perfect Morcant",
+      "deck_status": "partially_observed",
+      "deck_source_type": "partially_observed + synthetic_completion"
+    },
+    {
+      "opponent_id": "doom_prevails",
+      "deck_name": "Doom Prevails",
+      "deck_status": "official_precon",
+      "deck_source_type": "official_precon"
+    },
+    {
+      "opponent_id": "cosmic_spider_man",
+      "deck_name": "Cosmic Spider-Man",
+      "deck_status": "partially_observed",
+      "deck_source_type": "partially_observed + synthetic_completion_public_deck"
+    }
+  ],
+  "technical_package_smoke": {
+    "package_id": "package:rogshai:combat_draw",
+    "cards": ["Combat Research", "Staggering Insight"],
+    "purpose": "technical package-ablation smoke only; not a Fresh-Rebuild quality prior"
+  },
+  "sources": {
+    "candidate_pool": {
+      "source_file_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
+      "content_sha256": "43287c9d372c7d8ae5980f9ceea872fe55aa12e5af80cca2a9dec2e32946e39e"
+    },
+    "inventory_features": {
+      "source_file_id": "1Mp2sYnuv_HXTx9n55AIS2lmIu0EgCxLN",
+      "content_sha256": "de70ae3065de0c8013be60bd8a2ada75b3c898d2eaf0cef8d567bef002ca203a"
+    },
+    "availability": {
+      "source_file_id": "1xVScCCgH5L26mPG3oF44azJ_H9SyABJc",
+      "content_sha256": "0ba098e4daedf1ea695aee22a4ccc761c2f9abb03e12da80f9c9e5346b46e4c3"
+    },
+    "coverage": {
+      "content_sha256": "91d21afb9a0a7392c5a05b1fce956d9b1f596e7f231e236ab7c070deeaa6d97c"
+    },
+    "opponent_registry": {
+      "content_sha256": "9162d19b57bf26f2bb105cc296e8038f2957d19b40ed22d63be3b6a5d9ead928"
+    },
+    "pod_scenarios": {
+      "content_sha256": "8fbafea28a4e76895c6b530332fbc36af5e26ef5d1e53adffe31980cb12649c3"
+    }
   },
   "holdout": {
     "J_HOLDOUT_v1": "CONSUMED_VALIDATION_EVIDENCE_NOT_FOR_TUNING",
