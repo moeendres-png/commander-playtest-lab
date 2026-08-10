@@ -33,11 +33,14 @@ def load_project_structural_decks(
             profile = build_synthetic_deck_profile(archetype, data_snapshot_hash=snapshot_hash)
             decks[profile.deck_id] = profile
     if include_current_opponents:
-        opponent_path = root_path / "data/opponents/current_structural_profiles.json"
-        if opponent_path.exists():
-            decks.update(
-                build_current_opponent_profiles(opponent_path, data_snapshot_hash=snapshot_hash)
-            )
+        opponent_dir = root_path / "data/opponents"
+        opponent_paths = [opponent_dir / "current_structural_profiles.json"]
+        opponent_paths.extend(sorted(opponent_dir.glob("*_structural_profile.json")))
+        for opponent_path in opponent_paths:
+            if opponent_path.exists():
+                decks.update(
+                    build_current_opponent_profiles(opponent_path, data_snapshot_hash=snapshot_hash)
+                )
     return decks
 
 
