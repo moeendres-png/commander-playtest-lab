@@ -35,10 +35,7 @@ def test_lorehold_is_registered_without_touching_kaervek_hash() -> None:
         (ROOT / "data/opponents/opponent_registry.json").read_text(encoding="utf-8")
     )
 
-    assert (
-        registry["current"]["lorehold_spirit/precon"]
-        == "opponent/lorehold-spirit-precon"
-    )
+    assert registry["current"]["lorehold_spirit/precon"] == "opponent/lorehold-spirit-precon"
     assert (
         registry["aliases"]["opponent/kundhort-geist"]["redirect"]
         == "opponent/lorehold-spirit-precon"
