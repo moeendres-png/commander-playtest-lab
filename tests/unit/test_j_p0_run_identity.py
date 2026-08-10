@@ -59,10 +59,7 @@ def test_j_holdout_is_schema_valid_frozen_and_independently_consumed(
     assert {case.state.pod_size for case in cases} == {3, 4, 5}
     assert all(case.scenario_group == "holdout" for case in cases)
     assert holdout["id"] == "J_HOLDOUT_v1"
-    assert (
-        holdout["hash"]
-        == "724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6"
-    )
+    assert holdout["hash"] == "724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6"
     assert holdout["members"] == [
         {
             "path": "data/evals/holdout/pilot_decisions_j_v1.json",
