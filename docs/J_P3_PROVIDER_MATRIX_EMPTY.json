@@ -13,6 +13,12 @@
   "fixture_hash": "cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb",
   "provider_selected": false,
   "result_cells_locked_empty_until_real_spike": true,
+  "pre_spike_pin_amendment": {
+    "date": "2026-08-10",
+    "reason": "closeout verification found both originally recorded resolved_commit values were not resolvable in the official provider repositories; corrected to the verified official release tag targets before any real provider spike",
+    "provider_results_existed_before_amendment": false,
+    "contract_scoring_fixture_payloads_changed": false
+  },
   "providers": {
     "xmage": {
       "official_repository": "https://github.com/magefree/mage",
@@ -21,9 +27,10 @@
       "frozen_pin": {
         "policy": "latest_official_non_draft_non_prerelease_release_at_p3a_research_time",
         "release_tag": "xmage_1.4.60V3",
-        "resolved_commit": "d2fa0a244708465e9ff7fcb3c37641e749a292a8",
+        "resolved_commit": "06d166b098ad36b277edef01116472203d5a047e",
         "release_published_at": "2026-07-11T16:12:55Z",
-        "status": "FROZEN_RELEASE_PIN"
+        "status": "FROZEN_RELEASE_PIN_CORRECTED_PRE_SPIKE",
+        "supersedes_non_resolvable_recorded_commit": "d2fa0a244708465e9ff7fcb3c37641e749a292a8"
       },
       "static_research": {
         "license": {"value": "MIT", "status": "VERIFIED_PRIMARY_SOURCE"},
@@ -55,9 +62,10 @@
         "policy": "latest_official_non_draft_non_prerelease_release_at_p3a_research_time",
         "release_tag": "forge-2.0.14",
         "annotated_tag_object": "266c96e466895136feb56e26681753f572b6053c",
-        "resolved_commit": "187a592e79bc83d324fc792252878fde9ed83498",
+        "resolved_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
         "release_published_at": "2026-08-08T23:02:10Z",
-        "status": "FROZEN_RELEASE_PIN"
+        "status": "FROZEN_RELEASE_PIN_CORRECTED_PRE_SPIKE",
+        "supersedes_non_resolvable_recorded_commit": "187a592e79bc83d324fc792252878fde9ed83498"
       },
       "static_research": {
         "license": {"value": "GPL-3.0", "status": "VERIFIED_PRIMARY_SOURCE"},
