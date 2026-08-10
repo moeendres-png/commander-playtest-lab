@@ -1,0 +1,10 @@
+{
+  "bytes": 12096,
+  "development_freeze_sha256": null,
+  "first_evaluation_status": "not_run",
+  "holdout_id": "J_P5_OPTIMIZER_HOLDOUT_v1",
+  "immutable": true,
+  "outcomes_evaluated": false,
+  "sealed_at": "2026-08-11T01:27:33+02:00",
+  "sha256": "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203"
+}
