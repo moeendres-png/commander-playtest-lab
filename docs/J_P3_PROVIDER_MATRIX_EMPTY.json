@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "J_P3_PROVIDER_MATRIX_v1",
+  "phase_state": "P3A_FROZEN_EMPTY_RESULTS",
+  "generated_for_baseline": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "commit": "91144a31b651d21bd47d7ff901545c0b7fdd9870",
+    "tree": "6a0cd2b113bf12160f4b8774dfac2df4e32c8262",
+    "package": "1.15.0"
+  },
+  "contract_hash": "89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6",
+  "scoring_hash": "67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227",
+  "fixture_hash": "cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb",
+  "provider_selected": false,
+  "result_cells_locked_empty_until_real_spike": true,
+  "providers": {
+    "xmage": {
+      "official_repository": "https://github.com/magefree/mage",
+      "current_default_branch": "master",
+      "current_head_observed": "2dbd5239288d0003261100cfe762b218ffe4363a",
+      "frozen_pin": {
+        "policy": "latest_official_non_draft_non_prerelease_release_at_p3a_research_time",
+        "release_tag": "xmage_1.4.60V3",
+        "resolved_commit": "d2fa0a244708465e9ff7fcb3c37641e749a292a8",
+        "release_published_at": "2026-07-11T16:12:55Z",
+        "status": "FROZEN_RELEASE_PIN"
+      },
+      "static_research": {
+        "license": {"value": "MIT", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "build_system": {"value": "Maven multi-module", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "required_java": {"value": "Java 8 compiler release at frozen tag; launcher documentation says Java 8 or later", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "commander_support": {"value": "Commander documented, including up to 10 players", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "multiplayer_support": {"value": "free-for-all multiplayer documented up to 10 players", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "headless_capability": {"value": "standalone server module/process exists; fully headless programmable player loop is not proven statically", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "testability": {"value": "Mage.Tests module, documented server test mode, and remote Testable interface exist", "status": "STATIC_HOOKS_FOUND_REAL_SPIKE_REQUIRED"},
+        "controller_extension_points": {"value": "remote PlayerActions/GamePlay interfaces expose table creation/join, deck submission, match start and player response/action submission", "status": "STATIC_HOOKS_FOUND_REAL_SPIKE_REQUIRED"},
+        "state_access": {"value": "remote views/server-state APIs exist; sufficient normalized in-game state access for production bridge not yet proven", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "legal_actions": {"value": "ActionData/request-response structures exist, but a complete machine-listable legal-action surface is not yet proven", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "action_submission": {"value": "GamePlay exposes typed sendPlayer* methods and sendPlayerAction for game actions/priority handling", "status": "STATIC_HOOK_FOUND_REAL_SPIKE_REQUIRED"},
+        "event_access": {"value": "session/view/log surfaces exist; sufficient raw event stream for bridge contract not yet proven", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "replay": {"value": "Replays interface exposes start/stop/next/previous/skip replay operations", "status": "STATIC_HOOK_FOUND_REAL_SPIKE_REQUIRED"},
+        "seed_control": {"value": "no supported external deterministic seed-control API established from P3A primary-source inspection", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "maintenance_activity": {"value": "default branch active and newer than frozen release at P3A research time", "status": "VERIFIED_PRIMARY_SOURCE"}
+      },
+      "scores": {"rules_fidelity": null, "commander_coverage": null, "controllability": null, "observability": null, "deterministic_behavior": null, "headless_automation_and_lifecycle": null, "test_replay_raw_trace_quality": null, "maintenance_activity": null, "build_complexity": null, "integration_complexity": null},
+      "total_score": null,
+      "knockout": null,
+      "overall_status": "NOT_RUN"
+    },
+    "forge": {
+      "official_repository": "https://github.com/Card-Forge/forge",
+      "current_default_branch": "master",
+      "current_head_observed": "94a3146a88df68d6e389f4f7adae7bf1dc9caebd",
+      "frozen_pin": {
+        "policy": "latest_official_non_draft_non_prerelease_release_at_p3a_research_time",
+        "release_tag": "forge-2.0.14",
+        "annotated_tag_object": "266c96e466895136feb56e26681753f572b6053c",
+        "resolved_commit": "187a592e79bc83d324fc792252878fde9ed83498",
+        "release_published_at": "2026-08-08T23:02:10Z",
+        "status": "FROZEN_RELEASE_PIN"
+      },
+      "static_research": {
+        "license": {"value": "GPL-3.0", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "build_system": {"value": "Maven multi-module", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "required_java": {"value": "Java 17 compiler release at frozen tag", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "commander_support": {"value": "Commander is documented as supported gameplay/AI format", "status": "VERIFIED_PRIMARY_SOURCE"},
+        "multiplayer_support": {"value": "engine/player collections and multiplayer game architecture are visible; required four-player Commander execution remains a real-spike gate", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "headless_capability": {"value": "core game and AI/controller modules are separable from GUI modules, but no supported headless automation endpoint is established statically", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "testability": {"value": "test source tree and AI simulation tests exist", "status": "STATIC_HOOKS_FOUND_REAL_SPIKE_REQUIRED"},
+        "controller_extension_points": {"value": "abstract PlayerController defines gameplay choices and PlayerControllerAi is a concrete subclass", "status": "STATIC_HOOKS_FOUND_REAL_SPIKE_REQUIRED"},
+        "state_access": {"value": "Game owns players, stack, phase handler, trigger/replacement handlers, EventBus, GameLog, GameView and snapshots", "status": "STATIC_HOOKS_FOUND_REAL_SPIKE_REQUIRED"},
+        "legal_actions": {"value": "controller is choice/callback oriented; no single machine-listable legal-action API established from P3A inspection", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "action_submission": {"value": "custom PlayerController path appears plausible, but programmatic external action submission has not been executed", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "event_access": {"value": "Game contains an EventBus and GameLog", "status": "STATIC_HOOK_FOUND_REAL_SPIKE_REQUIRED"},
+        "replay": {"value": "GameSnapshot restore support is visible; a provider replay/export API equivalent to required raw trace has not been established", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "seed_control": {"value": "no supported external deterministic seed-control API established from P3A primary-source inspection", "status": "NOT_PROVEN_UNTIL_REAL_SPIKE"},
+        "maintenance_activity": {"value": "default branch active and newer than frozen release at P3A research time", "status": "VERIFIED_PRIMARY_SOURCE"}
+      },
+      "scores": {"rules_fidelity": null, "commander_coverage": null, "controllability": null, "observability": null, "deterministic_behavior": null, "headless_automation_and_lifecycle": null, "test_replay_raw_trace_quality": null, "maintenance_activity": null, "build_complexity": null, "integration_complexity": null},
+      "total_score": null,
+      "knockout": null,
+      "overall_status": "NOT_RUN"
+    }
+  },
+  "scoring_model": {
+    "schema_version": "1.0.0",
+    "model_id": "J_P3_PROVIDER_SCORING_v1",
+    "total_points": 100,
+    "levels": [0.0, 0.25, 0.5, 0.75, 1.0],
+    "rule": "category_points = category_weight * attained_level; no interpolation outside frozen levels",
+    "categories": [
+      {"id": "rules_fidelity", "weight": 20}, {"id": "commander_coverage", "weight": 12}, {"id": "controllability", "weight": 18}, {"id": "observability", "weight": 14}, {"id": "deterministic_behavior", "weight": 8}, {"id": "headless_automation_and_lifecycle", "weight": 8}, {"id": "test_replay_raw_trace_quality", "weight": 7}, {"id": "maintenance_activity", "weight": 4}, {"id": "build_complexity", "weight": 4}, {"id": "integration_complexity", "weight": 5}
+    ],
+    "evidence_policy": {
+      "spike_categories_require_real_provider_evidence": ["rules_fidelity", "commander_coverage", "controllability", "observability", "deterministic_behavior", "headless_automation_and_lifecycle", "test_replay_raw_trace_quality"],
+      "maintenance_and_build_categories_may_use_primary_source_static_evidence": true,
+      "mock_or_tactical_oracle_as_provider_evidence": false,
+      "handshake_only_counts_as_full_validation": false,
+      "unsupported_feature_score_level": 0.0,
+      "infrastructure_blocked_feature_score": "null_until_resolved",
+      "knockout_overrides_numeric_score": true
+    }
+  },
+  "knockout_criteria": [
+    {"id": "KO-01", "name": "no_realistic_programmatic_action_submission", "criterion": "No realistic path exists to submit gameplay choices/actions programmatically without GUI automation or replacement of core rules/controller semantics.", "evidence_threshold": "static_primary_source_proof_or_reproducible_real_spike_evidence", "inference_alone_may_knock_out": false},
+    {"id": "KO-02", "name": "insufficient_commander_multiplayer_partner_support", "criterion": "The frozen provider cannot execute the required four-player Commander session with the Ishai/Rograkh partner configuration sufficiently to exercise the contract.", "evidence_threshold": "reproducible_real_spike_evidence_or_unambiguous_primary_source_absence", "inference_alone_may_knock_out": false},
+    {"id": "KO-03", "name": "not_reproducibly_buildable_or_startable", "criterion": "Under the provider's documented/supported prerequisites, repeated real attempts cannot build and start a bounded process. Transient dependency/network/runner failure is infrastructure_blocked, not a knockout.", "evidence_threshold": "reproducible_real_spike_evidence", "inference_alone_may_knock_out": false},
+    {"id": "KO-04", "name": "unmaintainable_fork_depth", "criterion": "Required control/observation would demand a permanently invasive fork through core rules, networking, or UI layers rather than an isolatable and maintainable adapter/extension.", "evidence_threshold": "source_level_integration_map_plus_real_spike_findings", "inference_alone_may_knock_out": false},
+    {"id": "KO-05", "name": "license_or_distribution_incompatibility", "criterion": "The provider license/distribution terms are demonstrably incompatible with the intended production architecture and cannot be isolated at a process boundary. Mere legal uncertainty is LEGAL_REVIEW_REQUIRED, not a knockout.", "evidence_threshold": "license_text_plus_documented_architecture_assessment", "inference_alone_may_knock_out": false},
+    {"id": "KO-06", "name": "no_usable_state_controller_hook", "criterion": "No usable provider hook can expose sufficient game state/legal-choice context and accept programmatic actions while preserving provider rules semantics.", "evidence_threshold": "static_primary_source_proof_or_reproducible_real_spike_evidence", "inference_alone_may_knock_out": false}
+  ],
+  "notes": ["Static research prevents unjustified early knockout but does not award real-spike capability points.", "No provider is selected in P3A.", "P3B and P3C must use these exact frozen pins, contract hash, scoring hash and fixture hash unless an explicit pre-spike contract amendment is documented."]
+}
