@@ -53,11 +53,13 @@ def _development_mainboard(repo_root: Path) -> tuple[str, ...]:
 
 
 def _opponents(repo_root: Path):
-    decks = load_project_structural_decks(repo_root, include_synthetic_fixtures=True)
+    """Use the current Drive-defined primary 4P RogShai pod, not invented weights."""
+
+    decks = load_project_structural_decks(repo_root, include_current_opponents=True)
     return (
-        decks["synthetic/aggro"],
-        decks["synthetic/control"],
-        decks["synthetic/engine"],
+        decks["opponent/morcant-elves"],
+        decks["opponent/doom-prevails-precon"],
+        decks["opponent/cosmic-spiderman-midbudget"],
     )
 
 
