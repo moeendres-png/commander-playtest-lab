@@ -44,7 +44,9 @@ def test_missing_required_identity_component_fails_closed() -> None:
         )
 
 
-def test_j_holdout_is_schema_valid_frozen_and_independently_consumed(repo_root: Path) -> None:
+def test_j_holdout_is_schema_valid_frozen_and_independently_consumed(
+    repo_root: Path,
+) -> None:
     holdout_path = repo_root / "data/evals/holdout/pilot_decisions_j_v1.json"
     registry = json.loads(
         (repo_root / "data/evals/j_eval_registry.json").read_text(encoding="utf-8")
@@ -57,7 +59,10 @@ def test_j_holdout_is_schema_valid_frozen_and_independently_consumed(repo_root: 
     assert {case.state.pod_size for case in cases} == {3, 4, 5}
     assert all(case.scenario_group == "holdout" for case in cases)
     assert holdout["id"] == "J_HOLDOUT_v1"
-    assert holdout["hash"] == "724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6"
+    assert (
+        holdout["hash"]
+        == "724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6"
+    )
     assert holdout["members"] == [
         {
             "path": "data/evals/holdout/pilot_decisions_j_v1.json",
@@ -68,7 +73,12 @@ def test_j_holdout_is_schema_valid_frozen_and_independently_consumed(repo_root: 
     assert holdout["used_for_tuning"] is False
     assert holdout["first_evaluation_timestamp"] == "2026-08-10T08:06:01Z"
     assert registry["holdout_policy"]["no_tuning_on_holdout"] is True
-    assert registry["holdout_policy"]["phase_reopen_after_holdout_requires_new_version_or_loss_of_independence"] is True
+    assert (
+        registry["holdout_policy"][
+            "phase_reopen_after_holdout_requires_new_version_or_loss_of_independence"
+        ]
+        is True
+    )
 
 
 def test_runtime_version_matches_declared_package_version(repo_root: Path) -> None:
