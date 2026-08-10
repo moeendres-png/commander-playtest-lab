@@ -1,0 +1,185 @@
+name: J-P3B XMage Real Spike
+
+on:
+  push:
+    branches:
+      - roadmap/j-p3b-xmage-real-spike
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  xmage-real-spike:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      XMAGE_REPO: https://github.com/magefree/mage.git
+      XMAGE_COMMIT: 06d166b098ad36b277edef01116472203d5a047e
+      CONTRACT_HASH: 89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6
+      SCORING_HASH: 67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227
+      FIXTURE_HASH: cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up Java 8
+        uses: actions/setup-java@7a445ee88d4e23b52c33f4d4d72b0f5c7c6d4b71
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+
+      - name: Record host and frozen identities
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p J_P3_XMAGE_RAW_EVIDENCE/logs J_P3_XMAGE_RAW_EVIDENCE/source J_P3_XMAGE_RAW_EVIDENCE/runtime
+          {
+            echo "timestamp_utc=$(date -u +%FT%TZ)"
+            echo "runner_os=$RUNNER_OS"
+            echo "arch=$(uname -m)"
+            uname -a
+            java -version 2>&1
+            mvn -version 2>&1
+          } | tee J_P3_XMAGE_RAW_EVIDENCE/runtime/host.txt
+          {
+            echo "contract_hash=$CONTRACT_HASH"
+            echo "scoring_hash=$SCORING_HASH"
+            echo "fixture_hash=$FIXTURE_HASH"
+            echo "xmage_repo=$XMAGE_REPO"
+            echo "xmage_commit=$XMAGE_COMMIT"
+          } | tee J_P3_XMAGE_RAW_EVIDENCE/frozen-identities.txt
+
+      - name: Acquire exact XMage source
+        shell: bash
+        run: |
+          set -eu
+          git clone --no-checkout "$XMAGE_REPO" xmage 2>&1 | tee J_P3_XMAGE_RAW_EVIDENCE/logs/acquisition.log
+          cd xmage
+          git checkout --detach "$XMAGE_COMMIT" 2>&1 | tee -a ../J_P3_XMAGE_RAW_EVIDENCE/logs/acquisition.log
+          ACTUAL=$(git rev-parse HEAD)
+          TREE=$(git rev-parse HEAD^{tree})
+          printf 'requested_commit=%s\nactual_commit=%s\ntree=%s\n' "$XMAGE_COMMIT" "$ACTUAL" "$TREE" | tee ../J_P3_XMAGE_RAW_EVIDENCE/source/provider-identity.txt
+          test "$ACTUAL" = "$XMAGE_COMMIT"
+          git status --porcelain=v1 | tee ../J_P3_XMAGE_RAW_EVIDENCE/source/provider-git-status.txt
+          sha256sum pom.xml Mage.Server/src/main/java/mage/server/Main.java Mage.Common/src/main/java/mage/remote/interfaces/PlayerActions.java > ../J_P3_XMAGE_RAW_EVIDENCE/source/primary-source-sha256.txt
+
+      - name: Build real XMage modules
+        id: build
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+          cd xmage
+          mvn -B -DskipTests -pl Mage.Server,Mage.Tests -am install > ../J_P3_XMAGE_RAW_EVIDENCE/logs/build.log 2>&1
+          RC=$?
+          echo "$RC" > ../J_P3_XMAGE_RAW_EVIDENCE/runtime/build-exit-code.txt
+          tail -n 120 ../J_P3_XMAGE_RAW_EVIDENCE/logs/build.log
+          exit $RC
+
+      - name: Run native XMage partner Commander test
+        id: partner
+        if: always() && steps.build.outcome == 'success'
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+          cd xmage
+          mvn -B -pl Mage.Tests -Dtest=org.mage.test.commander.duel.CastBGPartnerCommanderTest#testCastBothPartnerCommanders test > ../J_P3_XMAGE_RAW_EVIDENCE/logs/partner-test.log 2>&1
+          RC=$?
+          echo "$RC" > ../J_P3_XMAGE_RAW_EVIDENCE/runtime/partner-test-exit-code.txt
+          tail -n 100 ../J_P3_XMAGE_RAW_EVIDENCE/logs/partner-test.log
+          exit $RC
+
+      - name: Probe native 4-player Commander test coverage
+        if: always() && steps.build.outcome == 'success'
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+          cd xmage
+          grep -RIlE 'Commander|COMMAND' Mage.Tests/src/test/java | grep -Ei 'FFA4|four|multiplayer' | head -n 50 > ../J_P3_XMAGE_RAW_EVIDENCE/source/four-player-commander-test-candidates.txt || true
+          grep -RInE 'playerC|playerD' Mage.Tests/src/test/java/org/mage/test/commander 2>/dev/null | head -n 100 > ../J_P3_XMAGE_RAW_EVIDENCE/source/commander-player-cd-references.txt || true
+          exit 0
+
+      - name: Start real XMage server process and bounded shutdown
+        id: server
+        if: always() && steps.build.outcome == 'success'
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+          cd xmage/Mage.Server
+          mvn -B dependency:build-classpath -Dmdep.outputFile=target/jp3b-classpath.txt > ../../J_P3_XMAGE_RAW_EVIDENCE/logs/classpath.log 2>&1
+          CP_RC=$?
+          if [ "$CP_RC" -ne 0 ]; then
+            echo "$CP_RC" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-start-exit-code.txt
+            exit "$CP_RC"
+          fi
+          CP="target/classes:$(cat target/jp3b-classpath.txt)"
+          java -Dxmage.testMode=true -cp "$CP" mage.server.Main -testMode=true > ../../J_P3_XMAGE_RAW_EVIDENCE/logs/server.log 2>&1 &
+          PID=$!
+          echo "$PID" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-pid.txt
+          STARTED=0
+          for i in $(seq 1 60); do
+            if grep -q 'Started MAGE server' ../../J_P3_XMAGE_RAW_EVIDENCE/logs/server.log; then STARTED=1; break; fi
+            if ! kill -0 "$PID" 2>/dev/null; then break; fi
+            sleep 2
+          done
+          echo "$STARTED" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-started.txt
+          ps -p "$PID" -o pid,ppid,stat,etime,args > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-process-before-shutdown.txt 2>&1 || true
+          kill -TERM "$PID" 2>/dev/null || true
+          CLEAN=0
+          for i in $(seq 1 20); do
+            if ! kill -0 "$PID" 2>/dev/null; then CLEAN=1; break; fi
+            sleep 1
+          done
+          if [ "$CLEAN" -eq 0 ]; then kill -KILL "$PID" 2>/dev/null || true; fi
+          wait "$PID" 2>/dev/null
+          WAIT_RC=$?
+          echo "$CLEAN" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/bounded-shutdown.txt
+          echo "$WAIT_RC" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-wait-exit-code.txt
+          tail -n 120 ../../J_P3_XMAGE_RAW_EVIDENCE/logs/server.log
+          test "$STARTED" -eq 1
+
+      - name: Capture native control surface source evidence
+        if: always()
+        shell: bash
+        run: |
+          set -eu
+          if [ -d xmage/.git ]; then
+            cp xmage/Mage.Common/src/main/java/mage/remote/interfaces/PlayerActions.java J_P3_XMAGE_RAW_EVIDENCE/source/PlayerActions.java
+            find xmage -path '*mage/remote/interfaces/*' -name '*.java' -maxdepth 12 -print | sort > J_P3_XMAGE_RAW_EVIDENCE/source/remote-interface-files.txt || true
+            grep -RInE 'sendPlayer|GamePlay|legal|priority|replay|Replay' xmage/Mage.Common/src/main/java/mage/remote xmage/Mage.Server/src/main/java 2>/dev/null | head -n 500 > J_P3_XMAGE_RAW_EVIDENCE/source/native-control-surface-grep.txt || true
+          fi
+
+      - name: Finalize immutable raw-evidence manifest
+        if: always()
+        shell: bash
+        run: |
+          set -eu
+          {
+            echo "provider=xmage"
+            echo "provider_commit=$XMAGE_COMMIT"
+            echo "controller_repo_commit=$GITHUB_SHA"
+            echo "contract_hash=$CONTRACT_HASH"
+            echo "scoring_hash=$SCORING_HASH"
+            echo "fixture_hash=$FIXTURE_HASH"
+            echo "build_outcome=${{ steps.build.outcome }}"
+            echo "partner_outcome=${{ steps.partner.outcome }}"
+            echo "server_outcome=${{ steps.server.outcome }}"
+            echo "real_provider_claim_requires_raw_logs=true"
+          } > J_P3_XMAGE_RAW_EVIDENCE/manifest-bindings.txt
+          find J_P3_XMAGE_RAW_EVIDENCE -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > J_P3_XMAGE_RAW_EVIDENCE/SHA256SUMS.txt
+          sha256sum J_P3_XMAGE_RAW_EVIDENCE/SHA256SUMS.txt > J_P3_XMAGE_RAW_EVIDENCE/MANIFEST_SHA256.txt
+          cat J_P3_XMAGE_RAW_EVIDENCE/manifest-bindings.txt
+          cat J_P3_XMAGE_RAW_EVIDENCE/MANIFEST_SHA256.txt
+
+      - name: Upload raw evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: J_P3_XMAGE_RAW_EVIDENCE
+          path: J_P3_XMAGE_RAW_EVIDENCE
+          if-no-files-found: error
+          retention-days: 90
