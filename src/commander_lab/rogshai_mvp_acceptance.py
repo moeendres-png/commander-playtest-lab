@@ -31,7 +31,6 @@ from commander_lab.models import (
     StructuralDeckProfile,
     StructuralMatchConfig,
 )
-from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
 from commander_lab.optimization import (
     ablation_filler,
     all_legal_single_swaps,
@@ -112,6 +111,7 @@ def _simulate_once(
         "log_sha256": result.log_sha256,
         "estimate_type": result.estimate_type,
         "pilot_name": result.player_metrics["p1"].pilot_name,
+        "placement": result.player_metrics["p1"].placement,
     }
 
 
@@ -168,7 +168,9 @@ def _physical_validation(
         "status": "PASS" if not issues else "FAIL",
         "issues": sorted(set(issues)),
         "card_count": len(all_names),
-        "simultaneous_with_korvold": not any(issue.startswith("physical:") for issue in issues),
+        "simultaneous_with_korvold": not any(
+            issue.startswith("physical:") for issue in issues
+        ),
         "allocation_mutated": False,
     }
 
@@ -222,66 +224,45 @@ def _acceptance_run_identity(
     *,
     seed: int,
     iterations: int,
-) -> RunIdentity:
+) -> dict[str, object]:
     sources = cast(dict[str, dict[str, object]], runtime["sources"])
-    source_manifest_hash = sha256_run_value(sources, root=root)
     scenario = cast(dict[str, object], runtime["primary_4p_rogshai"])
-    scenario_hash = sha256_run_value(scenario)
-    simulation_config = {
-        "iterations": iterations,
-        "max_turns": 14,
+    payload: dict[str, object] = {
+        "software_commit": _git_value(root, "HEAD"),
+        "software_tree": _git_value(root, "HEAD^{tree}"),
+        "package_version": __version__,
+        "commander_configuration_hash": sha256_run_value(ROGSHAI_COMMANDERS),
+        "deck_hashes": {"baseline": baseline.deck_hash},
+        "inventory_source_id": sources["candidate_pool"]["source_file_id"],
+        "inventory_hash": sources["inventory_features"]["content_sha256"],
+        "opponent_profile_ids": tuple(deck.deck_id for deck in primary),
+        "opponent_profile_hashes": {deck.deck_id: deck.deck_hash for deck in primary},
+        "pilot_name": "RogShaiPilot",
+        "pilot_version": "0.4.0",
+        "policy_hash": sha256_run_value(cast(dict[str, object], runtime["bias_policy"])),
+        "scenario_set_id": "primary_4p_rogshai",
+        "scenario_set_hash": sha256_run_value(scenario),
+        "pod_size": 4,
+        "seat": 0,
+        "turn_order_policy": "paired_rotating_start_seat",
         "seed": seed,
-        "paired": True,
-        "mode": "structural_smoke",
+        "simulation_config_hash": sha256_run_value(
+            {
+                "iterations": iterations,
+                "max_turns": 14,
+                "seed": seed,
+                "paired": True,
+                "mode": "structural_smoke",
+            }
+        ),
+        "model_version": ENGINE_VERSION,
+        "engine_mode": "structural",
+        "engine_provider": "commander_lab_structural_simulator",
+        "data_source_manifest_hash": sha256_run_value(sources, root=root),
+        "canonical_input_status": "current",
     }
-    payload: {commander_configuration_hash": sha256_run_value(ROGSHAI_COMMANDERS)}
-    for key, source in sources.items():
-        payload[key] = source["content_sha256"]
-    payload.update(
-        {
-            "software_commit": _git_value(root, "HEAD"),
-            "software_tree": _git_value(root, "HEAD^{tree}"),
-            "package_version": __version__,
-            "deck_hashes": {"baseline": baseline.deck_hash},
-            "inventory_source_id": sources["candidate_pool"]["source_file_id"],
-            "inventory_hash": sources["inventory_features"]["content_sha256"],
-            "opponent_profile_ids": tuple(deck.deck_id for deck in primary),
-            "opponent_profile_hashes": {
-                deck.deck_id: deck.deck_hash for deck in primary
-            },
-            "pilot_name": "RogShaiPilot",
-            "pilot_version": "0.4.0",
-            "policy_hash": sha256_run_value(cast(dict[str, object], runtime["bias_policy"])),
-            "scenario_set_id": "primary_4p_rogshai",
-            "scenario_set_hash": scenario_hash,
-            "pod_size": 4,
-            "seat": 0,
-            "turn_order_policy": "paired_rotating_start_seat",
-            "seed": seed,
-            "simulation_config_hash": sha256_run_value(simulation_config),
-            "model_version": ENGINE_VERSION,
-            "engine_mode": "structural",
-            "engine_provider": "commander_lab_structural_simulator",
-            "data_source_manifest_hash": source_manifest_hash,
-            "canonical_input_status": CanonicalInputStatus.CURRENT.value,
-        }
-    )
-    status_names = (
-        "software_commit",
-        "software_tree",
-        "package_version",
-        "commander_configuration_hash",
-        "inventory_hash",
-        "data_source_manifest_hash",
-    )
-    component_status = {name: IdentityStatus.PRESENT for name in status_names}
-    component_status["opponent_ensemble_hash"] = IdentityStatus.NOT_APPLICABLE
-    component_status["engine_provider_version_or_pin"] = IdentityStatus.NOT_APPLICABLE
-    component_status["engine_capability_hash"] = IdentityStatus.NOT_APPLICABLE
-    payload["component_status"] = component_status
-    semantic_hash = sha256_run_value(payload, root=root)
-    payload["run_identity_hash"] = semantic_hash
-    return RunIdentity.model_validate(payload)
+    payload["run_identity_hash"] = sha256_run_value(payload, root=root)
+    return payload
 
 
 def run_rogshai_mvp_acceptance(
@@ -307,7 +288,7 @@ def run_rogshai_mvp_acceptance(
     )
     physical = _physical_validation(universe, mainboard)
     primary = _opponents(project, PRIMARY_OPPONENT_IDS)
-    sensitivity = _opponents(project, SENSITIVITY_OPPONENT_IDS)
+    sensitivity_opponents = _opponents(project, SENSITIVITY_OPPONENT_IDS)
     structural = _simulate_once(
         baseline,
         primary,
@@ -319,7 +300,7 @@ def run_rogshai_mvp_acceptance(
     baseline_names = {card.oracle_name for card in baseline.cards}
     eligible_ids = tuple(
         candidate_id
-        for candidate_id, candidate in candidates.items()
+        for candidate_id, candidate in sorted(candidates.items())
         if candidate.card.oracle_name not in baseline_names
         and not candidate.card.is_land
         and universe.coverage_status_by_name.get(candidate.card.oracle_name)
@@ -424,7 +405,7 @@ def run_rogshai_mvp_acceptance(
 
     sensitivity_result = _simulate_once(
         baseline,
-        sensitivity,
+        sensitivity_opponents,
         seed=seed + 20,
         match_id="rogshai-mvp-opponent-composition-sensitivity",
     )
@@ -475,7 +456,8 @@ def run_rogshai_mvp_acceptance(
     )
     evidence = _current_opponent_evidence(runtime)
     synthetic_never_observed = all(
-        row.get("deck_status") != "observed"
+        str(row.get("deck_status", "")).casefold()
+        not in {"observed", "directly_observed", "verified_full_deck"}
         for row in evidence.values()
         if "synthetic" in str(row.get("deck_source_type", ""))
     )
@@ -484,21 +466,27 @@ def run_rogshai_mvp_acceptance(
         "current_data_projection": universe.candidate_count == 795,
         "physical_constraints": physical["status"] == "PASS",
         "k2_bias_suite": bias_suite["status"] == "PASS",
-        "unmodeled_visible": universe.review_required_count > 0
-        and universe.candidate_count
-        == universe.structurally_scorable_count + universe.review_required_count,
+        "unmodeled_visible": (
+            universe.review_required_count > 0
+            and universe.candidate_count
+            == universe.structurally_scorable_count + universe.review_required_count
+        ),
         "fresh_control_blind": cast(dict[str, object], runtime["bias_policy"])[
             "control_deck_visible_in_independent_stage"
         ]
         is False,
+        "rogshai_pilot": structural["pilot_name"] == "RogShaiPilot",
         "structural": structural["estimate_type"] == "structural_model_estimates",
         "paired_same_seed_reproducible": paired_reproducible,
         "card_ablation": card_ablation.actual_sample_size == iterations,
         "package_ablation": package_ablation.actual_sample_size == iterations,
-        "commander_denial": len(denial_rows) == 3,
+        "commander_denial": (
+            len(denial_rows) == 3
+            and all(row["actual_sample_size"] == iterations for row in denial_rows.values())
+        ),
         "sensitivity": sensitivity_result["estimate_type"] == "structural_model_estimates",
         "bounded_search_pareto": bool(search_results) and bool(pareto),
-        "run_identity": len(identity.run_identity_hash) == 64,
+        "run_identity": len(str(identity["run_identity_hash"])) == 64,
         "synthetic_never_observed": synthetic_never_observed,
     }
     return {
@@ -511,4 +499,43 @@ def run_rogshai_mvp_acceptance(
             "structurally_scorable": universe.structurally_scorable_count,
             "review_required": universe.review_required_count,
             "coverage_counts": cast(dict[str, Any], runtime["candidate_universe"])[
-                "coverage_counuÌˆ(€€€€€€€€€€€t°(€€€€€€€ô°(€€€€€€€€‰‰¥…Í}ÍÕ¥Ñ”ˆè‰¥…Í}ÍÕ¥Ñ”°(€€€€€€€€‰Ñ•µÁ½É…Éå}‰Õ¥±ˆèì(€€€€€€€€€€€€‰‘•­}¥ˆè‰…Í•±¥¹”¹‘•­}¥°(€€€€€€€€€€€€‰‘•­}¡…Í ˆè‰…Í•±¥¹”¹‘•­}¡…Í °(€€€€€€€€€€€€‰Á¡åÍ¥…±}Ù…±¥‘…Ñ¥½¸ˆèÁ¡åÍ¥…°°(€€€€€€€€€€€€‰ÁÕÉÁ½Í”ˆè€‰Ñ•¡¹¥…°İ½É­™±½Ü™¥áÑÕÉ”½¹±äì¹½Ğ„‘•¬É•½µµ•¹‘…Ñ¥½¸ˆ°(€€€€€€€ô°(€€€€€€€€‰ÁÉ¥µ…Éå|ÑÁ}½ÁÁ½¹•¹ÑÌˆè±¥ÍĞ¡AI%5Ie}=AA=99Q}%L¤°(€€€€€€€€‰ÍÑÉÕÑÕÉ…±}Í¥µÕ±…Ñ¥½¸ˆèÍÑÉÕÑÕÉ…°°(€€€€€€€€‰Á…¥É•‘}½µÁ…É¥Í½¸ˆèì(€€€€€€€€€€€€‰…ÑÕ…±}Í…µÁ±•}Í¥é”ˆèÁ…¥É•‘}µ•ÑÉ¥Ì¹…ÑÕ…±}Í…µÁ±•}Í¥é”°(€€€€€€€€€€€€‰Í…µ•}Í••‘}É•ÁÉ½‘Õ¥‰±”ˆèÁ…¥É•‘}É•ÁÉ½‘Õ¥‰±”°(€€€€€€€ô°(€€€€€€€€‰…É‘}…‰±…Ñ¥½¸ˆèì‰…ÑÕ…±}Í…µÁ±•}Í¥é”ˆè…É‘}…‰±…Ñ¥½¸¹…ÑÕ…±}Í…µÁ±•}Í¥é•ô°(€€€€€€€€‰Á…­…•}…‰±…Ñ¥½¸ˆèì(€€€€€€€€€€€€‰Á…­…•}¥ˆèÁ…­…•}¥°(€€€€€€€€€€€€‰…É‘Ìˆè±¥ÍĞ¡Á…­…•}¹…µ•Ì¤°(€€€€€€€€€€€€‰…ÑÕ…±}Í…µÁ±•}Í¥é”ˆèÁ…­…•}…‰±…Ñ¥½¸¹…ÑÕ…±}Í…µÁ±•}Í¥é”°(€€€€€€€ô°(€€€€€€€€‰½µµ…¹‘•É}‘•¹¥…°ˆè‘•¹¥…±}É½İÌ°(€€€€€€€€‰Í•¹Í¥Ñ¥Ù¥Ñäˆèì(€€€€€€€€€€€€‰…á¥Ìˆè€‰½ÁÁ½¹•¹Ñ}½µÁ½Í¥Ñ¥½¸ˆ°(€€€€€€€€€€€€‰½ÁÁ½¹•¹Ñ}¥‘Ìˆè±¥ÍĞ¡M9M%Q%Y%Qe}=AA=99Q}%L¤°(€€€€€€€€€€€€‰É•ÍÕ±ĞˆèÍ•¹Í¥Ñ¥Ù¥Ñå}É•ÍÕ±Ğ°(€€€€€€€ô°(€€€€€€€€‰‰½Õ¹‘•‘}Í•…É¡}Á…É•Ñ¼ˆèì(€€€€€€€€€€€€‰±•…±}Í¥¹±•}Íİ…ÁÌˆè±•¸¡Í•…É¡}É•ÍÕ±ÑÌ¤°(€€€€€€€€€€€€‰Ù…É¥…¹ÑÍ}•Ù…±Õ…Ñ•ˆè±•¸¡½ÁÑ¥µ¥é…Ñ¥½¹}Ù…É¥…¹ÑÌ¤°(€€€€€€€€€€€€‰Á…É•Ñ½}™É½¹Ñ}¥‘ÌˆèmÙ…É¥…¹Ğ¹Ù…É¥…¹Ñ}¥™½ÈÙ…É¥…¹Ğ¥¸Á…É•Ñ½t°(€€€€€€€ô°(€€€€€€€€‰½ÁÁ½¹•¹Ñ}•Ù¥‘•¹”ˆè•Ù¥‘•¹”°(€€€€€€€€‰ÉÕ¹}¥‘•¹Ñ¥Ñäˆè¥‘•¹Ñ¥Ñä¹µ½‘•±}‘ÕµÀ¡µ½‘”ô‰©Í½¸ˆ¤°(€€€€€€€€‰Ñ•¡¹¥…±}¡•­Ìˆè¡•­Ì°(€€€ô
+                "coverage_counts"
+            ],
+        },
+        "primary_4p_opponents": list(PRIMARY_OPPONENT_IDS),
+        "technical_checks": checks,
+        "physical_validation": physical,
+        "bias_suite": bias_suite,
+        "structural_simulation": structural,
+        "paired_comparison": {
+            "same_seed_reproducible": paired_reproducible,
+            "actual_sample_size": paired_metrics.actual_sample_size,
+            "validation_level": paired_metrics.validation_level,
+        },
+        "card_ablation": {
+            "card": removable.oracle_name,
+            "actual_sample_size": card_ablation.actual_sample_size,
+            "validation_level": card_ablation.validation_level,
+        },
+        "package_ablation": {
+            "package_id": package_id,
+            "cards": list(package_names),
+            "actual_sample_size": package_ablation.actual_sample_size,
+            "validation_level": package_ablation.validation_level,
+        },
+        "commander_denial": denial_rows,
+        "sensitivity": {
+            "axis": "opponent_composition",
+            "opponents": list(SENSITIVITY_OPPONENT_IDS),
+            "result": sensitivity_result,
+        },
+        "bounded_search_pareto": {
+            "legal_single_swaps": len(search_results),
+            "variants_evaluated": len(optimization_variants),
+            "pareto_front_ids": [variant.variant_id for variant in pareto],
+        },
+        "run_identity": identity,
+        "opponent_evidence": evidence,
+        "new_blind_holdout_consumed": False,
+        "J_HOLDOUT_v1_reused_as_unseen": False,
+    }
