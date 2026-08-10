@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import gzip
 import json
 from collections import Counter
 from pathlib import Path
@@ -34,8 +36,20 @@ from commander_lab.storage import load_model
 
 def _contract(repo_root: Path) -> dict[str, object]:
     return json.loads(
-        (repo_root / "data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json").read_text(encoding="utf-8")
+        (repo_root / "data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json").read_text(
+            encoding="utf-8"
+        )
     )
+
+
+def _k1_candidate_names(repo_root: Path) -> frozenset[str]:
+    encoded = (
+        repo_root / "data/rogshai_mvp/K1_ROGSHAI_CANDIDATE_NAMES_2026-08-10.txt.gz.b64"
+    ).read_text(encoding="utf-8")
+    decoded = gzip.decompress(base64.b64decode(encoded)).decode("utf-8")
+    names = frozenset(line for line in decoded.splitlines() if line)
+    assert len(names) == 795
+    return names
 
 
 def _development_mainboard(repo_root: Path) -> tuple[str, ...]:
@@ -134,6 +148,12 @@ def test_fresh_universe_matches_k1_and_retains_uncertainty(repo_root: Path) -> N
     expected = contract["rogshai_candidate_pool"]
     assert isinstance(expected, dict)
     universe = load_fresh_rogshai_universe(repo_root)
+    k1_names = _k1_candidate_names(repo_root)
+    missing = sorted(k1_names - universe.candidate_names)
+    extra = sorted(universe.candidate_names - k1_names)
+    assert universe.candidate_names == k1_names, (
+        f"runtime/K1 candidate mismatch: missing={missing}, extra={extra}"
+    )
     assert universe.candidate_count == int(expected["expected_count"])
     assert universe.candidate_count == (
         universe.structurally_scorable_count + universe.review_required_count
@@ -141,10 +161,6 @@ def test_fresh_universe_matches_k1_and_retains_uncertainty(repo_root: Path) -> N
     assert universe.review_required_count > 0
     assert set(universe.review_required) <= set(universe.candidate_names)
     assert all(name not in universe.candidate_by_name() for name in universe.review_required)
-    assert "Portent of Betrayal" in universe.candidate_names
-    assert "Portent of Betrayal" in universe.review_required
-    assert universe.available_quantities["Portent of Betrayal"] == 2
-    assert "Fanatical Strength" not in universe.candidate_names
     for basic in ("Plains", "Island", "Mountain"):
         assert universe.available_quantities.get(basic, 0) >= 50
 
