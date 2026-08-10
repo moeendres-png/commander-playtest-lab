@@ -1,0 +1,26 @@
+{
+  "case_count": 24,
+  "consumed_prior_holdouts": [
+    "J_HOLDOUT_v1",
+    "data/evals/holdout/pilot_decisions_g.json"
+  ],
+  "deck_hashes": {
+    "korvold": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
+    "rogshai": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
+  },
+  "external_engine_status": "NO_PROVIDER_READY / BLOCKED_WITH_REAL_EVIDENCE",
+  "holdout_id": "J_P4_UNTOUCHED_HOLDOUT_v1",
+  "holdout_path": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+  "immutable_after_seal": true,
+  "outcomes_evaluated_at_seal": false,
+  "phase": "J-P4",
+  "rules": [
+    "Do not run pilot evaluation against this corpus until development tuning is declared complete.",
+    "Do not change holdout bytes after seal.",
+    "After first evaluation, no pilot tuning from holdout outcomes."
+  ],
+  "schema_version": "1.0.0",
+  "sealed_at_utc": "2026-08-10T22:02:19Z",
+  "sha256": "426e184e2dd3ade9245dd4756ee58e796841e1fa71237c3239b55ab16b0859f2",
+  "source_main_commit": "01c03019fdbf835441514ddfee01f4ef5945fd5a"
+}
