@@ -4,10 +4,10 @@
   "observed_at": "2026-08-10",
   "current_drive_runtime": {
     "path": "data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64",
-    "content_sha256": "bf45a6b0e672b76ac5b4d05991ca0d646bfe23de9a32cdbaadfa18b31881199a",
+    "content_sha256": "9573d74eb9f80a7302cf74a9c88876885bcdaca1823c441f666c57fe741ef3d9",
     "candidate_count": 795,
     "source_policy": "fail_closed_snapshot_of_current_drive_agent_truth",
-    "content_encoding": "base64(gzip(json))"
+    "content_encoding": "gzip(json); loader also accepts base64(gzip(json)) transport"
   },
   "rogshai_candidate_pool": {
     "drive_file_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
