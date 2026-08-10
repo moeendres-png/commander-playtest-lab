@@ -50,8 +50,8 @@ jobs:
               'list(cast(list[object], raw.get("targets", []))) if isinstance(raw.get("targets"), list) else []',
           )
           text = text.replace(
-              '        if observed_coverage != compact.get("coverage_counts"):\n            raise FreshRebuildDataError("coverage-count drift in current Drive runtime")',
-              '        expected_coverage = compact.get("coverage_counts", compact.get("coverage"))\n        if observed_coverage != expected_coverage:\n            raise FreshRebuildDataError("coverage-count drift in current Drive runtime")',
+              'compact.get("coverage_counts")',
+              'compact.get("coverage_counts", compact.get("coverage"))',
           )
           fresh.write_text(text, encoding='utf-8')
 
