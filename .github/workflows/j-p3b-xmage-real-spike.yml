@@ -32,7 +32,7 @@ jobs:
         shell: bash
         run: |
           set -eu
-          mkdir -p J_P3_XMAGE_RAW_EVIDENCE/logs J_P3_XMAGE_RAW_EVIDENCE/source J_P3_XMAGE_RAW_EVIDENCE/runtime
+          mkdir -p J_P3_XMAGE_RAW_EVIDENCE/logs J_P3_XMAGE_RAW_EVIDENCE/source J_P3_XMAGE_RAW_EVIDENCE/runtime J_P3_XMAGE_RAW_EVIDENCE/controller
           {
             echo "timestamp_utc=$(date -u +%FT%TZ)"
             echo "runner_os=$RUNNER_OS"
@@ -90,18 +90,17 @@ jobs:
           tail -n 100 ../J_P3_XMAGE_RAW_EVIDENCE/logs/partner-test.log
           exit $RC
 
-      - name: Probe native 4-player Commander test coverage
+      - name: Probe native multiplayer and Commander source coverage
         if: always() && steps.build.outcome == 'success'
         shell: bash
-        continue-on-error: true
         run: |
-          set +e
+          set -eu
           cd xmage
-          grep -RIlE 'Commander|COMMAND' Mage.Tests/src/test/java | grep -Ei 'FFA4|four|multiplayer' | head -n 50 > ../J_P3_XMAGE_RAW_EVIDENCE/source/four-player-commander-test-candidates.txt || true
-          grep -RInE 'playerC|playerD' Mage.Tests/src/test/java/org/mage/test/commander 2>/dev/null | head -n 100 > ../J_P3_XMAGE_RAW_EVIDENCE/source/commander-player-cd-references.txt || true
-          exit 0
+          grep -RInE 'playerC|playerD' Mage.Tests/src/test/java/org/mage/test/commander 2>/dev/null | head -n 200 > ../J_P3_XMAGE_RAW_EVIDENCE/source/commander-player-cd-references.txt || true
+          grep -RInE 'playerC|playerD' Mage.Tests/src/test/java/org/mage/test/multiplayer 2>/dev/null | head -n 200 > ../J_P3_XMAGE_RAW_EVIDENCE/source/multiplayer-player-cd-references.txt || true
+          grep -RIn 'class CommanderFreeForAllMatch' Mage.Server.Plugins Mage 2>/dev/null > ../J_P3_XMAGE_RAW_EVIDENCE/source/commander-free-for-all-class.txt || true
 
-      - name: Start real XMage server process and bounded shutdown
+      - name: Start real server, exercise remote session, then bounded shutdown
         id: server
         if: always() && steps.build.outcome == 'success'
         shell: bash
@@ -116,6 +115,7 @@ jobs:
             exit "$CP_RC"
           fi
           CP="target/classes:$(cat target/jp3b-classpath.txt)"
+          printf '%s\n' "$CP" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/runtime-classpath.txt
           java -Dxmage.testMode=true -Dxmage.config.path=release/config/config.xml -cp "$CP" mage.server.Main -testMode=true > ../../J_P3_XMAGE_RAW_EVIDENCE/logs/server.log 2>&1 &
           PID=$!
           echo "$PID" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-pid.txt
@@ -127,6 +127,111 @@ jobs:
           done
           echo "$STARTED" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-started.txt
           ps -p "$PID" -o pid,ppid,stat,etime,args > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-process-before-shutdown.txt 2>&1 || true
+
+          cat > ../../J_P3_XMAGE_RAW_EVIDENCE/controller/XmageRemoteProbe.java <<'JAVA'
+          import java.util.UUID;
+          import mage.constants.MultiplayerAttackOption;
+          import mage.constants.PlayerAction;
+          import mage.constants.RangeOfInfluence;
+          import mage.game.match.MatchOptions;
+          import mage.interfaces.MageClient;
+          import mage.interfaces.callback.ClientCallback;
+          import mage.remote.Connection;
+          import mage.remote.SessionImpl;
+          import mage.utils.MageVersion;
+          import mage.view.TableView;
+
+          public final class XmageRemoteProbe implements MageClient {
+              @Override public MageVersion getVersion() { return new MageVersion(XmageRemoteProbe.class); }
+              @Override public void connected(String message) { System.out.println("callback_connected=" + message); }
+              @Override public void disconnected(boolean askToReconnect, boolean keepMySessionActive) { System.out.println("callback_disconnected=" + askToReconnect + "," + keepMySessionActive); }
+              @Override public void showMessage(String message) { System.out.println("callback_message=" + message); }
+              @Override public void showError(String message) { System.out.println("callback_error=" + message); }
+              @Override public void onNewConnection() { System.out.println("callback_new_connection=true"); }
+              @Override public void onCallback(ClientCallback callback) {
+                  try { callback.decompressData(); } catch (Throwable ignored) {}
+                  try { System.out.println("callback_event=" + callback.getInfo()); }
+                  catch (Throwable t) { System.out.println("callback_event=unprintable:" + t.getClass().getName()); }
+              }
+
+              public static void main(String[] args) throws Exception {
+                  System.setProperty("java.awt.headless", "true");
+                  XmageRemoteProbe client = new XmageRemoteProbe();
+                  SessionImpl session = new SessionImpl(client);
+                  Connection c = new Connection();
+                  c.setHost("127.0.0.1");
+                  c.setPort(17171);
+                  c.setProxyType(Connection.ProxyType.NONE);
+                  c.setUsername("Admin");
+                  c.setPassword("");
+                  c.setEmail("");
+                  c.setUserIdStr("jp3b-xmage-remote-probe");
+                  c.setAdminPassword("");
+
+                  boolean connected = session.connectStart(c);
+                  System.out.println("connected=" + connected);
+                  System.out.println("is_connected=" + session.isConnected());
+                  if (!connected || !session.isConnected()) {
+                      System.out.println("last_error=" + session.getLastError());
+                      System.exit(20);
+                  }
+
+                  System.out.println("server_ready=" + session.isServerReady());
+                  System.out.println("version_info=" + session.getVersionInfo());
+                  System.out.println("player_types=" + java.util.Arrays.toString(session.getPlayerTypes()));
+                  System.out.println("deck_types=" + java.util.Arrays.toString(session.getDeckTypes()));
+                  System.out.println("game_types_count=" + session.getGameTypes().size());
+                  for (Object type : session.getGameTypes()) {
+                      System.out.println("game_type=" + String.valueOf(type));
+                  }
+
+                  UUID room = session.getMainRoomId();
+                  System.out.println("main_room_id=" + room);
+                  int tablesBefore = session.getTables(room).size();
+                  System.out.println("tables_before=" + tablesBefore);
+
+                  MatchOptions options = new MatchOptions("J-P3B XMage remote probe", "Commander Free For All", true);
+                  options.setDeckType("Commander");
+                  options.setWinsNeeded(1);
+                  options.setFreeMulligans(1);
+                  options.setAttackOption(MultiplayerAttackOption.MULTIPLE);
+                  options.setRange(RangeOfInfluence.ALL);
+                  TableView table = session.createTable(room, options);
+                  System.out.println("commander_table_created=" + (table != null));
+                  if (table != null) {
+                      System.out.println("created_table_id=" + table.getTableId());
+                      System.out.println("tables_after_create=" + session.getTables(room).size());
+                  }
+
+                  UUID bogusGame = UUID.randomUUID();
+                  boolean bogusActionTransport = session.sendPlayerAction(PlayerAction.CONCEDE, bogusGame, null);
+                  System.out.println("bogus_game_id=" + bogusGame);
+                  System.out.println("bogus_game_action_transport_return=" + bogusActionTransport);
+                  System.out.println("bogus_action_note=transport return is not treated as semantic illegal-action rejection evidence");
+
+                  if (table != null) {
+                      boolean removed = session.removeTable(room, table.getTableId());
+                      System.out.println("table_remove_return=" + removed);
+                      System.out.println("tables_after_remove=" + session.getTables(room).size());
+                  }
+                  session.connectStop(false, false);
+                  System.out.println("remote_probe_complete=true");
+              }
+          }
+          JAVA
+
+          javac -cp "$CP" ../../J_P3_XMAGE_RAW_EVIDENCE/controller/XmageRemoteProbe.java > ../../J_P3_XMAGE_RAW_EVIDENCE/logs/remote-probe-compile.log 2>&1
+          COMPILE_RC=$?
+          echo "$COMPILE_RC" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/remote-probe-compile-exit-code.txt
+          REMOTE_RC=125
+          if [ "$COMPILE_RC" -eq 0 ] && [ "$STARTED" -eq 1 ]; then
+            java -Djava.awt.headless=true -cp "$CP:../../J_P3_XMAGE_RAW_EVIDENCE/controller" XmageRemoteProbe > ../../J_P3_XMAGE_RAW_EVIDENCE/logs/remote-probe.log 2>&1
+            REMOTE_RC=$?
+          fi
+          echo "$REMOTE_RC" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/remote-probe-exit-code.txt
+          cat ../../J_P3_XMAGE_RAW_EVIDENCE/logs/remote-probe-compile.log || true
+          cat ../../J_P3_XMAGE_RAW_EVIDENCE/logs/remote-probe.log || true
+
           kill -TERM "$PID" 2>/dev/null || true
           CLEAN=0
           for i in $(seq 1 20); do
@@ -138,7 +243,7 @@ jobs:
           WAIT_RC=$?
           echo "$CLEAN" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/bounded-shutdown.txt
           echo "$WAIT_RC" > ../../J_P3_XMAGE_RAW_EVIDENCE/runtime/server-wait-exit-code.txt
-          tail -n 120 ../../J_P3_XMAGE_RAW_EVIDENCE/logs/server.log
+          tail -n 160 ../../J_P3_XMAGE_RAW_EVIDENCE/logs/server.log
           test "$STARTED" -eq 1
 
       - name: Capture native control surface source evidence
@@ -149,8 +254,11 @@ jobs:
           mkdir -p J_P3_XMAGE_RAW_EVIDENCE/source
           if [ -d xmage/.git ]; then
             cp xmage/Mage.Common/src/main/java/mage/remote/interfaces/PlayerActions.java J_P3_XMAGE_RAW_EVIDENCE/source/PlayerActions.java
+            cp xmage/Mage.Common/src/main/java/mage/remote/interfaces/GamePlay.java J_P3_XMAGE_RAW_EVIDENCE/source/GamePlay.java
+            cp xmage/Mage.Common/src/main/java/mage/remote/interfaces/Replays.java J_P3_XMAGE_RAW_EVIDENCE/source/Replays.java
+            cp xmage/Mage.Common/src/main/java/mage/interfaces/MageServer.java J_P3_XMAGE_RAW_EVIDENCE/source/MageServer.java
             find xmage -path '*mage/remote/interfaces/*' -name '*.java' -maxdepth 12 -print | sort > J_P3_XMAGE_RAW_EVIDENCE/source/remote-interface-files.txt || true
-            grep -RInE 'sendPlayer|GamePlay|legal|priority|replay|Replay' xmage/Mage.Common/src/main/java/mage/remote xmage/Mage.Server/src/main/java 2>/dev/null | head -n 500 > J_P3_XMAGE_RAW_EVIDENCE/source/native-control-surface-grep.txt || true
+            grep -RInE 'sendPlayer|GamePlay|legal|priority|replay|Replay' xmage/Mage.Common/src/main/java/mage/remote xmage/Mage.Server/src/main/java 2>/dev/null | head -n 800 > J_P3_XMAGE_RAW_EVIDENCE/source/native-control-surface-grep.txt || true
           fi
 
       - name: Finalize immutable raw-evidence manifest
