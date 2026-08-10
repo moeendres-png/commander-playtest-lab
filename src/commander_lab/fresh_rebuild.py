@@ -2,16 +2,24 @@ from __future__ import annotations
 
 import json
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
 
 from commander_lab.engine.structural.profiles import build_default_profile
-from commander_lab.models import CandidateProfile, CardIdentity, Deck, DeckZone, StructuralCardProfile, StructuralDeckProfile
+from commander_lab.models import (
+    CandidateProfile,
+    CardIdentity,
+    Deck,
+    DeckZone,
+    StructuralCardProfile,
+    StructuralDeckProfile,
+)
 from commander_lab.storage import load_model, sha256_value
 from commander_lab.tools.candidates import (
     BASIC_LANDS,
     _allowed_decks,
+    _as_int,
     _identity_from_inventory,
     _inventory_rows,
     _slug,
@@ -24,6 +32,7 @@ ROGSHAI_COMMANDERS = (
     "Rograkh, Son of Rohgahh",
 )
 FRESH_ROGSHAI_PREFIX = "rogshai/fresh/"
+CURRENT_DRIVE_DELTA = Path("data/rogshai_mvp/CURRENT_DRIVE_INVENTORY_DELTA_2026-08-10.json")
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,13 +40,13 @@ class FreshRogShaiUniverse:
     """Bias-neutral RogShai construction universe.
 
     Candidate membership is derived only from owned quantity, Commander legality and
-    Jeskai color identity.  The current RogShai deck, protected-card metadata and
-    optimizer/history artifacts are deliberately not inputs.  Existing Korvold usage
+    Jeskai color identity. The current RogShai deck, protected-card metadata and
+    optimizer/history artifacts are deliberately not inputs. Existing Korvold usage
     is represented only in ``available_quantities`` as a simultaneous physical
     buildability constraint.
 
     Cards without a structural profile remain present in ``candidate_names`` and
-    ``review_required``.  They are never assigned a synthetic quality score merely
+    ``review_required``. They are never assigned a synthetic quality score merely
     to make search convenient.
     """
 
@@ -47,6 +56,7 @@ class FreshRogShaiUniverse:
     available_quantities: Mapping[str, int]
     verified_physical_names: frozenset[str]
     source_inventory_path: str
+    data_snapshot_hash: str
 
     @property
     def candidate_count(self) -> int:
@@ -64,11 +74,49 @@ class FreshRogShaiUniverse:
         return {candidate.card.oracle_name: candidate for candidate in self.candidates.values()}
 
 
+def _fresh_inventory_rows(root: Path) -> list[dict[str, object]]:
+    """Overlay the minimal verified Drive delta on the checked-in read-only snapshot."""
+
+    rows = _inventory_rows(root)
+    delta_path = root / CURRENT_DRIVE_DELTA
+    if not delta_path.exists():
+        raise FileNotFoundError(f"current Drive inventory delta missing: {delta_path}")
+    payload = json.loads(delta_path.read_text(encoding="utf-8"))
+    delta_rows = payload.get("cards", [])
+    if not isinstance(delta_rows, list):
+        raise ValueError("current Drive inventory delta must contain a cards list")
+
+    seen = {str(row["oracle_name"]) for row in rows}
+    for raw_row in delta_rows:
+        if not isinstance(raw_row, dict):
+            raise ValueError("current Drive inventory delta contains a non-object card row")
+        row = dict(raw_row)
+        name = str(row.get("oracle_name", ""))
+        if not name:
+            raise ValueError("current Drive inventory delta contains a card without oracle_name")
+        if name in seen:
+            raise ValueError(f"current Drive inventory delta duplicates base snapshot card: {name}")
+        rows.append(row)
+        seen.add(name)
+    return rows
+
+
+def _fresh_data_snapshot_hash(root: Path) -> str:
+    manifest = json.loads((root / "data/decks/manifest.json").read_text(encoding="utf-8"))
+    delta_payload = json.loads((root / CURRENT_DRIVE_DELTA).read_text(encoding="utf-8"))
+    return sha256_value(
+        {
+            "base_data_snapshot_hash": str(manifest["data_snapshot_hash"]),
+            "current_drive_inventory_delta": delta_payload,
+        }
+    )
+
+
 def _korvold_nonbasic_reservations(root: Path) -> Counter[str]:
     """Return only the physical reservation needed for simultaneous Korvold buildability.
 
     Reading Korvold here is allowed because it is an availability constraint, not a
-    RogShai quality prior.  The RogShai current deck is intentionally never opened.
+    RogShai quality prior. The RogShai current deck is intentionally never opened.
     """
 
     path = root / "data/decks/korvold_current.json"
@@ -87,7 +135,7 @@ def _korvold_nonbasic_reservations(root: Path) -> Counter[str]:
 
 def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
     root_path = Path(root)
-    rows = _inventory_rows(root_path)
+    rows = _fresh_inventory_rows(root_path)
     profiled = load_candidate_profiles(root_path)
     profiled_by_name = {candidate.card.oracle_name: candidate for candidate in profiled.values()}
     korvold_reserved = _korvold_nonbasic_reservations(root_path)
@@ -98,7 +146,7 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
     available_quantities: dict[str, int] = {}
 
     for row in rows:
-        if not row.get("currently_owned") or int(row.get("quantity", 0) or 0) <= 0:
+        if not row.get("currently_owned") or _as_int(row.get("quantity", 0)) <= 0:
             continue
         if str(row.get("commander_legality", "")).casefold() != "legal":
             continue
@@ -107,7 +155,7 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             continue
 
         name = identity.oracle_name
-        quantity = int(row.get("quantity", 0) or 0)
+        quantity = _as_int(row.get("quantity", 0))
         candidate_names.add(name)
 
         # Project policy: at least 50 of every basic land type are available and basics
@@ -123,7 +171,10 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
                 update={
                     "allowed_deck_ids": (ROGSHAI_DECK_ID,),
                     "physical_status": "fresh_rebuild_inventory_verified_owned",
-                    "notes": ((candidate.notes or "") + " Fresh-rebuild membership is independent of current RogShai deck membership.").strip(),
+                    "notes": (
+                        (candidate.notes or "")
+                        + " Fresh-rebuild membership is independent of current RogShai deck membership."
+                    ).strip(),
                 }
             )
             continue
@@ -140,21 +191,23 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             )
             continue
 
-        # Fail closed for scoring while retaining full universe membership.  A card in
+        # Fail closed for scoring while retaining full universe membership. A card in
         # this mapping must receive an explicit mechanistic profile before it can enter
         # a simulated finalist or a score-based search.
         review_required[name] = identity
 
-    verified = frozenset(
-        name for name in candidate_names if available_quantities.get(name, 0) > 0
-    )
+    verified = frozenset(name for name in candidate_names if available_quantities.get(name, 0) > 0)
     return FreshRogShaiUniverse(
         candidates=candidates,
         review_required=review_required,
         candidate_names=frozenset(candidate_names),
         available_quantities=available_quantities,
         verified_physical_names=verified,
-        source_inventory_path="data/canonical_import/2026-08-07/inventory_snapshot.json",
+        source_inventory_path=(
+            "data/canonical_import/2026-08-07/inventory_snapshot.json + "
+            "data/rogshai_mvp/CURRENT_DRIVE_INVENTORY_DELTA_2026-08-10.json"
+        ),
+        data_snapshot_hash=_fresh_data_snapshot_hash(root_path),
     )
 
 
@@ -168,7 +221,7 @@ def build_fresh_rogshai_profile(
 ) -> StructuralDeckProfile:
     """Materialize an arbitrary legal/physical 98-card RogShai mainboard for simulation.
 
-    This is intentionally independent of ``rogshai_current.json``.  Unknown structural
+    This is intentionally independent of ``rogshai_current.json``. Unknown structural
     semantics are a hard pre-simulation review gate, not an implicit bad/neutral score.
     """
 
@@ -177,7 +230,9 @@ def build_fresh_rogshai_profile(
     overrides = dict(profile_overrides or {})
 
     if len(mainboard_names) != 98:
-        raise ValueError(f"RogShai fresh mainboard must contain exactly 98 cards; got {len(mainboard_names)}")
+        raise ValueError(
+            f"RogShai fresh mainboard must contain exactly 98 cards; got {len(mainboard_names)}"
+        )
     if any(name in ROGSHAI_COMMANDERS for name in mainboard_names):
         raise ValueError("commanders must not be duplicated in the 98-card mainboard")
 
@@ -198,9 +253,7 @@ def build_fresh_rogshai_profile(
         raise ValueError(f"cards outside fresh RogShai candidate universe: {missing_universe}")
 
     unavailable = sorted(
-        name
-        for name, count in counts.items()
-        if universe.available_quantities.get(name, 0) < count
+        name for name, count in counts.items() if universe.available_quantities.get(name, 0) < count
     )
     if unavailable:
         raise ValueError(
@@ -215,10 +268,7 @@ def build_fresh_rogshai_profile(
         if name in universe.review_required and name not in overrides
     )
     if unresolved:
-        raise ValueError(
-            "mechanistic profile required before structural scoring/simulation: "
-            f"{unresolved}"
-        )
+        raise ValueError(f"mechanistic profile required before structural scoring/simulation: {unresolved}")
 
     cards: list[StructuralCardProfile] = []
     for name in mainboard_names:
@@ -235,16 +285,17 @@ def build_fresh_rogshai_profile(
 
     identities = {
         str(row["oracle_name"]): _identity_from_inventory(row)
-        for row in _inventory_rows(root_path)
+        for row in _fresh_inventory_rows(root_path)
         if str(row.get("oracle_name", "")) in ROGSHAI_COMMANDERS
     }
     missing_commanders = sorted(set(ROGSHAI_COMMANDERS) - set(identities))
     if missing_commanders:
-        raise ValueError(f"commander identity missing from canonical inventory: {missing_commanders}")
+        raise ValueError(
+            f"commander identity missing from canonical inventory: {missing_commanders}"
+        )
     cards.extend(build_default_profile(identities[name]) for name in ROGSHAI_COMMANDERS)
 
-    manifest = json.loads((root_path / "data/decks/manifest.json").read_text(encoding="utf-8"))
-    snapshot_hash = str(manifest["data_snapshot_hash"])
+    snapshot_hash = universe.data_snapshot_hash
     deck_hash = sha256_value(
         {
             "mode": "fresh_rebuild",
@@ -254,7 +305,9 @@ def build_fresh_rogshai_profile(
             "data_snapshot_hash": snapshot_hash,
         }
     )
-    safe_label = "".join(ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"})[:32]
+    safe_label = "".join(ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"})[
+        :32
+    ]
     deck_id = f"{FRESH_ROGSHAI_PREFIX}{safe_label or deck_hash[:12]}-{deck_hash[:10]}"
     return StructuralDeckProfile(
         deck_id=deck_id,
