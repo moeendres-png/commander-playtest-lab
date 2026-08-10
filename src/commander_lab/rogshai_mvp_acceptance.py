@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import subprocess
-from collections import defaultdict
 from pathlib import Path
 from typing import Any, cast
 
@@ -32,6 +31,7 @@ from commander_lab.models import (
     StructuralMatchConfig,
 )
 from commander_lab.optimization import (
+    PairedMetrics,
     ablation_filler,
     all_legal_single_swaps,
     objective_vector,
@@ -64,12 +64,10 @@ def _git_value(root: Path, expression: str) -> str:
         raise FreshRebuildDataError(f"cannot resolve git identity: {expression}") from exc
 
 
-def _opponents(
-    root: Path, deck_ids: tuple[str, ...]
-) -> tuple[StructuralDeckProfile, ...]:
+def _opponents(root: Path, deck_ids: tuple[str, ...]) -> tuple[StructuralDeckProfile, ...]:
     manifest = load_fresh_rebuild_runtime(root)
     sources = cast(dict[str, dict[str, object]], manifest["sources"])
-    snapshot_hash = sha256_run_value(sources, root=root)
+    snapshot_hash = sha256_run_value(sources)
     decks = build_current_opponent_profiles(
         root / "data/opponents/current_structural_profiles.json",
         data_snapshot_hash=snapshot_hash,
@@ -123,7 +121,7 @@ def _paired(
     iterations: int,
     seed: int,
     pair_id: str,
-):
+) -> tuple[PairedMetrics, list[dict[str, object]]]:
     return run_paired_structural_comparison(
         baseline=baseline,
         variant=variant,
@@ -168,9 +166,7 @@ def _physical_validation(
         "status": "PASS" if not issues else "FAIL",
         "issues": sorted(set(issues)),
         "card_count": len(all_names),
-        "simultaneous_with_korvold": not any(
-            issue.startswith("physical:") for issue in issues
-        ),
+        "simultaneous_with_korvold": not any(issue.startswith("physical:") for issue in issues),
         "allocation_mutated": False,
     }
 
@@ -178,32 +174,18 @@ def _physical_validation(
 def _package_for_smoke(
     runtime: dict[str, Any], baseline: StructuralDeckProfile
 ) -> tuple[str, tuple[str, ...]]:
-    deck_cards = {card.oracle_name: card for card in baseline.cards}
-    groups: dict[str, set[str]] = defaultdict(set)
-    relations = runtime.get("synergy_relations", [])
-    if not isinstance(relations, list):
-        raise FreshRebuildDataError("synergy_relations must be a list")
-    for row in relations:
-        if not isinstance(row, dict):
-            continue
-        source_name = str(row.get("source_name", ""))
-        target = str(row.get("target", ""))
-        card = deck_cards.get(source_name)
-        if (
-            card is not None
-            and source_name not in ROGSHAI_COMMANDERS
-            and not card.is_land
-            and target.startswith("package:rogshai:")
-        ):
-            groups[target].add(source_name)
-    eligible = sorted(
-        (package_id, tuple(sorted(names)[:2]))
-        for package_id, names in groups.items()
-        if len(names) >= 2
-    )
-    if not eligible:
-        raise FreshRebuildDataError("no current RogShai package has two smoke-deck members")
-    return eligible[0]
+    spec = runtime.get("technical_package_smoke", {})
+    if not isinstance(spec, dict):
+        raise FreshRebuildDataError("technical_package_smoke must be an object")
+    package_id = str(spec.get("package_id", ""))
+    raw_cards = spec.get("cards", [])
+    if not package_id.startswith("package:rogshai:") or not isinstance(raw_cards, list):
+        raise FreshRebuildDataError("technical package smoke contract is malformed")
+    deck_names = {card.oracle_name for card in baseline.cards}
+    cards = tuple(str(name) for name in raw_cards if str(name) in deck_names)
+    if len(cards) < 2:
+        raise FreshRebuildDataError("technical package smoke lacks two baseline members")
+    return package_id, cards[:2]
 
 
 def _current_opponent_evidence(runtime: dict[str, Any]) -> dict[str, dict[str, object]]:
@@ -258,7 +240,7 @@ def _acceptance_run_identity(
         "model_version": ENGINE_VERSION,
         "engine_mode": "structural",
         "engine_provider": "commander_lab_structural_simulator",
-        "data_source_manifest_hash": sha256_run_value(sources, root=root),
+        "data_source_manifest_hash": sha256_run_value(sources),
         "canonical_input_status": "current",
     }
     payload["run_identity_hash"] = sha256_run_value(payload, root=root)
