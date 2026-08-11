@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from commander_lab import __version__
 from commander_lab.acceptance import run_phase10_acceptance
 from commander_lab.agents.openai_workflow import AgentsSdkUnavailable, run_openai_workflow
 from commander_lab.models import WorkflowRequest
@@ -21,7 +22,7 @@ def create_app(root: str | Path) -> FastAPI:
     registry = ToolRegistry(service)
     app = FastAPI(
         title="Commander Playtest Lab Function Tool Server",
-        version="1.4.0",
+        version=__version__,
         description=(
             "Local structured tool server. All simulation numbers are structural_model_estimates."
         ),
