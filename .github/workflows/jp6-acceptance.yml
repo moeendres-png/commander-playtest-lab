@@ -34,7 +34,11 @@ jobs:
             tests/unit/test_phase12_17_mcp.py \
             tests/integration/test_phase12_17_mcp_stdio.py
       - name: End-to-end core workflow smoke
-        run: python scripts/run_j_p6_workflow_smoke.py
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/j_p6
+          python scripts/run_j_p6_workflow_smoke.py 2>&1 | tee artifacts/j_p6/J_P6_WORKFLOW_SMOKE.log
       - name: CLI help and package metadata
         run: |
           commander-lab --help >/dev/null
@@ -63,7 +67,10 @@ jobs:
       - name: Assert tracked tree remains clean
         run: test -z "$(git status --porcelain --untracked-files=no)"
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
         with:
           name: jp6-acceptance-${{ github.sha }}
-          path: artifacts/j_p6/J_P6_WORKFLOW_SMOKE.json
-          if-no-files-found: error
+          path: |
+            artifacts/j_p6/J_P6_WORKFLOW_SMOKE.json
+            artifacts/j_p6/J_P6_WORKFLOW_SMOKE.log
+          if-no-files-found: warn
