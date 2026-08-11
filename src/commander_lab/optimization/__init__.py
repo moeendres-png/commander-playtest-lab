@@ -14,6 +14,14 @@ from .experiments import (
     run_paired_structural_comparison,
     variant_deck,
 )
+from .jp5 import (
+    MODEL_LIMITATIONS,
+    build_recommendation_trace,
+    build_robust_objective,
+    paired_seed_set_identity,
+    recommendation_confidence,
+    scenario_heterogeneity,
+)
 from .search import (
     SearchCandidate,
     all_legal_single_swaps,
@@ -33,11 +41,14 @@ from .search import (
 
 __all__ = [
     "DEFAULT_CONSTRAINTS",
+    "MODEL_LIMITATIONS",
     "PairedMetrics",
     "SearchCandidate",
     "ablation_filler",
     "all_legal_single_swaps",
     "approximate_shapley_profile",
+    "build_recommendation_trace",
+    "build_robust_objective",
     "build_search_candidate",
     "card_matchup_tags",
     "default_constraints",
@@ -47,24 +58,18 @@ __all__ = [
     "evaluate_simultaneous_allocation",
     "load_candidate_inventory",
     "objective_vector",
+    "paired_seed_set_identity",
     "pareto_front",
     "profile_closing_score",
     "profile_rebuild_score",
     "profile_score",
+    "recommendation_confidence",
     "role_counts",
     "role_summary",
     "run_paired_structural_comparison",
+    "scenario_heterogeneity",
     "screening_delta",
     "structural_rationale",
     "variant_deck",
     "worst_quartile_improvement",
 ]
-
-from .jp5 import (
-    MODEL_LIMITATIONS,
-    build_recommendation_trace,
-    build_robust_objective,
-    paired_seed_set_identity,
-    recommendation_confidence,
-    scenario_heterogeneity,
-)
