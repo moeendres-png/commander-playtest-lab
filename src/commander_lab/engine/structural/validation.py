@@ -9,21 +9,20 @@ from .batch import run_structural_batch
 from .project import load_project_structural_decks
 
 VALIDATION_SCENARIOS: dict[str, tuple[str, ...]] = {
-    "goldfish_korvold": ("korvold/current",),
     "goldfish_rogshai": ("rogshai/current",),
-    "three_player": ("korvold/current", "rogshai/current", "synthetic/aggro"),
+    "three_player": ("rogshai/current", "synthetic/aggro", "synthetic/control"),
     "four_player": (
-        "korvold/current",
-        "rogshai/current",
-        "synthetic/aggro",
-        "synthetic/control",
-    ),
-    "five_player": (
-        "korvold/current",
         "rogshai/current",
         "synthetic/aggro",
         "synthetic/control",
         "synthetic/engine",
+    ),
+    "five_player": (
+        "rogshai/current",
+        "synthetic/aggro",
+        "synthetic/control",
+        "synthetic/engine",
+        "kaervek/current",
     ),
 }
 
@@ -38,7 +37,11 @@ def run_phase3_validation(
     root_path = Path(root)
     output_root = root_path / "data/runs/phase3_validation"
     output_root.mkdir(parents=True, exist_ok=True)
-    decks = load_project_structural_decks(root_path, include_synthetic_fixtures=True)
+    decks = load_project_structural_decks(
+        root_path,
+        include_synthetic_fixtures=True,
+        include_current_opponents=True,
+    )
     scenario_results: dict[str, object] = {}
     for index, (scenario_name, deck_ids) in enumerate(VALIDATION_SCENARIOS.items()):
         config = StructuralBatchConfig(

@@ -21,7 +21,6 @@ from commander_lab.models.packages import (
 from commander_lab.storage.hashing import sha256_value
 
 COMMANDER_LABELS = {
-    "korvold/current": "Korvold, Fae-Cursed King",
     "rogshai/current": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
 }
 

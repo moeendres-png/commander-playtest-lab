@@ -508,7 +508,7 @@ def run_structural_policy_tournament(
     root: str | Path,
     *,
     config: PolicyTournamentConfig = PolicyTournamentConfig(),
-    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current"),
+    deck_ids: tuple[str, ...] = ("rogshai/current",),
     pilot_profiles: tuple[str, ...] = PILOT_PROFILES,
     politics_regimes: tuple[str, ...] = POLITICS_REGIMES,
 ) -> dict[str, Any]:
@@ -736,7 +736,7 @@ def run_structural_self_play(
     root: str | Path,
     *,
     seed: int = 20260807,
-    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current"),
+    deck_ids: tuple[str, ...] = ("rogshai/current",),
     pilot_profiles: tuple[str, ...] = PILOT_PROFILES,
     politics: str = "rational_threat_focus",
     pod_sizes: tuple[int, ...] = (3, 4, 5),

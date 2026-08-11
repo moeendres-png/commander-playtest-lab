@@ -8,4 +8,5 @@
 6. Run the recommended next experiment while any gate is blocked.
 7. Treat `model_supported_cut_candidate` only as permission for a paired replacement test, never as an automatic cut.
 
-The reproducible generator is `scripts/complete_phase12_8_10.py`. No tool changes a canonical deck automatically.
+The former Phase 12 generator was retired with the superseded own-deck baselines. The retained
+diagnostic artifacts are historical evidence only; no tool changes a canonical deck automatically.

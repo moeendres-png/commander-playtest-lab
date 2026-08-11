@@ -169,13 +169,6 @@ def default_pilot_profiles() -> tuple[PilotProfile, ...]:
 
 
 def default_ensembles() -> tuple[PilotEnsembleDefinition, ...]:
-    korvold = (
-        "KorvoldValuePilot",
-        "KorvoldSacrificePilot",
-        "KorvoldLandRebuildPilot",
-        "KorvoldAggressivePilot",
-        "KorvoldConservativePilot",
-    )
     rogshai = (
         "RogShaiTempoPilot",
         "RogShaiVoltronPilot",
@@ -184,12 +177,6 @@ def default_ensembles() -> tuple[PilotEnsembleDefinition, ...]:
         "RogShaiProtectedFinishPilot",
     )
     return (
-        PilotEnsembleDefinition(
-            ensemble_id="korvold.equal.v1",
-            version="1.0.0",
-            deck_id="korvold/current",
-            members=tuple(PilotEnsembleMember(pilot_name=name, weight=0.2) for name in korvold),
-        ),
         PilotEnsembleDefinition(
             ensemble_id="rogshai.equal.v1",
             version="1.0.0",

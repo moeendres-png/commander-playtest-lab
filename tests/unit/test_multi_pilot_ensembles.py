@@ -246,7 +246,9 @@ def test_protected_finish_pilot_requires_finish_window() -> None:
 
 
 def test_equal_ensembles_have_five_unique_members() -> None:
-    for ensemble in default_ensembles():
+    ensembles = default_ensembles()
+    assert {ensemble.deck_id for ensemble in ensembles} == {"rogshai/current"}
+    for ensemble in ensembles:
         assert len(ensemble.members) == 5
         assert len({member.pilot_name for member in ensemble.members}) == 5
         assert sum(member.weight for member in ensemble.members) == pytest.approx(1.0)

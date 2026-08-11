@@ -21,9 +21,9 @@ class GoogleDriveExportImporter(CatalogAwareImporter):
     """
 
     DEFAULT_SHEET_MAP: ClassVar[dict[str, tuple[str, ...]]] = {
-        "korvold/current": ("01_Korvold", "Korvold", "Korvold_final_100"),
         "rogshai/current": ("02_RogShai", "RogShai", "Ishai_Rograkh_final_100"),
     }
+    RETIRED_OWN_DECK_IDS: ClassVar[frozenset[str]] = frozenset({"korvold/current"})
 
     def import_decks(
         self,
@@ -36,6 +36,10 @@ class GoogleDriveExportImporter(CatalogAwareImporter):
         try:
             result: dict[str, Deck] = {}
             for deck_id, options in options_by_deck_id.items():
+                if deck_id in self.RETIRED_OWN_DECK_IDS:
+                    raise ImportErrorWithContext(
+                        f"retired own deck cannot be imported as current: {deck_id}"
+                    )
                 sheet_name = self._select_sheet(
                     workbook.sheetnames,
                     deck_id,
