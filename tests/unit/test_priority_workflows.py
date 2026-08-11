@@ -63,5 +63,9 @@ def test_diagnose_and_decision_bundle_are_reproducible(tmp_path: Path) -> None:
     written = facade.create_decision_bundle(comparison, tmp_path)
     payload = json.loads(Path(written["json_path"]).read_text(encoding="utf-8"))
     assert payload["context_snapshot"]["snapshot_hash"] == facade.context.snapshot_hash
-    assert payload["cache_provenance"]["status"].endswith("J_P6_concurrency_guard")
+    assert (
+        payload["cache_provenance"]["status"]
+        == "justified_not_shipped_j_p6_profile_no_relevant_cache_bottleneck"
+    )
+    assert payload["cache_provenance"]["cache_hit"] is False
     assert payload["evidence_class"] == "structural_model_estimates"
