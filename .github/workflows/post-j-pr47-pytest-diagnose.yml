@@ -1,4 +1,4 @@
-name: Post-J PR47 Fixture Repair
+name: Post-J PR47 Acceptance Diagnose
 
 on:
   push:
@@ -6,11 +6,10 @@ on:
       - project/rogshai-provisional-current-cleanup-20260811
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  repair:
-    if: github.actor != 'github-actions[bot]'
+  diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,33 +19,27 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install Ruff
-        run: python -m pip install 'ruff>=0.9,<1'
-      - name: Replace stale Phase 10 RogShai smoke fixtures
+      - name: Install project and test tools
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Capture Phase 10 current criteria
         shell: bash
         run: |
-          python - <<'PY'
+          python - <<'PY' > phase10-current.txt 2>&1
+          import json
           from pathlib import Path
-          path = Path('src/commander_lab/acceptance/phase10.py')
-          text = path.read_text(encoding='utf-8')
-          replacements = {
-              '{"remove": "Opt", "add_candidate_id": "rogshai/curiosity-smoke"}': '{"remove": "Kykar, Wind\'s Fury", "add_candidate_id": "inventory/disorder-in-the-court-f673274a"}',
-              '("Opt", "Chart a Course", "Aether Spellbomb")': '("Chart a Course", "Curiosity", "Prismari Charm")',
-              '("Archmage Emeritus", "Prismari Charm", "Psychosis Crawler")': '("Archmage Emeritus", "Prismari Charm", "Kykar, Wind\'s Fury")',
-          }
-          for old, new in replacements.items():
-              if old not in text:
-                  raise SystemExit(f'expected stale fixture not found: {old}')
-              text = text.replace(old, new, 1)
-          path.write_text(text, encoding='utf-8')
+          from commander_lab.acceptance.phase10 import run_phase10_acceptance
+          result = run_phase10_acceptance(Path.cwd(), iterations=1, workers=1, output_directory=Path('artifacts/post_j_pr47_phase10_diag'))
+          print(json.dumps({
+              'status': result['status'],
+              'criteria': result['local_acceptance_criteria'],
+              'failed_tools': result['failed_tools'],
+              'joint_physical_allocation': result['joint_physical_allocation'],
+              'final_recommendations': result['final_recommendations'],
+          }, indent=2, sort_keys=True))
           PY
-          ruff format src/commander_lab/acceptance/phase10.py
-          ruff check src/commander_lab/acceptance/phase10.py
-      - name: Commit and push repaired fixture
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/commander_lab/acceptance/phase10.py
-          git commit -m 'Refresh Phase 10 RogShai smoke fixtures'
-          git push origin HEAD:project/rogshai-provisional-current-cleanup-20260811
+      - name: Upload diagnostic output
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-j-pr47-acceptance-diagnose
+          path: phase10-current.txt
+          if-no-files-found: error
