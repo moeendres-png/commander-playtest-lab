@@ -10,8 +10,8 @@ from commander_lab.models import (
     PilotOpponentView,
     PilotStateView,
     PilotStrength,
-    StructuralMechanic,
 )
+from commander_lab.models.roles import StructuralMechanic
 
 
 def _pilot() -> RogShaiPilot:
