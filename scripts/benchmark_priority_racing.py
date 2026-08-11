@@ -47,7 +47,9 @@ class BenchmarkRacingPolicy:
         tested = self.select_small_batch(screen_buckets)
         if not tested:
             return ()
-        advance = [candidate_id for candidate_id in tested if screen_buckets[candidate_id] == "advance"]
+        advance = [
+            candidate_id for candidate_id in tested if screen_buckets[candidate_id] == "advance"
+        ]
         if advance:
             finalists = set(advance)
             leader = max(advance, key=lambda candidate_id: placement_improvement[candidate_id])
