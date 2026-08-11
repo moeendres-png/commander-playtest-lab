@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-11T04:57:00+02:00",
+  "preference_type": "soft_practicality_and_fun_preference",
+  "avoid_normalized_pattern": "regularly long own turns dominated by repetitive micro-actions, sacrifice/trigger/token/permanent bookkeeping, or loop-heavy administration",
+  "evaluation_dimensions": [
+    "typical_own_turn_duration",
+    "repetitive_action_burden",
+    "trigger_bookkeeping_load",
+    "loop_dependence",
+    "micro_actions_per_normal_turn",
+    "decision_relevance_to_administrative_work_ratio"
+  ],
+  "explicitly_not": [
+    "power_score",
+    "archetype_ban",
+    "ban_on_complexity",
+    "ban_on_long_decisive_turns",
+    "ban_on_engines_or_combos",
+    "ban_on_sacrifice_elements"
+  ],
+  "source": "direct_user_decision_2026-08-11"
+}
