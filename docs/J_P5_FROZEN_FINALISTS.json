@@ -1,0 +1,25 @@
+{
+  "finalists": [
+    {
+      "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+      "class": "neutral",
+      "deck_id": "korvold/current",
+      "id": "korvold_neutral_static",
+      "remove": "Goblin Bombardment",
+      "static_screening_delta": 0.025,
+      "variant_hash": "d06ffa0ca892de4523de40ef2a7224dcaf2a8568bfe9dff85de6108961aa5c43"
+    },
+    {
+      "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+      "class": "good",
+      "deck_id": "rogshai/current",
+      "id": "rogshai_good_static",
+      "remove": "Flare of Duplication",
+      "static_screening_delta": 1.115,
+      "variant_hash": "908041c62804185e7ecf06f7d20f0ba153b290739c0f7db64554aafbf0d8bb02"
+    }
+  ],
+  "holdout_outcomes_seen": false,
+  "selection_basis": "development-only staged ranking: hard constraints -> static preselection -> paired distributionally robust lower bound -> mean -> static tiebreak; no optimizer holdout outcomes used",
+  "status": "frozen_pre_holdout"
+}

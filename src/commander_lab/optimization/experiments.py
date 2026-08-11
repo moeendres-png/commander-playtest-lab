@@ -10,6 +10,8 @@ from commander_lab.decision_statistics import (
     distributionally_robust_lower_bound,
     paired_bootstrap_interval,
     paired_standardized_effect,
+    paired_randomization_p_value,
+    monte_carlo_standard_error,
     quantile_summary,
 )
 from commander_lab.engine.structural import ENGINE_VERSION, StructuralSimulator
@@ -63,8 +65,12 @@ class PairedMetrics:
     bayesian_shrunk_effect: float
     distributionally_robust_lower_bound: float
     quantiles: dict[str, float]
+    paired_randomization_p_value: float
+    monte_carlo_standard_error: float
+    confidence_interval_interpretation: str
+    pairing_conditions: dict[str, object]
 
-    def as_dict(self) -> dict[str, float | int]:
+    def as_dict(self) -> dict[str, object]:
         return {name: getattr(self, name) for name in self.__dataclass_fields__}
 
 
@@ -170,6 +176,7 @@ def run_paired_structural_comparison(
     pilot_config: PilotConfig,
     max_turns: int,
     pair_id: str,
+    starting_player_seat: int | None = None,
 ) -> tuple[PairedMetrics, list[dict[str, object]]]:
     baseline_registry = {deck.deck_id: deck for deck in (baseline, *opponents)}
     variant_registry = {deck.deck_id: deck for deck in (variant, *opponents)}
@@ -180,7 +187,7 @@ def run_paired_structural_comparison(
     pairs: list[dict[str, object]] = []
     for index in range(iterations):
         match_seed = derive_paired_seed(seed, pair_id, index)
-        start = index % (1 + len(opponents))
+        start = starting_player_seat if starting_player_seat is not None else index % (1 + len(opponents))
         baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
         variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
         configs = (pilot_config,) * len(baseline_ids)
@@ -235,6 +242,10 @@ def run_paired_structural_comparison(
                 "index": index,
                 "seed": match_seed,
                 "starting_player_seat": start,
+                "pod_size": 1 + len(opponents),
+                "opponent_deck_ids": [deck.deck_id for deck in opponents],
+                "pilot_strength": pilot_config.strength.value,
+                "pilot_mode": pilot_config.mode.value,
                 "baseline_placement": b.placement,
                 "variant_placement": v.placement,
                 "comparison": comparison,
@@ -296,5 +307,27 @@ def run_paired_structural_comparison(
         bayesian_shrunk_effect=bayesian_shrunk_mean(differences),
         distributionally_robust_lower_bound=distributionally_robust_lower_bound(differences),
         quantiles=quantile_summary(differences),
+        paired_randomization_p_value=paired_randomization_p_value(
+            differences, seed=derive_paired_seed(seed, pair_id, iterations + 2)
+        ),
+        monte_carlo_standard_error=monte_carlo_standard_error(differences),
+        confidence_interval_interpretation=(
+            "model-internal Monte Carlo uncertainty interval for the paired structural simulator; "
+            "not an empirical Commander confidence interval"
+        ),
+        pairing_conditions={
+            "common_random_numbers": True,
+            "same_seeds": True,
+            "same_seats": True,
+            "same_pod_size": True,
+            "same_opponent_assumptions": True,
+            "same_pilot_configuration": True,
+            "pod_size": 1 + len(opponents),
+            "opponent_deck_ids": [deck.deck_id for deck in opponents],
+            "pilot_strength": pilot_config.strength.value,
+            "pilot_mode": pilot_config.mode.value,
+            "seat_policy": "explicit_fixed" if starting_player_seat is not None else "deterministic_rotation",
+            "starting_player_seat": starting_player_seat,
+        },
     )
     return metrics, pairs

@@ -1,0 +1,49 @@
+{
+  "development_commit_before_freeze_manifest": "4ee5b7f66f56073e725f71a788b17a9d43b0bf36",
+  "development_tree_before_freeze_manifest": "4b3bc974aa614cc9f42f2f8a712198c5a42e5792",
+  "file_sha256": {
+    "config/J_P5_ROBUST_OBJECTIVE_v1.json": "50a4e0f4be5b12a0bdf4900ea0cd92cbadcf270742a1a089531e9f453379c5d5",
+    "config/J_P5_SEARCH_POLICY_v1.json": "f8b6cc3746c63e50ca6e635b2b9bf67c5de9d69a0ea9d5b1a3853c8f2967d5d1",
+    "config/phase7_optimization.json": "769d03a40452a7362707101fe7afea3d03b86b2d74d589ddcd0bc895aca5d812",
+    "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json": "891de5a1c351c4e7a0e902fb8e1b011bb7157c61f4dde44527c499da78e2141d",
+    "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json": "351f7819ee985d21e63f9f362b076d105ca2c82c505632afe88e3de064de9d9f",
+    "data/collections/current/J_P5_DECK_BUILD_CONSTRAINTS_CURRENT.json": "5fb68729bdcfd14ce378febf5d52331cf5b18ea279d4f44b17bb91a5e1213faa",
+    "data/collections/current/J_P5_POD_SCENARIOS_CURRENT.json": "ead19c057dbe93280ddb684d72b45a3753c22ce3a60d9c8e9c07fa524f7d11ef",
+    "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json": "aabf8b7c9b09483e621605831c0f4aadb83feed94df2c77c169e925d7e94cfdd",
+    "docs/J_P5_DEVELOPMENT_EVIDENCE.json": "01b1aac568e1a7d0804ce8e473533b47d40456d2156fde8c189066f2f4310153",
+    "docs/J_P5_FROZEN_FINALISTS.json": "814739cc2930874ad3b62037146c0537d9e40cb506a76935849855e5b4923e1c",
+    "scripts/run_j_p5_development.py": "0210f8c5825285f0910416cb33fc16ce5f3569efb757fd943947962516fd3d31",
+    "scripts/run_j_p5_holdout_once.py": "f30ecb620c33b1140c6ddbac3e7742f3d0d8402cd5cb34bfd119010ab64cea66",
+    "scripts/run_phase7_validation.py": "d78742b00e40586b3823a66cab54849eafebc69f267a81fd895518a00cf1c91e",
+    "src/commander_lab/decision_statistics.py": "82423fce5c0149f7049c584caf18ed7628fa47c54534174059706d021e2ecea9",
+    "src/commander_lab/models/optimization.py": "47b686de2bf8321fb9ee2ff5a06ac0bd76daae01a0b2cf5f3d146a98ebc4bfd9",
+    "src/commander_lab/optimization/constraints.py": "042869a2a6d68eda17d142607625c6556e7cfdee74804a24708bd73aab7ae54d",
+    "src/commander_lab/optimization/experiments.py": "a58d5d62e55a95140412ae1d985599caee99902161322a8a7ed9daface209b51",
+    "src/commander_lab/optimization/jp5.py": "50629644959cbfab988ea3379abbd86f081a302ed1054c1450ba6fa4b856626d",
+    "src/commander_lab/optimization/search.py": "8d97cdac3c94151ff9e0ef6c33099caa90bc003b7a72c244e510fbc576ab4d34",
+    "src/commander_lab/tools/candidates.py": "39c8098f892f2ae7cebc975c13dcba7502343beccc2d9c4cfaeab5e588a4c411",
+    "src/commander_lab/tools/service.py": "64a5ffe693048e8e071234d9d769ab060ad5baab009ab549c51a9685dab837fc",
+    "tests/unit/test_j_p5_optimizer_validation.py": "7389dec391342b20a2b0512ea3eceb9876d80af0d230b91b3157391bd5f26298"
+  },
+  "freeze_id": "J_P5_DEVELOPMENT_FREEZE_v1",
+  "holdout_id": "J_P5_OPTIMIZER_HOLDOUT_v1",
+  "holdout_outcomes_seen": false,
+  "holdout_sha256": "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203",
+  "local_validation": {
+    "focused_optimizer_tests": "26/26 PASS",
+    "full_pytest": "incomplete_due_local_execution_window_no_failure_observed_before_timeout",
+    "phase7_quick_validator": "PASS",
+    "ruff_mypy": "deferred_to_pre_holdout_GitHub_CI_due_offline_local_dev_tools"
+  },
+  "runner_protocol": {
+    "adapter_rationale": "PilotDecisionMode supports deterministic/stochastic; heuristic quality remains represented by sealed pilot_strength",
+    "holdout_gate_fixed_before_outcomes": true,
+    "one_shot_output": "docs/J_P5_HOLDOUT_FIRST_EVALUATION.json",
+    "rerun_refusal": true,
+    "sealed_pilot_mode_adapter": {
+      "heuristic": "deterministic"
+    }
+  },
+  "status": "frozen_pre_holdout",
+  "truth_boundary": "freeze protects optimizer/search/statistical development inputs before first optimizer-holdout evaluation"
+}

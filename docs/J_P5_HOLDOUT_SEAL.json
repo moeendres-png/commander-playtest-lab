@@ -1,6 +1,8 @@
 {
   "bytes": 12096,
-  "development_freeze_sha256": null,
+  "development_content_tree": "4b3bc974aa614cc9f42f2f8a712198c5a42e5792",
+  "development_freeze_id": "J_P5_DEVELOPMENT_FREEZE_v1",
+  "development_freeze_sha256": "7dd561904e84667005ff1c60687737786e149e5214951ccc583f1898635cfa59",
   "first_evaluation_status": "not_run",
   "holdout_id": "J_P5_OPTIMIZER_HOLDOUT_v1",
   "immutable": true,

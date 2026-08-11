@@ -179,6 +179,10 @@ from commander_lab.optimization import (
     pareto_front,
     profile_score,
     role_summary,
+    build_recommendation_trace,
+    build_robust_objective,
+    recommendation_confidence,
+    scenario_heterogeneity,
     run_paired_structural_comparison,
     variant_deck,
 )
@@ -194,7 +198,12 @@ from commander_lab.storage import (
 )
 from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
 
-from .candidates import load_candidate_profiles, load_canonical_inventory_quantities
+from .candidates import (
+    load_candidate_profiles,
+    load_canonical_inventory_quantities,
+    load_current_candidate_eligibility,
+    load_current_optimization_availability,
+)
 
 if TYPE_CHECKING:
     from commander_lab.counterfactual import CounterfactualReplayLab
@@ -256,25 +265,32 @@ class CommanderToolService:
             include_current_opponents=True,
         )
         self.candidates = load_candidate_profiles(self.root)
-        canonical_inventory = load_canonical_inventory_quantities(self.root)
-        if canonical_inventory:
-            baseline_required: Counter[str] = Counter()
-            for deck_id in ("korvold/current", "rogshai/current"):
-                deck = self.decks.get(deck_id)
-                if deck is None:
-                    continue
-                baseline_required.update(
-                    card.oracle_name
-                    for card in deck.cards
-                    if card.oracle_name
-                    not in {"Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes"}
-                )
-            self.candidate_inventory = {
-                name: max(0, quantity - baseline_required.get(name, 0))
-                for name, quantity in canonical_inventory.items()
-            }
+        current_availability = load_current_optimization_availability(self.root)
+        current_eligibility = load_current_candidate_eligibility(self.root)
+        if current_availability:
+            # Current Drive projection already subtracts canonical own-deck allocations and
+            # opponent reservations. Do not subtract baseline cards a second time.
+            self.candidate_inventory = current_availability
         else:
-            self.candidate_inventory = load_candidate_inventory(self.root)
+            canonical_inventory = load_canonical_inventory_quantities(self.root)
+            if canonical_inventory:
+                baseline_required: Counter[str] = Counter()
+                for deck_id in ("korvold/current", "rogshai/current"):
+                    deck = self.decks.get(deck_id)
+                    if deck is None:
+                        continue
+                    baseline_required.update(
+                        card.oracle_name
+                        for card in deck.cards
+                        if card.oracle_name
+                        not in {"Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes"}
+                    )
+                self.candidate_inventory = {
+                    name: max(0, quantity - baseline_required.get(name, 0))
+                    for name, quantity in canonical_inventory.items()
+                }
+            else:
+                self.candidate_inventory = load_candidate_inventory(self.root)
         filtered_candidates = {}
         for candidate_id, candidate in self.candidates.items():
             if self.candidate_inventory.get(candidate.card.oracle_name, 0) <= 0:
@@ -282,9 +298,12 @@ class CommanderToolService:
             allowed = tuple(
                 deck_id
                 for deck_id in candidate.allowed_deck_ids
-                if deck_id not in self.decks
-                or candidate.card.oracle_name
-                not in {card.oracle_name for card in self.decks[deck_id].cards}
+                if (not current_eligibility or candidate.card.oracle_name in current_eligibility.get(deck_id, set()))
+                and (
+                    deck_id not in self.decks
+                    or candidate.card.oracle_name
+                    not in {card.oracle_name for card in self.decks[deck_id].cards}
+                )
             )
             if not allowed:
                 continue
@@ -946,14 +965,9 @@ class CommanderToolService:
         original = next((card for card in deck.cards if card.oracle_name == remove), None)
         if original is None:
             raise ToolExecutionError(f"protected card not found in deck: {remove}")
-        same_role_upgrade = original.roles.issubset(candidate_card.roles) and profile_score(
-            candidate_card
-        ) > profile_score(original)
-        if not same_role_upgrade:
-            raise ToolExecutionError(
-                f"{remove} is protected by current deckbuilding rules and may only be "
-                "tested against a clear direct upgrade covering the same roles"
-            )
+        raise ToolExecutionError(
+            f"{remove} is locked by the current deckbuilding policy and cannot be cut by optimizer/search"
+        )
 
     def _candidate(self, candidate_id: str, deck_id: str) -> CandidateProfile:
         try:
@@ -973,7 +987,15 @@ class CommanderToolService:
         if path.exists():
             payload = json.loads(path.read_text(encoding="utf-8"))
             if deck_id in payload.get("constraints", {}):
-                return OptimizationConstraints.model_validate(payload["constraints"][deck_id])
+                loaded = OptimizationConstraints.model_validate(payload["constraints"][deck_id])
+                canonical = default_constraints(deck_id, None, DEFAULT_CONSTRAINTS)
+                return loaded.model_copy(
+                    update={
+                        "required_commanders": canonical.required_commanders,
+                        "require_partner_configuration": canonical.require_partner_configuration,
+                        "locked_cards": canonical.locked_cards,
+                    }
+                )
         return default_constraints(deck_id, None, DEFAULT_CONSTRAINTS)
 
     def _eligible_candidate_ids(
@@ -2652,7 +2674,7 @@ class CommanderToolService:
                     and not self._is_protected(request.deck_id, card.oracle_name)
                 }
                 cuts = list(cut_map.values())[: request.cuts_per_step]
-                neighbors: list[tuple[float, SearchCandidate, dict[str, Any]]] = []
+                neighbors: list[tuple[float, float, SearchCandidate, dict[str, Any]]] = []
                 for cut in cuts:
                     for candidate_id in candidate_ids:
                         if candidate_id in used_candidates:
@@ -2690,16 +2712,21 @@ class CommanderToolService:
                         )
                         evaluated += 1
                         neighbors.append(
-                            (metrics.placement_improvement, neighbor, metrics.as_dict())
+                            (
+                                metrics.distributionally_robust_lower_bound,
+                                metrics.placement_improvement,
+                                neighbor,
+                                metrics.as_dict(),
+                            )
                         )
                 if not neighbors:
                     break
                 neighbors.sort(
-                    key=lambda row: (row[0], row[1].screening_score, row[1].variant.deck_hash),
+                    key=lambda row: (row[0], row[1], row[2].screening_score, row[2].variant.deck_hash),
                     reverse=True,
                 )
-                improvement, best, comparison = neighbors[0]
-                if improvement <= 0:
+                robust_lower_bound, improvement, best, comparison = neighbors[0]
+                if robust_lower_bound <= 0:
                     break
                 cumulative_swaps = list(best.swaps)
                 used_candidates = {swap.add_candidate_id for swap in best.swaps}
@@ -2711,6 +2738,8 @@ class CommanderToolService:
                         "swaps": [swap.model_dump(mode="json") for swap in best.swaps],
                         "comparison_to_parent": comparison,
                         "screening_score": best.screening_score,
+                        "robust_lower_bound": robust_lower_bound,
+                        "ranking_policy": "distributionally_robust_lower_bound_then_mean_then_static_screen",
                         "constraint_report": best.constraint_report.model_dump(mode="json"),
                         "structural_rationale": best.rationale,
                         "affected_matchups": best.affected_matchups,
@@ -2719,7 +2748,8 @@ class CommanderToolService:
                     }
                 )
             return {
-                "method": "constrained_local_search",
+                "method": "staged_constrained_local_search",
+                "ranking_policy": "hard_constraints_then_static_preselection_then_paired_distributionally_robust_lower_bound",
                 "evaluated_neighbors": evaluated,
                 "path": path,
                 "best_variant": path[-1] if path else None,
@@ -2802,7 +2832,7 @@ class CommanderToolService:
                     key=lambda node: (node.screening_score, node.variant.deck_hash),
                     reverse=True,
                 )[: max(request.beam_width * 3, request.beam_width)]
-                scored: list[tuple[float, SearchCandidate, dict[str, Any]]] = []
+                scored: list[tuple[float, float, SearchCandidate, dict[str, Any]]] = []
                 for node in candidates:
                     metrics, _ = self._paired_variant_metrics(
                         baseline=baseline,
@@ -2815,12 +2845,12 @@ class CommanderToolService:
                         max_turns=request.max_turns,
                         pair_id=f"beam-{depth}-{node.variant.deck_hash[:10]}",
                     )
-                    scored.append((metrics.placement_improvement, node, metrics.as_dict()))
+                    scored.append((metrics.distributionally_robust_lower_bound, metrics.placement_improvement, node, metrics.as_dict()))
                 scored.sort(
-                    key=lambda row: (row[0], row[1].screening_score, row[1].variant.deck_hash),
+                    key=lambda row: (row[0], row[1], row[2].screening_score, row[2].variant.deck_hash),
                     reverse=True,
                 )
-                beam = [row[1] for row in scored[: request.beam_width]]
+                beam = [row[2] for row in scored[: request.beam_width]]
                 if not beam:
                     break
             final_rows: list[dict[str, Any]] = []
@@ -2842,6 +2872,7 @@ class CommanderToolService:
                         "comparison": metrics.as_dict(),
                         "worst_quartile_delta": self._worst_quartile(pairs),
                         "screening_score": node.screening_score,
+                        "robust_lower_bound": metrics.distributionally_robust_lower_bound,
                         "constraint_report": node.constraint_report.model_dump(mode="json"),
                         "structural_rationale": node.rationale,
                         "affected_matchups": node.affected_matchups,
@@ -2850,10 +2881,16 @@ class CommanderToolService:
                     }
                 )
             final_rows.sort(
-                key=lambda row: row["comparison"]["placement_improvement"], reverse=True
+                key=lambda row: (
+                    row["comparison"]["distributionally_robust_lower_bound"],
+                    row["comparison"]["placement_improvement"],
+                    row["screening_score"],
+                ),
+                reverse=True,
             )
             return {
-                "method": "beam_search",
+                "method": "staged_beam_search",
+                "ranking_policy": "hard_constraints_then_static_beam_preselection_then_paired_distributionally_robust_lower_bound",
                 "beam_width": request.beam_width,
                 "depth": request.depth,
                 "variants": final_rows,
@@ -3127,9 +3164,12 @@ class CommanderToolService:
                 "permutations": request.permutations,
                 "contributions": values,
                 "paired_ablation_evidence": ablations,
+                "selection_role": "secondary_explanatory_triage_only",
+                "primary_optimizer_ranking_allowed": False,
                 "warning": (
-                    "Shapley values are approximate structural contribution estimates, "
-                    "not causal real-game values."
+                    "Shapley values use a profile-surrogate coalition value with paired single-card ablation; "
+                    "they are approximate structural contribution estimates, not causal real-game values and "
+                    "must not select the final optimizer winner by themselves."
                 ),
             }
 
@@ -3630,7 +3670,6 @@ class CommanderToolService:
         def work() -> dict[str, Any]:
             for deck_id in request.deck_ids:
                 self._require_active_optimization_target(deck_id)
-            priority = {"korvold/current": 2, "rogshai/current": 1}
             rows: list[dict[str, Any]] = []
             for deck_id in request.deck_ids:
                 if deck_id not in self.decks:
@@ -3657,24 +3696,26 @@ class CommanderToolService:
             conflicts: list[dict[str, Any]] = []
             allocation: list[dict[str, Any]] = []
             for card_name, candidates in sorted(claims.items()):
-                candidates.sort(
-                    key=lambda x: (priority.get(x["deck_id"], 0), x.get("screening_delta", 0)),
-                    reverse=True,
-                )
-                winner = candidates[0]
+                candidates.sort(key=lambda x: (x.get("screening_delta", 0), x["deck_id"]), reverse=True)
+                capacity = max(0, int(self.candidate_inventory.get(card_name, 0)))
+                winners = candidates[:capacity]
+                rejected = candidates[capacity:]
                 allocation.append(
                     {
                         "card": card_name,
-                        "allocated_to": winner["deck_id"],
-                        "reason": "deck priority then structural screening",
+                        "available_free_copies": capacity,
+                        "allocated_to": [row["deck_id"] for row in winners],
+                        "reason": "free physical capacity then structural screening; no persistent reservation",
                     }
                 )
-                if len(candidates) > 1:
+                if rejected:
                     conflicts.append(
                         {
                             "card": card_name,
+                            "available_free_copies": capacity,
                             "claims": [c["deck_id"] for c in candidates],
-                            "allocated_to": winner["deck_id"],
+                            "temporarily_selected": [c["deck_id"] for c in winners],
+                            "rejected_claims": [c["deck_id"] for c in rejected],
                         }
                     )
             return {
@@ -3759,6 +3800,42 @@ class CommanderToolService:
                 status = "structurally_supported"
             else:
                 status = "insufficient_evidence"
+            affected_roles = sorted(
+                {
+                    role.value
+                    for swap in request.swaps
+                    for card in (
+                        next((c for c in baseline.cards if c.oracle_name == swap.remove), None),
+                        self._candidate(swap.add_candidate_id, request.deck_id).card,
+                    )
+                    if card is not None
+                    for role in card.roles
+                }
+            )
+            holdout_values = [
+                float(row.get("comparison", {}).get("placement_improvement", 0.0))
+                for row in result.get("holdout_tests", [])
+            ]
+            pod_effects = [
+                (int(row["pod_size"]), float(row["mean_placement_improvement"]))
+                for row in pod_rows
+                if row.get("mean_placement_improvement") is not None
+            ]
+            robust_objective = build_robust_objective(
+                baseline=baseline,
+                variant=variant,
+                central_effect=float(paired.get("placement_improvement", 0.0)),
+                worst_quartile_effect=float((paired.get("quantiles") or {}).get("q25", 0.0)),
+                pair_rows=result.get("pair_sample", []),
+                commander_dependency_baseline=float(dependency["baseline_dependency_penalty"]),
+                commander_dependency_variant=float(dependency["variant_dependency_penalty"]),
+                matchup_effects=tuple(holdout_values) + tuple(
+                    float(row["placement_improvement"]) for row in robustness_rows
+                ),
+                pod_effects=pod_effects,
+                opponent_uncertainty_effects=holdout_values,
+                physical_allocation_valid=bool(criteria.get("constraints_passed", False)),
+            )
             remaining = []
             if not robustness_nonnegative:
                 remaining.append(
@@ -3808,6 +3885,53 @@ class CommanderToolService:
                 "failure_diagnosis": result.get("red_team_review", {}),
                 "recommendation_status": status,
                 "remaining_uncertainty": remaining,
+                "robust_objective": {
+                    **robust_objective.model_dump(mode="json"),
+                    "equal_weight_score": robust_objective.equal_weight_score(),
+                    "objective_id": "J_P5_ROBUST_OBJECTIVE_v1",
+                },
+                "scenario_heterogeneity": scenario_heterogeneity(
+                    [float(row["placement_improvement"]) for row in robustness_rows]
+                ),
+                "recommendation_trace": build_recommendation_trace(
+                    candidate_change=swaps,
+                    constraint_status=result.get("constraint_report", {}),
+                    baseline_identity={"deck_id": request.deck_id, "deck_hash": baseline.deck_hash},
+                    variant_identity={"deck_id": variant.deck_id, "deck_hash": variant.deck_hash},
+                    paired_seeds=tuple(int(seed) for seed in paired.get("seeds", [])),
+                    affected_roles=affected_roles,
+                    central_effect={
+                        "placement_improvement": paired.get("placement_improvement"),
+                        "effect_size": paired.get("effect_size"),
+                        "monte_carlo_standard_error": paired.get("monte_carlo_standard_error"),
+                        "confidence_interval": paired.get("confidence_interval"),
+                        "confidence_interval_interpretation": paired.get("confidence_interval_interpretation"),
+                        "raw_model_internal_p_value": paired.get("paired_randomization_p_value"),
+                    },
+                    worst_case_effect=min(
+                        [float(row["placement_improvement"]) for row in robustness_rows] + holdout_values,
+                        default=float(paired.get("worst_case_result", 0.0)),
+                    ),
+                    sensitivity={
+                        "pilot": result.get("sensitivity_tests", []),
+                        "opponent": result.get("holdout_tests", []),
+                        "pod_size": pod_rows,
+                        "politics_visibility_heuristic": politics_rows,
+                        "scenario_heterogeneity": scenario_heterogeneity(
+                            [float(row["placement_improvement"]) for row in robustness_rows]
+                        ),
+                    },
+                    holdout_status="development_only_not_J_P5_optimizer_holdout",
+                    recommendation_confidence_value=recommendation_confidence(
+                        constraint_valid=bool(criteria.get("constraints_passed", False)),
+                        adjusted_p_value=None,
+                        worst_case_effect=min(
+                            [float(row["placement_improvement"]) for row in robustness_rows] + holdout_values,
+                            default=float(paired.get("worst_case_result", 0.0)),
+                        ),
+                        holdout_status="development_only_not_J_P5_optimizer_holdout",
+                    ),
+                ),
                 "raw_validation": result,
                 "automatic_application": False,
             }
@@ -4257,7 +4381,10 @@ class CommanderToolService:
             p_rows: list[tuple[int, float]] = []
             for index, row in enumerate(ranked):
                 raw_p = row.get("p_value")
+                if raw_p is None:
+                    raw_p = (row.get("paired_structural_effect") or {}).get("paired_randomization_p_value")
                 if isinstance(raw_p, (int, float)) and not isinstance(raw_p, bool):
+                    row["raw_model_internal_p_value"] = float(raw_p)
                     p_rows.append((index, float(raw_p)))
             if p_rows:
                 adjusted = holm_adjust(value for _, value in p_rows)
@@ -4268,7 +4395,8 @@ class CommanderToolService:
             return {
                 "ranked_variants": ranked,
                 "method": "worst_case_then_paired_then_coverage",
-                "multiple_testing_method": "Holm family-wise correction when p-values are supplied",
+                "multiple_testing_method": "Holm family-wise correction over the ranked variant family using paired model-internal randomization p-values when available",
+                "selection_policy": "constraint gate -> staged structural preselection -> robust/worst-case ranking -> Holm-adjusted family -> independent optimizer holdout",
                 "automatic_application": False,
             }
 

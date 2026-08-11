@@ -59,3 +59,12 @@ __all__ = [
     "variant_deck",
     "worst_quartile_improvement",
 ]
+
+from .jp5 import (
+    MODEL_LIMITATIONS,
+    build_recommendation_trace,
+    build_robust_objective,
+    paired_seed_set_identity,
+    recommendation_confidence,
+    scenario_heterogeneity,
+)

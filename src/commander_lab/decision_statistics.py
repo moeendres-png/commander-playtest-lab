@@ -78,6 +78,56 @@ def distributionally_robust_lower_bound(
     return fmean(values) - radius * spread
 
 
+
+def paired_randomization_p_value(
+    differences: Iterable[float],
+    *,
+    alternative: str = "two-sided",
+    max_exact_pairs: int = 18,
+    monte_carlo_draws: int = 20000,
+    seed: int = 20260811,
+) -> float:
+    """Sign-flip randomization p-value for paired model outcomes.
+
+    This is uncertainty inside the paired simulation design, not an empirical gameplay p-value.
+    """
+    values = _values(differences)
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError("alternative must be two-sided, greater, or less")
+    observed = fmean(values)
+
+    def extreme(value: float) -> bool:
+        if alternative == "greater":
+            return value >= observed - 1e-15
+        if alternative == "less":
+            return value <= observed + 1e-15
+        return abs(value) >= abs(observed) - 1e-15
+
+    n = len(values)
+    if n <= max_exact_pairs:
+        total = 1 << n
+        hits = 0
+        for mask in range(total):
+            mean = sum((1.0 if mask & (1 << i) else -1.0) * values[i] for i in range(n)) / n
+            hits += int(extreme(mean))
+        return hits / total
+    if monte_carlo_draws < 1000:
+        raise ValueError("at least 1000 Monte Carlo draws are required")
+    rng = random.Random(seed)
+    hits = 0
+    for _ in range(monte_carlo_draws):
+        mean = sum((1.0 if rng.getrandbits(1) else -1.0) * value for value in values) / n
+        hits += int(extreme(mean))
+    return (hits + 1) / (monte_carlo_draws + 1)
+
+
+def monte_carlo_standard_error(values: Iterable[float]) -> float:
+    data = _values(values)
+    if len(data) < 2:
+        return 0.0
+    return stdev(data) / math.sqrt(len(data))
+
+
 def holm_adjust(p_values: Iterable[float]) -> tuple[float, ...]:
     values = tuple(float(value) for value in p_values)
     if any(not 0.0 <= value <= 1.0 for value in values):

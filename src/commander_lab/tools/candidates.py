@@ -62,6 +62,22 @@ def _as_float(value: object, default: float = 0.0) -> float:
     raise ValueError(f"unsupported float value: {value!r}")
 
 
+def load_current_optimization_availability(root: str | Path) -> dict[str, int]:
+    path = Path(root) / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return {str(name): int(quantity) for name, quantity in payload.get("cards", {}).items()}
+
+
+def load_current_candidate_eligibility(root: str | Path) -> dict[str, set[str]]:
+    path = Path(root) / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return {str(deck_id): {str(name) for name in rows} for deck_id, rows in payload.get("eligible_by_deck", {}).items()}
+
+
 def load_canonical_inventory_quantities(root: str | Path) -> dict[str, int]:
     rows = _inventory_rows(Path(root))
     return {

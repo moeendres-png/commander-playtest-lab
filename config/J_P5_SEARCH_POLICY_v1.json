@@ -1,0 +1,30 @@
+{
+  "development_only_tuning": true,
+  "development_recommendation_gate": {
+    "distributionally_robust_lower_bound_minimum": 0.0,
+    "holm_adjusted_model_internal_p_value_maximum": 0.05
+  },
+  "hard_constraint_gate_first": true,
+  "holdout": "one frozen finalist per deck may be evaluated only after development freeze; no post-holdout tuning",
+  "holdout_multiple_comparisons": "Holm correction across the two frozen deck finalists for holdout recommendation-status inference; no finalist reselection after holdout",
+  "holdout_recommendation_gate": {
+    "central_paired_effect_minimum": 0.0,
+    "constraint_valid_required": true,
+    "holm_adjusted_model_internal_p_value_maximum": 0.05,
+    "interpretation": "all thresholds apply only to structural-model holdout evidence; failure means not supported for recommendation, not evidence the real deck is worse",
+    "scenario_q25_effect_minimum": 0.0,
+    "worst_scenario_effect_minimum": 0.0
+  },
+  "multiple_comparisons": "Holm family-wise correction per deck search family",
+  "policy_id": "J_P5_SEARCH_POLICY_v1",
+  "preselection": {
+    "minimum_static_screening_delta": -0.5,
+    "rationale": "exclude structurally severe role/profile regressions before costly stochastic comparison"
+  },
+  "ranking": [
+    "distributionally_robust_lower_bound",
+    "paired_mean_effect",
+    "static_screening_delta"
+  ],
+  "truth_boundary": "all effects and p-values are model-internal structural simulation quantities, not empirical Commander results"
+}
