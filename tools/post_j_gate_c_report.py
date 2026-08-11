@@ -23,6 +23,10 @@ def build_report(root: Path) -> dict[str, object]:
     physical_buildable_count = sum(
         bool(row["simultaneous_physical_buildability"]) for row in single_rows + partner_rows
     )
+    partner_discovery_valid = all(
+        isinstance(row.get("commanders"), (list, tuple)) and len(row["commanders"]) == 2
+        for row in partner_rows
+    )
     return {
         "schema_version": "1.0",
         "gate": "POST_J_GATE_C",
@@ -81,9 +85,7 @@ def build_report(root: Path) -> dict[str, object]:
             in facade.context.historical_own_deck_ids,
             "remaining_pool_deterministic": readiness == facade.second_deck_readiness(),
             "commander_candidate_discovery": int(readiness["single_commander_candidate_count"]) > 0,
-            "partner_candidate_discovery": int(readiness["partner_component_count"]) >= int(
-                readiness["partner_configuration_count"]
-            ),
+            "partner_candidate_discovery": partner_discovery_valid,
             "physical_buildability": physical_buildable_count > 0,
             "support_quality_evidence": any(bool(row["role_evidence"]) for row in single_rows),
             "no_unjustified_4p_model_claim": readiness["four_player_performance_claim"] is None,
