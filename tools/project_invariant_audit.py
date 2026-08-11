@@ -222,9 +222,8 @@ def audit_project(root: Path) -> dict[str, Any]:
             )
         )
 
-        kaervek_ok = (
-            current.get("kaervek/current") == "kaervek/current"
-            and bool(str(registry.get("kaervek_deck_hash", "")))
+        kaervek_ok = current.get("kaervek/current") == "kaervek/current" and bool(
+            str(registry.get("kaervek_deck_hash", ""))
         )
         checks.append(
             _result(
@@ -255,7 +254,9 @@ def audit_project(root: Path) -> dict[str, Any]:
         _result(
             "deck_inventory_allocation_mutation",
             NOT_APPLICABLE,
-            limitations=["This auditor is read-only and does not execute simulation mutation paths."],
+            limitations=[
+                "This auditor is read-only and does not execute simulation mutation paths."
+            ],
         )
     )
     return _finalize(checks)
