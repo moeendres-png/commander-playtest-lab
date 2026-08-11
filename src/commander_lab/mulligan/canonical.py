@@ -13,10 +13,11 @@ from .lab import MulliganLabError
 
 
 class MulliganLab(_LegacyMulliganLab):
-    """Mulligan Lab with canonical project context and deterministic mana diagnostics.
+    """Mulligan Lab with canonical current and historical project contexts.
 
-    The inherited hand policy and follow-up simulation model is intentionally unchanged. Current
-    pod membership comes from canonical data, while mana facts refine source/tapped-land features.
+    Current active-deck runs use the canonical primary pod. Historical own-deck regression runs
+    remain supported through their explicitly historical reference scenario; they are never
+    promoted back into the active deckbuilding scope.
     """
 
     def __init__(self, root: str | Path) -> None:
@@ -45,15 +46,16 @@ class MulliganLab(_LegacyMulliganLab):
                 "the MulliganContext does not carry opponent deck ids, so the lab refuses to "
                 "invent them"
             )
-        if context.deck_id not in self.project_context.active_own_deck_ids:
-            raise MulliganLabError(
-                f"{context.deck_id} is not a current active own deck; historical reference "
-                "contexts must be requested explicitly outside the current primary mulligan path"
-            )
         try:
-            return self.project_context.primary_opponent_deck_ids(context.deck_id)
+            if context.deck_id in self.project_context.active_own_deck_ids:
+                return self.project_context.primary_opponent_deck_ids(context.deck_id)
+            if context.deck_id in self.project_context.historical_own_deck_ids:
+                return self.project_context.historical_reference_opponent_deck_ids(context.deck_id)
         except ProjectContextError as exc:
             raise MulliganLabError(str(exc)) from exc
+        raise MulliganLabError(
+            f"{context.deck_id} is neither a current active nor a preserved historical own deck"
+        )
 
     def analyze_deck_mana(self, deck_id: str) -> DeckManaAnalysis:
         return self.mana_analyzer.analyze_deck(self.deck(deck_id))
