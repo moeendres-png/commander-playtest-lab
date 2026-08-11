@@ -51,7 +51,7 @@ class DecisionBundle:
 def render_decision_bundle_markdown(bundle: DecisionBundle) -> str:
     payload = bundle.payload()
     lines = [
-        "# Commander Playtest Lab – Decision Bundle",
+        "# Commander Playtest Lab - Decision Bundle",
         "",
         f"- Bundle hash: `{bundle.bundle_hash}`",
         f"- Evidence class: `{bundle.evidence_class}`",
