@@ -55,7 +55,10 @@ def test_current_projection_applies_inactive_korvold_release_without_rewriting_p
         expected[str(name)] = expected.get(str(name), 0) + int(quantity)
     assert svc.candidate_inventory == expected
     assert len(release) == 83
-    assert len(svc.candidates) >= 500
+    assert len(svc.candidates) >= 300
+    assert {deck_id for c in svc.candidates.values() for deck_id in c.allowed_deck_ids} == {
+        "rogshai/current"
+    }
 
 
 def test_wrong_commander_identity_fails_closed() -> None:

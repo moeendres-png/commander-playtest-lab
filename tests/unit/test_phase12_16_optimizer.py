@@ -97,7 +97,10 @@ def test_engine_backed_matchup_returns_blocked_not_fake_success() -> None:
 
 def test_candidate_universe_uses_current_read_only_inventory() -> None:
     svc = service()
-    assert len(svc.candidates) >= 500
+    assert len(svc.candidates) >= 300
+    assert {deck_id for c in svc.candidates.values() for deck_id in c.allowed_deck_ids} == {
+        "rogshai/current"
+    }
     assert len(svc.verified_candidate_names) == len(svc.candidates)
     inferred = [c for c in svc.candidates.values() if c.candidate_id.startswith("inventory/")]
     assert inferred

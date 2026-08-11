@@ -5,6 +5,7 @@ from pathlib import Path
 from commander_lab.models import (
     BeamSearchInput,
     CandidatePackage,
+    Color,
     LocalSearchInput,
     PackageSearchInput,
     ParetoFrontInput,
@@ -167,18 +168,19 @@ def test_validate_upgrade_runs_full_chain_and_never_applies() -> None:
 def test_constraint_report_rejects_wrong_color_candidate() -> None:
     service = CommanderToolService(ROOT)
     baseline = service._deck("rogshai/current")
-    off_color = next(
-        candidate.card
-        for candidate in service.candidates.values()
-        if candidate.card.oracle_name == "Mazirek, Kraul Death Priest"
+    off_color = baseline.cards[-1].model_copy(
+        update={
+            "oracle_name": "Off-color constraint fixture",
+            "color_identity": frozenset({Color.BLACK, Color.GREEN}),
+        }
     )
     variant = baseline.model_copy(update={"cards": tuple([*baseline.cards[:-1], off_color])})
     report = evaluate_constraints(
         variant,
         DEFAULT_CONSTRAINTS["rogshai/current"],
-        candidate_inventory={"Mazirek, Kraul Death Priest": 1},
-        added_card_names=("Mazirek, Kraul Death Priest",),
-        verified_physical_names={"Mazirek, Kraul Death Priest"},
+        candidate_inventory={"Off-color constraint fixture": 1},
+        added_card_names=("Off-color constraint fixture",),
+        verified_physical_names={"Off-color constraint fixture"},
     )
     assert report.valid is False
     assert any(issue.code == "color_identity" for issue in report.issues)

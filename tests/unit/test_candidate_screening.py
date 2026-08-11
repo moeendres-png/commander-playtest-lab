@@ -19,7 +19,7 @@ def test_rogshai_pool_screen_reduces_default_work_without_hiding_exploration() -
     assert sum(result["bucket_counts"].values()) == result["physical_legal_candidate_count"]
 
 
-def test_frozen_rogshai_challenge_set_remains_historical_regression_evidence() -> None:
+def test_current_rogshai_challenge_set_covers_valid_static_buckets() -> None:
     service = CommanderToolService(ROOT)
     screener = RogShaiCandidateScreener(ROOT, service=service)
     result = screener.benchmark_challenge_set()
@@ -27,6 +27,11 @@ def test_frozen_rogshai_challenge_set_remains_historical_regression_evidence() -
     assert len(result["evaluated"]) == 3
     assert 0.0 < result["legal_candidate_recall"] <= 1.0
     assert result["evidence_boundary"] == "structural_model_estimates"
-    # This frozen J-P5 challenge set is historical regression evidence. Current deck
-    # legality may legitimately differ after a newer canonical RogShai baseline.
-    assert any(not row["decision"]["constraint_valid"] for row in result["evaluated"])
+    assert all(row["decision"]["constraint_valid"] for row in result["evaluated"])
+    assert result["known_good_candidate_recall"] == 1.0
+    assert result["known_bad_candidate_rejection"] == 1.0
+    assert {row["decision"]["bucket"] for row in result["evaluated"]} == {
+        "advance",
+        "explore",
+        "deprioritize_static",
+    }
