@@ -12,6 +12,7 @@ _INPUTS = (
     "data/decks/korvold_current.txt",
     "data/decks/rogshai_current.txt",
     "data/decks/rogshai_current_card_catalog_overrides.json",
+    "data/decks/rogshai_current_structural_overrides.json",
 )
 _TRACKED = (
     "data/decks/korvold_current.json",
