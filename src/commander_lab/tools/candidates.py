@@ -63,11 +63,36 @@ def _as_float(value: object, default: float = 0.0) -> float:
 
 
 def load_current_optimization_availability(root: str | Path) -> dict[str, int]:
-    path = Path(root) / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json"
+    """Load current availability without mutating sealed J-P5 evidence.
+
+    J-P5 remains the frozen historical baseline. Current project-state deltas are applied from a
+    separate unsealed projection so later direct user decisions do not rewrite holdout evidence.
+    """
+
+    root_path = Path(root)
+    path = root_path / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json"
     if not path.exists():
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
-    return {str(name): int(quantity) for name, quantity in payload.get("cards", {}).items()}
+    cards = {str(name): int(quantity) for name, quantity in payload.get("cards", {}).items()}
+
+    release_path = root_path / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json"
+    if not release_path.exists():
+        return cards
+    release = json.loads(release_path.read_text(encoding="utf-8"))
+    if release.get("active_own_decks") != ["rogshai/current"]:
+        raise ValueError("current active-own-deck projection must contain only rogshai/current")
+    if "korvold/current" not in release.get("inactive_former_own_decks", []):
+        raise ValueError("Korvold must be marked inactive before its allocations are released")
+    released = release.get("released_allocations", {})
+    if not isinstance(released, dict):
+        raise ValueError("released_allocations must be a mapping")
+    for name, quantity in released.items():
+        amount = int(quantity)
+        if amount < 0:
+            raise ValueError(f"negative released allocation for {name}")
+        cards[str(name)] = cards.get(str(name), 0) + amount
+    return cards
 
 
 def load_current_candidate_eligibility(root: str | Path) -> dict[str, set[str]]:
