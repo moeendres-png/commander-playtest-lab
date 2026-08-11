@@ -59,6 +59,15 @@ def _is_commander_candidate(row: dict[str, Any]) -> bool:
     return "Legendary Creature" in card_type or "can be your commander" in oracle_text
 
 
+def _is_partner_component(row: dict[str, Any]) -> bool:
+    if row.get("currently_owned") is not True or row.get("commander_legality") != "legal":
+        return False
+    if _is_commander_candidate(row):
+        return True
+    card_type = str(row.get("card_type", ""))
+    return "Legendary Enchantment" in card_type and "Background" in card_type
+
+
 def _partner_mode(row: dict[str, Any]) -> str | None:
     text = str(row.get("oracle_text", ""))
     lowered = text.casefold()
@@ -227,7 +236,9 @@ class SecondDeckReadinessWorkflow:
     ) -> CommanderReadiness:
         rows = [self.inventory_by_name[name] for name in commander_names]
         identity = frozenset().union(*(_identity(row.get("color_identity")) for row in rows))
-        copies = all(remaining.get(name, 0) >= commander_names.count(name) for name in set(commander_names))
+        copies = all(
+            remaining.get(name, 0) >= commander_names.count(name) for name in set(commander_names)
+        )
         support_names, role_counts, capacity = self._support_evidence(
             commander_names, identity, remaining
         )
@@ -253,9 +264,9 @@ class SecondDeckReadinessWorkflow:
         )
 
     def _partner_configurations(
-        self, commanders: list[dict[str, Any]], remaining: Counter[str]
+        self, components: list[dict[str, Any]], remaining: Counter[str]
     ) -> list[CommanderReadiness]:
-        by_name = {str(row["oracle_name"]): row for row in commanders}
+        by_name = {str(row["oracle_name"]): row for row in components}
         configs: dict[tuple[str, str], CommanderReadiness] = {}
         names = sorted(by_name, key=str.casefold)
         for index, left_name in enumerate(names):
@@ -305,11 +316,16 @@ class SecondDeckReadinessWorkflow:
             for row in self.inventory_rows
             if _is_commander_candidate(row) and remaining.get(str(row.get("oracle_name")), 0) > 0
         ]
+        partner_components = [
+            row
+            for row in self.inventory_rows
+            if _is_partner_component(row) and remaining.get(str(row.get("oracle_name")), 0) > 0
+        ]
         single = [
             self._readiness((str(row["oracle_name"]),), "single_commander", remaining)
             for row in sorted(commanders, key=lambda row: str(row["oracle_name"]).casefold())
         ]
-        partner = self._partner_configurations(commanders, remaining)
+        partner = self._partner_configurations(partner_components, remaining)
         return {
             "workflow": "second_deck_readiness",
             "active_own_decks_subtracted": list(self.context.active_own_deck_ids),
@@ -322,6 +338,7 @@ class SecondDeckReadinessWorkflow:
             "remaining_physical_unique_names": len(remaining),
             "remaining_physical_total_cards": sum(remaining.values()),
             "single_commander_candidate_count": len(single),
+            "partner_component_count": len(partner_components),
             "partner_configuration_count": len(partner),
             "single_commander_candidates": [row.as_dict() for row in single],
             "partner_configurations": [row.as_dict() for row in partner],
