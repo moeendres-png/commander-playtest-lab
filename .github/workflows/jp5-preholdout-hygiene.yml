@@ -1,0 +1,127 @@
+name: J-P5 Pre-Holdout Hygiene
+
+on:
+  push:
+    branches:
+      - roadmap/j-p5-optimizer-validation
+    paths:
+      - .github/workflows/jp5-preholdout-hygiene.yml
+
+permissions:
+  contents: write
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install project and quality tools
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Apply deterministic Ruff hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f docs/J_P5_RUFF_DIAG.txt
+          ruff check --fix .
+          ruff format .
+          ruff check .
+          ruff format --check .
+      - name: Mypy strict
+        run: mypy src/commander_lab
+      - name: Focused J-P5 and optimizer regression tests
+        run: pytest -q tests/unit/test_j_p5_optimizer_validation.py tests/unit/test_phase7_optimization.py tests/unit/test_phase12_16_optimizer.py
+      - name: Full test suite pre-holdout
+        run: pytest -q
+      - name: Compile
+        run: python -m compileall -q src tests scripts
+      - name: Renew development freeze and holdout binding without evaluating outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/jp5-preholdout-hygiene.yml
+          python - <<'PY'
+          from __future__ import annotations
+          import hashlib, json, subprocess
+          from pathlib import Path
+
+          root = Path('.')
+          freeze_path = root / 'docs/J_P5_DEVELOPMENT_FREEZE.json'
+          seal_path = root / 'docs/J_P5_HOLDOUT_SEAL.json'
+          trigger_path = root / 'docs/J_P5_PRE_HOLDOUT_CI_TRIGGER.md'
+          freeze = json.loads(freeze_path.read_text(encoding='utf-8'))
+          seal = json.loads(seal_path.read_text(encoding='utf-8'))
+          assert freeze['holdout_outcomes_seen'] is False
+          assert seal['outcomes_evaluated'] is False
+          assert seal['first_evaluation_status'] == 'not_run'
+          assert seal['sha256'] == 'b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203'
+
+          paths = set(freeze['file_sha256'])
+          paths.add('src/commander_lab/optimization/__init__.py')
+          hashes = {}
+          for rel in sorted(paths):
+              data = (root / rel).read_bytes()
+              hashes[rel] = hashlib.sha256(data).hexdigest()
+          freeze['file_sha256'] = hashes
+          freeze['pre_holdout_hygiene'] = {
+              'applied': True,
+              'holdout_outcomes_seen': False,
+              'reason': 'Ruff import/format/API-export hygiene required by pre-holdout CI',
+              'semantic_optimizer_tuning_from_holdout': False,
+              'ruff': 'PASS',
+              'mypy': 'PASS',
+              'focused_optimizer_tests': 'PASS',
+              'full_pytest': 'PASS',
+              'compileall': 'PASS',
+          }
+          freeze['local_validation']['ruff_mypy'] = 'PASS_via_pre_holdout_GitHub_hygiene'
+          freeze['local_validation']['full_pytest'] = 'PASS_via_pre_holdout_GitHub_hygiene'
+          freeze['status'] = 'frozen_pre_holdout_after_ci_hygiene'
+          freeze_path.write_text(json.dumps(freeze, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          freeze_sha = hashlib.sha256(freeze_path.read_bytes()).hexdigest()
+
+          seal['development_freeze_sha256'] = freeze_sha
+          seal['pre_holdout_hygiene_applied'] = True
+          seal['outcomes_evaluated'] = False
+          seal['first_evaluation_status'] = 'not_run'
+          seal_path.write_text(json.dumps(seal, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+
+          trigger_path.write_text(
+              '# J-P5 Pre-Holdout CI Trigger\n\n'
+              'This file is report-only and does not alter optimizer semantics.\n\n'
+              f'- development_freeze_sha256: `{freeze_sha}`\n'
+              '- optimizer_holdout_sha256: `b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203`\n'
+              '- holdout_outcomes_evaluated: `false`\n'
+              '- pre_holdout_hygiene: `Ruff PASS; Mypy PASS; focused tests PASS; full pytest PASS; compile PASS`\n'
+              '- purpose: rerun repository quality, security, Windows, and release gates before the first optimizer holdout evaluation\n'
+              '- canonical_deck_mutation: `false`\n',
+              encoding='utf-8',
+          )
+          report = root / 'docs/J_P5_PRE_HOLDOUT_HYGIENE.md'
+          report.write_text(
+              '# J-P5 Pre-Holdout Hygiene\n\n'
+              '- Holdout outcomes evaluated: **false**\n'
+              '- Optimizer tuning from holdout: **false**\n'
+              '- Ruff lint/format: **PASS**\n'
+              '- Mypy: **PASS**\n'
+              '- Focused optimizer tests: **PASS**\n'
+              '- Full pytest: **PASS**\n'
+              '- Compile: **PASS**\n'
+              f'- Renewed development freeze SHA-256: `{freeze_sha}`\n'
+              '- Holdout corpus SHA-256 unchanged: `b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203`\n'
+              '- Changes are pre-holdout code hygiene/API export maintenance; no holdout result was available.\n',
+              encoding='utf-8',
+          )
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "J-P5: complete pre-holdout CI hygiene and renew freeze"
+          git push
