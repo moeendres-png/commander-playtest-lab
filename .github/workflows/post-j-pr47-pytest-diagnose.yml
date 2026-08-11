@@ -1,4 +1,4 @@
-name: Post-J PR47 Pytest Diagnose
+name: Post-J PR47 Fixture Repair
 
 on:
   push:
@@ -6,33 +6,53 @@ on:
       - project/rogshai-provisional-current-cleanup-20260811
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  diagnose:
+  repair:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: project/rogshai-provisional-current-cleanup-20260811
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Install project and test tools
         run: python -m pip install -e '.[dev,api,openai]'
-      - name: Capture current RogShai candidate registry
+      - name: Replace stale Phase 10 RogShai smoke fixtures
         shell: bash
         run: |
-          python - <<'PY' > candidate-diagnose.txt 2>&1
-          import json
+          python - <<'PY'
           from pathlib import Path
-          from commander_lab.tools import CommanderToolService, ToolRegistry
-          service = CommanderToolService(Path.cwd())
-          registry = ToolRegistry(service)
-          result = registry.invoke('recommend_upgrades', {'deck_id': 'rogshai/current'}).model_dump(mode='json')
-          print(json.dumps(result, indent=2, sort_keys=True))
+          path = Path('src/commander_lab/acceptance/phase10.py')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              '{"remove": "Opt", "add_candidate_id": "rogshai/curiosity-smoke"}': '{"remove": "Kykar, Wind\'s Fury", "add_candidate_id": "inventory/disorder-in-the-court-f673274a"}',
+              '("Opt", "Chart a Course", "Aether Spellbomb")': '("Chart a Course", "Curiosity", "Prismari Charm")',
+              '("Archmage Emeritus", "Prismari Charm", "Psychosis Crawler")': '("Archmage Emeritus", "Prismari Charm", "Kykar, Wind\'s Fury")',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'expected stale fixture not found: {old}')
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
           PY
-      - name: Upload diagnostic output
-        uses: actions/upload-artifact@v4
-        with:
-          name: post-j-pr47-pytest-diagnose
-          path: candidate-diagnose.txt
-          if-no-files-found: error
+          ruff format src/commander_lab/acceptance/phase10.py
+          ruff check src/commander_lab/acceptance/phase10.py
+      - name: Validate repaired Phase 10 acceptance
+        run: pytest -q tests/integration/test_phase10_acceptance.py
+      - name: Commit repaired fixture
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/commander_lab/acceptance/phase10.py
+          if git diff --cached --quiet; then
+            echo 'No fixture change required.'
+            exit 0
+          fi
+          git commit -m 'Refresh Phase 10 RogShai smoke fixtures'
+          git push origin HEAD:project/rogshai-provisional-current-cleanup-20260811
