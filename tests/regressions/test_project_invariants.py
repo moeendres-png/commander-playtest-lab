@@ -33,6 +33,11 @@ def _run_audit(root: Path) -> tuple[subprocess.CompletedProcess[str], dict[str, 
     return completed, json.loads(completed.stdout)
 
 
+def _failed_check_ids(report: dict[str, object]) -> set[str]:
+    checks = cast(list[dict[str, object]], report["checks"])
+    return {str(check["id"]) for check in checks if check["status"] == "FAIL"}
+
+
 def test_structural_profile_config_rejects_duplicate_deck_ids(tmp_path: Path) -> None:
     path = tmp_path / "profiles.json"
     _write_json(
@@ -94,9 +99,73 @@ def test_project_invariant_auditor_fails_closed_on_broken_fixture(tmp_path: Path
     )
 
     completed, report = _run_audit(tmp_path)
-    checks = cast(list[dict[str, object]], report["checks"])
-    failures = {str(check["id"]) for check in checks if check["status"] == "FAIL"}
 
     assert completed.returncode == 1
+    failures = _failed_check_ids(report)
     assert "unique_structural_profile_ids" in failures
     assert "opponent_alias_referential_integrity" in failures
+
+
+def test_project_invariant_auditor_rejects_invalid_official_precon_quantity(
+    tmp_path: Path,
+) -> None:
+    opponent_dir = tmp_path / "data/opponents"
+    _write_json(opponent_dir / "current_structural_profiles.json", {"profiles": []})
+    _write_json(
+        opponent_dir / "broken_precon.json",
+        {
+            "profile_id": "opponent/broken-precon",
+            "list_status": "official_precon",
+            "deck": {"cards": [{"oracle_name": "Test Card", "quantity": 99}]},
+        },
+    )
+    _write_json(
+        opponent_dir / "opponent_registry.json",
+        {
+            "current": {
+                "broken/precon": "opponent/broken-precon",
+                "kaervek/current": "kaervek/current",
+            },
+            "aliases": {},
+            "kaervek_deck_hash": "frozen-test-hash",
+        },
+    )
+
+    completed, report = _run_audit(tmp_path)
+
+    assert completed.returncode == 1
+    assert "official_precon_integrity" in _failed_check_ids(report)
+
+
+def test_project_invariant_auditor_rejects_structural_evidence_promotion(
+    tmp_path: Path,
+) -> None:
+    opponent_dir = tmp_path / "data/opponents"
+    _write_json(
+        opponent_dir / "current_structural_profiles.json",
+        {
+            "profiles": [
+                {
+                    "deck_id": "opponent/evidence-bad",
+                    "evidence_kinds": ["synthetic_completion", "directly_observed"],
+                    "source_status": "external_rules_engine",
+                }
+            ]
+        },
+    )
+    _write_json(
+        opponent_dir / "opponent_registry.json",
+        {
+            "current": {
+                "evidence/bad": "opponent/evidence-bad",
+                "kaervek/current": "kaervek/current",
+            },
+            "aliases": {},
+            "kaervek_deck_hash": "frozen-test-hash",
+        },
+    )
+
+    completed, report = _run_audit(tmp_path)
+
+    assert completed.returncode == 1
+    assert "structural_evidence_boundaries" in _failed_check_ids(report)
