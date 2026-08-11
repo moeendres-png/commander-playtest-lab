@@ -106,6 +106,7 @@ jobs:
           sha = os.environ["GITHUB_SHA"]
           version = os.environ["VERSION"]
           manifest = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
           decks = manifest["decks"]
           korvold = decks["korvold/current"]
           rogshai = decks["rogshai/current"]
@@ -117,9 +118,18 @@ jobs:
               "package_version": version,
               "git_head": sha,
               "status": "deck_optimization_system_requires_external_work",
-              "external_engine_validation_pending": True,
-              "xmage_observations": 0,
-              "forge_observations": 0,
+              "external_engine_validation_pending": p3["primary_provider"] is None,
+              "external_engine_provider_decision": p3["decision"],
+              "external_engine_real_execution": any(
+                  provider["real_execution"] for provider in p3["providers"].values()
+              ),
+              "external_engine_production_bridge": p3["production_bridge"],
+              "xmage_status": p3["providers"]["xmage"]["status"],
+              "xmage_score": p3["providers"]["xmage"]["score"],
+              "xmage_real_execution": p3["providers"]["xmage"]["real_execution"],
+              "forge_status": p3["providers"]["forge"]["status"],
+              "forge_score": p3["providers"]["forge"]["score"],
+              "forge_real_execution": p3["providers"]["forge"]["real_execution"],
               "canonical_deck_mutations": 0,
               "recommendations_applied": 0,
               "runtime_state_directory": ".runtime/engine",
@@ -130,6 +140,7 @@ jobs:
               "rogshai_cards": rogshai["total_cards"],
               "allocation_valid": manifest["allocation_validation"]["valid"],
               "truth_source": "data/decks/manifest.json",
+              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
           }
           (release / "PLAYTEST_LAB_CURRENT_STATUS.json").write_text(
               json.dumps(status, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -143,8 +154,10 @@ jobs:
               f"- Korvold: {korvold['total_cards']} cards; hash `{korvold['deck_hash']}`.\n"
               f"- RogShai: {rogshai['total_cards']} cards; hash `{rogshai['deck_hash']}`.\n"
               f"- Simultaneous allocation valid: `{manifest['allocation_validation']['valid']}`.\n"
-              "- External engine validation: pending; XMage/Forge observations = 0.\n"
-              "- Validation boundary: structural + Tactical Oracle only; no external semantic result.\n"
+              f"- External provider decision: `{p3['decision']}`; production bridge: `{p3['production_bridge']}`.\n"
+              f"- XMage: `{p3['providers']['xmage']['status']}` / {p3['providers']['xmage']['score']} / real execution `{p3['providers']['xmage']['real_execution']}`.\n"
+              f"- Forge: `{p3['providers']['forge']['status']}` / {p3['providers']['forge']['score']} / real execution `{p3['providers']['forge']['real_execution']}`.\n"
+              "- Validation boundary: structural model + Tactical Oracle + real partial external-provider feasibility evidence; no production-ready external bridge.\n"
               "- Canonical deck mutations by this technical release: 0.\n"
               "- Recommendations applied: 0.\n",
               encoding="utf-8",
@@ -159,11 +172,16 @@ jobs:
           from pathlib import Path
 
           source = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
           release = json.loads(Path("release/PLAYTEST_LAB_CURRENT_STATUS.json").read_text(encoding="utf-8"))
           assert release["korvold_frozen_hash"] == source["decks"]["korvold/current"]["deck_hash"]
           assert release["rogshai_frozen_hash"] == source["decks"]["rogshai/current"]["deck_hash"]
           assert release["data_snapshot_hash"] == source["data_snapshot_hash"]
           assert release["allocation_valid"] == source["allocation_validation"]["valid"]
+          assert release["external_engine_provider_decision"] == p3["decision"]
+          assert release["xmage_real_execution"] is p3["providers"]["xmage"]["real_execution"]
+          assert release["forge_real_execution"] is p3["providers"]["forge"]["real_execution"]
+          assert release["external_engine_production_bridge"] == p3["production_bridge"]
           PY
       - name: Write manifest and validation package
         shell: bash
@@ -199,8 +217,11 @@ jobs:
               "release": version,
               "git_head": sha,
               "artifacts": artifacts,
-              "validation_level": "structural_and_tactical_only",
-              "external_rules_engine_results": False,
+              "validation_level": "structural_tactical_and_real_external_feasibility_evidence",
+              "external_rules_engine_results": True,
+              "external_engine_production_ready": False,
+              "external_engine_provider_decision": "NO_PROVIDER_READY",
+              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
               "roundtrip_required": True,
               "release_truth_source": "data/decks/manifest.json",
           }
@@ -242,6 +263,7 @@ jobs:
           python -m venv "$RUNNER_TEMP/wheel-verify"
           "$RUNNER_TEMP/wheel-verify/bin/python" -m pip install --quiet "release/commander_playtest_lab-${version}-py3-none-any.whl"
           test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "$version"
+          "$RUNNER_TEMP/wheel-verify/bin/commander-lab" --help >/dev/null
           printf 'release=%s\ngit_head=%s\nroundtrip=passed\n' "$version" "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
           (cd release && grep -v 'PLAYTEST_LAB_REPRODUCIBILITY.txt$' PLAYTEST_LAB_SHA256SUMS.txt > PLAYTEST_LAB_SHA256SUMS.tmp)
           (cd release && mv PLAYTEST_LAB_SHA256SUMS.tmp PLAYTEST_LAB_SHA256SUMS.txt && sha256sum PLAYTEST_LAB_REPRODUCIBILITY.txt >> PLAYTEST_LAB_SHA256SUMS.txt)
