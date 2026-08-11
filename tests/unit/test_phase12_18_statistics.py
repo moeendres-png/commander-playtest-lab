@@ -36,8 +36,13 @@ def test_every_paired_comparison_exposes_required_protocol_fields() -> None:
     service = CommanderToolService(ROOT)
     response = service.compare_variants_paired(
         PairedVariantInput(
-            deck_id="korvold/current",
-            swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
+            deck_id="rogshai/current",
+            swaps=(
+                VariantSwap(
+                    remove="Flare of Duplication",
+                    add_candidate_id="inventory/rootborn-defenses-677fdbcf",
+                ),
+            ),
             iterations=3,
             workers=1,
             seed=123,
