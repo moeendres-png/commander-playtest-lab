@@ -137,12 +137,11 @@ def test_recommendation_trace_contains_required_fields_and_truth_boundary() -> N
     assert paired_seed_set_identity((1, 2, 3))["count"] == 3
 
 
-def test_historical_challenge_set_preserves_classes_and_truth_boundary() -> None:
+def test_current_challenge_set_preserves_classes_and_truth_boundary() -> None:
     payload = json.loads(
         (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text()
     )
     assert {row["class"] for row in payload["variants"]} == {"good", "neutral", "bad"}
     assert payload["evidence_boundary"] == "structural_model_estimates"
     assert payload["canonical_mutation_allowed"] is False
-    assert any(row["deck_id"] == "korvold/current" for row in payload["variants"])
-    assert any(row["deck_id"] == "rogshai/current" for row in payload["variants"])
+    assert {row["deck_id"] for row in payload["variants"]} == {"rogshai/current"}

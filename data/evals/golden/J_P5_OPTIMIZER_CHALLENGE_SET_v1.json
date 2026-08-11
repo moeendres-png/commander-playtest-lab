@@ -4,11 +4,8 @@
   "label_basis": "pre-simulation static structural screening only; labels are challenge expectations, not empirical card-quality claims",
   "canonical_mutation_allowed": false,
   "variants": [
-    {"id":"korvold_good_static","deck_id":"korvold/current","class":"good","remove":"Mayhem Devil","add_candidate_id":"inventory/scouring-swarm-decedec9","static_screening_delta":1.565},
-    {"id":"korvold_neutral_static","deck_id":"korvold/current","class":"neutral","remove":"Goblin Bombardment","add_candidate_id":"inventory/god-eternal-bontu-a0217122","static_screening_delta":0.025},
-    {"id":"korvold_bad_static","deck_id":"korvold/current","class":"bad","remove":"Pest Infestation","add_candidate_id":"inventory/gate-colossus-47ea16ae","static_screening_delta":-6.95},
     {"id":"rogshai_good_static","deck_id":"rogshai/current","class":"good","remove":"Flare of Duplication","add_candidate_id":"inventory/rootborn-defenses-677fdbcf","static_screening_delta":1.115},
     {"id":"rogshai_neutral_static","deck_id":"rogshai/current","class":"neutral","remove":"Preordain","add_candidate_id":"inventory/divine-resilience-842a919d","static_screening_delta":0.01},
-    {"id":"rogshai_bad_static","deck_id":"rogshai/current","class":"bad","remove":"Farewell","add_candidate_id":"inventory/sphinx-of-the-final-word-c3b31ea0","static_screening_delta":-5.716}
+    {"id":"rogshai_bad_static","deck_id":"rogshai/current","class":"bad","remove":"Chain Reaction","add_candidate_id":"inventory/sphinx-of-the-final-word-c3b31ea0","static_screening_delta":-2.84}
   ]
 }
