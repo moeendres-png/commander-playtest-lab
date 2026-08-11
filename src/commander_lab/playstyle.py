@@ -51,7 +51,7 @@ class PlaystyleAnalyzer:
         trigger_count = text.count("whenever") + text.count("at the beginning")
         if trigger_count:
             signals.add("repeated_trigger_text")
-        if "create" in text and "token" in text or CardRole.TOKEN_SOURCE in card.roles:
+        if ("create" in text and "token" in text) or CardRole.TOKEN_SOURCE in card.roles:
             signals.add("token_bookkeeping")
         if "sacrifice" in text or CardRole.SACRIFICE_OUTLET in card.roles:
             signals.add("sacrifice_actions")
