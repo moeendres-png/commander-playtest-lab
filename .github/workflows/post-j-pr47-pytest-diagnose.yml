@@ -1,4 +1,4 @@
-name: Post-J PR47 Acceptance Diagnose
+name: Post-J PR47 Validation Diagnose
 
 on:
   push:
@@ -19,27 +19,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install project and test tools
+      - name: Install project
         run: python -m pip install -e '.[dev,api,openai]'
-      - name: Capture Phase 10 current criteria
+      - name: Capture current validate_deck shape
         shell: bash
         run: |
-          python - <<'PY' > phase10-current.txt 2>&1
+          python - <<'PY' > validation-current.txt 2>&1
           import json
           from pathlib import Path
-          from commander_lab.acceptance.phase10 import run_phase10_acceptance
-          result = run_phase10_acceptance(Path.cwd(), iterations=1, workers=1, output_directory=Path('artifacts/post_j_pr47_phase10_diag'))
-          print(json.dumps({
-              'status': result['status'],
-              'criteria': result['local_acceptance_criteria'],
-              'failed_tools': result['failed_tools'],
-              'joint_physical_allocation': result['joint_physical_allocation'],
-              'final_recommendations': result['final_recommendations'],
-          }, indent=2, sort_keys=True))
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+          registry = ToolRegistry(CommanderToolService(Path.cwd()))
+          row = registry.invoke('validate_deck', {'deck_id':'rogshai/current'}).model_dump(mode='json')
+          print(json.dumps(row, indent=2, sort_keys=True))
           PY
-      - name: Upload diagnostic output
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: post-j-pr47-acceptance-diagnose
-          path: phase10-current.txt
+          name: post-j-pr47-validation-diagnose
+          path: validation-current.txt
           if-no-files-found: error
