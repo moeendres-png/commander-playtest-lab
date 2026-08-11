@@ -17,11 +17,11 @@ def test_rules_loader_accepts_compact_current_snapshot_without_main_zone(tmp_pat
                 "cards": [
                     {"oracle_name": "Commander A", "zone": "commander"},
                     {"oracle_name": "Commander B", "zone": "commander"},
-                    {"oracle_name": "Island", "quantity": 3},
+                    {"oracle_name": "Island", "quantity": 97},
                     {"oracle_name": "Sol Ring"},
                     {"oracle_name": "Wish", "zone": "sideboard", "quantity": 2},
                 ],
-                "deck_hash": "abc",
+                "deck_hash": "a" * 64,
             }
         ),
         encoding="utf-8",
@@ -30,9 +30,11 @@ def test_rules_loader_accepts_compact_current_snapshot_without_main_zone(tmp_pat
     deck = load_rules_deck_snapshot(path)
 
     assert deck.commander_names == ("Commander A", "Commander B")
-    assert deck.mainboard == ("Island", "Island", "Island", "Sol Ring")
+    assert len(deck.mainboard) == 98
+    assert deck.mainboard.count("Island") == 97
+    assert deck.mainboard.count("Sol Ring") == 1
     assert deck.sideboard == ("Wish", "Wish")
-    assert deck.deck_hash == "abc"
+    assert deck.deck_hash == "a" * 64
 
 
 def test_rules_loader_preserves_explicit_legacy_main_zone(tmp_path: Path) -> None:
@@ -45,7 +47,7 @@ def test_rules_loader_preserves_explicit_legacy_main_zone(tmp_path: Path) -> Non
                 "commander": {"commanders": ["Commander"]},
                 "cards": [
                     {"oracle_name": "Commander", "zone": "commander", "quantity": 1},
-                    {"oracle_name": "Mountain", "zone": "main", "quantity": 2},
+                    {"oracle_name": "Mountain", "zone": "main", "quantity": 99},
                 ],
             }
         ),
@@ -54,5 +56,6 @@ def test_rules_loader_preserves_explicit_legacy_main_zone(tmp_path: Path) -> Non
 
     deck = load_rules_deck_snapshot(path)
 
-    assert deck.mainboard == ("Mountain", "Mountain")
+    assert len(deck.mainboard) == 99
+    assert set(deck.mainboard) == {"Mountain"}
     assert deck.sideboard == ()
