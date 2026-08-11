@@ -14,8 +14,14 @@ from commander_lab.models import (
     VariantSwap,
 )
 from commander_lab.mulligan import MulliganLab
-from commander_lab.optimization import build_search_candidate, run_paired_structural_comparison
+from commander_lab.optimization import (
+    build_search_candidate,
+    derive_paired_seed,
+    run_paired_structural_comparison,
+)
 from commander_lab.project_context import ProjectContextSnapshot, load_project_context
+from commander_lab.storage import ExactResultCache, build_exact_result_identity
+from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.current_candidates import canonical_feature_fusion_summary
 from commander_lab.tools.service import CommanderToolService
 
@@ -33,6 +39,10 @@ class PriorityWorkflowFacade:
         self.service = CommanderToolService(self.root)
         self.mulligan = MulliganLab(self.root)
         self.mana = ManaAnalyzer(self.root)
+        self.result_cache = ExactResultCache(
+            self.root / ".runtime/priority_result_cache.sqlite3",
+            root=self.root,
+        )
 
     def _deck(self, deck_id: str) -> StructuralDeckProfile:
         try:
@@ -46,6 +56,11 @@ class PriorityWorkflowFacade:
             "snapshot_hash": context.snapshot_hash,
             "engine_version": context.engine_version,
             "source_hashes": dict(context.source_hashes),
+            "source_freshness": dict(context.source_freshness),
+            "active_own_deck_ids": list(context.active_own_deck_ids),
+            "historical_own_deck_ids": list(context.historical_own_deck_ids),
+            "playstyle_preference_type": context.playstyle_preference_type,
+            "playstyle_preference_hash": context.playstyle_preference_hash,
         }
 
     def build_screen(self, deck_id: str, *, limit: int = 25) -> dict[str, Any]:
@@ -108,7 +123,7 @@ class PriorityWorkflowFacade:
         seed: int = 20260811,
         max_turns: int = 14,
     ) -> dict[str, Any]:
-        """Build one legal swap and run the existing J-P5 paired CRN comparison."""
+        """Build one legal swap and run or reuse the exact existing J-P5 paired comparison."""
         if iterations < 1:
             raise ValueError("iterations must be positive")
         baseline = self._deck(deck_id)
@@ -132,19 +147,62 @@ class PriorityWorkflowFacade:
             self._deck(opponent_id)
             for opponent_id in self.context.primary_opponent_deck_ids(deck_id)
         )
-        metrics, pairs = run_paired_structural_comparison(
-            baseline=baseline,
-            variant=built.variant,
-            opponents=opponents,
-            iterations=iterations,
-            seed=seed,
-            pilot_config=PilotConfig(
-                strength=PilotStrength.STRONG,
-                mode=PilotDecisionMode.DETERMINISTIC,
-            ),
-            max_turns=max_turns,
-            pair_id=f"priority-{deck_id}-{built.variant.deck_hash[:12]}",
+        pilot_config = PilotConfig(
+            strength=PilotStrength.STRONG,
+            mode=PilotDecisionMode.DETERMINISTIC,
         )
+        pair_id = f"priority-{deck_id}-{built.variant.deck_hash[:12]}"
+        paired_seeds = tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations))
+        analysis_seed = derive_paired_seed(seed, pair_id, iterations + 1)
+        pilot_hash = sha256_run_value(pilot_config, root=self.root)
+        optimizer_hash = sha256_run_value(
+            self.service._optimization_constraints(deck_id), root=self.root
+        )
+        cache_identity = build_exact_result_identity(
+            engine_version=self.context.engine_version,
+            deck_hashes=(baseline.deck_hash, built.variant.deck_hash),
+            opponent_hashes=tuple(deck.deck_hash for deck in opponents),
+            pilot_hashes=(pilot_hash,),
+            canonical_context_snapshot=self.context.snapshot_hash,
+            scenario={
+                "deck_id": deck_id,
+                "opponent_deck_ids": [deck.deck_id for deck in opponents],
+                "starting_player_seat": None,
+            },
+            simulation_config={
+                "iterations": iterations,
+                "master_seed": seed,
+                "analysis_seed": analysis_seed,
+                "max_turns": max_turns,
+                "pair_id": pair_id,
+            },
+            exact_seed_set=paired_seeds,
+            policy_config_hashes={
+                "pilot_config": pilot_hash,
+                "optimization_constraints": optimizer_hash,
+            },
+        )
+
+        def compute() -> dict[str, Any]:
+            metrics, pairs = run_paired_structural_comparison(
+                baseline=baseline,
+                variant=built.variant,
+                opponents=opponents,
+                iterations=iterations,
+                seed=seed,
+                pilot_config=pilot_config,
+                max_turns=max_turns,
+                pair_id=pair_id,
+            )
+            return {"paired": metrics.as_dict(), "pairs": pairs}
+
+        cached = self.result_cache.get_or_compute(
+            cache_identity,
+            evidence_class="structural_model_estimates",
+            compute=compute,
+        )
+        paired = dict(cached.result["paired"])
+        pairs = list(cached.result["pairs"])
         return {
             "workflow": "compare_validate",
             "status": "completed",
@@ -161,10 +219,17 @@ class PriorityWorkflowFacade:
             "constraint_report": built.constraint_report.model_dump(mode="json"),
             "screening_score": built.screening_score,
             "rationale": list(built.rationale),
-            "paired": metrics.as_dict(),
+            "paired": paired,
             "pair_count": len(pairs),
             "mana_before": asdict(self.mana.analyze_deck(baseline)),
             "mana_after": asdict(self.mana.analyze_deck(built.variant)),
+            "cache_provenance": {
+                "cache_key": cached.cache_key,
+                "cache_hit": cached.cache_hit,
+                "evidence_class": cached.evidence_class,
+                "exact_seed_count": len(paired_seeds),
+                "exact_seed_set_sha256": sha256_run_value(paired_seeds, root=self.root),
+            },
             "truth_boundary": "model-internal paired structural comparison, not empirical gameplay",
         }
 
@@ -236,22 +301,19 @@ class PriorityWorkflowFacade:
             worst_case_sensitivity_result=worst_case_sensitivity_result or {},
             commander_denial_result=commander_denial_result or {},
             ablation_result=ablation_result or {},
-            cache_provenance={
-                "status": "justified_not_shipped_j_p6_profile_no_relevant_cache_bottleneck",
-                "cache_hit": False,
-            },
+            cache_provenance=dict(comparison.get("cache_provenance", {})),
             simulation_counts={
                 "requested_runs": paired.get("requested_runs", 0),
                 "valid_runs": paired.get("valid_runs", 0),
             },
-            stopping_reason="explicit workflow completion; no adaptive racing applied",
+            stopping_reason="explicit workflow completion; adaptive racing evaluated separately",
             evidence_class="structural_model_estimates",
             known_limitations=(
                 "Structural simulation is not an empirical Commander winrate.",
                 "Tactical Oracle is not an external rules engine.",
                 "Opponent uncertainty remains source-evidence dependent.",
-                "J-P6 profiling found lookup, SQLite, and serialization negligible relative to structural simulation; no production result cache was added.",
-                "No adaptive racing scheduler is shipped without a separate benchmark proving material simulation-count reduction while preserving J-P5 decision-quality gates.",
+                "Exact cache reuse is valid only for byte-semantically identical simulation identity inputs.",
+                "Adaptive racing may be shipped only after its frozen benchmark preserves decision-quality gates while reducing simulations materially.",
             ),
             recommendation_status=recommendation_status,
         )
