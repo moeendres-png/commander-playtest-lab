@@ -242,7 +242,8 @@ class CommanderToolService:
     methods and cannot directly mutate game state. Simulation results remain structural estimates.
     """
 
-    ACTIVE_OWN_DECK_IDS = ("korvold/current", "rogshai/current")
+    ACTIVE_OWN_DECK_IDS = ("rogshai/current",)
+    HISTORICAL_OWN_DECK_IDS = ("korvold/current",)
     FROZEN_OPPONENT_ONLY_DECK_IDS = frozenset({"kaervek/current"})
     COVERAGE_VERSION_PREFIXES: ClassVar[dict[str, tuple[str, ...]]] = {
         "korvold/current": ("korvold/current-",),
@@ -275,7 +276,7 @@ class CommanderToolService:
             canonical_inventory = load_canonical_inventory_quantities(self.root)
             if canonical_inventory:
                 baseline_required: Counter[str] = Counter()
-                for deck_id in ("korvold/current", "rogshai/current"):
+                for deck_id in self.ACTIVE_OWN_DECK_IDS:
                     deck = self.decks.get(deck_id)
                     if deck is None:
                         continue

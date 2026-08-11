@@ -183,8 +183,40 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
     contract = _contract(project)
     pool = cast(dict[str, object], contract["rogshai_candidate_pool"])
     rows = _candidate_rows(project, contract)
-    reservations = _korvold_nonbasic_reservations(project)
     profiles = _explicit_profiles(project)
+    eligibility_path = (
+        project / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    )
+    eligibility_payload = json.loads(eligibility_path.read_text(encoding="utf-8"))
+    eligible_by_deck = eligibility_payload.get("eligible_by_deck", {})
+    current_eligibility = eligible_by_deck.get(ROGSHAI_DECK_ID)
+    if not isinstance(current_eligibility, dict):
+        raise FreshRebuildDataError("current RogShai eligibility projection is missing")
+    active_scope = json.loads(
+        (project / "data/collections/current/J_FINAL_ACTIVE_SCOPE.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    if active_scope.get("active_own_decks") != [ROGSHAI_DECK_ID]:
+        raise FreshRebuildDataError("fresh rebuild requires RogShai as sole active own deck")
+    if active_scope.get("historical_allocation_blocks_active_deck") is not False:
+        raise FreshRebuildDataError("historical allocation still blocks active RogShai")
+    manifest = json.loads(
+        (
+            project
+            / "data/collections/current/rogshai_feature_projection/manifest.json"
+        ).read_text(encoding="utf-8")
+    )
+    scope_candidate = active_scope.get("sources", {}).get(
+        "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl", {}
+    )
+    feature_candidate = manifest.get("source_artifacts", {}).get(
+        "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl", {}
+    )
+    if scope_candidate.get("sha256") != feature_candidate.get("sha256"):
+        raise FreshRebuildDataError("current candidate-source identities disagree")
+    if int(manifest.get("canonical_candidate_count", 0)) != int(pool["expected_count"]):
+        raise FreshRebuildDataError("current candidate count disagrees with MVP coverage contract")
 
     candidates: dict[str, CandidateProfile] = {}
     review_required: dict[str, CardIdentity] = {}
@@ -208,12 +240,17 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             "color_identity": [color.value for color in identity.color_identity],
             "commander_legal": True,
         }
-        quantity = _as_int(row.get("quantity", 0))
-        available[name] = (
-            max(50, quantity)
-            if name in BASIC_LANDS
-            else max(0, quantity - reservations.get(name, 0))
-        )
+        eligibility = current_eligibility.get(name)
+        if not isinstance(eligibility, dict):
+            raise FreshRebuildDataError(
+                f"current RogShai eligibility missing candidate: {name}"
+            )
+        if eligibility.get("commander_legal") is not True:
+            raise FreshRebuildDataError(f"current eligibility marks {name} nonlegal")
+        quantity = _as_int(eligibility.get("physical_available_quantity", 0))
+        if quantity <= 0:
+            raise FreshRebuildDataError(f"current eligibility marks {name} unavailable")
+        available[name] = max(50, quantity) if name in BASIC_LANDS else quantity
         profile = profiles.get(name)
         if profile is None:
             coverage_status[name] = str(row.get("coverage_status", "REVIEW_REQUIRED"))
@@ -252,7 +289,8 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             "candidate_pool_sha256": pool["content_sha256"],
             "candidate_names_sha256": expected_hash,
             "inventory_delta": contract["current_drive_inventory_delta"],
-            "korvold_reservations": sorted(reservations.items()),
+            "current_rogshai_eligibility": eligibility_payload,
+            "current_candidate_source_sha256": scope_candidate.get("sha256"),
             "fresh_rebuild_invariants": contract["fresh_rebuild_invariants"],
         }
     )

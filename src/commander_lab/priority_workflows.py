@@ -6,6 +6,10 @@ from typing import Any
 
 from commander_lab.candidate_screening import RogShaiCandidateScreener
 from commander_lab.decision_bundle import DecisionBundle, write_decision_bundle
+from commander_lab.fresh_rebuild import (
+    load_fresh_rebuild_runtime,
+    load_fresh_rogshai_universe,
+)
 from commander_lab.mana_analysis import ManaAnalyzer
 from commander_lab.models import (
     PilotConfig,
@@ -67,27 +71,58 @@ class PriorityWorkflowFacade:
         if limit < 1:
             raise ValueError("limit must be positive")
         baseline = self._deck(deck_id)
-        screened = self.screener.screen_pool(deck_id)
-        rows = screened["rows"]
-        if not isinstance(rows, list):
-            raise RuntimeError("candidate screen rows must be a list")
+        fresh = load_fresh_rogshai_universe(self.root)
+        runtime = load_fresh_rebuild_runtime(self.root)
+        coverage = runtime["candidate_universe"]["coverage_counts"]
+        modeled_by_name = fresh.candidate_by_name()
+        discovery_rows: list[dict[str, Any]] = []
+        for name in sorted(fresh.candidate_names, key=str.casefold):
+            candidate = modeled_by_name.get(name)
+            status = fresh.coverage_status_by_name.get(name, "REVIEW_REQUIRED")
+            discovery_rows.append(
+                {
+                    "candidate_id": candidate.candidate_id if candidate is not None else None,
+                    "oracle_name": name,
+                    "coverage_status": status,
+                    "physical_available_quantity": fresh.available_quantities.get(name, 0),
+                    "model_dependent_evaluation_ready": candidate is not None,
+                    "requires_profile_before_model_dependent_recommendation": candidate is None,
+                    "explorable": True,
+                    "historical_deck_membership_quality_prior": False,
+                    "current_deck_membership_quality_prior": False,
+                }
+            )
+        candidate_recall = len(discovery_rows) / fresh.candidate_count
         return {
             "workflow": "build_screen",
             "evidence_class": "structural_candidate_screening",
             "deck_id": deck_id,
             "deck_hash": baseline.deck_hash,
             "context": self._context_payload(self.context),
-            "eligible_candidate_count": screened["physical_legal_candidate_count"],
-            "candidate_pool_after_default_screen": screened["candidate_pool_after_default_screen"],
-            "bucket_counts": screened["bucket_counts"],
+            "eligible_candidate_count": fresh.candidate_count,
+            "legal_physical_candidate_count": fresh.candidate_count,
+            "discoverable_candidate_count": len(discovery_rows),
+            "excluded_candidate_count_by_reason": {},
+            "candidate_recall": candidate_recall,
+            "candidate_pool_after_default_screen": fresh.structurally_scorable_count,
+            "fully_high_confidence_modeled": int(coverage["STRUCTURALLY_MODELED"]),
+            "partially_modeled": int(coverage["PARTIALLY_MODELED"]),
+            "structurally_unmodeled": int(coverage["STRUCTURALLY_UNMODELED"]),
+            "unmodeled_candidate_discoverability": True,
+            "fresh_rebuild_neutrality": {
+                "current_deck_membership_quality_prior": False,
+                "historical_deck_membership_quality_prior": False,
+                "historical_allocation_blocks_active_deck": False,
+            },
             "feature_fusion": canonical_feature_fusion_summary(self.root),
             "challenge_benchmark": self.screener.benchmark_challenge_set(),
             "mana": asdict(self.mana.analyze_deck(baseline)),
-            "candidates": rows[:limit],
+            "candidates": discovery_rows[:limit],
             "unusual_candidates_remain_explorable": True,
             "playstyle_is_hard_filter": False,
             "ranking_claim": (
-                "conservative static structural screen only; no empirical card-power ranking"
+                "complete legal/physical Fresh-Rebuild discovery; structural profiling gates "
+                "model-dependent recommendation; no empirical card-power ranking"
             ),
         }
 
