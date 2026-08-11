@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from commander_lab.models.mulligan import MulliganContext
 from commander_lab.project_context import ProjectContextError, load_project_context
 
@@ -14,7 +16,7 @@ class MulliganLab(_LegacyMulliganLab):
     context selection is replaced so current pod membership is not duplicated in Python code.
     """
 
-    def __init__(self, root):  # type annotation inherited through the public constructor contract
+    def __init__(self, root: str | Path) -> None:
         super().__init__(root)
         try:
             self.project_context = load_project_context(self.root)
