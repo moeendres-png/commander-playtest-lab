@@ -191,11 +191,11 @@ class RogShaiCandidateScreener:
         canonical_feature_coverage = 0
 
         for name in sorted(eligible, key=str.casefold):
-            candidate = modeled_by_name.get(name)
+            profile = modeled_by_name.get(name)
             annotation = annotations.get(name)
             if annotation is not None:
                 canonical_feature_coverage += 1
-            if candidate is None:
+            if profile is None:
                 structurally_unmodeled += 1
                 rows.append(
                     {
@@ -219,7 +219,7 @@ class RogShaiCandidateScreener:
                 )
                 continue
 
-            confidence = _confidence(candidate)
+            confidence = _confidence(profile)
             if annotation is not None and (
                 confidence.startswith("low_") or confidence == "unknown"
             ):
@@ -228,37 +228,37 @@ class RogShaiCandidateScreener:
                 high_confidence += 1
             else:
                 partially_modeled += 1
-            if candidate.card.source_quality == DataQuality.PROJECT_INFERRED:
+            if profile.card.source_quality == DataQuality.PROJECT_INFERRED:
                 heuristic_fallback_count += 1
 
-            dominated = dominated_by.get(candidate.candidate_id)
+            dominated = dominated_by.get(profile.candidate_id)
             if dominated is not None:
                 bucket = "defer_clear_static_dominance"
             elif confidence.startswith("low_") or confidence == "unknown":
-                if not candidate.card.package_ids and annotation is None:
+                if not profile.card.package_ids and annotation is None:
                     bucket = "defer_low_confidence_default"
                 else:
                     bucket = "explore"
-            elif candidate.card.package_ids or annotation is not None:
+            elif profile.card.package_ids or annotation is not None:
                 bucket = "advance"
             else:
                 bucket = "explore"
 
-            playstyle = self.playstyle.analyze_card(candidate.card)
-            roles = set(candidate.card.roles)
-            packages = set(candidate.card.package_ids)
+            playstyle = self.playstyle.analyze_card(profile.card)
+            roles = set(profile.card.roles)
+            packages = set(profile.card.package_ids)
             if annotation is not None:
                 roles.update(annotation.mapped_roles)
                 packages.update(annotation.package_ids)
             rows.append(
                 {
-                    "candidate_id": candidate.candidate_id,
+                    "candidate_id": profile.candidate_id,
                     "oracle_name": name,
                     "bucket": bucket,
                     "confidence": confidence,
                     "roles": tuple(sorted(role.value for role in roles)),
                     "package_ids": tuple(sorted(packages)),
-                    "mana_value": float(candidate.card.mana_value),
+                    "mana_value": float(profile.card.mana_value),
                     "clear_static_dominance_by": dominated,
                     "playstyle_fit": playstyle.playstyle_fit,
                     "playstyle_confidence": playstyle.confidence,
