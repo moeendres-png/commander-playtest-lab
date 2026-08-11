@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 from commander_lab import __version__
@@ -128,6 +129,8 @@ def main() -> None:
         )
         assert response.metadata.estimate_type == "structural_model_estimates"
 
+    context_payload = asdict(context)
+    context_payload["root"] = str(context_payload["root"])
     evidence = {
         "schema_version": "1.0",
         "purpose": "J-FINAL acceptance for current RogShai structural/decision-support scope",
@@ -138,7 +141,7 @@ def main() -> None:
             "historical_membership": "not a card-quality prior",
         },
         "software": {"package_version": __version__, "engine_version": ENGINE_VERSION},
-        "context": context.model_dump(mode="json"),
+        "context": context_payload,
         "candidate_universe": {
             key: screen[key]
             for key in (
