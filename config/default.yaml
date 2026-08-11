@@ -12,7 +12,6 @@ validation:
 imports:
   default_language: en
   google_drive_sheet_map:
-    korvold/current: "01_Korvold"
     rogshai/current: "02_RogShai"
 
 hashing:

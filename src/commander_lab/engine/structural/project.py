@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from commander_lab.models import Deck, StructuralDeckProfile
+from commander_lab.models import Deck, StructuralCardProfile, StructuralDeckProfile
 from commander_lab.storage import load_model
 
 from .fixtures import build_current_opponent_profiles, build_synthetic_deck_profile
@@ -50,15 +50,37 @@ def load_project_structural_decks(
     profiles = StructuralProfileCatalog.from_json(
         root_path / "data/cards/structural_role_profiles.json"
     )
+    overlay_path = root_path / "data/decks/rogshai_current_structural_overrides.json"
+    if overlay_path.exists():
+        overlay_payload = json.loads(overlay_path.read_text(encoding="utf-8"))
+        overlay_rows = overlay_payload.get("profiles", [])
+        if not isinstance(overlay_rows, list):
+            raise ValueError("current RogShai structural overlay is malformed")
+        profiles = StructuralProfileCatalog(
+            (*profiles.profiles, *(StructuralCardProfile.model_validate(row) for row in overlay_rows))
+        )
     decks: dict[str, StructuralDeckProfile] = {}
-    for filename in ("korvold_current.json", "rogshai_current.json"):
-        deck = load_model(root_path / "data/decks" / filename, Deck)
+    deck_specs = manifest.get("decks", {})
+    if not isinstance(deck_specs, dict) or not deck_specs:
+        raise ValueError("current deck manifest does not contain any operational decks")
+    for deck_id, spec in deck_specs.items():
+        if not isinstance(spec, dict):
+            raise ValueError(f"invalid deck manifest entry for {deck_id}")
+        filename = spec.get("normalized_file")
+        if not isinstance(filename, str) or not filename:
+            raise ValueError(f"current deck manifest entry {deck_id} has no normalized_file")
+        deck_path = root_path / "data/decks" / filename
+        deck = load_model(deck_path, Deck)
+        if deck.deck_id != deck_id:
+            raise ValueError(
+                f"deck manifest id mismatch: expected {deck_id}, loaded {deck.deck_id} from {deck_path}"
+            )
         profile = build_structural_deck_profile(deck, profiles, data_snapshot_hash=snapshot_hash)
         profile = _attach_package_membership(profile, root_path)
         _merge_unique_structural_profiles(
             decks,
             {profile.deck_id: profile},
-            source=root_path / "data/decks" / filename,
+            source=deck_path,
         )
     if include_synthetic_fixtures:
         for archetype in ("aggro", "control", "engine"):

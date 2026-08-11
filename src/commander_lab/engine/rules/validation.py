@@ -83,14 +83,12 @@ def run_phase8_validation(
         decks = rules_project.load_project_rules_decks(root_path)
         handles = {deck_id: manager.tactical.load_deck(deck) for deck_id, deck in decks.items()}
 
+        if not handles:
+            raise ValueError("phase8 validation requires at least one current operational deck")
+        current_handle = handles.get("rogshai/current") or next(iter(handles.values()))
         request_a = RulesGameRequest(
             game_id="phase8-repro-a",
-            deck_handles=(
-                handles["korvold/current"].handle_id,
-                handles["rogshai/current"].handle_id,
-                handles["korvold/current"].handle_id,
-                handles["rogshai/current"].handle_id,
-            ),
+            deck_handles=(current_handle.handle_id,) * 4,
             seed=seed,
             starting_player_seat=0,
         )
