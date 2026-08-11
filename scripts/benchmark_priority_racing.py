@@ -3,9 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from commander_lab.candidate_screening import RogShaiCandidateScreener
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, VariantSwap
