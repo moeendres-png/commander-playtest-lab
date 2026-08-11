@@ -1,0 +1,85 @@
+name: J-FINAL Acceptance
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - j-final/rogshai-scope-repair
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: j-final-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Git integrity
+        run: |
+          git fsck --full
+          git diff --check
+          test -z "$(git status --porcelain)"
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install project and final validation tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev,api,openai]'
+          python -m pip install build
+      - name: Compile
+        run: python -m compileall -q src tests scripts/run_j_final_acceptance.py
+      - name: J-FINAL scope regressions
+        run: pytest -q tests/regressions/test_j_final_rogshai_scope.py
+      - name: Full test suite
+        run: pytest -q
+      - name: Ruff lint
+        run: ruff check .
+      - name: Ruff format
+        run: ruff format --check .
+      - name: Mypy strict
+        run: mypy src/commander_lab
+      - name: Execute representative RogShai decision workflow
+        run: python scripts/run_j_final_acceptance.py
+      - name: Execute controlled three-variant decision challenge
+        run: python scripts/benchmark_priority_racing.py --output artifacts/j-final/J_FINAL_DECISION_CHALLENGE.json
+      - name: Build sdist and wheel
+        run: python -m build --sdist --wheel
+      - name: Fresh wheel install and CLI/import smoke
+        shell: bash
+        run: |
+          python -m venv .runtime/j-final-wheel-venv
+          .runtime/j-final-wheel-venv/bin/python -m pip install --upgrade pip
+          .runtime/j-final-wheel-venv/bin/python -m pip install dist/*.whl
+          .runtime/j-final-wheel-venv/bin/python -c 'import commander_lab; print(commander_lab.__version__)'
+          .runtime/j-final-wheel-venv/bin/commander-lab --help >/dev/null
+      - name: Record final git identity
+        shell: bash
+        run: |
+          mkdir -p artifacts/j-final
+          {
+            echo "commit=$(git rev-parse HEAD)"
+            echo "tree=$(git rev-parse HEAD^{tree})"
+            echo "status=$(git status --porcelain)"
+          } > artifacts/j-final/git-identity.txt
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: j-final-acceptance-evidence
+          path: |
+            artifacts/j-final/
+            dist/
+          if-no-files-found: error
