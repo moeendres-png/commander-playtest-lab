@@ -29,7 +29,8 @@ PRIMARY = (
     "opponent/cosmic-spiderman-midbudget",
 )
 POD = ("korvold/current",) + PRIMARY
-SWAP = VariantSwap(remove="Goblin Bombardment", add_candidate_id="korvold/god-eternal-bontu")
+SMOKE_CANDIDATE = "korvold/mazirek-smoke"
+SWAP = VariantSwap(remove="Vampiric Rites", add_candidate_id=SMOKE_CANDIDATE)
 
 
 def _completed(name: str, response: object) -> dict[str, object]:
@@ -133,7 +134,7 @@ def main() -> None:
     search = service.search_variants(
         SearchVariantsInput(
             deck_id="korvold/current",
-            candidate_ids=("korvold/god-eternal-bontu",),
+            candidate_ids=(SMOKE_CANDIDATE,),
             max_cuts=1,
             max_results=1,
             opponent_deck_ids=PRIMARY,
@@ -147,7 +148,7 @@ def main() -> None:
     recommend = service.recommend_upgrades(
         RecommendUpgradesInput(
             deck_id="korvold/current",
-            candidate_ids=("korvold/god-eternal-bontu",),
+            candidate_ids=(SMOKE_CANDIDATE,),
             max_recommendations=1,
         )
     )
