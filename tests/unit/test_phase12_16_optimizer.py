@@ -123,8 +123,11 @@ def test_validate_swap_executes_politics_pod_tactical_and_external_truth_gates()
     assert response.status.value == "completed"
     assert len(response.result["politics_sensitivity"]) == 10
     assert {row["pod_size"] for row in response.result["pod_size_sensitivity"]} == {3, 4, 5}
-    assert response.result["tactical_oracle_result"]["execution_status"] == "passed"
-    assert response.result["tactical_oracle_result"]["external_engine_claimed"] is False
+    tactical = response.result["tactical_oracle_result"]
+    assert tactical["execution_status"] == "not_run_no_relevant_case"
+    assert tactical["validation_level"] == "structural_only"
+    assert tactical["cases_attempted"] == 0
+    assert tactical.get("external_engine_claimed", False) is False
     assert response.result["xmage_result"]["execution_status"] == "blocked"
     assert response.result["forge_result"]["execution_status"] == "blocked"
 

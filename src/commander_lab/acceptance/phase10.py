@@ -186,7 +186,7 @@ def _write_deck_report(
     candidate = recommendation.get("candidate") or {}
     rules = recommendation.get("rules_sample") or {}
     lines = [
-        f"# Phase 10 Example Report \u2013 {deck_id}",
+        f"# Phase 10 Example Report – {deck_id}",
         "",
         "All simulation values in this report are `structural_model_estimates`.",
         "They are not empirical win rates and are not external rules-engine proof.",
@@ -254,7 +254,7 @@ def _run_api_self_test_isolated(
                 "tool_count": len(client.get("/v1/tools").json()["tools"]),
                 "validate_call": client.post(
                     "/v1/tools/validate_deck:invoke",
-                    json={"arguments": {"deck_id": "korvold/current"}},
+                    json={"arguments": {"deck_id": "rogshai/current"}},
                 ).json(),
             }
         print(json.dumps(result, sort_keys=True))
@@ -348,7 +348,7 @@ def run_phase10_acceptance(
     primary_pods = [tuple(row) for row in opponent_policy["primary_four_player_pods"]]
     holdout_pods = [tuple(row) for row in opponent_policy["holdout_pods"]]
     evidence: list[dict[str, Any]] = []
-    decks = ("korvold/current", "rogshai/current")
+    decks = service.ACTIVE_OWN_DECK_IDS
     deck_evidence: dict[str, Any] = {}
 
     for deck_id in decks:
@@ -580,9 +580,19 @@ def run_phase10_acceptance(
             "canonical_deck_files_modified": False,
         }
 
-    joint_allocation = json.loads(
-        (root_path / "data/decks/manifest.json").read_text(encoding="utf-8")
-    )["allocation_validation"]
+    joint_allocation = {
+        "scope": list(decks),
+        "valid": all(
+            bool(
+                deck_evidence[deck_id]["validation"]["result"]
+                .get("physical_allocation", {})
+                .get("valid")
+            )
+            for deck_id in decks
+        ),
+        "historical_korvold_excluded": "korvold/current" not in decks,
+        "source": "current active own-deck validation",
+    }
     api_demo: dict[str, Any]
     if include_api_self_test:
         try:
