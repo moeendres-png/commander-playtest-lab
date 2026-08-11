@@ -115,15 +115,17 @@ class ExactResultCache:
     ) -> ResultCacheLookup:
         cache_key = self.key_for(identity)
         identity_json = canonical_run_json_bytes(dict(identity), root=self.root).decode("utf-8")
-        result_payload = dict(result)
         result_json = json.dumps(
-            result_payload,
+            dict(result),
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
             allow_nan=False,
         )
-        result_hash = sha256_run_value(result_payload, root=self.root)
+        normalized_result = json.loads(result_json)
+        if not isinstance(normalized_result, dict):
+            raise ValueError("cached result must serialize to a JSON object")
+        result_hash = sha256_run_value(normalized_result, root=self.root)
         with closing(connect_database(self.database_path)) as connection, connection:
             connection.execute(
                 "INSERT INTO result_cache("
@@ -146,7 +148,7 @@ class ExactResultCache:
             cache_key=cache_key,
             cache_hit=False,
             evidence_class=evidence_class,
-            result=result_payload,
+            result=normalized_result,
         )
 
     def get_or_compute(
