@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "deck_id": "rogshai/current",
+  "evidence_boundary": "DERIVED_FACT project features for structural candidate screening; not empirical card power and not rules-engine evidence",
+  "canonical_candidate_count": 795,
+  "inventory_feature_coverage": 795,
+  "multiplayer_feature_coverage": 795,
+  "synergy_graph_card_coverage": 199,
+  "materialized_role_or_package_rows": 443,
+  "projection_scope": [
+    "canonical role tags",
+    "RogShai package relationships"
+  ],
+  "deliberately_not_materialized": [
+    "empirical power scores",
+    "rules-engine claims",
+    "arbitrary numeric multiplayer power",
+    "unverified oracle ids"
+  ],
+  "source_artifacts": {
+    "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl": {
+      "drive_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
+      "sha256": "fae27631779012a3975c7116eec57f8acfef3d8142b413669c85eb04bfbd42af"
+    },
+    "INVENTORY_CARD_FEATURES_CURRENT.jsonl": {
+      "drive_id": "1Mp2sYnuv_HXTx9n55AIS2lmIu0EgCxLN",
+      "sha256": "de70ae3065de0c8013be60bd8a2ada75b3c898d2eaf0cef8d567bef002ca203a"
+    },
+    "MULTIPLAYER_CARD_FEATURES_CURRENT.jsonl": {
+      "drive_id": "1FoiPXn_f5M7P-45FKPZoqbXN20A0dgVF",
+      "sha256": "b3ce784db1af1fc1919bae901ba9036cb84fcb668d6bef3595c6f0a7b9a049b5"
+    },
+    "CARD_SYNERGY_GRAPH_CURRENT.jsonl": {
+      "drive_id": "1DHm2p1TDaSBS68d6WZsiurF2tCjk7Ceb",
+      "sha256": "02aa13259e92cbb042d065bb412a95997a58df1b3c0bae45dbc62ba109db0bc7"
+    },
+    "DECK_PACKAGE_TAXONOMY_CURRENT.json": {
+      "drive_id": "1FJjjadw-fWcZF4jN2SpvEr6xwUoMcrL0",
+      "sha256": "48ab9f8ee8c6367516d30f93dc038f0c6e10efd4da543ac1d4139e9c97ea68f2"
+    }
+  },
+  "parts": [
+    "part_00.json",
+    "part_01a.json",
+    "part_01b.json",
+    "part_02a.json",
+    "part_02b.json",
+    "part_03a.json",
+    "part_03b.json",
+    "part_04.json"
+  ]
+}

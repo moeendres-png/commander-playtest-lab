@@ -1,0 +1,119 @@
+{
+  "frequency_policy": "No fixed opponent frequency or percentage weights may be invented.",
+  "generated_at": "2026-08-11T04:57:00+02:00",
+  "scenarios": [
+    {
+      "last_observed": "2026-08-07",
+      "observed_or_synthetic": "mixed_evidence_context",
+      "opponent_entity_ids": [
+        "opponent:alen_high_perfect_morcant",
+        "opponent:doom_prevails",
+        "opponent:cosmic_spider_man"
+      ],
+      "opponents": [
+        "High Perfect Morcant",
+        "Doom Prevails",
+        "Cosmic Spider-Man"
+      ],
+      "own_deck": "korvold/current",
+      "own_deck_id": "deck:korvold",
+      "pod_size": 4,
+      "purpose": "historical former-Korvold regression/reference context; not a current deckbuilding or optimization primary",
+      "scenario_id": "primary_4p_korvold",
+      "scenario_type": "historical_reference_four_player_context",
+      "source_drive_ids": [
+        "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
+        "1IuvMmT3-jfrhB62qMPOxaNjAJmBUus9M"
+      ]
+    },
+    {
+      "last_observed": "2026-08-07",
+      "observed_or_synthetic": "mixed_evidence_context",
+      "opponent_entity_ids": [
+        "opponent:alen_high_perfect_morcant",
+        "opponent:doom_prevails",
+        "opponent:cosmic_spider_man"
+      ],
+      "opponents": [
+        "High Perfect Morcant",
+        "Doom Prevails",
+        "Cosmic Spider-Man"
+      ],
+      "own_deck": "rogshai/current",
+      "own_deck_id": "deck:rogshai",
+      "pod_size": 4,
+      "purpose": "primary current four-player deckbuilding and matchup context for the sole active own deck",
+      "scenario_id": "primary_4p_rogshai",
+      "scenario_type": "primary_four_player_context",
+      "source_drive_ids": [
+        "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
+        "1IuvMmT3-jfrhB62qMPOxaNjAJmBUus9M"
+      ]
+    },
+    {
+      "last_observed": "2026-08-10",
+      "observed_or_synthetic": "mixed_evidence_context",
+      "opponent_entity_ids": [
+        "opponent:blight_curse",
+        "opponent:kaervek_the_merciless",
+        "opponent:dance_of_the_elements",
+        "opponent:wakanda_forever",
+        "opponent:lorehold_spirit"
+      ],
+      "opponents": [
+        "Blight Curse",
+        "Kaervek the Merciless",
+        "Dance of the Elements",
+        "Wakanda Forever",
+        "Lorehold Spirit"
+      ],
+      "own_deck": null,
+      "own_deck_id": null,
+      "pod_size": null,
+      "purpose": "holdout/sensitivity opponent pool; do not invent a specific pod composition or frequency",
+      "scenario_id": "holdout_sensitivity_pool",
+      "scenario_type": "opponent_pool_not_fixed_pod",
+      "source_drive_ids": [
+        "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
+        "1IuvMmT3-jfrhB62qMPOxaNjAJmBUus9M"
+      ]
+    },
+    {
+      "last_observed": null,
+      "observed_or_synthetic": "research_sensitivity_context",
+      "opponent_entity_ids": null,
+      "opponents": null,
+      "own_deck": "korvold/current or rogshai/current",
+      "own_deck_id": [
+        "deck:korvold",
+        "deck:rogshai"
+      ],
+      "pod_size": 3,
+      "purpose": "robustness/sensitivity only; opponent composition must be supplied per run",
+      "scenario_id": "pod_size_sensitivity_3p",
+      "scenario_type": "pod_size_sensitivity",
+      "source_drive_ids": [
+        "1MTI0ANCoMW5UmyaPXaYvu1OXePZVt61I"
+      ]
+    },
+    {
+      "last_observed": null,
+      "observed_or_synthetic": "research_sensitivity_context",
+      "opponent_entity_ids": null,
+      "opponents": null,
+      "own_deck": "korvold/current or rogshai/current",
+      "own_deck_id": [
+        "deck:korvold",
+        "deck:rogshai"
+      ],
+      "pod_size": 5,
+      "purpose": "robustness/sensitivity only; opponent composition must be supplied per run",
+      "scenario_id": "pod_size_sensitivity_5p",
+      "scenario_type": "pod_size_sensitivity",
+      "source_drive_ids": [
+        "1MTI0ANCoMW5UmyaPXaYvu1OXePZVt61I"
+      ]
+    }
+  ],
+  "schema_version": "1.1"
+}
