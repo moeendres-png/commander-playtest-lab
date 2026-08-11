@@ -24,11 +24,11 @@ def run_phase5_demo(
 ) -> dict[str, object]:
     root_path = Path(root)
     service = CommanderToolService(root_path)
-    validation = service.validate_deck(ValidateDeckInput(deck_id="korvold/current"))
+    validation = service.validate_deck(ValidateDeckInput(deck_id="rogshai/current"))
     matchup = service.run_matchup_batch(
         MatchupBatchInput(
             deck_ids=(
-                "korvold/current",
+                "rogshai/current",
                 "synthetic/aggro",
                 "synthetic/control",
                 "synthetic/engine",
@@ -40,8 +40,8 @@ def run_phase5_demo(
     )
     recommendations = service.recommend_upgrades(
         RecommendUpgradesInput(
-            deck_id="korvold/current",
-            candidate_ids=("korvold/mazirek-smoke",),
+            deck_id="rogshai/current",
+            candidate_ids=("rogshai/curiosity-smoke",),
             max_recommendations=1,
         )
     )
@@ -49,7 +49,7 @@ def run_phase5_demo(
     swap = VariantSwap(remove=top["remove"], add_candidate_id=top["candidate_id"])
     paired = service.compare_variants_paired(
         PairedVariantInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             swaps=(swap,),
             iterations=iterations,
             seed=seed,
@@ -58,7 +58,7 @@ def run_phase5_demo(
     )
     validation_result = service.validate_upgrade(
         ValidateUpgradeInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             swaps=(swap,),
             iterations=iterations,
             seed=seed,
@@ -69,7 +69,7 @@ def run_phase5_demo(
     )
     report = service.create_report(
         CreateReportInput(
-            title="Phase 5 End-to-End Demo — Korvold",
+            title="Phase 5 End-to-End Demo — RogShai",
             output_name="phase5_demo_report.md",
             tool_responses=(
                 validation.model_dump(mode="json"),
@@ -82,7 +82,7 @@ def run_phase5_demo(
     )
     payload: dict[str, object] = {
         "estimate_type": "structural_model_estimates",
-        "deck_imported": "korvold/current",
+        "deck_imported": "rogshai/current",
         "validation": validation.model_dump(mode="json"),
         "matchup": matchup.model_dump(mode="json"),
         "candidate_screening": recommendations.model_dump(mode="json"),
