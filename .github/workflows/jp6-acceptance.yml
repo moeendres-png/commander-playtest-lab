@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [roadmap/j-p6-performance-hardening]
+    branches: [main, roadmap/j-p6-performance-hardening]
   workflow_dispatch:
 permissions:
   contents: read
