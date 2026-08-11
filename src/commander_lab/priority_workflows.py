@@ -6,7 +6,13 @@ from typing import Any
 
 from commander_lab.decision_bundle import DecisionBundle, write_decision_bundle
 from commander_lab.mana_analysis import ManaAnalyzer
-from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, VariantSwap
+from commander_lab.models import (
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    StructuralDeckProfile,
+    VariantSwap,
+)
 from commander_lab.mulligan import MulliganLab
 from commander_lab.optimization import build_search_candidate, run_paired_structural_comparison
 from commander_lab.project_context import ProjectContextSnapshot, load_project_context
@@ -28,7 +34,7 @@ class PriorityWorkflowFacade:
         self.mulligan = MulliganLab(self.root)
         self.mana = ManaAnalyzer(self.root)
 
-    def _deck(self, deck_id: str):
+    def _deck(self, deck_id: str) -> StructuralDeckProfile:
         try:
             return self.service.decks[deck_id]
         except KeyError as exc:
