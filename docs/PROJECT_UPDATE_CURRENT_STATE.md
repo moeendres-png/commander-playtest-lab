@@ -1,0 +1,1 @@
+RogShai is the sole active own deck. Korvold is an inactive former own deck retained for historical/regression reference. Current availability releases Korvold allocations while preserving physical quantities and opponent reservations.
