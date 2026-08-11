@@ -252,6 +252,11 @@ class RogShaiCandidateScreener:
         payload = json.loads(path.read_text(encoding="utf-8"))
         rows = [row for row in payload["variants"] if row["deck_id"] == "rogshai/current"]
         evaluated: list[dict[str, object]] = []
+        legal_count = 0
+        good_count = 0
+        good_recovered = 0
+        bad_count = 0
+        bad_rejected = 0
         for row in rows:
             decision = self.screen_swap(
                 baseline=self.service.decks["rogshai/current"],
@@ -259,24 +264,24 @@ class RogShaiCandidateScreener:
                 add_candidate_id=str(row["add_candidate_id"]),
             )
             evaluated.append({**row, "decision": decision.as_dict()})
+            if decision.constraint_valid:
+                legal_count += 1
+            label = str(row["class"])
+            if label == "good":
+                good_count += 1
+                if decision.bucket in {"advance", "explore"}:
+                    good_recovered += 1
+            elif label == "bad":
+                bad_count += 1
+                if decision.bucket in {"deprioritize_static", "hard_constraint_reject"}:
+                    bad_rejected += 1
 
-        legal = [row for row in evaluated if row["decision"]["constraint_valid"]]
-        good = [row for row in evaluated if row["class"] == "good"]
-        bad = [row for row in evaluated if row["class"] == "bad"]
-        good_recovered = [
-            row for row in good if row["decision"]["bucket"] in {"advance", "explore"}
-        ]
-        bad_rejected = [
-            row
-            for row in bad
-            if row["decision"]["bucket"] in {"deprioritize_static", "hard_constraint_reject"}
-        ]
         return {
             "challenge_set_id": payload["challenge_set_id"],
             "rogshai_variant_count": len(evaluated),
-            "legal_candidate_recall": len(legal) / len(evaluated) if evaluated else 1.0,
-            "known_good_candidate_recall": len(good_recovered) / len(good) if good else 1.0,
-            "known_bad_candidate_rejection": len(bad_rejected) / len(bad) if bad else 1.0,
+            "legal_candidate_recall": legal_count / len(evaluated) if evaluated else 1.0,
+            "known_good_candidate_recall": good_recovered / good_count if good_count else 1.0,
+            "known_bad_candidate_rejection": bad_rejected / bad_count if bad_count else 1.0,
             "evaluated": evaluated,
             "evidence_boundary": payload["evidence_boundary"],
         }
