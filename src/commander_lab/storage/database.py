@@ -10,7 +10,7 @@ from typing import Any
 
 from commander_lab.storage.hashing import sha256_value
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 LEGACY_MANUAL_PLAYTEST_TABLES = (
     "calibration_profiles",
@@ -70,6 +70,17 @@ def migrate_database(path: str | Path) -> dict[str, Any]:
                 created_at TEXT NOT NULL
             );
             CREATE INDEX IF NOT EXISTS idx_run_registry_status ON run_registry(status);
+            CREATE TABLE IF NOT EXISTS result_cache (
+                cache_key TEXT PRIMARY KEY,
+                identity_json TEXT NOT NULL,
+                result_json TEXT NOT NULL,
+                result_hash TEXT NOT NULL,
+                evidence_class TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                hit_count INTEGER NOT NULL DEFAULT 0
+            );
+            CREATE INDEX IF NOT EXISTS idx_result_cache_evidence_class
+                ON result_cache(evidence_class);
             """
         )
         migration_status = "removed_legacy_tables" if removed else "not_present"
@@ -154,7 +165,6 @@ def restore_database(backup: str | Path, destination: str | Path) -> Path:
     if not source.is_file():
         raise FileNotFoundError(source)
     target = Path(destination)
-    target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(target.suffix + ".restore.tmp")
     shutil.copy2(source, temporary)
     if check_database(temporary)["status"] != "passed":
