@@ -186,7 +186,7 @@ def _write_deck_report(
     candidate = recommendation.get("candidate") or {}
     rules = recommendation.get("rules_sample") or {}
     lines = [
-        f"# Phase 10 Example Report – {deck_id}",
+        f"# Phase 10 Example Report - {deck_id}",
         "",
         "All simulation values in this report are `structural_model_estimates`.",
         "They are not empirical win rates and are not external rules-engine proof.",
