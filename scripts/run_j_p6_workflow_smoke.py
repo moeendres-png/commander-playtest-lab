@@ -28,7 +28,7 @@ PRIMARY = (
     "opponent/doom-prevails-precon",
     "opponent/cosmic-spiderman-midbudget",
 )
-POD = ("korvold/current",) + PRIMARY
+POD = ("korvold/current", *PRIMARY)
 SMOKE_CANDIDATE = "korvold/mazirek-smoke"
 SWAP = VariantSwap(remove="Vampiric Rites", add_candidate_id=SMOKE_CANDIDATE)
 

@@ -61,12 +61,12 @@ def test_fixed_seed_structural_result_is_deterministic() -> None:
 
 def test_release_truth_includes_real_p3_feasibility_evidence() -> None:
     workflow = (ROOT / ".github/workflows/release-artifacts.yml").read_text(encoding="utf-8")
-    assert 'docs/J_P3_PROVIDER_DECISION.json' in workflow
-    assert 'external_engine_provider_decision' in workflow
-    assert 'xmage_real_execution' in workflow
-    assert 'forge_real_execution' in workflow
-    assert 'structural_tactical_and_real_external_feasibility_evidence' in workflow
+    assert "docs/J_P3_PROVIDER_DECISION.json" in workflow
+    assert "external_engine_provider_decision" in workflow
+    assert "xmage_real_execution" in workflow
+    assert "forge_real_execution" in workflow
+    assert "structural_tactical_and_real_external_feasibility_evidence" in workflow
     assert 'external_engine_production_ready": False' in workflow
     assert 'wheel-verify/bin/commander-lab" --help' in workflow
-    assert 'XMage/Forge observations = 0' not in workflow
+    assert "XMage/Forge observations = 0" not in workflow
     assert '"validation_level": "structural_and_tactical_only"' not in workflow

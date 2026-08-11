@@ -10,8 +10,9 @@ import sqlite3
 import statistics
 import subprocess
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from commander_lab.models import (
     CardAblationInput,
@@ -35,7 +36,7 @@ PRIMARY = (
     "opponent/doom-prevails-precon",
     "opponent/cosmic-spiderman-midbudget",
 )
-POD = ("korvold/current",) + PRIMARY
+POD = ("korvold/current", *PRIMARY)
 
 
 def _git(*args: str) -> str:
@@ -66,15 +67,12 @@ def _measure(name: str, fn: Callable[[], Any], repetitions: int = 3) -> dict[str
         cpu = time.process_time() - cpu_before
         rss_after = _rss_kib()
         if value is not None:
-            if hasattr(value, "model_dump"):
-                payload = value.model_dump(mode="json")
-            else:
-                payload = value
+            payload = value.model_dump(mode="json") if hasattr(value, "model_dump") else value
             try:
                 signatures.append(
-                    __import__("hashlib").sha256(
-                        json.dumps(payload, sort_keys=True, default=str).encode()
-                    ).hexdigest()
+                    __import__("hashlib")
+                    .sha256(json.dumps(payload, sort_keys=True, default=str).encode())
+                    .hexdigest()
                 )
             except TypeError:
                 signatures.append(type(value).__name__)
