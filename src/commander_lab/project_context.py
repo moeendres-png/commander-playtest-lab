@@ -27,8 +27,7 @@ OPPONENT_ENTITY_TO_REGISTRY_KEY = {
     "opponent:lorehold_spirit": "lorehold_spirit/precon",
 }
 
-_REQUIRED_FEATURE_SOURCES = {
-    "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+_GENERIC_REQUIRED_FEATURE_SOURCES = {
     "INVENTORY_CARD_FEATURES_CURRENT.jsonl",
     "MULTIPLAYER_CARD_FEATURES_CURRENT.jsonl",
     "CARD_SYNERGY_GRAPH_CURRENT.jsonl",
@@ -110,11 +109,45 @@ def _resolve_entities(
     return tuple(resolved)
 
 
-def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, str]:
+def _discover_feature_projection_manifest(root: Path) -> Path:
+    candidates = sorted((root / "data/collections/current").glob("*_feature_projection/manifest.json"))
+    if len(candidates) != 1:
+        raise ProjectContextError(
+            "expected exactly one current feature-projection manifest; "
+            f"found {[str(path.relative_to(root)) for path in candidates]}"
+        )
+    return candidates[0]
+
+
+def _candidate_source_name(scope: dict[str, Any], manifest: dict[str, Any]) -> str:
+    source_artifacts = manifest.get("source_artifacts")
+    scope_sources = scope.get("sources")
+    if not isinstance(source_artifacts, dict) or not isinstance(scope_sources, dict):
+        raise ProjectContextError("candidate source identity metadata is missing")
+    candidates = sorted(
+        source_name
+        for source_name in source_artifacts
+        if source_name.endswith("_CANDIDATE_POOL_CURRENT.jsonl") and source_name in scope_sources
+    )
+    if len(candidates) != 1:
+        raise ProjectContextError(
+            "expected exactly one current candidate-pool source shared by scope and feature manifest"
+        )
+    return candidates[0]
+
+
+def _feature_source_hashes(
+    root: Path,
+    manifest_path: Path,
+    manifest: dict[str, Any],
+    *,
+    candidate_source_name: str,
+) -> dict[str, str]:
     source_artifacts = manifest.get("source_artifacts")
     if not isinstance(source_artifacts, dict):
         raise ProjectContextError("canonical feature manifest has no source_artifacts")
-    missing = sorted(_REQUIRED_FEATURE_SOURCES - set(source_artifacts))
+    required = _GENERIC_REQUIRED_FEATURE_SOURCES | {candidate_source_name}
+    missing = sorted(required - set(source_artifacts))
     if missing:
         raise ProjectContextError(f"canonical feature manifest is missing sources: {missing}")
 
@@ -128,7 +161,7 @@ def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, st
             raise ProjectContextError(f"invalid feature source identity: {source_name}")
         hashes[f"drive_feature:{source_name}:{drive_id}"] = digest
 
-    projection_root = root / "data/collections/current/rogshai_feature_projection"
+    projection_root = manifest_path.parent
     parts = manifest.get("parts")
     if not isinstance(parts, list) or not parts:
         raise ProjectContextError("canonical feature manifest has no projection parts")
@@ -158,14 +191,8 @@ def _load_scope(scope_path: Path) -> tuple[tuple[str, ...], tuple[str, ...], str
         raise ProjectContextError("a deck cannot be both active and historical")
     if focus not in active:
         raise ProjectContextError("primary deckbuilding focus is not an active own deck")
-    if active != ("rogshai/current",):
-        raise ProjectContextError(f"current project scope must be RogShai-only; got {active}")
-    if "korvold/current" not in historical:
-        raise ProjectContextError("current scope lost the historical Korvold regression identity")
-    if scope.get("korvold_simultaneous_build_requirement") is not False:
-        raise ProjectContextError("inactive Korvold must not be a simultaneous build requirement")
     if scope.get("historical_allocation_blocks_active_deck") is not False:
-        raise ProjectContextError("historical allocation must not block the active RogShai deck")
+        raise ProjectContextError("historical allocations must not block active own decks")
     sources = scope.get("sources")
     if not isinstance(sources, dict):
         raise ProjectContextError("active scope has no current source identities")
@@ -182,12 +209,6 @@ def _validate_live_scope_projection(
     live_historical = tuple(str(value) for value in payload.get("inactive_former_own_deck_ids", []))
     if live_active != active or live_historical != historical:
         raise ProjectContextError("active-scope projections disagree on current own-deck state")
-    if payload.get("korvold_optimization_target") is not False:
-        raise ProjectContextError(
-            "live active-deck projection still treats Korvold as optimization target"
-        )
-    if payload.get("korvold_simultaneous_build_requirement") is not False:
-        raise ProjectContextError("live active-deck projection still requires simultaneous Korvold")
 
 
 def _validate_playstyle(payload: dict[str, Any]) -> str:
@@ -212,30 +233,23 @@ def _validate_playstyle(payload: dict[str, Any]) -> str:
 
 def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     root_path = Path(root).resolve()
+    feature_projection_manifest = _discover_feature_projection_manifest(root_path)
     paths = {
         "active_scope": root_path / "data/collections/current/J_FINAL_ACTIVE_SCOPE.json",
-        "active_decks_current": root_path
-        / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
-        "playstyle_preference": root_path
-        / "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
-        "inactive_deck_releases": root_path
-        / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
+        "active_decks_current": root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+        "playstyle_preference": root_path / "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
+        "inactive_deck_releases": root_path / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
         "pod_scenarios": root_path / "data/collections/current/POD_SCENARIOS_CURRENT.json",
         "opponent_registry": root_path / "data/opponents/opponent_registry.json",
         "pilot_registry": root_path / "data/pilots/pilot_registry.json",
         "deck_manifest": root_path / "data/decks/manifest.json",
-        "inventory_snapshot": root_path
-        / "data/canonical_import/2026-08-07/inventory_snapshot.json",
+        "inventory_snapshot": root_path / "data/canonical_import/2026-08-07/inventory_snapshot.json",
         "allocation_snapshot": root_path / "data/collections/current_deck_allocations.json",
-        "candidate_eligibility": root_path
-        / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
-        "feature_projection_manifest": root_path
-        / "data/collections/current/rogshai_feature_projection/manifest.json",
+        "candidate_eligibility": root_path / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
+        "feature_projection_manifest": feature_projection_manifest,
         "protected_cards": root_path / "config/protected_cards.json",
     }
     source_hash_dict = {name: _sha256_file(path) for name, path in paths.items()}
-    feature_manifest = _load_json(paths["feature_projection_manifest"])
-    source_hash_dict.update(_feature_source_hashes(root_path, feature_manifest))
 
     active, historical, focus, scope = _load_scope(paths["active_scope"])
     live_scope = _load_json(paths["active_decks_current"])
@@ -244,20 +258,27 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     playstyle_type = _validate_playstyle(playstyle)
     playstyle_hash = source_hash_dict["playstyle_preference"]
 
+    feature_manifest = _load_json(paths["feature_projection_manifest"])
+    candidate_source = _candidate_source_name(scope, feature_manifest)
+    source_hash_dict.update(
+        _feature_source_hashes(
+            root_path,
+            feature_projection_manifest,
+            feature_manifest,
+            candidate_source_name=candidate_source,
+        )
+    )
+
     scope_sources = scope["sources"]
-    candidate_scope = scope_sources.get("ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl")
+    candidate_scope = scope_sources.get(candidate_source)
     feature_sources = feature_manifest.get("source_artifacts")
     candidate_feature = (
-        feature_sources.get("ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl")
-        if isinstance(feature_sources, dict)
-        else None
+        feature_sources.get(candidate_source) if isinstance(feature_sources, dict) else None
     )
     if not isinstance(candidate_scope, dict) or not isinstance(candidate_feature, dict):
         raise ProjectContextError("candidate universe source identity is missing")
     if candidate_scope.get("sha256") != candidate_feature.get("sha256"):
-        raise ProjectContextError(
-            "active scope and feature projection disagree on candidate universe"
-        )
+        raise ProjectContextError("active scope and feature projection disagree on candidate universe")
 
     pods = _load_json(paths["pod_scenarios"])
     registry = _load_json(paths["opponent_registry"])
@@ -268,9 +289,7 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "playstyle_generated_at": str(playstyle.get("generated_at", "unknown")),
     }
     if "unknown" in freshness.values():
-        raise ProjectContextError(
-            "required synchronized project-context freshness metadata is missing"
-        )
+        raise ProjectContextError("required synchronized project-context freshness metadata is missing")
 
     frequency_policy = str(pods.get("frequency_policy", ""))
     if "No fixed opponent frequency" not in frequency_policy:
@@ -288,16 +307,11 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         if not isinstance(raw, dict):
             raise ProjectContextError("invalid scenario record")
         scenario_type = raw.get("scenario_type")
-        if scenario_type in {
-            "primary_four_player_context",
-            "historical_reference_four_player_context",
-        }:
+        if scenario_type in {"primary_four_player_context", "historical_reference_four_player_context"}:
             deck_id = raw.get("own_deck")
             entity_ids = raw.get("opponent_entity_ids")
             if not isinstance(deck_id, str) or not isinstance(entity_ids, list):
-                raise ProjectContextError(
-                    "four-player scenario is missing deck or opponent entities"
-                )
+                raise ProjectContextError("four-player scenario is missing deck or opponent entities")
             if raw.get("pod_size") != 4 or len(entity_ids) != 3:
                 raise ProjectContextError("four-player scenario must contain exactly 3 opponents")
             normalized_entities = tuple(str(value) for value in entity_ids)
@@ -321,9 +335,7 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
 
     missing_active = sorted(set(active) - set(primary))
     if missing_active:
-        raise ProjectContextError(
-            f"active own decks are missing primary scenarios: {missing_active}"
-        )
+        raise ProjectContextError(f"active own decks are missing primary scenarios: {missing_active}")
     unexpected_primary = sorted(set(primary) - set(active))
     if unexpected_primary:
         raise ProjectContextError(
@@ -342,9 +354,7 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         entity_id for deck_id in active for entity_id in primary_entities.get(deck_id, ())
     }
     if active_primary_entities.intersection(holdout):
-        raise ProjectContextError(
-            "holdout opponent was silently promoted into active primary scenario"
-        )
+        raise ProjectContextError("holdout opponent was silently promoted into active primary scenario")
 
     holdout_decks = _resolve_entities(list(holdout), registry)
     source_hashes = tuple(sorted(source_hash_dict.items()))
