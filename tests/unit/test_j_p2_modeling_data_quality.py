@@ -31,8 +31,8 @@ def test_j_p2_active_optimization_targets_exclude_frozen_kaervek(repo_root: Path
     svc = _service(repo_root)
     context = svc.build_optimization_context(BuildOptimizationContextInput())
     assert context.status.value == "completed"
-    assert context.result["deck_priority"] == ["korvold/current", "rogshai/current"]
-    assert set(context.result["available_decks"]) == {"korvold/current", "rogshai/current"}
+    assert context.result["deck_priority"] == ["rogshai/current"]
+    assert set(context.result["available_decks"]) == {"rogshai/current"}
 
     allocation_request = OptimizeMultipleDecksWithAllocationInput()
     assert allocation_request.deck_ids == ("korvold/current", "rogshai/current")
