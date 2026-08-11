@@ -1,0 +1,50 @@
+name: J-P5 Pre-Holdout Fix
+on:
+  push:
+    branches: [roadmap/j-p5-optimizer-validation]
+    paths: [.github/workflows/jp5-preholdout-fix.yml]
+permissions: {contents: write}
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e '.[dev,api,openai]'
+      - shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/commander_lab/optimization/search.py'); s=p.read_text()
+          s=s.replace('''        seat = int(row.get("starting_player_seat", 0))\n        delta = float(row.get("baseline_placement", 0)) - float(row.get("variant_placement", 0))\n''','''        seat_value = row.get("starting_player_seat", 0)\n        seat = int(seat_value) if isinstance(seat_value, (str, bytes, bytearray, int)) else 0\n        delta = _metric_float(row, "baseline_placement") - _metric_float(row, "variant_placement")\n''')
+          p.write_text(s)
+          p=Path('src/commander_lab/optimization/jp5.py'); s=p.read_text()
+          marker='''def _clamp(value: float, low: float = -1.0, high: float = 1.0) -> float:\n    return max(low, min(high, float(value)))\n\n\n'''
+          if '_numeric_float' not in s:
+            s=s.replace(marker, marker+'''def _numeric_float(value: object, default: float = 0.0) -> float:\n    if isinstance(value, (str, bytes, bytearray, int, float)):\n        return float(value)\n    return default\n\n\ndef _numeric_int(value: object, default: int = 0) -> int:\n    if isinstance(value, (str, bytes, bytearray, int)):\n        return int(value)\n    return default\n\n\n''')
+          s=s.replace('seat = int(row.get("starting_player_seat", 0))','seat = _numeric_int(row.get("starting_player_seat", 0))')
+          s=s.replace('float(row.get("baseline_placement", 0)) - float(row.get("variant_placement", 0))','_numeric_float(row.get("baseline_placement", 0)) - _numeric_float(row.get("variant_placement", 0))')
+          s=s.replace('pod_size = int(pair_rows[0].get("pod_size", 4)) if pair_rows else 4','pod_size = _numeric_int(pair_rows[0].get("pod_size", 4), 4) if pair_rows else 4')
+          p.write_text(s)
+          p=Path('src/commander_lab/tools/service.py'); s=p.read_text()
+          s=s.replace('robust_lower_bound, improvement, best, comparison = neighbors[0]','robust_lower_bound, _improvement, best, comparison = neighbors[0]')
+          s=s.replace('central_effect=float(paired.get("placement_improvement", 0.0))','central_effect=float(paired.get("placement_improvement", 0.0) or 0.0)')
+          s=s.replace('worst_quartile_effect=float((paired.get("quantiles") or {}).get("q25", 0.0))','worst_quartile_effect=float((paired.get("quantiles") or {}).get("q25", 0.0) or 0.0)')
+          s=s.replace('''                (int(row["pod_size"]), float(row["mean_placement_improvement"]))\n                for row in pod_rows\n                if row.get("mean_placement_improvement") is not None\n''','''                (int(pod_size), float(improvement))\n                for row in pod_rows\n                if isinstance((pod_size := row.get("pod_size")), (str, bytes, bytearray, int))\n                and isinstance((improvement := row.get("mean_placement_improvement")), (str, bytes, bytearray, int, float))\n''')
+          p.write_text(s)
+          p=Path('tests/unit/test_j_p5_optimizer_validation.py'); s=p.read_text(); s=s.replace('        candidate = svc._candidate(row["add_candidate_id"], row["deck_id"])\n',''); p.write_text(s)
+          PY
+          ruff check --fix .
+          ruff format .
+          ruff check .
+          ruff format --check .
+          mypy src/commander_lab
+          rm -f docs/J_P5_RUFF_DIAG.txt docs/J_P5_RUFF_POST_FIX_DIAG.txt docs/J_P5_PREHOLDOUT_CHECK_DIAG.txt docs/J_P5_TYPING_DIAG.txt
+          rm .github/workflows/jp5-preholdout-fix.yml
+          git config user.name 'github-actions[bot]'; git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A; git diff --cached --check
+          git commit -m 'J-P5: apply pre-holdout typing and formatting hygiene'; git push
