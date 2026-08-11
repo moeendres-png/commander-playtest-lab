@@ -82,7 +82,10 @@ class ExactResultCache:
             return None
 
         identity_json = str(row["identity_json"])
-        if canonical_run_json_bytes(dict(identity), root=self.root).decode("utf-8") != identity_json:
+        if (
+            canonical_run_json_bytes(dict(identity), root=self.root).decode("utf-8")
+            != identity_json
+        ):
             raise ResultCacheCorruptionError("cache identity payload does not match requested key")
         try:
             result = json.loads(str(row["result_json"]))
