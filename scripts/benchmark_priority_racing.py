@@ -3,10 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
-from commander_lab.adaptive_budget import AdaptiveBudgetPolicy
 from commander_lab.candidate_screening import RogShaiCandidateScreener
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, VariantSwap
 from commander_lab.optimization import build_search_candidate, run_paired_structural_comparison
@@ -17,6 +17,66 @@ from commander_lab.tools.service import CommanderToolService
 ROOT = Path(__file__).resolve().parents[1]
 MASTER_SEED = 20260811
 MAX_TURNS = 14
+
+
+@dataclass(frozen=True)
+class BenchmarkRacingPolicy:
+    """Benchmark-only racing policy. It is not a shipped production scheduler."""
+
+    small_batch: int = 8
+    full_budget: int = 24
+    minimum_simulation_reduction: float = 0.30
+
+    def select_small_batch(self, screen_buckets: Mapping[str, str]) -> tuple[str, ...]:
+        return tuple(
+            sorted(
+                candidate_id
+                for candidate_id, bucket in screen_buckets.items()
+                if bucket in {"advance", "explore"}
+            )
+        )
+
+    def select_finalists(
+        self,
+        *,
+        screen_buckets: Mapping[str, str],
+        placement_improvement: Mapping[str, float],
+        monte_carlo_standard_error: Mapping[str, float],
+    ) -> tuple[str, ...]:
+        tested = self.select_small_batch(screen_buckets)
+        if not tested:
+            return ()
+        advance = [candidate_id for candidate_id in tested if screen_buckets[candidate_id] == "advance"]
+        if advance:
+            finalists = set(advance)
+            leader = max(advance, key=lambda candidate_id: placement_improvement[candidate_id])
+        else:
+            leader = max(tested, key=lambda candidate_id: placement_improvement[candidate_id])
+            finalists = {leader}
+        leader_effect = placement_improvement[leader]
+        leader_mcse = max(0.0, monte_carlo_standard_error[leader])
+        for candidate_id in tested:
+            if candidate_id in finalists:
+                continue
+            effect = placement_improvement[candidate_id]
+            mcse = max(0.0, monte_carlo_standard_error[candidate_id])
+            uncertainty_margin = 1.96 * (leader_mcse + mcse)
+            if effect + uncertainty_margin >= leader_effect:
+                finalists.add(candidate_id)
+        return tuple(sorted(finalists))
+
+    def simulation_reduction(
+        self,
+        *,
+        full_control_candidates: int,
+        small_batch_candidates: int,
+        finalists: int,
+    ) -> float:
+        full = full_control_candidates * self.full_budget
+        if full <= 0:
+            return 0.0
+        raced = small_batch_candidates * self.small_batch + finalists * self.full_budget
+        return 1.0 - raced / full
 
 
 def _run_variant(
@@ -45,7 +105,7 @@ def _run_variant(
 
 
 def run_benchmark(root: Path) -> dict[str, object]:
-    policy = AdaptiveBudgetPolicy()
+    policy = BenchmarkRacingPolicy()
     context = load_project_context(root)
     service = CommanderToolService(root)
     screener = RogShaiCandidateScreener(root, service=service)
@@ -192,6 +252,7 @@ def run_benchmark(root: Path) -> dict[str, object]:
         "benchmark_id": "priority_racing_v1",
         "evidence_class": "structural_model_estimates",
         "decision": "PASS_SHIP" if shipped else "JUSTIFIED_NOT_SHIPPED",
+        "production_scheduler_shipped": False,
         "policy": {
             "small_batch": policy.small_batch,
             "full_budget": policy.full_budget,
@@ -227,7 +288,8 @@ def run_benchmark(root: Path) -> dict[str, object]:
         "limitations": [
             "Challenge labels are frozen structural expectations, not empirical card-quality truth.",
             "Wall-time comparison reuses executed full-stage timings for finalists rather than rerunning identical full stages.",
-            "A PASS permits this small deterministic racing policy only; it does not validate a general optimizer scheduler.",
+            "A PASS would permit reconsidering only this small deterministic racing policy; it would not validate a general optimizer scheduler.",
+            "The measured 2026-08-11 benchmark did not meet the 30% reduction gate, so no production scheduler is shipped by this change.",
         ],
     }
     return result
