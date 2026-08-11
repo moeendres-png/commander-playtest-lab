@@ -54,10 +54,7 @@ def test_optimization_context_is_read_only_and_truth_bounded() -> None:
     response = service().build_optimization_context(BuildOptimizationContextInput())
     assert response.status.value == "completed"
     assert response.result["validation_level"] == "structural_only"
-    assert response.result["deck_priority"] == [
-        "korvold/current",
-        "rogshai/current",
-    ]
+    assert response.result["deck_priority"] == ["rogshai/current"]
     assert response.result["frozen_opponent_only_decks"] == ["kaervek/current"]
     assert response.result["external_engine"]["execution_status"] == "blocked"
     assert response.result["automatic_application"] is False
@@ -66,7 +63,7 @@ def test_optimization_context_is_read_only_and_truth_bounded() -> None:
 
 def test_candidate_swaps_never_apply_changes() -> None:
     response = service().generate_candidate_swaps(
-        GenerateCandidateSwapsInput(deck_id="korvold/current", max_candidates=2)
+        GenerateCandidateSwapsInput(deck_id="rogshai/current", max_candidates=2)
     )
     assert response.status.value == "completed"
     assert response.result["count"] == 2
@@ -112,8 +109,13 @@ def test_validate_swap_executes_politics_pod_tactical_and_external_truth_gates()
     svc = service()
     response = svc.validate_swap(
         ValidateSwapInput(
-            deck_id="korvold/current",
-            swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
+            deck_id="rogshai/current",
+            swaps=(
+                VariantSwap(
+                    remove="Flare of Duplication",
+                    add_candidate_id="inventory/rootborn-defenses-677fdbcf",
+                ),
+            ),
             iterations=1,
             workers=1,
             seed=123,
@@ -136,8 +138,13 @@ def test_robustness_suite_runs_structural_scenarios_instead_of_reading_old_artif
     svc = service()
     response = svc.run_robustness_suite(
         RunRobustnessSuiteInput(
-            deck_id="korvold/current",
-            swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
+            deck_id="rogshai/current",
+            swaps=(
+                VariantSwap(
+                    remove="Flare of Duplication",
+                    add_candidate_id="inventory/rootborn-defenses-677fdbcf",
+                ),
+            ),
             iterations=1,
             workers=1,
             seed=456,
