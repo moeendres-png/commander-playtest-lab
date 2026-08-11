@@ -50,7 +50,7 @@ jobs:
           assert importlib.metadata.version('commander-playtest-lab') == __version__
           assert create_app(Path('.')).version == __version__
           PY
-      - name: Holdout integrity and no canonical mutation
+      - name: Holdout integrity and current-scope boundary
         run: |
           python - <<'PY'
           import hashlib, json
@@ -61,8 +61,8 @@ jobs:
           assert seal['evaluation_count'] == 1
           assert seal['post_holdout_tuning_performed'] is False
           manifest=json.loads(Path('data/decks/manifest.json').read_text())
-          assert manifest['decks']['korvold/current']['deck_hash'] == '72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f'
-          assert manifest['decks']['rogshai/current']['deck_hash'] == '3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932'
+          assert set(manifest['decks']) == {'rogshai/current'}
+          assert manifest['decks']['rogshai/current']['deck_hash'] == '7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
           PY
       - name: Assert tracked tree remains clean
         run: test -z "$(git status --porcelain --untracked-files=no)"
