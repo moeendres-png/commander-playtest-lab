@@ -1336,6 +1336,12 @@ class CommanderToolService:
             filename = spec["normalized_file"]
             deck = load_model(self.root / "data/decks" / filename, Deck)
             catalog = CardCatalog.from_json(self.root / "data/cards/oracle_subset.json")
+            overlay_path = (self.root / "data/decks" / filename).with_name(
+                f"{Path(filename).stem}_card_catalog_overrides.json"
+            )
+            if overlay_path.is_file():
+                for card in CardCatalog.from_json(overlay_path).cards:
+                    catalog.add(card)
             report = DeckValidator(catalog).validate(deck)
             allocation = None
             if request.include_physical_allocation:
