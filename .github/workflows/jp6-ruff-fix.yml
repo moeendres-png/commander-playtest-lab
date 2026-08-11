@@ -1,0 +1,38 @@
+name: J-P6 Ruff Hygiene Fix
+on:
+  push:
+    branches: [roadmap/j-p6-performance-hardening]
+    paths: [.github/workflows/jp6-ruff-fix.yml]
+permissions: {contents: write}
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e '.[dev]'
+      - shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/run_j_p6_profile.py'); s=p.read_text()
+          s=s.replace('from pathlib import Path\nfrom typing import Any, Callable\n', 'from collections.abc import Callable\nfrom pathlib import Path\nfrom typing import Any\n')
+          s=s.replace('POD = ("korvold/current",) + PRIMARY', 'POD = ("korvold/current", *PRIMARY)')
+          s=s.replace('''            if hasattr(value, "model_dump"):\n                payload = value.model_dump(mode="json")\n            else:\n                payload = value\n''','''            payload = value.model_dump(mode="json") if hasattr(value, "model_dump") else value\n''')
+          p.write_text(s)
+          p=Path('scripts/run_j_p6_workflow_smoke.py'); s=p.read_text(); s=s.replace('POD = ("korvold/current",) + PRIMARY', 'POD = ("korvold/current", *PRIMARY)'); p.write_text(s)
+          PY
+          ruff check --fix .
+          ruff format .
+          ruff check .
+          ruff format --check .
+          rm -f .github/workflows/jp6-ruff-diagnostics.yml .github/workflows/jp6-ruff-fix.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'J-P6: apply Ruff and formatting hygiene'
+          git push
