@@ -1,0 +1,49 @@
+name: J-P5 Consume Holdout Once
+on:
+  push:
+    branches: [roadmap/j-p5-optimizer-validation]
+    paths: [.github/workflows/jp5-consume-holdout-once.yml]
+permissions: {contents: write}
+jobs:
+  holdout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e '.[dev,api,openai]'
+      - name: Verify frozen preconditions and consume holdout exactly once
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e docs/J_P5_HOLDOUT_FIRST_EVALUATION.json
+          python scripts/run_j_p5_holdout_once.py | tee /tmp/jp5-holdout-summary.json
+          test -s docs/J_P5_HOLDOUT_FIRST_EVALUATION.json
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          result = Path('docs/J_P5_HOLDOUT_FIRST_EVALUATION.json')
+          seal = json.loads(Path('docs/J_P5_HOLDOUT_SEAL.json').read_text())
+          if seal.get('outcomes_evaluated') is not True or seal.get('evaluation_count') != 1:
+              raise SystemExit('holdout seal was not consumed exactly once')
+          payload = json.loads(result.read_text())
+          if payload.get('evaluation_count') != 1 or payload.get('post_holdout_tuning_performed') is not False:
+              raise SystemExit('invalid holdout result protocol')
+          digest = hashlib.sha256(result.read_bytes()).hexdigest()
+          record = f'''# J-P5 Optimizer Holdout Consumption Record\n\n- holdout: `J_P5_OPTIMIZER_HOLDOUT_v1`\n- holdout SHA-256: `b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203`\n- development freeze SHA-256: `{seal.get("development_freeze_sha256")}`\n- first evaluation: completed exactly once\n- evaluation count: `1`\n- result SHA-256: `{digest}`\n- GitHub Actions run: `{os.environ.get("GITHUB_RUN_ID")}`\n- post-holdout tuning performed: `false`\n- automatic canonical deck mutation: `false`\n- evidence class: `structural_model_estimates`\n\nThe holdout result may be used for evaluation and later regression checks, but not for optimizer/search retuning or finalist reselection.\n'''
+          Path('docs/J_P5_HOLDOUT_CONSUMPTION_RECORD.md').write_text(record, encoding='utf-8')
+          print(json.dumps({'result_sha256': digest, 'evaluation_count': 1, 'post_holdout_tuning_performed': False}, indent=2))
+          PY
+      - name: Commit consumed holdout evidence only
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/jp5-consume-holdout-once.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/J_P5_HOLDOUT_FIRST_EVALUATION.json docs/J_P5_HOLDOUT_SEAL.json docs/J_P5_HOLDOUT_CONSUMPTION_RECORD.md .github/workflows/jp5-consume-holdout-once.yml
+          git diff --cached --check
+          git commit -m 'J-P5: consume optimizer holdout exactly once'
+          git push
