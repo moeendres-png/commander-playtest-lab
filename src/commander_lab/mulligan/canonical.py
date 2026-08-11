@@ -45,7 +45,15 @@ class MulliganLab(_LegacyMulliganLab):
                 "the MulliganContext does not carry opponent deck ids, so the lab refuses to "
                 "invent them"
             )
-        return self.project_context.primary_opponent_deck_ids(context.deck_id)
+        if context.deck_id not in self.project_context.active_own_deck_ids:
+            raise MulliganLabError(
+                f"{context.deck_id} is not a current active own deck; historical reference "
+                "contexts must be requested explicitly outside the current primary mulligan path"
+            )
+        try:
+            return self.project_context.primary_opponent_deck_ids(context.deck_id)
+        except ProjectContextError as exc:
+            raise MulliganLabError(str(exc)) from exc
 
     def analyze_deck_mana(self, deck_id: str) -> DeckManaAnalysis:
         return self.mana_analyzer.analyze_deck(self.deck(deck_id))
