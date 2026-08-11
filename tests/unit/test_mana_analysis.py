@@ -31,7 +31,7 @@ def test_current_rogshai_mana_report_covers_colors_commanders_and_early_signals(
     lab = MulliganLab(ROOT)
     report = lab.analyze_deck_mana("rogshai/current")
     assert report.deck_hash == lab.deck("rogshai/current").deck_hash
-    assert report.land_count == 37
+    assert report.land_count == 36
     assert report.colored_sources["W"] > 0
     assert report.colored_sources["U"] > 0
     assert report.colored_sources["R"] > 0
