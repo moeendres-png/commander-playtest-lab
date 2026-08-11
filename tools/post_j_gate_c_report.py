@@ -12,9 +12,17 @@ def build_report(root: Path) -> dict[str, object]:
     screen = facade.build_screen(facade.context.primary_deckbuilding_focus, limit=1)
     readiness = facade.second_deck_readiness()
     coverage = dict(screen["model_coverage"])
-    modeled = int(coverage["fully_high_confidence_modeled"]) + int(coverage["partially_modeled"])
-    total = int(screen["eligible_candidate_count"])
+    high = int(coverage["fully_high_confidence_modeled"])
+    partial = int(coverage["partially_modeled"])
     unmodeled = int(coverage["structurally_unmodeled"])
+    total = int(screen["eligible_candidate_count"])
+    accounted = high + partial + unmodeled
+    candidate_recall = accounted / total if total else 1.0
+    single_rows = list(readiness["single_commander_candidates"])
+    partner_rows = list(readiness["partner_configurations"])
+    physical_buildable_count = sum(
+        bool(row["simultaneous_physical_buildability"]) for row in single_rows + partner_rows
+    )
     return {
         "schema_version": "1.0",
         "gate": "POST_J_GATE_C",
@@ -31,11 +39,11 @@ def build_report(root: Path) -> dict[str, object]:
         },
         "candidate_coverage": {
             "total_candidates": total,
-            "fully_high_confidence_modeled": int(coverage["fully_high_confidence_modeled"]),
-            "partially_modeled": int(coverage["partially_modeled"]),
+            "fully_high_confidence_modeled": high,
+            "partially_modeled": partial,
             "unmodeled": unmodeled,
-            "modeled_total": modeled,
-            "candidate_recall": 1.0 if total == modeled + unmodeled else 0.0,
+            "modeled_total": high + partial,
+            "candidate_recall": candidate_recall,
             "canonical_feature_coverage": int(coverage["canonical_feature_coverage"]),
             "decision_relevant_unmodeled": int(
                 screen["bucket_counts"].get(
@@ -57,7 +65,9 @@ def build_report(root: Path) -> dict[str, object]:
             "remaining_physical_unique_names": readiness["remaining_physical_unique_names"],
             "remaining_physical_total_cards": readiness["remaining_physical_total_cards"],
             "single_commander_candidate_count": readiness["single_commander_candidate_count"],
+            "partner_component_count": readiness["partner_component_count"],
             "partner_configuration_count": readiness["partner_configuration_count"],
+            "simultaneously_buildable_configuration_count": physical_buildable_count,
             "creates_second_deck": readiness["creates_second_deck"],
             "creates_reservation": readiness["creates_reservation"],
             "four_player_performance_claim": readiness["four_player_performance_claim"],
@@ -69,13 +79,15 @@ def build_report(root: Path) -> dict[str, object]:
             == ("rogshai/current",),
             "korvold_inactive_semantics": "korvold/current"
             in facade.context.historical_own_deck_ids,
-            "remaining_pool_deterministic": True,
+            "remaining_pool_deterministic": readiness == facade.second_deck_readiness(),
             "commander_candidate_discovery": int(readiness["single_commander_candidate_count"]) > 0,
-            "partner_candidate_discovery": True,
-            "physical_buildability": True,
-            "support_quality_evidence": True,
+            "partner_candidate_discovery": int(readiness["partner_component_count"]) >= int(
+                readiness["partner_configuration_count"]
+            ),
+            "physical_buildability": physical_buildable_count > 0,
+            "support_quality_evidence": any(bool(row["role_evidence"]) for row in single_rows),
             "no_unjustified_4p_model_claim": readiness["four_player_performance_claim"] is None,
-            "candidate_recall_ge_baseline": True,
+            "candidate_recall_ge_baseline": candidate_recall >= 1.0,
             "unmodeled_candidates_discoverable": bool(screen["unmodeled_candidates_discoverable"]),
             "playstyle_soft_semantics": not bool(screen["playstyle_is_hard_filter"]),
         },
