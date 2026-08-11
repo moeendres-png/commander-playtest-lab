@@ -13,14 +13,24 @@ from commander_lab.engine.structural.project import (
     _validate_structural_profile_ids,
 )
 from commander_lab.models import StructuralDeckProfile
-from tools.project_invariant_audit import audit_project
 
 ROOT = Path(__file__).resolve().parents[2]
+AUDIT = ROOT / "tools/project_invariant_audit.py"
 
 
 def _write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def _run_audit(root: Path) -> tuple[subprocess.CompletedProcess[str], dict[str, object]]:
+    completed = subprocess.run(
+        [sys.executable, str(AUDIT), "--root", str(root)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return completed, json.loads(completed.stdout)
 
 
 def test_structural_profile_config_rejects_duplicate_deck_ids(tmp_path: Path) -> None:
@@ -49,10 +59,13 @@ def test_structural_profile_merge_rejects_cross_source_collision() -> None:
 
 
 def test_project_invariant_auditor_passes_current_repo() -> None:
-    report = audit_project(ROOT)
-    statuses = {check["id"]: check["status"] for check in report["checks"]}
+    completed, report = _run_audit(ROOT)
+    checks = cast(list[dict[str, object]], report["checks"])
+    summary = cast(dict[str, int], report["summary"])
+    statuses = {str(check["id"]): str(check["status"]) for check in checks}
 
-    assert report["summary"]["fail"] == 0
+    assert completed.returncode == 0
+    assert summary["fail"] == 0
     assert statuses["unique_structural_profile_ids"] == "PASS"
     assert statuses["official_precon_integrity"] == "PASS"
     assert statuses["structural_evidence_boundaries"] == "PASS"
@@ -80,14 +93,9 @@ def test_project_invariant_auditor_fails_closed_on_broken_fixture(tmp_path: Path
         },
     )
 
-    completed = subprocess.run(
-        [sys.executable, str(ROOT / "tools/project_invariant_audit.py"), "--root", str(tmp_path)],
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    report = json.loads(completed.stdout)
-    failures = {check["id"] for check in report["checks"] if check["status"] == "FAIL"}
+    completed, report = _run_audit(tmp_path)
+    checks = cast(list[dict[str, object]], report["checks"])
+    failures = {str(check["id"]) for check in checks if check["status"] == "FAIL"}
 
     assert completed.returncode == 1
     assert "unique_structural_profile_ids" in failures
