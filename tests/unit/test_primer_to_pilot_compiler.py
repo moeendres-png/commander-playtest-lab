@@ -191,7 +191,7 @@ def test_opening_hand_overlay_applies_curated_mulligan_rule() -> None:
     )
 
 
-def test_tool_service_policy_eval_is_scoped_and_does_not_change_decks() -> None:
+def test_historical_policy_eval_fails_closed_and_does_not_change_decks() -> None:
     from commander_lab.models import RunPolicyEvalInput, ToolStatus
     from commander_lab.tools import CommanderToolService
 
@@ -205,9 +205,8 @@ def test_tool_service_policy_eval_is_scoped_and_does_not_change_decks() -> None:
             output_name="test_policy_eval.json",
         )
     )
-    assert response.status == ToolStatus.COMPLETED
-    assert response.result["scenario_count"] == 3
-    assert response.result["improved_count"] >= 1
+    assert response.status == ToolStatus.FAILED
+    assert any("does not match current deck" in error for error in response.errors)
     after = {name: (ROOT / name).read_bytes() for name in before}
     assert after == before
 
