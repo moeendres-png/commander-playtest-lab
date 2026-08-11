@@ -44,12 +44,19 @@ def test_robust_objective_has_exact_required_axes() -> None:
     }
 
 
-def test_current_drive_projection_is_used_for_free_inventory() -> None:
+def test_current_projection_applies_inactive_korvold_release_without_rewriting_p5() -> None:
     svc = CommanderToolService(ROOT)
-    payload = json.loads(
+    sealed = json.loads(
         (ROOT / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json").read_text()
-    )
-    assert svc.candidate_inventory == payload["cards"]
+    )["cards"]
+    release = json.loads(
+        (ROOT / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json").read_text()
+    )["released_allocations"]
+    expected = {str(name): int(quantity) for name, quantity in sealed.items()}
+    for name, quantity in release.items():
+        expected[str(name)] = expected.get(str(name), 0) + int(quantity)
+    assert svc.candidate_inventory == expected
+    assert len(release) == 83
     assert len(svc.candidates) >= 500
 
 
