@@ -57,7 +57,9 @@ class ManaAnalyzer:
         path = self.root / "data/canonical_import/2026-08-07/inventory_snapshot.json"
         payload = json.loads(path.read_text(encoding="utf-8"))
         self.inventory = {
-            str(row["oracle_name"]): dict(row) for row in payload.get("cards", []) if row.get("oracle_name")
+            str(row["oracle_name"]): dict(row)
+            for row in payload.get("cards", [])
+            if row.get("oracle_name")
         }
 
     def classify_source(self, card: StructuralCardProfile) -> ManaSourceClassification:
