@@ -64,7 +64,7 @@ Reason: measured card lookup and SQLite costs are negligible relative to simulat
 2. Release evidence now reads `docs/J_P3_PROVIDER_DECISION.json` and records real partial XMage/Forge feasibility evidence while retaining the truthful `NO_PROVIDER_READY` / no-production-bridge boundary.
 3. Fresh-wheel release verification now executes `commander-lab --help`, not merely import/version inspection.
 4. Integrated J-P6 acceptance covers focused P4/P5/P6 regression, RunIdentity/reproducibility, scheduler behavior, API, MCP, CLI, core end-to-end workflows, P5 holdout integrity and canonical deck-hash preservation.
-5. A fixed-seed structural matchup is executed twice in the J-P6 regression suite and its result payloads must match exactly.
+5. A fixed-seed structural matchup is executed twice in the J-P6 regression suite; the complete decision result payload must match after excluding the intentionally volatile per-invocation `result_path`.
 
 ## Integrated workflow acceptance
 
@@ -91,10 +91,12 @@ J-P6 acceptance run `31450931681` passed all of:
 - Korvold/RogShai canonical deck-hash preservation;
 - tracked-tree cleanliness.
 
+The final PR/main gates repeat these checks on the final integrated commit. Ruff/format hygiene was subsequently applied mechanically to the new P6 scripts/tests with no simulator, optimizer, pilot, Objective, deck or holdout semantic change.
+
 ## Equivalence / decision quality
 
 - semantic equivalence: required and covered by existing full/focused regression suites plus no changes to simulator/optimizer/pilot semantics;
-- deterministic equivalence: fixed-seed result equality test plus existing reproducibility suites;
+- deterministic equivalence: fixed-seed decision-result equality test plus existing reproducibility suites; volatile result file paths are intentionally excluded;
 - decision-quality regression: none detected; J-P5 optimizer regression suite remains part of J-P6 acceptance;
 - holdout regression: consumed P4/P5 evidence remains immutable/regression-only; P5 evaluation count remains 1 and post-holdout tuning remains false;
 - canonical deck mutations: 0.
