@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "name": "AI_CANONICAL_STATE.json",
+    "drive_id": "1aYJ3x20Gbdv0wA-wI5eZXVKb-9sg-3u0",
+    "sha256": "f2857739a1fc2816aed99635b7064aabe049813a4687401b860560da9b6c8e8a",
+    "verified_at": "2026-08-11T05:37:00+02:00"
+  },
+  "active_own_decks": [
+    "rogshai/current"
+  ],
+  "primary_deckbuilding_focus": "rogshai/current",
+  "historical_own_decks": [
+    "korvold/current"
+  ],
+  "frozen_opponent_only_decks": [
+    "kaervek/current"
+  ],
+  "korvold_simultaneous_build_requirement": false,
+  "historical_deck_membership_is_quality_prior": false,
+  "historical_allocation_blocks_active_deck": false,
+  "truth_boundary": "Current Drive scope projection for deterministic lab context only; it does not mutate canonical deck lists or inventory."
+}
