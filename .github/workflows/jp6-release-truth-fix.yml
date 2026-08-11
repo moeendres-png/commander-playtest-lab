@@ -1,0 +1,112 @@
+name: J-P6 Release Truth Hardening Fix
+on:
+  push:
+    branches: [roadmap/j-p6-performance-hardening]
+    paths: [.github/workflows/jp6-release-truth-fix.yml]
+permissions: {contents: write}
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {fetch-depth: 0}
+      - name: Make release evidence reflect checked-in P3 truth and fresh-install CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/release-artifacts.yml')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace(
+'''          manifest = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          decks = manifest["decks"]
+''',
+'''          manifest = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
+          decks = manifest["decks"]
+''')
+          s=s.replace(
+'''              "external_engine_validation_pending": True,
+              "xmage_observations": 0,
+              "forge_observations": 0,
+''',
+'''              "external_engine_validation_pending": p3["primary_provider"] is None,
+              "external_engine_provider_decision": p3["decision"],
+              "external_engine_real_execution": any(
+                  provider["real_execution"] for provider in p3["providers"].values()
+              ),
+              "external_engine_production_bridge": p3["production_bridge"],
+              "xmage_status": p3["providers"]["xmage"]["status"],
+              "xmage_score": p3["providers"]["xmage"]["score"],
+              "xmage_real_execution": p3["providers"]["xmage"]["real_execution"],
+              "forge_status": p3["providers"]["forge"]["status"],
+              "forge_score": p3["providers"]["forge"]["score"],
+              "forge_real_execution": p3["providers"]["forge"]["real_execution"],
+''')
+          s=s.replace(
+'''              "truth_source": "data/decks/manifest.json",
+''',
+'''              "truth_source": "data/decks/manifest.json",
+              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+''')
+          s=s.replace(
+'''              "- External engine validation: pending; XMage/Forge observations = 0.\\n"
+              "- Validation boundary: structural + Tactical Oracle only; no external semantic result.\\n"
+''',
+'''              f"- External provider decision: `{p3['decision']}`; production bridge: `{p3['production_bridge']}`.\\n"
+              f"- XMage: `{p3['providers']['xmage']['status']}` / {p3['providers']['xmage']['score']} / real execution `{p3['providers']['xmage']['real_execution']}`.\\n"
+              f"- Forge: `{p3['providers']['forge']['status']}` / {p3['providers']['forge']['score']} / real execution `{p3['providers']['forge']['real_execution']}`.\\n"
+              "- Validation boundary: structural model + Tactical Oracle + real partial external-provider feasibility evidence; no production-ready external bridge.\\n"
+''')
+          s=s.replace(
+'''          source = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          release = json.loads(Path("release/PLAYTEST_LAB_CURRENT_STATUS.json").read_text(encoding="utf-8"))
+''',
+'''          source = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
+          release = json.loads(Path("release/PLAYTEST_LAB_CURRENT_STATUS.json").read_text(encoding="utf-8"))
+''')
+          s=s.replace(
+'''          assert release["allocation_valid"] == source["allocation_validation"]["valid"]
+''',
+'''          assert release["allocation_valid"] == source["allocation_validation"]["valid"]
+          assert release["external_engine_provider_decision"] == p3["decision"]
+          assert release["xmage_real_execution"] is p3["providers"]["xmage"]["real_execution"]
+          assert release["forge_real_execution"] is p3["providers"]["forge"]["real_execution"]
+          assert release["external_engine_production_bridge"] == p3["production_bridge"]
+''')
+          s=s.replace(
+'''              "validation_level": "structural_and_tactical_only",
+              "external_rules_engine_results": False,
+''',
+'''              "validation_level": "structural_tactical_and_real_external_feasibility_evidence",
+              "external_rules_engine_results": True,
+              "external_engine_production_ready": False,
+              "external_engine_provider_decision": "NO_PROVIDER_READY",
+              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+''')
+          s=s.replace(
+'''          test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "$version"
+''',
+'''          test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "$version"
+          "$RUNNER_TEMP/wheel-verify/bin/commander-lab" --help >/dev/null
+''')
+          required=(
+              'external_engine_provider_decision'
+              'xmage_real_execution'
+              'structural_tactical_and_real_external_feasibility_evidence'
+              'wheel-verify/bin/commander-lab'
+          )
+          for token in required:
+              if token not in s:
+                  raise SystemExit(f'missing release hardening token: {token}')
+          p.write_text(s, encoding='utf-8')
+          PY
+          rm .github/workflows/jp6-release-truth-fix.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'J-P6: harden release truth and fresh-install CLI validation'
+          git push
