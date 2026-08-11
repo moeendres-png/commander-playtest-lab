@@ -28,9 +28,9 @@ PRIMARY = (
     "opponent/doom-prevails-precon",
     "opponent/cosmic-spiderman-midbudget",
 )
-POD = ("korvold/current", *PRIMARY)
-SMOKE_CANDIDATE = "korvold/mazirek-smoke"
-SWAP = VariantSwap(remove="Vampiric Rites", add_candidate_id=SMOKE_CANDIDATE)
+POD = ("rogshai/current", *PRIMARY)
+SMOKE_CANDIDATE = "inventory/rootborn-defenses-677fdbcf"
+SWAP = VariantSwap(remove="Flare of Duplication", add_candidate_id=SMOKE_CANDIDATE)
 
 
 def _completed(name: str, response: object) -> dict[str, object]:
@@ -50,9 +50,9 @@ def main() -> None:
     service = CommanderToolService(ROOT)
     results: list[dict[str, object]] = []
 
-    validate = service.validate_deck(ValidateDeckInput(deck_id="korvold/current"))
+    validate = service.validate_deck(ValidateDeckInput(deck_id="rogshai/current"))
     results.append(_completed("validate deck", validate))
-    inspect = service.inspect_deck(InspectDeckInput(deck_id="korvold/current", include_cards=False))
+    inspect = service.inspect_deck(InspectDeckInput(deck_id="rogshai/current", include_cards=False))
     results.append(_completed("inspect deck", inspect))
 
     matchup = service.run_matchup_batch(
@@ -62,7 +62,7 @@ def main() -> None:
 
     paired = service.compare_variants_paired(
         PairedVariantInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             swaps=(SWAP,),
             opponent_deck_ids=PRIMARY,
             iterations=1,
@@ -74,8 +74,8 @@ def main() -> None:
 
     card = service.run_card_ablation(
         CardAblationInput(
-            deck_id="korvold/current",
-            card_name="Mirkwood Bats",
+            deck_id="rogshai/current",
+            card_name="Flare of Duplication",
             opponent_deck_ids=PRIMARY,
             iterations=1,
             workers=1,
@@ -86,8 +86,8 @@ def main() -> None:
 
     package = service.run_package_ablation(
         PackageAblationInput(
-            deck_id="korvold/current",
-            card_names=("Mayhem Devil", "Mirkwood Bats"),
+            deck_id="rogshai/current",
+            card_names=("Flare of Duplication", "Farewell"),
             opponent_deck_ids=PRIMARY,
             iterations=1,
             workers=1,
@@ -98,7 +98,7 @@ def main() -> None:
 
     denial = service.run_commander_denial(
         CommanderDenialInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             opponent_deck_ids=PRIMARY,
             iterations=1,
             workers=1,
@@ -109,7 +109,7 @@ def main() -> None:
 
     generic_holdout = service.run_holdout(
         HoldoutInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             swaps=(SWAP,),
             opponent_deck_ids=PRIMARY,
             holdout_pods=(PRIMARY,),
@@ -133,7 +133,7 @@ def main() -> None:
 
     search = service.search_variants(
         SearchVariantsInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             candidate_ids=(SMOKE_CANDIDATE,),
             max_cuts=1,
             max_results=1,
@@ -147,7 +147,7 @@ def main() -> None:
 
     recommend = service.recommend_upgrades(
         RecommendUpgradesInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             candidate_ids=(SMOKE_CANDIDATE,),
             max_recommendations=1,
         )
@@ -177,8 +177,9 @@ def main() -> None:
     output.write_text(
         json.dumps(
             {
-                "schema_version": "1.0.0",
+                "schema_version": "1.1.0",
                 "evidence_class": "workflow_runtime_smoke",
+                "current_scope": "rogshai_only",
                 "canonical_deck_mutations": 0,
                 "p5_holdout_regression_only": True,
                 "workflows": results,
