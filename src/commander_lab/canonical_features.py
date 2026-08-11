@@ -77,18 +77,28 @@ def load_canonical_feature_annotations(
             raise CanonicalFeatureError("canonical feature projection contains an unsafe part path")
         path = projection_root / part_name
         if not path.is_file():
-            raise CanonicalFeatureError(f"canonical feature projection part is missing: {part_name}")
+            raise CanonicalFeatureError(
+                f"canonical feature projection part is missing: {part_name}"
+            )
         try:
             rows = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
-            raise CanonicalFeatureError(f"invalid canonical feature projection part: {part_name}") from exc
+            raise CanonicalFeatureError(
+                f"invalid canonical feature projection part: {part_name}"
+            ) from exc
         if not isinstance(rows, list):
-            raise CanonicalFeatureError(f"canonical feature projection part is not a list: {part_name}")
+            raise CanonicalFeatureError(
+                f"canonical feature projection part is not a list: {part_name}"
+            )
         for row in rows:
             if not isinstance(row, list) or len(row) != 3:
                 raise CanonicalFeatureError(f"invalid feature row in {part_name}")
             name, raw_tags, raw_packages = row
-            if not isinstance(name, str) or not isinstance(raw_tags, list) or not isinstance(raw_packages, list):
+            if (
+                not isinstance(name, str)
+                or not isinstance(raw_tags, list)
+                or not isinstance(raw_packages, list)
+            ):
                 raise CanonicalFeatureError(f"invalid feature row types in {part_name}")
             if name in annotations:
                 raise CanonicalFeatureError(f"duplicate canonical feature row: {name}")
@@ -98,9 +108,7 @@ def load_canonical_feature_annotations(
                 raise CanonicalFeatureError(
                     f"unmapped canonical feature tags for {name}: {sorted(unknown)}"
                 )
-            mapped = frozenset(
-                role for tag in tags for role in ROLE_TAG_MAP.get(tag, frozenset())
-            )
+            mapped = frozenset(role for tag in tags for role in ROLE_TAG_MAP.get(tag, frozenset()))
             packages = frozenset(str(value) for value in raw_packages)
             if any(not package.startswith("package:rogshai:") for package in packages):
                 raise CanonicalFeatureError(f"non-RogShai package in feature projection for {name}")
@@ -157,7 +165,7 @@ def fuse_canonical_features(
             "roles": roles,
             "role_strengths": strengths,
             "package_ids": frozenset(set(profile.package_ids) | set(annotation.package_ids)),
-            "sources": tuple(profile.sources) + (projection_source,),
+            "sources": (*tuple(profile.sources), projection_source),
             "notes": note,
         }
     )
