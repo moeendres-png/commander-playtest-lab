@@ -256,7 +256,7 @@ class ValidateUpgradeInput(PairedVariantInput):
 
 
 class BuildOptimizationContextInput(FrozenModel):
-    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current")
+    deck_ids: tuple[str, ...] = ("rogshai/current",)
     include_kaervek: bool = False
 
 
@@ -282,7 +282,7 @@ class OptimizeDeckAgainstMetaInput(SimulationInput):
 
 
 class OptimizeMultipleDecksWithAllocationInput(FrozenModel):
-    deck_ids: tuple[str, ...] = ("korvold/current", "rogshai/current")
+    deck_ids: tuple[str, ...] = ("rogshai/current",)
     max_candidates_per_deck: int = Field(default=5, ge=1, le=20)
 
 
