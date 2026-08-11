@@ -39,6 +39,17 @@ DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
         maximum_high_mana_value_cards=10,
         high_mana_value_threshold=5.0,
         simultaneous_deck_ids=("rogshai/current",),
+        required_commanders=("Korvold, Fae-Cursed King",),
+        require_partner_configuration=False,
+        locked_cards=(
+            "Dark Ritual",
+            "Tinder Wall",
+            "Orcish Lumberjack",
+            "Exploration Broodship",
+            "Pitiless Plunderer",
+            "Ophiomancer",
+            "Mirkwood Bats",
+        ),
     ),
     "rogshai/current": OptimizationConstraints(
         allowed_colors=frozenset({Color.WHITE, Color.BLUE, Color.RED}),
@@ -60,6 +71,16 @@ DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
         maximum_high_mana_value_cards=5,
         high_mana_value_threshold=5.0,
         simultaneous_deck_ids=("korvold/current",),
+        required_commanders=("Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"),
+        require_partner_configuration=True,
+        locked_cards=(
+            "Duelist's Heritage",
+            "Chandra, Torch of Defiance",
+            "Light of Hope",
+            "Kediss, Emberclaw Familiar",
+            "Silence",
+            "Jeska, Thrice Reborn",
+        ),
     ),
 }
 
@@ -101,7 +122,43 @@ def evaluate_constraints(
             )
         )
 
+    if constraints.required_commanders and tuple(deck.commander_names) != tuple(
+        constraints.required_commanders
+    ):
+        issues.append(
+            ConstraintIssue(
+                code="commander_identity",
+                message="variant commander/partner configuration differs from the canonical optimization target",
+                context={
+                    "actual": list(deck.commander_names),
+                    "required": list(constraints.required_commanders),
+                },
+            )
+        )
+    if constraints.require_partner_configuration is not None:
+        actual_partner = len(deck.commander_names) == 2
+        if actual_partner != constraints.require_partner_configuration:
+            issues.append(
+                ConstraintIssue(
+                    code="partner_configuration",
+                    message="variant partner configuration differs from current policy",
+                    context={
+                        "actual": actual_partner,
+                        "required": constraints.require_partner_configuration,
+                    },
+                )
+            )
+
     names = Counter(card.oracle_name for card in deck.cards)
+    missing_locked = [name for name in constraints.locked_cards if names.get(name, 0) < 1]
+    if missing_locked:
+        issues.append(
+            ConstraintIssue(
+                code="locked_card",
+                message="variant removes current locked/must-play cards",
+                context={"missing": sorted(missing_locked)},
+            )
+        )
     if constraints.singleton:
         for name, quantity in names.items():
             if quantity > 1 and name not in BASIC_LANDS:

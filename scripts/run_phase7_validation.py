@@ -33,6 +33,17 @@ def dump(name: str, response) -> dict:
 def run(*, full: bool) -> dict[str, object]:
     OUT.mkdir(parents=True, exist_ok=True)
     service = CommanderToolService(ROOT)
+    challenge = json.loads(
+        (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    by_deck = {
+        deck_id: [row for row in challenge["variants"] if row["deck_id"] == deck_id]
+        for deck_id in ("korvold/current", "rogshai/current")
+    }
+    kg, kn = by_deck["korvold/current"][0], by_deck["korvold/current"][1]
+    rg, rn = by_deck["rogshai/current"][0], by_deck["rogshai/current"][1]
     seed = 20260804
     local_iterations = 8 if full else 2
     validation_iterations = 20 if full else 4
@@ -46,6 +57,8 @@ def run(*, full: bool) -> dict[str, object]:
         service.generate_swap_matrix(
             SwapMatrixInput(
                 deck_id="korvold/current",
+                remove_cards=(kg["remove"], kn["remove"]),
+                add_candidate_ids=(kg["add_candidate_id"], kn["add_candidate_id"]),
                 simulate_valid_cells=False,
                 iterations_per_cell=1,
                 seed=seed,
@@ -57,6 +70,8 @@ def run(*, full: bool) -> dict[str, object]:
         service.generate_swap_matrix(
             SwapMatrixInput(
                 deck_id="rogshai/current",
+                remove_cards=(rg["remove"], rn["remove"]),
+                add_candidate_ids=(rg["add_candidate_id"], rn["add_candidate_id"]),
                 simulate_valid_cells=False,
                 iterations_per_cell=1,
                 seed=seed,
@@ -69,7 +84,7 @@ def run(*, full: bool) -> dict[str, object]:
         service.run_local_search(
             LocalSearchInput(
                 deck_id="korvold/current",
-                candidate_ids=("korvold/idol-of-oblivion", "korvold/lightning-greaves"),
+                candidate_ids=(kg["add_candidate_id"], kn["add_candidate_id"]),
                 max_steps=2,
                 cuts_per_step=8 if full else 4,
                 iterations=local_iterations,
@@ -82,7 +97,7 @@ def run(*, full: bool) -> dict[str, object]:
         service.run_beam_search(
             BeamSearchInput(
                 deck_id="korvold/current",
-                candidate_ids=("korvold/idol-of-oblivion", "korvold/lightning-greaves"),
+                candidate_ids=(kg["add_candidate_id"], kn["add_candidate_id"]),
                 beam_width=4 if full else 2,
                 depth=2,
                 max_cuts_per_node=6 if full else 3,
@@ -93,10 +108,10 @@ def run(*, full: bool) -> dict[str, object]:
     )
 
     package = CandidatePackage(
-        package_id="korvold-idol-greaves",
+        package_id="korvold-jp5-current-bounded",
         swaps=(
-            VariantSwap(remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"),
-            VariantSwap(remove="Evendo Brushrazer", add_candidate_id="korvold/lightning-greaves"),
+            VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),
+            VariantSwap(remove=kn["remove"], add_candidate_id=kn["add_candidate_id"]),
         ),
     )
     package_search = dump(
@@ -116,16 +131,8 @@ def run(*, full: bool) -> dict[str, object]:
             ParetoFrontInput(
                 deck_id="korvold/current",
                 variants=(
-                    (
-                        VariantSwap(
-                            remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"
-                        ),
-                    ),
-                    (
-                        VariantSwap(
-                            remove="Evendo Brushrazer", add_candidate_id="korvold/lightning-greaves"
-                        ),
-                    ),
+                    (VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),),
+                    (VariantSwap(remove=kn["remove"], add_candidate_id=kn["add_candidate_id"]),),
                     package.swaps,
                 ),
                 iterations=8 if full else 4,
@@ -138,7 +145,7 @@ def run(*, full: bool) -> dict[str, object]:
         service.estimate_shapley(
             ShapleyInput(
                 deck_id="korvold/current",
-                card_names=("Scouring Swarm", "Evendo Brushrazer", "Horizon Explorer"),
+                card_names=(kg["remove"], kn["remove"], by_deck["korvold/current"][2]["remove"]),
                 permutations=256 if full else 64,
                 iterations=8 if full else 4,
                 seed=seed,
@@ -158,11 +165,7 @@ def run(*, full: bool) -> dict[str, object]:
         service.validate_upgrade(
             ValidateUpgradeInput(
                 deck_id="korvold/current",
-                swaps=(
-                    VariantSwap(
-                        remove="Scouring Swarm", add_candidate_id="korvold/idol-of-oblivion"
-                    ),
-                ),
+                swaps=(VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),),
                 **common_validation,
             )
         ),
@@ -172,11 +175,7 @@ def run(*, full: bool) -> dict[str, object]:
         service.validate_upgrade(
             ValidateUpgradeInput(
                 deck_id="rogshai/current",
-                swaps=(
-                    VariantSwap(
-                        remove="Izzet Signet", add_candidate_id="rogshai/talisman-of-creativity"
-                    ),
-                ),
+                swaps=(VariantSwap(remove=rg["remove"], add_candidate_id=rg["add_candidate_id"]),),
                 **common_validation,
             )
         ),

@@ -271,13 +271,25 @@ def objective_vector(
     robustness = (
         min(holdout_improvements) if holdout_improvements else metrics.placement_improvement
     )
+    seat_values: dict[int, list[float]] = {}
+    for row in pairs:
+        seat_value = row.get("starting_player_seat", 0)
+        seat = int(seat_value) if isinstance(seat_value, (str, bytes, bytearray, int)) else 0
+        delta = _metric_float(row, "baseline_placement") - _metric_float(row, "variant_placement")
+        seat_values.setdefault(seat, []).append(delta)
+    seat_robustness = min(
+        (fmean(values) for values in seat_values.values()), default=metrics.placement_improvement
+    )
     return ObjectiveVector(
-        four_player_performance=metrics.placement_improvement,
+        central_performance=metrics.placement_improvement,
         worst_quartile=worst_quartile_improvement(pairs),
         commander_independence=-commander_dependency_penalty,
         rebuild=profile_rebuild_score(variant),
-        closing_power=profile_closing_score(variant),
+        finish_reliability=profile_closing_score(variant),
         matchup_robustness=robustness,
+        pod_size_robustness=robustness,
+        seat_robustness=seat_robustness,
+        opponent_uncertainty=robustness,
         physical_allocation=1.0 if physical_valid else 0.0,
     )
 

@@ -1,21 +1,28 @@
 {
-  "schema_version": "0.7.0",
+  "schema_version": "0.7.1-jp5",
   "estimate_type": "structural_model_estimates",
   "automatic_application": false,
   "objectives": [
-    "four_player_performance",
+    "central_performance",
     "worst_quartile",
     "commander_independence",
     "rebuild",
-    "closing_power",
+    "finish_reliability",
     "matchup_robustness",
+    "pod_size_robustness",
+    "seat_robustness",
+    "opponent_uncertainty",
     "physical_allocation"
   ],
   "constraints": {
     "korvold/current": {
       "exact_card_count": 100,
       "singleton": true,
-      "allowed_colors": ["B", "R", "G"],
+      "allowed_colors": [
+        "B",
+        "R",
+        "G"
+      ],
       "role_minima": {
         "ramp": 12,
         "draw": 6,
@@ -30,17 +37,40 @@
       },
       "minimum_lands": 38,
       "maximum_lands": 40,
-      "minimum_colored_sources": {"G": 18, "B": 14, "R": 12},
+      "minimum_colored_sources": {
+        "G": 18,
+        "B": 14,
+        "R": 12
+      },
       "maximum_average_nonland_mana_value": 3.1,
       "maximum_high_mana_value_cards": 10,
       "high_mana_value_threshold": 5.0,
       "require_verified_inventory": true,
-      "simultaneous_deck_ids": ["rogshai/current"]
+      "simultaneous_deck_ids": [
+        "rogshai/current"
+      ],
+      "required_commanders": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "require_partner_configuration": false,
+      "locked_cards": [
+        "Dark Ritual",
+        "Tinder Wall",
+        "Orcish Lumberjack",
+        "Exploration Broodship",
+        "Pitiless Plunderer",
+        "Ophiomancer",
+        "Mirkwood Bats"
+      ]
     },
     "rogshai/current": {
       "exact_card_count": 100,
       "singleton": true,
-      "allowed_colors": ["W", "U", "R"],
+      "allowed_colors": [
+        "W",
+        "U",
+        "R"
+      ],
       "role_minima": {
         "ramp": 9,
         "draw": 6,
@@ -54,12 +84,31 @@
       },
       "minimum_lands": 36,
       "maximum_lands": 38,
-      "minimum_colored_sources": {"W": 16, "U": 17, "R": 13},
+      "minimum_colored_sources": {
+        "W": 16,
+        "U": 17,
+        "R": 13
+      },
       "maximum_average_nonland_mana_value": 2.5,
       "maximum_high_mana_value_cards": 5,
       "high_mana_value_threshold": 5.0,
       "require_verified_inventory": true,
-      "simultaneous_deck_ids": ["korvold/current"]
+      "simultaneous_deck_ids": [
+        "korvold/current"
+      ],
+      "required_commanders": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "require_partner_configuration": true,
+      "locked_cards": [
+        "Duelist's Heritage",
+        "Chandra, Torch of Defiance",
+        "Light of Hope",
+        "Kediss, Emberclaw Familiar",
+        "Silence",
+        "Jeska, Thrice Reborn"
+      ]
     }
   }
 }

@@ -2,16 +2,16 @@
   "automatic_application": false,
   "complete_swap_matrices": {
     "korvold/current": {
-      "cells": 150,
+      "cells": 4,
       "matrix_complete": true,
       "simulated_cells": 0,
-      "valid_cells": 150
+      "valid_cells": 4
     },
     "rogshai/current": {
-      "cells": 70,
+      "cells": 4,
       "matrix_complete": true,
       "simulated_cells": 0,
-      "valid_cells": 68
+      "valid_cells": 4
     }
   },
   "estimate_type": "structural_model_estimates",
@@ -20,9 +20,6 @@
   "pareto_front": [
     {
       "affected_matchups": [
-        "commander_damage",
-        "commander_denial",
-        "control",
         "grindy_pods",
         "korvold_synergy",
         "large_pods",
@@ -33,74 +30,77 @@
       "constraint_report": {
         "issues": [],
         "metrics": {
-          "average_nonland_mana_value": 2.8524590163934427,
+          "average_nonland_mana_value": 2.6721311475409837,
           "colored_sources": {
-            "B": 28,
+            "B": 29,
             "G": 30,
-            "R": 24
+            "R": 26
           },
-          "high_mana_value_cards": 9,
+          "high_mana_value_cards": 7,
           "lands": 39,
           "role_counts": {
-            "combat_payoff": 2,
+            "combat_payoff": 1,
             "counter": 0,
-            "draw": 8,
-            "enabler": 12,
+            "draw": 12,
+            "enabler": 14,
             "engine": 17,
-            "finisher": 6,
+            "finisher": 5,
             "graveyard_hate": 3,
-            "land_synergy": 19,
+            "land_synergy": 17,
             "mana_source": 39,
-            "payoff": 10,
+            "payoff": 7,
             "protection": 5,
             "ramp": 20,
-            "recursion": 7,
-            "removal": 10,
-            "sacrifice_outlet": 8,
+            "recursion": 8,
+            "removal": 11,
+            "sacrifice_outlet": 10,
             "selection": 1,
-            "token_source": 7,
-            "wipe": 6
+            "token_source": 8,
+            "wipe": 7
           }
         },
         "valid": true
       },
-      "deck_hash": "c89a487589d590296f9631a3e24b03e33acad63b9bec26e686eac2903e4c96f6",
+      "deck_hash": "a58494a01a80a5274c5dae49c0614383919e60ec16c7fe37c2b4ee7660de8d12",
       "deck_id": "korvold/current",
       "objectives": {
-        "closing_power": 1.0,
-        "commander_independence": -0.1262442219833378,
-        "four_player_performance": 0.0,
+        "central_performance": 0.25,
+        "commander_independence": -0.10986105885514645,
+        "finish_reliability": 1.0,
         "matchup_robustness": 0.0,
+        "opponent_uncertainty": 0.0,
         "physical_allocation": 1.0,
+        "pod_size_robustness": 0.0,
         "rebuild": 1.0,
+        "seat_robustness": 0.0,
         "worst_quartile": 0.0
       },
       "parent_variant_id": null,
-      "screening_score": -0.4079999999999995,
+      "screening_score": 1.59,
       "search_method": "pareto_evaluation",
       "structural_rationale": [
-        "Profile score changes from 1.910 to 2.326.",
-        "Mana value changes from 3.0 to 2.0.",
-        "Gains roles: draw.",
-        "Loses roles: land_synergy, payoff, token_source.",
-        "Immediate impact 0.35 → 0.35; turn-cycle risk 0.80 → 0.35.",
-        "Profile score changes from 3.545 to 4.271.",
-        "Mana value changes from 3.0 to 2.0.",
-        "Gains roles: combat_payoff, protection.",
-        "Loses roles: draw, engine, ramp, sacrifice_outlet.",
-        "Immediate impact 0.80 → 0.95; turn-cycle risk 0.45 → 0.15."
+        "Profile score changes from 1.405 to 2.520.",
+        "Mana value changes from 3.0 to 3.0.",
+        "Gains roles: enabler, engine, land_synergy, sacrifice_outlet, token_source.",
+        "No structural role is lost.",
+        "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60.",
+        "Profile score changes from 2.325 to 2.250.",
+        "Mana value changes from 2.0 to 5.0.",
+        "Gains roles: draw, enabler, engine.",
+        "Loses roles: payoff.",
+        "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60."
       ],
       "swaps": [
         {
-          "add_candidate_id": "korvold/idol-of-oblivion",
-          "remove": "Scouring Swarm"
+          "add_candidate_id": "inventory/scouring-swarm-decedec9",
+          "remove": "Mayhem Devil"
         },
         {
-          "add_candidate_id": "korvold/lightning-greaves",
-          "remove": "Evendo Brushrazer"
+          "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+          "remove": "Goblin Bombardment"
         }
       ],
-      "variant_id": "korvold/current/search/58306fb9442d"
+      "variant_id": "korvold/current/search/956c2ce6a8c8"
     },
     {
       "affected_matchups": [
@@ -114,65 +114,68 @@
       "constraint_report": {
         "issues": [],
         "metrics": {
-          "average_nonland_mana_value": 2.8688524590163933,
+          "average_nonland_mana_value": 2.6721311475409837,
           "colored_sources": {
-            "B": 28,
+            "B": 29,
             "G": 30,
-            "R": 24
+            "R": 26
           },
-          "high_mana_value_cards": 9,
+          "high_mana_value_cards": 7,
           "lands": 39,
           "role_counts": {
             "combat_payoff": 1,
             "counter": 0,
-            "draw": 9,
-            "enabler": 12,
-            "engine": 18,
-            "finisher": 6,
+            "draw": 12,
+            "enabler": 13,
+            "engine": 16,
+            "finisher": 5,
             "graveyard_hate": 3,
-            "land_synergy": 19,
+            "land_synergy": 16,
             "mana_source": 39,
-            "payoff": 10,
-            "protection": 4,
-            "ramp": 21,
-            "recursion": 7,
-            "removal": 10,
+            "payoff": 7,
+            "protection": 5,
+            "ramp": 20,
+            "recursion": 8,
+            "removal": 11,
             "sacrifice_outlet": 9,
             "selection": 1,
             "token_source": 7,
-            "wipe": 6
+            "wipe": 7
           }
         },
         "valid": true
       },
-      "deck_hash": "7d22237a559f5b3789be2c7142ac6a137511e605df6bbd9c35599d369850e6a6",
+      "deck_hash": "d06ffa0ca892de4523de40ef2a7224dcaf2a8568bfe9dff85de6108961aa5c43",
       "deck_id": "korvold/current",
       "objectives": {
-        "closing_power": 1.0,
-        "commander_independence": -0.1227082269551196,
-        "four_player_performance": 0.0,
-        "matchup_robustness": -0.25,
+        "central_performance": 0.0,
+        "commander_independence": -0.10486737436173073,
+        "finish_reliability": 1.0,
+        "matchup_robustness": 0.0,
+        "opponent_uncertainty": 0.0,
         "physical_allocation": 1.0,
+        "pod_size_robustness": 0.0,
         "rebuild": 1.0,
+        "seat_robustness": 0.0,
         "worst_quartile": 0.0
       },
       "parent_variant_id": null,
-      "screening_score": -0.1839999999999995,
+      "screening_score": 0.0250000000000003,
       "search_method": "pareto_evaluation",
       "structural_rationale": [
-        "Profile score changes from 1.910 to 2.326.",
-        "Mana value changes from 3.0 to 2.0.",
-        "Gains roles: draw.",
-        "Loses roles: land_synergy, payoff, token_source.",
-        "Immediate impact 0.35 → 0.35; turn-cycle risk 0.80 → 0.35."
+        "Profile score changes from 2.325 to 2.250.",
+        "Mana value changes from 2.0 to 5.0.",
+        "Gains roles: draw, enabler, engine.",
+        "Loses roles: payoff.",
+        "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60."
       ],
       "swaps": [
         {
-          "add_candidate_id": "korvold/idol-of-oblivion",
-          "remove": "Scouring Swarm"
+          "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+          "remove": "Goblin Bombardment"
         }
       ],
-      "variant_id": "korvold/current/search/a9d091ce603a"
+      "variant_id": "korvold/current/search/e54d13f7fb52"
     }
   ],
   "schema_version": "0.7.0",
@@ -181,13 +184,11 @@
       "automatic_application": false,
       "beam_width": 2,
       "depth": 2,
-      "method": "beam_search",
+      "method": "staged_beam_search",
+      "ranking_policy": "hard_constraints_then_static_beam_preselection_then_paired_distributionally_robust_lower_bound",
       "variants": [
         {
           "affected_matchups": [
-            "commander_damage",
-            "commander_denial",
-            "control",
             "grindy_pods",
             "korvold_synergy",
             "large_pods",
@@ -196,440 +197,294 @@
           ],
           "automatic_application": false,
           "comparison": {
-            "baseline_average_cards_drawn": 23.5,
-            "baseline_average_damage": 82.26098624000002,
+            "actual_sample_size": 2,
+            "baseline_average_cards_drawn": 27.0,
+            "baseline_average_damage": 87.44051920999999,
             "baseline_average_placement": 1.0,
             "baseline_place_1_share": 1.0,
-            "cards_drawn_delta": 0.0,
-            "damage_delta": -21.42392684000002,
+            "bayesian_shrunk_effect": 0.0,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -7.5,
+            "confidence_interval": [
+              0.0,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": -1.5268412099999864,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 0.0,
+            "effect_size": 0.0,
+            "failed_runs": 0,
             "games": 2,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.0,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
             "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
             "paired_tie_count": 2,
             "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "synthetic/aggro",
+                "synthetic/control",
+                "synthetic/engine"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true
+            },
+            "pilot_weights": "single configured pilot: strong",
             "place_1_share_delta": 0.0,
             "placement_improvement": 0.0,
-            "variant_average_cards_drawn": 23.5,
-            "variant_average_damage": 60.8370594,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": 0.0,
+              "median": 0.0,
+              "minimum": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q75": 0.0,
+              "q90": 0.0
+            },
+            "requested_runs": 2,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              328992343219961580,
+              13097047340170105973
+            ],
+            "started_runs": 2,
+            "valid_runs": 2,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 19.5,
+            "variant_average_damage": 85.913678,
             "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 0.0
           },
           "constraint_report": {
             "issues": [],
             "metrics": {
-              "average_nonland_mana_value": 2.8524590163934427,
+              "average_nonland_mana_value": 2.6721311475409837,
               "colored_sources": {
-                "B": 28,
+                "B": 29,
                 "G": 30,
-                "R": 24
+                "R": 26
               },
-              "high_mana_value_cards": 9,
+              "high_mana_value_cards": 7,
               "lands": 39,
               "role_counts": {
-                "combat_payoff": 2,
+                "combat_payoff": 1,
                 "counter": 0,
-                "draw": 9,
-                "enabler": 13,
-                "engine": 18,
-                "finisher": 6,
+                "draw": 12,
+                "enabler": 14,
+                "engine": 17,
+                "finisher": 5,
                 "graveyard_hate": 3,
-                "land_synergy": 19,
+                "land_synergy": 17,
                 "mana_source": 39,
-                "payoff": 9,
+                "payoff": 8,
                 "protection": 5,
-                "ramp": 21,
+                "ramp": 20,
                 "recursion": 7,
-                "removal": 10,
-                "sacrifice_outlet": 9,
+                "removal": 11,
+                "sacrifice_outlet": 11,
                 "selection": 1,
-                "token_source": 7,
-                "wipe": 6
+                "token_source": 8,
+                "wipe": 7
               }
             },
             "valid": true
           },
-          "screening_score": 2.3320000000000007,
+          "robust_lower_bound": 0.0,
+          "screening_score": 0.5600000000000003,
           "structural_rationale": [
-            "Profile score changes from 1.405 to 4.271.",
-            "Mana value changes from 3.0 to 2.0.",
-            "Gains roles: combat_payoff, enabler, protection.",
-            "Loses roles: payoff.",
-            "Immediate impact 0.80 → 0.95; turn-cycle risk 0.45 → 0.15.",
-            "Profile score changes from 1.910 to 2.326.",
-            "Mana value changes from 3.0 to 2.0.",
-            "Gains roles: draw.",
-            "Loses roles: land_synergy, payoff, token_source.",
-            "Immediate impact 0.35 → 0.35; turn-cycle risk 0.80 → 0.35."
+            "Profile score changes from 1.405 to 2.520.",
+            "Mana value changes from 3.0 to 3.0.",
+            "Gains roles: enabler, engine, land_synergy, sacrifice_outlet, token_source.",
+            "No structural role is lost.",
+            "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60.",
+            "Profile score changes from 1.405 to 2.250.",
+            "Mana value changes from 2.0 to 5.0.",
+            "Gains roles: draw, enabler, engine, sacrifice_outlet.",
+            "Loses roles: recursion.",
+            "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60."
           ],
           "swaps": [
             {
-              "add_candidate_id": "korvold/lightning-greaves",
+              "add_candidate_id": "inventory/scouring-swarm-decedec9",
               "remove": "Mayhem Devil"
             },
             {
-              "add_candidate_id": "korvold/idol-of-oblivion",
-              "remove": "Scouring Swarm"
+              "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+              "remove": "Grim Discovery"
             }
           ],
-          "variant_deck_hash": "d65d0ce49b506312174cd6b739a061914c5a7ea2e7bd0f423557d6f68dd40188",
+          "variant_deck_hash": "13f4a96bbbb0833166b7f59e2f83903eefce851f807a3f4a2a72ae56e24376ad",
           "worst_quartile_delta": 0.0
         },
         {
           "affected_matchups": [
-            "commander_damage",
-            "commander_denial",
-            "control",
             "graveyard_recursion",
             "grindy_pods",
+            "korvold_synergy",
             "large_pods",
             "post_wipe_rebuild",
             "table_closure"
           ],
           "automatic_application": false,
           "comparison": {
-            "baseline_average_cards_drawn": 25.5,
-            "baseline_average_damage": 79.33078638559999,
+            "actual_sample_size": 2,
+            "baseline_average_cards_drawn": 25.0,
+            "baseline_average_damage": 65.0578325,
             "baseline_average_placement": 1.0,
             "baseline_place_1_share": 1.0,
-            "cards_drawn_delta": 0.0,
-            "damage_delta": 5.46765519840001,
+            "bayesian_shrunk_effect": 0.0,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -5.0,
+            "confidence_interval": [
+              0.0,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": 9.991076219999982,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 0.0,
+            "effect_size": 0.0,
+            "failed_runs": 0,
             "games": 2,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.0,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
             "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
             "paired_tie_count": 2,
             "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "synthetic/aggro",
+                "synthetic/control",
+                "synthetic/engine"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true
+            },
+            "pilot_weights": "single configured pilot: strong",
             "place_1_share_delta": 0.0,
             "placement_improvement": 0.0,
-            "variant_average_cards_drawn": 25.5,
-            "variant_average_damage": 84.798441584,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": 0.0,
+              "median": 0.0,
+              "minimum": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q75": 0.0,
+              "q90": 0.0
+            },
+            "requested_runs": 2,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              16807078046501645423,
+              2776410979447350479
+            ],
+            "started_runs": 2,
+            "valid_runs": 2,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 20.0,
+            "variant_average_damage": 75.04890871999999,
             "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 0.0
           },
           "constraint_report": {
             "issues": [],
             "metrics": {
-              "average_nonland_mana_value": 2.8360655737704916,
+              "average_nonland_mana_value": 2.6721311475409837,
               "colored_sources": {
-                "B": 28,
+                "B": 29,
                 "G": 30,
-                "R": 24
+                "R": 26
               },
-              "high_mana_value_cards": 9,
+              "high_mana_value_cards": 7,
               "lands": 39,
               "role_counts": {
-                "combat_payoff": 2,
+                "combat_payoff": 1,
                 "counter": 0,
-                "draw": 9,
+                "draw": 12,
                 "enabler": 13,
-                "engine": 19,
-                "finisher": 6,
+                "engine": 17,
+                "finisher": 5,
                 "graveyard_hate": 2,
-                "land_synergy": 20,
+                "land_synergy": 17,
                 "mana_source": 39,
-                "payoff": 10,
+                "payoff": 8,
                 "protection": 5,
-                "ramp": 21,
-                "recursion": 7,
-                "removal": 10,
-                "sacrifice_outlet": 9,
+                "ramp": 20,
+                "recursion": 8,
+                "removal": 11,
+                "sacrifice_outlet": 11,
                 "selection": 1,
-                "token_source": 8,
-                "wipe": 6
+                "token_source": 7,
+                "wipe": 7
               }
             },
             "valid": true
           },
-          "screening_score": 1.5870000000000002,
+          "robust_lower_bound": 0.0,
+          "screening_score": 0.2200000000000003,
           "structural_rationale": [
-            "Profile score changes from 1.405 to 2.326.",
-            "Mana value changes from 3.0 to 2.0.",
-            "Gains roles: draw, engine.",
+            "Profile score changes from 1.405 to 2.250.",
+            "Mana value changes from 3.0 to 5.0.",
+            "Gains roles: draw, enabler, engine, sacrifice_outlet.",
             "Loses roles: payoff.",
-            "Immediate impact 0.80 → 0.35; turn-cycle risk 0.45 → 0.35.",
-            "Profile score changes from 1.405 to 4.271.",
-            "Mana value changes from 4.0 to 2.0.",
-            "Gains roles: combat_payoff, enabler, protection.",
+            "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60.",
+            "Profile score changes from 1.845 to 2.520.",
+            "Mana value changes from 2.0 to 3.0.",
+            "Gains roles: engine, land_synergy, payoff, sacrifice_outlet.",
             "Loses roles: graveyard_hate.",
-            "Immediate impact 0.80 → 0.95; turn-cycle risk 0.45 → 0.15."
+            "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60."
           ],
           "swaps": [
             {
-              "add_candidate_id": "korvold/idol-of-oblivion",
+              "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
               "remove": "Mayhem Devil"
             },
             {
-              "add_candidate_id": "korvold/lightning-greaves",
-              "remove": "Immersturm Predator"
+              "add_candidate_id": "inventory/scouring-swarm-decedec9",
+              "remove": "Necrogenesis"
             }
           ],
-          "variant_deck_hash": "9a6c2b74fbf41e5354ac9b2712f995cfeb5a4524cf20453755b29e32351629bb",
+          "variant_deck_hash": "b5b7b3a34379812b29f551374b6a334677fa27e8d5378cad89e9c98f3383f03e",
           "worst_quartile_delta": 0.0
         }
       ]
     },
     "local": {
       "automatic_application": false,
-      "best_variant": {
-        "affected_matchups": [
-          "commander_damage",
-          "commander_denial",
-          "control",
-          "graveyard_recursion",
-          "grindy_pods",
-          "large_pods",
-          "post_wipe_rebuild",
-          "table_closure"
-        ],
-        "automatic_application": false,
-        "comparison_to_parent": {
-          "baseline_average_cards_drawn": 16.5,
-          "baseline_average_damage": 68.40377799999999,
-          "baseline_average_placement": 1.5,
-          "baseline_place_1_share": 0.5,
-          "cards_drawn_delta": 4.0,
-          "damage_delta": 9.495308800000004,
-          "games": 2,
-          "paired_loss_count": 0,
-          "paired_tie_count": 1,
-          "paired_win_count": 1,
-          "place_1_share_delta": 0.5,
-          "placement_improvement": 0.5,
-          "variant_average_cards_drawn": 20.5,
-          "variant_average_damage": 77.89908679999999,
-          "variant_average_placement": 1.0,
-          "variant_place_1_share": 1.0
-        },
-        "constraint_report": {
-          "issues": [],
-          "metrics": {
-            "average_nonland_mana_value": 2.8524590163934427,
-            "colored_sources": {
-              "B": 27,
-              "G": 29,
-              "R": 23
-            },
-            "high_mana_value_cards": 9,
-            "lands": 39,
-            "role_counts": {
-              "combat_payoff": 2,
-              "counter": 0,
-              "draw": 9,
-              "enabler": 13,
-              "engine": 19,
-              "finisher": 6,
-              "graveyard_hate": 2,
-              "land_synergy": 20,
-              "mana_source": 39,
-              "payoff": 11,
-              "protection": 5,
-              "ramp": 20,
-              "recursion": 7,
-              "removal": 10,
-              "sacrifice_outlet": 9,
-              "selection": 1,
-              "token_source": 8,
-              "wipe": 6
-            }
-          },
-          "valid": true
-        },
-        "screening_score": 1.0270000000000001,
-        "step": 2,
-        "structural_rationale": [
-          "Profile score changes from 1.405 to 4.271.",
-          "Mana value changes from 4.0 to 2.0.",
-          "Gains roles: combat_payoff, enabler, protection.",
-          "Loses roles: graveyard_hate.",
-          "Immediate impact 0.80 → 0.95; turn-cycle risk 0.45 → 0.15.",
-          "Profile score changes from 1.965 to 2.326.",
-          "Mana value changes from 2.0 to 2.0.",
-          "Gains roles: draw, engine.",
-          "Loses roles: ramp.",
-          "Immediate impact 0.80 → 0.35; turn-cycle risk 0.45 → 0.35."
-        ],
-        "swaps": [
-          {
-            "add_candidate_id": "korvold/lightning-greaves",
-            "remove": "Immersturm Predator"
-          },
-          {
-            "add_candidate_id": "korvold/idol-of-oblivion",
-            "remove": "Arcane Signet"
-          }
-        ],
-        "variant_deck_hash": "97a654e00f4e2b91312222d7728e0d5106cd612f1a31976ffdafd81bc9d4feae"
-      },
-      "evaluated_neighbors": 12,
-      "method": "constrained_local_search",
-      "path": [
-        {
-          "affected_matchups": [
-            "commander_damage",
-            "commander_denial",
-            "control",
-            "graveyard_recursion",
-            "large_pods",
-            "table_closure"
-          ],
-          "automatic_application": false,
-          "comparison_to_parent": {
-            "baseline_average_cards_drawn": 23.5,
-            "baseline_average_damage": 56.94410500000001,
-            "baseline_average_placement": 1.5,
-            "baseline_place_1_share": 0.5,
-            "cards_drawn_delta": -1.0,
-            "damage_delta": 4.782436639999986,
-            "games": 2,
-            "paired_loss_count": 0,
-            "paired_tie_count": 1,
-            "paired_win_count": 1,
-            "place_1_share_delta": 0.5,
-            "placement_improvement": 0.5,
-            "variant_average_cards_drawn": 22.5,
-            "variant_average_damage": 61.72654163999999,
-            "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
-          },
-          "constraint_report": {
-            "issues": [],
-            "metrics": {
-              "average_nonland_mana_value": 2.8524590163934427,
-              "colored_sources": {
-                "B": 28,
-                "G": 30,
-                "R": 24
-              },
-              "high_mana_value_cards": 9,
-              "lands": 39,
-              "role_counts": {
-                "combat_payoff": 2,
-                "counter": 0,
-                "draw": 8,
-                "enabler": 13,
-                "engine": 18,
-                "finisher": 6,
-                "graveyard_hate": 2,
-                "land_synergy": 20,
-                "mana_source": 39,
-                "payoff": 11,
-                "protection": 5,
-                "ramp": 21,
-                "recursion": 7,
-                "removal": 10,
-                "sacrifice_outlet": 9,
-                "selection": 1,
-                "token_source": 8,
-                "wipe": 6
-              }
-            },
-            "valid": true
-          },
-          "screening_score": 1.016,
-          "step": 1,
-          "structural_rationale": [
-            "Profile score changes from 1.405 to 4.271.",
-            "Mana value changes from 4.0 to 2.0.",
-            "Gains roles: combat_payoff, enabler, protection.",
-            "Loses roles: graveyard_hate.",
-            "Immediate impact 0.80 → 0.95; turn-cycle risk 0.45 → 0.15."
-          ],
-          "swaps": [
-            {
-              "add_candidate_id": "korvold/lightning-greaves",
-              "remove": "Immersturm Predator"
-            }
-          ],
-          "variant_deck_hash": "40798fcaa5bef974c6f82174e0dc3fa6e432959d18d44c0de2a842e2bfc5e4e7"
-        },
-        {
-          "affected_matchups": [
-            "commander_damage",
-            "commander_denial",
-            "control",
-            "graveyard_recursion",
-            "grindy_pods",
-            "large_pods",
-            "post_wipe_rebuild",
-            "table_closure"
-          ],
-          "automatic_application": false,
-          "comparison_to_parent": {
-            "baseline_average_cards_drawn": 16.5,
-            "baseline_average_damage": 68.40377799999999,
-            "baseline_average_placement": 1.5,
-            "baseline_place_1_share": 0.5,
-            "cards_drawn_delta": 4.0,
-            "damage_delta": 9.495308800000004,
-            "games": 2,
-            "paired_loss_count": 0,
-            "paired_tie_count": 1,
-            "paired_win_count": 1,
-            "place_1_share_delta": 0.5,
-            "placement_improvement": 0.5,
-            "variant_average_cards_drawn": 20.5,
-            "variant_average_damage": 77.89908679999999,
-            "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
-          },
-          "constraint_report": {
-            "issues": [],
-            "metrics": {
-              "average_nonland_mana_value": 2.8524590163934427,
-              "colored_sources": {
-                "B": 27,
-                "G": 29,
-                "R": 23
-              },
-              "high_mana_value_cards": 9,
-              "lands": 39,
-              "role_counts": {
-                "combat_payoff": 2,
-                "counter": 0,
-                "draw": 9,
-                "enabler": 13,
-                "engine": 19,
-                "finisher": 6,
-                "graveyard_hate": 2,
-                "land_synergy": 20,
-                "mana_source": 39,
-                "payoff": 11,
-                "protection": 5,
-                "ramp": 20,
-                "recursion": 7,
-                "removal": 10,
-                "sacrifice_outlet": 9,
-                "selection": 1,
-                "token_source": 8,
-                "wipe": 6
-              }
-            },
-            "valid": true
-          },
-          "screening_score": 1.0270000000000001,
-          "step": 2,
-          "structural_rationale": [
-            "Profile score changes from 1.405 to 4.271.",
-            "Mana value changes from 4.0 to 2.0.",
-            "Gains roles: combat_payoff, enabler, protection.",
-            "Loses roles: graveyard_hate.",
-            "Immediate impact 0.80 → 0.95; turn-cycle risk 0.45 → 0.15.",
-            "Profile score changes from 1.965 to 2.326.",
-            "Mana value changes from 2.0 to 2.0.",
-            "Gains roles: draw, engine.",
-            "Loses roles: ramp.",
-            "Immediate impact 0.80 → 0.35; turn-cycle risk 0.45 → 0.35."
-          ],
-          "swaps": [
-            {
-              "add_candidate_id": "korvold/lightning-greaves",
-              "remove": "Immersturm Predator"
-            },
-            {
-              "add_candidate_id": "korvold/idol-of-oblivion",
-              "remove": "Arcane Signet"
-            }
-          ],
-          "variant_deck_hash": "97a654e00f4e2b91312222d7728e0d5106cd612f1a31976ffdafd81bc9d4feae"
-        }
-      ]
+      "best_variant": null,
+      "evaluated_neighbors": 8,
+      "method": "staged_constrained_local_search",
+      "path": [],
+      "ranking_policy": "hard_constraints_then_static_preselection_then_paired_distributionally_robust_lower_bound"
     },
     "package": {
       "automatic_application": false,
@@ -637,9 +492,6 @@
       "packages": [
         {
           "affected_matchups": [
-            "commander_damage",
-            "commander_denial",
-            "control",
             "grindy_pods",
             "korvold_synergy",
             "large_pods",
@@ -648,79 +500,138 @@
           ],
           "automatic_application": false,
           "comparison": {
-            "baseline_average_cards_drawn": 17.5,
-            "baseline_average_damage": 67.24185862,
+            "actual_sample_size": 4,
+            "baseline_average_cards_drawn": 20.5,
+            "baseline_average_damage": 49.826644692,
             "baseline_average_placement": 1.25,
             "baseline_place_1_share": 0.75,
-            "cards_drawn_delta": 3.75,
-            "damage_delta": 2.8328218799999973,
+            "bayesian_shrunk_effect": 0.041666666666666664,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": 3.5,
+            "confidence_interval": [
+              0.0,
+              0.75
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": 12.722812117999993,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 0.0,
+            "effect_size": 0.5,
+            "failed_runs": 0,
             "games": 4,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.25,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
             "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
             "paired_tie_count": 3,
             "paired_win_count": 1,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "synthetic/aggro",
+                "synthetic/control",
+                "synthetic/engine"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true
+            },
+            "pilot_weights": "single configured pilot: strong",
             "place_1_share_delta": 0.25,
             "placement_improvement": 0.25,
-            "variant_average_cards_drawn": 21.25,
-            "variant_average_damage": 70.0746805,
+            "quantiles": {
+              "maximum": 1.0,
+              "mean": 0.25,
+              "median": 0.0,
+              "minimum": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q75": 0.25,
+              "q90": 0.7000000000000002
+            },
+            "requested_runs": 4,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              6527997611131463126,
+              14044929374543956394,
+              10512045886393237241,
+              6062451515240328270
+            ],
+            "started_runs": 4,
+            "valid_runs": 4,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 24.0,
+            "variant_average_damage": 62.549456809999995,
             "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 0.0
           },
           "constraint_report": {
             "issues": [],
             "metrics": {
-              "average_nonland_mana_value": 2.8524590163934427,
+              "average_nonland_mana_value": 2.6721311475409837,
               "colored_sources": {
-                "B": 28,
+                "B": 29,
                 "G": 30,
-                "R": 24
+                "R": 26
               },
-              "high_mana_value_cards": 9,
+              "high_mana_value_cards": 7,
               "lands": 39,
               "role_counts": {
-                "combat_payoff": 2,
+                "combat_payoff": 1,
                 "counter": 0,
-                "draw": 8,
-                "enabler": 12,
+                "draw": 12,
+                "enabler": 14,
                 "engine": 17,
-                "finisher": 6,
+                "finisher": 5,
                 "graveyard_hate": 3,
-                "land_synergy": 19,
+                "land_synergy": 17,
                 "mana_source": 39,
-                "payoff": 10,
+                "payoff": 7,
                 "protection": 5,
                 "ramp": 20,
-                "recursion": 7,
-                "removal": 10,
-                "sacrifice_outlet": 8,
+                "recursion": 8,
+                "removal": 11,
+                "sacrifice_outlet": 10,
                 "selection": 1,
-                "token_source": 7,
-                "wipe": 6
+                "token_source": 8,
+                "wipe": 7
               }
             },
             "valid": true
           },
-          "package_id": "korvold-idol-greaves",
+          "package_id": "korvold-jp5-current-bounded",
+          "package_rationale": null,
           "status": "paired_screened",
           "structural_rationale": [
-            "Profile score changes from 1.910 to 2.326.",
-            "Mana value changes from 3.0 to 2.0.",
-            "Gains roles: draw.",
-            "Loses roles: land_synergy, payoff, token_source.",
-            "Immediate impact 0.35 → 0.35; turn-cycle risk 0.80 → 0.35.",
-            "Profile score changes from 3.545 to 4.271.",
-            "Mana value changes from 3.0 to 2.0.",
-            "Gains roles: combat_payoff, protection.",
-            "Loses roles: draw, engine, ramp, sacrifice_outlet.",
-            "Immediate impact 0.80 → 0.95; turn-cycle risk 0.45 → 0.15."
+            "Profile score changes from 1.405 to 2.520.",
+            "Mana value changes from 3.0 to 3.0.",
+            "Gains roles: enabler, engine, land_synergy, sacrifice_outlet, token_source.",
+            "No structural role is lost.",
+            "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60.",
+            "Profile score changes from 2.325 to 2.250.",
+            "Mana value changes from 2.0 to 5.0.",
+            "Gains roles: draw, enabler, engine.",
+            "Loses roles: payoff.",
+            "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60."
           ],
           "swaps": [
             {
-              "add_candidate_id": "korvold/idol-of-oblivion",
-              "remove": "Scouring Swarm"
+              "add_candidate_id": "inventory/scouring-swarm-decedec9",
+              "remove": "Mayhem Devil"
             },
             {
-              "add_candidate_id": "korvold/lightning-greaves",
-              "remove": "Evendo Brushrazer"
+              "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+              "remove": "Goblin Bombardment"
             }
           ],
           "worst_quartile_delta": 0.0
@@ -730,231 +641,503 @@
   },
   "shapley": {
     "contributions": {
-      "Evendo Brushrazer": {
-        "ci95_high": 3.775517293286181,
-        "ci95_low": 3.7269827067138195,
-        "shapley_value": 3.75125,
-        "standard_error": 0.012381272084785986
+      "Goblin Bombardment": {
+        "ci95_high": 2.4184296318854335,
+        "ci95_low": 2.3990703681145664,
+        "shapley_value": 2.40875,
+        "standard_error": 0.004938587696649691
       },
-      "Horizon Explorer": {
-        "ci95_high": 2.7102056286145473,
-        "ci95_low": 2.6497943713854513,
-        "shapley_value": 2.6799999999999993,
-        "standard_error": 0.015411035007422476
+      "Mayhem Devil": {
+        "ci95_high": 1.510929631885433,
+        "ci95_low": 1.4915703681145664,
+        "shapley_value": 1.5012499999999998,
+        "standard_error": 0.004938587696649694
       },
-      "Scouring Swarm": {
-        "ci95_high": 2.219458588515076,
-        "ci95_low": 2.168041411484924,
-        "shapley_value": 2.19375,
-        "standard_error": 0.013116626793406205
+      "Pest Infestation": {
+        "ci95_high": 3.434999999999999,
+        "ci95_low": 3.434999999999999,
+        "shapley_value": 3.434999999999999,
+        "standard_error": 5.551115123125783e-17
       }
     },
     "method": "permutation_profile_shapley_with_paired_single_card_ablation",
     "paired_ablation_evidence": {
-      "Evendo Brushrazer": {
+      "Goblin Bombardment": {
         "ablation_comparison": {
-          "baseline_average_cards_drawn": 19.75,
-          "baseline_average_damage": 76.278828165,
+          "actual_sample_size": 4,
+          "baseline_average_cards_drawn": 20.0,
+          "baseline_average_damage": 58.398450528,
           "baseline_average_placement": 1.0,
           "baseline_place_1_share": 1.0,
-          "cards_drawn_delta": -1.5,
-          "damage_delta": -4.207585413999993,
+          "bayesian_shrunk_effect": 0.0,
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "cards_drawn_delta": 1.0,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+          "damage_delta": -0.05499298200000169,
+          "discarded_runs": 0,
+          "distributionally_robust_lower_bound": 0.0,
+          "effect_size": 0.0,
+          "failed_runs": 0,
           "games": 4,
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "monte_carlo_standard_error": 0.0,
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
           "paired_loss_count": 0,
+          "paired_or_unpaired": "paired",
+          "paired_randomization_p_value": 1.0,
           "paired_tie_count": 4,
           "paired_win_count": 0,
+          "pairing_conditions": {
+            "common_random_numbers": true,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "same_opponent_assumptions": true,
+            "same_pilot_configuration": true,
+            "same_pod_size": true,
+            "same_seats": true,
+            "same_seeds": true
+          },
+          "pilot_weights": "single configured pilot: strong",
           "place_1_share_delta": 0.0,
           "placement_improvement": 0.0,
-          "variant_average_cards_drawn": 18.25,
-          "variant_average_damage": 72.071242751,
+          "quantiles": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "median": 0.0,
+            "minimum": 0.0,
+            "q10": 0.0,
+            "q25": 0.0,
+            "q75": 0.0,
+            "q90": 0.0
+          },
+          "requested_runs": 4,
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "scenario_weights": "equal within this paired scenario",
+          "seeds": [
+            12430130782527287943,
+            132862034009611491,
+            16816734936055061685,
+            8450331321868452719
+          ],
+          "started_runs": 4,
+          "valid_runs": 4,
+          "validation_level": "structural_only",
+          "variant_average_cards_drawn": 21.0,
+          "variant_average_damage": 58.343457545999996,
           "variant_average_placement": 1.0,
-          "variant_place_1_share": 1.0
+          "variant_place_1_share": 1.0,
+          "worker_count": 1,
+          "worst_case_result": 0.0
         },
-        "card_name": "Evendo Brushrazer",
+        "card_name": "Goblin Bombardment",
         "estimated_card_contribution": {
           "interpretation": "positive means the original card improved average placement",
           "placement_value": -0.0
         },
         "pair_sample": [
           {
-            "baseline_log_sha256": "fe59cd20fa6334f5a319215d93dd1aa74b1a58ffda7d98718471474ec1da6d33",
+            "baseline_log_sha256": "53da314c779c3fb614733ee92a8ca7da3bba707b7fbcb908a19b7dedc62d1c74",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 0,
-            "seed": 4077536643762533386,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 12430130782527287943,
             "starting_player_seat": 0,
-            "variant_log_sha256": "a6e1adfdd892d44eb9f62902c6eedfcdf345ecbb1b07388dae6d03714eecf161",
+            "variant_log_sha256": "ae4be8c624876b700ae2fde8b6cb0d097748e1b0289300323f227ad8e6c9f096",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "84ad3e18e1616a10ab28eb6b290c202206335d25acc035809869ecea1f893c15",
+            "baseline_log_sha256": "6f6134d6cb4f109dce38ba5d510c25f99fdc6ccc0d0dc9a7d6ee3c3aead9ac00",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 1,
-            "seed": 13204957429202406514,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 132862034009611491,
             "starting_player_seat": 1,
-            "variant_log_sha256": "564a954008b53a2fedc11ef393dc48da027ac81dee8f0511b7addda3e981945b",
+            "variant_log_sha256": "b3ddf6013041f99d080601979ca60a013a3796cfd141d4c35eaf4d4384c05bc3",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "1866bd09b36403401d1fcdcea7a1be16d954a9ebed6a35c9f6f8c0efbf8fc7b3",
+            "baseline_log_sha256": "cf9e200523f1421a8b942614fdf5db152729124523dfd0190128836c06862d39",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 2,
-            "seed": 10789947116955160507,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 16816734936055061685,
             "starting_player_seat": 2,
-            "variant_log_sha256": "12622dc78eddd981d0589a470350c3d90debd9735277c81ca580efdffe5ec8b2",
+            "variant_log_sha256": "8facce7c0c5f8740eb7a7856c2d6916f4f918135a9af096f0273a79a4df4642a",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "7a6fb47b2e2f9ecce137cea5692f1a261bc94271ee3c162e60992a2b0c71fcf7",
+            "baseline_log_sha256": "a241d578a48554c3efae5b46c78c046a1c60ce6c15381df0b3ffdf9c4791e1c2",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 3,
-            "seed": 8617974370749611037,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 8450331321868452719,
             "starting_player_seat": 3,
-            "variant_log_sha256": "149b39b175ac738095096bab7def9764f7fe9c5ba75ef96cba5af354e182a993",
+            "variant_log_sha256": "bbd24d4b710c260de7fb46345c8d780c899d464fe3e596ac66b3f45b3b5ba8a1",
             "variant_placement": 1
           }
         ]
       },
-      "Horizon Explorer": {
+      "Mayhem Devil": {
         "ablation_comparison": {
-          "baseline_average_cards_drawn": 18.25,
-          "baseline_average_damage": 65.76622417600001,
-          "baseline_average_placement": 1.0,
-          "baseline_place_1_share": 1.0,
-          "cards_drawn_delta": 0.75,
-          "damage_delta": -5.636926879400008,
+          "actual_sample_size": 4,
+          "baseline_average_cards_drawn": 20.25,
+          "baseline_average_damage": 64.90673171200001,
+          "baseline_average_placement": 1.25,
+          "baseline_place_1_share": 0.75,
+          "bayesian_shrunk_effect": 0.041666666666666664,
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "cards_drawn_delta": 0.5,
+          "confidence_interval": [
+            0.0,
+            0.75
+          ],
+          "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+          "damage_delta": -5.850930820640009,
+          "discarded_runs": 0,
+          "distributionally_robust_lower_bound": 0.0,
+          "effect_size": 0.5,
+          "failed_runs": 0,
           "games": 4,
-          "paired_loss_count": 1,
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "monte_carlo_standard_error": 0.25,
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+          "paired_loss_count": 0,
+          "paired_or_unpaired": "paired",
+          "paired_randomization_p_value": 1.0,
           "paired_tie_count": 3,
-          "paired_win_count": 0,
-          "place_1_share_delta": -0.25,
-          "placement_improvement": -0.25,
-          "variant_average_cards_drawn": 19.0,
-          "variant_average_damage": 60.1292972966,
-          "variant_average_placement": 1.25,
-          "variant_place_1_share": 0.75
+          "paired_win_count": 1,
+          "pairing_conditions": {
+            "common_random_numbers": true,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "same_opponent_assumptions": true,
+            "same_pilot_configuration": true,
+            "same_pod_size": true,
+            "same_seats": true,
+            "same_seeds": true
+          },
+          "pilot_weights": "single configured pilot: strong",
+          "place_1_share_delta": 0.25,
+          "placement_improvement": 0.25,
+          "quantiles": {
+            "maximum": 1.0,
+            "mean": 0.25,
+            "median": 0.0,
+            "minimum": 0.0,
+            "q10": 0.0,
+            "q25": 0.0,
+            "q75": 0.25,
+            "q90": 0.7000000000000002
+          },
+          "requested_runs": 4,
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "scenario_weights": "equal within this paired scenario",
+          "seeds": [
+            4264931284100993838,
+            7460336639536673250,
+            9584961176443953338,
+            9229231674239094830
+          ],
+          "started_runs": 4,
+          "valid_runs": 4,
+          "validation_level": "structural_only",
+          "variant_average_cards_drawn": 20.75,
+          "variant_average_damage": 59.05580089136,
+          "variant_average_placement": 1.0,
+          "variant_place_1_share": 1.0,
+          "worker_count": 1,
+          "worst_case_result": 0.0
         },
-        "card_name": "Horizon Explorer",
+        "card_name": "Mayhem Devil",
         "estimated_card_contribution": {
           "interpretation": "positive means the original card improved average placement",
-          "placement_value": 0.25
+          "placement_value": -0.25
         },
         "pair_sample": [
           {
-            "baseline_log_sha256": "5c35a3834009e10a4e8205df499bf858c070f0b7a6e6c6b547dc78af602c1ea1",
+            "baseline_log_sha256": "0bc3863f5256f0e2264b31a9653fc76ede2552a7b1aa2fdfdc7d3598d5957c5a",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 0,
-            "seed": 14828218180204651475,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 4264931284100993838,
             "starting_player_seat": 0,
-            "variant_log_sha256": "1a7fc76ee12d951b823e85cd81ede4f71eab64994214721cc149f0e9e27d77b4",
+            "variant_log_sha256": "58186b62d6de598f7710e237b9423d583dec360511b6f26b37f3f00a0fa2fd19",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "600c95743aaf1916180919d8e98a04f93490b5f36986fec8ba96ac960eeb8c4a",
-            "baseline_placement": 1,
-            "comparison": "variant_loss",
-            "index": 1,
-            "seed": 8327279059191749040,
-            "starting_player_seat": 1,
-            "variant_log_sha256": "85434c2046b4e6fd8e9ab724e74ce016b5e4c0bd99c4959f0cd0d503768b1d76",
-            "variant_placement": 2
-          },
-          {
-            "baseline_log_sha256": "ab3f71a98a33b7f31731b37d5a241c2fccae9dcafbf957d1a731dbb4451575ed",
+            "baseline_log_sha256": "510a818417d67d597ca3068c6662a00111415c4b370e59b49e6c4df317e60393",
             "baseline_placement": 1,
             "comparison": "tie",
-            "index": 2,
-            "seed": 13635626257036102551,
-            "starting_player_seat": 2,
-            "variant_log_sha256": "e4e5fc961ec78ff079912388bfbf14b030ab36d13b6a8fb7fed463c0b963c1e9",
+            "index": 1,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 7460336639536673250,
+            "starting_player_seat": 1,
+            "variant_log_sha256": "bad0f83e96b7f60d5ec7a5e1f916b3e152f027c0ea9301678994dd703de9ea2a",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "ab5510cc89802eabf460d29355a494da2086cf677281ba6a56d42d861887066f",
+            "baseline_log_sha256": "40436c76ecf2da8f71f74df87930f0c10052dde37bf8dd7f87d4ce24a11e015f",
+            "baseline_placement": 2,
+            "comparison": "variant_win",
+            "index": 2,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 9584961176443953338,
+            "starting_player_seat": 2,
+            "variant_log_sha256": "68721fffa9012e206c15ba5f1ed5f6c866b8cd9a2b2c8c273779a24877c32aa6",
+            "variant_placement": 1
+          },
+          {
+            "baseline_log_sha256": "0bf5a37011db77de4511bb32c0fdebf5a8eb87f875d8ec6ce6605872af87d86a",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 3,
-            "seed": 7369847564991938795,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 9229231674239094830,
             "starting_player_seat": 3,
-            "variant_log_sha256": "0e1944a37461f7b0f2bde400af7e4f724a73f8dd3c1751d1194d7bff6ec94f1a",
+            "variant_log_sha256": "545ddadbeeb5853e26e43a3556708c822d010a6f2db4f0d901a185973fd2bf05",
             "variant_placement": 1
           }
         ]
       },
-      "Scouring Swarm": {
+      "Pest Infestation": {
         "ablation_comparison": {
-          "baseline_average_cards_drawn": 20.75,
-          "baseline_average_damage": 72.10205984000001,
+          "actual_sample_size": 4,
+          "baseline_average_cards_drawn": 23.0,
+          "baseline_average_damage": 76.754066576,
           "baseline_average_placement": 1.0,
           "baseline_place_1_share": 1.0,
-          "cards_drawn_delta": -0.5,
-          "damage_delta": -7.035655145000007,
+          "bayesian_shrunk_effect": 0.0,
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "cards_drawn_delta": 0.5,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+          "damage_delta": 8.521537784000003,
+          "discarded_runs": 0,
+          "distributionally_robust_lower_bound": 0.0,
+          "effect_size": 0.0,
+          "failed_runs": 0,
           "games": 4,
-          "paired_loss_count": 1,
-          "paired_tie_count": 3,
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "monte_carlo_standard_error": 0.0,
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+          "paired_loss_count": 0,
+          "paired_or_unpaired": "paired",
+          "paired_randomization_p_value": 1.0,
+          "paired_tie_count": 4,
           "paired_win_count": 0,
-          "place_1_share_delta": -0.25,
-          "placement_improvement": -0.25,
-          "variant_average_cards_drawn": 20.25,
-          "variant_average_damage": 65.066404695,
-          "variant_average_placement": 1.25,
-          "variant_place_1_share": 0.75
+          "pairing_conditions": {
+            "common_random_numbers": true,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "same_opponent_assumptions": true,
+            "same_pilot_configuration": true,
+            "same_pod_size": true,
+            "same_seats": true,
+            "same_seeds": true
+          },
+          "pilot_weights": "single configured pilot: strong",
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
+          "quantiles": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "median": 0.0,
+            "minimum": 0.0,
+            "q10": 0.0,
+            "q25": 0.0,
+            "q75": 0.0,
+            "q90": 0.0
+          },
+          "requested_runs": 4,
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "scenario_weights": "equal within this paired scenario",
+          "seeds": [
+            9217784234566686366,
+            8729583905513128650,
+            7086465824664291010,
+            346132803216161657
+          ],
+          "started_runs": 4,
+          "valid_runs": 4,
+          "validation_level": "structural_only",
+          "variant_average_cards_drawn": 23.5,
+          "variant_average_damage": 85.27560436,
+          "variant_average_placement": 1.0,
+          "variant_place_1_share": 1.0,
+          "worker_count": 1,
+          "worst_case_result": 0.0
         },
-        "card_name": "Scouring Swarm",
+        "card_name": "Pest Infestation",
         "estimated_card_contribution": {
           "interpretation": "positive means the original card improved average placement",
-          "placement_value": 0.25
+          "placement_value": -0.0
         },
         "pair_sample": [
           {
-            "baseline_log_sha256": "3ea1d969eea85d611e6ccdb98998ef23df580b3488a37d7585905f0f0c2965fb",
+            "baseline_log_sha256": "724679fe9847e4e174ad2c6e14bc011cc8ce02324ca915f9a9d9655e74e3bc56",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 0,
-            "seed": 14127956218481181960,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 9217784234566686366,
             "starting_player_seat": 0,
-            "variant_log_sha256": "9d23c11fd46d757a8f0f3fa835f7aa1976b4714a59f3a630d8e330f5a33bbd7c",
+            "variant_log_sha256": "8c5fcd1a88a48cd5f672bbeb8fdb8ef4244e1e4df50ea2240cba713efb4317a2",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "300d8a705ab6b219441d39b1942150e64de1e16ef9b9c483f036b3b8c71e7d93",
+            "baseline_log_sha256": "8679bf72d9e6e3d03719ac84a368a6443c47f724ba236174322b0e4544dd7a54",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 1,
-            "seed": 3193237418141525815,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 8729583905513128650,
             "starting_player_seat": 1,
-            "variant_log_sha256": "7e17ccc5892b3711ecdbe02da2b1f2aae3e0b2ceafb0dcfd44a3b8976f63f0ea",
+            "variant_log_sha256": "caefbc7b4a108ea484ae00ebd5a02a82672007ac297c8d78f197ad1c5320d6c5",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "4d1465bd57a4e87c7f18cb9268fc1681a90d2fa466634ddb5067a36781e4a460",
+            "baseline_log_sha256": "d6931251497fda09eebfe23e59fc1be7ad880fe1196d29a94df7063eefa8497d",
             "baseline_placement": 1,
             "comparison": "tie",
             "index": 2,
-            "seed": 5783008432460259953,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 7086465824664291010,
             "starting_player_seat": 2,
-            "variant_log_sha256": "064232ae4718749681848dae7213fda999fa332cb706e84756be0ea5a9e3ec99",
+            "variant_log_sha256": "b657f7f9161daf152b19c3b7377634e7b68adb09ea2ea5ff04b1a85cc4ad66e6",
             "variant_placement": 1
           },
           {
-            "baseline_log_sha256": "755eff9dea59180625eef74c79863359e7b681936abca8780db4b18242880692",
+            "baseline_log_sha256": "88abf9295839d7be7d3448a48d3b14d48894d4d27d27474e7c45d7e052a85ed5",
             "baseline_placement": 1,
-            "comparison": "variant_loss",
+            "comparison": "tie",
             "index": 3,
-            "seed": 3370205595893412609,
+            "opponent_deck_ids": [
+              "synthetic/aggro",
+              "synthetic/control",
+              "synthetic/engine"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 346132803216161657,
             "starting_player_seat": 3,
-            "variant_log_sha256": "cabaab310ab17d194cbd3e2a96ec55d438bbee2e6bef505632755d4adf2cd453",
-            "variant_placement": 2
+            "variant_log_sha256": "755a890936ebe7ac0419a829a61e309cd4c90b9b969a51bc912cc76dd1c98157",
+            "variant_placement": 1
           }
         ]
       }
     },
     "permutations": 64,
-    "warning": "Shapley values are approximate structural contribution estimates, not causal real-game values."
+    "primary_optimizer_ranking_allowed": false,
+    "selection_role": "secondary_explanatory_triage_only",
+    "warning": "Shapley values use a profile-surrogate coalition value with paired single-card ablation; they are approximate structural contribution estimates, not causal real-game values and must not select the final optimizer winner by themselves."
   },
   "validation_chains": {
     "korvold_scouring_swarm_to_idol": {
@@ -970,253 +1153,33 @@
       "constraint_report": {
         "issues": [],
         "metrics": {
-          "average_nonland_mana_value": 2.8688524590163933,
+          "average_nonland_mana_value": 2.622950819672131,
           "colored_sources": {
-            "B": 28,
+            "B": 29,
             "G": 30,
-            "R": 24
+            "R": 26
           },
-          "high_mana_value_cards": 9,
+          "high_mana_value_cards": 6,
           "lands": 39,
           "role_counts": {
             "combat_payoff": 1,
             "counter": 0,
-            "draw": 9,
-            "enabler": 12,
-            "engine": 18,
-            "finisher": 6,
+            "draw": 11,
+            "enabler": 13,
+            "engine": 16,
+            "finisher": 5,
             "graveyard_hate": 3,
-            "land_synergy": 19,
+            "land_synergy": 17,
             "mana_source": 39,
-            "payoff": 10,
-            "protection": 4,
-            "ramp": 21,
-            "recursion": 7,
-            "removal": 10,
-            "sacrifice_outlet": 9,
+            "payoff": 8,
+            "protection": 5,
+            "ramp": 20,
+            "recursion": 8,
+            "removal": 11,
+            "sacrifice_outlet": 10,
             "selection": 1,
-            "token_source": 7,
-            "wipe": 6
-          }
-        },
-        "valid": true
-      },
-      "criteria": {
-        "constraints_passed": true,
-        "holdout_passed": false,
-        "minimum_place_delta": 0.0,
-        "paired_passed": true,
-        "red_team_passed": false,
-        "sensitivity_passed": true
-      },
-      "decision": "rejected",
-      "holdout_tests": [
-        {
-          "comparison": {
-            "baseline_average_cards_drawn": 23.25,
-            "baseline_average_damage": 87.28535372799999,
-            "baseline_average_placement": 1.0,
-            "baseline_place_1_share": 1.0,
-            "cards_drawn_delta": -1.5,
-            "damage_delta": -7.737792327999998,
-            "games": 4,
-            "paired_loss_count": 0,
-            "paired_tie_count": 4,
-            "paired_win_count": 0,
-            "place_1_share_delta": 0.0,
-            "placement_improvement": 0.0,
-            "variant_average_cards_drawn": 21.75,
-            "variant_average_damage": 79.54756139999999,
-            "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
-          },
-          "pair_count": 4,
-          "pod": [
-            "synthetic/control",
-            "synthetic/control",
-            "synthetic/engine"
-          ]
-        },
-        {
-          "comparison": {
-            "baseline_average_cards_drawn": 23.5,
-            "baseline_average_damage": 74.45568074056,
-            "baseline_average_placement": 1.0,
-            "baseline_place_1_share": 1.0,
-            "cards_drawn_delta": -5.5,
-            "damage_delta": -17.808363240560006,
-            "games": 4,
-            "paired_loss_count": 1,
-            "paired_tie_count": 3,
-            "paired_win_count": 0,
-            "place_1_share_delta": -0.25,
-            "placement_improvement": -0.25,
-            "variant_average_cards_drawn": 18.0,
-            "variant_average_damage": 56.64731749999999,
-            "variant_average_placement": 1.25,
-            "variant_place_1_share": 0.75
-          },
-          "pair_count": 4,
-          "pod": [
-            "synthetic/aggro",
-            "synthetic/aggro",
-            "synthetic/control"
-          ]
-        }
-      ],
-      "pair_sample": [
-        {
-          "baseline_log_sha256": "46fb15c48e118c6d5b6a83155dc303aeba53829a84e706a9c905b242b512e373",
-          "baseline_placement": 1,
-          "comparison": "tie",
-          "index": 0,
-          "seed": 3231632095350887999,
-          "starting_player_seat": 0,
-          "variant_log_sha256": "ef88d3d0403886d0afb8c6012d55a99646ae93cdddc7cd8b1ca29c34bf29ba1f",
-          "variant_placement": 1
-        },
-        {
-          "baseline_log_sha256": "c0cfcdde306fae2c09a8b73a3a70364a80a9f0780f572171ffa9a4ede4b8eb81",
-          "baseline_placement": 1,
-          "comparison": "tie",
-          "index": 1,
-          "seed": 7068736608983972518,
-          "starting_player_seat": 1,
-          "variant_log_sha256": "6b5aa915e1a39374aa0fc156b4d0cf00d696ec58f30eeefb0eec52033cc1b1c1",
-          "variant_placement": 1
-        },
-        {
-          "baseline_log_sha256": "00aec907a2ced858a39d4af2a580079279b94ca2de802e67bd45c590b1a8a2dd",
-          "baseline_placement": 1,
-          "comparison": "tie",
-          "index": 2,
-          "seed": 3216879818637835187,
-          "starting_player_seat": 2,
-          "variant_log_sha256": "57553e0a3350c70627151ea0826c541815368959c0d42cddce5b77d93be90dc5",
-          "variant_placement": 1
-        },
-        {
-          "baseline_log_sha256": "89a7b95481d5b55f9f00e9442729bed26fc079e0bb254efad4efd42df054081a",
-          "baseline_placement": 1,
-          "comparison": "tie",
-          "index": 3,
-          "seed": 3972558918133591580,
-          "starting_player_seat": 3,
-          "variant_log_sha256": "58425a9b5371da89836aa4cff1b3f657242cda2ca604363a81689255b4cf95cf",
-          "variant_placement": 1
-        }
-      ],
-      "paired_comparison": {
-        "baseline_average_cards_drawn": 20.0,
-        "baseline_average_damage": 73.2164417,
-        "baseline_average_placement": 1.0,
-        "baseline_place_1_share": 1.0,
-        "cards_drawn_delta": 1.5,
-        "damage_delta": -15.568021800000004,
-        "games": 4,
-        "paired_loss_count": 0,
-        "paired_tie_count": 4,
-        "paired_win_count": 0,
-        "place_1_share_delta": 0.0,
-        "placement_improvement": 0.0,
-        "variant_average_cards_drawn": 21.5,
-        "variant_average_damage": 57.6484199,
-        "variant_average_placement": 1.0,
-        "variant_place_1_share": 1.0
-      },
-      "proposal_status": "rejected_not_applied",
-      "red_team_review": {
-        "alternative_explanations": [
-          "Retain the baseline when the effect is small relative to holdout or sensitivity variation."
-        ],
-        "automatic_application_allowed": false,
-        "concerns": [
-          "The primary paired comparison does not improve average placement.",
-          "Paired game outcomes do not favor the variant over the baseline.",
-          "At least one holdout matchup becomes worse.",
-          "The estimated effect is highly sensitive to seed or pilot strength.",
-          "Net role loss detected: payoff.",
-          "Net role loss detected: token_source.",
-          "Net role loss detected: land_synergy."
-        ],
-        "passed": false
-      },
-      "sensitivity_tests": [
-        {
-          "pilot_strength": "average",
-          "place_1_share_delta": 0.0,
-          "placement_improvement": 0.0,
-          "seed": 20260804
-        },
-        {
-          "pilot_strength": "strong",
-          "place_1_share_delta": 0.0,
-          "placement_improvement": 0.0,
-          "seed": 20260804
-        },
-        {
-          "pilot_strength": "average",
-          "place_1_share_delta": 0.0,
-          "placement_improvement": 0.0,
-          "seed": 20260805
-        },
-        {
-          "pilot_strength": "strong",
-          "place_1_share_delta": 0.25,
-          "placement_improvement": 0.25,
-          "seed": 20260805
-        }
-      ],
-      "structural_rationale": [
-        "Profile score changes from 1.910 to 2.326.",
-        "Mana value changes from 3.0 to 2.0.",
-        "Gains roles: draw.",
-        "Loses roles: land_synergy, payoff, token_source.",
-        "Immediate impact 0.35 → 0.35; turn-cycle risk 0.80 → 0.35."
-      ],
-      "swaps": [
-        {
-          "add": "Idol of Oblivion",
-          "candidate_id": "korvold/idol-of-oblivion",
-          "physical_status": "local_project_verified_owned",
-          "remove": "Scouring Swarm"
-        }
-      ]
-    },
-    "rogshai_izzet_signet_to_talisman": {
-      "affected_matchups": [],
-      "automatic_application": false,
-      "canonical_deck_files_modified": false,
-      "constraint_report": {
-        "issues": [],
-        "metrics": {
-          "average_nonland_mana_value": 2.2222222222222223,
-          "colored_sources": {
-            "R": 22,
-            "U": 28,
-            "W": 27
-          },
-          "high_mana_value_cards": 2,
-          "lands": 37,
-          "role_counts": {
-            "combat_payoff": 12,
-            "counter": 8,
-            "draw": 8,
-            "enabler": 6,
-            "engine": 6,
-            "finisher": 3,
-            "graveyard_hate": 2,
-            "land_synergy": 0,
-            "mana_source": 38,
-            "payoff": 2,
-            "protection": 8,
-            "ramp": 11,
-            "recursion": 0,
-            "removal": 13,
-            "sacrifice_outlet": 0,
-            "selection": 4,
-            "token_source": 2,
-            "wipe": 4
+            "token_source": 8,
+            "wipe": 7
           }
         },
         "valid": true
@@ -1227,28 +1190,86 @@
         "minimum_place_delta": 0.0,
         "paired_passed": true,
         "red_team_passed": false,
-        "sensitivity_passed": true
+        "sensitivity_passed": false
       },
       "decision": "rejected",
       "holdout_tests": [
         {
           "comparison": {
-            "baseline_average_cards_drawn": 17.25,
-            "baseline_average_damage": 64.2833658,
-            "baseline_average_placement": 1.0,
-            "baseline_place_1_share": 1.0,
-            "cards_drawn_delta": -3.0,
-            "damage_delta": 2.515788366666669,
+            "actual_sample_size": 4,
+            "baseline_average_cards_drawn": 22.25,
+            "baseline_average_damage": 79.5524344148,
+            "baseline_average_placement": 1.5,
+            "baseline_place_1_share": 0.5,
+            "bayesian_shrunk_effect": 0.041666666666666664,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -5.25,
+            "confidence_interval": [
+              -0.5,
+              1.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": -14.922364644799998,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": -0.22871355387816905,
+            "effect_size": 0.26111648393354675,
+            "failed_runs": 0,
             "games": 4,
-            "paired_loss_count": 0,
-            "paired_tie_count": 4,
-            "paired_win_count": 0,
-            "place_1_share_delta": 0.0,
-            "placement_improvement": 0.0,
-            "variant_average_cards_drawn": 14.25,
-            "variant_average_damage": 66.79915416666667,
-            "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.47871355387816905,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+            "paired_loss_count": 1,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
+            "paired_tie_count": 1,
+            "paired_win_count": 2,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "synthetic/control",
+                "synthetic/control",
+                "synthetic/engine"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true
+            },
+            "pilot_weights": "single configured pilot: strong",
+            "place_1_share_delta": 0.25,
+            "placement_improvement": 0.25,
+            "quantiles": {
+              "maximum": 1.0,
+              "mean": 0.25,
+              "median": 0.5,
+              "minimum": -1.0,
+              "q10": -0.7,
+              "q25": -0.25,
+              "q75": 1.0,
+              "q90": 1.0
+            },
+            "requested_runs": 4,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              10887083921381729135,
+              6133358417256812112,
+              781536908179558333,
+              11256578500969117755
+            ],
+            "started_runs": 4,
+            "valid_runs": 4,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 17.0,
+            "variant_average_damage": 64.63006977,
+            "variant_average_placement": 1.25,
+            "variant_place_1_share": 0.75,
+            "worker_count": 1,
+            "worst_case_result": -1.0
           },
           "pair_count": 4,
           "pod": [
@@ -1259,22 +1280,80 @@
         },
         {
           "comparison": {
-            "baseline_average_cards_drawn": 15.25,
-            "baseline_average_damage": 64.78225983466666,
+            "actual_sample_size": 4,
+            "baseline_average_cards_drawn": 22.25,
+            "baseline_average_damage": 73.68691264,
             "baseline_average_placement": 1.0,
             "baseline_place_1_share": 1.0,
-            "cards_drawn_delta": 0.25,
-            "damage_delta": -6.48141154933333,
+            "bayesian_shrunk_effect": 0.0,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -3.25,
+            "confidence_interval": [
+              0.0,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": 3.7215738600000066,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 0.0,
+            "effect_size": 0.0,
+            "failed_runs": 0,
             "games": 4,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.0,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
             "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
             "paired_tie_count": 4,
             "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "synthetic/aggro",
+                "synthetic/aggro",
+                "synthetic/control"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true
+            },
+            "pilot_weights": "single configured pilot: strong",
             "place_1_share_delta": 0.0,
             "placement_improvement": 0.0,
-            "variant_average_cards_drawn": 15.5,
-            "variant_average_damage": 58.30084828533333,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": 0.0,
+              "median": 0.0,
+              "minimum": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q75": 0.0,
+              "q90": 0.0
+            },
+            "requested_runs": 4,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              11496858738235674608,
+              2151809943226587315,
+              4440948712682675990,
+              15941641685379116920
+            ],
+            "started_runs": 4,
+            "valid_runs": 4,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 19.0,
+            "variant_average_damage": 77.40848650000001,
             "variant_average_placement": 1.0,
-            "variant_place_1_share": 1.0
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 0.0
           },
           "pair_count": 4,
           "pod": [
@@ -1286,63 +1365,153 @@
       ],
       "pair_sample": [
         {
-          "baseline_log_sha256": "b7e841a263f01702b568fba3f8160cd83683c1b2a4ed5fc4f7a28bec97477c4f",
+          "baseline_log_sha256": "513e4ed6900d8cef40d496be64aceb354816558690ccbdef5269d1b32c2c566e",
           "baseline_placement": 1,
           "comparison": "tie",
           "index": 0,
-          "seed": 7742018100504482477,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 18239995794674195368,
           "starting_player_seat": 0,
-          "variant_log_sha256": "52c356784cd7bc8cf5f17f24e587163efac60b717d0d84fec15a4c4411a9d697",
+          "variant_log_sha256": "cee8c6d16551b832917f581b4c88168329d4376ef21b8e644bfb0b41cc7985d5",
           "variant_placement": 1
         },
         {
-          "baseline_log_sha256": "858a380657334f09872b5f254140cec37a45828386217c05c15f66276933eb38",
-          "baseline_placement": 1,
-          "comparison": "tie",
+          "baseline_log_sha256": "c41b0597e07539291b0b82006692188444e9374997456e028e583ecda6d3480f",
+          "baseline_placement": 2,
+          "comparison": "variant_win",
           "index": 1,
-          "seed": 14431564645209080386,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 17611765381469250758,
           "starting_player_seat": 1,
-          "variant_log_sha256": "7d2183aaa68915960141f56c507f89dfd14344fcf0c62aeb681734d91e35c03f",
+          "variant_log_sha256": "59e22b48e72b65c48676ef0fb3b9cd31ae7f3f512c8d4085960fa2faedc46c81",
           "variant_placement": 1
         },
         {
-          "baseline_log_sha256": "1d95cfe2f4ddf5dae66b8d94b72548af18184e31979d21b278f92f3923bac93c",
+          "baseline_log_sha256": "1b925bab4e0564c097457f087e652dce14cb16935bd5bdbc894c1f595d1a602a",
           "baseline_placement": 1,
           "comparison": "tie",
           "index": 2,
-          "seed": 11888052695547683171,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 10610156677304911373,
           "starting_player_seat": 2,
-          "variant_log_sha256": "d447864dc55eca1ac64286c30c1b75e538ec0d72edabf04c6d2047af264a2c9a",
+          "variant_log_sha256": "42c9825d2d94dc8090cccf4f2b7e7c7b01f9394e72b1c2e71fd627840a3572ef",
           "variant_placement": 1
         },
         {
-          "baseline_log_sha256": "151008335ef52bec71b9b776711d03ef9309f0ae944844437369822a902531bf",
+          "baseline_log_sha256": "b5db44efb3c2c87a5a50c146bd7564f2e90260463def6bd3f2b22642db2ecce5",
           "baseline_placement": 1,
           "comparison": "tie",
           "index": 3,
-          "seed": 13076990998508057408,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 17984021752006325498,
           "starting_player_seat": 3,
-          "variant_log_sha256": "8421f80ecec3c5d4aa9ec954339c69719cfd49b5b52488cab2763529163e231e",
+          "variant_log_sha256": "e49801ee38904ad3ed5a6c58004db45069709c9d2f03534f1f9eb0c86bf3293d",
           "variant_placement": 1
         }
       ],
       "paired_comparison": {
-        "baseline_average_cards_drawn": 17.75,
-        "baseline_average_damage": 65.20531023333334,
-        "baseline_average_placement": 1.0,
-        "baseline_place_1_share": 1.0,
-        "cards_drawn_delta": -3.75,
-        "damage_delta": -1.6237005666666704,
+        "actual_sample_size": 4,
+        "baseline_average_cards_drawn": 20.0,
+        "baseline_average_damage": 59.981778692000006,
+        "baseline_average_placement": 1.25,
+        "baseline_place_1_share": 0.75,
+        "bayesian_shrunk_effect": 0.041666666666666664,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": 3.25,
+        "confidence_interval": [
+          0.0,
+          0.75
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": 21.725528909999994,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": 0.0,
+        "effect_size": 0.5,
+        "failed_runs": 0,
         "games": 4,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.25,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
         "paired_loss_count": 0,
-        "paired_tie_count": 4,
-        "paired_win_count": 0,
-        "place_1_share_delta": 0.0,
-        "placement_improvement": 0.0,
-        "variant_average_cards_drawn": 14.0,
-        "variant_average_damage": 63.581609666666665,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 1.0,
+        "paired_tie_count": 3,
+        "paired_win_count": 1,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": 0.25,
+        "placement_improvement": 0.25,
+        "quantiles": {
+          "maximum": 1.0,
+          "mean": 0.25,
+          "median": 0.0,
+          "minimum": 0.0,
+          "q10": 0.0,
+          "q25": 0.0,
+          "q75": 0.25,
+          "q90": 0.7000000000000002
+        },
+        "requested_runs": 4,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          18239995794674195368,
+          17611765381469250758,
+          10610156677304911373,
+          17984021752006325498
+        ],
+        "started_runs": 4,
+        "valid_runs": 4,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 23.25,
+        "variant_average_damage": 81.707307602,
         "variant_average_placement": 1.0,
-        "variant_place_1_share": 1.0
+        "variant_place_1_share": 1.0,
+        "worker_count": 1,
+        "worst_case_result": 0.0
       },
       "proposal_status": "rejected_not_applied",
       "red_team_review": {
@@ -1351,8 +1520,7 @@
         ],
         "automatic_application_allowed": false,
         "concerns": [
-          "The primary paired comparison does not improve average placement.",
-          "Paired game outcomes do not favor the variant over the baseline.",
+          "The result changes sign across sensitivity settings.",
           "The estimated effect is highly sensitive to seed or pilot strength."
         ],
         "passed": false
@@ -1372,30 +1540,455 @@
         },
         {
           "pilot_strength": "average",
-          "place_1_share_delta": 0.25,
-          "placement_improvement": 0.25,
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
           "seed": 20260805
         },
         {
           "pilot_strength": "strong",
-          "place_1_share_delta": 0.25,
-          "placement_improvement": 0.25,
+          "place_1_share_delta": -0.25,
+          "placement_improvement": -0.25,
           "seed": 20260805
         }
       ],
       "structural_rationale": [
-        "Profile score changes from 1.965 to 2.961.",
-        "Mana value changes from 2.0 to 2.0.",
-        "Gains roles: mana_source.",
+        "Profile score changes from 1.405 to 2.520.",
+        "Mana value changes from 3.0 to 3.0.",
+        "Gains roles: enabler, engine, land_synergy, sacrifice_outlet, token_source.",
         "No structural role is lost.",
-        "Immediate impact 0.80 → 0.80; turn-cycle risk 0.45 → 0.20."
+        "Immediate impact 0.80 → 0.45; turn-cycle risk 0.45 → 0.60."
       ],
       "swaps": [
         {
-          "add": "Talisman of Creativity",
-          "candidate_id": "rogshai/talisman-of-creativity",
-          "physical_status": "local_project_verified_owned",
-          "remove": "Izzet Signet"
+          "add": "Scouring Swarm",
+          "candidate_id": "inventory/scouring-swarm-decedec9",
+          "physical_status": "canonical_inventory_verified_owned",
+          "remove": "Mayhem Devil"
+        }
+      ]
+    },
+    "rogshai_izzet_signet_to_talisman": {
+      "affected_matchups": [
+        "commander_denial",
+        "control"
+      ],
+      "automatic_application": false,
+      "canonical_deck_files_modified": false,
+      "constraint_report": {
+        "issues": [],
+        "metrics": {
+          "average_nonland_mana_value": 2.380952380952381,
+          "colored_sources": {
+            "R": 23,
+            "U": 31,
+            "W": 24
+          },
+          "high_mana_value_cards": 5,
+          "lands": 37,
+          "role_counts": {
+            "combat_payoff": 7,
+            "counter": 11,
+            "draw": 14,
+            "enabler": 5,
+            "engine": 7,
+            "finisher": 5,
+            "graveyard_hate": 3,
+            "land_synergy": 0,
+            "mana_source": 37,
+            "payoff": 3,
+            "protection": 6,
+            "ramp": 10,
+            "recursion": 0,
+            "removal": 13,
+            "sacrifice_outlet": 0,
+            "selection": 8,
+            "token_source": 2,
+            "wipe": 5
+          }
+        },
+        "valid": true
+      },
+      "criteria": {
+        "constraints_passed": true,
+        "holdout_passed": false,
+        "minimum_place_delta": 0.0,
+        "paired_passed": true,
+        "red_team_passed": false,
+        "sensitivity_passed": true
+      },
+      "decision": "rejected",
+      "holdout_tests": [
+        {
+          "comparison": {
+            "actual_sample_size": 4,
+            "baseline_average_cards_drawn": 25.75,
+            "baseline_average_damage": 56.85421,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "bayesian_shrunk_effect": -0.041666666666666664,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -0.75,
+            "confidence_interval": [
+              -0.75,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": -11.743720600000003,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": -0.5,
+            "effect_size": -0.5,
+            "failed_runs": 0,
+            "games": 4,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.25,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+            "paired_loss_count": 1,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
+            "paired_tie_count": 3,
+            "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "synthetic/control",
+                "synthetic/control",
+                "synthetic/engine"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true
+            },
+            "pilot_weights": "single configured pilot: strong",
+            "place_1_share_delta": -0.25,
+            "placement_improvement": -0.25,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": -0.25,
+              "median": 0.0,
+              "minimum": -1.0,
+              "q10": -0.7,
+              "q25": -0.25,
+              "q75": 0.0,
+              "q90": 0.0
+            },
+            "requested_runs": 4,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              12339956616588662938,
+              9887535581331713792,
+              2463497151162602550,
+              16481349729376042840
+            ],
+            "started_runs": 4,
+            "valid_runs": 4,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 25.0,
+            "variant_average_damage": 45.1104894,
+            "variant_average_placement": 1.25,
+            "variant_place_1_share": 0.75,
+            "worker_count": 1,
+            "worst_case_result": -1.0
+          },
+          "pair_count": 4,
+          "pod": [
+            "synthetic/control",
+            "synthetic/control",
+            "synthetic/engine"
+          ]
+        },
+        {
+          "comparison": {
+            "actual_sample_size": 4,
+            "baseline_average_cards_drawn": 18.25,
+            "baseline_average_damage": 71.469725,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "bayesian_shrunk_effect": 0.0,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -3.75,
+            "confidence_interval": [
+              0.0,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": 2.1337250000000125,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 0.0,
+            "effect_size": 0.0,
+            "failed_runs": 0,
+            "games": 4,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.0,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+            "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
+            "paired_tie_count": 4,
+            "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "synthetic/aggro",
+                "synthetic/aggro",
+                "synthetic/control"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true
+            },
+            "pilot_weights": "single configured pilot: strong",
+            "place_1_share_delta": 0.0,
+            "placement_improvement": 0.0,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": 0.0,
+              "median": 0.0,
+              "minimum": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q75": 0.0,
+              "q90": 0.0
+            },
+            "requested_runs": 4,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              2964352210481345147,
+              5114206510670821731,
+              1290789342642194101,
+              2500844644652745962
+            ],
+            "started_runs": 4,
+            "valid_runs": 4,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 14.5,
+            "variant_average_damage": 73.60345000000001,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 0.0
+          },
+          "pair_count": 4,
+          "pod": [
+            "synthetic/aggro",
+            "synthetic/aggro",
+            "synthetic/control"
+          ]
+        }
+      ],
+      "pair_sample": [
+        {
+          "baseline_log_sha256": "b7d757731e90768ff53682155be3aa8ba0e29e8eb51c2818b9bdf65984cc9528",
+          "baseline_placement": 1,
+          "comparison": "tie",
+          "index": 0,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 8076645423149120517,
+          "starting_player_seat": 0,
+          "variant_log_sha256": "397c0772ed5c9e77e632ce73f058c958041753d41a925def10dc287b24bbc1b5",
+          "variant_placement": 1
+        },
+        {
+          "baseline_log_sha256": "4a18c2269dd666a9826ddb9b6c306415e20565fc88e31e8e5989ad47f9730ad6",
+          "baseline_placement": 1,
+          "comparison": "tie",
+          "index": 1,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 5978064737536369918,
+          "starting_player_seat": 1,
+          "variant_log_sha256": "79f3f219f9ee881727ee3dc5cbe439df50c4bdc6595f8466fb4cdf3a0c2560d3",
+          "variant_placement": 1
+        },
+        {
+          "baseline_log_sha256": "fb37d6b53c99f213e52b7cba7e4204e5595ee1339c3c60220e221e531f134c2a",
+          "baseline_placement": 1,
+          "comparison": "tie",
+          "index": 2,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 17433003450379035197,
+          "starting_player_seat": 2,
+          "variant_log_sha256": "b90fefc4367778d90831ff22caa84872c4b0882ec1a325dba1ca2f9a816ee1ea",
+          "variant_placement": 1
+        },
+        {
+          "baseline_log_sha256": "b43abca6e2e0afc7e20cac32b6ea1560662392cae577d9902a5cde728c210875",
+          "baseline_placement": 1,
+          "comparison": "tie",
+          "index": 3,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "seed": 4073805498378022660,
+          "starting_player_seat": 3,
+          "variant_log_sha256": "09193988d0f009e460498718e3c985e29f4923f5da1a111499a4b685ff1639eb",
+          "variant_placement": 1
+        }
+      ],
+      "paired_comparison": {
+        "actual_sample_size": 4,
+        "baseline_average_cards_drawn": 20.25,
+        "baseline_average_damage": 63.509969,
+        "baseline_average_placement": 1.0,
+        "baseline_place_1_share": 1.0,
+        "bayesian_shrunk_effect": 0.0,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": 2.25,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": 29.502170412500007,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": 0.0,
+        "effect_size": 0.0,
+        "failed_runs": 0,
+        "games": 4,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.0,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "paired_loss_count": 0,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 1.0,
+        "paired_tie_count": 4,
+        "paired_win_count": 0,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": 0.0,
+        "placement_improvement": 0.0,
+        "quantiles": {
+          "maximum": 0.0,
+          "mean": 0.0,
+          "median": 0.0,
+          "minimum": 0.0,
+          "q10": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "q90": 0.0
+        },
+        "requested_runs": 4,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          8076645423149120517,
+          5978064737536369918,
+          17433003450379035197,
+          4073805498378022660
+        ],
+        "started_runs": 4,
+        "valid_runs": 4,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 22.5,
+        "variant_average_damage": 93.0121394125,
+        "variant_average_placement": 1.0,
+        "variant_place_1_share": 1.0,
+        "worker_count": 1,
+        "worst_case_result": 0.0
+      },
+      "proposal_status": "rejected_not_applied",
+      "red_team_review": {
+        "alternative_explanations": [
+          "Retain the baseline when the effect is small relative to holdout or sensitivity variation."
+        ],
+        "automatic_application_allowed": false,
+        "concerns": [
+          "The primary paired comparison does not improve average placement.",
+          "Paired game outcomes do not favor the variant over the baseline.",
+          "At least one holdout matchup becomes worse."
+        ],
+        "passed": false
+      },
+      "sensitivity_tests": [
+        {
+          "pilot_strength": "average",
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
+          "seed": 20260804
+        },
+        {
+          "pilot_strength": "strong",
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
+          "seed": 20260804
+        },
+        {
+          "pilot_strength": "average",
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
+          "seed": 20260805
+        },
+        {
+          "pilot_strength": "strong",
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
+          "seed": 20260805
+        }
+      ],
+      "structural_rationale": [
+        "Profile score changes from 1.265 to 1.930.",
+        "Mana value changes from 3.0 to 3.0.",
+        "Gains roles: protection, token_source.",
+        "No structural role is lost.",
+        "Immediate impact 0.80 → 0.65; turn-cycle risk 0.45 → 0.25."
+      ],
+      "swaps": [
+        {
+          "add": "Rootborn Defenses",
+          "candidate_id": "inventory/rootborn-defenses-677fdbcf",
+          "physical_status": "canonical_inventory_verified_owned",
+          "remove": "Flare of Duplication"
         }
       ]
     }

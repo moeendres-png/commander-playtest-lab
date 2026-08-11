@@ -1,0 +1,139 @@
+{
+  "basic_land_policy": {
+    "cross_deck_scarcity_assumption": false,
+    "minimum_available_each_standard_basic_type": 50,
+    "observed_plus_minimum_is_forbidden": true,
+    "quantity_semantics": "at least 50 total per basic type; observed copies are included within this lower bound and are not added on top"
+  },
+  "color_identity": {
+    "hard_constraint": true,
+    "refresh_rules_before_canonical_rebuild": true
+  },
+  "commander_rules": {
+    "korvold": {
+      "color_identity": [
+        "B",
+        "R",
+        "G"
+      ],
+      "commanders": [
+        "Korvold, Fae-Cursed King"
+      ]
+    },
+    "rogshai": {
+      "color_identity": [
+        "W",
+        "U",
+        "R"
+      ],
+      "commanders": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "partner_configuration": true
+    }
+  },
+  "confidence": "high",
+  "deck_size": {
+    "total_cards_including_commanders": 100
+  },
+  "evidence_boundaries": [
+    "FACT",
+    "DERIVED_FACT",
+    "REAL_OBSERVATION",
+    "EXTERNAL_RESEARCH",
+    "STRUCTURAL_MODEL_ESTIMATE",
+    "TACTICAL_ORACLE",
+    "EXTERNAL_RULES_ENGINE",
+    "SYNTHETIC_ASSUMPTION",
+    "INFERENCE",
+    "UNKNOWN"
+  ],
+  "evidence_type": "DERIVED_FACT",
+  "fresh_rebuild_prior_policy": {
+    "current_decks_may_be_used_after_independent_build_as_control": true,
+    "historical_decks_as_search_prior": false,
+    "historical_includes_cuts_packages_as_search_prior": false
+  },
+  "generated_at": "2026-08-10T11:30:00+02:00",
+  "identity_policy": {
+    "do_not_infer_official_oracle_uuid": true,
+    "fallback_project_key": "card_id project_uuid5_v1_from_canonical_oracle_name",
+    "preferred_official_key": "oracle_id when reliably available from a current card-data source"
+  },
+  "inventory_source_drive_id": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+  "kaervek_policy": {
+    "active_own_deck": false,
+    "frozen_opponent_only": true,
+    "optimization_allowed": false
+  },
+  "location_policy": {
+    "example": "Midnight Reaper is owned/available while stored in Alens Box",
+    "storage_location_does_not_define_ownership": true
+  },
+  "manual_real_game_logging": "disabled_by_user_policy",
+  "opponent_card_policy": "not part of own pool unless independently present in canonical inventory",
+  "opponent_reservation_policy": {
+    "additional_owned_copies_remain_available": true,
+    "current_specific_reservations": {
+      "Gaze of Granite": {
+        "reserved_quantity": 1,
+        "target": "opponent:alen_high_perfect_morcant"
+      },
+      "Vernal Fen": {
+        "reserved_quantity": 1,
+        "target": "opponent:alen_high_perfect_morcant"
+      }
+    },
+    "reservation_does_not_transfer_ownership": true,
+    "reserved_copies_excluded_from_own_deck_availability": true
+  },
+  "pending_purchase_policy": "exclude until physically received and reflected in current inventory",
+  "physical_inventory_required": true,
+  "printing_policy": {
+    "do_not_require_printing_resolution_for_candidate_pool": true,
+    "preferred_compact_field": "printing_ref",
+    "printing_metadata_does_not_affect_candidate_legality": true
+  },
+  "real_game_logging_policy": {
+    "manual_real_game_entry": false,
+    "manual_real_game_protocols": false,
+    "real_playtest_calibration_project_goal": false,
+    "request_or_recommend_logging": false,
+    "status": "excluded_by_user_policy"
+  },
+  "real_playtest_calibration": "excluded_by_user_policy",
+  "research_policy": {
+    "meta_lists_are_benchmarks_not_blueprints": true,
+    "no_popularity_filter_on_candidate_pool": true
+  },
+  "rules_freshness": {
+    "banned_restricted_source": "https://magic.wizards.com/en/banned-restricted-list",
+    "commander_format_source": "https://magic.wizards.com/en/formats/commander",
+    "last_checked": "2026-08-10",
+    "status": "official Wizards Commander format and Banned & Restricted pages checked on 2026-08-10; no newer August 10 announcement was located at the acceptance time, so legality remains volatile and must be rechecked after any later announcement."
+  },
+  "schema_version": "1.2",
+  "simultaneous_buildability": {
+    "hard_constraint": true,
+    "policy": "sum of nonbasic copies across simultaneously built own decks may not exceed free physical quantity after opponent reservations"
+  },
+  "singleton_rule": {
+    "basic_lands_exempt": true,
+    "nonbasic_max_copies_per_deck": 1
+  },
+  "source_drive_id": "1wgL82JgiaoKoKVAfS6W-lhGZJRJH0i2l",
+  "source_role": "machine-readable projection of canonical bias-neutral deckbuilding rules; does not replace source",
+  "stable_entity_ids": {
+    "cards": "CARD_IDENTITY_REGISTRY_CURRENT.jsonl -> card_id",
+    "decks": {
+      "korvold": "deck:korvold",
+      "rogshai": "deck:rogshai"
+    },
+    "opponents": "OPPONENT_REGISTRY_CURRENT.json -> opponent_entity_id",
+    "research": "RESEARCH_REGISTRY_CURRENT.json -> research_id",
+    "roles": "ROLE_TAXONOMY.json role keys",
+    "threat_axes": "LOCAL_META_THREAT_ANSWER_MATRIX_CURRENT.jsonl -> threat_axis_id"
+  },
+  "status": "canonical_current_constraints_projection"
+}

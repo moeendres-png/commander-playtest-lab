@@ -34,6 +34,9 @@ class OptimizationConstraints(FrozenModel):
     high_mana_value_threshold: float = Field(default=5.0, ge=0.0, le=20.0)
     require_verified_inventory: bool = True
     simultaneous_deck_ids: tuple[str, ...] = ()
+    required_commanders: tuple[str, ...] = ()
+    require_partner_configuration: bool | None = None
+    locked_cards: tuple[str, ...] = ()
 
     @model_validator(mode="after")
     def validate_ranges(self) -> OptimizationConstraints:
@@ -56,16 +59,31 @@ class ConstraintReport(FrozenModel):
 
 
 class ObjectiveVector(FrozenModel):
-    four_player_performance: float
+    central_performance: float
     worst_quartile: float
     commander_independence: float
     rebuild: float
-    closing_power: float
+    finish_reliability: float
     matchup_robustness: float
+    pod_size_robustness: float
+    seat_robustness: float
+    opponent_uncertainty: float
     physical_allocation: float
+
+    @property
+    def four_player_performance(self) -> float:
+        return self.central_performance
+
+    @property
+    def closing_power(self) -> float:
+        return self.finish_reliability
 
     def as_maximize_dict(self) -> dict[str, float]:
         return self.model_dump(mode="json")
+
+    def equal_weight_score(self) -> float:
+        values = self.as_maximize_dict().values()
+        return sum(values) / 10.0
 
 
 class OptimizationVariant(FrozenModel):
