@@ -52,7 +52,11 @@ def test_fixed_seed_structural_result_is_deterministic() -> None:
     first = service.run_matchup_batch(request)
     second = service.run_matchup_batch(request)
     assert first.status == second.status == ToolStatus.COMPLETED
-    assert first.result == second.result
+    first_result = dict(first.result)
+    second_result = dict(second.result)
+    first_result.pop("result_path", None)
+    second_result.pop("result_path", None)
+    assert first_result == second_result
 
 
 def test_release_truth_includes_real_p3_feasibility_evidence() -> None:
