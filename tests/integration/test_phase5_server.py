@@ -16,7 +16,7 @@ def test_function_tool_server_lists_and_invokes_tools() -> None:
         assert tools.status_code == 200
         response = client.post(
             "/v1/tools/inspect_deck:invoke",
-            json={"arguments": {"deck_id": "korvold/current", "include_cards": False}},
+            json={"arguments": {"deck_id": "rogshai/current", "include_cards": False}},
         )
         assert response.status_code == 200
         assert response.json()["status"] == "completed"
@@ -27,7 +27,7 @@ def test_live_workflow_endpoint_requires_openai_runtime(monkeypatch) -> None:
     with TestClient(create_app(ROOT)) as client:
         response = client.post(
             "/v1/workflows:run",
-            json={"user_goal": "Inspect Korvold using structured local tools."},
+            json={"user_goal": "Inspect RogShai using structured local tools."},
         )
         assert response.status_code == 503
         assert "OPENAI_API_KEY" in response.json()["detail"]

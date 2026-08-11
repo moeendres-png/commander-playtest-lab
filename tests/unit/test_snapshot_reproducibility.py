@@ -9,13 +9,11 @@ from commander_lab.tools import build_local_snapshots
 _INPUTS = (
     "data/cards/oracle_subset.json",
     "data/collections/current_deck_allocations.json",
-    "data/decks/korvold_current.txt",
     "data/decks/rogshai_current.txt",
     "data/decks/rogshai_current_card_catalog_overrides.json",
     "data/decks/rogshai_current_structural_overrides.json",
 )
 _TRACKED = (
-    "data/decks/korvold_current.json",
     "data/decks/rogshai_current.json",
     "data/decks/manifest.json",
 )
@@ -58,7 +56,5 @@ def test_local_snapshot_build_is_portable_across_root_paths(
 
     assert _snapshot_bytes(first_root) == _snapshot_bytes(second_root)
 
-    korvold = json.loads((first_root / "data/decks/korvold_current.json").read_text())
     rogshai = json.loads((first_root / "data/decks/rogshai_current.json").read_text())
-    assert korvold["source"]["source_path"] == "data/decks/korvold_current.txt"
     assert rogshai["source"]["source_path"] == "data/decks/rogshai_current.txt"
