@@ -39,7 +39,11 @@ def test_explicit_repetitive_oracle_text_is_flagged_without_becoming_a_ban() -> 
 
 def test_playstyle_comparison_never_auto_rejects_a_card() -> None:
     analyzer = PlaystyleAnalyzer(ROOT)
-    remove = StructuralCardProfile(oracle_name="Low Admin Fixture", mana_value=1.0)
+    remove = StructuralCardProfile(
+        oracle_name="Low Admin Fixture",
+        mana_value=1.0,
+        roles=frozenset({CardRole.ENABLER}),
+    )
     add = StructuralCardProfile(
         oracle_name="Engine Fixture",
         mana_value=2.0,
