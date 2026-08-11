@@ -20,6 +20,15 @@ class CommanderSpellbookError(RuntimeError):
     """Raised when an explicit Commander Spellbook sync or snapshot check fails."""
 
 
+def _canonical_json_bytes(value: Any) -> bytes:
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+
+
 def build_find_my_combos_payload(deck: StructuralDeckProfile) -> dict[str, list[dict[str, Any]]]:
     commanders = set(deck.commander_names)
     main: list[dict[str, Any]] = []
@@ -107,12 +116,7 @@ def sync_commander_spellbook_snapshot(
     if max_response_bytes < 1024:
         raise ValueError("max_response_bytes is too small")
     request_object = build_find_my_combos_payload(deck)
-    request_bytes = json.dumps(
-        request_object,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    ).encode("utf-8")
+    request_bytes = _canonical_json_bytes(request_object)
     transport = fetcher or _post_find_my_combos
     raw = transport(request_bytes, timeout, max_response_bytes)
     if len(raw) > max_response_bytes:
@@ -121,6 +125,7 @@ def sync_commander_spellbook_snapshot(
         response_object = _validate_response(json.loads(raw.decode("utf-8")))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise CommanderSpellbookError("Commander Spellbook returned invalid JSON") from exc
+    semantic_response_bytes = _canonical_json_bytes(response_object)
 
     snapshot = {
         "schema_version": "1.0",
@@ -131,7 +136,8 @@ def sync_commander_spellbook_snapshot(
         "deck_id": deck.deck_id,
         "deck_hash": deck.deck_hash,
         "request_sha256": hashlib.sha256(request_bytes).hexdigest(),
-        "response_sha256": hashlib.sha256(raw).hexdigest(),
+        "raw_response_sha256": hashlib.sha256(raw).hexdigest(),
+        "response_semantic_sha256": hashlib.sha256(semantic_response_bytes).hexdigest(),
         "truth_boundary": (
             "combo database match != proof that Commander Playtest Lab can legally execute the line"
         ),
@@ -148,7 +154,8 @@ def sync_commander_spellbook_snapshot(
         "path": str(path),
         "deck_hash": deck.deck_hash,
         "request_sha256": snapshot["request_sha256"],
-        "response_sha256": snapshot["response_sha256"],
+        "raw_response_sha256": snapshot["raw_response_sha256"],
+        "response_semantic_sha256": snapshot["response_semantic_sha256"],
         "included_combo_count": len(response_object["results"]["included"]),
     }
 
@@ -172,25 +179,15 @@ def load_commander_spellbook_snapshot(
 
     request = snapshot.get("request")
     response = _validate_response(snapshot.get("response"))
-    request_bytes = json.dumps(
-        request,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    ).encode("utf-8")
-    response_bytes = json.dumps(
-        response,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    ).encode("utf-8")
+    request_bytes = _canonical_json_bytes(request)
+    response_bytes = _canonical_json_bytes(response)
     if hashlib.sha256(request_bytes).hexdigest() != snapshot.get("request_sha256"):
         raise CommanderSpellbookError("Commander Spellbook snapshot request hash mismatch")
-    # The upstream raw JSON byte layout is not stable after local pretty-printing. Validate the
-    # semantic response through the schema; preserve response_sha256 as source provenance only.
-    if not isinstance(snapshot.get("response_sha256"), str):
-        raise CommanderSpellbookError("Commander Spellbook snapshot has no response hash")
-    _ = response_bytes
+    if hashlib.sha256(response_bytes).hexdigest() != snapshot.get("response_semantic_sha256"):
+        raise CommanderSpellbookError("Commander Spellbook snapshot response hash mismatch")
+    raw_hash = snapshot.get("raw_response_sha256")
+    if not isinstance(raw_hash, str) or len(raw_hash) != 64:
+        raise CommanderSpellbookError("Commander Spellbook snapshot has no valid raw response hash")
     return snapshot
 
 
