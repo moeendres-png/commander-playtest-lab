@@ -237,7 +237,7 @@ class PriorityWorkflowFacade:
             commander_denial_result=commander_denial_result or {},
             ablation_result=ablation_result or {},
             cache_provenance={
-                "status": "not_implemented_due_active_J_P6_concurrency_guard",
+                "status": "justified_not_shipped_j_p6_profile_no_relevant_cache_bottleneck",
                 "cache_hit": False,
             },
             simulation_counts={
@@ -250,7 +250,8 @@ class PriorityWorkflowFacade:
                 "Structural simulation is not an empirical Commander winrate.",
                 "Tactical Oracle is not an external rules engine.",
                 "Opponent uncertainty remains source-evidence dependent.",
-                "No adaptive scheduler/result cache was added while J-P6 owns performance hardening.",
+                "J-P6 profiling found lookup, SQLite, and serialization negligible relative to structural simulation; no production result cache was added.",
+                "No adaptive racing scheduler is shipped without a separate benchmark proving material simulation-count reduction while preserving J-P5 decision-quality gates.",
             ),
             recommendation_status=recommendation_status,
         )
