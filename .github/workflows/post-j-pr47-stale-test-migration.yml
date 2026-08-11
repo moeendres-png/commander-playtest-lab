@@ -27,21 +27,20 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
           def replace(path, old, new, count=None):
-              p=Path(path); text=p.read_text(encoding='utf-8')
-              if old not in text: raise SystemExit(f'missing expected fixture in {path}: {old[:80]}')
-              p.write_text(text.replace(old,new, count if count is not None else -1), encoding='utf-8')
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'missing expected fixture in {path}: {old[:80]}')
+              p.write_text(text.replace(old, new, count if count is not None else -1), encoding='utf-8')
 
-          # P6 determinism: current active deck, not historical Korvold.
           p=Path('tests/unit/test_j_p6_hardening.py'); t=p.read_text(encoding='utf-8')
           old='''        deck_ids=(\n            "korvold/current",\n            "opponent/morcant-elves",'''
           new='''        deck_ids=(\n            "rogshai/current",\n            "opponent/morcant-elves",'''
           if old not in t: raise SystemExit('P6 current-deck fixture missing')
           p.write_text(t.replace(old,new,1),encoding='utf-8')
 
-          # P5 current constraint tests use RogShai; historical challenge set stays evidence-only.
           p=Path('tests/unit/test_j_p5_optimizer_validation.py'); t=p.read_text(encoding='utf-8')
           start=t.index('def test_wrong_commander_identity_fails_closed()')
           end=t.index('\ndef test_simultaneous_allocation_uses_free_copy_capacity()', start)
@@ -51,7 +50,6 @@ jobs:
           t=t[:start]+'''def test_historical_challenge_set_preserves_classes_and_truth_boundary() -> None:\n    payload = json.loads(\n        (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text()\n    )\n    assert {row["class"] for row in payload["variants"]} == {"good", "neutral", "bad"}\n    assert payload["evidence_boundary"] == "structural_model_estimates"\n    assert payload["canonical_mutation_allowed"] is False\n    assert any(row["deck_id"] == "korvold/current" for row in payload["variants"])\n    assert any(row["deck_id"] == "rogshai/current" for row in payload["variants"])\n'''
           p.write_text(t,encoding='utf-8')
 
-          # P0 run-identity tests operate on the current deck and current smoke swap.
           p=Path('tests/unit/test_j_p0_run_identity.py'); t=p.read_text(encoding='utf-8')
           t=t.replace('InspectDeckInput(deck_id="korvold/current")','InspectDeckInput(deck_id="rogshai/current")',1)
           old='''    current = service.decks["korvold/current"]\n    service.decks["korvold/current"] = current.model_copy(update={"deck_hash": "0" * 64})'''
@@ -69,7 +67,6 @@ jobs:
           t=t.replace('identity.deck_hashes["korvold/current"] == service.decks["korvold/current"].deck_hash','identity.deck_hashes["rogshai/current"] == service.decks["rogshai/current"].deck_hash',1)
           p.write_text(t,encoding='utf-8')
 
-          # Snapshot reproducibility follows sole operational current deck.
           p=Path('tests/unit/test_snapshot_reproducibility.py'); t=p.read_text(encoding='utf-8')
           t=t.replace('    "data/decks/korvold_current.txt",\n','')
           t=t.replace('    "data/decks/korvold_current.json",\n','')
@@ -77,7 +74,6 @@ jobs:
           t=t.replace('''    assert korvold["source"]["source_path"] == "data/decks/korvold_current.txt"\n''','')
           p.write_text(t,encoding='utf-8')
 
-          # API/MCP smoke targets current active deck.
           replace('tests/integration/test_phase5_server.py','"deck_id": "korvold/current"','"deck_id": "rogshai/current"',1)
           replace('tests/integration/test_phase5_server.py','Inspect Korvold using structured local tools.','Inspect RogShai using structured local tools.',1)
           p=Path('tests/unit/test_phase12_17_mcp.py'); t=p.read_text(encoding='utf-8')
@@ -85,6 +81,7 @@ jobs:
           p.write_text(t,encoding='utf-8')
           PY
           ruff format tests/unit/test_j_p6_hardening.py tests/unit/test_j_p5_optimizer_validation.py tests/unit/test_j_p0_run_identity.py tests/unit/test_snapshot_reproducibility.py tests/integration/test_phase5_server.py tests/unit/test_phase12_17_mcp.py
+          ruff check --fix tests/unit/test_j_p6_hardening.py tests/unit/test_j_p5_optimizer_validation.py tests/unit/test_j_p0_run_identity.py tests/unit/test_snapshot_reproducibility.py tests/integration/test_phase5_server.py tests/unit/test_phase12_17_mcp.py
           ruff check tests/unit/test_j_p6_hardening.py tests/unit/test_j_p5_optimizer_validation.py tests/unit/test_j_p0_run_identity.py tests/unit/test_snapshot_reproducibility.py tests/integration/test_phase5_server.py tests/unit/test_phase12_17_mcp.py
       - name: Commit locally
         run: |
