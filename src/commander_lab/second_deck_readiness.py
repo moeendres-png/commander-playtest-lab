@@ -120,11 +120,11 @@ def _role_evidence(row: dict[str, Any]) -> set[str]:
 
 
 class SecondDeckReadinessWorkflow:
-    """Read-only, deterministic future-deck readiness from the current physical pool.
+    """Read-only, deterministic future-deck readiness from current physical availability.
 
-    This workflow discovers what can be considered after subtracting all active own-deck
-    allocations. It does not build or reserve a second deck and never produces a universal
-    commander power score or simulated performance claim.
+    The current availability projection is the Gate-A synchronized read-only projection of the
+    canonical physical pool after active own-deck allocations and opponent reservations. This
+    workflow does not rebuild those semantics from historical repo deck snapshots.
     """
 
     def __init__(self, root: str | Path, *, basic_land_floor: int = 50) -> None:
@@ -142,67 +142,24 @@ class SecondDeckReadinessWorkflow:
         self.inventory_by_name = {
             str(row["oracle_name"]): row for row in self.inventory_rows if row.get("oracle_name")
         }
-        self.inventory_quantities = Counter(
-            {
-                str(row["oracle_name"]): int(row.get("quantity", 0))
-                for row in self.inventory_rows
-                if row.get("oracle_name") and row.get("currently_owned") is True
-            }
+        self.availability_path = (
+            self.root / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json"
         )
-        self.reservations = self._load_reservations()
-
-    def _load_reservations(self) -> Counter[str]:
-        path = self.root / "data/collections/current/PHYSICAL_RESERVATIONS_CURRENT.json"
-        if not path.is_file():
-            return Counter()
-        payload = _load_json(path)
-        rows = payload.get("reservations", [])
-        if not isinstance(rows, list):
-            raise ValueError("PHYSICAL_RESERVATIONS_CURRENT.json reservations must be a list")
-        reservations: Counter[str] = Counter()
-        for row in rows:
-            if not isinstance(row, dict):
-                raise ValueError("invalid physical reservation record")
-            name = str(row.get("oracle_name", ""))
-            quantity = int(row.get("quantity", 0))
-            if not name or quantity < 0:
-                raise ValueError("invalid physical reservation name/quantity")
-            reservations[name] += quantity
-        return reservations
-
-    def _active_allocation(self) -> Counter[str]:
-        manifest = _load_json(self.root / "data/decks/manifest.json")
-        deck_specs = manifest.get("decks", {})
-        if not isinstance(deck_specs, dict):
-            raise ValueError("deck manifest has no deck mapping")
-        required: Counter[str] = Counter()
-        for deck_id in self.context.active_own_deck_ids:
-            spec = deck_specs.get(deck_id)
-            if not isinstance(spec, dict):
-                raise ValueError(f"active deck missing from deck manifest: {deck_id}")
-            normalized = spec.get("normalized_file")
-            if not isinstance(normalized, str) or not normalized:
-                raise ValueError(f"active deck has no normalized file: {deck_id}")
-            deck = _load_json(self.root / "data/decks" / normalized)
-            cards = deck.get("cards", [])
-            if not isinstance(cards, list):
-                raise ValueError(f"active deck cards are invalid: {deck_id}")
-            for card in cards:
-                if not isinstance(card, dict):
-                    raise ValueError(f"invalid active deck card record: {deck_id}")
-                required[str(card["oracle_name"])] += int(card.get("quantity", 0))
-        return required
 
     def remaining_pool(self) -> Counter[str]:
-        remaining = Counter(self.inventory_quantities)
-        for name, quantity in self._active_allocation().items():
-            remaining[name] -= quantity
-        for name, quantity in self.reservations.items():
-            remaining[name] -= quantity
-        negatives = {name: quantity for name, quantity in remaining.items() if quantity < 0}
-        if negatives:
-            raise ValueError(f"active allocation/reservation exceeds physical inventory: {negatives}")
-        return Counter({name: quantity for name, quantity in remaining.items() if quantity > 0})
+        payload = _load_json(self.availability_path)
+        cards = payload.get("cards")
+        if not isinstance(cards, dict):
+            raise ValueError("current optimization availability has no cards mapping")
+        remaining: Counter[str] = Counter()
+        for raw_name, raw_quantity in cards.items():
+            name = str(raw_name)
+            quantity = int(raw_quantity)
+            if quantity < 0:
+                raise ValueError(f"negative current physical availability for {name}: {quantity}")
+            if quantity > 0:
+                remaining[name] = quantity
+        return remaining
 
     def _support_evidence(
         self,
@@ -331,10 +288,11 @@ class SecondDeckReadinessWorkflow:
             "active_own_decks_subtracted": list(self.context.active_own_deck_ids),
             "primary_deckbuilding_focus": self.context.primary_deckbuilding_focus,
             "historical_decks_do_not_block_availability": True,
-            "reservation_records_applied": sum(self.reservations.values()),
-            "reservation_source_present": (
-                self.root / "data/collections/current/PHYSICAL_RESERVATIONS_CURRENT.json"
-            ).is_file(),
+            "current_availability_projection": str(self.availability_path.relative_to(self.root)),
+            "availability_semantics": (
+                "Gate-A current projection: active own-deck allocations and opponent reservations "
+                "already reflected; historical former-deck allocations do not block availability."
+            ),
             "remaining_physical_unique_names": len(remaining),
             "remaining_physical_total_cards": sum(remaining.values()),
             "single_commander_candidate_count": len(single),
