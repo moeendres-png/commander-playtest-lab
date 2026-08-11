@@ -60,14 +60,14 @@ def _post_find_my_combos(payload: bytes, timeout: float, max_bytes: int) -> byte
         )
         response = connection.getresponse()
         if response.status != 200:
-            body = response.read(min(max_bytes, 4096)).decode("utf-8", errors="replace")
+            error_body = response.read(min(max_bytes, 4096)).decode("utf-8", errors="replace")
             raise CommanderSpellbookError(
-                f"Commander Spellbook returned HTTP {response.status}: {body[:500]}"
+                f"Commander Spellbook returned HTTP {response.status}: {error_body[:500]}"
             )
-        body = response.read(max_bytes + 1)
-        if len(body) > max_bytes:
+        response_body = response.read(max_bytes + 1)
+        if len(response_body) > max_bytes:
             raise CommanderSpellbookError("Commander Spellbook response exceeded size limit")
-        return body
+        return response_body
     except (OSError, http.client.HTTPException) as exc:
         raise CommanderSpellbookError(f"Commander Spellbook request failed: {exc}") from exc
     finally:
@@ -169,7 +169,9 @@ def load_commander_spellbook_snapshot(
     try:
         snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise CommanderSpellbookError(f"invalid Commander Spellbook snapshot: {snapshot_path}") from exc
+        raise CommanderSpellbookError(
+            f"invalid Commander Spellbook snapshot: {snapshot_path}"
+        ) from exc
     if not isinstance(snapshot, dict) or snapshot.get("schema_version") != "1.0":
         raise CommanderSpellbookError("unsupported Commander Spellbook snapshot schema")
     if snapshot.get("source_url") != SPELLBOOK_SOURCE_URL:
@@ -228,8 +230,8 @@ def combo_snapshot_summary(snapshot: dict[str, Any]) -> dict[str, Any]:
 
 
 __all__ = [
-    "CommanderSpellbookError",
     "SPELLBOOK_SOURCE_URL",
+    "CommanderSpellbookError",
     "build_find_my_combos_payload",
     "combo_snapshot_summary",
     "load_commander_spellbook_snapshot",
