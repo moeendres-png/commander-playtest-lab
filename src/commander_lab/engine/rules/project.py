@@ -12,11 +12,15 @@ def load_rules_deck_snapshot(path: str | Path) -> RulesDeckInput:
     mainboard: list[str] = []
     sideboard: list[str] = []
     for entry in payload["cards"]:
-        zone = entry["zone"]
+        zone = entry.get("zone")
+        if zone == "commander":
+            continue
+        if zone is None:
+            zone = "main"
         target = mainboard if zone == "main" else sideboard if zone == "sideboard" else None
         if target is None:
             continue
-        target.extend([entry["oracle_name"]] * int(entry["quantity"]))
+        target.extend([entry["oracle_name"]] * int(entry.get("quantity", 1)))
     return RulesDeckInput(
         deck_id=payload["deck_id"],
         name=payload["name"],
