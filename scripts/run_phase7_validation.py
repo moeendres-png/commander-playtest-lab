@@ -33,8 +33,15 @@ def dump(name: str, response) -> dict:
 def run(*, full: bool) -> dict[str, object]:
     OUT.mkdir(parents=True, exist_ok=True)
     service = CommanderToolService(ROOT)
-    challenge = json.loads((ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text(encoding="utf-8"))
-    by_deck = {deck_id: [row for row in challenge["variants"] if row["deck_id"] == deck_id] for deck_id in ("korvold/current", "rogshai/current")}
+    challenge = json.loads(
+        (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    by_deck = {
+        deck_id: [row for row in challenge["variants"] if row["deck_id"] == deck_id]
+        for deck_id in ("korvold/current", "rogshai/current")
+    }
     kg, kn = by_deck["korvold/current"][0], by_deck["korvold/current"][1]
     rg, rn = by_deck["rogshai/current"][0], by_deck["rogshai/current"][1]
     seed = 20260804
@@ -124,12 +131,8 @@ def run(*, full: bool) -> dict[str, object]:
             ParetoFrontInput(
                 deck_id="korvold/current",
                 variants=(
-                    (
-                        VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),
-                    ),
-                    (
-                        VariantSwap(remove=kn["remove"], add_candidate_id=kn["add_candidate_id"]),
-                    ),
+                    (VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),),
+                    (VariantSwap(remove=kn["remove"], add_candidate_id=kn["add_candidate_id"]),),
                     package.swaps,
                 ),
                 iterations=8 if full else 4,
@@ -162,9 +165,7 @@ def run(*, full: bool) -> dict[str, object]:
         service.validate_upgrade(
             ValidateUpgradeInput(
                 deck_id="korvold/current",
-                swaps=(
-                    VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),
-                ),
+                swaps=(VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),),
                 **common_validation,
             )
         ),
@@ -174,9 +175,7 @@ def run(*, full: bool) -> dict[str, object]:
         service.validate_upgrade(
             ValidateUpgradeInput(
                 deck_id="rogshai/current",
-                swaps=(
-                    VariantSwap(remove=rg["remove"], add_candidate_id=rg["add_candidate_id"]),
-                ),
+                swaps=(VariantSwap(remove=rg["remove"], add_candidate_id=rg["add_candidate_id"]),),
                 **common_validation,
             )
         ),

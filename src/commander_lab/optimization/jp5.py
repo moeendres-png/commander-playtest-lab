@@ -22,6 +22,18 @@ def _clamp(value: float, low: float = -1.0, high: float = 1.0) -> float:
     return max(low, min(high, float(value)))
 
 
+def _numeric_float(value: object, default: float = 0.0) -> float:
+    if isinstance(value, (str, bytes, bytearray, int, float)):
+        return float(value)
+    return default
+
+
+def _numeric_int(value: object, default: int = 0) -> int:
+    if isinstance(value, (str, bytes, bytearray, int)):
+        return int(value)
+    return default
+
+
 def normalized_placement_effect(value: float, pod_size: int) -> float:
     return _clamp(value / max(1, pod_size - 1))
 
@@ -29,8 +41,10 @@ def normalized_placement_effect(value: float, pod_size: int) -> float:
 def seat_robustness(pairs: Sequence[Mapping[str, object]]) -> float:
     by_seat: dict[int, list[float]] = defaultdict(list)
     for row in pairs:
-        seat = int(row.get("starting_player_seat", 0))
-        delta = float(row.get("baseline_placement", 0)) - float(row.get("variant_placement", 0))
+        seat = _numeric_int(row.get("starting_player_seat", 0))
+        delta = _numeric_float(row.get("baseline_placement", 0)) - _numeric_float(
+            row.get("variant_placement", 0)
+        )
         by_seat[seat].append(delta)
     return min((fmean(values) for values in by_seat.values()), default=0.0)
 
@@ -38,7 +52,13 @@ def seat_robustness(pairs: Sequence[Mapping[str, object]]) -> float:
 def scenario_heterogeneity(effects: Iterable[float]) -> dict[str, float]:
     values = tuple(float(value) for value in effects)
     if not values:
-        return {"scenario_count": 0.0, "mean": 0.0, "standard_deviation": 0.0, "minimum": 0.0, "maximum": 0.0}
+        return {
+            "scenario_count": 0.0,
+            "mean": 0.0,
+            "standard_deviation": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0,
+        }
     return {
         "scenario_count": float(len(values)),
         "mean": fmean(values),
@@ -62,7 +82,7 @@ def build_robust_objective(
     opponent_uncertainty_effects: Sequence[float],
     physical_allocation_valid: bool,
 ) -> ObjectiveVector:
-    pod_size = int(pair_rows[0].get("pod_size", 4)) if pair_rows else 4
+    pod_size = _numeric_int(pair_rows[0].get("pod_size", 4), 4) if pair_rows else 4
     matchup_worst = min(matchup_effects, default=central_effect)
     pod_worst = min(
         (normalized_placement_effect(effect, size) for size, effect in pod_effects),
@@ -85,13 +105,28 @@ def build_robust_objective(
 
 def paired_seed_set_identity(seeds: Sequence[int]) -> dict[str, Any]:
     payload = ",".join(str(seed) for seed in seeds).encode("utf-8")
-    return {"count": len(seeds), "sha256": hashlib.sha256(payload).hexdigest(), "seeds": list(seeds)}
+    return {
+        "count": len(seeds),
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "seeds": list(seeds),
+    }
 
 
-def recommendation_confidence(*, constraint_valid: bool, adjusted_p_value: float | None, worst_case_effect: float, holdout_status: str) -> str:
+def recommendation_confidence(
+    *,
+    constraint_valid: bool,
+    adjusted_p_value: float | None,
+    worst_case_effect: float,
+    holdout_status: str,
+) -> str:
     if not constraint_valid:
         return "rejected_constraints"
-    if holdout_status == "passed_first_evaluation" and worst_case_effect >= 0 and adjusted_p_value is not None and adjusted_p_value <= 0.05:
+    if (
+        holdout_status == "passed_first_evaluation"
+        and worst_case_effect >= 0
+        and adjusted_p_value is not None
+        and adjusted_p_value <= 0.05
+    ):
         return "high_model_internal"
     if worst_case_effect >= 0:
         return "moderate_model_internal"

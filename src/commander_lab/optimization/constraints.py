@@ -41,7 +41,15 @@ DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
         simultaneous_deck_ids=("rogshai/current",),
         required_commanders=("Korvold, Fae-Cursed King",),
         require_partner_configuration=False,
-        locked_cards=("Dark Ritual", "Tinder Wall", "Orcish Lumberjack", "Exploration Broodship", "Pitiless Plunderer", "Ophiomancer", "Mirkwood Bats"),
+        locked_cards=(
+            "Dark Ritual",
+            "Tinder Wall",
+            "Orcish Lumberjack",
+            "Exploration Broodship",
+            "Pitiless Plunderer",
+            "Ophiomancer",
+            "Mirkwood Bats",
+        ),
     ),
     "rogshai/current": OptimizationConstraints(
         allowed_colors=frozenset({Color.WHITE, Color.BLUE, Color.RED}),
@@ -65,7 +73,14 @@ DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
         simultaneous_deck_ids=("korvold/current",),
         required_commanders=("Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"),
         require_partner_configuration=True,
-        locked_cards=("Duelist's Heritage", "Chandra, Torch of Defiance", "Light of Hope", "Kediss, Emberclaw Familiar", "Silence", "Jeska, Thrice Reborn"),
+        locked_cards=(
+            "Duelist's Heritage",
+            "Chandra, Torch of Defiance",
+            "Light of Hope",
+            "Kediss, Emberclaw Familiar",
+            "Silence",
+            "Jeska, Thrice Reborn",
+        ),
     ),
 }
 
@@ -107,12 +122,17 @@ def evaluate_constraints(
             )
         )
 
-    if constraints.required_commanders and tuple(deck.commander_names) != tuple(constraints.required_commanders):
+    if constraints.required_commanders and tuple(deck.commander_names) != tuple(
+        constraints.required_commanders
+    ):
         issues.append(
             ConstraintIssue(
                 code="commander_identity",
                 message="variant commander/partner configuration differs from the canonical optimization target",
-                context={"actual": list(deck.commander_names), "required": list(constraints.required_commanders)},
+                context={
+                    "actual": list(deck.commander_names),
+                    "required": list(constraints.required_commanders),
+                },
             )
         )
     if constraints.require_partner_configuration is not None:
@@ -122,7 +142,10 @@ def evaluate_constraints(
                 ConstraintIssue(
                     code="partner_configuration",
                     message="variant partner configuration differs from current policy",
-                    context={"actual": actual_partner, "required": constraints.require_partner_configuration},
+                    context={
+                        "actual": actual_partner,
+                        "required": constraints.require_partner_configuration,
+                    },
                 )
             )
 

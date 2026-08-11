@@ -78,7 +78,6 @@ def distributionally_robust_lower_bound(
     return fmean(values) - radius * spread
 
 
-
 def paired_randomization_p_value(
     differences: Iterable[float],
     *,

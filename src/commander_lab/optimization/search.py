@@ -273,10 +273,13 @@ def objective_vector(
     )
     seat_values: dict[int, list[float]] = {}
     for row in pairs:
-        seat = int(row.get("starting_player_seat", 0))
-        delta = float(row.get("baseline_placement", 0)) - float(row.get("variant_placement", 0))
+        seat_value = row.get("starting_player_seat", 0)
+        seat = int(seat_value) if isinstance(seat_value, (str, bytes, bytearray, int)) else 0
+        delta = _metric_float(row, "baseline_placement") - _metric_float(row, "variant_placement")
         seat_values.setdefault(seat, []).append(delta)
-    seat_robustness = min((fmean(values) for values in seat_values.values()), default=metrics.placement_improvement)
+    seat_robustness = min(
+        (fmean(values) for values in seat_values.values()), default=metrics.placement_improvement
+    )
     return ObjectiveVector(
         central_performance=metrics.placement_improvement,
         worst_quartile=worst_quartile_improvement(pairs),

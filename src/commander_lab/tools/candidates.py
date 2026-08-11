@@ -75,7 +75,10 @@ def load_current_candidate_eligibility(root: str | Path) -> dict[str, set[str]]:
     if not path.exists():
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
-    return {str(deck_id): {str(name) for name in rows} for deck_id, rows in payload.get("eligible_by_deck", {}).items()}
+    return {
+        str(deck_id): {str(name) for name in rows}
+        for deck_id, rows in payload.get("eligible_by_deck", {}).items()
+    }
 
 
 def load_canonical_inventory_quantities(root: str | Path) -> dict[str, int]:

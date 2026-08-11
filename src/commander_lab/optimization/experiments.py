@@ -8,10 +8,10 @@ from statistics import fmean
 from commander_lab.decision_statistics import (
     bayesian_shrunk_mean,
     distributionally_robust_lower_bound,
-    paired_bootstrap_interval,
-    paired_standardized_effect,
-    paired_randomization_p_value,
     monte_carlo_standard_error,
+    paired_bootstrap_interval,
+    paired_randomization_p_value,
+    paired_standardized_effect,
     quantile_summary,
 )
 from commander_lab.engine.structural import ENGINE_VERSION, StructuralSimulator
@@ -187,7 +187,11 @@ def run_paired_structural_comparison(
     pairs: list[dict[str, object]] = []
     for index in range(iterations):
         match_seed = derive_paired_seed(seed, pair_id, index)
-        start = starting_player_seat if starting_player_seat is not None else index % (1 + len(opponents))
+        start = (
+            starting_player_seat
+            if starting_player_seat is not None
+            else index % (1 + len(opponents))
+        )
         baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
         variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
         configs = (pilot_config,) * len(baseline_ids)
@@ -326,7 +330,9 @@ def run_paired_structural_comparison(
             "opponent_deck_ids": [deck.deck_id for deck in opponents],
             "pilot_strength": pilot_config.strength.value,
             "pilot_mode": pilot_config.mode.value,
-            "seat_policy": "explicit_fixed" if starting_player_seat is not None else "deterministic_rotation",
+            "seat_policy": "explicit_fixed"
+            if starting_player_seat is not None
+            else "deterministic_rotation",
             "starting_player_seat": starting_player_seat,
         },
     )

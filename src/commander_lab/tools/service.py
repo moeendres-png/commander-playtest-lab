@@ -171,6 +171,8 @@ from commander_lab.optimization import (
     ablation_filler,
     all_legal_single_swaps,
     approximate_shapley_profile,
+    build_recommendation_trace,
+    build_robust_objective,
     build_search_candidate,
     default_constraints,
     evaluate_constraints,
@@ -178,12 +180,10 @@ from commander_lab.optimization import (
     objective_vector,
     pareto_front,
     profile_score,
-    role_summary,
-    build_recommendation_trace,
-    build_robust_objective,
     recommendation_confidence,
-    scenario_heterogeneity,
+    role_summary,
     run_paired_structural_comparison,
+    scenario_heterogeneity,
     variant_deck,
 )
 from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
@@ -298,7 +298,10 @@ class CommanderToolService:
             allowed = tuple(
                 deck_id
                 for deck_id in candidate.allowed_deck_ids
-                if (not current_eligibility or candidate.card.oracle_name in current_eligibility.get(deck_id, set()))
+                if (
+                    not current_eligibility
+                    or candidate.card.oracle_name in current_eligibility.get(deck_id, set())
+                )
                 and (
                     deck_id not in self.decks
                     or candidate.card.oracle_name
@@ -2722,10 +2725,15 @@ class CommanderToolService:
                 if not neighbors:
                     break
                 neighbors.sort(
-                    key=lambda row: (row[0], row[1], row[2].screening_score, row[2].variant.deck_hash),
+                    key=lambda row: (
+                        row[0],
+                        row[1],
+                        row[2].screening_score,
+                        row[2].variant.deck_hash,
+                    ),
                     reverse=True,
                 )
-                robust_lower_bound, improvement, best, comparison = neighbors[0]
+                robust_lower_bound, _improvement, best, comparison = neighbors[0]
                 if robust_lower_bound <= 0:
                     break
                 cumulative_swaps = list(best.swaps)
@@ -2845,9 +2853,21 @@ class CommanderToolService:
                         max_turns=request.max_turns,
                         pair_id=f"beam-{depth}-{node.variant.deck_hash[:10]}",
                     )
-                    scored.append((metrics.distributionally_robust_lower_bound, metrics.placement_improvement, node, metrics.as_dict()))
+                    scored.append(
+                        (
+                            metrics.distributionally_robust_lower_bound,
+                            metrics.placement_improvement,
+                            node,
+                            metrics.as_dict(),
+                        )
+                    )
                 scored.sort(
-                    key=lambda row: (row[0], row[1], row[2].screening_score, row[2].variant.deck_hash),
+                    key=lambda row: (
+                        row[0],
+                        row[1],
+                        row[2].screening_score,
+                        row[2].variant.deck_hash,
+                    ),
                     reverse=True,
                 )
                 beam = [row[2] for row in scored[: request.beam_width]]
@@ -3696,7 +3716,9 @@ class CommanderToolService:
             conflicts: list[dict[str, Any]] = []
             allocation: list[dict[str, Any]] = []
             for card_name, candidates in sorted(claims.items()):
-                candidates.sort(key=lambda x: (x.get("screening_delta", 0), x["deck_id"]), reverse=True)
+                candidates.sort(
+                    key=lambda x: (x.get("screening_delta", 0), x["deck_id"]), reverse=True
+                )
                 capacity = max(0, int(self.candidate_inventory.get(card_name, 0)))
                 winners = candidates[:capacity]
                 rejected = candidates[capacity:]
@@ -3817,21 +3839,20 @@ class CommanderToolService:
                 for row in result.get("holdout_tests", [])
             ]
             pod_effects = [
-                (int(row["pod_size"]), float(row["mean_placement_improvement"]))
+                (int(row["pod_size"] or 0), float(row["mean_placement_improvement"] or 0.0))
                 for row in pod_rows
                 if row.get("mean_placement_improvement") is not None
             ]
             robust_objective = build_robust_objective(
                 baseline=baseline,
                 variant=variant,
-                central_effect=float(paired.get("placement_improvement", 0.0)),
-                worst_quartile_effect=float((paired.get("quantiles") or {}).get("q25", 0.0)),
+                central_effect=float(paired.get("placement_improvement", 0.0) or 0.0),
+                worst_quartile_effect=float((paired.get("quantiles") or {}).get("q25", 0.0) or 0.0),
                 pair_rows=result.get("pair_sample", []),
                 commander_dependency_baseline=float(dependency["baseline_dependency_penalty"]),
                 commander_dependency_variant=float(dependency["variant_dependency_penalty"]),
-                matchup_effects=tuple(holdout_values) + tuple(
-                    float(row["placement_improvement"]) for row in robustness_rows
-                ),
+                matchup_effects=tuple(holdout_values)
+                + tuple(float(row["placement_improvement"]) for row in robustness_rows),
                 pod_effects=pod_effects,
                 opponent_uncertainty_effects=holdout_values,
                 physical_allocation_valid=bool(criteria.get("constraints_passed", False)),
@@ -3905,11 +3926,14 @@ class CommanderToolService:
                         "effect_size": paired.get("effect_size"),
                         "monte_carlo_standard_error": paired.get("monte_carlo_standard_error"),
                         "confidence_interval": paired.get("confidence_interval"),
-                        "confidence_interval_interpretation": paired.get("confidence_interval_interpretation"),
+                        "confidence_interval_interpretation": paired.get(
+                            "confidence_interval_interpretation"
+                        ),
                         "raw_model_internal_p_value": paired.get("paired_randomization_p_value"),
                     },
                     worst_case_effect=min(
-                        [float(row["placement_improvement"]) for row in robustness_rows] + holdout_values,
+                        [float(row["placement_improvement"]) for row in robustness_rows]
+                        + holdout_values,
                         default=float(paired.get("worst_case_result", 0.0)),
                     ),
                     sensitivity={
@@ -3926,7 +3950,8 @@ class CommanderToolService:
                         constraint_valid=bool(criteria.get("constraints_passed", False)),
                         adjusted_p_value=None,
                         worst_case_effect=min(
-                            [float(row["placement_improvement"]) for row in robustness_rows] + holdout_values,
+                            [float(row["placement_improvement"]) for row in robustness_rows]
+                            + holdout_values,
                             default=float(paired.get("worst_case_result", 0.0)),
                         ),
                         holdout_status="development_only_not_J_P5_optimizer_holdout",
@@ -4382,7 +4407,9 @@ class CommanderToolService:
             for index, row in enumerate(ranked):
                 raw_p = row.get("p_value")
                 if raw_p is None:
-                    raw_p = (row.get("paired_structural_effect") or {}).get("paired_randomization_p_value")
+                    raw_p = (row.get("paired_structural_effect") or {}).get(
+                        "paired_randomization_p_value"
+                    )
                 if isinstance(raw_p, (int, float)) and not isinstance(raw_p, bool):
                     row["raw_model_internal_p_value"] = float(raw_p)
                     p_rows.append((index, float(raw_p)))

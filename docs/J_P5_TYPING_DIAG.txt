@@ -1,9 +1,0 @@
-ruff=0 format=0 mypy=1
----ruff---
-All checks passed!
----format---
-418 files already formatted
----mypy---
-src/commander_lab/tools/service.py:3842: error: Argument 1 to "int" has incompatible type "float | Any | None"; expected "str | Buffer | SupportsInt | SupportsIndex | SupportsTrunc"  [arg-type]
-src/commander_lab/tools/service.py:3842: error: Argument 1 to "float" has incompatible type "float | Any | None"; expected "str | Buffer | SupportsFloat | SupportsIndex"  [arg-type]
-Found 2 errors in 1 file (checked 131 source files)
