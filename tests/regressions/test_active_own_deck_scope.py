@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_active_own_deck_scope_is_rogshai_only() -> None:
     service = CommanderToolService(ROOT)
     assert service.ACTIVE_OWN_DECK_IDS == ("rogshai/current",)
-    assert service.FROZEN_OPPONENT_ONLY_DECK_IDS == frozenset({"kaervek/current"})
+    assert frozenset({"kaervek/current"}) == service.FROZEN_OPPONENT_ONLY_DECK_IDS
     assert "korvold/current" in service.decks
 
 
