@@ -1,0 +1,45 @@
+name: J-FINAL Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  j-final-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Repository integrity
+        run: |
+          git fsck --full
+          git diff --check
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Static and targeted gates
+        run: |
+          python -m compileall -q src tests scripts/run_j_final_acceptance.py
+          ruff check src tests scripts/run_j_final_acceptance.py
+          ruff format --check src tests scripts/run_j_final_acceptance.py
+          mypy src
+          pytest -q tests/regressions/test_j_final_scope.py tests/unit/test_candidate_screening.py tests/unit/test_project_context.py tests/unit/test_priority_workflows.py tests/unit/test_mana_analysis.py tests/unit/test_playstyle.py
+      - name: Integrated RogShai decision workflow
+        run: python scripts/run_j_final_acceptance.py
+      - name: Upload J-FINAL evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-final-acceptance-evidence
+          path: artifacts/j_final/
+          if-no-files-found: error
+          retention-days: 30
