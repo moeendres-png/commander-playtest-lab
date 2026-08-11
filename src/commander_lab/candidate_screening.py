@@ -6,9 +6,11 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from commander_lab.canonical_features import load_canonical_feature_annotations
 from commander_lab.models import CandidateProfile, DataQuality, StructuralDeckProfile, VariantSwap
 from commander_lab.optimization import build_search_candidate, profile_score
 from commander_lab.playstyle import PlaystyleAnalyzer
+from commander_lab.tools.candidates import load_candidate_profiles
 
 
 @dataclass(frozen=True)
@@ -107,14 +109,57 @@ class RogShaiCandidateScreener:
     def screen_pool(self, deck_id: str = "rogshai/current") -> dict[str, object]:
         if deck_id != "rogshai/current":
             raise ValueError("priority candidate screening is scoped to current RogShai")
-        candidates = [
-            candidate
-            for candidate in self.service.candidates.values()
+
+        eligibility_path = (
+            self.root / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+        )
+        payload = json.loads(eligibility_path.read_text(encoding="utf-8"))
+        raw_rows = payload.get("eligible_by_deck", {}).get(deck_id)
+        if not isinstance(raw_rows, dict):
+            raise ValueError("current RogShai candidate eligibility is missing or invalid")
+
+        manifest_path = (
+            self.root / "data/collections/current/rogshai_feature_projection/manifest.json"
+        )
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        expected_count = int(manifest.get("canonical_candidate_count", -1))
+
+        eligible: dict[str, dict[str, object]] = {}
+        excluded: dict[str, int] = {}
+        for name, raw_spec in raw_rows.items():
+            if not isinstance(raw_spec, dict):
+                excluded["invalid_eligibility_record"] = (
+                    excluded.get("invalid_eligibility_record", 0) + 1
+                )
+                continue
+            if raw_spec.get("commander_legal") is not True:
+                excluded["not_commander_legal"] = excluded.get("not_commander_legal", 0) + 1
+                continue
+            quantity = int(raw_spec.get("physical_available_quantity", 0))
+            if quantity <= 0:
+                excluded["not_physically_available"] = (
+                    excluded.get("not_physically_available", 0) + 1
+                )
+                continue
+            eligible[str(name)] = dict(raw_spec)
+
+        if expected_count != len(eligible):
+            raise ValueError(
+                "current RogShai candidate universe disagrees with the canonical feature manifest: "
+                f"expected {expected_count}, got {len(eligible)}"
+            )
+
+        all_profiles = load_candidate_profiles(self.root)
+        modeled_by_name = {
+            candidate.card.oracle_name: candidate
+            for candidate in all_profiles.values()
             if deck_id in candidate.allowed_deck_ids
-            and self.service.candidate_inventory.get(candidate.card.oracle_name, 0) > 0
-        ]
+        }
+        annotations = load_canonical_feature_annotations(self.root)
+
+        modeled_candidates = [modeled_by_name[name] for name in eligible if name in modeled_by_name]
         by_signature: dict[tuple[object, ...], list[CandidateProfile]] = defaultdict(list)
-        for candidate in candidates:
+        for candidate in modeled_candidates:
             by_signature[_functional_signature(candidate)].append(candidate)
 
         dominated_by: dict[str, str] = {}
@@ -131,65 +176,132 @@ class RogShaiCandidateScreener:
                     )
                     dominated_by[candidate.candidate_id] = dominators[0].candidate_id
 
-        rows: list[CandidateScreenRow] = []
-        for candidate in candidates:
+        bucket_order = {
+            "advance": 0,
+            "explore": 1,
+            "requires_profile_before_model_dependent_recommendation": 2,
+            "defer_low_confidence_default": 3,
+            "defer_clear_static_dominance": 4,
+        }
+        rows: list[dict[str, object]] = []
+        high_confidence = 0
+        partially_modeled = 0
+        structurally_unmodeled = 0
+        heuristic_fallback_count = 0
+        canonical_feature_coverage = 0
+
+        for name in sorted(eligible, key=str.casefold):
+            candidate = modeled_by_name.get(name)
+            annotation = annotations.get(name)
+            if annotation is not None:
+                canonical_feature_coverage += 1
+            if candidate is None:
+                structurally_unmodeled += 1
+                rows.append(
+                    {
+                        "candidate_id": None,
+                        "oracle_name": name,
+                        "bucket": "requires_profile_before_model_dependent_recommendation",
+                        "confidence": "insufficient_structural_model_requires_profile",
+                        "roles": tuple(sorted(role.value for role in annotation.mapped_roles))
+                        if annotation is not None
+                        else (),
+                        "package_ids": tuple(sorted(annotation.package_ids))
+                        if annotation is not None
+                        else (),
+                        "mana_value": None,
+                        "clear_static_dominance_by": None,
+                        "playstyle_fit": "qualitative_unknown_requires_profile",
+                        "playstyle_confidence": "unknown",
+                        "explorable": True,
+                        "model_dependent_recommendation_ready": False,
+                    }
+                )
+                continue
+
             confidence = _confidence(candidate)
+            if annotation is not None and (
+                confidence.startswith("low_") or confidence == "unknown"
+            ):
+                confidence = "medium_canonical_derived"
+            if confidence == "high_project_verified_or_curated":
+                high_confidence += 1
+            else:
+                partially_modeled += 1
+            if candidate.card.source_quality == DataQuality.PROJECT_INFERRED:
+                heuristic_fallback_count += 1
+
             dominated = dominated_by.get(candidate.candidate_id)
             if dominated is not None:
                 bucket = "defer_clear_static_dominance"
             elif confidence.startswith("low_") or confidence == "unknown":
-                if not candidate.card.package_ids and not _canonical_overlay(candidate):
+                if not candidate.card.package_ids and annotation is None:
                     bucket = "defer_low_confidence_default"
                 else:
                     bucket = "explore"
-            elif candidate.card.package_ids or _canonical_overlay(candidate):
+            elif candidate.card.package_ids or annotation is not None:
                 bucket = "advance"
             else:
                 bucket = "explore"
+
             playstyle = self.playstyle.analyze_card(candidate.card)
+            roles = set(candidate.card.roles)
+            packages = set(candidate.card.package_ids)
+            if annotation is not None:
+                roles.update(annotation.mapped_roles)
+                packages.update(annotation.package_ids)
             rows.append(
-                CandidateScreenRow(
-                    candidate_id=candidate.candidate_id,
-                    oracle_name=candidate.card.oracle_name,
-                    bucket=bucket,
-                    confidence=confidence,
-                    roles=tuple(sorted(role.value for role in candidate.card.roles)),
-                    package_ids=tuple(sorted(candidate.card.package_ids)),
-                    mana_value=float(candidate.card.mana_value),
-                    clear_static_dominance_by=dominated,
-                    playstyle_fit=playstyle.playstyle_fit,
-                    playstyle_confidence=playstyle.confidence,
-                )
+                {
+                    "candidate_id": candidate.candidate_id,
+                    "oracle_name": name,
+                    "bucket": bucket,
+                    "confidence": confidence,
+                    "roles": tuple(sorted(role.value for role in roles)),
+                    "package_ids": tuple(sorted(packages)),
+                    "mana_value": float(candidate.card.mana_value),
+                    "clear_static_dominance_by": dominated,
+                    "playstyle_fit": playstyle.playstyle_fit,
+                    "playstyle_confidence": playstyle.confidence,
+                    "explorable": True,
+                    "model_dependent_recommendation_ready": True,
+                }
             )
 
-        bucket_order = {
-            "advance": 0,
-            "explore": 1,
-            "defer_low_confidence_default": 2,
-            "defer_clear_static_dominance": 3,
-        }
         rows.sort(
             key=lambda row: (
-                bucket_order[row.bucket],
-                row.oracle_name.casefold(),
-                row.candidate_id,
+                bucket_order[str(row["bucket"])],
+                str(row["oracle_name"]).casefold(),
+                str(row.get("candidate_id") or ""),
             )
         )
         counts = {bucket: 0 for bucket in bucket_order}
         for row in rows:
-            counts[row.bucket] += 1
-        simulation_ready = sum(row.bucket in {"advance", "explore"} for row in rows)
+            counts[str(row["bucket"])] += 1
+        simulation_ready = sum(str(row["bucket"]) in {"advance", "explore"} for row in rows)
+        discoverable = len(rows)
         return {
             "deck_id": deck_id,
-            "physical_legal_candidate_count": len(rows),
+            "physical_legal_candidate_count": len(eligible),
+            "discoverable_candidate_count": discoverable,
+            "excluded_candidate_count_by_reason": excluded,
+            "candidate_recall": discoverable / len(eligible) if eligible else 1.0,
             "candidate_pool_after_default_screen": simulation_ready,
             "bucket_counts": counts,
-            "rows": [row.as_dict() for row in rows],
+            "fully_high_confidence_modeled": high_confidence,
+            "partially_modeled": partially_modeled,
+            "structurally_unmodeled": structurally_unmodeled,
+            "canonical_feature_coverage": canonical_feature_coverage,
+            "heuristic_fallback_count": heuristic_fallback_count,
+            "rows": rows,
             "unusual_candidates_remain_explorable": True,
+            "unmodeled_candidate_discoverability": True,
+            "fresh_rebuild_current_deck_neutrality": True,
+            "historical_allocation_neutrality": True,
             "playstyle_is_hard_filter": False,
             "screening_boundary": (
-                "Static structural screening only. Deferred candidates remain queryable and may "
-                "be explicitly explored; no empirical power claim is made."
+                "Complete legal/physical discovery is separated from model-dependent screening. "
+                "Unmodeled candidates remain discoverable and require explicit profiling before "
+                "model-dependent recommendation; no empirical power claim is made."
             ),
         }
 
