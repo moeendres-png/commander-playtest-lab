@@ -111,7 +111,7 @@ def main() -> None:
     )
     sensitivity = service.run_sensitivity(
         SensitivityInput(
-            deck_ids=("rogshai/current",),
+            deck_ids=("rogshai/current", *OPPONENTS),
             seeds=(20260811,),
             pilot_strengths=(PilotStrength.STRONG,),
             iterations=2,
