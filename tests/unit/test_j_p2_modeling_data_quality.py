@@ -111,10 +111,9 @@ def test_j_p2_optimization_context_run_identity_does_not_mislabel_own_decks_as_o
 
 def test_j_p2_current_deck_source_and_protected_metadata_are_clean(repo_root: Path) -> None:
     canonical = json.loads(
-        (
-            repo_root
-            / "data/canonical_import/2026-08-11/rogshai_current_provisional.json"
-        ).read_text(encoding="utf-8")
+        (repo_root / "data/canonical_import/2026-08-11/rogshai_current_provisional.json").read_text(
+            encoding="utf-8"
+        )
     )
     protected = json.loads((repo_root / "config/protected_cards.json").read_text(encoding="utf-8"))
     assert protected == {}

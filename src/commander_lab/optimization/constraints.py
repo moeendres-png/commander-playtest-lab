@@ -45,7 +45,6 @@ DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
 }
 
 
-
 def load_candidate_inventory(root: str | Path) -> dict[str, int]:
     path = Path(root) / "data/collections/phase7_optimization_pool.json"
     if not path.exists():

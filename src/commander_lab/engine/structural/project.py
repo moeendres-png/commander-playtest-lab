@@ -57,7 +57,10 @@ def load_project_structural_decks(
         if not isinstance(overlay_rows, list):
             raise ValueError("current RogShai structural overlay is malformed")
         profiles = StructuralProfileCatalog(
-            (*profiles.profiles, *(StructuralCardProfile.model_validate(row) for row in overlay_rows))
+            (
+                *profiles.profiles,
+                *(StructuralCardProfile.model_validate(row) for row in overlay_rows),
+            )
         )
     decks: dict[str, StructuralDeckProfile] = {}
     deck_specs = manifest.get("decks", {})

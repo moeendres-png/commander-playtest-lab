@@ -22,7 +22,6 @@ DECK_SPECS = {
 }
 
 
-
 def build_local_snapshots(root: str | Path) -> dict[str, object]:
     root_path = Path(root)
     catalog_path = root_path / "data/cards/oracle_subset.json"
