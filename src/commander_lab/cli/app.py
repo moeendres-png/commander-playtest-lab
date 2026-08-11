@@ -9,7 +9,6 @@ import typer
 from commander_lab.agents.demo import run_phase5_demo
 from commander_lab.agents.validation import run_phase4_validation
 from commander_lab.analysis import DeckValidator
-from commander_lab.api import create_app
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.data_sync import audit_current_sources, sync_current_sources
 from commander_lab.engine.process_manager import (
@@ -223,6 +222,8 @@ def serve_tools(
     """Start the local Function Tool HTTP server."""
     try:
         import uvicorn
+
+        from commander_lab.api import create_app
     except ImportError as exc:
         raise RuntimeError(
             "Install the api extra: pip install 'commander-playtest-lab[api]'"
