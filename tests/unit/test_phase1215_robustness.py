@@ -81,7 +81,7 @@ def test_structural_policy_tournament_executes_real_simulator(repo_root: Path) -
         config=PolicyTournamentConfig(
             pod_sizes=(3,), iterations_per_scenario=1, max_turns=10, rounds=2
         ),
-        deck_ids=("korvold/current",),
+        deck_ids=("rogshai/current",),
         pilot_profiles=("weak", "strong"),
         politics_regimes=("rational_threat_focus",),
     )
@@ -100,7 +100,7 @@ def test_structural_policy_tournament_is_worker_independent(repo_root: Path) -> 
 
     kwargs = {
         "root": repo_root,
-        "deck_ids": ("korvold/current",),
+        "deck_ids": ("rogshai/current",),
         "pilot_profiles": ("weak", "strong"),
         "politics_regimes": ("rational_threat_focus", "combo_prevention"),
     }
@@ -126,7 +126,7 @@ def test_structural_self_play_uses_same_profile_on_all_seats(repo_root: Path) ->
 
     result = run_structural_self_play(
         repo_root,
-        deck_ids=("korvold/current",),
+        deck_ids=("rogshai/current",),
         pilot_profiles=("weak", "strong"),
         pod_sizes=(3,),
         max_turns=8,

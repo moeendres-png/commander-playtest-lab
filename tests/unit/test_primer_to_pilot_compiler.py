@@ -141,10 +141,7 @@ def test_tactical_oracle_semantics_used_by_curated_rules() -> None:
 
 
 def test_primer_layer_does_not_mutate_decks() -> None:
-    before = {
-        name: (ROOT / name).read_bytes()
-        for name in ("data/decks/korvold_current.json", "data/decks/rogshai_current.json")
-    }
+    before = {name: (ROOT / name).read_bytes() for name in ("data/decks/rogshai_current.json",)}
     compiler = PrimerToPilotCompiler(ROOT)
     compiler.validate_rules(_rules("data/primer_rules/rules/korvold_current_rules.json"))
     after = {name: (ROOT / name).read_bytes() for name in before}
@@ -160,13 +157,16 @@ def test_opening_hand_overlay_applies_curated_mulligan_rule() -> None:
             encoding="utf-8"
         )
     )
-    decks = load_project_structural_decks(
-        ROOT, include_synthetic_fixtures=True, include_current_opponents=True
-    )
-    deck = decks["korvold/current"]
     pilot = build_pilot(PilotConfig(pilot_name="KorvoldPilot"), strategy="korvold")
     overlay = PilotPolicyOverlay(
-        pilot, policy, deck_cards=tuple(card.oracle_name for card in deck.cards)
+        pilot,
+        policy,
+        deck_cards=(
+            "Korvold, Fae-Cursed King",
+            "Forest",
+            "Swamp",
+            "Nature's Lore",
+        ),
     )
     hand = (
         PilotActionView(
@@ -195,10 +195,7 @@ def test_tool_service_policy_eval_is_scoped_and_does_not_change_decks() -> None:
     from commander_lab.models import RunPolicyEvalInput, ToolStatus
     from commander_lab.tools import CommanderToolService
 
-    before = {
-        name: (ROOT / name).read_bytes()
-        for name in ("data/decks/korvold_current.json", "data/decks/rogshai_current.json")
-    }
+    before = {name: (ROOT / name).read_bytes() for name in ("data/decks/rogshai_current.json",)}
     response = CommanderToolService(ROOT).run_policy_eval(
         RunPolicyEvalInput(
             policy_path="data/primer_rules/policies/rogshai_current_policy-1.0.1.json",

@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_large_run_requires_approval() -> None:
     service = CommanderToolService(ROOT)
-    result = service.run_goldfish(GoldfishInput(deck_id="korvold/current", iterations=5001))
+    result = service.run_goldfish(GoldfishInput(deck_id="rogshai/current", iterations=5001))
     assert result.status == ToolStatus.REQUIRES_APPROVAL
 
 
@@ -23,7 +23,7 @@ def test_recommendation_is_screening_not_confirmation() -> None:
     result = service.recommend_upgrades(
         RecommendUpgradesInput(
             deck_id="rogshai/current",
-            candidate_ids=("rogshai/curiosity-smoke",),
+            candidate_ids=("rogshai/opt-smoke",),
             max_recommendations=2,
         )
     )
@@ -37,7 +37,7 @@ def test_paired_variant_tool_runs() -> None:
     result = service.compare_variants_paired(
         PairedVariantInput(
             deck_id="rogshai/current",
-            swaps=(VariantSwap(remove="Izzet Signet", add_candidate_id="rogshai/curiosity-smoke"),),
+            swaps=(VariantSwap(remove="Consider", add_candidate_id="rogshai/opt-smoke"),),
             iterations=4,
             seed=7,
         )

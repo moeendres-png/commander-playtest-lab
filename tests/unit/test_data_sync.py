@@ -7,6 +7,7 @@ def test_current_canonical_sources_match_prepared_imports(repo_root):
     result = audit_current_sources(repo_root)
     assert result["status"] == "MATCH"
     assert {row["source"] for row in result["checks"]} == {
+        "current_rogshai_deck",
         "inventory",
         "korvold_rogshai_decks",
         "opponent_baselines",

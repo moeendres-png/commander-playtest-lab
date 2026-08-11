@@ -75,7 +75,7 @@ def test_candidate_swaps_never_apply_changes() -> None:
 
 def test_rules_coverage_cannot_claim_external_validation() -> None:
     response = service().run_rules_coverage_gate(
-        RunRulesCoverageGateInput(deck_id="korvold/current", require_external=True)
+        RunRulesCoverageGateInput(deck_id="rogshai/current", require_external=True)
     )
     assert response.status.value == "completed"
     assert response.result["external_gate_passed"] is False
@@ -86,7 +86,7 @@ def test_rules_coverage_cannot_claim_external_validation() -> None:
 def test_engine_backed_matchup_returns_blocked_not_fake_success() -> None:
     response = service().run_engine_backed_matchup(
         RunEngineBackedMatchupInput(
-            deck_ids=("korvold/current", "synthetic/aggro"), provider="xmage", iterations=1
+            deck_ids=("rogshai/current", "synthetic/aggro"), provider="xmage", iterations=1
         )
     )
     assert response.status.value == "completed"
@@ -110,7 +110,7 @@ def test_validate_swap_executes_politics_pod_tactical_and_external_truth_gates()
     response = svc.validate_swap(
         ValidateSwapInput(
             deck_id="rogshai/current",
-            swaps=(VariantSwap(remove="Izzet Signet", add_candidate_id="rogshai/curiosity-smoke"),),
+            swaps=(VariantSwap(remove="Consider", add_candidate_id="rogshai/opt-smoke"),),
             iterations=1,
             workers=1,
             seed=123,
@@ -137,7 +137,7 @@ def test_robustness_suite_runs_structural_scenarios_instead_of_reading_old_artif
     response = svc.run_robustness_suite(
         RunRobustnessSuiteInput(
             deck_id="rogshai/current",
-            swaps=(VariantSwap(remove="Izzet Signet", add_candidate_id="rogshai/curiosity-smoke"),),
+            swaps=(VariantSwap(remove="Consider", add_candidate_id="rogshai/opt-smoke"),),
             iterations=1,
             workers=1,
             seed=456,

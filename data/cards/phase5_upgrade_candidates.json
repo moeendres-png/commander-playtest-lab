@@ -1,125 +1,62 @@
 {
-  "schema_version": "0.7.0",
+  "schema_version": "0.7.1",
   "estimate_type": "structural_model_estimates",
-  "notes": "Technical smoke candidates only after canonical 2026-08-07 deck sync; none is an upgrade recommendation or automatic deck change.",
+  "notes": "RogShai-only technical smoke candidates for ablation, swap, Pareto and validation tests. They are physically owned, are not current deck cards, are not upgrade recommendations and are never applied automatically.",
   "candidates": [
     {
-      "candidate_id": "korvold/mazirek-smoke",
-      "allowed_deck_ids": [
-        "korvold/current"
-      ],
+      "candidate_id": "rogshai/opt-smoke",
+      "allowed_deck_ids": ["rogshai/current"],
       "physical_status": "technical_fixture_only",
-      "notes": "Technical smoke candidate retained to exercise ablation/swap/Pareto/validation. Not an upgrade recommendation and not automatically applicable.",
+      "notes": "Technical structural fixture only; current availability is verified by the canonical inventory projection.",
       "card": {
-        "oracle_name": "Mazirek, Kraul Death Priest",
-        "mana_value": 5.0,
-        "roles": [
-          "engine",
-          "payoff"
-        ],
-        "role_strengths": {
-          "engine": 1.0,
-          "payoff": 1.0
-        },
-        "color_requirements": {},
-        "produces_colors": [],
-        "is_land": false,
-        "is_permanent": true,
-        "is_creature": true,
-        "base_power": 0.0,
-        "commander_synergy": 0.5,
-        "floor_value": 0.6,
-        "immediate_impact": 0.4,
-        "turn_cycle_risk": 0.4,
-        "multiplayer_scaling": 0.3,
-        "conditional_strength": [],
-        "source_quality": "project_inferred",
-        "sources": [],
-        "notes": "Technical structural fixture only.",
-        "color_identity": [
-          "B",
-          "G"
-        ]
-      }
-    },
-    {
-      "candidate_id": "korvold/szarel-smoke",
-      "allowed_deck_ids": [
-        "korvold/current"
-      ],
-      "physical_status": "technical_fixture_only",
-      "notes": "Technical smoke candidate retained to exercise ablation/swap/Pareto/validation. Not an upgrade recommendation and not automatically applicable.",
-      "card": {
-        "oracle_name": "Szarel, Genesis Shepherd",
-        "mana_value": 5.0,
-        "roles": [
-          "engine",
-          "recursion",
-          "payoff"
-        ],
-        "role_strengths": {
-          "engine": 1.0,
-          "recursion": 1.0,
-          "payoff": 1.0
-        },
-        "color_requirements": {},
-        "produces_colors": [],
-        "is_land": false,
-        "is_permanent": true,
-        "is_creature": true,
-        "base_power": 0.0,
-        "commander_synergy": 0.5,
-        "floor_value": 0.6,
-        "immediate_impact": 0.4,
-        "turn_cycle_risk": 0.4,
-        "multiplayer_scaling": 0.3,
-        "conditional_strength": [],
-        "source_quality": "project_inferred",
-        "sources": [],
-        "notes": "Technical structural fixture only.",
-        "color_identity": [
-          "B",
-          "R",
-          "G"
-        ]
-      }
-    },
-    {
-      "candidate_id": "rogshai/curiosity-smoke",
-      "allowed_deck_ids": [
-        "rogshai/current"
-      ],
-      "physical_status": "technical_fixture_only",
-      "notes": "Technical smoke candidate retained to exercise ablation/swap/Pareto/validation. Not an upgrade recommendation and not automatically applicable.",
-      "card": {
-        "oracle_name": "Curiosity",
+        "oracle_name": "Opt",
         "mana_value": 1.0,
-        "roles": [
-          "draw",
-          "engine"
-        ],
-        "role_strengths": {
-          "draw": 1.0,
-          "engine": 1.0
-        },
-        "color_requirements": {},
+        "roles": ["draw", "selection"],
+        "role_strengths": {"draw": 1.0, "selection": 1.0},
+        "color_requirements": {"U": 1},
         "produces_colors": [],
         "is_land": false,
-        "is_permanent": true,
+        "is_permanent": false,
         "is_creature": false,
         "base_power": 0.0,
-        "commander_synergy": 0.5,
-        "floor_value": 0.6,
-        "immediate_impact": 0.4,
-        "turn_cycle_risk": 0.4,
-        "multiplayer_scaling": 0.3,
+        "commander_synergy": 0.0,
+        "floor_value": 0.85,
+        "immediate_impact": 0.8,
+        "turn_cycle_risk": 0.15,
+        "multiplayer_scaling": 0.0,
         "conditional_strength": [],
         "source_quality": "project_inferred",
         "sources": [],
         "notes": "Technical structural fixture only.",
-        "color_identity": [
-          "U"
-        ]
+        "color_identity": ["U"]
+      }
+    },
+    {
+      "candidate_id": "rogshai/into-the-roil-smoke",
+      "allowed_deck_ids": ["rogshai/current"],
+      "physical_status": "technical_fixture_only",
+      "notes": "Technical structural fixture only; current availability is verified by the canonical inventory projection.",
+      "card": {
+        "oracle_name": "Into the Roil",
+        "mana_value": 2.0,
+        "roles": ["removal", "draw"],
+        "role_strengths": {"removal": 1.0, "draw": 0.6},
+        "color_requirements": {"U": 1},
+        "produces_colors": [],
+        "is_land": false,
+        "is_permanent": false,
+        "is_creature": false,
+        "base_power": 0.0,
+        "commander_synergy": 0.0,
+        "floor_value": 0.75,
+        "immediate_impact": 0.9,
+        "turn_cycle_risk": 0.15,
+        "multiplayer_scaling": 0.0,
+        "conditional_strength": [],
+        "source_quality": "project_inferred",
+        "sources": [],
+        "notes": "Technical structural fixture only.",
+        "color_identity": ["U"]
       }
     }
   ]

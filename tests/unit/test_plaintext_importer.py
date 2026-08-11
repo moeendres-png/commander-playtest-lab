@@ -7,22 +7,6 @@ import pytest
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
 
 
-def test_import_current_korvold(repo_root: Path, catalog) -> None:
-    deck = PlaintextDeckImporter(catalog).import_file(
-        repo_root / "data/decks/korvold_current.txt",
-        DeckImportOptions(
-            deck_id="korvold/current",
-            name="Korvold current",
-            commander_names=("Korvold, Fae-Cursed King",),
-            uses_partner=False,
-            data_as_of="2026-08-02",
-        ),
-    )
-    assert deck.total_cards == 100
-    assert deck.library_cards == 99
-    assert deck.commander.commanders == ("Korvold, Fae-Cursed King",)
-
-
 def test_import_current_rogshai(repo_root: Path, catalog) -> None:
     deck = PlaintextDeckImporter(catalog).import_file(
         repo_root / "data/decks/rogshai_current.txt",
@@ -35,6 +19,10 @@ def test_import_current_rogshai(repo_root: Path, catalog) -> None:
     )
     assert deck.total_cards == 100
     assert deck.library_cards == 98
+    assert deck.commander.commanders == (
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh",
+    )
 
 
 def test_curly_apostrophe_normalizes_to_oracle_name(catalog) -> None:

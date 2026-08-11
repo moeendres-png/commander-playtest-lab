@@ -87,7 +87,7 @@ def test_event_log_instrumentation_builds_auditable_dataset(tmp_path):
                 match_id="diagnostic-event-derived",
                 seed=9123,
                 deck_ids=(
-                    "korvold/current",
+                    "rogshai/current",
                     "synthetic/aggro",
                     "synthetic/control",
                     "synthetic/engine",
@@ -99,7 +99,7 @@ def test_event_log_instrumentation_builds_auditable_dataset(tmp_path):
         )
         dataset = DiagnosticInstrumentationCollector(ROOT).build(
             dataset_id="event-derived-test",
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             log_paths=[str(log.relative_to(ROOT))],
             opponent_ensemble_count=3,
         )

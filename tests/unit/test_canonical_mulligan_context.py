@@ -26,14 +26,10 @@ def test_primary_rogshai_mulligan_context_uses_current_canonical_pod() -> None:
     assert "opponent/blight-curse-precon" not in opponents
 
 
-def test_historical_korvold_regression_uses_historical_reference_context() -> None:
+def test_inactive_korvold_is_historical_context_only() -> None:
     lab = MulliganLab(ROOT)
-    opponents = lab._opponent_ids(_context(lab, "korvold/current"))
-    assert opponents == (
-        "opponent/morcant-elves",
-        "opponent/doom-prevails-precon",
-        "opponent/cosmic-spiderman-midbudget",
-    )
+    with pytest.raises(MulliganLabError, match="unknown deck"):
+        lab.deck("korvold/current")
     assert "korvold/current" not in lab.project_context.active_own_deck_ids
     assert "korvold/current" in lab.project_context.historical_own_deck_ids
 

@@ -22,17 +22,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_phase7_candidate_pool_is_locally_verified() -> None:
     service = CommanderToolService(ROOT)
-    assert service.candidate_inventory["Mazirek, Kraul Death Priest"] == 1
-    assert "Szarel, Genesis Shepherd" in service.verified_candidate_names
+    assert service.candidate_inventory["Opt"] >= 1
+    assert "Into the Roil" in service.verified_candidate_names
 
 
 def test_complete_swap_matrix_preserves_every_requested_cell() -> None:
     service = CommanderToolService(ROOT)
     response = service.generate_swap_matrix(
         SwapMatrixInput(
-            deck_id="korvold/current",
-            remove_cards=("Vampiric Rites", "Necrogenesis"),
-            add_candidate_ids=("korvold/mazirek-smoke", "korvold/szarel-smoke"),
+            deck_id="rogshai/current",
+            remove_cards=("Consider", "Preordain"),
+            add_candidate_ids=("rogshai/opt-smoke", "rogshai/into-the-roil-smoke"),
             simulate_valid_cells=False,
             iterations_per_cell=1,
         )
@@ -48,8 +48,8 @@ def test_local_and_beam_search_return_candidates_not_edits() -> None:
     service = CommanderToolService(ROOT)
     local = service.run_local_search(
         LocalSearchInput(
-            deck_id="korvold/current",
-            candidate_ids=("korvold/mazirek-smoke",),
+            deck_id="rogshai/current",
+            candidate_ids=("rogshai/opt-smoke",),
             max_steps=1,
             cuts_per_step=2,
             iterations=2,
@@ -58,8 +58,8 @@ def test_local_and_beam_search_return_candidates_not_edits() -> None:
     )
     beam = service.run_beam_search(
         BeamSearchInput(
-            deck_id="korvold/current",
-            candidate_ids=("korvold/mazirek-smoke", "korvold/szarel-smoke"),
+            deck_id="rogshai/current",
+            candidate_ids=("rogshai/opt-smoke", "rogshai/into-the-roil-smoke"),
             beam_width=2,
             depth=1,
             max_cuts_per_node=2,
@@ -76,15 +76,15 @@ def test_local_and_beam_search_return_candidates_not_edits() -> None:
 def test_package_search_enforces_constraints_and_returns_evidence() -> None:
     service = CommanderToolService(ROOT)
     package = CandidatePackage(
-        package_id="korvold-draw-protection",
+        package_id="rogshai-smoke-package",
         swaps=(
-            VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),
-            VariantSwap(remove="Necrogenesis", add_candidate_id="korvold/szarel-smoke"),
+            VariantSwap(remove="Consider", add_candidate_id="rogshai/opt-smoke"),
+            VariantSwap(remove="Preordain", add_candidate_id="rogshai/into-the-roil-smoke"),
         ),
     )
     response = service.run_package_search(
         PackageSearchInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             packages=(package,),
             iterations=2,
             seed=19,
@@ -101,10 +101,15 @@ def test_pareto_front_contains_only_non_dominated_valid_variants() -> None:
     service = CommanderToolService(ROOT)
     response = service.evaluate_pareto_front(
         ParetoFrontInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             variants=(
-                (VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
-                (VariantSwap(remove="Necrogenesis", add_candidate_id="korvold/szarel-smoke"),),
+                (VariantSwap(remove="Consider", add_candidate_id="rogshai/opt-smoke"),),
+                (
+                    VariantSwap(
+                        remove="Preordain",
+                        add_candidate_id="rogshai/into-the-roil-smoke",
+                    ),
+                ),
             ),
             iterations=2,
             holdout_pods=(("synthetic/control", "synthetic/control", "synthetic/engine"),),
@@ -120,8 +125,8 @@ def test_pareto_front_contains_only_non_dominated_valid_variants() -> None:
 def test_shapley_approximation_is_seed_reproducible() -> None:
     service = CommanderToolService(ROOT)
     request = ShapleyInput(
-        deck_id="korvold/current",
-        card_names=("Vampiric Rites", "Necrogenesis"),
+        deck_id="rogshai/current",
+        card_names=("Consider", "Preordain"),
         permutations=16,
         iterations=2,
         seed=29,
@@ -138,7 +143,7 @@ def test_validate_upgrade_runs_full_chain_and_never_applies() -> None:
     response = service.validate_upgrade(
         ValidateUpgradeInput(
             deck_id="rogshai/current",
-            swaps=(VariantSwap(remove="Izzet Signet", add_candidate_id="rogshai/curiosity-smoke"),),
+            swaps=(VariantSwap(remove="Consider", add_candidate_id="rogshai/opt-smoke"),),
             iterations=2,
             seed=31,
             holdout_pods=(("synthetic/control", "synthetic/control", "synthetic/engine"),),
@@ -161,15 +166,19 @@ def test_validate_upgrade_runs_full_chain_and_never_applies() -> None:
 
 def test_constraint_report_rejects_wrong_color_candidate() -> None:
     service = CommanderToolService(ROOT)
-    baseline = service._deck("korvold/current")
-    talisman = service.candidates["rogshai/curiosity-smoke"].card
-    variant = baseline.model_copy(update={"cards": tuple([*baseline.cards[:-1], talisman])})
+    baseline = service._deck("rogshai/current")
+    off_color = next(
+        candidate.card
+        for candidate in service.candidates.values()
+        if candidate.card.oracle_name == "Mazirek, Kraul Death Priest"
+    )
+    variant = baseline.model_copy(update={"cards": tuple([*baseline.cards[:-1], off_color])})
     report = evaluate_constraints(
         variant,
-        DEFAULT_CONSTRAINTS["korvold/current"],
-        candidate_inventory={"Curiosity": 1},
-        added_card_names=("Curiosity",),
-        verified_physical_names={"Curiosity"},
+        DEFAULT_CONSTRAINTS["rogshai/current"],
+        candidate_inventory={"Mazirek, Kraul Death Priest": 1},
+        added_card_names=("Mazirek, Kraul Death Priest",),
+        verified_physical_names={"Mazirek, Kraul Death Priest"},
     )
     assert report.valid is False
     assert any(issue.code == "color_identity" for issue in report.issues)
@@ -180,8 +189,8 @@ def test_simultaneous_allocation_rejects_shared_single_copy() -> None:
 
     report = evaluate_simultaneous_allocation(
         {
-            "korvold/current": ("Lightning Greaves",),
-            "rogshai/current": ("Lightning Greaves",),
+            "fixture/deck-a": ("Lightning Greaves",),
+            "fixture/deck-b": ("Lightning Greaves",),
         },
         {"Lightning Greaves": 1},
     )
