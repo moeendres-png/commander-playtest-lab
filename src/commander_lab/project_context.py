@@ -97,7 +97,9 @@ def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, st
     source_artifacts = manifest.get("source_artifacts")
     if not isinstance(source_artifacts, dict):
         raise ProjectContextError("canonical feature manifest has no source_artifacts")
-    if not _REQUIRED_FEATURE_SOURCES <= set(source_artifacts):
+    if set(source_artifacts) >= _REQUIRED_FEATURE_SOURCES:
+        pass
+    else:
         missing = sorted(_REQUIRED_FEATURE_SOURCES - set(source_artifacts))
         raise ProjectContextError(f"canonical feature manifest is missing sources: {missing}")
 
@@ -129,7 +131,8 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "opponent_registry": root_path / "data/opponents/opponent_registry.json",
         "pilot_registry": root_path / "data/pilots/pilot_registry.json",
         "deck_manifest": root_path / "data/decks/manifest.json",
-        "inventory_snapshot": root_path / "data/canonical_import/2026-08-07/inventory_snapshot.json",
+        "inventory_snapshot": root_path
+        / "data/canonical_import/2026-08-07/inventory_snapshot.json",
         "allocation_snapshot": root_path / "data/collections/current_deck_allocations.json",
         "candidate_eligibility": root_path
         / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
@@ -166,7 +169,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
             if not isinstance(deck_id, str) or not isinstance(entity_ids, list):
                 raise ProjectContextError("primary scenario is missing deck or opponent entities")
             if raw.get("pod_size") != 4 or len(entity_ids) != 3:
-                raise ProjectContextError("primary four-player scenario must contain exactly 3 opponents")
+                raise ProjectContextError(
+                    "primary four-player scenario must contain exactly 3 opponents"
+                )
             if deck_id in primary:
                 raise ProjectContextError(f"multiple canonical primary scenarios for {deck_id}")
             primary[deck_id] = _resolve_entities([str(value) for value in entity_ids], registry)
