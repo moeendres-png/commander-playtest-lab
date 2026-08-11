@@ -169,7 +169,9 @@ class ManaAnalyzer:
         t1_colors = {color for color, count in t1.items() if count > 0}
         for turn in (1, 2, 3):
             eligible = tuple(
-                card for card in noncommanders if not card.is_land and card.mana_value <= float(turn)
+                card
+                for card in noncommanders
+                if not card.is_land and card.mana_value <= float(turn)
             )
             early[turn] = self._requirements(eligible)
             supported = sum(
@@ -301,8 +303,7 @@ class ManaAnalyzer:
                 color: variant.colored_sources.get(color, 0)
                 - baseline.colored_sources.get(color, 0)
                 for color in sorted(colors)
-                if variant.colored_sources.get(color, 0)
-                != baseline.colored_sources.get(color, 0)
+                if variant.colored_sources.get(color, 0) != baseline.colored_sources.get(color, 0)
             },
             flexible_source_delta=variant.flexible_source_count - baseline.flexible_source_count,
             definitely_tapped_land_delta=(
