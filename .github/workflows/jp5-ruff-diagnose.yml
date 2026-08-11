@@ -1,0 +1,45 @@
+name: J-P5 Ruff Diagnose
+
+on:
+  push:
+    branches:
+      - roadmap/j-p5-optimizer-validation
+    paths:
+      - .github/workflows/jp5-ruff-diagnose.yml
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Capture exact Ruff diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[dev]' >/tmp/install.log 2>&1
+          set +e
+          ruff check . >/tmp/ruff-check.txt 2>&1
+          lint_rc=$?
+          ruff format --check . >/tmp/ruff-format.txt 2>&1
+          format_rc=$?
+          set -e
+          {
+            echo "lint_rc=$lint_rc"
+            echo "format_rc=$format_rc"
+            echo "--- ruff check ---"
+            cat /tmp/ruff-check.txt
+            echo "--- ruff format --check ---"
+            cat /tmp/ruff-format.txt
+          } > docs/J_P5_RUFF_DIAG.txt
+          rm .github/workflows/jp5-ruff-diagnose.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "J-P5: record exact pre-holdout Ruff diagnostics"
+          git push
