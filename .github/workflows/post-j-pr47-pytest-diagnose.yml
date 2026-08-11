@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install project and test tools
-        run: python -m pip install -e '.[test]'
+        run: python -m pip install -e '.[dev,api,openai]'
       - name: Run full pytest and capture output
         shell: bash
         run: |
