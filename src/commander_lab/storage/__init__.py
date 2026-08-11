@@ -14,13 +14,23 @@ from .hashing import (
     sha256_value,
 )
 from .json_store import load_model, save_model
+from .result_cache import (
+    ExactResultCache,
+    ResultCacheCorruptionError,
+    ResultCacheLookup,
+    build_exact_result_identity,
+)
 from .run_integrity import create_run_manifest, quarantine_run, verify_run
 
 __all__ = [
+    "ExactResultCache",
+    "ResultCacheCorruptionError",
+    "ResultCacheLookup",
     "atomic_write_bytes",
     "atomic_write_json",
     "atomic_write_text",
     "backup_database",
+    "build_exact_result_identity",
     "canonical_json_bytes",
     "check_database",
     "compute_data_snapshot_hash",
