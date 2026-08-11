@@ -68,7 +68,9 @@ class PriorityWorkflowFacade:
             raise ValueError("limit must be positive")
         baseline = self._deck(deck_id)
         screened = self.screener.screen_pool(deck_id)
-        rows = list(screened["rows"])
+        rows = screened["rows"]
+        if not isinstance(rows, list):
+            raise RuntimeError("candidate screen rows must be a list")
         return {
             "workflow": "build_screen",
             "evidence_class": "structural_candidate_screening",
@@ -76,9 +78,7 @@ class PriorityWorkflowFacade:
             "deck_hash": baseline.deck_hash,
             "context": self._context_payload(self.context),
             "eligible_candidate_count": screened["physical_legal_candidate_count"],
-            "candidate_pool_after_default_screen": screened[
-                "candidate_pool_after_default_screen"
-            ],
+            "candidate_pool_after_default_screen": screened["candidate_pool_after_default_screen"],
             "bucket_counts": screened["bucket_counts"],
             "feature_fusion": canonical_feature_fusion_summary(self.root),
             "challenge_benchmark": self.screener.benchmark_challenge_set(),
@@ -138,7 +138,9 @@ class PriorityWorkflowFacade:
             mode=PilotDecisionMode.DETERMINISTIC,
         )
         pair_id = f"priority-{deck_id}-{built.variant.deck_hash[:12]}"
-        paired_seeds = tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations))
+        paired_seeds = tuple(
+            derive_paired_seed(seed, pair_id, index) for index in range(iterations)
+        )
         analysis_seed = derive_paired_seed(seed, pair_id, iterations + 1)
         pilot_hash = sha256_run_value(pilot_config, root=self.root)
         optimizer_hash = sha256_run_value(
