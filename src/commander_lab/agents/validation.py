@@ -50,10 +50,10 @@ def _config(
     mode: PilotDecisionMode,
 ) -> StructuralBatchConfig:
     deck_ids = (
-        "korvold/current",
         "rogshai/current",
         "synthetic/aggro",
         "synthetic/control",
+        "synthetic/engine",
     )
     strengths = (
         PilotStrength.STRONG,
@@ -329,7 +329,7 @@ def _audit_decision_log(root: Path, output_directory: Path, seed: int) -> dict[s
     config = StructuralMatchConfig(
         match_id="phase4-decision-audit",
         seed=seed,
-        deck_ids=("korvold/current", "rogshai/current", "synthetic/control"),
+        deck_ids=("rogshai/current", "synthetic/aggro", "synthetic/control"),
         pilot_configs=(
             PilotConfig(
                 strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC,

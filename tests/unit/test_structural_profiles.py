@@ -19,11 +19,10 @@ def test_profile_snapshot_is_valid_and_complete(repo_root, structural_profiles) 
 
 
 def test_current_decks_have_complete_role_coverage(structural_decks) -> None:
-    for deck_id in ("korvold/current", "rogshai/current"):
-        deck = structural_decks[deck_id]
-        assert len(deck.cards) == 100
-        assert all(card.roles for card in deck.cards)
-        assert sum(card.is_land for card in deck.cards) in {37, 39}
+    deck = structural_decks["rogshai/current"]
+    assert len(deck.cards) == 100
+    assert all(card.roles for card in deck.cards)
+    assert sum(card.is_land for card in deck.cards) == 36
 
 
 def test_multiple_roles_and_structural_dimensions_are_present(structural_profiles) -> None:

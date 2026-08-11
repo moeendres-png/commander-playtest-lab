@@ -18,7 +18,7 @@ def test_auto_specialist_pilots_are_logged(tmp_path, structural_decks) -> None:
         StructuralMatchConfig(
             match_id="pilot-log",
             seed=404,
-            deck_ids=("korvold/current", "rogshai/current", "synthetic/control"),
+            deck_ids=("rogshai/current", "kaervek/current", "synthetic/control"),
             limits=StructuralAbortLimits(max_turns=25, max_events=30_000, max_no_progress_turns=20),
         ),
         event_log_path=path,
@@ -29,11 +29,11 @@ def test_auto_specialist_pilots_are_logged(tmp_path, structural_decks) -> None:
     assert decisions
     assert mulligans
     assert {event["payload"]["pilot_name"] for event in mulligans} >= {
-        "KorvoldPilot",
         "RogShaiPilot",
+        "KaervekOpponentPilot",
     }
-    assert result.player_metrics["p1"].pilot_name == "KorvoldPilot"
-    assert result.player_metrics["p2"].pilot_name == "RogShaiPilot"
+    assert result.player_metrics["p1"].pilot_name == "RogShaiPilot"
+    assert result.player_metrics["p2"].pilot_name == "KaervekOpponentPilot"
     assert all("breakdown" in event["payload"] for event in decisions)
 
 
@@ -58,7 +58,7 @@ def test_seeded_stochastic_pilots_replay_identically(tmp_path, structural_decks)
     config = StructuralMatchConfig(
         match_id="stochastic-replay",
         seed=505,
-        deck_ids=("korvold/current", "rogshai/current", "synthetic/aggro"),
+        deck_ids=("rogshai/current", "kaervek/current", "synthetic/aggro"),
         pilot_configs=configs,
         limits=StructuralAbortLimits(max_turns=25, max_events=30_000, max_no_progress_turns=20),
     )
@@ -96,7 +96,7 @@ def test_stochastic_pilot_batch_is_worker_count_independent(structural_decks) ->
         run_id="pilot-worker-repro",
         seed=606,
         iterations=8,
-        deck_ids=("korvold/current", "rogshai/current", "synthetic/aggro"),
+        deck_ids=("rogshai/current", "kaervek/current", "synthetic/aggro"),
         pilot_configs=pilot_configs,
         limits=StructuralAbortLimits(max_turns=25, max_events=30_000, max_no_progress_turns=20),
     )

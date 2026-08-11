@@ -276,7 +276,7 @@ def test_ensemble_summary_reports_worst_median_and_robustness() -> None:
             ROOT, include_synthetic_fixtures=True, include_current_opponents=True
         ),
     )
-    ensemble = runner.registry.ensemble("korvold.equal.v1")
+    ensemble = runner.registry.ensemble("rogshai.equal.v1")
     results = {}
     for index, member in enumerate(ensemble.members):
         results[member.pilot_name] = {

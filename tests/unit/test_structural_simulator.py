@@ -17,7 +17,7 @@ def test_fixed_seed_produces_byte_identical_event_logs(tmp_path, structural_deck
     config = StructuralMatchConfig(
         match_id="repro-match",
         seed=42,
-        deck_ids=("korvold/current", "rogshai/current", "synthetic/aggro"),
+        deck_ids=("rogshai/current", "kaervek/current", "synthetic/aggro"),
         limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=20),
     )
     first_path = tmp_path / "first.jsonl"
@@ -33,7 +33,7 @@ def test_fixed_seed_produces_byte_identical_event_logs(tmp_path, structural_deck
 def test_different_seed_changes_log_hash(structural_decks) -> None:
     simulator = StructuralSimulator(structural_decks)
     base = dict(
-        deck_ids=("korvold/current", "rogshai/current", "synthetic/aggro"),
+        deck_ids=("rogshai/current", "kaervek/current", "synthetic/aggro"),
         limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=20),
     )
     first = simulator.simulate(StructuralMatchConfig(match_id="a", seed=1, **base))
@@ -46,7 +46,7 @@ def test_goldfish_is_labelled_structural_estimate(structural_decks) -> None:
         StructuralMatchConfig(
             match_id="goldfish",
             seed=9,
-            deck_ids=("korvold/current",),
+            deck_ids=("rogshai/current",),
             limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=20),
         )
     )
@@ -62,7 +62,7 @@ def test_every_started_turn_has_summary(tmp_path, structural_decks) -> None:
         StructuralMatchConfig(
             match_id="turn-log",
             seed=100,
-            deck_ids=("korvold/current", "rogshai/current", "synthetic/control"),
+            deck_ids=("rogshai/current", "kaervek/current", "synthetic/control"),
             limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=20),
         ),
         event_log_path=path,

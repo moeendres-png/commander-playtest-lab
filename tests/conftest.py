@@ -56,4 +56,8 @@ def structural_profiles(repo_root: Path) -> StructuralProfileCatalog:
 
 @pytest.fixture(scope="session")
 def structural_decks(repo_root: Path):
-    return load_project_structural_decks(repo_root, include_synthetic_fixtures=True)
+    return load_project_structural_decks(
+        repo_root,
+        include_synthetic_fixtures=True,
+        include_current_opponents=True,
+    )

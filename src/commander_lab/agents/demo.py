@@ -41,7 +41,7 @@ def run_phase5_demo(
     recommendations = service.recommend_upgrades(
         RecommendUpgradesInput(
             deck_id="rogshai/current",
-            candidate_ids=("rogshai/curiosity-smoke",),
+            candidate_ids=("rogshai/opt-smoke",),
             max_recommendations=1,
         )
     )

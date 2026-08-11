@@ -124,9 +124,7 @@ def _attach_package_membership(
         return profile
     payload = json.loads(registry_path.read_text(encoding="utf-8"))
     commander = (
-        "Korvold, Fae-Cursed King"
-        if profile.deck_id == "korvold/current"
-        else "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
+        "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
         if profile.deck_id == "rogshai/current"
         else " / ".join(profile.commander_names)
     )
