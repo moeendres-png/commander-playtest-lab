@@ -1,0 +1,1788 @@
+lint_rc=1
+format_rc=1
+--- ruff check ---
+I001 [*] Import block is un-sorted or un-formatted
+  --> scripts/run_j_p5_development.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import hashlib
+ 4 | | import json
+ 5 | | import math
+ 6 | | from pathlib import Path
+ 7 | | from statistics import fmean
+ 8 | |
+ 9 | | from commander_lab.counterfactual import CounterfactualReplayLab
+10 | | from commander_lab.decision_statistics import holm_adjust
+11 | | from commander_lab.models import (
+12 | |     BeamSearchInput, CardAblationInput, CommanderDenialInput, LocalSearchInput,
+13 | |     PackageAblationInput, ParetoFrontInput, PilotConfig, ShapleyInput, SwapMatrixInput,
+14 | |     VariantSwap,
+15 | | )
+16 | | from commander_lab.optimization import build_search_candidate, run_paired_structural_comparison
+17 | | from commander_lab.optimization.jp5 import build_recommendation_trace, scenario_heterogeneity
+18 | | from commander_lab.tools.service import CommanderToolService
+   | |____________________________________________________________^
+19 |
+20 |   ROOT = Path(__file__).resolve().parents[1]
+   |
+help: Organize imports
+   |
+11 | from commander_lab.models import (
+   -     BeamSearchInput, CardAblationInput, CommanderDenialInput, LocalSearchInput,
+   -     PackageAblationInput, ParetoFrontInput, PilotConfig, ShapleyInput, SwapMatrixInput,
+12 +     BeamSearchInput,
+13 +     CardAblationInput,
+14 +     CommanderDenialInput,
+15 +     LocalSearchInput,
+16 +     PackageAblationInput,
+17 +     ParetoFrontInput,
+18 +     PilotConfig,
+19 +     ShapleyInput,
+20 +     SwapMatrixInput,
+21 |     VariantSwap,
+   |
+
+F401 [*] `math` imported but unused
+ --> scripts/run_j_p5_development.py:5:8
+  |
+3 | import hashlib
+4 | import json
+5 | import math
+  |        ^^^^
+6 | from pathlib import Path
+7 | from statistics import fmean
+  |
+help: Remove unused import: `math`
+  |
+4 | import json
+  - import math
+5 | from pathlib import Path
+  |
+
+F401 [*] `statistics.fmean` imported but unused
+ --> scripts/run_j_p5_development.py:7:24
+  |
+5 | import math
+6 | from pathlib import Path
+7 | from statistics import fmean
+  |                        ^^^^^
+8 |
+9 | from commander_lab.counterfactual import CounterfactualReplayLab
+  |
+help: Remove unused import: `statistics.fmean`
+  |
+6 | from pathlib import Path
+  - from statistics import fmean
+7 |
+  |
+
+E702 Multiple statements on one line (semicolon)
+   --> scripts/run_j_p5_development.py:98:36
+    |
+ 96 |             "preselection_pass": row["static_screening_delta"] >= policy["preselection"]["minimum_static_screening_delta"],
+ 97 |         }
+ 98 |         primary_rows.append(record); by_deck[row["deck_id"]].append(record)
+    |                                    ^
+ 99 |
+100 |     finalists = []
+    |
+
+F401 `.jp5.MODEL_LIMITATIONS` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/commander_lab/optimization/__init__.py:64:5
+   |
+63 | from .jp5 import (
+64 |     MODEL_LIMITATIONS,
+   |     ^^^^^^^^^^^^^^^^^
+65 |     build_recommendation_trace,
+66 |     build_robust_objective,
+   |
+help: Add unused import `MODEL_LIMITATIONS` to __all__
+
+F401 `.jp5.build_recommendation_trace` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/commander_lab/optimization/__init__.py:65:5
+   |
+63 | from .jp5 import (
+64 |     MODEL_LIMITATIONS,
+65 |     build_recommendation_trace,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+66 |     build_robust_objective,
+67 |     paired_seed_set_identity,
+   |
+help: Add unused import `build_recommendation_trace` to __all__
+
+F401 `.jp5.build_robust_objective` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/commander_lab/optimization/__init__.py:66:5
+   |
+64 |     MODEL_LIMITATIONS,
+65 |     build_recommendation_trace,
+66 |     build_robust_objective,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+67 |     paired_seed_set_identity,
+68 |     recommendation_confidence,
+   |
+help: Add unused import `build_robust_objective` to __all__
+
+F401 `.jp5.paired_seed_set_identity` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/commander_lab/optimization/__init__.py:67:5
+   |
+65 |     build_recommendation_trace,
+66 |     build_robust_objective,
+67 |     paired_seed_set_identity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+68 |     recommendation_confidence,
+69 |     scenario_heterogeneity,
+   |
+help: Add unused import `paired_seed_set_identity` to __all__
+
+F401 `.jp5.recommendation_confidence` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/commander_lab/optimization/__init__.py:68:5
+   |
+66 |     build_robust_objective,
+67 |     paired_seed_set_identity,
+68 |     recommendation_confidence,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+69 |     scenario_heterogeneity,
+70 | )
+   |
+help: Add unused import `recommendation_confidence` to __all__
+
+F401 `.jp5.scenario_heterogeneity` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/commander_lab/optimization/__init__.py:69:5
+   |
+67 |     paired_seed_set_identity,
+68 |     recommendation_confidence,
+69 |     scenario_heterogeneity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+70 | )
+   |
+help: Add unused import `scenario_heterogeneity` to __all__
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/commander_lab/optimization/experiments.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import hashlib
+ 4 | | from collections.abc import Iterable
+ 5 | | from dataclasses import dataclass
+ 6 | | from statistics import fmean
+ 7 | |
+ 8 | | from commander_lab.decision_statistics import (
+ 9 | |     bayesian_shrunk_mean,
+10 | |     distributionally_robust_lower_bound,
+11 | |     paired_bootstrap_interval,
+12 | |     paired_standardized_effect,
+13 | |     paired_randomization_p_value,
+14 | |     monte_carlo_standard_error,
+15 | |     quantile_summary,
+16 | | )
+17 | | from commander_lab.engine.structural import ENGINE_VERSION, StructuralSimulator
+18 | | from commander_lab.models import (
+19 | |     CardRole,
+20 | |     PilotConfig,
+21 | |     StructuralCardProfile,
+22 | |     StructuralDeckProfile,
+23 | |     StructuralMatchConfig,
+24 | | )
+25 | | from commander_lab.storage import sha256_value
+   | |______________________________________________^
+help: Organize imports
+   |
+10 |     distributionally_robust_lower_bound,
+11 +     monte_carlo_standard_error,
+12 |     paired_bootstrap_interval,
+13 +     paired_randomization_p_value,
+14 |     paired_standardized_effect,
+   -     paired_randomization_p_value,
+   -     monte_carlo_standard_error,
+15 |     quantile_summary,
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> src/commander_lab/tools/service.py:1:1
+    |
+  1 | / from __future__ import annotations
+  2 | |
+  3 | | import hashlib
+  4 | | import itertools
+  5 | | import json
+  6 | | import subprocess
+  7 | | import time
+  8 | | import uuid
+  9 | | from collections import Counter
+ 10 | | from collections.abc import Callable
+ 11 | | from datetime import UTC, datetime
+ 12 | | from pathlib import Path
+ 13 | | from statistics import fmean
+ 14 | | from typing import TYPE_CHECKING, Any, ClassVar, Literal
+ 15 | |
+ 16 | | from commander_lab import __version__
+ 17 | | from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
+ 18 | | from commander_lab.agents.pilots import build_pilot
+ 19 | | from commander_lab.analysis import DeckValidator, validate_collection_quantities
+ 20 | | from commander_lab.cards.catalog import CardCatalog
+ 21 | | from commander_lab.decision_statistics import holm_adjust
+ 22 | | from commander_lab.engine.rules import (
+ 23 | |     RulesEngineManager,
+ 24 | |     TacticalRuleOracle,
+ 25 | |     load_interaction_catalog,
+ 26 | |     load_project_rules_decks,
+ 27 | | )
+ 28 | | from commander_lab.engine.structural import (
+ 29 | |     ENGINE_VERSION,
+ 30 | |     load_project_structural_decks,
+ 31 | |     run_structural_batch,
+ 32 | | )
+ 33 | | from commander_lab.meta import MetaKnowledgeBase
+ 34 | | from commander_lab.meta.store import stable_deck_hash
+ 35 | | from commander_lab.models import (
+ 36 | |     ActionProposal,
+ 37 | |     AddOpponentVariantInput,
+ 38 | |     AuditUnreferencedClaimsInput,
+ 39 | |     BeamSearchInput,
+ 40 | |     BudgetBand,
+ 41 | |     BuildOptimizationContextInput,
+ 42 | |     CandidatePackage,
+ 43 | |     CandidateProfile,
+ 44 | |     CardAblationInput,
+ 45 | |     CardRole,
+ 46 | |     Collection,
+ 47 | |     CommanderDenialInput,
+ 48 | |     CompareDecksInput,
+ 49 | |     CompareDeckToMetaInput,
+ 50 | |     CompareMetaPeriodsInput,
+ 51 | |     ComparePackageVersionsInput,
+ 52 | |     ComparePilotsInput,
+ 53 | |     ComparePolicyVersionsInput,
+ 54 | |     CompareVariantSensitivityInput,
+ 55 | |     CompiledPilotPolicy,
+ 56 | |     CompilePilotPolicyInput,
+ 57 | |     CostLimits,
+ 58 | |     CreateDeckImprovementReportInput,
+ 59 | |     CreateMetaSnapshotInput,
+ 60 | |     CreateOpponentEnsembleInput,
+ 61 | |     CreateReportInput,
+ 62 | |     Deck,
+ 63 | |     DetectOrphanedCardsInput,
+ 64 | |     EvaluatePackageDensityInput,
+ 65 | |     EvaluateRobustUpgradeInput,
+ 66 | |     ExplainRecommendationInput,
+ 67 | |     ExportRecommendationEvidenceInput,
+ 68 | |     ExtractArchetypesInput,
+ 69 | |     ExtractPackagesInput,
+ 70 | |     ExtractPrimerRulesInput,
+ 71 | |     GenerateCandidatePackagesInput,
+ 72 | |     GenerateCandidateSwapsInput,
+ 73 | |     GenerateEnsembleReportInput,
+ 74 | |     GenerateMetaReportInput,
+ 75 | |     GeneratePackageReportInput,
+ 76 | |     GeneratePilotRobustnessReportInput,
+ 77 | |     GeneratePrimerConflictReportInput,
+ 78 | |     GenerateProvenanceReportInput,
+ 79 | |     GoldfishInput,
+ 80 | |     HoldoutInput,
+ 81 | |     ImportMetaDeckInput,
+ 82 | |     ImportPrimerInput,
+ 83 | |     ImportPrimerReferenceInput,
+ 84 | |     ImportTournamentResultInput,
+ 85 | |     InspectDeckInput,
+ 86 | |     InspectPackageInput,
+ 87 | |     InspectPilotInput,
+ 88 | |     ListPilotProfilesInput,
+ 89 | |     ListSupersededSourcesInput,
+ 90 | |     LocalSearchInput,
+ 91 | |     MatchupBatchInput,
+ 92 | |     MetaDeckSnapshot,
+ 93 | |     MetaEvidenceRating,
+ 94 | |     MetaSource,
+ 95 | |     OptimizationConstraints,
+ 96 | |     OptimizationVariant,
+ 97 | |     OptimizeDeckAgainstMetaInput,
+ 98 | |     OptimizeMultipleDecksWithAllocationInput,
+ 99 | |     PackageAblationInput,
+100 | |     PackageSearchInput,
+101 | |     PairedVariantInput,
+102 | |     ParetoFrontInput,
+103 | |     PilotConfig,
+104 | |     PilotEnsembleDefinition,
+105 | |     PilotEnsembleMember,
+106 | |     PilotRule,
+107 | |     PilotStrength,
+108 | |     PolicyEvalScenario,
+109 | |     PrimerReference,
+110 | |     QueryMetaCardsInput,
+111 | |     QueryMetaPackagesInput,
+112 | |     RankVariantsInput,
+113 | |     RecommendUpgradesInput,
+114 | |     RulesGameRequest,
+115 | |     RunEngineBackedMatchupInput,
+116 | |     RunEnsembleMatchupsInput,
+117 | |     RunMultifidelityComparisonInput,
+118 | |     RunPilotBenchmarkInput,
+119 | |     RunPilotEnsembleInput,
+120 | |     RunPolicyEvalInput,
+121 | |     RunRobustnessSuiteInput,
+122 | |     RunRulesCoverageGateInput,
+123 | |     SearchVariantsInput,
+124 | |     SensitivityInput,
+125 | |     ShapleyInput,
+126 | |     StructuralBatchConfig,
+127 | |     StructuralDeckProfile,
+128 | |     SwapMatrixInput,
+129 | |     TestVariantAcrossPilotsInput,
+130 | |     ToolExecutionMetadata,
+131 | |     ToolResponse,
+132 | |     ToolStatus,
+133 | |     TournamentResult,
+134 | |     TraceArtifactProvenanceInput,
+135 | |     TraceRecommendationSourcesInput,
+136 | |     ValidateDeckInput,
+137 | |     ValidateEnsembleInput,
+138 | |     ValidateLandChangeInput,
+139 | |     ValidateMulliganPolicyInput,
+140 | |     ValidatePackageChangeInput,
+141 | |     ValidatePilotRulesInput,
+142 | |     ValidateSwapInput,
+143 | |     ValidateUpgradeInput,
+144 | |     VariantSwap,
+145 | |     VerifySourceHashInput,
+146 | | )
+147 | | from commander_lab.models.mulligan import (
+148 | |     GeneratedKeepRule,
+149 | |     MulliganContext,
+150 | |     MulliganGamePlan,
+151 | |     MulliganLabResult,
+152 | |     MulliganPolicyName,
+153 | | )
+154 | | from commander_lab.models.opponent_ensembles import OpponentEnsemble, OpponentVariant
+155 | | from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
+156 | | from commander_lab.models.tooling import (
+157 | |     CompareMulliganPoliciesInput,
+158 | |     CreateMulliganReportInput,
+159 | |     EvaluateOpeningHandInput,
+160 | |     GenerateKeepRulesInput,
+161 | |     RunMulliganLabInput,
+162 | |     SampleOpeningHandsInput,
+163 | |     TestKeepRuleInput,
+164 | | )
+165 | | from commander_lab.mulligan import MulliganLab
+166 | | from commander_lab.opponent_ensembles import OpponentEnsembleStore
+167 | | from commander_lab.optimization import (
+168 | |     DEFAULT_CONSTRAINTS,
+169 | |     PairedMetrics,
+170 | |     SearchCandidate,
+171 | |     ablation_filler,
+172 | |     all_legal_single_swaps,
+173 | |     approximate_shapley_profile,
+174 | |     build_search_candidate,
+175 | |     default_constraints,
+176 | |     evaluate_constraints,
+177 | |     load_candidate_inventory,
+178 | |     objective_vector,
+179 | |     pareto_front,
+180 | |     profile_score,
+181 | |     role_summary,
+182 | |     build_recommendation_trace,
+183 | |     build_robust_objective,
+184 | |     recommendation_confidence,
+185 | |     scenario_heterogeneity,
+186 | |     run_paired_structural_comparison,
+187 | |     variant_deck,
+188 | | )
+189 | | from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
+190 | | from commander_lab.primer import PrimerToPilotCompiler
+191 | | from commander_lab.provenance import ProvenanceStore
+192 | | from commander_lab.robustness import POLITICS_REGIMES, pilot_config_for
+193 | | from commander_lab.storage import (
+194 | |     atomic_write_json,
+195 | |     atomic_write_text,
+196 | |     load_model,
+197 | |     sha256_value,
+198 | | )
+199 | | from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
+200 | |
+201 | | from .candidates import (
+202 | |     load_candidate_profiles,
+203 | |     load_canonical_inventory_quantities,
+204 | |     load_current_candidate_eligibility,
+205 | |     load_current_optimization_availability,
+206 | | )
+    | |_^
+207 |
+208 |   if TYPE_CHECKING:
+    |
+help: Organize imports
+    |
+173 |     approximate_shapley_profile,
+174 +     build_recommendation_trace,
+175 +     build_robust_objective,
+176 |     build_search_candidate,
+--------------------------------------------------------------------------------
+182 |     profile_score,
+183 +     recommendation_confidence,
+184 |     role_summary,
+    -     build_recommendation_trace,
+    -     build_robust_objective,
+    -     recommendation_confidence,
+185 +     run_paired_structural_comparison,
+186 |     scenario_heterogeneity,
+    -     run_paired_structural_comparison,
+187 |     variant_deck,
+    |
+
+RUF059 Unpacked variable `improvement` is never used
+    --> src/commander_lab/tools/service.py:2728:37
+     |
+2726 |                     reverse=True,
+2727 |                 )
+2728 |                 robust_lower_bound, improvement, best, comparison = neighbors[0]
+     |                                     ^^^^^^^^^^^
+2729 |                 if robust_lower_bound <= 0:
+2730 |                     break
+     |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+F841 Local variable `candidate` is assigned to but never used
+   --> tests/unit/test_j_p5_optimizer_validation.py:99:9
+    |
+ 97 |     for row in payload["variants"]:
+ 98 |         baseline = svc._deck(row["deck_id"])
+ 99 |         candidate = svc._candidate(row["add_candidate_id"], row["deck_id"])
+    |         ^^^^^^^^^
+100 |         from commander_lab.optimization import build_search_candidate
+101 |         built = build_search_candidate(
+    |
+help: Remove assignment to unused variable `candidate`
+
+Found 14 errors.
+[*] 5 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).
+--- ruff format --check ---
+unformatted: File would be reformatted
+   --> scripts/run_j_p5_development.py:12:21
+    |
+11  | from commander_lab.models import (
+    -     BeamSearchInput, CardAblationInput, CommanderDenialInput, LocalSearchInput,
+    -     PackageAblationInput, ParetoFrontInput, PilotConfig, ShapleyInput, SwapMatrixInput,
+12  +     BeamSearchInput,
+13  +     CardAblationInput,
+14  +     CommanderDenialInput,
+15  +     LocalSearchInput,
+16  +     PackageAblationInput,
+17  +     ParetoFrontInput,
+18  +     PilotConfig,
+19  +     ShapleyInput,
+20  +     SwapMatrixInput,
+21  |     VariantSwap,
+--------------------------------------------------------------------------------
+27  | ROOT = Path(__file__).resolve().parents[1]
+    - PRIMARY = ("opponent/morcant-elves", "opponent/doom-prevails-precon", "opponent/cosmic-spiderman-midbudget")
+28  + PRIMARY = (
+29  +     "opponent/morcant-elves",
+30  +     "opponent/doom-prevails-precon",
+31  +     "opponent/cosmic-spiderman-midbudget",
+32  + )
+33  | HOLDOUT_SHA = "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203"
+--------------------------------------------------------------------------------
+47  |     built = build_search_candidate(
+    -         baseline, (swap,), service.candidates, service._optimization_constraints(row["deck_id"]),
+    -         inventory=service.candidate_inventory, verified_physical_names=service.verified_candidate_names,
+48  +         baseline,
+49  +         (swap,),
+50  +         service.candidates,
+51  +         service._optimization_constraints(row["deck_id"]),
+52  +         inventory=service.candidate_inventory,
+53  +         verified_physical_names=service.verified_candidate_names,
+54  |     )
+--------------------------------------------------------------------------------
+58  |
+    - def _paired(service, row, *, opponents=PRIMARY, strength="strong", iterations=12, seed=20260811, pair_suffix="primary"):
+59  + def _paired(
+60  +     service,
+61  +     row,
+62  +     *,
+63  +     opponents=PRIMARY,
+64  +     strength="strong",
+65  +     iterations=12,
+66  +     seed=20260811,
+67  +     pair_suffix="primary",
+68  + ):
+69  |     baseline, built = _variant(service, row)
+70  |     metrics, pairs = run_paired_structural_comparison(
+    -         baseline=baseline, variant=built.variant,
+    -         opponents=tuple(service._deck(x) for x in opponents), iterations=iterations, seed=seed,
+    -         pilot_config=PilotConfig(strength=strength, mode="deterministic"), max_turns=14,
+71  +         baseline=baseline,
+72  +         variant=built.variant,
+73  +         opponents=tuple(service._deck(x) for x in opponents),
+74  +         iterations=iterations,
+75  +         seed=seed,
+76  +         pilot_config=PilotConfig(strength=strength, mode="deterministic"),
+77  +         max_turns=14,
+78  |         pair_id=f"jp5-{row['id']}-{pair_suffix}",
+--------------------------------------------------------------------------------
+86  |     rows = [
+    -         {"event_type":"game_started","game_id":"jp5","sequence":0,"actor_id":None,"payload":{"seed":17}},
+    -         {"event_type":"state_checkpoint","game_id":"jp5","sequence":1,"actor_id":None,"payload":{"reason":"before_decision","players":[{"player_id":"p1","life":40}]}},
+    -         {"event_type":"pilot_decision","game_id":"jp5","sequence":2,"actor_id":"p1","payload":{"phase":"counter","selected_action_id":"counter:Threat","selected_utility":2.0,"candidates":[["counter:Threat",2.0],["pass",3.5],["counter:Value",1.0]]}},
+87  +         {
+88  +             "event_type": "game_started",
+89  +             "game_id": "jp5",
+90  +             "sequence": 0,
+91  +             "actor_id": None,
+92  +             "payload": {"seed": 17},
+93  +         },
+94  +         {
+95  +             "event_type": "state_checkpoint",
+96  +             "game_id": "jp5",
+97  +             "sequence": 1,
+98  +             "actor_id": None,
+99  +             "payload": {"reason": "before_decision", "players": [{"player_id": "p1", "life": 40}]},
+100 +         },
+101 +         {
+102 +             "event_type": "pilot_decision",
+103 +             "game_id": "jp5",
+104 +             "sequence": 2,
+105 +             "actor_id": "p1",
+106 +             "payload": {
+107 +                 "phase": "counter",
+108 +                 "selected_action_id": "counter:Threat",
+109 +                 "selected_utility": 2.0,
+110 +                 "candidates": [["counter:Threat", 2.0], ["pass", 3.5], ["counter:Value", 1.0]],
+111 +             },
+112 +         },
+113 |     ]
+    -     target.write_text("\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n", encoding="utf-8")
+114 +     target.write_text(
+115 +         "\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n", encoding="utf-8"
+116 +     )
+117 |     lab = CounterfactualReplayLab(ROOT)
+--------------------------------------------------------------------------------
+134 |     assert seal["outcomes_evaluated"] is False and seal["first_evaluation_status"] == "not_run"
+    -     challenge = json.loads((ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text())
+135 +     challenge = json.loads(
+136 +         (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text()
+137 +     )
+138 |     policy = json.loads((ROOT / "config/J_P5_SEARCH_POLICY_v1.json").read_text())
+--------------------------------------------------------------------------------
+150 |             "pair_count": len(pairs),
+    -             "preselection_pass": row["static_screening_delta"] >= policy["preselection"]["minimum_static_screening_delta"],
+151 +             "preselection_pass": row["static_screening_delta"]
+152 +             >= policy["preselection"]["minimum_static_screening_delta"],
+153 |         }
+    -         primary_rows.append(record); by_deck[row["deck_id"]].append(record)
+154 +         primary_rows.append(record)
+155 +         by_deck[row["deck_id"]].append(record)
+156 |
+--------------------------------------------------------------------------------
+166 |             )
+    -         advanced.sort(key=lambda row: (
+    -             row["paired"]["distributionally_robust_lower_bound"],
+    -             row["paired"]["placement_improvement"], row["static_screening_delta"]
+    -         ), reverse=True)
+167 +         advanced.sort(
+168 +             key=lambda row: (
+169 +                 row["paired"]["distributionally_robust_lower_bound"],
+170 +                 row["paired"]["placement_improvement"],
+171 +                 row["static_screening_delta"],
+172 +             ),
+173 +             reverse=True,
+174 +         )
+175 |         finalist = advanced[0]
+    -         finalists.append({k: finalist[k] for k in ("id","deck_id","class","remove","add_candidate_id","variant_hash","static_screening_delta")})
+176 +         finalists.append(
+177 +             {
+178 +                 k: finalist[k]
+179 +                 for k in (
+180 +                     "id",
+181 +                     "deck_id",
+182 +                     "class",
+183 +                     "remove",
+184 +                     "add_candidate_id",
+185 +                     "variant_hash",
+186 +                     "static_screening_delta",
+187 +                 )
+188 +             }
+189 +         )
+190 |         classes = {row["class"]: row for row in rows}
+--------------------------------------------------------------------------------
+194 |             "bad_preselected": classes["bad"]["preselection_pass"],
+    -             "bad_not_recommended_from_noisy_mean": not classes["bad"].get("development_recommendation_gate_pass", False),
+195 +             "bad_not_recommended_from_noisy_mean": not classes["bad"].get(
+196 +                 "development_recommendation_gate_pass", False
+197 +             ),
+198 |             "finalist_class": finalist["class"],
+199 |             "strict_good_over_neutral_observed": finalist["class"] == "good",
+    -             "safety_discrimination_pass": classes["good"]["preselection_pass"] and classes["neutral"]["preselection_pass"] and not classes["bad"]["preselection_pass"] and not classes["bad"].get("development_recommendation_gate_pass", False),
+    -             "pass": classes["good"]["preselection_pass"] and classes["neutral"]["preselection_pass"] and not classes["bad"]["preselection_pass"] and not classes["bad"].get("development_recommendation_gate_pass", False),
+200 +             "safety_discrimination_pass": classes["good"]["preselection_pass"]
+201 +             and classes["neutral"]["preselection_pass"]
+202 +             and not classes["bad"]["preselection_pass"]
+203 +             and not classes["bad"].get("development_recommendation_gate_pass", False),
+204 +             "pass": classes["good"]["preselection_pass"]
+205 +             and classes["neutral"]["preselection_pass"]
+206 +             and not classes["bad"]["preselection_pass"]
+207 +             and not classes["bad"].get("development_recommendation_gate_pass", False),
+208 |         }
+--------------------------------------------------------------------------------
+214 |         for pod_size, opponents in (
+    -             (3, PRIMARY[:2]), (4, PRIMARY), (5, (*PRIMARY, "synthetic/control"))
+215 +             (3, PRIMARY[:2]),
+216 +             (4, PRIMARY),
+217 +             (5, (*PRIMARY, "synthetic/control")),
+218 |         ):
+219 |             for strength in ("average", "strong", "near_optimal_heuristic"):
+    -                 _, metrics, _ = _paired(service, finalist, opponents=opponents, strength=strength, iterations=3, seed=20260821 + pod_size, pair_suffix=f"sens-{pod_size}-{strength}")
+    -                 rows.append({"pod_size":pod_size,"pilot_strength":strength,"opponents":list(opponents),"effect":metrics.placement_improvement,"robust_lower_bound":metrics.distributionally_robust_lower_bound})
+220 +                 _, metrics, _ = _paired(
+221 +                     service,
+222 +                     finalist,
+223 +                     opponents=opponents,
+224 +                     strength=strength,
+225 +                     iterations=3,
+226 +                     seed=20260821 + pod_size,
+227 +                     pair_suffix=f"sens-{pod_size}-{strength}",
+228 +                 )
+229 +                 rows.append(
+230 +                     {
+231 +                         "pod_size": pod_size,
+232 +                         "pilot_strength": strength,
+233 +                         "opponents": list(opponents),
+234 +                         "effect": metrics.placement_improvement,
+235 +                         "robust_lower_bound": metrics.distributionally_robust_lower_bound,
+236 +                     }
+237 +                 )
+238 |         sensitivity[finalist["deck_id"]] = {
+--------------------------------------------------------------------------------
+249 |     matrices = {
+    -         "korvold": _result(service.generate_swap_matrix(SwapMatrixInput(deck_id="korvold/current", remove_cards=(kg["remove"],kn["remove"]), add_candidate_ids=(kg["add_candidate_id"],kn["add_candidate_id"]), opponent_deck_ids=PRIMARY, iterations_per_cell=1, simulate_valid_cells=True, seed=20260831))),
+    -         "rogshai": _result(service.generate_swap_matrix(SwapMatrixInput(deck_id="rogshai/current", remove_cards=(rg["remove"],rn["remove"]), add_candidate_ids=(rg["add_candidate_id"],rn["add_candidate_id"]), opponent_deck_ids=PRIMARY, iterations_per_cell=1, simulate_valid_cells=True, seed=20260832))),
+250 +         "korvold": _result(
+251 +             service.generate_swap_matrix(
+252 +                 SwapMatrixInput(
+253 +                     deck_id="korvold/current",
+254 +                     remove_cards=(kg["remove"], kn["remove"]),
+255 +                     add_candidate_ids=(kg["add_candidate_id"], kn["add_candidate_id"]),
+256 +                     opponent_deck_ids=PRIMARY,
+257 +                     iterations_per_cell=1,
+258 +                     simulate_valid_cells=True,
+259 +                     seed=20260831,
+260 +                 )
+261 +             )
+262 +         ),
+263 +         "rogshai": _result(
+264 +             service.generate_swap_matrix(
+265 +                 SwapMatrixInput(
+266 +                     deck_id="rogshai/current",
+267 +                     remove_cards=(rg["remove"], rn["remove"]),
+268 +                     add_candidate_ids=(rg["add_candidate_id"], rn["add_candidate_id"]),
+269 +                     opponent_deck_ids=PRIMARY,
+270 +                     iterations_per_cell=1,
+271 +                     simulate_valid_cells=True,
+272 +                     seed=20260832,
+273 +                 )
+274 +             )
+275 +         ),
+276 |     }
+    -     local = _result(service.run_local_search(LocalSearchInput(deck_id="korvold/current", candidate_ids=(kg["add_candidate_id"],kn["add_candidate_id"]), max_steps=1, cuts_per_step=4, opponent_deck_ids=PRIMARY, iterations=2, seed=20260833)))
+    -     beam = _result(service.run_beam_search(BeamSearchInput(deck_id="rogshai/current", candidate_ids=(rg["add_candidate_id"],rn["add_candidate_id"]), beam_width=2, depth=1, max_cuts_per_node=4, opponent_deck_ids=PRIMARY, iterations=2, seed=20260834)))
+277 +     local = _result(
+278 +         service.run_local_search(
+279 +             LocalSearchInput(
+280 +                 deck_id="korvold/current",
+281 +                 candidate_ids=(kg["add_candidate_id"], kn["add_candidate_id"]),
+282 +                 max_steps=1,
+283 +                 cuts_per_step=4,
+284 +                 opponent_deck_ids=PRIMARY,
+285 +                 iterations=2,
+286 +                 seed=20260833,
+287 +             )
+288 +         )
+289 +     )
+290 +     beam = _result(
+291 +         service.run_beam_search(
+292 +             BeamSearchInput(
+293 +                 deck_id="rogshai/current",
+294 +                 candidate_ids=(rg["add_candidate_id"], rn["add_candidate_id"]),
+295 +                 beam_width=2,
+296 +                 depth=1,
+297 +                 max_cuts_per_node=4,
+298 +                 opponent_deck_ids=PRIMARY,
+299 +                 iterations=2,
+300 +                 seed=20260834,
+301 +             )
+302 +         )
+303 +     )
+304 |     pareto = {
+    -         "korvold": _result(service.evaluate_pareto_front(ParetoFrontInput(deck_id="korvold/current", variants=tuple((VariantSwap(remove=r["remove"],add_candidate_id=r["add_candidate_id"]),) for r in challenge["variants"] if r["deck_id"]=="korvold/current"), opponent_deck_ids=PRIMARY, holdout_pods=(), iterations=2, seed=20260835))),
+    -         "rogshai": _result(service.evaluate_pareto_front(ParetoFrontInput(deck_id="rogshai/current", variants=tuple((VariantSwap(remove=r["remove"],add_candidate_id=r["add_candidate_id"]),) for r in challenge["variants"] if r["deck_id"]=="rogshai/current"), opponent_deck_ids=PRIMARY, holdout_pods=(), iterations=2, seed=20260836))),
+305 +         "korvold": _result(
+306 +             service.evaluate_pareto_front(
+307 +                 ParetoFrontInput(
+308 +                     deck_id="korvold/current",
+309 +                     variants=tuple(
+310 +                         (VariantSwap(remove=r["remove"], add_candidate_id=r["add_candidate_id"]),)
+311 +                         for r in challenge["variants"]
+312 +                         if r["deck_id"] == "korvold/current"
+313 +                     ),
+314 +                     opponent_deck_ids=PRIMARY,
+315 +                     holdout_pods=(),
+316 +                     iterations=2,
+317 +                     seed=20260835,
+318 +                 )
+319 +             )
+320 +         ),
+321 +         "rogshai": _result(
+322 +             service.evaluate_pareto_front(
+323 +                 ParetoFrontInput(
+324 +                     deck_id="rogshai/current",
+325 +                     variants=tuple(
+326 +                         (VariantSwap(remove=r["remove"], add_candidate_id=r["add_candidate_id"]),)
+327 +                         for r in challenge["variants"]
+328 +                         if r["deck_id"] == "rogshai/current"
+329 +                     ),
+330 +                     opponent_deck_ids=PRIMARY,
+331 +                     holdout_pods=(),
+332 +                     iterations=2,
+333 +                     seed=20260836,
+334 +                 )
+335 +             )
+336 +         ),
+337 |     }
+338 |     ablation = {
+    -         "card": _result(service.run_card_ablation(CardAblationInput(deck_id="korvold/current", card_name="Mirkwood Bats", opponent_deck_ids=PRIMARY, iterations=3, seed=20260837))),
+    -         "package": _result(service.run_package_ablation(PackageAblationInput(deck_id="korvold/current", card_names=("Mayhem Devil","Mirkwood Bats"), opponent_deck_ids=PRIMARY, iterations=3, seed=20260838))),
+339 +         "card": _result(
+340 +             service.run_card_ablation(
+341 +                 CardAblationInput(
+342 +                     deck_id="korvold/current",
+343 +                     card_name="Mirkwood Bats",
+344 +                     opponent_deck_ids=PRIMARY,
+345 +                     iterations=3,
+346 +                     seed=20260837,
+347 +                 )
+348 +             )
+349 +         ),
+350 +         "package": _result(
+351 +             service.run_package_ablation(
+352 +                 PackageAblationInput(
+353 +                     deck_id="korvold/current",
+354 +                     card_names=("Mayhem Devil", "Mirkwood Bats"),
+355 +                     opponent_deck_ids=PRIMARY,
+356 +                     iterations=3,
+357 +                     seed=20260838,
+358 +                 )
+359 +             )
+360 +         ),
+361 |     }
+362 |     denial = {
+    -         deck_id: _result(service.run_commander_denial(CommanderDenialInput(deck_id=deck_id, opponent_deck_ids=PRIMARY, iterations=3, seed=20260839)))
+    -         for deck_id in ("korvold/current","rogshai/current")
+363 +         deck_id: _result(
+364 +             service.run_commander_denial(
+365 +                 CommanderDenialInput(
+366 +                     deck_id=deck_id, opponent_deck_ids=PRIMARY, iterations=3, seed=20260839
+367 +                 )
+368 +             )
+369 +         )
+370 +         for deck_id in ("korvold/current", "rogshai/current")
+371 |     }
+    -     shapley = _result(service.estimate_shapley(ShapleyInput(deck_id="korvold/current", card_names=("Mayhem Devil","Mirkwood Bats"), opponent_deck_ids=PRIMARY, permutations=16, iterations=2, seed=20260840)))
+372 +     shapley = _result(
+373 +         service.estimate_shapley(
+374 +             ShapleyInput(
+375 +                 deck_id="korvold/current",
+376 +                 card_names=("Mayhem Devil", "Mirkwood Bats"),
+377 +                 opponent_deck_ids=PRIMARY,
+378 +                 permutations=16,
+379 +                 iterations=2,
+380 +                 seed=20260840,
+381 +             )
+382 +         )
+383 +     )
+384 |     counterfactual = _counterfactual_smoke()
+--------------------------------------------------------------------------------
+389 |         trace = build_recommendation_trace(
+    -             candidate_change=({"remove":row["remove"],"add_candidate_id":row["add_candidate_id"]},),
+    -             constraint_status={"valid":row["constraint_valid"]},
+    -             baseline_identity={"deck_id":row["deck_id"],"deck_hash":service._deck(row["deck_id"]).deck_hash},
+    -             variant_identity={"variant_id":row["id"],"deck_hash":row["variant_hash"]},
+    -             paired_seeds=tuple(row["paired"]["seeds"]), affected_roles=(),
+    -             central_effect={k:row["paired"][k] for k in ("placement_improvement","effect_size","monte_carlo_standard_error","confidence_interval","confidence_interval_interpretation","paired_randomization_p_value")},
+    -             worst_case_effect=sensitivity[row["deck_id"]]["worst_effect"], sensitivity=sensitivity[row["deck_id"]],
+    -             holdout_status="sealed_not_yet_evaluated", recommendation_confidence_value="development_candidate_only",
+390 +             candidate_change=(
+391 +                 {"remove": row["remove"], "add_candidate_id": row["add_candidate_id"]},
+392 +             ),
+393 +             constraint_status={"valid": row["constraint_valid"]},
+394 +             baseline_identity={
+395 +                 "deck_id": row["deck_id"],
+396 +                 "deck_hash": service._deck(row["deck_id"]).deck_hash,
+397 +             },
+398 +             variant_identity={"variant_id": row["id"], "deck_hash": row["variant_hash"]},
+399 +             paired_seeds=tuple(row["paired"]["seeds"]),
+400 +             affected_roles=(),
+401 +             central_effect={
+402 +                 k: row["paired"][k]
+403 +                 for k in (
+404 +                     "placement_improvement",
+405 +                     "effect_size",
+406 +                     "monte_carlo_standard_error",
+407 +                     "confidence_interval",
+408 +                     "confidence_interval_interpretation",
+409 +                     "paired_randomization_p_value",
+410 +                 )
+411 +             },
+412 +             worst_case_effect=sensitivity[row["deck_id"]]["worst_effect"],
+413 +             sensitivity=sensitivity[row["deck_id"]],
+414 +             holdout_status="sealed_not_yet_evaluated",
+415 +             recommendation_confidence_value="development_candidate_only",
+416 |         )
+417 |         traces.append(trace)
+418 |
+419 |     output = {
+    -         "schema_version":"1.0",
+    -         "phase":"J-P5-development",
+    -         "evidence_type":"structural_model_estimates",
+    -         "truth_boundary":"simulation/model evidence only; not empirical Commander winrate evidence",
+    -         "holdout_identity":{"id":seal["holdout_id"],"sha256":HOLDOUT_SHA,"evaluated":False},
+    -         "source_deck_hashes":{d:service._deck(d).deck_hash for d in service.ACTIVE_OWN_DECK_IDS},
+    -         "challenge_primary":primary_rows,
+    -         "challenge_checks":challenge_checks,
+    -         "challenge_set_pass":all(x["pass"] for x in challenge_checks.values()),
+    -         "finalists":finalists,
+    -         "sensitivity":sensitivity,
+    -         "constraint_enforcement":{"current_candidate_count":len(service.candidates),"current_free_inventory_entries":len(service.candidate_inventory),"hard_locked_cards":{d:list(service._optimization_constraints(d).locked_cards) for d in service.ACTIVE_OWN_DECK_IDS},"pass":True},
+    -         "paired_comparison":{"pass":all(r["paired"]["pairing_conditions"]["common_random_numbers"] for r in primary_rows),"families":"Holm per deck","model_internal_CI_only":True},
+    -         "ablation":ablation,
+    -         "commander_denial":denial,
+    -         "swap_matrix":matrices,
+    -         "search":{"local":local,"beam":beam,"policy":policy},
+    -         "pareto":pareto,
+    -         "multiple_comparisons":{"method":"Holm FWER per deck family","pass":True},
+    -         "recommendation_traces":traces,
+    -         "counterfactual_replay":counterfactual,
+    -         "shapley":shapley,
+    -         "shapley_method_judgment":"useful as secondary explanatory/triage evidence only; not a primary winner-selection method",
+    -         "automatic_canonical_mutation":False,
+420 +         "schema_version": "1.0",
+421 +         "phase": "J-P5-development",
+422 +         "evidence_type": "structural_model_estimates",
+423 +         "truth_boundary": "simulation/model evidence only; not empirical Commander winrate evidence",
+424 +         "holdout_identity": {"id": seal["holdout_id"], "sha256": HOLDOUT_SHA, "evaluated": False},
+425 +         "source_deck_hashes": {d: service._deck(d).deck_hash for d in service.ACTIVE_OWN_DECK_IDS},
+426 +         "challenge_primary": primary_rows,
+427 +         "challenge_checks": challenge_checks,
+428 +         "challenge_set_pass": all(x["pass"] for x in challenge_checks.values()),
+429 +         "finalists": finalists,
+430 +         "sensitivity": sensitivity,
+431 +         "constraint_enforcement": {
+432 +             "current_candidate_count": len(service.candidates),
+433 +             "current_free_inventory_entries": len(service.candidate_inventory),
+434 +             "hard_locked_cards": {
+435 +                 d: list(service._optimization_constraints(d).locked_cards)
+436 +                 for d in service.ACTIVE_OWN_DECK_IDS
+437 +             },
+438 +             "pass": True,
+439 +         },
+440 +         "paired_comparison": {
+441 +             "pass": all(
+442 +                 r["paired"]["pairing_conditions"]["common_random_numbers"] for r in primary_rows
+443 +             ),
+444 +             "families": "Holm per deck",
+445 +             "model_internal_CI_only": True,
+446 +         },
+447 +         "ablation": ablation,
+448 +         "commander_denial": denial,
+449 +         "swap_matrix": matrices,
+450 +         "search": {"local": local, "beam": beam, "policy": policy},
+451 +         "pareto": pareto,
+452 +         "multiple_comparisons": {"method": "Holm FWER per deck family", "pass": True},
+453 +         "recommendation_traces": traces,
+454 +         "counterfactual_replay": counterfactual,
+455 +         "shapley": shapley,
+456 +         "shapley_method_judgment": "useful as secondary explanatory/triage evidence only; not a primary winner-selection method",
+457 +         "automatic_canonical_mutation": False,
+458 |     }
+    -     target=ROOT/"docs/J_P5_DEVELOPMENT_EVIDENCE.json"
+    -     target.write_text(json.dumps(output,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    -     finalist_target=ROOT/"docs/J_P5_FROZEN_FINALISTS.json"
+    -     finalist_target.write_text(json.dumps({"status":"development_selected_pending_freeze","finalists":finalists},indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    -     print(json.dumps({"challenge_set_pass":output["challenge_set_pass"],"finalists":finalists,"matrix_status":{k:v["status"] for k,v in matrices.items()},"search_status":{"local":local["status"],"beam":beam["status"]},"pareto_status":{k:v["status"] for k,v in pareto.items()},"holdout_evaluated":False},indent=2))
+459 +     target = ROOT / "docs/J_P5_DEVELOPMENT_EVIDENCE.json"
+460 +     target.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+461 +     finalist_target = ROOT / "docs/J_P5_FROZEN_FINALISTS.json"
+462 +     finalist_target.write_text(
+463 +         json.dumps(
+464 +             {"status": "development_selected_pending_freeze", "finalists": finalists},
+465 +             indent=2,
+466 +             sort_keys=True,
+467 +         )
+468 +         + "\n",
+469 +         encoding="utf-8",
+470 +     )
+471 +     print(
+472 +         json.dumps(
+473 +             {
+474 +                 "challenge_set_pass": output["challenge_set_pass"],
+475 +                 "finalists": finalists,
+476 +                 "matrix_status": {k: v["status"] for k, v in matrices.items()},
+477 +                 "search_status": {"local": local["status"], "beam": beam["status"]},
+478 +                 "pareto_status": {k: v["status"] for k, v in pareto.items()},
+479 +                 "holdout_evaluated": False,
+480 +             },
+481 +             indent=2,
+482 +         )
+483 +     )
+484 |     return output
+485 |
+486 +
+487 | if __name__ == "__main__":
+    |
+
+unformatted: File would be reformatted
+   --> scripts/run_j_p5_holdout_once.py:23:23
+    |
+22  | ROOT = Path(__file__).resolve().parents[1]
+    - HOLDOUT_PATH = ROOT / 'data/evals/holdout/J_P5_OPTIMIZER_HOLDOUT_v1.json'
+    - SEAL_PATH = ROOT / 'docs/J_P5_HOLDOUT_SEAL.json'
+    - FREEZE_PATH = ROOT / 'docs/J_P5_DEVELOPMENT_FREEZE.json'
+    - FINALISTS_PATH = ROOT / 'docs/J_P5_FROZEN_FINALISTS.json'
+    - OUTPUT_PATH = ROOT / 'docs/J_P5_HOLDOUT_FIRST_EVALUATION.json'
+    - POLICY_PATH = ROOT / 'config/J_P5_SEARCH_POLICY_v1.json'
+    - HOLDOUT_SHA = 'b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203'
+23  + HOLDOUT_PATH = ROOT / "data/evals/holdout/J_P5_OPTIMIZER_HOLDOUT_v1.json"
+24  + SEAL_PATH = ROOT / "docs/J_P5_HOLDOUT_SEAL.json"
+25  + FREEZE_PATH = ROOT / "docs/J_P5_DEVELOPMENT_FREEZE.json"
+26  + FINALISTS_PATH = ROOT / "docs/J_P5_FROZEN_FINALISTS.json"
+27  + OUTPUT_PATH = ROOT / "docs/J_P5_HOLDOUT_FIRST_EVALUATION.json"
+28  + POLICY_PATH = ROOT / "config/J_P5_SEARCH_POLICY_v1.json"
+29  + HOLDOUT_SHA = "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203"
+30  |
+--------------------------------------------------------------------------------
+39  |     # is encoded separately by PilotStrength. This mapping is fixed before outcomes.
+    -     if label == 'heuristic':
+    -         return 'deterministic', 'sealed heuristic label maps to deterministic decision mode; heuristic quality is represented by pilot_strength'
+    -     if label in {'deterministic', 'stochastic'}:
+    -         return label, 'direct model enum mapping'
+    -     raise ValueError(f'unsupported sealed pilot mode label: {label}')
+40  +     if label == "heuristic":
+41  +         return (
+42  +             "deterministic",
+43  +             "sealed heuristic label maps to deterministic decision mode; heuristic quality is represented by pilot_strength",
+44  +         )
+45  +     if label in {"deterministic", "stochastic"}:
+46  +         return label, "direct model enum mapping"
+47  +     raise ValueError(f"unsupported sealed pilot mode label: {label}")
+48  |
+49  |
+50  | def validate_preconditions() -> dict[str, object]:
+51  |     if OUTPUT_PATH.exists():
+    -         raise RuntimeError('J-P5 optimizer holdout has already been evaluated; rerun refused')
+52  +         raise RuntimeError("J-P5 optimizer holdout has already been evaluated; rerun refused")
+53  |     if _sha(HOLDOUT_PATH) != HOLDOUT_SHA:
+    -         raise RuntimeError('sealed J-P5 optimizer holdout hash mismatch')
+    -     seal = json.loads(SEAL_PATH.read_text(encoding='utf-8'))
+    -     if seal.get('sha256') != HOLDOUT_SHA or seal.get('outcomes_evaluated') is not False or seal.get('first_evaluation_status') != 'not_run':
+    -         raise RuntimeError('holdout seal does not permit a first evaluation')
+    -     freeze = json.loads(FREEZE_PATH.read_text(encoding='utf-8'))
+    -     if seal.get('development_freeze_sha256') != _sha(FREEZE_PATH):
+    -         raise RuntimeError('holdout seal is not bound to the current development freeze')
+    -     if freeze.get('holdout_sha256') != HOLDOUT_SHA or freeze.get('holdout_outcomes_seen') is not False:
+    -         raise RuntimeError('development freeze does not bind the untouched holdout')
+    -     for rel, expected in freeze['file_sha256'].items():
+54  +         raise RuntimeError("sealed J-P5 optimizer holdout hash mismatch")
+55  +     seal = json.loads(SEAL_PATH.read_text(encoding="utf-8"))
+56  +     if (
+57  +         seal.get("sha256") != HOLDOUT_SHA
+58  +         or seal.get("outcomes_evaluated") is not False
+59  +         or seal.get("first_evaluation_status") != "not_run"
+60  +     ):
+61  +         raise RuntimeError("holdout seal does not permit a first evaluation")
+62  +     freeze = json.loads(FREEZE_PATH.read_text(encoding="utf-8"))
+63  +     if seal.get("development_freeze_sha256") != _sha(FREEZE_PATH):
+64  +         raise RuntimeError("holdout seal is not bound to the current development freeze")
+65  +     if (
+66  +         freeze.get("holdout_sha256") != HOLDOUT_SHA
+67  +         or freeze.get("holdout_outcomes_seen") is not False
+68  +     ):
+69  +         raise RuntimeError("development freeze does not bind the untouched holdout")
+70  +     for rel, expected in freeze["file_sha256"].items():
+71  |         actual = _sha(ROOT / rel)
+72  |         if actual != expected:
+    -             raise RuntimeError(f'development freeze mismatch for {rel}: {actual} != {expected}')
+    -     finalists = json.loads(FINALISTS_PATH.read_text(encoding='utf-8'))
+    -     if finalists.get('status') != 'frozen_pre_holdout' or finalists.get('holdout_outcomes_seen') is not False:
+    -         raise RuntimeError('finalists are not frozen pre-holdout')
+    -     holdout = json.loads(HOLDOUT_PATH.read_text(encoding='utf-8'))
+    -     if holdout.get('status') != 'sealed_untouched' or holdout.get('outcomes_evaluated_at_seal') is not False:
+    -         raise RuntimeError('holdout corpus is not untouched')
+73  +             raise RuntimeError(f"development freeze mismatch for {rel}: {actual} != {expected}")
+74  +     finalists = json.loads(FINALISTS_PATH.read_text(encoding="utf-8"))
+75  +     if (
+76  +         finalists.get("status") != "frozen_pre_holdout"
+77  +         or finalists.get("holdout_outcomes_seen") is not False
+78  +     ):
+79  +         raise RuntimeError("finalists are not frozen pre-holdout")
+80  +     holdout = json.loads(HOLDOUT_PATH.read_text(encoding="utf-8"))
+81  +     if (
+82  +         holdout.get("status") != "sealed_untouched"
+83  +         or holdout.get("outcomes_evaluated_at_seal") is not False
+84  +     ):
+85  +         raise RuntimeError("holdout corpus is not untouched")
+86  |     service = CommanderToolService(ROOT)
+    -     for scenario in holdout['scenarios']:
+    -         service._deck(scenario['deck_id'])
+    -         for opponent_id in scenario['opponent_deck_ids']:
+87  +     for scenario in holdout["scenarios"]:
+88  +         service._deck(scenario["deck_id"])
+89  +         for opponent_id in scenario["opponent_deck_ids"]:
+90  |             service._deck(opponent_id)
+    -         _pilot_mode_adapter(scenario['pilot_mode'])
+    -         seat = int(scenario['starting_player_seat'])
+    -         if not 0 <= seat < int(scenario['pod_size']):
+    -             raise RuntimeError(f'invalid seat in {scenario["scenario_id"]}')
+91  +         _pilot_mode_adapter(scenario["pilot_mode"])
+92  +         seat = int(scenario["starting_player_seat"])
+93  +         if not 0 <= seat < int(scenario["pod_size"]):
+94  +             raise RuntimeError(f"invalid seat in {scenario['scenario_id']}")
+95  |     return {
+    -         'holdout_sha256': HOLDOUT_SHA,
+    -         'scenario_count': len(holdout['scenarios']),
+    -         'development_freeze_sha256': _sha(FREEZE_PATH),
+    -         'pilot_mode_adapter': {'heuristic': 'deterministic'},
+96  +         "holdout_sha256": HOLDOUT_SHA,
+97  +         "scenario_count": len(holdout["scenarios"]),
+98  +         "development_freeze_sha256": _sha(FREEZE_PATH),
+99  +         "pilot_mode_adapter": {"heuristic": "deterministic"},
+100 |     }
+101 |
+102 |
+103 | def _build_variant(service: CommanderToolService, row: dict[str, object]):
+    -     deck_id = str(row['deck_id'])
+104 +     deck_id = str(row["deck_id"])
+105 |     baseline = service._deck(deck_id)
+    -     swap = VariantSwap(remove=str(row['remove']), add_candidate_id=str(row['add_candidate_id']))
+106 +     swap = VariantSwap(remove=str(row["remove"]), add_candidate_id=str(row["add_candidate_id"]))
+107 |     built = build_search_candidate(
+--------------------------------------------------------------------------------
+115 |     if not built.constraint_report.valid:
+    -         raise RuntimeError(f'frozen finalist failed constraints: {deck_id}: {built.constraint_report.issues}')
+    -     if built.variant.deck_hash != row['variant_hash']:
+    -         raise RuntimeError(f'frozen finalist identity drift for {deck_id}')
+116 +         raise RuntimeError(
+117 +             f"frozen finalist failed constraints: {deck_id}: {built.constraint_report.issues}"
+118 +         )
+119 +     if built.variant.deck_hash != row["variant_hash"]:
+120 +         raise RuntimeError(f"frozen finalist identity drift for {deck_id}")
+121 |     return baseline, built
+122 |
+123 |
+124 | def _aggregate(deck_rows: list[dict[str, object]], all_effects: list[float]) -> dict[str, object]:
+    -     scenario_effects = [float(row['paired']['placement_improvement']) for row in deck_rows]
+125 +     scenario_effects = [float(row["paired"]["placement_improvement"]) for row in deck_rows]
+126 |     q = quantile_summary(scenario_effects)
+127 |     return {
+    -         'scenario_count': len(deck_rows),
+    -         'pair_count': len(all_effects),
+    -         'central_effect': fmean(scenario_effects),
+    -         'scenario_quantiles': q,
+    -         'worst_scenario_effect': min(scenario_effects),
+    -         'scenario_heterogeneity': scenario_heterogeneity(scenario_effects),
+    -         'all_pair_effect_mean': fmean(all_effects),
+    -         'all_pair_effect_size': paired_standardized_effect(all_effects),
+    -         'all_pair_monte_carlo_standard_error': monte_carlo_standard_error(all_effects),
+    -         'all_pair_confidence_interval': paired_bootstrap_interval(all_effects, seed=2026081105),
+    -         'all_pair_randomization_p_value': paired_randomization_p_value(all_effects, seed=2026081106),
+    -         'confidence_interval_interpretation': 'model-internal Monte Carlo uncertainty only; not an empirical Commander confidence interval',
+    -         'pod_size_effects': {str(size): fmean(float(row['paired']['placement_improvement']) for row in deck_rows if int(row['pod_size']) == size) for size in (3,4,5)},
+    -         'seat_effects': {str(seat): fmean(float(row['paired']['placement_improvement']) for row in deck_rows if int(row['starting_player_seat']) == seat) for seat in sorted({int(row['starting_player_seat']) for row in deck_rows})},
+    -         'opponent_uncertainty_effects': [float(row['paired']['placement_improvement']) for row in deck_rows if row['uncertainty_axis'] == 'opponent_uncertainty'],
+128 +         "scenario_count": len(deck_rows),
+129 +         "pair_count": len(all_effects),
+130 +         "central_effect": fmean(scenario_effects),
+131 +         "scenario_quantiles": q,
+132 +         "worst_scenario_effect": min(scenario_effects),
+133 +         "scenario_heterogeneity": scenario_heterogeneity(scenario_effects),
+134 +         "all_pair_effect_mean": fmean(all_effects),
+135 +         "all_pair_effect_size": paired_standardized_effect(all_effects),
+136 +         "all_pair_monte_carlo_standard_error": monte_carlo_standard_error(all_effects),
+137 +         "all_pair_confidence_interval": paired_bootstrap_interval(all_effects, seed=2026081105),
+138 +         "all_pair_randomization_p_value": paired_randomization_p_value(
+139 +             all_effects, seed=2026081106
+140 +         ),
+141 +         "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty only; not an empirical Commander confidence interval",
+142 +         "pod_size_effects": {
+143 +             str(size): fmean(
+144 +                 float(row["paired"]["placement_improvement"])
+145 +                 for row in deck_rows
+146 +                 if int(row["pod_size"]) == size
+147 +             )
+148 +             for size in (3, 4, 5)
+149 +         },
+150 +         "seat_effects": {
+151 +             str(seat): fmean(
+152 +                 float(row["paired"]["placement_improvement"])
+153 +                 for row in deck_rows
+154 +                 if int(row["starting_player_seat"]) == seat
+155 +             )
+156 +             for seat in sorted({int(row["starting_player_seat"]) for row in deck_rows})
+157 +         },
+158 +         "opponent_uncertainty_effects": [
+159 +             float(row["paired"]["placement_improvement"])
+160 +             for row in deck_rows
+161 +             if row["uncertainty_axis"] == "opponent_uncertainty"
+162 +         ],
+163 |     }
+--------------------------------------------------------------------------------
+167 |     pre = validate_preconditions()
+    -     holdout = json.loads(HOLDOUT_PATH.read_text(encoding='utf-8'))
+    -     finalists_doc = json.loads(FINALISTS_PATH.read_text(encoding='utf-8'))
+    -     finalists = {row['deck_id']: row for row in finalists_doc['finalists']}
+    -     policy = json.loads(POLICY_PATH.read_text(encoding='utf-8'))
+    -     gate = policy['holdout_recommendation_gate']
+168 +     holdout = json.loads(HOLDOUT_PATH.read_text(encoding="utf-8"))
+169 +     finalists_doc = json.loads(FINALISTS_PATH.read_text(encoding="utf-8"))
+170 +     finalists = {row["deck_id"]: row for row in finalists_doc["finalists"]}
+171 +     policy = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+172 +     gate = policy["holdout_recommendation_gate"]
+173 |     service = CommanderToolService(ROOT)
+174 |     rows_by_deck: dict[str, list[dict[str, object]]] = defaultdict(list)
+175 |     pair_effects_by_deck: dict[str, list[float]] = defaultdict(list)
+176 |
+    -     for scenario in holdout['scenarios']:
+    -         finalist = finalists[scenario['deck_id']]
+177 +     for scenario in holdout["scenarios"]:
+178 +         finalist = finalists[scenario["deck_id"]]
+179 |         baseline, built = _build_variant(service, finalist)
+    -         actual_mode, mapping_note = _pilot_mode_adapter(scenario['pilot_mode'])
+180 +         actual_mode, mapping_note = _pilot_mode_adapter(scenario["pilot_mode"])
+181 |         metrics, pairs = run_paired_structural_comparison(
+182 |             baseline=baseline,
+183 |             variant=built.variant,
+    -             opponents=tuple(service._deck(x) for x in scenario['opponent_deck_ids']),
+    -             iterations=int(scenario['paired_seed_count']),
+    -             seed=int(scenario['paired_seed_master']),
+    -             pilot_config=PilotConfig(strength=scenario['pilot_strength'], mode=actual_mode),
+184 +             opponents=tuple(service._deck(x) for x in scenario["opponent_deck_ids"]),
+185 +             iterations=int(scenario["paired_seed_count"]),
+186 +             seed=int(scenario["paired_seed_master"]),
+187 +             pilot_config=PilotConfig(strength=scenario["pilot_strength"], mode=actual_mode),
+188 |             max_turns=14,
+189 |             pair_id=f"jp5-holdout-{scenario['scenario_id']}",
+    -             starting_player_seat=int(scenario['starting_player_seat']),
+190 +             starting_player_seat=int(scenario["starting_player_seat"]),
+191 |         )
+    -         pair_effects = [float(row['baseline_placement']) - float(row['variant_placement']) for row in pairs]
+    -         pair_effects_by_deck[scenario['deck_id']].extend(pair_effects)
+    -         rows_by_deck[scenario['deck_id']].append({
+    -             'scenario_id': scenario['scenario_id'],
+    -             'pod_size': scenario['pod_size'],
+    -             'starting_player_seat': scenario['starting_player_seat'],
+    -             'opponent_deck_ids': scenario['opponent_deck_ids'],
+    -             'pilot_strength': scenario['pilot_strength'],
+    -             'sealed_pilot_mode_label': scenario['pilot_mode'],
+    -             'executed_pilot_mode': actual_mode,
+    -             'pilot_mode_mapping_note': mapping_note,
+    -             'uncertainty_axis': scenario['uncertainty_axis'],
+    -             'paired': metrics.as_dict(),
+    -         })
+192 +         pair_effects = [
+193 +             float(row["baseline_placement"]) - float(row["variant_placement"]) for row in pairs
+194 +         ]
+195 +         pair_effects_by_deck[scenario["deck_id"]].extend(pair_effects)
+196 +         rows_by_deck[scenario["deck_id"]].append(
+197 +             {
+198 +                 "scenario_id": scenario["scenario_id"],
+199 +                 "pod_size": scenario["pod_size"],
+200 +                 "starting_player_seat": scenario["starting_player_seat"],
+201 +                 "opponent_deck_ids": scenario["opponent_deck_ids"],
+202 +                 "pilot_strength": scenario["pilot_strength"],
+203 +                 "sealed_pilot_mode_label": scenario["pilot_mode"],
+204 +                 "executed_pilot_mode": actual_mode,
+205 +                 "pilot_mode_mapping_note": mapping_note,
+206 +                 "uncertainty_axis": scenario["uncertainty_axis"],
+207 +                 "paired": metrics.as_dict(),
+208 +             }
+209 +         )
+210 |
+    -     aggregate = {deck: _aggregate(rows, pair_effects_by_deck[deck]) for deck, rows in rows_by_deck.items()}
+211 +     aggregate = {
+212 +         deck: _aggregate(rows, pair_effects_by_deck[deck]) for deck, rows in rows_by_deck.items()
+213 +     }
+214 |     decks = sorted(aggregate)
+    -     raw_ps = [float(aggregate[deck]['all_pair_randomization_p_value']) for deck in decks]
+215 +     raw_ps = [float(aggregate[deck]["all_pair_randomization_p_value"]) for deck in decks]
+216 |     adjusted = holm_adjust(raw_ps)
+--------------------------------------------------------------------------------
+221 |         passed = (
+    -             float(agg['central_effect']) >= float(gate['central_paired_effect_minimum'])
+    -             and float(agg['scenario_quantiles']['q25']) >= float(gate['scenario_q25_effect_minimum'])
+    -             and float(agg['worst_scenario_effect']) >= float(gate['worst_scenario_effect_minimum'])
+    -             and adj_p <= float(gate['holm_adjusted_model_internal_p_value_maximum'])
+222 +             float(agg["central_effect"]) >= float(gate["central_paired_effect_minimum"])
+223 +             and float(agg["scenario_quantiles"]["q25"])
+224 +             >= float(gate["scenario_q25_effect_minimum"])
+225 +             and float(agg["worst_scenario_effect"]) >= float(gate["worst_scenario_effect_minimum"])
+226 +             and adj_p <= float(gate["holm_adjusted_model_internal_p_value_maximum"])
+227 +         )
+228 +         agg["holm_adjusted_model_internal_p_value"] = adj_p
+229 +         agg["holdout_recommendation_gate_pass"] = passed
+230 +         status = "passed_first_evaluation" if passed else "first_evaluation_not_supportive"
+231 +         seeds = [seed for row in rows_by_deck[deck_id] for seed in row["paired"]["seeds"]]
+232 +         recommendation_traces.append(
+233 +             build_recommendation_trace(
+234 +                 candidate_change=(
+235 +                     {
+236 +                         "remove": finalist["remove"],
+237 +                         "add_candidate_id": finalist["add_candidate_id"],
+238 +                     },
+239 +                 ),
+240 +                 constraint_status={"valid": True, "canonical_mutation": False},
+241 +                 baseline_identity={
+242 +                     "deck_id": deck_id,
+243 +                     "deck_hash": service._deck(deck_id).deck_hash,
+244 +                 },
+245 +                 variant_identity={
+246 +                     "variant_id": finalist["id"],
+247 +                     "deck_hash": finalist["variant_hash"],
+248 +                 },
+249 +                 paired_seeds=tuple(int(seed) for seed in seeds),
+250 +                 affected_roles=(),
+251 +                 central_effect={
+252 +                     "placement_improvement": agg["central_effect"],
+253 +                     "effect_size": agg["all_pair_effect_size"],
+254 +                     "monte_carlo_standard_error": agg["all_pair_monte_carlo_standard_error"],
+255 +                     "confidence_interval": agg["all_pair_confidence_interval"],
+256 +                     "confidence_interval_interpretation": agg["confidence_interval_interpretation"],
+257 +                     "paired_randomization_p_value": agg["all_pair_randomization_p_value"],
+258 +                     "holm_adjusted_model_internal_p_value": adj_p,
+259 +                 },
+260 +                 worst_case_effect=float(agg["worst_scenario_effect"]),
+261 +                 sensitivity={
+262 +                     "scenario_heterogeneity": agg["scenario_heterogeneity"],
+263 +                     "pod_size_effects": agg["pod_size_effects"],
+264 +                     "seat_effects": agg["seat_effects"],
+265 +                     "opponent_uncertainty_effects": agg["opponent_uncertainty_effects"],
+266 +                 },
+267 +                 holdout_status=status,
+268 +                 recommendation_confidence_value="holdout_supported_model_internal"
+269 +                 if passed
+270 +                 else "not_supported_by_holdout",
+271 +             )
+272 |         )
+    -         agg['holm_adjusted_model_internal_p_value'] = adj_p
+    -         agg['holdout_recommendation_gate_pass'] = passed
+    -         status = 'passed_first_evaluation' if passed else 'first_evaluation_not_supportive'
+    -         seeds = [seed for row in rows_by_deck[deck_id] for seed in row['paired']['seeds']]
+    -         recommendation_traces.append(build_recommendation_trace(
+    -             candidate_change=({'remove': finalist['remove'], 'add_candidate_id': finalist['add_candidate_id']},),
+    -             constraint_status={'valid': True, 'canonical_mutation': False},
+    -             baseline_identity={'deck_id': deck_id, 'deck_hash': service._deck(deck_id).deck_hash},
+    -             variant_identity={'variant_id': finalist['id'], 'deck_hash': finalist['variant_hash']},
+    -             paired_seeds=tuple(int(seed) for seed in seeds),
+    -             affected_roles=(),
+    -             central_effect={
+    -                 'placement_improvement': agg['central_effect'],
+    -                 'effect_size': agg['all_pair_effect_size'],
+    -                 'monte_carlo_standard_error': agg['all_pair_monte_carlo_standard_error'],
+    -                 'confidence_interval': agg['all_pair_confidence_interval'],
+    -                 'confidence_interval_interpretation': agg['confidence_interval_interpretation'],
+    -                 'paired_randomization_p_value': agg['all_pair_randomization_p_value'],
+    -                 'holm_adjusted_model_internal_p_value': adj_p,
+    -             },
+    -             worst_case_effect=float(agg['worst_scenario_effect']),
+    -             sensitivity={
+    -                 'scenario_heterogeneity': agg['scenario_heterogeneity'],
+    -                 'pod_size_effects': agg['pod_size_effects'],
+    -                 'seat_effects': agg['seat_effects'],
+    -                 'opponent_uncertainty_effects': agg['opponent_uncertainty_effects'],
+    -             },
+    -             holdout_status=status,
+    -             recommendation_confidence_value='holdout_supported_model_internal' if passed else 'not_supported_by_holdout',
+    -         ))
+273 |
+274 |     output = {
+    -         'schema_version': '1.0',
+    -         'phase': 'J-P5-holdout-first-evaluation',
+    -         'evidence_type': 'structural_model_estimates',
+    -         'truth_boundary': 'first and only intended optimizer holdout evaluation; simulation/model evidence, not empirical Commander winrates',
+    -         'holdout_identity': {'id': holdout['holdout_id'], 'sha256': HOLDOUT_SHA, 'scenario_count': holdout['scenario_count']},
+    -         'preconditions': pre,
+    -         'first_and_only_intended_evaluation': True,
+    -         'evaluation_count': 1,
+    -         'post_holdout_tuning_performed': False,
+    -         'no_finalist_reselection_after_holdout': True,
+    -         'holdout_multiple_comparisons': policy['holdout_multiple_comparisons'],
+    -         'holdout_gate': gate,
+    -         'scenario_results': {deck: rows_by_deck[deck] for deck in decks},
+    -         'aggregate_results': aggregate,
+    -         'recommendation_traces': recommendation_traces,
+    -         'automatic_canonical_mutation': False,
+275 +         "schema_version": "1.0",
+276 +         "phase": "J-P5-holdout-first-evaluation",
+277 +         "evidence_type": "structural_model_estimates",
+278 +         "truth_boundary": "first and only intended optimizer holdout evaluation; simulation/model evidence, not empirical Commander winrates",
+279 +         "holdout_identity": {
+280 +             "id": holdout["holdout_id"],
+281 +             "sha256": HOLDOUT_SHA,
+282 +             "scenario_count": holdout["scenario_count"],
+283 +         },
+284 +         "preconditions": pre,
+285 +         "first_and_only_intended_evaluation": True,
+286 +         "evaluation_count": 1,
+287 +         "post_holdout_tuning_performed": False,
+288 +         "no_finalist_reselection_after_holdout": True,
+289 +         "holdout_multiple_comparisons": policy["holdout_multiple_comparisons"],
+290 +         "holdout_gate": gate,
+291 +         "scenario_results": {deck: rows_by_deck[deck] for deck in decks},
+292 +         "aggregate_results": aggregate,
+293 +         "recommendation_traces": recommendation_traces,
+294 +         "automatic_canonical_mutation": False,
+295 |     }
+    -     OUTPUT_PATH.write_text(json.dumps(output, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+    -     seal = json.loads(SEAL_PATH.read_text(encoding='utf-8'))
+    -     seal.update({
+    -         'outcomes_evaluated': True,
+    -         'first_evaluation_status': 'completed',
+    -         'evaluation_count': 1,
+    -         'first_evaluation_artifact': OUTPUT_PATH.relative_to(ROOT).as_posix(),
+    -         'first_evaluation_artifact_sha256': _sha(OUTPUT_PATH),
+    -         'post_holdout_tuning_performed': False,
+    -     })
+    -     SEAL_PATH.write_text(json.dumps(seal, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+    -     print(json.dumps({
+    -         'holdout': 'completed_once',
+    -         'aggregate_results': aggregate,
+    -         'recommendation_gate': {trace['baseline_identity']['deck_id']: trace['holdout_status'] for trace in recommendation_traces},
+    -         'post_holdout_tuning_performed': False,
+    -     }, indent=2, sort_keys=True))
+296 +     OUTPUT_PATH.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+297 +     seal = json.loads(SEAL_PATH.read_text(encoding="utf-8"))
+298 +     seal.update(
+299 +         {
+300 +             "outcomes_evaluated": True,
+301 +             "first_evaluation_status": "completed",
+302 +             "evaluation_count": 1,
+303 +             "first_evaluation_artifact": OUTPUT_PATH.relative_to(ROOT).as_posix(),
+304 +             "first_evaluation_artifact_sha256": _sha(OUTPUT_PATH),
+305 +             "post_holdout_tuning_performed": False,
+306 +         }
+307 +     )
+308 +     SEAL_PATH.write_text(json.dumps(seal, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+309 +     print(
+310 +         json.dumps(
+311 +             {
+312 +                 "holdout": "completed_once",
+313 +                 "aggregate_results": aggregate,
+314 +                 "recommendation_gate": {
+315 +                     trace["baseline_identity"]["deck_id"]: trace["holdout_status"]
+316 +                     for trace in recommendation_traces
+317 +                 },
+318 +                 "post_holdout_tuning_performed": False,
+319 +             },
+320 +             indent=2,
+321 +             sort_keys=True,
+322 +         )
+323 +     )
+324 |     return output
+325 |
+326 |
+    - if __name__ == '__main__':
+327 + if __name__ == "__main__":
+328 |     run()
+    |
+
+unformatted: File would be reformatted
+   --> scripts/run_phase7_validation.py:36:28
+    |
+35  |     service = CommanderToolService(ROOT)
+    -     challenge = json.loads((ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text(encoding="utf-8"))
+    -     by_deck = {deck_id: [row for row in challenge["variants"] if row["deck_id"] == deck_id] for deck_id in ("korvold/current", "rogshai/current")}
+36  +     challenge = json.loads(
+37  +         (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text(
+38  +             encoding="utf-8"
+39  +         )
+40  +     )
+41  +     by_deck = {
+42  +         deck_id: [row for row in challenge["variants"] if row["deck_id"] == deck_id]
+43  +         for deck_id in ("korvold/current", "rogshai/current")
+44  +     }
+45  |     kg, kn = by_deck["korvold/current"][0], by_deck["korvold/current"][1]
+--------------------------------------------------------------------------------
+133 |                 variants=(
+    -                     (
+    -                         VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),
+    -                     ),
+    -                     (
+    -                         VariantSwap(remove=kn["remove"], add_candidate_id=kn["add_candidate_id"]),
+    -                     ),
+134 +                     (VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),),
+135 +                     (VariantSwap(remove=kn["remove"], add_candidate_id=kn["add_candidate_id"]),),
+136 |                     package.swaps,
+--------------------------------------------------------------------------------
+167 |                 deck_id="korvold/current",
+    -                 swaps=(
+    -                     VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),
+    -                 ),
+168 +                 swaps=(VariantSwap(remove=kg["remove"], add_candidate_id=kg["add_candidate_id"]),),
+169 |                 **common_validation,
+--------------------------------------------------------------------------------
+177 |                 deck_id="rogshai/current",
+    -                 swaps=(
+    -                     VariantSwap(remove=rg["remove"], add_candidate_id=rg["add_candidate_id"]),
+    -                 ),
+178 +                 swaps=(VariantSwap(remove=rg["remove"], add_candidate_id=rg["add_candidate_id"]),),
+179 |                 **common_validation,
+    |
+
+unformatted: File would be reformatted
+  --> src/commander_lab/decision_statistics.py:81:1
+   |
+80 |
+   -
+81 | def paired_randomization_p_value(
+   |
+
+unformatted: File would be reformatted
+   --> src/commander_lab/optimization/constraints.py:44:23
+    |
+43  |         require_partner_configuration=False,
+    -         locked_cards=("Dark Ritual", "Tinder Wall", "Orcish Lumberjack", "Exploration Broodship", "Pitiless Plunderer", "Ophiomancer", "Mirkwood Bats"),
+44  +         locked_cards=(
+45  +             "Dark Ritual",
+46  +             "Tinder Wall",
+47  +             "Orcish Lumberjack",
+48  +             "Exploration Broodship",
+49  +             "Pitiless Plunderer",
+50  +             "Ophiomancer",
+51  +             "Mirkwood Bats",
+52  +         ),
+53  |     ),
+--------------------------------------------------------------------------------
+75  |         require_partner_configuration=True,
+    -         locked_cards=("Duelist's Heritage", "Chandra, Torch of Defiance", "Light of Hope", "Kediss, Emberclaw Familiar", "Silence", "Jeska, Thrice Reborn"),
+76  +         locked_cards=(
+77  +             "Duelist's Heritage",
+78  +             "Chandra, Torch of Defiance",
+79  +             "Light of Hope",
+80  +             "Kediss, Emberclaw Familiar",
+81  +             "Silence",
+82  +             "Jeska, Thrice Reborn",
+83  +         ),
+84  |     ),
+--------------------------------------------------------------------------------
+124 |
+    -     if constraints.required_commanders and tuple(deck.commander_names) != tuple(constraints.required_commanders):
+125 +     if constraints.required_commanders and tuple(deck.commander_names) != tuple(
+126 +         constraints.required_commanders
+127 +     ):
+128 |         issues.append(
+129 |             ConstraintIssue(
+130 |                 code="commander_identity",
+131 |                 message="variant commander/partner configuration differs from the canonical optimization target",
+    -                 context={"actual": list(deck.commander_names), "required": list(constraints.required_commanders)},
+132 +                 context={
+133 +                     "actual": list(deck.commander_names),
+134 +                     "required": list(constraints.required_commanders),
+135 +                 },
+136 |             )
+--------------------------------------------------------------------------------
+144 |                     message="variant partner configuration differs from current policy",
+    -                     context={"actual": actual_partner, "required": constraints.require_partner_configuration},
+145 +                     context={
+146 +                         "actual": actual_partner,
+147 +                         "required": constraints.require_partner_configuration,
+148 +                     },
+149 |                 )
+    |
+
+unformatted: File would be reformatted
+   --> src/commander_lab/optimization/experiments.py:190:17
+    |
+189 |         match_seed = derive_paired_seed(seed, pair_id, index)
+    -         start = starting_player_seat if starting_player_seat is not None else index % (1 + len(opponents))
+190 +         start = (
+191 +             starting_player_seat
+192 +             if starting_player_seat is not None
+193 +             else index % (1 + len(opponents))
+194 +         )
+195 |         baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
+--------------------------------------------------------------------------------
+332 |             "pilot_mode": pilot_config.mode.value,
+    -             "seat_policy": "explicit_fixed" if starting_player_seat is not None else "deterministic_rotation",
+333 +             "seat_policy": "explicit_fixed"
+334 +             if starting_player_seat is not None
+335 +             else "deterministic_rotation",
+336 |             "starting_player_seat": starting_player_seat,
+    |
+
+unformatted: File would be reformatted
+   --> src/commander_lab/optimization/jp5.py:41:17
+    |
+40  |     if not values:
+    -         return {"scenario_count": 0.0, "mean": 0.0, "standard_deviation": 0.0, "minimum": 0.0, "maximum": 0.0}
+41  +         return {
+42  +             "scenario_count": 0.0,
+43  +             "mean": 0.0,
+44  +             "standard_deviation": 0.0,
+45  +             "minimum": 0.0,
+46  +             "maximum": 0.0,
+47  +         }
+48  |     return {
+--------------------------------------------------------------------------------
+93  |     payload = ",".join(str(seed) for seed in seeds).encode("utf-8")
+    -     return {"count": len(seeds), "sha256": hashlib.sha256(payload).hexdigest(), "seeds": list(seeds)}
+94  +     return {
+95  +         "count": len(seeds),
+96  +         "sha256": hashlib.sha256(payload).hexdigest(),
+97  +         "seeds": list(seeds),
+98  +     }
+99  |
+100 |
+    - def recommendation_confidence(*, constraint_valid: bool, adjusted_p_value: float | None, worst_case_effect: float, holdout_status: str) -> str:
+101 + def recommendation_confidence(
+102 +     *,
+103 +     constraint_valid: bool,
+104 +     adjusted_p_value: float | None,
+105 +     worst_case_effect: float,
+106 +     holdout_status: str,
+107 + ) -> str:
+108 |     if not constraint_valid:
+109 |         return "rejected_constraints"
+    -     if holdout_status == "passed_first_evaluation" and worst_case_effect >= 0 and adjusted_p_value is not None and adjusted_p_value <= 0.05:
+110 +     if (
+111 +         holdout_status == "passed_first_evaluation"
+112 +         and worst_case_effect >= 0
+113 +         and adjusted_p_value is not None
+114 +         and adjusted_p_value <= 0.05
+115 +     ):
+116 |         return "high_model_internal"
+    |
+
+unformatted: File would be reformatted
+   --> src/commander_lab/optimization/search.py:279:27
+    |
+278 |         seat_values.setdefault(seat, []).append(delta)
+    -     seat_robustness = min((fmean(values) for values in seat_values.values()), default=metrics.placement_improvement)
+279 +     seat_robustness = min(
+280 +         (fmean(values) for values in seat_values.values()), default=metrics.placement_improvement
+281 +     )
+282 |     return ObjectiveVector(
+    |
+
+unformatted: File would be reformatted
+  --> src/commander_lab/tools/candidates.py:78:13
+   |
+77 |     payload = json.loads(path.read_text(encoding="utf-8"))
+   -     return {str(deck_id): {str(name) for name in rows} for deck_id, rows in payload.get("eligible_by_deck", {}).items()}
+78 +     return {
+79 +         str(deck_id): {str(name) for name in rows}
+80 +         for deck_id, rows in payload.get("eligible_by_deck", {}).items()
+81 +     }
+82 |
+   |
+
+unformatted: File would be reformatted
+    --> src/commander_lab/tools/service.py:301:21
+     |
+300  |                 for deck_id in candidate.allowed_deck_ids
+     -                 if (not current_eligibility or candidate.card.oracle_name in current_eligibility.get(deck_id, set()))
+301  +                 if (
+302  +                     not current_eligibility
+303  +                     or candidate.card.oracle_name in current_eligibility.get(deck_id, set())
+304  +                 )
+305  |                 and (
+--------------------------------------------------------------------------------
+2727 |                 neighbors.sort(
+     -                     key=lambda row: (row[0], row[1], row[2].screening_score, row[2].variant.deck_hash),
+2728 +                     key=lambda row: (
+2729 +                         row[0],
+2730 +                         row[1],
+2731 +                         row[2].screening_score,
+2732 +                         row[2].variant.deck_hash,
+2733 +                     ),
+2734 |                     reverse=True,
+--------------------------------------------------------------------------------
+2855 |                     )
+     -                     scored.append((metrics.distributionally_robust_lower_bound, metrics.placement_improvement, node, metrics.as_dict()))
+2856 +                     scored.append(
+2857 +                         (
+2858 +                             metrics.distributionally_robust_lower_bound,
+2859 +                             metrics.placement_improvement,
+2860 +                             node,
+2861 +                             metrics.as_dict(),
+2862 +                         )
+2863 +                     )
+2864 |                 scored.sort(
+     -                     key=lambda row: (row[0], row[1], row[2].screening_score, row[2].variant.deck_hash),
+2865 +                     key=lambda row: (
+2866 +                         row[0],
+2867 +                         row[1],
+2868 +                         row[2].screening_score,
+2869 +                         row[2].variant.deck_hash,
+2870 +                     ),
+2871 |                     reverse=True,
+--------------------------------------------------------------------------------
+3718 |             for card_name, candidates in sorted(claims.items()):
+     -                 candidates.sort(key=lambda x: (x.get("screening_delta", 0), x["deck_id"]), reverse=True)
+3719 +                 candidates.sort(
+3720 +                     key=lambda x: (x.get("screening_delta", 0), x["deck_id"]), reverse=True
+3721 +                 )
+3722 |                 capacity = max(0, int(self.candidate_inventory.get(card_name, 0)))
+--------------------------------------------------------------------------------
+3853 |                 commander_dependency_variant=float(dependency["variant_dependency_penalty"]),
+     -                 matchup_effects=tuple(holdout_values) + tuple(
+     -                     float(row["placement_improvement"]) for row in robustness_rows
+     -                 ),
+3854 +                 matchup_effects=tuple(holdout_values)
+3855 +                 + tuple(float(row["placement_improvement"]) for row in robustness_rows),
+3856 |                 pod_effects=pod_effects,
+--------------------------------------------------------------------------------
+3928 |                         "confidence_interval": paired.get("confidence_interval"),
+     -                         "confidence_interval_interpretation": paired.get("confidence_interval_interpretation"),
+3929 +                         "confidence_interval_interpretation": paired.get(
+3930 +                             "confidence_interval_interpretation"
+3931 +                         ),
+3932 |                         "raw_model_internal_p_value": paired.get("paired_randomization_p_value"),
+3933 |                     },
+3934 |                     worst_case_effect=min(
+     -                         [float(row["placement_improvement"]) for row in robustness_rows] + holdout_values,
+3935 +                         [float(row["placement_improvement"]) for row in robustness_rows]
+3936 +                         + holdout_values,
+3937 |                         default=float(paired.get("worst_case_result", 0.0)),
+--------------------------------------------------------------------------------
+3952 |                         worst_case_effect=min(
+     -                             [float(row["placement_improvement"]) for row in robustness_rows] + holdout_values,
+3953 +                             [float(row["placement_improvement"]) for row in robustness_rows]
+3954 +                             + holdout_values,
+3955 |                             default=float(paired.get("worst_case_result", 0.0)),
+--------------------------------------------------------------------------------
+4409 |                 if raw_p is None:
+     -                     raw_p = (row.get("paired_structural_effect") or {}).get("paired_randomization_p_value")
+4410 +                     raw_p = (row.get("paired_structural_effect") or {}).get(
+4411 +                         "paired_randomization_p_value"
+4412 +                     )
+4413 |                 if isinstance(raw_p, (int, float)) and not isinstance(raw_p, bool):
+     |
+
+unformatted: File would be reformatted
+   --> tests/unit/test_j_p5_optimizer_validation.py:20:1
+    |
+19  |     import hashlib
+    -     assert hashlib.sha256(data).hexdigest() == "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203"
+20  +
+21  +     assert (
+22  +         hashlib.sha256(data).hexdigest()
+23  +         == "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203"
+24  +     )
+25  |     payload = json.loads(data)
+--------------------------------------------------------------------------------
+33  |     assert fields == {
+    -         "central_performance", "worst_quartile", "commander_independence", "rebuild",
+    -         "finish_reliability", "matchup_robustness", "pod_size_robustness",
+    -         "seat_robustness", "opponent_uncertainty", "physical_allocation",
+34  +         "central_performance",
+35  +         "worst_quartile",
+36  +         "commander_independence",
+37  +         "rebuild",
+38  +         "finish_reliability",
+39  +         "matchup_robustness",
+40  +         "pod_size_robustness",
+41  +         "seat_robustness",
+42  +         "opponent_uncertainty",
+43  +         "physical_allocation",
+44  |     }
+--------------------------------------------------------------------------------
+48  |     svc = CommanderToolService(ROOT)
+    -     payload = json.loads((ROOT / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json").read_text())
+49  +     payload = json.loads(
+50  +         (ROOT / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json").read_text()
+51  +     )
+52  |     assert svc.candidate_inventory == payload["cards"]
+--------------------------------------------------------------------------------
+58  |     baseline = svc._deck("korvold/current")
+    -     altered = baseline.model_copy(update={"commander_names": ("Not Korvold",), "commander_base_costs": {"Not Korvold": 5.0}})
+59  +     altered = baseline.model_copy(
+60  +         update={"commander_names": ("Not Korvold",), "commander_base_costs": {"Not Korvold": 5.0}}
+61  +     )
+62  |     report = evaluate_constraints(altered, DEFAULT_CONSTRAINTS["korvold/current"])
+--------------------------------------------------------------------------------
+77  |     from commander_lab.optimization import evaluate_simultaneous_allocation
+    -     assert evaluate_simultaneous_allocation({"korvold/current": (name,), "rogshai/current": (name,)}, {name: 2}).valid
+    -     assert not evaluate_simultaneous_allocation({"korvold/current": (name,), "rogshai/current": (name,)}, {name: 1}).valid
+78  |
+79  +     assert evaluate_simultaneous_allocation(
+80  +         {"korvold/current": (name,), "rogshai/current": (name,)}, {name: 2}
+81  +     ).valid
+82  +     assert not evaluate_simultaneous_allocation(
+83  +         {"korvold/current": (name,), "rogshai/current": (name,)}, {name: 1}
+84  +     ).valid
+85  +
+86  |
+--------------------------------------------------------------------------------
+98  |     trace = build_recommendation_trace(
+    -         candidate_change=({"remove":"A","add":"B"},),
+    -         constraint_status={"valid":True}, baseline_identity={"deck_hash":"base"},
+    -         variant_identity={"deck_hash":"var"}, paired_seeds=(1,2,3),
+    -         affected_roles=("draw",), central_effect={"placement_improvement":0.1},
+    -         worst_case_effect=0.0, sensitivity={"pod":[]},
+    -         holdout_status="not_evaluated", recommendation_confidence_value="moderate_model_internal",
+99  +         candidate_change=({"remove": "A", "add": "B"},),
+100 +         constraint_status={"valid": True},
+101 +         baseline_identity={"deck_hash": "base"},
+102 +         variant_identity={"deck_hash": "var"},
+103 +         paired_seeds=(1, 2, 3),
+104 +         affected_roles=("draw",),
+105 +         central_effect={"placement_improvement": 0.1},
+106 +         worst_case_effect=0.0,
+107 +         sensitivity={"pod": []},
+108 +         holdout_status="not_evaluated",
+109 +         recommendation_confidence_value="moderate_model_internal",
+110 |     )
+    -     required = {"candidate_change","constraint_status","baseline_identity","variant_identity","paired_seed_set","affected_roles","central_effect","worst_case_effect","sensitivity","holdout_status","model_limitations","recommendation_confidence"}
+111 +     required = {
+112 +         "candidate_change",
+113 +         "constraint_status",
+114 +         "baseline_identity",
+115 +         "variant_identity",
+116 +         "paired_seed_set",
+117 +         "affected_roles",
+118 +         "central_effect",
+119 +         "worst_case_effect",
+120 +         "sensitivity",
+121 +         "holdout_status",
+122 +         "model_limitations",
+123 +         "recommendation_confidence",
+124 +     }
+125 |     assert required <= set(trace)
+126 |     assert trace["evidence_type"] == "structural_model_estimates"
+127 |     assert trace["llm_explanation_is_simulation_evidence"] is False
+    -     assert paired_seed_set_identity((1,2,3))["count"] == 3
+128 +     assert paired_seed_set_identity((1, 2, 3))["count"] == 3
+129 |
+130 |
+131 | def test_challenge_set_is_constraint_safe_and_has_all_classes() -> None:
+132 |     svc = CommanderToolService(ROOT)
+    -     payload = json.loads((ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text())
+133 +     payload = json.loads(
+134 +         (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text()
+135 +     )
+136 |     assert {row["class"] for row in payload["variants"]} == {"good", "neutral", "bad"}
+--------------------------------------------------------------------------------
+140 |         from commander_lab.optimization import build_search_candidate
+141 +
+142 |         built = build_search_candidate(
+    -             baseline, (VariantSwap(remove=row["remove"], add_candidate_id=row["add_candidate_id"]),),
+    -             svc.candidates, svc._optimization_constraints(row["deck_id"]),
+    -             inventory=svc.candidate_inventory, verified_physical_names=svc.verified_candidate_names,
+143 +             baseline,
+144 +             (VariantSwap(remove=row["remove"], add_candidate_id=row["add_candidate_id"]),),
+145 +             svc.candidates,
+146 +             svc._optimization_constraints(row["deck_id"]),
+147 +             inventory=svc.candidate_inventory,
+148 +             verified_physical_names=svc.verified_candidate_names,
+149 |         )
+    |
+
+11 files would be reformatted, 407 files already formatted
