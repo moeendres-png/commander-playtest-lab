@@ -97,10 +97,8 @@ def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, st
     source_artifacts = manifest.get("source_artifacts")
     if not isinstance(source_artifacts, dict):
         raise ProjectContextError("canonical feature manifest has no source_artifacts")
-    if set(source_artifacts) >= _REQUIRED_FEATURE_SOURCES:
-        pass
-    else:
-        missing = sorted(_REQUIRED_FEATURE_SOURCES - set(source_artifacts))
+    missing = sorted(_REQUIRED_FEATURE_SOURCES - set(source_artifacts))
+    if missing:
         raise ProjectContextError(f"canonical feature manifest is missing sources: {missing}")
 
     hashes: dict[str, str] = {}
