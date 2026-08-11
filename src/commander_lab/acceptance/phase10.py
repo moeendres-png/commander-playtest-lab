@@ -348,7 +348,7 @@ def run_phase10_acceptance(
     primary_pods = [tuple(row) for row in opponent_policy["primary_four_player_pods"]]
     holdout_pods = [tuple(row) for row in opponent_policy["holdout_pods"]]
     evidence: list[dict[str, Any]] = []
-    decks = ("korvold/current", "rogshai/current")
+    decks = service.ACTIVE_OWN_DECK_IDS
     deck_evidence: dict[str, Any] = {}
 
     for deck_id in decks:
