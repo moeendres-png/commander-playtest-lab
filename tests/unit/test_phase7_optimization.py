@@ -137,8 +137,13 @@ def test_validate_upgrade_runs_full_chain_and_never_applies() -> None:
     service = CommanderToolService(ROOT)
     response = service.validate_upgrade(
         ValidateUpgradeInput(
-            deck_id="korvold/current",
-            swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
+            deck_id="rogshai/current",
+            swaps=(
+                VariantSwap(
+                    remove="Flare of Duplication",
+                    add_candidate_id="inventory/rootborn-defenses-677fdbcf",
+                ),
+            ),
             iterations=2,
             seed=31,
             holdout_pods=(("synthetic/control", "synthetic/control", "synthetic/engine"),),
