@@ -34,6 +34,9 @@ def test_current_drive_universe_is_complete_and_k2_bias_suite_passes(repo_root: 
     assert set(universe.review_required) <= set(universe.candidate_names)
     for basic in ("Plains", "Island", "Mountain"):
         assert universe.available_quantities.get(basic, 0) >= 50
+    # Korvold is historical-only and must not reserve active RogShai inventory.
+    assert universe.available_quantities.get("Lightning Greaves", 0) >= 1
+    assert universe.available_quantities.get("Goblin Bombardment", 0) >= 1
 
     bias = run_k2_bias_suite(repo_root)
     assert bias["status"] == "PASS"

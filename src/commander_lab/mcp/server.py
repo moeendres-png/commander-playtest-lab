@@ -13,6 +13,7 @@ from typing import Any, TextIO
 from pydantic import ValidationError
 
 from commander_lab import __version__
+from commander_lab.project_context import load_project_context
 from commander_lab.tools import CommanderToolService, ToolRegistry
 
 CURRENT_MCP_PROTOCOL_VERSION = "2026-07-28"
@@ -152,7 +153,7 @@ class CommanderMcpServer:
             {
                 "uri": "commander-lab://status",
                 "name": "Commander Lab status",
-                "description": "Current verified phase and external-engine truth boundary.",
+                "description": "Current project scope, software identity and evidence boundaries.",
                 "mimeType": "application/json",
             },
             {
@@ -171,16 +172,20 @@ class CommanderMcpServer:
 
     def _read_resource(self, uri: str) -> dict[str, Any]:
         if uri == "commander-lab://status":
-            rows = {}
-            for phase in ("12_12", "12_13", "12_14", "12_15", "12_16", "12_17"):
-                path = self.root / f"artifacts/phase{phase}/PHASE{phase}_RESULT.json"
-                if path.exists():
-                    rows[phase.replace("_", ".")] = json.loads(path.read_text(encoding="utf-8"))
+            context = load_project_context(self.root)
             payload = {
                 "server": SERVER_NAME,
                 "version": SERVER_VERSION,
                 "tool_count": len(self.registry.list_schemas()),
-                "phases": rows,
+                "active_own_deck_ids": list(context.active_own_deck_ids),
+                "historical_own_deck_ids": list(context.historical_own_deck_ids),
+                "primary_deckbuilding_focus": context.primary_deckbuilding_focus,
+                "project_snapshot_hash": context.snapshot_hash,
+                "evidence_boundaries": {
+                    "structural_model_estimates_are_empirical_winrates": False,
+                    "tactical_oracle_is_external_rules_engine": False,
+                    "real_playtest_calibration_active": False,
+                },
             }
         elif uri == "commander-lab://optimization-context":
             response = self.registry.invoke("build_optimization_context", {})
@@ -198,7 +203,7 @@ class CommanderMcpServer:
                     "text": json.dumps(payload, ensure_ascii=False, sort_keys=True),
                 }
             ],
-            "ttlMs": 30_000,
+            "ttlMs": 30_0000,
             "cacheScope": "private",
         }
 
@@ -237,7 +242,9 @@ class CommanderMcpServer:
 
     def _get_prompt(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         if name == "optimize-deck":
-            deck_id = arguments.get("deck_id", "korvold/current")
+            deck_id = arguments.get("deck_id")
+            if not isinstance(deck_id, str) or not deck_id:
+                deck_id = load_project_context(self.root).primary_deckbuilding_focus
             profile = arguments.get("profile", "standard_validation")
             text = (
                 f"Optimize {deck_id} using profile {profile}. Load the current read-only context, "
@@ -426,7 +433,7 @@ class CommanderMcpServer:
                             "annotations": {
                                 "readOnlyHint": True,
                                 "destructiveHint": False,
-                            },
+                              },
                             "execution": {"taskSupport": "forbidden"},
                         }
                         for row in self.registry.list_schemas()
