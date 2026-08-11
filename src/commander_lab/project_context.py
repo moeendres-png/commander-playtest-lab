@@ -26,6 +26,13 @@ OPPONENT_ENTITY_TO_REGISTRY_KEY = {
     "opponent:lorehold_spirit": "lorehold_spirit/precon",
 }
 
+_REQUIRED_FEATURE_SOURCES = {
+    "INVENTORY_CARD_FEATURES_CURRENT.jsonl",
+    "MULTIPLAYER_CARD_FEATURES_CURRENT.jsonl",
+    "CARD_SYNERGY_GRAPH_CURRENT.jsonl",
+    "DECK_PACKAGE_TAXONOMY_CURRENT.json",
+}
+
 
 @dataclass(frozen=True)
 class ProjectContextSnapshot:
@@ -86,6 +93,35 @@ def _resolve_entities(
     return tuple(resolved)
 
 
+def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, str]:
+    source_artifacts = manifest.get("source_artifacts")
+    if not isinstance(source_artifacts, dict):
+        raise ProjectContextError("canonical feature manifest has no source_artifacts")
+    if not _REQUIRED_FEATURE_SOURCES <= set(source_artifacts):
+        missing = sorted(_REQUIRED_FEATURE_SOURCES - set(source_artifacts))
+        raise ProjectContextError(f"canonical feature manifest is missing sources: {missing}")
+
+    hashes: dict[str, str] = {}
+    for source_name, raw in source_artifacts.items():
+        if not isinstance(raw, dict):
+            raise ProjectContextError(f"invalid feature source metadata: {source_name}")
+        drive_id = raw.get("drive_id")
+        digest = raw.get("sha256")
+        if not isinstance(drive_id, str) or not isinstance(digest, str) or len(digest) != 64:
+            raise ProjectContextError(f"invalid feature source identity: {source_name}")
+        hashes[f"drive_feature:{source_name}:{drive_id}"] = digest
+
+    projection_root = root / "data/collections/current/rogshai_feature_projection"
+    parts = manifest.get("parts")
+    if not isinstance(parts, list) or not parts:
+        raise ProjectContextError("canonical feature manifest has no projection parts")
+    for part_name in parts:
+        if not isinstance(part_name, str) or Path(part_name).name != part_name:
+            raise ProjectContextError("canonical feature manifest contains unsafe part path")
+        hashes[f"feature_projection:{part_name}"] = _sha256_file(projection_root / part_name)
+    return hashes
+
+
 def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     root_path = Path(root).resolve()
     paths = {
@@ -93,12 +129,20 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "opponent_registry": root_path / "data/opponents/opponent_registry.json",
         "pilot_registry": root_path / "data/pilots/pilot_registry.json",
         "deck_manifest": root_path / "data/decks/manifest.json",
+        "inventory_snapshot": root_path / "data/canonical_import/2026-08-07/inventory_snapshot.json",
+        "allocation_snapshot": root_path / "data/collections/current_deck_allocations.json",
         "candidate_eligibility": root_path
         / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
         "optimization_availability": root_path
         / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json",
+        "feature_projection_manifest": root_path
+        / "data/collections/current/rogshai_feature_projection/manifest.json",
     }
-    source_hashes = tuple(sorted((name, _sha256_file(path)) for name, path in paths.items()))
+    source_hash_dict = {name: _sha256_file(path) for name, path in paths.items()}
+    feature_manifest = _load_json(paths["feature_projection_manifest"])
+    source_hash_dict.update(_feature_source_hashes(root_path, feature_manifest))
+    source_hashes = tuple(sorted(source_hash_dict.items()))
+
     pods = _load_json(paths["pod_scenarios"])
     registry = _load_json(paths["opponent_registry"])
 
