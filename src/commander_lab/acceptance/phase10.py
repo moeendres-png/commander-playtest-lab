@@ -26,18 +26,21 @@ PRIMARY_CANDIDATES: dict[str, list[dict[str, str]]] = {
         {"remove": "Necrogenesis", "add_candidate_id": "korvold/szarel-smoke"},
     ],
     "rogshai/current": [
-        {"remove": "Opt", "add_candidate_id": "rogshai/curiosity-smoke"},
+        {
+            "remove": "Kykar, Wind's Fury",
+            "add_candidate_id": "inventory/disorder-in-the-court-f673274a",
+        },
     ],
 }
 
 ABLATION_CARDS: dict[str, tuple[str, ...]] = {
     "korvold/current": ("Vampiric Rites", "Necrogenesis", "Ichor Wellspring"),
-    "rogshai/current": ("Opt", "Chart a Course", "Aether Spellbomb"),
+    "rogshai/current": ("Chart a Course", "Curiosity", "Prismari Charm"),
 }
 
 ABLATION_PACKAGES: dict[str, tuple[str, ...]] = {
     "korvold/current": ("Ichor Wellspring", "Tireless Provisioner", "Tireless Tracker"),
-    "rogshai/current": ("Archmage Emeritus", "Prismari Charm", "Psychosis Crawler"),
+    "rogshai/current": ("Archmage Emeritus", "Prismari Charm", "Kykar, Wind's Fury"),
 }
 
 
