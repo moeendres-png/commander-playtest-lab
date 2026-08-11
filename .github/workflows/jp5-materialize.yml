@@ -11,25 +11,48 @@ permissions:
   contents: write
 
 jobs:
-  materialize:
+  diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-      - name: Reconstruct, verify, and materialize frozen J-P5 development payload
+      - name: Diagnose frozen payload transport without applying
         shell: bash
         run: |
-          set -euo pipefail
-          cat .jp5_materialize/part_* | tr -d '[:space:]' > /tmp/jp5.patch.gz.b64
-          base64 -d /tmp/jp5.patch.gz.b64 | gzip -d > /tmp/jp5.patch
-          echo "9b4d2e3ab66f8071737f628331d242af403a9f968d452110753e6424706091ec  /tmp/jp5.patch" | sha256sum -c -
-          git apply --check /tmp/jp5.patch
-          git apply /tmp/jp5.patch
-          rm -rf .jp5_materialize
-          rm .github/workflows/jp5-materialize.yml
+          set +e
+          mkdir -p docs
+          {
+            echo "J-P5 materializer transport diagnostic"
+            echo "head=$(git rev-parse HEAD)"
+            echo "part_count=$(find .jp5_materialize -maxdepth 1 -name 'part_*' | wc -l)"
+            cat .jp5_materialize/part_* | tr -d '[:space:]' > /tmp/jp5.patch.gz.b64
+            echo "clean_b64_bytes=$(wc -c < /tmp/jp5.patch.gz.b64)"
+            echo "clean_b64_sha256=$(sha256sum /tmp/jp5.patch.gz.b64 | awk '{print $1}')"
+            base64 -d /tmp/jp5.patch.gz.b64 > /tmp/jp5.patch.gz 2>/tmp/base64.err
+            b64_rc=$?
+            echo "base64_rc=$b64_rc"
+            echo "base64_error=$(tr '\n' ' ' < /tmp/base64.err)"
+            if [ -f /tmp/jp5.patch.gz ]; then
+              echo "gzip_bytes=$(wc -c < /tmp/jp5.patch.gz)"
+              echo "gzip_sha256=$(sha256sum /tmp/jp5.patch.gz | awk '{print $1}')"
+              gzip -t /tmp/jp5.patch.gz 2>/tmp/gzip.err
+              gzip_rc=$?
+              echo "gzip_test_rc=$gzip_rc"
+              echo "gzip_error=$(tr '\n' ' ' < /tmp/gzip.err)"
+              if [ "$gzip_rc" -eq 0 ]; then
+                gzip -dc /tmp/jp5.patch.gz > /tmp/jp5.patch
+                echo "patch_bytes=$(wc -c < /tmp/jp5.patch)"
+                echo "patch_sha256=$(sha256sum /tmp/jp5.patch | awk '{print $1}')"
+                git apply --check /tmp/jp5.patch 2>/tmp/apply.err
+                apply_rc=$?
+                echo "git_apply_check_rc=$apply_rc"
+                echo "git_apply_error=$(tr '\n' ' ' < /tmp/apply.err)"
+              fi
+            fi
+          } > docs/J_P5_MATERIALIZER_DIAG.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "J-P5: materialize frozen development payload"
+          git add docs/J_P5_MATERIALIZER_DIAG.txt
+          git commit -m "J-P5: record materializer transport diagnostic"
           git push
