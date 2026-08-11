@@ -22,6 +22,7 @@ class DecisionBundle:
     physical_legal_validation: dict[str, Any]
     feature_confidence_summary: dict[str, Any]
     mana_impact: dict[str, Any]
+    playstyle_fit_summary: dict[str, Any]
     central_paired_result: dict[str, Any]
     worst_case_sensitivity_result: dict[str, Any]
     commander_denial_result: dict[str, Any]
@@ -66,6 +67,7 @@ def render_decision_bundle_markdown(bundle: DecisionBundle) -> str:
         ("Physical / legal validation", "physical_legal_validation"),
         ("Feature confidence", "feature_confidence_summary"),
         ("Mana impact", "mana_impact"),
+        ("Playstyle fit", "playstyle_fit_summary"),
         ("Central paired result", "central_paired_result"),
         ("Worst-case / sensitivity", "worst_case_sensitivity_result"),
         ("Commander denial", "commander_denial_result"),
