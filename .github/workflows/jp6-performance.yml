@@ -36,12 +36,12 @@ jobs:
           assert f['p5_holdout_sha256']=='b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203'
           print('head', subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip())
           PY
-      - name: Run reproducible profile
-        run: python scripts/run_j_p6_profile.py --label baseline --output J_P6_BASELINE_PROFILE.json
+      - name: Run reproducible current-branch profile
+        run: python scripts/run_j_p6_profile.py --label final_branch --output J_P6_FINAL_PROFILE.json
       - name: Assert profiler leaves tracked tree clean
         run: test -z "$(git status --porcelain --untracked-files=no)"
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: jp6-performance-${{ github.sha }}
-          path: artifacts/j_p6/J_P6_BASELINE_PROFILE.json
+          path: artifacts/j_p6/J_P6_FINAL_PROFILE.json
           if-no-files-found: error
