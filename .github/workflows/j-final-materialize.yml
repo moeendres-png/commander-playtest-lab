@@ -24,6 +24,8 @@ jobs:
       - name: Verify syntax and targeted tests
         run: |
           python -m pip install -e '.[dev]'
+          ruff check --fix src/commander_lab/tools/service.py src/commander_lab/candidate_screening.py tests/regressions/test_j_final_scope.py
+          ruff format src/commander_lab/tools/service.py src/commander_lab/candidate_screening.py tests/regressions/test_j_final_scope.py
           python -m compileall -q src tests
           pytest -q tests/regressions/test_j_final_scope.py tests/unit/test_candidate_screening.py tests/unit/test_project_context.py tests/unit/test_priority_workflows.py
           ruff check src/commander_lab/tools/service.py src/commander_lab/candidate_screening.py tests/regressions/test_j_final_scope.py
