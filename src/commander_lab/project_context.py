@@ -183,7 +183,9 @@ def _validate_live_scope_projection(
     if live_active != active or live_historical != historical:
         raise ProjectContextError("active-scope projections disagree on current own-deck state")
     if payload.get("korvold_optimization_target") is not False:
-        raise ProjectContextError("live active-deck projection still treats Korvold as optimization target")
+        raise ProjectContextError(
+            "live active-deck projection still treats Korvold as optimization target"
+        )
     if payload.get("korvold_simultaneous_build_requirement") is not False:
         raise ProjectContextError("live active-deck projection still requires simultaneous Korvold")
 
@@ -266,7 +268,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "playstyle_generated_at": str(playstyle.get("generated_at", "unknown")),
     }
     if "unknown" in freshness.values():
-        raise ProjectContextError("required synchronized project-context freshness metadata is missing")
+        raise ProjectContextError(
+            "required synchronized project-context freshness metadata is missing"
+        )
 
     frequency_policy = str(pods.get("frequency_policy", ""))
     if "No fixed opponent frequency" not in frequency_policy:
@@ -291,11 +295,11 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
             deck_id = raw.get("own_deck")
             entity_ids = raw.get("opponent_entity_ids")
             if not isinstance(deck_id, str) or not isinstance(entity_ids, list):
-                raise ProjectContextError("four-player scenario is missing deck or opponent entities")
-            if raw.get("pod_size") != 4 or len(entity_ids) != 3:
                 raise ProjectContextError(
-                    "four-player scenario must contain exactly 3 opponents"
+                    "four-player scenario is missing deck or opponent entities"
                 )
+            if raw.get("pod_size") != 4 or len(entity_ids) != 3:
+                raise ProjectContextError("four-player scenario must contain exactly 3 opponents")
             normalized_entities = tuple(str(value) for value in entity_ids)
             resolved = _resolve_entities(list(normalized_entities), registry)
             if scenario_type == "primary_four_player_context":
