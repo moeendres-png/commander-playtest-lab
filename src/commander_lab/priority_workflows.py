@@ -4,6 +4,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from commander_lab.candidate_screening import RogShaiCandidateScreener
 from commander_lab.decision_bundle import DecisionBundle, write_decision_bundle
 from commander_lab.mana_analysis import ManaAnalyzer
 from commander_lab.models import (
@@ -27,11 +28,7 @@ from commander_lab.tools.service import CommanderToolService
 
 
 class PriorityWorkflowFacade:
-    """Small deterministic facade for the common Build → Test → Diagnose workflow.
-
-    Low-level tools remain available. This facade only composes them in a safe order and never
-    changes canonical deck, inventory, allocation, purchase, or opponent-frequency data.
-    """
+    """Deterministic Build → Test → Diagnose facade for current RogShai decisions."""
 
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root).resolve()
@@ -39,6 +36,7 @@ class PriorityWorkflowFacade:
         self.service = CommanderToolService(self.root)
         self.mulligan = MulliganLab(self.root)
         self.mana = ManaAnalyzer(self.root)
+        self.screener = RogShaiCandidateScreener(self.root, service=self.service)
         self.result_cache = ExactResultCache(
             self.root / ".runtime/priority_result_cache.sqlite3",
             root=self.root,
@@ -64,53 +62,33 @@ class PriorityWorkflowFacade:
         }
 
     def build_screen(self, deck_id: str, *, limit: int = 25) -> dict[str, Any]:
-        """Return physical/current candidate coverage without pretending it is a final ranking."""
+        if deck_id != "rogshai/current":
+            raise ValueError("priority build_screen is scoped to current RogShai")
         if limit < 1:
             raise ValueError("limit must be positive")
         baseline = self._deck(deck_id)
-        candidates = [
-            candidate
-            for candidate in self.service.candidates.values()
-            if deck_id in candidate.allowed_deck_ids
-            and self.service.candidate_inventory.get(candidate.card.oracle_name, 0) > 0
-        ]
-        candidates.sort(
-            key=lambda candidate: (
-                -int(
-                    any(
-                        source.source_type == "canonical_drive_derived_projection"
-                        for source in candidate.card.sources
-                    )
-                ),
-                candidate.card.oracle_name.casefold(),
-            )
-        )
-        rows = [
-            {
-                "candidate_id": candidate.candidate_id,
-                "oracle_name": candidate.card.oracle_name,
-                "roles": sorted(role.value for role in candidate.card.roles),
-                "package_ids": sorted(candidate.card.package_ids),
-                "source_quality": candidate.card.source_quality.value,
-                "canonical_feature_overlay": any(
-                    source.source_type == "canonical_drive_derived_projection"
-                    for source in candidate.card.sources
-                ),
-                "physical_status": candidate.physical_status,
-            }
-            for candidate in candidates[:limit]
-        ]
+        screened = self.screener.screen_pool(deck_id)
+        rows = list(screened["rows"])
         return {
             "workflow": "build_screen",
             "evidence_class": "structural_candidate_screening",
             "deck_id": deck_id,
             "deck_hash": baseline.deck_hash,
             "context": self._context_payload(self.context),
-            "eligible_candidate_count": len(candidates),
+            "eligible_candidate_count": screened["physical_legal_candidate_count"],
+            "candidate_pool_after_default_screen": screened[
+                "candidate_pool_after_default_screen"
+            ],
+            "bucket_counts": screened["bucket_counts"],
             "feature_fusion": canonical_feature_fusion_summary(self.root),
+            "challenge_benchmark": self.screener.benchmark_challenge_set(),
             "mana": asdict(self.mana.analyze_deck(baseline)),
-            "candidates": rows,
-            "ranking_claim": "none; ordering prefers current canonical feature coverage, then name",
+            "candidates": rows[:limit],
+            "unusual_candidates_remain_explorable": True,
+            "playstyle_is_hard_filter": False,
+            "ranking_claim": (
+                "conservative static structural screen only; no empirical card-power ranking"
+            ),
         }
 
     def compare_validate(
@@ -123,10 +101,16 @@ class PriorityWorkflowFacade:
         seed: int = 20260811,
         max_turns: int = 14,
     ) -> dict[str, Any]:
-        """Build one legal swap and run or reuse the exact existing J-P5 paired comparison."""
+        if deck_id != "rogshai/current":
+            raise ValueError("priority compare_validate is scoped to current RogShai")
         if iterations < 1:
             raise ValueError("iterations must be positive")
         baseline = self._deck(deck_id)
+        static_screen = self.screener.screen_swap(
+            baseline=baseline,
+            remove=remove,
+            add_candidate_id=add_candidate_id,
+        )
         swap = VariantSwap(remove=remove, add_candidate_id=add_candidate_id)
         built = build_search_candidate(
             baseline,
@@ -141,8 +125,10 @@ class PriorityWorkflowFacade:
                 "workflow": "compare_validate",
                 "status": "rejected_by_hard_constraints",
                 "constraint_report": built.constraint_report.model_dump(mode="json"),
+                "static_screen": static_screen.as_dict(),
                 "context": self._context_payload(self.context),
             }
+
         opponents = tuple(
             self._deck(opponent_id)
             for opponent_id in self.context.primary_opponent_deck_ids(deck_id)
@@ -203,6 +189,9 @@ class PriorityWorkflowFacade:
         )
         paired = dict(cached.result["paired"])
         pairs = list(cached.result["pairs"])
+        mana_before = self.mana.analyze_deck(baseline)
+        mana_after = self.mana.analyze_deck(built.variant)
+        mana_delta = self.mana.compare_decks(baseline, built.variant)
         return {
             "workflow": "compare_validate",
             "status": "completed",
@@ -217,12 +206,15 @@ class PriorityWorkflowFacade:
             },
             "context": self._context_payload(self.context),
             "constraint_report": built.constraint_report.model_dump(mode="json"),
+            "static_screen": static_screen.as_dict(),
+            "playstyle_fit": static_screen.playstyle,
             "screening_score": built.screening_score,
             "rationale": list(built.rationale),
             "paired": paired,
             "pair_count": len(pairs),
-            "mana_before": asdict(self.mana.analyze_deck(baseline)),
-            "mana_after": asdict(self.mana.analyze_deck(built.variant)),
+            "mana_before": asdict(mana_before),
+            "mana_after": asdict(mana_after),
+            "mana_delta": asdict(mana_delta),
             "cache_provenance": {
                 "cache_key": cached.cache_key,
                 "cache_hit": cached.cache_hit,
@@ -287,7 +279,7 @@ class PriorityWorkflowFacade:
     ) -> dict[str, str]:
         paired = dict(comparison.get("paired", {}))
         bundle = DecisionBundle(
-            bundle_version="1.0",
+            bundle_version="1.1",
             baseline_identity=dict(comparison.get("baseline_identity", {})),
             variant_identity=dict(comparison.get("variant_identity", {})),
             context_snapshot=dict(comparison.get("context", self._context_payload(self.context))),
@@ -296,7 +288,9 @@ class PriorityWorkflowFacade:
             mana_impact={
                 "before": comparison.get("mana_before", {}),
                 "after": comparison.get("mana_after", {}),
+                "delta": comparison.get("mana_delta", {}),
             },
+            playstyle_fit_summary=dict(comparison.get("playstyle_fit", {})),
             central_paired_result=paired,
             worst_case_sensitivity_result=worst_case_sensitivity_result or {},
             commander_denial_result=commander_denial_result or {},
@@ -305,6 +299,7 @@ class PriorityWorkflowFacade:
             simulation_counts={
                 "requested_runs": paired.get("requested_runs", 0),
                 "valid_runs": paired.get("valid_runs", 0),
+                "cache_hit": comparison.get("cache_provenance", {}).get("cache_hit", False),
             },
             stopping_reason="explicit workflow completion; adaptive racing evaluated separately",
             evidence_class="structural_model_estimates",
@@ -312,8 +307,9 @@ class PriorityWorkflowFacade:
                 "Structural simulation is not an empirical Commander winrate.",
                 "Tactical Oracle is not an external rules engine.",
                 "Opponent uncertainty remains source-evidence dependent.",
-                "Exact cache reuse is valid only for byte-semantically identical simulation identity inputs.",
-                "Adaptive racing may be shipped only after its frozen benchmark preserves decision-quality gates while reducing simulations materially.",
+                "Playstyle fit is qualitative and is never an automatic archetype/card ban.",
+                "Exact cache reuse is valid only for identical simulation identity inputs.",
+                "Adaptive racing ships only after a frozen benchmark preserves decision quality.",
             ),
             recommendation_status=recommendation_status,
         )
