@@ -192,7 +192,11 @@ class PriorityWorkflowFacade:
         lower = float(paired.get("distributionally_robust_lower_bound", 0.0))
         interval = paired.get("confidence_interval", (0.0, 0.0))
         low = float(interval[0]) if isinstance(interval, (list, tuple)) and interval else 0.0
-        high = float(interval[1]) if isinstance(interval, (list, tuple)) and len(interval) > 1 else 0.0
+        high = (
+            float(interval[1])
+            if isinstance(interval, (list, tuple)) and len(interval) > 1
+            else 0.0
+        )
         if lower > 0.0 and low > 0.0:
             next_experiment = "run_sensitivity_then_commander_denial"
             reason = "central paired structural evidence is directionally positive and separated"
