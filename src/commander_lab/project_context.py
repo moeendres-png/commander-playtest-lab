@@ -34,6 +34,7 @@ class ProjectContextSnapshot:
     source_hashes: tuple[tuple[str, str], ...]
     primary_scenarios: tuple[tuple[str, tuple[str, ...]], ...]
     holdout_entity_ids: tuple[str, ...]
+    holdout_deck_ids: tuple[str, ...]
     snapshot_hash: str
 
     def primary_opponent_deck_ids(self, deck_id: str) -> tuple[str, ...]:
@@ -81,7 +82,7 @@ def _resolve_entities(
             )
         resolved.append(deck_id)
     if len(resolved) != len(set(resolved)):
-        raise ProjectContextError("canonical primary scenario resolves duplicate opponent decks")
+        raise ProjectContextError("canonical scenario resolves duplicate opponent decks")
     return tuple(resolved)
 
 
@@ -148,11 +149,13 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     if primary_entity_sets.intersection(holdout):
         raise ProjectContextError("holdout opponent was silently promoted into a primary scenario")
 
+    holdout_decks = _resolve_entities(list(holdout), registry)
     identity_payload = {
         "engine_version": ENGINE_VERSION,
         "source_hashes": dict(source_hashes),
         "primary_scenarios": {key: list(value) for key, value in sorted(primary.items())},
         "holdout_entity_ids": list(holdout),
+        "holdout_deck_ids": list(holdout_decks),
     }
     snapshot_hash = hashlib.sha256(
         json.dumps(identity_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -163,5 +166,6 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         source_hashes=source_hashes,
         primary_scenarios=tuple(sorted(primary.items())),
         holdout_entity_ids=holdout,
+        holdout_deck_ids=holdout_decks,
         snapshot_hash=snapshot_hash,
     )
