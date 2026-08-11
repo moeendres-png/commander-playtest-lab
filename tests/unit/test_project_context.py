@@ -26,6 +26,13 @@ def test_current_context_resolves_primary_pods_and_is_deterministic() -> None:
     assert len(first.snapshot_hash) == 64
     assert "opponent/blight-curse-precon" in first.holdout_deck_ids
     assert set(expected).isdisjoint(first.holdout_deck_ids)
+    hashes = dict(first.source_hashes)
+    assert "inventory_snapshot" in hashes
+    assert "allocation_snapshot" in hashes
+    assert any(key.startswith("drive_feature:INVENTORY_CARD_FEATURES_CURRENT") for key in hashes)
+    assert any(key.startswith("drive_feature:MULTIPLAYER_CARD_FEATURES_CURRENT") for key in hashes)
+    assert any(key.startswith("drive_feature:CARD_SYNERGY_GRAPH_CURRENT") for key in hashes)
+    assert any(key.startswith("drive_feature:DECK_PACKAGE_TAXONOMY_CURRENT") for key in hashes)
 
 
 def _copy_context_inputs(destination: Path) -> None:
@@ -36,11 +43,16 @@ def _copy_context_inputs(destination: Path) -> None:
         "data/opponents/opponent_registry.json",
         "data/pilots/pilot_registry.json",
         "data/decks/manifest.json",
+        "data/canonical_import/2026-08-07/inventory_snapshot.json",
+        "data/collections/current_deck_allocations.json",
     ):
         source = ROOT / relative
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+    source_projection = ROOT / "data/collections/current/rogshai_feature_projection"
+    target_projection = destination / "data/collections/current/rogshai_feature_projection"
+    shutil.copytree(source_projection, target_projection)
 
 
 def test_context_fails_closed_when_required_source_is_missing(tmp_path: Path) -> None:
@@ -76,3 +88,14 @@ def test_context_fails_closed_on_unknown_opponent_entity(tmp_path: Path) -> None
 
     with pytest.raises(ProjectContextError, match="unknown canonical opponent entity id"):
         load_project_context(tmp_path)
+
+
+def test_context_hash_changes_if_feature_projection_changes(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    before = load_project_context(tmp_path).snapshot_hash
+    part = tmp_path / "data/collections/current/rogshai_feature_projection/part_04.json"
+    rows = json.loads(part.read_text(encoding="utf-8"))
+    rows[0][1].append("card_selection")
+    part.write_text(json.dumps(rows), encoding="utf-8")
+    after = load_project_context(tmp_path).snapshot_hash
+    assert before != after
