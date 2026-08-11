@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-11T04:57:00+02:00",
+  "active_own_deck_ids": ["rogshai/current"],
+  "primary_active_own_deck_id": "rogshai/current",
+  "inactive_former_own_deck_ids": ["korvold/current"],
+  "korvold_historical_list_preserved": true,
+  "korvold_optimization_target": false,
+  "korvold_simultaneous_build_requirement": false,
+  "source": "direct_user_decision_2026-08-11"
+}
