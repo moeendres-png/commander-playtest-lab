@@ -13,7 +13,7 @@ def test_derived_seeds_are_stable_and_distinct() -> None:
 
 def test_placements_form_valid_range_for_many_seeds(structural_decks) -> None:
     simulator = StructuralSimulator(structural_decks)
-    deck_ids = ("korvold/current", "rogshai/current", "synthetic/aggro", "synthetic/control")
+    deck_ids = ("rogshai/current", "kaervek/current", "synthetic/aggro", "synthetic/control")
     for seed in range(12):
         result = simulator.simulate(
             StructuralMatchConfig(

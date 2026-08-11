@@ -109,18 +109,18 @@ def test_j_p2_optimization_context_run_identity_does_not_mislabel_own_decks_as_o
     assert identity.pod_size is None
 
 
-def test_j_p2_protected_card_metadata_matches_current_canonical_decks(repo_root: Path) -> None:
+def test_j_p2_current_deck_source_and_protected_metadata_are_clean(repo_root: Path) -> None:
     canonical = json.loads(
-        (repo_root / "data/canonical_import/2026-08-07/deck_lists.json").read_text(encoding="utf-8")
-    )["decks"]
+        (repo_root / "data/canonical_import/2026-08-11/rogshai_current_provisional.json").read_text(
+            encoding="utf-8"
+        )
+    )
     protected = json.loads((repo_root / "config/protected_cards.json").read_text(encoding="utf-8"))
-    source_keys = {
-        "korvold/current": "01_Korvold_100",
-        "rogshai/current": "02_RogShai_100",
-    }
-    for deck_id, source_key in source_keys.items():
-        current_names = {row["Oracle-Name"] for row in canonical[source_key]}
-        assert set(protected[deck_id]) <= current_names
+    assert protected == {}
+    assert canonical["status"] == "current_provisional_final_for_simulator_optimization"
+    assert canonical["deck"]["deck_id"] == "rogshai/current"
+    assert set(canonical["deck_hashes"]) == {"rogshai/current"}
+    assert canonical["deck_hashes"]["rogshai/current"] == canonical["deck"]["deck_hash"]
 
 
 def test_j_p2_current_opponents_route_to_non_generic_archetype_pilots(repo_root: Path) -> None:

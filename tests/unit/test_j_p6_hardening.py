@@ -40,7 +40,7 @@ def test_fixed_seed_structural_result_is_deterministic() -> None:
     service = CommanderToolService(ROOT)
     request = MatchupBatchInput(
         deck_ids=(
-            "korvold/current",
+            "rogshai/current",
             "opponent/morcant-elves",
             "opponent/doom-prevails-precon",
             "opponent/cosmic-spiderman-midbudget",

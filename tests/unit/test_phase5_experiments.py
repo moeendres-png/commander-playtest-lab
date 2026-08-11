@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_variant_preserves_card_count_and_changes_hash() -> None:
     decks = load_project_structural_decks(ROOT, include_synthetic_fixtures=True)
-    deck = decks["korvold/current"]
-    card = next(card for card in deck.cards if card.oracle_name == "Vampiric Rites")
+    deck = decks["rogshai/current"]
+    card = next(card for card in deck.cards if card.oracle_name == "Consider")
     variant = variant_deck(
         deck,
         variant_id="test/variant",
@@ -27,8 +27,8 @@ def test_variant_preserves_card_count_and_changes_hash() -> None:
 
 def test_paired_comparison_is_reproducible() -> None:
     decks = load_project_structural_decks(ROOT, include_synthetic_fixtures=True)
-    baseline = decks["korvold/current"]
-    card = next(card for card in baseline.cards if card.oracle_name == "Vampiric Rites")
+    baseline = decks["rogshai/current"]
+    card = next(card for card in baseline.cards if card.oracle_name == "Consider")
     variant = variant_deck(
         baseline,
         variant_id="test/repro",

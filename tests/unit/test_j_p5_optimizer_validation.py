@@ -3,13 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from commander_lab.decision_statistics import holm_adjust, paired_randomization_p_value
-from commander_lab.models import ObjectiveVector, VariantSwap
+from commander_lab.models import ObjectiveVector
 from commander_lab.optimization import DEFAULT_CONSTRAINTS, evaluate_constraints
 from commander_lab.optimization.jp5 import build_recommendation_trace, paired_seed_set_identity
-from commander_lab.tools.service import CommanderToolService, ToolExecutionError
+from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -57,25 +55,32 @@ def test_current_projection_applies_inactive_korvold_release_without_rewriting_p
         expected[str(name)] = expected.get(str(name), 0) + int(quantity)
     assert svc.candidate_inventory == expected
     assert len(release) == 83
-    assert len(svc.candidates) >= 500
+    assert len(svc.candidates) >= 300
+    assert {deck_id for c in svc.candidates.values() for deck_id in c.allowed_deck_ids} == {
+        "rogshai/current"
+    }
 
 
 def test_wrong_commander_identity_fails_closed() -> None:
     svc = CommanderToolService(ROOT)
-    baseline = svc._deck("korvold/current")
+    baseline = svc._deck("rogshai/current")
     altered = baseline.model_copy(
-        update={"commander_names": ("Not Korvold",), "commander_base_costs": {"Not Korvold": 5.0}}
+        update={
+            "commander_names": ("Not Ishai", "Not Rograkh"),
+            "commander_base_costs": {"Not Ishai": 4.0, "Not Rograkh": 0.0},
+        }
     )
-    report = evaluate_constraints(altered, DEFAULT_CONSTRAINTS["korvold/current"])
+    report = evaluate_constraints(altered, DEFAULT_CONSTRAINTS["rogshai/current"])
     assert not report.valid
     assert any(issue.code == "commander_identity" for issue in report.issues)
 
 
-def test_locked_cut_is_rejected_before_simulation() -> None:
+def test_inactive_korvold_does_not_create_a_current_locked_cut() -> None:
+    protected = json.loads((ROOT / "config/protected_cards.json").read_text(encoding="utf-8"))
+    assert protected.get("protected_cards", {}) in ({}, [])
     svc = CommanderToolService(ROOT)
-    candidate = next(c for c in svc.candidates.values() if "korvold/current" in c.allowed_deck_ids)
-    with pytest.raises(ToolExecutionError, match="locked"):
-        svc._validate_swap_policy("korvold/current", "Dark Ritual", candidate.card)
+    candidate = next(c for c in svc.candidates.values() if "rogshai/current" in c.allowed_deck_ids)
+    svc._validate_swap_policy("rogshai/current", "Kykar, Wind's Fury", candidate.card)
 
 
 def test_simultaneous_allocation_uses_free_copy_capacity() -> None:
@@ -135,22 +140,11 @@ def test_recommendation_trace_contains_required_fields_and_truth_boundary() -> N
     assert paired_seed_set_identity((1, 2, 3))["count"] == 3
 
 
-def test_challenge_set_is_constraint_safe_and_has_all_classes() -> None:
-    svc = CommanderToolService(ROOT)
+def test_current_challenge_set_preserves_classes_and_truth_boundary() -> None:
     payload = json.loads(
         (ROOT / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text()
     )
     assert {row["class"] for row in payload["variants"]} == {"good", "neutral", "bad"}
-    for row in payload["variants"]:
-        baseline = svc._deck(row["deck_id"])
-        from commander_lab.optimization import build_search_candidate
-
-        built = build_search_candidate(
-            baseline,
-            (VariantSwap(remove=row["remove"], add_candidate_id=row["add_candidate_id"]),),
-            svc.candidates,
-            svc._optimization_constraints(row["deck_id"]),
-            inventory=svc.candidate_inventory,
-            verified_physical_names=svc.verified_candidate_names,
-        )
-        assert built.constraint_report.valid
+    assert payload["evidence_boundary"] == "structural_model_estimates"
+    assert payload["canonical_mutation_allowed"] is False
+    assert {row["deck_id"] for row in payload["variants"]} == {"rogshai/current"}

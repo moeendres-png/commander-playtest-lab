@@ -13,7 +13,7 @@ def test_persistent_jsonl_bridge_roundtrip(repo_root: Path) -> None:
     try:
         probe = client.request("probe")
         assert probe["availability"] == "available"
-        deck = load_project_rules_decks(repo_root)["korvold/current"]
+        deck = load_project_rules_decks(repo_root)["rogshai/current"]
         handle = client.request("load_deck", {"deck": deck.model_dump(mode="json")})
         assert handle["accepted_cards"] == 100
     finally:

@@ -246,7 +246,9 @@ def test_protected_finish_pilot_requires_finish_window() -> None:
 
 
 def test_equal_ensembles_have_five_unique_members() -> None:
-    for ensemble in default_ensembles():
+    ensembles = default_ensembles()
+    assert {ensemble.deck_id for ensemble in ensembles} == {"rogshai/current"}
+    for ensemble in ensembles:
         assert len(ensemble.members) == 5
         assert len({member.pilot_name for member in ensemble.members}) == 5
         assert sum(member.weight for member in ensemble.members) == pytest.approx(1.0)
@@ -276,7 +278,7 @@ def test_ensemble_summary_reports_worst_median_and_robustness() -> None:
             ROOT, include_synthetic_fixtures=True, include_current_opponents=True
         ),
     )
-    ensemble = runner.registry.ensemble("korvold.equal.v1")
+    ensemble = runner.registry.ensemble("rogshai.equal.v1")
     results = {}
     for index, member in enumerate(ensemble.members):
         results[member.pilot_name] = {

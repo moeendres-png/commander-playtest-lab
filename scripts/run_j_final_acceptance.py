@@ -58,6 +58,19 @@ def main() -> None:
     challenge = screener.benchmark_challenge_set()
     challenge_rows: list[dict[str, object]] = []
     for row in challenge["evaluated"]:  # type: ignore[index]
+        decision = row["decision"]
+        if not decision["constraint_valid"]:
+            challenge_rows.append(
+                {
+                    "class": row["class"],
+                    "remove": row["remove"],
+                    "add_candidate_id": row["add_candidate_id"],
+                    "screen_decision": decision,
+                    "status": "historical_variant_not_currently_legal",
+                    "truth_boundary": "historical structural regression evidence only",
+                }
+            )
+            continue
         comparison = facade.compare_validate(
             deck_id="rogshai/current",
             remove=str(row["remove"]),
@@ -74,7 +87,7 @@ def main() -> None:
                 "class": row["class"],
                 "remove": row["remove"],
                 "add_candidate_id": row["add_candidate_id"],
-                "screen_decision": row["decision"],
+                "screen_decision": decision,
                 "paired": comparison["paired"],
                 "mana_delta": comparison["mana_delta"],
                 "playstyle_fit": comparison["playstyle_fit"],
@@ -85,11 +98,12 @@ def main() -> None:
 
     representative = facade.compare_validate(
         deck_id="rogshai/current",
-        remove="Flare of Duplication",
-        add_candidate_id="inventory/rootborn-defenses-677fdbcf",
+        remove="Kykar, Wind's Fury",
+        add_candidate_id="inventory/disorder-in-the-court-f673274a",
         iterations=4,
         seed=20260811,
     )
+    assert representative["status"] == "completed"
     bundle_dir = ROOT / "artifacts/j_final/decision_bundle"
     bundle = facade.create_decision_bundle(representative, bundle_dir)
 
@@ -104,7 +118,7 @@ def main() -> None:
     ablation = service.run_card_ablation(
         CardAblationInput(
             deck_id="rogshai/current",
-            card_name="Flare of Duplication",
+            card_name="Kykar, Wind's Fury",
             opponent_deck_ids=OPPONENTS,
             iterations=2,
             seed=20260811,
@@ -132,12 +146,12 @@ def main() -> None:
     context_payload = asdict(context)
     context_payload["root"] = str(context_payload["root"])
     evidence = {
-        "schema_version": "1.0",
-        "purpose": "J-FINAL acceptance for current RogShai structural/decision-support scope",
+        "schema_version": "1.1",
+        "purpose": "J-FINAL historical acceptance against current RogShai structural/decision-support scope",
         "truth_boundaries": {
             "structural_model_estimates": "not empirical winrate",
             "tactical_oracle": "not external_rules_engine",
-            "challenge": "decision_quality_within_model, not real-game proof",
+            "challenge": "historical structural regression evidence; current legality may differ",
             "historical_membership": "not a card-quality prior",
         },
         "software": {"package_version": __version__, "engine_version": ENGINE_VERSION},

@@ -125,7 +125,7 @@ def test_schemas_are_strict_and_unique() -> None:
 
 def test_validate_deck_tool() -> None:
     service = CommanderToolService(ROOT)
-    result = service.validate_deck(ValidateDeckInput(deck_id="korvold/current"))
+    result = service.validate_deck(ValidateDeckInput(deck_id="rogshai/current"))
     assert result.status == ToolStatus.COMPLETED
     assert result.result["validation"]["valid"] is True
     assert result.metadata.estimate_type == "structural_model_estimates"
@@ -135,7 +135,7 @@ def test_matchup_tool_seed_is_independent_of_storage_uuid() -> None:
     service = CommanderToolService(ROOT)
     request = MatchupBatchInput(
         deck_ids=(
-            "korvold/current",
+            "rogshai/current",
             "opponent/morcant-elves",
             "opponent/blight-curse-precon",
             "opponent/cosmic-spiderman-midbudget",

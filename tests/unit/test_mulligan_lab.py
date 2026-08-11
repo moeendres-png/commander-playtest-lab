@@ -48,23 +48,31 @@ def test_london_mulligan_uses_free_first_multiplayer_and_commanders_stay_out(
     repo_root: Path,
 ) -> None:
     lab = MulliganLab(repo_root)
-    deck = lab.deck("korvold/current")
+    deck = lab.deck("rogshai/current")
     assert all(card.oracle_name not in deck.commander_names for card in lab._library(deck))
     bad = names(
         deck,
         (
-            "Forest",
-            "Swamp",
+            "Plains",
             "Mountain",
-            "Massacre Wurm",
-            "The Gitrog Monster",
-            "Gix's Command",
-            "Profane Command",
+            "Duelist's Heritage",
+            "Jeska, Thrice Reborn",
+            "Kediss, Emberclaw Familiar",
+            "Farewell",
+            "Chain Reaction",
         ),
     )
     good = names(
         deck,
-        ("Forest", "Forest", "Swamp", "Sol Ring", "Zuran Orb", "Deadly Dispute", "Mirkwood Bats"),
+        (
+            "Island",
+            "Plains",
+            "Sol Ring",
+            "Consider",
+            "Counterspell",
+            "Slip Out the Back",
+            "Preordain",
+        ),
     )
     result = lab.london_mulligan_from_draws(
         deck, (bad, good), MulliganPolicyName.PRIMER_POLICY, context(deck)
@@ -75,47 +83,10 @@ def test_london_mulligan_uses_free_first_multiplayer_and_commanders_stay_out(
     assert len(result.kept_cards) == 7
 
 
-def test_korvold_and_rogshai_golden_hands(repo_root: Path) -> None:
+def test_current_rogshai_golden_hands(repo_root: Path) -> None:
     lab = MulliganLab(repo_root)
-    k = lab.deck("korvold/current")
-    good = lab.evaluate(
-        k,
-        names(
-            k,
-            (
-                "Forest",
-                "Forest",
-                "Swamp",
-                "Sol Ring",
-                "Zuran Orb",
-                "Deadly Dispute",
-                "Mirkwood Bats",
-            ),
-        ),
-        MulliganPolicyName.PRIMER_POLICY,
-        context(k),
-    )
-    bad = lab.evaluate(
-        k,
-        names(
-            k,
-            (
-                "Forest",
-                "Swamp",
-                "Mountain",
-                "Splendid Reclamation",
-                "Ramunap Excavator",
-                "The Gitrog Monster",
-                "Massacre Wurm",
-            ),
-        ),
-        MulliganPolicyName.PRIMER_POLICY,
-        context(k),
-    )
-    assert good.keep is True
-    assert bad.keep is False
     r = lab.deck("rogshai/current")
-    rg = lab.evaluate(
+    good = lab.evaluate(
         r,
         names(
             r,
@@ -126,31 +97,31 @@ def test_korvold_and_rogshai_golden_hands(repo_root: Path) -> None:
                 "Consider",
                 "Counterspell",
                 "Slip Out the Back",
-                "Opt",
+                "Preordain",
             ),
         ),
         MulliganPolicyName.PRIMER_POLICY,
         context(r),
     )
-    rb = lab.evaluate(
+    bad = lab.evaluate(
         r,
         names(
             r,
             (
                 "Plains",
                 "Mountain",
-                "Aether Spellbomb",
                 "Duelist's Heritage",
                 "Jeska, Thrice Reborn",
                 "Kediss, Emberclaw Familiar",
                 "Farewell",
+                "Chain Reaction",
             ),
         ),
         MulliganPolicyName.PRIMER_POLICY,
         context(r),
     )
-    assert rg.keep is True
-    assert rb.keep is False
+    assert good.keep is True
+    assert bad.keep is False
 
 
 def test_common_random_numbers_are_reproducible(repo_root: Path) -> None:
@@ -163,7 +134,7 @@ def test_common_random_numbers_are_reproducible(repo_root: Path) -> None:
 
 def test_hypergeometric_land_baseline_is_valid(repo_root: Path) -> None:
     lab = MulliganLab(repo_root)
-    deck = lab.deck("korvold/current")
+    deck = lab.deck("rogshai/current")
     lands = next(row for row in lab.baselines(deck) if row.category == "lands")
     assert 0 < lands.probability_at_least[2] < 1
     assert lands.probability_at_least[1] >= lands.probability_at_least[2]
@@ -171,7 +142,7 @@ def test_hypergeometric_land_baseline_is_valid(repo_root: Path) -> None:
 
 def test_context_deck_hash_mismatch_rejected(repo_root: Path) -> None:
     lab = MulliganLab(repo_root)
-    deck = lab.deck("korvold/current")
+    deck = lab.deck("rogshai/current")
     bad = context(deck).model_copy(update={"deck_hash": "0" * 64})
     with pytest.raises(MulliganLabError):
         lab.run(bad, (MulliganPolicyName.CONSERVATIVE,), samples=2)
@@ -189,7 +160,7 @@ def test_tool_surface_runs_and_generates_non_absolute_rule(repo_root: Path, tmp_
                 "Consider",
                 "Counterspell",
                 "Slip Out the Back",
-                "Opt",
+                "Preordain",
             ),
             policy="primer_policy",
         )
@@ -197,7 +168,7 @@ def test_tool_surface_runs_and_generates_non_absolute_rule(repo_root: Path, tmp_
     assert eval_response.status.value == "completed"
     result = service.run_mulligan_lab(
         RunMulliganLabInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             policies=("conservative", "primer_policy"),
             samples=30,
             followup_samples=10,
@@ -211,7 +182,7 @@ def test_tool_surface_runs_and_generates_non_absolute_rule(repo_root: Path, tmp_
 
 def test_large_materialization_is_forbidden_but_streaming_supported(repo_root: Path) -> None:
     lab = MulliganLab(repo_root)
-    deck = lab.deck("korvold/current")
+    deck = lab.deck("rogshai/current")
     with pytest.raises(MulliganLabError):
         lab.sample_draw_sequences(deck, samples=100001, seed=1)
     iterator = lab.iter_draw_sequences(deck, samples=100001, seed=1)
@@ -223,7 +194,15 @@ def test_context_dimensions_change_model_score(repo_root: Path) -> None:
     deck = lab.deck("rogshai/current")
     hand = names(
         deck,
-        ("Island", "Plains", "Sol Ring", "Consider", "Counterspell", "Slip Out the Back", "Opt"),
+        (
+            "Island",
+            "Plains",
+            "Sol Ring",
+            "Consider",
+            "Counterspell",
+            "Slip Out the Back",
+            "Preordain",
+        ),
     )
     base = context(deck)
     control = base.model_copy(
@@ -250,7 +229,7 @@ def test_context_dimensions_change_model_score(repo_root: Path) -> None:
 
 def test_full_followup_and_overfitting_contexts_are_executed(repo_root: Path) -> None:
     lab = MulliganLab(repo_root)
-    deck = lab.deck("korvold/current")
+    deck = lab.deck("rogshai/current")
     result = lab.run(
         context(deck), (MulliganPolicyName.PRIMER_POLICY,), samples=6, followup_samples=2
     )

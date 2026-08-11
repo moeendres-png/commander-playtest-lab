@@ -18,39 +18,6 @@ BASIC_LANDS = {"Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes"}
 
 
 DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
-    "korvold/current": OptimizationConstraints(
-        allowed_colors=frozenset({Color.BLACK, Color.RED, Color.GREEN}),
-        role_minima={
-            CardRole.RAMP: 12,
-            CardRole.DRAW: 6,
-            CardRole.REMOVAL: 7,
-            CardRole.PROTECTION: 3,
-            CardRole.WIPE: 3,
-            CardRole.RECURSION: 4,
-            CardRole.GRAVEYARD_HATE: 2,
-            CardRole.FINISHER: 3,
-            CardRole.SACRIFICE_OUTLET: 5,
-            CardRole.LAND_SYNERGY: 10,
-        },
-        minimum_lands=38,
-        maximum_lands=40,
-        minimum_colored_sources={Color.GREEN: 18, Color.BLACK: 14, Color.RED: 12},
-        maximum_average_nonland_mana_value=3.10,
-        maximum_high_mana_value_cards=10,
-        high_mana_value_threshold=5.0,
-        simultaneous_deck_ids=("rogshai/current",),
-        required_commanders=("Korvold, Fae-Cursed King",),
-        require_partner_configuration=False,
-        locked_cards=(
-            "Dark Ritual",
-            "Tinder Wall",
-            "Orcish Lumberjack",
-            "Exploration Broodship",
-            "Pitiless Plunderer",
-            "Ophiomancer",
-            "Mirkwood Bats",
-        ),
-    ),
     "rogshai/current": OptimizationConstraints(
         allowed_colors=frozenset({Color.WHITE, Color.BLUE, Color.RED}),
         role_minima={
@@ -73,14 +40,7 @@ DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
         simultaneous_deck_ids=(),
         required_commanders=("Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"),
         require_partner_configuration=True,
-        locked_cards=(
-            "Duelist's Heritage",
-            "Chandra, Torch of Defiance",
-            "Light of Hope",
-            "Kediss, Emberclaw Familiar",
-            "Silence",
-            "Jeska, Thrice Reborn",
-        ),
+        locked_cards=(),
     ),
 }
 

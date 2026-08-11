@@ -87,7 +87,7 @@ def test_runtime_version_matches_declared_package_version(repo_root: Path) -> No
 
 def test_tool_metadata_contains_universal_run_identity(repo_root: Path) -> None:
     service = CommanderToolService(repo_root)
-    response = service.inspect_deck(InspectDeckInput(deck_id="korvold/current"))
+    response = service.inspect_deck(InspectDeckInput(deck_id="rogshai/current"))
 
     assert response.status == ToolStatus.COMPLETED
     identity = response.metadata.run_identity
@@ -105,23 +105,23 @@ def test_tool_metadata_contains_universal_run_identity(repo_root: Path) -> None:
 
 def test_stale_deck_fails_canonical_run_but_historical_replay_is_explicit(repo_root: Path) -> None:
     service = CommanderToolService(repo_root)
-    current = service.decks["korvold/current"]
-    service.decks["korvold/current"] = current.model_copy(update={"deck_hash": "0" * 64})
+    current = service.decks["rogshai/current"]
+    service.decks["rogshai/current"] = current.model_copy(update={"deck_hash": "0" * 64})
 
     with pytest.raises(ToolExecutionError, match="stale canonical inputs rejected"):
         service.build_run_identity(
-            {"deck_id": "korvold/current", "canonical_inputs_required": True},
-            ("korvold/current",),
+            {"deck_id": "rogshai/current", "canonical_inputs_required": True},
+            ("rogshai/current",),
             tool_name="inspect_deck",
         )
 
     replay = service.build_run_identity(
         {
-            "deck_id": "korvold/current",
+            "deck_id": "rogshai/current",
             "canonical_inputs_required": True,
             "historical_replay": True,
         },
-        ("korvold/current",),
+        ("rogshai/current",),
         tool_name="inspect_deck",
     )
     assert replay.historical_replay is True
@@ -154,9 +154,9 @@ def test_optimizer_tool_response_carries_source_identity(repo_root: Path) -> Non
     service = CommanderToolService(repo_root)
     response = service.generate_swap_matrix(
         SwapMatrixInput(
-            deck_id="korvold/current",
-            remove_cards=("Aftermath Analyst",),
-            add_candidate_ids=("korvold/mazirek-smoke",),
+            deck_id="rogshai/current",
+            remove_cards=("Kykar, Wind's Fury",),
+            add_candidate_ids=("inventory/disorder-in-the-court-f673274a",),
             simulate_valid_cells=False,
             iterations_per_cell=1,
         )
@@ -164,7 +164,7 @@ def test_optimizer_tool_response_carries_source_identity(repo_root: Path) -> Non
 
     assert response.status == ToolStatus.COMPLETED
     identity = response.metadata.run_identity
-    assert identity.deck_hashes["korvold/current"] == service.decks["korvold/current"].deck_hash
+    assert identity.deck_hashes["rogshai/current"] == service.decks["rogshai/current"].deck_hash
     assert identity.inventory_hash
     assert identity.policy_hash
     assert identity.data_source_manifest_hash

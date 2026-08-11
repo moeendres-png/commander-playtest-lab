@@ -12,7 +12,7 @@ def test_batch_is_reproducible_across_worker_counts(structural_decks) -> None:
         run_id="worker-repro",
         seed=20260804,
         iterations=64,
-        deck_ids=("korvold/current", "rogshai/current", "synthetic/aggro"),
+        deck_ids=("rogshai/current", "kaervek/current", "synthetic/aggro"),
         limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=20),
     )
     serial = run_structural_batch(StructuralBatchConfig(**common, workers=1), structural_decks)
@@ -40,11 +40,11 @@ def test_batch_is_reproducible_across_worker_counts(structural_decks) -> None:
 @pytest.mark.parametrize("pod_size", [1, 3, 4, 5])
 def test_supported_validation_pod_sizes(pod_size, structural_decks) -> None:
     ordered = (
-        "korvold/current",
         "rogshai/current",
         "synthetic/aggro",
         "synthetic/control",
         "synthetic/engine",
+        "kaervek/current",
     )
     result = run_structural_batch(
         StructuralBatchConfig(

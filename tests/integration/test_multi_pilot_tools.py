@@ -20,13 +20,13 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_pilot_toolchain_smoke_and_reproducibility() -> None:
     service = CommanderToolService(ROOT)
-    listed = service.list_pilot_profiles(ListPilotProfilesInput(commander_family="korvold"))
+    listed = service.list_pilot_profiles(ListPilotProfilesInput(commander_family="rogshai"))
     assert listed.status == ToolStatus.COMPLETED
     assert listed.result["count"] == 6
 
     request = RunPilotBenchmarkInput(
-        deck_id="korvold/current",
-        pilot_names=("KorvoldPilot", "KorvoldSacrificePilot"),
+        deck_id="rogshai/current",
+        pilot_names=("RogShaiPilot", "RogShaiTempoPilot"),
         iterations=1,
         seed=9123,
         max_turns=8,
@@ -68,9 +68,9 @@ def test_ensemble_variant_and_report_tools_do_not_apply_deck_changes() -> None:
 
     variant = service.test_variant_across_pilots(
         VariantAcrossPilotsInput(
-            baseline_deck_id="korvold/current",
-            variant_deck_id="korvold/current",
-            pilot_names=("KorvoldValuePilot", "KorvoldConservativePilot"),
+            baseline_deck_id="rogshai/current",
+            variant_deck_id="rogshai/current",
+            pilot_names=("RogShaiControlPilot", "RogShaiProtectedFinishPilot"),
             iterations=1,
             seed=93,
             max_turns=8,

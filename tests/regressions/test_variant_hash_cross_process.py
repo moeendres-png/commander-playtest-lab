@@ -14,12 +14,12 @@ from commander_lab.optimization.experiments import variant_deck
 root = r"ROOT"
 decks = load_project_structural_decks(root, include_current_opponents=True)
 candidates = load_candidate_profiles(root)
-baseline = decks["korvold/current"]
-card = candidates["korvold/mazirek-smoke"].card
+baseline = decks["rogshai/current"]
+card = candidates["rogshai/opt-smoke"].card
 variant = variant_deck(
     baseline,
     variant_id="cross-process-test",
-    removals=("Vampiric Rites",),
+    removals=("Consider",),
     additions=(card,),
 )
 print(variant.deck_hash)

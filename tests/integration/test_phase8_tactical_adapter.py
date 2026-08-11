@@ -18,11 +18,10 @@ from commander_lab.models import (
 def test_tactical_adapter_loads_decks_and_reproduces_starting_state(repo_root) -> None:
     adapter = TacticalRulesAdapter()
     decks = load_project_rules_decks(repo_root)
-    korvold = adapter.load_deck(decks["korvold/current"])
     rogshai = adapter.load_deck(decks["rogshai/current"])
     request = RulesGameRequest(
         game_id="a",
-        deck_handles=(korvold.handle_id, rogshai.handle_id, korvold.handle_id, rogshai.handle_id),
+        deck_handles=(rogshai.handle_id,) * 4,
         seed=12345,
     )
     a = adapter.start_commander_game(request)

@@ -22,11 +22,6 @@ def test_curated_policy_golden_scenarios_do_not_regress() -> None:
     )
     cases = (
         (
-            "korvold/current",
-            "korvold",
-            "data/primer_rules/policies/korvold_current_policy-1.0.1.json",
-        ),
-        (
             "rogshai/current",
             "rogshai",
             "data/primer_rules/policies/rogshai_current_policy-1.0.1.json",

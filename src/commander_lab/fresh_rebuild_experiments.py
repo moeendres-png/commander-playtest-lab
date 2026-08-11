@@ -27,7 +27,7 @@ def fresh_hard_constraints() -> OptimizationConstraints:
         maximum_high_mana_value_cards=100,
         high_mana_value_threshold=5.0,
         require_verified_inventory=True,
-        simultaneous_deck_ids=("korvold/current",),
+        simultaneous_deck_ids=(),
     )
 
 

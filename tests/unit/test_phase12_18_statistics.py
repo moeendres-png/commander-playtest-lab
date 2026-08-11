@@ -37,7 +37,7 @@ def test_every_paired_comparison_exposes_required_protocol_fields() -> None:
     response = service.compare_variants_paired(
         PairedVariantInput(
             deck_id="rogshai/current",
-            swaps=(VariantSwap(remove="Izzet Signet", add_candidate_id="rogshai/curiosity-smoke"),),
+            swaps=(VariantSwap(remove="Consider", add_candidate_id="rogshai/opt-smoke"),),
             iterations=3,
             workers=1,
             seed=123,

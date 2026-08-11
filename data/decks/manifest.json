@@ -1,71 +1,15 @@
 {
-  "schema_version": "0.2.0",
-  "data_as_of": "2026-08-07",
+  "schema_version": "0.3.0",
+  "data_as_of": "2026-08-11",
   "generated_from_local_files_only": true,
   "google_drive_modified": false,
   "authoritative_oracle_snapshot": false,
-  "data_snapshot_hash": "0b1ed58280c1d0dbea0ace7edb6b41291de9ec0038e34cac4a512e5dac33bdd3",
-  "decks": {
-    "korvold/current": {
-      "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
-      "total_cards": 100,
-      "library_cards": 99,
-      "commanders": [
-        "Korvold, Fae-Cursed King"
-      ],
-      "source_file": "korvold_current.txt",
-      "normalized_file": "korvold_current.json",
-      "validation": {
-        "valid": true,
-        "issues": [],
-        "metrics": {
-          "total_cards": 100,
-          "library_cards": 99,
-          "unique_oracle_names": 86,
-          "commander_count": 1,
-          "commander_identity": [
-            "B",
-            "G",
-            "R"
-          ]
-        }
-      }
-    },
-    "rogshai/current": {
-      "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
-      "total_cards": 100,
-      "library_cards": 98,
-      "commanders": [
-        "Ishai, Ojutai Dragonspeaker",
-        "Rograkh, Son of Rohgahh"
-      ],
-      "source_file": "rogshai_current.txt",
-      "normalized_file": "rogshai_current.json",
-      "validation": {
-        "valid": true,
-        "issues": [],
-        "metrics": {
-          "total_cards": 100,
-          "library_cards": 98,
-          "unique_oracle_names": 85,
-          "commander_count": 2,
-          "commander_identity": [
-            "R",
-            "U",
-            "W"
-          ]
-        }
-      }
-    }
-  },
-  "allocation_validation": {
-    "valid": true,
-    "issues": [],
-    "metrics": {
-      "required_unique_cards": 160,
-      "available_unique_cards": 1335,
-      "required_total_cards": 200,
-      "available_total_cards": 2003
-    }
-  }
+  "data_snapshot_hash": "afb1f737d482629e820e381afa0a399856eb29a39094e706e3ce4ac9482c8a58",
+  "status": "current_provisional_final_for_simulator_optimization",
+  "active_own_decks": ["rogshai/current"],
+  "supersedes_all_prior_operational_own_deck_snapshots": true,
+  "decks": {"rogshai/current":{"deck_hash":"7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126","total_cards":100,"library_cards":98,"land_count":36,"commanders":["Ishai, Ojutai Dragonspeaker","Rograkh, Son of Rohgahh"],"source_file":"rogshai_current.txt","normalized_file":"rogshai_current.json","status":"provisional_final_current_for_simulator_optimization","validation":{"valid":true,"issues":[],"metrics":{"total_cards":100,"library_cards":98,"land_count":36,"unique_oracle_names":85,"commander_count":2,"commander_identity":["R","U","W"]}}}},
+  "allocation_validation":{"valid":true,"issues":[],"metrics":{"required_unique_cards":85,"available_unique_cards":1335,"required_total_cards":100,"available_total_cards":2003}},
+  "removed_operational_decks":["korvold/current"],
+  "notes":"Only RogShai is an active/current own deck. Old Korvold and superseded RogShai deck snapshots are not part of the current simulator baseline."
 }

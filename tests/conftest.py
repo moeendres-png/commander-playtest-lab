@@ -8,11 +8,9 @@ import pytest
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.structural import (
     StructuralProfileCatalog,
-    build_structural_deck_profile,
-    build_synthetic_deck_profile,
+    load_project_structural_decks,
 )
-from commander_lab.models import Deck
-from commander_lab.storage import load_model
+from commander_lab.models import CardIdentity
 
 
 @pytest.fixture(scope="session")
@@ -38,7 +36,15 @@ def cleanup_generated_test_outputs(repo_root: Path):
 
 @pytest.fixture(scope="session")
 def catalog(repo_root: Path) -> CardCatalog:
-    return CardCatalog.from_json(repo_root / "data/cards/oracle_subset.json")
+    result = CardCatalog.from_json(repo_root / "data/cards/oracle_subset.json")
+    overlay = json.loads(
+        (repo_root / "data/decks/rogshai_current_card_catalog_overrides.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    for row in overlay["cards"]:
+        result.add(CardIdentity.model_validate(row))
+    return result
 
 
 @pytest.fixture(scope="session")
@@ -49,19 +55,9 @@ def structural_profiles(repo_root: Path) -> StructuralProfileCatalog:
 
 
 @pytest.fixture(scope="session")
-def structural_decks(repo_root: Path, structural_profiles: StructuralProfileCatalog):
-    manifest = json.loads((repo_root / "data/decks/manifest.json").read_text(encoding="utf-8"))
-    snapshot_hash = manifest["data_snapshot_hash"]
-    result = {}
-    for filename in ("korvold_current.json", "rogshai_current.json"):
-        deck = load_model(repo_root / "data/decks" / filename, Deck)
-        profile = build_structural_deck_profile(
-            deck,
-            structural_profiles,
-            data_snapshot_hash=snapshot_hash,
-        )
-        result[profile.deck_id] = profile
-    for archetype in ("aggro", "control", "engine"):
-        profile = build_synthetic_deck_profile(archetype, data_snapshot_hash=snapshot_hash)
-        result[profile.deck_id] = profile
-    return result
+def structural_decks(repo_root: Path):
+    return load_project_structural_decks(
+        repo_root,
+        include_synthetic_fixtures=True,
+        include_current_opponents=True,
+    )

@@ -101,25 +101,25 @@ def _pytest_unit_case(root: Path, output_dir: Path) -> EvalCaseResult:
 
 def _property_scenarios() -> tuple[tuple[str, tuple[str, ...]], ...]:
     return (
-        ("goldfish", ("korvold/current",)),
-        ("three_player", ("korvold/current", "synthetic/aggro", "synthetic/control")),
+        ("goldfish", ("rogshai/current",)),
+        ("three_player", ("rogshai/current", "synthetic/aggro", "synthetic/control")),
         (
             "four_player",
             (
-                "korvold/current",
                 "rogshai/current",
                 "synthetic/aggro",
                 "synthetic/control",
+                "synthetic/engine",
             ),
         ),
         (
             "five_player",
             (
-                "korvold/current",
                 "rogshai/current",
                 "synthetic/aggro",
                 "synthetic/control",
                 "synthetic/engine",
+                "kaervek/current",
             ),
         ),
     )
@@ -133,7 +133,11 @@ def _run_property_cases(
     seed: int,
     workers: int,
 ) -> tuple[list[EvalCaseResult], int, int]:
-    decks = load_project_structural_decks(root, include_synthetic_fixtures=True)
+    decks = load_project_structural_decks(
+        root,
+        include_synthetic_fixtures=True,
+        include_current_opponents=True,
+    )
     cases: list[EvalCaseResult] = []
     aborted = 0
     total = 0
@@ -206,16 +210,20 @@ def _run_property_cases(
 
 
 def _seed_and_action_properties(root: Path, output_dir: Path, *, seed: int) -> list[EvalCaseResult]:
-    decks = load_project_structural_decks(root, include_synthetic_fixtures=True)
+    decks = load_project_structural_decks(
+        root,
+        include_synthetic_fixtures=True,
+        include_current_opponents=True,
+    )
     config = StructuralBatchConfig(
         run_id="phase6-seed-replay",
         seed=seed,
         iterations=12,
         deck_ids=(
-            "korvold/current",
             "rogshai/current",
             "synthetic/aggro",
             "synthetic/control",
+            "kaervek/current",
         ),
         workers=1,
         output_directory=str(output_dir / "property" / "seed-a"),

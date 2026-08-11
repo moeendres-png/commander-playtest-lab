@@ -36,7 +36,7 @@ PRIMARY = (
     "opponent/doom-prevails-precon",
     "opponent/cosmic-spiderman-midbudget",
 )
-POD = ("korvold/current", *PRIMARY)
+POD = ("rogshai/current", *PRIMARY)
 
 
 def _git(*args: str) -> str:
@@ -104,7 +104,7 @@ def _measure(name: str, fn: Callable[[], Any], repetitions: int = 3) -> dict[str
 
 
 def _serialization_benchmark(service: CommanderToolService) -> dict[str, int]:
-    deck = service._deck("korvold/current")
+    deck = service._deck("rogshai/current")
     payload = deck.model_dump(mode="json")
     total = 0
     for _ in range(1000):
@@ -113,7 +113,7 @@ def _serialization_benchmark(service: CommanderToolService) -> dict[str, int]:
 
 
 def _lookup_benchmark(service: CommanderToolService) -> dict[str, int]:
-    deck = service._deck("korvold/current")
+    deck = service._deck("rogshai/current")
     lookup = {card.oracle_name: card for card in deck.cards}
     names = tuple(lookup)
     hits = 0
@@ -159,7 +159,7 @@ def main() -> None:
         _measure(
             "goldfish_50_workers_1",
             lambda: service.run_goldfish(
-                GoldfishInput(deck_id="korvold/current", iterations=50, workers=1, seed=20260811)
+                GoldfishInput(deck_id="rogshai/current", iterations=50, workers=1, seed=20260811)
             ),
         )
     )
@@ -183,11 +183,11 @@ def main() -> None:
             "paired_comparison_8",
             lambda: service.compare_variants_paired(
                 PairedVariantInput(
-                    deck_id="korvold/current",
+                    deck_id="rogshai/current",
                     swaps=(
                         VariantSwap(
-                            remove="Goblin Bombardment",
-                            add_candidate_id="korvold/god-eternal-bontu",
+                            remove="Consider",
+                            add_candidate_id="rogshai/opt-smoke",
                         ),
                     ),
                     opponent_deck_ids=PRIMARY,
@@ -203,8 +203,8 @@ def main() -> None:
             "card_ablation_4",
             lambda: service.run_card_ablation(
                 CardAblationInput(
-                    deck_id="korvold/current",
-                    card_name="Mirkwood Bats",
+                    deck_id="rogshai/current",
+                    card_name="Kediss, Emberclaw Familiar",
                     opponent_deck_ids=PRIMARY,
                     iterations=4,
                     seed=20260811,
@@ -217,8 +217,8 @@ def main() -> None:
             "package_ablation_4",
             lambda: service.run_package_ablation(
                 PackageAblationInput(
-                    deck_id="korvold/current",
-                    card_names=("Mayhem Devil", "Mirkwood Bats"),
+                    deck_id="rogshai/current",
+                    card_names=("Combat Research", "Curiosity"),
                     opponent_deck_ids=PRIMARY,
                     iterations=4,
                     seed=20260812,
@@ -231,7 +231,7 @@ def main() -> None:
             "commander_denial_4",
             lambda: service.run_commander_denial(
                 CommanderDenialInput(
-                    deck_id="korvold/current",
+                    deck_id="rogshai/current",
                     opponent_deck_ids=PRIMARY,
                     iterations=4,
                     seed=20260813,
@@ -258,8 +258,8 @@ def main() -> None:
             "local_search_bounded",
             lambda: service.run_local_search(
                 LocalSearchInput(
-                    deck_id="korvold/current",
-                    candidate_ids=("korvold/god-eternal-bontu",),
+                    deck_id="rogshai/current",
+                    candidate_ids=("rogshai/opt-smoke",),
                     max_steps=1,
                     cuts_per_step=2,
                     opponent_deck_ids=PRIMARY,
@@ -272,11 +272,11 @@ def main() -> None:
 
     paired = service.compare_variants_paired(
         PairedVariantInput(
-            deck_id="korvold/current",
+            deck_id="rogshai/current",
             swaps=(
                 VariantSwap(
-                    remove="Goblin Bombardment",
-                    add_candidate_id="korvold/god-eternal-bontu",
+                    remove="Consider",
+                    add_candidate_id="rogshai/opt-smoke",
                 ),
             ),
             opponent_deck_ids=PRIMARY,

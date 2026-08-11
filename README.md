@@ -1,392 +1,69 @@
 # Commander Playtest Lab
 
-Local, reproducible foundation for importing, validating, structurally simulating, and later optimizing MTG Commander decks.
+Local, reproducible decision system for Commander deck validation, structural simulation, pilot/ensemble analysis, paired comparisons, ablation, holdout, sensitivity and constrained optimization.
 
-## Current scope: Phase 10
+## Current operational own deck — 2026-08-11
 
-The repository provides:
+There is exactly one current own-deck snapshot:
 
-- Pydantic models for cards, physical inventory, decks, opponents, game state, actions, events, simulation runs, contributions, upgrades, structural role profiles, pilot configuration, utility breakdowns, and structural results;
-- plaintext, CSV, XLSX, read-only Google-Drive-export, and opponent-profile importers;
-- Oracle-name normalization and local Commander validation;
-- immutable local snapshots of `korvold/current` and `rogshai/current`;
-- a role-based Structural Simulator with deterministic replay;
-- London mulligans, turn order, cards drawn, lands, approximate colored mana, ramp, selection, independent draw, commander casting and tax, removal, counters, protection, board wipes, graveyard hate, recursion, board pressure, commander and normal damage, engines, resources, finishers, elimination, and game end;
-- deterministic and seeded stochastic pilot decisions;
-- specialized `KorvoldPilot` and `RogShaiPilot` implementations;
-- generic Aggro, Control, Engine, Graveyard, Artifact, and Commander pilots;
-- four configurable pilot strengths;
-- deterministic batch seeds independent of worker count;
-- process-based parallel execution;
-- JSONL event logs containing the complete utility breakdown for each pilot decision.
+- `rogshai/current` — Ishai, Ojutai Dragonspeaker + Rograkh, Son of Rohgahh
+- 100 cards total / 98-card library / 36 lands
+- deck hash: `7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126`
+- status: `current_provisional_final_for_simulator_optimization`
 
-Every game result produced by this engine is labelled exactly:
+This list is the physically buildable current reference and the baseline for continued simulator/optimizer improvement. It is **not frozen**: later evidence may justify changes.
+
+Superseded RogShai snapshots and former own Korvold decklists are intentionally absent from the current operational deck data. Git history may retain provenance, but history is not a current deck source. `KorvoldPilot` may remain as a legacy software capability for historical regression or explicitly supplied external decks; it does not imply an active/current Korvold own deck.
+
+Kaervek data is opponent-only and is not part of the own-deck cleanup.
+
+## Evidence boundary
+
+Simulator outputs are labelled `structural_model_estimates`. They are not empirical win rates and are not external-rules-engine evidence. The Tactical Oracle is a separate bounded abstraction. XMage/Forge evidence may only be called `external_rules_engine` when a real provider run was actually executed and validated.
+
+Current-deck-specific inferred card/role records needed to load the provisional RogShai baseline live in explicit overlay files under `data/decks/`; they do not silently promote candidate-pool coverage or external-rules validation.
+
+Playstyle/administrative complexity is not an optimization prior. Deck strength, synergy, mana, interaction, resilience, matchup robustness and multiplayer scaling are evaluated first; subjective playstyle review is downstream only.
+
+## Main current files
 
 ```text
-structural_model_estimates
+data/decks/rogshai_current.txt
+data/decks/rogshai_current.json
+data/decks/manifest.json
+data/decks/rogshai_current_card_catalog_overrides.json
+data/decks/rogshai_current_structural_overrides.json
+data/sync/current_sources.json
 ```
 
-These outputs are not comprehensive rules simulations, rules-validated games, or empirical win rates.
+`data/decks/manifest.json` is the current operational deck manifest and contains only `rogshai/current`.
 
-## Local baselines
-
-- `korvold/current`: 100 cards, including Korvold and 39 lands;
-- `rogshai/current`: 100 cards, including Ishai + Rograkh and 37 lands.
-
-Older optimization proposals are not imported as current deck data. No Google Drive file is modified.
-
-## Pilot utility model
-
-Each legal action is scored through the configurable dimensions:
-
-- `survival`
-- `mana_efficiency`
-- `card_advantage`
-- `tempo`
-- `engine_development`
-- `interaction_reserve`
-- `commander_value`
-- `threat_reduction`
-- `win_progress`
-- `political_visibility`
-- `rebuild_capacity`
-
-Pilots only rank legal action views supplied by the engine. They cannot mutate life totals, zones, mana, targets, the stack, or game results directly.
-
-Decision modes:
-
-- `deterministic`: the same state, configuration, and legal actions produce the same choice;
-- `stochastic`: seeded softmax selection with a strength-dependent temperature and mistake rate.
-
-Pilot strengths:
-
-- `weak`
-- `average`
-- `strong`
-- `near_optimal_heuristic`
-
-The strength labels describe increasing decision fidelity within the structural heuristic model. They do not claim optimal Magic play.
-
-### KorvoldPilot
-
-The Korvold specialist evaluates sacrifice material and outlets, land recursion, immediate Korvold value, protection windows, graveyard pressure, independent resource engines, table-damage payoffs, rebuild capacity, and commander-damage pressure.
-
-### RogShaiPilot
-
-The RogShai specialist evaluates Rograkh as a resource, multiplayer Ishai growth, protection and counter mana, combat-draw auras, Jeska, Kediss, double strike, the Kykar/spellslinger axis, and commander damage separately for every opponent.
-
-## Structural card profiles
-
-`data/cards/structural_role_profiles.json` contains validated profiles for all Oracle names in the local two-deck catalog. Cards may have several roles, including mana, ramp, draw, selection, interaction, protection, wipes, recursion, graveyard hate, engines, enablers, payoffs, finishers, combat payoffs, token sources, sacrifice outlets, and land synergy.
-
-Each profile records approximate mana value, color needs, commander synergy, floor value, immediate impact, turn-cycle risk, multiplayer scaling, and conditional strength. These profiles are structural abstractions rather than substitutes for Oracle text.
-
-## Setup
+## Setup and validation
 
 ```bash
 uv sync --extra dev
 uv run pytest
 ```
 
-A standard editable installation also works:
+or:
 
 ```bash
 python -m pip install -e .
 pytest
 ```
 
-OpenAI-backed phases use the optional dependency group:
-
-```bash
-python -m pip install -e '.[openai]'
-```
-
-No API key is required for the Phase-4 simulator or pilots.
-
-## Commands
-
-Validate the local deck and collection snapshots:
+Useful project commands:
 
 ```bash
 commander-lab validate-local --root .
-```
-
-Regenerate and validate structural profiles:
-
-```bash
 commander-lab generate-structural-profiles --root .
-```
-
-Run the Phase-3 structural validation:
-
-```bash
-commander-lab validate-structural \
-  --iterations 24 \
-  --workers 2 \
-  --seed 20260804 \
-  --root .
-```
-
-Run the Phase-4 pilot validation:
-
-```bash
-commander-lab validate-pilots \
-  --iterations 24 \
-  --workers 2 \
-  --seed 20260804 \
-  --root .
-```
-
-Run an ad hoc batch with a shared pilot configuration:
-
-```bash
-commander-lab run-structural-batch \
-  --deck korvold/current \
-  --deck rogshai/current \
-  --deck synthetic/aggro \
-  --deck synthetic/control \
-  --pilot-strength strong \
-  --pilot-mode stochastic \
-  --iterations 1000 \
-  --workers 4 \
-  --seed 20260804
-```
-
-The `synthetic/*` decks are engine-validation fixtures. They are not claims about real opponents and must not be used as matchup evidence.
-
-## Reproducibility
-
-A match seed is derived only from:
-
-- engine version;
-- master seed;
-- run ID;
-- match index.
-
-Each seat receives a separate pilot RNG derived from the match identity and seat. Worker count and task completion order do not affect match seeds, pilot choices, ordered results, or event hashes.
-
-The batch runner supports fixed seeds, starting-seat rotation, run-abort limits, one or more worker processes, deterministic or stochastic pilots, and per-seat pilot configurations.
-
-## Phase-4 validation
-
-The validation suite covers:
-
-- deterministic specialist pilots in a four-player fixture;
-- seeded stochastic specialist pilots;
-- byte-identical stochastic replay with different worker counts;
-- all eleven utility dimensions in decision logs;
-- main-phase, combat, counter, protection, and target decisions;
-- a controlled action-choice benchmark for all four strength levels;
-- unit tests for typical Korvold and RogShai situations.
-
-The strength benchmark measures choices in controlled decisions such as early ramp, urgent removal, post-wipe rebuilding, and a table finisher. It is not a match win-rate benchmark.
-
-## Project boundaries
-
-Current limitations:
-
-- the local Oracle catalog covers the current project decks, not every printed Magic card;
-- the Structural Simulator and Tactical Oracle are bounded abstractions rather than complete Magic rules engines;
-- fixed precon opponents are represented by versioned structural role profiles, not card-by-card external-engine execution;
-- the Cosmic Spider-Man profile combines known cards with an explicitly synthetic mid-budget completion;
-- XMage/Forge bootstrap and adapter contracts are prepared, but no real external-engine run has completed in this environment;
-- live OpenAI-agent execution requires the optional Agents SDK and a separately configured API key.
-
-
-## Phase 5: local Function-Tool server and OpenAI agents
-
-Phase 5 introduced a local FastAPI Function-Tool server. The current server exposes 23 strict, Pydantic-validated tools:
-
-- deck validation and inspection;
-- goldfish and multiplayer batches;
-- paired deck and variant comparison;
-- card and package ablation;
-- commander-denial stress tests;
-- swap matrices and bounded variant search;
-- holdout and sensitivity runs;
-- upgrade screening and validation;
-- synthetic opponent uncertainty ensembles and robust holdout validation;
-- structured Markdown reports.
-
-Start the local server:
-
-```bash
-python -m pip install -e '.[api]'
-commander-lab serve-tools --host 127.0.0.1 --port 8765
-```
-
-Endpoints:
-
-```text
-GET  /health
-GET  /v1/tools
-POST /v1/tools/{tool_name}:invoke
-POST /v1/workflows:run
-POST /v1/demos/phase10
-```
-
-The deterministic tools run without an API key. Live workflows require the optional OpenAI dependencies and `OPENAI_API_KEY`:
-
-```bash
-python -m pip install -e '.[api,openai]'
-export OPENAI_API_KEY=...
-```
-
-The OpenAI workflow contains four separate agents:
-
-- `Orchestrator Agent`;
-- `Deck Analyst`;
-- `Simulation Analyst`;
-- `Red-Team Reviewer`.
-
-The SDK integration uses Responses-path agents, strict function schemas, `WorkflowReport` structured output, persistent `SQLiteSession` storage, SDK tracing, blocking input guardrails, output guardrails, lifecycle hooks, and local cost tracking. Agents receive only the structured tools and cannot mutate deterministic game state.
-
-OpenAI traces are stored separately from deterministic game logs:
-
-```text
-data/runs/openai_traces/
-data/runs/openai_sessions.sqlite
-data/runs/tool_runs/<invocation>/events/
-```
-
-Budget controls include maximum model turns, total tokens, output tokens per call, configurable estimated USD cost, simulation time, variant count, a hard iteration ceiling, and an explicit approval threshold for large runs. Model prices are deliberately configuration values rather than hard-coded assumptions.
-
-Run the offline, deterministic end-to-end demonstration:
-
-```bash
-commander-lab demo-phase5 --iterations 80 --seed 20260804 --root .
-```
-
-The demo validates Korvold, runs a four-player structural matchup, screens one potential cut, performs a paired swap comparison, executes holdout validation, and writes a structured report. Synthetic opponents remain technical fixtures and are not evidence about the real metagame.
-
-## Phase 6: multi-tier evaluation system
-
-Phase 6 adds a release-gated evaluation suite with five independent tiers:
-
-- unit tests for import, legality, quantities, commander damage, commander tax, London mulligans, abstract trigger ordering, seeds, and event logs;
-- property checks for nonnegative zones, card conservation, zone consistency, eliminated-player inactivity, seed replay, and rejection of illegal actions;
-- reviewed golden pilot decisions for Korvold, RogShai, and generic tactical situations;
-- differential fixtures that can be executed through an external XMage or Forge adapter command;
-- agent trajectory evaluations for tool selection, evidence grounding, interpretation, uncertainty disclosure, model/real separation, and validation before recommendations.
-
-Run the complete local evaluation:
-
-```bash
-commander-lab eval-phase6 \
-  --iterations-per-scenario 64 \
-  --workers 2 \
-  --seed 20260804 \
-  --root .
-```
-
-The default run checks 256 complete structural games across goldfish, three-player, four-player, and five-player fixtures. Local acceptance requires all local blocking gates to pass. Full release acceptance additionally requires three real differential observations and a 100% match rate against a configured XMage or Forge backend.
-
-Configure an external differential adapter with one of:
-
-```bash
-export COMMANDER_LAB_FORGE_DIFFERENTIAL_CMD='python adapter.py --input {input} --output {output}'
-export COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD='python adapter.py --input {input} --output {output}'
-```
-
-The adapter receives a JSON fixture and must write a normalized JSON result. Missing external configuration is reported as `blocked`; it is never converted into a passing comparison.
-
-Acceptance thresholds are versioned in `config/evals.yaml`. Golden, differential, and agent cases are stored under `data/evals/`. The local agent cases can also be exported as JSONL input for a separate OpenAI custom-eval workflow; exporting the dataset performs no API call.
-
-Every simulation-derived value remains labeled `structural_model_estimates`. Passing the local suite is not evidence of a real match win rate and does not authorize an upgrade recommendation without paired and holdout validation.
-
-
-## Phase 7: constrained deck optimization
-
-Phase 7 adds:
-
-- complete structural swap matrices;
-- constrained local and Beam Search;
-- multi-card package search;
-- Pareto fronts over seven separate objectives;
-- paired card and package ablation;
-- approximate Shapley contribution estimates;
-- a mandatory validation chain with paired comparison, holdouts, sensitivity, and red-team review.
-
-Optimization constraints are configured in `config/phase7_optimization.json`. Candidate physical allocation is read from the narrow local snapshot `data/collections/phase7_optimization_pool.json`.
-
-No search result is automatically applied. `validate_upgrade` returns `validated_not_applied` or `rejected_not_applied`, and canonical deck files remain unchanged.
-
-Run the Phase-7 validation suite:
-
-```bash
-pytest -q
-PYTHONPATH=src python scripts/run_phase7_validation.py
-```
-
-The included smoke outputs use small samples to validate the workflow. They are `structural_model_estimates`, not real win rates or final deck recommendations.
-
-## Phase 8: tactical and rules-validated mode
-
-Phase 8 adds a bounded tactical oracle and persistent JSONL adapters for XMage and Forge. The adapter boundary supports deck loading, Commander game start, deterministic seeds or injected starting states, legal-action queries, programmatic action submission, event logs, and normalized Python results.
-
-Probe available backends:
-
-```bash
+commander-lab validate-structural --iterations 24 --workers 2 --seed 20260804 --root .
+commander-lab validate-pilots --iterations 24 --workers 2 --seed 20260804 --root .
 commander-lab probe-rules-engines --root .
 ```
 
-Run the local tactical and optional external validation suite:
+The `synthetic/*` decks are technical engine-validation fixtures, not claims about real opponents.
 
-```bash
-commander-lab validate-rules-phase8 --seed 20260804 --root .
-```
+## Current optimization rule
 
-The interaction catalog contains more than 50 project-critical cases under `data/evals/differential/project_critical_interactions.json`. The generated registry marks every local card and interaction as one of:
-
-- `structural_only`;
-- `tactical_oracle`;
-- `external_rules_engine`.
-
-A tactical pass is not an external rules proof. `external_rules_engine` is emitted only after a matching XMage or Forge bridge observation. Missing external engines remain a visible blocked gate.
-
-## External rules-engine runtime (Phase 8.5)
-
-The versioned JSONL contract, process manager, offline bootstrap, Docker recipes,
-and replay validation are documented in `docs/engine_setup.md`. The current build
-runtime could not execute XMage or Forge; external validation therefore remains
-pending and no Tactical Oracle result is presented as external evidence.
-
-## Phase 8.6 audit and operational commands
-
-```bash
-commander-lab doctor
-commander-lab db-migrate
-commander-lab db-check
-commander-lab audit-phase86
-commander-lab runs-verify data/runs/<run-id>
-```
-
-Phase 8.5.1 has not been executed in the sandbox. See `docs/phase851_execution_required.md`. External validation may never be inferred from Tactical Oracle output, and automatic fallback is disabled by default.
-
-## Manual-playtest subsystem removal
-
-The active product does not ingest manually logged games and does not calibrate against an empirical local-game dataset. Active evidence levels are `structural_only`, `tactical_oracle`, and `external_rules_engine`. Historical implementation details remain available through Git history rather than the current product surface.
-
-## Phase 10: end-to-end acceptance
-
-The current package version is `1.4.0`. Phase 10 adds current project opponent profiles, a complete non-destructive acceptance workflow, CLI/API/ChatGPT-tool demos and example reports for both current decks.
-
-```bash
-commander-lab accept-phase10 --iterations 12 --workers 2 --seed 20260805 --root .
-```
-
-Current opponent scenarios use fixed precon references, the known Morcant and Kaervek role profiles, and a clearly marked synthetic mid-budget completion for Cosmic Spider-Man. No fixed empirical opponent frequencies are assumed.
-
-A result is only `validated_upgrade` after physical constraints, primary pods, worst-quartile behavior, holdout, sensitivity, red-team review and real external rules-engine validation pass. The current external engine gate remains pending, so Phase 10 cannot authorize a deck change.
-
-Documentation:
-
-- `docs/installation.md`
-- `docs/architecture.md`
-- `docs/phase10_validation.md`
-- `docs/known_limitations.md`
-- `docs/chatgpt_tool_usage.md`
-
-## Archetype and package extraction
-
-Version 1.4.0 adds weighted archetype profiles and versioned Korvold/RogShai package diagnostics. Package results preserve provenance, format context and status (`candidate`, `machine_extracted`, `curated`, `validated`, or `rejected`). Co-occurrence alone never confirms a package, and no package is automatically applied to a canonical deck. See `docs/archetype_package_extraction.md`.
+No search result is automatically applied to the canonical/current deck. Candidate changes must remain read-only until explicitly accepted. The current baseline can be improved through the project’s paired comparison, commander-denial, ablation, holdout, sensitivity, pilot and opponent-ensemble workflows while preserving physical inventory constraints and evidence labels.

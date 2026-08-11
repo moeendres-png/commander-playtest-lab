@@ -4,12 +4,14 @@ import csv
 import json
 from pathlib import Path
 
+import pytest
 from openpyxl import Workbook
 
 from commander_lab.importers import (
     CsvDeckImporter,
     DeckImportOptions,
     GoogleDriveExportImporter,
+    ImportErrorWithContext,
     OpponentProfileImporter,
     XlsxDeckImporter,
 )
@@ -84,14 +86,10 @@ def test_google_drive_export_importer_is_read_only_and_maps_sheets(tmp_path: Pat
     workbook.save(path)
     before = path.read_bytes()
 
-    decks = GoogleDriveExportImporter(catalog).import_decks(
+    importer = GoogleDriveExportImporter(catalog)
+    decks = importer.import_decks(
         path,
         {
-            "korvold/current": DeckImportOptions(
-                deck_id="korvold/current",
-                name="Korvold",
-                commander_names=("Korvold, Fae-Cursed King",),
-            ),
             "rogshai/current": DeckImportOptions(
                 deck_id="rogshai/current",
                 name="RogShai",
@@ -100,8 +98,18 @@ def test_google_drive_export_importer_is_read_only_and_maps_sheets(tmp_path: Pat
             ),
         },
     )
-    assert decks["korvold/current"].total_cards == 100
     assert decks["rogshai/current"].total_cards == 100
+    with pytest.raises(ImportErrorWithContext, match="retired own deck"):
+        importer.import_decks(
+            path,
+            {
+                "korvold/current": DeckImportOptions(
+                    deck_id="korvold/current",
+                    name="Retired Korvold",
+                    commander_names=("Korvold, Fae-Cursed King",),
+                )
+            },
+        )
     assert path.read_bytes() == before
 
 

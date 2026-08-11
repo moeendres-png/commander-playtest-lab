@@ -9,8 +9,7 @@ from commander_lab.models import RulesDeckInput, ValidationLevel
 
 def test_project_rules_decks_are_exact_commander_decks(repo_root) -> None:
     decks = load_project_rules_decks(repo_root)
-    assert set(decks) == {"korvold/current", "rogshai/current"}
-    assert len(decks["korvold/current"].mainboard) == 99
+    assert set(decks) == {"rogshai/current"}
     assert len(decks["rogshai/current"].mainboard) == 98
     assert len(decks["rogshai/current"].commander_names) == 2
 

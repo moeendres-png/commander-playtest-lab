@@ -20,7 +20,7 @@ from commander_lab.tools import CommanderToolService
 
 def test_tool_metadata_binds_complete_run_identity(repo_root: Path) -> None:
     service = CommanderToolService(repo_root)
-    response = service.inspect_deck(InspectDeckInput(deck_id="korvold/current"))
+    response = service.inspect_deck(InspectDeckInput(deck_id="rogshai/current"))
 
     assert response.status == ToolStatus.COMPLETED
     metadata = response.metadata
@@ -29,7 +29,7 @@ def test_tool_metadata_binds_complete_run_identity(repo_root: Path) -> None:
     assert len(metadata.meta_snapshot_hash) == 64
     assert len(metadata.opponent_registry_hash) == 64
     assert len(metadata.run_identity_hash) == 64
-    assert metadata.deck_hashes["korvold/current"] == service.decks["korvold/current"].deck_hash
+    assert metadata.deck_hashes["rogshai/current"] == service.decks["rogshai/current"].deck_hash
     assert metadata.pilot_hashes
     assert metadata.pilot_parameter_hashes
     assert "source:inventory" in metadata.data_snapshot_hashes
@@ -39,7 +39,7 @@ def test_tool_metadata_binds_complete_run_identity(repo_root: Path) -> None:
 
 def test_invoke_rejects_run_identity_drift(repo_root: Path) -> None:
     service = CommanderToolService(repo_root)
-    real_identity = service._run_identity({"deck_id": "korvold/current"}, ("korvold/current",))
+    real_identity = service._run_identity({"deck_id": "rogshai/current"}, ("rogshai/current",))
     changed = dict(real_identity)
     changed["run_identity_hash"] = "0" * 64
     calls = iter((real_identity, changed))
@@ -55,9 +55,9 @@ def test_invoke_rejects_run_identity_drift(repo_root: Path) -> None:
     service._run_identity = MethodType(fake_identity, service)  # type: ignore[method-assign]
     response = service._invoke(
         "inspect_deck",
-        InspectDeckInput(deck_id="korvold/current"),
+        InspectDeckInput(deck_id="rogshai/current"),
         lambda: {"ok": True},
-        deck_ids=("korvold/current",),
+        deck_ids=("rogshai/current",),
     )
     assert response.status == ToolStatus.FAILED
     assert any("run identity drift detected" in error for error in response.errors)

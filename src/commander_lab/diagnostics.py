@@ -698,7 +698,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
         f"loaded and schema-validated {meta.manifest.snapshot_id}",
     )
 
-    # 2. Compile current curated primer rules against the exact Korvold deck hash.
+    # 2. Compile a frozen historical Korvold rule set as an isolated compiler regression.
     from commander_lab.models import (
         FormatBand,
         HiddenInformationPolicy,
@@ -743,7 +743,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
     from commander_lab.engine.structural import StructuralSimulator, load_project_structural_decks
 
     registry = PilotRegistry(root)
-    selected = ("KorvoldPilot", "KorvoldValuePilot", "KorvoldSacrificePilot")
+    selected = ("RogShaiPilot", "RogShaiTempoPilot", "RogShaiControlPilot")
     decks = load_project_structural_decks(
         root, include_synthetic_fixtures=True, include_current_opponents=True
     )
@@ -762,7 +762,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
             match_id=f"integrated-pilot-{index}",
             seed=2026080600 + index,
             deck_ids=(
-                "korvold/current",
+                "rogshai/current",
                 "synthetic/aggro",
                 "synthetic/control",
                 "synthetic/engine",
@@ -802,7 +802,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
     from commander_lab.packages import ArchetypePackageExtractor
 
     extractor = ArchetypePackageExtractor(root)
-    package_output = extractor.packages_for_deck("korvold/current")
+    package_output = extractor.packages_for_deck("rogshai/current")
     package_path = run_dir / "package_analysis.json"
     atomic_write_json(package_path, package_output)
     add(
@@ -849,7 +849,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
 
     ensemble_store = OpponentEnsembleStore(root)
     ensemble_result = ensemble_store.run_matchups(
-        decks["korvold/current"], "morcant-elves-ensemble-v1", seed=20260806
+        decks["rogshai/current"], "morcant-elves-ensemble-v1", seed=20260806
     )
     ensemble_path = run_dir / "ensemble_matchup.json"
     atomic_write_json(ensemble_path, ensemble_result.model_dump(mode="json"))
@@ -868,7 +868,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
     from commander_lab.mulligan import MulliganLab
 
     mulligan_lab = MulliganLab(root)
-    deck = mulligan_lab.deck("korvold/current")
+    deck = mulligan_lab.deck("rogshai/current")
     context = MulliganContext(
         deck_id=deck.deck_id,
         deck_hash=deck.deck_hash,
@@ -876,7 +876,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
         seat_position=2,
         starting_player=False,
         pod_size=4,
-        pilot_profile_id="KorvoldPilot",
+        pilot_profile_id="RogShaiPilot",
         pilot_version="1.0.0",
         game_plan=MulliganGamePlan.BALANCED,
         seed=20260806,
@@ -947,7 +947,7 @@ def run_integrated_extension_smoke(root: Path, output_path: Path) -> IntegratedE
     package_evaluation = next(iter(package_output["evaluations"]), None)
     dataset = collector.build(
         dataset_id="phase12-10-executed-smoke",
-        deck_id="korvold/current",
+        deck_id="rogshai/current",
         log_paths=[relative(p) for p in log_paths],
         package_id=package_evaluation.get("package_id") if package_evaluation else None,
         package_completeness=package_evaluation.get("package_completeness")

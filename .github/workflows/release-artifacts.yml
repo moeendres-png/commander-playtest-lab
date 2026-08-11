@@ -108,10 +108,13 @@ jobs:
           manifest = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
           p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
           decks = manifest["decks"]
-          korvold = decks["korvold/current"]
+          if manifest["active_own_decks"] != ["rogshai/current"]:
+              raise SystemExit("release requires RogShai as the sole active own deck")
+          if set(decks) != {"rogshai/current"}:
+              raise SystemExit("release manifest contains a competing current deck baseline")
           rogshai = decks["rogshai/current"]
 
-          if not korvold["validation"]["valid"] or not rogshai["validation"]["valid"]:
+          if not rogshai["validation"]["valid"]:
               raise SystemExit("checked-in deck manifest is not valid")
 
           status = {
@@ -134,10 +137,11 @@ jobs:
               "recommendations_applied": 0,
               "runtime_state_directory": ".runtime/engine",
               "data_snapshot_hash": manifest["data_snapshot_hash"],
-              "korvold_frozen_hash": korvold["deck_hash"],
-              "rogshai_frozen_hash": rogshai["deck_hash"],
-              "korvold_cards": korvold["total_cards"],
+              "active_own_decks": manifest["active_own_decks"],
+              "removed_operational_decks": manifest["removed_operational_decks"],
+              "rogshai_current_hash": rogshai["deck_hash"],
               "rogshai_cards": rogshai["total_cards"],
+              "rogshai_lands": rogshai["land_count"],
               "allocation_valid": manifest["allocation_validation"]["valid"],
               "truth_source": "data/decks/manifest.json",
               "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
@@ -151,9 +155,10 @@ jobs:
               f"- Git HEAD: `{sha}`\n"
               "- Release deck truth source: `data/decks/manifest.json`.\n"
               f"- Data snapshot hash: `{manifest['data_snapshot_hash']}`.\n"
-              f"- Korvold: {korvold['total_cards']} cards; hash `{korvold['deck_hash']}`.\n"
-              f"- RogShai: {rogshai['total_cards']} cards; hash `{rogshai['deck_hash']}`.\n"
-              f"- Simultaneous allocation valid: `{manifest['allocation_validation']['valid']}`.\n"
+              "- Active own decks: `rogshai/current` only.\n"
+              "- Korvold: no current own-deck baseline or physical reservation.\n"
+              f"- RogShai: {rogshai['total_cards']} cards / {rogshai['land_count']} lands; current hash `{rogshai['deck_hash']}`.\n"
+              f"- Current allocation valid: `{manifest['allocation_validation']['valid']}`.\n"
               f"- External provider decision: `{p3['decision']}`; production bridge: `{p3['production_bridge']}`.\n"
               f"- XMage: `{p3['providers']['xmage']['status']}` / {p3['providers']['xmage']['score']} / real execution `{p3['providers']['xmage']['real_execution']}`.\n"
               f"- Forge: `{p3['providers']['forge']['status']}` / {p3['providers']['forge']['score']} / real execution `{p3['providers']['forge']['real_execution']}`.\n"
@@ -174,8 +179,13 @@ jobs:
           source = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
           p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
           release = json.loads(Path("release/PLAYTEST_LAB_CURRENT_STATUS.json").read_text(encoding="utf-8"))
-          assert release["korvold_frozen_hash"] == source["decks"]["korvold/current"]["deck_hash"]
-          assert release["rogshai_frozen_hash"] == source["decks"]["rogshai/current"]["deck_hash"]
+          assert source["active_own_decks"] == ["rogshai/current"]
+          assert set(source["decks"]) == {"rogshai/current"}
+          assert release["active_own_decks"] == ["rogshai/current"]
+          assert release["removed_operational_decks"] == ["korvold/current"]
+          assert release["rogshai_current_hash"] == source["decks"]["rogshai/current"]["deck_hash"]
+          assert release["rogshai_cards"] == 100
+          assert release["rogshai_lands"] == 36
           assert release["data_snapshot_hash"] == source["data_snapshot_hash"]
           assert release["allocation_valid"] == source["allocation_validation"]["valid"]
           assert release["external_engine_provider_decision"] == p3["decision"]

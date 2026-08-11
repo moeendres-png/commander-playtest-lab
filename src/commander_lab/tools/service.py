@@ -1336,6 +1336,12 @@ class CommanderToolService:
             filename = spec["normalized_file"]
             deck = load_model(self.root / "data/decks" / filename, Deck)
             catalog = CardCatalog.from_json(self.root / "data/cards/oracle_subset.json")
+            overlay_path = (self.root / "data/decks" / filename).with_name(
+                f"{Path(filename).stem}_card_catalog_overrides.json"
+            )
+            if overlay_path.is_file():
+                for card in CardCatalog.from_json(overlay_path).cards:
+                    catalog.add(card)
             report = DeckValidator(catalog).validate(deck)
             allocation = None
             if request.include_physical_allocation:
@@ -1374,7 +1380,7 @@ class CommanderToolService:
                     {"card": name, "profile_score": score} for name, score in scores[:10]
                 ],
             }
-            if request.deck_id in {"korvold/current", "rogshai/current"}:
+            if request.deck_id in self.ACTIVE_OWN_DECK_IDS:
                 package_result = self._package_extractor().packages_for_deck(
                     request.deck_id, include_machine_candidates=False
                 )
@@ -2202,7 +2208,7 @@ class CommanderToolService:
             )
             result["local_deck_id"] = request.deck_id
             result["local_deck_hash"] = deck.deck_hash
-            if request.deck_id in {"korvold/current", "rogshai/current"}:
+            if request.deck_id in self.ACTIVE_OWN_DECK_IDS:
                 package_result = self._package_extractor().packages_for_deck(
                     request.deck_id, include_machine_candidates=True
                 )

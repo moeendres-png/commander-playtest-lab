@@ -20,7 +20,7 @@ from commander_lab.storage import load_model
 
 def test_local_current_decks_validate(repo_root: Path, catalog) -> None:
     validator = DeckValidator(catalog)
-    for filename in ("korvold_current.json", "rogshai_current.json"):
+    for filename in ("rogshai_current.json",):
         deck = load_model(repo_root / "data/decks" / filename, Deck)
         report = validator.validate(deck)
         assert report.valid, report.model_dump()

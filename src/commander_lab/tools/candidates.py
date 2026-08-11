@@ -19,7 +19,6 @@ from commander_lab.models import (
 
 BASIC_LANDS = {"Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes"}
 DECK_COLORS: dict[str, frozenset[Color]] = {
-    "korvold/current": frozenset({Color.BLACK, Color.RED, Color.GREEN}),
     "rogshai/current": frozenset({Color.WHITE, Color.BLUE, Color.RED}),
 }
 

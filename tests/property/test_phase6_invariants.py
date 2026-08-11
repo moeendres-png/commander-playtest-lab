@@ -20,20 +20,20 @@ def test_cards_zones_elimination_and_logs_remain_consistent_across_seeds(
 ) -> None:
     simulator = StructuralSimulator(structural_decks)
     pods = (
-        ("korvold/current",),
-        ("korvold/current", "synthetic/aggro", "synthetic/control"),
+        ("rogshai/current",),
+        ("rogshai/current", "synthetic/aggro", "synthetic/control"),
         (
-            "korvold/current",
-            "rogshai/current",
-            "synthetic/aggro",
-            "synthetic/control",
-        ),
-        (
-            "korvold/current",
             "rogshai/current",
             "synthetic/aggro",
             "synthetic/control",
             "synthetic/engine",
+        ),
+        (
+            "rogshai/current",
+            "synthetic/aggro",
+            "synthetic/control",
+            "synthetic/engine",
+            "kaervek/current",
         ),
     )
     for pod_index, deck_ids in enumerate(pods):
@@ -61,7 +61,7 @@ def test_identical_seed_produces_identical_result_and_log(tmp_path, structural_d
     config = StructuralMatchConfig(
         match_id="same-seed",
         seed=123456,
-        deck_ids=("korvold/current", "rogshai/current", "synthetic/engine"),
+        deck_ids=("rogshai/current", "kaervek/current", "synthetic/engine"),
     )
     first_path = tmp_path / "a.jsonl"
     second_path = tmp_path / "b.jsonl"

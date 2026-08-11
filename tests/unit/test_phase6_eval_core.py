@@ -107,7 +107,7 @@ def test_mulligan_and_event_log_invariants(tmp_path: Path, structural_decks) -> 
         StructuralMatchConfig(
             match_id="phase6-events",
             seed=6006,
-            deck_ids=("korvold/current", "rogshai/current", "synthetic/aggro"),
+            deck_ids=("rogshai/current", "kaervek/current", "synthetic/aggro"),
             limits=StructuralAbortLimits(
                 max_turns=35,
                 max_events=50_000,

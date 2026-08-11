@@ -45,7 +45,7 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
         server,
         3,
         "tools/call",
-        modern_params(name="validate_deck", arguments={"deck_id": "korvold/current"}),
+        modern_params(name="validate_deck", arguments={"deck_id": "rogshai/current"}),
     )
     assert called["result"]["isError"] is False
     assert called["result"]["structuredContent"]["status"] == "completed"
@@ -94,7 +94,7 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
         "tools/call",
         modern_params(
             name="validate_deck",
-            arguments={"deck_id": "korvold/current"},
+            arguments={"deck_id": "rogshai/current"},
             _meta={"timeoutMs": 0},
         ),
     )
