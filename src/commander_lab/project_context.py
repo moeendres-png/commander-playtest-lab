@@ -15,7 +15,7 @@ class ProjectContextError(ValueError):
 
 
 # Stable identity bridge only. Pod membership is never defined here; it is read from
-# J_P5_POD_SCENARIOS_CURRENT.json, the repo-local projection of current pod scenarios.
+# POD_SCENARIOS_CURRENT.json, the repo-local read-only projection of current Drive pod scenarios.
 OPPONENT_ENTITY_TO_REGISTRY_KEY = {
     "opponent:alen_high_perfect_morcant": "alen_morcant/current",
     "opponent:cosmic_spider_man": "cosmic_spiderman/current",
@@ -45,9 +45,13 @@ class ProjectContextSnapshot:
     historical_own_deck_ids: tuple[str, ...]
     primary_deckbuilding_focus: str
     source_hashes: tuple[tuple[str, str], ...]
+    source_freshness: tuple[tuple[str, str], ...]
     primary_scenarios: tuple[tuple[str, tuple[str, ...]], ...]
+    historical_reference_scenarios: tuple[tuple[str, tuple[str, ...]], ...]
     holdout_entity_ids: tuple[str, ...]
     holdout_deck_ids: tuple[str, ...]
+    playstyle_preference_type: str
+    playstyle_preference_hash: str
     snapshot_hash: str
 
     def primary_opponent_deck_ids(self, deck_id: str) -> tuple[str, ...]:
@@ -56,6 +60,13 @@ class ProjectContextSnapshot:
             return scenarios[deck_id]
         except KeyError as exc:
             raise ProjectContextError(f"no canonical primary scenario for {deck_id}") from exc
+
+    def historical_reference_opponent_deck_ids(self, deck_id: str) -> tuple[str, ...]:
+        scenarios = dict(self.historical_reference_scenarios)
+        try:
+            return scenarios[deck_id]
+        except KeyError as exc:
+            raise ProjectContextError(f"no historical reference scenario for {deck_id}") from exc
 
 
 def _sha256_file(path: Path) -> str:
@@ -161,11 +172,53 @@ def _load_scope(scope_path: Path) -> tuple[tuple[str, ...], tuple[str, ...], str
     return active, historical, focus, scope
 
 
+def _validate_live_scope_projection(
+    payload: dict[str, Any],
+    *,
+    active: tuple[str, ...],
+    historical: tuple[str, ...],
+) -> None:
+    live_active = tuple(str(value) for value in payload.get("active_own_deck_ids", []))
+    live_historical = tuple(str(value) for value in payload.get("inactive_former_own_deck_ids", []))
+    if live_active != active or live_historical != historical:
+        raise ProjectContextError("active-scope projections disagree on current own-deck state")
+    if payload.get("korvold_optimization_target") is not False:
+        raise ProjectContextError("live active-deck projection still treats Korvold as optimization target")
+    if payload.get("korvold_simultaneous_build_requirement") is not False:
+        raise ProjectContextError("live active-deck projection still requires simultaneous Korvold")
+
+
+def _validate_playstyle(payload: dict[str, Any]) -> str:
+    preference_type = payload.get("preference_type")
+    if preference_type != "soft_practicality_and_fun_preference":
+        raise ProjectContextError("playstyle preference lost its soft practicality/fun semantics")
+    explicitly_not = payload.get("explicitly_not")
+    if not isinstance(explicitly_not, list):
+        raise ProjectContextError("playstyle preference has no explicit non-ban boundary")
+    required_non_bans = {
+        "power_score",
+        "archetype_ban",
+        "ban_on_complexity",
+        "ban_on_long_decisive_turns",
+        "ban_on_engines_or_combos",
+        "ban_on_sacrifice_elements",
+    }
+    if not required_non_bans.issubset({str(value) for value in explicitly_not}):
+        raise ProjectContextError("playstyle preference lost a required evidence/usage boundary")
+    return preference_type
+
+
 def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     root_path = Path(root).resolve()
     paths = {
         "active_scope": root_path / "data/collections/current/J_FINAL_ACTIVE_SCOPE.json",
-        "pod_scenarios": root_path / "data/collections/current/J_P5_POD_SCENARIOS_CURRENT.json",
+        "active_decks_current": root_path
+        / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+        "playstyle_preference": root_path
+        / "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
+        "inactive_deck_releases": root_path
+        / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
+        "pod_scenarios": root_path / "data/collections/current/POD_SCENARIOS_CURRENT.json",
         "opponent_registry": root_path / "data/opponents/opponent_registry.json",
         "pilot_registry": root_path / "data/pilots/pilot_registry.json",
         "deck_manifest": root_path / "data/decks/manifest.json",
@@ -183,6 +236,12 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     source_hash_dict.update(_feature_source_hashes(root_path, feature_manifest))
 
     active, historical, focus, scope = _load_scope(paths["active_scope"])
+    live_scope = _load_json(paths["active_decks_current"])
+    _validate_live_scope_projection(live_scope, active=active, historical=historical)
+    playstyle = _load_json(paths["playstyle_preference"])
+    playstyle_type = _validate_playstyle(playstyle)
+    playstyle_hash = source_hash_dict["playstyle_preference"]
+
     scope_sources = scope["sources"]
     candidate_scope = scope_sources.get("ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl")
     feature_sources = feature_manifest.get("source_artifacts")
@@ -194,11 +253,20 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     if not isinstance(candidate_scope, dict) or not isinstance(candidate_feature, dict):
         raise ProjectContextError("candidate universe source identity is missing")
     if candidate_scope.get("sha256") != candidate_feature.get("sha256"):
-        raise ProjectContextError("active scope and feature projection disagree on candidate universe")
+        raise ProjectContextError(
+            "active scope and feature projection disagree on candidate universe"
+        )
 
-    source_hashes = tuple(sorted(source_hash_dict.items()))
     pods = _load_json(paths["pod_scenarios"])
     registry = _load_json(paths["opponent_registry"])
+    freshness = {
+        "active_scope_verified_at": str(scope.get("verified_at", "unknown")),
+        "active_decks_generated_at": str(live_scope.get("generated_at", "unknown")),
+        "pod_scenarios_generated_at": str(pods.get("generated_at", "unknown")),
+        "playstyle_generated_at": str(playstyle.get("generated_at", "unknown")),
+    }
+    if "unknown" in freshness.values():
+        raise ProjectContextError("required synchronized project-context freshness metadata is missing")
 
     frequency_policy = str(pods.get("frequency_policy", ""))
     if "No fixed opponent frequency" not in frequency_policy:
@@ -210,25 +278,37 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
 
     primary: dict[str, tuple[str, ...]] = {}
     primary_entities: dict[str, tuple[str, ...]] = {}
+    historical_references: dict[str, tuple[str, ...]] = {}
     holdout: tuple[str, ...] | None = None
     for raw in raw_scenarios:
         if not isinstance(raw, dict):
             raise ProjectContextError("invalid scenario record")
         scenario_type = raw.get("scenario_type")
-        if scenario_type == "primary_four_player_context":
+        if scenario_type in {
+            "primary_four_player_context",
+            "historical_reference_four_player_context",
+        }:
             deck_id = raw.get("own_deck")
             entity_ids = raw.get("opponent_entity_ids")
             if not isinstance(deck_id, str) or not isinstance(entity_ids, list):
-                raise ProjectContextError("primary scenario is missing deck or opponent entities")
+                raise ProjectContextError("four-player scenario is missing deck or opponent entities")
             if raw.get("pod_size") != 4 or len(entity_ids) != 3:
                 raise ProjectContextError(
-                    "primary four-player scenario must contain exactly 3 opponents"
+                    "four-player scenario must contain exactly 3 opponents"
                 )
-            if deck_id in primary:
-                raise ProjectContextError(f"multiple canonical primary scenarios for {deck_id}")
             normalized_entities = tuple(str(value) for value in entity_ids)
-            primary_entities[deck_id] = normalized_entities
-            primary[deck_id] = _resolve_entities(list(normalized_entities), registry)
+            resolved = _resolve_entities(list(normalized_entities), registry)
+            if scenario_type == "primary_four_player_context":
+                if deck_id in primary:
+                    raise ProjectContextError(f"multiple canonical primary scenarios for {deck_id}")
+                primary_entities[deck_id] = normalized_entities
+                primary[deck_id] = resolved
+            else:
+                if deck_id in historical_references:
+                    raise ProjectContextError(
+                        f"multiple historical reference scenarios for {deck_id}"
+                    )
+                historical_references[deck_id] = resolved
         elif scenario_type == "opponent_pool_not_fixed_pod":
             entity_ids = raw.get("opponent_entity_ids")
             if not isinstance(entity_ids, list):
@@ -237,11 +317,20 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
 
     missing_active = sorted(set(active) - set(primary))
     if missing_active:
-        raise ProjectContextError(f"active own decks are missing primary scenarios: {missing_active}")
-    allowed_primary = set(active) | set(historical)
-    unexpected_primary = sorted(set(primary) - allowed_primary)
+        raise ProjectContextError(
+            f"active own decks are missing primary scenarios: {missing_active}"
+        )
+    unexpected_primary = sorted(set(primary) - set(active))
     if unexpected_primary:
-        raise ProjectContextError(f"primary scenarios reference unknown own decks: {unexpected_primary}")
+        raise ProjectContextError(
+            f"current primary scenarios reference non-active own decks: {unexpected_primary}"
+        )
+    unexpected_historical = sorted(set(historical_references) - set(historical))
+    if unexpected_historical:
+        raise ProjectContextError(
+            "historical reference scenarios reference non-historical own decks: "
+            f"{unexpected_historical}"
+        )
     if holdout is None:
         raise ProjectContextError("canonical holdout/sensitivity pool is missing")
 
@@ -249,9 +338,13 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         entity_id for deck_id in active for entity_id in primary_entities.get(deck_id, ())
     }
     if active_primary_entities.intersection(holdout):
-        raise ProjectContextError("holdout opponent was silently promoted into active primary scenario")
+        raise ProjectContextError(
+            "holdout opponent was silently promoted into active primary scenario"
+        )
 
     holdout_decks = _resolve_entities(list(holdout), registry)
+    source_hashes = tuple(sorted(source_hash_dict.items()))
+    source_freshness = tuple(sorted(freshness.items()))
     identity_payload = {
         "software_version": __version__,
         "engine_version": ENGINE_VERSION,
@@ -259,9 +352,15 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "historical_own_deck_ids": list(historical),
         "primary_deckbuilding_focus": focus,
         "source_hashes": dict(source_hashes),
+        "source_freshness": dict(source_freshness),
         "primary_scenarios": {key: list(value) for key, value in sorted(primary.items())},
+        "historical_reference_scenarios": {
+            key: list(value) for key, value in sorted(historical_references.items())
+        },
         "holdout_entity_ids": list(holdout),
         "holdout_deck_ids": list(holdout_decks),
+        "playstyle_preference_type": playstyle_type,
+        "playstyle_preference_hash": playstyle_hash,
     }
     snapshot_hash = hashlib.sha256(
         json.dumps(identity_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -274,8 +373,12 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         historical_own_deck_ids=historical,
         primary_deckbuilding_focus=focus,
         source_hashes=source_hashes,
+        source_freshness=source_freshness,
         primary_scenarios=tuple(sorted(primary.items())),
+        historical_reference_scenarios=tuple(sorted(historical_references.items())),
         holdout_entity_ids=holdout,
         holdout_deck_ids=holdout_decks,
+        playstyle_preference_type=playstyle_type,
+        playstyle_preference_hash=playstyle_hash,
         snapshot_hash=snapshot_hash,
     )
