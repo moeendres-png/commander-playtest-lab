@@ -11,12 +11,10 @@ from typing import Any, cast
 from commander_lab.models import (
     CandidateProfile,
     CardIdentity,
-    Deck,
-    DeckZone,
     StructuralCardProfile,
     StructuralDeckProfile,
 )
-from commander_lab.storage import load_model, sha256_value
+from commander_lab.storage import sha256_value
 from commander_lab.tools.candidates import (
     BASIC_LANDS,
     _allowed_decks,
@@ -100,18 +98,27 @@ def _candidate_rows(root: Path, contract: Mapping[str, object]) -> list[dict[str
     return list(by_name.values())
 
 
-def _korvold_nonbasic_reservations(root: Path) -> Counter[str]:
-    """Read Korvold only as a simultaneous physical-buildability constraint."""
+def _current_rogshai_eligibility(root: Path) -> dict[str, dict[str, object]]:
+    """Load the canonical current RogShai candidate/availability projection.
 
-    deck = load_model(root / "data/decks/korvold_current.json", Deck)
-    reserved: Counter[str] = Counter()
-    for entry in deck.cards:
-        if entry.zone in {DeckZone.SIDEBOARD, DeckZone.MAYBEBOARD}:
-            continue
-        if entry.oracle_name in BASIC_LANDS:
-            continue
-        reserved[entry.oracle_name] += entry.quantity
-    return reserved
+    Historical own-deck membership is deliberately excluded from this current physical
+    availability contract. Inactive Korvold must never reduce RogShai availability.
+    """
+
+    path = root / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise FreshRebuildDataError(f"cannot read current candidate eligibility: {path}") from exc
+    raw = payload.get("eligible_by_deck", {}).get(ROGSHAI_DECK_ID)
+    if not isinstance(raw, dict):
+        raise FreshRebuildDataError("current RogShai candidate eligibility is missing")
+    rows: dict[str, dict[str, object]] = {}
+    for name, value in raw.items():
+        if not isinstance(value, dict):
+            raise FreshRebuildDataError(f"invalid current eligibility row for {name}")
+        rows[str(name)] = dict(value)
+    return rows
 
 
 def _explicit_profiles(root: Path) -> dict[str, StructuralCardProfile]:
@@ -183,7 +190,7 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
     contract = _contract(project)
     pool = cast(dict[str, object], contract["rogshai_candidate_pool"])
     rows = _candidate_rows(project, contract)
-    reservations = _korvold_nonbasic_reservations(project)
+    current_eligibility = _current_rogshai_eligibility(project)
     profiles = _explicit_profiles(project)
 
     candidates: dict[str, CandidateProfile] = {}
@@ -208,12 +215,14 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             "color_identity": [color.value for color in identity.color_identity],
             "commander_legal": True,
         }
-        quantity = _as_int(row.get("quantity", 0))
-        available[name] = (
-            max(50, quantity)
-            if name in BASIC_LANDS
-            else max(0, quantity - reservations.get(name, 0))
-        )
+        current_row = current_eligibility.get(name)
+        if current_row is None:
+            raise FreshRebuildDataError(
+                f"current RogShai eligibility lost candidate from canonical universe: {name}"
+            )
+        available[name] = _as_int(current_row.get("physical_available_quantity", 0))
+        if name in BASIC_LANDS:
+            available[name] = max(50, available[name])
         profile = profiles.get(name)
         if profile is None:
             coverage_status[name] = str(row.get("coverage_status", "REVIEW_REQUIRED"))
@@ -252,7 +261,7 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             "candidate_pool_sha256": pool["content_sha256"],
             "candidate_names_sha256": expected_hash,
             "inventory_delta": contract["current_drive_inventory_delta"],
-            "korvold_reservations": sorted(reservations.items()),
+            "current_candidate_eligibility": current_eligibility,
             "fresh_rebuild_invariants": contract["fresh_rebuild_invariants"],
         }
     )
@@ -439,7 +448,7 @@ def run_k2_bias_suite(root: str | Path) -> dict[str, object]:
             bias.get("current_deck_membership_prior") == "disabled"
             and bias.get("control_deck_visible_in_independent_stage") is False
         ),
-        "K2-BIAS-B-historical-cut-blindness": (
+        "K2-BIAS-B-Historical-cut-blindness": (
             bias.get("historical_include_prior") == "disabled"
             and bias.get("historical_cut_prior") == "disabled"
             and bias.get("optimizer_history_prior") == "disabled"
