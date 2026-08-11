@@ -1,11 +1,20 @@
 {
   "schema_version": "1.0",
-  "source": {
-    "name": "AI_CANONICAL_STATE.json",
-    "drive_id": "1aYJ3x20Gbdv0wA-wI5eZXVKb-9sg-3u0",
-    "sha256": "f2857739a1fc2816aed99635b7064aabe049813a4687401b860560da9b6c8e8a",
-    "verified_at": "2026-08-11T05:37:00+02:00"
+  "sources": {
+    "AI_CANONICAL_STATE.json": {
+      "drive_id": "1aYJ3x20Gbdv0wA-wI5eZXVKb-9sg-3u0",
+      "sha256": "f2857739a1fc2816aed99635b7064aabe049813a4687401b860560da9b6c8e8a"
+    },
+    "DECK_BUILD_CONSTRAINTS_CURRENT.json": {
+      "drive_id": "1rkljnq3t2eV8k3dGqW26TzT1EpvH9K9d",
+      "sha256": "55b4edc5e31ba2f03c5c77b3c0e9d0d3ecddd0f8604dca0e834e29954cbbecab"
+    },
+    "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl": {
+      "drive_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
+      "sha256": "fae27631779012a3975c7116eec57f8acfef3d8142b413669c85eb04bfbd42af"
+    }
   },
+  "verified_at": "2026-08-11T05:37:00+02:00",
   "active_own_decks": [
     "rogshai/current"
   ],
