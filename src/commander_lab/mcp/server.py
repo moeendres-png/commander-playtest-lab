@@ -433,7 +433,7 @@ class CommanderMcpServer:
                             "annotations": {
                                 "readOnlyHint": True,
                                 "destructiveHint": False,
-                              },
+                            },
                             "execution": {"taskSupport": "forbidden"},
                         }
                         for row in self.registry.list_schemas()

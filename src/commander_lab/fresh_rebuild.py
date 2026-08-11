@@ -368,7 +368,7 @@ def build_fresh_rogshai_profile(
         if name in active.review_required and name not in overrides
     )
     if unresolved:
-        raise ValueError (
+        raise ValueError(
             f"mechanistic profile required before structural scoring/simulation: {unresolved}"
         )
 
@@ -401,7 +401,9 @@ def build_fresh_rogshai_profile(
             "data_snapshot_hash": active.runtime_sha256,
         }
     )
-    safe_label = "".join(ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"})[:32]
+    safe_label = "".join(ch for ch in variant_label.casefold() if ch.isalnum() or ch in {"-", "_"})[
+        :32
+    ]
     return StructuralDeckProfile(
         deck_id=f"{FRESH_ROGSHAI_PREFIX}{safe_label or deck_hash[:12]}-{deck_hash[:10]}",
         deck_hash=deck_hash,
@@ -450,7 +452,7 @@ def run_k2_bias_suite(root: str | Path) -> dict[str, object]:
             bias.get("historical_include_prior") == "disabled"
             and bias.get("historical_cut_prior") == "disabled"
             and bias.get("optimizer_history_prior") == "disabled"
-         ),
+        ),
         "K2-BIAS-C-protected-card-blindness": (
             bias.get("protected_card_quality_bonus") == "disabled"
         ),
