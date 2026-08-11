@@ -1,3 +1,32 @@
 # J-P4 sealed evaluation corpora are byte-identity artifacts.
 data/evals/golden/pilot_decisions_j_p4_v1.json -text
 data/evals/holdout/pilot_decisions_j_p4_v1.json -text
+
+# J-P5 optimizer holdout/freeze artifacts and all files bound by the development
+# freeze are byte-identity evidence. Disable platform line-ending conversion so
+# the sealed SHA-256 values remain valid on Windows as well as POSIX runners.
+data/evals/holdout/J_P5_OPTIMIZER_HOLDOUT_v1.json -text
+docs/J_P5_HOLDOUT_SEAL.json -text
+docs/J_P5_DEVELOPMENT_FREEZE.json -text
+docs/J_P5_FROZEN_FINALISTS.json -text
+config/J_P5_ROBUST_OBJECTIVE_v1.json -text
+config/J_P5_SEARCH_POLICY_v1.json -text
+config/phase7_optimization.json -text
+data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json -text
+data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json -text
+data/collections/current/J_P5_DECK_BUILD_CONSTRAINTS_CURRENT.json -text
+data/collections/current/J_P5_POD_SCENARIOS_CURRENT.json -text
+data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json -text
+docs/J_P5_DEVELOPMENT_EVIDENCE.json -text
+scripts/run_j_p5_development.py -text
+scripts/run_j_p5_holdout_once.py -text
+scripts/run_phase7_validation.py -text
+src/commander_lab/decision_statistics.py -text
+src/commander_lab/models/optimization.py -text
+src/commander_lab/optimization/constraints.py -text
+src/commander_lab/optimization/experiments.py -text
+src/commander_lab/optimization/jp5.py -text
+src/commander_lab/optimization/search.py -text
+src/commander_lab/tools/candidates.py -text
+src/commander_lab/tools/service.py -text
+tests/unit/test_j_p5_optimizer_validation.py -text
