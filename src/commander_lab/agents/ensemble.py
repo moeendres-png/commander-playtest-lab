@@ -77,7 +77,7 @@ def _profile(
 
 def default_pilot_profiles() -> tuple[PilotProfile, ...]:
     korvold_hash = "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f"
-    rogshai_hash = "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
+    rogshai_hash = "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
     return (
         _profile(
             "KorvoldPilot",
