@@ -65,7 +65,9 @@ def _functional_signature(candidate: CandidateProfile) -> tuple[object, ...]:
     return (
         tuple(sorted(role.value for role in card.roles)),
         tuple(sorted(card.package_ids)),
-        tuple(sorted((color.value, int(count)) for color, count in card.color_requirements.items())),
+        tuple(
+            sorted((color.value, int(count)) for color, count in card.color_requirements.items())
+        ),
         card.is_land,
         card.is_permanent,
         card.is_creature,
