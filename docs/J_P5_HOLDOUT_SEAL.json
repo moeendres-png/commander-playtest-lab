@@ -1,12 +1,14 @@
 {
   "bytes": 12096,
-  "development_content_tree": "4b3bc974aa614cc9f42f2f8a712198c5a42e5792",
+  "development_content_tree": "653f4ab8d2d254a030ecc3a472d6427cfcaa03e7",
   "development_freeze_id": "J_P5_DEVELOPMENT_FREEZE_v1",
-  "development_freeze_sha256": "7dd561904e84667005ff1c60687737786e149e5214951ccc583f1898635cfa59",
+  "development_freeze_sha256": "2f5ba17af552350f9c2ab36f9af3099ea4b2db4dbd5c09ef35ab601dc7366ca9",
   "first_evaluation_status": "not_run",
   "holdout_id": "J_P5_OPTIMIZER_HOLDOUT_v1",
   "immutable": true,
   "outcomes_evaluated": false,
+  "refreeze_reason": "semantic-preserving pre-holdout Ruff/Mypy hygiene and Windows byte-identity attributes; no optimizer/search/objective/finalist tuning",
+  "refrozen_pre_holdout_at": "2026-08-11T01:04:00.449694+00:00",
   "sealed_at": "2026-08-11T01:27:33+02:00",
   "sha256": "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203"
 }
