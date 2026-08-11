@@ -81,7 +81,9 @@ class PlaystyleAnalyzer:
 
         if explicit_loop:
             repetitive = "high_risk"
-        elif len({"repeated_trigger_text", "token_bookkeeping", "sacrifice_actions"} & signals) >= 2:
+        elif (
+            len({"repeated_trigger_text", "token_bookkeeping", "sacrifice_actions"} & signals) >= 2
+        ):
             repetitive = "moderate_risk"
         else:
             repetitive = "low_or_not_detected"
@@ -100,7 +102,9 @@ class PlaystyleAnalyzer:
             else ("some_bookkeeping" if object_signals == 1 else "not_detected")
         )
         loop_dependency = (
-            "explicit_repeat_text_present" if explicit_loop else "not_detected_from_current_evidence"
+            "explicit_repeat_text_present"
+            if explicit_loop
+            else "not_detected_from_current_evidence"
         )
         playstyle_fit = (
             "caution"
