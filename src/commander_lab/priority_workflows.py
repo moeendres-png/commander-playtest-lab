@@ -21,6 +21,7 @@ from commander_lab.optimization import (
     run_paired_structural_comparison,
 )
 from commander_lab.project_context import ProjectContextSnapshot, load_project_context
+from commander_lab.second_deck_readiness import SecondDeckReadinessWorkflow
 from commander_lab.storage import ExactResultCache, build_exact_result_identity
 from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.current_candidates import canonical_feature_fusion_summary
@@ -28,7 +29,12 @@ from commander_lab.tools.service import CommanderToolService
 
 
 class PriorityWorkflowFacade:
-    """Deterministic Build → Test → Diagnose facade for current RogShai decisions."""
+    """Deterministic Build → Test → Diagnose facade for the current project configuration.
+
+    The facade is generic at the workflow layer. Commander-specific candidate screeners remain
+    explicit adapters; the currently registered adapter is RogShai. Adding a future active deck
+    therefore requires registering its adapter/pilot rather than changing generic workflow guards.
+    """
 
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root).resolve()
@@ -36,7 +42,12 @@ class PriorityWorkflowFacade:
         self.service = CommanderToolService(self.root)
         self.mulligan = MulliganLab(self.root)
         self.mana = ManaAnalyzer(self.root)
-        self.screener = RogShaiCandidateScreener(self.root, service=self.service)
+        self._candidate_screeners: dict[str, object] = {
+            "rogshai/current": RogShaiCandidateScreener(self.root, service=self.service),
+        }
+        # Compatibility attribute for current callers; it is current-configuration derived,
+        # not an architecture-level RogShai requirement.
+        self.screener = self._candidate_screeners.get(self.context.primary_deckbuilding_focus)
         self.result_cache = ExactResultCache(
             self.root / ".runtime/priority_result_cache.sqlite3",
             root=self.root,
@@ -48,6 +59,15 @@ class PriorityWorkflowFacade:
         except KeyError as exc:
             raise ValueError(f"unknown deck: {deck_id}") from exc
 
+    def _candidate_screener(self, deck_id: str) -> RogShaiCandidateScreener:
+        screener = self._candidate_screeners.get(deck_id)
+        if not isinstance(screener, RogShaiCandidateScreener):
+            raise ValueError(
+                f"no candidate-screening adapter is registered for {deck_id}; discovery remains "
+                "available, but model-dependent recommendation is not justified"
+            )
+        return screener
+
     @staticmethod
     def _context_payload(context: ProjectContextSnapshot) -> dict[str, Any]:
         return {
@@ -57,17 +77,20 @@ class PriorityWorkflowFacade:
             "source_freshness": dict(context.source_freshness),
             "active_own_deck_ids": list(context.active_own_deck_ids),
             "historical_own_deck_ids": list(context.historical_own_deck_ids),
+            "primary_deckbuilding_focus": context.primary_deckbuilding_focus,
             "playstyle_preference_type": context.playstyle_preference_type,
             "playstyle_preference_hash": context.playstyle_preference_hash,
         }
 
+    def second_deck_readiness(self) -> dict[str, object]:
+        return SecondDeckReadinessWorkflow(self.root).run()
+
     def build_screen(self, deck_id: str, *, limit: int = 25) -> dict[str, Any]:
-        if deck_id != "rogshai/current":
-            raise ValueError("priority build_screen is scoped to current RogShai")
         if limit < 1:
             raise ValueError("limit must be positive")
         baseline = self._deck(deck_id)
-        screened = self.screener.screen_pool(deck_id)
+        screener = self._candidate_screener(deck_id)
+        screened = screener.screen_pool(deck_id)
         rows = screened["rows"]
         if not isinstance(rows, list):
             raise RuntimeError("candidate screen rows must be a list")
@@ -80,11 +103,18 @@ class PriorityWorkflowFacade:
             "eligible_candidate_count": screened["physical_legal_candidate_count"],
             "candidate_pool_after_default_screen": screened["candidate_pool_after_default_screen"],
             "bucket_counts": screened["bucket_counts"],
+            "model_coverage": {
+                "fully_high_confidence_modeled": screened["fully_high_confidence_modeled"],
+                "partially_modeled": screened["partially_modeled"],
+                "structurally_unmodeled": screened["structurally_unmodeled"],
+                "canonical_feature_coverage": screened["canonical_feature_coverage"],
+            },
             "feature_fusion": canonical_feature_fusion_summary(self.root),
-            "challenge_benchmark": self.screener.benchmark_challenge_set(),
+            "challenge_benchmark": screener.benchmark_challenge_set(),
             "mana": asdict(self.mana.analyze_deck(baseline)),
             "candidates": rows[:limit],
             "unusual_candidates_remain_explorable": True,
+            "unmodeled_candidates_discoverable": True,
             "playstyle_is_hard_filter": False,
             "ranking_claim": (
                 "conservative static structural screen only; no empirical card-power ranking"
@@ -101,12 +131,11 @@ class PriorityWorkflowFacade:
         seed: int = 20260811,
         max_turns: int = 14,
     ) -> dict[str, Any]:
-        if deck_id != "rogshai/current":
-            raise ValueError("priority compare_validate is scoped to current RogShai")
         if iterations < 1:
             raise ValueError("iterations must be positive")
         baseline = self._deck(deck_id)
-        static_screen = self.screener.screen_swap(
+        screener = self._candidate_screener(deck_id)
+        static_screen = screener.screen_swap(
             baseline=baseline,
             remove=remove,
             add_candidate_id=add_candidate_id,
