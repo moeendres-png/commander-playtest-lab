@@ -22,8 +22,8 @@ def test_recommendation_is_screening_not_confirmation() -> None:
     service = CommanderToolService(ROOT)
     result = service.recommend_upgrades(
         RecommendUpgradesInput(
-            deck_id="korvold/current",
-            candidate_ids=("korvold/mazirek-smoke",),
+            deck_id="rogshai/current",
+            candidate_ids=("inventory/rootborn-defenses-677fdbcf",),
             max_recommendations=2,
         )
     )
@@ -36,8 +36,13 @@ def test_paired_variant_tool_runs() -> None:
     service = CommanderToolService(ROOT)
     result = service.compare_variants_paired(
         PairedVariantInput(
-            deck_id="korvold/current",
-            swaps=(VariantSwap(remove="Vampiric Rites", add_candidate_id="korvold/mazirek-smoke"),),
+            deck_id="rogshai/current",
+            swaps=(
+                VariantSwap(
+                    remove="Flare of Duplication",
+                    add_candidate_id="inventory/rootborn-defenses-677fdbcf",
+                ),
+            ),
             iterations=4,
             seed=7,
         )
