@@ -117,8 +117,15 @@ def main() -> None:
             iterations=2,
         )
     )
-    for response in (denial, ablation, sensitivity):
-        assert str(response.status) == "completed"
+    for label, response in (
+        ("commander_denial", denial),
+        ("card_ablation", ablation),
+        ("sensitivity", sensitivity),
+    ):
+        assert str(response.status) == "completed", (
+            f"{label} failed: status={response.status}; errors={response.errors}; "
+            f"warnings={response.warnings}"
+        )
         assert response.metadata.estimate_type == "structural_model_estimates"
 
     evidence = {
