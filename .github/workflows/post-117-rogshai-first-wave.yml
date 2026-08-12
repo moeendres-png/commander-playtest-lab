@@ -1,0 +1,249 @@
+name: Post-1.17 RogShai First Decision Wave
+
+on:
+  push:
+    branches:
+      - runs/post-117-rogshai-first-wave-20260812
+    paths:
+      - '.github/workflows/post-117-rogshai-first-wave.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  first-wave:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact validated 1.17 main identity
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e33107c7aa6ca997aa47565008e1da1d6d878007
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+
+      - name: Install Commander Playtest Lab
+        run: python -m pip install -e .
+
+      - name: Execute post-1.17 prepare and first paired wave
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import subprocess
+          from pathlib import Path
+          from typing import Any
+
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          EXPECTED_COMMIT = "e33107c7aa6ca997aa47565008e1da1d6d878007"
+          EXPECTED_TREE = "7d66469daf6e7657c26a5d08a2777bb05ec57f92"
+          EXPECTED_PACKAGE = "1.17.0"
+          EXPECTED_ENGINE = "structural-0.6.0"
+          EXPECTED_DECK_HASH = "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
+          DECK_ID = "rogshai/current"
+          MASTER_SEED = 2026081203
+          OUT = Path("artifacts/post_117_first_wave")
+          OUT.mkdir(parents=True, exist_ok=True)
+
+          def git(*args: str) -> str:
+              return subprocess.check_output(["git", *args], text=True).strip()
+
+          commit = git("rev-parse", "HEAD")
+          tree = git("rev-parse", "HEAD^{tree}")
+          assert commit == EXPECTED_COMMIT, (commit, EXPECTED_COMMIT)
+          assert tree == EXPECTED_TREE, (tree, EXPECTED_TREE)
+          assert commander_lab.__version__ == EXPECTED_PACKAGE
+          assert ENGINE_VERSION == EXPECTED_ENGINE
+
+          service = CommanderToolService(Path.cwd())
+          assert service.git_commit == EXPECTED_COMMIT
+          assert service.git_tree == EXPECTED_TREE
+          assert service.tracked_worktree_dirty is False
+          assert service.decks[DECK_ID].deck_hash == EXPECTED_DECK_HASH
+
+          public = ToolRegistry(service, surface="public")
+          expert = ToolRegistry(service, surface="expert")
+          public_names = [item["name"] for item in public.list_schemas()]
+          assert public_names == [
+              "deck_decision_prepare",
+              "deck_decision_run",
+              "deck_decision_diagnose",
+              "deck_decision_bundle",
+          ], public_names
+
+          manifest = {
+              "evidence_class": "structural_model_estimates",
+              "truth_boundary": "structural decision-support only; not empirical Commander winrate",
+              "automatic_deck_mutation": False,
+              "active_own_deck": DECK_ID,
+              "git_commit": commit,
+              "git_tree": tree,
+              "package_version": commander_lab.__version__,
+              "engine_version": ENGINE_VERSION,
+              "deck_hash": service.decks[DECK_ID].deck_hash,
+              "public_tool_names": public_names,
+              "master_seed": MASTER_SEED,
+              "initial_paired_iterations": 64,
+              "frontier_generation": "fresh current 1.17 deterministic generate_candidate_swaps; no old shortlist injected",
+          }
+          (OUT / "RUN_MANIFEST.json").write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+
+          prepare = public.invoke(
+              "deck_decision_prepare",
+              {
+                  "deck_id": DECK_ID,
+                  "candidate_limit": 250,
+                  "mulligan_policies": ["current_pilot", "primer_policy"],
+                  "mulligan_samples": 10000,
+                  "mulligan_seed": 2026081201,
+                  "seat_position": 1,
+              },
+          )
+          prepare_payload = prepare.model_dump(mode="json")
+          (OUT / "POST_117_PREPARE.json").write_text(
+              json.dumps(prepare_payload, indent=2, sort_keys=True), encoding="utf-8"
+          )
+          if prepare_payload["status"] != "completed":
+              raise RuntimeError(f"prepare failed: {prepare_payload.get('errors')}")
+
+          frontier = expert.invoke(
+              "generate_candidate_swaps",
+              {"deck_id": DECK_ID, "max_candidates": 12},
+          )
+          frontier_payload = frontier.model_dump(mode="json")
+          (OUT / "POST_117_FRESH_FRONTIER.json").write_text(
+              json.dumps(frontier_payload, indent=2, sort_keys=True), encoding="utf-8"
+          )
+          if frontier_payload["status"] != "completed":
+              raise RuntimeError(f"fresh frontier failed: {frontier_payload.get('errors')}")
+
+          def candidate_pairs(value: Any):
+              if isinstance(value, dict):
+                  remove = None
+                  for key in ("remove", "cut", "remove_card", "current_card"):
+                      if isinstance(value.get(key), str) and value.get(key):
+                          remove = value[key]
+                          break
+                  candidate_id = None
+                  for key in ("add_candidate_id", "candidate_id"):
+                      if isinstance(value.get(key), str) and value.get(key):
+                          candidate_id = value[key]
+                          break
+                  if remove and candidate_id:
+                      yield {"remove": remove, "add_candidate_id": candidate_id, "source_row": value}
+                  swap = value.get("swap")
+                  if isinstance(swap, dict):
+                      yield from candidate_pairs(swap)
+                  for child in value.values():
+                      if isinstance(child, (dict, list, tuple)):
+                          yield from candidate_pairs(child)
+              elif isinstance(value, (list, tuple)):
+                  for child in value:
+                      yield from candidate_pairs(child)
+
+          raw_pairs = list(candidate_pairs(frontier_payload.get("result", {})))
+          deduped = []
+          seen = set()
+          for row in raw_pairs:
+              key = (row["remove"], row["add_candidate_id"])
+              if key in seen:
+                  continue
+              seen.add(key)
+              deduped.append(row)
+
+          (OUT / "POST_117_EXTRACTED_FRONTIER_PAIRS.json").write_text(
+              json.dumps(deduped, indent=2, sort_keys=True), encoding="utf-8"
+          )
+          if not deduped:
+              raise RuntimeError("fresh candidate generator returned no parseable remove/add_candidate_id pairs")
+
+          first_wave = []
+          for index, pair in enumerate(deduped[:3], start=1):
+              record = {
+                  "wave_index": index,
+                  "selection_basis": "fresh deterministic frontier order",
+                  "remove": pair["remove"],
+                  "add_candidate_id": pair["add_candidate_id"],
+                  "iterations": 64,
+                  "seed": MASTER_SEED,
+                  "max_turns": 35,
+                  "workers": 2,
+              }
+              try:
+                  run = public.invoke(
+                      "deck_decision_run",
+                      {
+                          "deck_id": DECK_ID,
+                          "remove": pair["remove"],
+                          "add_candidate_id": pair["add_candidate_id"],
+                          "iterations": 64,
+                          "seed": MASTER_SEED,
+                          "max_turns": 35,
+                          "workers": 2,
+                      },
+                  )
+                  run_payload = run.model_dump(mode="json")
+                  record["run"] = run_payload
+                  if run_payload["status"] == "completed":
+                      diagnosis = public.invoke(
+                          "deck_decision_diagnose",
+                          {"comparison": run_payload["result"]},
+                      )
+                      record["diagnosis"] = diagnosis.model_dump(mode="json")
+              except Exception as exc:
+                  record["execution_exception"] = f"{type(exc).__name__}: {exc}"
+              first_wave.append(record)
+
+          (OUT / "POST_117_FIRST_WAVE.json").write_text(
+              json.dumps(first_wave, indent=2, sort_keys=True), encoding="utf-8"
+          )
+
+          completed = sum(1 for row in first_wave if (row.get("run") or {}).get("status") == "completed")
+          lines = [
+              "# Post-1.17 RogShai first wave",
+              "",
+              f"- exact runtime commit: `{commit}`",
+              f"- exact runtime tree: `{tree}`",
+              f"- deck hash: `{EXPECTED_DECK_HASH}`",
+              "- evidence: structural_model_estimates only",
+              "- old pre-1.17 shortlist injected: false",
+              f"- fresh candidate/cut pairs extracted: {len(deduped)}",
+              f"- initial paired comparisons attempted: {len(first_wave)}",
+              f"- initial paired comparisons completed: {completed}",
+              "- deck/inventory/allocation mutation: none",
+              "",
+              "## Initial diagnoses",
+          ]
+          for row in first_wave:
+              diagnosis = ((row.get("diagnosis") or {}).get("result") or {}).get("decision_information_state")
+              status = diagnosis.get("status") if isinstance(diagnosis, dict) else "NOT_AVAILABLE"
+              lines.append(f"- {row['remove']} -> {row['add_candidate_id']}: {status}")
+          (OUT / "POST_117_FIRST_WAVE_SUMMARY.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+          if completed == 0:
+              raise RuntimeError("no initial paired comparison completed")
+          print("POST_1_17_FIRST_WAVE_COMPLETED", completed)
+          PY
+
+      - name: Assert tracked code/data tree stayed clean
+        if: always()
+        run: test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Upload first-wave evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: post-117-rogshai-first-wave-${{ github.run_id }}
+          path: artifacts/post_117_first_wave/
+          if-no-files-found: warn
