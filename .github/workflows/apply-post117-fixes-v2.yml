@@ -21,9 +21,11 @@ jobs:
         with:
           python-version: '3.12'
       - name: Apply patch
-        run: python scripts/apply_post117_fixes.py
-      - name: Install dev package
-        run: python -m pip install -e '.[dev]'
+        run: |
+          python scripts/apply_post117_fixes.py
+          python scripts/postprocess_post117_patch.py
+      - name: Install CI-equivalent package extras
+        run: python -m pip install -e '.[dev,api,openai]'
       - name: Normalize generated patch
         run: |
           ruff check --fix src/commander_lab/tools/service.py src/commander_lab/priority_workflows.py src/commander_lab/models/tooling.py tests/unit/test_post117_semantic_execution_fixes.py
