@@ -1280,9 +1280,10 @@ class CommanderToolService:
             estimate_type=estimate_type,
         )
         identity_mutators = {"create_meta_snapshot", "compile_pilot_policy"}
+        workflow_session_guarded = tool_name.startswith("deck_decision_")
         try:
             result = fn()
-            if tool_name not in identity_mutators:
+            if tool_name not in identity_mutators and not workflow_session_guarded:
                 identity_after = self._run_identity(
                     scenario,
                     deck_ids,
@@ -1328,39 +1329,40 @@ class CommanderToolService:
             status=status, metadata=metadata, result=result, warnings=warnings, errors=errors
         )
 
+    def _validate_deck_payload(self, request: ValidateDeckInput) -> dict[str, Any]:
+        spec = self.manifest["decks"].get(request.deck_id)
+        if spec is None:
+            raise ToolExecutionError(
+                f"validation is available only for local current decks: {request.deck_id}"
+            )
+        filename = spec["normalized_file"]
+        deck = load_model(self.root / "data/decks" / filename, Deck)
+        catalog = CardCatalog.from_json(self.root / "data/cards/oracle_subset.json")
+        overlay_path = (self.root / "data/decks" / filename).with_name(
+            f"{Path(filename).stem}_card_catalog_overrides.json"
+        )
+        if overlay_path.is_file():
+            for card in CardCatalog.from_json(overlay_path).cards:
+                catalog.add(card)
+        report = DeckValidator(catalog).validate(deck)
+        allocation = None
+        if request.include_physical_allocation:
+            collection = Collection.model_validate_json(
+                (self.root / "data/collections/current_deck_allocations.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            allocation = validate_collection_quantities(collection, [deck]).model_dump(mode="json")
+        return {
+            "deck_id": request.deck_id,
+            "deck_hash": deck.deck_hash,
+            "validation": report.model_dump(mode="json"),
+            "physical_allocation": allocation,
+        }
+
     def validate_deck(self, request: ValidateDeckInput) -> ToolResponse:
         def work() -> dict[str, Any]:
-            spec = self.manifest["decks"].get(request.deck_id)
-            if spec is None:
-                raise ToolExecutionError(
-                    f"validation is available only for local current decks: {request.deck_id}"
-                )
-            filename = spec["normalized_file"]
-            deck = load_model(self.root / "data/decks" / filename, Deck)
-            catalog = CardCatalog.from_json(self.root / "data/cards/oracle_subset.json")
-            overlay_path = (self.root / "data/decks" / filename).with_name(
-                f"{Path(filename).stem}_card_catalog_overrides.json"
-            )
-            if overlay_path.is_file():
-                for card in CardCatalog.from_json(overlay_path).cards:
-                    catalog.add(card)
-            report = DeckValidator(catalog).validate(deck)
-            allocation = None
-            if request.include_physical_allocation:
-                collection = Collection.model_validate_json(
-                    (self.root / "data/collections/current_deck_allocations.json").read_text(
-                        encoding="utf-8"
-                    )
-                )
-                allocation = validate_collection_quantities(collection, [deck]).model_dump(
-                    mode="json"
-                )
-            return {
-                "deck_id": request.deck_id,
-                "deck_hash": deck.deck_hash,
-                "validation": report.model_dump(mode="json"),
-                "physical_allocation": allocation,
-            }
+            return self._validate_deck_payload(request)
 
         return self._invoke("validate_deck", request, work, deck_ids=(request.deck_id,))
 
@@ -4925,6 +4927,7 @@ class CommanderToolService:
                 tuple(MulliganPolicyName(value) for value in request.policies),
                 samples=request.samples,
                 followup_samples=request.followup_samples,
+                generate_keep_rules=request.generate_keep_rules,
             )
             return result.model_dump(mode="json")
 
@@ -4949,6 +4952,7 @@ class CommanderToolService:
                 tuple(MulliganPolicyName(value) for value in request.policies),
                 samples=request.samples,
                 followup_samples=request.followup_samples,
+                generate_keep_rules=request.generate_keep_rules,
             )
             target = self.root / "data/runs/mulligan_lab" / Path(request.output_name).name
             atomic_write_json(target, result.model_dump(mode="json"))
@@ -5274,3 +5278,142 @@ class CommanderToolService:
             }
 
         return self._invoke("generate_diagnostic_report", request, work)
+
+    def deck_decision_prepare(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                facade = PriorityWorkflowFacade(
+                    self.root,
+                    service=self,
+                    context=session.context,
+                )
+                screen = facade.build_screen(request.deck_id, limit=request.candidate_limit)
+                mana = facade.mulligan_mana(request.deck_id)
+                validation = self._validate_deck_payload(
+                    ValidateDeckInput(deck_id=request.deck_id, include_physical_allocation=True)
+                )
+                mulligan_request = CompareMulliganPoliciesInput(
+                    deck_id=request.deck_id,
+                    policies=request.mulligan_policies,
+                    samples=request.mulligan_samples,
+                    followup_samples=0,
+                    seat_position=request.seat_position,
+                    starting_player=request.seat_position == 1,
+                    pod_size=4,
+                    pilot_profile_id="rogshai.current.baseline",
+                    pilot_version="current",
+                    game_plan="balanced",
+                    seed=request.mulligan_seed,
+                    generate_keep_rules=False,
+                )
+                mulligan_context = self._mulligan_context_from_request(mulligan_request)
+                mulligan_baseline = facade.mulligan.run(
+                    mulligan_context,
+                    tuple(MulliganPolicyName(value) for value in request.mulligan_policies),
+                    samples=request.mulligan_samples,
+                    followup_samples=0,
+                    generate_keep_rules=False,
+                ).model_dump(mode="json")
+            session_identity = session.identity()
+            return {
+                "workflow": "deck_decision_prepare",
+                "context": screen["context"],
+                "deck_id": request.deck_id,
+                "deck_hash": screen["deck_hash"],
+                "validation": {
+                    "active_deck": request.deck_id in facade.context.active_own_deck_ids,
+                    "physical_legal_candidates": screen["eligible_candidate_count"],
+                    "candidate_recall": screen["challenge_benchmark"]["legal_candidate_recall"],
+                    "deck": validation,
+                },
+                "candidate_coverage": screen,
+                "mana_mulligan_baseline": mana,
+                "mulligan_policy_baseline": mulligan_baseline,
+                "keep_rule_research_executed": False,
+                "model_informativeness_status": "requires_structural_baseline_before_search",
+                "next_call": "deck_decision_run",
+                "workflow_session": session_identity,
+                "automatic_deck_mutation": False,
+            }
+
+        return self._invoke(
+            "deck_decision_prepare",
+            request,
+            work,
+            deck_ids=(request.deck_id,),
+        )
+
+    def deck_decision_run(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                facade = PriorityWorkflowFacade(
+                    self.root,
+                    service=self,
+                    context=session.context,
+                )
+                result = facade.compare_validate(
+                    deck_id=request.deck_id,
+                    remove=request.remove,
+                    add_candidate_id=request.add_candidate_id,
+                    iterations=request.iterations,
+                    seed=request.seed,
+                    max_turns=request.max_turns,
+                    workers=request.workers,
+                )
+            result["workflow_session"] = session.identity()
+            return result
+
+        return self._invoke(
+            "deck_decision_run",
+            request,
+            work,
+            deck_ids=(request.deck_id,),
+            seed=request.seed,
+            iterations=request.iterations,
+        )
+
+    def deck_decision_diagnose(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                result: dict[str, Any] = dict(
+                    PriorityWorkflowFacade.diagnose_next_experiment(request.comparison)
+                )
+            result["workflow_session"] = session.identity()
+            return result
+
+        return self._invoke("deck_decision_diagnose", request, work)
+
+    def deck_decision_bundle(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                facade = PriorityWorkflowFacade(
+                    self.root,
+                    service=self,
+                    context=session.context,
+                )
+                result: dict[str, Any] = dict(
+                    facade.create_decision_bundle(
+                        request.comparison,
+                        self._project_path(request.output_directory),
+                        worst_case_sensitivity_result=request.worst_case_sensitivity_result,
+                        commander_denial_result=request.commander_denial_result,
+                        ablation_result=request.ablation_result,
+                        recommendation_status=request.recommendation_status,
+                    )
+                )
+            result["workflow_session"] = session.identity()
+            return result
+
+        return self._invoke("deck_decision_bundle", request, work)

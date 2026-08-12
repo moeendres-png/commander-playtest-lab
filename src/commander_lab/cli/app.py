@@ -37,6 +37,12 @@ from commander_lab.models import (
     StructuralAbortLimits,
     StructuralBatchConfig,
 )
+from commander_lab.models.tooling import (
+    DeckDecisionBundleInput,
+    DeckDecisionDiagnoseInput,
+    DeckDecisionPrepareInput,
+    DeckDecisionRunInput,
+)
 from commander_lab.storage import compute_deck_hash
 from commander_lab.tools import CommanderToolService
 from commander_lab.tools.local_snapshots import build_local_snapshots
@@ -49,6 +55,111 @@ data_app = typer.Typer(
     help="Canonical Drive-to-program data synchronization audit",
 )
 app.add_typer(data_app, name="data")
+
+decision_app = typer.Typer(
+    no_args_is_help=True,
+    help="Small deterministic end-to-end deck-decision workflows",
+)
+app.add_typer(decision_app, name="decision")
+
+
+def _echo_tool_response(response: object) -> None:
+    if not hasattr(response, "model_dump"):
+        raise TypeError("workflow response is not serializable")
+    payload = response.model_dump(mode="json")
+    typer.echo(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True))
+    if payload.get("status") != "completed":
+        raise typer.Exit(code=1)
+
+
+@decision_app.command("prepare")
+def deck_decision_prepare(
+    deck_id: str = typer.Option("rogshai/current"),
+    candidate_limit: int = typer.Option(25, min=1, max=250),
+    mulligan_samples: int = typer.Option(2500, min=1, max=100_000),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Validate current truth, coverage and mana before a deck decision."""
+    service = CommanderToolService(root)
+    _echo_tool_response(
+        service.deck_decision_prepare(
+            DeckDecisionPrepareInput(
+                deck_id=deck_id,
+                candidate_limit=candidate_limit,
+                mulligan_samples=mulligan_samples,
+            )
+        )
+    )
+
+
+@decision_app.command("run")
+def deck_decision_run(
+    remove: str = typer.Option(...),
+    add_candidate_id: str = typer.Option(...),
+    deck_id: str = typer.Option("rogshai/current"),
+    iterations: int = typer.Option(64, min=1, max=10_000),
+    seed: int = typer.Option(2026082103, min=0),
+    max_turns: int = typer.Option(35, min=1, max=500),
+    workers: int = typer.Option(2, min=1, max=64),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Run one preregistered paired comparison; never apply the swap."""
+    service = CommanderToolService(root)
+    _echo_tool_response(
+        service.deck_decision_run(
+            DeckDecisionRunInput(
+                deck_id=deck_id,
+                remove=remove,
+                add_candidate_id=add_candidate_id,
+                iterations=iterations,
+                seed=seed,
+                max_turns=max_turns,
+                workers=workers,
+            )
+        )
+    )
+
+
+def _comparison_from_file(path: Path) -> dict[str, object]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise typer.BadParameter("comparison JSON must be an object")
+    result = payload.get("result")
+    return result if isinstance(result, dict) else payload
+
+
+@decision_app.command("diagnose")
+def deck_decision_diagnose(
+    comparison: Path = typer.Argument(..., exists=True, dir_okay=False),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Choose the next evidence-producing step from a completed comparison."""
+    service = CommanderToolService(root)
+    _echo_tool_response(
+        service.deck_decision_diagnose(
+            DeckDecisionDiagnoseInput(comparison=_comparison_from_file(comparison))
+        )
+    )
+
+
+@decision_app.command("bundle")
+def deck_decision_bundle(
+    comparison: Path = typer.Argument(..., exists=True, dir_okay=False),
+    output_directory: Path = typer.Option(Path("data/runs/decision_bundle")),
+    recommendation_status: str = typer.Option("structural_evidence_only"),
+    root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
+) -> None:
+    """Write the single normal completion artifact for a deck decision."""
+    service = CommanderToolService(root)
+    _echo_tool_response(
+        service.deck_decision_bundle(
+            DeckDecisionBundleInput(
+                comparison=_comparison_from_file(comparison),
+                output_directory=str(output_directory),
+                recommendation_status=recommendation_status,
+            )
+        )
+    )
 
 
 @data_app.command("audit")

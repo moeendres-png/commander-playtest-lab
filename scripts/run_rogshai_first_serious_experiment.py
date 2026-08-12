@@ -300,12 +300,35 @@ def run(output: Path, *, spec_path: Path, authorized: bool) -> None:
         variant_results.append(result)
         variant_rows.append(_comparison_row(spec["label"], result))
     _holm_adjust(variant_rows)
-    for row in variant_rows:
-        row["status"] = (
-            "advance_for_sensitivity"
-            if float(row["distributionally_robust_lower_bound"]) >= 0.0
-            else "diagnose_not_recommend"
+    model_informativeness = facade.model_informativeness(
+        baseline_place_1_share=float(
+            primary_raw["aggregate"]["deck_metrics"][DECK_ID]["place_1_share"]
+        ),
+        seat_results=baseline_report["seat_results"],
+        variant_comparisons=tuple(variant_rows),
+        failure_mode_metrics=(
+            "average_placement",
+            "average_commander_damage",
+            "average_ishai_peak_power",
+            "average_engine_value",
+            "average_removal_events",
+        ),
+    )
+    for row, result in zip(variant_rows, variant_results, strict=True):
+        decision = facade.advancement_decision(
+            result,
+            model_informativeness=model_informativeness,
         )
+        row["advancement_decision"] = decision
+        row["status"] = {
+            "advance": "advance_for_sensitivity",
+            "diagnose": "diagnose_not_recommend",
+            "reject": "reject",
+            "profile_required": "profile_required",
+        }[decision["status"]]
+        result["model_informativeness"] = model_informativeness
+        result["advancement_decision"] = decision
+    _write(output / "MODEL_INFORMATIVENESS_REPORT.json", model_informativeness)
     _write(
         output / "VARIANT_COMPARISONS.json",
         {
@@ -357,9 +380,12 @@ def run(output: Path, *, spec_path: Path, authorized: bool) -> None:
             float(pair[0]["placement_improvement"]),
         ),
         reverse=True,
-    )[:2]
+    )
+    advanced = [pair for pair in ranked if pair[0]["advancement_decision"]["status"] == "advance"][
+        :2
+    ]
     sensitivity_rows: list[dict[str, Any]] = []
-    for summary, result in ranked:
+    for summary, result in advanced:
         variant = result["variant_identity"]
         sensitivity_request = HoldoutInput(
             deck_id=DECK_ID,

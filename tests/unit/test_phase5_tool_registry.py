@@ -117,10 +117,22 @@ def test_all_required_tools_are_exposed() -> None:
 def test_schemas_are_strict_and_unique() -> None:
     registry = ToolRegistry(CommanderToolService(ROOT))
     schemas = registry.list_schemas()
-    assert len(schemas) == 100
-    assert len({schema["name"] for schema in schemas}) == 100
+    assert len(schemas) == 4
+    assert {schema["name"] for schema in schemas} == {
+        "deck_decision_prepare",
+        "deck_decision_run",
+        "deck_decision_diagnose",
+        "deck_decision_bundle",
+    }
     assert all(schema["strict"] for schema in schemas)
     assert all(schema["parameters"]["type"] == "object" for schema in schemas)
+
+    expert = ToolRegistry(CommanderToolService(ROOT), surface="expert").list_schemas()
+    assert len(expert) == 100
+    assert len({schema["name"] for schema in expert}) == 100
+    public_bytes = len(json.dumps(schemas, sort_keys=True, separators=(",", ":")))
+    expert_bytes = len(json.dumps(expert, sort_keys=True, separators=(",", ":")))
+    assert public_bytes < expert_bytes / 4
 
 
 def test_validate_deck_tool() -> None:

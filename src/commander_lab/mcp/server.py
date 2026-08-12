@@ -70,6 +70,7 @@ class CommanderMcpServer:
         self.root = Path(root).resolve()
         self.service = CommanderToolService(self.root)
         self.registry = ToolRegistry(self.service)
+        self.expert_registry = ToolRegistry(self.service, surface="expert")
         self.session = McpSession()
 
     @staticmethod
@@ -188,7 +189,7 @@ class CommanderMcpServer:
                 },
             }
         elif uri == "commander-lab://optimization-context":
-            response = self.registry.invoke("build_optimization_context", {})
+            response = self.expert_registry.invoke("build_optimization_context", {})
             payload = response.model_dump(mode="json")
         elif uri == "commander-lab://rules-coverage":
             path = self.root / "data/rules/card_rules_coverage.json"
@@ -277,7 +278,11 @@ class CommanderMcpServer:
             raise McpProtocolError(-32602, "tools/call requires a string name")
         if not isinstance(arguments, dict):
             raise McpProtocolError(-32602, "tools/call arguments must be an object")
-        if name not in {schema["name"] for schema in self.registry.list_schemas()}:
+        surface = params.get("surface", "public")
+        registry = self.expert_registry if surface == "expert" else self.registry
+        if surface not in {"public", "expert"}:
+            raise McpProtocolError(-32602, "tool surface must be public or expert")
+        if name not in {schema["name"] for schema in registry.list_schemas()}:
             raise McpProtocolError(-32602, f"Unknown tool: {name}")
         meta = self._request_meta(params)
         timeout_ms = 120_000
@@ -293,7 +298,7 @@ class CommanderMcpServer:
 
         def invoke() -> None:
             try:
-                done.put(("ok", self.registry.invoke(name, arguments)))
+                done.put(("ok", registry.invoke(name, arguments)))
             except BaseException as exc:  # daemon worker boundary; re-raised on protocol thread
                 with contextlib.suppress(queue.Full):
                     done.put(("error", exc))
@@ -424,6 +429,10 @@ class CommanderMcpServer:
             if method == "ping":
                 return self._result(request_id, {}, modern=modern)
             if method == "tools/list":
+                surface = params.get("surface", "public")
+                if surface not in {"public", "expert"}:
+                    raise McpProtocolError(-32602, "tool surface must be public or expert")
+                registry = self.expert_registry if surface == "expert" else self.registry
                 tools = sorted(
                     (
                         {
@@ -436,7 +445,7 @@ class CommanderMcpServer:
                             },
                             "execution": {"taskSupport": "forbidden"},
                         }
-                        for row in self.registry.list_schemas()
+                        for row in registry.list_schemas()
                     ),
                     key=lambda row: row["name"],
                 )
@@ -446,6 +455,7 @@ class CommanderMcpServer:
                         "tools": tools,
                         "ttlMs": 300_000,
                         "cacheScope": "private",
+                        "surface": surface,
                     },
                     modern=modern,
                 )

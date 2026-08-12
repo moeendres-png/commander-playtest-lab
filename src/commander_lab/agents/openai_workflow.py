@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from commander_lab.models import WorkflowReport, WorkflowRequest
-from commander_lab.tools import TOOL_DEFINITIONS, CommanderToolService, ToolRegistry
+from commander_lab.tools import CommanderToolService, ToolRegistry
 
 from .guardrails import (
     GuardrailViolation,
@@ -69,7 +69,7 @@ def _load_sdk() -> dict[str, Any]:
 
 def _sdk_tools(registry: ToolRegistry, function_tool: Any) -> list[Any]:
     tools: list[Any] = []
-    for definition in TOOL_DEFINITIONS:
+    for definition in registry.definitions:
         input_model = definition.input_model
         tool_name = definition.name
         description = definition.description

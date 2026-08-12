@@ -742,6 +742,7 @@ class CompareMulliganPoliciesInput(FrozenModel):
     )
     samples: int = Field(default=5000, ge=1, le=5_000_000)
     followup_samples: int = Field(default=250, ge=0, le=100_000)
+    generate_keep_rules: bool = False
     opponent_ensemble_id: str | None = None
     seat_position: int = Field(default=1, ge=1, le=10)
     starting_player: bool = False
@@ -755,6 +756,38 @@ class CompareMulliganPoliciesInput(FrozenModel):
 
 class RunMulliganLabInput(CompareMulliganPoliciesInput):
     output_name: str = "mulligan_lab_result.json"
+
+
+class DeckDecisionPrepareInput(FrozenModel):
+    deck_id: str = "rogshai/current"
+    candidate_limit: int = Field(default=25, ge=1, le=250)
+    mulligan_policies: tuple[str, ...] = ("current_pilot", "primer_policy")
+    mulligan_samples: int = Field(default=2500, ge=1, le=100_000)
+    mulligan_seed: int = Field(default=2026082101, ge=0)
+    seat_position: int = Field(default=1, ge=1, le=4)
+
+
+class DeckDecisionRunInput(FrozenModel):
+    deck_id: str = "rogshai/current"
+    remove: str
+    add_candidate_id: str
+    iterations: int = Field(default=64, ge=1, le=10_000)
+    seed: int = Field(default=2026082103, ge=0)
+    max_turns: int = Field(default=35, ge=1, le=500)
+    workers: int = Field(default=2, ge=1, le=64)
+
+
+class DeckDecisionDiagnoseInput(FrozenModel):
+    comparison: dict[str, Any]
+
+
+class DeckDecisionBundleInput(FrozenModel):
+    comparison: dict[str, Any]
+    output_directory: str
+    worst_case_sensitivity_result: dict[str, Any] = Field(default_factory=dict)
+    commander_denial_result: dict[str, Any] = Field(default_factory=dict)
+    ablation_result: dict[str, Any] = Field(default_factory=dict)
+    recommendation_status: str = "structural_evidence_only"
 
 
 class GenerateKeepRulesInput(FrozenModel):

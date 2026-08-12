@@ -770,6 +770,7 @@ class MulliganLab:
         *,
         samples: int,
         followup_samples: int = 0,
+        generate_keep_rules: bool = False,
     ) -> MulliganLabResult:
         self._validate_context(context)
         deck = self.deck(context.deck_id)
@@ -881,7 +882,9 @@ class MulliganLab:
                 "summaries": [s.model_dump(mode="json") for s in summaries],
             }
         )
-        rules = self.generate_keep_rules(context, summaries, run_hash)
+        rules = (
+            self.generate_keep_rules(context, summaries, run_hash) if generate_keep_rules else []
+        )
         validations: tuple[KeepRuleValidationResult, ...] = ()
         if rules:
             validations = self.validate_keep_rule_across_contexts(
@@ -907,7 +910,11 @@ class MulliganLab:
             generated_rules=tuple(rules),
             overfitting_validation=validations,
             warnings=(
-                "Keep rules are model-based candidates, not universal or empirical facts.",
+                (
+                    "Keep rules are model-based candidates, not universal or empirical facts."
+                    if generate_keep_rules
+                    else "Keep-rule generation and cross-context validation were not requested."
+                ),
                 "Follow-up placement comes from complete Structural "
                 "Simulator games with forced public opening hands.",
                 "Structural follow-up games are not comprehensive MTG rules-engine games.",

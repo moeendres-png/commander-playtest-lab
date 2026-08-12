@@ -254,9 +254,9 @@ def _run_api_self_test_isolated(
         with TestClient(create_app(root)) as client:
             result = {
                 "health": client.get("/health").json(),
-                "tool_count": len(client.get("/v1/tools").json()["tools"]),
+                "tool_count": len(client.get("/v1/expert/tools").json()["tools"]),
                 "validate_call": client.post(
-                    "/v1/tools/validate_deck:invoke",
+                    "/v1/expert/tools/validate_deck:invoke",
                     json={"arguments": {"deck_id": "rogshai/current"}},
                 ).json(),
             }
@@ -346,7 +346,7 @@ def run_phase10_acceptance(
     )
     output.mkdir(parents=True, exist_ok=True)
     service = CommanderToolService(root_path)
-    registry = ToolRegistry(service)
+    registry = ToolRegistry(service, surface="expert")
     opponent_policy = _load_opponent_policy(root_path)
     primary_pods = [tuple(row) for row in opponent_policy["primary_four_player_pods"]]
     holdout_pods = [tuple(row) for row in opponent_policy["holdout_pods"]]

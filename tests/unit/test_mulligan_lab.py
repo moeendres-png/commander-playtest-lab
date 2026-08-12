@@ -172,6 +172,7 @@ def test_tool_surface_runs_and_generates_non_absolute_rule(repo_root: Path, tmp_
             policies=("conservative", "primer_policy"),
             samples=30,
             followup_samples=10,
+            generate_keep_rules=True,
             output_name="unit-mulligan.json",
         )
     )
@@ -231,7 +232,11 @@ def test_full_followup_and_overfitting_contexts_are_executed(repo_root: Path) ->
     lab = MulliganLab(repo_root)
     deck = lab.deck("rogshai/current")
     result = lab.run(
-        context(deck), (MulliganPolicyName.PRIMER_POLICY,), samples=6, followup_samples=2
+        context(deck),
+        (MulliganPolicyName.PRIMER_POLICY,),
+        samples=6,
+        followup_samples=2,
+        generate_keep_rules=True,
     )
     summary = result.policies[0]
     assert summary.full_followup_games == 2
@@ -244,3 +249,18 @@ def test_full_followup_and_overfitting_contexts_are_executed(repo_root: Path) ->
         "pilot_profile",
     }
     assert all(row.samples >= 3 for row in result.overfitting_validation)
+
+
+def test_default_policy_comparison_skips_keep_rule_research(repo_root: Path) -> None:
+    lab = MulliganLab(repo_root)
+    deck = lab.deck("rogshai/current")
+    result = lab.run(
+        context(deck),
+        (MulliganPolicyName.CURRENT_PILOT, MulliganPolicyName.PRIMER_POLICY),
+        samples=12,
+        followup_samples=0,
+    )
+
+    assert result.generated_rules == ()
+    assert result.overfitting_validation == ()
+    assert "not requested" in result.warnings[0]

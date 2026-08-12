@@ -35,7 +35,7 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
     assert discover["result"]["_meta"][SERVER_META]["name"] == "commander-playtest-lab"
 
     tools = request(server, 2, "tools/list", modern_params())
-    assert len(tools["result"]["tools"]) == 100
+    assert len(tools["result"]["tools"]) == 4
     assert tools["result"]["tools"] == sorted(tools["result"]["tools"], key=lambda row: row["name"])
     assert tools["result"]["tools"][0]["annotations"]["readOnlyHint"] is True
     assert tools["result"]["ttlMs"] == 300_000
@@ -45,10 +45,15 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
         server,
         3,
         "tools/call",
-        modern_params(name="validate_deck", arguments={"deck_id": "rogshai/current"}),
+        modern_params(
+            name="deck_decision_diagnose", arguments={"comparison": {"status": "rejected"}}
+        ),
     )
     assert called["result"]["isError"] is False
     assert called["result"]["structuredContent"]["status"] == "completed"
+
+    expert = request(server, 31, "tools/list", modern_params(surface="expert"))
+    assert len(expert["result"]["tools"]) == 100
 
     resources = request(server, 4, "resources/list", modern_params())
     assert {row["uri"] for row in resources["result"]["resources"]} >= {
@@ -93,8 +98,8 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
         8,
         "tools/call",
         modern_params(
-            name="validate_deck",
-            arguments={"deck_id": "rogshai/current"},
+            name="deck_decision_diagnose",
+            arguments={"comparison": {"status": "rejected"}},
             _meta={"timeoutMs": 0},
         ),
     )
@@ -153,7 +158,7 @@ def test_stdio_cancellation_interrupts_protocol_wrapper_without_waiting_for_tool
     original = server.registry.invoke
 
     def slow_invoke(name, arguments):
-        if name == "validate_deck":
+        if name == "deck_decision_diagnose":
             time.sleep(1.0)
         return original(name, arguments)
 
@@ -162,7 +167,9 @@ def test_stdio_cancellation_interrupts_protocol_wrapper_without_waiting_for_tool
         "jsonrpc": "2.0",
         "id": 77,
         "method": "tools/call",
-        "params": modern_params(name="validate_deck", arguments={"deck_id": "korvold/current"}),
+        "params": modern_params(
+            name="deck_decision_diagnose", arguments={"comparison": {"status": "rejected"}}
+        ),
     }
     cancel = {
         "jsonrpc": "2.0",
