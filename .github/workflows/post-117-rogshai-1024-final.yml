@@ -1,0 +1,138 @@
+name: Post-1.17 RogShai 1024 Final Seed Gate
+
+on:
+  push:
+    branches:
+      - runs/post-117-rogshai-first-wave-20260812
+    paths:
+      - '.github/workflows/post-117-rogshai-1024-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  paired-1024:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pair_id: preordain-to-opt
+            remove: Preordain
+            add_candidate_id: rogshai/opt-smoke
+          - pair_id: loyal-drake-to-opt
+            remove: Loyal Drake
+            add_candidate_id: rogshai/opt-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact validated 1.17 main identity
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e33107c7aa6ca997aa47565008e1da1d6d878007
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e .
+      - name: Run missing 1024-pair comparison with bounded execution override
+        env:
+          PAIR_ID: ${{ matrix.pair_id }}
+          REMOVE_CARD: ${{ matrix.remove }}
+          ADD_CANDIDATE_ID: ${{ matrix.add_candidate_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, subprocess, time
+          from pathlib import Path
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          EXPECTED_COMMIT='e33107c7aa6ca997aa47565008e1da1d6d878007'
+          EXPECTED_TREE='7d66469daf6e7657c26a5d08a2777bb05ec57f92'
+          EXPECTED_DECK='7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          pair_id=os.environ['PAIR_ID']; remove=os.environ['REMOVE_CARD']; add=os.environ['ADD_CANDIDATE_ID']
+          git=lambda *a: subprocess.check_output(['git',*a],text=True).strip()
+          assert git('rev-parse','HEAD')==EXPECTED_COMMIT
+          assert git('rev-parse','HEAD^{tree}')==EXPECTED_TREE
+          assert commander_lab.__version__=='1.17.0'
+          assert ENGINE_VERSION=='structural-0.6.0'
+
+          default_service=CommanderToolService(Path.cwd())
+          assert default_service.decks['rogshai/current'].deck_hash==EXPECTED_DECK
+          assert default_service.tracked_worktree_dirty is False
+          default_limit=float(default_service.limits.max_simulation_seconds)
+          assert default_limit==120.0, default_limit
+          extended_limits=default_service.limits.model_copy(update={'max_simulation_seconds':300.0})
+          service=CommanderToolService(Path.cwd(), limits=extended_limits)
+          assert service.decks['rogshai/current'].deck_hash==EXPECTED_DECK
+          assert service.tracked_worktree_dirty is False
+          public=ToolRegistry(service,surface='public')
+
+          out=Path('artifacts/post_117_1024_final')/pair_id; out.mkdir(parents=True,exist_ok=True)
+          provenance={
+            'exact_main_commit':EXPECTED_COMMIT,'exact_main_tree':EXPECTED_TREE,'deck_hash':EXPECTED_DECK,
+            'source_64_run_id':31626325207,'source_adaptive_run_id':31626532504,
+            'highest_previous_completed_budget':512,
+            'previous_state_at_512':'MORE_SIMULATIONS_USEFUL',
+            'iterations':1024,'workers':1,'seed':2026081203,'max_turns':35,
+            'default_max_simulation_seconds':default_limit,
+            'execution_max_simulation_seconds':300.0,
+            'limit_override_classification':'execution-envelope-only; simulation code, seed, deck, opponents, pilot, max_turns and main tree unchanged',
+            'old_pre_1_17_shortlist_used_as_prior':False,
+            'automatic_deck_mutation':False,
+            'evidence_class':'structural_model_estimates',
+          }
+          (out/'PROVENANCE.json').write_text(json.dumps(provenance,indent=2,sort_keys=True),encoding='utf-8')
+          t0=time.perf_counter()
+          run=public.invoke('deck_decision_run',{
+            'deck_id':'rogshai/current','remove':remove,'add_candidate_id':add,
+            'iterations':1024,'seed':2026081203,'max_turns':35,'workers':1,
+          })
+          elapsed=time.perf_counter()-t0
+          rp=run.model_dump(mode='json')
+          (out/'COMPARISON_1024.json').write_text(json.dumps(rp,indent=2,sort_keys=True),encoding='utf-8')
+          if rp['status']!='completed': raise RuntimeError(rp.get('errors'))
+          diag=public.invoke('deck_decision_diagnose',{'comparison':rp['result']}).model_dump(mode='json')
+          (out/'DIAGNOSIS_1024.json').write_text(json.dumps(diag,indent=2,sort_keys=True),encoding='utf-8')
+          if diag['status']!='completed': raise RuntimeError(diag.get('errors'))
+          state=diag['result']['decision_information_state']; paired=rp['result'].get('paired',{})
+          classification={
+            'STOP_WITH_PREFERENCE':'STRUCTURAL_PREFERENCE_PENDING_ROBUSTNESS',
+            'NO_MATERIAL_DECISION_DIFFERENCE':'NO_MATERIAL_DECISION_DIFFERENCE',
+            'MODEL_NEEDS_DIFFERENT_METRIC':'MODEL_LIMIT_UNRESOLVED',
+            'OPPONENT_UNCERTAINTY_DOMINATES':'OPPONENT_UNCERTAINTY_UNRESOLVED',
+            'TACTICAL_EVIDENCE_NEEDED':'TACTICAL_EVIDENCE_UNRESOLVED',
+            'STOP':'REJECT_STRUCTURALLY',
+            'MORE_SIMULATIONS_USEFUL':'SEED_UNCERTAINTY_REMAINS_AT_1024_CEILING',
+          }.get(state.get('status'),'UNEXPECTED_STATE')
+          summary={
+            'pair_id':pair_id,'remove':remove,'add_candidate_id':add,
+            'iterations':1024,'workers':1,'elapsed_seconds':elapsed,
+            'pair_count':rp['result'].get('pair_count'),
+            'placement_improvement':paired.get('placement_improvement'),
+            'confidence_interval':paired.get('confidence_interval'),
+            'monte_carlo_standard_error':paired.get('monte_carlo_standard_error'),
+            'decision_information_status':state.get('status'),
+            'next_recommended_experiment':state.get('next_recommended_experiment'),
+            'stop_reason':state.get('stop_reason'),'state_hash':state.get('state_hash'),
+            'final_classification':classification,
+            'automatic_deck_mutation':False,
+            'truth_boundary':state.get('truth_boundary'),
+          }
+          (out/'SUMMARY.json').write_text(json.dumps(summary,indent=2,sort_keys=True),encoding='utf-8')
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - name: Assert tracked tree clean
+        if: always()
+        run: test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Upload 1024 evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: post-117-1024-${{ matrix.pair_id }}-${{ github.run_id }}
+          path: artifacts/post_117_1024_final/${{ matrix.pair_id }}/
+          if-no-files-found: warn
