@@ -73,8 +73,10 @@ def run_benchmark(root: Path) -> dict[str, object]:
     decision_agreement = bool(conservative_static_ranking) and (
         conservative_static_ranking[0] == full_static_ranking[0]
     )
-    shipped = bool(quality["quality_gate_pass"]) and decision_agreement and (
-        plan.simulation_reduction >= MINIMUM_REDUCTION
+    shipped = (
+        bool(quality["quality_gate_pass"])
+        and decision_agreement
+        and (plan.simulation_reduction >= MINIMUM_REDUCTION)
     )
 
     trace = {
