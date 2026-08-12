@@ -1,0 +1,61 @@
+name: Decision Quality 1.18 Materializer
+
+on:
+  push:
+    branches:
+      - fix/decision-quality-1180
+
+permissions:
+  contents: write
+
+concurrency:
+  group: decision-quality-1180-materializer
+  cancel-in-progress: false
+
+jobs:
+  materialize-validate-commit:
+    if: ${{ !contains(github.event.head_commit.message, '[materialized]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: fix/decision-quality-1180
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Materialize focused implementation
+        run: python .github/materialize_decision_quality.py
+      - name: Install full validation extras
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Normalize changed Python
+        run: |
+          python -m ruff check --fix src/commander_lab tests/unit/test_decision_quality_1180.py tests/integration/test_priority_prefix_and_frontier_1180.py
+          python -m ruff format src/commander_lab tests/unit/test_decision_quality_1180.py tests/integration/test_priority_prefix_and_frontier_1180.py
+      - name: Strict static gates
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+          python -m mypy src
+          python -m compileall -q src tests
+      - name: Focused decision-quality regression
+        run: |
+          python -m pytest -q \
+            tests/unit/test_decision_quality_1180.py \
+            tests/integration/test_priority_prefix_and_frontier_1180.py
+      - name: Existing priority acceptance smoke
+        run: |
+          python -m pytest -q tests/unit tests/integration --ignore=tests/integration/test_priority_prefix_and_frontier_1180.py
+      - name: Remove temporary materializer controls
+        run: |
+          rm -f .github/materialize_decision_quality.py
+          rm -f .github/workflows/decision-quality-materialize.yml
+      - name: Commit tested implementation
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          test -n "$(git status --porcelain)"
+          git commit -m 'Improve decision frontier and evidence routing [materialized]'
+          git push origin HEAD:fix/decision-quality-1180
