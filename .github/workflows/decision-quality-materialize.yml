@@ -27,10 +27,11 @@ jobs:
           python-version: '3.12'
       - name: Materialize focused implementation
         run: python .github/materialize_decision_quality.py
-      - name: Apply strict observation type guards
+      - name: Apply strict guards and compatibility fields
         run: |
           python - <<'PY'
           from pathlib import Path
+
           p = Path('src/commander_lab/optimization/experiments.py')
           s = p.read_text(encoding='utf-8')
           anchor = '''    pairs = sorted(observations, key=lambda row: int(row["index"]))\n    if not pairs:\n'''
@@ -43,13 +44,46 @@ jobs:
           s = s.replace('float(row["baseline_placement"]) - float(row["variant_placement"])', 'as_float(row["baseline_placement"], field="baseline_placement") - as_float(row["variant_placement"], field="variant_placement")', 1)
           s = s.replace('seeds=tuple(int(row["seed"]) for row in pairs)', 'seeds=tuple(as_int(row["seed"], field="seed") for row in pairs)', 1)
           p.write_text(s, encoding='utf-8')
+
+          service = Path('src/commander_lab/tools/service.py')
+          text = service.read_text(encoding='utf-8')
+          method_old = '"method": "diverse_cut_hypothesis_and_role_package_profile_screening_only",\n                "recommendations": rows[: request.max_recommendations],'
+          method_new = '"method": "role_profile_screening_only",\n                "cut_frontier_method": "diverse_cut_hypothesis_and_role_package_profile_screening_only",\n                "recommendations": rows[: request.max_recommendations],'
+          if text.count(method_old) != 1:
+              raise SystemExit('recommendation compatibility anchor mismatch')
+          text = text.replace(method_old, method_new, 1)
+          return_anchor = '"candidates": ready_rows,\n                "count": len(ready_rows),'
+          return_replacement = '"candidates": ready_rows,\n                "all_screened_candidates": [*semantically_ready, *semantic_deferred],\n                "count": len(ready_rows),'
+          if text.count(return_anchor) != 1:
+              raise SystemExit('all_screened_candidates compatibility anchor mismatch')
+          text = text.replace(return_anchor, return_replacement, 1)
+          service.write_text(text, encoding='utf-8')
+
+          # These are intentional 1.18 contract/naming changes, not regressions.
+          updates = {
+              'tests/unit/test_model_informativeness.py': (
+                  'DIAGNOSE_BEFORE_BROAD_SEARCH', 'DIAGNOSE_BEFORE_MORE_SEED_WORK'
+              ),
+              'tests/unit/test_post117_semantic_execution_fixes.py': (
+                  'validated_single_worker_until_issue_55_resolution', 'validated_single_worker_policy_1_18'
+              ),
+              'tests/unit/test_priority_workflows.py': (
+                  'validated_single_worker_until_issue_55_resolution', 'validated_single_worker_policy_1_18'
+              ),
+          }
+          for path, (old, new) in updates.items():
+              f = Path(path)
+              body = f.read_text(encoding='utf-8')
+              if old not in body:
+                  raise SystemExit(f'expected old test contract missing: {path}')
+              f.write_text(body.replace(old, new), encoding='utf-8')
           PY
       - name: Install full validation extras
         run: python -m pip install -e '.[dev,api,openai]'
       - name: Normalize changed Python
         run: |
-          python -m ruff check --fix src/commander_lab tests/unit/test_decision_quality_1180.py tests/integration/test_priority_prefix_and_frontier_1180.py
-          python -m ruff format src/commander_lab tests/unit/test_decision_quality_1180.py tests/integration/test_priority_prefix_and_frontier_1180.py
+          python -m ruff check --fix src/commander_lab tests
+          python -m ruff format src/commander_lab tests
       - name: Strict static gates
         run: |
           python -m ruff check src tests
