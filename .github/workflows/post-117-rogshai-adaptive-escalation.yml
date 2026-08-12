@@ -1,0 +1,143 @@
+name: Post-1.17 RogShai Adaptive Escalation
+
+on:
+  push:
+    branches:
+      - runs/post-117-rogshai-first-wave-20260812
+    paths:
+      - '.github/workflows/post-117-rogshai-adaptive-escalation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  adaptive:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pair_id: preordain-to-opt
+            remove: Preordain
+            add_candidate_id: rogshai/opt-smoke
+          - pair_id: loyal-drake-to-opt
+            remove: Loyal Drake
+            add_candidate_id: rogshai/opt-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact validated 1.17 main identity
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e33107c7aa6ca997aa47565008e1da1d6d878007
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e .
+      - name: Escalate only while DecisionInformationState requests more simulations
+        env:
+          PAIR_ID: ${{ matrix.pair_id }}
+          REMOVE_CARD: ${{ matrix.remove }}
+          ADD_CANDIDATE_ID: ${{ matrix.add_candidate_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, subprocess, time
+          from pathlib import Path
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          EXPECTED_COMMIT='e33107c7aa6ca997aa47565008e1da1d6d878007'
+          EXPECTED_TREE='7d66469daf6e7657c26a5d08a2777bb05ec57f92'
+          EXPECTED_DECK='7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          pair_id=os.environ['PAIR_ID']; remove=os.environ['REMOVE_CARD']; add=os.environ['ADD_CANDIDATE_ID']
+          git=lambda *a: subprocess.check_output(['git',*a],text=True).strip()
+          assert git('rev-parse','HEAD')==EXPECTED_COMMIT
+          assert git('rev-parse','HEAD^{tree}')==EXPECTED_TREE
+          assert commander_lab.__version__=='1.17.0'
+          assert ENGINE_VERSION=='structural-0.6.0'
+          service=CommanderToolService(Path.cwd())
+          assert service.decks['rogshai/current'].deck_hash==EXPECTED_DECK
+          assert service.tracked_worktree_dirty is False
+          public=ToolRegistry(service,surface='public')
+          out=Path('artifacts/post_117_adaptive_escalation')/pair_id; out.mkdir(parents=True,exist_ok=True)
+          provenance={
+            'source_frontier_run_id':31619914035,
+            'source_frontier_artifact_id':9152736061,
+            'source_64_run_id':31626325207,
+            'source_64_artifacts':{
+              'preordain-to-opt':{'artifact_id':9153251487,'sha256':'c4f24738efb2ea21b0aadbdd3475c16452ac09caed5808a6a65bb6a045b48db9'},
+              'loyal-drake-to-opt':{'artifact_id':9153255905,'sha256':'a39d3688d7fa71ea41c0dfa59585c9f820cc37f54894bcae1b4482ad7a620990'},
+            },
+            'runtime_probe_run_id':31626094205,
+            'runtime_probe_artifact_id':9153160957,
+            'worker_policy':'workers=1 after validated runtime probe; execution correction only',
+            'master_seed':2026081203,
+            'cumulative_budgets':[64,128,256,512,1024],
+            'old_pre_1_17_shortlist_used_as_prior':False,
+            'automatic_deck_mutation':False,
+            'evidence_class':'structural_model_estimates',
+          }
+          (out/'PROVENANCE.json').write_text(json.dumps(provenance,indent=2,sort_keys=True),encoding='utf-8')
+          history=[]; final_comparison=None; final_diag=None
+          for budget in (128,256,512,1024):
+              t0=time.perf_counter()
+              run=public.invoke('deck_decision_run',{
+                'deck_id':'rogshai/current','remove':remove,'add_candidate_id':add,
+                'iterations':budget,'seed':2026081203,'max_turns':35,'workers':1,
+              })
+              elapsed=time.perf_counter()-t0
+              rp=run.model_dump(mode='json')
+              (out/f'COMPARISON_{budget}.json').write_text(json.dumps(rp,indent=2,sort_keys=True),encoding='utf-8')
+              if rp['status']!='completed': raise RuntimeError(rp.get('errors'))
+              diag=public.invoke('deck_decision_diagnose',{'comparison':rp['result']}).model_dump(mode='json')
+              (out/f'DIAGNOSIS_{budget}.json').write_text(json.dumps(diag,indent=2,sort_keys=True),encoding='utf-8')
+              if diag['status']!='completed': raise RuntimeError(diag.get('errors'))
+              state=diag['result']['decision_information_state']; paired=rp['result'].get('paired',{})
+              row={
+                'iterations':budget,'workers':1,'elapsed_seconds':elapsed,
+                'pair_count':rp['result'].get('pair_count'),
+                'placement_improvement':paired.get('placement_improvement'),
+                'confidence_interval':paired.get('confidence_interval'),
+                'monte_carlo_standard_error':paired.get('monte_carlo_standard_error'),
+                'decision_information_status':state.get('status'),
+                'next_recommended_experiment':state.get('next_recommended_experiment'),
+                'stop_reason':state.get('stop_reason'),'state_hash':state.get('state_hash'),
+              }
+              history.append(row); final_comparison=rp; final_diag=diag
+              if state.get('status')!='MORE_SIMULATIONS_USEFUL': break
+          final_state=final_diag['result']['decision_information_state']
+          status=final_state.get('status')
+          classification={
+            'STOP_WITH_PREFERENCE':'STRUCTURAL_PREFERENCE_PENDING_ROBUSTNESS',
+            'NO_MATERIAL_DECISION_DIFFERENCE':'NO_MATERIAL_DECISION_DIFFERENCE',
+            'MODEL_NEEDS_DIFFERENT_METRIC':'MODEL_LIMIT_UNRESOLVED',
+            'OPPONENT_UNCERTAINTY_DOMINATES':'OPPONENT_UNCERTAINTY_UNRESOLVED',
+            'TACTICAL_EVIDENCE_NEEDED':'TACTICAL_EVIDENCE_UNRESOLVED',
+            'STOP':'REJECT_STRUCTURALLY',
+            'MORE_SIMULATIONS_USEFUL':'SEED_UNCERTAINTY_REMAINS_AT_1024_CEILING',
+          }.get(status,'UNEXPECTED_STATE')
+          summary={
+            'pair_id':pair_id,'remove':remove,'add_candidate_id':add,
+            'history':history,'final_decision_information_state':final_state,
+            'final_classification':classification,
+            'automatic_deck_mutation':False,
+            'truth_boundary':'structural decision-information only; not empirical winrate or deck mutation authority',
+          }
+          (out/'SUMMARY.json').write_text(json.dumps(summary,indent=2,sort_keys=True),encoding='utf-8')
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - name: Assert tracked tree clean
+        if: always()
+        run: test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Upload adaptive evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: post-117-adaptive-${{ matrix.pair_id }}-${{ github.run_id }}
+          path: artifacts/post_117_adaptive_escalation/${{ matrix.pair_id }}/
+          if-no-files-found: warn
