@@ -780,6 +780,9 @@ class DeckDecisionRunInput(FrozenModel):
 
 class DeckDecisionDiagnoseInput(FrozenModel):
     comparison: dict[str, Any]
+    cohort_comparisons: tuple[dict[str, Any], ...] = ()
+    opponent_evidence_quality: dict[str, int] = Field(default_factory=dict)
+    failure_mode_metrics: tuple[str, ...] = ()
 
 
 class DeckDecisionBundleInput(FrozenModel):

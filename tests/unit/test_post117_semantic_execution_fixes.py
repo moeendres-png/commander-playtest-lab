@@ -72,7 +72,7 @@ def test_public_paired_execution_falls_back_to_one_worker_and_limit_is_identity_
         "requested": 2,
         "effective": 1,
         "fallback_applied": True,
-        "policy": "validated_single_worker_until_issue_55_resolution",
+        "policy": "validated_single_worker_policy_1_18",
         "deck_quality_evidence": False,
     }
     envelope = two.result["execution_envelope"]

@@ -11,12 +11,6 @@ ModelInformationStatus = Literal["INFORMATIVE", "MODEL_INFORMATION_LIMIT"]
 
 @dataclass(frozen=True)
 class ModelInformativenessReport:
-    """Deterministic diagnostic of whether structural evidence can separate variants.
-
-    This report describes the information carried by the current structural model. It is
-    deliberately not a deck-power score and never promotes synthetic opponent evidence.
-    """
-
     schema_version: str
     status: ModelInformationStatus
     recommended_action: str
@@ -29,6 +23,8 @@ class ModelInformativenessReport:
     variant_count: int
     separable_variant_count: int
     overlapping_variant_count: int
+    separable_ratio: float | None
+    overlap_ratio: float | None
     opponent_evidence_quality: dict[str, int]
     synthetic_opponent_share: float | None
     metric_coverage: tuple[str, ...]
@@ -86,14 +82,7 @@ def assess_model_informativeness(
     opponent_evidence_quality: dict[str, int] | None = None,
     failure_mode_metrics: tuple[str, ...] = (),
 ) -> ModelInformativenessReport:
-    """Assess separability using a calibrated combination of independent indicators.
-
-    The calibration is intentionally conjunctive: no single numerical threshold is treated as
-    universal truth. The current regression set establishes that a concentrated outcome plus
-    weak variant separation is a diagnostic limit, while clearly separated comparisons remain
-    eligible to advance.
-    """
-
+    """Assess cohort separability using conjunctive structural indicators."""
     shares = _seat_shares(seat_results or {})
     concentration = _float(baseline_place_1_share)
     placement_variance = pvariance(shares) if len(shares) > 1 else None
@@ -103,6 +92,8 @@ def assess_model_informativeness(
     )
     separable = sum(1 for low, high in intervals if low > 0.0 or high < 0.0)
     overlapping = sum(1 for low, high in intervals if low <= 0.0 <= high)
+    separable_ratio = separable / len(intervals) if intervals else None
+    overlap_ratio = overlapping / len(intervals) if intervals else None
     lower_tail_available = any(
         isinstance(row.get("lower_tail"), dict) for row in variant_comparisons
     )
@@ -123,6 +114,14 @@ def assess_model_informativeness(
         indicators.append("seat_rotation_remains_concentrated")
     if intervals and separable == 0:
         indicators.append("variant_intervals_not_separable")
+    if (
+        len(intervals) >= 8
+        and overlap_ratio is not None
+        and overlap_ratio >= 0.75
+        and separable_ratio is not None
+        and separable_ratio <= 0.10
+    ):
+        indicators.append("broad_cohort_mostly_nonseparable")
     if variant_comparisons and not failure_mode_metrics:
         indicators.append("decision_uses_no_explicit_failure_mode_metric")
     if synthetic_share is not None and synthetic_share >= 0.50:
@@ -131,16 +130,19 @@ def assess_model_informativeness(
     concentration_limit = ceiling and "seat_rotation_remains_concentrated" in indicators
     separability_limit = bool(intervals) and separable == 0
     evidence_limit = "opponent_evidence_is_majority_synthetic_or_inferred" in indicators
-    limited = (concentration_limit and separability_limit) or (
-        concentration_limit and evidence_limit
+    broad_nonseparable = "broad_cohort_mostly_nonseparable" in indicators
+    limited = (
+        (concentration_limit and separability_limit)
+        or (concentration_limit and evidence_limit)
+        or (broad_nonseparable and not failure_mode_metrics)
     )
     status: ModelInformationStatus = "MODEL_INFORMATION_LIMIT" if limited else "INFORMATIVE"
-    action = "DIAGNOSE_BEFORE_BROAD_SEARCH" if limited else "COMPARISON_PERMITTED"
+    action = "DIAGNOSE_BEFORE_MORE_SEED_WORK" if limited else "COMPARISON_PERMITTED"
     diagnostics = (
         (
-            "improve opponent profile or scenario evidence without promoting synthetic data",
-            "use existing continuous failure-mode metrics instead of adding seeds alone",
-            "test a narrower preregistered deckbuilding hypothesis",
+            "use existing continuous failure-mode metrics before adding seeds",
+            "improve opponent profile or scenario evidence when scenario uncertainty is material",
+            "test a narrower preregistered deckbuilding hypothesis if the cohort remains non-separable",
         )
         if limited
         else ("continue with preregistered paired comparisons and advancement gates",)
@@ -159,7 +161,7 @@ def assess_model_informativeness(
         if present
     )
     return ModelInformativenessReport(
-        schema_version="1.0.0",
+        schema_version="1.1.0",
         status=status,
         recommended_action=action,
         outcome_concentration=concentration,
@@ -171,6 +173,8 @@ def assess_model_informativeness(
         variant_count=len(variant_comparisons),
         separable_variant_count=separable,
         overlapping_variant_count=overlapping,
+        separable_ratio=separable_ratio,
+        overlap_ratio=overlap_ratio,
         opponent_evidence_quality=evidence,
         synthetic_opponent_share=synthetic_share,
         metric_coverage=coverage,

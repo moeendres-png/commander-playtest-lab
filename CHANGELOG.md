@@ -1,3 +1,10 @@
+## 1.18.0 - 2026-08-12
+
+- Add diverse package/role-aware cut hypotheses to the RogShai decision frontier.
+- Make DecisionInformationState precision-ceiling aware and cohort-informativeness aware.
+- Reuse exact paired seed prefixes without changing structural simulation semantics.
+- Preserve material semantic conflicts and propagate semantic evidence hashes.
+
 # Changelog
 
 ## 1.17.1 - 2026-08-12

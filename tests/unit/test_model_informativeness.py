@@ -26,7 +26,7 @@ def test_preliminary_saturated_artifact_triggers_diagnostic_gate() -> None:
     )
 
     assert report.status == "MODEL_INFORMATION_LIMIT"
-    assert report.recommended_action == "DIAGNOSE_BEFORE_BROAD_SEARCH"
+    assert report.recommended_action == "DIAGNOSE_BEFORE_MORE_SEED_WORK"
     assert report.separable_variant_count == 0
     assert report.as_dict() == report.as_dict()
 

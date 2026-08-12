@@ -50,7 +50,7 @@ def test_compare_validate_reuses_paired_engine_and_exact_cache() -> None:
         "requested": 2,
         "effective": 1,
         "fallback_applied": True,
-        "policy": "validated_single_worker_until_issue_55_resolution",
+        "policy": "validated_single_worker_policy_1_18",
         "deck_quality_evidence": False,
     }
     assert len(first["paired_observations"]) == 1
