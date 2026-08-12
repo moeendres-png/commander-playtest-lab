@@ -44,6 +44,8 @@ class ProjectContextSnapshot:
     active_own_deck_ids: tuple[str, ...]
     historical_own_deck_ids: tuple[str, ...]
     primary_deckbuilding_focus: str
+    active_deck_hashes: tuple[tuple[str, str], ...]
+    policy_config_hashes: tuple[tuple[str, str], ...]
     source_hashes: tuple[tuple[str, str], ...]
     source_freshness: tuple[tuple[str, str], ...]
     primary_scenarios: tuple[tuple[str, tuple[str, ...]], ...]
@@ -166,22 +168,25 @@ def _load_scope(scope_path: Path) -> tuple[tuple[str, ...], tuple[str, ...], str
         raise ProjectContextError("inactive Korvold must not be a simultaneous build requirement")
     if scope.get("historical_allocation_blocks_active_deck") is not False:
         raise ProjectContextError("historical allocation must not block the active RogShai deck")
+    if scope.get("current_valid") is not True:
+        raise ProjectContextError("live active-deck scope is stale or not marked current-valid")
+    if scope.get("status") != "canonical_current_live_scope":
+        raise ProjectContextError("live active-deck scope has a non-current status")
     sources = scope.get("sources")
     if not isinstance(sources, dict):
         raise ProjectContextError("active scope has no current source identities")
     return active, historical, focus, scope
 
 
-def _validate_live_scope_projection(
-    payload: dict[str, Any],
-    *,
-    active: tuple[str, ...],
-    historical: tuple[str, ...],
-) -> None:
+def _validate_live_scope_projection(payload: dict[str, Any]) -> None:
+    active = tuple(str(value) for value in payload.get("active_own_decks", []))
+    historical = tuple(str(value) for value in payload.get("historical_own_decks", []))
     live_active = tuple(str(value) for value in payload.get("active_own_deck_ids", []))
     live_historical = tuple(str(value) for value in payload.get("inactive_former_own_deck_ids", []))
     if live_active != active or live_historical != historical:
-        raise ProjectContextError("active-scope projections disagree on current own-deck state")
+        raise ProjectContextError("live active-deck projection contradicts itself")
+    if payload.get("primary_active_own_deck_id") != payload.get("primary_deckbuilding_focus"):
+        raise ProjectContextError("live active-deck projection has conflicting primary identities")
     if payload.get("korvold_optimization_target") is not False:
         raise ProjectContextError(
             "live active-deck projection still treats Korvold as optimization target"
@@ -192,8 +197,25 @@ def _validate_live_scope_projection(
 
 def _validate_playstyle(payload: dict[str, Any]) -> str:
     preference_type = payload.get("preference_type")
-    if preference_type != "soft_practicality_and_fun_preference":
-        raise ProjectContextError("playstyle preference lost its soft practicality/fun semantics")
+    if preference_type != "post_build_review_only":
+        raise ProjectContextError("playstyle preference lost its post-build-only semantics")
+    if payload.get("current_valid") is not True:
+        raise ProjectContextError("playstyle preference is stale or not marked current-valid")
+    prohibited_decision_signals = (
+        "deckbuilding_bias_allowed",
+        "screening_signal_allowed",
+        "ranking_signal_allowed",
+        "cut_or_package_filter_allowed",
+        "finalist_signal_allowed",
+        "simulation_budget_signal_allowed",
+        "recommendation_status_signal_allowed",
+    )
+    if any(payload.get(field) is not False for field in prohibited_decision_signals):
+        raise ProjectContextError(
+            "playstyle preference can still affect an objective decision stage"
+        )
+    if payload.get("review_stage") != "after_objective_build_and_comparison_decision":
+        raise ProjectContextError("playstyle review is not strictly post-build")
     explicitly_not = payload.get("explicitly_not")
     if not isinstance(explicitly_not, list):
         raise ProjectContextError("playstyle preference has no explicit non-ban boundary")
@@ -210,12 +232,47 @@ def _validate_playstyle(payload: dict[str, Any]) -> str:
     return preference_type
 
 
+def _active_deck_hashes(
+    manifest: dict[str, Any], active: tuple[str, ...]
+) -> tuple[tuple[str, str], ...]:
+    manifest_active = tuple(str(value) for value in manifest.get("active_own_decks", []))
+    if manifest_active != active:
+        raise ProjectContextError("deck manifest and live active-deck scope disagree")
+    decks = manifest.get("decks")
+    if not isinstance(decks, dict):
+        raise ProjectContextError("deck manifest has no deck identity mapping")
+    identities: list[tuple[str, str]] = []
+    for deck_id in active:
+        raw = decks.get(deck_id)
+        if not isinstance(raw, dict):
+            raise ProjectContextError(f"active deck is missing from deck manifest: {deck_id}")
+        digest = raw.get("deck_hash")
+        if not isinstance(digest, str) or len(digest) != 64:
+            raise ProjectContextError(f"active deck has invalid hash identity: {deck_id}")
+        identities.append((deck_id, digest))
+    if "korvold/current" in decks:
+        raise ProjectContextError("inactive Korvold is still an operational current deck manifest")
+    return tuple(identities)
+
+
+def _policy_config_hashes(root: Path) -> tuple[tuple[str, str], ...]:
+    config_root = root / "config"
+    if not config_root.is_dir():
+        raise ProjectContextError("required policy/config directory is missing")
+    paths = sorted(
+        path
+        for path in config_root.rglob("*")
+        if path.is_file() and path.suffix in {".json", ".yaml"}
+    )
+    if not paths:
+        raise ProjectContextError("no policy/config identities are available")
+    return tuple((path.relative_to(root).as_posix(), _sha256_file(path)) for path in paths)
+
+
 def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     root_path = Path(root).resolve()
     paths = {
-        "active_scope": root_path / "data/collections/current/J_FINAL_ACTIVE_SCOPE.json",
-        "active_decks_current": root_path
-        / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+        "active_scope": root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
         "playstyle_preference": root_path
         / "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
         "inactive_deck_releases": root_path
@@ -238,8 +295,7 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     source_hash_dict.update(_feature_source_hashes(root_path, feature_manifest))
 
     active, historical, focus, scope = _load_scope(paths["active_scope"])
-    live_scope = _load_json(paths["active_decks_current"])
-    _validate_live_scope_projection(live_scope, active=active, historical=historical)
+    _validate_live_scope_projection(scope)
     playstyle = _load_json(paths["playstyle_preference"])
     playstyle_type = _validate_playstyle(playstyle)
     playstyle_hash = source_hash_dict["playstyle_preference"]
@@ -263,7 +319,7 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     registry = _load_json(paths["opponent_registry"])
     freshness = {
         "active_scope_verified_at": str(scope.get("verified_at", "unknown")),
-        "active_decks_generated_at": str(live_scope.get("generated_at", "unknown")),
+        "active_decks_generated_at": str(scope.get("generated_at", "unknown")),
         "pod_scenarios_generated_at": str(pods.get("generated_at", "unknown")),
         "playstyle_generated_at": str(playstyle.get("generated_at", "unknown")),
     }
@@ -347,6 +403,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         )
 
     holdout_decks = _resolve_entities(list(holdout), registry)
+    deck_manifest = _load_json(paths["deck_manifest"])
+    active_deck_hashes = _active_deck_hashes(deck_manifest, active)
+    policy_config_hashes = _policy_config_hashes(root_path)
     source_hashes = tuple(sorted(source_hash_dict.items()))
     source_freshness = tuple(sorted(freshness.items()))
     identity_payload = {
@@ -355,6 +414,8 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "active_own_deck_ids": list(active),
         "historical_own_deck_ids": list(historical),
         "primary_deckbuilding_focus": focus,
+        "active_deck_hashes": dict(active_deck_hashes),
+        "policy_config_hashes": dict(policy_config_hashes),
         "source_hashes": dict(source_hashes),
         "source_freshness": dict(source_freshness),
         "primary_scenarios": {key: list(value) for key, value in sorted(primary.items())},
@@ -376,6 +437,8 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         active_own_deck_ids=active,
         historical_own_deck_ids=historical,
         primary_deckbuilding_focus=focus,
+        active_deck_hashes=active_deck_hashes,
+        policy_config_hashes=policy_config_hashes,
         source_hashes=source_hashes,
         source_freshness=source_freshness,
         primary_scenarios=tuple(sorted(primary.items())),

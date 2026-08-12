@@ -15,7 +15,10 @@ def test_rogshai_pool_screen_reduces_default_work_without_hiding_exploration() -
     assert result["physical_legal_candidate_count"] > 0
     assert result["candidate_pool_after_default_screen"] <= result["physical_legal_candidate_count"]
     assert result["unusual_candidates_remain_explorable"] is True
-    assert result["playstyle_is_hard_filter"] is False
+    assert result["playstyle_policy"] == "post_build_review_only"
+    assert result["playstyle_used_for_screening"] is False
+    assert all("playstyle_fit" not in row for row in result["rows"])
+    assert all("playstyle_confidence" not in row for row in result["rows"])
     assert sum(result["bucket_counts"].values()) == result["physical_legal_candidate_count"]
 
 
@@ -35,3 +38,7 @@ def test_current_rogshai_challenge_set_covers_valid_static_buckets() -> None:
         "explore",
         "deprioritize_static",
     }
+    assert all(
+        row["decision"]["playstyle_review_status"] == "deferred_until_post_build_review"
+        for row in result["evaluated"]
+    )

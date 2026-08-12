@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "verified_at": "2026-08-12T02:10:00+02:00",
+  "disposition": "RETAIN_OPTIONAL_OFFLINE_HASH_BOUND_ADAPTER",
+  "official_project_page": "https://commanderspellbook.com/about/",
+  "official_backend_repository": "https://github.com/SpaceCowMedia/commander-spellbook-backend",
+  "backend_default_branch": "master",
+  "verified_backend_commit": "510e0280ab45129221d043c10c6d804d3a328015",
+  "verified_backend_commit_at": "2026-08-10T13:41:03Z",
+  "license": "MIT",
+  "license_source": "https://github.com/SpaceCowMedia/commander-spellbook-backend/blob/master/LICENSE",
+  "maintenance_status": "active_at_verification_time",
+  "adapter_mode": "explicit_sync_only_then_offline_snapshot",
+  "live_simulation_dependency": false,
+  "truth_boundary": "Commander Spellbook match is external combo knowledge and is not proof of legal tactical execution."
+}

@@ -20,6 +20,7 @@ from commander_lab.optimization import (
     derive_paired_seed,
     run_paired_structural_comparison,
 )
+from commander_lab.playstyle import PlaystyleAnalyzer
 from commander_lab.project_context import ProjectContextSnapshot, load_project_context
 from commander_lab.storage import ExactResultCache, build_exact_result_identity
 from commander_lab.storage.run_identity import sha256_run_value
@@ -36,6 +37,7 @@ class PriorityWorkflowFacade:
         self.service = CommanderToolService(self.root)
         self.mulligan = MulliganLab(self.root)
         self.mana = ManaAnalyzer(self.root)
+        self.playstyle = PlaystyleAnalyzer(self.root)
         self.screener = RogShaiCandidateScreener(self.root, service=self.service)
         self.result_cache = ExactResultCache(
             self.root / ".runtime/priority_result_cache.sqlite3",
@@ -57,6 +59,8 @@ class PriorityWorkflowFacade:
             "source_freshness": dict(context.source_freshness),
             "active_own_deck_ids": list(context.active_own_deck_ids),
             "historical_own_deck_ids": list(context.historical_own_deck_ids),
+            "active_deck_hashes": dict(context.active_deck_hashes),
+            "policy_config_hashes": dict(context.policy_config_hashes),
             "playstyle_preference_type": context.playstyle_preference_type,
             "playstyle_preference_hash": context.playstyle_preference_hash,
         }
@@ -85,7 +89,9 @@ class PriorityWorkflowFacade:
             "mana": asdict(self.mana.analyze_deck(baseline)),
             "candidates": rows[:limit],
             "unusual_candidates_remain_explorable": True,
-            "playstyle_is_hard_filter": False,
+            "playstyle_policy": "post_build_review_only",
+            "playstyle_review_status": "deferred_until_decision_bundle",
+            "playstyle_used_for_screening_or_ranking": False,
             "ranking_claim": (
                 "conservative static structural screen only; no empirical card-power ranking"
             ),
@@ -209,7 +215,7 @@ class PriorityWorkflowFacade:
             "context": self._context_payload(self.context),
             "constraint_report": built.constraint_report.model_dump(mode="json"),
             "static_screen": static_screen.as_dict(),
-            "playstyle_fit": static_screen.playstyle,
+            "playstyle_review_status": "deferred_until_decision_bundle",
             "screening_score": built.screening_score,
             "rationale": list(built.rationale),
             "paired": paired,
@@ -280,6 +286,7 @@ class PriorityWorkflowFacade:
         recommendation_status: str = "structural_evidence_only",
     ) -> dict[str, str]:
         paired = dict(comparison.get("paired", {}))
+        playstyle_review = self._post_build_playstyle_review(comparison)
         bundle = DecisionBundle(
             bundle_version="1.1",
             baseline_identity=dict(comparison.get("baseline_identity", {})),
@@ -292,7 +299,7 @@ class PriorityWorkflowFacade:
                 "after": comparison.get("mana_after", {}),
                 "delta": comparison.get("mana_delta", {}),
             },
-            playstyle_fit_summary=dict(comparison.get("playstyle_fit", {})),
+            playstyle_fit_summary=playstyle_review,
             central_paired_result=paired,
             worst_case_sensitivity_result=worst_case_sensitivity_result or {},
             commander_denial_result=commander_denial_result or {},
@@ -309,13 +316,39 @@ class PriorityWorkflowFacade:
                 "Structural simulation is not an empirical Commander winrate.",
                 "Tactical Oracle is not an external rules engine.",
                 "Opponent uncertainty remains source-evidence dependent.",
-                "Playstyle fit is qualitative and is never an automatic archetype/card ban.",
+                "Playstyle review is qualitative, post-build-only, and separate from recommendation status.",
                 "Exact cache reuse is valid only for identical simulation identity inputs.",
                 "Adaptive racing ships only after a frozen benchmark preserves decision quality.",
             ),
             recommendation_status=recommendation_status,
         )
         return write_decision_bundle(bundle, output_directory)
+
+    def _post_build_playstyle_review(self, comparison: dict[str, Any]) -> dict[str, object]:
+        variant = comparison.get("variant_identity")
+        baseline = comparison.get("baseline_identity")
+        if not isinstance(variant, dict) or not isinstance(baseline, dict):
+            return {
+                "preference_type": "post_build_review_only",
+                "status": "not_available_without_variant_identity",
+                "separate_from_recommendation_status": True,
+            }
+        deck_id = str(baseline.get("deck_id", ""))
+        remove_name = str(variant.get("remove", ""))
+        candidate_id = str(variant.get("add_candidate_id", ""))
+        deck = self._deck(deck_id)
+        removed = next((card for card in deck.cards if card.oracle_name == remove_name), None)
+        candidate = self.service.candidates.get(candidate_id)
+        if removed is None or candidate is None:
+            return {
+                "preference_type": "post_build_review_only",
+                "status": "not_available_for_unresolved_variant_identity",
+                "separate_from_recommendation_status": True,
+            }
+        review = self.playstyle.compare_cards(removed, candidate.card)
+        review["status"] = "completed_after_objective_decision"
+        review["separate_from_recommendation_status"] = True
+        return review
 
 
 __all__ = ["PriorityWorkflowFacade"]

@@ -18,6 +18,11 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["active_deck_set"] == ["rogshai/current"]
     assert truth["historical_own_deck_set"] == ["korvold/current"]
     assert truth["primary_deckbuilding_focus"] == "rogshai/current"
+    assert truth["active_deck_hashes"] == {
+        "rogshai/current": "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
+    }
+    assert truth["playstyle_policy"]["stage"] == "post_build_review_only"
+    assert truth["playstyle_policy"]["objective_decision_signal"] is False
     assert len(truth["canonical_context_snapshot"]) == 64
     assert truth["roadmap_mvp_state"]["j_p6_merged_baseline_is_ancestor"] is True
     assert truth["roadmap_mvp_state"]["priority_context_surface_present"] is True

@@ -30,7 +30,11 @@ def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> No
     assert len(first.snapshot_hash) == 64
     assert "opponent/blight-curse-precon" in first.holdout_deck_ids
     assert set(expected).isdisjoint(first.holdout_deck_ids)
-    assert first.playstyle_preference_type == "soft_practicality_and_fun_preference"
+    assert first.playstyle_preference_type == "post_build_review_only"
+    assert dict(first.active_deck_hashes) == {
+        "rogshai/current": "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
+    }
+    assert "config/J_P5_SEARCH_POLICY_v1.json" in dict(first.policy_config_hashes)
     assert len(first.playstyle_preference_hash) == 64
     hashes = dict(first.source_hashes)
     assert "inventory_snapshot" in hashes
@@ -45,7 +49,6 @@ def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> No
 
 def _copy_context_inputs(destination: Path) -> None:
     for relative in (
-        "data/collections/current/J_FINAL_ACTIVE_SCOPE.json",
         "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
         "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
         "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
@@ -56,7 +59,6 @@ def _copy_context_inputs(destination: Path) -> None:
         "data/decks/manifest.json",
         "data/canonical_import/2026-08-07/inventory_snapshot.json",
         "data/collections/current_deck_allocations.json",
-        "config/protected_cards.json",
     ):
         source = ROOT / relative
         target = destination / relative
@@ -65,6 +67,7 @@ def _copy_context_inputs(destination: Path) -> None:
     source_projection = ROOT / "data/collections/current/rogshai_feature_projection"
     target_projection = destination / "data/collections/current/rogshai_feature_projection"
     shutil.copytree(source_projection, target_projection)
+    shutil.copytree(ROOT / "config", destination / "config")
 
 
 def test_context_fails_closed_when_required_source_is_missing(tmp_path: Path) -> None:
@@ -111,6 +114,28 @@ def test_context_fails_closed_when_playstyle_boundary_is_weakened(tmp_path: Path
 
     with pytest.raises(ProjectContextError, match="playstyle preference lost"):
         load_project_context(tmp_path)
+
+
+def test_context_fails_closed_when_live_scope_is_stale(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    path = tmp_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["current_valid"] = False
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ProjectContextError, match="stale"):
+        load_project_context(tmp_path)
+
+
+def test_context_hash_changes_if_policy_config_changes(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    before = load_project_context(tmp_path).snapshot_hash
+    path = tmp_path / "config/protected_cards.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["fixture_context_hash_change"] = True
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    after = load_project_context(tmp_path).snapshot_hash
+    assert before != after
 
 
 def test_context_hash_changes_if_feature_projection_changes(tmp_path: Path) -> None:

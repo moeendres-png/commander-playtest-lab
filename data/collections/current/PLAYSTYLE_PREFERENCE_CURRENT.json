@@ -1,7 +1,15 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-08-11T04:57:00+02:00",
-  "preference_type": "soft_practicality_and_fun_preference",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-08-11T23:24:00+02:00",
+  "current_valid": true,
+  "preference_type": "post_build_review_only",
+  "deckbuilding_bias_allowed": false,
+  "screening_signal_allowed": false,
+  "ranking_signal_allowed": false,
+  "cut_or_package_filter_allowed": false,
+  "finalist_signal_allowed": false,
+  "simulation_budget_signal_allowed": false,
+  "recommendation_status_signal_allowed": false,
   "avoid_normalized_pattern": "regularly long own turns dominated by repetitive micro-actions, sacrifice/trigger/token/permanent bookkeeping, or loop-heavy administration",
   "evaluation_dimensions": [
     "typical_own_turn_duration",
@@ -19,5 +27,6 @@
     "ban_on_engines_or_combos",
     "ban_on_sacrifice_elements"
   ],
-  "source": "direct_user_decision_2026-08-11"
+  "review_stage": "after_objective_build_and_comparison_decision",
+  "source": "direct_user_decision_2026-08-11_latest_canonical_drive_truth"
 }

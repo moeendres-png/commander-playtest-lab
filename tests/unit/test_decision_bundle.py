@@ -16,7 +16,7 @@ def _bundle() -> DecisionBundle:
         feature_confidence_summary={"canonical_overlay_candidates": 100},
         mana_impact={"before": {"U": 20}, "after": {"U": 21}},
         playstyle_fit_summary={
-            "preference_type": "soft_practicality_and_fun_preference",
+            "preference_type": "post_build_review_only",
             "automatic_rejection": False,
         },
         central_paired_result={"placement_improvement": 0.1},
