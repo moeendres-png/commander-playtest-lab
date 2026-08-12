@@ -60,7 +60,9 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     feature_manifest = _json_object(
         root_path / "data/collections/current/rogshai_feature_projection/manifest.json"
     )
-    active_scope = _json_object(root_path / "data/collections/current/J_FINAL_ACTIVE_SCOPE.json")
+    active_scope = _json_object(
+        root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+    )
     provider_decision = _json_object(root_path / "docs/J_P3_PROVIDER_DECISION.json")
 
     git_commit = _git(root_path, "rev-parse", "HEAD")
@@ -94,7 +96,15 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
         "active_deck_set": list(context.active_own_deck_ids),
         "historical_own_deck_set": list(context.historical_own_deck_ids),
         "primary_deckbuilding_focus": context.primary_deckbuilding_focus,
+        "active_deck_hashes": dict(context.active_deck_hashes),
+        "policy_config_hashes": dict(context.policy_config_hashes),
         "canonical_context_snapshot": context.snapshot_hash,
+        "playstyle_policy": {
+            "preference_type": context.playstyle_preference_type,
+            "stage": "post_build_review_only",
+            "objective_decision_signal": False,
+            "preference_hash": context.playstyle_preference_hash,
+        },
         "roadmap_mvp_state": {
             "j_p6_merged_baseline_is_ancestor": _is_ancestor(
                 root_path, J_P6_MERGED_BASELINE_COMMIT

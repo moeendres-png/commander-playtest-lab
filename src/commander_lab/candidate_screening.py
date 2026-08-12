@@ -9,7 +9,6 @@ from typing import Any
 from commander_lab.canonical_features import load_canonical_feature_annotations
 from commander_lab.models import CandidateProfile, DataQuality, StructuralDeckProfile, VariantSwap
 from commander_lab.optimization import build_search_candidate, profile_score
-from commander_lab.playstyle import PlaystyleAnalyzer
 from commander_lab.tools.candidates import load_candidate_profiles
 
 
@@ -23,8 +22,7 @@ class CandidateScreenRow:
     package_ids: tuple[str, ...]
     mana_value: float
     clear_static_dominance_by: str | None
-    playstyle_fit: str
-    playstyle_confidence: str
+    playstyle_review_status: str = "deferred_until_post_build_review"
     explorable: bool = True
 
     def as_dict(self) -> dict[str, object]:
@@ -38,7 +36,7 @@ class SwapScreenDecision:
     screening_delta: float | None
     constraint_valid: bool
     rationale: tuple[str, ...]
-    playstyle: dict[str, object]
+    playstyle_review_status: str
     automatic_rejection: bool
 
     def as_dict(self) -> dict[str, object]:
@@ -104,7 +102,6 @@ class RogShaiCandidateScreener:
     def __init__(self, root: str | Path, *, service: Any) -> None:
         self.root = Path(root).resolve()
         self.service = service
-        self.playstyle = PlaystyleAnalyzer(self.root)
 
     def screen_pool(self, deck_id: str = "rogshai/current") -> dict[str, object]:
         if deck_id != "rogshai/current":
@@ -211,8 +208,7 @@ class RogShaiCandidateScreener:
                         else (),
                         "mana_value": None,
                         "clear_static_dominance_by": None,
-                        "playstyle_fit": "qualitative_unknown_requires_profile",
-                        "playstyle_confidence": "unknown",
+                        "playstyle_review_status": "deferred_until_post_build_review",
                         "explorable": True,
                         "model_dependent_recommendation_ready": False,
                     }
@@ -244,7 +240,6 @@ class RogShaiCandidateScreener:
             else:
                 bucket = "explore"
 
-            playstyle = self.playstyle.analyze_card(profile.card)
             roles = set(profile.card.roles)
             packages = set(profile.card.package_ids)
             if annotation is not None:
@@ -260,8 +255,7 @@ class RogShaiCandidateScreener:
                     "package_ids": tuple(sorted(packages)),
                     "mana_value": float(profile.card.mana_value),
                     "clear_static_dominance_by": dominated,
-                    "playstyle_fit": playstyle.playstyle_fit,
-                    "playstyle_confidence": playstyle.confidence,
+                    "playstyle_review_status": "deferred_until_post_build_review",
                     "explorable": True,
                     "model_dependent_recommendation_ready": True,
                 }
@@ -297,7 +291,8 @@ class RogShaiCandidateScreener:
             "unmodeled_candidate_discoverability": True,
             "fresh_rebuild_current_deck_neutrality": True,
             "historical_allocation_neutrality": True,
-            "playstyle_is_hard_filter": False,
+            "playstyle_policy": "post_build_review_only",
+            "playstyle_used_for_screening": False,
             "screening_boundary": (
                 "Complete legal/physical discovery is separated from model-dependent screening. "
                 "Unmodeled candidates remain discoverable and require explicit profiling before "
@@ -312,7 +307,6 @@ class RogShaiCandidateScreener:
         remove: str,
         add_candidate_id: str,
     ) -> SwapScreenDecision:
-        candidate = self.service.candidates[add_candidate_id]
         original = next((card for card in baseline.cards if card.oracle_name == remove), None)
         if original is None:
             raise ValueError(f"card not found in baseline: {remove}")
@@ -332,7 +326,7 @@ class RogShaiCandidateScreener:
                 screening_delta=None,
                 constraint_valid=False,
                 rationale=(str(exc),),
-                playstyle=self.playstyle.compare_cards(original, candidate.card),
+                playstyle_review_status="deferred_until_post_build_review",
                 automatic_rejection=True,
             )
         if not built.constraint_report.valid:
@@ -342,7 +336,7 @@ class RogShaiCandidateScreener:
                 screening_delta=built.screening_score,
                 constraint_valid=False,
                 rationale=tuple(issue.message for issue in built.constraint_report.issues),
-                playstyle=self.playstyle.compare_cards(original, candidate.card),
+                playstyle_review_status="deferred_until_post_build_review",
                 automatic_rejection=True,
             )
         if built.screening_score >= 0.25:
@@ -357,7 +351,7 @@ class RogShaiCandidateScreener:
             screening_delta=built.screening_score,
             constraint_valid=True,
             rationale=built.rationale,
-            playstyle=self.playstyle.compare_cards(original, candidate.card),
+            playstyle_review_status="deferred_until_post_build_review",
             automatic_rejection=False,
         )
 

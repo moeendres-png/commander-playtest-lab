@@ -1027,6 +1027,7 @@ class CommanderToolService:
         pilot_mode: Any,
         max_turns: int,
         pair_id: str,
+        workers: int = 1,
     ) -> tuple[PairedMetrics, list[dict[str, object]]]:
         return run_paired_structural_comparison(
             baseline=baseline,
@@ -1037,6 +1038,7 @@ class CommanderToolService:
             pilot_config=PilotConfig(strength=pilot_strength, mode=pilot_mode),
             max_turns=max_turns,
             pair_id=pair_id,
+            workers=workers,
         )
 
     @staticmethod
@@ -1472,6 +1474,7 @@ class CommanderToolService:
                 pilot_config=PilotConfig(strength=request.pilot_strength, mode=request.pilot_mode),
                 max_turns=request.max_turns,
                 pair_id=f"compare-{baseline.deck_id}-{variant.deck_id}",
+                workers=request.workers,
             )
             return {"comparison": metrics.as_dict(), "pair_sample": pairs[:20]}
 
@@ -1528,6 +1531,7 @@ class CommanderToolService:
                 pilot_config=PilotConfig(strength=request.pilot_strength, mode=request.pilot_mode),
                 max_turns=request.max_turns,
                 pair_id=f"paired-{variant.deck_hash[:12]}",
+                workers=request.workers,
             )
             return {
                 "baseline_deck_hash": baseline.deck_hash,
@@ -1570,6 +1574,7 @@ class CommanderToolService:
                 pilot_config=PilotConfig(strength=request.pilot_strength, mode=request.pilot_mode),
                 max_turns=request.max_turns,
                 pair_id=f"ablation-{request.card_name}",
+                workers=request.workers,
             )
             contribution = -metrics.placement_improvement
             return {
@@ -1626,6 +1631,7 @@ class CommanderToolService:
                 pilot_config=PilotConfig(strength=request.pilot_strength, mode=request.pilot_mode),
                 max_turns=request.max_turns,
                 pair_id=f"package-{sha256_value(originals)[:12]}",
+                workers=request.workers,
             )
             return {
                 "package_id": request.package_id,
@@ -1648,11 +1654,23 @@ class CommanderToolService:
         def work() -> dict[str, Any]:
             self._check_iterations(request.iterations, request.approval_token)
             baseline = self._deck(request.deck_id)
+            denied_commanders = request.denied_commanders or baseline.commander_names
+            if len(denied_commanders) != len(set(denied_commanders)):
+                raise ToolExecutionError("denied commander identities must be unique")
+            unknown = set(denied_commanders) - set(baseline.commander_names)
+            if unknown:
+                raise ToolExecutionError(f"unknown denied commanders: {sorted(unknown)}")
+            suppress_synergy = request.suppress_commander_synergy and set(denied_commanders) == set(
+                baseline.commander_names
+            )
             variant = variant_deck(
                 baseline,
-                variant_id=f"{request.deck_id}/commander-denial/{request.additional_commander_tax}",
+                variant_id=(
+                    f"{request.deck_id}/commander-denial/{sha256_value(denied_commanders)[:12]}"
+                ),
                 additional_commander_tax=request.additional_commander_tax,
-                suppress_commander_synergy=request.suppress_commander_synergy,
+                denied_commanders=denied_commanders,
+                suppress_commander_synergy=suppress_synergy,
             )
             metrics, _ = run_paired_structural_comparison(
                 baseline=baseline,
@@ -1662,11 +1680,19 @@ class CommanderToolService:
                 seed=request.seed,
                 pilot_config=PilotConfig(strength=request.pilot_strength, mode=request.pilot_mode),
                 max_turns=request.max_turns,
-                pair_id=f"denial-{request.deck_id}",
+                pair_id=f"denial-{request.deck_id}-{sha256_value(denied_commanders)[:8]}",
+                workers=request.workers,
             )
             return {
                 "additional_commander_tax": request.additional_commander_tax,
-                "commander_synergy_suppressed": request.suppress_commander_synergy,
+                "denied_commanders": list(denied_commanders),
+                "commander_synergy_suppressed": suppress_synergy,
+                "individual_denial_limitation": (
+                    "card-level commander_synergy is aggregate and remains unsuppressed for "
+                    "single-commander denial; only that commander's cast cost is taxed"
+                    if len(denied_commanders) == 1
+                    else None
+                ),
                 "comparison": metrics.as_dict(),
                 "commander_dependency_penalty": -metrics.placement_improvement,
             }
@@ -1700,6 +1726,7 @@ class CommanderToolService:
                     ),
                     max_turns=request.max_turns,
                     pair_id=f"holdout-{variant.deck_hash[:8]}-{index}",
+                    workers=request.workers,
                 )
                 results.append({"pod": pod, "comparison": metrics.as_dict()})
             improvements = [row["comparison"]["placement_improvement"] for row in results]

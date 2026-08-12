@@ -21,9 +21,9 @@ class PlaystyleCardAssessment:
     signals: tuple[str, ...]
     evidence_class: str = "qualitative_structural_playstyle_estimate"
     boundary: str = (
-        "Soft practicality/fun signal only; not a power score, archetype ban, or proof of actual "
-        "turn duration. Complex decisive turns, engines, combos and sacrifice elements remain "
-        "eligible."
+        "Post-build qualitative review only; never a screening, ranking, cut, package, finalist, "
+        "simulation-budget, or recommendation-status signal. It is not a power score, archetype "
+        "ban, or proof of actual turn duration."
     )
 
     def as_dict(self) -> dict[str, object]:
@@ -135,7 +135,8 @@ class PlaystyleAnalyzer:
             "remove": self.analyze_card(remove).as_dict(),
             "add": self.analyze_card(add).as_dict(),
             "automatic_rejection": False,
-            "preference_type": "soft_practicality_and_fun_preference",
+            "preference_type": "post_build_review_only",
+            "review_stage": "after_objective_build_and_comparison_decision",
         }
 
 

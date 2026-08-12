@@ -90,7 +90,7 @@ def main() -> None:
                 "screen_decision": decision,
                 "paired": comparison["paired"],
                 "mana_delta": comparison["mana_delta"],
-                "playstyle_fit": comparison["playstyle_fit"],
+                "playstyle_review_status": comparison["playstyle_review_status"],
                 "diagnosis": diagnosis,
                 "truth_boundary": comparison["truth_boundary"],
             }

@@ -52,4 +52,5 @@ def test_playstyle_comparison_never_auto_rejects_a_card() -> None:
     )
     result = analyzer.compare_cards(remove, add)
     assert result["automatic_rejection"] is False
-    assert result["preference_type"] == "soft_practicality_and_fun_preference"
+    assert result["preference_type"] == "post_build_review_only"
+    assert result["review_stage"] == "after_objective_build_and_comparison_decision"
