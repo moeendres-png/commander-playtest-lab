@@ -11,6 +11,17 @@ from typing import Any
 
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
+from commander_lab.first_run_preparation import (
+    CARD_ABLATIONS,
+    DECK_ID,
+    EXPECTED_DECK_HASH,
+    PACKAGE_ABLATIONS,
+    SEED_ROOTS,
+    SENSITIVITY_PODS,
+    VARIANTS,
+    authorize_official_run,
+    child_seed,
+)
 from commander_lab.models import (
     CardAblationInput,
     CommanderDenialInput,
@@ -30,39 +41,6 @@ from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[1]
-DECK_ID = "rogshai/current"
-EXPECTED_DECK_HASH = "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
-PRIMARY_ROOT = 2026082102
-SEED_ROOTS = {
-    "mulligan": 2026082101,
-    "baseline": PRIMARY_ROOT,
-    "variants": 2026082103,
-    "denial": 2026082104,
-    "ablation": 2026082105,
-    "sensitivity": 2026082106,
-}
-VARIANTS = (
-    {
-        "label": "rootborn_for_flare",
-        "remove": "Flare of Duplication",
-        "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
-    },
-    {
-        "label": "opt_for_preordain",
-        "remove": "Preordain",
-        "add_candidate_id": "rogshai/opt-smoke",
-    },
-    {
-        "label": "into_the_roil_for_prismari_charm",
-        "remove": "Prismari Charm",
-        "add_candidate_id": "rogshai/into-the-roil-smoke",
-    },
-)
-CARD_ABLATIONS = ("Flare of Duplication", "Boros Charm", "Whirlwind of Thought")
-PACKAGE_ABLATIONS = (
-    "rogshai-protection-counter",
-    "rogshai-independent-spellslinger",
-)
 
 
 def _git(*args: str) -> str:
@@ -80,11 +58,6 @@ def _response(response: ToolResponse, label: str) -> dict[str, Any]:
     if response.status != ToolStatus.COMPLETED:
         raise RuntimeError(f"{label} failed: {response.errors or response.warnings}")
     return response.model_dump(mode="json")
-
-
-def _child_seed(root: int, label: str) -> int:
-    digest = hashlib.sha256(f"{root}|{label}".encode()).digest()
-    return int.from_bytes(digest[:8], "big", signed=False)
 
 
 def _holm_adjust(rows: list[dict[str, Any]]) -> None:
@@ -162,11 +135,12 @@ def _meaningful_git_clean() -> None:
         raise RuntimeError("tracked worktree must be clean before binding the serious run")
 
 
-def run(output: Path) -> None:
+def run(output: Path, *, spec_path: Path, authorized: bool) -> None:
     if output.exists() and any(output.iterdir()):
         raise RuntimeError(f"output directory must be absent or empty: {output}")
     output.mkdir(parents=True, exist_ok=True)
     _meaningful_git_clean()
+    authorized_spec, usage_marker = authorize_official_run(ROOT, spec_path, authorized=authorized)
     deck_path = ROOT / "data/decks/rogshai_current.json"
     deck_file_before = hashlib.sha256(deck_path.read_bytes()).hexdigest()
     commit = _git("rev-parse", "HEAD")
@@ -180,18 +154,7 @@ def run(output: Path) -> None:
     service = CommanderToolService(ROOT)
     facade = PriorityWorkflowFacade(ROOT)
     primary_pod = context.primary_opponent_deck_ids(DECK_ID)
-    sensitivity_pods = (
-        (
-            "opponent/blight-curse-precon",
-            "kaervek/current",
-            "opponent/dance-elements-precon",
-        ),
-        (
-            "opponent/wakanda-forever-precon",
-            "opponent/lorehold-spirit-precon",
-            "opponent/blight-curse-precon",
-        ),
-    )
+    sensitivity_pods = SENSITIVITY_PODS
     if not set(deck for pod in sensitivity_pods for deck in pod).issubset(
         set(context.holdout_deck_ids)
     ):
@@ -221,7 +184,7 @@ def run(output: Path) -> None:
             pilot_profile_id="rogshai.current.baseline",
             pilot_version="current",
             game_plan="balanced",
-            seed=_child_seed(SEED_ROOTS["mulligan"], f"seat-{seat}"),
+            seed=child_seed(SEED_ROOTS["mulligan"], f"seat-{seat}"),
             output_name=f"first_serious_run_mulligan_seat_{seat}.json",
         )
         mulligan_rows.append(
@@ -260,7 +223,7 @@ def run(output: Path) -> None:
             deck_ids=(DECK_ID, *pod),
             iterations=128,
             workers=2,
-            seed=_child_seed(SEED_ROOTS["sensitivity"], f"baseline-pod-{index}"),
+            seed=child_seed(SEED_ROOTS["sensitivity"], f"baseline-pod-{index}"),
             max_turns=35,
         )
         response = _response(
@@ -296,7 +259,7 @@ def run(output: Path) -> None:
             opponent_deck_ids=primary_pod,
             iterations=32,
             workers=2,
-            seed=_child_seed(SEED_ROOTS["denial"], label),
+            seed=child_seed(SEED_ROOTS["denial"], label),
             max_turns=35,
         )
         denial_rows.append(
@@ -316,7 +279,7 @@ def run(output: Path) -> None:
             remove=spec["remove"],
             add_candidate_id=spec["add_candidate_id"],
             iterations=iterations,
-            seed=_child_seed(SEED_ROOTS["variants"], spec["label"]),
+            seed=child_seed(SEED_ROOTS["variants"], spec["label"]),
             max_turns=35,
             workers=2,
         )
@@ -330,7 +293,7 @@ def run(output: Path) -> None:
                 remove=spec["remove"],
                 add_candidate_id=spec["add_candidate_id"],
                 iterations=iterations,
-                seed=_child_seed(SEED_ROOTS["variants"], spec["label"]),
+                seed=child_seed(SEED_ROOTS["variants"], spec["label"]),
                 max_turns=35,
                 workers=2,
             )
@@ -360,7 +323,7 @@ def run(output: Path) -> None:
             opponent_deck_ids=primary_pod,
             iterations=32,
             workers=2,
-            seed=_child_seed(SEED_ROOTS["ablation"], f"card:{card}"),
+            seed=child_seed(SEED_ROOTS["ablation"], f"card:{card}"),
             max_turns=35,
         )
         card_rows.append(
@@ -376,7 +339,7 @@ def run(output: Path) -> None:
             opponent_deck_ids=primary_pod,
             iterations=32,
             workers=2,
-            seed=_child_seed(SEED_ROOTS["ablation"], f"package:{package_id}"),
+            seed=child_seed(SEED_ROOTS["ablation"], f"package:{package_id}"),
             max_turns=35,
         )
         package_rows.append(
@@ -409,7 +372,7 @@ def run(output: Path) -> None:
             holdout_pods=sensitivity_pods,
             iterations=32,
             workers=2,
-            seed=_child_seed(SEED_ROOTS["sensitivity"], summary["label"]),
+            seed=child_seed(SEED_ROOTS["sensitivity"], summary["label"]),
             max_turns=35,
         )
         sensitivity_rows.append(
@@ -467,7 +430,9 @@ def run(output: Path) -> None:
     seed_set_hash = sha256_run_value(seed_evidence, root=ROOT)
     run_spec = {
         "schema_version": "1.0.0",
-        "run_type": "first_serious_rogshai_structural_decision_baseline",
+        "run_type": "official_rogshai_first_serious_structural_decision_baseline",
+        "execution_status": "completed",
+        "authorized_spec_hash": authorized_spec["spec_hash"],
         "git_commit": commit,
         "git_tree": tree,
         "package_version": __version__,
@@ -485,7 +450,7 @@ def run(output: Path) -> None:
         "deck_mutation_allowed": False,
         "truth_boundary": "structural_model_estimates != empirical_winrates",
     }
-    _write(output / "RUN_SPECIFICATION.json", run_spec)
+    _write(output / "EXECUTED_RUN_IDENTITY.json", run_spec)
     _write(
         output / "CONTEXT_SNAPSHOT.json",
         facade._context_payload(context) | {"root": str(context.root)},
@@ -542,14 +507,38 @@ def run(output: Path) -> None:
     deck_file_after = hashlib.sha256(deck_path.read_bytes()).hexdigest()
     if deck_file_after != deck_file_before:
         raise RuntimeError("canonical RogShai deck file changed during a read-only experiment")
+    usage_marker.write_text(
+        json.dumps(
+            {
+                "spec_hash": authorized_spec["spec_hash"],
+                "git_commit": commit,
+                "status": "completed",
+                "output_directory": str(output),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     _meaningful_git_clean()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--spec", type=Path, required=True)
+    parser.add_argument(
+        "--authorize",
+        action="store_true",
+        help="Explicitly authorize the official full-budget experiment.",
+    )
     args = parser.parse_args()
-    run(args.output_dir.resolve())
+    run(
+        args.output_dir.resolve(),
+        spec_path=args.spec.resolve(),
+        authorized=args.authorize,
+    )
 
 
 if __name__ == "__main__":

@@ -58,6 +58,23 @@ def test_compare_validate_reuses_paired_engine_and_exact_cache() -> None:
     assert first["truth_boundary"].endswith("not empirical gameplay")
 
 
+def test_priority_facade_can_use_an_isolated_acceptance_cache(tmp_path: Path) -> None:
+    facade = PriorityWorkflowFacade(ROOT, result_cache_path=tmp_path / "acceptance.sqlite3")
+    request = {
+        "deck_id": "rogshai/current",
+        "remove": "Flare of Duplication",
+        "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+        "iterations": 1,
+        "seed": 2026082103,
+    }
+    first = facade.compare_validate(**request)
+    second = facade.compare_validate(**request)
+
+    assert first["cache_provenance"]["cache_hit"] is False
+    assert second["cache_provenance"]["cache_hit"] is True
+    assert first["paired"] == second["paired"]
+
+
 def test_diagnose_and_decision_bundle_are_reproducible(tmp_path: Path) -> None:
     facade = PriorityWorkflowFacade(ROOT)
     comparison = {

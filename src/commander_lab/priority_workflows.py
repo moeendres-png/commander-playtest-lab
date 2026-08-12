@@ -31,7 +31,12 @@ from commander_lab.tools.service import CommanderToolService
 class PriorityWorkflowFacade:
     """Deterministic Build → Test → Diagnose facade for current RogShai decisions."""
 
-    def __init__(self, root: str | Path) -> None:
+    def __init__(
+        self,
+        root: str | Path,
+        *,
+        result_cache_path: str | Path | None = None,
+    ) -> None:
         self.root = Path(root).resolve()
         self.context = load_project_context(self.root)
         self.service = CommanderToolService(self.root)
@@ -39,10 +44,12 @@ class PriorityWorkflowFacade:
         self.mana = ManaAnalyzer(self.root)
         self.playstyle = PlaystyleAnalyzer(self.root)
         self.screener = RogShaiCandidateScreener(self.root, service=self.service)
-        self.result_cache = ExactResultCache(
-            self.root / ".runtime/priority_result_cache.sqlite3",
-            root=self.root,
+        cache_path = (
+            Path(result_cache_path).resolve()
+            if result_cache_path is not None
+            else self.root / ".runtime/priority_result_cache.sqlite3"
         )
+        self.result_cache = ExactResultCache(cache_path, root=self.root)
 
     def _deck(self, deck_id: str) -> StructuralDeckProfile:
         try:
