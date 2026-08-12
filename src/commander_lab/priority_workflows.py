@@ -4,9 +4,11 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from commander_lab.advancement import decide_advancement
 from commander_lab.candidate_screening import RogShaiCandidateScreener
 from commander_lab.decision_bundle import DecisionBundle, write_decision_bundle
 from commander_lab.mana_analysis import ManaAnalyzer
+from commander_lab.model_informativeness import assess_model_informativeness
 from commander_lab.models import (
     PilotConfig,
     PilotDecisionMode,
@@ -26,6 +28,7 @@ from commander_lab.storage import ExactResultCache, build_exact_result_identity
 from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.current_candidates import canonical_feature_fusion_summary
 from commander_lab.tools.service import CommanderToolService
+from commander_lab.variant_identity import build_variant_identity
 
 
 class PriorityWorkflowFacade:
@@ -36,10 +39,12 @@ class PriorityWorkflowFacade:
         root: str | Path,
         *,
         result_cache_path: str | Path | None = None,
+        service: CommanderToolService | None = None,
+        context: ProjectContextSnapshot | None = None,
     ) -> None:
         self.root = Path(root).resolve()
-        self.context = load_project_context(self.root)
-        self.service = CommanderToolService(self.root)
+        self.context = context or load_project_context(self.root)
+        self.service = service or CommanderToolService(self.root)
         self.mulligan = MulliganLab(self.root)
         self.mana = ManaAnalyzer(self.root)
         self.playstyle = PlaystyleAnalyzer(self.root)
@@ -212,6 +217,23 @@ class PriorityWorkflowFacade:
         mana_before = self.mana.analyze_deck(baseline)
         mana_after = self.mana.analyze_deck(built.variant)
         mana_delta = self.mana.compare_decks(baseline, built.variant)
+        removed_card = next(card for card in baseline.cards if card.oracle_name == remove)
+        functional_groups = tuple(
+            sorted(
+                {
+                    *(role.value for role in removed_card.roles),
+                    *(role.value for role in built.additions[0].card.roles),
+                }
+            )
+        )
+        canonical_variant = build_variant_identity(
+            baseline_deck_hash=baseline.deck_hash,
+            variant_deck_hash=built.variant.deck_hash,
+            context_snapshot_hash=self.context.snapshot_hash,
+            deck_diff=((remove, built.additions[0].card.oracle_name),),
+            package_diff=built.additions[0].card.package_ids,
+            functional_replacement_groups=functional_groups,
+        )
         return {
             "workflow": "compare_validate",
             "status": "completed",
@@ -223,6 +245,7 @@ class PriorityWorkflowFacade:
                 "remove": remove,
                 "add_candidate_id": add_candidate_id,
                 "add": built.additions[0].card.oracle_name,
+                "canonical_variant": canonical_variant.as_dict(),
             },
             "context": self._context_payload(self.context),
             "constraint_report": built.constraint_report.model_dump(mode="json"),
@@ -266,6 +289,19 @@ class PriorityWorkflowFacade:
                 "next_experiment": "repair_constraints_or_choose_another_candidate",
                 "reason": "the candidate did not pass the hard-constraint gate",
             }
+        informativeness = comparison.get("model_informativeness", {})
+        if (
+            isinstance(informativeness, dict)
+            and informativeness.get("status") == "MODEL_INFORMATION_LIMIT"
+        ):
+            return {
+                "workflow": "diagnose_next_experiment",
+                "next_experiment": "diagnose_model_information_before_broad_search",
+                "reason": (
+                    "the structural evidence is saturated or non-separable; more seeds alone "
+                    "do not add decision information"
+                ),
+            }
         paired = comparison.get("paired", {})
         lower = float(paired.get("distributionally_robust_lower_bound", 0.0))
         interval = paired.get("confidence_interval", (0.0, 0.0))
@@ -288,6 +324,36 @@ class PriorityWorkflowFacade:
             "reason": reason,
         }
 
+    @staticmethod
+    def model_informativeness(
+        *,
+        baseline_place_1_share: float | None,
+        seat_results: dict[str, Any] | None,
+        variant_comparisons: tuple[dict[str, Any], ...] = (),
+        opponent_evidence_quality: dict[str, int] | None = None,
+        failure_mode_metrics: tuple[str, ...] = (),
+    ) -> dict[str, Any]:
+        return assess_model_informativeness(
+            baseline_place_1_share=baseline_place_1_share,
+            seat_results=seat_results,
+            variant_comparisons=variant_comparisons,
+            opponent_evidence_quality=opponent_evidence_quality,
+            failure_mode_metrics=failure_mode_metrics,
+        ).as_dict()
+
+    @staticmethod
+    def advancement_decision(
+        comparison: dict[str, Any],
+        *,
+        model_informativeness: dict[str, Any] | None = None,
+        profile_required: bool = False,
+    ) -> dict[str, Any]:
+        return decide_advancement(
+            comparison,
+            model_informativeness=model_informativeness,
+            profile_required=profile_required,
+        ).as_dict()
+
     def create_decision_bundle(
         self,
         comparison: dict[str, Any],
@@ -300,8 +366,10 @@ class PriorityWorkflowFacade:
     ) -> dict[str, str]:
         paired = dict(comparison.get("paired", {}))
         playstyle_review = self._post_build_playstyle_review(comparison)
+        informativeness = comparison.get("model_informativeness", {})
+        advancement = comparison.get("advancement_decision", {})
         bundle = DecisionBundle(
-            bundle_version="1.1",
+            bundle_version="1.2",
             baseline_identity=dict(comparison.get("baseline_identity", {})),
             variant_identity=dict(comparison.get("variant_identity", {})),
             context_snapshot=dict(comparison.get("context", self._context_payload(self.context))),
@@ -334,6 +402,16 @@ class PriorityWorkflowFacade:
                 "Adaptive racing ships only after a frozen benchmark preserves decision quality.",
             ),
             recommendation_status=recommendation_status,
+            extra={
+                "model_informativeness": informativeness,
+                "advancement_decision": advancement,
+                "next_best_experiment": self.diagnose_next_experiment(comparison),
+                "executed_evidence": {
+                    "commander_denial": bool(commander_denial_result),
+                    "ablation": bool(ablation_result),
+                    "sensitivity": bool(worst_case_sensitivity_result),
+                },
+            },
         )
         return write_decision_bundle(bundle, output_directory)
 

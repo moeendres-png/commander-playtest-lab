@@ -20,6 +20,7 @@ class InvocationPayload(BaseModel):
 def create_app(root: str | Path) -> FastAPI:
     service = CommanderToolService(root)
     registry = ToolRegistry(service)
+    expert_registry = ToolRegistry(service, surface="expert")
     app = FastAPI(
         title="Commander Playtest Lab Function Tool Server",
         version=__version__,
@@ -40,6 +41,20 @@ def create_app(root: str | Path) -> FastAPI:
     def invoke_tool(tool_name: str, payload: InvocationPayload) -> dict[str, object]:
         try:
             response = registry.invoke(tool_name, payload.arguments)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return response.model_dump(mode="json")
+
+    @app.get("/v1/expert/tools")
+    def list_expert_tools() -> dict[str, object]:
+        return {"tools": expert_registry.list_schemas(), "surface": "expert"}
+
+    @app.post("/v1/expert/tools/{tool_name}:invoke")
+    def invoke_expert_tool(tool_name: str, payload: InvocationPayload) -> dict[str, object]:
+        try:
+            response = expert_registry.invoke(tool_name, payload.arguments)
         except KeyError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
         except ValueError as exc:
@@ -75,4 +90,5 @@ def create_app(root: str | Path) -> FastAPI:
 
     app.state.commander_service = service
     app.state.tool_registry = registry
+    app.state.expert_tool_registry = expert_registry
     return app

@@ -45,7 +45,7 @@ def test_high_level_tools_are_registered_with_unique_schemas() -> None:
     names = [definition.name for definition in TOOL_DEFINITIONS]
     assert set(names) >= REQUIRED
     assert len(names) == len(set(names)) == 100
-    schemas = ToolRegistry(service()).list_schemas()
+    schemas = ToolRegistry(service(), surface="expert").list_schemas()
     assert len(schemas) == 100
     assert all(schema["strict"] for schema in schemas)
 

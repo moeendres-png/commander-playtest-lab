@@ -1280,9 +1280,10 @@ class CommanderToolService:
             estimate_type=estimate_type,
         )
         identity_mutators = {"create_meta_snapshot", "compile_pilot_policy"}
+        workflow_session_guarded = tool_name.startswith("deck_decision_")
         try:
             result = fn()
-            if tool_name not in identity_mutators:
+            if tool_name not in identity_mutators and not workflow_session_guarded:
                 identity_after = self._run_identity(
                     scenario,
                     deck_ids,
@@ -4925,6 +4926,7 @@ class CommanderToolService:
                 tuple(MulliganPolicyName(value) for value in request.policies),
                 samples=request.samples,
                 followup_samples=request.followup_samples,
+                generate_keep_rules=request.generate_keep_rules,
             )
             return result.model_dump(mode="json")
 
@@ -4949,6 +4951,7 @@ class CommanderToolService:
                 tuple(MulliganPolicyName(value) for value in request.policies),
                 samples=request.samples,
                 followup_samples=request.followup_samples,
+                generate_keep_rules=request.generate_keep_rules,
             )
             target = self.root / "data/runs/mulligan_lab" / Path(request.output_name).name
             atomic_write_json(target, result.model_dump(mode="json"))
@@ -5274,3 +5277,114 @@ class CommanderToolService:
             }
 
         return self._invoke("generate_diagnostic_report", request, work)
+
+    def deck_decision_prepare(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                facade = PriorityWorkflowFacade(
+                    self.root,
+                    service=self,
+                    context=session.context,
+                )
+                screen = facade.build_screen(request.deck_id, limit=request.candidate_limit)
+                mana = facade.mulligan_mana(request.deck_id)
+            session_identity = session.identity()
+            return {
+                "workflow": "deck_decision_prepare",
+                "context": screen["context"],
+                "deck_id": request.deck_id,
+                "deck_hash": screen["deck_hash"],
+                "validation": {
+                    "active_deck": request.deck_id in facade.context.active_own_deck_ids,
+                    "physical_legal_candidates": screen["eligible_candidate_count"],
+                    "candidate_recall": screen["challenge_benchmark"]["legal_candidate_recall"],
+                },
+                "candidate_coverage": screen,
+                "mana_mulligan_baseline": mana,
+                "model_informativeness_status": "requires_structural_baseline_before_search",
+                "next_call": "deck_decision_run",
+                "workflow_session": session_identity,
+                "automatic_deck_mutation": False,
+            }
+
+        return self._invoke(
+            "deck_decision_prepare",
+            request,
+            work,
+            deck_ids=(request.deck_id,),
+        )
+
+    def deck_decision_run(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                facade = PriorityWorkflowFacade(
+                    self.root,
+                    service=self,
+                    context=session.context,
+                )
+                result = facade.compare_validate(
+                    deck_id=request.deck_id,
+                    remove=request.remove,
+                    add_candidate_id=request.add_candidate_id,
+                    iterations=request.iterations,
+                    seed=request.seed,
+                    max_turns=request.max_turns,
+                    workers=request.workers,
+                )
+            result["workflow_session"] = session.identity()
+            return result
+
+        return self._invoke(
+            "deck_decision_run",
+            request,
+            work,
+            deck_ids=(request.deck_id,),
+            seed=request.seed,
+            iterations=request.iterations,
+        )
+
+    def deck_decision_diagnose(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                result: dict[str, Any] = dict(
+                    PriorityWorkflowFacade.diagnose_next_experiment(request.comparison)
+                )
+            result["workflow_session"] = session.identity()
+            return result
+
+        return self._invoke("deck_decision_diagnose", request, work)
+
+    def deck_decision_bundle(self, request: Any) -> ToolResponse:
+        from commander_lab.priority_workflows import PriorityWorkflowFacade
+        from commander_lab.workflow_session import WorkflowSession
+
+        def work() -> dict[str, Any]:
+            with WorkflowSession.open(self.root, service=self) as session:
+                facade = PriorityWorkflowFacade(
+                    self.root,
+                    service=self,
+                    context=session.context,
+                )
+                result: dict[str, Any] = dict(
+                    facade.create_decision_bundle(
+                        request.comparison,
+                        self._project_path(request.output_directory),
+                        worst_case_sensitivity_result=request.worst_case_sensitivity_result,
+                        commander_denial_result=request.commander_denial_result,
+                        ablation_result=request.ablation_result,
+                        recommendation_status=request.recommendation_status,
+                    )
+                )
+            result["workflow_session"] = session.identity()
+            return result
+
+        return self._invoke("deck_decision_bundle", request, work)

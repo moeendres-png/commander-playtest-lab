@@ -28,8 +28,8 @@ def test_real_stdio_mcp_roundtrip() -> None:
             "id": 3,
             "method": "tools/call",
             "params": {
-                "name": "validate_deck",
-                "arguments": {"deck_id": "rogshai/current"},
+                "name": "deck_decision_diagnose",
+                "arguments": {"comparison": {"status": "rejected"}},
             },
         },
         {"jsonrpc": "2.0", "id": 4, "method": "resources/list", "params": {}},
@@ -64,7 +64,7 @@ def test_real_stdio_mcp_roundtrip() -> None:
     rows = [json.loads(line) for line in completed.stdout.splitlines() if line.strip()]
     by_id = {row.get("id"): row for row in rows}
     assert set(by_id) == {1, 2, 3, 4, 5, 6, 7, 8}
-    assert len(by_id[2]["result"]["tools"]) == 100
+    assert len(by_id[2]["result"]["tools"]) == 4
     assert by_id[3]["result"]["isError"] is False
     assert len(by_id[4]["result"]["resources"]) == 3
     assert by_id[5]["result"]["contents"][0]["mimeType"] == "application/json"

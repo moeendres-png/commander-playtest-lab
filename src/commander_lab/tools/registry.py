@@ -109,6 +109,12 @@ from commander_lab.models import (
     ValidateUpgradeInput,
     VerifySourceHashInput,
 )
+from commander_lab.models.tooling import (
+    DeckDecisionBundleInput,
+    DeckDecisionDiagnoseInput,
+    DeckDecisionPrepareInput,
+    DeckDecisionRunInput,
+)
 
 from .service import CommanderToolService
 
@@ -733,13 +739,51 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
 )
 
 
+PUBLIC_TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
+    ToolDefinition(
+        "deck_decision_prepare",
+        "Validate current truth, candidate coverage and mana before a deck decision.",
+        DeckDecisionPrepareInput,
+        "deck_decision_prepare",
+    ),
+    ToolDefinition(
+        "deck_decision_run",
+        "Run one preregistered paired structural deck comparison without applying it.",
+        DeckDecisionRunInput,
+        "deck_decision_run",
+    ),
+    ToolDefinition(
+        "deck_decision_diagnose",
+        "Choose the next diagnostic step from completed structural evidence.",
+        DeckDecisionDiagnoseInput,
+        "deck_decision_diagnose",
+    ),
+    ToolDefinition(
+        "deck_decision_bundle",
+        "Write the single reproducible decision bundle for a completed comparison.",
+        DeckDecisionBundleInput,
+        "deck_decision_bundle",
+    ),
+)
+
+
 class ToolRegistry:
-    def __init__(self, service: CommanderToolService) -> None:
+    def __init__(self, service: CommanderToolService, *, surface: str = "public") -> None:
         self.service = service
-        self._definitions = {definition.name: definition for definition in TOOL_DEFINITIONS}
+        if surface == "public":
+            definitions = PUBLIC_TOOL_DEFINITIONS
+        elif surface == "expert":
+            definitions = TOOL_DEFINITIONS
+        elif surface == "all":
+            definitions = (*PUBLIC_TOOL_DEFINITIONS, *TOOL_DEFINITIONS)
+        else:
+            raise ValueError("tool surface must be public, expert, or all")
+        self.surface = surface
+        self.definitions = tuple(definitions)
+        self._definitions = {definition.name: definition for definition in self.definitions}
 
     def list_schemas(self) -> list[dict[str, Any]]:
-        return [definition.schema() for definition in TOOL_DEFINITIONS]
+        return [definition.schema() for definition in self.definitions]
 
     def input_model(self, name: str) -> type[BaseModel]:
         try:

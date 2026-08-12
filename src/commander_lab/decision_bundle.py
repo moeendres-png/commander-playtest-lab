@@ -74,6 +74,7 @@ def render_decision_bundle_markdown(bundle: DecisionBundle) -> str:
         ("Ablation", "ablation_result"),
         ("Cache provenance", "cache_provenance"),
         ("Simulation counts", "simulation_counts"),
+        ("Model informativeness / advancement / next experiment", "extra"),
     ):
         lines.extend(
             [

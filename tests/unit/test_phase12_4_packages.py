@@ -179,7 +179,7 @@ def test_existing_package_ablation_tool_accepts_registry_package_id() -> None:
 
 
 def test_all_package_tools_are_invokable() -> None:
-    registry = ToolRegistry(CommanderToolService(ROOT))
+    registry = ToolRegistry(CommanderToolService(ROOT), surface="expert")
     archetypes = registry.invoke("extract_archetypes", {"deck_id": "rogshai/current"})
     packages = registry.invoke("extract_packages", {"deck_id": "rogshai/current"})
     density = registry.invoke(

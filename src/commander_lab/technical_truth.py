@@ -122,6 +122,15 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "production_adaptive_scheduler_present": (
                 root_path / "src/commander_lab/adaptive_budget.py"
             ).is_file(),
+            "model_informativeness_gate_present": (
+                root_path / "src/commander_lab/model_informativeness.py"
+            ).is_file(),
+            "workflow_session_present": (
+                root_path / "src/commander_lab/workflow_session.py"
+            ).is_file(),
+            "public_high_level_workflow_surface_present": (
+                root_path / "src/commander_lab/tools/registry.py"
+            ).is_file(),
         },
         "external_engine_status": {
             "provider_decision": provider_status,

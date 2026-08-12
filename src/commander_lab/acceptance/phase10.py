@@ -346,7 +346,7 @@ def run_phase10_acceptance(
     )
     output.mkdir(parents=True, exist_ok=True)
     service = CommanderToolService(root_path)
-    registry = ToolRegistry(service)
+    registry = ToolRegistry(service, surface="expert")
     opponent_policy = _load_opponent_policy(root_path)
     primary_pods = [tuple(row) for row in opponent_policy["primary_four_player_pods"]]
     holdout_pods = [tuple(row) for row in opponent_policy["holdout_pods"]]

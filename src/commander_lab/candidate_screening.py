@@ -96,6 +96,54 @@ def _clearly_dominates(left: CandidateProfile, right: CandidateProfile) -> bool:
     return all(checks) and strict
 
 
+_PROFILE_NEXT_ROLES = {
+    "counter",
+    "draw",
+    "engine",
+    "finisher",
+    "land",
+    "protection",
+    "ramp",
+    "rebuild",
+    "removal",
+    "selection",
+    "wipe",
+}
+
+
+def _profile_next(rows: list[dict[str, object]], *, limit: int = 12) -> list[dict[str, object]]:
+    candidates: list[tuple[int, str, dict[str, object]]] = []
+    for row in rows:
+        if row.get("bucket") != "requires_profile_before_model_dependent_recommendation":
+            continue
+        raw_roles = row.get("roles", ())
+        raw_packages = row.get("package_ids", ())
+        roles = {str(role) for role in raw_roles} if isinstance(raw_roles, tuple | list) else set()
+        packages = (
+            {str(package) for package in raw_packages}
+            if isinstance(raw_packages, tuple | list)
+            else set()
+        )
+        relevant = roles & _PROFILE_NEXT_ROLES
+        if not relevant and not packages:
+            continue
+        score = len(relevant) * 4 + min(3, len(packages))
+        candidates.append((score, str(row["oracle_name"]).casefold(), row))
+    candidates.sort(key=lambda item: (-item[0], item[1]))
+    return [
+        {
+            "oracle_name": row["oracle_name"],
+            "candidate_id": row.get("candidate_id"),
+            "reason": "touches a current decision-relevant role or package and requires profiling",
+            "roles": row.get("roles", ()),
+            "package_ids": row.get("package_ids", ()),
+            "performance_assumption": None,
+            "simulation_allowed_before_profile": False,
+        }
+        for _, _, row in candidates[:limit]
+    ]
+
+
 class RogShaiCandidateScreener:
     """Conservative static screen that reduces default simulation work without hiding exploration."""
 
@@ -273,6 +321,7 @@ class RogShaiCandidateScreener:
             counts[str(row["bucket"])] += 1
         simulation_ready = sum(str(row["bucket"]) in {"advance", "explore"} for row in rows)
         discoverable = len(rows)
+        profile_next = _profile_next(rows)
         return {
             "deck_id": deck_id,
             "physical_legal_candidate_count": len(eligible),
@@ -287,6 +336,14 @@ class RogShaiCandidateScreener:
             "canonical_feature_coverage": canonical_feature_coverage,
             "heuristic_fallback_count": heuristic_fallback_count,
             "rows": rows,
+            "progressive_model_coverage": {
+                "lane": "explore/profile_next",
+                "fixed_budget": len(profile_next),
+                "selected": profile_next,
+                "selection_uses_playstyle": False,
+                "unmodeled_is_negative": False,
+                "profiling_required_before_simulation": True,
+            },
             "unusual_candidates_remain_explorable": True,
             "unmodeled_candidate_discoverability": True,
             "fresh_rebuild_current_deck_neutrality": True,
