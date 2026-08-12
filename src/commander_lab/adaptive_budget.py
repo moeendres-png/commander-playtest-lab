@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from typing import Mapping
 
 from commander_lab.storage.run_identity import sha256_run_value
 
