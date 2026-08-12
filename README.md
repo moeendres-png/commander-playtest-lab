@@ -62,6 +62,27 @@ commander-lab validate-pilots --iterations 24 --workers 2 --seed 20260804 --root
 commander-lab probe-rules-engines --root .
 ```
 
+## Standard deck-decision workflow
+
+Normal users and agents use four deterministic workflow commands. They share one immutable
+project-context snapshot and never apply a deck change:
+
+```bash
+commander-lab decision prepare --root .
+commander-lab decision run --remove "Flare of Duplication" --add-candidate-id "inventory/rootborn-defenses-677fdbcf" --root .
+commander-lab decision diagnose comparison.json --root .
+commander-lab decision bundle comparison.json --output-directory data/runs/decision_bundle --root .
+```
+
+The default FastAPI and MCP tool listings expose the same four contracts. The retained 100
+low-level tools are available through the explicit `/v1/expert/tools` API or MCP
+`surface="expert"`; they are composable debugging and specialist primitives, not the normal
+agent surface. Keep-rule generation and cross-context validation are opt-in research work.
+
+Before broad search, the workflow reports whether the current structural evidence can actually
+separate variants. A model-information limit stops seed-only escalation and produces a diagnostic
+next step. Only a preregistered `advance` decision can enter finalist sensitivity.
+
 The `synthetic/*` decks are technical engine-validation fixtures, not claims about real opponents.
 
 ## Current optimization rule
