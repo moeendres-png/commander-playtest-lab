@@ -18,6 +18,7 @@ from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
 from commander_lab.agents.pilots import build_pilot
 from commander_lab.analysis import DeckValidator, validate_collection_quantities
 from commander_lab.cards.catalog import CardCatalog
+from commander_lab.cut_frontier import build_static_swap_rows, select_diverse_swap_frontier
 from commander_lab.decision_statistics import holm_adjust
 from commander_lab.engine.rules import (
     RulesEngineManager,
@@ -1794,74 +1795,23 @@ class CommanderToolService:
         def work() -> dict[str, Any]:
             self._require_active_optimization_target(request.deck_id)
             deck = self._deck(request.deck_id)
-            cuts = [
-                card
-                for card in sorted(deck.cards, key=profile_score)
-                if card.oracle_name not in deck.commander_names
-                and not card.is_land
-                and not self._is_protected(request.deck_id, card.oracle_name)
-            ][: max(16, request.max_recommendations)]
-            candidate_ids = request.candidate_ids or tuple(
-                candidate_id
+            candidate_ids = set(request.candidate_ids) if request.candidate_ids else None
+            candidates = {
+                candidate_id: candidate
                 for candidate_id, candidate in self.candidates.items()
-                if not candidate.allowed_deck_ids or request.deck_id in candidate.allowed_deck_ids
+                if candidate_ids is None or candidate_id in candidate_ids
+            }
+            rows = build_static_swap_rows(
+                deck,
+                candidates,
+                protected=set(self.protected_cards.get(request.deck_id, [])),
+                max_cut_hypotheses=max(16, min(32, request.max_recommendations)),
             )
-            recommendations: list[dict[str, Any]] = []
-            for cut in cuts:
-                for candidate_id in candidate_ids:
-                    candidate = self._candidate(candidate_id, request.deck_id)
-                    raw_delta = profile_score(candidate.card) - profile_score(cut)
-                    overlap = candidate.card.roles & cut.roles
-                    lost_roles = cut.roles - candidate.card.roles
-                    critical_roles = {
-                        "graveyard_hate",
-                        "removal",
-                        "counter",
-                        "protection",
-                        "wipe",
-                        "recursion",
-                    }
-                    critical_loss = sum(role.value in critical_roles for role in lost_roles)
-                    compatibility_adjustment = (
-                        1.5 * len(overlap)
-                        - 0.5 * len(lost_roles)
-                        - 3.0 * critical_loss
-                        - (0.75 if not overlap else 0.0)
-                    )
-                    legacy_inference_penalty = 2.5 if candidate_id.startswith("inventory/") else 0.0
-                    # Semantic uncertainty is routed through the decision-weighted Semantic
-                    # Evidence gate. A candidate ID/profiling source is provenance, not negative
-                    # card evidence and therefore cannot lower the deterministic screen score.
-                    inference_penalty = 0.0
-                    delta = raw_delta + compatibility_adjustment
-                    role_gain = sorted(role.value for role in candidate.card.roles - cut.roles)
-                    role_loss = sorted(role.value for role in lost_roles)
-                    recommendations.append(
-                        {
-                            "remove": cut.oracle_name,
-                            "add": candidate.card.oracle_name,
-                            "candidate_id": candidate_id,
-                            "screening_delta": delta,
-                            "raw_profile_delta": raw_delta,
-                            "role_compatibility_adjustment": compatibility_adjustment,
-                            "screening_uncertainty_penalty": inference_penalty,
-                            "legacy_screening_uncertainty_penalty": legacy_inference_penalty,
-                            "semantic_quality": (
-                                "keyword_inferred_structural_only"
-                                if inference_penalty
-                                else "curated_structural_profile"
-                            ),
-                            "role_gain": role_gain,
-                            "role_loss": role_loss,
-                            "physical_status": candidate.physical_status,
-                            "requires_paired_validation": True,
-                        }
-                    )
-            recommendations.sort(key=lambda row: row["screening_delta"], reverse=True)
             return {
                 "method": "role_profile_screening_only",
-                "recommendations": recommendations[: request.max_recommendations],
-                "warning": "Candidates are not confirmed until paired and holdout validation pass.",
+                "cut_frontier_method": "diverse_cut_hypothesis_and_role_package_profile_screening_only",
+                "recommendations": rows[: request.max_recommendations],
+                "warning": "Candidates are not confirmed until paired and robustness validation pass.",
             }
 
         return self._invoke("recommend_upgrades", request, work, deck_ids=(request.deck_id,))
@@ -3601,17 +3551,9 @@ class CommanderToolService:
     def generate_candidate_swaps(self, request: GenerateCandidateSwapsInput) -> ToolResponse:
         def work() -> dict[str, Any]:
             self._require_active_optimization_target(request.deck_id)
-            screened = self.recommend_upgrades(
-                RecommendUpgradesInput(
-                    deck_id=request.deck_id,
-                    candidate_ids=request.candidate_ids,
-                    max_recommendations=request.max_candidates,
-                )
-            )
-            if screened.status != ToolStatus.COMPLETED:
-                raise ToolExecutionError("candidate screening failed")
             from commander_lab.candidate_screening import RogShaiCandidateScreener
 
+            deck = self._deck(request.deck_id)
             semantic_screen = RogShaiCandidateScreener(self.root, service=self).screen_pool(
                 request.deck_id
             )
@@ -3627,12 +3569,22 @@ class CommanderToolService:
                 for item in screen_rows
                 if isinstance(item, dict) and item.get("oracle_name")
             }
-            rows: list[dict[str, Any]] = []
-            ready_rows: list[dict[str, Any]] = []
+            requested_ids = set(request.candidate_ids) if request.candidate_ids else None
+            candidate_map = {
+                candidate_id: candidate
+                for candidate_id, candidate in self.candidates.items()
+                if requested_ids is None or candidate_id in requested_ids
+            }
+            raw_pairs = build_static_swap_rows(
+                deck,
+                candidate_map,
+                protected=set(self.protected_cards.get(request.deck_id, [])),
+                max_cut_hypotheses=32,
+            )
+            semantically_ready: list[dict[str, Any]] = []
             semantic_deferred: list[dict[str, Any]] = []
-            static_deferred: list[dict[str, Any]] = []
-            for legacy_row in screened.result.get("recommendations", []):
-                row = dict(legacy_row)
+            for raw in raw_pairs:
+                row = dict(raw)
                 screen_row = by_id.get(str(row.get("candidate_id"))) or by_name.get(
                     str(row.get("add"))
                 )
@@ -3668,12 +3620,13 @@ class CommanderToolService:
                 elif bucket in {"defer_clear_static_dominance", "defer_low_confidence_default"}:
                     frontier_status = "deferred_static"
                 else:
-                    frontier_status = "simulation_ready"
+                    frontier_status = "preconstraint_ready"
                 enriched = {
                     **row,
                     "legacy_semantic_quality": legacy_quality,
                     "semantic_authority": "semantic_evidence_summary",
                     "semantic_evidence": evidence,
+                    "semantic_evidence_hash": str(evidence.get("semantic_evidence_hash", "")),
                     "semantic_screen_bucket": bucket,
                     "semantic_provenance_disagreement": provenance_disagreement,
                     "material_semantic_conflict": bool(
@@ -3686,31 +3639,118 @@ class CommanderToolService:
                     "candidate_source": "verified local candidate registry",
                     "automatic_application": False,
                 }
-                rows.append(enriched)
-                if frontier_status == "simulation_ready":
-                    ready_rows.append(enriched)
+                if frontier_status == "preconstraint_ready":
+                    semantically_ready.append(enriched)
                 elif needs_adjudication:
                     semantic_deferred.append(enriched)
-                else:
-                    static_deferred.append(enriched)
+            # Select extra capacity so hard-constraint failures can be replaced without changing the policy.
+            selected_pool, selection_metrics = select_diverse_swap_frontier(
+                semantically_ready,
+                max_pairs=min(len(semantically_ready), request.max_candidates * 2),
+            )
+            ready_rows: list[dict[str, Any]] = []
+            constraint_deferred: list[dict[str, Any]] = []
+            constraints = self._optimization_constraints(request.deck_id)
+            for row in selected_pool:
+                try:
+                    built = build_search_candidate(
+                        deck,
+                        (
+                            VariantSwap(
+                                remove=str(row["remove"]), add_candidate_id=str(row["candidate_id"])
+                            ),
+                        ),
+                        self.candidates,
+                        constraints,
+                        inventory=self.candidate_inventory,
+                        verified_physical_names=self.verified_candidate_names,
+                    )
+                except (KeyError, ValueError) as exc:
+                    constraint_deferred.append(
+                        {
+                            **row,
+                            "frontier_status": "deferred_hard_constraint",
+                            "constraint_error": str(exc),
+                        }
+                    )
+                    continue
+                if not built.constraint_report.valid:
+                    constraint_deferred.append(
+                        {
+                            **row,
+                            "frontier_status": "deferred_hard_constraint",
+                            "constraint_report": built.constraint_report.model_dump(mode="json"),
+                        }
+                    )
+                    continue
+                ready_rows.append(
+                    {
+                        **row,
+                        "frontier_status": "simulation_ready",
+                        "whole_deck_constraint_report": built.constraint_report.model_dump(
+                            mode="json"
+                        ),
+                        "variant_deck_hash": built.variant.deck_hash,
+                    }
+                )
+                if len(ready_rows) >= request.max_candidates:
+                    break
+            _, final_metrics = (
+                select_diverse_swap_frontier(ready_rows, max_pairs=max(1, len(ready_rows)))
+                if ready_rows
+                else (
+                    [],
+                    {
+                        "unique_cut_count": 0,
+                        "top_cut_pair_share": 0.0,
+                        "cut_concentration_metric": 0.0,
+                        "cut_pair_distribution": {},
+                        "cut_lane_distribution": {},
+                        "pair_count": 0,
+                        "selection_policy": "no_ready_pairs",
+                        "truth_boundary": "frontier composition metric, not empirical card weakness",
+                    },
+                )
+            )
+            bucket_counts = semantic_screen.get("bucket_counts", {})
+            static_count = (
+                sum(
+                    int(bucket_counts.get(name, 0))
+                    for name in ("defer_clear_static_dominance", "defer_low_confidence_default")
+                )
+                if isinstance(bucket_counts, dict)
+                else 0
+            )
             return {
                 "deck_id": request.deck_id,
-                "deck_hash": self._deck(request.deck_id).deck_hash,
-                "method": "whole_deck_role_package_profile_and_semantic_evidence_screening",
+                "deck_hash": deck.deck_hash,
+                "method": "candidate_semantic_gate_x_diverse_cut_hypothesis_frontier",
                 "candidates": ready_rows,
+                "all_screened_candidates": [*semantically_ready, *semantic_deferred],
                 "count": len(ready_rows),
-                "all_screened_candidates": rows,
-                "screened_count": len(rows),
+                "pair_pool_count": len(raw_pairs),
+                "preconstraint_pair_count": len(semantically_ready),
                 "deferred_semantic_candidates": semantic_deferred,
                 "semantic_deferred_count": len(semantic_deferred),
-                "static_deprioritized_candidates": static_deferred,
-                "static_deprioritized_count": len(static_deferred),
+                "constraint_deferred_candidates": constraint_deferred,
+                "constraint_deferred_count": len(constraint_deferred),
+                "static_deprioritized_count": static_count,
                 "candidate_recall": semantic_screen.get("candidate_recall"),
+                "candidate_discoverable_count": semantic_screen.get("discoverable_candidate_count"),
+                "frontier_composition": final_metrics,
+                "selection_preview": selection_metrics,
                 "semantic_frontier_gate": {
                     "authority": "semantic_evidence_summary",
                     "legacy_semantic_quality_is_authoritative": False,
                     "unmodeled_is_negative_evidence": False,
                     "noisy_early_simulation_elimination": False,
+                },
+                "cut_frontier_gate": {
+                    "scalar_profile_score_is_sole_authority": False,
+                    "package_axis_loss_considered": True,
+                    "unique_role_loss_considered": True,
+                    "commander_dependence_challenge_considered": True,
+                    "whole_deck_constraints_checked_before_simulation": True,
                 },
                 "automatic_application": False,
             }

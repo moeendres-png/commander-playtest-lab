@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from enum import StrEnum
 from typing import Any
@@ -34,12 +35,6 @@ class DecisionMateriality(StrEnum):
 
 @dataclass(frozen=True)
 class SemanticEvidenceRecord:
-    """One provenance-preserving semantic claim about a card.
-
-    This is intentionally not a card-power score. LLM-inferred values never become canonical
-    merely by being present in this record.
-    """
-
     card_id: str | None
     oracle_name: str
     feature: str
@@ -78,26 +73,78 @@ _DECISION_ROLES = frozenset(
 )
 
 
+def summarize_semantic_records(records: Iterable[SemanticEvidenceRecord]) -> dict[str, Any]:
+    materialized = tuple(records)
+    by_feature: dict[str, list[SemanticEvidenceRecord]] = {}
+    for record in materialized:
+        by_feature.setdefault(record.feature, []).append(record)
+    conflicts: list[dict[str, Any]] = []
+    for feature, rows in sorted(by_feature.items()):
+        values = {sha256_run_value(row.value) for row in rows}
+        material = any(row.decision_materiality == DecisionMateriality.HIGH for row in rows)
+        if material and len(values) > 1:
+            conflicts.append(
+                {
+                    "feature": feature,
+                    "record_hashes": [row.evidence_hash for row in rows],
+                    "source_ids": [row.source_id for row in rows],
+                }
+            )
+    payload = {
+        "records": [
+            {"evidence_hash": record.evidence_hash, **record.as_dict()} for record in materialized
+        ],
+        "material_conflicts": conflicts,
+        "material_conflict": bool(conflicts),
+        "requires_semantic_adjudication": bool(conflicts),
+        "automatic_promotion": False,
+        "automatic_rejection": False,
+        "llm_inferred_is_canonical": False,
+        "truth_boundary": "semantic conflict routing, not empirical card power",
+    }
+    payload["semantic_record_set_hash"] = sha256_run_value(payload)
+    return payload
+
+
 def semantic_evidence_summary(
     *,
     oracle_name: str,
     profile: CandidateProfile | None,
     annotation_roles: tuple[str, ...] = (),
     annotation_packages: tuple[str, ...] = (),
+    additional_records: tuple[SemanticEvidenceRecord, ...] = (),
 ) -> dict[str, Any]:
-    """Return a compact decision-weighted provenance summary for candidate screening."""
-
     roles = set(annotation_roles)
     packages = set(annotation_packages)
     source_types: set[str] = set()
     source_ids: set[str] = set()
+    provenance_records: list[dict[str, Any]] = []
 
     if profile is not None:
-        roles.update(role.value for role in profile.card.roles)
-        packages.update(profile.card.package_ids)
+        profile_roles = tuple(sorted(role.value for role in profile.card.roles))
+        profile_packages = tuple(sorted(profile.card.package_ids))
+        roles.update(profile_roles)
+        packages.update(profile_packages)
         source_types.update(source.source_type for source in profile.card.sources)
         source_ids.update(
             source.source_path for source in profile.card.sources if source.source_path
+        )
+        provenance_records.append(
+            {
+                "layer": "structural_profile",
+                "roles": profile_roles,
+                "package_ids": profile_packages,
+                "source_types": tuple(sorted(source_types)),
+                "source_ids": tuple(sorted(source_ids)),
+            }
+        )
+    if annotation_roles or annotation_packages:
+        provenance_records.append(
+            {
+                "layer": "canonical_feature_annotation",
+                "roles": tuple(sorted(annotation_roles)),
+                "package_ids": tuple(sorted(annotation_packages)),
+            }
         )
 
     if profile is None and not annotation_roles and not annotation_packages:
@@ -125,7 +172,6 @@ def semantic_evidence_summary(
         materiality = DecisionMateriality.MEDIUM
     else:
         materiality = DecisionMateriality.LOW
-
     canonical_ready = evidence_type in {
         SemanticEvidenceType.CANONICAL_PROJECT,
         SemanticEvidenceType.PROJECT_DERIVED,
@@ -133,8 +179,10 @@ def semantic_evidence_summary(
         SemanticEvidenceType.EXTERNAL_STRUCTURED,
         SemanticEvidenceType.HUMAN_REVIEWED,
     }
-    needs_targeted_adjudication = materiality == DecisionMateriality.HIGH and not canonical_ready
-
+    conflict_summary = summarize_semantic_records(additional_records)
+    needs_targeted_adjudication = (
+        materiality == DecisionMateriality.HIGH and not canonical_ready
+    ) or conflict_summary["material_conflict"] is True
     payload = {
         "oracle_name": oracle_name,
         "evidence_type": evidence_type.value,
@@ -144,9 +192,11 @@ def semantic_evidence_summary(
         "package_ids": tuple(sorted(packages)),
         "source_types": tuple(sorted(source_types)),
         "source_ids": tuple(sorted(source_ids)),
+        "provenance_records": provenance_records,
         "canonical_project_fact": evidence_type == SemanticEvidenceType.CANONICAL_PROJECT,
         "llm_inferred": evidence_type == SemanticEvidenceType.LLM_INFERRED,
         "needs_targeted_adjudication": needs_targeted_adjudication,
+        "semantic_conflict": conflict_summary,
         "truth_boundary": "semantic evidence and confidence, not empirical card power",
     }
     payload["semantic_evidence_hash"] = sha256_run_value(payload)
@@ -159,4 +209,5 @@ __all__ = [
     "SemanticEvidenceRecord",
     "SemanticEvidenceType",
     "semantic_evidence_summary",
+    "summarize_semantic_records",
 ]

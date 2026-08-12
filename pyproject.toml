@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commander-playtest-lab"
-version = "1.17.1"
+version = "1.18.0"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from pathlib import Path
+from statistics import fmean
 from typing import Any
 
 from commander_lab.advancement import decide_advancement
@@ -22,6 +23,10 @@ from commander_lab.optimization import (
     build_search_candidate,
     derive_paired_seed,
     run_paired_structural_comparison,
+)
+from commander_lab.optimization.experiments import (
+    aggregate_paired_observations,
+    run_paired_structural_observations,
 )
 from commander_lab.playstyle import PlaystyleAnalyzer
 from commander_lab.project_context import ProjectContextSnapshot, load_project_context
@@ -198,25 +203,76 @@ class PriorityWorkflowFacade:
             },
         )
 
-        def compute() -> dict[str, Any]:
-            metrics, pairs = run_paired_structural_comparison(
-                baseline=baseline,
-                variant=built.variant,
-                opponents=opponents,
-                iterations=iterations,
-                seed=seed,
-                pilot_config=pilot_config,
-                max_turns=max_turns,
-                pair_id=pair_id,
-                workers=effective_workers,
+        cached = self.result_cache.get(cache_identity)
+        reused_prefix_count = 0
+        incremental_simulated_count = 0
+        prefix_cache_key: str | None = None
+        if cached is None:
+            prefix_lookup = None
+            prefix_candidates = sorted(
+                {
+                    value
+                    for value in (512, 256, 128, 64, 32, 16, 8, iterations // 2)
+                    if 0 < value < iterations
+                },
+                reverse=True,
             )
-            return {"paired": metrics.as_dict(), "pairs": pairs}
-
-        cached = self.result_cache.get_or_compute(
-            cache_identity,
-            evidence_class="structural_model_estimates",
-            compute=compute,
-        )
+            for prefix_count in prefix_candidates:
+                prefix_identity = dict(cache_identity)
+                prefix_identity["simulation_config"] = {
+                    **dict(cache_identity["simulation_config"]),
+                    "iterations": prefix_count,
+                    "analysis_seed": derive_paired_seed(seed, pair_id, prefix_count + 1),
+                }
+                prefix_identity["exact_seed_set"] = list(paired_seeds[:prefix_count])
+                candidate_lookup = self.result_cache.get(prefix_identity)
+                if candidate_lookup is not None:
+                    prefix_lookup = candidate_lookup
+                    reused_prefix_count = prefix_count
+                    prefix_cache_key = candidate_lookup.cache_key
+                    break
+            if prefix_lookup is not None:
+                prefix_pairs = [dict(row) for row in prefix_lookup.result["pairs"]]
+                suffix_pairs = run_paired_structural_observations(
+                    baseline=baseline,
+                    variant=built.variant,
+                    opponents=opponents,
+                    start_index=reused_prefix_count,
+                    iterations=iterations - reused_prefix_count,
+                    seed=seed,
+                    pilot_config=pilot_config,
+                    max_turns=max_turns,
+                    pair_id=pair_id,
+                    workers=effective_workers,
+                )
+                incremental_simulated_count = len(suffix_pairs)
+                pairs = [*prefix_pairs, *suffix_pairs]
+                metrics = aggregate_paired_observations(
+                    pairs,
+                    seed=seed,
+                    pair_id=pair_id,
+                    pilot_config=pilot_config,
+                    opponents=opponents,
+                    worker_count=effective_workers,
+                )
+            else:
+                metrics, pairs = run_paired_structural_comparison(
+                    baseline=baseline,
+                    variant=built.variant,
+                    opponents=opponents,
+                    iterations=iterations,
+                    seed=seed,
+                    pilot_config=pilot_config,
+                    max_turns=max_turns,
+                    pair_id=pair_id,
+                    workers=effective_workers,
+                )
+                incremental_simulated_count = len(pairs)
+            cached = self.result_cache.put(
+                cache_identity,
+                {"paired": metrics.as_dict(), "pairs": pairs},
+                evidence_class="structural_model_estimates",
+            )
         paired = dict(cached.result["paired"])
         pairs = list(cached.result["pairs"])
         mana_before = self.mana.analyze_deck(baseline)
@@ -274,11 +330,24 @@ class PriorityWorkflowFacade:
                 "exact_seed_count": len(paired_seeds),
                 "exact_seed_set_sha256": sha256_run_value(paired_seeds, root=self.root),
             },
+            "incremental_execution": {
+                "target_pair_count": iterations,
+                "reused_prefix_count": reused_prefix_count,
+                "incremental_simulated_count": incremental_simulated_count,
+                "prefix_cache_key": prefix_cache_key,
+                "chunk_boundaries_are_execution_provenance_only": True,
+                "deck_quality_evidence": False,
+            },
+            "precision_context": {
+                "current_iterations": iterations,
+                "preregistered_precision_ceiling": 1024,
+                "additional_precision_authorized": False,
+            },
             "execution_workers": {
                 "requested": requested_workers,
                 "effective": effective_workers,
                 "fallback_applied": requested_workers != effective_workers,
-                "policy": "validated_single_worker_until_issue_55_resolution",
+                "policy": "validated_single_worker_policy_1_18",
                 "deck_quality_evidence": False,
             },
             "truth_boundary": "model-internal paired structural comparison, not empirical gameplay",
@@ -297,40 +366,90 @@ class PriorityWorkflowFacade:
         }
 
     @staticmethod
-    def diagnose_next_experiment(comparison: dict[str, Any]) -> dict[str, Any]:
-        model_informativeness = comparison.get("model_informativeness")
+    def diagnose_next_experiment(
+        comparison: dict[str, Any],
+        *,
+        cohort_comparisons: tuple[dict[str, Any], ...] = (),
+        opponent_evidence_quality: dict[str, int] | None = None,
+        failure_mode_metrics: tuple[str, ...] = (),
+    ) -> dict[str, Any]:
+        working = dict(comparison)
+        if cohort_comparisons:
+            paired_rows = tuple(
+                dict(row.get("paired", {}))
+                for row in cohort_comparisons
+                if isinstance(row, dict) and isinstance(row.get("paired"), dict)
+            )
+            baseline_shares = [
+                float(row["baseline_place_1_share"])
+                for row in paired_rows
+                if isinstance(row.get("baseline_place_1_share"), (int, float))
+                and not isinstance(row.get("baseline_place_1_share"), bool)
+            ]
+            seat_wins: dict[int, list[float]] = {}
+            for row in cohort_comparisons:
+                observations = row.get("paired_observations", ()) if isinstance(row, dict) else ()
+                if not isinstance(observations, (list, tuple)):
+                    continue
+                for obs in observations:
+                    if not isinstance(obs, dict):
+                        continue
+                    seat = obs.get("starting_player_seat")
+                    placement = obs.get("baseline_placement")
+                    if isinstance(seat, int) and isinstance(placement, (int, float)):
+                        seat_wins.setdefault(seat, []).append(float(placement == 1))
+            seat_results = {
+                str(seat): {"place_1_share": fmean(values)}
+                for seat, values in seat_wins.items()
+                if values
+            }
+            info = assess_model_informativeness(
+                baseline_place_1_share=fmean(baseline_shares) if baseline_shares else None,
+                seat_results=seat_results,
+                variant_comparisons=paired_rows,
+                opponent_evidence_quality=opponent_evidence_quality,
+                failure_mode_metrics=failure_mode_metrics,
+            ).as_dict()
+            working["model_informativeness"] = info
+        model_informativeness = working.get("model_informativeness")
         if not isinstance(model_informativeness, dict):
             model_informativeness = {}
-        opponent_uncertainty = comparison.get("opponent_uncertainty")
+        opponent_uncertainty = working.get("opponent_uncertainty")
         scenario_spread: float | None = None
         if isinstance(opponent_uncertainty, dict):
             raw_spread = opponent_uncertainty.get("scenario_spread")
             if isinstance(raw_spread, (int, float)) and not isinstance(raw_spread, bool):
                 scenario_spread = float(raw_spread)
-        raw_missing = comparison.get("missing_semantic_axes", ())
+        raw_missing = working.get("missing_semantic_axes", ())
         missing_semantic_axes = (
             tuple(str(value) for value in raw_missing)
             if isinstance(raw_missing, (list, tuple))
             else ()
         )
-        raw_failure = comparison.get("failure_mode_differences", ())
+        raw_failure = working.get("failure_mode_differences", ())
         failure_mode_differences = (
             tuple(str(value) for value in raw_failure)
             if isinstance(raw_failure, (list, tuple))
             else ()
         )
         state = build_decision_information_state(
-            comparison,
+            working,
             model_informativeness=model_informativeness,
             scenario_spread=scenario_spread,
             missing_semantic_axes=missing_semantic_axes,
             failure_mode_differences=failure_mode_differences,
-            tactical_evidence_required=comparison.get("tactical_evidence_required") is True,
+            tactical_evidence_required=working.get("tactical_evidence_required") is True,
+            precision_context=(
+                working.get("precision_context")
+                if isinstance(working.get("precision_context"), dict)
+                else None
+            ),
         )
         return {
             "workflow": "diagnose_next_experiment",
             "next_experiment": state.next_recommended_experiment,
             "reason": state.stop_reason,
+            "model_informativeness": model_informativeness,
             "decision_information_state": state.as_dict(),
         }
 

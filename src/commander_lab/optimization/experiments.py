@@ -121,6 +121,12 @@ def _run_paired_worker(payload: dict[str, Any]) -> dict[str, Any]:
             "pilot_mode": pilot_config.mode.value,
             "baseline_placement": baseline_metrics.placement,
             "variant_placement": variant_metrics.placement,
+            "baseline_win": baseline_row["win"],
+            "variant_win": variant_row["win"],
+            "baseline_damage": baseline_row["damage"],
+            "variant_damage": variant_row["damage"],
+            "baseline_cards_drawn": baseline_row["cards_drawn"],
+            "variant_cards_drawn": variant_row["cards_drawn"],
             "comparison": comparison,
             "baseline_log_sha256": base_result.log_sha256,
             "variant_log_sha256": var_result.log_sha256,
@@ -278,11 +284,12 @@ def role_summary(deck: StructuralDeckProfile) -> dict[str, int]:
     return summary
 
 
-def run_paired_structural_comparison(
+def run_paired_structural_observations(
     *,
     baseline: StructuralDeckProfile,
     variant: StructuralDeckProfile,
     opponents: tuple[StructuralDeckProfile, ...],
+    start_index: int,
     iterations: int,
     seed: int,
     pilot_config: PilotConfig,
@@ -290,16 +297,15 @@ def run_paired_structural_comparison(
     pair_id: str,
     starting_player_seat: int | None = None,
     workers: int = 1,
-) -> tuple[PairedMetrics, list[dict[str, object]]]:
+) -> list[dict[str, object]]:
     if workers < 1:
         raise ValueError("workers must be positive")
     if iterations < 1:
         raise ValueError("iterations must be positive")
-    base_rows: list[dict[str, float]] = []
-    var_rows: list[dict[str, float]] = []
-    pairs: list[dict[str, object]] = []
+    if start_index < 0:
+        raise ValueError("start_index must be non-negative")
     tasks: list[dict[str, Any]] = []
-    for index in range(iterations):
+    for index in range(start_index, start_index + iterations):
         match_seed = derive_paired_seed(seed, pair_id, index)
         start = (
             starting_player_seat
@@ -316,7 +322,6 @@ def run_paired_structural_comparison(
                 "max_turns": max_turns,
             }
         )
-
     initializer_args = (
         baseline.model_dump(mode="json"),
         variant.model_dump(mode="json"),
@@ -343,48 +348,76 @@ def run_paired_structural_comparison(
                 raw_results = list(
                     process_executor.map(_run_paired_worker, tasks, chunksize=chunksize)
                 )
-    for raw in raw_results:
-        base_rows.append(raw["baseline_row"])
-        var_rows.append(raw["variant_row"])
-        pairs.append(raw["pair"])
+    return [dict(raw["pair"]) for raw in raw_results]
 
-    def avg(rows: list[dict[str, float]], key: str) -> float:
-        return fmean(row[key] for row in rows)
 
-    base_place = avg(base_rows, "placement")
-    var_place = avg(var_rows, "placement")
+def aggregate_paired_observations(
+    observations: list[dict[str, object]],
+    *,
+    seed: int,
+    pair_id: str,
+    pilot_config: PilotConfig,
+    opponents: tuple[StructuralDeckProfile, ...],
+    starting_player_seat: int | None = None,
+    worker_count: int = 1,
+) -> PairedMetrics:
+    def as_int(value: object, *, field: str) -> int:
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"paired observation {field} must be an integer")
+        return value
+
+    def as_float(value: object, *, field: str) -> float:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"paired observation {field} must be numeric")
+        return float(value)
+
+    pairs = sorted(observations, key=lambda row: as_int(row["index"], field="index"))
+    if not pairs:
+        raise ValueError("paired observations must not be empty")
+    expected = list(range(len(pairs)))
+    actual = [as_int(row["index"], field="index") for row in pairs]
+    if actual != expected:
+        raise ValueError("final paired observations must form the exact contiguous prefix 0..N-1")
+    iterations = len(pairs)
+
+    def avg(key: str) -> float:
+        return fmean(as_float(row[key], field=key) for row in pairs)
+
     differences = tuple(
-        base_row["placement"] - variant_row["placement"]
-        for base_row, variant_row in zip(base_rows, var_rows, strict=True)
+        as_float(row["baseline_placement"], field="baseline_placement")
+        - as_float(row["variant_placement"], field="variant_placement")
+        for row in pairs
     )
     interval = paired_bootstrap_interval(
         differences, seed=derive_paired_seed(seed, pair_id, iterations + 1)
     )
-    metrics = PairedMetrics(
+    base_place = avg("baseline_placement")
+    var_place = avg("variant_placement")
+    return PairedMetrics(
         games=iterations,
         baseline_average_placement=base_place,
         variant_average_placement=var_place,
         placement_improvement=base_place - var_place,
-        baseline_place_1_share=avg(base_rows, "win"),
-        variant_place_1_share=avg(var_rows, "win"),
-        place_1_share_delta=avg(var_rows, "win") - avg(base_rows, "win"),
-        baseline_average_damage=avg(base_rows, "damage"),
-        variant_average_damage=avg(var_rows, "damage"),
-        damage_delta=avg(var_rows, "damage") - avg(base_rows, "damage"),
-        baseline_average_cards_drawn=avg(base_rows, "cards_drawn"),
-        variant_average_cards_drawn=avg(var_rows, "cards_drawn"),
-        cards_drawn_delta=avg(var_rows, "cards_drawn") - avg(base_rows, "cards_drawn"),
+        baseline_place_1_share=avg("baseline_win"),
+        variant_place_1_share=avg("variant_win"),
+        place_1_share_delta=avg("variant_win") - avg("baseline_win"),
+        baseline_average_damage=avg("baseline_damage"),
+        variant_average_damage=avg("variant_damage"),
+        damage_delta=avg("variant_damage") - avg("baseline_damage"),
+        baseline_average_cards_drawn=avg("baseline_cards_drawn"),
+        variant_average_cards_drawn=avg("variant_cards_drawn"),
+        cards_drawn_delta=avg("variant_cards_drawn") - avg("baseline_cards_drawn"),
         paired_win_count=sum(row["comparison"] == "variant_win" for row in pairs),
         paired_loss_count=sum(row["comparison"] == "variant_loss" for row in pairs),
         paired_tie_count=sum(row["comparison"] == "tie" for row in pairs),
         requested_runs=iterations,
         started_runs=iterations,
-        valid_runs=len(pairs),
+        valid_runs=iterations,
         failed_runs=0,
         discarded_runs=0,
-        actual_sample_size=len(pairs),
-        seeds=tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations)),
-        worker_count=workers,
+        actual_sample_size=iterations,
+        seeds=tuple(as_int(row["seed"], field="seed") for row in pairs),
+        worker_count=worker_count,
         validation_level="structural_only",
         paired_or_unpaired="paired",
         effect_size=paired_standardized_effect(differences),
@@ -394,9 +427,7 @@ def run_paired_structural_comparison(
         worst_case_result=min(differences),
         scenario_weights="equal within this paired scenario",
         pilot_weights=f"single configured pilot: {pilot_config.strength.value}",
-        multiple_testing_method=(
-            "not_applicable_single_comparison; Holm required for ranked families"
-        ),
+        multiple_testing_method="not_applicable_single_comparison; Holm required for ranked families",
         rounding_policy="unrounded internal values; presentation may round to six decimals",
         bayesian_shrunk_effect=bayesian_shrunk_mean(differences),
         distributionally_robust_lower_bound=distributionally_robust_lower_bound(differences),
@@ -425,5 +456,42 @@ def run_paired_structural_comparison(
             else "deterministic_rotation",
             "starting_player_seat": starting_player_seat,
         },
+    )
+
+
+def run_paired_structural_comparison(
+    *,
+    baseline: StructuralDeckProfile,
+    variant: StructuralDeckProfile,
+    opponents: tuple[StructuralDeckProfile, ...],
+    iterations: int,
+    seed: int,
+    pilot_config: PilotConfig,
+    max_turns: int,
+    pair_id: str,
+    starting_player_seat: int | None = None,
+    workers: int = 1,
+) -> tuple[PairedMetrics, list[dict[str, object]]]:
+    pairs = run_paired_structural_observations(
+        baseline=baseline,
+        variant=variant,
+        opponents=opponents,
+        start_index=0,
+        iterations=iterations,
+        seed=seed,
+        pilot_config=pilot_config,
+        max_turns=max_turns,
+        pair_id=pair_id,
+        starting_player_seat=starting_player_seat,
+        workers=workers,
+    )
+    metrics = aggregate_paired_observations(
+        pairs,
+        seed=seed,
+        pair_id=pair_id,
+        pilot_config=pilot_config,
+        opponents=opponents,
+        starting_player_seat=starting_player_seat,
+        worker_count=workers,
     )
     return metrics, pairs
