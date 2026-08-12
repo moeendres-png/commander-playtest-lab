@@ -6,7 +6,7 @@ if ($Provider -eq "xmage") {
   $Commit = "06d166b098ad36b277edef01116472203d5a047e"
 } elseif ($Provider -eq "forge") {
   $Repo = "https://github.com/Card-Forge/forge.git"
-  $Commit = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
+  $Commit = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 } else { throw "ENGINE_PROVIDER must be xmage or forge" }
 $Source = if ($env:ENGINE_SOURCE_PATH) { $env:ENGINE_SOURCE_PATH } else { Join-Path $Root "vendor\engine-source\$Provider" }
 $Binary = if ($env:ENGINE_BINARY_PATH) { $env:ENGINE_BINARY_PATH } else { Join-Path $Root "vendor\engine-binaries\$Provider" }

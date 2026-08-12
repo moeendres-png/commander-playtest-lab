@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.17.0 - 2026-08-12
+
+- Unifies current-truth and provenance boundaries for the post-J RogShai-only workflow; stale handoffs remain historical rather than competing current authority.
+- Adds decision-weighted semantic-evidence provenance without introducing a universal card-power score or promoting LLM inference to canonical fact.
+- Separates global governance identity from workflow-semantic identity so unrelated config/history changes no longer invalidate current paired structural cache entries, while declared dependencies fail closed.
+- Adds `DecisionInformationState` to distinguish useful additional paired sampling from model-metric, tactical-evidence and opponent-uncertainty limits, including a material indifference stop region.
+- Adds explicit observed/plausible-envelope/stress opponent uncertainty contracts that forbid synthetic assumptions from becoming observations.
+- Ships a conservative quality-first adaptive budget policy over the existing CRN framework; noisy early elimination remains benchmark-only and blocked when it loses material finalists.
+- Adds a provider-independent targeted tactical-evidence request/result boundary and consolidates current XMage/Forge technical truth as PARTIAL / `NO_PROVIDER_READY`.
+- Simplifies the optional OpenAI path to one thin four-public-tool synthesis agent; deterministic validation, simulation, scheduling, hashing and provenance remain outside the LLM.
+- Keeps RogShai decklist, inventory, physical allocations and real opponent observations unchanged.
+
+## 1.16.0 - 2026-08-12
+
+- Streamlined the end-to-end Build → Test → Diagnose → Bundle workflow to four public high-level tools, added deterministic model-informativeness/advancement gates, and reused immutable workflow state.
+- Kept low-level optimization and diagnostic primitives behind the expert surface and preserved structural/tactical/external evidence boundaries.
+
 ## 1.15.0 - 2026-08-10
 
 - Roadmap J-P2 modeling/data-quality candidate: separates active own optimization targets (Korvold/RogShai) from frozen opponent-only Kaervek across swap/package/allocation paths.
@@ -73,8 +90,6 @@
 ## 1.5.0 - 2026-08-06
 - Added complete source/artifact/derivation provenance graph, supersession and claim auditing.
 - Added simulation identity hashes and six provenance tools.
-
-# Changelog
 
 ## 1.4.0 - 2026-08-06
 

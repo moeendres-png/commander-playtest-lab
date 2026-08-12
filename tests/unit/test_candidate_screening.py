@@ -20,6 +20,11 @@ def test_rogshai_pool_screen_reduces_default_work_without_hiding_exploration() -
     assert all("playstyle_fit" not in row for row in result["rows"])
     assert all("playstyle_confidence" not in row for row in result["rows"])
     assert sum(result["bucket_counts"].values()) == result["physical_legal_candidate_count"]
+    assert (
+        result["semantic_evidence"]["coverage_policy"]
+        == "decision_weighted_not_full_pool_annotation"
+    )
+    assert result["semantic_evidence"]["llm_inferred_is_canonical"] is False
 
 
 def test_current_rogshai_challenge_set_covers_valid_static_buckets() -> None:

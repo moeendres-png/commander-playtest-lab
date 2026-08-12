@@ -9,6 +9,7 @@ from typing import Any
 from commander_lab.canonical_features import load_canonical_feature_annotations
 from commander_lab.models import CandidateProfile, DataQuality, StructuralDeckProfile, VariantSwap
 from commander_lab.optimization import build_search_candidate, profile_score
+from commander_lab.semantic_evidence import semantic_evidence_summary
 from commander_lab.tools.candidates import load_candidate_profiles
 
 
@@ -242,18 +243,28 @@ class RogShaiCandidateScreener:
                 canonical_feature_coverage += 1
             if profile is None:
                 structurally_unmodeled += 1
+                annotation_roles = (
+                    tuple(sorted(role.value for role in annotation.mapped_roles))
+                    if annotation is not None
+                    else ()
+                )
+                annotation_packages = (
+                    tuple(sorted(annotation.package_ids)) if annotation is not None else ()
+                )
                 rows.append(
                     {
                         "candidate_id": None,
                         "oracle_name": name,
                         "bucket": "requires_profile_before_model_dependent_recommendation",
                         "confidence": "insufficient_structural_model_requires_profile",
-                        "roles": tuple(sorted(role.value for role in annotation.mapped_roles))
-                        if annotation is not None
-                        else (),
-                        "package_ids": tuple(sorted(annotation.package_ids))
-                        if annotation is not None
-                        else (),
+                        "roles": annotation_roles,
+                        "package_ids": annotation_packages,
+                        "semantic_evidence": semantic_evidence_summary(
+                            oracle_name=name,
+                            profile=None,
+                            annotation_roles=annotation_roles,
+                            annotation_packages=annotation_packages,
+                        ),
                         "mana_value": None,
                         "clear_static_dominance_by": None,
                         "playstyle_review_status": "deferred_until_post_build_review",
@@ -293,14 +304,28 @@ class RogShaiCandidateScreener:
             if annotation is not None:
                 roles.update(annotation.mapped_roles)
                 packages.update(annotation.package_ids)
+            role_values = tuple(sorted(role.value for role in roles))
+            package_values = tuple(sorted(packages))
             rows.append(
                 {
                     "candidate_id": profile.candidate_id,
                     "oracle_name": name,
                     "bucket": bucket,
                     "confidence": confidence,
-                    "roles": tuple(sorted(role.value for role in roles)),
-                    "package_ids": tuple(sorted(packages)),
+                    "roles": role_values,
+                    "package_ids": package_values,
+                    "semantic_evidence": semantic_evidence_summary(
+                        oracle_name=name,
+                        profile=profile,
+                        annotation_roles=(
+                            tuple(sorted(role.value for role in annotation.mapped_roles))
+                            if annotation is not None
+                            else ()
+                        ),
+                        annotation_packages=(
+                            tuple(sorted(annotation.package_ids)) if annotation is not None else ()
+                        ),
+                    ),
                     "mana_value": float(profile.card.mana_value),
                     "clear_static_dominance_by": dominated,
                     "playstyle_review_status": "deferred_until_post_build_review",
@@ -319,9 +344,23 @@ class RogShaiCandidateScreener:
         counts = {bucket: 0 for bucket in bucket_order}
         for row in rows:
             counts[str(row["bucket"])] += 1
-        simulation_ready = sum(str(row["bucket"]) in {"advance", "explore"} for row in rows)
+        simulation_ready = sum(1 for row in rows if str(row["bucket"]) in {"advance", "explore"})
         discoverable = len(rows)
         profile_next = _profile_next(rows)
+        decision_material_semantic_unknowns = 0
+        for row in rows:
+            evidence = row.get("semantic_evidence")
+            if isinstance(evidence, dict) and evidence.get("needs_targeted_adjudication") is True:
+                decision_material_semantic_unknowns += 1
+        semantic_evidence_type_counts: dict[str, int] = {}
+        for row in rows:
+            evidence = row.get("semantic_evidence")
+            if not isinstance(evidence, dict):
+                continue
+            evidence_type = str(evidence.get("evidence_type", "UNKNOWN"))
+            semantic_evidence_type_counts[evidence_type] = (
+                semantic_evidence_type_counts.get(evidence_type, 0) + 1
+            )
         return {
             "deck_id": deck_id,
             "physical_legal_candidate_count": len(eligible),
@@ -335,6 +374,14 @@ class RogShaiCandidateScreener:
             "structurally_unmodeled": structurally_unmodeled,
             "canonical_feature_coverage": canonical_feature_coverage,
             "heuristic_fallback_count": heuristic_fallback_count,
+            "semantic_evidence": {
+                "schema_version": "1.0.0",
+                "evidence_type_counts": dict(sorted(semantic_evidence_type_counts.items())),
+                "decision_material_unknown_count": decision_material_semantic_unknowns,
+                "coverage_policy": "decision_weighted_not_full_pool_annotation",
+                "llm_inferred_is_canonical": False,
+                "truth_boundary": "semantic evidence/confidence, not empirical card power",
+            },
             "rows": rows,
             "progressive_model_coverage": {
                 "lane": "explore/profile_next",

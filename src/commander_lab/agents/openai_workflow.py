@@ -27,9 +27,6 @@ class AgentsSdkUnavailable(RuntimeError):
 @dataclass(slots=True)
 class AgentRuntime:
     orchestrator: Any
-    deck_analyst: Any
-    simulation_analyst: Any
-    red_team_reviewer: Any
     session: Any
 
 
@@ -254,87 +251,46 @@ def build_agent_runtime(
     *,
     request: WorkflowRequest,
 ) -> AgentRuntime:
+    """Build the optional thin LLM synthesis layer over the four public workflows."""
+
     sdk = _load_sdk()
     registry = ToolRegistry(service)
     tools = _sdk_tools(registry, sdk["function_tool"])
+    public_names = tuple(definition.name for definition in registry.definitions)
+    expected = (
+        "deck_decision_prepare",
+        "deck_decision_run",
+        "deck_decision_diagnose",
+        "deck_decision_bundle",
+    )
+    if public_names != expected:
+        raise RuntimeError(
+            "optional OpenAI workflow requires exactly the validated four-tool public surface: "
+            f"expected {expected}, got {public_names}"
+        )
     input_guardrail, output_guardrail = _agent_guardrails(sdk)
-    specialist_common = (
-        "You are a specialist in the Commander Playtest Lab. You may obtain evidence only by "
-        "calling supplied structured tools. Never invent or mutate game state. Never describe "
-        "structural_model_estimates as empirical win rates. Manual real-playtest ingestion and "
-        "calibration are not part of the active product. Never call Tactical Oracle an external "
-        "rules engine, and never claim XMage or Forge passed without a real provider execution. "
-        "Include invocation identifiers or tool "
-        "names in tool_invocations, and return WorkflowReport structured output."
-    )
     settings = _reasoning_settings(sdk, request)
-    deck_analyst = sdk["Agent"](
-        name="Deck Analyst",
-        model=request.model,
-        instructions=(
-            specialist_common + " Evaluate roles, weaknesses, cuts and upgrade candidates. "
-            "Do not confirm a candidate "
-            "without paired validation."
-        ),
-        tools=tools,
-        model_settings=settings,
-        output_type=WorkflowReport,
-        output_guardrails=[output_guardrail],
-    )
-    simulation_analyst = sdk["Agent"](
-        name="Simulation Analyst",
-        model=request.model,
-        instructions=(
-            specialist_common
-            + " Select scenarios, paired seeds and bounded run sizes; inspect uncertainty, aborts "
-            "and model failures."
-        ),
-        tools=tools,
-        model_settings=settings,
-        output_type=WorkflowReport,
-        output_guardrails=[output_guardrail],
-    )
-    red_team = sdk["Agent"](
-        name="Red-Team Reviewer",
-        model=request.model,
-        instructions=(
-            specialist_common
-            + " Seek overfitting, weak cuts, role losses, alternative explanations and holdout "
-            "failures before accepting a conclusion."
-        ),
-        tools=tools,
-        model_settings=settings,
-        output_type=WorkflowReport,
-        output_guardrails=[output_guardrail],
+    instructions = (
+        "You are the thin synthesis layer for the Commander Playtest Lab. The deterministic "
+        "core is authoritative for validation, candidate enumeration, simulation, statistics, "
+        "cache identity and experiment scheduling. Obtain evidence only from the four supplied "
+        "public workflows. Start with deck_decision_prepare when a deck decision needs context; "
+        "use deck_decision_run only for a specific validated comparison; use "
+        "deck_decision_diagnose to decide whether more structural simulation, a different metric, "
+        "opponent-envelope evidence, tactical evidence or stopping is appropriate; use "
+        "deck_decision_bundle for final reproducible evidence packaging. Never request an expert "
+        "tool that is not exposed. Never invent or mutate game state, decklists, inventory, "
+        "allocations or opponent observations. structural_model_estimates are not empirical win "
+        "rates. Tactical Oracle is not an external rules engine. Synthetic opponent assumptions "
+        "are not observations. LLM semantic judgment is advisory unless independently promoted "
+        "through the project evidence process. Include invoked public tool names in "
+        "tool_invocations and return WorkflowReport structured output."
     )
     orchestrator = sdk["Agent"](
-        name="Orchestrator Agent",
+        name="Commander Decision Synthesizer",
         model=request.model,
-        instructions=(
-            specialist_common
-            + " Understand the user goal, create a bounded validation plan, call local tools, use "
-            "build_optimization_context first, choose the smallest "
-            "suitable run profile, use the Deck "
-            "Analyst, Simulation Analyst and Red-Team Reviewer when relevant, and summarize "
-            "only evidence returned by tools. Agents may never alter deterministic game state."
-        ),
-        tools=[
-            *tools,
-            deck_analyst.as_tool(
-                tool_name="deck_analyst",
-                tool_description="Analyze deck roles, weaknesses, cuts and candidate upgrades.",
-            ),
-            simulation_analyst.as_tool(
-                tool_name="simulation_analyst",
-                tool_description="Design and review bounded structural simulation evidence.",
-            ),
-            red_team.as_tool(
-                tool_name="red_team_reviewer",
-                tool_description=(
-                    "Challenge conclusions for overfitting and alternative explanations."
-                ),
-            ),
-        ],
+        instructions=instructions,
+        tools=tools,
         model_settings=settings,
         output_type=WorkflowReport,
         input_guardrails=[input_guardrail],
@@ -342,7 +298,7 @@ def build_agent_runtime(
     )
     session_db = service.root / "data/runs/openai_sessions.sqlite"
     session = sdk["SQLiteSession"](request.session_id, str(session_db))
-    return AgentRuntime(orchestrator, deck_analyst, simulation_analyst, red_team, session)
+    return AgentRuntime(orchestrator=orchestrator, session=session)
 
 
 async def run_openai_workflow(

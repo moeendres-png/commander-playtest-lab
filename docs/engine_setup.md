@@ -2,21 +2,16 @@
 
 ## Status of this repository
 
-Phase 8.5 prepares a versioned external runtime path. The current build container
-could not download or build XMage/Forge because Maven, Gradle and Docker were
-absent and DNS resolution failed for GitHub and Maven Central. No external result
-is stored as validated.
+Current provider truth is `NO_PROVIDER_READY`. Later J-P3 real executions retained PARTIAL evidence for both XMage and Forge, but no production bridge/provider passed the required legal-action/action-submission/replay gate. Phase 8.5 prepared an earlier runtime path and remains historical provenance only.
 
 ## Pinned providers
 
-| Role | Provider | Release | Commit | License |
+| Candidate role | Provider | Frozen current evidence pin | License | Current status |
 |---|---|---|---|---|
-| Primary tactical oracle | XMage | `xmage_1.4.60V3` | `06d166b098ad36b277edef01116472203d5a047e` | MIT |
-| Differential fallback | Forge | `forge-2.0.13` | `852066bf4f761b302ed17cb011999d8a8fe08ad6` | GPL-3.0 |
+| Provider candidate | XMage | `xmage_1.4.60V3 @ 06d166b098ad36b277edef01116472203d5a047e` | MIT | `PARTIAL` |
+| Provider candidate | Forge | `forge-2.0.14 @ a37a865a53280dd8ad6fad3384d69611e8c5a42f` | GPL-3.0 | `PARTIAL` |
 
-XMage is primary because its project-specific test tooling is a better fit for
-small stack, trigger and combat fixtures. Forge remains a separate-process
-fallback and differential oracle.
+Neither provider is production-selected. `docs/J_P3_PROVIDER_DECISION.json` is the current decision record; `config/rules_engines.json` mirrors those pins while preserving the older Phase-8.5 Forge pin only as historical provenance.
 
 ## Prerequisites
 
