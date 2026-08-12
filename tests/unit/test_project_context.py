@@ -192,3 +192,14 @@ def test_historical_j_final_pointer_does_not_invalidate_live_context(tmp_path: P
     after = load_project_context(tmp_path).snapshot_hash
 
     assert before == after
+
+
+def test_context_hash_ignores_checkout_only_line_ending_changes(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    path = tmp_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+    path.write_bytes(path.read_bytes().replace(b"\r\n", b"\n"))
+    lf_hash = load_project_context(tmp_path).snapshot_hash
+    path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
+    crlf_hash = load_project_context(tmp_path).snapshot_hash
+
+    assert lf_hash == crlf_hash

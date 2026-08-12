@@ -76,7 +76,13 @@ class ProjectContextSnapshot:
 def _sha256_file(path: Path) -> str:
     if not path.is_file():
         raise ProjectContextError(f"required project-context input is missing: {path}")
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    payload = path.read_bytes()
+    if path.suffix.casefold() in {".json", ".jsonl", ".yaml", ".yml", ".txt", ".md"}:
+        # Git may materialize text blobs with CRLF on Windows and LF elsewhere.
+        # Project context is a semantic identity, so checkout-only newline changes
+        # must not invalidate caches or otherwise alter RunIdentity.
+        payload = payload.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _load_json(path: Path) -> dict[str, Any]:
