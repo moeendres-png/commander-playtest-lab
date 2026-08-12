@@ -1,0 +1,152 @@
+name: Post-1.17 RogShai Curated First Wave
+
+on:
+  push:
+    branches:
+      - runs/post-117-rogshai-first-wave-20260812
+    paths:
+      - '.github/workflows/post-117-rogshai-curated-first-wave.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  curated-pair:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pair_id: preordain-to-opt
+            remove: Preordain
+            add_candidate_id: rogshai/opt-smoke
+          - pair_id: loyal-drake-to-opt
+            remove: Loyal Drake
+            add_candidate_id: rogshai/opt-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact validated 1.17 main identity
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e33107c7aa6ca997aa47565008e1da1d6d878007
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+
+      - name: Install Commander Playtest Lab
+        run: python -m pip install -e .
+
+      - name: Run one fresh curated 64-pair comparison and diagnose
+        env:
+          PAIR_ID: ${{ matrix.pair_id }}
+          REMOVE_CARD: ${{ matrix.remove }}
+          ADD_CANDIDATE_ID: ${{ matrix.add_candidate_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+          import json, os, subprocess
+          from pathlib import Path
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          EXPECTED_COMMIT = 'e33107c7aa6ca997aa47565008e1da1d6d878007'
+          EXPECTED_TREE = '7d66469daf6e7657c26a5d08a2777bb05ec57f92'
+          EXPECTED_DECK_HASH = '7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          pair_id = os.environ['PAIR_ID']
+          remove = os.environ['REMOVE_CARD']
+          add_candidate_id = os.environ['ADD_CANDIDATE_ID']
+          out = Path('artifacts/post_117_curated_first_wave') / pair_id
+          out.mkdir(parents=True, exist_ok=True)
+
+          def git(*args: str) -> str:
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          commit = git('rev-parse', 'HEAD')
+          tree = git('rev-parse', 'HEAD^{tree}')
+          assert commit == EXPECTED_COMMIT
+          assert tree == EXPECTED_TREE
+          assert commander_lab.__version__ == '1.17.0'
+          assert ENGINE_VERSION == 'structural-0.6.0'
+
+          service = CommanderToolService(Path.cwd())
+          assert service.git_commit == EXPECTED_COMMIT
+          assert service.git_tree == EXPECTED_TREE
+          assert service.tracked_worktree_dirty is False
+          assert service.decks['rogshai/current'].deck_hash == EXPECTED_DECK_HASH
+          public = ToolRegistry(service, surface='public')
+
+          # Fresh-frontier provenance from run 31619914035 independently produced both pairs.
+          # Both rows were semantic_quality=curated_structural_profile; no old shortlist is injected.
+          provenance = {
+              'source_run_id': 31619914035,
+              'source_artifact_id': 9152736061,
+              'selection': 'fresh deterministic frontier, curated_structural_profile rows only',
+              'old_pre_1_17_shortlist_used_as_prior': False,
+              'deferred_conflicting_keyword_inferred_rows': True,
+              'remove': remove,
+              'add_candidate_id': add_candidate_id,
+              'iterations': 64,
+              'seed': 2026081203,
+              'max_turns': 35,
+              'workers': 2,
+              'truth_boundary': 'structural_model_estimates only; not empirical gameplay',
+          }
+          (out / 'PROVENANCE.json').write_text(json.dumps(provenance, indent=2, sort_keys=True), encoding='utf-8')
+
+          run = public.invoke('deck_decision_run', {
+              'deck_id': 'rogshai/current',
+              'remove': remove,
+              'add_candidate_id': add_candidate_id,
+              'iterations': 64,
+              'seed': 2026081203,
+              'max_turns': 35,
+              'workers': 2,
+          })
+          run_payload = run.model_dump(mode='json')
+          (out / 'COMPARISON.json').write_text(json.dumps(run_payload, indent=2, sort_keys=True), encoding='utf-8')
+          if run_payload['status'] != 'completed':
+              raise RuntimeError(f"comparison failed: {run_payload.get('errors')}")
+
+          diagnosis = public.invoke('deck_decision_diagnose', {'comparison': run_payload['result']})
+          diag_payload = diagnosis.model_dump(mode='json')
+          (out / 'DIAGNOSIS.json').write_text(json.dumps(diag_payload, indent=2, sort_keys=True), encoding='utf-8')
+          if diag_payload['status'] != 'completed':
+              raise RuntimeError(f"diagnosis failed: {diag_payload.get('errors')}")
+
+          state = diag_payload['result']['decision_information_state']
+          paired = run_payload['result'].get('paired', {})
+          summary = {
+              'pair_id': pair_id,
+              'remove': remove,
+              'add_candidate_id': add_candidate_id,
+              'pair_count': run_payload['result'].get('pair_count'),
+              'placement_improvement': paired.get('placement_improvement'),
+              'confidence_interval': paired.get('confidence_interval'),
+              'monte_carlo_standard_error': paired.get('monte_carlo_standard_error'),
+              'decision_information_status': state.get('status'),
+              'next_recommended_experiment': state.get('next_recommended_experiment'),
+              'stop_reason': state.get('stop_reason'),
+              'state_hash': state.get('state_hash'),
+              'truth_boundary': state.get('truth_boundary'),
+          }
+          (out / 'SUMMARY.json').write_text(json.dumps(summary, indent=2, sort_keys=True), encoding='utf-8')
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+
+      - name: Assert tracked code/data tree stayed clean
+        if: always()
+        run: test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Upload curated pair evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: post-117-curated-${{ matrix.pair_id }}-${{ github.run_id }}
+          path: artifacts/post_117_curated_first_wave/${{ matrix.pair_id }}/
+          if-no-files-found: warn
