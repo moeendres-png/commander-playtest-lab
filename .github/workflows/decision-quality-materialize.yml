@@ -56,6 +56,13 @@ jobs:
           python -m ruff format --check src tests
           python -m mypy src
           python -m compileall -q src tests
+      - name: Create clean local validation snapshot
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Improve decision frontier and evidence routing [materialized]'
+          test -z "$(git status --porcelain --untracked-files=no)"
       - name: Focused decision-quality regression
         run: |
           python -m pytest -q \
@@ -68,11 +75,8 @@ jobs:
         run: |
           rm -f .github/materialize_decision_quality.py
           rm -f .github/workflows/decision-quality-materialize.yml
-      - name: Commit tested implementation
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          test -n "$(git status --porcelain)"
-          git commit -m 'Improve decision frontier and evidence routing [materialized]'
-          git push origin HEAD:fix/decision-quality-1180
+          git commit --amend --no-edit
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Push tested implementation
+        run: git push origin HEAD:fix/decision-quality-1180
