@@ -344,9 +344,7 @@ class RogShaiCandidateScreener:
         counts = {bucket: 0 for bucket in bucket_order}
         for row in rows:
             counts[str(row["bucket"])] += 1
-        simulation_ready = sum(
-            1 for row in rows if str(row["bucket"]) in {"advance", "explore"}
-        )
+        simulation_ready = sum(1 for row in rows if str(row["bucket"]) in {"advance", "explore"})
         discoverable = len(rows)
         profile_next = _profile_next(rows)
         decision_material_semantic_unknowns = 0
