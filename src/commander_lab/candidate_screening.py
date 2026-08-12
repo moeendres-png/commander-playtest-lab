@@ -344,15 +344,16 @@ class RogShaiCandidateScreener:
         counts = {bucket: 0 for bucket in bucket_order}
         for row in rows:
             counts[str(row["bucket"])] += 1
-        simulation_ready = sum(str(row["bucket"]) in {"advance", "explore"} for row in rows)
+        simulation_ready = sum(
+            1 for row in rows if str(row["bucket"]) in {"advance", "explore"}
+        )
         discoverable = len(rows)
         profile_next = _profile_next(rows)
-        decision_material_semantic_unknowns = sum(
-            1
-            for row in rows
-            if isinstance(row.get("semantic_evidence"), dict)
-            and row["semantic_evidence"].get("needs_targeted_adjudication") is True
-        )
+        decision_material_semantic_unknowns = 0
+        for row in rows:
+            evidence = row.get("semantic_evidence")
+            if isinstance(evidence, dict) and evidence.get("needs_targeted_adjudication") is True:
+                decision_material_semantic_unknowns += 1
         semantic_evidence_type_counts: dict[str, int] = {}
         for row in rows:
             evidence = row.get("semantic_evidence")
