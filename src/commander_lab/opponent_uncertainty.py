@@ -105,7 +105,9 @@ def summarize_scenario_results(
         rank_stability_across_scenarios=stability,
         scenario_spread=spread,
         scenario_count=len(values),
-        evidence_classes=tuple(sorted({scenario.evidence_class.value for scenario, _ in materialized})),
+        evidence_classes=tuple(
+            sorted({scenario.evidence_class.value for scenario, _ in materialized})
+        ),
     )
 
 

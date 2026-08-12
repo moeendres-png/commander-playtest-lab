@@ -123,7 +123,11 @@ def build_decision_information_state(
         status = DecisionInformationStatus.STOP
         next_experiment = "stop_or_return_to_candidate_screening"
         reason = "the paired interval is materially negative"
-    elif interval is not None and interval[0] >= -indifference_threshold and interval[1] <= indifference_threshold:
+    elif (
+        interval is not None
+        and interval[0] >= -indifference_threshold
+        and interval[1] <= indifference_threshold
+    ):
         status = DecisionInformationStatus.NO_MATERIAL_DECISION_DIFFERENCE
         next_experiment = "stop_no_material_difference"
         reason = "the entire interval lies inside the decision-indifference region"

@@ -96,7 +96,9 @@ def semantic_evidence_summary(
         roles.update(role.value for role in profile.card.roles)
         packages.update(profile.card.package_ids)
         source_types.update(source.source_type for source in profile.card.sources)
-        source_ids.update(source.source_path for source in profile.card.sources if source.source_path)
+        source_ids.update(
+            source.source_path for source in profile.card.sources if source.source_path
+        )
 
     if profile is None and not annotation_roles and not annotation_packages:
         evidence_type = SemanticEvidenceType.UNKNOWN

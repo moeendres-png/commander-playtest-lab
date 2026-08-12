@@ -44,11 +44,18 @@ class TacticalEvidenceResult:
     replay_or_log: str | None = None
     confidence_scope: str = "bounded_fixture_only"
     evidence_class: str = "targeted_tactical_evidence"
-    truth_boundary: str = "bounded tactical evidence; never structural or empirical winrate evidence"
+    truth_boundary: str = (
+        "bounded tactical evidence; never structural or empirical winrate evidence"
+    )
 
     def __post_init__(self) -> None:
         if self.execution_status == TacticalEvidenceExecutionStatus.PASS:
-            required = (self.provider, self.provider_version, self.provider_commit, self.fixture_hash)
+            required = (
+                self.provider,
+                self.provider_version,
+                self.provider_commit,
+                self.fixture_hash,
+            )
             if not all(required):
                 raise ValueError("PASS tactical evidence requires provider/version/commit/fixture")
         if self.provider is None and self.execution_status not in {
