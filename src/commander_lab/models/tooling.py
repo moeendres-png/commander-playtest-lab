@@ -774,7 +774,8 @@ class DeckDecisionRunInput(FrozenModel):
     iterations: int = Field(default=64, ge=1, le=10_000)
     seed: int = Field(default=2026082103, ge=0)
     max_turns: int = Field(default=35, ge=1, le=500)
-    workers: int = Field(default=2, ge=1, le=64)
+    workers: int = Field(default=1, ge=1, le=64)
+    max_simulation_seconds: float | None = Field(default=None, gt=0.0, le=600.0)
 
 
 class DeckDecisionDiagnoseInput(FrozenModel):

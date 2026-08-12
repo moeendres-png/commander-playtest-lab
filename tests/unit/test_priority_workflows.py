@@ -45,7 +45,14 @@ def test_compare_validate_reuses_paired_engine_and_exact_cache() -> None:
     assert first["evidence_class"] == "structural_model_estimates"
     assert first["pair_count"] == 1
     assert first["paired"]["requested_runs"] == 1
-    assert first["paired"]["worker_count"] == 2
+    assert first["paired"]["worker_count"] == 1
+    assert first["execution_workers"] == {
+        "requested": 2,
+        "effective": 1,
+        "fallback_applied": True,
+        "policy": "validated_single_worker_until_issue_55_resolution",
+        "deck_quality_evidence": False,
+    }
     assert len(first["paired_observations"]) == 1
     assert first["context"]["snapshot_hash"] == facade.context.snapshot_hash
     assert len(first["workflow_semantic_identity"]["identity_hash"]) == 64

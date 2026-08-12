@@ -1272,7 +1272,15 @@ class CommanderToolService:
     ) -> ToolResponse:
         started = time.monotonic()
         invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"
+        execution_limit = float(self.limits.max_simulation_seconds)
+        requested_execution_limit = getattr(request, "max_simulation_seconds", None)
+        if tool_name == "deck_decision_run" and requested_execution_limit is not None:
+            execution_limit = float(requested_execution_limit)
         scenario = request.model_dump(mode="json") if hasattr(request, "model_dump") else request
+        if tool_name == "deck_decision_run" and isinstance(scenario, dict):
+            scenario = dict(scenario)
+            scenario.pop("max_simulation_seconds", None)
+            scenario["workers"] = 1
         identity_before = self._run_identity(
             scenario,
             deck_ids,
@@ -1295,10 +1303,9 @@ class CommanderToolService:
                         "run identity drift detected during tool execution; result rejected"
                     )
             elapsed = time.monotonic() - started
-            if elapsed > self.limits.max_simulation_seconds:
+            if elapsed > execution_limit:
                 raise ToolExecutionError(
-                    "tool exceeded simulation budget: "
-                    f"{elapsed:.3f}s > {self.limits.max_simulation_seconds:.3f}s"
+                    f"tool exceeded simulation budget: {elapsed:.3f}s > {execution_limit:.3f}s"
                 )
             status = ToolStatus.COMPLETED
             warnings: list[str] = []
@@ -1821,8 +1828,12 @@ class CommanderToolService:
                         - 3.0 * critical_loss
                         - (0.75 if not overlap else 0.0)
                     )
-                    inference_penalty = 2.5 if candidate_id.startswith("inventory/") else 0.0
-                    delta = raw_delta + compatibility_adjustment - inference_penalty
+                    legacy_inference_penalty = 2.5 if candidate_id.startswith("inventory/") else 0.0
+                    # Semantic uncertainty is routed through the decision-weighted Semantic
+                    # Evidence gate. A candidate ID/profiling source is provenance, not negative
+                    # card evidence and therefore cannot lower the deterministic screen score.
+                    inference_penalty = 0.0
+                    delta = raw_delta + compatibility_adjustment
                     role_gain = sorted(role.value for role in candidate.card.roles - cut.roles)
                     role_loss = sorted(role.value for role in lost_roles)
                     recommendations.append(
@@ -1834,6 +1845,7 @@ class CommanderToolService:
                             "raw_profile_delta": raw_delta,
                             "role_compatibility_adjustment": compatibility_adjustment,
                             "screening_uncertainty_penalty": inference_penalty,
+                            "legacy_screening_uncertainty_penalty": legacy_inference_penalty,
                             "semantic_quality": (
                                 "keyword_inferred_structural_only"
                                 if inference_penalty
@@ -3598,23 +3610,108 @@ class CommanderToolService:
             )
             if screened.status != ToolStatus.COMPLETED:
                 raise ToolExecutionError("candidate screening failed")
-            rows = []
-            for row in screened.result.get("recommendations", []):
-                rows.append(
-                    {
-                        **row,
-                        "recommendation_status": "candidate_swap",
-                        "validation_level": "structural_only",
-                        "candidate_source": "verified local candidate registry",
-                        "automatic_application": False,
-                    }
+            from commander_lab.candidate_screening import RogShaiCandidateScreener
+
+            semantic_screen = RogShaiCandidateScreener(self.root, service=self).screen_pool(
+                request.deck_id
+            )
+            raw_screen_rows = semantic_screen.get("rows", [])
+            screen_rows: list[Any] = raw_screen_rows if isinstance(raw_screen_rows, list) else []
+            by_id = {
+                str(item["candidate_id"]): item
+                for item in screen_rows
+                if isinstance(item, dict) and item.get("candidate_id")
+            }
+            by_name = {
+                str(item["oracle_name"]): item
+                for item in screen_rows
+                if isinstance(item, dict) and item.get("oracle_name")
+            }
+            rows: list[dict[str, Any]] = []
+            ready_rows: list[dict[str, Any]] = []
+            semantic_deferred: list[dict[str, Any]] = []
+            static_deferred: list[dict[str, Any]] = []
+            for legacy_row in screened.result.get("recommendations", []):
+                row = dict(legacy_row)
+                screen_row = by_id.get(str(row.get("candidate_id"))) or by_name.get(
+                    str(row.get("add"))
                 )
+                evidence = (
+                    dict(screen_row.get("semantic_evidence", {}))
+                    if isinstance(screen_row, dict)
+                    and isinstance(screen_row.get("semantic_evidence"), dict)
+                    else {}
+                )
+                bucket = (
+                    str(screen_row.get("bucket")) if isinstance(screen_row, dict) else "missing"
+                )
+                model_ready = bool(
+                    isinstance(screen_row, dict)
+                    and screen_row.get("model_dependent_recommendation_ready") is True
+                )
+                needs_adjudication = bool(
+                    evidence.get("needs_targeted_adjudication") is True or not model_ready
+                )
+                legacy_quality = str(row.get("semantic_quality", "unknown"))
+                evidence_type = str(evidence.get("evidence_type", "UNKNOWN"))
+                provenance_disagreement = (
+                    legacy_quality == "keyword_inferred_structural_only"
+                    and evidence_type not in {"PROJECT_HEURISTIC", "UNKNOWN"}
+                )
+                if screen_row is None:
+                    frontier_status = "deferred_missing_current_semantic_screen"
+                    needs_adjudication = True
+                elif not model_ready:
+                    frontier_status = "deferred_requires_profile"
+                elif evidence.get("needs_targeted_adjudication") is True:
+                    frontier_status = "deferred_requires_semantic_adjudication"
+                elif bucket in {"defer_clear_static_dominance", "defer_low_confidence_default"}:
+                    frontier_status = "deferred_static"
+                else:
+                    frontier_status = "simulation_ready"
+                enriched = {
+                    **row,
+                    "legacy_semantic_quality": legacy_quality,
+                    "semantic_authority": "semantic_evidence_summary",
+                    "semantic_evidence": evidence,
+                    "semantic_screen_bucket": bucket,
+                    "semantic_provenance_disagreement": provenance_disagreement,
+                    "material_semantic_conflict": bool(
+                        evidence.get("needs_targeted_adjudication") is True
+                    ),
+                    "requires_semantic_adjudication": needs_adjudication,
+                    "frontier_status": frontier_status,
+                    "recommendation_status": "candidate_swap",
+                    "validation_level": "structural_only",
+                    "candidate_source": "verified local candidate registry",
+                    "automatic_application": False,
+                }
+                rows.append(enriched)
+                if frontier_status == "simulation_ready":
+                    ready_rows.append(enriched)
+                elif needs_adjudication:
+                    semantic_deferred.append(enriched)
+                else:
+                    static_deferred.append(enriched)
             return {
                 "deck_id": request.deck_id,
                 "deck_hash": self._deck(request.deck_id).deck_hash,
-                "method": "whole_deck_role_package_and_profile_screening",
-                "candidates": rows,
-                "count": len(rows),
+                "method": "whole_deck_role_package_profile_and_semantic_evidence_screening",
+                "candidates": ready_rows,
+                "count": len(ready_rows),
+                "all_screened_candidates": rows,
+                "screened_count": len(rows),
+                "deferred_semantic_candidates": semantic_deferred,
+                "semantic_deferred_count": len(semantic_deferred),
+                "static_deprioritized_candidates": static_deferred,
+                "static_deprioritized_count": len(static_deferred),
+                "candidate_recall": semantic_screen.get("candidate_recall"),
+                "semantic_frontier_gate": {
+                    "authority": "semantic_evidence_summary",
+                    "legacy_semantic_quality_is_authoritative": False,
+                    "unmodeled_is_negative_evidence": False,
+                    "noisy_early_simulation_elimination": False,
+                },
                 "automatic_application": False,
             }
 
@@ -5367,6 +5464,19 @@ class CommanderToolService:
                     workers=request.workers,
                 )
             result["workflow_session"] = session.identity()
+            result["execution_envelope"] = {
+                "requested_workers": request.workers,
+                "effective_workers": 1,
+                "worker_fallback_applied": request.workers != 1,
+                "default_max_simulation_seconds": float(self.limits.max_simulation_seconds),
+                "requested_max_simulation_seconds": request.max_simulation_seconds,
+                "effective_max_simulation_seconds": (
+                    float(request.max_simulation_seconds)
+                    if request.max_simulation_seconds is not None
+                    else float(self.limits.max_simulation_seconds)
+                ),
+                "classification": "execution_envelope_only_not_deck_quality_evidence",
+            }
             return result
 
         return self._invoke(

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.17.1 - 2026-08-12
+
+- Routes expensive candidate-swap frontiers through the shipped decision-weighted Semantic Evidence screen; legacy semantic labels remain provenance only and missing/weak semantics are not a negative card score.
+- Defers profile-required, decision-material semantic-unknown and conservative static-deprioritization rows before paired simulation while preserving their discoverability and provenance.
+- Makes the public paired decision path safe-by-default at one worker after the measured workers=2 regression, while retaining requested/effective worker provenance.
+- Adds a bounded per-run execution-time envelope for `deck_decision_run`; execution limits are excluded from semantic run/cache identity and do not become deck-quality evidence.
+- Keeps RogShai, inventory, physical allocations, opponent observations and structural engine semantics unchanged.
+
 ## 1.17.0 - 2026-08-12
 
 - Unifies current-truth and provenance boundaries for the post-J RogShai-only workflow; stale handoffs remain historical rather than competing current authority.
