@@ -1,0 +1,96 @@
+name: Inspect Post-1.17 Adaptive Partials
+
+on:
+  push:
+    branches:
+      - runs/post-117-rogshai-first-wave-20260812
+    paths:
+      - '.github/workflows/post-117-inspect-adaptive-partials.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  inspect:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pair_id: preordain-to-opt
+            artifact_id: 9153484827
+            expected_sha: 68c5df95fb1e73e4e558540d5b36a6086b85c729fd0f5da903233a03bf5f26c1
+          - pair_id: loyal-drake-to-opt
+            artifact_id: 9153505132
+            expected_sha: b5bc76e2c039251892d4fa33c40534b734b68e20294942cb24c5b0937971f0c6
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact validated 1.17 main identity
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e33107c7aa6ca997aa47565008e1da1d6d878007
+          fetch-depth: 0
+      - name: Download and inspect adaptive artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ matrix.artifact_id }}
+          PAIR_ID: ${{ matrix.pair_id }}
+          EXPECTED_SHA: ${{ matrix.expected_sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/adaptive "artifacts/post_117_adaptive_inspection/${PAIR_ID}"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > "/tmp/adaptive/${PAIR_ID}.zip"
+          actual=$(sha256sum "/tmp/adaptive/${PAIR_ID}.zip" | awk '{print $1}')
+          test "$actual" = "$EXPECTED_SHA"
+          unzip -q "/tmp/adaptive/${PAIR_ID}.zip" -d "/tmp/adaptive/${PAIR_ID}"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          pair=os.environ['PAIR_ID']
+          root=Path('/tmp/adaptive')/pair
+          out=Path('artifacts/post_117_adaptive_inspection')/pair
+          files=sorted(p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file())
+          rows=[]
+          for budget in (128,256,512,1024):
+              cp=next(iter(root.rglob(f'COMPARISON_{budget}.json')),None)
+              dp=next(iter(root.rglob(f'DIAGNOSIS_{budget}.json')),None)
+              row={'iterations':budget,'comparison_present':cp is not None,'diagnosis_present':dp is not None}
+              if cp:
+                  data=json.loads(cp.read_text(encoding='utf-8'))
+                  row['tool_status']=data.get('status')
+                  result=data.get('result') or {}
+                  paired=result.get('paired') or {}
+                  row['pair_count']=result.get('pair_count')
+                  row['placement_improvement']=paired.get('placement_improvement')
+                  row['confidence_interval']=paired.get('confidence_interval')
+                  row['monte_carlo_standard_error']=paired.get('monte_carlo_standard_error')
+                  row['errors']=data.get('errors')
+              if dp:
+                  diag=json.loads(dp.read_text(encoding='utf-8'))
+                  state=((diag.get('result') or {}).get('decision_information_state') or {})
+                  row['decision_information_status']=state.get('status')
+                  row['next_recommended_experiment']=state.get('next_recommended_experiment')
+                  row['stop_reason']=state.get('stop_reason')
+                  row['state_hash']=state.get('state_hash')
+              rows.append(row)
+          summary={
+              'pair_id':pair,
+              'source_artifact_id':int(os.environ['ARTIFACT_ID']),
+              'source_artifact_sha256':os.environ['EXPECTED_SHA'],
+              'files':files,
+              'budgets':rows,
+              'highest_completed_budget':max((r['iterations'] for r in rows if r.get('tool_status')=='completed' and r.get('diagnosis_present')),default=None),
+              'first_failed_budget':next((r['iterations'] for r in rows if r.get('comparison_present') and r.get('tool_status')!='completed'),None),
+              'truth_boundary':'inspection of structural-model partial evidence; not empirical gameplay or deck mutation authority',
+          }
+          (out/'INSPECTION.json').write_text(json.dumps(summary,indent=2,sort_keys=True),encoding='utf-8')
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - name: Upload inspection summary
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: post-117-adaptive-inspection-${{ matrix.pair_id }}-${{ github.run_id }}
+          path: artifacts/post_117_adaptive_inspection/${{ matrix.pair_id }}/
+          if-no-files-found: error
