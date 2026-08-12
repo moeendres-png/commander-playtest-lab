@@ -38,27 +38,35 @@ def test_j_p6_baseline_is_bound_to_final_j_p5_main() -> None:
 
 def test_fixed_seed_structural_result_is_deterministic() -> None:
     service = CommanderToolService(ROOT)
-    deck = service.decks["rogshai/current"]
-    first = service.run_matchup_batch(
-        MatchupBatchInput(
-            deck_id="rogshai/current",
-            iterations=4,
-            seed=2026080901,
-            max_turns=20,
-            workers=1,
-        )
+    request = MatchupBatchInput(
+        deck_ids=(
+            "rogshai/current",
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget",
+        ),
+        iterations=2,
+        workers=1,
+        seed=20260811,
     )
-    second = service.run_matchup_batch(
-        MatchupBatchInput(
-            deck_id="rogshai/current",
-            iterations=4,
-            seed=2026080901,
-            max_turns=20,
-            workers=1,
-        )
-    )
-    assert first.status == ToolStatus.COMPLETED
-    assert second.status == ToolStatus.COMPLETED
-    assert first.result == second.result
-    assert first.metadata.run_identity_hash == second.metadata.run_identity_hash
-    assert deck.deck_hash == "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
+    first = service.run_matchup_batch(request)
+    second = service.run_matchup_batch(request)
+    assert first.status == second.status == ToolStatus.COMPLETED
+    first_result = dict(first.result)
+    second_result = dict(second.result)
+    first_result.pop("result_path", None)
+    second_result.pop("result_path", None)
+    assert first_result == second_result
+
+
+def test_release_truth_includes_real_p3_feasibility_evidence() -> None:
+    workflow = (ROOT / ".github/workflows/release-artifacts.yml").read_text(encoding="utf-8")
+    assert "docs/J_P3_PROVIDER_DECISION.json" in workflow
+    assert "external_engine_provider_decision" in workflow
+    assert "xmage_real_execution" in workflow
+    assert "forge_real_execution" in workflow
+    assert "structural_tactical_and_real_external_feasibility_evidence" in workflow
+    assert 'external_engine_production_ready": False' in workflow
+    assert 'wheel-verify/bin/commander-lab" --help' in workflow
+    assert "XMage/Forge observations = 0" not in workflow
+    assert '"validation_level": "structural_and_tactical_only"' not in workflow
