@@ -37,6 +37,7 @@ def test_compare_validate_reuses_paired_engine_and_exact_cache() -> None:
         "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
         "iterations": 1,
         "seed": 20260811,
+        "workers": 2,
     }
     first = facade.compare_validate(**request)
     second = facade.compare_validate(**request)
@@ -44,6 +45,8 @@ def test_compare_validate_reuses_paired_engine_and_exact_cache() -> None:
     assert first["evidence_class"] == "structural_model_estimates"
     assert first["pair_count"] == 1
     assert first["paired"]["requested_runs"] == 1
+    assert first["paired"]["worker_count"] == 2
+    assert len(first["paired_observations"]) == 1
     assert first["context"]["snapshot_hash"] == facade.context.snapshot_hash
     assert first["static_screen"]["automatic_rejection"] is False
     assert first["playstyle_review_status"] == "deferred_until_decision_bundle"

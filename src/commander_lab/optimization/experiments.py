@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import multiprocessing
+import os
 from collections.abc import Iterable
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from dataclasses import dataclass
 from statistics import fmean
+from typing import Any
 
 from commander_lab.decision_statistics import (
     bayesian_shrunk_mean,
@@ -23,6 +27,105 @@ from commander_lab.models import (
     StructuralMatchConfig,
 )
 from commander_lab.storage import sha256_value
+
+_PAIRED_BASELINE: StructuralDeckProfile | None = None
+_PAIRED_VARIANT: StructuralDeckProfile | None = None
+_PAIRED_OPPONENTS: tuple[StructuralDeckProfile, ...] = ()
+
+
+def _initialize_paired_worker(
+    baseline_payload: dict[str, Any],
+    variant_payload: dict[str, Any],
+    opponent_payloads: list[dict[str, Any]],
+) -> None:
+    global _PAIRED_BASELINE, _PAIRED_VARIANT, _PAIRED_OPPONENTS
+    _PAIRED_BASELINE = StructuralDeckProfile.model_validate(baseline_payload)
+    _PAIRED_VARIANT = StructuralDeckProfile.model_validate(variant_payload)
+    _PAIRED_OPPONENTS = tuple(
+        StructuralDeckProfile.model_validate(payload) for payload in opponent_payloads
+    )
+
+
+def _run_paired_worker(payload: dict[str, Any]) -> dict[str, Any]:
+    from commander_lab.models import StructuralAbortLimits
+
+    if _PAIRED_BASELINE is None or _PAIRED_VARIANT is None:
+        raise RuntimeError("paired worker was not initialized")
+    baseline = _PAIRED_BASELINE
+    variant = _PAIRED_VARIANT
+    opponents = _PAIRED_OPPONENTS
+    pilot_config = PilotConfig.model_validate(payload["pilot_config"])
+    index = int(payload["index"])
+    pair_id = str(payload["pair_id"])
+    match_seed = int(payload["seed"])
+    start = int(payload["starting_player_seat"])
+    limits = StructuralAbortLimits(max_turns=int(payload["max_turns"]))
+    baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
+    variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
+    configs = (pilot_config,) * len(baseline_ids)
+    base_result = StructuralSimulator(
+        {deck.deck_id: deck for deck in (baseline, *opponents)}
+    ).simulate(
+        StructuralMatchConfig(
+            match_id=f"{pair_id}-base-{index:08d}",
+            deck_ids=baseline_ids,
+            limits=limits,
+            seed=match_seed,
+            starting_player_seat=start,
+            pilot_configs=configs,
+        ),
+        run_id=f"{pair_id}-baseline",
+    )
+    var_result = StructuralSimulator(
+        {deck.deck_id: deck for deck in (variant, *opponents)}
+    ).simulate(
+        StructuralMatchConfig(
+            match_id=f"{pair_id}-variant-{index:08d}",
+            deck_ids=variant_ids,
+            limits=limits,
+            seed=match_seed,
+            starting_player_seat=start,
+            pilot_configs=configs,
+        ),
+        run_id=f"{pair_id}-variant",
+    )
+    baseline_metrics = base_result.player_metrics["p1"]
+    variant_metrics = var_result.player_metrics["p1"]
+    baseline_row = {
+        "placement": float(baseline_metrics.placement),
+        "win": float(baseline_metrics.placement == 1),
+        "damage": (baseline_metrics.normal_damage_dealt + baseline_metrics.commander_damage_dealt),
+        "cards_drawn": float(baseline_metrics.cards_drawn),
+    }
+    variant_row = {
+        "placement": float(variant_metrics.placement),
+        "win": float(variant_metrics.placement == 1),
+        "damage": variant_metrics.normal_damage_dealt + variant_metrics.commander_damage_dealt,
+        "cards_drawn": float(variant_metrics.cards_drawn),
+    }
+    comparison = "tie"
+    if variant_metrics.placement < baseline_metrics.placement:
+        comparison = "variant_win"
+    elif variant_metrics.placement > baseline_metrics.placement:
+        comparison = "variant_loss"
+    return {
+        "baseline_row": baseline_row,
+        "variant_row": variant_row,
+        "pair": {
+            "index": index,
+            "seed": match_seed,
+            "starting_player_seat": start,
+            "pod_size": 1 + len(opponents),
+            "opponent_deck_ids": [deck.deck_id for deck in opponents],
+            "pilot_strength": pilot_config.strength.value,
+            "pilot_mode": pilot_config.mode.value,
+            "baseline_placement": baseline_metrics.placement,
+            "variant_placement": variant_metrics.placement,
+            "comparison": comparison,
+            "baseline_log_sha256": base_result.log_sha256,
+            "variant_log_sha256": var_result.log_sha256,
+        },
+    }
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +189,7 @@ def variant_deck(
     removals: Iterable[str] = (),
     additions: Iterable[StructuralCardProfile] = (),
     additional_commander_tax: int = 0,
+    denied_commanders: Iterable[str] = (),
     suppress_commander_synergy: bool = False,
 ) -> StructuralDeckProfile:
     cards = list(baseline.cards)
@@ -101,8 +205,15 @@ def variant_deck(
         raise ValueError("variant must preserve structural deck size")
     if suppress_commander_synergy:
         cards = [card.model_copy(update={"commander_synergy": 0.0}) for card in cards]
+    denied = tuple(denied_commanders)
+    if len(denied) != len(set(denied)):
+        raise ValueError("denied commander identities must be unique")
+    unknown = set(denied) - set(baseline.commander_base_costs)
+    if unknown:
+        raise ValueError(f"unknown denied commanders: {sorted(unknown)}")
+    targets = set(denied) if denied else set(baseline.commander_base_costs)
     costs = {
-        name: cost + additional_commander_tax
+        name: cost + additional_commander_tax if name in targets else cost
         for name, cost in baseline.commander_base_costs.items()
     }
     hash_payload = {
@@ -111,6 +222,7 @@ def variant_deck(
         "removed": removed,
         "added": list(additions),
         "tax": additional_commander_tax,
+        "denied_commanders": sorted(targets),
         "suppress": suppress_commander_synergy,
     }
     return baseline.model_copy(
@@ -177,14 +289,16 @@ def run_paired_structural_comparison(
     max_turns: int,
     pair_id: str,
     starting_player_seat: int | None = None,
+    workers: int = 1,
 ) -> tuple[PairedMetrics, list[dict[str, object]]]:
-    baseline_registry = {deck.deck_id: deck for deck in (baseline, *opponents)}
-    variant_registry = {deck.deck_id: deck for deck in (variant, *opponents)}
-    base_sim = StructuralSimulator(baseline_registry)
-    var_sim = StructuralSimulator(variant_registry)
+    if workers < 1:
+        raise ValueError("workers must be positive")
+    if iterations < 1:
+        raise ValueError("iterations must be positive")
     base_rows: list[dict[str, float]] = []
     var_rows: list[dict[str, float]] = []
     pairs: list[dict[str, object]] = []
+    tasks: list[dict[str, Any]] = []
     for index in range(iterations):
         match_seed = derive_paired_seed(seed, pair_id, index)
         start = (
@@ -192,71 +306,47 @@ def run_paired_structural_comparison(
             if starting_player_seat is not None
             else index % (1 + len(opponents))
         )
-        baseline_ids = (baseline.deck_id, *(deck.deck_id for deck in opponents))
-        variant_ids = (variant.deck_id, *(deck.deck_id for deck in opponents))
-        configs = (pilot_config,) * len(baseline_ids)
-        from commander_lab.models import StructuralAbortLimits
-
-        limits = StructuralAbortLimits(max_turns=max_turns)
-        base_result = base_sim.simulate(
-            StructuralMatchConfig(
-                match_id=f"{pair_id}-base-{index:08d}",
-                deck_ids=baseline_ids,
-                limits=limits,
-                seed=match_seed,
-                starting_player_seat=start,
-                pilot_configs=configs,
-            ),
-            run_id=f"{pair_id}-baseline",
-        )
-        var_result = var_sim.simulate(
-            StructuralMatchConfig(
-                match_id=f"{pair_id}-variant-{index:08d}",
-                deck_ids=variant_ids,
-                limits=limits,
-                seed=match_seed,
-                starting_player_seat=start,
-                pilot_configs=configs,
-            ),
-            run_id=f"{pair_id}-variant",
-        )
-        b = base_result.player_metrics["p1"]
-        v = var_result.player_metrics["p1"]
-        base_row = {
-            "placement": float(b.placement),
-            "win": float(b.placement == 1),
-            "damage": b.normal_damage_dealt + b.commander_damage_dealt,
-            "cards_drawn": float(b.cards_drawn),
-        }
-        var_row = {
-            "placement": float(v.placement),
-            "win": float(v.placement == 1),
-            "damage": v.normal_damage_dealt + v.commander_damage_dealt,
-            "cards_drawn": float(v.cards_drawn),
-        }
-        base_rows.append(base_row)
-        var_rows.append(var_row)
-        comparison = "tie"
-        if v.placement < b.placement:
-            comparison = "variant_win"
-        elif v.placement > b.placement:
-            comparison = "variant_loss"
-        pairs.append(
+        tasks.append(
             {
                 "index": index,
+                "pair_id": pair_id,
                 "seed": match_seed,
                 "starting_player_seat": start,
-                "pod_size": 1 + len(opponents),
-                "opponent_deck_ids": [deck.deck_id for deck in opponents],
-                "pilot_strength": pilot_config.strength.value,
-                "pilot_mode": pilot_config.mode.value,
-                "baseline_placement": b.placement,
-                "variant_placement": v.placement,
-                "comparison": comparison,
-                "baseline_log_sha256": base_result.log_sha256,
-                "variant_log_sha256": var_result.log_sha256,
+                "pilot_config": pilot_config.model_dump(mode="json"),
+                "max_turns": max_turns,
             }
         )
+
+    initializer_args = (
+        baseline.model_dump(mode="json"),
+        variant.model_dump(mode="json"),
+        [deck.model_dump(mode="json") for deck in opponents],
+    )
+    if workers == 1:
+        _initialize_paired_worker(*initializer_args)
+        raw_results = [_run_paired_worker(task) for task in tasks]
+    else:
+        chunksize = max(1, len(tasks) // (workers * 4))
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            _initialize_paired_worker(*initializer_args)
+            with ThreadPoolExecutor(max_workers=workers) as thread_executor:
+                raw_results = list(
+                    thread_executor.map(_run_paired_worker, tasks, chunksize=chunksize)
+                )
+        else:
+            with ProcessPoolExecutor(
+                max_workers=workers,
+                initializer=_initialize_paired_worker,
+                initargs=initializer_args,
+                mp_context=multiprocessing.get_context("spawn"),
+            ) as process_executor:
+                raw_results = list(
+                    process_executor.map(_run_paired_worker, tasks, chunksize=chunksize)
+                )
+    for raw in raw_results:
+        base_rows.append(raw["baseline_row"])
+        var_rows.append(raw["variant_row"])
+        pairs.append(raw["pair"])
 
     def avg(rows: list[dict[str, float]], key: str) -> float:
         return fmean(row[key] for row in rows)
@@ -294,7 +384,7 @@ def run_paired_structural_comparison(
         discarded_runs=0,
         actual_sample_size=len(pairs),
         seeds=tuple(derive_paired_seed(seed, pair_id, index) for index in range(iterations)),
-        worker_count=1,
+        worker_count=workers,
         validation_level="structural_only",
         paired_or_unpaired="paired",
         effect_size=paired_standardized_effect(differences),

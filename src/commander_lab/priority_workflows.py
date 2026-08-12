@@ -106,11 +106,14 @@ class PriorityWorkflowFacade:
         iterations: int = 8,
         seed: int = 20260811,
         max_turns: int = 14,
+        workers: int = 1,
     ) -> dict[str, Any]:
         if deck_id != "rogshai/current":
             raise ValueError("priority compare_validate is scoped to current RogShai")
         if iterations < 1:
             raise ValueError("iterations must be positive")
+        if workers < 1:
+            raise ValueError("workers must be positive")
         baseline = self._deck(deck_id)
         static_screen = self.screener.screen_swap(
             baseline=baseline,
@@ -169,6 +172,7 @@ class PriorityWorkflowFacade:
                 "analysis_seed": analysis_seed,
                 "max_turns": max_turns,
                 "pair_id": pair_id,
+                "workers": workers,
             },
             exact_seed_set=paired_seeds,
             policy_config_hashes={
@@ -187,6 +191,7 @@ class PriorityWorkflowFacade:
                 pilot_config=pilot_config,
                 max_turns=max_turns,
                 pair_id=pair_id,
+                workers=workers,
             )
             return {"paired": metrics.as_dict(), "pairs": pairs}
 
@@ -220,6 +225,7 @@ class PriorityWorkflowFacade:
             "rationale": list(built.rationale),
             "paired": paired,
             "pair_count": len(pairs),
+            "paired_observations": pairs,
             "mana_before": asdict(mana_before),
             "mana_after": asdict(mana_after),
             "mana_delta": asdict(mana_delta),

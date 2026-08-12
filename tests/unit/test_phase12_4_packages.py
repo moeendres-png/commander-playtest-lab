@@ -114,6 +114,23 @@ def test_deck_version_mismatch_is_warned() -> None:
     assert "deck version is outside curated supported_deck_hashes" in result.warnings
 
 
+def test_current_rogshai_packages_support_current_deck_hash() -> None:
+    x = extractor()
+    current_hash = x.decks["rogshai/current"].deck_hash
+    package_ids = {
+        package.package_id
+        for package in x.registry.packages
+        if package.package_id.startswith("rogshai-")
+    }
+
+    assert package_ids
+    for package_id in package_ids:
+        package = x.registry.latest(package_id)
+        assert current_hash in package.supported_deck_hashes
+        result = x.evaluate("rogshai/current", package_id)
+        assert "deck version is outside curated supported_deck_hashes" not in result.warnings
+
+
 def test_korvold_and_rogshai_packages_cannot_mix() -> None:
     with pytest.raises(PackageExtractionError, match="commander mismatch"):
         extractor().evaluate("rogshai/current", "korvold-independent-finishers")

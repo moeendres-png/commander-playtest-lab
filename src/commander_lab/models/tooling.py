@@ -182,6 +182,7 @@ class PackageAblationInput(SimulationInput):
 class CommanderDenialInput(SimulationInput):
     deck_id: str
     additional_commander_tax: int = Field(default=6, ge=2, le=30)
+    denied_commanders: tuple[str, ...] = ()
     suppress_commander_synergy: bool = True
     opponent_deck_ids: tuple[str, ...] = (
         "synthetic/aggro",

@@ -41,6 +41,7 @@ def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> No
     assert "allocation_snapshot" in hashes
     assert "playstyle_preference" in hashes
     assert "inactive_deck_releases" in hashes
+    assert "active_deck:rogshai/current" in hashes
     assert any(key.startswith("drive_feature:INVENTORY_CARD_FEATURES_CURRENT") for key in hashes)
     assert any(key.startswith("drive_feature:MULTIPLAYER_CARD_FEATURES_CURRENT") for key in hashes)
     assert any(key.startswith("drive_feature:CARD_SYNERGY_GRAPH_CURRENT") for key in hashes)
@@ -57,6 +58,7 @@ def _copy_context_inputs(destination: Path) -> None:
         "data/opponents/opponent_registry.json",
         "data/pilots/pilot_registry.json",
         "data/decks/manifest.json",
+        "data/decks/rogshai_current.json",
         "data/canonical_import/2026-08-07/inventory_snapshot.json",
         "data/collections/current_deck_allocations.json",
     ):
@@ -158,3 +160,35 @@ def test_context_hash_changes_if_playstyle_preference_changes(tmp_path: Path) ->
     path.write_text(json.dumps(payload), encoding="utf-8")
     after = load_project_context(tmp_path).snapshot_hash
     assert before != after
+
+
+def test_context_fails_closed_when_manifest_deck_hash_conflicts(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    path = tmp_path / "data/decks/manifest.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["decks"]["rogshai/current"]["deck_hash"] = "0" * 64
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ProjectContextError, match="embedded hash mismatch"):
+        load_project_context(tmp_path)
+
+
+def test_context_fails_closed_when_deck_content_changes_without_identity(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    path = tmp_path / "data/decks/rogshai_current.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["cards"][2]["oracle_name"] = "Plains"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ProjectContextError, match="content hash mismatch"):
+        load_project_context(tmp_path)
+
+
+def test_historical_j_final_pointer_does_not_invalidate_live_context(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    before = load_project_context(tmp_path).snapshot_hash
+    historical = tmp_path / "data/collections/current/J_FINAL_ACTIVE_SCOPE.json"
+    historical.write_text('{"historical_note":"administrative-only change"}', encoding="utf-8")
+    after = load_project_context(tmp_path).snapshot_hash
+
+    assert before == after

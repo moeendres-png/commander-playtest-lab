@@ -8,6 +8,8 @@ from typing import Any
 
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
+from commander_lab.models import Deck
+from commander_lab.storage import compute_deck_hash
 
 
 class ProjectContextError(ValueError):
@@ -233,8 +235,8 @@ def _validate_playstyle(payload: dict[str, Any]) -> str:
 
 
 def _active_deck_hashes(
-    manifest: dict[str, Any], active: tuple[str, ...]
-) -> tuple[tuple[str, str], ...]:
+    root: Path, manifest: dict[str, Any], active: tuple[str, ...]
+) -> tuple[tuple[tuple[str, str], ...], dict[str, Path]]:
     manifest_active = tuple(str(value) for value in manifest.get("active_own_decks", []))
     if manifest_active != active:
         raise ProjectContextError("deck manifest and live active-deck scope disagree")
@@ -242,6 +244,7 @@ def _active_deck_hashes(
     if not isinstance(decks, dict):
         raise ProjectContextError("deck manifest has no deck identity mapping")
     identities: list[tuple[str, str]] = []
+    deck_paths: dict[str, Path] = {}
     for deck_id in active:
         raw = decks.get(deck_id)
         if not isinstance(raw, dict):
@@ -249,10 +252,35 @@ def _active_deck_hashes(
         digest = raw.get("deck_hash")
         if not isinstance(digest, str) or len(digest) != 64:
             raise ProjectContextError(f"active deck has invalid hash identity: {deck_id}")
+        normalized_file = raw.get("normalized_file")
+        if (
+            not isinstance(normalized_file, str)
+            or not normalized_file
+            or Path(normalized_file).name != normalized_file
+        ):
+            raise ProjectContextError(f"active deck has unsafe normalized file: {deck_id}")
+        deck_path = root / "data/decks" / normalized_file
+        try:
+            deck = Deck.model_validate(_load_json(deck_path))
+        except ValueError as exc:
+            raise ProjectContextError(f"active deck file is invalid: {deck_id}") from exc
+        if deck.deck_id != deck_id:
+            raise ProjectContextError(f"active deck file identity mismatch: {deck_id}")
+        if deck.deck_hash != digest:
+            raise ProjectContextError(f"active deck embedded hash mismatch: {deck_id}")
+        if compute_deck_hash(deck) != digest:
+            raise ProjectContextError(f"active deck content hash mismatch: {deck_id}")
+        if raw.get("total_cards") != deck.total_cards:
+            raise ProjectContextError(f"active deck total-card count mismatch: {deck_id}")
+        if raw.get("library_cards") != deck.library_cards:
+            raise ProjectContextError(f"active deck library-card count mismatch: {deck_id}")
+        if tuple(raw.get("commanders", ())) != tuple(deck.commander.commanders):
+            raise ProjectContextError(f"active deck commander identity mismatch: {deck_id}")
         identities.append((deck_id, digest))
+        deck_paths[deck_id] = deck_path
     if "korvold/current" in decks:
         raise ProjectContextError("inactive Korvold is still an operational current deck manifest")
-    return tuple(identities)
+    return tuple(identities), deck_paths
 
 
 def _policy_config_hashes(root: Path) -> tuple[tuple[str, str], ...]:
@@ -404,7 +432,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
 
     holdout_decks = _resolve_entities(list(holdout), registry)
     deck_manifest = _load_json(paths["deck_manifest"])
-    active_deck_hashes = _active_deck_hashes(deck_manifest, active)
+    active_deck_hashes, active_deck_paths = _active_deck_hashes(root_path, deck_manifest, active)
+    for deck_id, deck_path in active_deck_paths.items():
+        source_hash_dict[f"active_deck:{deck_id}"] = _sha256_file(deck_path)
     policy_config_hashes = _policy_config_hashes(root_path)
     source_hashes = tuple(sorted(source_hash_dict.items()))
     source_freshness = tuple(sorted(freshness.items()))
