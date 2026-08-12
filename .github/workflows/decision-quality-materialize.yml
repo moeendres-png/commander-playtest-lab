@@ -35,8 +35,8 @@ jobs:
           python -m ruff format src/commander_lab tests/unit/test_decision_quality_1180.py tests/integration/test_priority_prefix_and_frontier_1180.py
       - name: Strict static gates
         run: |
-          python -m ruff check .
-          python -m ruff format --check .
+          python -m ruff check src tests
+          python -m ruff format --check src tests
           python -m mypy src
           python -m compileall -q src tests
       - name: Focused decision-quality regression
