@@ -7,6 +7,7 @@ from typing import Any
 from commander_lab.advancement import decide_advancement
 from commander_lab.candidate_screening import RogShaiCandidateScreener
 from commander_lab.decision_bundle import DecisionBundle, write_decision_bundle
+from commander_lab.decision_information import build_decision_information_state
 from commander_lab.mana_analysis import ManaAnalyzer
 from commander_lab.model_informativeness import assess_model_informativeness
 from commander_lab.models import (
@@ -29,6 +30,7 @@ from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.current_candidates import canonical_feature_fusion_summary
 from commander_lab.tools.service import CommanderToolService
 from commander_lab.variant_identity import build_variant_identity
+from commander_lab.workflow_identity import build_priority_comparison_identity
 
 
 class PriorityWorkflowFacade:
@@ -167,12 +169,13 @@ class PriorityWorkflowFacade:
         optimizer_hash = sha256_run_value(
             self.service._optimization_constraints(deck_id), root=self.root
         )
+        workflow_identity = build_priority_comparison_identity(self.context)
         cache_identity = build_exact_result_identity(
             engine_version=self.context.engine_version,
             deck_hashes=(baseline.deck_hash, built.variant.deck_hash),
             opponent_hashes=tuple(deck.deck_hash for deck in opponents),
             pilot_hashes=(pilot_hash,),
-            canonical_context_snapshot=self.context.snapshot_hash,
+            canonical_context_snapshot=workflow_identity.identity_hash,
             scenario={
                 "deck_id": deck_id,
                 "opponent_deck_ids": [deck.deck_id for deck in opponents],
@@ -248,6 +251,7 @@ class PriorityWorkflowFacade:
                 "canonical_variant": canonical_variant.as_dict(),
             },
             "context": self._context_payload(self.context),
+            "workflow_semantic_identity": workflow_identity.as_dict(),
             "constraint_report": built.constraint_report.model_dump(mode="json"),
             "static_screen": static_screen.as_dict(),
             "playstyle_review_status": "deferred_until_decision_bundle",
@@ -263,6 +267,8 @@ class PriorityWorkflowFacade:
                 "cache_key": cached.cache_key,
                 "cache_hit": cached.cache_hit,
                 "evidence_class": cached.evidence_class,
+                "governance_context_hash": self.context.snapshot_hash,
+                "workflow_semantic_identity_hash": workflow_identity.identity_hash,
                 "exact_seed_count": len(paired_seeds),
                 "exact_seed_set_sha256": sha256_run_value(paired_seeds, root=self.root),
             },
@@ -282,46 +288,41 @@ class PriorityWorkflowFacade:
         }
 
     @staticmethod
-    def diagnose_next_experiment(comparison: dict[str, Any]) -> dict[str, str]:
-        if comparison.get("status") != "completed":
-            return {
-                "workflow": "diagnose_next_experiment",
-                "next_experiment": "repair_constraints_or_choose_another_candidate",
-                "reason": "the candidate did not pass the hard-constraint gate",
-            }
-        informativeness = comparison.get("model_informativeness", {})
-        if (
-            isinstance(informativeness, dict)
-            and informativeness.get("status") == "MODEL_INFORMATION_LIMIT"
-        ):
-            return {
-                "workflow": "diagnose_next_experiment",
-                "next_experiment": "diagnose_model_information_before_broad_search",
-                "reason": (
-                    "the structural evidence is saturated or non-separable; more seeds alone "
-                    "do not add decision information"
-                ),
-            }
-        paired = comparison.get("paired", {})
-        lower = float(paired.get("distributionally_robust_lower_bound", 0.0))
-        interval = paired.get("confidence_interval", (0.0, 0.0))
-        low = float(interval[0]) if isinstance(interval, (list, tuple)) and interval else 0.0
-        high = (
-            float(interval[1]) if isinstance(interval, (list, tuple)) and len(interval) > 1 else 0.0
+    def diagnose_next_experiment(comparison: dict[str, Any]) -> dict[str, Any]:
+        model_informativeness = comparison.get("model_informativeness")
+        if not isinstance(model_informativeness, dict):
+            model_informativeness = {}
+        opponent_uncertainty = comparison.get("opponent_uncertainty")
+        scenario_spread: float | None = None
+        if isinstance(opponent_uncertainty, dict):
+            raw_spread = opponent_uncertainty.get("scenario_spread")
+            if isinstance(raw_spread, (int, float)) and not isinstance(raw_spread, bool):
+                scenario_spread = float(raw_spread)
+        raw_missing = comparison.get("missing_semantic_axes", ())
+        missing_semantic_axes = (
+            tuple(str(value) for value in raw_missing)
+            if isinstance(raw_missing, (list, tuple))
+            else ()
         )
-        if lower > 0.0 and low > 0.0:
-            next_experiment = "run_sensitivity_then_commander_denial"
-            reason = "central paired structural evidence is directionally positive and separated"
-        elif low <= 0.0 <= high:
-            next_experiment = "run_more_paired_seeds_or_sensitivity"
-            reason = "the current model-internal interval crosses zero"
-        else:
-            next_experiment = "stop_or_return_to_candidate_screening"
-            reason = "current paired structural evidence does not support advancing this variant"
+        raw_failure = comparison.get("failure_mode_differences", ())
+        failure_mode_differences = (
+            tuple(str(value) for value in raw_failure)
+            if isinstance(raw_failure, (list, tuple))
+            else ()
+        )
+        state = build_decision_information_state(
+            comparison,
+            model_informativeness=model_informativeness,
+            scenario_spread=scenario_spread,
+            missing_semantic_axes=missing_semantic_axes,
+            failure_mode_differences=failure_mode_differences,
+            tactical_evidence_required=comparison.get("tactical_evidence_required") is True,
+        )
         return {
             "workflow": "diagnose_next_experiment",
-            "next_experiment": next_experiment,
-            "reason": reason,
+            "next_experiment": state.next_recommended_experiment,
+            "reason": state.stop_reason,
+            "decision_information_state": state.as_dict(),
         }
 
     @staticmethod
@@ -368,8 +369,13 @@ class PriorityWorkflowFacade:
         playstyle_review = self._post_build_playstyle_review(comparison)
         informativeness = comparison.get("model_informativeness", {})
         advancement = comparison.get("advancement_decision", {})
+        decision_information = comparison.get("decision_information_state")
+        if not isinstance(decision_information, dict):
+            decision_information = self.diagnose_next_experiment(comparison)[
+                "decision_information_state"
+            ]
         bundle = DecisionBundle(
-            bundle_version="1.2",
+            bundle_version="1.3",
             baseline_identity=dict(comparison.get("baseline_identity", {})),
             variant_identity=dict(comparison.get("variant_identity", {})),
             context_snapshot=dict(comparison.get("context", self._context_payload(self.context))),
@@ -405,6 +411,9 @@ class PriorityWorkflowFacade:
             extra={
                 "model_informativeness": informativeness,
                 "advancement_decision": advancement,
+                "decision_information_state": decision_information,
+                "workflow_semantic_identity": comparison.get("workflow_semantic_identity", {}),
+                "opponent_uncertainty": comparison.get("opponent_uncertainty", {}),
                 "next_best_experiment": self.diagnose_next_experiment(comparison),
                 "executed_evidence": {
                     "commander_denial": bool(commander_denial_result),

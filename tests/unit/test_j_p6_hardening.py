@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_api_version_tracks_package_version() -> None:
     app = create_app(ROOT)
-    assert app.version == __version__ == "1.16.0"
+    assert app.version == __version__ == "1.17.0"
 
 
 def test_consumed_p5_holdout_remains_regression_only() -> None:

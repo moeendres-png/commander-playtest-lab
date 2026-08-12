@@ -48,6 +48,12 @@ def test_compare_validate_reuses_paired_engine_and_exact_cache() -> None:
     assert first["paired"]["worker_count"] == 2
     assert len(first["paired_observations"]) == 1
     assert first["context"]["snapshot_hash"] == facade.context.snapshot_hash
+    assert len(first["workflow_semantic_identity"]["identity_hash"]) == 64
+    assert (
+        first["cache_provenance"]["workflow_semantic_identity_hash"]
+        == first["workflow_semantic_identity"]["identity_hash"]
+    )
+    assert first["cache_provenance"]["governance_context_hash"] == facade.context.snapshot_hash
     assert first["static_screen"]["automatic_rejection"] is False
     assert first["playstyle_review_status"] == "deferred_until_decision_bundle"
     assert "playstyle_fit" not in first
@@ -104,7 +110,8 @@ def test_diagnose_and_decision_bundle_are_reproducible(tmp_path: Path) -> None:
         },
     }
     diagnosis = facade.diagnose_next_experiment(comparison)
-    assert diagnosis["next_experiment"] == "run_sensitivity_then_commander_denial"
+    assert diagnosis["next_experiment"] == "run_next_paired_micro_batch"
+    assert diagnosis["decision_information_state"]["status"] == "MORE_SIMULATIONS_USEFUL"
     written = facade.create_decision_bundle(comparison, tmp_path)
     payload = json.loads(Path(written["json_path"]).read_text(encoding="utf-8"))
     assert payload["context_snapshot"]["snapshot_hash"] == facade.context.snapshot_hash
@@ -116,6 +123,7 @@ def test_diagnose_and_decision_bundle_are_reproducible(tmp_path: Path) -> None:
     assert payload["playstyle_fit_summary"]["separate_from_recommendation_status"] is True
     assert payload["mana_impact"]["delta"]["colored_source_delta"]["U"] == 1
     assert payload["evidence_class"] == "structural_model_estimates"
+    assert payload["extra"]["decision_information_state"]["status"] == "MORE_SIMULATIONS_USEFUL"
 
 
 def test_playstyle_annotations_do_not_change_objective_workflow_results() -> None:

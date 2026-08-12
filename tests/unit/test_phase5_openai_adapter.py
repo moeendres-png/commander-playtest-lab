@@ -76,16 +76,21 @@ def test_sdk_tool_wrappers_expose_only_the_validated_payload() -> None:
     assert all(tool.strict for tool in tools)
 
 
-def test_runtime_has_four_separate_agents_sessions_and_guardrails(monkeypatch) -> None:
+def test_runtime_is_thin_four_tool_synthesizer_with_session_and_guardrails(monkeypatch) -> None:
     monkeypatch.setattr(openai_workflow, "_load_sdk", fake_sdk)
     service = CommanderToolService(ROOT)
-    request = WorkflowRequest(user_goal="Inspect Korvold using structured tools.")
+    request = WorkflowRequest(user_goal="Inspect RogShai using structured tools.")
     runtime = openai_workflow.build_agent_runtime(service, request=request)
 
-    assert runtime.orchestrator.name == "Orchestrator Agent"
-    assert runtime.deck_analyst.name == "Deck Analyst"
-    assert runtime.simulation_analyst.name == "Simulation Analyst"
-    assert runtime.red_team_reviewer.name == "Red-Team Reviewer"
+    assert runtime.orchestrator.name == "Commander Decision Synthesizer"
+    assert [tool.name for tool in runtime.orchestrator.tools] == [
+        "deck_decision_prepare",
+        "deck_decision_run",
+        "deck_decision_diagnose",
+        "deck_decision_bundle",
+    ]
+    assert "build_optimization_context" not in runtime.orchestrator.instructions
+    assert "expert tool" in runtime.orchestrator.instructions
     assert runtime.orchestrator.output_type.__name__ == "WorkflowReport"
     assert len(runtime.orchestrator.input_guardrails) == 1
     assert len(runtime.orchestrator.output_guardrails) == 1
@@ -98,7 +103,7 @@ def test_runtime_has_four_separate_agents_sessions_and_guardrails(monkeypatch) -
 
 def test_unsupported_reasoning_effort_fails_before_live_run() -> None:
     request = WorkflowRequest(
-        user_goal="Inspect Korvold.",
+        user_goal="Inspect RogShai.",
         reasoning_effort="extreme",
     )
     with pytest.raises(ValueError):
@@ -141,10 +146,10 @@ class FakeRunner:
             final_output=WorkflowReport(
                 workflow_id="model-placeholder",
                 goal=user_input,
-                conclusion="Korvold was inspected through local tools.",
+                conclusion="RogShai was inspected through local tools.",
                 evidence=("Validated local tool evidence.",),
                 caveats=("Structural estimate only.",),
-                tool_invocations=("inspect_deck",),
+                tool_invocations=("deck_decision_prepare",),
             ),
         )
 
@@ -157,7 +162,7 @@ async def test_live_workflow_path_with_fake_sdk(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-placeholder")
     service = CommanderToolService(ROOT)
     request = WorkflowRequest(
-        user_goal="Inspect Korvold using structured local tools.",
+        user_goal="Inspect RogShai using structured local tools.",
         session_id="phase5-test-session",
         budget={
             "max_model_calls": 4,

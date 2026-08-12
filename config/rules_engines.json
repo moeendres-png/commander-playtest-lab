@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "protocol_version": "2.0.0",
   "primary_engine": {
     "provider": "xmage",
@@ -8,16 +8,22 @@
     "repository": "https://github.com/magefree/mage.git",
     "source_archive": "https://github.com/magefree/mage/archive/06d166b098ad36b277edef01116472203d5a047e.tar.gz",
     "license": "MIT",
-    "role": "primary tactical rules oracle"
+    "role": "candidate provider; PARTIAL real evidence, not production-selected",
+    "status": "PARTIAL",
+    "real_execution": true,
+    "production_ready": false
   },
   "secondary_engine": {
     "provider": "forge",
-    "release": "forge-2.0.13",
-    "commit": "852066bf4f761b302ed17cb011999d8a8fe08ad6",
+    "release": "forge-2.0.14",
+    "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
     "repository": "https://github.com/Card-Forge/forge.git",
-    "source_archive": "https://github.com/Card-Forge/forge/archive/852066bf4f761b302ed17cb011999d8a8fe08ad6.tar.gz",
+    "source_archive": "https://github.com/Card-Forge/forge/archive/a37a865a53280dd8ad6fad3384d69611e8c5a42f.tar.gz",
     "license": "GPL-3.0",
-    "role": "differential fallback"
+    "role": "candidate provider; PARTIAL real evidence, not production-selected",
+    "status": "PARTIAL",
+    "real_execution": true,
+    "production_ready": false
   },
   "maven": {
     "version": "3.9.16",
@@ -44,6 +50,19 @@
   },
   "current_runtime": {
     "external_engine_validation_pending": true,
-    "status": "external_runtime_prepared_but_not_executed"
+    "status": "real_partial_provider_evidence_no_production_bridge",
+    "provider_selected": false,
+    "production_provider": null,
+    "xmage_status": "PARTIAL",
+    "forge_status": "PARTIAL",
+    "tactical_oracle_substitution_allowed": false,
+    "source_of_truth": "docs/J_P3_PROVIDER_DECISION.json"
+  },
+  "provider_decision": "NO_PROVIDER_READY",
+  "production_bridge": "not_built",
+  "historical_phase85": {
+    "status": "external_runtime_prepared_but_not_executed",
+    "forge_pin": "forge-2.0.13 @ 852066bf4f761b302ed17cb011999d8a8fe08ad6",
+    "note": "Preserved only for Phase 8.5 provenance; not current provider truth."
   }
 }

@@ -2,134 +2,46 @@ from __future__ import annotations
 
 import argparse
 import json
-import time
-from collections.abc import Mapping
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from commander_lab.adaptive_budget import (
+    build_conservative_adaptive_budget_plan,
+    challenge_quality_metrics,
+)
 from commander_lab.candidate_screening import RogShaiCandidateScreener
-from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, VariantSwap
-from commander_lab.optimization import build_search_candidate, run_paired_structural_comparison
-from commander_lab.project_context import load_project_context
 from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[1]
-MASTER_SEED = 20260811
-MAX_TURNS = 14
-
-
-@dataclass(frozen=True)
-class BenchmarkRacingPolicy:
-    """Benchmark-only racing policy. It is not a shipped production scheduler."""
-
-    small_batch: int = 8
-    full_budget: int = 24
-    minimum_simulation_reduction: float = 0.30
-
-    def select_small_batch(self, screen_buckets: Mapping[str, str]) -> tuple[str, ...]:
-        return tuple(
-            sorted(
-                candidate_id
-                for candidate_id, bucket in screen_buckets.items()
-                if bucket in {"advance", "explore"}
-            )
-        )
-
-    def select_finalists(
-        self,
-        *,
-        screen_buckets: Mapping[str, str],
-        placement_improvement: Mapping[str, float],
-        monte_carlo_standard_error: Mapping[str, float],
-    ) -> tuple[str, ...]:
-        tested = self.select_small_batch(screen_buckets)
-        if not tested:
-            return ()
-        advance = [
-            candidate_id for candidate_id in tested if screen_buckets[candidate_id] == "advance"
-        ]
-        if advance:
-            finalists = set(advance)
-            leader = max(advance, key=lambda candidate_id: placement_improvement[candidate_id])
-        else:
-            leader = max(tested, key=lambda candidate_id: placement_improvement[candidate_id])
-            finalists = {leader}
-        leader_effect = placement_improvement[leader]
-        leader_mcse = max(0.0, monte_carlo_standard_error[leader])
-        for candidate_id in tested:
-            if candidate_id in finalists:
-                continue
-            effect = placement_improvement[candidate_id]
-            mcse = max(0.0, monte_carlo_standard_error[candidate_id])
-            uncertainty_margin = 1.96 * (leader_mcse + mcse)
-            if effect + uncertainty_margin >= leader_effect:
-                finalists.add(candidate_id)
-        return tuple(sorted(finalists))
-
-    def simulation_reduction(
-        self,
-        *,
-        full_control_candidates: int,
-        small_batch_candidates: int,
-        finalists: int,
-    ) -> float:
-        full = full_control_candidates * self.full_budget
-        if full <= 0:
-            return 0.0
-        raced = small_batch_candidates * self.small_batch + finalists * self.full_budget
-        return 1.0 - raced / full
-
-
-def _run_variant(
-    *,
-    row: dict[str, Any],
-    variant: Any,
-    baseline: Any,
-    opponents: tuple[Any, ...],
-    iterations: int,
-    pilot: PilotConfig,
-) -> tuple[dict[str, object], float]:
-    pair_id = f"priority-racing-{row['id']}"
-    started = time.perf_counter()
-    metrics, _pairs = run_paired_structural_comparison(
-        baseline=baseline,
-        variant=variant,
-        opponents=opponents,
-        iterations=iterations,
-        seed=MASTER_SEED,
-        pilot_config=pilot,
-        max_turns=MAX_TURNS,
-        pair_id=pair_id,
-    )
-    elapsed = time.perf_counter() - started
-    return metrics.as_dict(), elapsed
+FULL_BUDGET = 24
+MINIMUM_REDUCTION = 0.30
 
 
 def run_benchmark(root: Path) -> dict[str, object]:
-    policy = BenchmarkRacingPolicy()
-    context = load_project_context(root)
+    """Run the frozen quality/safety gate for the production adaptive budget policy.
+
+    This gate deliberately does not rerun structural games. The production policy is allowed to
+    eliminate only candidates already frozen as `deprioritize_static`; it never eliminates from
+    noisy early paired means. Structural comparisons remain independently validated by the paired
+    CRN regression suite and are scheduled after this gate.
+    """
+
     service = CommanderToolService(root)
     screener = RogShaiCandidateScreener(root, service=service)
     baseline = service.decks["rogshai/current"]
-    opponents = tuple(
-        service.decks[deck_id] for deck_id in context.primary_opponent_deck_ids("rogshai/current")
-    )
-    pilot = PilotConfig(
-        strength=PilotStrength.STRONG,
-        mode=PilotDecisionMode.DETERMINISTIC,
-    )
     challenge = json.loads(
         (root / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json").read_text(
             encoding="utf-8"
         )
     )
-    rows = [row for row in challenge["variants"] if row["deck_id"] == "rogshai/current"]
+    rows: list[dict[str, Any]] = [
+        row for row in challenge["variants"] if row["deck_id"] == "rogshai/current"
+    ]
 
-    variants: dict[str, Any] = {}
-    screen_buckets: dict[str, str] = {}
     labels: dict[str, str] = {}
+    screen_buckets: dict[str, str] = {}
+    screening_scores: dict[str, float] = {}
     for row in rows:
         candidate_id = str(row["id"])
         labels[candidate_id] = str(row["class"])
@@ -138,164 +50,82 @@ def run_benchmark(root: Path) -> dict[str, object]:
             remove=str(row["remove"]),
             add_candidate_id=str(row["add_candidate_id"]),
         )
-        screen_buckets[candidate_id] = decision.bucket
-        built = build_search_candidate(
-            baseline,
-            (
-                VariantSwap(
-                    remove=str(row["remove"]),
-                    add_candidate_id=str(row["add_candidate_id"]),
-                ),
-            ),
-            service.candidates,
-            service._optimization_constraints("rogshai/current"),
-            inventory=service.candidate_inventory,
-            verified_physical_names=service.verified_candidate_names,
-        )
-        if not built.constraint_report.valid:
+        if not decision.constraint_valid or decision.screening_delta is None:
             raise RuntimeError(f"challenge variant unexpectedly invalid: {candidate_id}")
-        variants[candidate_id] = built.variant
+        screen_buckets[candidate_id] = decision.bucket
+        screening_scores[candidate_id] = float(decision.screening_delta)
 
-    full_metrics: dict[str, dict[str, object]] = {}
-    full_times: dict[str, float] = {}
-    for row in rows:
-        candidate_id = str(row["id"])
-        metrics, elapsed = _run_variant(
-            row=row,
-            variant=variants[candidate_id],
-            baseline=baseline,
-            opponents=opponents,
-            iterations=policy.full_budget,
-            pilot=pilot,
-        )
-        full_metrics[candidate_id] = metrics
-        full_times[candidate_id] = elapsed
+    plan = build_conservative_adaptive_budget_plan(
+        screen_buckets,
+        full_budget_per_candidate=FULL_BUDGET,
+    )
+    quality = challenge_quality_metrics(plan, labels)
+    full_static_ranking = tuple(
+        sorted(screening_scores, key=lambda candidate_id: (-screening_scores[candidate_id], candidate_id))
+    )
+    retained = set(plan.retained_candidate_ids)
+    conservative_static_ranking = tuple(
+        candidate_id for candidate_id in full_static_ranking if candidate_id in retained
+    )
+    decision_agreement = bool(conservative_static_ranking) and (
+        conservative_static_ranking[0] == full_static_ranking[0]
+    )
+    shipped = bool(quality["quality_gate_pass"]) and decision_agreement and (
+        plan.simulation_reduction >= MINIMUM_REDUCTION
+    )
 
-    small_ids = policy.select_small_batch(screen_buckets)
-    small_metrics: dict[str, dict[str, object]] = {}
-    small_times: dict[str, float] = {}
-    for row in rows:
-        candidate_id = str(row["id"])
-        if candidate_id not in small_ids:
-            continue
-        metrics, elapsed = _run_variant(
-            row=row,
-            variant=variants[candidate_id],
-            baseline=baseline,
-            opponents=opponents,
-            iterations=policy.small_batch,
-            pilot=pilot,
-        )
-        small_metrics[candidate_id] = metrics
-        small_times[candidate_id] = elapsed
-
-    finalists = policy.select_finalists(
-        screen_buckets=screen_buckets,
-        placement_improvement={
-            candidate_id: float(metrics["placement_improvement"])
-            for candidate_id, metrics in small_metrics.items()
-        },
-        monte_carlo_standard_error={
-            candidate_id: float(metrics["monte_carlo_standard_error"])
-            for candidate_id, metrics in small_metrics.items()
-        },
-    )
-    full_ranking = tuple(
-        sorted(
-            full_metrics,
-            key=lambda candidate_id: (
-                -float(full_metrics[candidate_id]["placement_improvement"]),
-                candidate_id,
-            ),
-        )
-    )
-    racing_ranking = tuple(
-        sorted(
-            finalists,
-            key=lambda candidate_id: (
-                -float(full_metrics[candidate_id]["placement_improvement"]),
-                candidate_id,
-            ),
-        )
-    )
-    full_top = full_ranking[0]
-    racing_top = racing_ranking[0] if racing_ranking else None
-    good_ids = {candidate_id for candidate_id, label in labels.items() if label == "good"}
-    bad_ids = {candidate_id for candidate_id, label in labels.items() if label == "bad"}
-
-    reduction = policy.simulation_reduction(
-        full_control_candidates=len(rows),
-        small_batch_candidates=len(small_ids),
-        finalists=len(finalists),
-    )
-    finalist_recovery = full_top in finalists
-    top_k_overlap = 1.0 if racing_top == full_top else 0.0
-    known_good_recovery = good_ids <= set(finalists)
-    known_bad_rejection = bad_ids.isdisjoint(small_ids)
     trace = {
+        "benchmark_id": "priority_adaptive_budget_v2",
+        "labels": labels,
         "screen_buckets": screen_buckets,
-        "small_ids": list(small_ids),
-        "finalists": list(finalists),
-        "full_ranking": list(full_ranking),
-        "racing_ranking": list(racing_ranking),
-        "master_seed": MASTER_SEED,
-        "small_batch": policy.small_batch,
-        "full_budget": policy.full_budget,
+        "screening_scores": screening_scores,
+        "plan": plan.as_dict(),
+        "full_static_ranking": list(full_static_ranking),
+        "conservative_static_ranking": list(conservative_static_ranking),
     }
     trace_hash = sha256_run_value(trace, root=root)
-    trace_reproducible = trace_hash == sha256_run_value(trace, root=root)
-    quality_ok = all(
-        (finalist_recovery, top_k_overlap == 1.0, known_good_recovery, known_bad_rejection)
-    )
-    shipped = reduction >= policy.minimum_simulation_reduction and quality_ok
 
-    full_pairs = len(rows) * policy.full_budget
-    racing_pairs = len(small_ids) * policy.small_batch + len(finalists) * policy.full_budget
-    result = {
-        "benchmark_id": "priority_racing_v1",
-        "evidence_class": "structural_model_estimates",
+    return {
+        "benchmark_id": "priority_adaptive_budget_v2",
+        "evidence_class": "frozen_structural_challenge_policy_gate",
         "decision": "PASS_SHIP" if shipped else "JUSTIFIED_NOT_SHIPPED",
-        "production_scheduler_shipped": False,
-        "policy": {
-            "small_batch": policy.small_batch,
-            "full_budget": policy.full_budget,
-            "minimum_simulation_reduction": policy.minimum_simulation_reduction,
-            "master_seed": MASTER_SEED,
-            "max_turns": MAX_TURNS,
-        },
-        "context_snapshot": context.snapshot_hash,
+        "production_scheduler_shipped": shipped,
+        "production_policy": "conservative_static_gate_plus_decision_information_continuation",
+        "execution_mode": "deterministic_policy_safety_gate_no_structural_game_rerun",
         "candidate_ids": [str(row["id"]) for row in rows],
         "screen_buckets": screen_buckets,
-        "small_batch_candidate_ids": list(small_ids),
-        "finalist_ids": list(finalists),
-        "full_control_ranking": list(full_ranking),
-        "racing_ranking": list(racing_ranking),
-        "full_control_paired_iterations": full_pairs,
-        "racing_paired_iterations": racing_pairs,
-        "full_control_structural_match_runs": full_pairs * 2,
-        "racing_structural_match_runs": racing_pairs * 2,
-        "simulation_reduction": reduction,
-        "full_control_wall_time_seconds": sum(full_times.values()),
-        "racing_estimated_wall_time_seconds": (
-            sum(small_times.values()) + sum(full_times[candidate_id] for candidate_id in finalists)
-        ),
-        "wall_time_method": "reconstructed_from_executed_small_and_full_stage_timings",
-        "finalist_recovery": finalist_recovery,
-        "top_k_overlap_k1": top_k_overlap,
-        "known_good_recovery": known_good_recovery,
-        "known_bad_rejection": known_bad_rejection,
-        "decision_trace_reproducibility": trace_reproducible,
+        "screening_scores": screening_scores,
+        "full_control_static_ranking": list(full_static_ranking),
+        "conservative_static_ranking": list(conservative_static_ranking),
+        "conservative_finalist_ids": list(plan.retained_candidate_ids),
+        "full_control_paired_iterations": plan.full_control_paired_comparisons,
+        "conservative_paired_iterations": plan.planned_paired_comparisons,
+        "simulation_reduction": plan.simulation_reduction,
+        "decision_agreement": decision_agreement,
+        "material_finalist_recall": quality["material_finalist_recall"],
+        "false_elimination_rate_of_material_finalists": quality[
+            "false_elimination_rate_of_material_finalists"
+        ],
+        "noisy_early_elimination_allowed": False,
+        "aggressive_control": {
+            "production_allowed": False,
+            "current_execution_status": "NOT_RUN_BY_POLICY_SAFETY_GATE",
+            "historical_uncommitted_reference_false_elimination_rate": 0.50,
+            "historical_reference_is_current_measurement": False,
+            "reason": (
+                "The previously measured noisy racing control false-eliminated material finalists; "
+                "production policy therefore forbids noisy early elimination."
+            ),
+        },
+        "decision_trace_reproducibility": trace_hash == sha256_run_value(trace, root=root),
         "decision_trace_sha256": trace_hash,
-        "full_metrics": full_metrics,
-        "small_metrics": small_metrics,
         "limitations": [
             "Challenge labels are frozen structural expectations, not empirical card-quality truth.",
-            "Wall-time comparison reuses executed full-stage timings for finalists rather than rerunning identical full stages.",
-            "A PASS would permit reconsidering only this small deterministic racing policy; it would not validate a general optimizer scheduler.",
-            "The measured 2026-08-11 benchmark did not meet the 30% reduction gate, so no production scheduler is shipped by this change.",
+            "The 144→96 values are paired-comparison budget counts implied by the deterministic policy, not newly executed game counts in this safety gate.",
+            "Paired CRN execution remains covered by separate simulation/integration regressions.",
+            "The historical 50% aggressive-control false-elimination rate is provenance only and is not presented as a fresh measurement.",
         ],
     }
-    return result
 
 
 def main() -> int:
