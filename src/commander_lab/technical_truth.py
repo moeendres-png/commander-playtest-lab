@@ -74,8 +74,9 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     provider_status = provider_decision.get("decision") or "unknown"
     external_ready = provider_status not in {"NO_PROVIDER_READY", "unknown"}
     blockers: list[str] = []
+    documented_limitations: list[str] = []
     if not external_ready:
-        blockers.append("external_rules_engine_validation_pending")
+        documented_limitations.append("external_rules_engine_validation_pending")
 
     return {
         "technical_truth_version": 1,
@@ -131,7 +132,25 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
                 "external rules engine executed any current deck experiment."
             ),
         },
+        "first_run_readiness": {
+            "preparation_surface_present": (
+                root_path / "scripts/prepare_rogshai_first_serious_experiment.py"
+            ).is_file(),
+            "authorized_runner_surface_present": (
+                root_path / "scripts/run_rogshai_first_serious_experiment.py"
+            ).is_file(),
+            "preliminary_run": {
+                "classification": "preliminary_noncanonical_decision_support",
+                "official_first_run": False,
+                "deck_mutation_authority": False,
+            },
+            "official_run": {
+                "default_status": "not_started",
+                "authorization_required": True,
+            },
+        },
         "current_blockers": blockers,
+        "documented_limitations": documented_limitations,
         "truth_boundary": (
             "This projection reports repository/runtime technical state. GitHub CI conclusions and "
             "Drive freshness must still be read from their live primary systems when required."

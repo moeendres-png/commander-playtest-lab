@@ -31,6 +31,15 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["roadmap_mvp_state"]["production_adaptive_scheduler_present"] is False
     assert truth["external_engine_status"]["provider_decision"] == "NO_PROVIDER_READY"
     assert truth["external_engine_status"]["production_provider_ready"] is False
-    assert "external_rules_engine_validation_pending" in truth["current_blockers"]
+    assert truth["current_blockers"] == []
+    assert "external_rules_engine_validation_pending" in truth["documented_limitations"]
+    readiness = truth["first_run_readiness"]
+    assert readiness["preparation_surface_present"] is True
+    assert readiness["authorized_runner_surface_present"] is True
+    assert readiness["preliminary_run"]["official_first_run"] is False
+    assert readiness["official_run"] == {
+        "default_status": "not_started",
+        "authorization_required": True,
+    }
     assert truth["git"]["commit"]
     assert truth["git"]["tree"]
