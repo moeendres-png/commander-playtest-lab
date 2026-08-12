@@ -1,0 +1,222 @@
+name: Apply post-1.17 semantic and execution fixes
+
+on:
+  push:
+    branches:
+      - fix/post-117-semantic-execution
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[fix54-55-applied]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Apply bounded code patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected one replacement, found {count}')
+              p.write_text(text.replace(old, new), encoding='utf-8')
+
+          # Patch release identity: execution/semantic integration fixes only; structural engine unchanged.
+          replace_once('pyproject.toml', 'version = "1.17.0"', 'version = "1.17.1"')
+          replace_once('src/commander_lab/__init__.py', '__version__ = "1.17.0"', '__version__ = "1.17.1"')
+          changelog = Path('CHANGELOG.md')
+          ct = changelog.read_text(encoding='utf-8')
+          marker = '# Changelog\n\n'
+          entry = '''## 1.17.1 - 2026-08-12\n\n- Routes expensive candidate-swap frontiers through the shipped decision-weighted Semantic Evidence screen; legacy semantic labels remain provenance only and missing/weak semantics are not a negative card score.\n- Defers profile-required, decision-material semantic-unknown and conservative static-deprioritization rows before paired simulation while preserving their discoverability and provenance.\n- Makes the public paired decision path safe-by-default at one worker after the measured workers=2 regression, while retaining requested/effective worker provenance.\n- Adds a bounded per-run execution-time envelope for `deck_decision_run`; execution limits are excluded from semantic run/cache identity and do not become deck-quality evidence.\n- Keeps RogShai, inventory, physical allocations, opponent observations and structural engine semantics unchanged.\n\n'''
+          if '## 1.17.1 - 2026-08-12' not in ct:
+              if not ct.startswith(marker):
+                  raise SystemExit('CHANGELOG marker not found')
+              changelog.write_text(marker + entry + ct[len(marker):], encoding='utf-8')
+
+          # Public request: safe default + bounded execution envelope.
+          replace_once(
+              'src/commander_lab/models/tooling.py',
+              '''class DeckDecisionRunInput(FrozenModel):\n    deck_id: str = "rogshai/current"\n    remove: str\n    add_candidate_id: str\n    iterations: int = Field(default=64, ge=1, le=10_000)\n    seed: int = Field(default=2026082103, ge=0)\n    max_turns: int = Field(default=35, ge=1, le=500)\n    workers: int = Field(default=2, ge=1, le=64)\n''',
+              '''class DeckDecisionRunInput(FrozenModel):\n    deck_id: str = "rogshai/current"\n    remove: str\n    add_candidate_id: str\n    iterations: int = Field(default=64, ge=1, le=10_000)\n    seed: int = Field(default=2026082103, ge=0)\n    max_turns: int = Field(default=35, ge=1, le=500)\n    workers: int = Field(default=1, ge=1, le=64)\n    max_simulation_seconds: float | None = Field(default=None, gt=0.0, le=600.0)\n'''
+          )
+
+          # Missing/weak legacy semantic status must not be a negative ranking score.
+          replace_once(
+              'src/commander_lab/tools/service.py',
+              '''                    inference_penalty = 2.5 if candidate_id.startswith("inventory/") else 0.0\n                    delta = raw_delta + compatibility_adjustment - inference_penalty\n''',
+              '''                    legacy_inference_penalty = (\n                        2.5 if candidate_id.startswith("inventory/") else 0.0\n                    )\n                    # Semantic uncertainty is routed through the decision-weighted Semantic\n                    # Evidence gate. A candidate ID/profiling source is provenance, not negative\n                    # card evidence and therefore cannot lower the deterministic screen score.\n                    inference_penalty = 0.0\n                    delta = raw_delta + compatibility_adjustment\n'''
+          )
+          replace_once(
+              'src/commander_lab/tools/service.py',
+              '''                            "screening_uncertainty_penalty": inference_penalty,\n                            "semantic_quality": (\n''',
+              '''                            "screening_uncertainty_penalty": inference_penalty,\n                            "legacy_screening_uncertainty_penalty": legacy_inference_penalty,\n                            "semantic_quality": (\n'''
+          )
+
+          # The expensive swap frontier consumes the same Semantic Evidence layer as prepare.
+          old = '''            rows = []\n            for row in screened.result.get("recommendations", []):\n                rows.append(\n                    {\n                        **row,\n                        "recommendation_status": "candidate_swap",\n                        "validation_level": "structural_only",\n                        "candidate_source": "verified local candidate registry",\n                        "automatic_application": False,\n                    }\n                )\n            return {\n                "deck_id": request.deck_id,\n                "deck_hash": self._deck(request.deck_id).deck_hash,\n                "method": "whole_deck_role_package_and_profile_screening",\n                "candidates": rows,\n                "count": len(rows),\n                "automatic_application": False,\n            }\n'''
+          new = '''            from commander_lab.candidate_screening import RogShaiCandidateScreener\n\n            semantic_screen = RogShaiCandidateScreener(\n                self.root, service=self\n            ).screen_pool(request.deck_id)\n            screen_rows = semantic_screen.get("rows", [])\n            by_id = {\n                str(item["candidate_id"]): item\n                for item in screen_rows\n                if isinstance(item, dict) and item.get("candidate_id")\n            }\n            by_name = {\n                str(item["oracle_name"]): item\n                for item in screen_rows\n                if isinstance(item, dict) and item.get("oracle_name")\n            }\n            rows: list[dict[str, Any]] = []\n            ready_rows: list[dict[str, Any]] = []\n            semantic_deferred: list[dict[str, Any]] = []\n            static_deferred: list[dict[str, Any]] = []\n            for legacy_row in screened.result.get("recommendations", []):\n                row = dict(legacy_row)\n                screen_row = by_id.get(str(row.get("candidate_id"))) or by_name.get(\n                    str(row.get("add"))\n                )\n                evidence = (\n                    dict(screen_row.get("semantic_evidence", {}))\n                    if isinstance(screen_row, dict)\n                    and isinstance(screen_row.get("semantic_evidence"), dict)\n                    else {}\n                )\n                bucket = str(screen_row.get("bucket")) if isinstance(screen_row, dict) else "missing"\n                model_ready = bool(\n                    isinstance(screen_row, dict)\n                    and screen_row.get("model_dependent_recommendation_ready") is True\n                )\n                needs_adjudication = bool(\n                    evidence.get("needs_targeted_adjudication") is True or not model_ready\n                )\n                legacy_quality = str(row.get("semantic_quality", "unknown"))\n                evidence_type = str(evidence.get("evidence_type", "UNKNOWN"))\n                provenance_disagreement = (\n                    legacy_quality == "keyword_inferred_structural_only"\n                    and evidence_type not in {"PROJECT_HEURISTIC", "UNKNOWN"}\n                )\n                if screen_row is None:\n                    frontier_status = "deferred_missing_current_semantic_screen"\n                    needs_adjudication = True\n                elif not model_ready:\n                    frontier_status = "deferred_requires_profile"\n                elif evidence.get("needs_targeted_adjudication") is True:\n                    frontier_status = "deferred_requires_semantic_adjudication"\n                elif bucket in {"defer_clear_static_dominance", "defer_low_confidence_default"}:\n                    frontier_status = "deferred_static"\n                else:\n                    frontier_status = "simulation_ready"\n                enriched = {\n                    **row,\n                    "legacy_semantic_quality": legacy_quality,\n                    "semantic_authority": "semantic_evidence_summary",\n                    "semantic_evidence": evidence,\n                    "semantic_screen_bucket": bucket,\n                    "semantic_provenance_disagreement": provenance_disagreement,\n                    "material_semantic_conflict": bool(\n                        evidence.get("needs_targeted_adjudication") is True\n                    ),\n                    "requires_semantic_adjudication": needs_adjudication,\n                    "frontier_status": frontier_status,\n                    "recommendation_status": "candidate_swap",\n                    "validation_level": "structural_only",\n                    "candidate_source": "verified local candidate registry",\n                    "automatic_application": False,\n                }\n                rows.append(enriched)\n                if frontier_status == "simulation_ready":\n                    ready_rows.append(enriched)\n                elif needs_adjudication:\n                    semantic_deferred.append(enriched)\n                else:\n                    static_deferred.append(enriched)\n            return {\n                "deck_id": request.deck_id,\n                "deck_hash": self._deck(request.deck_id).deck_hash,\n                "method": "whole_deck_role_package_profile_and_semantic_evidence_screening",\n                "candidates": ready_rows,\n                "count": len(ready_rows),\n                "all_screened_candidates": rows,\n                "screened_count": len(rows),\n                "deferred_semantic_candidates": semantic_deferred,\n                "semantic_deferred_count": len(semantic_deferred),\n                "static_deprioritized_candidates": static_deferred,\n                "static_deprioritized_count": len(static_deferred),\n                "candidate_recall": semantic_screen.get("candidate_recall"),\n                "semantic_frontier_gate": {\n                    "authority": "semantic_evidence_summary",\n                    "legacy_semantic_quality_is_authoritative": False,\n                    "unmodeled_is_negative_evidence": False,\n                    "noisy_early_simulation_elimination": False,\n                },\n                "automatic_application": False,\n            }\n'''
+          replace_once('src/commander_lab/tools/service.py', old, new)
+
+          # Execution envelope is not part of semantic RunIdentity. Normalize the temporary
+          # worker regression to the safe execution worker before hashing deck_decision_run.
+          replace_once(
+              'src/commander_lab/tools/service.py',
+              '''        started = time.monotonic()\n        invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"\n        scenario = request.model_dump(mode="json") if hasattr(request, "model_dump") else request\n        identity_before = self._run_identity(\n''',
+              '''        started = time.monotonic()\n        invocation_id = f"{tool_name}-{uuid.uuid4().hex[:12]}"\n        execution_limit = float(self.limits.max_simulation_seconds)\n        requested_execution_limit = getattr(request, "max_simulation_seconds", None)\n        if tool_name == "deck_decision_run" and requested_execution_limit is not None:\n            execution_limit = float(requested_execution_limit)\n        scenario = request.model_dump(mode="json") if hasattr(request, "model_dump") else request\n        if tool_name == "deck_decision_run" and isinstance(scenario, dict):\n            scenario = dict(scenario)\n            scenario.pop("max_simulation_seconds", None)\n            scenario["workers"] = 1\n        identity_before = self._run_identity(\n'''
+          )
+          replace_once(
+              'src/commander_lab/tools/service.py',
+              '''            if elapsed > self.limits.max_simulation_seconds:\n                raise ToolExecutionError(\n                    "tool exceeded simulation budget: "\n                    f"{elapsed:.3f}s > {self.limits.max_simulation_seconds:.3f}s"\n                )\n''',
+              '''            if elapsed > execution_limit:\n                raise ToolExecutionError(\n                    "tool exceeded simulation budget: "\n                    f"{elapsed:.3f}s > {execution_limit:.3f}s"\n                )\n'''
+          )
+
+          # Priority comparison execution is safely normalized to one worker until #55 is fixed
+          # at the lower multiprocessing layer; requested worker count remains provenance only.
+          replace_once(
+              'src/commander_lab/priority_workflows.py',
+              '''        if workers < 1:\n            raise ValueError("workers must be positive")\n        baseline = self._deck(deck_id)\n''',
+              '''        if workers < 1:\n            raise ValueError("workers must be positive")\n        requested_workers = workers\n        effective_workers = 1\n        baseline = self._deck(deck_id)\n'''
+          )
+          # Exactly two semantic-execution occurrences inside compare_validate: cache identity and run.
+          pp = Path('src/commander_lab/priority_workflows.py')
+          pt = pp.read_text(encoding='utf-8')
+          needle = '                "workers": workers,\n'
+          if pt.count(needle) != 1:
+              raise SystemExit(f'priority cache worker occurrence mismatch: {pt.count(needle)}')
+          pt = pt.replace(needle, '                "workers": effective_workers,\n')
+          needle2 = '                workers=workers,\n'
+          if pt.count(needle2) < 1:
+              raise SystemExit('priority run worker occurrence missing')
+          # Limit replacement to the first compare_validate occurrence.
+          pt = pt.replace(needle2, '                workers=effective_workers,\n', 1)
+          marker2 = '            "truth_boundary": "model-internal paired structural comparison, not empirical gameplay",\n'
+          if marker2 not in pt:
+              raise SystemExit('priority return marker missing')
+          pt = pt.replace(
+              marker2,
+              '''            "execution_workers": {\n                "requested": requested_workers,\n                "effective": effective_workers,\n                "fallback_applied": requested_workers != effective_workers,\n                "policy": "validated_single_worker_until_issue_55_resolution",\n                "deck_quality_evidence": False,\n            },\n''' + marker2,
+              1,
+          )
+          pp.write_text(pt, encoding='utf-8')
+
+          # Public result exposes execution-only provenance; it is not fed to the structural model.
+          replace_once(
+              'src/commander_lab/tools/service.py',
+              '''            result["workflow_session"] = session.identity()\n            return result\n\n        return self._invoke(\n            "deck_decision_run",\n''',
+              '''            result["workflow_session"] = session.identity()\n            result["execution_envelope"] = {\n                "requested_workers": request.workers,\n                "effective_workers": 1,\n                "worker_fallback_applied": request.workers != 1,\n                "default_max_simulation_seconds": float(self.limits.max_simulation_seconds),\n                "requested_max_simulation_seconds": request.max_simulation_seconds,\n                "effective_max_simulation_seconds": (\n                    float(request.max_simulation_seconds)\n                    if request.max_simulation_seconds is not None\n                    else float(self.limits.max_simulation_seconds)\n                ),\n                "classification": "execution_envelope_only_not_deck_quality_evidence",\n            }\n            return result\n\n        return self._invoke(\n            "deck_decision_run",\n'''
+          )
+
+          # Regression tests for both issues.
+          Path('tests/unit/test_post117_semantic_execution_fixes.py').write_text(r'''from pathlib import Path
+
+from commander_lab.models.tooling import DeckDecisionRunInput, GenerateCandidateSwapsInput
+from commander_lab.tools import CommanderToolService, ToolRegistry
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _candidate_id(service: CommanderToolService, name: str) -> str:
+    return next(
+        candidate_id
+        for candidate_id, candidate in service.candidates.items()
+        if candidate.card.oracle_name == name
+    )
+
+
+def test_semantic_frontier_uses_decision_weighted_evidence_without_inventory_penalty() -> None:
+    service = CommanderToolService(ROOT)
+    evendo_id = _candidate_id(service, "Evendo Brushrazer")
+    opt_id = _candidate_id(service, "Opt")
+    response = service.generate_candidate_swaps(
+        GenerateCandidateSwapsInput(
+            deck_id="rogshai/current",
+            candidate_ids=(evendo_id, opt_id),
+            max_candidates=50,
+        )
+    )
+    assert response.status.value == "completed"
+    result = response.result
+    assert result["semantic_frontier_gate"]["authority"] == "semantic_evidence_summary"
+    assert result["semantic_frontier_gate"]["legacy_semantic_quality_is_authoritative"] is False
+    assert result["semantic_frontier_gate"]["unmodeled_is_negative_evidence"] is False
+    rows = result["all_screened_candidates"]
+    assert rows
+    assert all(row["screening_uncertainty_penalty"] == 0.0 for row in rows)
+    evendo_rows = [row for row in rows if row["candidate_id"] == evendo_id]
+    assert evendo_rows
+    assert any(row["legacy_semantic_quality"] == "keyword_inferred_structural_only" for row in evendo_rows)
+    assert any(row["semantic_evidence"].get("evidence_type") != "UNKNOWN" for row in evendo_rows)
+    assert any(row["semantic_provenance_disagreement"] for row in evendo_rows)
+    assert all(row["semantic_authority"] == "semantic_evidence_summary" for row in rows)
+    assert all(
+        not row["requires_semantic_adjudication"]
+        for row in result["candidates"]
+    )
+
+
+def test_public_paired_execution_falls_back_to_one_worker_and_limit_is_identity_neutral() -> None:
+    service = CommanderToolService(ROOT)
+    registry = ToolRegistry(service, surface="public")
+    assert DeckDecisionRunInput(remove="Preordain", add_candidate_id="rogshai/opt-smoke").workers == 1
+    common = {
+        "deck_id": "rogshai/current",
+        "remove": "Preordain",
+        "add_candidate_id": "rogshai/opt-smoke",
+        "iterations": 2,
+        "seed": 2026081203,
+        "max_turns": 10,
+    }
+    one = registry.invoke("deck_decision_run", common | {"workers": 1})
+    two = registry.invoke(
+        "deck_decision_run",
+        common | {"workers": 2, "max_simulation_seconds": 300.0},
+    )
+    assert one.status.value == "completed"
+    assert two.status.value == "completed"
+    assert one.result["paired"] == two.result["paired"]
+    assert one.metadata.run_identity_hash == two.metadata.run_identity_hash
+    assert two.result["execution_workers"] == {
+        "requested": 2,
+        "effective": 1,
+        "fallback_applied": True,
+        "policy": "validated_single_worker_until_issue_55_resolution",
+        "deck_quality_evidence": False,
+    }
+    envelope = two.result["execution_envelope"]
+    assert envelope["effective_workers"] == 1
+    assert envelope["effective_max_simulation_seconds"] == 300.0
+    assert envelope["classification"] == "execution_envelope_only_not_deck_quality_evidence"
+''', encoding='utf-8')
+          PY
+      - name: Install dev package
+        run: python -m pip install -e '.[dev]'
+      - name: Focused validation
+        run: |
+          ruff check src tests
+          ruff format --check src tests
+          mypy --strict src
+          python -m compileall -q src tests
+          pytest -q tests/unit/test_candidate_screening.py tests/unit/test_semantic_evidence.py tests/unit/test_priority_workflows.py tests/unit/test_post117_semantic_execution_fixes.py
+      - name: Commit validated fixes
+        shell: bash
+        run: |
+          git diff --check
+          git config user.name 'OpenAI project agent'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pyproject.toml CHANGELOG.md src tests/unit/test_post117_semantic_execution_fixes.py
+          git commit -m 'Fix semantic frontier and execution envelope [fix54-55-applied]'
+          git push origin HEAD:fix/post-117-semantic-execution
