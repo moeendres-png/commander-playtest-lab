@@ -1329,39 +1329,40 @@ class CommanderToolService:
             status=status, metadata=metadata, result=result, warnings=warnings, errors=errors
         )
 
+    def _validate_deck_payload(self, request: ValidateDeckInput) -> dict[str, Any]:
+        spec = self.manifest["decks"].get(request.deck_id)
+        if spec is None:
+            raise ToolExecutionError(
+                f"validation is available only for local current decks: {request.deck_id}"
+            )
+        filename = spec["normalized_file"]
+        deck = load_model(self.root / "data/decks" / filename, Deck)
+        catalog = CardCatalog.from_json(self.root / "data/cards/oracle_subset.json")
+        overlay_path = (self.root / "data/decks" / filename).with_name(
+            f"{Path(filename).stem}_card_catalog_overrides.json"
+        )
+        if overlay_path.is_file():
+            for card in CardCatalog.from_json(overlay_path).cards:
+                catalog.add(card)
+        report = DeckValidator(catalog).validate(deck)
+        allocation = None
+        if request.include_physical_allocation:
+            collection = Collection.model_validate_json(
+                (self.root / "data/collections/current_deck_allocations.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            allocation = validate_collection_quantities(collection, [deck]).model_dump(mode="json")
+        return {
+            "deck_id": request.deck_id,
+            "deck_hash": deck.deck_hash,
+            "validation": report.model_dump(mode="json"),
+            "physical_allocation": allocation,
+        }
+
     def validate_deck(self, request: ValidateDeckInput) -> ToolResponse:
         def work() -> dict[str, Any]:
-            spec = self.manifest["decks"].get(request.deck_id)
-            if spec is None:
-                raise ToolExecutionError(
-                    f"validation is available only for local current decks: {request.deck_id}"
-                )
-            filename = spec["normalized_file"]
-            deck = load_model(self.root / "data/decks" / filename, Deck)
-            catalog = CardCatalog.from_json(self.root / "data/cards/oracle_subset.json")
-            overlay_path = (self.root / "data/decks" / filename).with_name(
-                f"{Path(filename).stem}_card_catalog_overrides.json"
-            )
-            if overlay_path.is_file():
-                for card in CardCatalog.from_json(overlay_path).cards:
-                    catalog.add(card)
-            report = DeckValidator(catalog).validate(deck)
-            allocation = None
-            if request.include_physical_allocation:
-                collection = Collection.model_validate_json(
-                    (self.root / "data/collections/current_deck_allocations.json").read_text(
-                        encoding="utf-8"
-                    )
-                )
-                allocation = validate_collection_quantities(collection, [deck]).model_dump(
-                    mode="json"
-                )
-            return {
-                "deck_id": request.deck_id,
-                "deck_hash": deck.deck_hash,
-                "validation": report.model_dump(mode="json"),
-                "physical_allocation": allocation,
-            }
+            return self._validate_deck_payload(request)
 
         return self._invoke("validate_deck", request, work, deck_ids=(request.deck_id,))
 
@@ -5291,6 +5292,31 @@ class CommanderToolService:
                 )
                 screen = facade.build_screen(request.deck_id, limit=request.candidate_limit)
                 mana = facade.mulligan_mana(request.deck_id)
+                validation = self._validate_deck_payload(
+                    ValidateDeckInput(deck_id=request.deck_id, include_physical_allocation=True)
+                )
+                mulligan_request = CompareMulliganPoliciesInput(
+                    deck_id=request.deck_id,
+                    policies=request.mulligan_policies,
+                    samples=request.mulligan_samples,
+                    followup_samples=0,
+                    seat_position=request.seat_position,
+                    starting_player=request.seat_position == 1,
+                    pod_size=4,
+                    pilot_profile_id="rogshai.current.baseline",
+                    pilot_version="current",
+                    game_plan="balanced",
+                    seed=request.mulligan_seed,
+                    generate_keep_rules=False,
+                )
+                mulligan_context = self._mulligan_context_from_request(mulligan_request)
+                mulligan_baseline = facade.mulligan.run(
+                    mulligan_context,
+                    tuple(MulliganPolicyName(value) for value in request.mulligan_policies),
+                    samples=request.mulligan_samples,
+                    followup_samples=0,
+                    generate_keep_rules=False,
+                ).model_dump(mode="json")
             session_identity = session.identity()
             return {
                 "workflow": "deck_decision_prepare",
@@ -5301,9 +5327,12 @@ class CommanderToolService:
                     "active_deck": request.deck_id in facade.context.active_own_deck_ids,
                     "physical_legal_candidates": screen["eligible_candidate_count"],
                     "candidate_recall": screen["challenge_benchmark"]["legal_candidate_recall"],
+                    "deck": validation,
                 },
                 "candidate_coverage": screen,
                 "mana_mulligan_baseline": mana,
+                "mulligan_policy_baseline": mulligan_baseline,
+                "keep_rule_research_executed": False,
                 "model_informativeness_status": "requires_structural_baseline_before_search",
                 "next_call": "deck_decision_run",
                 "workflow_session": session_identity,

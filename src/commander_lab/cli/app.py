@@ -76,13 +76,18 @@ def _echo_tool_response(response: object) -> None:
 def deck_decision_prepare(
     deck_id: str = typer.Option("rogshai/current"),
     candidate_limit: int = typer.Option(25, min=1, max=250),
+    mulligan_samples: int = typer.Option(2500, min=1, max=100_000),
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
     """Validate current truth, coverage and mana before a deck decision."""
     service = CommanderToolService(root)
     _echo_tool_response(
         service.deck_decision_prepare(
-            DeckDecisionPrepareInput(deck_id=deck_id, candidate_limit=candidate_limit)
+            DeckDecisionPrepareInput(
+                deck_id=deck_id,
+                candidate_limit=candidate_limit,
+                mulligan_samples=mulligan_samples,
+            )
         )
     )
 

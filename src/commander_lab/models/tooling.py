@@ -761,6 +761,10 @@ class RunMulliganLabInput(CompareMulliganPoliciesInput):
 class DeckDecisionPrepareInput(FrozenModel):
     deck_id: str = "rogshai/current"
     candidate_limit: int = Field(default=25, ge=1, le=250)
+    mulligan_policies: tuple[str, ...] = ("current_pilot", "primer_policy")
+    mulligan_samples: int = Field(default=2500, ge=1, le=100_000)
+    mulligan_seed: int = Field(default=2026082101, ge=0)
+    seat_position: int = Field(default=1, ge=1, le=4)
 
 
 class DeckDecisionRunInput(FrozenModel):
