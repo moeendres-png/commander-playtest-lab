@@ -27,6 +27,23 @@ jobs:
           python-version: '3.12'
       - name: Materialize focused implementation
         run: python .github/materialize_decision_quality.py
+      - name: Apply strict observation type guards
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/commander_lab/optimization/experiments.py')
+          s = p.read_text(encoding='utf-8')
+          anchor = '''    pairs = sorted(observations, key=lambda row: int(row["index"]))\n    if not pairs:\n'''
+          replacement = '''    def as_int(value: object, *, field: str) -> int:\n        if isinstance(value, bool) or not isinstance(value, int):\n            raise ValueError(f"paired observation {field} must be an integer")\n        return value\n\n    def as_float(value: object, *, field: str) -> float:\n        if isinstance(value, bool) or not isinstance(value, (int, float)):\n            raise ValueError(f"paired observation {field} must be numeric")\n        return float(value)\n\n    pairs = sorted(observations, key=lambda row: as_int(row["index"], field="index"))\n    if not pairs:\n'''
+          if s.count(anchor) != 1:
+              raise SystemExit('aggregate type guard anchor mismatch')
+          s = s.replace(anchor, replacement, 1)
+          s = s.replace('actual = [int(row["index"]) for row in pairs]', 'actual = [as_int(row["index"], field="index") for row in pairs]', 1)
+          s = s.replace('return fmean(float(row[key]) for row in pairs)', 'return fmean(as_float(row[key], field=key) for row in pairs)', 1)
+          s = s.replace('float(row["baseline_placement"]) - float(row["variant_placement"])', 'as_float(row["baseline_placement"], field="baseline_placement") - as_float(row["variant_placement"], field="variant_placement")', 1)
+          s = s.replace('seeds=tuple(int(row["seed"]) for row in pairs)', 'seeds=tuple(as_int(row["seed"], field="seed") for row in pairs)', 1)
+          p.write_text(s, encoding='utf-8')
+          PY
       - name: Install full validation extras
         run: python -m pip install -e '.[dev,api,openai]'
       - name: Normalize changed Python
