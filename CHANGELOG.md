@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.17.1 - 2026-08-12
+
+- Binds decision-weighted Semantic Evidence to the fresh candidate/cut frontier before expensive paired simulation; material profile/projection conflicts are deferred for adjudication rather than silently promoted or rejected.
+- Normalizes the public priority comparison path to the validated single-worker execution policy while preserving requested-worker provenance as execution metadata only.
+- Allows the preregistered 1024 adaptive ceiling to use a bounded 300-second execution envelope without changing deck/simulation semantics or the four public workflows.
+- Adds regressions for the Evendo-style semantic conflict, simple Opt agreement, worker fallback, full candidate recall, and the semantic-defer DecisionInformationState route.
+- Keeps the canonical RogShai deck, inventory, allocations, opponent observations, and evidence boundaries unchanged.
+
 ## 1.17.0 - 2026-08-12
 
 - Unifies current-truth and provenance boundaries for the post-J RogShai-only workflow; stale handoffs remain historical rather than competing current authority.

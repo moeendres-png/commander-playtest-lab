@@ -74,6 +74,27 @@ def build_decision_information_state(
 
     if indifference_threshold < 0.0:
         raise ValueError("indifference_threshold must be non-negative")
+    if comparison.get("status") == "requires_semantic_adjudication":
+        raw_missing = comparison.get("missing_semantic_axes", ())
+        semantic_missing = (
+            tuple(str(value) for value in raw_missing)
+            if isinstance(raw_missing, (list, tuple))
+            else missing_semantic_axes
+        )
+        return DecisionInformationState(
+            schema_version="1.0.0",
+            status=DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC,
+            pairwise_effect=None,
+            confidence_interval=None,
+            decision_uncertainty=None,
+            indifference_threshold=indifference_threshold,
+            seed_spread=None,
+            scenario_spread=scenario_spread,
+            failure_mode_differences=failure_mode_differences,
+            missing_semantic_axes=semantic_missing,
+            next_recommended_experiment="resolve_decision_material_semantic_axes",
+            stop_reason="semantic frontier conflict must be adjudicated before paired simulation",
+        )
     if comparison.get("status") != "completed":
         return DecisionInformationState(
             schema_version="1.0.0",
