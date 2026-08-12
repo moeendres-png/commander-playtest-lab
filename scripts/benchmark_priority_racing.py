@@ -61,7 +61,10 @@ def run_benchmark(root: Path) -> dict[str, object]:
     )
     quality = challenge_quality_metrics(plan, labels)
     full_static_ranking = tuple(
-        sorted(screening_scores, key=lambda candidate_id: (-screening_scores[candidate_id], candidate_id))
+        sorted(
+            screening_scores,
+            key=lambda candidate_id: (-screening_scores[candidate_id], candidate_id),
+        )
     )
     retained = set(plan.retained_candidate_ids)
     conservative_static_ranking = tuple(
