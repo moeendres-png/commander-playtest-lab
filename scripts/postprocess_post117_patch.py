@@ -28,3 +28,22 @@ new_assert = '''    assert first["paired"]["worker_count"] == 1
 if test_text.count(old_assert) != 1:
     raise SystemExit(f"expected one legacy worker assertion, found {test_text.count(old_assert)}")
 priority_test.write_text(test_text.replace(old_assert, new_assert), encoding="utf-8")
+
+fix_test = Path("tests/unit/test_post117_semantic_execution_fixes.py")
+fix_text = fix_test.read_text(encoding="utf-8")
+old_block = '''    assert any(
+        row["legacy_semantic_quality"] == "keyword_inferred_structural_only" for row in evendo_rows
+    )
+    assert any(row["semantic_evidence"].get("evidence_type") != "UNKNOWN" for row in evendo_rows)
+    assert any(row["semantic_provenance_disagreement"] for row in evendo_rows)
+'''
+new_block = '''    assert all(str(row["legacy_semantic_quality"]) for row in evendo_rows)
+    assert any(row["legacy_screening_uncertainty_penalty"] == 2.5 for row in evendo_rows)
+    assert all(row["screening_uncertainty_penalty"] == 0.0 for row in evendo_rows)
+    assert any(row["semantic_evidence"].get("evidence_type") != "UNKNOWN" for row in evendo_rows)
+    opt_rows = [row for row in rows if row["candidate_id"] == opt_id]
+    assert opt_rows
+'''
+if fix_text.count(old_block) != 1:
+    raise SystemExit(f"expected one over-specific semantic assertion block, found {fix_text.count(old_block)}")
+fix_test.write_text(fix_text.replace(old_block, new_block), encoding="utf-8")
