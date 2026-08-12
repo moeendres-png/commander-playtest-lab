@@ -1,0 +1,130 @@
+name: RogShai Broad Felidar Retry
+
+on:
+  push:
+    branches:
+      - runs/rogshai-broad-1171-felidar-retry
+
+permissions:
+  contents: read
+
+jobs:
+  retry:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: b0d8ac2f84104c7c2363b9f058c5938bd09904bd
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e .
+      - name: Retry 512 then 1024 only if needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, subprocess, time
+          from pathlib import Path
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          MAIN='b0d8ac2f84104c7c2363b9f058c5938bd09904bd'
+          TREE='7aa5e1b8765bd9a091d39ae3b3ea0fd5a78f3e06'
+          DECK='7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          git=lambda *a: subprocess.check_output(['git',*a],text=True).strip()
+          assert git('rev-parse','HEAD')==MAIN
+          assert git('rev-parse','HEAD^{tree}')==TREE
+          assert commander_lab.__version__=='1.17.1'
+          assert ENGINE_VERSION=='structural-0.6.0'
+          service=CommanderToolService(Path.cwd())
+          assert service.decks['rogshai/current'].deck_hash==DECK
+          assert service.tracked_worktree_dirty is False
+          public=ToolRegistry(service,surface='public')
+          history=[]
+          final_state=None
+          for budget in (512,1024):
+              t0=time.perf_counter()
+              run=public.invoke('deck_decision_run',{
+                  'deck_id':'rogshai/current',
+                  'remove':"Kykar, Wind's Fury",
+                  'add_candidate_id':'inventory/felidar-retreat-61b01de4',
+                  'iterations':budget,
+                  'seed':2026081203,
+                  'max_turns':35,
+                  'workers':1,
+                  'max_simulation_seconds':300.0,
+              }).model_dump(mode='json')
+              elapsed=time.perf_counter()-t0
+              if run['status']!='completed': raise RuntimeError(run.get('errors'))
+              diag=public.invoke('deck_decision_diagnose',{'comparison':run['result']}).model_dump(mode='json')
+              if diag['status']!='completed': raise RuntimeError(diag.get('errors'))
+              state=diag['result']['decision_information_state']; final_state=state
+              paired=run['result'].get('paired',{})
+              history.append({
+                  'budget':budget,
+                  'pair_count':run['result'].get('pair_count'),
+                  'placement_improvement':paired.get('placement_improvement'),
+                  'confidence_interval':paired.get('confidence_interval'),
+                  'monte_carlo_standard_error':paired.get('monte_carlo_standard_error'),
+                  'decision_information_status':state.get('status'),
+                  'next_recommended_experiment':state.get('next_recommended_experiment'),
+                  'stop_reason':state.get('stop_reason'),
+                  'state_hash':state.get('state_hash'),
+                  'elapsed_seconds':elapsed,
+                  'execution_envelope':run['result'].get('execution_envelope'),
+              })
+              if state.get('status')!='MORE_SIMULATIONS_USEFUL': break
+          state_name=final_state.get('status') if final_state else 'UNEXPECTED_STATE'
+          mapping={
+              'STOP_WITH_PREFERENCE':'STRUCTURAL_PREFERENCE_PENDING_ROBUSTNESS',
+              'NO_MATERIAL_DECISION_DIFFERENCE':'NO_MATERIAL_DECISION_DIFFERENCE',
+              'MODEL_NEEDS_DIFFERENT_METRIC':'MODEL_LIMIT_UNRESOLVED',
+              'OPPONENT_UNCERTAINTY_DOMINATES':'OPPONENT_UNCERTAINTY_UNRESOLVED',
+              'TACTICAL_EVIDENCE_NEEDED':'TACTICAL_EVIDENCE_UNRESOLVED',
+              'STOP':'REJECT_STRUCTURALLY',
+          }
+          if state_name=='MORE_SIMULATIONS_USEFUL' and history[-1]['budget']==1024:
+              classification='SEED_UNCERTAINTY_REMAINS_AT_1024_CEILING'
+          else:
+              classification=mapping.get(state_name,'UNEXPECTED_STATE')
+          last=history[-1]
+          summary={
+              'pair_id':'17449497e4e2bf8f',
+              'remove':"Kykar, Wind's Fury",
+              'add_candidate_id':'inventory/felidar-retreat-61b01de4',
+              'add':'Felidar Retreat',
+              'semantic_evidence_type':'PROJECT_DERIVED',
+              'semantic_confidence':'medium',
+              'semantic_materiality':'high',
+              'semantic_screen_bucket':'advance',
+              'budgets_executed':[64,128,256]+[x['budget'] for x in history],
+              'placement_improvement':last['placement_improvement'],
+              'confidence_interval':last['confidence_interval'],
+              'monte_carlo_standard_error':last['monte_carlo_standard_error'],
+              'decision_information_status':state_name,
+              'next_recommended_experiment':final_state.get('next_recommended_experiment'),
+              'stop_reason':final_state.get('stop_reason'),
+              'final_classification':classification,
+              'technical_error':None,
+              'retry_of_run':31633015397,
+              'retry_reason':'512 exceeded default execution envelope by 0.768s; rerun with execution-only 300s envelope',
+              'main_commit':MAIN,'main_tree':TREE,'package':'1.17.1','engine':'structural-0.6.0','deck_hash':DECK,
+              'seed':2026081203,'max_turns':35,'effective_workers':1,
+              'automatic_deck_mutation':False,
+              'truth_boundary':'structural_model_estimates_not_empirical_winrates',
+          }
+          out=Path('artifacts/felidar_retry'); out.mkdir(parents=True,exist_ok=True)
+          (out/'SUMMARY.json').write_text(json.dumps(summary,indent=2,sort_keys=True),encoding='utf-8')
+          (out/'HISTORY_RETRY.json').write_text(json.dumps(history,indent=2,sort_keys=True),encoding='utf-8')
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-broad-felidar-retry-${{ github.run_id }}
+          path: artifacts/felidar_retry/
+          if-no-files-found: error
