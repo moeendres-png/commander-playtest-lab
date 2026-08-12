@@ -128,6 +128,8 @@ class PriorityWorkflowFacade:
             raise ValueError("iterations must be positive")
         if workers < 1:
             raise ValueError("workers must be positive")
+        requested_workers = workers
+        effective_workers = 1
         baseline = self._deck(deck_id)
         static_screen = self.screener.screen_swap(
             baseline=baseline,
@@ -187,7 +189,7 @@ class PriorityWorkflowFacade:
                 "analysis_seed": analysis_seed,
                 "max_turns": max_turns,
                 "pair_id": pair_id,
-                "workers": workers,
+                "workers": effective_workers,
             },
             exact_seed_set=paired_seeds,
             policy_config_hashes={
@@ -206,7 +208,7 @@ class PriorityWorkflowFacade:
                 pilot_config=pilot_config,
                 max_turns=max_turns,
                 pair_id=pair_id,
-                workers=workers,
+                workers=effective_workers,
             )
             return {"paired": metrics.as_dict(), "pairs": pairs}
 
@@ -271,6 +273,13 @@ class PriorityWorkflowFacade:
                 "workflow_semantic_identity_hash": workflow_identity.identity_hash,
                 "exact_seed_count": len(paired_seeds),
                 "exact_seed_set_sha256": sha256_run_value(paired_seeds, root=self.root),
+            },
+            "execution_workers": {
+                "requested": requested_workers,
+                "effective": effective_workers,
+                "fallback_applied": requested_workers != effective_workers,
+                "policy": "validated_single_worker_until_issue_55_resolution",
+                "deck_quality_evidence": False,
             },
             "truth_boundary": "model-internal paired structural comparison, not empirical gameplay",
         }
