@@ -1,0 +1,405 @@
+name: RogShai Broad 1.18 Cohort Decision Wave
+
+on:
+  push:
+    branches:
+      - runs/rogshai-broad-1180-20260812
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rogshai-broad-1180-20260812
+  cancel-in-progress: false
+
+jobs:
+  cohort-broad:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 5224299e31a1b84b0cd54e998728be6d37af4d71
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install Lab
+        run: python -m pip install -e .
+      - name: Fresh prepare, frontier, cohort routing, and finalist robustness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import json
+          import subprocess
+          import time
+          from collections import Counter
+          from pathlib import Path
+          from typing import Any
+
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.models import ValidateSwapInput, VariantSwap
+          from commander_lab.models.tooling import GenerateCandidateSwapsInput
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          MAIN = '5224299e31a1b84b0cd54e998728be6d37af4d71'
+          TREE = 'e11e1cb36060848b5e335ec843479448e8bed29c'
+          PACKAGE = '1.18.0'
+          ENGINE = 'structural-0.6.0'
+          DECK_HASH = '7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          MULLIGAN_SEED = 2026081205
+          PAIRED_SEED = 2026081207
+          ROBUSTNESS_SEED = 2026081211
+          PRECISION_BUDGETS = (64, 128, 256, 512, 1024)
+
+          git = lambda *args: subprocess.check_output(['git', *args], text=True).strip()
+          assert git('rev-parse', 'HEAD') == MAIN
+          assert git('rev-parse', 'HEAD^{tree}') == TREE
+          assert commander_lab.__version__ == PACKAGE
+          assert ENGINE_VERSION == ENGINE
+
+          root = Path.cwd()
+          service = CommanderToolService(root)
+          assert service.decks['rogshai/current'].deck_hash == DECK_HASH
+          assert len(service.decks['rogshai/current'].cards) == 100
+          assert sum(1 for card in service.decks['rogshai/current'].cards if card.is_land) == 36
+          assert service.tracked_worktree_dirty is False
+          public = ToolRegistry(service, surface='public')
+          public_names = tuple(definition.name for definition in public.definitions)
+          assert public_names == (
+              'deck_decision_prepare',
+              'deck_decision_run',
+              'deck_decision_diagnose',
+              'deck_decision_bundle',
+          )
+
+          out = Path('artifacts/rogshai_broad_1180')
+          out.mkdir(parents=True, exist_ok=True)
+
+          prepare = public.invoke('deck_decision_prepare', {
+              'deck_id': 'rogshai/current',
+              'candidate_limit': 250,
+              'mulligan_policies': ['current_pilot', 'primer_policy'],
+              'mulligan_samples': 10000,
+              'mulligan_seed': MULLIGAN_SEED,
+              'seat_position': 1,
+          }).model_dump(mode='json')
+          if prepare['status'] != 'completed':
+              raise RuntimeError(prepare.get('errors'))
+
+          frontier = service.generate_candidate_swaps(
+              GenerateCandidateSwapsInput(
+                  deck_id='rogshai/current',
+                  candidate_ids=(),
+                  max_candidates=50,
+              )
+          ).model_dump(mode='json')
+          if frontier['status'] != 'completed':
+              raise RuntimeError(frontier.get('errors'))
+          fr = frontier['result']
+          assert fr['candidate_recall'] == 1.0
+          assert fr['semantic_frontier_gate']['authority'] == 'semantic_evidence_summary'
+          assert fr['semantic_frontier_gate']['legacy_semantic_quality_is_authoritative'] is False
+          assert fr['cut_frontier_gate']['scalar_profile_score_is_sole_authority'] is False
+          assert fr['cut_frontier_gate']['whole_deck_constraints_checked_before_simulation'] is True
+
+          ready: list[dict[str, Any]] = []
+          seen: set[tuple[str, str]] = set()
+          for row in fr.get('candidates', []):
+              key = (str(row['remove']), str(row['candidate_id']))
+              if key in seen:
+                  continue
+              seen.add(key)
+              ev = row.get('semantic_evidence') if isinstance(row.get('semantic_evidence'), dict) else {}
+              cut = row.get('cut_hypothesis') if isinstance(row.get('cut_hypothesis'), dict) else {}
+              pair_id = hashlib.sha256(f'{key[0]}|{key[1]}'.encode()).hexdigest()[:16]
+              ready.append({
+                  'pair_id': pair_id,
+                  'remove': key[0],
+                  'add_candidate_id': key[1],
+                  'add': str(row.get('add', '')),
+                  'semantic_evidence_type': str(ev.get('evidence_type', 'UNKNOWN')),
+                  'semantic_confidence': str(ev.get('confidence', 'unknown')),
+                  'semantic_materiality': str(ev.get('decision_materiality', 'unknown')),
+                  'semantic_evidence_hash': str(row.get('semantic_evidence_hash', '')),
+                  'cut_lanes': list(cut.get('lanes', [])),
+                  'cut_hypothesis': cut,
+                  'screening_delta': row.get('screening_delta'),
+                  'whole_deck_constraint_report': row.get('whole_deck_constraint_report'),
+              })
+          if not ready:
+              raise RuntimeError('fresh 1.18 frontier produced no simulation-ready pairs')
+          assert all(len(row['semantic_evidence_hash']) == 64 for row in ready)
+
+          old_control = {
+              'version': '1.17.1',
+              'run_id': 31633015397,
+              'frontier_size': 43,
+              'unique_cut_count': 6,
+              'top_cut_pair_share': 27 / 43,
+              'cut_concentration_metric': 817 / 1849,
+              'no_material_difference_count': 17,
+              'seed_uncertainty_at_1024_count': 26,
+              'structural_finalist_count': 0,
+              'selection_prior_for_this_wave': False,
+          }
+          frontier_summary = {
+              'main_commit': MAIN,
+              'main_tree': TREE,
+              'package': PACKAGE,
+              'engine': ENGINE,
+              'deck_hash': DECK_HASH,
+              'candidate_recall': fr.get('candidate_recall'),
+              'physical_legal_candidate_count': prepare['result'].get('candidate_screen', {}).get('physical_legal_candidate_count'),
+              'discoverable_candidate_count': fr.get('candidate_discoverable_count'),
+              'frontier_size': len(ready),
+              'pair_pool_count': fr.get('pair_pool_count'),
+              'preconstraint_pair_count': fr.get('preconstraint_pair_count'),
+              'semantic_deferred_count': fr.get('semantic_deferred_count'),
+              'static_deprioritized_count': fr.get('static_deprioritized_count'),
+              'constraint_deferred_count': fr.get('constraint_deferred_count'),
+              'frontier_composition': fr.get('frontier_composition'),
+              'old_1_17_control': old_control,
+              'old_pre_1_17_shortlist_used_as_prior': False,
+              'automatic_deck_mutation': False,
+              'truth_boundary': 'structural_model_estimates_not_empirical_winrates',
+          }
+          (out / 'PREPARE.json').write_text(json.dumps(prepare, indent=2, sort_keys=True), encoding='utf-8')
+          (out / 'FRONTIER.json').write_text(json.dumps(frontier, indent=2, sort_keys=True), encoding='utf-8')
+          (out / 'MATRIX.json').write_text(json.dumps(ready, indent=2, sort_keys=True), encoding='utf-8')
+          (out / 'FRONTIER_SUMMARY.json').write_text(json.dumps(frontier_summary, indent=2, sort_keys=True), encoding='utf-8')
+          print('FRONTIER', json.dumps(frontier_summary, sort_keys=True))
+
+          records: dict[str, dict[str, Any]] = {
+              row['pair_id']: {
+                  **row,
+                  'history': [],
+                  'final_state': None,
+                  'final_classification': None,
+                  'technical_error': None,
+                  'metric_panel': None,
+              }
+              for row in ready
+          }
+          current: dict[str, dict[str, Any]] = {}
+          target_iteration_work = 0
+          novel_simulated_work = 0
+          started = time.perf_counter()
+
+          def run_pair(row: dict[str, Any], budget: int) -> dict[str, Any]:
+              payload: dict[str, Any] = {
+                  'deck_id': 'rogshai/current',
+                  'remove': row['remove'],
+                  'add_candidate_id': row['add_candidate_id'],
+                  'iterations': budget,
+                  'seed': PAIRED_SEED,
+                  'max_turns': 35,
+                  'workers': 1,
+              }
+              if budget == 1024:
+                  payload['max_simulation_seconds'] = 300.0
+              return public.invoke('deck_decision_run', payload).model_dump(mode='json')
+
+          def diagnose(pair_id: str) -> dict[str, Any]:
+              cohort = [current[key] for key in sorted(current)]
+              response = public.invoke('deck_decision_diagnose', {
+                  'comparison': current[pair_id],
+                  'cohort_comparisons': cohort,
+                  'opponent_evidence_quality': {},
+                  'failure_mode_metrics': [],
+              }).model_dump(mode='json')
+              if response['status'] != 'completed':
+                  raise RuntimeError(response.get('errors'))
+              return response
+
+          # Cohort stage 64: run everyone first so diagnosis sees a real cohort.
+          for row in ready:
+              pair_id = row['pair_id']
+              target_iteration_work += 64
+              run = run_pair(row, 64)
+              if run['status'] != 'completed':
+                  records[pair_id]['technical_error'] = {'stage': 'run', 'budget': 64, 'errors': run.get('errors')}
+                  records[pair_id]['final_classification'] = 'TECHNICAL_FAILURE'
+                  continue
+              current[pair_id] = run['result']
+              inc = run['result'].get('incremental_execution', {})
+              novel = int(inc.get('incremental_simulated_count', 64) or 0)
+              novel_simulated_work += novel
+              records[pair_id]['history'].append({
+                  'budget': 64,
+                  'paired': run['result'].get('paired'),
+                  'incremental_execution': inc,
+              })
+
+          # Diagnose the complete initial cohort.
+          for row in ready:
+              pair_id = row['pair_id']
+              if pair_id not in current:
+                  continue
+              diag = diagnose(pair_id)
+              state = diag['result']['decision_information_state']
+              records[pair_id]['history'][-1]['diagnosis'] = diag['result']
+              records[pair_id]['final_state'] = state
+
+          # Escalate only pairs that remain MORE_SIMULATIONS_USEFUL.
+          for budget in (128, 256, 512, 1024):
+              active = [
+                  row for row in ready
+                  if records[row['pair_id']].get('final_state', {}).get('status') == 'MORE_SIMULATIONS_USEFUL'
+                  and records[row['pair_id']]['technical_error'] is None
+              ]
+              if not active:
+                  break
+              for row in active:
+                  pair_id = row['pair_id']
+                  target_iteration_work += budget
+                  run = run_pair(row, budget)
+                  if run['status'] != 'completed':
+                      records[pair_id]['technical_error'] = {'stage': 'run', 'budget': budget, 'errors': run.get('errors')}
+                      records[pair_id]['final_classification'] = 'TECHNICAL_FAILURE'
+                      continue
+                  current[pair_id] = run['result']
+                  inc = run['result'].get('incremental_execution', {})
+                  novel_simulated_work += int(inc.get('incremental_simulated_count', budget) or 0)
+                  records[pair_id]['history'].append({
+                      'budget': budget,
+                      'paired': run['result'].get('paired'),
+                      'incremental_execution': inc,
+                  })
+                  diag = diagnose(pair_id)
+                  state = diag['result']['decision_information_state']
+                  records[pair_id]['history'][-1]['diagnosis'] = diag['result']
+                  records[pair_id]['final_state'] = state
+
+          finalists: list[dict[str, Any]] = []
+          state_counts: Counter[str] = Counter()
+          class_counts: Counter[str] = Counter()
+          for row in ready:
+              pair_id = row['pair_id']
+              rec = records[pair_id]
+              if rec['technical_error'] is not None:
+                  state_name = 'TECHNICAL_FAILURE'
+                  classification = 'TECHNICAL_FAILURE'
+              else:
+                  state = rec.get('final_state') or {}
+                  state_name = str(state.get('status', 'UNEXPECTED_STATE'))
+                  classification = {
+                      'STOP_WITH_PREFERENCE': 'STRUCTURAL_PREFERENCE_PENDING_ROBUSTNESS',
+                      'NO_MATERIAL_DECISION_DIFFERENCE': 'NO_MATERIAL_DECISION_DIFFERENCE',
+                      'MODEL_NEEDS_DIFFERENT_METRIC': 'MODEL_LIMIT_UNRESOLVED',
+                      'OPPONENT_UNCERTAINTY_DOMINATES': 'OPPONENT_UNCERTAINTY_UNRESOLVED',
+                      'TACTICAL_EVIDENCE_NEEDED': 'TACTICAL_EVIDENCE_UNRESOLVED',
+                      'PRECISION_CEILING_REACHED': 'PRECISION_CEILING_UNRESOLVED',
+                      'STOP': 'REJECT_STRUCTURALLY',
+                      'MORE_SIMULATIONS_USEFUL': 'UNEXPECTED_MORE_SIMULATIONS_USEFUL',
+                  }.get(state_name, 'UNEXPECTED_STATE')
+              rec['final_classification'] = classification
+              state_counts[state_name] += 1
+              class_counts[classification] += 1
+              last = rec['history'][-1] if rec['history'] else {}
+              paired = last.get('paired') if isinstance(last.get('paired'), dict) else {}
+              if state_name == 'MODEL_NEEDS_DIFFERENT_METRIC':
+                  rec['metric_panel'] = {
+                      'placement_improvement': paired.get('placement_improvement'),
+                      'place_1_share_delta': paired.get('place_1_share_delta'),
+                      'damage_delta': paired.get('damage_delta'),
+                      'cards_drawn_delta': paired.get('cards_drawn_delta'),
+                      'worst_case_result': paired.get('worst_case_result'),
+                      'distributionally_robust_lower_bound': paired.get('distributionally_robust_lower_bound'),
+                      'quantiles': paired.get('quantiles'),
+                      'interpretation': 'existing structural metric panel only; no new empirical evidence and no automatic reroute to more seeds',
+                  }
+              if state_name == 'STOP_WITH_PREFERENCE':
+                  finalists.append(rec)
+
+          # Only real structural finalists enter the expensive validation surface.
+          robustness: list[dict[str, Any]] = []
+          for rec in finalists:
+              validation = service.validate_swap(
+                  ValidateSwapInput(
+                      deck_id='rogshai/current',
+                      swaps=(VariantSwap(remove=rec['remove'], add_candidate_id=rec['add_candidate_id']),),
+                      opponent_deck_ids=(
+                          'opponent/morcant-elves',
+                          'opponent/doom-prevails-precon',
+                          'opponent/cosmic-spiderman-midbudget',
+                      ),
+                      seed=ROBUSTNESS_SEED,
+                      iterations=128,
+                      workers=1,
+                      max_turns=35,
+                      minimum_place_delta=0.0,
+                      require_holdout=True,
+                      holdout_pods=(
+                          ('opponent/blight-curse-precon', 'kaervek/current', 'opponent/dance-elements-precon'),
+                          ('opponent/wakanda-forever-precon', 'opponent/doom-prevails-precon', 'opponent/morcant-elves'),
+                      ),
+                      sensitivity_seeds=(2026081211, 2026081213, 2026081217),
+                      require_sensitivity_nonnegative=True,
+                      require_red_team_pass=True,
+                  )
+              ).model_dump(mode='json')
+              robustness.append({
+                  'pair_id': rec['pair_id'],
+                  'remove': rec['remove'],
+                  'add': rec['add'],
+                  'validation': validation,
+                  'opponent_envelope_note': 'holdout pods are unweighted sensitivity/stress assumptions; no local frequency claim',
+                  'automatic_application': False,
+              })
+
+          elapsed = time.perf_counter() - started
+          compute_saved = target_iteration_work - novel_simulated_work
+          compute_saved_fraction = compute_saved / target_iteration_work if target_iteration_work else 0.0
+          summary = {
+              'main_commit': MAIN,
+              'main_tree': TREE,
+              'package': PACKAGE,
+              'engine': ENGINE,
+              'deck_hash': DECK_HASH,
+              'candidate_recall': fr.get('candidate_recall'),
+              'frontier_size': len(ready),
+              'frontier_composition': fr.get('frontier_composition'),
+              'semantic_deferred_count': fr.get('semantic_deferred_count'),
+              'static_deprioritized_count': fr.get('static_deprioritized_count'),
+              'constraint_deferred_count': fr.get('constraint_deferred_count'),
+              'decision_information_state_counts': dict(sorted(state_counts.items())),
+              'classification_counts': dict(sorted(class_counts.items())),
+              'structural_finalist_count': len(finalists),
+              'robustness_count': len(robustness),
+              'robustness_gate_status': ('RUN_FOR_STRUCTURAL_FINALISTS' if finalists else 'NOT_RUN_NO_STRUCTURAL_FINALISTS'),
+              'target_full_prefix_iteration_work': target_iteration_work,
+              'novel_simulated_pair_iterations': novel_simulated_work,
+              'pair_iterations_saved_by_prefix_reuse': compute_saved,
+              'compute_saved_fraction': compute_saved_fraction,
+              'elapsed_seconds': elapsed,
+              'mulligan_seed': MULLIGAN_SEED,
+              'paired_seed': PAIRED_SEED,
+              'robustness_seed': ROBUSTNESS_SEED,
+              'old_1_17_control': old_control,
+              'automatic_deck_mutation': False,
+              'deck_decision': 'NO_CHANGE_AUTOMATICALLY',
+              'truth_boundary': 'structural_model_estimates_not_empirical_winrates',
+          }
+          (out / 'PAIR_RESULTS.json').write_text(json.dumps(records, indent=2, sort_keys=True), encoding='utf-8')
+          (out / 'ROBUSTNESS.json').write_text(json.dumps(robustness, indent=2, sort_keys=True), encoding='utf-8')
+          (out / 'BROAD_SUMMARY.json').write_text(json.dumps(summary, indent=2, sort_keys=True), encoding='utf-8')
+          print('SUMMARY', json.dumps(summary, indent=2, sort_keys=True))
+          assert service.tracked_worktree_dirty is False
+          PY
+      - name: Hash broad evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          find artifacts/rogshai_broad_1180 -type f -print0 | sort -z | xargs -0 sha256sum > artifacts/rogshai_broad_1180/SHA256SUMS.txt
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-broad-1180-${{ github.run_id }}
+          path: artifacts/rogshai_broad_1180/
+          if-no-files-found: error
