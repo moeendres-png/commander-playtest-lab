@@ -24,10 +24,10 @@ jobs:
         run: python scripts/apply_post117_fixes.py
       - name: Install dev package
         run: python -m pip install -e '.[dev]'
-      - name: Normalize generated regression test
+      - name: Normalize generated patch
         run: |
-          ruff check --fix tests/unit/test_post117_semantic_execution_fixes.py
-          ruff format tests/unit/test_post117_semantic_execution_fixes.py
+          ruff check --fix src/commander_lab/tools/service.py src/commander_lab/priority_workflows.py src/commander_lab/models/tooling.py tests/unit/test_post117_semantic_execution_fixes.py
+          ruff format src/commander_lab/tools/service.py src/commander_lab/priority_workflows.py src/commander_lab/models/tooling.py tests/unit/test_post117_semantic_execution_fixes.py
       - name: Focused validation
         run: |
           ruff check src tests
