@@ -23,9 +23,7 @@ def evaluate_variant(
     if gate.valid:
         deck = engine.context.materialize(mainboard, label=deck_hash[:12])
         if engine.context.mana_analyzer is not None:
-            mana = whole_deck_mana_summary(
-                deck, engine.context.mana_analyzer.analyze_deck(deck)
-            )
+            mana = whole_deck_mana_summary(deck, engine.context.mana_analyzer.analyze_deck(deck))
         else:
             mana = engine._synthetic_mana_summary(mainboard)
         meta = engine._meta_distance(mainboard)

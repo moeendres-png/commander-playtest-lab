@@ -167,7 +167,9 @@ class MetaKnowledgeBase:
                 if pair in seen_pairs:
                     continue
                 seen_pairs.add(pair)
-                derived.append(card_frequency(deck.commander, deck.format_band, snapshot.deck_snapshots))
+                derived.append(
+                    card_frequency(deck.commander, deck.format_band, snapshot.deck_snapshots)
+                )
             frequencies = tuple(derived)
         for freq in frequencies:
             if commander and freq.commander != commander:

@@ -16,9 +16,7 @@ class _AcceptanceMixin(SearchEngineBase):
             + self.config.final_temperature * fraction
         )
 
-    def _accept(
-        self, delta: float, temperature: float, rng: random.Random
-    ) -> tuple[bool, bool]:
+    def _accept(self, delta: float, temperature: float, rng: random.Random) -> tuple[bool, bool]:
         if delta >= 0.0:
             return True, False
         probability = math.exp(max(-50.0, delta / max(temperature, 1e-9)))

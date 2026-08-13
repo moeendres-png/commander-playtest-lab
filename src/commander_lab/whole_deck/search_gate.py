@@ -10,9 +10,7 @@ from .search_models import WholeDeckHardGate
 
 def hard_gate(engine: SearchEngineBase, mainboard: tuple[str, ...]) -> WholeDeckHardGate:
     issues = list(count_and_availability_issues(mainboard, engine.context.cards))
-    issues.extend(
-        identity_issues(mainboard, engine.context.cards, engine.context.commander_names)
-    )
+    issues.extend(identity_issues(mainboard, engine.context.cards, engine.context.commander_names))
     land_count, basic_count, land_issues = land_gate_values(
         mainboard, engine.context.cards, engine.mana_policy
     )

@@ -10,7 +10,12 @@ def dual_land_fixture_cards():
         cards.append(
             card(
                 f"Dual Land {index}",
-                profile=profile(f"Dual Land {index}", mv=0.0, is_land=True, produces=frozenset({Color.WHITE, Color.BLUE})),
+                profile=profile(
+                    f"Dual Land {index}",
+                    mv=0.0,
+                    is_land=True,
+                    produces=frozenset({Color.WHITE, Color.BLUE}),
+                ),
                 utility=0.0,
             )
         )

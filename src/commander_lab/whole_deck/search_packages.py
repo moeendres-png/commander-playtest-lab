@@ -30,9 +30,7 @@ class _PackageNeighborhoodMixin(SearchEngineBase):
         )
         add = [card.oracle_name for card in additions[:n]]
         if len(add) < n:
-            fallback = self._candidate_additions(
-                current, lambda card: not card.profile.is_land
-            )
+            fallback = self._candidate_additions(current, lambda card: not card.profile.is_land)
             fallback.sort(
                 key=lambda card: (
                     self._utility[card.oracle_name] + rng.random() * 0.2,
@@ -55,9 +53,7 @@ class _PackageNeighborhoodMixin(SearchEngineBase):
                 card.oracle_name,
             )
         )
-        remove = [card.oracle_name for card in selected if card.oracle_name not in add][
-            : len(add)
-        ]
+        remove = [card.oracle_name for card in selected if card.oracle_name not in add][: len(add)]
         return self._apply_replacements(mainboard, remove, add), tuple(remove), tuple(add)
 
     def _package_proposal(
@@ -107,9 +103,7 @@ class _PackageNeighborhoodMixin(SearchEngineBase):
         remove = [card.oracle_name for card in removable[:k]]
         return self._apply_replacements(mainboard, remove, add), tuple(remove), tuple(add)
 
-    def _curve_proposal(
-        self, mainboard: tuple[str, ...], rng: random.Random, n: int
-    ) -> Proposal:
+    def _curve_proposal(self, mainboard: tuple[str, ...], rng: random.Random, n: int) -> Proposal:
         current = Counter(mainboard)
         selected = [
             self.context.cards[name]

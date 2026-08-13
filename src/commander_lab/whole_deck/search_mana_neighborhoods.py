@@ -16,11 +16,7 @@ class _ManaNeighborhoodMixin(SearchEngineBase):
         nonlands = [name for name in mainboard if not self.context.cards[name].profile.is_land]
         land_count = sum(self.context.cards[name].profile.is_land for name in mainboard)
         desired = round(
-            (
-                self.mana_policy.preferred_land_minimum
-                + self.mana_policy.preferred_land_maximum
-            )
-            / 2
+            (self.mana_policy.preferred_land_minimum + self.mana_policy.preferred_land_maximum) / 2
         )
         decrease = land_count > desired or (land_count == desired and rng.random() < 0.5)
         delta = min(3, max(1, abs(land_count - desired)))
@@ -30,17 +26,13 @@ class _ManaNeighborhoodMixin(SearchEngineBase):
                 lands,
                 key=lambda name: (self._land_quality(self.context.cards[name]), name),
             )[:delta]
-            extra_remove = sorted(
-                nonlands, key=lambda name: (self._utility[name], name)
-            )[: max(0, k - delta)]
+            extra_remove = sorted(nonlands, key=lambda name: (self._utility[name], name))[
+                : max(0, k - delta)
+            ]
             remove = land_remove + extra_remove
-            additions = self._candidate_additions(
-                current, lambda card: not card.profile.is_land
-            )
+            additions = self._candidate_additions(current, lambda card: not card.profile.is_land)
         else:
-            nonland_remove = sorted(
-                nonlands, key=lambda name: (self._utility[name], name)
-            )[:delta]
+            nonland_remove = sorted(nonlands, key=lambda name: (self._utility[name], name))[:delta]
             extra_remove = sorted(
                 lands,
                 key=lambda name: (self._land_quality(self.context.cards[name]), name),

@@ -7,7 +7,9 @@ from tests.unit.whole_deck_profile_fixtures import card, profile
 def nonland_fixture_cards():
     cards = []
     for index in range(1, 81):
-        cards.append(card(f"Filler {index}", profile=profile(f"Filler {index}", mv=2.0), utility=1.0))
+        cards.append(
+            card(f"Filler {index}", profile=profile(f"Filler {index}", mv=2.0), utility=1.0)
+        )
     for index in range(1, 7):
         cards.append(
             card(

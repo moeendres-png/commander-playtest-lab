@@ -26,7 +26,9 @@ ROGSHAI = "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
 
 
 def _profiles(repo_root: Path) -> dict[str, StructuralCardProfile]:
-    catalog = StructuralProfileCatalog.from_json(repo_root / "data/cards/structural_role_profiles.json")
+    catalog = StructuralProfileCatalog.from_json(
+        repo_root / "data/cards/structural_role_profiles.json"
+    )
     return {profile.oracle_name: profile for profile in catalog.profiles}
 
 
@@ -111,7 +113,9 @@ def test_meta_high_weights_distance_more_than_meta_light(repo_root: Path) -> Non
     decks = load_project_structural_decks(repo_root)
     current = decks["rogshai/current"]
     candidate = profile_structural_deck(current, format_band=FormatBand.HIGH_POWER)
-    cards = tuple(card.oracle_name for card in current.cards if card.oracle_name != "Counterspell")
+    cards = tuple(
+        card.oracle_name for card in current.cards if card.oracle_name != "Counterspell"
+    )
     profiles = {card.oracle_name: card for card in current.cards}
     reference = profile_card_names(
         cards,
@@ -192,7 +196,9 @@ def test_compact_current_snapshot_derives_card_frequencies(repo_root: Path) -> N
 
 
 def test_current_meta_snapshot_is_immutable_and_provenanced(repo_root: Path) -> None:
-    pointer = json.loads((repo_root / "data/meta/manifests/latest.json").read_text(encoding="utf-8"))
+    pointer = json.loads(
+        (repo_root / "data/meta/manifests/latest.json").read_text(encoding="utf-8")
+    )
     payload = json.loads((repo_root / pointer["path"]).read_text(encoding="utf-8"))
     assert payload["manifest"]["immutable"] is True
     assert all(source["retrieved_at"] for source in payload["sources"])

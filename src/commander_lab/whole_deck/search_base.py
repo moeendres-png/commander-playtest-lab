@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 from collections import Counter
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Sequence
 
 from commander_lab.models import CardRole, FormatBand
 
@@ -28,7 +28,7 @@ CardPredicate = Callable[[SearchCard], bool]
 class SearchEngineBase:
     """Typed contract shared by the small Whole-Deck search mixins.
 
-    The concrete engine supplies these methods through sibling mixins. Keeping the
+    The concrete engine supplies these methods through sibling mixins.  Keeping the
     contract in one non-public base preserves the modular runtime structure while
     making strict static typing explicit instead of relying on dynamic attributes.
     """
@@ -91,9 +91,7 @@ class SearchEngineBase:
     ) -> Proposal:
         raise NotImplementedError
 
-    def _curve_proposal(
-        self, mainboard: tuple[str, ...], rng: random.Random, n: int
-    ) -> Proposal:
+    def _curve_proposal(self, mainboard: tuple[str, ...], rng: random.Random, n: int) -> Proposal:
         raise NotImplementedError
 
     def _land_balance_proposal(
@@ -159,9 +157,7 @@ class SearchEngineBase:
     def _temperature(self, step: int) -> float:
         raise NotImplementedError
 
-    def _accept(
-        self, delta: float, temperature: float, rng: random.Random
-    ) -> tuple[bool, bool]:
+    def _accept(self, delta: float, temperature: float, rng: random.Random) -> tuple[bool, bool]:
         raise NotImplementedError
 
     def run(self, *, current_control: tuple[str, ...] | None = None) -> WholeDeckSearchResult:

@@ -57,14 +57,10 @@ class _FeatureMixin(SearchEngineBase):
             "t1_untapped_land_sources": dict(sorted(colored.items())),
             "turn2_source_supported_share": 1.0,
             "ramp_count": sum(CardRole.RAMP in card.profile.roles for card in nonlands),
-            "selection_count": sum(
-                CardRole.SELECTION in card.profile.roles for card in nonlands
-            ),
+            "selection_count": sum(CardRole.SELECTION in card.profile.roles for card in nonlands),
             "average_nonland_mv": (
                 fmean(card.profile.mana_value for card in nonlands) if nonlands else 0.0
             ),
-            "commander_castability_support": min(
-                1.0, (colored["W"] + colored["U"]) / 20.0
-            ),
+            "commander_castability_support": min(1.0, (colored["W"] + colored["U"]) / 20.0),
             "evidence_type": "synthetic_fixture_mana_summary",
         }

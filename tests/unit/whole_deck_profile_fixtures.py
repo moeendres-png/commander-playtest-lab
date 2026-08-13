@@ -4,7 +4,15 @@ from commander_lab.models import CardRole, DataQuality, StructuralCardProfile
 from commander_lab.whole_deck.search import SearchCard
 
 
-def profile(name: str, *, mv: float = 2.0, roles=frozenset(), is_land: bool = False, produces=frozenset(), package_ids=frozenset()):
+def profile(
+    name: str,
+    *,
+    mv: float = 2.0,
+    roles=frozenset(),
+    is_land: bool = False,
+    produces=frozenset(),
+    package_ids=frozenset(),
+):
     actual_roles = roles
     if is_land:
         source_role = next(role for role in CardRole if role.value.endswith("source"))
@@ -28,7 +36,14 @@ def profile(name: str, *, mv: float = 2.0, roles=frozenset(), is_land: bool = Fa
     )
 
 
-def card(name: str, *, profile: StructuralCardProfile, quantity: int = 1, basic: bool = False, utility: float | None = None) -> SearchCard:
+def card(
+    name: str,
+    *,
+    profile: StructuralCardProfile,
+    quantity: int = 1,
+    basic: bool = False,
+    utility: float | None = None,
+) -> SearchCard:
     return SearchCard(
         oracle_name=name,
         profile=profile,

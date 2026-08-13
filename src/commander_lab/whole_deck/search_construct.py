@@ -76,9 +76,7 @@ class _ConstructMixin(SearchEngineBase):
             return round((low + high) / 2)
         return rng.randint(low, high)
 
-    def _target_basic_count(
-        self, land_count: int, rng: random.Random | None = None
-    ) -> int:
+    def _target_basic_count(self, land_count: int, rng: random.Random | None = None) -> int:
         low = min(land_count, self.mana_policy.preferred_basic_minimum)
         high = min(land_count, self.mana_policy.preferred_basic_maximum)
         if low > high:

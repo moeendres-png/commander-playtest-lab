@@ -5,9 +5,7 @@ from collections.abc import Sequence
 from .search_context import WholeDeckSearchContext
 
 
-def fresh_rebuild_issue(
-    context: WholeDeckSearchContext, mainboard: Sequence[str]
-) -> str | None:
+def fresh_rebuild_issue(context: WholeDeckSearchContext, mainboard: Sequence[str]) -> str | None:
     if context.root is None:
         return None
     try:
