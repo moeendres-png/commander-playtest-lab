@@ -1,0 +1,416 @@
+name: RogShai Broad 1.18.1 Corrected Cohort Decision Wave
+
+on:
+  push:
+    branches:
+      - runs/rogshai-broad-1181-20260813
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rogshai-broad-1181-20260813
+  cancel-in-progress: false
+
+jobs:
+  cohort-wave:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: a9712fea4d3869380f817d74e2cf8cb2ce5c0a9a
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install Lab
+        run: python -m pip install -e .
+      - name: Execute corrected cohort-aware wave
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import json
+          import subprocess
+          import time
+          from collections import Counter
+          from pathlib import Path
+
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.models import RunRobustnessSuiteInput, VariantSwap
+          from commander_lab.models.tooling import GenerateCandidateSwapsInput
+          from commander_lab.project_context import load_project_context
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          MAIN = 'a9712fea4d3869380f817d74e2cf8cb2ce5c0a9a'
+          TREE = '39fc84fa032e035d1394ee528907c9395a750357'
+          PACKAGE = '1.18.1'
+          ENGINE = 'structural-0.6.0'
+          DECK_HASH = '7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          PREPARE_SEED = 2026081201
+          PAIRED_SEED = 2026081203
+          ROBUSTNESS_SEED = 2026081307
+          BUDGETS = (64, 128, 256, 512, 1024)
+          VALID_MODEL_STATUSES = {'INFORMATIVE', 'MODEL_INFORMATION_LIMIT'}
+          OUT = Path('artifacts/rogshai_broad_1181')
+          PAIR_OUT = OUT / 'pairs'
+          OUT.mkdir(parents=True, exist_ok=True)
+          PAIR_OUT.mkdir(parents=True, exist_ok=True)
+
+          git = lambda *args: subprocess.check_output(['git', *args], text=True).strip()
+          assert git('rev-parse', 'HEAD') == MAIN
+          assert git('rev-parse', 'HEAD^{tree}') == TREE
+          assert commander_lab.__version__ == PACKAGE
+          assert ENGINE_VERSION == ENGINE
+
+          service = CommanderToolService(Path.cwd())
+          assert service.decks['rogshai/current'].deck_hash == DECK_HASH
+          assert service.tracked_worktree_dirty is False
+          public = ToolRegistry(service, surface='public')
+          assert tuple(d.name for d in public.definitions) == (
+              'deck_decision_prepare',
+              'deck_decision_run',
+              'deck_decision_diagnose',
+              'deck_decision_bundle',
+          )
+          context = load_project_context(Path.cwd())
+          primary_opponents = tuple(context.primary_opponent_deck_ids('rogshai/current'))
+          assert len(primary_opponents) == 3
+
+          started = time.perf_counter()
+          prepare_resp = public.invoke('deck_decision_prepare', {
+              'deck_id': 'rogshai/current',
+              'candidate_limit': 250,
+              'mulligan_policies': ['current_pilot', 'primer_policy'],
+              'mulligan_samples': 10000,
+              'mulligan_seed': PREPARE_SEED,
+              'seat_position': 1,
+          }).model_dump(mode='json')
+          if prepare_resp['status'] != 'completed':
+              raise RuntimeError(f"prepare failed: {prepare_resp.get('errors')}")
+
+          frontier_resp = service.generate_candidate_swaps(
+              GenerateCandidateSwapsInput(
+                  deck_id='rogshai/current',
+                  candidate_ids=(),
+                  max_candidates=50,
+              )
+          ).model_dump(mode='json')
+          if frontier_resp['status'] != 'completed':
+              raise RuntimeError(f"frontier failed: {frontier_resp.get('errors')}")
+          frontier = frontier_resp['result']
+          assert frontier['candidate_recall'] == 1.0
+          assert frontier['semantic_frontier_gate']['authority'] == 'semantic_evidence_summary'
+          assert frontier['semantic_frontier_gate']['legacy_semantic_quality_is_authoritative'] is False
+          assert frontier['semantic_frontier_gate']['unmodeled_is_negative_evidence'] is False
+          assert frontier['cut_frontier_gate']['scalar_profile_score_is_sole_authority'] is False
+          assert frontier['cut_frontier_gate']['whole_deck_constraints_checked_before_simulation'] is True
+
+          ready = []
+          seen = set()
+          for row in frontier.get('candidates', []):
+              key = (str(row.get('remove')), str(row.get('candidate_id')))
+              if key in seen:
+                  continue
+              seen.add(key)
+              if row.get('requires_semantic_adjudication'):
+                  raise RuntimeError(f'material semantic conflict entered simulation frontier: {key}')
+              evidence_hash = str(row.get('semantic_evidence_hash', ''))
+              if not evidence_hash:
+                  raise RuntimeError(f'missing semantic_evidence_hash for simulation frontier: {key}')
+              pair_id = hashlib.sha256(f'{key[0]}|{key[1]}'.encode()).hexdigest()[:16]
+              ready.append({
+                  'pair_id': pair_id,
+                  'remove': key[0],
+                  'add_candidate_id': key[1],
+                  'add': str(row.get('add', '')),
+                  'semantic_evidence_hash': evidence_hash,
+                  'semantic_evidence': row.get('semantic_evidence', {}),
+                  'semantic_screen_bucket': str(row.get('semantic_screen_bucket', '')),
+                  'cut_hypothesis': row.get('cut_hypothesis', {}),
+                  'variant_deck_hash': row.get('variant_deck_hash'),
+              })
+          if not ready:
+              raise RuntimeError('fresh 1.18.1 frontier produced no simulation-ready pairs')
+
+          (OUT / 'PREPARE.json').write_text(json.dumps(prepare_resp, indent=2, sort_keys=True), encoding='utf-8')
+          (OUT / 'FRONTIER.json').write_text(json.dumps(frontier_resp, indent=2, sort_keys=True), encoding='utf-8')
+          (OUT / 'MATRIX.json').write_text(json.dumps(ready, indent=2, sort_keys=True), encoding='utf-8')
+
+          histories = {row['pair_id']: [] for row in ready}
+          latest_comparisons = {}
+          latest_diagnoses = {}
+          active = {row['pair_id']: row for row in ready}
+          terminal = {}
+          technical_failures = []
+          stage_summaries = []
+          actual_incremental_pairs = 0
+          redundant_full_prefix_pairs = 0
+
+          for budget in BUDGETS:
+              if not active:
+                  break
+              stage_results = {}
+              stage_run_started = time.perf_counter()
+              for pair_id, row in list(active.items()):
+                  run_resp = public.invoke('deck_decision_run', {
+                      'deck_id': 'rogshai/current',
+                      'remove': row['remove'],
+                      'add_candidate_id': row['add_candidate_id'],
+                      'iterations': budget,
+                      'seed': PAIRED_SEED,
+                      'max_turns': 35,
+                      'workers': 1,
+                      'max_simulation_seconds': 600.0,
+                  }).model_dump(mode='json')
+                  if run_resp['status'] != 'completed':
+                      failure = {
+                          'pair_id': pair_id,
+                          'stage': 'run',
+                          'budget': budget,
+                          'errors': run_resp.get('errors'),
+                      }
+                      technical_failures.append(failure)
+                      terminal[pair_id] = {'status': 'TECHNICAL_FAILURE', **failure}
+                      active.pop(pair_id, None)
+                      continue
+                  comparison = run_resp['result']
+                  latest_comparisons[pair_id] = comparison
+                  stage_results[pair_id] = comparison
+                  incremental = comparison.get('incremental_execution', {})
+                  actual_incremental_pairs += int(incremental.get('incremental_simulated_count') or 0)
+                  redundant_full_prefix_pairs += budget
+                  histories[pair_id].append({
+                      'budget': budget,
+                      'run': comparison,
+                      'run_metadata': run_resp.get('metadata', {}),
+                  })
+
+              cohort = tuple(stage_results.values())
+              next_active = {}
+              status_counts = Counter()
+              model_status_counts = Counter()
+              for pair_id, comparison in stage_results.items():
+                  row = active[pair_id]
+                  diagnose_resp = public.invoke('deck_decision_diagnose', {
+                      'comparison': comparison,
+                      'cohort_comparisons': list(cohort),
+                      'opponent_evidence_quality': {},
+                      'failure_mode_metrics': ['average_placement', 'average_commander_damage'],
+                  }).model_dump(mode='json')
+                  if diagnose_resp['status'] != 'completed':
+                      failure = {
+                          'pair_id': pair_id,
+                          'stage': 'diagnose',
+                          'budget': budget,
+                          'errors': diagnose_resp.get('errors'),
+                      }
+                      technical_failures.append(failure)
+                      terminal[pair_id] = {'status': 'TECHNICAL_FAILURE', **failure}
+                      continue
+                  diagnosis = diagnose_resp['result']
+                  latest_diagnoses[pair_id] = diagnosis
+                  state = diagnosis['decision_information_state']
+                  state_name = str(state['status'])
+                  model_info = diagnosis.get('model_informativeness') or {}
+                  model_status = str(model_info.get('status', 'UNKNOWN'))
+                  if model_status not in VALID_MODEL_STATUSES:
+                      raise RuntimeError(
+                          f'public cohort diagnose did not expose a valid model-informativeness status: '
+                          f'{pair_id} budget={budget} status={model_status}'
+                      )
+                  status_counts[state_name] += 1
+                  model_status_counts[model_status] += 1
+                  histories[pair_id][-1]['diagnosis'] = diagnosis
+                  if state_name == 'MORE_SIMULATIONS_USEFUL' and budget < 1024:
+                      next_active[pair_id] = row
+                  else:
+                      terminal[pair_id] = {
+                          'status': state_name,
+                          'budget': budget,
+                          'decision_information_state': state,
+                          'model_informativeness': model_info,
+                      }
+
+              stage_summaries.append({
+                  'budget': budget,
+                  'entered_pair_count': len(stage_results),
+                  'status_counts': dict(sorted(status_counts.items())),
+                  'model_informativeness_status_counts': dict(sorted(model_status_counts.items())),
+                  'next_stage_pair_count': len(next_active),
+                  'elapsed_seconds': time.perf_counter() - stage_run_started,
+              })
+              active = next_active
+
+          for pair_id, item in terminal.items():
+              if item.get('budget') == 1024 and item.get('status') == 'MORE_SIMULATIONS_USEFUL':
+                  raise RuntimeError(f'pair remained MORE_SIMULATIONS_USEFUL at 1024: {pair_id}')
+
+          finalists = []
+          for row in ready:
+              pair_id = row['pair_id']
+              item = terminal.get(pair_id, {})
+              if item.get('status') == 'STOP_WITH_PREFERENCE':
+                  comparison = latest_comparisons[pair_id]
+                  paired = comparison.get('paired', {})
+                  finalists.append({
+                      **row,
+                      'terminal_budget': item.get('budget'),
+                      'placement_improvement': paired.get('placement_improvement'),
+                      'confidence_interval': paired.get('confidence_interval'),
+                      'decision_information_state': item.get('decision_information_state'),
+                  })
+
+          robustness_results = []
+          for finalist in finalists:
+              request = RunRobustnessSuiteInput(
+                  deck_id='rogshai/current',
+                  swaps=(VariantSwap(
+                      remove=finalist['remove'],
+                      add_candidate_id=finalist['add_candidate_id'],
+                  ),),
+                  opponent_deck_ids=primary_opponents,
+                  iterations=8,
+                  seed=ROBUSTNESS_SEED,
+                  max_turns=35,
+                  workers=1,
+                  include_politics=True,
+                  include_pod_sizes=(3, 4, 5),
+              )
+              robust_resp = service.run_robustness_suite(request).model_dump(mode='json')
+              if robust_resp['status'] != 'completed':
+                  failure = {
+                      'pair_id': finalist['pair_id'],
+                      'stage': 'robustness',
+                      'errors': robust_resp.get('errors'),
+                  }
+                  technical_failures.append(failure)
+                  robustness_results.append({**finalist, 'technical_failure': failure})
+                  continue
+              robustness_results.append({
+                  **finalist,
+                  'robustness': robust_resp['result'],
+                  'robustness_metadata': robust_resp.get('metadata', {}),
+              })
+
+          terminal_counts = Counter(str(item.get('status', 'MISSING')) for item in terminal.values())
+          robust_supported = [
+              row for row in robustness_results
+              if (row.get('robustness') or {}).get('recommendation_status') == 'robust_in_structural_holdout'
+          ]
+          model_limit_count = terminal_counts.get('MODEL_NEEDS_DIFFERENT_METRIC', 0)
+          opponent_uncertainty_count = terminal_counts.get('OPPONENT_UNCERTAINTY_DOMINATES', 0)
+          tactical_count = terminal_counts.get('TACTICAL_EVIDENCE_NEEDED', 0)
+          if robust_supported:
+              system_decision = 'ROBUST_STRUCTURAL_PREFERENCE_DEMONSTRATED'
+          elif finalists:
+              system_decision = 'STRUCTURAL_PREFERENCE_NOT_ROBUSTLY_CONFIRMED'
+          elif model_limit_count:
+              system_decision = 'STRUCTURAL_MODEL_INFORMATION_LIMIT_NO_AUTOMATIC_CHANGE'
+          elif opponent_uncertainty_count:
+              system_decision = 'OPPONENT_UNCERTAINTY_REQUIRES_NON_SEED_EVIDENCE'
+          elif tactical_count:
+              system_decision = 'TACTICAL_EVIDENCE_REQUIRED_FOR_UNRESOLVED_DECISION'
+          else:
+              system_decision = 'NO_MATERIALLY_BETTER_CHANGE_DEMONSTRATED_IN_CURRENT_STRUCTURAL_EVIDENCE'
+
+          all_terminal = len(terminal) == len(ready)
+          no_more_seed_at_ceiling = terminal_counts.get('MORE_SIMULATIONS_USEFUL', 0) == 0
+          robustness_complete = len(robustness_results) == len(finalists)
+          model_status_unknown = any(
+              'UNKNOWN' in stage.get('model_informativeness_status_counts', {})
+              for stage in stage_summaries
+          )
+          success = (
+              frontier.get('candidate_recall') == 1.0
+              and not technical_failures
+              and all_terminal
+              and no_more_seed_at_ceiling
+              and robustness_complete
+              and not model_status_unknown
+          )
+
+          summary = {
+              'schema_version': '1.18.1-corrected-fresh-broad-v1',
+              'execution_status': 'PASS' if success else 'FAIL',
+              'success_definition_status': 'PASS' if success else 'FAIL',
+              'system_decision': system_decision,
+              'main_commit': MAIN,
+              'main_tree': TREE,
+              'package': PACKAGE,
+              'engine': ENGINE,
+              'deck_id': 'rogshai/current',
+              'deck_hash': DECK_HASH,
+              'deck_cards': 100,
+              'deck_lands': 36,
+              'primary_opponents': list(primary_opponents),
+              'candidate_recall': frontier.get('candidate_recall'),
+              'frontier_size': len(ready),
+              'frontier_composition': frontier.get('frontier_composition', {}),
+              'semantic_deferred_count': frontier.get('semantic_deferred_count'),
+              'constraint_deferred_count': frontier.get('constraint_deferred_count'),
+              'stage_summaries': stage_summaries,
+              'terminal_state_counts': dict(sorted(terminal_counts.items())),
+              'structural_finalist_count': len(finalists),
+              'robust_supported_count': len(robust_supported),
+              'finalists': finalists,
+              'robustness_results': robustness_results,
+              'actual_incremental_paired_observations': actual_incremental_pairs,
+              'redundant_full_prefix_paired_observations_control': redundant_full_prefix_pairs,
+              'paired_observations_avoided_by_prefix_reuse': max(0, redundant_full_prefix_pairs - actual_incremental_pairs),
+              'prefix_reuse_reduction_fraction': (
+                  1.0 - actual_incremental_pairs / redundant_full_prefix_pairs
+                  if redundant_full_prefix_pairs else 0.0
+              ),
+              'technical_failures': technical_failures,
+              'cohort_model_informativeness_forwarding_gate': 'PASS' if not model_status_unknown else 'FAIL',
+              'old_1_18_0_control': {
+                  'run_id': 31673473436,
+                  'status': 'CONTROL_ONLY_NOT_CANONICAL_COHORT_ROUTING_EVIDENCE',
+                  'reason': 'public diagnose dropped cohort/evidence/failure-mode fields before PR #59',
+                  'used_as_selection_prior': False,
+                  'candidate_recall': 1.0,
+                  'frontier_size': 50,
+                  'structural_finalist_count': 0,
+              },
+              'automatic_deck_mutation': False,
+              'inventory_allocation_purchase_mutation': False,
+              'opponent_observation_mutation': False,
+              'kaervek_optimization': False,
+              'structural_model_estimates_are_empirical_winrates': False,
+              'elapsed_seconds': time.perf_counter() - started,
+          }
+
+          for pair_id, history in histories.items():
+              (PAIR_OUT / f'{pair_id}-history.json').write_text(
+                  json.dumps(history, indent=2, sort_keys=True), encoding='utf-8'
+              )
+              if pair_id in latest_comparisons:
+                  (PAIR_OUT / f'{pair_id}-latest-comparison.json').write_text(
+                      json.dumps(latest_comparisons[pair_id], indent=2, sort_keys=True), encoding='utf-8'
+                  )
+              if pair_id in latest_diagnoses:
+                  (PAIR_OUT / f'{pair_id}-latest-diagnosis.json').write_text(
+                      json.dumps(latest_diagnoses[pair_id], indent=2, sort_keys=True), encoding='utf-8'
+                  )
+          (OUT / 'TERMINAL.json').write_text(json.dumps(terminal, indent=2, sort_keys=True), encoding='utf-8')
+          (OUT / 'FINALISTS.json').write_text(json.dumps(finalists, indent=2, sort_keys=True), encoding='utf-8')
+          (OUT / 'ROBUSTNESS.json').write_text(json.dumps(robustness_results, indent=2, sort_keys=True), encoding='utf-8')
+          (OUT / 'SUMMARY.json').write_text(json.dumps(summary, indent=2, sort_keys=True), encoding='utf-8')
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          if not success:
+              raise SystemExit('corrected 1.18.1 broad success definition failed')
+          PY
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-broad-1181-${{ github.run_id }}
+          path: artifacts/rogshai_broad_1181/
+          if-no-files-found: warn
+          retention-days: 90
