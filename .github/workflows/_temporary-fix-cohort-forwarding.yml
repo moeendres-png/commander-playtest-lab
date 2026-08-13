@@ -29,25 +29,22 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import re
           from pathlib import Path
 
           service_path = Path('src/commander_lab/tools/service.py')
           service = service_path.read_text(encoding='utf-8')
-          old = '''                result: dict[str, Any] = dict(
-                    PriorityWorkflowFacade.diagnose_next_experiment(request.comparison)
-                )'''
-          new = '''                result: dict[str, Any] = dict(
-                    PriorityWorkflowFacade.diagnose_next_experiment(
+          pattern = r'PriorityWorkflowFacade\.diagnose_next_experiment\(request\.comparison\)'
+          replacement = '''PriorityWorkflowFacade.diagnose_next_experiment(
                         request.comparison,
                         cohort_comparisons=tuple(request.cohort_comparisons),
                         opponent_evidence_quality=dict(request.opponent_evidence_quality),
                         failure_mode_metrics=tuple(request.failure_mode_metrics),
-                    )
-                )'''
-          count = service.count(old)
+                    )'''
+          service, count = re.subn(pattern, replacement, service)
           if count != 1:
-              raise SystemExit(f'expected exactly one public diagnose forwarding site, found {count}')
-          service_path.write_text(service.replace(old, new), encoding='utf-8')
+              raise SystemExit(f'expected exactly one public diagnose forwarding call, found {count}')
+          service_path.write_text(service, encoding='utf-8')
 
           init_path = Path('src/commander_lab/__init__.py')
           init_text = init_path.read_text(encoding='utf-8')
