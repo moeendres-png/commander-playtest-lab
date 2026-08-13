@@ -5,6 +5,7 @@ from commander_lab.whole_deck.search import WholeDeckSearchEngine
 from tests.unit.whole_deck_config_fixture import neutral_config
 from tests.unit.whole_deck_context_fixture import synthetic_context
 
+
 def test_b_whole_deck_low_land_policy_can_leave_legacy_36_38_range():
     context, _ = synthetic_context()
     policy_id = getattr(PolicyId, "LOW_" + "LAND_HIGH_VELOCITY")
