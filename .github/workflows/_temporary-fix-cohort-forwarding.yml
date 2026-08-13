@@ -115,8 +115,8 @@ jobs:
 
           Path('.github/workflows/_temporary-fix-cohort-forwarding.yml').unlink()
           PY
-      - name: Install development dependencies
-        run: python -m pip install -e '.[dev]'
+      - name: Install development and API dependencies
+        run: python -m pip install -e '.[dev,api]'
       - name: Format and statically validate patch
         run: |
           python -m ruff format src/commander_lab/tools/service.py tests/regressions/test_public_diagnose_cohort_forwarding.py src/commander_lab/__init__.py
