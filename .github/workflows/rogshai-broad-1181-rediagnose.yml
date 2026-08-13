@@ -1,0 +1,374 @@
+name: RogShai Broad 1.18.1 Re-diagnosis Equivalence Gate
+
+on:
+  push:
+    branches:
+      - runs/rogshai-broad-1181-rediagnose-20260813
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  rediagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: a9712fea4d3869380f817d74e2cf8cb2ce5c0a9a
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install Lab
+        run: python -m pip install -e .
+      - name: Download immutable 1.18.0 structural control evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/9175928651/zip" \
+            --output /tmp/control.zip
+          mkdir -p /tmp/control
+          unzip -q /tmp/control.zip -d /tmp/control
+          test -f /tmp/control/BROAD_SUMMARY.json
+          test -f /tmp/control/MATRIX.json
+      - name: Verify current frontier, sampled raw simulation equivalence, and re-diagnose cohorts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import json
+          import subprocess
+          import time
+          from collections import Counter
+          from pathlib import Path
+
+          import commander_lab
+          from commander_lab.engine.structural import ENGINE_VERSION
+          from commander_lab.models.tooling import GenerateCandidateSwapsInput
+          from commander_lab.tools import CommanderToolService, ToolRegistry
+
+          MAIN = 'a9712fea4d3869380f817d74e2cf8cb2ce5c0a9a'
+          TREE = '39fc84fa032e035d1394ee528907c9395a750357'
+          PACKAGE = '1.18.1'
+          ENGINE = 'structural-0.6.0'
+          DECK_HASH = '7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          CONTROL_MAIN = '5224299e31a1b84b0cd54e998728be6d37af4d71'
+          CONTROL_ARTIFACT_ID = 9175928651
+          PAIRED_SEED = 2026081203
+          BUDGETS = (64, 128, 256, 512, 1024)
+          VALID_MODEL_STATUSES = {'INFORMATIVE', 'MODEL_INFORMATION_LIMIT'}
+          OUT = Path('artifacts/rogshai_broad_1181_rediagnose')
+          OUT.mkdir(parents=True, exist_ok=True)
+          PAIR_OUT = OUT / 'diagnoses'
+          PAIR_OUT.mkdir(exist_ok=True)
+          CONTROL = Path('/tmp/control')
+
+          started = time.perf_counter()
+          git = lambda *args: subprocess.check_output(['git', *args], text=True).strip()
+          assert git('rev-parse', 'HEAD') == MAIN
+          assert git('rev-parse', 'HEAD^{tree}') == TREE
+          assert commander_lab.__version__ == PACKAGE
+          assert ENGINE_VERSION == ENGINE
+
+          changed = tuple(
+              line for line in git('diff', '--name-only', f'{CONTROL_MAIN}..{MAIN}').splitlines() if line
+          )
+          expected_changed = (
+              'pyproject.toml',
+              'src/commander_lab/__init__.py',
+              'src/commander_lab/tools/service.py',
+              'tests/regressions/test_public_diagnose_cohort_forwarding.py',
+              'tests/unit/test_j_p6_hardening.py',
+          )
+          if tuple(sorted(changed)) != tuple(sorted(expected_changed)):
+              raise RuntimeError(f'unexpected 1.18.0 -> 1.18.1 changed-file set: {changed}')
+          service_diff = git('diff', f'{CONTROL_MAIN}..{MAIN}', '--', 'src/commander_lab/tools/service.py')
+          required_forwarding_tokens = (
+              'cohort_comparisons=tuple(request.cohort_comparisons)',
+              'opponent_evidence_quality=dict(request.opponent_evidence_quality)',
+              'failure_mode_metrics=tuple(request.failure_mode_metrics)',
+          )
+          if not all(token in service_diff for token in required_forwarding_tokens):
+              raise RuntimeError('service diff is not the expected diagnose-only forwarding patch')
+          forbidden_simulation_tokens = (
+              'def deck_decision_run',
+              'compare_variants_paired',
+              'paired_observations',
+              'incremental_execution',
+          )
+          if any(token in service_diff for token in forbidden_simulation_tokens):
+              raise RuntimeError('1.18.1 service patch touched a declared simulation-path token')
+
+          control_summary = json.loads((CONTROL / 'BROAD_SUMMARY.json').read_text(encoding='utf-8'))
+          control_matrix = json.loads((CONTROL / 'MATRIX.json').read_text(encoding='utf-8'))
+          assert control_summary['main_commit'] == CONTROL_MAIN
+          assert control_summary['candidate_recall'] == 1.0
+          assert control_summary['frontier_size'] == 50
+          assert control_summary['technical_failures'] == []
+
+          control_pairs = {}
+          for path in sorted((CONTROL / 'pairs').glob('*.json')):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              pair_id = payload['identity']['pair_id']
+              control_pairs[pair_id] = payload
+          if len(control_pairs) != 50:
+              raise RuntimeError(f'expected 50 control pair histories, found {len(control_pairs)}')
+
+          service = CommanderToolService(Path.cwd())
+          assert service.decks['rogshai/current'].deck_hash == DECK_HASH
+          assert service.tracked_worktree_dirty is False
+          public = ToolRegistry(service, surface='public')
+          assert tuple(d.name for d in public.definitions) == (
+              'deck_decision_prepare',
+              'deck_decision_run',
+              'deck_decision_diagnose',
+              'deck_decision_bundle',
+          )
+
+          frontier_resp = service.generate_candidate_swaps(
+              GenerateCandidateSwapsInput(deck_id='rogshai/current', candidate_ids=(), max_candidates=50)
+          ).model_dump(mode='json')
+          if frontier_resp['status'] != 'completed':
+              raise RuntimeError(frontier_resp.get('errors'))
+          frontier = frontier_resp['result']
+          assert frontier['candidate_recall'] == 1.0
+          ready = []
+          seen = set()
+          for row in frontier.get('candidates', []):
+              key = (str(row.get('remove')), str(row.get('candidate_id')))
+              if key in seen:
+                  continue
+              seen.add(key)
+              if row.get('requires_semantic_adjudication'):
+                  raise RuntimeError(f'material semantic conflict entered current frontier: {key}')
+              evidence_hash = str(row.get('semantic_evidence_hash', ''))
+              if not evidence_hash:
+                  raise RuntimeError(f'missing semantic evidence hash: {key}')
+              ready.append({
+                  'pair_id': hashlib.sha256(f'{key[0]}|{key[1]}'.encode()).hexdigest()[:16],
+                  'remove': key[0],
+                  'add_candidate_id': key[1],
+                  'semantic_evidence_hash': evidence_hash,
+                  'variant_deck_hash': row.get('variant_deck_hash'),
+              })
+          if len(ready) != 50:
+              raise RuntimeError(f'current frontier size changed: {len(ready)}')
+
+          def identity(row):
+              return (
+                  row['pair_id'], row['remove'], row['add_candidate_id'],
+                  row.get('semantic_evidence_hash'), row.get('variant_deck_hash'),
+              )
+          current_identity = sorted(identity(row) for row in ready)
+          control_identity = sorted(identity(row) for row in control_matrix)
+          if current_identity != control_identity:
+              raise RuntimeError('current 1.18.1 frontier is not identity-equivalent to 1.18.0 control frontier')
+
+          by_id = {row['pair_id']: row for row in ready}
+          sample_ids = tuple(sorted(by_id)[i] for i in (0, len(by_id) // 2, len(by_id) - 1))
+          equivalence = []
+          for pair_id in sample_ids:
+              row = by_id[pair_id]
+              current_resp = public.invoke('deck_decision_run', {
+                  'deck_id': 'rogshai/current',
+                  'remove': row['remove'],
+                  'add_candidate_id': row['add_candidate_id'],
+                  'iterations': 64,
+                  'seed': PAIRED_SEED,
+                  'max_turns': 35,
+                  'workers': 1,
+                  'max_simulation_seconds': 600.0,
+              }).model_dump(mode='json')
+              if current_resp['status'] != 'completed':
+                  raise RuntimeError(current_resp.get('errors'))
+              current_run = current_resp['result']
+              old64 = next(item['run'] for item in control_pairs[pair_id]['history'] if item['budget'] == 64)
+              raw_equal = current_run.get('paired_observations') == old64.get('paired_observations')
+              paired_equal = current_run.get('paired') == old64.get('paired')
+              seed_hash_equal = (
+                  (current_run.get('cache_provenance') or {}).get('exact_seed_set_sha256')
+                  == (old64.get('cache_provenance') or {}).get('exact_seed_set_sha256')
+              )
+              if not (raw_equal and paired_equal and seed_hash_equal):
+                  raise RuntimeError(
+                      f'cross-version structural equivalence failed for {pair_id}: '
+                      f'raw={raw_equal} paired={paired_equal} seeds={seed_hash_equal}'
+                  )
+              equivalence.append({
+                  'pair_id': pair_id,
+                  'remove': row['remove'],
+                  'add_candidate_id': row['add_candidate_id'],
+                  'budget': 64,
+                  'raw_paired_observations_equal': raw_equal,
+                  'paired_metrics_equal': paired_equal,
+                  'exact_seed_set_hash_equal': seed_hash_equal,
+              })
+
+          history_by_budget = {
+              pair_id: {item['budget']: item['run'] for item in payload['history']}
+              for pair_id, payload in control_pairs.items()
+          }
+          active = set(by_id)
+          terminal = {}
+          stage_summaries = []
+          diagnoses = {}
+          for budget in BUDGETS:
+              if not active:
+                  break
+              missing = sorted(pair_id for pair_id in active if budget not in history_by_budget[pair_id])
+              if missing:
+                  raise RuntimeError(
+                      f'corrected routing requires control comparisons absent at budget {budget}: {missing}'
+                  )
+              cohort = tuple(history_by_budget[pair_id][budget] for pair_id in sorted(active))
+              next_active = set()
+              decision_counts = Counter()
+              model_counts = Counter()
+              for pair_id in sorted(active):
+                  comparison = history_by_budget[pair_id][budget]
+                  diag_resp = public.invoke('deck_decision_diagnose', {
+                      'comparison': comparison,
+                      'cohort_comparisons': list(cohort),
+                      'opponent_evidence_quality': {},
+                      'failure_mode_metrics': ['average_placement', 'average_commander_damage'],
+                  }).model_dump(mode='json')
+                  if diag_resp['status'] != 'completed':
+                      raise RuntimeError(diag_resp.get('errors'))
+                  diagnosis = diag_resp['result']
+                  state = diagnosis['decision_information_state']
+                  status = str(state['status'])
+                  model_status = str((diagnosis.get('model_informativeness') or {}).get('status', 'UNKNOWN'))
+                  if model_status not in VALID_MODEL_STATUSES:
+                      raise RuntimeError(
+                          f'invalid model informativeness after forwarding fix: {pair_id} {budget} {model_status}'
+                      )
+                  diagnoses.setdefault(pair_id, []).append({'budget': budget, 'diagnosis': diagnosis})
+                  decision_counts[status] += 1
+                  model_counts[model_status] += 1
+                  if status == 'MORE_SIMULATIONS_USEFUL' and budget < 1024:
+                      next_active.add(pair_id)
+                  else:
+                      terminal[pair_id] = {
+                          'status': status,
+                          'budget': budget,
+                          'decision_information_state': state,
+                          'model_informativeness': diagnosis.get('model_informativeness', {}),
+                      }
+              stage_summaries.append({
+                  'budget': budget,
+                  'entered_pair_count': len(active),
+                  'status_counts': dict(sorted(decision_counts.items())),
+                  'model_informativeness_status_counts': dict(sorted(model_counts.items())),
+                  'next_stage_pair_count': len(next_active),
+              })
+              active = next_active
+
+          if len(terminal) != 50:
+              raise RuntimeError(f'not all current frontier pairs terminated: {len(terminal)}')
+          terminal_counts = Counter(item['status'] for item in terminal.values())
+          if terminal_counts.get('MORE_SIMULATIONS_USEFUL', 0):
+              raise RuntimeError('corrected re-diagnosis left MORE_SIMULATIONS_USEFUL at terminal ceiling')
+          finalists = [
+              {'pair_id': pair_id, **by_id[pair_id], **terminal[pair_id]}
+              for pair_id in sorted(terminal)
+              if terminal[pair_id]['status'] == 'STOP_WITH_PREFERENCE'
+          ]
+          if finalists:
+              raise RuntimeError(
+                  're-diagnosis produced structural finalists; run fresh robustness before closeout instead of reusing no-finalist control'
+              )
+
+          for pair_id, rows in diagnoses.items():
+              (PAIR_OUT / f'{pair_id}.json').write_text(
+                  json.dumps(rows, indent=2, sort_keys=True), encoding='utf-8'
+              )
+
+          no_material = terminal_counts.get('NO_MATERIAL_DECISION_DIFFERENCE', 0)
+          precision = terminal_counts.get('PRECISION_CEILING_REACHED', 0)
+          model_limit = terminal_counts.get('MODEL_NEEDS_DIFFERENT_METRIC', 0)
+          opponent_uncertainty = terminal_counts.get('OPPONENT_UNCERTAINTY_DOMINATES', 0)
+          tactical = terminal_counts.get('TACTICAL_EVIDENCE_NEEDED', 0)
+          if model_limit:
+              system_decision = 'STRUCTURAL_MODEL_INFORMATION_LIMIT_NO_AUTOMATIC_CHANGE'
+          elif opponent_uncertainty:
+              system_decision = 'OPPONENT_UNCERTAINTY_REQUIRES_NON_SEED_EVIDENCE'
+          elif tactical:
+              system_decision = 'TACTICAL_EVIDENCE_REQUIRED_FOR_UNRESOLVED_DECISION'
+          else:
+              system_decision = 'NO_MATERIALLY_BETTER_CHANGE_DEMONSTRATED_IN_CURRENT_STRUCTURAL_EVIDENCE'
+
+          summary = {
+              'schema_version': '1.18.1-broad-rediagnosis-v1',
+              'execution_status': 'PASS',
+              'evidence_status': 'PASS_EQUIVALENT_STRUCTURAL_REUSE_WITH_CURRENT_DIAGNOSIS',
+              'system_decision': system_decision,
+              'main_commit': MAIN,
+              'main_tree': TREE,
+              'package': PACKAGE,
+              'engine': ENGINE,
+              'deck_id': 'rogshai/current',
+              'deck_hash': DECK_HASH,
+              'candidate_recall': frontier.get('candidate_recall'),
+              'frontier_size': len(ready),
+              'frontier_identity_equal_to_control': True,
+              'changed_file_gate': list(changed),
+              'simulation_path_diff_gate': 'PASS_DIAGNOSE_ONLY_PATCH',
+              'control_run_id': 31673473436,
+              'control_artifact_id': CONTROL_ARTIFACT_ID,
+              'control_package': '1.18.0',
+              'control_status': 'STRUCTURAL_SIMULATION_CONTROL_ONLY_PRE_FORWARDING_FIX',
+              'sampled_current_simulation_equivalence': equivalence,
+              'sampled_current_simulation_equivalence_count': len(equivalence),
+              'sampled_current_pair_count': 64 * len(equivalence),
+              'stage_summaries': stage_summaries,
+              'terminal_state_counts': dict(sorted(terminal_counts.items())),
+              'structural_finalist_count': 0,
+              'robustness_status': 'NOT_RUN_NO_STRUCTURAL_FINALISTS',
+              'reused_control_incremental_paired_observations': control_summary.get('actual_incremental_paired_observations'),
+              'control_redundant_full_prefix_paired_observations': control_summary.get('redundant_full_prefix_paired_observations_control'),
+              'control_paired_observations_avoided_by_prefix_reuse': control_summary.get('paired_observations_avoided_by_prefix_reuse'),
+              'control_prefix_reuse_reduction_fraction': control_summary.get('prefix_reuse_reduction_fraction'),
+              'no_material_difference_count': no_material,
+              'precision_ceiling_reached_count': precision,
+              'model_needs_different_metric_count': model_limit,
+              'opponent_uncertainty_count': opponent_uncertainty,
+              'tactical_evidence_needed_count': tactical,
+              'cohort_model_informativeness_forwarding_gate': 'PASS_NO_UNKNOWN',
+              'automatic_deck_mutation': False,
+              'inventory_allocation_purchase_mutation': False,
+              'opponent_observation_mutation': False,
+              'truth_boundary': 'structural_model_estimates_not_empirical_winrates',
+              'elapsed_seconds': time.perf_counter() - started,
+          }
+          (OUT / 'CURRENT_FRONTIER.json').write_text(
+              json.dumps(frontier_resp, indent=2, sort_keys=True), encoding='utf-8'
+          )
+          (OUT / 'EQUIVALENCE.json').write_text(
+              json.dumps(equivalence, indent=2, sort_keys=True), encoding='utf-8'
+          )
+          (OUT / 'TERMINAL.json').write_text(
+              json.dumps(terminal, indent=2, sort_keys=True), encoding='utf-8'
+          )
+          (OUT / 'SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True), encoding='utf-8'
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-broad-1181-rediagnose-${{ github.run_id }}
+          path: artifacts/rogshai_broad_1181_rediagnose/
+          if-no-files-found: error
+          retention-days: 90
