@@ -158,7 +158,18 @@ class MetaKnowledgeBase:
     ) -> dict[str, Any]:
         snapshot = self.load_snapshot()
         rows: list[dict[str, Any]] = []
-        for freq in snapshot.card_frequencies:
+        frequencies = snapshot.card_frequencies
+        if not frequencies:
+            derived: list[MetaCardFrequency] = []
+            seen_pairs: set[tuple[str, FormatBand]] = set()
+            for deck in snapshot.deck_snapshots:
+                pair = (deck.commander, deck.format_band)
+                if pair in seen_pairs:
+                    continue
+                seen_pairs.add(pair)
+                derived.append(card_frequency(deck.commander, deck.format_band, snapshot.deck_snapshots))
+            frequencies = tuple(derived)
+        for freq in frequencies:
             if commander and freq.commander != commander:
                 continue
             if format_band and freq.format_band != format_band:
@@ -238,9 +249,12 @@ class MetaKnowledgeBase:
             ][:25],
             "own_role_density": role_estimate,
             "meta_role_density": meta_role_estimate,
+            "role_proxy_evidence_quality": "low_evidence_name_fallback",
+            "role_proxy_is_functional_meta_distance": False,
             "context_warning": (
-                "Meta overlap is evidence only; it must not automatically "
-                "change the current deck, inventory or allocation."
+                "Meta overlap and legacy name-based role proxies are low-evidence context only; "
+                "they must not automatically change the current deck, inventory or allocation. "
+                "Whole-deck design uses structural functional profiles when available."
             ),
         }
 
