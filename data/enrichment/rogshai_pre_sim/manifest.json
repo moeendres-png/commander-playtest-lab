@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0.0",
+  "scope": "phases_A_through_F_pre_simulation_enrichment",
+  "generated_at": "2026-08-13T21:33:00+02:00",
+  "baseline": {
+    "main": "a9712fea4d3869380f817d74e2cf8cb2ce5c0a9a",
+    "package": "1.18.1",
+    "engine": "structural-0.6.0",
+    "deck_id": "rogshai/current",
+    "deck_hash": "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126",
+    "cards": 100,
+    "lands": 36
+  },
+  "coverage": {
+    "inventory_identities": 1338,
+    "rogshai_candidates": 795,
+    "card_feature_vectors": 795,
+    "identity_fact_rows": 795,
+    "mana_profiles": 121,
+    "package_nodes": 14,
+    "legacy_roleless": 356,
+    "legacy_synergy_hookless": 325,
+    "legacy_packageless": 596,
+    "enriched_packageless": 528,
+    "verified_external_oracle_ids": 0,
+    "meta_direct_deck_samples": 2
+  },
+  "drive_artifacts": {
+    "audit": "1BPQDXqBDOCbmDbMe-wruSM2zigGUHMEP",
+    "card_features": "1H54nJkA0CT_FzBRY_KUEL007YSql1cZu",
+    "oracle_identity_facts": "1mKxzC93nMFqRiGINeOjj9KD9NcCRp47N",
+    "mana_source_profiles": "1wSRFL-NC4yY7dlh3XBOUaw9OSY_mnnnj",
+    "package_graph": "17Q2WN_Gd4mYwjZ_bzQR-Avpfwe16Z3wD",
+    "model_capabilities": "1EWWKvlOxlidf8z7izc0PG-KHU2atj0Eq",
+    "commander_rules_reference": "1FiSEH9ZzvLj3u4g5UrGIh5uZMEMNWOvx",
+    "meta_functional_profiles": "1Dl9L9Fcj7sUUDXQbjpe5OgIoJSawRaUV",
+    "meta_research_snapshot": "11NROaDOAOSIz_wKc5Kc722LvYidllEwe",
+    "drive_manifest": "1xUe-dopMnyu0CWZ6AU0djBrXXOtxEV-Y"
+  },
+  "mutations": {
+    "canonical_rogshai": false,
+    "inventory": false,
+    "allocation": false,
+    "purchases": false,
+    "opponent_observations": false,
+    "kaervek": false
+  },
+  "evidence_boundaries": [
+    "structural_model_estimates != empirical_winrates",
+    "Tactical Oracle != external_rules_engine",
+    "synthetic_assumption != real_observation",
+    "unknown != false",
+    "NOT_RUN != PASS"
+  ]
+}
