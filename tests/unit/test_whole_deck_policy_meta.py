@@ -113,9 +113,7 @@ def test_meta_high_weights_distance_more_than_meta_light(repo_root: Path) -> Non
     decks = load_project_structural_decks(repo_root)
     current = decks["rogshai/current"]
     candidate = profile_structural_deck(current, format_band=FormatBand.HIGH_POWER)
-    cards = tuple(
-        card.oracle_name for card in current.cards if card.oracle_name != "Counterspell"
-    )
+    cards = tuple(card.oracle_name for card in current.cards if card.oracle_name != "Counterspell")
     profiles = {card.oracle_name: card for card in current.cards}
     reference = profile_card_names(
         cards,
