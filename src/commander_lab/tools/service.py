@@ -5535,7 +5535,12 @@ class CommanderToolService:
         def work() -> dict[str, Any]:
             with WorkflowSession.open(self.root, service=self) as session:
                 result: dict[str, Any] = dict(
-                    PriorityWorkflowFacade.diagnose_next_experiment(request.comparison)
+                    PriorityWorkflowFacade.diagnose_next_experiment(
+                        request.comparison,
+                        cohort_comparisons=tuple(request.cohort_comparisons),
+                        opponent_evidence_quality=dict(request.opponent_evidence_quality),
+                        failure_mode_metrics=tuple(request.failure_mode_metrics),
+                    )
                 )
             result["workflow_session"] = session.identity()
             return result
