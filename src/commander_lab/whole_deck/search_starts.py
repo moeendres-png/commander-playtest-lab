@@ -3,11 +3,14 @@ from __future__ import annotations
 import random
 
 from .models import PolicyId
+from .search_base import SearchEngineBase, SearchStart
 
 
-def build_starts(engine, current_control):
+def build_starts(
+    engine: SearchEngineBase, current_control: tuple[str, ...] | None
+) -> list[SearchStart]:
     master = random.Random(engine.config.seed)
-    starts = []
+    starts: list[SearchStart] = []
     constructive_seed = master.randrange(0, 2**31)
     starts.append(("policy_constructive", engine.constructive_start(), constructive_seed))
     for index in range(engine.config.diversified_starts):

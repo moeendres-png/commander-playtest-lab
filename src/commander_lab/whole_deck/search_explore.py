@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from .search_base import SearchArchive, SearchEngineBase, SearchStart
 from .search_step import explore_start
 
 
-def explore(engine, starts):
-    archive = {}
-    start_ids = []
+def explore(
+    engine: SearchEngineBase, starts: list[SearchStart]
+) -> tuple[SearchArchive, list[str]]:
+    archive: SearchArchive = {}
+    start_ids: list[str] = []
     for start_type, mainboard, seed in starts:
         current = engine._evaluate(
             mainboard,

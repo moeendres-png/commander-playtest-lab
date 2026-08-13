@@ -2,14 +2,22 @@ from __future__ import annotations
 
 import random
 
-from .search_models import WholeDeckMutation, WholeDeckNeighborhood
+from .search_base import SearchArchive, SearchEngineBase
+from .search_models import WholeDeckMutation, WholeDeckNeighborhood, WholeDeckVariant
 
 
-def explore_start(engine, current, seed, archive):
+def explore_start(
+    engine: SearchEngineBase,
+    current: WholeDeckVariant,
+    seed: int,
+    archive: SearchArchive,
+) -> WholeDeckVariant:
     rng = random.Random(seed)
     neighborhoods = tuple(WholeDeckNeighborhood)
     for step in range(engine.config.max_steps_per_start):
-        neighborhood = neighborhoods[(step + rng.randrange(len(neighborhoods))) % len(neighborhoods)]
+        neighborhood = neighborhoods[
+            (step + rng.randrange(len(neighborhoods))) % len(neighborhoods)
+        ]
         proposal_board, removed, added = engine.propose(current.mainboard, neighborhood, rng)
         if proposal_board == current.mainboard or not removed or not added:
             continue

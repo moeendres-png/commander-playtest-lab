@@ -24,6 +24,7 @@ INTERACTION_ROLES = frozenset({CardRole.COUNTER, CardRole.REMOVAL, CardRole.PROT
 ENGINE_ROLES = frozenset({CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF})
 FINISH_ROLES = frozenset({CardRole.FINISHER, CardRole.PAYOFF, CardRole.COMBAT_PAYOFF})
 
+
 @dataclass(frozen=True, slots=True)
 class SearchCard:
     oracle_name: str
@@ -34,6 +35,7 @@ class SearchCard:
     semantic_known: bool
     color_identity: frozenset[str]
     search_utility_override: float | None = None
+
 
 @dataclass(slots=True)
 class WholeDeckSearchContext:
@@ -48,8 +50,13 @@ class WholeDeckSearchContext:
     def from_project(cls, root: str | Path) -> WholeDeckSearchContext:
         project = Path(root).resolve()
         universe = load_fresh_rogshai_universe(project)
-        inferred = {candidate.card.oracle_name: candidate.card for candidate in load_candidate_profiles(project).values()}
-        explicit = {candidate.card.oracle_name: candidate.card for candidate in universe.candidates.values()}
+        inferred = {
+            candidate.card.oracle_name: candidate.card
+            for candidate in load_candidate_profiles(project).values()
+        }
+        explicit = {
+            candidate.card.oracle_name: candidate.card for candidate in universe.candidates.values()
+        }
         identities = dict(universe.review_required)
         cards: dict[str, SearchCard] = {}
         for name in sorted(universe.candidate_names):
@@ -118,15 +125,17 @@ class WholeDeckSearchContext:
         snapshot_hash: str = "synthetic-whole-deck-fixture",
         commander_names: tuple[str, ...] = ROGSHAI_COMMANDERS,
     ) -> WholeDeckSearchContext:
-        return cls(cards={card.oracle_name: card for card in cards}, snapshot_hash=sha256_value(snapshot_hash), commander_names=commander_names)
+        return cls(
+            cards={card.oracle_name: card for card in cards},
+            snapshot_hash=sha256_value(snapshot_hash),
+            commander_names=commander_names,
+        )
 
     def materialize(self, mainboard: tuple[str, ...], *, label: str) -> StructuralDeckProfile:
         if self.root is not None and self.fresh_universe is not None:
             explicit = self.fresh_universe.candidate_by_name()
             overrides = {
-                name: self.cards[name].profile
-                for name in set(mainboard)
-                if name not in explicit
+                name: self.cards[name].profile for name in set(mainboard) if name not in explicit
             }
             return build_fresh_rogshai_profile(
                 self.root,
@@ -144,11 +153,18 @@ class WholeDeckSearchContext:
             deck_hash=deck_hash,
             commander_names=self.commander_names,
             cards=tuple(profiles),
-            commander_base_costs={name: (4.0 if name == self.commander_names[0] else 0.0) for name in self.commander_names},
-            commander_base_power={name: (1.0 if name == self.commander_names[0] else 0.0) for name in self.commander_names},
+            commander_base_costs={
+                name: (4.0 if name == self.commander_names[0] else 0.0)
+                for name in self.commander_names
+            },
+            commander_base_power={
+                name: (1.0 if name == self.commander_names[0] else 0.0)
+                for name in self.commander_names
+            },
             commander_strategy="rogshai",
             data_snapshot_hash=self.snapshot_hash,
         )
+
 
 def stable_variant_hash(
     mainboard: Sequence[str],
@@ -163,8 +179,11 @@ def stable_variant_hash(
         }
     )
 
+
 def current_control_mainboard(root: str | Path) -> tuple[str, ...]:
-    payload = json.loads((Path(root) / "data/decks/rogshai_current.json").read_text(encoding="utf-8"))
+    payload = json.loads(
+        (Path(root) / "data/decks/rogshai_current.json").read_text(encoding="utf-8")
+    )
     result: list[str] = []
     for row in payload.get("cards", []):
         if row.get("zone") == "commander":
@@ -174,6 +193,7 @@ def current_control_mainboard(root: str | Path) -> tuple[str, ...]:
     if len(result) != 98:
         raise ValueError(f"current RogShai mainboard expected 98 cards, got {len(result)}")
     return tuple(result)
+
 
 def _corridor_penalty(value: float, low: float, high: float, weight: float) -> float:
     if low <= value <= high:

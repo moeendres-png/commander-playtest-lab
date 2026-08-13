@@ -2,18 +2,30 @@ from __future__ import annotations
 
 from .mana import whole_deck_mana_summary
 from .models import PolicyId
+from .search_base import SearchEngineBase
 from .search_context import SEARCH_ENGINE_VERSION, stable_variant_hash
-from .search_models import WholeDeckVariant
+from .search_models import WholeDeckMutation, WholeDeckVariant
 
 
-def evaluate_variant(engine, mainboard, seed, parent_variant_id, mutation, start_type=None):
-    deck_hash = stable_variant_hash(mainboard, engine.context.snapshot_hash, engine.context.commander_names)
+def evaluate_variant(
+    engine: SearchEngineBase,
+    mainboard: tuple[str, ...],
+    seed: int,
+    parent_variant_id: str | None,
+    mutation: WholeDeckMutation | None,
+    start_type: str | None = None,
+) -> WholeDeckVariant:
+    deck_hash = stable_variant_hash(
+        mainboard, engine.context.snapshot_hash, engine.context.commander_names
+    )
     gate = engine._hard_gate(mainboard)
     features = engine._feature_summary(mainboard)
     if gate.valid:
         deck = engine.context.materialize(mainboard, label=deck_hash[:12])
         if engine.context.mana_analyzer is not None:
-            mana = whole_deck_mana_summary(deck, engine.context.mana_analyzer.analyze_deck(deck))
+            mana = whole_deck_mana_summary(
+                deck, engine.context.mana_analyzer.analyze_deck(deck)
+            )
         else:
             mana = engine._synthetic_mana_summary(mainboard)
         meta = engine._meta_distance(mainboard)
@@ -42,7 +54,9 @@ def evaluate_variant(engine, mainboard, seed, parent_variant_id, mutation, start
             "policy_id": engine.policy.policy_id.value,
             "policy_version": engine.policy.policy_version,
             "current_deck_membership_prior_used": False,
-            "control_blind_before_finalist_freeze": engine.policy.policy_id == PolicyId.OWNED_POOL_NEUTRAL,
+            "control_blind_before_finalist_freeze": (
+                engine.policy.policy_id == PolicyId.OWNED_POOL_NEUTRAL
+            ),
             "start_type": start_type,
             "simulation_evidence": "NOT_RUN",
         },

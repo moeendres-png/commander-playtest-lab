@@ -3,17 +3,23 @@ from __future__ import annotations
 from commander_lab.storage import sha256_value
 
 from .models import PolicyId
+from .search_base import SearchArchive, SearchEngineBase
 from .search_context import SEARCH_ENGINE_VERSION
 from .search_models import WholeDeckSearchResult
 
 
-def finalize(engine, archive, start_ids, current_control):
+def finalize(
+    engine: SearchEngineBase,
+    archive: SearchArchive,
+    start_ids: list[str],
+    current_control: tuple[str, ...] | None,
+) -> WholeDeckSearchResult:
     ranked = sorted(
         (variant for variant in archive.values() if variant.hard_gate.valid),
         key=lambda variant: (-variant.objective_prior, variant.deck_hash),
     )
     finalists = ranked[: engine.config.finalist_limit]
-    control_variant_id = None
+    control_variant_id: str | None = None
     if engine.config.include_current_control_arm and current_control is not None:
         control = engine._evaluate(
             current_control,
@@ -48,7 +54,6 @@ def finalize(engine, archive, start_ids, current_control):
         variants=tuple(ordered),
         control_variant_id=control_variant_id,
         control_used_as_search_prior=(
-            engine.policy.policy_id == PolicyId.CURRENT_CONTROL
-            and current_control is not None
+            engine.policy.policy_id == PolicyId.CURRENT_CONTROL and current_control is not None
         ),
     )

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Mapping, Sequence
+
+from .search_context import SearchCard
 
 
-def count_and_availability_issues(mainboard, cards):
-    issues = []
+def count_and_availability_issues(
+    mainboard: Sequence[str], cards: Mapping[str, SearchCard]
+) -> tuple[str, ...]:
+    issues: list[str] = []
     if len(mainboard) != 98:
         issues.append(f"mainboard_card_count:{len(mainboard)}")
     for name, quantity in Counter(mainboard).items():

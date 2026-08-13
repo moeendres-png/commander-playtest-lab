@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from .search_base import SearchEngineBase
 from .search_evaluate import evaluate_variant
 from .search_models import WholeDeckMutation, WholeDeckVariant
 
 
-class _ScoreMixin:
+class _ScoreMixin(SearchEngineBase):
     def _evaluate(
         self,
         mainboard: tuple[str, ...],

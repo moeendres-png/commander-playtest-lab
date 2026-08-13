@@ -74,7 +74,7 @@ def _profile_one_deck(
     allow_name_fallback: bool,
 ) -> tuple[dict[str, float], Counter[str], int, tuple[str, ...], tuple[str, ...]]:
     total = len(cards)
-    role_totals: Counter[str] = Counter()
+    role_totals: defaultdict[str, float] = defaultdict(float)
     package_totals: Counter[str] = Counter()
     known_cards: list[StructuralCardProfile] = []
     missing: list[str] = []
@@ -125,7 +125,13 @@ def _profile_one_deck(
         )
     if nonlands:
         dims["average_nonland_mv"] = sum(card.mana_value for card in nonlands) / len(nonlands)
-    return dims, package_totals, len(known_cards), tuple(sorted(set(missing))), tuple(sorted(set(fallback)))
+    return (
+        dims,
+        package_totals,
+        len(known_cards),
+        tuple(sorted(set(missing))),
+        tuple(sorted(set(fallback))),
+    )
 
 
 def profile_structural_deck(
@@ -183,7 +189,7 @@ def profile_card_names(
         "missing_profile_cards": missing,
         "name_fallback_cards": fallback,
     }
-    return MetaFunctionalProfile(**payload, profile_hash=sha256_value(payload))
+    return MetaFunctionalProfile.model_validate({**payload, "profile_hash": sha256_value(payload)})
 
 
 def build_meta_functional_profile(
@@ -203,7 +209,9 @@ def build_meta_functional_profile(
         raise ValueError("no matching meta snapshots")
 
     values: dict[str, list[tuple[float, float, FunctionalEvidenceQuality]]] = defaultdict(list)
-    package_values: dict[str, list[tuple[float, float, FunctionalEvidenceQuality]]] = defaultdict(list)
+    package_values: dict[str, list[tuple[float, float, FunctionalEvidenceQuality]]] = defaultdict(
+        list
+    )
     missing: set[str] = set()
     fallback: set[str] = set()
     profiled_total = 0
@@ -228,9 +236,6 @@ def build_meta_functional_profile(
             if row.value is None:
                 continue
             if completeness < 0.999 and key in {"land_count", "average_nonland_mv"}:
-                # A frequency-ranked/representative partial extract cannot support a whole-deck
-                # land count or average mana value. Keep those dimensions unknown rather than
-                # turning omitted cards into invented zeros or biased deck-shape estimates.
                 continue
             values[key].append(
                 (row.value, row.support_fraction * completeness, row.evidence_quality)
@@ -242,14 +247,14 @@ def build_meta_functional_profile(
                 )
 
     def aggregate(
-        rows: dict[str, list[tuple[float, float, FunctionalEvidenceQuality]]]
+        rows: dict[str, list[tuple[float, float, FunctionalEvidenceQuality]]],
     ) -> dict[str, FunctionalDimension]:
         result: dict[str, FunctionalDimension] = {}
         for key, samples in sorted(rows.items()):
             weights = [max(0.01, support) for _, support, _ in samples]
-            value = sum(sample * weight for (sample, _, _), weight in zip(samples, weights, strict=True)) / sum(
-                weights
-            )
+            value = sum(
+                sample * weight for (sample, _, _), weight in zip(samples, weights, strict=True)
+            ) / sum(weights)
             support = sum(support for _, support, _ in samples) / len(samples)
             qualities = {quality for _, _, quality in samples}
             if qualities == {FunctionalEvidenceQuality.STRUCTURAL} and support >= 0.999:
@@ -278,12 +283,14 @@ def build_meta_functional_profile(
         "source_snapshot_id": snapshot.manifest.snapshot_id,
         "reference_deck_count": len(refs),
         "dimensions": {key: row.model_dump(mode="json") for key, row in dimensions.items()},
-        "package_density": {key: row.model_dump(mode="json") for key, row in package_density.items()},
+        "package_density": {
+            key: row.model_dump(mode="json") for key, row in package_density.items()
+        },
         "profiled_card_count": profiled_total,
         "missing_profile_cards": tuple(sorted(missing)),
         "name_fallback_cards": tuple(sorted(fallback)),
     }
-    return MetaFunctionalProfile(**payload, profile_hash=sha256_value(payload))
+    return MetaFunctionalProfile.model_validate({**payload, "profile_hash": sha256_value(payload)})
 
 
 def functional_meta_distance(

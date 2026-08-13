@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Sequence
-from typing import Any
 
+from .search_base import CardPredicate, SearchEngineBase
 from .search_context import SearchCard
 
 
-class _PoolOpsMixin:
-    def _candidate_additions(self, current: Counter[str], predicate: Any) -> list[SearchCard]:
+class _PoolOpsMixin(SearchEngineBase):
+    def _candidate_additions(
+        self, current: Counter[str], predicate: CardPredicate
+    ) -> list[SearchCard]:
         rows: list[SearchCard] = []
         for card in self.context.cards.values():
             if card.oracle_name in self.context.commander_names or card.available_quantity <= 0:
@@ -21,7 +23,12 @@ class _PoolOpsMixin:
                 rows.append(card)
         return rows
 
-    def _apply_replacements(self, mainboard: tuple[str, ...], remove: Sequence[str], add: Sequence[str]) -> tuple[str, ...]:
+    def _apply_replacements(
+        self,
+        mainboard: tuple[str, ...],
+        remove: Sequence[str],
+        add: Sequence[str],
+    ) -> tuple[str, ...]:
         cards = list(mainboard)
         for name in remove:
             cards.remove(name)

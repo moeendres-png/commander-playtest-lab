@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from commander_lab.models import CardRole, DataQuality, StructuralCardProfile
 from commander_lab.optimization.experiments import profile_score
 from commander_lab.storage import sha256_value
@@ -17,7 +19,9 @@ def card_feature_vector(card: StructuralCardProfile) -> CardFeatureVector:
         "oracle_name": card.oracle_name,
         "mana_value": card.mana_value,
         "roles": tuple(sorted(role.value for role in card.roles)),
-        "role_strengths": dict(sorted((role.value, value) for role, value in card.role_strengths.items())),
+        "role_strengths": dict(
+            sorted((role.value, value) for role, value in card.role_strengths.items())
+        ),
         "mechanic_tags": tuple(sorted(tag.value for tag in card.mechanic_tags)),
         "color_requirements": dict(
             sorted((color.value, value) for color, value in card.color_requirements.items())
@@ -34,13 +38,17 @@ def card_feature_vector(card: StructuralCardProfile) -> CardFeatureVector:
         "multiplayer_scaling": card.multiplayer_scaling,
         "package_ids": tuple(sorted(card.package_ids)),
     }
-    return CardFeatureVector(**payload, feature_hash=sha256_value(payload))
+    return CardFeatureVector.model_validate({**payload, "feature_hash": sha256_value(payload)})
 
 
 def card_feature_confidence(card: StructuralCardProfile) -> CardFeatureConfidence:
     if card.source_quality in {DataQuality.AUTHORITATIVE, DataQuality.PROJECT_VERIFIED}:
         confidence = 0.95 if card.sources else 0.9
-        label = "authoritative_or_verified_structural_profile"
+        label: Literal[
+            "authoritative_or_verified_structural_profile",
+            "project_inferred_structural_profile",
+            "synthetic_or_unknown_structural_profile",
+        ] = "authoritative_or_verified_structural_profile"
     elif card.source_quality == DataQuality.PROJECT_INFERRED:
         confidence = 0.65 if card.sources else 0.55
         label = "project_inferred_structural_profile"
