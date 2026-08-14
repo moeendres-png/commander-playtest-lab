@@ -7,6 +7,7 @@ from pathlib import Path
 from commander_lab.models import StructuralDeckProfile
 from commander_lab.storage import atomic_write_json, sha256_value
 
+from .discoverability import build_discoverability_report
 from .enrichment import ENRICHMENT_VERSION
 from .lab_context import (
     WHOLE_DECK_LAB_VERSION,
@@ -99,6 +100,7 @@ class WholeDeckDesignLab:
 
         deck_path = self.root / "data/decks/rogshai_current.json"
         deck_json = json.loads(deck_path.read_text(encoding="utf-8"))
+        discoverability = build_discoverability_report(self.context, results)
         payload: dict[str, object] = {
             "schema_version": "1.0.0",
             "lab_version": WHOLE_DECK_LAB_VERSION,
@@ -108,6 +110,7 @@ class WholeDeckDesignLab:
             "candidate_count": len(self.context.cards),
             "canonical_control_hash": str(deck_json["deck_hash"]),
             "policies": policy_rows,
+            "discoverability": discoverability,
             "variants": [row.model_dump(mode="json") for row in _dedupe(results, max_variants)],
             "mulligan_contract": self.enrichment.mulligan_contract,
             "official_structural_campaign_run": False,

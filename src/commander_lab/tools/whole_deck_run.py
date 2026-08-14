@@ -5,7 +5,12 @@ from typing import Any
 
 from commander_lab.mana_analysis import ManaAnalyzer
 from commander_lab.whole_deck.lab import WholeDeckDesignLab
+from commander_lab.whole_deck.multiplayer import (
+    deck_multiplayer_leverage,
+    multiplayer_pod_response,
+)
 from commander_lab.whole_deck.orchestrator import (
+    FivePlayerSensitivitySpecification,
     WholeDeckCampaignOrchestrator,
     WholeDeckCampaignSpecification,
 )
@@ -40,6 +45,36 @@ def run_whole_deck(service: Any, request: Any) -> dict[str, Any]:
         assert isinstance(primary, dict)
         campaign = primary["campaign"]
         assert isinstance(campaign, dict)
+        five_player_sensitivity: dict[str, object] | None = None
+        multiplayer_response: dict[str, object] | None = None
+        if request.whole_deck_five_player_sensitivity_iterations:
+            five_player_sensitivity = orchestrator.run_five_player_sensitivity_pair(
+                baseline=baseline,
+                variant=variant,
+                specification=FivePlayerSensitivitySpecification(
+                    games=request.whole_deck_five_player_sensitivity_iterations,
+                    seed=request.seed ^ 0x5A50_0005,
+                    max_turns=request.max_turns,
+                    workers=request.workers,
+                ),
+            )
+            five_campaign = five_player_sensitivity["campaign"]
+            assert isinstance(five_campaign, dict)
+            multiplayer_response = multiplayer_pod_response(
+                campaign,
+                five_campaign,
+                seed=request.seed ^ 0x4F50_3550,
+            )
+        baseline_mainboard = tuple(
+            card.oracle_name
+            for card in baseline.cards
+            if card.oracle_name not in baseline.commander_names
+        )
+        variant_mainboard = tuple(
+            card.oracle_name
+            for card in variant.cards
+            if card.oracle_name not in variant.commander_names
+        )
         mana = ManaAnalyzer(service.root)
         unknown_gate = {
             "status": "REVIEW_REQUIRED" if unknown_cards else "PASS",
@@ -73,6 +108,14 @@ def run_whole_deck(service: Any, request: Any) -> dict[str, Any]:
             "scenarios": primary["scenarios"],
             "opponent_coverage_report": primary["coverage_report"],
             "balanced_campaign": campaign,
+            "five_player_sensitivity": five_player_sensitivity,
+            "multiplayer_response": multiplayer_response,
+            "multiplayer_leverage_before": deck_multiplayer_leverage(
+                lab.context, baseline_mainboard
+            ),
+            "multiplayer_leverage_after": deck_multiplayer_leverage(
+                lab.context, variant_mainboard
+            ),
             "paired": campaign["paired"],
             "pair_count": len(campaign["paired_observations"]),
             "paired_observations": campaign["paired_observations"],
@@ -92,6 +135,8 @@ def run_whole_deck(service: Any, request: Any) -> dict[str, Any]:
                 "external_rules_engine": "NOT_RUN",
                 "experimental_opponent_coverage_is_real_meta_frequency": False,
                 "holdout_results_are_primary_results": False,
+                "five_player_sensitivity_is_primary_evidence": False,
+                "five_player_sensitivity_is_real_meta_frequency": False,
             },
             "automatic_deck_mutation": False,
         }

@@ -83,8 +83,12 @@ class _PackageNeighborhoodMixin(SearchEngineBase):
         ]
         if not viable:
             return self._generic_role_proposal(mainboard, rng, roles or ENGINE_ROLES, n)
-        viable.sort(key=lambda item: (len(item[1]), item[0]), reverse=True)
-        _, package_cards = viable[0]
+        # Explore viable packages without deterministically starving smaller packages.
+        # The seeded RNG keeps runs reproducible; the objective still decides whether a
+        # proposed package survives, so this is exploration fairness rather than forced
+        # finalist diversity.
+        viable.sort(key=lambda item: item[0])
+        _, package_cards = rng.choice(viable)
         package_cards.sort(
             key=lambda card: (self._utility[card.oracle_name], card.oracle_name), reverse=True
         )

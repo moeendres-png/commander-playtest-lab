@@ -9,6 +9,7 @@ from pathlib import Path
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
 from commander_lab.pod_scheduling import BalancedPodScenarioScheduler
+from commander_lab.pod_scheduling_5p import BalancedFivePlayerSensitivityScheduler
 from commander_lab.repositories.opponents import CurrentOpponentRepository
 from commander_lab.storage import atomic_write_json
 
@@ -49,6 +50,13 @@ def build_campaign_readiness(
     )
     cycle = scheduler.schedule(scheduler.combinations_per_cycle, seed=2026081401)
     coverage = scheduler.coverage_report(cycle)
+    five_player_scheduler = BalancedFivePlayerSensitivityScheduler(
+        opponents.records(), opponent_registry_hash=opponents.registry_hash
+    )
+    five_player_cycle = five_player_scheduler.schedule(
+        five_player_scheduler.combinations_per_cycle, seed=2026081451
+    )
+    five_player_coverage = five_player_scheduler.coverage_report(five_player_cycle)
     deck_manifest = json.loads((project / "data/decks/manifest.json").read_text(encoding="utf-8"))
     rogshai = deck_manifest["decks"]["rogshai/current"]
     provider = json.loads(
@@ -66,6 +74,12 @@ def build_campaign_readiness(
         and coverage["opponent_exposure_imbalance"] == 0
         and coverage["rogshai_seat_counts"] == {"1": 14, "2": 14, "3": 14, "4": 14}
     )
+    five_player_ok = (
+        five_player_scheduler.combinations_per_cycle == 70
+        and five_player_coverage["opponent_exposure_imbalance"] == 0
+        and five_player_coverage["rogshai_seat_counts"]
+        == {"1": 14, "2": 14, "3": 14, "4": 14, "5": 14}
+    )
     blockers: list[str] = []
     if not knowledge["knowledge_pipeline_ready"]:
         blockers.append("KNOWLEDGE_PIPELINE_NOT_READY")
@@ -73,6 +87,8 @@ def build_campaign_readiness(
         blockers.append("IMPORT_OR_PAIRED_ISOLATION_NOT_READY")
     if not scheduler_ok:
         blockers.append("BALANCED_PRIMARY_SCHEDULER_NOT_READY")
+    if not five_player_ok:
+        blockers.append("BALANCED_FIVE_PLAYER_SENSITIVITY_NOT_READY")
     if smoke_status != "PASS":
         blockers.append("PUBLIC_WORKFLOW_SMOKE_NOT_PASS")
     for name in _REQUIRED_EXTERNAL_GATES:
@@ -107,6 +123,9 @@ def build_campaign_readiness(
         "opponent_coverage_status": "PASS" if scheduler_ok else "FAIL",
         "opponent_full_cycle_combinations": scheduler.combinations_per_cycle,
         "opponent_full_cycle_coverage": coverage,
+        "five_player_sensitivity_status": "PASS" if five_player_ok else "FAIL",
+        "five_player_full_cycle_combinations": five_player_scheduler.combinations_per_cycle,
+        "five_player_full_cycle_coverage": five_player_coverage,
         "import_architecture_status": import_architecture_status,
         "public_workflow_smoke_status": smoke_status,
         "external_engine_status": provider["decision"],
@@ -117,7 +136,7 @@ def build_campaign_readiness(
             "Remaining semantic unknowns are visible and trigger REVIEW_REQUIRED if selected by a finalist.",
             "Morcant/Cosmic and observed precon-deviation gaps remain real opponent-data limitations.",
             "External rules-engine provider remains NO_PROVIDER_READY and is not promoted to PASS.",
-            "Three- and five-player pods remain separate sensitivity axes, not primary evidence.",
+            "Five-player pods are a separate balanced sensitivity axis and are never primary evidence; three-player pods remain a separate robustness axis.",
         ],
         "ready_for_official_campaign": ready,
         "readiness_label": (

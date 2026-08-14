@@ -5,6 +5,7 @@ from statistics import fmean
 
 from commander_lab.models import CardRole
 
+from .multiplayer import deck_multiplayer_leverage
 from .search_base import SearchEngineBase
 
 
@@ -31,6 +32,7 @@ class _FeatureMixin(SearchEngineBase):
             "semantic_unknown_cards": tuple(
                 sorted(card.oracle_name for card in cards if not card.semantic_known)
             ),
+            "multiplayer_leverage": deck_multiplayer_leverage(self.context, mainboard),
             "evidence_type": "search_features_with_unknowns_preserved",
         }
 
