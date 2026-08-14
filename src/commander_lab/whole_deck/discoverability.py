@@ -41,7 +41,9 @@ def build_discoverability_report(
                 "policy_id": result.policy_id.value,
                 "explored_variant_count": len(result.explored_variant_ids),
                 "unique_candidate_cards_seen": len(policy_seen),
-                "candidate_exploration_fraction": len(policy_seen) / len(eligible) if eligible else 1.0,
+                "candidate_exploration_fraction": len(policy_seen) / len(eligible)
+                if eligible
+                else 1.0,
                 "semantic_unknown_cards_seen": len(policy_seen & unknown),
                 "semantic_unknown_exploration_fraction": (
                     len(policy_seen & unknown) / len(unknown) if unknown else 1.0
