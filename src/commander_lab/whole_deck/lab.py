@@ -103,9 +103,7 @@ class WholeDeckDesignLab:
             "candidate_count": len(self.context.cards),
             "canonical_control_hash": str(deck_json["deck_hash"]),
             "policies": policy_rows,
-            "variants": [
-                row.model_dump(mode="json") for row in _dedupe(results, max_variants)
-            ],
+            "variants": [row.model_dump(mode="json") for row in _dedupe(results, max_variants)],
             "mulligan_contract": self.enrichment.mulligan_contract,
             "official_structural_campaign_run": False,
             "automatic_deck_mutation": False,
@@ -136,11 +134,7 @@ class WholeDeckDesignLab:
         if payload.get("data_snapshot_hash") != self.context.snapshot_hash:
             raise ValueError("prepared Whole-Deck design is stale")
         row = next(
-            (
-                item
-                for item in payload.get("variants", [])
-                if item.get("variant_id") == variant_id
-            ),
+            (item for item in payload.get("variants", []) if item.get("variant_id") == variant_id),
             None,
         )
         if row is None:
