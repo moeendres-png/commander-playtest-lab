@@ -133,16 +133,25 @@ class WholeDeckSearchContext:
 
     def materialize(self, mainboard: tuple[str, ...], *, label: str) -> StructuralDeckProfile:
         if self.root is not None and self.fresh_universe is not None:
-            explicit = self.fresh_universe.candidate_by_name()
-            overrides = {
-                name: self.cards[name].profile for name in set(mainboard) if name not in explicit
-            }
-            return build_fresh_rogshai_profile(
+            # Materialization must preserve the runtime-hardened profiles used by Search.
+            # Otherwise recipient-aware mana/package corrections can be lost before
+            # ManaAnalyzer/Structural evaluation for already-modeled cards.
+            overrides = {name: self.cards[name].profile for name in set(mainboard)}
+            deck = build_fresh_rogshai_profile(
                 self.root,
                 mainboard,
                 variant_label=label,
                 profile_overrides=overrides,
                 universe=self.fresh_universe,
+            )
+            enriched_hash = stable_variant_hash(
+                mainboard, self.snapshot_hash, self.commander_names
+            )
+            return deck.model_copy(
+                update={
+                    "deck_hash": enriched_hash,
+                    "data_snapshot_hash": self.snapshot_hash,
+                }
             )
         profiles = [self.cards[name].profile for name in mainboard]
         for commander in self.commander_names:
