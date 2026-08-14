@@ -113,9 +113,7 @@ def run_whole_deck(service: Any, request: Any) -> dict[str, Any]:
             "multiplayer_leverage_before": deck_multiplayer_leverage(
                 lab.context, baseline_mainboard
             ),
-            "multiplayer_leverage_after": deck_multiplayer_leverage(
-                lab.context, variant_mainboard
-            ),
+            "multiplayer_leverage_after": deck_multiplayer_leverage(lab.context, variant_mainboard),
             "paired": campaign["paired"],
             "pair_count": len(campaign["paired_observations"]),
             "paired_observations": campaign["paired_observations"],
