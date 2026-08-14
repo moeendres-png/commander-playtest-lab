@@ -144,9 +144,7 @@ class WholeDeckSearchContext:
                 profile_overrides=overrides,
                 universe=self.fresh_universe,
             )
-            enriched_hash = stable_variant_hash(
-                mainboard, self.snapshot_hash, self.commander_names
-            )
+            enriched_hash = stable_variant_hash(mainboard, self.snapshot_hash, self.commander_names)
             return deck.model_copy(
                 update={
                     "deck_hash": enriched_hash,
