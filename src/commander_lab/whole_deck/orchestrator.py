@@ -232,11 +232,17 @@ class WholeDeckCampaignOrchestrator:
             baseline=baseline, variant=variant, specification=five_player_specification
         )
         primary_axis = primary["primary"]
-        if not isinstance(primary_axis, dict) or not isinstance(primary_axis.get("campaign"), dict):
+        if not isinstance(primary_axis, dict):
             raise TypeError("primary campaign bundle is malformed")
+        primary_campaign = primary_axis.get("campaign")
+        if not isinstance(primary_campaign, dict):
+            raise TypeError("primary campaign bundle is malformed")
+        five_campaign = five.get("campaign")
+        if not isinstance(five_campaign, dict):
+            raise TypeError("five-player campaign bundle is malformed")
         response = multiplayer_pod_response(
-            primary_axis["campaign"],
-            five["campaign"],
+            primary_campaign,
+            five_campaign,
             seed=five_player_specification.seed ^ 0x4F50_3550,
         )
         return {
