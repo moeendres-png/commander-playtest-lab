@@ -163,8 +163,7 @@ class BalancedFivePlayerSensitivityScheduler:
             seat_slots = [seat for seat in range(1, 6) if seat != own_seat]
             available_seats = (seat_slots[0], seat_slots[1], seat_slots[2], seat_slots[3])
             permutations: tuple[tuple[str, str, str, str], ...] = tuple(
-                (order[0], order[1], order[2], order[3])
-                for order in itertools.permutations(combo)
+                (order[0], order[1], order[2], order[3]) for order in itertools.permutations(combo)
             )
             score_order = partial(
                 _five_player_assignment_score,
