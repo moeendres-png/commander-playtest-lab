@@ -21,7 +21,7 @@ def install_whole_deck_public_integration() -> None:
     original_prepare = CommanderToolService.deck_decision_prepare
     original_run = CommanderToolService.deck_decision_run
 
-    def prepare(self: Any, request: Any):
+    def prepare(self: Any, request: Any) -> Any:
         if getattr(request, "design_mode", "swap") != "whole_deck":
             return original_prepare(self, request)
         return self._invoke(
@@ -31,7 +31,7 @@ def install_whole_deck_public_integration() -> None:
             deck_ids=(request.deck_id,),
         )
 
-    def run(self: Any, request: Any):
+    def run(self: Any, request: Any) -> Any:
         if getattr(request, "comparison_mode", "swap") != "whole_deck":
             return original_run(self, request)
         return self._invoke(
@@ -43,9 +43,9 @@ def install_whole_deck_public_integration() -> None:
             iterations=request.iterations,
         )
 
-    CommanderToolService.deck_decision_prepare = prepare
-    CommanderToolService.deck_decision_run = run
-    CommanderToolService._whole_deck_public_installed = True
+    setattr(CommanderToolService, "deck_decision_prepare", prepare)
+    setattr(CommanderToolService, "deck_decision_run", run)
+    setattr(CommanderToolService, "_whole_deck_public_installed", True)
 
     definitions: list[ToolDefinition] = []
     for definition in registry_module.PUBLIC_TOOL_DEFINITIONS:
