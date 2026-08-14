@@ -189,8 +189,7 @@ def _single_deck_summary(
         for row in observations
     )
     place_1 = tuple(
-        _numeric_float(row[f"{prefix}_place_1"], field=f"{prefix}_place_1")
-        for row in observations
+        _numeric_float(row[f"{prefix}_place_1"], field=f"{prefix}_place_1") for row in observations
     )
     placement_distribution = Counter(int(value) for value in placements)
     per_opponent: dict[str, list[float]] = defaultdict(list)
@@ -284,9 +283,7 @@ def run_balanced_paired_campaign(
             mp_context=multiprocessing.get_context("spawn"),
         ) as executor:
             observations = list(executor.map(_run_scenario_worker, tasks, chunksize=chunksize))
-    rows = tuple(
-        sorted(observations, key=lambda row: _numeric_int(row["index"], field="index"))
-    )
+    rows = tuple(sorted(observations, key=lambda row: _numeric_int(row["index"], field="index")))
     differences = tuple(
         _numeric_float(row["baseline_placement"], field="baseline_placement")
         - _numeric_float(row["variant_placement"], field="variant_placement")

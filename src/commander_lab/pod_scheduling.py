@@ -28,11 +28,7 @@ def _opponent_assignment_score(
     projected = seat_counts.copy()
     for seat, deck_id in zip(available_seats, order, strict=True):
         projected[(deck_id, seat)] += 1
-    values = [
-        projected[(deck_id, seat)]
-        for deck_id in opponent_ids
-        for seat in range(1, 5)
-    ]
+    values = [projected[(deck_id, seat)] for deck_id in opponent_ids for seat in range(1, 5)]
     return (
         max(values) - min(values),
         sum(value * value for value in values),
@@ -212,8 +208,7 @@ class BalancedPodScenarioScheduler:
                 "|".join(pair): count for pair, count in sorted(pair_counts.items())
             },
             "games_per_opponent_triple": {
-                "|".join(triple_key): count
-                for triple_key, count in sorted(triple_counts.items())
+                "|".join(triple_key): count for triple_key, count in sorted(triple_counts.items())
             },
             "rogshai_seat_counts": {str(seat): seat_counts[seat] for seat in range(1, 5)},
             "opponent_seat_counts": {
