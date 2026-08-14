@@ -1,0 +1,37 @@
+{
+  "candidate_count": 795,
+  "current_deck_hash": "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126",
+  "deck_id": "rogshai/current",
+  "generated_at": "2026-08-14T02:28:00+02:00",
+  "oracle_uuid_coverage": 0,
+  "projection_policy": {
+    "legacy_ramp_requires_recipient_validated_self_mana": true,
+    "meta_snapshot_promoted_to_generic_latest": false,
+    "package_membership_is_automatic_include_prior": false,
+    "soft_threat_answers_equal_hard_answers": false,
+    "universal_power_score": false,
+    "unknown_is_false": false
+  },
+  "schema_version": "1.0.0",
+  "scryfall_print_ref_coverage": 785,
+  "source_drive_ids": {
+    "capability_registry": "1A_9L0QZnDFuDcFIpXKQTQ_olxOxLBiC-",
+    "card_features": "1H54nJkA0CT_FzBRY_KUEL007YSql1cZu",
+    "mana_profiles": "1wSRFL-NC4yY7dlh3XBOUaw9OSY_mnnnj",
+    "meta_profiles": "1Dl9L9Fcj7sUUDXQbjpe5OgIoJSawRaUV",
+    "mulligan_architecture": "11r9XvDGZVHoht9SRZgmlucJTLVqdWuOa",
+    "package_graph": "17Q2WN_Gd4mYwjZ_bzQR-Avpfwe16Z3wD",
+    "threat_answers": "1vn1rv4KrfX0zFEhf9txNRkPQrcqRkytN",
+    "threat_axes": "1j0_bjM8Q5rQyr8ZGsg79JLTi9l8qeqzx"
+  },
+  "source_sha256": {
+    "capability_registry": "769416c73fffaa068cd3da671061b597ea6ac81378e61b75cdf83ff523b5d408",
+    "card_features": "8e95492e89f0571618400220771a2679be879c1e98cfc393094e1916e1254f22",
+    "mana_profiles": "a8cdc8265be41f0ec471405f669680ecfdf973ebe3aeb48cc0313f29d723b0eb",
+    "meta_profiles": "9018f2be56cc85e1917c13eaa5c90e00ec149b2d1d7e848b9bbe4cfdbaaef348",
+    "mulligan_architecture": "114b647008d403c7041ec2df1a84b1e7afb44a841fccfcd92b9fd5b5a2927859",
+    "package_graph": "43465dad0ae9e20ea2d5df77ed5010654ad1ad7394557a838cc7e33fc94f5eb8",
+    "threat_answers": "148cc8f65856d7508ef15cff68339b1eb8777fb6ae1cc808b85a2d4fd324fa79",
+    "threat_axes": "0b6252fa5e35783e526dcc9b17f9705a87d383138474ba09dcd07bf1c1eea270"
+  }
+}
