@@ -6,6 +6,7 @@ from pathlib import Path
 from commander_lab.canonical_features import load_canonical_feature_annotations
 from commander_lab.models import CardRole
 from commander_lab.repositories.candidates import inventory_rows
+from commander_lab.semantic_features import rules_text, structural_roles_from_oracle
 
 from .search_context import WholeDeckSearchContext
 
@@ -39,6 +40,76 @@ def _has_oracle_text(row: object) -> bool:
     return isinstance(row, dict) and bool(str(row.get("oracle_text", "") or "").strip())
 
 
+def classify_semantic_unknown_cause(fact: object) -> str:
+    """Classify why a fact-only candidate remains outside conservative structural roles.
+
+    This is a diagnostic taxonomy only. It does not assign a gameplay role or strength.
+    """
+    if not isinstance(fact, dict):
+        return "oracle_facts_missing"
+    oracle_text = str(fact.get("oracle_text", "") or "").strip()
+    type_line = str(fact.get("card_type", "") or fact.get("type_line", "") or "")
+    if not oracle_text:
+        return "oracle_facts_missing"
+    if structural_roles_from_oracle(oracle_text, type_line):
+        return "parser_or_projection_gap"
+    text = rules_text(oracle_text)
+    if any(
+        marker in text
+        for marker in (
+            "each opponent",
+            "whenever an opponent",
+            "each player's",
+            "each player",
+            "opponent's upkeep",
+            "opponents' upkeep",
+        )
+    ):
+        return "unsupported_opponent_or_table_scaling_mechanic"
+    if any(
+        marker in text
+        for marker in (
+            "can't cast",
+            "can't attack",
+            "can't block",
+            "can't be cast",
+            "cannot cast",
+            "unless that player",
+            "instead",
+            "doesn't untap",
+            "does not untap",
+        )
+    ):
+        return "unsupported_static_tax_or_replacement_effect"
+    if any(marker in text for marker in ("equipped creature", "enchanted creature", "equip ")):
+        return "unsupported_aura_or_equipment_modifier"
+    if any(
+        marker in text
+        for marker in (
+            "attacks",
+            "attacking",
+            "blocks",
+            "blocking",
+            "combat damage",
+            "gets +",
+            "gets -",
+        )
+    ):
+        return "unsupported_combat_or_stat_modifier"
+    if any(
+        marker in text
+        for marker in (
+            "gain control",
+            "tap target",
+            "untap target",
+            "copy target",
+            "copy that spell",
+        )
+    ):
+        return "unsupported_control_tap_or_copy_effect"
+    return "ambiguous_or_no_safe_structural_role"
+
+
 def build_knowledge_quality_report(
     root: str | Path, *, context: WholeDeckSearchContext | None = None
 ) -> dict[str, object]:
@@ -62,6 +133,11 @@ def build_knowledge_quality_report(
     evidence_counts = Counter(card.semantic_evidence for card in ctx.cards.values())
     known_names = {name for name, card in ctx.cards.items() if card.semantic_known}
     unknown_names = candidates - known_names
+    unknown_causes = {
+        name: classify_semantic_unknown_cause(universe.candidate_facts_by_name.get(name))
+        for name in sorted(unknown_names)
+    }
+    unknown_cause_counts = Counter(unknown_causes.values())
     unknown_high_risk_annotations = sorted(
         name
         for name in unknown_names & annotation_names
@@ -143,6 +219,11 @@ def build_knowledge_quality_report(
         "structurally_usable_fraction": structural_usable_fraction,
         "semantic_unknown_count": len(unknown_names),
         "semantic_unknown_cards": sorted(unknown_names),
+        "semantic_unknown_cause_counts": dict(sorted(unknown_cause_counts.items())),
+        "semantic_unknown_causes": unknown_causes,
+        "semantic_recoverable_parser_gap_count": unknown_cause_counts.get(
+            "parser_or_projection_gap", 0
+        ),
         "semantic_evidence_counts": dict(sorted(evidence_counts.items())),
         "explicit_structural_count": evidence_counts.get("explicit_structural_profile", 0),
         "inferred_structural_count": evidence_counts.get("project_inferred_structural_profile", 0),

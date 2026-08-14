@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from pathlib import Path
 
 from commander_lab import __version__
@@ -13,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_api_version_tracks_package_version() -> None:
     app = create_app(ROOT)
-    assert app.version == __version__ == "1.20.0"
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    assert app.version == __version__ == pyproject["project"]["version"]
 
 
 def test_consumed_p5_holdout_remains_regression_only() -> None:

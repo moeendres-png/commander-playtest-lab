@@ -27,10 +27,13 @@ from commander_lab.models import (
     StructuralMatchConfig,
 )
 from commander_lab.pod_scheduling import PodScenario
+from commander_lab.pod_scheduling_5p import FivePlayerPodScenario
 
 _CAMPAIGN_BASELINE: StructuralDeckProfile | None = None
 _CAMPAIGN_VARIANT: StructuralDeckProfile | None = None
 _CAMPAIGN_OPPONENTS: dict[str, StructuralDeckProfile] = {}
+
+CampaignScenario = PodScenario | FivePlayerPodScenario
 
 
 def _numeric_float(value: object, *, field: str) -> float:
@@ -66,21 +69,28 @@ def _initialize_campaign_worker(
 def _seated_decks(
     own: StructuralDeckProfile,
     opponents: dict[str, StructuralDeckProfile],
-    scenario: PodScenario,
+    scenario: CampaignScenario,
 ) -> tuple[StructuralDeckProfile, ...]:
-    seats: list[StructuralDeckProfile | None] = [None, None, None, None]
+    pod_size = len(scenario.opponent_deck_ids) + 1
+    seats: list[StructuralDeckProfile | None] = [None] * pod_size
+    if not 1 <= scenario.own_seat <= pod_size:
+        raise ValueError(f"scenario {scenario.scenario_id} has invalid own seat")
     seats[scenario.own_seat - 1] = own
     for seat, deck_id in scenario.opponent_seat_assignment:
+        if not 1 <= seat <= pod_size:
+            raise ValueError(f"scenario {scenario.scenario_id} has invalid opponent seat")
+        if seats[seat - 1] is not None:
+            raise ValueError(f"scenario {scenario.scenario_id} assigns a duplicate seat")
         seats[seat - 1] = opponents[deck_id]
     if any(deck is None for deck in seats):
-        raise ValueError(f"scenario {scenario.scenario_id} does not fill all four seats")
+        raise ValueError(f"scenario {scenario.scenario_id} does not fill all {pod_size} seats")
     return tuple(deck for deck in seats if deck is not None)
 
 
 def _simulate_one(
     own: StructuralDeckProfile,
     opponents: dict[str, StructuralDeckProfile],
-    scenario: PodScenario,
+    scenario: CampaignScenario,
     *,
     pilot_config: PilotConfig,
     max_turns: int,
@@ -88,8 +98,9 @@ def _simulate_one(
 ) -> dict[str, object]:
     seated = _seated_decks(own, opponents, scenario)
     deck_ids = tuple(deck.deck_id for deck in seated)
-    if len(deck_ids) != 4 or len(set(deck_ids)) != 4:
-        raise ValueError("primary Whole-Deck scenario must contain four distinct decks")
+    pod_size = len(scenario.opponent_deck_ids) + 1
+    if pod_size not in {4, 5} or len(deck_ids) != pod_size or len(set(deck_ids)) != pod_size:
+        raise ValueError("Whole-Deck scenario must contain one own deck and distinct opponents")
     result = StructuralSimulator({deck.deck_id: deck for deck in seated}).simulate(
         StructuralMatchConfig(
             match_id=f"{scenario.scenario_id}-{suffix}",
@@ -97,9 +108,9 @@ def _simulate_one(
             limits=StructuralAbortLimits(max_turns=max_turns),
             seed=scenario.seed,
             starting_player_seat=0,
-            pilot_configs=(pilot_config,) * 4,
+            pilot_configs=(pilot_config,) * pod_size,
         ),
-        run_id=f"balanced4p-{suffix}",
+        run_id=f"balanced{pod_size}p-{suffix}",
     )
     own_metrics = result.player_metrics[f"p{scenario.own_seat}"]
     return {
@@ -115,20 +126,37 @@ def _run_scenario_worker(payload: dict[str, Any]) -> dict[str, object]:
     if _CAMPAIGN_BASELINE is None or _CAMPAIGN_VARIANT is None:
         raise RuntimeError("balanced campaign worker was not initialized")
     raw_opponents = tuple(str(value) for value in payload["opponent_deck_ids"])
-    if len(raw_opponents) != 3:
-        raise ValueError("balanced campaign scenario requires exactly three opponents")
-    opponent_deck_ids = (raw_opponents[0], raw_opponents[1], raw_opponents[2])
-    scenario = PodScenario(
-        scenario_id=str(payload["scenario_id"]),
-        cycle_id=int(payload["cycle_id"]),
-        opponent_deck_ids=opponent_deck_ids,
-        own_seat=int(payload["own_seat"]),
-        opponent_seat_assignment=tuple(
-            (int(seat), str(deck_id)) for seat, deck_id in payload["opponent_seat_assignment"]
-        ),
-        seed=int(payload["seed"]),
-        opponent_registry_hash=str(payload["opponent_registry_hash"]),
-    )
+    if len(raw_opponents) == 3:
+        scenario: CampaignScenario = PodScenario(
+            scenario_id=str(payload["scenario_id"]),
+            cycle_id=int(payload["cycle_id"]),
+            opponent_deck_ids=(raw_opponents[0], raw_opponents[1], raw_opponents[2]),
+            own_seat=int(payload["own_seat"]),
+            opponent_seat_assignment=tuple(
+                (int(seat), str(deck_id)) for seat, deck_id in payload["opponent_seat_assignment"]
+            ),
+            seed=int(payload["seed"]),
+            opponent_registry_hash=str(payload["opponent_registry_hash"]),
+        )
+    elif len(raw_opponents) == 4:
+        scenario = FivePlayerPodScenario(
+            scenario_id=str(payload["scenario_id"]),
+            cycle_id=int(payload["cycle_id"]),
+            opponent_deck_ids=(
+                raw_opponents[0],
+                raw_opponents[1],
+                raw_opponents[2],
+                raw_opponents[3],
+            ),
+            own_seat=int(payload["own_seat"]),
+            opponent_seat_assignment=tuple(
+                (int(seat), str(deck_id)) for seat, deck_id in payload["opponent_seat_assignment"]
+            ),
+            seed=int(payload["seed"]),
+            opponent_registry_hash=str(payload["opponent_registry_hash"]),
+        )
+    else:
+        raise ValueError("balanced campaign scenario requires three or four opponents")
     index = int(payload["index"])
     pilot = PilotConfig.model_validate(payload["pilot_config"])
     max_turns = int(payload["max_turns"])
@@ -183,6 +211,7 @@ def _single_deck_summary(
     *,
     prefix: str,
     seed: int,
+    pod_size: int,
 ) -> dict[str, object]:
     placements = tuple(
         _numeric_float(row[f"{prefix}_placement"], field=f"{prefix}_placement")
@@ -193,40 +222,47 @@ def _single_deck_summary(
     )
     placement_distribution = Counter(int(value) for value in placements)
     per_opponent: dict[str, list[float]] = defaultdict(list)
-    per_triple: dict[str, list[float]] = defaultdict(list)
+    per_group: dict[str, list[float]] = defaultdict(list)
     per_seat: dict[int, list[float]] = defaultdict(list)
     for row in observations:
         placement = _numeric_float(row[f"{prefix}_placement"], field=f"{prefix}_placement")
         opponents = _string_tuple(row["opponent_deck_ids"], field="opponent_deck_ids")
         for opponent in opponents:
             per_opponent[opponent].append(placement)
-        per_triple["|".join(sorted(opponents))].append(placement)
+        per_group["|".join(sorted(opponents))].append(placement)
         per_seat[_numeric_int(row["own_seat"], field="own_seat")].append(placement)
     ci = _mean_ci(place_1, seed=seed)
-    return {
+    summary: dict[str, object] = {
         "games": len(observations),
+        "pod_size": pod_size,
         "structural_model_estimated_place_1_share": fmean(place_1),
         "place_1_share_model_interval": ci,
         "place_1_share_mcse": monte_carlo_standard_error(place_1),
         "average_placement": fmean(placements),
         "placement_mcse": monte_carlo_standard_error(placements),
         "placement_distribution": {
-            str(place): placement_distribution.get(place, 0) for place in range(1, 5)
+            str(place): placement_distribution.get(place, 0) for place in range(1, pod_size + 1)
         },
         "per_opponent_average_placement": {
             opponent: fmean(values) for opponent, values in sorted(per_opponent.items())
         },
-        "per_triple_average_placement": {
-            triple: fmean(values) for triple, values in sorted(per_triple.items())
+        "per_opponent_group_average_placement": {
+            group: fmean(values) for group, values in sorted(per_group.items())
         },
         "per_seat_average_placement": {
             str(seat): fmean(values) for seat, values in sorted(per_seat.items())
         },
-        "worst_opponent_triple_average_placement": max(
-            fmean(values) for values in per_triple.values()
+        "worst_opponent_group_average_placement": max(
+            fmean(values) for values in per_group.values()
         ),
         "lower_tail_placement_q90": quantile_summary(placements)["q90"],
     }
+    if pod_size == 4:
+        summary["per_triple_average_placement"] = summary["per_opponent_group_average_placement"]
+        summary["worst_opponent_triple_average_placement"] = summary[
+            "worst_opponent_group_average_placement"
+        ]
+    return summary
 
 
 def run_balanced_paired_campaign(
@@ -234,7 +270,7 @@ def run_balanced_paired_campaign(
     baseline: StructuralDeckProfile,
     variant: StructuralDeckProfile,
     opponent_profiles: dict[str, StructuralDeckProfile],
-    scenarios: Iterable[PodScenario],
+    scenarios: Iterable[CampaignScenario],
     pilot_config: PilotConfig,
     max_turns: int,
     statistics_seed: int,
@@ -246,6 +282,12 @@ def run_balanced_paired_campaign(
         raise ValueError("balanced campaign requires scenarios")
     if workers < 1:
         raise ValueError("workers must be positive")
+    pod_sizes = {len(scenario.opponent_deck_ids) + 1 for scenario in scenario_rows}
+    if len(pod_sizes) != 1:
+        raise ValueError("balanced campaign cannot mix pod sizes")
+    pod_size = next(iter(pod_sizes))
+    if pod_size not in {4, 5}:
+        raise ValueError("balanced Whole-Deck campaign supports only 4P primary or 5P sensitivity")
     started = time.perf_counter()
     tasks = [
         {
@@ -294,8 +336,12 @@ def run_balanced_paired_campaign(
         - _numeric_float(row["baseline_place_1"], field="baseline_place_1")
         for row in rows
     )
-    baseline_summary = _single_deck_summary(rows, prefix="baseline", seed=statistics_seed + 11)
-    variant_summary = _single_deck_summary(rows, prefix="variant", seed=statistics_seed + 17)
+    baseline_summary = _single_deck_summary(
+        rows, prefix="baseline", seed=statistics_seed + 11, pod_size=pod_size
+    )
+    variant_summary = _single_deck_summary(
+        rows, prefix="variant", seed=statistics_seed + 17, pod_size=pod_size
+    )
     interval = paired_bootstrap_interval(differences, seed=statistics_seed + 23)
     paired = {
         "games": len(rows),
@@ -321,6 +367,7 @@ def run_balanced_paired_campaign(
     }
     return {
         "evidence_class": "structural_model_estimates",
+        "pod_size": pod_size,
         "baseline": baseline_summary,
         "variant": variant_summary,
         "paired": paired,

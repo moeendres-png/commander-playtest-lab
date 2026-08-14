@@ -32,6 +32,7 @@ def prepare_whole_deck(service: Any, request: Any) -> dict[str, Any]:
         "prepared_design_path": prepared["prepared_design_path"],
         "design_campaign_id": prepared["design_campaign_id"],
         "policies": prepared["policies"],
+        "discoverability": prepared["discoverability"],
         "variants": prepared["variants"],
         "mulligan_contract": prepared["mulligan_contract"],
         "official_structural_campaign_run": False,
