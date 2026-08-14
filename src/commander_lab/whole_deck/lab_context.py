@@ -15,7 +15,6 @@ from commander_lab.semantic_features import (
     self_token_creation,
 )
 from commander_lab.storage import sha256_value
-from commander_lab.tools.candidates import _inventory_rows
 
 from .enrichment import WholeDeckKnowledgeEnrichment, classify_threat_answers
 from .models import PolicyId
@@ -71,6 +70,11 @@ def enriched_context(
     WholeDeckKnowledgeEnrichment,
     dict[str, tuple[frozenset[str], frozenset[str]]],
 ]:
+    # Import lazily to avoid executing commander_lab.tools.__init__ while this module
+    # is itself being imported. The tools package installs the public Whole-Deck hooks
+    # and otherwise creates an order-dependent circular import through whole_deck.lab.
+    from commander_lab.tools.candidates import _inventory_rows
+
     project = Path(root).resolve()
     base = WholeDeckSearchContext.from_project(project)
     enrichment = WholeDeckKnowledgeEnrichment.load(project)
