@@ -11,6 +11,10 @@ from .whole_deck_prepare import prepare_whole_deck
 from .whole_deck_run import run_whole_deck
 
 
+def _install_attr(target: type[Any], name: str, value: Any) -> None:
+    setattr(target, name, value)
+
+
 def install_whole_deck_public_integration() -> None:
     from commander_lab.tools import registry as registry_module
     from commander_lab.tools.registry import ToolDefinition
@@ -43,9 +47,9 @@ def install_whole_deck_public_integration() -> None:
             iterations=request.iterations,
         )
 
-    setattr(CommanderToolService, "deck_decision_prepare", prepare)
-    setattr(CommanderToolService, "deck_decision_run", run)
-    setattr(CommanderToolService, "_whole_deck_public_installed", True)
+    _install_attr(CommanderToolService, "deck_decision_prepare", prepare)
+    _install_attr(CommanderToolService, "deck_decision_run", run)
+    _install_attr(CommanderToolService, "_whole_deck_public_installed", True)
 
     definitions: list[ToolDefinition] = []
     for definition in registry_module.PUBLIC_TOOL_DEFINITIONS:
