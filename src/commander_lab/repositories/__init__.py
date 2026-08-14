@@ -1,12 +1,11 @@
-"""Compatibility adapter for candidate repository access.
+"""Read-only repositories for canonical project data.
 
-New domain code must import :mod:`commander_lab.repositories.candidates` directly. This module
-contains no loader implementation and performs no import-time mutation.
+Domain and workflow code may depend on this package. Public tool adapters must not be a data
+source for domain services.
 """
 
-from commander_lab.repositories.candidates import (
+from .candidates import (
     BASIC_LANDS,
-    DECK_COLORS,
     canonical_feature_fusion_summary,
     inventory_rows,
     load_candidate_profiles,
@@ -14,12 +13,12 @@ from commander_lab.repositories.candidates import (
     load_current_candidate_eligibility,
     load_current_optimization_availability,
 )
-
-_inventory_rows = inventory_rows
+from .opponents import CurrentOpponentRecord, CurrentOpponentRepository
 
 __all__ = [
     "BASIC_LANDS",
-    "DECK_COLORS",
+    "CurrentOpponentRecord",
+    "CurrentOpponentRepository",
     "canonical_feature_fusion_summary",
     "inventory_rows",
     "load_candidate_profiles",

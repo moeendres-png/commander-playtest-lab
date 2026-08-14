@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "checked_at": "2026-08-14",
+  "format": "Commander",
+  "primary_format_contract": {
+    "players": 4,
+    "deck_size": 100,
+    "source": "https://magic.wizards.com/en/formats/commander"
+  },
+  "banlist_source": "https://magic.wizards.com/en/banned-restricted-list",
+  "latest_commander_specific_change_found": {
+    "announcement_date": "2026-02-09",
+    "source": "https://magic.wizards.com/en/news/announcements/commander-banned-and-restricted-february-9-2026",
+    "changes": [
+      "Biorhythm unbanned",
+      "Lutri, the Spellchaser unbanned except banned as a companion"
+    ]
+  },
+  "later_general_bnr_check": {
+    "announcement_date": "2026-06-29",
+    "commander_change_listed": false,
+    "source": "https://magic.wizards.com/en/news/announcements/banned-and-restricted-june-29-2026"
+  },
+  "current_source_policy": "The live Wizards Banned & Restricted page is the source of truth; this file records the 2026-08-14 verification only.",
+  "evidence_class": "external_rules_reference",
+  "automatic_deck_mutation": false
+}

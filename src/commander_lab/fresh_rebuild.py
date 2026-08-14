@@ -14,15 +14,15 @@ from commander_lab.models import (
     StructuralCardProfile,
     StructuralDeckProfile,
 )
-from commander_lab.storage import sha256_value
-from commander_lab.tools.candidates import (
+from commander_lab.repositories.candidates import (
     BASIC_LANDS,
     _allowed_decks,
     _as_int,
     _identity_from_inventory,
-    _inventory_rows,
     _slug,
+    inventory_rows,
 )
+from commander_lab.storage import sha256_value
 
 ROGSHAI_DECK_ID = "rogshai/current"
 ROGSHAI_COMMANDERS = (
@@ -82,7 +82,7 @@ def _contract(root: Path) -> dict[str, Any]:
 def _candidate_rows(root: Path, contract: Mapping[str, object]) -> list[dict[str, object]]:
     """Return base inventory plus the small verified 2026-08-10 Drive delta."""
 
-    rows = [dict(row) for row in _inventory_rows(root)]
+    rows = [dict(row) for row in inventory_rows(root)]
     delta = contract.get("current_drive_inventory_delta", [])
     if not isinstance(delta, list):
         raise FreshRebuildDataError("current_drive_inventory_delta must be a list")
@@ -212,7 +212,12 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
         names.add(name)
         facts[name] = {
             "oracle_name": name,
+            "mana_cost": identity.mana_cost,
+            "mana_value": identity.mana_value,
             "color_identity": [color.value for color in identity.color_identity],
+            "card_type": identity.type_line,
+            "type_line": identity.type_line,
+            "oracle_text": identity.oracle_text,
             "commander_legal": True,
         }
         current_row = current_eligibility.get(name)

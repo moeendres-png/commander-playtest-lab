@@ -6,7 +6,10 @@ from pathlib import Path
 from commander_lab.mana_analysis import DeckManaAnalysis, ManaAnalyzer
 from commander_lab.models import StructuralCardProfile, StructuralDeckProfile
 from commander_lab.models.mulligan import MulliganContext, OpeningHandFeatures
+from commander_lab.pod_scheduling import BalancedPodScenarioScheduler
 from commander_lab.project_context import ProjectContextError, load_project_context
+from commander_lab.repositories.opponents import CurrentOpponentRepository
+from commander_lab.storage import sha256_value
 
 from .lab import MulliganLab as _LegacyMulliganLab
 from .lab import MulliganLabError
@@ -29,33 +32,24 @@ class MulliganLab(_LegacyMulliganLab):
         self.mana_analyzer = ManaAnalyzer(self.root)
 
     def _opponent_ids(self, context: MulliganContext, *, holdout: int = 0) -> tuple[str, ...]:
-        need = max(1, context.pod_size - 1)
-        if holdout:
-            # The canonical source defines a holdout/sensitivity *pool*, not fixed pods or
-            # frequencies. Deterministic slices are model test contexts only and never promoted
-            # to canonical opponent frequencies.
-            holdout_ids = self.project_context.holdout_deck_ids
-            if not holdout_ids:
-                raise MulliganLabError("canonical holdout/sensitivity opponent pool is empty")
-            start = ((holdout - 1) * need) % len(holdout_ids)
-            return tuple(holdout_ids[(start + index) % len(holdout_ids)] for index in range(need))
-
         if context.pod_size != 4:
             raise MulliganLabError(
-                "canonical 3P/5P sensitivity contexts require explicit opponent composition; "
-                "the MulliganContext does not carry opponent deck ids, so the lab refuses to "
-                "invent them"
+                "non-4P mulligan contexts require explicit opponent composition in a separate "
+                "sensitivity workflow"
             )
-        try:
-            if context.deck_id in self.project_context.active_own_deck_ids:
-                return self.project_context.primary_opponent_deck_ids(context.deck_id)
-            if context.deck_id in self.project_context.historical_own_deck_ids:
-                return self.project_context.historical_reference_opponent_deck_ids(context.deck_id)
-        except ProjectContextError as exc:
-            raise MulliganLabError(str(exc)) from exc
-        raise MulliganLabError(
-            f"{context.deck_id} is neither a current active nor a preserved historical own deck"
+        repository = CurrentOpponentRepository(self.root)
+        scheduler = BalancedPodScenarioScheduler(
+            repository.records(), opponent_registry_hash=repository.registry_hash
         )
+        seed_payload = {
+            "deck_id": context.deck_id,
+            "deck_hash": context.deck_hash,
+            "opponent_ensemble_id": context.opponent_ensemble_id,
+            "holdout": holdout,
+            "axis": "mulligan_opponent_context",
+        }
+        seed = int(sha256_value(seed_payload)[:16], 16) % (2**31 - 1)
+        return scheduler.schedule(1, seed=seed)[0].opponent_deck_ids
 
     def analyze_deck_mana(self, deck_id: str) -> DeckManaAnalysis:
         return self.mana_analyzer.analyze_deck(self.deck(deck_id))

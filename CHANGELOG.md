@@ -1,3 +1,12 @@
+## 1.20.0 - 2026-08-14
+
+- Replace Whole-Deck import-time monkeypatching with explicit repository, service and campaign dependency wiring; direct cold imports no longer depend on `commander_lab.tools` initialization.
+- Add a single read-only `CurrentOpponentRepository` and deterministic balanced 4-player scenario scheduler over the current eight-opponent registry, including complete 56-triplet coverage cycles, partial-cycle balancing and seat balancing.
+- Preserve paired common-random-number semantics while keeping baseline and variant in separate games; add deterministic parallel scenario execution, opponent/seat coverage reports and explicit primary/holdout separation.
+- Harden recipient/controller/target-aware semantic extraction, reconcile all 795 RogShai candidates, quarantine broad feature false positives, and keep genuine semantic unknowns visible with a finalist `REVIEW_REQUIRED` gate.
+- Add machine-readable knowledge/readiness gates, current Commander rules/B&R verification, cleanup audit and invariant tests without changing the canonical RogShai list, inventory, allocation, purchases, opponent observations or frozen Kaervek.
+- Structural outputs remain model estimates rather than empirical win rates; Tactical Oracle remains distinct from external rules engines and `NO_PROVIDER_READY` remains unchanged.
+
 ## 1.18.0 - 2026-08-12
 
 - Add diverse package/role-aware cut hypotheses to the RogShai decision frontier.
