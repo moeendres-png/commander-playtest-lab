@@ -54,7 +54,9 @@ def test_five_player_full_cycle_balances_opponents_and_own_seats(repo_root) -> N
     assert report["complete_coverage_cycles"] == 1
     assert report["opponent_exposure_imbalance"] == 0
     assert report["primary_evidence"] is False
-    assert report["frequency_interpretation"] == "experimental_equal_coverage_not_real_meta_frequency"
+    assert (
+        report["frequency_interpretation"] == "experimental_equal_coverage_not_real_meta_frequency"
+    )
 
 
 def test_five_player_partial_cycle_is_deterministic_and_balanced(repo_root) -> None:
@@ -176,7 +178,9 @@ def test_discoverability_report_surfaces_every_unseen_candidate() -> None:
     assert report["candidate_discoverability_status"] == (
         "PASS_WITH_EXPLICIT_DISCOVERY_REVIEW_QUEUE"
     )
-    assert all(row["automatic_negative_evidence"] is False for row in report["discovery_review_queue"])
+    assert all(
+        row["automatic_negative_evidence"] is False for row in report["discovery_review_queue"]
+    )
 
 
 def test_seeded_package_exploration_does_not_starve_smaller_viable_package() -> None:
