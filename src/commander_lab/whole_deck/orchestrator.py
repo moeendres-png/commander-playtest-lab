@@ -3,8 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, StructuralDeckProfile
-from commander_lab.pod_scheduling import BalancedPodScenarioScheduler
+from commander_lab.models import (
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    StructuralDeckProfile,
+)
+from commander_lab.pod_scheduling import BalancedPodScenarioScheduler, PodScenario
 from commander_lab.repositories.opponents import CurrentOpponentRepository
 
 from .campaign import run_balanced_paired_campaign
@@ -77,15 +82,13 @@ class WholeDeckCampaignOrchestrator:
             workers=specification.workers,
         )
         holdout: dict[str, object] | None = None
-        holdout_scenarios = ()
+        holdout_scenarios: tuple[PodScenario, ...] = ()
         if specification.holdout_games:
             holdout_seed = self._holdout_seed(specification.seed)
             holdout_scenarios = self.scheduler.schedule(
                 specification.holdout_games, seed=holdout_seed
             )
-            if {row.seed for row in primary_scenarios} & {
-                row.seed for row in holdout_scenarios
-            }:
+            if {row.seed for row in primary_scenarios} & {row.seed for row in holdout_scenarios}:
                 raise RuntimeError("primary and holdout scenario seed sets must be disjoint")
             holdout = {
                 "evidence_axis": "holdout",

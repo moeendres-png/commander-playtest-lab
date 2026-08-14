@@ -49,9 +49,7 @@ def build_campaign_readiness(
     )
     cycle = scheduler.schedule(scheduler.combinations_per_cycle, seed=2026081401)
     coverage = scheduler.coverage_report(cycle)
-    deck_manifest = json.loads(
-        (project / "data/decks/manifest.json").read_text(encoding="utf-8")
-    )
+    deck_manifest = json.loads((project / "data/decks/manifest.json").read_text(encoding="utf-8"))
     rogshai = deck_manifest["decks"]["rogshai/current"]
     provider = json.loads(
         (project / "docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8")
@@ -66,7 +64,7 @@ def build_campaign_readiness(
     scheduler_ok = (
         scheduler.combinations_per_cycle == 56
         and coverage["opponent_exposure_imbalance"] == 0
-        and set(coverage["rogshai_seat_counts"].values()) == {14}
+        and coverage["rogshai_seat_counts"] == {"1": 14, "2": 14, "3": 14, "4": 14}
     )
     blockers: list[str] = []
     if not knowledge["knowledge_pipeline_ready"]:

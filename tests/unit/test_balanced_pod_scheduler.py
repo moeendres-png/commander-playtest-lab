@@ -24,18 +24,20 @@ def test_full_cycle_covers_all_triplets_and_balances_exposure_and_own_seats(repo
     assert len({tuple(sorted(row.opponent_deck_ids)) for row in scenarios}) == 56
     assert all(len(set(row.opponent_deck_ids)) == 3 for row in scenarios)
     assert all(len(row.opponent_seat_assignment) == 3 for row in scenarios)
-    assert all(row.own_seat not in {seat for seat, _ in row.opponent_seat_assignment} for row in scenarios)
+    assert all(
+        row.own_seat not in {seat for seat, _ in row.opponent_seat_assignment} for row in scenarios
+    )
     assert set(report["games_per_opponent"].values()) == {21}
     assert report["rogshai_seat_counts"] == {"1": 14, "2": 14, "3": 14, "4": 14}
     assert report["complete_coverage_cycles"] == 1
     assert report["incomplete_remainder_games"] == 0
     assert report["opponent_exposure_imbalance"] == 0
-    assert report["frequency_interpretation"] == "experimental_equal_coverage_not_real_meta_frequency"
+    assert (
+        report["frequency_interpretation"] == "experimental_equal_coverage_not_real_meta_frequency"
+    )
 
     expected_pairs = set(itertools.combinations(sorted(repository.current_deck_ids()), 2))
-    observed_pairs = {
-        tuple(key.split("|", 1)) for key in report["games_per_opponent_pair"]
-    }
+    observed_pairs = {tuple(key.split("|", 1)) for key in report["games_per_opponent_pair"]}
     assert observed_pairs == expected_pairs
 
 
@@ -51,9 +53,10 @@ def test_partial_cycle_is_deterministic_balanced_and_has_no_duplicate_triplet(re
     assert len({row.scenario_id for row in first}) == 17
     assert len({tuple(sorted(row.opponent_deck_ids)) for row in first}) == 17
     assert report["opponent_exposure_imbalance"] <= 1
-    assert max(report["rogshai_seat_counts"].values()) - min(
-        report["rogshai_seat_counts"].values()
-    ) <= 1
+    assert (
+        max(report["rogshai_seat_counts"].values()) - min(report["rogshai_seat_counts"].values())
+        <= 1
+    )
     assert all(row.opponent_registry_hash == scheduler.registry_hash for row in first)
 
 

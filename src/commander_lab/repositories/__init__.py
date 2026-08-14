@@ -16,9 +16,9 @@ from .candidates import (
 from .opponents import CurrentOpponentRecord, CurrentOpponentRepository
 
 __all__ = [
+    "BASIC_LANDS",
     "CurrentOpponentRecord",
     "CurrentOpponentRepository",
-    "BASIC_LANDS",
     "canonical_feature_fusion_summary",
     "inventory_rows",
     "load_candidate_profiles",

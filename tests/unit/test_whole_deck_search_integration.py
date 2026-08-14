@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from commander_lab.whole_deck.knowledge_quality import build_knowledge_quality_report
 from commander_lab.whole_deck.models import PolicyId
 from commander_lab.whole_deck.policies import get_policy
 from commander_lab.whole_deck.search import (
@@ -47,9 +48,16 @@ def test_project_pool_smoke_uses_all_795_candidates_and_preserves_unknown_semant
     repo_root: Path,
 ) -> None:
     context = WholeDeckSearchContext.from_project(repo_root)
+    quality = build_knowledge_quality_report(repo_root, context=context)
+    known = sum(card.semantic_known for card in context.cards.values())
+    unknown = sum(not card.semantic_known for card in context.cards.values())
+
     assert len(context.cards) == 795
-    assert sum(card.semantic_known for card in context.cards.values()) == 438
-    assert sum(not card.semantic_known for card in context.cards.values()) == 357
+    assert known + unknown == len(context.cards)
+    assert known == quality["structurally_usable_count"]
+    assert unknown == quality["semantic_unknown_count"]
+    assert unknown > 0
+
     neutral = WholeDeckSearchEngine(
         context,
         get_policy(PolicyId.OWNED_POOL_NEUTRAL),

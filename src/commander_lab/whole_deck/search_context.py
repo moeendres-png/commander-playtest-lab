@@ -15,8 +15,8 @@ from commander_lab.fresh_rebuild import (
 )
 from commander_lab.mana_analysis import ManaAnalyzer
 from commander_lab.models import CardRole, DataQuality, StructuralCardProfile, StructuralDeckProfile
-from commander_lab.storage import sha256_value
 from commander_lab.repositories.candidates import BASIC_LANDS, load_candidate_profiles
+from commander_lab.storage import sha256_value
 
 SEARCH_ENGINE_VERSION = "whole-deck-search-0.1.0"
 JESKAI = frozenset({"W", "U", "R"})

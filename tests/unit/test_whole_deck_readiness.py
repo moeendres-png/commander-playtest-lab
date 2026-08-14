@@ -23,9 +23,7 @@ def test_readiness_can_pass_after_all_mandatory_external_gates(repo_root) -> Non
         "j_final_status": "PASS",
         "release_status": "PASS",
     }
-    report = build_campaign_readiness(
-        repo_root, external_gates=gates, smoke_status="PASS"
-    )
+    report = build_campaign_readiness(repo_root, external_gates=gates, smoke_status="PASS")
     assert report["remaining_blockers"] == []
     assert report["ready_for_official_campaign"] is True
     assert report["readiness_label"] == "READY_FOR_OFFICIAL_WHOLE_DECK_CAMPAIGN"

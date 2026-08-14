@@ -58,9 +58,7 @@ def test_tools_adapter_is_explicit_alias_of_repository_loader() -> None:
     current = load_candidate_profiles(ROOT)
     repository = repository_candidates(ROOT)
     assert set(current) == set(repository)
-    assert {
-        key: value.card.model_dump(mode="json") for key, value in current.items()
-    } == {
+    assert {key: value.card.model_dump(mode="json") for key, value in current.items()} == {
         key: value.card.model_dump(mode="json") for key, value in repository.items()
     }
     summary = canonical_feature_fusion_summary(ROOT)

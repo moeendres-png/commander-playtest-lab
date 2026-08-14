@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from commander_lab.fresh_rebuild import load_fresh_rogshai_universe
 from commander_lab.whole_deck.knowledge_quality import build_knowledge_quality_report
 
 
@@ -15,6 +16,19 @@ def test_knowledge_quality_reconciles_current_candidate_universe(repo_root) -> N
     assert report["facts_without_candidate"] == []
     assert report["duplicate_inventory_identities"] == []
     assert report["knowledge_pipeline_ready"] is True
+
+
+def test_oracle_coverage_reconciles_with_fresh_fact_projection(repo_root) -> None:
+    universe = load_fresh_rogshai_universe(repo_root)
+    report = build_knowledge_quality_report(repo_root)
+    expected_oracle_count = sum(
+        bool(str(fact.get("oracle_text", "") or "").strip())
+        for fact in universe.candidate_facts_by_name.values()
+    )
+
+    assert expected_oracle_count > 0
+    assert report["oracle_coverage_count"] == expected_oracle_count
+    assert report["oracle_coverage_fraction"] == expected_oracle_count / universe.candidate_count
 
 
 def test_unknowns_remain_visible_and_runtime_vetoes_are_quarantined(repo_root) -> None:

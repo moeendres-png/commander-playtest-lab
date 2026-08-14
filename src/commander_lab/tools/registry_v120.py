@@ -5,6 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from commander_lab.models import ToolResponse
 from commander_lab.models.tooling_v120 import (
     ComparePilotsInput,
     RunPilotBenchmarkInput,
@@ -18,6 +19,8 @@ from commander_lab.models.whole_deck_tooling import (
 
 from .registry import (
     PUBLIC_TOOL_DEFINITIONS as LEGACY_PUBLIC_TOOL_DEFINITIONS,
+)
+from .registry import (
     TOOL_DEFINITIONS,
     ToolDefinition,
 )
@@ -90,11 +93,11 @@ class ToolRegistry:
         except KeyError as exc:
             raise KeyError(f"unknown tool: {name}") from exc
 
-    def invoke(self, name: str, payload: dict[str, Any]):  # type: ignore[no-untyped-def]
+    def invoke(self, name: str, payload: dict[str, Any]) -> ToolResponse:
         try:
             definition = self._definitions[name]
         except KeyError as exc:
             raise KeyError(f"unknown tool: {name}") from exc
         request = definition.input_model.model_validate(payload)
-        handler: Callable[[Any], Any] = getattr(self.service, definition.handler_name)
+        handler: Callable[[Any], ToolResponse] = getattr(self.service, definition.handler_name)
         return handler(request)

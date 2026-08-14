@@ -5,6 +5,7 @@ import itertools
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
+from functools import partial
 
 from commander_lab.repositories.opponents import CurrentOpponentRecord
 
@@ -12,6 +13,31 @@ from commander_lab.repositories.opponents import CurrentOpponentRecord
 def _digest_int(*parts: object) -> int:
     payload = "|".join(str(part) for part in parts).encode("utf-8")
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big", signed=False)
+
+
+def _opponent_assignment_score(
+    order: tuple[str, str, str],
+    *,
+    seat_counts: Counter[tuple[str, int]],
+    opponent_ids: tuple[str, ...],
+    available_seats: tuple[int, int, int],
+    seed: int,
+    cycle: int,
+    index: int,
+) -> tuple[int, int, int]:
+    projected = seat_counts.copy()
+    for seat, deck_id in zip(available_seats, order, strict=True):
+        projected[(deck_id, seat)] += 1
+    values = [
+        projected[(deck_id, seat)]
+        for deck_id in opponent_ids
+        for seat in range(1, 5)
+    ]
+    return (
+        max(values) - min(values),
+        sum(value * value for value in values),
+        _digest_int(seed, cycle, index, order),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,34 +137,31 @@ class BalancedPodScenarioScheduler:
             combos_by_cycle.extend((cycle, combo) for combo in ordered)
         if remainder:
             cycle = full_cycles
-            partial = self._balanced_subset(
+            partial_combos = self._balanced_subset(
                 self._all_combinations, remainder, seed=seed, cycle=cycle
             )
-            combos_by_cycle.extend((cycle, combo) for combo in partial)
+            combos_by_cycle.extend((cycle, combo) for combo in partial_combos)
 
         seat_counts: Counter[tuple[str, int]] = Counter()
         scenarios: list[PodScenario] = []
         own_offset = _digest_int(seed, "own-seat-offset") % 4
         for index, (cycle, combo) in enumerate(combos_by_cycle):
             own_seat = ((index + own_offset) % 4) + 1
-            available_seats = tuple(seat for seat in range(1, 5) if seat != own_seat)
-            permutations = tuple(itertools.permutations(combo))
-
-            def assignment_score(order: tuple[str, str, str]) -> tuple[int, int, int]:
-                projected = seat_counts.copy()
-                for seat, deck_id in zip(available_seats, order, strict=True):
-                    projected[(deck_id, seat)] += 1
-                values = [
-                    projected[(deck_id, seat)]
-                    for deck_id in self.opponent_ids
-                    for seat in range(1, 5)
-                ]
-                return (
-                    max(values) - min(values),
-                    sum(value * value for value in values),
-                    _digest_int(seed, cycle, index, order),
-                )
-            order = min(permutations, key=assignment_score)
+            seat_slots = [seat for seat in range(1, 5) if seat != own_seat]
+            available_seats = (seat_slots[0], seat_slots[1], seat_slots[2])
+            permutations: tuple[tuple[str, str, str], ...] = tuple(
+                (order[0], order[1], order[2]) for order in itertools.permutations(combo)
+            )
+            score_order = partial(
+                _opponent_assignment_score,
+                seat_counts=seat_counts,
+                opponent_ids=self.opponent_ids,
+                available_seats=available_seats,
+                seed=seed,
+                cycle=cycle,
+                index=index,
+            )
+            order = min(permutations, key=score_order)
             assignment = tuple(zip(available_seats, order, strict=True))
             for seat, deck_id in assignment:
                 seat_counts[(deck_id, seat)] += 1
@@ -169,7 +192,9 @@ class BalancedPodScenarioScheduler:
         for scenario in rows:
             opponent_counts.update(scenario.opponent_deck_ids)
             pair_counts.update(itertools.combinations(sorted(scenario.opponent_deck_ids), 2))
-            triple_counts[tuple(sorted(scenario.opponent_deck_ids))] += 1
+            sorted_ids = sorted(scenario.opponent_deck_ids)
+            triple = (sorted_ids[0], sorted_ids[1], sorted_ids[2])
+            triple_counts[triple] += 1
             seat_counts[scenario.own_seat] += 1
             opponent_seat_counts.update(
                 (deck_id, seat) for seat, deck_id in scenario.opponent_seat_assignment
@@ -178,14 +203,17 @@ class BalancedPodScenarioScheduler:
         exposure = [opponent_counts[deck_id] for deck_id in self.opponent_ids]
         return {
             "available_opponents": list(self.opponent_ids),
-            "used_opponents": sorted(deck_id for deck_id, count in opponent_counts.items() if count),
+            "used_opponents": sorted(
+                deck_id for deck_id, count in opponent_counts.items() if count
+            ),
             "games": len(rows),
             "games_per_opponent": dict(sorted(opponent_counts.items())),
             "games_per_opponent_pair": {
                 "|".join(pair): count for pair, count in sorted(pair_counts.items())
             },
             "games_per_opponent_triple": {
-                "|".join(triple): count for triple, count in sorted(triple_counts.items())
+                "|".join(triple_key): count
+                for triple_key, count in sorted(triple_counts.items())
             },
             "rogshai_seat_counts": {str(seat): seat_counts[seat] for seat in range(1, 5)},
             "opponent_seat_counts": {

@@ -26,12 +26,29 @@ from commander_lab.models import (
     StructuralDeckProfile,
     StructuralMatchConfig,
 )
-
 from commander_lab.pod_scheduling import PodScenario
 
 _CAMPAIGN_BASELINE: StructuralDeckProfile | None = None
 _CAMPAIGN_VARIANT: StructuralDeckProfile | None = None
 _CAMPAIGN_OPPONENTS: dict[str, StructuralDeckProfile] = {}
+
+
+def _numeric_float(value: object, *, field: str) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
+    raise TypeError(f"{field} must be numeric")
+
+
+def _numeric_int(value: object, *, field: str) -> int:
+    if isinstance(value, int):
+        return value
+    raise TypeError(f"{field} must be an integer")
+
+
+def _string_tuple(value: object, *, field: str) -> tuple[str, ...]:
+    if not isinstance(value, (list, tuple)):
+        raise TypeError(f"{field} must be a sequence")
+    return tuple(str(item) for item in value)
 
 
 def _initialize_campaign_worker(
@@ -88,9 +105,7 @@ def _simulate_one(
     return {
         "placement": float(own_metrics.placement),
         "place_1": float(own_metrics.placement == 1),
-        "damage": float(
-            own_metrics.normal_damage_dealt + own_metrics.commander_damage_dealt
-        ),
+        "damage": float(own_metrics.normal_damage_dealt + own_metrics.commander_damage_dealt),
         "cards_drawn": float(own_metrics.cards_drawn),
         "log_sha256": result.log_sha256,
     }
@@ -99,10 +114,14 @@ def _simulate_one(
 def _run_scenario_worker(payload: dict[str, Any]) -> dict[str, object]:
     if _CAMPAIGN_BASELINE is None or _CAMPAIGN_VARIANT is None:
         raise RuntimeError("balanced campaign worker was not initialized")
+    raw_opponents = tuple(str(value) for value in payload["opponent_deck_ids"])
+    if len(raw_opponents) != 3:
+        raise ValueError("balanced campaign scenario requires exactly three opponents")
+    opponent_deck_ids = (raw_opponents[0], raw_opponents[1], raw_opponents[2])
     scenario = PodScenario(
         scenario_id=str(payload["scenario_id"]),
         cycle_id=int(payload["cycle_id"]),
-        opponent_deck_ids=tuple(payload["opponent_deck_ids"]),  # type: ignore[arg-type]
+        opponent_deck_ids=opponent_deck_ids,
         own_seat=int(payload["own_seat"]),
         opponent_seat_assignment=tuple(
             (int(seat), str(deck_id)) for seat, deck_id in payload["opponent_seat_assignment"]
@@ -165,19 +184,25 @@ def _single_deck_summary(
     prefix: str,
     seed: int,
 ) -> dict[str, object]:
-    placements = tuple(float(row[f"{prefix}_placement"]) for row in observations)
-    place_1 = tuple(float(row[f"{prefix}_place_1"]) for row in observations)
+    placements = tuple(
+        _numeric_float(row[f"{prefix}_placement"], field=f"{prefix}_placement")
+        for row in observations
+    )
+    place_1 = tuple(
+        _numeric_float(row[f"{prefix}_place_1"], field=f"{prefix}_place_1")
+        for row in observations
+    )
     placement_distribution = Counter(int(value) for value in placements)
     per_opponent: dict[str, list[float]] = defaultdict(list)
     per_triple: dict[str, list[float]] = defaultdict(list)
     per_seat: dict[int, list[float]] = defaultdict(list)
     for row in observations:
-        placement = float(row[f"{prefix}_placement"])
-        opponents = tuple(str(value) for value in row["opponent_deck_ids"])
+        placement = _numeric_float(row[f"{prefix}_placement"], field=f"{prefix}_placement")
+        opponents = _string_tuple(row["opponent_deck_ids"], field="opponent_deck_ids")
         for opponent in opponents:
             per_opponent[opponent].append(placement)
         per_triple["|".join(sorted(opponents))].append(placement)
-        per_seat[int(row["own_seat"])].append(placement)
+        per_seat[_numeric_int(row["own_seat"], field="own_seat")].append(placement)
     ci = _mean_ci(place_1, seed=seed)
     return {
         "games": len(observations),
@@ -259,12 +284,18 @@ def run_balanced_paired_campaign(
             mp_context=multiprocessing.get_context("spawn"),
         ) as executor:
             observations = list(executor.map(_run_scenario_worker, tasks, chunksize=chunksize))
-    rows = tuple(sorted(observations, key=lambda row: int(row["index"])))
+    rows = tuple(
+        sorted(observations, key=lambda row: _numeric_int(row["index"], field="index"))
+    )
     differences = tuple(
-        float(row["baseline_placement"]) - float(row["variant_placement"]) for row in rows
+        _numeric_float(row["baseline_placement"], field="baseline_placement")
+        - _numeric_float(row["variant_placement"], field="variant_placement")
+        for row in rows
     )
     place_1_differences = tuple(
-        float(row["variant_place_1"]) - float(row["baseline_place_1"]) for row in rows
+        _numeric_float(row["variant_place_1"], field="variant_place_1")
+        - _numeric_float(row["baseline_place_1"], field="baseline_place_1")
+        for row in rows
     )
     baseline_summary = _single_deck_summary(rows, prefix="baseline", seed=statistics_seed + 11)
     variant_summary = _single_deck_summary(rows, prefix="variant", seed=statistics_seed + 17)

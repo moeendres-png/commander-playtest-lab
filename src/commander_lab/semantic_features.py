@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from commander_lab.models import CardRole, Color
+from commander_lab.models import CardRole, Color, StructuralCardProfile
 
 SEMANTIC_FEATURE_VERSION = "2026-08-14.3"
 ROGSHAI_COLORS = frozenset({Color.WHITE, Color.BLUE, Color.RED})
@@ -72,33 +72,45 @@ def self_mana_semantics(oracle_text: str | None, type_line: str | None) -> tuple
     )
     activated_mana = any(bool(re.search(r"\{t\}[^.]{0,120}\badd\b", c)) for c in own_clauses)
     triggered_mana = any(
-        is_permanent and bool(re.search(r"\b(?:whenever|at the beginning|when)\b[^.]{0,160}\badd\b", c))
+        is_permanent
+        and bool(re.search(r"\b(?:whenever|at the beginning|when)\b[^.]{0,160}\badd\b", c))
         for c in own_clauses
     )
     repeatable = is_land or activated_mana or triggered_mana
     land_to_battlefield = any(
         (
             "search your library" in c
-            and ("land" in c or any(f"{subtype} card" in c for subtype in ("plains", "island", "swamp", "mountain", "forest")))
+            and (
+                "land" in c
+                or any(
+                    f"{subtype} card" in c
+                    for subtype in ("plains", "island", "swamp", "mountain", "forest")
+                )
+            )
             and "battlefield" in c
         )
         or ("put a land card" in c and "onto the battlefield" in c)
         for c in own_clauses
     )
-    direct_mana = any(
-        bool(re.search(r"\badd (?:\{|one |two |three |four |x )", c))
-        for c in own_clauses
-    ) and not is_land
-    self_treasure = ("treasure token" in text or "treasure tokens" in text) and self_token_creation(text)
-    cost_reduction = any(
-        marker in text
-        for marker in (
-            "spells you cast cost",
-            "instant and sorcery spells you cast cost",
-            "artifact spells you cast cost",
-            "creature spells you cast cost",
+    direct_mana = (
+        any(bool(re.search(r"\badd (?:\{|one |two |three |four |x )", c)) for c in own_clauses)
+        and not is_land
+    )
+    self_treasure = ("treasure token" in text or "treasure tokens" in text) and self_token_creation(
+        text
+    )
+    cost_reduction = (
+        any(
+            marker in text
+            for marker in (
+                "spells you cast cost",
+                "instant and sorcery spells you cast cost",
+                "artifact spells you cast cost",
+                "creature spells you cast cost",
+            )
         )
-    ) and " less to cast" in text
+        and " less to cast" in text
+    )
     return repeatable, direct_mana or self_treasure or land_to_battlefield or cost_reduction
 
 
@@ -250,7 +262,6 @@ def spellslinger_engine_semantics(oracle_text: str | None) -> bool:
     )
 
 
-
 def draw_semantics(oracle_text: str | None) -> bool:
     text = rules_text(oracle_text)
     return bool(
@@ -379,13 +390,17 @@ def structural_roles_from_oracle(
     if sacrifice_outlet_semantics(oracle_text):
         roles.add(CardRole.SACRIFICE_OUTLET)
     text = rules_text(oracle_text)
-    if combat_draw_semantics(text) or double_strike_semantics(text) or any(
-        marker in text
-        for marker in (
-            "combat damage to a player",
-            "combat damage to an opponent",
-            "additional combat phase",
-            "extra combat phase",
+    if (
+        combat_draw_semantics(text)
+        or double_strike_semantics(text)
+        or any(
+            marker in text
+            for marker in (
+                "combat damage to a player",
+                "combat damage to an opponent",
+                "additional combat phase",
+                "extra combat phase",
+            )
         )
     ):
         roles.add(CardRole.COMBAT_PAYOFF)
@@ -416,7 +431,9 @@ def structural_roles_from_oracle(
         roles.add(CardRole.PAYOFF)
     if "you win the game" in text or "each opponent loses" in text:
         roles.add(CardRole.FINISHER)
-    if roles.intersection({CardRole.TOKEN_SOURCE, CardRole.SACRIFICE_OUTLET, CardRole.LAND_SYNERGY, CardRole.RAMP}):
+    if roles.intersection(
+        {CardRole.TOKEN_SOURCE, CardRole.SACRIFICE_OUTLET, CardRole.LAND_SYNERGY, CardRole.RAMP}
+    ):
         roles.add(CardRole.ENABLER)
     if bool(re.search(r"\b(?:whenever|at the beginning of)\b", text)) and roles.intersection(
         {CardRole.DRAW, CardRole.TOKEN_SOURCE, CardRole.PAYOFF, CardRole.LAND_SYNERGY}
@@ -427,10 +444,8 @@ def structural_roles_from_oracle(
 
 def sanitize_structural_profile_semantics(
     profile: object, *, oracle_text: str | None, type_line: str | None
-):
+) -> StructuralCardProfile:
     """Apply high-risk semantic gates to a StructuralCardProfile without importing tool layers."""
-    from commander_lab.models import StructuralCardProfile
-
     if not isinstance(profile, StructuralCardProfile):
         raise TypeError("profile must be StructuralCardProfile")
     repeatable_mana, acceleration = self_mana_semantics(oracle_text, type_line)
@@ -449,6 +464,7 @@ def sanitize_structural_profile_semantics(
             roles.discard(role)
             strengths.pop(role, None)
     return profile.model_copy(update={"roles": frozenset(roles), "role_strengths": strengths})
+
 
 def produced_self_colors(
     oracle_text: str | None,

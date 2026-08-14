@@ -19,8 +19,8 @@ from commander_lab.repositories.candidates import (
     _allowed_decks,
     _as_int,
     _identity_from_inventory,
-    inventory_rows,
     _slug,
+    inventory_rows,
 )
 from commander_lab.storage import sha256_value
 
@@ -212,7 +212,12 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
         names.add(name)
         facts[name] = {
             "oracle_name": name,
+            "mana_cost": identity.mana_cost,
+            "mana_value": identity.mana_value,
             "color_identity": [color.value for color in identity.color_identity],
+            "card_type": identity.type_line,
+            "type_line": identity.type_line,
+            "oracle_text": identity.oracle_text,
             "commander_legal": True,
         }
         current_row = current_eligibility.get(name)
