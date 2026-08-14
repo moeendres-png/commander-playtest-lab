@@ -14,6 +14,14 @@ from .search_context import SearchCard, WholeDeckSearchContext
 
 MULTIPLAYER_LEVERAGE_VERSION = "2026-08-14.1"
 
+
+def _numeric_component(row: dict[str, object], key: str) -> float:
+    value = row.get(key)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    return 0.0
+
+
 _REPEATABLE_MECHANICS = frozenset(
     {
         StructuralMechanic.REPEATABLE_TOKEN_SOURCE,
@@ -124,7 +132,7 @@ def deck_multiplayer_leverage(
     ranked = sorted(
         known_rows,
         key=lambda row: (
-            -float(row["multiplayer_scaling"] or 0.0),
+            -_numeric_component(row, "multiplayer_scaling"),
             str(row["oracle_name"]),
         ),
     )
