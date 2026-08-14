@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from commander_lab.models import CardRole, StructuralCardProfile
 from commander_lab.semantic_features import SEMANTIC_FEATURE_VERSION, graveyard_hate_semantics, produced_self_colors, protection_semantics, removal_semantics, self_mana_semantics, self_token_creation
@@ -8,6 +10,8 @@ from commander_lab.storage import sha256_value
 from commander_lab.tools.candidates import _inventory_rows
 
 from .enrichment import WholeDeckKnowledgeEnrichment, classify_threat_answers
+from .models import PolicyId
+from .search import WholeDeckSearchEngine
 from .search_context import SearchCard, WholeDeckSearchContext
 
 WHOLE_DECK_LAB_VERSION = "whole-deck-design-lab-0.2.0"
@@ -41,3 +45,39 @@ def enriched_context(root: str | Path) -> tuple[WholeDeckSearchContext, WholeDec
         cards[name] = SearchCard(oracle_name=card.oracle_name, profile=profile, available_quantity=card.available_quantity, is_basic=card.is_basic, semantic_evidence=f"{card.semantic_evidence}+runtime_hardened", semantic_known=card.semantic_known, color_identity=card.color_identity, search_utility_override=card.search_utility_override)
     snapshot = sha256_value({"fresh_universe": base.snapshot_hash, "enrichment": enrichment.snapshot_hash, "semantic_feature_version": SEMANTIC_FEATURE_VERSION, "lab_version": WHOLE_DECK_LAB_VERSION})
     return WholeDeckSearchContext(cards=cards, snapshot_hash=snapshot, commander_names=base.commander_names, root=base.root, fresh_universe=base.fresh_universe, mana_analyzer=base.mana_analyzer), enrichment, answers
+
+
+class EnrichedWholeDeckSearchEngine(WholeDeckSearchEngine):
+    """Existing Phase-3 engine with hardened search-only knowledge priors."""
+
+    def __init__(self, *args: Any, enrichment: WholeDeckKnowledgeEnrichment, answer_map: dict[str, tuple[frozenset[str], frozenset[str]]], **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.knowledge_enrichment = enrichment
+        self.answer_map = answer_map
+
+    def _feature_summary(self, mainboard: tuple[str, ...]) -> dict[str, object]:
+        features = dict(super()._feature_summary(mainboard))
+        mode_counts: Counter[str] = Counter()
+        axis_counts: Counter[str] = Counter()
+        for name in mainboard:
+            modes, axes = self.answer_map.get(name, (frozenset(), frozenset()))
+            mode_counts.update(modes)
+            axis_counts.update(axes)
+        broad = self.knowledge_enrichment.broad_threat_axes
+        covered = set(axis_counts) & set(broad)
+        features.update({"answer_mode_counts": dict(sorted(mode_counts.items())), "threat_axis_counts": dict(sorted(axis_counts.items())), "threat_axis_coverage_fraction": len(covered) / len(broad) if broad else 0.0, "threat_axis_weighting": "presence_only_no_invented_opponent_frequency", "runtime_enrichment_snapshot_hash": self.knowledge_enrichment.snapshot_hash})
+        return features
+
+    def _objective(self, mainboard: tuple[str, ...], features: dict[str, object], mana: dict[str, object], meta: dict[str, float | None]) -> float:
+        base = super()._objective(mainboard, features, mana, meta)
+        raw_packages = features.get("package_counts", {})
+        package_counts = {str(k): int(v) for k, v in raw_packages.items() if isinstance(v, (int, float))} if isinstance(raw_packages, dict) else {}
+        legacy = sum((count - 1) ** 2 for count in package_counts.values() if count >= 2) * 0.01
+        score = base - legacy + self.knowledge_enrichment.package_coherence_bonus(package_counts)
+        coverage = features.get("threat_axis_coverage_fraction", 0.0)
+        coverage_value = float(coverage) if isinstance(coverage, (int, float)) else 0.0
+        if self.policy.policy_id == PolicyId.INTERACTION_HEAVY_LOCAL_META:
+            score += min(0.25, max(0.0, coverage_value) * 0.25)
+        if self.policy.policy_id == PolicyId.LOW_LAND_HIGH_VELOCITY:
+            score += min(0.12, self.knowledge_enrichment.mulligan_proxy(features, mana) * 0.12)
+        return score
