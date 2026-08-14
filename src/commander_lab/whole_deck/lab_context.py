@@ -58,8 +58,7 @@ def _sanitize_profile(
             ),
             "package_ids": enrichment.enriched_package_ids(profile, oracle_text),
             "notes": (
-                (profile.notes or "")
-                + " Whole-Deck runtime semantics hardened before search use."
+                (profile.notes or "") + " Whole-Deck runtime semantics hardened before search use."
             ).strip(),
         }
     )
@@ -146,9 +145,7 @@ class EnrichedWholeDeckSearchEngine(WholeDeckSearchEngine):
             {
                 "answer_mode_counts": dict(sorted(mode_counts.items())),
                 "threat_axis_counts": dict(sorted(axis_counts.items())),
-                "threat_axis_coverage_fraction": (
-                    len(covered) / len(broad) if broad else 0.0
-                ),
+                "threat_axis_coverage_fraction": (len(covered) / len(broad) if broad else 0.0),
                 "threat_axis_weighting": "presence_only_no_invented_opponent_frequency",
                 "runtime_enrichment_snapshot_hash": self.knowledge_enrichment.snapshot_hash,
             }
@@ -173,12 +170,8 @@ class EnrichedWholeDeckSearchEngine(WholeDeckSearchEngine):
             if isinstance(raw_packages, dict)
             else {}
         )
-        legacy = sum(
-            (count - 1) ** 2 for count in package_counts.values() if count >= 2
-        ) * 0.01
-        score = base - legacy + self.knowledge_enrichment.package_coherence_bonus(
-            package_counts
-        )
+        legacy = sum((count - 1) ** 2 for count in package_counts.values() if count >= 2) * 0.01
+        score = base - legacy + self.knowledge_enrichment.package_coherence_bonus(package_counts)
         coverage = features.get("threat_axis_coverage_fraction", 0.0)
         coverage_value = float(coverage) if isinstance(coverage, int | float) else 0.0
         if self.policy.policy_id == PolicyId.INTERACTION_HEAVY_LOCAL_META:
