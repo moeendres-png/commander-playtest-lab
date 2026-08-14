@@ -22,19 +22,45 @@ from commander_lab.storage import sha256_value
 
 ENRICHMENT_VERSION = "rogshai-pre-sim-2026-08-14.2"
 ENRICHMENT_ROOT = Path("data/enrichment/rogshai_pre_sim")
-_BROAD_PRE_STACK_AXES = frozenset({"artifact_engine", "boardwipe", "commander_creature", "direct_damage", "enchantment_engine", "graveyard_recursion", "planeswalker_engine", "punisher", "recursion", "resource_denial", "single_large_threat", "token_engine", "value_engine", "voltron_equipment_pressure"})
+_BROAD_PRE_STACK_AXES = frozenset(
+    {
+        "artifact_engine",
+        "boardwipe",
+        "commander_creature",
+        "direct_damage",
+        "enchantment_engine",
+        "graveyard_recursion",
+        "planeswalker_engine",
+        "punisher",
+        "recursion",
+        "resource_denial",
+        "single_large_threat",
+        "token_engine",
+        "value_engine",
+        "voltron_equipment_pressure",
+    }
+)
 
 
 def _package_members(spec: Mapping[str, object]) -> frozenset[str]:
     names: set[str] = set()
-    for key in ("core_cards", "enablers", "payoffs", "support_cards", "substitutes", "shared_cards"):
+    for key in (
+        "core_cards",
+        "enablers",
+        "payoffs",
+        "support_cards",
+        "substitutes",
+        "shared_cards",
+    ):
         value = spec.get(key, ())
         if isinstance(value, Sequence) and not isinstance(value, str | bytes):
             names.update(str(item) for item in value if str(item).strip())
     return frozenset(names)
 
 
-def _semantic_package_allowed(package_id: str, profile: StructuralCardProfile, oracle_text: str | None) -> bool:
+def _semantic_package_allowed(
+    package_id: str, profile: StructuralCardProfile, oracle_text: str | None
+) -> bool:
     _, acceleration = self_mana_semantics(oracle_text, None)
     if package_id == "package:rogshai:commander_protection":
         return protection_semantics(oracle_text)
@@ -47,9 +73,21 @@ def _semantic_package_allowed(package_id: str, profile: StructuralCardProfile, o
     if package_id == "package:rogshai:spellslinger_engine":
         return spellslinger_engine_semantics(oracle_text)
     if package_id == "package:rogshai:token_mana_spell_engine":
-        return acceleration or (self_token_creation(oracle_text) and spellslinger_engine_semantics(oracle_text))
+        return acceleration or (
+            self_token_creation(oracle_text) and spellslinger_engine_semantics(oracle_text)
+        )
     if package_id == "package:rogshai:low_curve_velocity":
-        meaningful = bool(set(profile.roles) & {CardRole.RAMP, CardRole.DRAW, CardRole.SELECTION, CardRole.COUNTER, CardRole.REMOVAL, CardRole.PROTECTION})
+        meaningful = bool(
+            set(profile.roles)
+            & {
+                CardRole.RAMP,
+                CardRole.DRAW,
+                CardRole.SELECTION,
+                CardRole.COUNTER,
+                CardRole.REMOVAL,
+                CardRole.PROTECTION,
+            }
+        )
         return not profile.is_land and profile.mana_value <= 2.5 and meaningful
     if package_id == "package:rogshai:recursion_rebuild":
         mechanics = {tag.value for tag in profile.mechanic_tags}
@@ -57,7 +95,9 @@ def _semantic_package_allowed(package_id: str, profile: StructuralCardProfile, o
     return True
 
 
-def classify_threat_answers(profile: StructuralCardProfile, oracle_text: str | None) -> tuple[frozenset[str], frozenset[str]]:
+def classify_threat_answers(
+    profile: StructuralCardProfile, oracle_text: str | None
+) -> tuple[frozenset[str], frozenset[str]]:
     """Conservative functional answer modes; not exact target/timing proof."""
     modes: set[str] = set()
     axes: set[str] = set()
@@ -70,7 +110,18 @@ def classify_threat_answers(profile: StructuralCardProfile, oracle_text: str | N
         targets.update({"artifact", "enchantment", "creature", "planeswalker"})
     if "creature" in targets:
         modes.add("creature_removal")
-        axes.update({"combat_explosion", "commander_creature", "direct_damage", "punisher", "single_large_threat", "token_engine", "value_engine", "voltron_equipment_pressure"})
+        axes.update(
+            {
+                "combat_explosion",
+                "commander_creature",
+                "direct_damage",
+                "punisher",
+                "single_large_threat",
+                "token_engine",
+                "value_engine",
+                "voltron_equipment_pressure",
+            }
+        )
     if "artifact" in targets:
         modes.add("artifact_removal")
         axes.update({"artifact_engine", "resource_denial", "voltron_equipment_pressure"})
@@ -88,7 +139,9 @@ def classify_threat_answers(profile: StructuralCardProfile, oracle_text: str | N
         axes.update({"combat_explosion", "go_wide", "token_engine", "wide_board"})
     if CardRole.PROTECTION in profile.roles and protection_semantics(oracle_text):
         modes.add("defensive_protection")
-        axes.update({"boardwipe", "combat_explosion", "direct_damage", "punisher", "resource_denial"})
+        axes.update(
+            {"boardwipe", "combat_explosion", "direct_damage", "punisher", "resource_denial"}
+        )
     if "return target" in text and "owner's hand" in text:
         modes.add("bounce")
     if "can't cast spells" in text or "cannot cast spells" in text:
@@ -106,7 +159,7 @@ class WholeDeckKnowledgeEnrichment:
     source_hashes: Mapping[str, str]
 
     @classmethod
-    def load(cls, root: str | Path) -> "WholeDeckKnowledgeEnrichment":
+    def load(cls, root: str | Path) -> WholeDeckKnowledgeEnrichment:
         project = Path(root).resolve()
         base = project / ENRICHMENT_ROOT
         payloads: dict[str, object] = {}
@@ -140,19 +193,50 @@ class WholeDeckKnowledgeEnrichment:
                         broad.add(row)
         mulligan = payloads["mulligan_contract.json"]
         mulligan_contract = dict(mulligan) if isinstance(mulligan, Mapping) else {}
-        snapshot = sha256_value({"version": ENRICHMENT_VERSION, "sources": source_hashes, "package_ids": sorted(package_members), "threat_axes": sorted(broad), "mulligan_current_hash": mulligan_contract.get("current_deck", {})})
+        snapshot = sha256_value(
+            {
+                "version": ENRICHMENT_VERSION,
+                "sources": source_hashes,
+                "package_ids": sorted(package_members),
+                "threat_axes": sorted(broad),
+                "mulligan_current_hash": mulligan_contract.get("current_deck", {}),
+            }
+        )
         return cls(snapshot, package_members, frozenset(broad), mulligan_contract, source_hashes)
 
-    def enriched_package_ids(self, profile: StructuralCardProfile, oracle_text: str | None) -> frozenset[str]:
-        packages = {package_id for package_id in profile.package_ids if _semantic_package_allowed(package_id, profile, oracle_text)}
-        for package_id in ("package:rogshai:low_curve_velocity", "package:rogshai:recursion_rebuild", "package:rogshai:trigger_multiplier"):
-            if profile.oracle_name in self.package_members.get(package_id, frozenset()) and _semantic_package_allowed(package_id, profile, oracle_text):
+    def enriched_package_ids(
+        self, profile: StructuralCardProfile, oracle_text: str | None
+    ) -> frozenset[str]:
+        packages = {
+            package_id
+            for package_id in profile.package_ids
+            if _semantic_package_allowed(package_id, profile, oracle_text)
+        }
+        for package_id in (
+            "package:rogshai:low_curve_velocity",
+            "package:rogshai:recursion_rebuild",
+            "package:rogshai:trigger_multiplier",
+        ):
+            if profile.oracle_name in self.package_members.get(
+                package_id, frozenset()
+            ) and _semantic_package_allowed(package_id, profile, oracle_text):
                 packages.add(package_id)
         return frozenset(sorted(packages))
 
     def package_coherence_bonus(self, package_counts: Mapping[str, int]) -> float:
         """Bounded package prior; broad density tags never get quadratic reward."""
-        config = {"package:rogshai:combat_draw": (4, 0.018), "package:rogshai:commander_damage": (2, 0.060), "package:rogshai:compact_finish": (2, 0.030), "package:rogshai:double_strike": (3, 0.025), "package:rogshai:jeska_finish": (1, 0.020), "package:rogshai:kediss_multi_opponent_damage": (1, 0.020), "package:rogshai:spellslinger_engine": (5, 0.022), "package:rogshai:token_mana_spell_engine": (5, 0.022), "package:rogshai:trigger_multiplier": (2, 0.040), "package:rogshai:recursion_rebuild": (4, 0.018)}
+        config = {
+            "package:rogshai:combat_draw": (4, 0.018),
+            "package:rogshai:commander_damage": (2, 0.060),
+            "package:rogshai:compact_finish": (2, 0.030),
+            "package:rogshai:double_strike": (3, 0.025),
+            "package:rogshai:jeska_finish": (1, 0.020),
+            "package:rogshai:kediss_multi_opponent_damage": (1, 0.020),
+            "package:rogshai:spellslinger_engine": (5, 0.022),
+            "package:rogshai:token_mana_spell_engine": (5, 0.022),
+            "package:rogshai:trigger_multiplier": (2, 0.040),
+            "package:rogshai:recursion_rebuild": (4, 0.018),
+        }
         total = 0.0
         for package_id, count in package_counts.items():
             if count <= 0 or package_id not in config:
@@ -165,12 +249,32 @@ class WholeDeckKnowledgeEnrichment:
 
     def mulligan_proxy(self, features: Mapping[str, object], mana: Mapping[str, object]) -> float:
         """Architecture-only hand-readiness proxy, never a keep-rate or win-rate claim."""
+
         def number(value: object, default: float = 0.0) -> float:
-            return float(value) if isinstance(value, int | float) and not isinstance(value, bool) else default
+            return (
+                float(value)
+                if isinstance(value, int | float) and not isinstance(value, bool)
+                else default
+            )
+
         t2 = max(0.0, min(1.0, number(mana.get("turn2_source_supported_share"))))
         commander = max(0.0, min(1.0, number(mana.get("commander_castability_support"))))
         support = max(0.0, min(1.0, number(features.get("semantic_support_fraction"))))
-        recovery = min(1.0, (number(mana.get("ramp_count")) + number(mana.get("selection_count"))) / 12.0)
+        recovery = min(
+            1.0, (number(mana.get("ramp_count")) + number(mana.get("selection_count"))) / 12.0
+        )
         land_count = number(mana.get("land_count"))
-        land_sanity = 1.0 if 30.0 <= land_count <= 39.0 else max(0.0, 1.0 - abs(34.5 - land_count) / 12.0)
-        return max(0.0, min(1.0, 0.40 * t2 + 0.20 * commander + 0.15 * recovery + 0.15 * support + 0.10 * land_sanity))
+        land_sanity = (
+            1.0 if 30.0 <= land_count <= 39.0 else max(0.0, 1.0 - abs(34.5 - land_count) / 12.0)
+        )
+        return max(
+            0.0,
+            min(
+                1.0,
+                0.40 * t2
+                + 0.20 * commander
+                + 0.15 * recovery
+                + 0.15 * support
+                + 0.10 * land_sanity,
+            ),
+        )
