@@ -23,6 +23,8 @@ from commander_lab.whole_deck import (
 )
 
 ROGSHAI = "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
+WHOLE_DECK_META_SNAPSHOT_ID = "meta-2026-08-13-whole-deck-phase2-1"
+GENERIC_META_LATEST_ID = "meta-2026-08-05-phase12-1"
 
 
 def _profiles(repo_root: Path) -> dict[str, StructuralCardProfile]:
@@ -151,9 +153,9 @@ def test_identical_deck_can_be_evaluated_under_multiple_policies(repo_root: Path
     assert a.policy_id != b.policy_id
 
 
-def test_current_meta_snapshot_bands_are_not_collapsed(repo_root: Path) -> None:
+def test_whole_deck_research_meta_snapshot_bands_are_not_collapsed(repo_root: Path) -> None:
     kb = MetaKnowledgeBase(repo_root)
-    snapshot = kb.load_snapshot()
+    snapshot = kb.load_snapshot(WHOLE_DECK_META_SNAPSHOT_ID)
     profiles = _profiles(repo_root)
     high = build_meta_functional_profile(
         snapshot,
@@ -184,13 +186,23 @@ def test_feature_meta_layer_does_not_modify_canonical_deck_or_inventory(repo_roo
     assert before == after
 
 
-def test_compact_current_snapshot_derives_card_frequencies(repo_root: Path) -> None:
+def test_compact_whole_deck_research_snapshot_has_usable_reference_decks(repo_root: Path) -> None:
     kb = MetaKnowledgeBase(repo_root)
-    snapshot = kb.load_snapshot()
+    snapshot = kb.load_snapshot(WHOLE_DECK_META_SNAPSHOT_ID)
     assert snapshot.card_frequencies == ()
-    result = kb.query_cards(commander=ROGSHAI, format_band=FormatBand.HIGH_POWER)
-    assert result["cards"]
-    assert all(row["format_band"] == FormatBand.HIGH_POWER for row in result["cards"])
+    matching = [
+        deck
+        for deck in snapshot.deck_snapshots
+        if deck.commander == ROGSHAI and deck.format_band == FormatBand.HIGH_POWER
+    ]
+    assert matching
+
+
+def test_whole_deck_research_does_not_replace_generic_meta_latest(repo_root: Path) -> None:
+    pointer = json.loads(
+        (repo_root / "data/meta/manifests/latest.json").read_text(encoding="utf-8")
+    )
+    assert pointer["snapshot_id"] == GENERIC_META_LATEST_ID
 
 
 def test_current_meta_snapshot_is_immutable_and_provenanced(repo_root: Path) -> None:
