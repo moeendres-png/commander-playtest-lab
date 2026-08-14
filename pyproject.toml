@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commander-playtest-lab"
-version = "1.18.1"
+version = "1.19.0"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -63,13 +63,10 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-# Ruff format is authoritative for wrapping; E501 can conflict with formatter output.
 ignore = ["B008", "E501"]
 
 [tool.ruff.lint.per-file-ignores]
-# Re-export aggregator: imports are the public API and are intentionally staged.
 "src/commander_lab/models/__init__.py" = ["F401", "E402"]
-# Unicode below is intentional normalization/fuzz/fixture input.
 "src/commander_lab/cards/normalize.py" = ["RUF001"]
 "tests/fuzz/test_boundary_fuzz.py" = ["RUF001"]
 "tests/property/test_normalization_properties.py" = ["RUF001"]
