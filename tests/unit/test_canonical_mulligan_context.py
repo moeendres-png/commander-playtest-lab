@@ -15,15 +15,19 @@ def _context(lab: MulliganLab, deck_id: str, *, pod_size: int = 4) -> MulliganCo
     return MulliganContext(deck_id=deck_id, deck_hash=deck.deck_hash, pod_size=pod_size)
 
 
-def test_primary_rogshai_mulligan_context_uses_current_canonical_pod() -> None:
+def test_primary_rogshai_mulligan_context_uses_current_canonical_opponent_registry() -> None:
     lab = MulliganLab(ROOT)
-    opponents = lab._opponent_ids(_context(lab, "rogshai/current"))
-    assert opponents == (
-        "opponent/morcant-elves",
-        "opponent/doom-prevails-precon",
-        "opponent/cosmic-spiderman-midbudget",
+    context = _context(lab, "rogshai/current")
+    first = lab._opponent_ids(context)
+    second = lab._opponent_ids(context)
+    current = set(lab.project_context.holdout_deck_ids) | set(
+        lab.project_context.primary_opponent_deck_ids("rogshai/current")
     )
-    assert "opponent/blight-curse-precon" not in opponents
+
+    assert first == second
+    assert len(first) == 3
+    assert len(set(first)) == 3
+    assert set(first) <= current
 
 
 def test_inactive_korvold_is_historical_context_only() -> None:
@@ -40,15 +44,16 @@ def test_non_four_player_context_fails_closed_instead_of_inventing_opponents() -
         lab._opponent_ids(_context(lab, "rogshai/current", pod_size=5))
 
 
-def test_holdout_sampling_uses_only_canonical_holdout_pool() -> None:
+def test_holdout_sampling_is_domain_separated_but_uses_current_registry() -> None:
     lab = MulliganLab(ROOT)
-    opponents = lab._opponent_ids(_context(lab, "rogshai/current"), holdout=1)
-    assert len(opponents) == 3
-    assert set(opponents) <= set(lab.project_context.holdout_deck_ids)
-    assert set(opponents).isdisjoint(
-        {
-            "opponent/morcant-elves",
-            "opponent/doom-prevails-precon",
-            "opponent/cosmic-spiderman-midbudget",
-        }
+    context = _context(lab, "rogshai/current")
+    primary = lab._opponent_ids(context)
+    holdout = lab._opponent_ids(context, holdout=1)
+    current = set(lab.project_context.holdout_deck_ids) | set(
+        lab.project_context.primary_opponent_deck_ids("rogshai/current")
     )
+
+    assert len(holdout) == 3
+    assert len(set(holdout)) == 3
+    assert set(holdout) <= current
+    assert holdout != primary

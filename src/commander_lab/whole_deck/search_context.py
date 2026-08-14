@@ -16,7 +16,7 @@ from commander_lab.fresh_rebuild import (
 from commander_lab.mana_analysis import ManaAnalyzer
 from commander_lab.models import CardRole, DataQuality, StructuralCardProfile, StructuralDeckProfile
 from commander_lab.storage import sha256_value
-from commander_lab.tools.candidates import BASIC_LANDS, load_candidate_profiles
+from commander_lab.repositories.candidates import BASIC_LANDS, load_candidate_profiles
 
 SEARCH_ENGINE_VERSION = "whole-deck-search-0.1.0"
 JESKAI = frozenset({"W", "U", "R"})
@@ -73,6 +73,7 @@ class WholeDeckSearchContext:
                     raise RuntimeError(f"fresh candidate lacks identity facts: {name}")
                 baseline = build_default_profile(identity)
                 roles = frozenset({CardRole.MANA_SOURCE}) if baseline.is_land else frozenset()
+                fact_land_known = baseline.is_land
                 profile = baseline.model_copy(
                     update={
                         "roles": roles,
@@ -86,15 +87,24 @@ class WholeDeckSearchContext:
                         "multiplayer_scaling": 0.0,
                         "conditional_strength": (),
                         "package_ids": frozenset(),
-                        "source_quality": DataQuality.UNKNOWN,
+                        "source_quality": (
+                            DataQuality.PROJECT_VERIFIED if fact_land_known else DataQuality.UNKNOWN
+                        ),
                         "sources": (),
                         "notes": (
-                            "Fact-only Whole-Deck search representation. Semantic roles and card "
-                            "strength are intentionally UNKNOWN rather than inferred for this row."
+                            "Fact-only land representation: land/mana-source semantics are known; "
+                            "numeric values remain neutral."
+                            if fact_land_known
+                            else "Fact-only Whole-Deck search representation. Semantic roles and "
+                            "card strength are intentionally UNKNOWN rather than inferred for this row."
                         ),
                     }
                 )
-                semantic_evidence = "fact_only_semantics_unknown"
+                if fact_land_known:
+                    semantic_known = True
+                    semantic_evidence = "fact_land_structural_profile"
+                else:
+                    semantic_evidence = "fact_only_semantics_unknown"
             color_identity = (
                 frozenset(color.value for color in identity.color_identity)
                 if identity is not None

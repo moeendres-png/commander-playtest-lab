@@ -44,9 +44,14 @@ class WholeDeckDesignLab:
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root).resolve()
         self.context, self.enrichment, self.answer_map = enriched_context(self.root)
-        if len(self.context.cards) != 795:
+        if not self.context.cards:
+            raise ValueError("current RogShai candidate universe is empty")
+        if (
+            self.context.fresh_universe is not None
+            and len(self.context.cards) != self.context.fresh_universe.candidate_count
+        ):
             raise ValueError(
-                f"expected 795 current RogShai candidates; got {len(self.context.cards)}"
+                "Whole-Deck context does not reconcile to the current fresh candidate universe"
             )
 
     def prepare(
@@ -120,6 +125,31 @@ class WholeDeckDesignLab:
         target.parent.mkdir(parents=True, exist_ok=True)
         atomic_write_json(target, payload)
         return {**payload, "prepared_design_path": str(target.relative_to(self.root))}
+
+    def semantic_unknown_cards_for_variant(
+        self, prepared_design_path: str, variant_id: str
+    ) -> tuple[str, ...]:
+        path = (self.root / prepared_design_path).resolve()
+        allowed = (self.root / ".runtime/whole_deck_design").resolve()
+        if allowed not in path.parents:
+            raise ValueError("prepared design must be under .runtime/whole_deck_design")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("data_snapshot_hash") != self.context.snapshot_hash:
+            raise ValueError("prepared Whole-Deck design is stale")
+        row = next(
+            (item for item in payload.get("variants", []) if item.get("variant_id") == variant_id),
+            None,
+        )
+        if row is None:
+            raise ValueError(f"unknown Whole-Deck variant: {variant_id}")
+        names = tuple(str(name) for name in row.get("mainboard", []))
+        return tuple(
+            sorted(
+                name
+                for name in set(names)
+                if name in self.context.cards and not self.context.cards[name].semantic_known
+            )
+        )
 
     def materialize_variant(
         self,

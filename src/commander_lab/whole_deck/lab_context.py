@@ -4,25 +4,21 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from commander_lab.models import CardRole, StructuralCardProfile
+from commander_lab.models import StructuralCardProfile
+from commander_lab.repositories.candidates import inventory_rows
 from commander_lab.semantic_features import (
     SEMANTIC_FEATURE_VERSION,
-    graveyard_hate_semantics,
     produced_self_colors,
-    protection_semantics,
-    removal_semantics,
-    self_mana_semantics,
-    self_token_creation,
+    sanitize_structural_profile_semantics,
 )
 from commander_lab.storage import sha256_value
-from commander_lab.tools.candidates import _inventory_rows
 
 from .enrichment import WholeDeckKnowledgeEnrichment, classify_threat_answers
 from .models import PolicyId
 from .search import WholeDeckSearchEngine
 from .search_context import SearchCard, WholeDeckSearchContext
 
-WHOLE_DECK_LAB_VERSION = "whole-deck-design-lab-0.2.0"
+WHOLE_DECK_LAB_VERSION = "whole-deck-design-lab-0.3.0"
 
 
 def _sanitize_profile(
@@ -32,33 +28,20 @@ def _sanitize_profile(
     type_line: str,
     enrichment: WholeDeckKnowledgeEnrichment,
 ) -> StructuralCardProfile:
-    repeatable_mana, acceleration = self_mana_semantics(oracle_text, type_line)
-    roles = set(profile.roles)
-    strengths = dict(profile.role_strengths)
-    guards = {
-        CardRole.MANA_SOURCE: profile.is_land or repeatable_mana,
-        CardRole.RAMP: acceleration,
-        CardRole.GRAVEYARD_HATE: graveyard_hate_semantics(oracle_text),
-        CardRole.REMOVAL: removal_semantics(oracle_text),
-        CardRole.PROTECTION: protection_semantics(oracle_text),
-        CardRole.TOKEN_SOURCE: self_token_creation(oracle_text),
-    }
-    for role, allowed in guards.items():
-        if not allowed:
-            roles.discard(role)
-            strengths.pop(role, None)
-    return profile.model_copy(
+    sanitized = sanitize_structural_profile_semantics(
+        profile, oracle_text=oracle_text, type_line=type_line
+    )
+    return sanitized.model_copy(
         update={
-            "roles": frozenset(roles),
-            "role_strengths": strengths,
             "produces_colors": produced_self_colors(
                 oracle_text,
                 type_line,
                 oracle_name=profile.oracle_name,
             ),
-            "package_ids": enrichment.enriched_package_ids(profile, oracle_text),
+            "package_ids": enrichment.enriched_package_ids(sanitized, oracle_text),
             "notes": (
-                (profile.notes or "") + " Whole-Deck runtime semantics hardened before search use."
+                (sanitized.notes or "")
+                + " Whole-Deck runtime semantics hardened before search use."
             ).strip(),
         }
     )
@@ -74,7 +57,7 @@ def enriched_context(
     project = Path(root).resolve()
     base = WholeDeckSearchContext.from_project(project)
     enrichment = WholeDeckKnowledgeEnrichment.load(project)
-    facts = {str(row.get("oracle_name", "")): row for row in _inventory_rows(project)}
+    facts = {str(row.get("oracle_name", "")): row for row in inventory_rows(project)}
     cards: dict[str, SearchCard] = {}
     answers: dict[str, tuple[frozenset[str], frozenset[str]]] = {}
     for name, card in base.cards.items():

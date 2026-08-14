@@ -37,6 +37,7 @@ class WholeDeckDecisionRunInput(FrozenModel):
     seed: int = Field(default=2026082103, ge=0)
     max_turns: int = Field(default=35, ge=1, le=500)
     workers: int = Field(default=1, ge=1, le=64)
+    whole_deck_holdout_iterations: int = Field(default=0, ge=0, le=10_000)
     max_simulation_seconds: float | None = Field(default=None, gt=0.0, le=600.0)
 
     @model_validator(mode="after")
