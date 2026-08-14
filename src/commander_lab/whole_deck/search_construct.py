@@ -10,7 +10,6 @@ from .models import MetaFunctionalProfile
 from .search_base import SearchEngineBase
 from .search_context import SearchCard
 
-
 WHOLE_DECK_META_SNAPSHOT_ID = "meta-2026-08-13-whole-deck-phase2-1"
 
 
