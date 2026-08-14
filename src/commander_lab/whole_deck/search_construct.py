@@ -11,6 +11,9 @@ from .search_base import SearchEngineBase
 from .search_context import SearchCard
 
 
+WHOLE_DECK_META_SNAPSHOT_ID = "meta-2026-08-13-whole-deck-phase2-1"
+
+
 class _ConstructMixin(SearchEngineBase):
     def _load_project_meta_references(self) -> dict[FormatBand, MetaFunctionalProfile]:
         from commander_lab.meta.store import MetaKnowledgeBase
@@ -19,7 +22,7 @@ class _ConstructMixin(SearchEngineBase):
 
         if self.context.root is None:
             return {}
-        snapshot = MetaKnowledgeBase(self.context.root).load_snapshot()
+        snapshot = MetaKnowledgeBase(self.context.root).load_snapshot(WHOLE_DECK_META_SNAPSHOT_ID)
         profiles = {
             name: card.profile for name, card in self.context.cards.items() if card.semantic_known
         }
