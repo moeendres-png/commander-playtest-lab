@@ -1,0 +1,63 @@
+name: Optimizer v2 Windows Lock Fix
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+      - name: Patch cross-platform process liveness
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/commander_lab/whole_deck/optimizer_v2.py')
+          text = path.read_text(encoding='utf-8')
+          marker = '\n\n@dataclass(frozen=True, slots=True)\nclass OptimizerLock:'
+          helper = '''\n\ndef _process_is_alive(pid: int) -> bool:\n    \"\"\"Check process liveness without ever signalling a Windows process.\"\"\"\n    if pid <= 0:\n        return False\n    if pid == os.getpid():\n        return True\n    if os.name == \"nt\":\n        import ctypes\n\n        win_dll = getattr(ctypes, \"WinDLL\", None)\n        get_last_error = getattr(ctypes, \"get_last_error\", None)\n        if win_dll is None or get_last_error is None:\n            return True\n        kernel32: Any = win_dll(\"kernel32\", use_last_error=True)\n        process_query_limited_information = 0x1000\n        error_invalid_parameter = 87\n        handle = kernel32.OpenProcess(process_query_limited_information, False, pid)\n        if handle:\n            kernel32.CloseHandle(handle)\n            return True\n        error = int(get_last_error())\n        if error == error_invalid_parameter:\n            return False\n        # Access denied and unknown errors fail closed: never steal a possibly live lock.\n        return True\n    try:\n        os.kill(pid, 0)\n    except ProcessLookupError:\n        return False\n    except PermissionError:\n        return True\n    except OSError:\n        # Unknown POSIX errors fail closed.\n        return True\n    return True\n\n\n@dataclass(frozen=True, slots=True)\nclass OptimizerLock:'''
+          if marker not in text:
+              raise SystemExit('OptimizerLock insertion marker not found')
+          text = text.replace(marker, helper, 1)
+          old = '''            try:\n                os.kill(lock_pid, 0)\n                pid_alive = True\n            except OSError:\n                pid_alive = False\n'''
+          new = '''            pid_alive = _process_is_alive(lock_pid)\n'''
+          if old not in text:
+              raise SystemExit('legacy os.kill liveness block not found')
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          python -m pip install -e '.[dev]'
+          ruff check --fix src/commander_lab/whole_deck/optimizer_v2.py
+          ruff format src/commander_lab/whole_deck/optimizer_v2.py
+          ruff check src/commander_lab/whole_deck/optimizer_v2.py
+          ruff format --check src/commander_lab/whole_deck/optimizer_v2.py
+          mypy src/commander_lab/whole_deck/optimizer_v2.py
+      - name: Commit source fix before tests
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/commander_lab/whole_deck/optimizer_v2.py
+          git commit -m "Make Optimizer lock liveness Windows-safe"
+      - name: Run focused lock tests
+        shell: bash
+        run: pytest -q tests/unit/test_optimizer_v2.py
+      - name: Remove one-shot workflow and publish
+        if: success()
+        shell: bash
+        run: |
+          git rm .github/workflows/optimizer-v2-windows-lock-fix.yml
+          git commit -m "Remove one-shot Windows lock fixer"
+          git push origin HEAD:${{ github.head_ref }}
