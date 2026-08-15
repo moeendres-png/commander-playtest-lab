@@ -48,16 +48,13 @@ jobs:
         run: |
           python -m pytest -q tests/agent_evals tests/architecture tests/contract tests/differential tests/fuzz tests/golden tests/integration tests/mutation tests/property tests/regressions tests/test_pretest_deck_variants.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Windows unit suite in deterministic file shards
+      - name: Windows unit suite with per-file process isolation
         shell: pwsh
         run: |
           $files = @(Get-ChildItem tests/unit/test_*.py | Sort-Object Name | ForEach-Object { $_.FullName })
-          $batchSize = 20
-          for ($i = 0; $i -lt $files.Count; $i += $batchSize) {
-            $end = [Math]::Min($i + $batchSize - 1, $files.Count - 1)
-            $batch = $files[$i..$end]
-            Write-Host "Running Windows unit shard $i-$end of $($files.Count) files"
-            python -m pytest -q @batch
+          for ($i = 0; $i -lt $files.Count; $i++) {
+            Write-Host "Running Windows unit file $i/$($files.Count - 1): $($files[$i])"
+            python -m pytest -q $files[$i]
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
       - name: Doctor must not dirty repository
