@@ -41,13 +41,21 @@ jobs:
           ruff check $FILES
           ruff format --check $FILES
           mypy src/commander_lab/optimizer_v2_cli.py src/commander_lab/whole_deck/optimizer_v2_release_models.py src/commander_lab/whole_deck/optimizer_v2_evaluator.py src/commander_lab/whole_deck/optimizer_v2_diagnostics.py src/commander_lab/whole_deck/optimizer_v2_release.py
-          pytest -q tests/unit/test_optimizer_v2.py tests/unit/test_optimizer_v2_calibration.py tests/unit/test_optimizer_v2_release.py
-      - name: Commit source-quality fix and remove one-shot workflow
+      - name: Commit source-quality fix before clean-tree tests
         shell: bash
         run: |
-          git rm .github/workflows/optimizer-v2-one-shot-autofix.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/commander_lab/whole_deck/optimizer_v2_release.py src/commander_lab/whole_deck/optimizer_v2_evaluator.py src/commander_lab/whole_deck/optimizer_v2_diagnostics.py src/commander_lab/whole_deck/optimizer_v2_release_models.py src/commander_lab/optimizer_v2_cli.py tests/unit/test_optimizer_v2_release.py
           git commit -m "Format and type-check Optimizer v2 release pipeline"
+      - name: Run clean-tree Optimizer v2 tests
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain --untracked-files=all)"
+          pytest -q tests/unit/test_optimizer_v2.py tests/unit/test_optimizer_v2_calibration.py tests/unit/test_optimizer_v2_release.py
+      - name: Remove one-shot workflow and publish source fix
+        shell: bash
+        run: |
+          git rm .github/workflows/optimizer-v2-one-shot-autofix.yml
+          git commit -m "Remove completed Optimizer v2 one-shot autofix"
           git push origin HEAD:${{ github.head_ref }}
