@@ -153,7 +153,9 @@ def _opponent_group(value: object) -> str:
     return "|".join(sorted(str(item) for item in value))
 
 
-def _expected_axes(full_scenarios: Sequence[Any]) -> tuple[tuple[str, ...], tuple[int, ...], tuple[str, ...]]:
+def _expected_axes(
+    full_scenarios: Sequence[Any],
+) -> tuple[tuple[str, ...], tuple[int, ...], tuple[str, ...]]:
     if not full_scenarios:
         raise ValueError("candidate advancement requires a frozen exploratory scenario partition")
     scenario_ids: list[str] = []
@@ -313,9 +315,7 @@ def build_confirmatory_frontier(
         )
         for candidate_id in sorted(evidence_by_candidate)
     )
-    eligible = tuple(
-        row.candidate_id for row in assessments if row.eligible_for_confirmatory
-    )
+    eligible = tuple(row.candidate_id for row in assessments if row.eligible_for_confirmatory)
     return ConfirmatoryFrontier(
         model_resolution_identity=model_resolution.source_identity,
         effective_resolution=model_resolution.effective_resolution,
