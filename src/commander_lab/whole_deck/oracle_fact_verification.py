@@ -50,8 +50,10 @@ def validate_verified_empty_fact(
         problems.append("verification_not_legitimately_empty")
     if str(verification.get("oracle_rules_text", "") or "").strip():
         problems.append("verification_rules_text_not_empty")
-    if not str(verification.get("canonical_verification_status", "")).casefold().startswith(
-        "verified_"
+    if (
+        not str(verification.get("canonical_verification_status", ""))
+        .casefold()
+        .startswith("verified_")
     ):
         problems.append("verification_status_not_verified")
     if "scryfall" not in str(verification.get("canonical_source_id", "")).casefold():
