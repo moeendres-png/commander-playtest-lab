@@ -32,9 +32,7 @@ class DomainInputValidityReport:
     limitations: tuple[str, ...]
     recommended_action: str
     evidence_class: str = "domain_input_validity"
-    truth_boundary: str = (
-        "input/domain-validity assessment; not empirical gameplay performance"
-    )
+    truth_boundary: str = "input/domain-validity assessment; not empirical gameplay performance"
 
     @property
     def report_hash(self) -> str:
@@ -54,7 +52,10 @@ def assess_domain_input_validity(
     Counts are descriptive only. No frequency, probability, or arbitrary percentage threshold is
     inferred from incomplete local opponent evidence.
     """
-    if any(value is not None and value < 0 for value in (known_real_slots, synthetic_slots, unknown_slots)):
+    if any(
+        value is not None and value < 0
+        for value in (known_real_slots, synthetic_slots, unknown_slots)
+    ):
         raise ValueError("slot counts must be non-negative when supplied")
     kinds = tuple(
         dict.fromkeys(
@@ -206,7 +207,9 @@ def assess_structural_fidelity(
     approximated_set = set(approximated) & required_set
     overlap = represented_set & approximated_set
     if overlap:
-        raise ValueError(f"functions cannot be both represented and approximated: {sorted(overlap)}")
+        raise ValueError(
+            f"functions cannot be both represented and approximated: {sorted(overlap)}"
+        )
     unresolved = required_set - represented_set - approximated_set
     unsupported_set = (set(explicit_unsupported) & required_set) | unresolved
     if unsupported_set:
@@ -352,7 +355,12 @@ def diagnose_closure(
     supported = tuple(sorted(key for key, value in deltas.items() if value is not None))
     unsupported = [
         key
-        for key in ("unused_mana", "stranded_spells", "recast_affordability", "restore_pressure_turns")
+        for key in (
+            "unused_mana",
+            "stranded_spells",
+            "recast_affordability",
+            "restore_pressure_turns",
+        )
         if key not in candidate or key not in baseline
     ]
     signals: list[ClosureSignal] = []
