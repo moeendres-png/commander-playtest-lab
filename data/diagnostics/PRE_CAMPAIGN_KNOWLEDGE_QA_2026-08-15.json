@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "candidate_universe_count": 795,
   "oracle_coverage_count": 777,
   "oracle_coverage_fraction": 0.9773584905660377,
@@ -11,16 +11,22 @@
   "candidate_fact_coverage_fraction": 1.0,
   "truly_missing_fact_count": 0,
   "truly_missing_fact_cards": [],
+  "oracle_fact_semantics": "Non-empty rules-text coverage is separate from fact completeness. Verified empty Oracle rules text is valid fact evidence and is fail-closed against current project facts.",
   "structurally_usable_count": 542,
   "structurally_usable_fraction": 0.6817610062893081,
-  "semantic_unknown_count": 253,
-  "semantic_unknown_cause_counts": {"ambiguous_or_no_safe_structural_role":134,"known_no_functional_rules_role":18,"unsupported_aura_or_equipment_modifier":18,"unsupported_combat_or_stat_modifier":43,"unsupported_control_tap_or_copy_effect":12,"unsupported_opponent_or_table_scaling_mechanic":7,"unsupported_static_tax_or_replacement_effect":21},
+  "known_no_functional_rules_role_count": 18,
+  "semantic_resolved_count": 560,
+  "structurally_unmodeled_count": 253,
+  "semantic_unknown_count": 235,
+  "semantic_unknown_cause_counts": {"ambiguous_or_no_safe_structural_role":134,"unsupported_aura_or_equipment_modifier":18,"unsupported_combat_or_stat_modifier":43,"unsupported_control_tap_or_copy_effect":12,"unsupported_opponent_or_table_scaling_mechanic":7,"unsupported_static_tax_or_replacement_effect":21},
   "semantic_recoverable_parser_gap_count": 0,
   "unknown_high_risk_annotation_count": 0,
   "orphan_feature_annotations": [],
   "candidate_without_facts": [],
+  "facts_without_candidate": [],
   "duplicate_inventory_identities": [],
   "knowledge_pipeline_ready": true,
   "readiness_policy": {"minimum_structurally_usable_fraction":0.65,"requires_zero_unknown_high_risk_annotations":true,"requires_zero_orphan_feature_annotations":true,"requires_zero_candidate_without_facts":true,"requires_zero_duplicate_candidate_identities":true,"remaining_unknowns_require_finalist_review":true},
-  "evidence_boundary": "Functional structural coverage only; no universal power score and no claim that semantic coverage equals rules-engine fidelity or empirical card strength."
+  "three_state_partition": {"structurally_modeled":542,"known_no_functional_rules_role":18,"semantic_unknown":235,"total":795},
+  "evidence_boundary": "Functional structural coverage only; no universal power score and no claim that semantic coverage equals rules-engine fidelity or empirical card strength. The 18 verified no-functional cards are not assigned invented roles or strength."
 }
