@@ -65,10 +65,7 @@ def test_oracle_text_status_regression_cases_are_distinct() -> None:
     }
 
     assert classify_semantic_unknown_cause(normal) != "oracle_facts_missing"
-    assert (
-        classify_semantic_unknown_cause(verified_vanilla)
-        == "known_no_functional_rules_role"
-    )
+    assert classify_semantic_unknown_cause(verified_vanilla) == "known_no_functional_rules_role"
     assert classify_semantic_unknown_cause(incomplete) == "oracle_facts_missing"
 
 
