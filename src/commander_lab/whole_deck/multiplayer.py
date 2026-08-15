@@ -238,3 +238,49 @@ def multiplayer_pod_response(
             "an empirical pod-size effect or local opponent frequency estimate."
         ),
     }
+
+
+def _paired_damage_per_opponent_effect(
+    campaign: Mapping[str, object], *, opponent_count: int
+) -> tuple[float, ...]:
+    raw = campaign.get("paired_observations")
+    if not isinstance(raw, list) or not raw:
+        raise ValueError("campaign is missing paired_observations")
+    values: list[float] = []
+    for row in raw:
+        if not isinstance(row, Mapping):
+            raise TypeError("paired observation must be a mapping")
+        baseline = row.get("baseline_damage")
+        variant = row.get("variant_damage")
+        if not isinstance(baseline, (int, float)) or not isinstance(variant, (int, float)):
+            raise TypeError("paired damage values must be numeric")
+        values.append((float(variant) - float(baseline)) / opponent_count)
+    return tuple(values)
+
+
+def multiplayer_damage_attribution(
+    four_player_campaign: Mapping[str, object],
+    five_player_campaign: Mapping[str, object],
+) -> dict[str, object]:
+    """Controlled model-attribution diagnostic for opponent-count-sensitive damage.
+
+    Normalizing by opponent count prevents a generic extra-opponent total-damage increase from
+    masquerading as leverage. A positive response therefore requires the per-opponent structural
+    effect itself to increase in the 5P sensitivity fixture.
+    """
+    four = _paired_damage_per_opponent_effect(four_player_campaign, opponent_count=3)
+    five = _paired_damage_per_opponent_effect(five_player_campaign, opponent_count=4)
+    effect_4p = fmean(four)
+    effect_5p = fmean(five)
+    return {
+        "metric": "paired_normal_damage_delta_per_opponent",
+        "candidate_vs_control_effect_4p": effect_4p,
+        "candidate_vs_control_effect_5p": effect_5p,
+        "pod_size_response": effect_5p - effect_4p,
+        "evidence_class": "structural_model_estimates",
+        "causal_claim": False,
+        "interpretation": (
+            "Controlled synthetic mechanism attribution inside the Structural Model. This can "
+            "validate implementation sensitivity, not prove a real-world causal card effect."
+        ),
+    }
