@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-15",
+  "purpose": "Derived Oracle fact-completeness exceptions. This file does not mutate canonical inventory or physical ownership.",
+  "status_values": [
+    "oracle_text_present",
+    "oracle_text_legitimately_empty",
+    "oracle_fact_record_missing_or_incomplete",
+    "identity_ambiguous"
+  ],
+  "records": [
+    {"oracle_name":"Armored Cancrix","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Armored%20Cancrix"},
+    {"oracle_name":"Balduvian Barbarians","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Balduvian%20Barbarians"},
+    {"oracle_name":"Bonebreaker Giant","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Bonebreaker%20Giant"},
+    {"oracle_name":"Canyon Minotaur","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Canyon%20Minotaur"},
+    {"oracle_name":"Coral Eel","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Coral%20Eel"},
+    {"oracle_name":"Coral Merfolk","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Coral%20Merfolk"},
+    {"oracle_name":"Glory Seeker","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Glory%20Seeker"},
+    {"oracle_name":"Goblin Piker","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Goblin%20Piker"},
+    {"oracle_name":"Goblin Roughrider","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Goblin%20Roughrider"},
+    {"oracle_name":"Hill Giant","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Hill%20Giant"},
+    {"oracle_name":"Jhessian Lookout","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Jhessian%20Lookout"},
+    {"oracle_name":"Maritime Guard","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Maritime%20Guard"},
+    {"oracle_name":"Ogre Resister","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Ogre%20Resister"},
+    {"oracle_name":"Phyrexian Hulk","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Phyrexian%20Hulk"},
+    {"oracle_name":"Savannah Lions","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Savannah%20Lions"},
+    {"oracle_name":"Scoria Elemental","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Scoria%20Elemental"},
+    {"oracle_name":"Siege Mastodon","oracle_text_status":"oracle_text_legitimately_empty","oracle_text":"","source":"https://mtg.wtf/card?q=!Siege%20Mastodon"},
+    {"oracle_name":"Stonework Puma","oracle_text_status":"oracle_text_present","oracle_text":"This creature is all colors.","source":"https://mtg.wtf/card?q=!Stonework%20Puma"}
+  ]
+}
