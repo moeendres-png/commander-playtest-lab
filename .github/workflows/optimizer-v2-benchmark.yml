@@ -33,6 +33,7 @@ jobs:
             --run-id optimizer-v2-technical-ab-${{ github.sha }} \
             --seed 2026081507 \
             --exploratory-games 256 \
+            --calibration-games 128 \
             --confirmatory-games 64 \
             --holdout-games 64 \
             --root .
@@ -69,15 +70,18 @@ jobs:
           PY
       - name: Build calibration and Legacy-v2 reports
         run: |
+          cp .runtime/optimizer-v2-ab/calibration-report.json artifacts/optimizer-v2-ab/calibration-report.json
+          cp .runtime/optimizer-v2-ab/frontier-handoff.json artifacts/optimizer-v2-ab/frontier-handoff.json
+          cp .runtime/optimizer-v2-ab/semantic-review-queue.json artifacts/optimizer-v2-ab/semantic-review-queue.json
+          cp .runtime/optimizer-v2-ab/near-frontier-diagnostics.json artifacts/optimizer-v2-ab/near-frontier-diagnostics.json
+          cp .runtime/optimizer-v2-ab/optimizer-execution-audit-search.json artifacts/optimizer-v2-ab/execution-audit.json
           python - <<'PY'
           import json
           from pathlib import Path
           from commander_lab.whole_deck.optimizer_benchmark import write_benchmark_report
-          from commander_lab.whole_deck.optimizer_calibration import calibration_report
-          Path('artifacts/optimizer-v2-ab/calibration-report.json').write_text(
-              json.dumps(calibration_report(), indent=2, sort_keys=True) + '\n',
-              encoding='utf-8',
-          )
+          calibration = json.loads(Path('artifacts/optimizer-v2-ab/calibration-report.json').read_text())
+          if calibration.get('calibration_acceptance_pass') is not True:
+              raise SystemExit('Optimizer v2 calibration acceptance did not pass')
           write_benchmark_report(
               legacy_path='docs/optimizer-v2/legacy_campaign_baseline_2026-08-15.json',
               v2_search_report_path='.runtime/optimizer-v2-ab/optimizer-search-report.json',
