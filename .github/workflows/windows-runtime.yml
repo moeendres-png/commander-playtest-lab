@@ -43,9 +43,23 @@ jobs:
       - name: Phase 8.5 Windows contract tests
         shell: pwsh
         run: python -m pytest -q tests/contract/test_phase86_phase85_claims.py tests/integration/test_phase85_validation.py
-      - name: Full Windows test suite
+      - name: Windows non-unit suite
         shell: pwsh
-        run: python -m pytest -q
+        run: |
+          python -m pytest -q tests/agent_evals tests/architecture tests/contract tests/differential tests/fuzz tests/golden tests/integration tests/mutation tests/property tests/regressions tests/test_pretest_deck_variants.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Windows unit suite in deterministic file shards
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem tests/unit/test_*.py | Sort-Object Name | ForEach-Object { $_.FullName })
+          $batchSize = 20
+          for ($i = 0; $i -lt $files.Count; $i += $batchSize) {
+            $end = [Math]::Min($i + $batchSize - 1, $files.Count - 1)
+            $batch = $files[$i..$end]
+            Write-Host "Running Windows unit shard $i-$end of $($files.Count) files"
+            python -m pytest -q @batch
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
       - name: Doctor must not dirty repository
         shell: pwsh
         run: commander-lab doctor --root . | Out-File -Encoding utf8 "$env:RUNNER_TEMP/doctor.json"
