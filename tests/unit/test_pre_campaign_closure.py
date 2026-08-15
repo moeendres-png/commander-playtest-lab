@@ -124,7 +124,9 @@ def test_forced_inclusion_probe_is_feasibility_only() -> None:
     assert row["automatic_negative_evidence"] is False
 
 
-def _synthetic_finisher_deck(deck_id: str, *, multiplayer_scaling: float, strength: float) -> StructuralDeckProfile:
+def _synthetic_finisher_deck(
+    deck_id: str, *, multiplayer_scaling: float, strength: float
+) -> StructuralDeckProfile:
     quality = DataQuality.SYNTHETIC_ASSUMPTION
     commander = StructuralCardProfile(
         oracle_name=f"{deck_id}-commander",
@@ -204,7 +206,9 @@ def _paired_4p_5p(repo_root, baseline: StructuralDeckProfile, variant: Structura
     return four, five
 
 
-def test_real_structural_pipeline_distinguishes_opponent_count_scaling_from_control(repo_root) -> None:
+def test_real_structural_pipeline_distinguishes_opponent_count_scaling_from_control(
+    repo_root,
+) -> None:
     baseline = _synthetic_finisher_deck("fixture-baseline", multiplayer_scaling=0.0, strength=0.4)
     scaling = _synthetic_finisher_deck("fixture-scaling", multiplayer_scaling=2.0, strength=0.4)
     non_scaling = _synthetic_finisher_deck(
@@ -217,7 +221,10 @@ def test_real_structural_pipeline_distinguishes_opponent_count_scaling_from_cont
     control_response = multiplayer_damage_attribution(control_4p, control_5p)
 
     assert scaling_response["candidate_vs_control_effect_4p"] > 0.0
-    assert scaling_response["candidate_vs_control_effect_5p"] > scaling_response["candidate_vs_control_effect_4p"]
+    assert (
+        scaling_response["candidate_vs_control_effect_5p"]
+        > scaling_response["candidate_vs_control_effect_4p"]
+    )
     assert scaling_response["pod_size_response"] > 0.0
     assert control_response["pod_size_response"] == pytest.approx(0.0, abs=1e-9)
     assert scaling_4p["pairing_conditions"]["candidates_share_match"] is False
