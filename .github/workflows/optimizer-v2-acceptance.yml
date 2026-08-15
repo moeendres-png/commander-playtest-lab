@@ -14,7 +14,7 @@ concurrency:
 jobs:
   optimizer-v2-fast-gates:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
@@ -27,25 +27,33 @@ jobs:
         shell: bash
         run: |
           mkdir -p artifacts/optimizer-v2
+          FILES="src/commander_lab/optimizer_cli.py src/commander_lab/whole_deck/optimizer_v2.py src/commander_lab/whole_deck/optimizer_search.py src/commander_lab/whole_deck/optimizer_calibration.py src/commander_lab/whole_deck/optimizer_runtime.py tests/unit/test_optimizer_v2.py tests/unit/test_optimizer_v2_calibration.py"
           set +e
-          ruff check src/commander_lab/whole_deck/optimizer_v2.py src/commander_lab/whole_deck/optimizer_search.py tests/unit/test_optimizer_v2.py --output-format=concise > artifacts/optimizer-v2/ruff.txt 2>&1
+          ruff check $FILES --output-format=concise > artifacts/optimizer-v2/ruff.txt 2>&1
           echo $? > artifacts/optimizer-v2/ruff.exit
-          ruff format --check src/commander_lab/whole_deck/optimizer_v2.py src/commander_lab/whole_deck/optimizer_search.py tests/unit/test_optimizer_v2.py > artifacts/optimizer-v2/format.txt 2>&1
+          ruff format --check $FILES > artifacts/optimizer-v2/format.txt 2>&1
           echo $? > artifacts/optimizer-v2/format.exit
           exit 0
       - name: Optimizer mypy diagnostics
         shell: bash
         run: |
           set +e
-          mypy src/commander_lab/whole_deck/optimizer_v2.py src/commander_lab/whole_deck/optimizer_search.py > artifacts/optimizer-v2/mypy.txt 2>&1
+          mypy src/commander_lab/optimizer_cli.py src/commander_lab/whole_deck/optimizer_v2.py src/commander_lab/whole_deck/optimizer_search.py src/commander_lab/whole_deck/optimizer_calibration.py src/commander_lab/whole_deck/optimizer_runtime.py > artifacts/optimizer-v2/mypy.txt 2>&1
           echo $? > artifacts/optimizer-v2/mypy.exit
           exit 0
       - name: Optimizer targeted tests
         shell: bash
         run: |
           set +e
-          pytest -q tests/unit/test_optimizer_v2.py > artifacts/optimizer-v2/pytest.txt 2>&1
+          pytest -q tests/unit/test_optimizer_v2.py tests/unit/test_optimizer_v2_calibration.py > artifacts/optimizer-v2/pytest.txt 2>&1
           echo $? > artifacts/optimizer-v2/pytest.exit
+          exit 0
+      - name: Optimizer CLI smoke
+        shell: bash
+        run: |
+          set +e
+          commander-lab-optimizer --help > artifacts/optimizer-v2/cli.txt 2>&1
+          echo $? > artifacts/optimizer-v2/cli.exit
           exit 0
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
@@ -60,3 +68,4 @@ jobs:
           test "$(cat artifacts/optimizer-v2/format.exit)" = "0"
           test "$(cat artifacts/optimizer-v2/mypy.exit)" = "0"
           test "$(cat artifacts/optimizer-v2/pytest.exit)" = "0"
+          test "$(cat artifacts/optimizer-v2/cli.exit)" = "0"
