@@ -3,10 +3,15 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable
 
-from .search_context import WholeDeckSearchContext
+from .search_context import (
+    SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE,
+    SEMANTIC_STRUCTURALLY_MODELED,
+    SEMANTIC_UNKNOWN,
+    WholeDeckSearchContext,
+)
 from .search_models import WholeDeckSearchResult
 
-DISCOVERABILITY_REPORT_VERSION = "2026-08-15.1"
+DISCOVERABILITY_REPORT_VERSION = "2026-08-15.2"
 
 
 def build_discoverability_report(
@@ -26,8 +31,29 @@ def build_discoverability_report(
         for name, card in context.cards.items()
         if name not in context.commander_names and card.available_quantity > 0
     }
-    known = {name for name in eligible if context.cards[name].semantic_known}
-    unknown = eligible - known
+    structurally_modeled = {
+        name
+        for name in eligible
+        if context.cards[name].effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED
+    }
+    known_no_functional = {
+        name
+        for name in eligible
+        if context.cards[name].effective_semantic_state == SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE
+    }
+    unknown = {
+        name
+        for name in eligible
+        if context.cards[name].effective_semantic_state == SEMANTIC_UNKNOWN
+    }
+    if structurally_modeled | known_no_functional | unknown != eligible:
+        raise RuntimeError("discoverability semantic-state partition does not span eligible pool")
+    if (
+        structurally_modeled & known_no_functional
+        or structurally_modeled & unknown
+        or known_no_functional & unknown
+    ):
+        raise RuntimeError("discoverability semantic-state partition overlaps")
 
     seen: set[str] = set()
     per_policy: list[dict[str, object]] = []
@@ -44,6 +70,7 @@ def build_discoverability_report(
                 "candidate_exploration_fraction": len(policy_seen) / len(eligible)
                 if eligible
                 else 1.0,
+                "known_no_functional_cards_seen": len(policy_seen & known_no_functional),
                 "semantic_unknown_cards_seen": len(policy_seen & unknown),
                 "semantic_unknown_exploration_fraction": (
                     len(policy_seen & unknown) / len(unknown) if unknown else 1.0
@@ -72,6 +99,7 @@ def build_discoverability_report(
         {
             "oracle_name": name,
             "semantic_known": context.cards[name].semantic_known,
+            "semantic_state": context.cards[name].effective_semantic_state,
             "semantic_evidence": context.cards[name].semantic_evidence,
             "mana_value": context.cards[name].profile.mana_value,
             "is_land": context.cards[name].profile.is_land,
@@ -92,7 +120,10 @@ def build_discoverability_report(
         "schema_version": "1.0.0",
         "report_version": DISCOVERABILITY_REPORT_VERSION,
         "search_eligible_candidate_count": len(eligible),
-        "semantic_known_eligible_count": len(known),
+        # Backward-compatible: semantic_known means a structural profile is modeled.
+        "semantic_known_eligible_count": len(structurally_modeled),
+        "structurally_modeled_eligible_count": len(structurally_modeled),
+        "known_no_functional_eligible_count": len(known_no_functional),
         "semantic_unknown_eligible_count": len(unknown),
         "observed_archive_candidate_count": len(seen),
         "candidate_search_exploration_recall": len(seen) / len(eligible) if eligible else 1.0,
@@ -102,7 +133,8 @@ def build_discoverability_report(
         ),
         "unseen_candidate_count": len(unseen),
         "unseen_semantic_unknown_count": len(unseen & unknown),
-        "unseen_semantic_known_count": len(unseen & known),
+        "unseen_known_no_functional_count": len(unseen & known_no_functional),
+        "unseen_semantic_known_count": len(unseen & structurally_modeled),
         "discovery_review_queue": review_queue,
         "candidate_visibility_recall": len(visible) / len(eligible) if eligible else 1.0,
         "candidate_discoverability_status": (
