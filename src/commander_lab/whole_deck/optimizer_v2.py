@@ -150,9 +150,7 @@ class OptimizerManifest(FrozenModel):
         for partition, context in expected:
             if partition.evidence_context != context:
                 raise ValueError(f"{partition.partition_id} must be {context.value}")
-        assert_partition_disjointness(
-            self.exploratory, self.confirmatory, self.sealed_holdout
-        )
+        assert_partition_disjointness(self.exploratory, self.confirmatory, self.sealed_holdout)
         return self
 
     @property
@@ -173,9 +171,9 @@ class DeckDescriptor(FrozenModel):
 
     def cell(self, config: QDConfig) -> str:
         land = self.land_count // config.land_bin_width
-        mv = math.floor(self.average_nonland_mv / config.mana_value_bin_width)
+        mana = math.floor(self.average_nonland_mv / config.mana_value_bin_width)
         interaction = math.floor(self.interaction_strength / config.interaction_bin_width)
-        return f"L{land}:M{mv}:I{interaction}"
+        return f"L{land}:M{mana}:I{interaction}"
 
 
 class DeckDistance(FrozenModel):
@@ -262,20 +260,23 @@ def assert_partition_disjointness(*partitions: EvidencePartition) -> None:
                 )
 
 
+def _numeric(value: object, default: float = 0.0) -> float:
+    return float(value) if isinstance(value, int | float) else default
+
+
+def _integer(value: object, default: int = 0) -> int:
+    return int(value) if isinstance(value, int | float) else default
+
+
 def _number(mapping: Mapping[str, object], key: str) -> float:
-    value = mapping.get(key, 0.0)
-    return float(value) if isinstance(value, int | float) else 0.0
+    return _numeric(mapping.get(key, 0.0))
 
 
 def _role_strengths(variant: WholeDeckVariant) -> dict[str, float]:
     raw = variant.feature_vector.get("role_strengths", {})
     if not isinstance(raw, Mapping):
         return {}
-    return {
-        str(key): float(value)
-        for key, value in raw.items()
-        if isinstance(value, int | float)
-    }
+    return {str(key): _numeric(value) for key, value in raw.items()}
 
 
 def descriptor_for_variant(variant: WholeDeckVariant) -> DeckDescriptor:
@@ -283,14 +284,13 @@ def descriptor_for_variant(variant: WholeDeckVariant) -> DeckDescriptor:
     packages = variant.feature_vector.get("package_counts", {})
     package_count = len(packages) if isinstance(packages, Mapping) else 0
     raw_multiplayer = variant.feature_vector.get("multiplayer_leverage", {})
-    multiplayer = 0.0
+    multiplayer_values: list[float] = []
     if isinstance(raw_multiplayer, Mapping):
-        numeric = [
-            float(value)
+        multiplayer_values = [
+            _numeric(value)
             for value in raw_multiplayer.values()
             if isinstance(value, int | float)
         ]
-        multiplayer = fmean(numeric) if numeric else 0.0
     return DeckDescriptor(
         land_count=int(_number(variant.feature_vector, "land_count")),
         average_nonland_mv=_number(variant.feature_vector, "average_nonland_mv"),
@@ -301,21 +301,15 @@ def descriptor_for_variant(variant: WholeDeckVariant) -> DeckDescriptor:
             + roles.get("graveyard_hate", 0.0)
         ),
         protection_strength=roles.get("protection", 0.0),
-        velocity_strength=(
-            roles.get("ramp", 0.0)
-            + roles.get("selection", 0.0)
-            + roles.get("draw", 0.0)
-        ),
-        finish_strength=(
-            roles.get("finisher", 0.0)
-            + roles.get("payoff", 0.0)
-            + roles.get("combat_payoff", 0.0)
-        ),
+        velocity_strength=roles.get("ramp", 0.0)
+        + roles.get("selection", 0.0)
+        + roles.get("draw", 0.0),
+        finish_strength=roles.get("finisher", 0.0)
+        + roles.get("payoff", 0.0)
+        + roles.get("combat_payoff", 0.0),
         package_count=package_count,
-        semantic_support_fraction=_number(
-            variant.feature_vector, "semantic_support_fraction"
-        ),
-        multiplayer_scaling=multiplayer,
+        semantic_support_fraction=_number(variant.feature_vector, "semantic_support_fraction"),
+        multiplayer_scaling=fmean(multiplayer_values) if multiplayer_values else 0.0,
     )
 
 
@@ -337,30 +331,34 @@ def _counter_distance(left: Mapping[str, object], right: Mapping[str, object]) -
     numerator = 0.0
     denominator = 0.0
     for key in keys:
-        lv = float(left.get(key, 0.0)) if isinstance(left.get(key, 0.0), int | float) else 0.0
-        rv = float(right.get(key, 0.0)) if isinstance(right.get(key, 0.0), int | float) else 0.0
-        numerator += abs(lv - rv)
-        denominator += max(abs(lv), abs(rv))
+        left_value = _numeric(left.get(key, 0.0))
+        right_value = _numeric(right.get(key, 0.0))
+        numerator += abs(left_value - right_value)
+        denominator += max(abs(left_value), abs(right_value))
     return numerator / denominator if denominator else 0.0
 
 
 def deck_distance(left: WholeDeckVariant, right: WholeDeckVariant) -> DeckDistance:
     left_packages = left.feature_vector.get("package_counts", {})
     right_packages = right.feature_vector.get("package_counts", {})
-    lp = left_packages if isinstance(left_packages, Mapping) else {}
-    rp = right_packages if isinstance(right_packages, Mapping) else {}
+    package_distance = _counter_distance(
+        left_packages if isinstance(left_packages, Mapping) else {},
+        right_packages if isinstance(right_packages, Mapping) else {},
+    )
     card_distance = 1.0 - _multiset_jaccard(left.mainboard, right.mainboard)
-    package_distance = _counter_distance(lp, rp)
     role_distance = _counter_distance(_role_strengths(left), _role_strengths(right))
-    ld = descriptor_for_variant(left)
-    rd = descriptor_for_variant(right)
+    left_descriptor = descriptor_for_variant(left)
+    right_descriptor = descriptor_for_variant(right)
     mana_distance = min(
         1.0,
-        abs(ld.land_count - rd.land_count) / 12.0
-        + abs(ld.average_nonland_mv - rd.average_nonland_mv) / 4.0,
+        abs(left_descriptor.land_count - right_descriptor.land_count) / 12.0
+        + abs(left_descriptor.average_nonland_mv - right_descriptor.average_nonland_mv) / 4.0,
     )
-    finish_scale = max(1.0, ld.finish_strength, rd.finish_strength)
-    finish_distance = min(1.0, abs(ld.finish_strength - rd.finish_strength) / finish_scale)
+    finish_scale = max(1.0, left_descriptor.finish_strength, right_descriptor.finish_strength)
+    finish_distance = min(
+        1.0,
+        abs(left_descriptor.finish_strength - right_descriptor.finish_strength) / finish_scale,
+    )
     total = (
         0.40 * card_distance
         + 0.20 * package_distance
@@ -400,18 +398,17 @@ class QualityDiversityArchive:
         self._cells: dict[str, list[ExploratoryEvaluation]] = {}
         self._variants: dict[str, WholeDeckVariant] = {}
 
-    def admit(
-        self,
-        variant: WholeDeckVariant,
-        evaluation: ExploratoryEvaluation,
-    ) -> bool:
+    def admit(self, variant: WholeDeckVariant, evaluation: ExploratoryEvaluation) -> bool:
         if not variant.hard_gate.valid:
             return False
         expected = descriptor_for_variant(variant).cell(self.config)
         if evaluation.qd_cell != expected:
             raise ValueError("evaluation QD cell does not match candidate descriptor")
-        rows = list(self._cells.get(expected, ()))
-        rows = [row for row in rows if row.deck_hash != evaluation.deck_hash]
+        rows = [
+            row
+            for row in self._cells.get(expected, ())
+            if row.deck_hash != evaluation.deck_hash
+        ]
         rows.append(evaluation)
         rows.sort(
             key=lambda row: (
@@ -461,11 +458,7 @@ class QualityDiversityArchive:
         }
 
 
-def racing_priority(
-    evaluation: ExploratoryEvaluation,
-    *,
-    config: RacingConfig,
-) -> float:
+def racing_priority(evaluation: ExploratoryEvaluation, *, config: RacingConfig) -> float:
     return (
         evaluation.robust_lower_bound
         + config.novelty_weight * evaluation.novelty
@@ -480,15 +473,11 @@ def select_racing_survivors(
 ) -> tuple[str, ...]:
     if not evaluations:
         return ()
-    target = max(
-        config.minimum_survivors,
-        math.ceil(len(evaluations) * config.survival_fraction),
+    target = min(
+        len(evaluations),
+        max(config.minimum_survivors, math.ceil(len(evaluations) * config.survival_fraction)),
     )
-    target = min(target, len(evaluations))
-    exploration_slots = min(
-        target,
-        math.ceil(target * config.exploration_fraction),
-    )
+    exploration_slots = min(target, math.ceil(target * config.exploration_fraction))
     exploitation_slots = target - exploration_slots
     ranked = sorted(
         evaluations,
@@ -506,11 +495,7 @@ def select_racing_survivors(
     return tuple(row.candidate_id for row in selected)
 
 
-def normalize_learning_weights(
-    raw: Mapping[str, float],
-    *,
-    floor: float,
-) -> dict[str, float]:
+def normalize_learning_weights(raw: Mapping[str, float], *, floor: float) -> dict[str, float]:
     if not raw:
         return {}
     keys = sorted(raw)
@@ -528,8 +513,7 @@ def normalize_learning_weights(
     if residual_total <= 0.0:
         return {key: 1.0 / len(keys) for key in keys}
     return {
-        key: minimum
-        + remaining * max(0.0, normalized[key] - minimum) / residual_total
+        key: minimum + remaining * max(0.0, normalized[key] - minimum) / residual_total
         for key in keys
     }
 
@@ -585,13 +569,13 @@ def evaluate_calibration(
             false_promotions += 1
         if decision == "ELIMINATE" and fixture.truth_direction >= 0:
             false_eliminations += 1
-        if fixture.truth_direction != 0:
+        if fixture.truth_direction:
             direction_total += 1
             expected = "PROMOTE" if fixture.truth_direction > 0 else "ELIMINATE"
-            direction_correct += decision == expected
+            direction_correct += int(decision == expected)
         else:
             equivalence_total += 1
-            equivalence_correct += decision == "EQUIVALENT"
+            equivalence_correct += int(decision == "EQUIVALENT")
     count = max(1, len(fixtures))
     fp_rate = false_promotions / count
     fe_rate = false_eliminations / count
@@ -605,16 +589,9 @@ def evaluate_calibration(
         equivalence_total=equivalence_total,
         false_promotion_rate=fp_rate,
         false_elimination_rate=fe_rate,
-        direction_recovery_rate=(
-            direction_correct / direction_total if direction_total else 1.0
-        ),
-        equivalence_accuracy=(
-            equivalence_correct / equivalence_total if equivalence_total else 1.0
-        ),
-        targets_met=(
-            fp_rate <= policy.max_false_promotion
-            and fe_rate <= policy.max_false_elimination
-        ),
+        direction_recovery_rate=direction_correct / direction_total if direction_total else 1.0,
+        equivalence_accuracy=equivalence_correct / equivalence_total if equivalence_total else 1.0,
+        targets_met=fp_rate <= policy.max_false_promotion and fe_rate <= policy.max_false_elimination,
     )
 
 
@@ -624,11 +601,11 @@ def build_semantic_review_queue(
     rows: list[SemanticReviewItem] = []
     for signal in signals:
         name = str(signal["oracle_name"])
-        frontier = int(signal.get("frontier_occurrences", 0))
-        cells = int(signal.get("high_quality_cell_occurrences", 0))
-        package = float(signal.get("package_completion_signal", 0.0))
-        differentiator = float(signal.get("differentiator_signal", 0.0))
-        impact = float(signal.get("possible_decision_impact", 0.0))
+        frontier = max(0, _integer(signal.get("frontier_occurrences", 0)))
+        cells = max(0, _integer(signal.get("high_quality_cell_occurrences", 0)))
+        package = max(0.0, min(1.0, _numeric(signal.get("package_completion_signal", 0.0))))
+        differentiator = max(0.0, min(1.0, _numeric(signal.get("differentiator_signal", 0.0))))
+        impact = max(0.0, min(1.0, _numeric(signal.get("possible_decision_impact", 0.0))))
         score = (
             math.log1p(frontier) * 0.25
             + math.log1p(cells) * 0.20
@@ -639,17 +616,15 @@ def build_semantic_review_queue(
         rows.append(
             SemanticReviewItem(
                 oracle_name=name,
-                frontier_occurrences=max(0, frontier),
-                high_quality_cell_occurrences=max(0, cells),
-                package_completion_signal=max(0.0, min(1.0, package)),
-                differentiator_signal=max(0.0, min(1.0, differentiator)),
-                possible_decision_impact=max(0.0, min(1.0, impact)),
+                frontier_occurrences=frontier,
+                high_quality_cell_occurrences=cells,
+                package_completion_signal=package,
+                differentiator_signal=differentiator,
+                possible_decision_impact=impact,
                 priority_score=max(0.0, score),
             )
         )
-    return tuple(
-        sorted(rows, key=lambda row: (-row.priority_score, row.oracle_name))
-    )
+    return tuple(sorted(rows, key=lambda row: (-row.priority_score, row.oracle_name)))
 
 
 def optimizer_cache_identity(
@@ -664,13 +639,13 @@ def optimizer_cache_identity(
     simulation_config: Mapping[str, Any],
     evidence_context: EvidenceContext,
 ) -> dict[str, Any]:
-    if evidence_context == EvidenceContext.HOLDOUT:
-        partition = manifest.sealed_holdout
-    elif evidence_context == EvidenceContext.CONFIRMATORY:
-        partition = manifest.confirmatory
-    elif evidence_context == EvidenceContext.EXPLORATORY:
-        partition = manifest.exploratory
-    else:
+    partition_by_context = {
+        EvidenceContext.EXPLORATORY: manifest.exploratory,
+        EvidenceContext.CONFIRMATORY: manifest.confirmatory,
+        EvidenceContext.HOLDOUT: manifest.sealed_holdout,
+    }
+    partition = partition_by_context.get(evidence_context)
+    if partition is None:
         raise ValueError("cache identity only supports simulation evidence partitions")
     config = dict(simulation_config)
     config.update(
@@ -705,8 +680,7 @@ def optimizer_cache_identity(
 def deterministic_shard(task_identity: Mapping[str, object], worker_count: int) -> int:
     if worker_count < 1:
         raise ValueError("worker_count must be positive")
-    digest = sha256_value(dict(task_identity))
-    return int(digest[:16], 16) % worker_count
+    return int(sha256_value(dict(task_identity))[:16], 16) % worker_count
 
 
 @dataclass(frozen=True, slots=True)
@@ -744,20 +718,19 @@ class OptimizerLock:
             created = datetime.fromisoformat(str(current["created_at"]))
             age = (now - created).total_seconds()
             lock_host = str(current.get("host", ""))
-            lock_pid = int(current.get("pid", -1))
+            lock_pid = _integer(current.get("pid", -1), -1)
             if lock_host != socket.gethostname():
                 raise RuntimeError("optimizer lock belongs to another host")
-            pid_alive = True
             try:
                 os.kill(lock_pid, 0)
-            except (OSError, ProcessLookupError):
+                pid_alive = True
+            except OSError:
                 pid_alive = False
             if pid_alive or age <= stale_after_seconds:
                 raise RuntimeError("duplicate optimizer runner detected")
             path.unlink()
-        flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
         try:
-            descriptor = os.open(path, flags, 0o600)
+            descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         except FileExistsError as exc:
             raise RuntimeError("duplicate optimizer runner detected") from exc
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
@@ -780,12 +753,10 @@ class OptimizerCheckpointStore:
         self.manifest_hash = manifest_hash
 
     def write(self, stage: str, payload: Mapping[str, Any]) -> Path:
-        data = {
-            "stage": stage,
-            "manifest_hash": self.manifest_hash,
-            "payload": dict(payload),
-        }
-        return atomic_write_json(self.root / f"checkpoint-{stage}.json", data)
+        return atomic_write_json(
+            self.root / f"checkpoint-{stage}.json",
+            {"stage": stage, "manifest_hash": self.manifest_hash, "payload": dict(payload)},
+        )
 
     def read(self, stage: str) -> dict[str, Any] | None:
         path = self.root / f"checkpoint-{stage}.json"
