@@ -79,6 +79,38 @@ They are not averaged into the resolution threshold and do not become empirical 
 This separation prevents input/model sensitivity from being mislabeled as stochastic sampling
 uncertainty.
 
+## Seat / turn-order contract
+
+The Whole-Deck campaign runner passes `starting_player_seat=0` to the Structural Simulator. Physical
+seat 1 therefore starts each campaign game, while the balanced scenario scheduler rotates RogShai's
+own seat across seats 1–4.
+
+This is not itself a pairing defect: a baseline/candidate pair uses the same seed, own seat,
+opponent seat assignment, pilot configuration and turn cap, so the direct physical-seat effect is a
+common condition within the paired contrast. It does mean that **absolute pooled Structural
+performance is seat-sensitive** and must not be interpreted as seat-neutral deck power.
+
+When the measured seat spread exceeds the effective sampling resolution:
+
+- absolute pooled Structural claims are blocked;
+- candidate comparisons remain eligible only under same-seat paired execution;
+- own-seat coverage must be balanced;
+- the paired effect must be reported stratified by seat;
+- a directional conclusion must survive the declared seat-robustness check.
+
+This gate is based on the measured axis being larger than the measured decision resolution; no
+arbitrary seat-effect percentage threshold is introduced.
+
+## Scenario/input and pilot robustness
+
+Admissible opponent-group and pilot spreads are also compared with the measured sampling resolution,
+but remain separate axes. A material opponent-group spread requires scenario-robustness evidence.
+A material pilot spread requires pilot-robustness evidence. Neither spread is converted into
+additional Monte Carlo noise or averaged into the resolution threshold.
+
+Opponent-group measurements retain their evidence boundary: incomplete Morcant/Cosmic inputs remain
+partial/synthetic scenario evidence and do not become local observation through repetition.
+
 ## Compression and unsupported axes
 
 Outcome compression is reported directly through the observed placement distribution, dominant
