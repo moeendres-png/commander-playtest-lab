@@ -39,6 +39,7 @@ openai = [
 
 [project.scripts]
 commander-lab = "commander_lab.cli.app:app"
+commander-lab-optimizer = "commander_lab.optimizer_cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
