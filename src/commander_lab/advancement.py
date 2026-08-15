@@ -73,9 +73,7 @@ def decide_advancement(
     domain = _embedded_mapping(comparison, domain_validity, "domain_validity")
     fidelity = _embedded_mapping(comparison, structural_fidelity, "structural_fidelity")
     resolution = _embedded_mapping(comparison, model_resolution, "model_resolution")
-    informativeness = _embedded_mapping(
-        comparison, model_informativeness, "model_informativeness"
-    )
+    informativeness = _embedded_mapping(comparison, model_informativeness, "model_informativeness")
 
     if domain and domain.get("strong_decision_allowed") is not True:
         return AdvancementDecision(
