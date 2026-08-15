@@ -1,0 +1,76 @@
+name: Model Resolution Measurement
+
+on:
+  pull_request:
+    paths:
+      - "src/commander_lab/model_resolution_measurement.py"
+      - "scripts/measure_model_resolution.py"
+      - "tests/unit/test_model_resolution_measurement.py"
+      - "data/diagnostics/MODEL_RESOLUTION_CURRENT.json"
+      - ".github/workflows/model-resolution-measurement.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: model-resolution-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bounded-technical-measurement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Unit contract
+        run: pytest -q tests/unit/test_model_resolution_measurement.py tests/unit/test_decision_quality.py
+      - name: Measure current Structural resolution
+        run: |
+          mkdir -p artifacts/model-resolution
+          python scripts/measure_model_resolution.py \
+            --root . \
+            --output artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json \
+            --seed 2026081517 \
+            --blocks 4 \
+            --games-per-block 56 \
+            --pilot-games 56 \
+            --max-turns 35 \
+            --workers 2 \
+            --calibrated-sesoi 0.05
+      - name: Verify evidence boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json').read_text())
+          if report.get('status') != 'MEASURED':
+              raise SystemExit('model resolution was not measured')
+          if report.get('confirmatory_evidence_consumed') is not False:
+              raise SystemExit('confirmatory evidence was consumed')
+          if report.get('sealed_holdout_evidence_consumed') is not False:
+              raise SystemExit('sealed holdout evidence was consumed')
+          if report.get('candidate_search_performed') is not False:
+              raise SystemExit('candidate search occurred during technical calibration')
+          if report.get('canonical_deck_mutation') is not False:
+              raise SystemExit('canonical deck mutation occurred')
+          if report.get('official_rogshai_optimizer_run') is not False:
+              raise SystemExit('technical calibration was mislabeled as an official optimizer run')
+          resolution = report.get('effective_resolution')
+          if not isinstance(resolution, (int, float)) or resolution < 0.05:
+              raise SystemExit('effective resolution violates calibrated SESOI floor')
+          PY
+      - name: Hash artifact
+        run: sha256sum artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json > artifacts/model-resolution/SHA256SUMS.txt
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: model-resolution-measurement
+          path: artifacts/model-resolution/
+          if-no-files-found: error
