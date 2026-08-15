@@ -1,0 +1,53 @@
+name: Optimizer v2 One-shot Autofix
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  autofix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Apply typed source fix and formatter
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/commander_lab/whole_deck/optimizer_v2_release.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('from typing import Any, Iterable\n', 'from typing import Any, Iterable, cast\n')
+          text = text.replace('from .models import PolicyId\n', '')
+          text = text.replace(
+              'evaluator_payload=report["evaluator_audit"],',
+              'evaluator_payload=cast(dict[str, Any], report["evaluator_audit"]),',
+          )
+          path.write_text(text, encoding='utf-8')
+          PY
+          FILES="src/commander_lab/whole_deck/optimizer_v2_release.py src/commander_lab/whole_deck/optimizer_v2_evaluator.py src/commander_lab/whole_deck/optimizer_v2_diagnostics.py src/commander_lab/whole_deck/optimizer_v2_release_models.py src/commander_lab/optimizer_v2_cli.py tests/unit/test_optimizer_v2_release.py"
+          ruff check --fix $FILES
+          ruff format $FILES
+          ruff check $FILES
+          ruff format --check $FILES
+          mypy src/commander_lab/optimizer_v2_cli.py src/commander_lab/whole_deck/optimizer_v2_release_models.py src/commander_lab/whole_deck/optimizer_v2_evaluator.py src/commander_lab/whole_deck/optimizer_v2_diagnostics.py src/commander_lab/whole_deck/optimizer_v2_release.py
+          pytest -q tests/unit/test_optimizer_v2.py tests/unit/test_optimizer_v2_calibration.py tests/unit/test_optimizer_v2_release.py
+      - name: Commit source-quality fix and remove one-shot workflow
+        shell: bash
+        run: |
+          git rm .github/workflows/optimizer-v2-one-shot-autofix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/commander_lab/whole_deck/optimizer_v2_release.py src/commander_lab/whole_deck/optimizer_v2_evaluator.py src/commander_lab/whole_deck/optimizer_v2_diagnostics.py src/commander_lab/whole_deck/optimizer_v2_release_models.py src/commander_lab/optimizer_v2_cli.py tests/unit/test_optimizer_v2_release.py
+          git commit -m "Format and type-check Optimizer v2 release pipeline"
+          git push origin HEAD:${{ github.head_ref }}
