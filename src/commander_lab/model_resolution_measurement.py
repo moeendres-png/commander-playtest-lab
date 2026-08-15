@@ -140,9 +140,7 @@ def summarize_resolution_measurements(
     scenario_sensitivity_material = (
         opponent_group_spread is not None and opponent_group_spread > effective_resolution
     )
-    pilot_sensitivity_material = (
-        pilot_spread is not None and pilot_spread > effective_resolution
-    )
+    pilot_sensitivity_material = pilot_spread is not None and pilot_spread > effective_resolution
 
     return {
         "status": "MEASURED",
