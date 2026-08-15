@@ -116,9 +116,7 @@ def build_decision_information_state(
     additional_precision_authorized = context.get("additional_precision_authorized") is True
 
     domain_validity = _embedded_mapping(comparison, domain_validity, "domain_validity")
-    structural_fidelity = _embedded_mapping(
-        comparison, structural_fidelity, "structural_fidelity"
-    )
+    structural_fidelity = _embedded_mapping(comparison, structural_fidelity, "structural_fidelity")
     model_resolution = _embedded_mapping(comparison, model_resolution, "model_resolution")
     model_informativeness = _embedded_mapping(
         comparison, model_informativeness, "model_informativeness"
