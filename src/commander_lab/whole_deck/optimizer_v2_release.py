@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import json
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import asdict
 from pathlib import Path
 from statistics import median
-from typing import Any, Iterable
+from typing import Any, cast
 
 from commander_lab.storage import atomic_write_json, sha256_value
 
-from .models import PolicyId
+from .lab import WholeDeckDesignLab
 from .optimizer_calibration import calibration_report
 from .optimizer_runtime import (
     DEFAULT_POLICIES,
@@ -38,7 +39,6 @@ from .orchestrator import WholeDeckCampaignOrchestrator
 from .search import current_control_mainboard
 from .search_context import SEMANTIC_UNKNOWN
 from .search_models import WholeDeckVariant
-from .lab import WholeDeckDesignLab
 
 OPTIMIZER_V2_RELEASE_RUNTIME = "optimizer-v2-release-runtime-1.0.0"
 
@@ -94,9 +94,7 @@ def load_release_manifest(path: str | Path) -> OptimizerV2Manifest:
     return OptimizerV2Manifest.model_validate_json(Path(path).read_text(encoding="utf-8"))
 
 
-def verify_release_preflight(
-    root: str | Path, manifest: OptimizerV2Manifest
-) -> dict[str, object]:
+def verify_release_preflight(root: str | Path, manifest: OptimizerV2Manifest) -> dict[str, object]:
     base = verify_optimizer_preflight(root, manifest)
     return {
         **base,
@@ -155,9 +153,7 @@ def _build_frontier_handoff(
     return FrontierHandoff.create(manifest_hash=manifest.manifest_hash, elites=tuple(elites))
 
 
-def _semantic_queue(
-    *, lab: WholeDeckDesignLab, handoff: FrontierHandoff
-) -> dict[str, object]:
+def _semantic_queue(*, lab: WholeDeckDesignLab, handoff: FrontierHandoff) -> dict[str, object]:
     unknown = {
         name
         for name, card in lab.context.cards.items()
@@ -341,7 +337,9 @@ def _write_audit(
         confirmatory_partition_opened=confirmatory_opened,
         sealed_holdout_partition_opened=holdout_opened,
     )
-    atomic_write_json(run_path / f"optimizer-execution-audit-{stage}.json", audit.model_dump(mode="json"))
+    atomic_write_json(
+        run_path / f"optimizer-execution-audit-{stage}.json", audit.model_dump(mode="json")
+    )
     return audit
 
 
@@ -566,7 +564,7 @@ def run_release_confirmatory(
         manifest=manifest,
         stage="confirmatory",
         evidence_context="confirmatory",
-        evaluator_payload=report["evaluator_audit"],
+        evaluator_payload=cast(dict[str, Any], report["evaluator_audit"]),
         outputs={"confirmatory": report},
         confirmatory_opened=True,
     )
@@ -590,7 +588,10 @@ def run_release_holdout(
     run_path = Path(run_directory).resolve()
     verify_release_preflight(root_path, manifest)
     confirmatory = json.loads(Path(confirmatory_path).read_text(encoding="utf-8"))
-    if not isinstance(confirmatory, dict) or confirmatory.get("manifest_hash") != manifest.manifest_hash:
+    if (
+        not isinstance(confirmatory, dict)
+        or confirmatory.get("manifest_hash") != manifest.manifest_hash
+    ):
         raise RuntimeError("confirmatory report manifest mismatch")
     promoted = [
         row
@@ -658,7 +659,7 @@ def run_release_holdout(
         manifest=manifest,
         stage="holdout",
         evidence_context="holdout",
-        evaluator_payload=report["evaluator_audit"],
+        evaluator_payload=cast(dict[str, Any], report["evaluator_audit"]),
         outputs={"holdout": report},
         confirmatory_opened=True,
         holdout_opened=True,

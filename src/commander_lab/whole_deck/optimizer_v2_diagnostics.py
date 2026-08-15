@@ -88,9 +88,7 @@ def _commander_denial_axis(
     )
     raw = result.get("paired_observations", [])
     rows = [row for row in raw if isinstance(row, dict)] if isinstance(raw, list) else []
-    deltas = [
-        float(row["variant_placement"]) - float(row["baseline_placement"]) for row in rows
-    ]
+    deltas = [float(row["variant_placement"]) - float(row["baseline_placement"]) for row in rows]
     return {
         "status": "executed",
         "games": len(rows),
@@ -151,7 +149,10 @@ def _counterfactual_axis(
         (
             row
             for row in branches
-            if any(action.legal and action.action_id != row.chosen_action for action in row.available_actions)
+            if any(
+                action.legal and action.action_id != row.chosen_action
+                for action in row.available_actions
+            )
         ),
         None,
     )
@@ -209,9 +210,7 @@ def build_near_frontier_diagnostics(
     project = Path(root).resolve()
     run_path = Path(run_directory).resolve()
     selected = _near_frontier_hashes(elites, sesoi=manifest.calibration.sesoi)
-    scenarios = tuple(
-        orchestrator.scheduler.schedule(16, seed=manifest.exploratory.master_seed)
-    )
+    scenarios = tuple(orchestrator.scheduler.schedule(16, seed=manifest.exploratory.master_seed))
     trace_directory = project / ".runtime" / "optimizer-v2-diagnostics" / manifest.manifest_hash
     rows: list[dict[str, object]] = []
     for deck_hash in selected:
@@ -259,9 +258,7 @@ def build_near_frontier_diagnostics(
                 "mulligan_sensitivity": sensitivity_map.get(
                     "mulligan", {"status": "not_available"}
                 ),
-                "matchup_decomposition": sensitivity_map.get(
-                    "matchup_decomposition", {}
-                ),
+                "matchup_decomposition": sensitivity_map.get("matchup_decomposition", {}),
                 "ablation_parent_child": {
                     "status": "executed" if parent_eval is not None else "no_parent_evaluation",
                     "parent_candidate_id": variant.parent_variant_id,

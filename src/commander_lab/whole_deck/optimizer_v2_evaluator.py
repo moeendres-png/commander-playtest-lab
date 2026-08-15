@@ -355,7 +355,9 @@ class CachedPartitionEvaluator:
                 {"scenario_id": scenario.scenario_id, "seed": scenario.seed}, self.workers
             )
             self.shards[shard] += 1
-        identity = self._identity(candidate_hash=candidate.deck_hash, scenarios=chosen, budget=budget)
+        identity = self._identity(
+            candidate_hash=candidate.deck_hash, scenarios=chosen, budget=budget
+        )
         try:
             cached = self.cache.get(identity)
             if cached is not None:
