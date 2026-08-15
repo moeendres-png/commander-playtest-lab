@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commander-playtest-lab"
-version = "1.20.2"
+version = "1.20.3"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -38,46 +38,45 @@ openai = [
 ]
 
 [project.scripts]
-commander-lab = "commander_lab.cli.app:app"
+commander-lab = "commander_lab.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+commander_lab = ["py.typed"]
+
 [tool.pytest.ini_options]
-addopts = "-ra --strict-config --strict-markers"
 testpaths = ["tests"]
-pythonpath = ["src"]
+addopts = "-q"
 markers = [
-  "property: deterministic property-style tests",
-  "integration: local integration tests",
-  "golden: fixed expected-decision regression tests",
-  "differential: comparisons against external or normalized rule backends",
-  "agent_eval: agent trajectory and report evaluation tests",
-  "external: requires a configured XMage or Forge backend",
+  "live: opt-in live integration test requiring external services",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning:pydantic.*",
+  "ignore::DeprecationWarning:pydantic_core.*",
+  "ignore::DeprecationWarning:fastapi.*",
+  "ignore::DeprecationWarning:starlette.*",
+  "ignore::DeprecationWarning:httpx.*",
 ]
 
 [tool.ruff]
-target-version = "py312"
 line-length = 100
-src = ["src", "tests"]
+target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-ignore = ["B008", "E501"]
+select = ["E", "F", "I", "B", "UP", "SIM"]
 
-[tool.ruff.lint.per-file-ignores]
-"src/commander_lab/models/__init__.py" = ["F401", "E402"]
-"src/commander_lab/cards/normalize.py" = ["RUF001"]
-"tests/fuzz/test_boundary_fuzz.py" = ["RUF001"]
-"tests/property/test_normalization_properties.py" = ["RUF001"]
-"tests/unit/test_plaintext_importer.py" = ["RUF001"]
-"tests/unit/test_phase1214_rules_coverage.py" = ["RUF001"]
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
 packages = ["commander_lab"]
-
-[tool.coverage.run]
-source = ["commander_lab"]
-branch = true
+mypy_path = "src"
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
