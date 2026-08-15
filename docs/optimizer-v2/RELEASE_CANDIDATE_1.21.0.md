@@ -19,6 +19,8 @@ All paired simulation evidence produced by these paths is classified as `structu
 
 Early sensitivity is outcome-independent. Pilot assignment is frozen by scenario parity and Mulligan sensitivity uses shared deterministic draw sequences across `current_pilot`, `conservative` and `interaction_oriented` policies.
 
+Adaptive racing is progressive across the frozen resource ladder: only survivors from the immediately preceding budget are eligible for the next budget. The regression suite explicitly verifies an 8 → 4 → 2 survivor sequence on a three-stage fixture, preventing accidental re-expansion of eliminated candidates while preserving the configured evidence budgets and exploration floor.
+
 ## Cross-platform runner integrity
 
 Optimizer locking uses platform-safe process-liveness checks. POSIX may use signal-zero probing; Windows uses a read-only process-handle query and never calls `os.kill(pid, 0)`. This avoids signalling or terminating the runner while retaining fail-closed stale-lock handling. Windows unit validation is process-isolated by file, and the Hypothesis pytest plugin is only loaded for files that actually import Hypothesis; no tests are excluded by that isolation.
