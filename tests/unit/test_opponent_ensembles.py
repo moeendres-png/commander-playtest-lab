@@ -106,6 +106,10 @@ def test_equal_and_worst_case_modes_need_no_fake_percentages():
         assert ensemble.weight_mode == mode
 
 
+def test_variant_default_confidence_is_unknown_not_fabricated():
+    assert v("confidence-unknown").confidence is None
+
+
 def test_variant_cannot_expand_ensemble_color_identity():
     variant = v("bad", colors=frozenset({"U", "R"}))
     with pytest.raises(ValueError, match="color identity"):
