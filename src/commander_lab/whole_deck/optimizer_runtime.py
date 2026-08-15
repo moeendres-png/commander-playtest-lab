@@ -12,6 +12,10 @@ from commander_lab.technical_truth import build_technical_truth
 from .lab import WholeDeckDesignLab
 from .lab_context import EnrichedWholeDeckSearchEngine
 from .models import PolicyId
+from .optimizer_advancement import (
+    build_confirmatory_frontier,
+    load_model_resolution_decision_policy,
+)
 from .optimizer_calibration import calibrate_decision_policy
 from .optimizer_search import AdaptiveWholeDeckSearch, ProjectPairedEvaluator
 from .optimizer_v2 import (
@@ -26,7 +30,7 @@ from .policies import get_policy
 from .search import current_control_mainboard
 from .search_models import WholeDeckSearchConfig, WholeDeckVariant
 
-OPTIMIZER_RUNTIME_VERSION = "optimizer-v2-runtime-0.1.0"
+OPTIMIZER_RUNTIME_VERSION = "optimizer-v2-runtime-0.2.0"
 DEFAULT_POLICIES = tuple(policy.value for policy in PolicyId)
 
 
@@ -268,8 +272,14 @@ def run_optimizer_search(
             generations=manifest.max_generations,
             proposals_per_generation=manifest.proposals_per_generation,
         )
+        resolution_policy = load_model_resolution_decision_policy(root_path)
+        confirmatory_frontier = build_confirmatory_frontier(
+            evaluator.advancement_evidence,
+            full_scenarios=evaluator.scenarios,
+            model_resolution=resolution_policy,
+        )
         payload: dict[str, object] = {
-            "schema_version": "1.0.0",
+            "schema_version": "1.1.0",
             "runtime_version": OPTIMIZER_RUNTIME_VERSION,
             "manifest_hash": manifest.manifest_hash,
             "evidence_context": "exploratory",
@@ -277,6 +287,14 @@ def run_optimizer_search(
             "preflight": preflight,
             "search": asdict(report),
             "initial_legal_seed_count": len(initial),
+            "confirmatory_advancement_gate_enforced": True,
+            "confirmatory_eligible_candidate_ids": list(
+                confirmatory_frontier.eligible_candidate_ids
+            ),
+            "confirmatory_advancement_gate": {
+                **confirmatory_frontier.model_dump(mode="json"),
+                "frontier_hash": confirmatory_frontier.frontier_hash,
+            },
             "confirmatory_partition_opened": False,
             "sealed_holdout_partition_opened": False,
             "official_winner_declared": False,
