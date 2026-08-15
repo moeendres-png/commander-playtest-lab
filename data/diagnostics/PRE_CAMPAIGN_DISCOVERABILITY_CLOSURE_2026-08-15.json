@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-15",
+  "audit_seed_base": 2026081505,
+  "policy_count": 9,
+  "diversified_starts": 3,
+  "max_steps_per_start": 24,
+  "archive_limit_per_policy": 2000,
+  "before": {"search_eligible_candidate_count":793,"observed_archive_candidate_count":691,"candidate_search_exploration_recall":0.8713745271122321,"observed_unknown_candidate_count":180,"semantic_unknown_search_exploration_recall":0.7114624505928854,"unseen_candidate_count":102,"candidate_visibility_recall":1.0,"package_universe_count":11,"unseen_packages":[],"package_discovery_status":"PASS_ALL_PACKAGES_SEEN"},
+  "after": {"search_eligible_candidate_count":793,"observed_archive_candidate_count":691,"candidate_search_exploration_recall":0.8713745271122321,"observed_unknown_candidate_count":180,"semantic_unknown_search_exploration_recall":0.7114624505928854,"unseen_candidate_count":102,"candidate_visibility_recall":1.0,"package_universe_count":11,"unseen_packages":[],"package_discovery_status":"PASS_ALL_PACKAGES_SEEN"},
+  "same_seed_archive_exposure_unchanged": true,
+  "review_queue_count": 102,
+  "interpretation": "Finite archive exposure is search exposure, not decision recall. All unseen candidates remain visible and were additionally hard-gate forced-inclusion probed without creating positive or negative performance evidence.",
+  "forced_inclusion_feasibility": {
+    "schema_version": "1.0.0",
+    "probe_type": "forced_inclusion_hard_gate_feasibility_not_performance",
+    "policy_id": "OWNED_POOL_NEUTRAL",
+    "seed": 2026081599,
+    "candidate_count": 102,
+    "feasible_count": 102,
+    "infeasible_count": 0,
+    "candidate_names": ["Act of Treason","Agrus Kos, Wojek Veteran","Angel's Mercy","Angel's Tomb","Angelic Destiny","Apex Hawks","Arrest","Assembly-Worker","Azorius Arrester","Ball Lightning","Bar the Door","Barbed Battlegear","Cabaretti Courtyard","Canyon Wildcat","Cerebral Eruption","Cerodon Yearling","Circle of Flame","Circle of Protection: Blue","Conclave Phalanx","Coral Merfolk","Crawling Barrens","Creative Technique","Crumbling Colossus","Cryptic Caves","Demolition Field","Distant Memories","Dread Statuary","Empyrean Eagle","Enclave Elite","Escape Tunnel","Ethersworn Shieldmage","Evolving Wilds","Faerie Mechanist","Ferrovore","Fog Bank","Frost Breath","Gaze of Adamaro","Goblin Boarders","Goblin Piker","Goblin Raider","Goblin Wardriver","Griffin Rider","Griffin Sentinel","Guardians of Akrasa","Gust-Skimmer","Harbor Serpent","Helpful Hunter","Hoarding Dragon","Intimidation Bolt","Invader Parasite","Kemba's Skyguard","Kitesail","Linden, the Steadfast Queen","Loam Lion","Loxodon Partisan","Master's Call","Micromancer","Myr Sire","Myriad Landscape","Nearheath Stalker","Nettlecyst","Night Revelers","Noble Vestige","Pacifism","Palace Guard","Phyrexian Hulk","Rally the Peasants","Recumbent Bliss","Regal Caracal","Reliquary Tower","Reverberate","Riveteers Overlook","Rocky Tar Pit","Rule of Law","Savannah Lions","Scoria Elemental","Scrambleverse","Shriekhorn","Siege Mastodon","Skinwing","Skywinder Drake","Soul Parry","Storm Crow","Stormtide Leviathan","Stratosoarer","Swell of Courage","Temple of the False God","Throne of Geth","Tine Shrike","Tolarian Terror","Trinket Mage","Tundra Wolves","Vault Skyward","Vedalken Anatomist","Vedalken Certarch","Vulshok Replica","Wall of Stone","Water Servant","Welkin Guide","Wind Drake","Witness Protection","Wurm's Tooth"],
+    "all_rows_automatic_positive_evidence": false,
+    "all_rows_automatic_negative_evidence": false,
+    "evidence_boundary": "A feasible forced-inclusion probe proves only legal/physical hard-gate reachability. It is neither positive card evidence nor structural performance evidence."
+  }
+}

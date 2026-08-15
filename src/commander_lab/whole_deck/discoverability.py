@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from .search_context import WholeDeckSearchContext
 from .search_models import WholeDeckSearchResult
 
-DISCOVERABILITY_REPORT_VERSION = "2026-08-14.1"
+DISCOVERABILITY_REPORT_VERSION = "2026-08-15.1"
 
 
 def build_discoverability_report(
@@ -74,6 +74,13 @@ def build_discoverability_report(
             "semantic_known": context.cards[name].semantic_known,
             "semantic_evidence": context.cards[name].semantic_evidence,
             "mana_value": context.cards[name].profile.mana_value,
+            "is_land": context.cards[name].profile.is_land,
+            "is_basic": context.cards[name].is_basic,
+            "color_identity": sorted(context.cards[name].color_identity),
+            "available_quantity": context.cards[name].available_quantity,
+            "roles": sorted(role.value for role in context.cards[name].profile.roles)
+            if context.cards[name].semantic_known
+            else [],
             "package_ids": sorted(context.cards[name].profile.package_ids),
             "review_reason": "not_seen_in_finite_whole_deck_search_archive",
             "automatic_negative_evidence": False,
@@ -117,5 +124,121 @@ def build_discoverability_report(
             "Observed archive coverage measures hypothesis-generation exposure under the configured "
             "finite search budget. Unseen does not mean weak; the explicit review queue is not a "
             "positive include prior and must not be treated as simulation evidence."
+        ),
+    }
+
+
+def build_forced_inclusion_feasibility_report(
+    context: WholeDeckSearchContext,
+    candidate_names: Iterable[str],
+    *,
+    seed: int,
+) -> dict[str, object]:
+    """Hard-gate probe unseen cards without creating positive/negative performance evidence.
+
+    Each candidate is forced into one deterministic neutral-policy constructive mainboard by
+    replacing one card of the same broad land/basic class. The probe answers only whether the
+    candidate can remain legally/physically materializable under that policy's hard gates.
+    """
+    from .models import PolicyId
+    from .policies import get_policy
+    from .search import WholeDeckSearchEngine
+    from .search_models import WholeDeckSearchConfig
+
+    engine = WholeDeckSearchEngine(
+        context,
+        get_policy(PolicyId.OWNED_POOL_NEUTRAL),
+        config=WholeDeckSearchConfig(
+            seed=seed,
+            diversified_starts=0,
+            max_steps_per_start=1,
+            finalist_limit=1,
+            archive_limit=32,
+        ),
+    )
+    base = engine.constructive_start()
+    rows: list[dict[str, object]] = []
+    for name in sorted(set(candidate_names)):
+        card = context.cards.get(name)
+        if card is None or name in context.commander_names or card.available_quantity < 1:
+            rows.append(
+                {
+                    "oracle_name": name,
+                    "feasible": False,
+                    "issues": ["not_search_eligible"],
+                    "automatic_positive_evidence": False,
+                    "automatic_negative_evidence": False,
+                }
+            )
+            continue
+        if name in base:
+            gate = engine._hard_gate(base)
+            rows.append(
+                {
+                    "oracle_name": name,
+                    "feasible": gate.valid,
+                    "issues": list(gate.issues),
+                    "replaced_card": None,
+                    "automatic_positive_evidence": False,
+                    "automatic_negative_evidence": False,
+                }
+            )
+            continue
+
+        target_is_land = card.profile.is_land
+        target_is_basic = card.is_basic
+
+        def same_class(
+            other_name: str,
+            target_is_land: bool = target_is_land,
+            target_is_basic: bool = target_is_basic,
+        ) -> bool:
+            other = context.cards[other_name]
+            if target_is_land != other.profile.is_land:
+                return False
+            if target_is_land and target_is_basic != other.is_basic:
+                return False
+            return other_name not in context.commander_names
+
+        removable = [other for other in base if same_class(other)]
+        removable.sort(key=lambda other: (engine._utility[other], other))
+        if not removable:
+            rows.append(
+                {
+                    "oracle_name": name,
+                    "feasible": False,
+                    "issues": ["no_same_class_replacement_slot"],
+                    "automatic_positive_evidence": False,
+                    "automatic_negative_evidence": False,
+                }
+            )
+            continue
+        replaced = removable[0]
+        proposal = list(base)
+        proposal[proposal.index(replaced)] = name
+        gate = engine._hard_gate(tuple(proposal))
+        rows.append(
+            {
+                "oracle_name": name,
+                "feasible": gate.valid,
+                "issues": list(gate.issues),
+                "replaced_card": replaced,
+                "automatic_positive_evidence": False,
+                "automatic_negative_evidence": False,
+            }
+        )
+    feasible = sum(bool(row["feasible"]) for row in rows)
+    return {
+        "schema_version": "1.0.0",
+        "probe_type": "forced_inclusion_hard_gate_feasibility_not_performance",
+        "policy_id": PolicyId.OWNED_POOL_NEUTRAL.value,
+        "seed": seed,
+        "candidate_count": len(rows),
+        "feasible_count": feasible,
+        "infeasible_count": len(rows) - feasible,
+        "rows": rows,
+        "evidence_boundary": (
+            "A feasible forced-inclusion probe proves only legal/physical hard-gate reachability. "
+            "It is neither positive card evidence nor structural performance evidence."
         ),
     }
