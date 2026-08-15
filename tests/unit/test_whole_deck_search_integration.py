@@ -73,8 +73,7 @@ def test_project_pool_smoke_uses_all_795_candidates_and_preserves_unknown_semant
     assert unknown == quality["semantic_unknown_count"] == 235
     assert quality["structurally_unmodeled_count"] == 253
     assert all(
-        card.semantic_known
-        == (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
+        card.semantic_known == (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
         for card in context.cards.values()
     )
     assert unknown > 0
