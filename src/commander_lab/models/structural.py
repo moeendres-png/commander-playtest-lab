@@ -83,8 +83,7 @@ class StructuralDeckProfile(FrozenModel):
         }
         if invalid_counts:
             raise ValueError(
-                "each commander must have exactly one structural card profile: "
-                f"{invalid_counts}"
+                f"each commander must have exactly one structural card profile: {invalid_counts}"
             )
         return self
 
