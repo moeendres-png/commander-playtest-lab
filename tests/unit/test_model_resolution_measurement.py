@@ -59,6 +59,24 @@ def test_robustness_spreads_are_not_folded_into_effective_resolution() -> None:
     assert robustness["pilot_policy"] == pytest.approx(2.0)
 
 
+def test_material_seat_sensitivity_requires_balanced_paired_use() -> None:
+    report = summarize_resolution_measurements(
+        block_means=(2.20, 2.21, 2.19, 2.20),
+        observations=_observations(),
+        pilot_means={"strong": 2.20, "average": 2.20},
+        calibrated_sesoi=0.05,
+    )
+    use = report["decision_use"]
+    assert isinstance(use, dict)
+    assert use["absolute_pooled_structural_claims_allowed"] is False
+    assert use["paired_candidate_comparisons_allowed"] is True
+    assert use["seat_sensitivity_gate"] == "REQUIRE_BALANCED_PAIRED_AND_SEAT_STRATIFIED_EVIDENCE"
+    conditions = use["paired_candidate_conditions"]
+    assert isinstance(conditions, list)
+    assert "same_own_seat" in conditions
+    assert "report_seat_stratified_effect_consistency" in conditions
+
+
 def test_compression_is_diagnostic_not_an_invented_numeric_penalty() -> None:
     observations = tuple(
         {
