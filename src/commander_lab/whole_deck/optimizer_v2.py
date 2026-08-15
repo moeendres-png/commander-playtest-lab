@@ -287,9 +287,7 @@ def descriptor_for_variant(variant: WholeDeckVariant) -> DeckDescriptor:
     multiplayer_values: list[float] = []
     if isinstance(raw_multiplayer, Mapping):
         multiplayer_values = [
-            _numeric(value)
-            for value in raw_multiplayer.values()
-            if isinstance(value, int | float)
+            _numeric(value) for value in raw_multiplayer.values() if isinstance(value, int | float)
         ]
     return DeckDescriptor(
         land_count=int(_number(variant.feature_vector, "land_count")),
@@ -405,9 +403,7 @@ class QualityDiversityArchive:
         if evaluation.qd_cell != expected:
             raise ValueError("evaluation QD cell does not match candidate descriptor")
         rows = [
-            row
-            for row in self._cells.get(expected, ())
-            if row.deck_hash != evaluation.deck_hash
+            row for row in self._cells.get(expected, ()) if row.deck_hash != evaluation.deck_hash
         ]
         rows.append(evaluation)
         rows.sort(
@@ -452,8 +448,7 @@ class QualityDiversityArchive:
             "min_novelty": min(novelties) if novelties else 0.0,
             "max_novelty": max(novelties) if novelties else 0.0,
             "cells": {
-                cell: [row.deck_hash for row in self._cells[cell]]
-                for cell in sorted(self._cells)
+                cell: [row.deck_hash for row in self._cells[cell]] for cell in sorted(self._cells)
             },
         }
 
@@ -591,7 +586,8 @@ def evaluate_calibration(
         false_elimination_rate=fe_rate,
         direction_recovery_rate=direction_correct / direction_total if direction_total else 1.0,
         equivalence_accuracy=equivalence_correct / equivalence_total if equivalence_total else 1.0,
-        targets_met=fp_rate <= policy.max_false_promotion and fe_rate <= policy.max_false_elimination,
+        targets_met=fp_rate <= policy.max_false_promotion
+        and fe_rate <= policy.max_false_elimination,
     )
 
 
