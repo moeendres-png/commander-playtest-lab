@@ -77,6 +77,15 @@ def _interval(value: object) -> tuple[float, float] | None:
     return low, high
 
 
+def _embedded_mapping(
+    comparison: dict[str, Any], explicit: dict[str, Any] | None, key: str
+) -> dict[str, Any] | None:
+    if explicit is not None:
+        return explicit
+    raw = comparison.get(key)
+    return dict(raw) if isinstance(raw, dict) else None
+
+
 def build_decision_information_state(
     comparison: dict[str, Any],
     *,
@@ -105,6 +114,15 @@ def build_decision_information_state(
     current_iterations = _integer(context.get("current_iterations"))
     precision_ceiling = _integer(context.get("preregistered_precision_ceiling"))
     additional_precision_authorized = context.get("additional_precision_authorized") is True
+
+    domain_validity = _embedded_mapping(comparison, domain_validity, "domain_validity")
+    structural_fidelity = _embedded_mapping(
+        comparison, structural_fidelity, "structural_fidelity"
+    )
+    model_resolution = _embedded_mapping(comparison, model_resolution, "model_resolution")
+    model_informativeness = _embedded_mapping(
+        comparison, model_informativeness, "model_informativeness"
+    )
 
     domain_status = str((domain_validity or {}).get("status", "")) or None
     fidelity_status = str((structural_fidelity or {}).get("status", "")) or None
