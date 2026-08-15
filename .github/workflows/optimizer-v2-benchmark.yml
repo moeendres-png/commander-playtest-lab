@@ -1,0 +1,102 @@
+name: Optimizer v2 Technical Benchmark
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: optimizer-v2-benchmark-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  technical-ab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Freeze technical benchmark manifest
+        run: |
+          mkdir -p artifacts/optimizer-v2-ab .runtime/optimizer-v2-ab
+          commander-lab-optimizer manifest \
+            --output artifacts/optimizer-v2-ab/manifest.json \
+            --run-id optimizer-v2-technical-ab-${{ github.sha }} \
+            --seed 2026081507 \
+            --exploratory-games 256 \
+            --calibration-games 128 \
+            --confirmatory-games 64 \
+            --holdout-games 64 \
+            --root .
+      - name: Manifest preflight
+        run: |
+          commander-lab-optimizer preflight \
+            --manifest artifacts/optimizer-v2-ab/manifest.json \
+            --root . \
+            > artifacts/optimizer-v2-ab/preflight.json
+      - name: Run adaptive exploratory benchmark
+        run: |
+          commander-lab-optimizer run \
+            --manifest artifacts/optimizer-v2-ab/manifest.json \
+            --output-dir .runtime/optimizer-v2-ab \
+            --workers 2 \
+            --max-turns 35 \
+            --root . \
+            > artifacts/optimizer-v2-ab/run-output.json
+      - name: Verify resume without duplicate execution
+        run: |
+          commander-lab-optimizer run \
+            --manifest artifacts/optimizer-v2-ab/manifest.json \
+            --output-dir .runtime/optimizer-v2-ab \
+            --workers 2 \
+            --max-turns 35 \
+            --root . \
+            > artifacts/optimizer-v2-ab/resume-output.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('artifacts/optimizer-v2-ab/resume-output.json').read_text())
+          if payload.get('resume_status') != 'resumed_without_reexecution':
+              raise SystemExit('resume did not reuse the completed checkpoint')
+          PY
+      - name: Build calibration and Legacy-v2 reports
+        run: |
+          cp .runtime/optimizer-v2-ab/calibration-report.json artifacts/optimizer-v2-ab/calibration-report.json
+          cp .runtime/optimizer-v2-ab/frontier-handoff.json artifacts/optimizer-v2-ab/frontier-handoff.json
+          cp .runtime/optimizer-v2-ab/semantic-review-queue.json artifacts/optimizer-v2-ab/semantic-review-queue.json
+          cp .runtime/optimizer-v2-ab/near-frontier-diagnostics.json artifacts/optimizer-v2-ab/near-frontier-diagnostics.json
+          cp .runtime/optimizer-v2-ab/optimizer-execution-audit-search.json artifacts/optimizer-v2-ab/execution-audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from commander_lab.whole_deck.optimizer_benchmark import write_benchmark_report
+          calibration = json.loads(Path('artifacts/optimizer-v2-ab/calibration-report.json').read_text())
+          if calibration.get('calibration_acceptance_pass') is not True:
+              raise SystemExit('Optimizer v2 calibration acceptance did not pass')
+          write_benchmark_report(
+              legacy_path='docs/optimizer-v2/legacy_campaign_baseline_2026-08-15.json',
+              v2_search_report_path='.runtime/optimizer-v2-ab/optimizer-search-report.json',
+              output_path='artifacts/optimizer-v2-ab/legacy-vs-v2-report.json',
+          )
+          report = json.loads(Path('artifacts/optimizer-v2-ab/legacy-vs-v2-report.json').read_text())
+          if not report['acceptance']['v2_benchmark_pass']:
+              raise SystemExit('Optimizer v2 did not demonstrate a material benchmark benefit')
+          PY
+      - name: Hash benchmark artifacts
+        run: |
+          sha256sum artifacts/optimizer-v2-ab/*.json | sort > artifacts/optimizer-v2-ab/SHA256SUMS.txt
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: optimizer-v2-technical-ab
+          path: artifacts/optimizer-v2-ab/
+          if-no-files-found: error

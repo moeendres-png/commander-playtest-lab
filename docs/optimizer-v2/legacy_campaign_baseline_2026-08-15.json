@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "classification": "derived_technical_benchmark_reference_not_canonical_gameplay_truth",
+  "source": {
+    "campaign": "ROGSHAI_OFFICIAL_WHOLE_DECK_CAMPAIGN_2026-08-15",
+    "manifest_sha256": "cf49faa8568c17f289a750b59a75700e7a6db5674ea44cb95658b5d6745e855e",
+    "result_file_sha256": "ded36bca759e28b4b9c350510af5aea59629858455eec837292dedb647db062d",
+    "campaign_bundle_sha256": "81f219d9808aef9cab24a032348340b472f2dc8d35248710665819e46318ae93"
+  },
+  "search": {
+    "candidate_count": 36,
+    "unique_legal_decks": 36,
+    "qd_descriptor_definition": {
+      "land_bin_width": 2,
+      "average_nonland_mv_bin_width": 0.4,
+      "interaction_strength_bin_width": 4.0
+    },
+    "qd_occupied_cells": 22,
+    "pairwise_multiset_card_distance": {
+      "mean": 0.6822933953530227,
+      "median": 0.7105263157894737,
+      "minimum": 0.11538461538461542,
+      "maximum": 0.9289617486338798
+    },
+    "near_frontier_unresolved_count": 9,
+    "clear_negative_count": 27,
+    "clear_positive_count": 0
+  },
+  "evaluation": {
+    "paired_scenario_evaluations": 14720,
+    "budgets": [64, 128, 256, 512, 1024],
+    "best_final_available_paired_placement_delta": 0.0263671875,
+    "best_final_available_budget": 1024,
+    "evidence_type": "structural_model_estimates"
+  },
+  "truth_boundary": "Derived from the frozen official campaign bundle. Diversity metrics are recomputed benchmark descriptors, not observed metagame frequencies or empirical Commander win rates."
+}

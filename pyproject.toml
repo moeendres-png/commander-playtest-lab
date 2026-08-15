@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commander-playtest-lab"
-version = "1.20.4"
+version = "1.21.0"
 description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -39,6 +39,7 @@ openai = [
 
 [project.scripts]
 commander-lab = "commander_lab.cli.app:app"
+commander-lab-optimizer = "commander_lab.optimizer_v2_cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
