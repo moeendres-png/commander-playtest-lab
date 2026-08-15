@@ -28,7 +28,7 @@ def _scenarios() -> tuple[SimpleNamespace, ...]:
             SimpleNamespace(
                 scenario_id=f"scenario-{index}",
                 own_seat=index % 4 + 1,
-                opponent_deck_ids=groups[index % 2],
+                opponent_deck_ids=groups[(index // 4) % 2],
             )
         )
     return tuple(rows)
@@ -171,12 +171,14 @@ def test_seat_direction_reversal_blocks_positive_pooled_candidate() -> None:
 
 def test_scenario_group_reversal_blocks_positive_pooled_candidate() -> None:
     assessment = assess_candidate_advancement(
-        _evidence((1.0, -0.25, 1.0, -0.25, 1.0, -0.25, 1.0, -0.25)),
+        _evidence((1.0, 1.0, 1.0, 1.0, -0.25, -0.25, -0.25, -0.25)),
         full_scenarios=_scenarios(),
         model_resolution=_policy(),
     )
     assert assessment.status == CandidateAdvancementStatus.BLOCKED_SCENARIO_ROBUSTNESS
+    assert all(value > 0.0 for value in assessment.seat_effects.values())
     assert any(value < 0.0 for value in assessment.scenario_group_effects.values())
+    assert assessment.seat_direction_consistent
     assert not assessment.scenario_direction_consistent
 
 
