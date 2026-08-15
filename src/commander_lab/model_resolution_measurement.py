@@ -127,9 +127,7 @@ def summarize_resolution_measurements(
     seat_means, seat_spread = _group_spread(seat_rows)
     opponent_group_means, opponent_group_spread = _group_spread(opponent_group_rows)
     pilot_spread = (
-        max(pilot_means.values()) - min(pilot_means.values())
-        if len(pilot_means) >= 2
-        else None
+        max(pilot_means.values()) - min(pilot_means.values()) if len(pilot_means) >= 2 else None
     )
 
     distribution = Counter(int(value) for value in placements)
@@ -138,6 +136,13 @@ def summarize_resolution_measurements(
     seat_concentration = seat_spread is not None and seat_spread <= 0.15
     compression_limit = placement_concentration >= 0.90 and seat_concentration
     effective_resolution = max(calibrated_sesoi, seed_block_range)
+    seat_sensitivity_material = seat_spread is not None and seat_spread > effective_resolution
+    scenario_sensitivity_material = (
+        opponent_group_spread is not None and opponent_group_spread > effective_resolution
+    )
+    pilot_sensitivity_material = (
+        pilot_spread is not None and pilot_spread > effective_resolution
+    )
 
     return {
         "status": "MEASURED",
@@ -169,11 +174,49 @@ def summarize_resolution_measurements(
             "admissible_opponent_group": opponent_group_means,
             "pilot_policy": dict(sorted(pilot_means.items())),
         },
+        "robustness_materiality": {
+            "seat_assignment_exceeds_sampling_resolution": seat_sensitivity_material,
+            "admissible_opponent_group_exceeds_sampling_resolution": scenario_sensitivity_material,
+            "pilot_policy_exceeds_sampling_resolution": pilot_sensitivity_material,
+        },
+        "decision_use": {
+            "absolute_pooled_structural_claims_allowed": not seat_sensitivity_material,
+            "paired_candidate_comparisons_allowed": True,
+            "paired_candidate_conditions": [
+                "same_seed",
+                "same_own_seat",
+                "same_opponent_seat_assignment",
+                "balanced_own_seat_coverage",
+                "report_seat_stratified_effect_consistency",
+                "report_admissible_scenario_robustness",
+            ],
+            "seat_sensitivity_gate": (
+                "REQUIRE_BALANCED_PAIRED_AND_SEAT_STRATIFIED_EVIDENCE"
+                if seat_sensitivity_material
+                else "STANDARD_PAIRED_EVIDENCE"
+            ),
+            "scenario_sensitivity_gate": (
+                "REQUIRE_SCENARIO_ROBUSTNESS"
+                if scenario_sensitivity_material
+                else "STANDARD_SCENARIO_EVIDENCE"
+            ),
+            "pilot_sensitivity_gate": (
+                "REQUIRE_PILOT_ROBUSTNESS"
+                if pilot_sensitivity_material
+                else "STANDARD_PILOT_EVIDENCE"
+            ),
+        },
+        "starting_player_contract": {
+            "campaign_runner_starting_player_seat_index": 0,
+            "interpretation": (
+                "physical seat 1 starts in Whole-Deck campaign matches; RogShai own seat rotates "
+                "through balanced scenarios, so absolute seat effects are expected model inputs and "
+                "must be controlled by same-seat pairing for deck comparisons"
+            ),
+        },
         "outcome_compression": {
             "status": "MODEL_INFORMATION_LIMIT" if compression_limit else "INFORMATIVE",
-            "placement_distribution": {
-                str(key): distribution[key] for key in sorted(distribution)
-            },
+            "placement_distribution": {str(key): distribution[key] for key in sorted(distribution)},
             "unique_placement_values": unique_placements,
             "dominant_placement_share": placement_concentration,
             "place_1_share": fmean(place_1),
@@ -278,9 +321,7 @@ def measure_current_model_resolution(
         )
 
     pilot_seed = spec.seed ^ 0x50494C4F
-    pilot_scenarios = tuple(
-        orchestrator.scheduler.schedule(spec.pilot_axis_games, seed=pilot_seed)
-    )
+    pilot_scenarios = tuple(orchestrator.scheduler.schedule(spec.pilot_axis_games, seed=pilot_seed))
     if all_scenario_seeds & {row.seed for row in pilot_scenarios}:
         raise RuntimeError("pilot sensitivity scenarios overlap seed-resolution blocks")
     pilot_means: dict[str, float] = {}
