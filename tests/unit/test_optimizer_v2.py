@@ -216,9 +216,7 @@ def test_novelty_rewards_distant_candidate() -> None:
     base = _variant("1")
     near = _variant("2", lands=37)
     far = _variant("3", lands=44, average_mv=4.0, interaction=30.0)
-    assert novelty_score(far, (base, near), neighbors=2) > novelty_score(
-        near, (base,), neighbors=1
-    )
+    assert novelty_score(far, (base, near), neighbors=2) > novelty_score(near, (base,), neighbors=1)
 
 
 def test_racing_keeps_novelty_exploration_slot() -> None:
