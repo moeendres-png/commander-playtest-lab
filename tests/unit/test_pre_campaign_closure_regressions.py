@@ -113,7 +113,7 @@ def _selected_fixture_utility(
         "Fixture Island 04",
         "Fixture Island 05",
     )
-    overrides = (opening_hand,) + tuple(None for _ in opponents)
+    overrides = (opening_hand, *tuple(None for _ in opponents))
     log_path = tmp_path / f"{label}-{pod_size}p.jsonl"
     result = StructuralSimulator(decks).simulate(
         StructuralMatchConfig(
