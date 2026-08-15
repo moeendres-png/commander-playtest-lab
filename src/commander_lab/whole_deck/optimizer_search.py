@@ -26,8 +26,8 @@ from .optimizer_v2 import (
     QualityDiversityArchive,
     RacingConfig,
     descriptor_for_variant,
-    novelty_score,
     normalize_learning_weights,
+    novelty_score,
     operator_names,
     select_racing_survivors,
     update_learning_weights,
@@ -66,11 +66,18 @@ def _weighted_choice(rng: random.Random, weights: Mapping[str, float]) -> str:
     return ordered[-1]
 
 
-class AdaptiveWholeDeckSearch:
-    """Performance-informed Whole-Deck search over the existing SearchEngine operators.
+def _placement(row: Mapping[str, object], key: str) -> float:
+    value = row.get(key)
+    if not isinstance(value, int | float):
+        raise TypeError(f"paired campaign {key} must be numeric")
+    return float(value)
 
-    Search outputs are exploratory only. This class deliberately has no confirmatory or
-    holdout execution method.
+
+class AdaptiveWholeDeckSearch:
+    """Performance-informed search over existing legal Whole-Deck operators.
+
+    Results are exploratory only. Confirmatory and holdout execution are intentionally
+    absent so search feedback cannot consume either evidence partition.
     """
 
     def __init__(
@@ -112,23 +119,22 @@ class AdaptiveWholeDeckSearch:
                 archive.variants(),
                 neighbors=self.qd.novelty_neighbors,
             )
-            row = raw.model_copy(
-                update={
-                    "generation": generation,
-                    "novelty": novelty,
-                    "qd_cell": descriptor_for_variant(variant).cell(self.qd),
-                }
+            current.append(
+                raw.model_copy(
+                    update={
+                        "generation": generation,
+                        "novelty": novelty,
+                        "qd_cell": descriptor_for_variant(variant).cell(self.qd),
+                    }
+                )
             )
-            current.append(row)
             calls += 1
             scenario_pairs += first_budget
+
         by_id = {row.candidate_id: row for row in current}
         variant_by_id = {variant.variant_id: variant for variant in variants}
         for budget_index, budget in enumerate(self.racing.budgets[1:], start=1):
-            survivor_ids = select_racing_survivors(
-                tuple(by_id.values()),
-                config=self.racing,
-            )
+            survivor_ids = select_racing_survivors(tuple(by_id.values()), config=self.racing)
             next_rows: dict[str, ExploratoryEvaluation] = {}
             for index, candidate_id in enumerate(survivor_ids):
                 variant = variant_by_id[candidate_id]
@@ -148,6 +154,7 @@ class AdaptiveWholeDeckSearch:
                 calls += 1
                 scenario_pairs += budget
             by_id.update(next_rows)
+
         final_rows = list(by_id.values())
         for row in final_rows:
             archive.admit(variant_by_id[row.candidate_id], row)
@@ -163,22 +170,21 @@ class AdaptiveWholeDeckSearch:
         legal_initial = [row for row in initial_variants if row.hard_gate.valid]
         if not legal_initial:
             raise ValueError("adaptive search has no legal initial variants")
+
         archive = QualityDiversityArchive(self.qd)
         rng = random.Random(self.seed)
         operator_weights = normalize_learning_weights(
             {name: 1.0 for name in operator_names()},
             floor=self.learning.exploration_floor,
         )
-        policy_ids = sorted(self.engines)
         policy_weights = normalize_learning_weights(
-            {name: 1.0 for name in policy_ids},
+            {name: 1.0 for name in sorted(self.engines)},
             floor=self.learning.exploration_floor,
         )
         history: list[dict[str, Any]] = []
-        seen: dict[str, WholeDeckVariant] = {
-            row.deck_hash: row for row in legal_initial
-        }
+        seen: dict[str, WholeDeckVariant] = {row.deck_hash: row for row in legal_initial}
         evaluations_by_variant: dict[str, ExploratoryEvaluation] = {}
+
         initial_eval, calls, pairs = self._evaluate_batch(
             legal_initial,
             generation=0,
@@ -206,6 +212,7 @@ class AdaptiveWholeDeckSearch:
             parent_by_policy: dict[str, list[WholeDeckVariant]] = defaultdict(list)
             for parent in parents:
                 parent_by_policy[parent.policy_id.value].append(parent)
+
             proposals: list[WholeDeckVariant] = []
             proposal_metadata: dict[str, tuple[str, str, str]] = {}
             attempts = 0
@@ -213,9 +220,7 @@ class AdaptiveWholeDeckSearch:
             while len(proposals) < proposals_per_generation and attempts < max_attempts:
                 attempts += 1
                 available_policy_weights = {
-                    key: policy_weights[key]
-                    for key in policy_weights
-                    if parent_by_policy.get(key)
+                    key: policy_weights[key] for key in policy_weights if parent_by_policy.get(key)
                 }
                 if not available_policy_weights:
                     break
@@ -271,6 +276,7 @@ class AdaptiveWholeDeckSearch:
                 )
                 operator_rewards[operator_name].append(reward)
                 policy_rewards[policy_id].append(reward)
+
             old_operator = dict(operator_weights)
             old_policy = dict(policy_weights)
             operator_weights = update_learning_weights(
@@ -318,7 +324,7 @@ class AdaptiveWholeDeckSearch:
 
 
 class ProjectPairedEvaluator:
-    """Manifest-bound exploratory evaluator using the current balanced 4P scheduler."""
+    """Manifest-bound exploratory evaluator using the balanced 4P scheduler."""
 
     def __init__(
         self,
@@ -340,11 +346,12 @@ class ProjectPairedEvaluator:
             raise ValueError("optimizer manifest control hash does not match current control")
         self.workers = workers
         self.max_turns = max_turns
-        scheduled = orchestrator.scheduler.schedule(
-            len(manifest.exploratory.scenario_ids),
-            seed=manifest.exploratory.master_seed,
+        self.scenarios = tuple(
+            orchestrator.scheduler.schedule(
+                len(manifest.exploratory.scenario_ids),
+                seed=manifest.exploratory.master_seed,
+            )
         )
-        self.scenarios = tuple(scheduled)
         _verify_partition(self.scenarios, manifest.exploratory)
 
     def __call__(
@@ -357,6 +364,7 @@ class ProjectPairedEvaluator:
             raise ValueError("exploratory budget exceeds frozen scenario partition")
         if not variant.hard_gate.valid:
             raise ValueError("illegal candidate reached paired simulation")
+
         candidate = self.context.materialize(
             variant.mainboard,
             label=variant.deck_hash[:12],
@@ -389,19 +397,16 @@ class ProjectPairedEvaluator:
                 scenarios=scenarios,
                 pilot_config=pilot,
                 max_turns=self.max_turns,
-                statistics_seed=(
-                    self.manifest.exploratory.master_seed + statistics_offset
-                ),
+                statistics_seed=self.manifest.exploratory.master_seed + statistics_offset,
                 workers=self.workers,
             )
             raw = result.get("paired_observations", [])
             if not isinstance(raw, list):
                 raise TypeError("paired campaign observations are malformed")
-            observations.extend(
-                row for row in raw if isinstance(row, dict)
-            )
+            observations.extend(row for row in raw if isinstance(row, dict))
+
         differences = tuple(
-            float(row["baseline_placement"]) - float(row["variant_placement"])
+            _placement(row, "baseline_placement") - _placement(row, "variant_placement")
             for row in observations
         )
         if len(differences) != budget:
