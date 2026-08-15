@@ -79,6 +79,7 @@ def enriched_context(
             semantic_evidence=f"{card.semantic_evidence}+runtime_hardened",
             semantic_known=card.semantic_known,
             color_identity=card.color_identity,
+            semantic_state=card.semantic_state,
             search_utility_override=card.search_utility_override,
         )
     snapshot = sha256_value(
