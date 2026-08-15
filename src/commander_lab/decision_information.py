@@ -37,6 +37,11 @@ class DecisionInformationState:
     stop_reason: str
     evidence_class: str = "structural_decision_information"
     truth_boundary: str = "decision-information diagnostic, not empirical winrate"
+    domain_input_validity: str | None = None
+    structural_fidelity: str | None = None
+    model_resolution_status: str | None = None
+    effective_resolution: float | None = None
+    seed_evidence_class: str = "PRECISION_ONLY_SAME_MODEL"
 
     @property
     def state_hash(self) -> str:
@@ -76,6 +81,9 @@ def build_decision_information_state(
     comparison: dict[str, Any],
     *,
     model_informativeness: dict[str, Any] | None = None,
+    domain_validity: dict[str, Any] | None = None,
+    structural_fidelity: dict[str, Any] | None = None,
+    model_resolution: dict[str, Any] | None = None,
     scenario_spread: float | None = None,
     failure_mode_differences: tuple[str, ...] = (),
     missing_semantic_axes: tuple[str, ...] = (),
@@ -83,7 +91,12 @@ def build_decision_information_state(
     precision_context: dict[str, Any] | None = None,
     indifference_threshold: float = 0.025,
 ) -> DecisionInformationState:
-    """Diagnose which uncertainty source should control the next experiment."""
+    """Diagnose which uncertainty source should control the next experiment.
+
+    Gate order is deliberately epistemic rather than effect-first: input validity, question-specific
+    model fidelity, tactical dependency, model informativeness, measured resolution, then effect or
+    equivalence. Additional same-model seed blocks are precision evidence only.
+    """
     if indifference_threshold < 0.0:
         raise ValueError("indifference_threshold must be non-negative")
     context = precision_context or comparison.get("precision_context") or {}
@@ -93,23 +106,56 @@ def build_decision_information_state(
     precision_ceiling = _integer(context.get("preregistered_precision_ceiling"))
     additional_precision_authorized = context.get("additional_precision_authorized") is True
 
-    if comparison.get("status") != "completed":
+    domain_status = str((domain_validity or {}).get("status", "")) or None
+    fidelity_status = str((structural_fidelity or {}).get("status", "")) or None
+    resolution_status = str((model_resolution or {}).get("status", "")) or None
+    measured_resolution = _number((model_resolution or {}).get("effective_resolution"))
+    decision_threshold = max(
+        indifference_threshold,
+        measured_resolution if measured_resolution is not None else indifference_threshold,
+    )
+
+    def state(
+        *,
+        status: DecisionInformationStatus,
+        effect: float | None,
+        interval: tuple[float, float] | None,
+        uncertainty: float | None,
+        seed_spread: float | None,
+        next_experiment: str,
+        reason: str,
+    ) -> DecisionInformationState:
         return DecisionInformationState(
-            schema_version="1.1.0",
-            status=DecisionInformationStatus.STOP,
-            pairwise_effect=None,
-            confidence_interval=None,
-            decision_uncertainty=None,
-            indifference_threshold=indifference_threshold,
-            seed_spread=None,
+            schema_version="1.2.0",
+            status=status,
+            pairwise_effect=effect,
+            confidence_interval=interval,
+            decision_uncertainty=uncertainty,
+            indifference_threshold=decision_threshold,
+            seed_spread=seed_spread,
             scenario_spread=scenario_spread,
             failure_mode_differences=failure_mode_differences,
             missing_semantic_axes=missing_semantic_axes,
             current_iterations=current_iterations,
             precision_ceiling=precision_ceiling,
             additional_precision_authorized=additional_precision_authorized,
-            next_recommended_experiment="repair_constraints_or_choose_another_candidate",
-            stop_reason="comparison did not pass the hard-constraint gate",
+            next_recommended_experiment=next_experiment,
+            stop_reason=reason,
+            domain_input_validity=domain_status,
+            structural_fidelity=fidelity_status,
+            model_resolution_status=resolution_status,
+            effective_resolution=measured_resolution,
+        )
+
+    if comparison.get("status") != "completed":
+        return state(
+            status=DecisionInformationStatus.STOP,
+            effect=None,
+            interval=None,
+            uncertainty=None,
+            seed_spread=None,
+            next_experiment="repair_constraints_or_choose_another_candidate",
+            reason="comparison did not pass the hard-constraint gate",
         )
 
     paired = comparison.get("paired", {})
@@ -121,70 +167,147 @@ def build_decision_information_state(
     seed_spread = (interval[1] - interval[0]) / 2.0 if interval is not None else mcse
     uncertainty = seed_spread
 
+    if domain_validity is not None and domain_validity.get("strong_decision_allowed") is not True:
+        return state(
+            status=DecisionInformationStatus.OPPONENT_UNCERTAINTY_DOMINATES,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment=str(
+                domain_validity.get(
+                    "recommended_action",
+                    "use_evidence_bounded_opponent_ambiguity_ensemble",
+                )
+            ),
+            reason="domain/input evidence cannot support a strong decision in this scope",
+        )
+    if structural_fidelity is not None and structural_fidelity.get("strong_decision_allowed") is not True:
+        return state(
+            status=DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment=str(
+                structural_fidelity.get(
+                    "recommended_action",
+                    "resolve_question_specific_structural_fidelity",
+                )
+            ),
+            reason="question-specific structural fidelity is insufficient for a strong decision",
+        )
+    if missing_semantic_axes:
+        return state(
+            status=DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="resolve_decision_material_semantic_axes",
+            reason="a decision-material semantic axis is missing from the current comparison",
+        )
     if tactical_evidence_required:
-        status = DecisionInformationStatus.TACTICAL_EVIDENCE_NEEDED
-        next_experiment = "run_bounded_tactical_evidence_fixture"
-        reason = "the unresolved decision depends on legal-action/timing/rules execution"
-    elif scenario_spread is not None and seed_spread is not None and scenario_spread > seed_spread:
-        status = DecisionInformationStatus.OPPONENT_UNCERTAINTY_DOMINATES
-        next_experiment = "test_finalists_across_declared_opponent_envelopes"
-        reason = "between-scenario uncertainty exceeds within-scenario seed uncertainty"
-    elif missing_semantic_axes:
-        status = DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC
-        next_experiment = "resolve_decision_material_semantic_axes"
-        reason = "a decision-material semantic axis is missing from the current comparison"
-    elif interval is not None and interval[0] > indifference_threshold:
-        status = DecisionInformationStatus.STOP_WITH_PREFERENCE
-        next_experiment = "stop_with_structural_preference"
-        reason = "the paired interval is separated beyond the decision-indifference threshold"
-    elif interval is not None and interval[1] < -indifference_threshold:
-        status = DecisionInformationStatus.STOP
-        next_experiment = "stop_or_return_to_candidate_screening"
-        reason = "the paired interval is materially negative"
-    elif (
+        return state(
+            status=DecisionInformationStatus.TACTICAL_EVIDENCE_NEEDED,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="run_bounded_tactical_evidence_fixture",
+            reason="the unresolved decision depends on legal-action/timing/rules execution",
+        )
+    if (model_informativeness or {}).get("status") == "MODEL_INFORMATION_LIMIT":
+        return state(
+            status=DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="diagnose_model_information_before_more_seed_work",
+            reason="the structural cohort is saturated or non-separable; seeds alone are insufficient",
+        )
+    if model_resolution is not None and resolution_status != "MEASURED":
+        return state(
+            status=DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="measure_structural_model_resolution_across_declared_axes",
+            reason="synthetic calibration alone does not establish structural model resolution",
+        )
+    if scenario_spread is not None and seed_spread is not None and scenario_spread > seed_spread:
+        return state(
+            status=DecisionInformationStatus.OPPONENT_UNCERTAINTY_DOMINATES,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="test_finalists_across_declared_opponent_envelopes",
+            reason="between-scenario uncertainty exceeds within-scenario seed uncertainty",
+        )
+    if interval is not None and interval[0] > decision_threshold:
+        return state(
+            status=DecisionInformationStatus.STOP_WITH_PREFERENCE,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="stop_with_structural_preference",
+            reason="paired interval is separated beyond measured decision resolution",
+        )
+    if interval is not None and interval[1] < -decision_threshold:
+        return state(
+            status=DecisionInformationStatus.STOP,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="stop_or_return_to_candidate_screening",
+            reason="paired interval is materially negative beyond measured decision resolution",
+        )
+    if (
         interval is not None
-        and interval[0] >= -indifference_threshold
-        and interval[1] <= indifference_threshold
+        and interval[0] >= -decision_threshold
+        and interval[1] <= decision_threshold
     ):
-        status = DecisionInformationStatus.NO_MATERIAL_DECISION_DIFFERENCE
-        next_experiment = "stop_no_material_difference"
-        reason = "the entire interval lies inside the decision-indifference region"
-    elif (model_informativeness or {}).get("status") == "MODEL_INFORMATION_LIMIT":
-        status = DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC
-        next_experiment = "diagnose_model_information_before_more_seed_work"
-        reason = "the structural cohort is saturated or non-separable; seeds alone are insufficient"
-    elif (
+        return state(
+            status=DecisionInformationStatus.NO_MATERIAL_DECISION_DIFFERENCE,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="stop_no_material_difference",
+            reason="entire interval lies inside measured decision resolution",
+        )
+    if (
         current_iterations is not None
         and precision_ceiling is not None
         and current_iterations >= precision_ceiling
         and not additional_precision_authorized
     ):
-        status = DecisionInformationStatus.PRECISION_CEILING_REACHED
-        next_experiment = "select_next_non_seed_evidence_or_remain_unresolved"
-        reason = (
-            "the preregistered precision ceiling is reached and more seed work is not authorized"
+        return state(
+            status=DecisionInformationStatus.PRECISION_CEILING_REACHED,
+            effect=effect,
+            interval=interval,
+            uncertainty=uncertainty,
+            seed_spread=seed_spread,
+            next_experiment="select_next_non_seed_evidence_or_remain_unresolved",
+            reason=(
+                "preregistered precision ceiling is reached; same-model seeds add precision only"
+            ),
         )
-    else:
-        status = DecisionInformationStatus.MORE_SIMULATIONS_USEFUL
-        next_experiment = "run_next_paired_micro_batch"
-        reason = "current seed uncertainty can still plausibly change the material decision within budget"
-
-    return DecisionInformationState(
-        schema_version="1.1.0",
-        status=status,
-        pairwise_effect=effect,
-        confidence_interval=interval,
-        decision_uncertainty=uncertainty,
-        indifference_threshold=indifference_threshold,
+    return state(
+        status=DecisionInformationStatus.MORE_SIMULATIONS_USEFUL,
+        effect=effect,
+        interval=interval,
+        uncertainty=uncertainty,
         seed_spread=seed_spread,
-        scenario_spread=scenario_spread,
-        failure_mode_differences=failure_mode_differences,
-        missing_semantic_axes=missing_semantic_axes,
-        current_iterations=current_iterations,
-        precision_ceiling=precision_ceiling,
-        additional_precision_authorized=additional_precision_authorized,
-        next_recommended_experiment=next_experiment,
-        stop_reason=reason,
+        next_experiment="run_next_paired_precision_only_micro_batch",
+        reason=(
+            "within the preregistered budget, more paired precision can still change the decision"
+        ),
     )
 
 
