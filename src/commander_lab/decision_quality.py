@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from enum import StrEnum
-from typing import Mapping, Sequence
 
 from commander_lab.models.opponents import OpponentEvidenceKind
 from commander_lab.storage.run_identity import sha256_run_value
