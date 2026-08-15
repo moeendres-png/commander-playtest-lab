@@ -185,11 +185,14 @@ def build_forced_inclusion_feasibility_report(
             )
             continue
 
+        target_is_land = card.profile.is_land
+        target_is_basic = card.is_basic
+
         def same_class(other_name: str) -> bool:
             other = context.cards[other_name]
-            if card.profile.is_land != other.profile.is_land:
+            if target_is_land != other.profile.is_land:
                 return False
-            if card.profile.is_land and card.is_basic != other.is_basic:
+            if target_is_land and target_is_basic != other.is_basic:
                 return False
             return other_name not in context.commander_names
 
