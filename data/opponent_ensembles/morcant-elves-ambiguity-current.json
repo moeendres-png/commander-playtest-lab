@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "opponent_id": "opponent:alen_high_perfect_morcant",
+  "deck_id": "opponent/morcant-elves",
+  "commander": "High Perfect Morcant",
+  "question_scope": "LOCAL_CURRENT_MATCHUP",
+  "domain_input_validity": "LIMITED",
+  "current_local_evidence": {
+    "hard_or_provenance_confirmed_real_slots": 54,
+    "real_unknown_slots": 46,
+    "working_synthetic_nonbasic_slots": 18,
+    "working_synthetic_basic_slots": 28,
+    "full_real_list_known": false
+  },
+  "evidence_kinds": [
+    "partially_observed",
+    "reported",
+    "synthetic_completion"
+  ],
+  "source_ids": [
+    "drive:1EnUsHJkDOrNdCXsQekG5ERXhXR8uK71p",
+    "drive:1rDpwcKqa52OqskTjMM_1nV-2z0Cfem3O"
+  ],
+  "scenario_family": {
+    "legacy_structural_scenario_source": "morcant-elves-ensemble-v1",
+    "probability_weights": null,
+    "empirical_frequency_weights": false,
+    "external_archetype_prior_allowed": true,
+    "external_archetype_prior_evidence_class": "synthetic_assumption",
+    "variant_interpretation": "plausible stress scenarios constrained by current evidence; no variant is asserted to be the real remaining 46-card local completion"
+  },
+  "decision_policy": {
+    "strong_local_matchup_promotion_or_elimination_from_one_completion": false,
+    "more_same_completion_seeds_fix_input_uncertainty": false,
+    "recommended_route": "compare finalists across an evidence-bounded ambiguity set or collect additional direct local deck evidence",
+    "opponent_uncertainty_dominates_if_decision_changes_across_admissible_variants": true
+  },
+  "truth_boundary": "No unknown Morcant slot is promoted to observation. Synthetic completion is structural scenario evidence only.",
+  "automatic_profile_overwrite": false,
+  "automatic_deck_mutation": false
+}

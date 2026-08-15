@@ -18,7 +18,7 @@ class ObservationStatus(StrEnum):
     SYNTHETIC_ASSUMPTION = "synthetic_assumption"
 
 
-OPPONENT_ENSEMBLE_SCHEMA_VERSION = "1.0.0"
+OPPONENT_ENSEMBLE_SCHEMA_VERSION = "1.1.0"
 
 
 class EnsembleWeightMode(StrEnum):
@@ -52,7 +52,7 @@ class UncertaintyDimension(FrozenModel):
     maximum: float
     assumed_value: float | None = None
     source_ids: tuple[str, ...] = ()
-    confidence: float = Field(default=0.25, ge=0, le=1)
+    confidence: float | None = Field(default=None, ge=0, le=1)
 
 
 class VariantWeight(FrozenModel):
@@ -75,7 +75,7 @@ class OpponentVariant(FrozenModel):
     wipe_count_range: NumericRange | None = None
     win_axes: tuple[str, ...] = ()
     source_ids: tuple[str, ...] = ()
-    confidence: float = Field(default=0.25, ge=0, le=1)
+    confidence: float | None = Field(default=None, ge=0, le=1)
     weight: VariantWeight = Field(
         default_factory=lambda: VariantWeight(mode=EnsembleWeightMode.UNWEIGHTED)
     )
@@ -162,7 +162,7 @@ class RobustnessScenario(FrozenModel):
     variant_id: str
     assumption_dimension: str
     synthetic: bool
-    confidence: float = Field(ge=0, le=1)
+    confidence: float | None = Field(default=None, ge=0, le=1)
 
 
 class EnsembleMatchupResult(FrozenModel):

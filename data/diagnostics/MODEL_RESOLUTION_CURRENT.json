@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "status": "NEEDS_MEASUREMENT",
+  "metric": "placement_improvement",
+  "calibration_source": "optimizer-v2-calibration-0.1.0",
+  "calibrated_sesoi": 0.05,
+  "measured_axis_spreads": {},
+  "effective_resolution": null,
+  "evidence_class": "structural_model_estimates",
+  "evidence_context": "decision_quality_calibration_status",
+  "synthetic_calibration_is_measurement": false,
+  "empirical_commander_resolution_claim": false,
+  "confirmatory_evidence_consumed": false,
+  "sealed_holdout_evidence_consumed": false,
+  "required_measurement_axes": [
+    "independent_null_or_near_null_seed_blocks",
+    "seat_assignment",
+    "admissible_scenario_or_opponent_input",
+    "pilot_or_mulligan_policy",
+    "tie_or_outcome_compression"
+  ],
+  "measurement_policy": "Use bounded preregistered technical Structural runs on the same metric. Do not consume confirmatory or sealed-holdout evidence. Same-model seed blocks are precision evidence, not independent real-world replication.",
+  "decision_policy": "No strong resolution-based promotion, elimination, or equivalence claim until a current measured Structural Model Resolution profile exists.",
+  "truth_boundary": "Synthetic decision calibration validates decision logic on controlled fixtures; it does not establish the Structural simulator's real-game or measured same-model resolution.",
+  "automatic_deck_change": false,
+  "official_rogshai_optimizer_run": false
+}

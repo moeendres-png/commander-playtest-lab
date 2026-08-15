@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0.0",
+  "opponent_id": "opponent:cosmic_spider_man",
+  "deck_id": "opponent/cosmic-spiderman-midbudget",
+  "commander": "Cosmic Spider-Man",
+  "question_scope": "LOCAL_CURRENT_MATCHUP",
+  "domain_input_validity": "LIMITED",
+  "current_local_evidence": {
+    "directly_known_real_slots": 4,
+    "real_unknown_slots": 96,
+    "public_proxy_is_synthetic": true,
+    "full_real_list_known": false,
+    "directly_known_cards": [
+      "Cosmic Spider-Man",
+      "Mary Jane Watson",
+      "Scarlet Spider, Ben Reilly",
+      "Guy in the Chair"
+    ]
+  },
+  "evidence_kinds": [
+    "partially_observed",
+    "directly_observed",
+    "synthetic_completion",
+    "unknown"
+  ],
+  "source_ids": [
+    "drive:1EnUsHJkDOrNdCXsQekG5ERXhXR8uK71p",
+    "drive:1rDpwcKqa52OqskTjMM_1nV-2z0Cfem3O"
+  ],
+  "scenario_family": {
+    "legacy_structural_scenario_source": "cosmic-spiderman-ensemble-v1",
+    "probability_weights": null,
+    "empirical_frequency_weights": false,
+    "external_archetype_prior_allowed": true,
+    "external_archetype_prior_evidence_class": "synthetic_assumption",
+    "variant_interpretation": "plausible structural stress scenarios only; the public proxy and archetype variants are not claims about the real remaining 96 local cards"
+  },
+  "decision_policy": {
+    "strong_local_matchup_promotion_or_elimination_from_one_proxy": false,
+    "more_same_proxy_seeds_fix_input_uncertainty": false,
+    "recommended_route": "compare finalists across an evidence-bounded ambiguity set or collect direct local deck evidence",
+    "opponent_uncertainty_dominates_if_decision_changes_across_admissible_variants": true
+  },
+  "truth_boundary": "Only the four directly known local card identities are observations. Public and synthetic completions remain synthetic assumptions.",
+  "automatic_profile_overwrite": false,
+  "automatic_deck_mutation": false
+}

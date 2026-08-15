@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from commander_lab.models import Deck, StructuralCardProfile, StructuralDeckProfile
+from commander_lab.models.structural import validate_commander_deck_profile
 from commander_lab.storage import load_model
 
 from .fixtures import build_current_opponent_profiles, build_synthetic_deck_profile
@@ -80,6 +81,7 @@ def load_project_structural_decks(
             )
         profile = build_structural_deck_profile(deck, profiles, data_snapshot_hash=snapshot_hash)
         profile = _attach_package_membership(profile, root_path)
+        validate_commander_deck_profile(profile)
         _merge_unique_structural_profiles(
             decks,
             {profile.deck_id: profile},
@@ -88,6 +90,7 @@ def load_project_structural_decks(
     if include_synthetic_fixtures:
         for archetype in ("aggro", "control", "engine"):
             profile = build_synthetic_deck_profile(archetype, data_snapshot_hash=snapshot_hash)
+            validate_commander_deck_profile(profile)
             _merge_unique_structural_profiles(
                 decks,
                 {profile.deck_id: profile},
@@ -104,6 +107,8 @@ def load_project_structural_decks(
                     opponent_path,
                     data_snapshot_hash=snapshot_hash,
                 )
+                for profile in opponent_profiles.values():
+                    validate_commander_deck_profile(profile)
                 _merge_unique_structural_profiles(
                     decks,
                     opponent_profiles,
@@ -159,4 +164,5 @@ def _attach_package_membership(
         card.model_copy(update={"package_ids": frozenset(memberships.get(card.oracle_name, set()))})
         for card in profile.cards
     )
-    return profile.model_copy(update={"cards": cards})
+    updated = profile.model_copy(update={"cards": cards})
+    return validate_commander_deck_profile(updated)

@@ -67,11 +67,53 @@ class StructuralDeckProfile(FrozenModel):
     data_snapshot_hash: str
 
     @model_validator(mode="after")
-    def commanders_have_costs(self) -> StructuralDeckProfile:
+    def validate_commander_profiles(self) -> StructuralDeckProfile:
+        if not self.commander_names:
+            raise ValueError("structural deck profile requires at least one commander")
+        if len(self.commander_names) != len(set(self.commander_names)):
+            raise ValueError("commander names must be unique")
         missing = set(self.commander_names) - set(self.commander_base_costs)
         if missing:
             raise ValueError(f"missing commander base costs: {sorted(missing)}")
+        names = [card.oracle_name for card in self.cards]
+        invalid_counts = {
+            commander: names.count(commander)
+            for commander in self.commander_names
+            if names.count(commander) != 1
+        }
+        if invalid_counts:
+            raise ValueError(
+                f"each commander must have exactly one structural card profile: {invalid_counts}"
+            )
         return self
+
+
+def validate_commander_deck_profile(
+    profile: StructuralDeckProfile, *, expected_card_count: int = 100
+) -> StructuralDeckProfile:
+    """Fail closed for production Commander deck profiles.
+
+    `StructuralDeckProfile` itself also serves deterministic fixtures, so the universal model
+    validates commander identity/presence while this production boundary enforces the Commander
+    deck-size contract. The count includes commander profile records; the simulator removes those
+    profiles from the library at match initialization.
+    """
+    if expected_card_count < len(profile.commander_names):
+        raise ValueError("expected card count cannot be smaller than commander count")
+    if len(profile.cards) != expected_card_count:
+        raise ValueError(
+            f"structural Commander profile {profile.deck_id} contains {len(profile.cards)} cards; "
+            f"expected {expected_card_count} including commanders"
+        )
+    commander_set = set(profile.commander_names)
+    library_count = sum(card.oracle_name not in commander_set for card in profile.cards)
+    expected_library_count = expected_card_count - len(profile.commander_names)
+    if library_count != expected_library_count:
+        raise ValueError(
+            f"structural Commander profile {profile.deck_id} contains {library_count} library "
+            f"profiles; expected {expected_library_count}"
+        )
+    return profile
 
 
 class StructuralAbortLimits(FrozenModel):
