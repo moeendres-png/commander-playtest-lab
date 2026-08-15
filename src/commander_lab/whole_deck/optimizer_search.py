@@ -16,6 +16,7 @@ from commander_lab.pod_scheduling import PodScenario
 
 from .campaign import run_balanced_paired_campaign
 from .lab_context import EnrichedWholeDeckSearchEngine
+from .optimizer_advancement import CandidatePairedEvidence, merge_pairing_conditions
 from .optimizer_v2 import (
     EvidenceContext,
     EvidencePartition,
@@ -356,6 +357,7 @@ class ProjectPairedEvaluator:
             )
         )
         _verify_partition(self.scenarios, manifest.exploratory)
+        self.advancement_evidence: dict[str, CandidatePairedEvidence] = {}
 
     def __call__(
         self,
@@ -390,6 +392,7 @@ class ProjectPairedEvaluator:
             ),
         )
         observations: list[dict[str, object]] = []
+        pairing_rows: list[Mapping[str, object]] = []
         for pilot, scenarios in groups:
             if not scenarios:
                 continue
@@ -407,6 +410,10 @@ class ProjectPairedEvaluator:
             if not isinstance(raw, list):
                 raise TypeError("paired campaign observations are malformed")
             observations.extend(row for row in raw if isinstance(row, dict))
+            raw_pairing = result.get("pairing_conditions")
+            if not isinstance(raw_pairing, Mapping):
+                raise TypeError("paired campaign pairing conditions are malformed")
+            pairing_rows.append(raw_pairing)
 
         differences = tuple(
             _placement(row, "baseline_placement") - _placement(row, "variant_placement")
@@ -420,6 +427,15 @@ class ProjectPairedEvaluator:
         )
         robust = distributionally_robust_lower_bound(differences)
         score = fmean(differences)
+        self.advancement_evidence[variant.variant_id] = CandidatePairedEvidence(
+            candidate_id=variant.variant_id,
+            deck_hash=variant.deck_hash,
+            budget=budget,
+            interval_low=interval[0],
+            interval_high=interval[1],
+            observations=tuple(dict(row) for row in observations),
+            pairing_conditions=merge_pairing_conditions(pairing_rows),
+        )
         return ExploratoryEvaluation(
             candidate_id=variant.variant_id,
             deck_hash=variant.deck_hash,
