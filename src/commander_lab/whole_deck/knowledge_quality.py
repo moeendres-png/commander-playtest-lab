@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from collections import Counter
 from pathlib import Path
 
@@ -34,19 +35,102 @@ THREAT_ANSWER_ROLES = frozenset(
         CardRole.GRAVEYARD_HATE,
     }
 )
+ORACLE_FACT_EXCEPTIONS_PATH = Path("data/cards/oracle_fact_exceptions.json")
+ORACLE_TEXT_PRESENT = "oracle_text_present"
+ORACLE_TEXT_LEGITIMATELY_EMPTY = "oracle_text_legitimately_empty"
+ORACLE_FACT_MISSING = "oracle_fact_record_missing_or_incomplete"
+IDENTITY_AMBIGUOUS = "identity_ambiguous"
+_VALID_ORACLE_STATUSES = frozenset(
+    {
+        ORACLE_TEXT_PRESENT,
+        ORACLE_TEXT_LEGITIMATELY_EMPTY,
+        ORACLE_FACT_MISSING,
+        IDENTITY_AMBIGUOUS,
+    }
+)
+
+
+def _load_oracle_fact_exceptions(root: Path) -> dict[str, dict[str, object]]:
+    path = root / ORACLE_FACT_EXCEPTIONS_PATH
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("records", [])
+    if not isinstance(records, list):
+        raise ValueError("oracle fact exception registry records must be a list")
+    result: dict[str, dict[str, object]] = {}
+    for raw in records:
+        if not isinstance(raw, dict):
+            raise ValueError("oracle fact exception registry row must be an object")
+        name = str(raw.get("oracle_name", "")).strip()
+        status = str(raw.get("oracle_text_status", "")).strip()
+        if not name or status not in _VALID_ORACLE_STATUSES:
+            raise ValueError(f"invalid oracle fact exception row: {raw!r}")
+        if name in result:
+            raise ValueError(f"duplicate oracle fact exception: {name}")
+        result[name] = dict(raw)
+    return result
+
+
+def _effective_fact(
+    fact: object, exception: dict[str, object] | None = None
+) -> dict[str, object] | None:
+    if not isinstance(fact, dict):
+        return None
+    result = dict(fact)
+    if exception:
+        result["oracle_text_status"] = exception["oracle_text_status"]
+        if "oracle_text" in exception:
+            result["oracle_text"] = exception["oracle_text"]
+        result["oracle_fact_source"] = exception.get("source")
+    return result
+
+
+def _oracle_text_status(fact: object) -> str:
+    if not isinstance(fact, dict):
+        return ORACLE_FACT_MISSING
+    explicit = str(fact.get("oracle_text_status", "")).strip()
+    if explicit in _VALID_ORACLE_STATUSES:
+        return explicit
+    if bool(str(fact.get("oracle_text", "") or "").strip()):
+        return ORACLE_TEXT_PRESENT
+    return ORACLE_FACT_MISSING
 
 
 def _has_oracle_text(row: object) -> bool:
-    return isinstance(row, dict) and bool(str(row.get("oracle_text", "") or "").strip())
+    return _oracle_text_status(row) == ORACLE_TEXT_PRESENT
+
+
+def _has_complete_core_facts(fact: object) -> bool:
+    if not isinstance(fact, dict):
+        return False
+    status = _oracle_text_status(fact)
+    if status not in {ORACLE_TEXT_PRESENT, ORACLE_TEXT_LEGITIMATELY_EMPTY}:
+        return False
+    name = str(fact.get("oracle_name", "")).strip()
+    type_line = str(fact.get("card_type", "") or fact.get("type_line", "")).strip()
+    if not name or not type_line or fact.get("mana_value") is None:
+        return False
+    color_identity = fact.get("color_identity")
+    return isinstance(color_identity, (list, tuple, set, frozenset, str))
 
 
 def classify_semantic_unknown_cause(fact: object) -> str:
     """Classify why a fact-only candidate remains outside conservative structural roles.
 
-    This is a diagnostic taxonomy only. It does not assign a gameplay role or strength.
+    Fact completeness and non-empty rules text are intentionally separate. A verified vanilla
+    card can have complete Oracle facts while legitimately having no functional rules role.
+    This taxonomy is diagnostic only; it never assigns gameplay strength.
     """
     if not isinstance(fact, dict):
         return "oracle_facts_missing"
+    status = _oracle_text_status(fact)
+    if status == IDENTITY_AMBIGUOUS:
+        return "identity_ambiguous"
+    if status == ORACLE_FACT_MISSING:
+        return "oracle_facts_missing"
+    if status == ORACLE_TEXT_LEGITIMATELY_EMPTY:
+        return "known_no_functional_rules_role"
     oracle_text = str(fact.get("oracle_text", "") or "").strip()
     type_line = str(fact.get("card_type", "") or fact.get("type_line", "") or "")
     if not oracle_text:
@@ -129,12 +213,17 @@ def build_knowledge_quality_report(
     candidates = set(ctx.cards)
     facts = set(universe.candidate_facts_by_name)
     annotation_names = set(annotations)
+    exceptions = _load_oracle_fact_exceptions(project)
+    effective_facts = {
+        name: _effective_fact(universe.candidate_facts_by_name.get(name), exceptions.get(name))
+        for name in candidates
+    }
 
     evidence_counts = Counter(card.semantic_evidence for card in ctx.cards.values())
     known_names = {name for name, card in ctx.cards.items() if card.semantic_known}
     unknown_names = candidates - known_names
     unknown_causes = {
-        name: classify_semantic_unknown_cause(universe.candidate_facts_by_name.get(name))
+        name: classify_semantic_unknown_cause(effective_facts.get(name))
         for name in sorted(unknown_names)
     }
     unknown_cause_counts = Counter(unknown_causes.values())
@@ -165,9 +254,16 @@ def build_knowledge_quality_report(
                 }
             )
 
-    oracle_count = sum(
-        _has_oracle_text(universe.candidate_facts_by_name.get(name)) for name in candidates
+    status_counts = Counter(_oracle_text_status(effective_facts.get(name)) for name in candidates)
+    rules_text_nonempty_count = status_counts[ORACLE_TEXT_PRESENT]
+    verified_empty_rules_text_count = status_counts[ORACLE_TEXT_LEGITIMATELY_EMPTY]
+    truly_missing_fact_count = status_counts[ORACLE_FACT_MISSING]
+    identity_ambiguous_count = status_counts[IDENTITY_AMBIGUOUS]
+    candidate_fact_coverage_count = sum(
+        _has_complete_core_facts(effective_facts.get(name)) for name in candidates
     )
+    exception_without_candidate = sorted(set(exceptions) - candidates)
+
     package_count = sum(bool(card.profile.package_ids) for card in ctx.cards.values())
     threat_answer_count = sum(
         bool(set(card.profile.roles) & set(THREAT_ANSWER_ROLES)) for card in ctx.cards.values()
@@ -175,7 +271,7 @@ def build_knowledge_quality_report(
     mana_signal_count = 0
     mana_mapped_count = 0
     for name, card in ctx.cards.items():
-        fact = universe.candidate_facts_by_name.get(name, {})
+        fact = effective_facts.get(name) or {}
         text = str(fact.get("oracle_text", "") or "").casefold()
         type_line = str(fact.get("card_type", "") or fact.get("type_line", "") or "").casefold()
         signal = "land" in type_line or any(
@@ -202,14 +298,28 @@ def build_knowledge_quality_report(
         or candidates - facts
         or duplicate_inventory_identities
         or unknown_high_risk_annotations
+        or truly_missing_fact_count
+        or identity_ambiguous_count
+        or exception_without_candidate
     )
     ready = structural_usable_fraction >= minimum_usable_fraction and data_integrity_ready
 
     return {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "candidate_universe_count": candidate_count,
-        "oracle_coverage_count": oracle_count,
-        "oracle_coverage_fraction": oracle_count / candidate_count if candidate_count else 0.0,
+        "candidate_fact_coverage_count": candidate_fact_coverage_count,
+        "candidate_fact_coverage_fraction": (
+            candidate_fact_coverage_count / candidate_count if candidate_count else 0.0
+        ),
+        "rules_text_nonempty_count": rules_text_nonempty_count,
+        "verified_empty_rules_text_count": verified_empty_rules_text_count,
+        "truly_missing_fact_count": truly_missing_fact_count,
+        "identity_ambiguous_count": identity_ambiguous_count,
+        "oracle_text_status_counts": dict(sorted(status_counts.items())),
+        "oracle_coverage_count": rules_text_nonempty_count,
+        "oracle_coverage_fraction": (
+            rules_text_nonempty_count / candidate_count if candidate_count else 0.0
+        ),
         "canonical_overlay_coverage_count": len(annotation_names & candidates),
         "canonical_overlay_coverage_fraction": (
             len(annotation_names & candidates) / candidate_count if candidate_count else 0.0
@@ -223,6 +333,9 @@ def build_knowledge_quality_report(
         "semantic_unknown_causes": unknown_causes,
         "semantic_recoverable_parser_gap_count": unknown_cause_counts.get(
             "parser_or_projection_gap", 0
+        ),
+        "known_no_functional_rules_role_count": unknown_cause_counts.get(
+            "known_no_functional_rules_role", 0
         ),
         "semantic_evidence_counts": dict(sorted(evidence_counts.items())),
         "explicit_structural_count": evidence_counts.get("explicit_structural_profile", 0),
@@ -245,6 +358,7 @@ def build_knowledge_quality_report(
         "feature_rows_without_candidate": sorted(annotation_names - candidates),
         "candidate_without_facts": sorted(candidates - facts),
         "facts_without_candidate": sorted(facts - candidates),
+        "oracle_fact_exception_without_candidate": exception_without_candidate,
         "duplicate_inventory_identities": duplicate_inventory_identities,
         "readiness_policy": {
             "minimum_structurally_usable_fraction": minimum_usable_fraction,
@@ -252,11 +366,14 @@ def build_knowledge_quality_report(
             "requires_zero_orphan_feature_annotations": True,
             "requires_zero_candidate_without_facts": True,
             "requires_zero_duplicate_candidate_identities": True,
+            "requires_zero_truly_missing_oracle_fact_records": True,
+            "requires_zero_identity_ambiguities": True,
             "remaining_unknowns_require_finalist_review": True,
         },
         "knowledge_pipeline_ready": ready,
         "evidence_boundary": (
-            "Functional structural coverage only; no universal power score and no claim that "
-            "semantic coverage equals rules-engine fidelity or empirical card strength."
+            "Core fact completeness is distinct from non-empty rules text and structural semantic "
+            "coverage. Functional structural coverage is not a universal power score and does not "
+            "claim rules-engine fidelity or empirical card strength."
         ),
     }
