@@ -186,14 +186,10 @@ def build_knowledge_quality_report(
     facts = set(universe.candidate_facts_by_name)
     annotation_names = set(annotations)
 
-    verified_empty = set(
-        verified_empty_oracle_names(project, universe.candidate_facts_by_name)
-    )
+    verified_empty = set(verified_empty_oracle_names(project, universe.candidate_facts_by_name))
     evidence_counts = Counter(card.semantic_evidence for card in ctx.cards.values())
     state_counts = Counter(card.effective_semantic_state for card in ctx.cards.values())
-    structurally_known_names = {
-        name for name, card in ctx.cards.items() if card.semantic_known
-    }
+    structurally_known_names = {name for name, card in ctx.cards.items() if card.semantic_known}
     known_no_functional_names = {
         name
         for name, card in ctx.cards.items()
@@ -215,8 +211,8 @@ def build_knowledge_quality_report(
     if known_no_functional_names != verified_empty - structurally_known_names:
         raise RuntimeError("verified-empty Oracle facts disagree with search semantic states")
     if any(
-        card.semantic_known
-        != (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
+        card.semantic_known == (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
+        is False
         for card in ctx.cards.values()
     ):
         raise RuntimeError("semantic_known disagrees with explicit semantic state")
