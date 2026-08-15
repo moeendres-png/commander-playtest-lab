@@ -38,45 +38,46 @@ openai = [
 ]
 
 [project.scripts]
-commander-lab = "commander_lab.cli:app"
+commander-lab = "commander_lab.cli.app:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-commander_lab = ["py.typed"]
-
 [tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
 testpaths = ["tests"]
-addopts = "-q"
+pythonpath = ["src"]
 markers = [
-  "live: opt-in live integration test requiring external services",
-]
-filterwarnings = [
-  "ignore::DeprecationWarning:pydantic.*",
-  "ignore::DeprecationWarning:pydantic_core.*",
-  "ignore::DeprecationWarning:fastapi.*",
-  "ignore::DeprecationWarning:starlette.*",
-  "ignore::DeprecationWarning:httpx.*",
+  "property: deterministic property-style tests",
+  "integration: local integration tests",
+  "golden: fixed expected-decision regression tests",
+  "differential: comparisons against external or normalized rule backends",
+  "agent_eval: agent trajectory and report evaluation tests",
+  "external: requires a configured XMage or Forge backend",
 ]
 
 [tool.ruff]
-line-length = 100
 target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM"]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["B008", "E501"]
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+[tool.ruff.lint.per-file-ignores]
+"src/commander_lab/models/__init__.py" = ["F401", "E402"]
+"src/commander_lab/cards/normalize.py" = ["RUF001"]
+"tests/fuzz/test_boundary_fuzz.py" = ["RUF001"]
+"tests/property/test_normalization_properties.py" = ["RUF001"]
+"tests/unit/test_plaintext_importer.py" = ["RUF001"]
+"tests/unit/test_phase1214_rules_coverage.py" = ["RUF001"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
 packages = ["commander_lab"]
-mypy_path = "src"
-warn_unused_ignores = true
-warn_redundant_casts = true
-warn_unreachable = true
+
+[tool.coverage.run]
+source = ["commander_lab"]
+branch = true
