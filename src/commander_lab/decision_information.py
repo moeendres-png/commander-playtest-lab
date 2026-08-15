@@ -307,9 +307,10 @@ def build_decision_information_state(
         interval=interval,
         uncertainty=uncertainty,
         seed_spread=seed_spread,
-        next_experiment="run_next_paired_precision_only_micro_batch",
+        next_experiment="run_next_paired_micro_batch",
         reason=(
-            "within the preregistered budget, more paired precision can still change the decision"
+            "within the preregistered budget, more paired precision can still change the decision; "
+            "same-model seed blocks are precision evidence only"
         ),
     )
 
