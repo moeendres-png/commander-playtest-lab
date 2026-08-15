@@ -211,8 +211,7 @@ def build_knowledge_quality_report(
     if known_no_functional_names != verified_empty - structurally_known_names:
         raise RuntimeError("verified-empty Oracle facts disagree with search semantic states")
     if any(
-        card.semantic_known == (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
-        is False
+        card.semantic_known != (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
         for card in ctx.cards.values()
     ):
         raise RuntimeError("semantic_known disagrees with explicit semantic state")
