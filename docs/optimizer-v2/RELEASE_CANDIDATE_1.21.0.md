@@ -19,6 +19,10 @@ All paired simulation evidence produced by these paths is classified as `structu
 
 Early sensitivity is outcome-independent. Pilot assignment is frozen by scenario parity and Mulligan sensitivity uses shared deterministic draw sequences across `current_pilot`, `conservative` and `interaction_oriented` policies.
 
+## Cross-platform runner integrity
+
+Optimizer locking uses platform-safe process-liveness checks. POSIX may use signal-zero probing; Windows uses a read-only process-handle query and never calls `os.kill(pid, 0)`. This avoids signalling or terminating the runner while retaining fail-closed stale-lock handling. Windows unit validation is process-isolated by file, and the Hypothesis pytest plugin is only loaded for files that actually import Hypothesis; no tests are excluded by that isolation.
+
 ## Governance
 
 Optimizer v2 does not automatically mutate the canonical RogShai deck, inventory quantities, physical allocations, purchase decisions, opponent observation evidence or the frozen Kaervek opponent. Semantic unknowns remain fail-closed until separately verified. Theorycraft candidates create no permanent card reservation.
