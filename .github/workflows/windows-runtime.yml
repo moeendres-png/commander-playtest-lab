@@ -53,8 +53,14 @@ jobs:
         run: |
           $files = @(Get-ChildItem tests/unit/test_*.py | Sort-Object Name | ForEach-Object { $_.FullName })
           for ($i = 0; $i -lt $files.Count; $i++) {
-            Write-Host "Running Windows unit file $i/$($files.Count - 1): $($files[$i])"
-            python -m pytest -q $files[$i]
+            $file = $files[$i]
+            Write-Host "Running Windows unit file $i/$($files.Count - 1): $file"
+            $usesHypothesis = Select-String -Path $file -Pattern '^\s*(from\s+hypothesis|import\s+hypothesis)' -Quiet
+            if ($usesHypothesis) {
+              python -m pytest -q $file
+            } else {
+              python -m pytest -q -p no:hypothesispytest $file
+            }
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
       - name: Doctor must not dirty repository
