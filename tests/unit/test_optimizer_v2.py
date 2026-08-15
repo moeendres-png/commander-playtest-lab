@@ -460,6 +460,27 @@ def test_adaptive_search_is_same_seed_reproducible() -> None:
     assert first.requested_scenario_pairs == second.requested_scenario_pairs
 
 
+def test_adaptive_racing_progressively_reduces_survivors() -> None:
+    search = AdaptiveWholeDeckSearch(
+        {PolicyId.OWNED_POOL_NEUTRAL.value: _FakeEngine()},  # type: ignore[dict-item]
+        evaluator=_FakeEvaluator(),
+        seed=303,
+        qd=QDConfig(elites_per_cell=2),
+        racing=RacingConfig(
+            budgets=(4, 8, 16),
+            survival_fraction=0.5,
+            exploration_fraction=0.25,
+            minimum_survivors=1,
+        ),
+        learning=LearningConfig(update_rate=0.4, exploration_floor=0.05),
+    )
+    variants = tuple(_variant(str(index)) for index in range(1, 9))
+    archive = QualityDiversityArchive(search.qd)
+    _, calls, pairs = search._evaluate_batch(variants, generation=0, archive=archive)
+    assert calls == 14  # 8 -> 4 -> 2 candidates
+    assert pairs == 96  # 8*4 + 4*8 + 2*16
+
+
 def test_exploratory_evidence_cannot_masquerade_as_confirmatory() -> None:
     row = _evaluation(_variant("1"), 0.1, 0.05, 0.15)
     assert row.evidence_context == EvidenceContext.EXPLORATORY

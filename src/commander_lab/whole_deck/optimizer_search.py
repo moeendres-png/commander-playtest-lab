@@ -133,8 +133,10 @@ class AdaptiveWholeDeckSearch:
 
         by_id = {row.candidate_id: row for row in current}
         variant_by_id = {variant.variant_id: variant for variant in variants}
+        active_ids = tuple(by_id)
         for budget_index, budget in enumerate(self.racing.budgets[1:], start=1):
-            survivor_ids = select_racing_survivors(tuple(by_id.values()), config=self.racing)
+            active_rows = tuple(by_id[candidate_id] for candidate_id in active_ids)
+            survivor_ids = select_racing_survivors(active_rows, config=self.racing)
             next_rows: dict[str, ExploratoryEvaluation] = {}
             for index, candidate_id in enumerate(survivor_ids):
                 variant = variant_by_id[candidate_id]
@@ -154,6 +156,7 @@ class AdaptiveWholeDeckSearch:
                 calls += 1
                 scenario_pairs += budget
             by_id.update(next_rows)
+            active_ids = survivor_ids
 
         final_rows = list(by_id.values())
         for row in final_rows:
