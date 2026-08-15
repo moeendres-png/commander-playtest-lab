@@ -62,9 +62,7 @@ class WholeDeckSearchContext:
     def from_project(cls, root: str | Path) -> WholeDeckSearchContext:
         project = Path(root).resolve()
         universe = load_fresh_rogshai_universe(project)
-        verified_empty = verified_empty_oracle_names(
-            project, universe.candidate_facts_by_name
-        )
+        verified_empty = verified_empty_oracle_names(project, universe.candidate_facts_by_name)
         inferred = {
             candidate.card.oracle_name: candidate.card
             for candidate in load_candidate_profiles(project).values()
