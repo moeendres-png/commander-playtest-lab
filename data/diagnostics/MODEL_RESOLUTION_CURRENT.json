@@ -1,27 +1,111 @@
 {
-  "schema_version": "1.0.0",
-  "status": "NEEDS_MEASUREMENT",
+  "schema_version": "1.1.0",
+  "status": "MEASURED",
   "metric": "placement_improvement",
+  "metric_unit": "average_placement_positions",
   "calibration_source": "optimizer-v2-calibration-0.1.0",
   "calibrated_sesoi": 0.05,
-  "measured_axis_spreads": {},
-  "effective_resolution": null,
-  "evidence_class": "structural_model_estimates",
-  "evidence_context": "decision_quality_calibration_status",
   "synthetic_calibration_is_measurement": false,
+  "sampling_measurement": {
+    "measurement_version": "model-resolution-measurement-0.1.0",
+    "axis": "independent_null_seed_blocks",
+    "independent_seed_blocks": 4,
+    "games_per_seed_block": 56,
+    "block_means": [
+      2.267857142857143,
+      2.25,
+      2.3214285714285716,
+      2.1785714285714284
+    ],
+    "block_range": 0.14285714285714324,
+    "block_population_sd": 0.051096085456516185,
+    "block_mean_mcse": 0.025548042728258093,
+    "epistemic_class": "PRECISION_ONLY_SAME_MODEL",
+    "evidence_class": "structural_model_estimates"
+  },
+  "measured_axis_spreads": {
+    "independent_null_seed_blocks": 0.14285714285714324
+  },
+  "effective_resolution": 0.14285714285714324,
+  "effective_resolution_rule": "max(calibrated_sesoi, independent_same-model_seed-block_range); robustness/input sensitivity axes are separate and are not folded into the resolution threshold",
+  "robustness_axis_spreads": {
+    "seat_assignment": 2.8214285714285716,
+    "admissible_opponent_group": 3.0,
+    "pilot_policy": 0.08928571428571397
+  },
+  "robustness_axis_means": {
+    "seat_assignment": {
+      "1": 1.125,
+      "2": 1.375,
+      "3": 2.5714285714285716,
+      "4": 3.9464285714285716
+    },
+    "pilot_policy": {
+      "average_deterministic": 2.2857142857142856,
+      "strong_deterministic": 2.1964285714285716
+    }
+  },
+  "robustness_materiality": {
+    "seat_assignment_exceeds_sampling_resolution": true,
+    "admissible_opponent_group_exceeds_sampling_resolution": true,
+    "pilot_policy_exceeds_sampling_resolution": false
+  },
+  "starting_player_contract": {
+    "campaign_runner_starting_player_seat_index": 0,
+    "interpretation": "physical seat 1 starts in Whole-Deck campaign matches; RogShai rotates across balanced own seats, so absolute seat effects are model inputs and must be controlled by same-seat pairing"
+  },
+  "decision_use": {
+    "absolute_pooled_structural_claims_allowed": false,
+    "paired_candidate_comparisons_allowed": true,
+    "paired_candidate_conditions": [
+      "same_seed",
+      "same_own_seat",
+      "same_opponent_seat_assignment",
+      "balanced_own_seat_coverage",
+      "report_seat_stratified_effect_consistency",
+      "report_admissible_scenario_robustness"
+    ],
+    "seat_sensitivity_gate": "REQUIRE_BALANCED_PAIRED_AND_SEAT_STRATIFIED_EVIDENCE",
+    "scenario_sensitivity_gate": "REQUIRE_SCENARIO_ROBUSTNESS",
+    "pilot_sensitivity_gate": "STANDARD_PILOT_EVIDENCE",
+    "strong_decision_policy": "Measured resolution clears only the sampling-resolution gate. Strong promotion/elimination/equivalence still requires all upstream Domain/Input, Structural Fidelity, Tactical, Model Information, declared robustness, confirmatory and authorized holdout gates applicable to the decision stage."
+  },
+  "outcome_compression": {
+    "status": "INFORMATIVE",
+    "dominant_placement_share": 0.4375,
+    "place_1_share": 0.4375,
+    "placement_distribution": {
+      "1": 98,
+      "2": 26,
+      "3": 45,
+      "4": 55
+    },
+    "unique_placement_values": 4,
+    "folded_into_effective_resolution": false
+  },
+  "unsupported_same_metric_axes": {
+    "mulligan_policy": "UNSUPPORTED_SEPARATELY: current Structural match runner does not expose a frozen mulligan-policy intervention on the same placement metric",
+    "tie_quantization": "DIAGNOSTIC_ONLY: integer placement compression is reported directly; no arbitrary numeric tie penalty is invented"
+  },
+  "measurement_artifact": {
+    "workflow_run_id": 31892550155,
+    "artifact_id": 9248938086,
+    "artifact_archive_digest": "sha256:65f9de618728c9466f6422505c5fe8340ce70cd953515139095f7ebb5afd1900",
+    "measurement_json_sha256": "a64919dccc96190daf2c8cd0a8b74090a62836c997dd22a86b7a01d0b3beea76",
+    "report_hash": "e073e0c0284014c046810d5cdc1cb29ab88f92993f4cb2c4c06ea3ed9f387ea3",
+    "source_head": "e718d1d0faf24c29055829710a8e2236ab4229ec"
+  },
+  "data_snapshot_hash": "b24dfd2dec3e9d7bcc7b6396640d1be1380fc58dfa6c52bab3d72a4a1b433e4a",
+  "structural_control_deck_hash": "3315a5999daa21df1f4ea38fc03eb3e3464f911896ea3c0a6ec7e109d1a94d30",
+  "opponent_registry_hash": "e1bef9ff37776816d32780544151216880d198750e983780e02accabbe681202",
+  "evidence_class": "structural_model_estimates",
+  "evidence_context": "technical_model_resolution_calibration",
+  "truth_boundary": "Measured same-model Structural sampling resolution and sensitivity only; not empirical Commander performance, not a local opponent-frequency estimate, and not external-rules-engine validation.",
   "empirical_commander_resolution_claim": false,
   "confirmatory_evidence_consumed": false,
   "sealed_holdout_evidence_consumed": false,
-  "required_measurement_axes": [
-    "independent_null_or_near_null_seed_blocks",
-    "seat_assignment",
-    "admissible_scenario_or_opponent_input",
-    "pilot_or_mulligan_policy",
-    "tie_or_outcome_compression"
-  ],
-  "measurement_policy": "Use bounded preregistered technical Structural runs on the same metric. Do not consume confirmatory or sealed-holdout evidence. Same-model seed blocks are precision evidence, not independent real-world replication.",
-  "decision_policy": "No strong resolution-based promotion, elimination, or equivalence claim until a current measured Structural Model Resolution profile exists.",
-  "truth_boundary": "Synthetic decision calibration validates decision logic on controlled fixtures; it does not establish the Structural simulator's real-game or measured same-model resolution.",
+  "candidate_search_performed": false,
   "automatic_deck_change": false,
+  "canonical_deck_mutation": false,
   "official_rogshai_optimizer_run": false
 }
