@@ -679,6 +679,41 @@ def deterministic_shard(task_identity: Mapping[str, object], worker_count: int) 
     return int(sha256_value(dict(task_identity))[:16], 16) % worker_count
 
 
+def _process_is_alive(pid: int) -> bool:
+    """Check process liveness without ever signalling a Windows process."""
+    if pid <= 0:
+        return False
+    if pid == os.getpid():
+        return True
+    if os.name == "nt":
+        import ctypes
+
+        win_dll = getattr(ctypes, "WinDLL", None)
+        get_last_error = getattr(ctypes, "get_last_error", None)
+        if win_dll is None or get_last_error is None:
+            return True
+        kernel32: Any = win_dll("kernel32", use_last_error=True)
+        process_query_limited_information = 0x1000
+        error_invalid_parameter = 87
+        handle = kernel32.OpenProcess(process_query_limited_information, False, pid)
+        if handle:
+            kernel32.CloseHandle(handle)
+            return True
+        error = int(get_last_error())
+        # Access denied and unknown errors fail closed: never steal a possibly live lock.
+        return error != error_invalid_parameter
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        # Unknown POSIX errors fail closed.
+        return True
+    return True
+
+
 @dataclass(frozen=True, slots=True)
 class OptimizerLock:
     path: Path
@@ -717,11 +752,7 @@ class OptimizerLock:
             lock_pid = _integer(current.get("pid", -1), -1)
             if lock_host != socket.gethostname():
                 raise RuntimeError("optimizer lock belongs to another host")
-            try:
-                os.kill(lock_pid, 0)
-                pid_alive = True
-            except OSError:
-                pid_alive = False
+            pid_alive = _process_is_alive(lock_pid)
             if pid_alive or age <= stale_after_seconds:
                 raise RuntimeError("duplicate optimizer runner detected")
             path.unlink()
