@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-15",
+  "status": "PASS",
+  "evidence_class": "structural_model_estimates",
+  "input_class": "synthetic_assumption",
+  "official_rogshai_campaign": false,
+  "purpose": "End-to-end Structural 4P-to-5P opponent-count regression and controlled multiplayer-leverage ablation acceptance.",
+  "fixture": {"primary_pod_size":4,"sensitivity_pod_size":5,"games_per_axis":4,"max_turns":3,"full_multiplayer_scaling":2.0,"baseline_multiplayer_scaling":0.0,"non_scaling_strength_control":0.8,"baseline_strength":0.4},
+  "results": {
+    "multiplayer_scaling_full": {
+      "attribution": {"metric":"paired_normal_damage_delta_per_opponent","candidate_vs_control_effect_4p":3.360000000000003,"candidate_vs_control_effect_5p":5.04000000000001,"pod_size_response":1.6800000000000068,"evidence_class":"structural_model_estimates","causal_claim":false,"interpretation":"Controlled synthetic mechanism attribution inside the Structural Model. This can validate implementation sensitivity, not prove a real-world causal card effect."},
+      "four_player_pairing_conditions": {"candidates_share_match":false,"same_scenarios":true,"same_match_seeds":true,"same_own_seats":true,"same_opponent_seat_assignments":true,"same_pilot_configuration":true,"same_turn_cap":true,"common_random_numbers":true},
+      "five_player_pairing_conditions": {"candidates_share_match":false,"same_scenarios":true,"same_match_seeds":true,"same_own_seats":true,"same_opponent_seat_assignments":true,"same_pilot_configuration":true,"same_turn_cap":true,"common_random_numbers":true},
+      "four_player_scenario_count": 4,
+      "five_player_scenario_count": 4
+    },
+    "multiplayer_scaling_ablated": {
+      "attribution": {"metric":"paired_normal_damage_delta_per_opponent","candidate_vs_control_effect_4p":0.0,"candidate_vs_control_effect_5p":0.0,"pod_size_response":0.0,"evidence_class":"structural_model_estimates","causal_claim":false,"interpretation":"Controlled synthetic mechanism attribution inside the Structural Model. This can validate implementation sensitivity, not prove a real-world causal card effect."},
+      "four_player_pairing_conditions": {"candidates_share_match":false,"same_scenarios":true,"same_match_seeds":true,"same_own_seats":true,"same_opponent_seat_assignments":true,"same_pilot_configuration":true,"same_turn_cap":true,"common_random_numbers":true},
+      "five_player_pairing_conditions": {"candidates_share_match":false,"same_scenarios":true,"same_match_seeds":true,"same_own_seats":true,"same_opponent_seat_assignments":true,"same_pilot_configuration":true,"same_turn_cap":true,"common_random_numbers":true},
+      "four_player_scenario_count": 4,
+      "five_player_scenario_count": 4
+    },
+    "non_scaling_control": {
+      "attribution": {"metric":"paired_normal_damage_delta_per_opponent","candidate_vs_control_effect_4p":8.399999999999997,"candidate_vs_control_effect_5p":8.399999999999999,"pod_size_response":1.7763568394002505e-15,"evidence_class":"structural_model_estimates","causal_claim":false,"interpretation":"Controlled synthetic mechanism attribution inside the Structural Model. This can validate implementation sensitivity, not prove a real-world causal card effect."},
+      "four_player_pairing_conditions": {"candidates_share_match":false,"same_scenarios":true,"same_match_seeds":true,"same_own_seats":true,"same_opponent_seat_assignments":true,"same_pilot_configuration":true,"same_turn_cap":true,"common_random_numbers":true},
+      "five_player_pairing_conditions": {"candidates_share_match":false,"same_scenarios":true,"same_match_seeds":true,"same_own_seats":true,"same_opponent_seat_assignments":true,"same_pilot_configuration":true,"same_turn_cap":true,"common_random_numbers":true},
+      "four_player_scenario_count": 4,
+      "five_player_scenario_count": 4
+    }
+  },
+  "acceptance": {"scaling_responds_more_in_5p":true,"ablated_response_zero":true,"non_scaling_response_zero":true,"candidate_isolation_preserved":true,"common_random_numbers_preserved":true},
+  "boundary": "This demonstrates implementation-level model attribution only. It is not empirical card-performance evidence and is not part of the official RogShai campaign."
+}
