@@ -182,7 +182,10 @@ def build_decision_information_state(
             ),
             reason="domain/input evidence cannot support a strong decision in this scope",
         )
-    if structural_fidelity is not None and structural_fidelity.get("strong_decision_allowed") is not True:
+    if (
+        structural_fidelity is not None
+        and structural_fidelity.get("strong_decision_allowed") is not True
+    ):
         return state(
             status=DecisionInformationStatus.MODEL_NEEDS_DIFFERENT_METRIC,
             effect=effect,
