@@ -64,7 +64,9 @@ def _canonical_inventory_facts(root: Path) -> dict[str, dict[str, object]]:
     contract_path = root / "data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json"
     if contract_path.exists():
         contract = json.loads(contract_path.read_text(encoding="utf-8"))
-        delta = contract.get("current_drive_inventory_delta", []) if isinstance(contract, dict) else []
+        delta = (
+            contract.get("current_drive_inventory_delta", []) if isinstance(contract, dict) else []
+        )
         for row in delta:
             if isinstance(row, dict) and row.get("oracle_name"):
                 records.setdefault(str(row["oracle_name"]), dict(row))
