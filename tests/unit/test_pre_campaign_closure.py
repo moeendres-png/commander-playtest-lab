@@ -69,7 +69,13 @@ def test_verified_empty_rules_text_is_complete_fact_not_missing_oracle(repo_root
     assert report["candidate_fact_coverage_count"] == report["candidate_universe_count"] == 795
     assert report["truly_missing_fact_count"] == 0
     assert report["rules_text_nonempty_count"] == 777
-    assert report["semantic_unknown_cause_counts"]["known_no_functional_rules_role"] == 18
+    assert report["structurally_usable_count"] == 542
+    assert report["structurally_unmodeled_count"] == 253
+    assert report["known_no_functional_rules_role_count"] == 18
+    assert report["semantic_unknown_count"] == 235
+    assert report["semantic_resolved_count"] == 560
+    assert report["known_no_functional_evidence_count"] == 18
+    assert "known_no_functional_rules_role" not in report["semantic_unknown_cause_counts"]
     assert report["semantic_unknown_cause_counts"].get("oracle_facts_missing", 0) == 0
 
 

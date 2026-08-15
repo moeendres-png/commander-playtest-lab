@@ -8,7 +8,17 @@ def test_knowledge_quality_reconciles_current_candidate_universe(repo_root) -> N
     report = build_knowledge_quality_report(repo_root)
 
     assert report["candidate_universe_count"] == 795
-    assert report["structurally_usable_count"] + report["semantic_unknown_count"] == 795
+    assert (
+        report["structurally_usable_count"]
+        + report["known_no_functional_rules_role_count"]
+        + report["semantic_unknown_count"]
+        == 795
+    )
+    assert report["structurally_usable_count"] == 542
+    assert report["known_no_functional_rules_role_count"] == 18
+    assert report["semantic_unknown_count"] == 235
+    assert report["structurally_unmodeled_count"] == 253
+    assert report["semantic_resolved_count"] == 560
     assert report["structurally_usable_fraction"] >= 0.65
     assert report["unknown_high_risk_annotation_count"] == 0
     assert report["orphan_feature_annotations"] == []
@@ -26,15 +36,18 @@ def test_oracle_coverage_reconciles_with_fresh_fact_projection(repo_root) -> Non
         for fact in universe.candidate_facts_by_name.values()
     )
 
-    assert expected_oracle_count > 0
+    assert expected_oracle_count == 777
     assert report["oracle_coverage_count"] == expected_oracle_count
     assert report["oracle_coverage_fraction"] == expected_oracle_count / universe.candidate_count
+    assert report["candidate_fact_coverage_count"] == 795
+    assert report["verified_empty_rules_text_count"] == 18
+    assert report["truly_missing_fact_count"] == 0
 
 
 def test_unknowns_remain_visible_and_runtime_vetoes_are_quarantined(repo_root) -> None:
     report = build_knowledge_quality_report(repo_root)
 
-    assert report["semantic_unknown_count"] > 0
+    assert report["semantic_unknown_count"] == 235
     assert len(report["semantic_unknown_cards"]) == report["semantic_unknown_count"]
     assert all(
         row["status"] == "QUARANTINED_BY_RUNTIME_SEMANTIC_GATE"

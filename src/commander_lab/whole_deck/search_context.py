@@ -18,11 +18,16 @@ from commander_lab.models import CardRole, DataQuality, StructuralCardProfile, S
 from commander_lab.repositories.candidates import BASIC_LANDS, load_candidate_profiles
 from commander_lab.storage import sha256_value
 
+from .oracle_fact_verification import verified_empty_oracle_names
+
 SEARCH_ENGINE_VERSION = "whole-deck-search-0.1.0"
 JESKAI = frozenset({"W", "U", "R"})
 INTERACTION_ROLES = frozenset({CardRole.COUNTER, CardRole.REMOVAL, CardRole.PROTECTION})
 ENGINE_ROLES = frozenset({CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF})
 FINISH_ROLES = frozenset({CardRole.FINISHER, CardRole.PAYOFF, CardRole.COMBAT_PAYOFF})
+SEMANTIC_STRUCTURALLY_MODELED = "structurally_modeled"
+SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE = "known_no_functional_rules_role"
+SEMANTIC_UNKNOWN = "semantic_unknown"
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,7 +39,14 @@ class SearchCard:
     semantic_evidence: str
     semantic_known: bool
     color_identity: frozenset[str]
+    semantic_state: str | None = None
     search_utility_override: float | None = None
+
+    @property
+    def effective_semantic_state(self) -> str:
+        if self.semantic_state is not None:
+            return self.semantic_state
+        return SEMANTIC_STRUCTURALLY_MODELED if self.semantic_known else SEMANTIC_UNKNOWN
 
 
 @dataclass(slots=True)
@@ -50,6 +62,7 @@ class WholeDeckSearchContext:
     def from_project(cls, root: str | Path) -> WholeDeckSearchContext:
         project = Path(root).resolve()
         universe = load_fresh_rogshai_universe(project)
+        verified_empty = verified_empty_oracle_names(project, universe.candidate_facts_by_name)
         inferred = {
             candidate.card.oracle_name: candidate.card
             for candidate in load_candidate_profiles(project).values()
@@ -63,6 +76,7 @@ class WholeDeckSearchContext:
             profile = explicit.get(name)
             semantic_evidence = "explicit_structural_profile"
             semantic_known = True
+            semantic_state = SEMANTIC_STRUCTURALLY_MODELED
             if profile is None:
                 profile = inferred.get(name)
                 semantic_evidence = "project_inferred_structural_profile"
@@ -103,8 +117,13 @@ class WholeDeckSearchContext:
                 if fact_land_known:
                     semantic_known = True
                     semantic_evidence = "fact_land_structural_profile"
+                    semantic_state = SEMANTIC_STRUCTURALLY_MODELED
+                elif name in verified_empty:
+                    semantic_evidence = SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE
+                    semantic_state = SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE
                 else:
                     semantic_evidence = "fact_only_semantics_unknown"
+                    semantic_state = SEMANTIC_UNKNOWN
             color_identity = (
                 frozenset(color.value for color in identity.color_identity)
                 if identity is not None
@@ -118,6 +137,7 @@ class WholeDeckSearchContext:
                 semantic_evidence=semantic_evidence,
                 semantic_known=semantic_known,
                 color_identity=color_identity,
+                semantic_state=semantic_state,
             )
         return cls(
             cards=cards,

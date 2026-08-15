@@ -12,6 +12,11 @@ from commander_lab.whole_deck.search import (
     current_control_mainboard,
     save_search_result,
 )
+from commander_lab.whole_deck.search_context import (
+    SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE,
+    SEMANTIC_STRUCTURALLY_MODELED,
+    SEMANTIC_UNKNOWN,
+)
 from commander_lab.whole_deck.search_models import WholeDeckSearchConfig
 from tests.unit.whole_deck_context_fixture import synthetic_context
 
@@ -49,13 +54,28 @@ def test_project_pool_smoke_uses_all_795_candidates_and_preserves_unknown_semant
 ) -> None:
     context = WholeDeckSearchContext.from_project(repo_root)
     quality = build_knowledge_quality_report(repo_root, context=context)
-    known = sum(card.semantic_known for card in context.cards.values())
-    unknown = sum(not card.semantic_known for card in context.cards.values())
+    structurally_modeled = sum(
+        card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED
+        for card in context.cards.values()
+    )
+    known_no_functional = sum(
+        card.effective_semantic_state == SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE
+        for card in context.cards.values()
+    )
+    unknown = sum(
+        card.effective_semantic_state == SEMANTIC_UNKNOWN for card in context.cards.values()
+    )
 
     assert len(context.cards) == 795
-    assert known + unknown == len(context.cards)
-    assert known == quality["structurally_usable_count"]
-    assert unknown == quality["semantic_unknown_count"]
+    assert structurally_modeled + known_no_functional + unknown == len(context.cards)
+    assert structurally_modeled == quality["structurally_usable_count"] == 542
+    assert known_no_functional == quality["known_no_functional_rules_role_count"] == 18
+    assert unknown == quality["semantic_unknown_count"] == 235
+    assert quality["structurally_unmodeled_count"] == 253
+    assert all(
+        card.semantic_known == (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
+        for card in context.cards.values()
+    )
     assert unknown > 0
 
     neutral = WholeDeckSearchEngine(
