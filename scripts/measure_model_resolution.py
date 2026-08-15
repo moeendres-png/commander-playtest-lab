@@ -36,12 +36,17 @@ def main() -> None:
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({
-        "status": report["status"],
-        "effective_resolution": report["effective_resolution"],
-        "report_hash": report["report_hash"],
-        "output": str(output),
-    }, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "status": report["status"],
+                "effective_resolution": report["effective_resolution"],
+                "report_hash": report["report_hash"],
+                "output": str(output),
+            },
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":
