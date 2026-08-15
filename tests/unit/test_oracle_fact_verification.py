@@ -42,9 +42,7 @@ def test_verified_empty_fact_fails_closed_if_rules_text_appears() -> None:
     current = _current_fact()
     current["oracle_text"] = "Flying"
 
-    with pytest.raises(
-        OracleFactVerificationError, match="current_rules_text_is_now_nonempty"
-    ):
+    with pytest.raises(OracleFactVerificationError, match="current_rules_text_is_now_nonempty"):
         validate_verified_empty_fact("Verified Vanilla", _verification(), current)
 
 
@@ -60,5 +58,7 @@ def test_verified_empty_fact_requires_verified_scryfall_backed_provenance() -> N
     verification = _verification()
     verification["canonical_source_id"] = "unverified local note"
 
-    with pytest.raises(OracleFactVerificationError, match="verification_source_not_scryfall_backed"):
+    with pytest.raises(
+        OracleFactVerificationError, match="verification_source_not_scryfall_backed"
+    ):
         validate_verified_empty_fact("Verified Vanilla", verification, _current_fact())
