@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from collections import Counter
 from pathlib import Path
 
@@ -37,10 +38,72 @@ THREAT_ANSWER_ROLES = frozenset(
 
 
 def _has_oracle_text(row: object) -> bool:
+    """Return whether a fact row has non-empty Oracle rules text.
+
+    This is deliberately *not* a fact-completeness predicate: verified vanilla cards can have
+    legitimately empty Oracle rules text.
+    """
     return isinstance(row, dict) and bool(str(row.get("oracle_text", "") or "").strip())
 
 
-def classify_semantic_unknown_cause(fact: object) -> str:
+def _canonical_inventory_facts(root: Path) -> dict[str, dict[str, object]]:
+    records: dict[str, dict[str, object]] = {}
+    path = root / "data/canonical_import/2026-08-07/inventory.json"
+    if path.exists():
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        rows = payload.get("cards", []) if isinstance(payload, dict) else []
+        records.update(
+            {
+                str(row.get("oracle_name")): dict(row)
+                for row in rows
+                if isinstance(row, dict) and row.get("oracle_name")
+            }
+        )
+    # The current K1/K2 contract contains narrowly verified post-snapshot inventory deltas.
+    # Merge them only as fact-source fallbacks; this never mutates the canonical inventory.
+    contract_path = root / "data/rogshai_mvp/K1_K2_RUNTIME_CONTRACT.json"
+    if contract_path.exists():
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        delta = (
+            contract.get("current_drive_inventory_delta", [])
+            if isinstance(contract, dict)
+            else []
+        )
+        for row in delta:
+            if isinstance(row, dict) and row.get("oracle_name"):
+                records.setdefault(str(row["oracle_name"]), dict(row))
+    return records
+
+
+def _fact_record_complete(row: object) -> bool:
+    if not isinstance(row, dict):
+        return False
+    required_present = (
+        bool(str(row.get("oracle_name", "") or "").strip()),
+        isinstance(row.get("mana_value"), (int, float))
+        and not isinstance(row.get("mana_value"), bool),
+        bool(str(row.get("card_type", "") or row.get("type_line", "") or "").strip()),
+        "color_identity" in row,
+        "oracle_text" in row,
+        str(row.get("commander_legality", row.get("commander_legal", "")) or "").casefold()
+        in {"legal", "banned", "unknown", "true", "false"},
+    )
+    return all(required_present)
+
+
+def _verified_empty_rules_text(row: object) -> bool:
+    if not _fact_record_complete(row) or not isinstance(row, dict):
+        return False
+    if str(row.get("oracle_text", "") or "").strip():
+        return False
+    verification = str(row.get("verification_status", "") or "").casefold()
+    source = str(row.get("source_id", "") or "").casefold()
+    return verification.startswith("verified_") and "scryfall" in source
+
+
+def classify_semantic_unknown_cause(
+    fact: object, *, oracle_text_legitimately_empty: bool = False
+) -> str:
     """Classify why a fact-only candidate remains outside conservative structural roles.
 
     This is a diagnostic taxonomy only. It does not assign a gameplay role or strength.
@@ -50,7 +113,11 @@ def classify_semantic_unknown_cause(fact: object) -> str:
     oracle_text = str(fact.get("oracle_text", "") or "").strip()
     type_line = str(fact.get("card_type", "") or fact.get("type_line", "") or "")
     if not oracle_text:
-        return "oracle_facts_missing"
+        return (
+            "known_no_functional_rules_role"
+            if oracle_text_legitimately_empty
+            else "oracle_facts_missing"
+        )
     if structural_roles_from_oracle(oracle_text, type_line):
         return "parser_or_projection_gap"
     text = rules_text(oracle_text)
@@ -126,6 +193,7 @@ def build_knowledge_quality_report(
     if universe is None:
         raise ValueError("knowledge quality requires a project-backed WholeDeckSearchContext")
     annotations = load_canonical_feature_annotations(project)
+    canonical_facts = _canonical_inventory_facts(project)
     candidates = set(ctx.cards)
     facts = set(universe.candidate_facts_by_name)
     annotation_names = set(annotations)
@@ -133,8 +201,15 @@ def build_knowledge_quality_report(
     evidence_counts = Counter(card.semantic_evidence for card in ctx.cards.values())
     known_names = {name for name, card in ctx.cards.items() if card.semantic_known}
     unknown_names = candidates - known_names
+    verified_empty_rules_text_cards = sorted(
+        name for name in candidates if _verified_empty_rules_text(canonical_facts.get(name))
+    )
+    verified_empty_rules_text = set(verified_empty_rules_text_cards)
     unknown_causes = {
-        name: classify_semantic_unknown_cause(universe.candidate_facts_by_name.get(name))
+        name: classify_semantic_unknown_cause(
+            universe.candidate_facts_by_name.get(name),
+            oracle_text_legitimately_empty=name in verified_empty_rules_text,
+        )
         for name in sorted(unknown_names)
     }
     unknown_cause_counts = Counter(unknown_causes.values())
@@ -168,6 +243,10 @@ def build_knowledge_quality_report(
     oracle_count = sum(
         _has_oracle_text(universe.candidate_facts_by_name.get(name)) for name in candidates
     )
+    complete_fact_cards = sorted(
+        name for name in candidates if _fact_record_complete(canonical_facts.get(name))
+    )
+    truly_missing_fact_cards = sorted(candidates - set(complete_fact_cards))
     package_count = sum(bool(card.profile.package_ids) for card in ctx.cards.values())
     threat_answer_count = sum(
         bool(set(card.profile.roles) & set(THREAT_ANSWER_ROLES)) for card in ctx.cards.values()
@@ -208,8 +287,25 @@ def build_knowledge_quality_report(
     return {
         "schema_version": "1.0.0",
         "candidate_universe_count": candidate_count,
+        # Backward-compatible rules-text coverage. This intentionally excludes verified vanilla
+        # cards whose Oracle rules text is legitimately empty.
         "oracle_coverage_count": oracle_count,
         "oracle_coverage_fraction": oracle_count / candidate_count if candidate_count else 0.0,
+        "rules_text_nonempty_count": oracle_count,
+        "rules_text_nonempty_fraction": oracle_count / candidate_count if candidate_count else 0.0,
+        "verified_empty_rules_text_count": len(verified_empty_rules_text_cards),
+        "verified_empty_rules_text_cards": verified_empty_rules_text_cards,
+        "candidate_fact_coverage_count": len(complete_fact_cards),
+        "candidate_fact_coverage_fraction": (
+            len(complete_fact_cards) / candidate_count if candidate_count else 0.0
+        ),
+        "truly_missing_fact_count": len(truly_missing_fact_cards),
+        "truly_missing_fact_cards": truly_missing_fact_cards,
+        "oracle_fact_semantics": (
+            "Non-empty rules-text coverage is separate from fact completeness. A verified empty "
+            "Oracle rules-text field is a valid fact for a no-rules-text card and is not treated "
+            "as missing Oracle facts."
+        ),
         "canonical_overlay_coverage_count": len(annotation_names & candidates),
         "canonical_overlay_coverage_fraction": (
             len(annotation_names & candidates) / candidate_count if candidate_count else 0.0
