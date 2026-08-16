@@ -27,6 +27,12 @@ OPPONENT_ENTITY_TO_REGISTRY_KEY = {
     "opponent:dance_of_the_elements": "dance_of_the_elements/precon",
     "opponent:wakanda_forever": "wakanda_forever/precon",
     "opponent:lorehold_spirit": "lorehold_spirit/precon",
+    "opponent:scions_spellcraft": "scions_spellcraft/precon",
+    "opponent:counter_intelligence": "counter_intelligence/precon",
+    "opponent:turtle_power": "turtle_power/precon",
+    "opponent:silverquill_influence": "silverquill_influence/precon",
+    "opponent:fantastic_four": "fantastic_four/precon",
+    "opponent:avengers_assemble": "avengers_assemble/precon",
 }
 
 _REQUIRED_FEATURE_SOURCES = {

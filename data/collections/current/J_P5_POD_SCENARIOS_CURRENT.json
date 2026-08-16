@@ -58,19 +58,31 @@
         "opponent:kaervek_the_merciless",
         "opponent:dance_of_the_elements",
         "opponent:wakanda_forever",
-        "opponent:lorehold_spirit"
+        "opponent:lorehold_spirit",
+        "opponent:scions_spellcraft",
+        "opponent:counter_intelligence",
+        "opponent:turtle_power",
+        "opponent:silverquill_influence",
+        "opponent:fantastic_four",
+        "opponent:avengers_assemble"
       ],
       "opponents": [
         "Blight Curse",
         "Kaervek the Merciless",
         "Dance of the Elements",
         "Wakanda Forever",
-        "Lorehold Spirit"
+        "Lorehold Spirit",
+        "Scions & Spellcraft",
+        "Counter Intelligence",
+        "Turtle Power!",
+        "Silverquill Influence",
+        "The Fantastic Four",
+        "Avengers Assemble"
       ],
       "own_deck": null,
       "own_deck_id": null,
       "pod_size": null,
-      "purpose": "holdout/sensitivity opponent pool; do not invent a specific pod composition or frequency",
+      "purpose": "holdout/sensitivity opponent pool; official-precon benchmarks are exact packaged lists but not observed opponent profiles; do not invent a specific pod composition or frequency",
       "scenario_id": "holdout_sensitivity_pool",
       "scenario_type": "opponent_pool_not_fixed_pod",
       "source_drive_ids": [

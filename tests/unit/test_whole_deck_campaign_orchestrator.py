@@ -25,7 +25,7 @@ def test_orchestrator_separates_primary_and_holdout_scenarios(repo_root) -> None
     )
 
     assert result["campaign_specification"]["pod_size"] == 4
-    assert len(result["opponent_deck_ids"]) == 8
+    assert len(result["opponent_deck_ids"]) == 14
     assert result["holdout"] is not None
     primary = result["primary"]
     holdout = result["holdout"]

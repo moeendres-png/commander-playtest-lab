@@ -501,7 +501,9 @@
       "commander_cost": 4.0,
       "commander_power": 3.0,
       "strategy": "villains_artifacts_reuse",
-      "source_status": "official_precon_baseline",
+      "source_status": "official_precon_exact_100_not_observed",
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/doom-prevails-precon",
       "data_quality": "project_inferred",
       "land_count": 38,
       "roles": {
@@ -521,7 +523,7 @@
         "Official unchanged precon baseline; concrete local upgrades are not asserted"
       ],
       "baseline_precon_cards": 100,
-      "upgrade_slots_unknown": true,
+      "upgrade_slots_unknown": false,
       "evidence_status": "verified",
       "commander_roles": [
         "engine",
@@ -626,8 +628,7 @@
         }
       ],
       "evidence_kinds": [
-        "official_precon",
-        "unknown"
+        "official_precon"
       ]
     },
     {

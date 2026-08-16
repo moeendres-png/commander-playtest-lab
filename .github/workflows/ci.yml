@@ -55,9 +55,6 @@ jobs:
           mkdir -p artifacts/quality
           set -o pipefail
           mypy src/commander_lab 2>&1 | tee artifacts/quality/mypy.txt
-      - name: Collect tests
-        if: ${{ success() || failure() }}
-        run: pytest --collect-only -q
       - name: Test suite
         if: ${{ success() || failure() }}
         run: pytest -q

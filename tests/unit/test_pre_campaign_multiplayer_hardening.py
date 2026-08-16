@@ -38,18 +38,18 @@ def test_five_player_full_cycle_balances_opponents_and_own_seats(repo_root) -> N
     rows = scheduler.schedule(scheduler.combinations_per_cycle, seed=2026081451)
     report = scheduler.coverage_report(rows)
 
-    assert len(repository.current_deck_ids()) == 8
-    assert scheduler.combinations_per_cycle == 70
-    assert len(rows) == 70
-    assert len({tuple(sorted(row.opponent_deck_ids)) for row in rows}) == 70
+    assert len(repository.current_deck_ids()) == 14
+    assert scheduler.combinations_per_cycle == 1001
+    assert len(rows) == 1001
+    assert len({tuple(sorted(row.opponent_deck_ids)) for row in rows}) == 1001
     assert all(len(set(row.opponent_deck_ids)) == 4 for row in rows)
-    assert set(report["games_per_opponent"].values()) == {35}
+    assert set(report["games_per_opponent"].values()) == {286}
     assert report["rogshai_seat_counts"] == {
-        "1": 14,
-        "2": 14,
-        "3": 14,
-        "4": 14,
-        "5": 14,
+        "1": 200,
+        "2": 200,
+        "3": 200,
+        "4": 200,
+        "5": 201,
     }
     assert report["complete_coverage_cycles"] == 1
     assert report["opponent_exposure_imbalance"] == 0
@@ -246,7 +246,7 @@ def test_campaign_readiness_includes_separate_five_player_sensitivity(repo_root)
     report = build_campaign_readiness(repo_root, external_gates=gates, smoke_status="PASS")
     assert report["primary_pod_scheduler_status"] == "PASS"
     assert report["five_player_sensitivity_status"] == "PASS"
-    assert report["five_player_full_cycle_combinations"] == 70
+    assert report["five_player_full_cycle_combinations"] == 1001
     assert report["five_player_full_cycle_coverage"]["primary_evidence"] is False
     assert report["ready_for_official_campaign"] is True
 

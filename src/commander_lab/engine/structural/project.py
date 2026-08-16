@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from commander_lab.cards.catalog import CardCatalog
 from commander_lab.models import Deck, StructuralCardProfile, StructuralDeckProfile
 from commander_lab.models.structural import validate_commander_deck_profile
 from commander_lab.storage import load_model
@@ -103,6 +104,12 @@ def load_project_structural_decks(
             )
     if include_current_opponents:
         opponent_dir = root_path / "data/opponents"
+        supplemental_path = root_path / "data/cards/official_precon_oracle_cards.json"
+        if supplemental_path.exists():
+            supplemental = StructuralProfileCatalog.from_card_catalog(
+                CardCatalog.from_json(supplemental_path)
+            )
+            profiles = StructuralProfileCatalog((*supplemental.profiles, *profiles.profiles))
         opponent_paths = [opponent_dir / "current_structural_profiles.json"]
         opponent_paths.extend(sorted(opponent_dir.glob("*_structural_profile.json")))
         for opponent_path in opponent_paths:
@@ -111,6 +118,7 @@ def load_project_structural_decks(
                 opponent_profiles = build_current_opponent_profiles(
                     opponent_path,
                     data_snapshot_hash=snapshot_hash,
+                    structural_catalog=profiles,
                 )
                 for profile in opponent_profiles.values():
                     validate_commander_deck_profile(profile)

@@ -27,7 +27,7 @@ def test_opponent_evidence_statuses_and_unknowns_are_explicit(repo_root) -> None
     assert morcant["synthetic_basic_count"] == 28
     doom = specs["opponent/doom-prevails-precon"]
     assert doom["baseline_precon_cards"] == 100
-    assert doom["upgrade_slots_unknown"] is True
+    assert doom["upgrade_slots_unknown"] is False
 
 
 def test_official_precon_commanders_and_native_decision_cards_are_structurally_named(
