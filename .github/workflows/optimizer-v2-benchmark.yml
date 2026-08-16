@@ -1,7 +1,6 @@
 name: Optimizer v2 Technical Benchmark
 
 on:
-  pull_request:
   workflow_dispatch:
 
 permissions:
