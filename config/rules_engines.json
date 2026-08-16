@@ -3,14 +3,14 @@
   "protocol_version": "2.0.0",
   "primary_engine": {
     "provider": "xmage",
-    "release": "xmage_1.4.60V3",
-    "commit": "06d166b098ad36b277edef01116472203d5a047e",
-    "repository": "https://github.com/magefree/mage.git",
-    "source_archive": "https://github.com/magefree/mage/archive/06d166b098ad36b277edef01116472203d5a047e.tar.gz",
+    "release": "compatibility-fork-unreleased",
+    "commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c",
+    "repository": "https://github.com/moeendres-png/mage.git",
+    "source_archive": "https://github.com/moeendres-png/mage/archive/77d7646da6958fdf8125ee7c8f4aabd130d21d4c.tar.gz",
     "license": "MIT",
-    "role": "candidate provider; PARTIAL real evidence, not production-selected",
-    "status": "PARTIAL",
-    "real_execution": true,
+    "role": "current XMage compatibility candidate; local full XMage regression validated; production JSONL bridge not yet built",
+    "status": "LOCAL_REGRESSION_VALIDATED",
+    "real_execution": false,
     "production_ready": false
   },
   "secondary_engine": {
