@@ -54,10 +54,18 @@ def build_protocol_schema() -> dict[str, Any]:
 def write_protocol_schema(path: str | Path) -> Path:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
+    schema = build_protocol_schema()
+    if target.exists():
+        try:
+            if json.loads(target.read_text(encoding="utf-8")) == schema:
+                return target
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            pass
+    newline = "\r\n" if target.exists() and b"\r\n" in target.read_bytes() else "\n"
     target.write_text(
-        json.dumps(build_protocol_schema(), indent=2, sort_keys=True) + "\n",
+        json.dumps(schema, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
-        newline="\n",
+        newline=newline,
     )
     return target
 
