@@ -61,8 +61,10 @@ jobs:
           assert seal['evaluation_count'] == 1
           assert seal['post_holdout_tuning_performed'] is False
           manifest=json.loads(Path('data/decks/manifest.json').read_text())
+          deck=json.loads(Path('data/decks/rogshai_current.json').read_text())
           assert set(manifest['decks']) == {'rogshai/current'}
-          assert manifest['decks']['rogshai/current']['deck_hash'] == '7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126'
+          assert deck['deck_hash'] == '1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3'
+          assert manifest['decks']['rogshai/current']['deck_hash'] == deck['deck_hash']
           PY
       - name: Assert tracked tree remains clean
         run: test -z "$(git status --porcelain --untracked-files=no)"
