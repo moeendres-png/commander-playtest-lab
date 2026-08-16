@@ -47,3 +47,34 @@ substitute for real XMage execution.
 
 The retained J-P3B XMage evidence workflows intentionally remain pinned to
 the historical official XMage source used for those runs.
+
+## B1 handshake bridge status
+
+A Lab-owned development bridge now exists under:
+
+`engine-bridge/`
+
+B1 has been locally verified against the pinned XMage `1.4.61` runtime from
+commit:
+
+`77d7646da6958fdf8125ee7c8f4aabd130d21d4c`
+
+The versioned JSONL process successfully supports:
+
+- `START_ENGINE`
+- `GET_PROVIDER_VERSION`
+- `GET_CAPABILITIES`
+- `SHUTDOWN_ENGINE`
+
+The real XMage runtime is loaded by the Java bridge, but B1 deliberately
+advertises all gameplay capabilities as unsupported.
+
+The Commander Playtest Lab therefore reports this bridge as `DEGRADED`.
+
+This is process/runtime integration evidence only. It is not Commander
+gameplay evidence and does not satisfy the external rules-engine semantic
+acceptance gate.
+
+`NO_PROVIDER_READY` remains current.
+
+Gameplay support begins with later bridge stages B2-B5.

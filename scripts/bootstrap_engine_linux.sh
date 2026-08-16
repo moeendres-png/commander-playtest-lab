@@ -76,9 +76,9 @@ fi
 LOG="$ROOT/artifacts/engine_setup/${PROVIDER}_build.log"
 mkdir -p "$(dirname "$LOG")"
 if [[ "$PROVIDER" == "xmage" ]]; then
-  (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests package) 2>&1 | tee "$LOG"
+  (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests install) 2>&1 | tee "$LOG"
 else
-  (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests package) 2>&1 | tee "$LOG"
+  (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests install) 2>&1 | tee "$LOG"
 fi
 cat > "$BINARY_ROOT/installation-identity.json" <<EOF
 {"provider":"$PROVIDER","commit":"$COMMIT","source_path":"$SOURCE_ROOT","built_with_java":"$JAVA_MAJOR","build_log":"$LOG","bridge_verified":false}
