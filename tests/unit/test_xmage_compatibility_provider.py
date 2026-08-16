@@ -64,3 +64,35 @@ def test_historical_jp3b_provider_evidence_remains_pinned(
         assert HISTORICAL_REPOSITORY in text
         assert HISTORICAL_COMMIT in text
         assert XMAGE_COMMIT not in text
+
+
+def test_b1_bridge_is_present_but_remains_fail_closed(
+    repo_root: Path,
+) -> None:
+    bridge_root = repo_root / "engine-bridge"
+
+    assert (bridge_root / "pom.xml").is_file()
+    assert (bridge_root / "src/main/java/org/commanderlab/xmage/Main.java").is_file()
+    assert (bridge_root / "src/main/java/org/commanderlab/xmage/JsonlBridge.java").is_file()
+    assert (bridge_root / "src/main/java/org/commanderlab/xmage/XmageProvider.java").is_file()
+
+    workflow = (repo_root / ".github/workflows/external-engine-integration.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "-DskipTests install" in workflow
+    assert "working-directory: engine-bridge" in workflow
+    assert "mvn -B -ntp verify" in workflow
+
+    windows = (repo_root / "scripts/bootstrap_engine_windows.ps1").read_text(encoding="utf-8")
+    linux = (repo_root / "scripts/bootstrap_engine_linux.sh").read_text(encoding="utf-8")
+
+    assert "-DskipTests install" in windows
+    assert "-DskipTests install" in linux
+
+    config = json.loads((repo_root / "config/rules_engines.json").read_text(encoding="utf-8"))
+
+    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    assert config["production_bridge"] == "not_built"
+    assert config["primary_engine"]["production_ready"] is False
+    assert config["primary_engine"]["real_execution"] is False

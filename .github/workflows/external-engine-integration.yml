@@ -52,7 +52,7 @@ jobs:
       - name: Build XMage
         working-directory: vendor/engine-source/xmage
         run: |
-          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests package; else mvn -B -ntp -DskipTests package; fi
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
       - name: Install lab
         run: python -m pip install -e '.[dev,api]'
       - name: Require real provider-specific bridge
