@@ -32,7 +32,7 @@ def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> No
     assert set(expected).isdisjoint(first.holdout_deck_ids)
     assert first.playstyle_preference_type == "post_build_review_only"
     assert dict(first.active_deck_hashes) == {
-        "rogshai/current": "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
+        "rogshai/current": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3"
     }
     assert "config/J_P5_SEARCH_POLICY_v1.json" in dict(first.policy_config_hashes)
     assert len(first.playstyle_preference_hash) == 64
@@ -177,7 +177,7 @@ def test_context_fails_closed_when_deck_content_changes_without_identity(tmp_pat
     _copy_context_inputs(tmp_path)
     path = tmp_path / "data/decks/rogshai_current.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
-    payload["cards"][2]["oracle_name"] = "Plains"
+    payload["cards"][2]["oracle_name"] = "Island"
     path.write_text(json.dumps(payload), encoding="utf-8")
 
     with pytest.raises(ProjectContextError, match="content hash mismatch"):

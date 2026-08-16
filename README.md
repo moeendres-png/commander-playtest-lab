@@ -8,7 +8,7 @@ There is exactly one current own-deck snapshot:
 
 - `rogshai/current` — Ishai, Ojutai Dragonspeaker + Rograkh, Son of Rohgahh
 - 100 cards total / 98-card library / 36 lands
-- deck hash: `7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126`
+- deck hash: `1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3`
 - status: `current_provisional_final_for_simulator_optimization`
 
 This list is the physically buildable current reference and the baseline for continued simulator/optimizer improvement. It is **not frozen**: later evidence may justify changes.

@@ -33,7 +33,7 @@ def test_official_spec_is_ready_not_started_and_binds_exact_shortlist() -> None:
     assert {row["label"] for row in spec["shortlist"]} == {
         "rootborn_for_flare",
         "opt_for_preordain",
-        "into_the_roil_for_prismari_charm",
+        "into_the_roil_for_expressive_iteration",
     }
     assert all(row["physical_availability"] == "verified" for row in spec["shortlist"])
     assert all(row["commander_legality"] == "verified" for row in spec["shortlist"])

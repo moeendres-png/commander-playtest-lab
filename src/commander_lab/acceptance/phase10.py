@@ -35,12 +35,12 @@ PRIMARY_CANDIDATES: dict[str, list[dict[str, str]]] = {
 
 ABLATION_CARDS: dict[str, tuple[str, ...]] = {
     "korvold/current": ("Vampiric Rites", "Necrogenesis", "Ichor Wellspring"),
-    "rogshai/current": ("Chart a Course", "Curiosity", "Prismari Charm"),
+    "rogshai/current": ("Preordain", "Curiosity", "Counterspell"),
 }
 
 ABLATION_PACKAGES: dict[str, tuple[str, ...]] = {
     "korvold/current": ("Ichor Wellspring", "Tireless Provisioner", "Tireless Tracker"),
-    "rogshai/current": ("Archmage Emeritus", "Prismari Charm", "Kykar, Wind's Fury"),
+    "rogshai/current": ("Archmage Emeritus", "Veyran, Voice of Duality", "Kykar, Wind's Fury"),
 }
 
 

@@ -1,1 +1,415 @@
-{"schema_version":"0.1.0","status":"current_provisional_baseline_overlay","estimate_type":"card_identity_projection","cards":[{"oracle_name":"Abrade","aliases":[],"mana_value":2.0,"colors":["R"],"color_identity":["R"],"type_line":"Instant","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Dig Through Time","aliases":[],"mana_value":8.0,"colors":["U"],"color_identity":["U"],"type_line":"Instant","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Expressive Iteration","aliases":[],"mana_value":2.0,"colors":["U","R"],"color_identity":["U","R"],"type_line":"Sorcery","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Foil","aliases":[],"mana_value":4.0,"colors":["U"],"color_identity":["U"],"type_line":"Instant","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Harmonic Prodigy","aliases":[],"mana_value":2.0,"colors":["R"],"color_identity":["R"],"type_line":"Creature — Human Wizard","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Mystic Sanctuary","aliases":[],"mana_value":0.0,"colors":["U"],"color_identity":["U"],"type_line":"Land — Island","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Spire of Industry","aliases":[],"mana_value":0.0,"colors":[],"color_identity":[],"type_line":"Land","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Stormcatch Mentor","aliases":[],"mana_value":2.0,"colors":["U","R"],"color_identity":["U","R"],"type_line":"Creature — Otter Wizard","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Thunderclap Drake","aliases":[],"mana_value":2.0,"colors":["U"],"color_identity":["U"],"type_line":"Creature — Drake","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]},{"oracle_name":"Veyran, Voice of Duality","aliases":[],"mana_value":3.0,"colors":["U","R"],"color_identity":["U","R"],"type_line":"Legendary Creature — Efreet Wizard","legalities":{"commander":"legal"},"is_basic_land":false,"max_deck_copies":1,"data_quality":"project_inferred","provenance":[{"source_type":"project_candidate_projection","source_name":"ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl","source_path":"Drive/current RogShai candidate pool","quality":"project_inferred","notes":"Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."}]}]}
+{
+    "schema_version": "0.1.0",
+    "status": "current_provisional_baseline_overlay",
+    "estimate_type": "card_identity_projection",
+    "cards": [
+        {
+            "oracle_name": "Abrade",
+            "aliases": [],
+            "mana_value": 2.0,
+            "colors": [
+                "R"
+            ],
+            "color_identity": [
+                "R"
+            ],
+            "type_line": "Instant",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Dig Through Time",
+            "aliases": [],
+            "mana_value": 8.0,
+            "colors": [
+                "U"
+            ],
+            "color_identity": [
+                "U"
+            ],
+            "type_line": "Instant",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Expressive Iteration",
+            "aliases": [],
+            "mana_value": 2.0,
+            "colors": [
+                "U",
+                "R"
+            ],
+            "color_identity": [
+                "U",
+                "R"
+            ],
+            "type_line": "Sorcery",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Foil",
+            "aliases": [],
+            "mana_value": 4.0,
+            "colors": [
+                "U"
+            ],
+            "color_identity": [
+                "U"
+            ],
+            "type_line": "Instant",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Harmonic Prodigy",
+            "aliases": [],
+            "mana_value": 2.0,
+            "colors": [
+                "R"
+            ],
+            "color_identity": [
+                "R"
+            ],
+            "type_line": "Creature \u2014 Human Wizard",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Mystic Sanctuary",
+            "aliases": [],
+            "mana_value": 0.0,
+            "colors": [
+                "U"
+            ],
+            "color_identity": [
+                "U"
+            ],
+            "type_line": "Land \u2014 Island",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Spire of Industry",
+            "aliases": [],
+            "mana_value": 0.0,
+            "colors": [],
+            "color_identity": [],
+            "type_line": "Land",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Stormcatch Mentor",
+            "aliases": [],
+            "mana_value": 2.0,
+            "colors": [
+                "U",
+                "R"
+            ],
+            "color_identity": [
+                "U",
+                "R"
+            ],
+            "type_line": "Creature \u2014 Otter Wizard",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Thunderclap Drake",
+            "aliases": [],
+            "mana_value": 2.0,
+            "colors": [
+                "U"
+            ],
+            "color_identity": [
+                "U"
+            ],
+            "type_line": "Creature \u2014 Drake",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Furygale Flocking",
+            "aliases": [],
+            "mana_cost": "{8}{R}{R}",
+            "mana_value": 10.0,
+            "colors": ["R"],
+            "color_identity": ["R"],
+            "type_line": "Sorcery",
+            "oracle_text": "This spell costs {1} less to cast for each instant and sorcery card in your graveyard.\nFor each opponent, create two 3/3 blue and red Elemental creature tokens with flying that attack that opponent this turn if able. They gain haste until end of turn.",
+            "legalities": {"commander": "legal"},
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_verified",
+            "provenance": [{
+                "source_type": "google_drive_inventory_snapshot",
+                "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+                "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+                "quality": "project_verified",
+                "notes": "Read-only identity and Oracle-field projection for the photo-verified current deck."
+            }]
+        },
+        {
+            "oracle_name": "Magma Opus",
+            "aliases": [],
+            "mana_cost": "{6}{U}{R}",
+            "mana_value": 8.0,
+            "colors": ["U", "R"],
+            "color_identity": ["U", "R"],
+            "type_line": "Instant",
+            "oracle_text": "Magma Opus deals 4 damage divided as you choose among any number of targets. Tap two target permanents. Create a 4/4 blue and red Elemental creature token. Draw two cards.\n{U/R}{U/R}, Discard this card: Create a Treasure token.",
+            "legalities": {"commander": "legal"},
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_verified",
+            "provenance": [{
+                "source_type": "google_drive_inventory_snapshot",
+                "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+                "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+                "quality": "project_verified",
+                "notes": "Read-only identity and Oracle-field projection for the photo-verified current deck."
+            }]
+        },
+        {
+            "oracle_name": "Mana Geyser",
+            "aliases": [],
+            "mana_cost": "{3}{R}{R}",
+            "mana_value": 5.0,
+            "colors": ["R"],
+            "color_identity": ["R"],
+            "type_line": "Sorcery",
+            "oracle_text": "Add {R} for each tapped land your opponents control.",
+            "legalities": {"commander": "legal"},
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_verified",
+            "provenance": [{
+                "source_type": "google_drive_inventory_snapshot",
+                "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+                "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+                "quality": "project_verified",
+                "notes": "Read-only identity and Oracle-field projection for the photo-verified current deck."
+            }]
+        },
+        {
+            "oracle_name": "Mystic Monastery",
+            "aliases": [],
+            "mana_value": 0.0,
+            "colors": [],
+            "color_identity": ["W", "U", "R"],
+            "type_line": "Land",
+            "oracle_text": "This land enters tapped.\n{T}: Add {U}, {R}, or {W}.",
+            "legalities": {"commander": "legal"},
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_verified",
+            "provenance": [{
+                "source_type": "google_drive_inventory_snapshot",
+                "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+                "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+                "quality": "project_verified",
+                "notes": "Read-only identity and Oracle-field projection for the photo-verified current deck."
+            }]
+        },
+        {
+            "oracle_name": "Reliquary Tower",
+            "aliases": [],
+            "mana_value": 0.0,
+            "colors": [],
+            "color_identity": [],
+            "type_line": "Land",
+            "oracle_text": "You have no maximum hand size.\n{T}: Add {C}.",
+            "legalities": {"commander": "legal"},
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_verified",
+            "provenance": [{
+                "source_type": "google_drive_inventory_snapshot",
+                "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
+                "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+                "quality": "project_verified",
+                "notes": "Read-only identity and Oracle-field projection for the photo-verified current deck."
+            }]
+        },
+        {
+            "oracle_name": "Ovika, Enigma Goliath",
+            "oracle_id": "b05a2b5f-1b5c-4f1b-8a6b-525c5c8b8ba1",
+            "aliases": [],
+            "mana_cost": "{5}{U}{R}",
+            "mana_value": 7.0,
+            "colors": [
+                "U",
+                "R"
+            ],
+            "color_identity": [
+                "U",
+                "R"
+            ],
+            "type_line": "Legendary Creature — Phyrexian Nightmare",
+            "oracle_text": "Flying\nWard—{3}, Pay 3 life.\nWhenever you cast a noncreature spell, create X 1/1 red Phyrexian Goblin creature tokens, where X is the mana value of that spell. They gain haste until end of turn.",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_verified",
+            "provenance": [
+                {
+                    "source_type": "scryfall_named_card_lookup",
+                    "source_name": "Scryfall named-card API",
+                    "source_path": "https://api.scryfall.com/cards/named?exact=Ovika%2C%20Enigma%20Goliath",
+                    "data_as_of": "2026-08-16T00:00:00Z",
+                    "quality": "project_verified",
+                    "notes": "Identity and Commander legality verified for the photo-confirmed current card; this project catalog remains non-authoritative Oracle data."
+                }
+            ]
+        },
+        {
+            "oracle_name": "Veyran, Voice of Duality",
+            "aliases": [],
+            "mana_value": 3.0,
+            "colors": [
+                "U",
+                "R"
+            ],
+            "color_identity": [
+                "U",
+                "R"
+            ],
+            "type_line": "Legendary Creature \u2014 Efreet Wizard",
+            "legalities": {
+                "commander": "legal"
+            },
+            "is_basic_land": false,
+            "max_deck_copies": 1,
+            "data_quality": "project_inferred",
+            "provenance": [
+                {
+                    "source_type": "project_candidate_projection",
+                    "source_name": "ROGSHAI_CANDIDATE_POOL_CURRENT.jsonl",
+                    "source_path": "Drive/current RogShai candidate pool",
+                    "quality": "project_inferred",
+                    "notes": "Added so the provisional RogShai simulator baseline can be parsed. Oracle UUID/text are intentionally not fabricated."
+                }
+            ]
+        }
+    ]
+}

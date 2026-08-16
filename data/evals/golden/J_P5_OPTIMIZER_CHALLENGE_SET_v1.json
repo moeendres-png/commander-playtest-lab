@@ -6,9 +6,9 @@
   "variants": [
     {"id":"rogshai_good_static","deck_id":"rogshai/current","class":"good","remove":"Flare of Duplication","add_candidate_id":"inventory/rootborn-defenses-677fdbcf","static_screening_delta":1.115},
     {"id":"rogshai_neutral_static","deck_id":"rogshai/current","class":"neutral","remove":"Preordain","add_candidate_id":"inventory/divine-resilience-842a919d","static_screening_delta":0.01},
-    {"id":"rogshai_bad_static","deck_id":"rogshai/current","class":"bad","remove":"Chain Reaction","add_candidate_id":"inventory/sphinx-of-the-final-word-c3b31ea0","static_screening_delta":-2.84},
+    {"id":"rogshai_bad_static","deck_id":"rogshai/current","class":"bad","remove":"Chain Reaction","add_candidate_id":"inventory/abolish-c8398169","static_screening_delta":-1.97},
     {"id":"rogshai_good_static_opt","deck_id":"rogshai/current","class":"good","remove":"Preordain","add_candidate_id":"rogshai/opt-smoke","static_screening_delta":1.5},
-    {"id":"rogshai_neutral_static_roil","deck_id":"rogshai/current","class":"neutral","remove":"Prismari Charm","add_candidate_id":"rogshai/into-the-roil-smoke","static_screening_delta":-0.368},
+    {"id":"rogshai_neutral_static_roil","deck_id":"rogshai/current","class":"neutral","remove":"Expressive Iteration","add_candidate_id":"rogshai/into-the-roil-smoke","static_screening_delta":-0.368},
     {"id":"rogshai_bad_static_roil","deck_id":"rogshai/current","class":"bad","remove":"Chain Reaction","add_candidate_id":"rogshai/into-the-roil-smoke","static_screening_delta":-1.388}
   ]
 }

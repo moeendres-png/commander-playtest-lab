@@ -24,7 +24,7 @@ from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.service import CommanderToolService
 
 DECK_ID = "rogshai/current"
-EXPECTED_DECK_HASH = "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
+EXPECTED_DECK_HASH = "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3"
 SPEC_SCHEMA_VERSION = "1.0.0"
 SEED_ROOTS = {
     "mulligan": 2026082101,
@@ -46,8 +46,8 @@ VARIANTS = (
         "add_candidate_id": "rogshai/opt-smoke",
     },
     {
-        "label": "into_the_roil_for_prismari_charm",
-        "remove": "Prismari Charm",
+        "label": "into_the_roil_for_expressive_iteration",
+        "remove": "Expressive Iteration",
         "add_candidate_id": "rogshai/into-the-roil-smoke",
     },
 )

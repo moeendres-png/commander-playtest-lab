@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_serializer, model_validator
 
 from .common import Color, DataQuality, FrozenModel, MutableModel, SourceRef
 from .pilots import PilotConfig
@@ -40,6 +40,15 @@ class StructuralCardProfile(FrozenModel):
     source_quality: DataQuality = DataQuality.PROJECT_INFERRED
     sources: tuple[SourceRef, ...] = ()
     notes: str | None = None
+
+    @field_serializer("roles", "mechanic_tags", "color_identity", "produces_colors", "package_ids")
+    def serialize_sets(self, values: frozenset[object]) -> list[object]:
+        """Serialize unordered structural fields deterministically across processes."""
+        return sorted(values, key=lambda value: getattr(value, "value", str(value)))
+
+    @field_serializer("role_strengths")
+    def serialize_role_strengths(self, values: dict[CardRole, float]) -> dict[CardRole, float]:
+        return dict(sorted(values.items(), key=lambda item: item[0].value))
 
     @model_validator(mode="after")
     def validate_role_strengths(self) -> StructuralCardProfile:

@@ -57,6 +57,7 @@ def write_protocol_schema(path: str | Path) -> Path:
     target.write_text(
         json.dumps(build_protocol_schema(), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     return target
 
