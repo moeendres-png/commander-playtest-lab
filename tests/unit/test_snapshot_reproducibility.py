@@ -1,17 +1,23 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 from commander_lab.tools import build_local_snapshots
 
 _INPUTS = (
     "data/cards/oracle_subset.json",
+    "data/cards/structural_role_profiles.json",
     "data/collections/current_deck_allocations.json",
     "data/decks/rogshai_current.txt",
     "data/decks/rogshai_current_card_catalog_overrides.json",
     "data/decks/rogshai_current_structural_overrides.json",
+    "data/decks/rogshai_photo_verified_structural_overrides.json",
+    "data/decks/rogshai_current_physical_printings.json",
 )
 _TRACKED = (
     "data/decks/rogshai_current.json",
@@ -58,3 +64,32 @@ def test_local_snapshot_build_is_portable_across_root_paths(
 
     rogshai = json.loads((first_root / "data/decks/rogshai_current.json").read_text())
     assert rogshai["source"]["source_path"] == "data/decks/rogshai_current.txt"
+    assert "physical_commander_note" not in rogshai["commander"]
+    assert "printing_source_path" not in rogshai["source"]
+    manifest = json.loads((first_root / "data/decks/manifest.json").read_text())
+    assert manifest["data_snapshot_hash"]
+    assert manifest["global_active_own_decks"] == ["korvold/current", "rogshai/current"]
+    assert manifest["runtime_loaded_decks"] == ["rogshai/current"]
+
+
+def test_local_snapshot_build_is_stable_across_python_hash_seeds(
+    repo_root: Path, tmp_path: Path
+) -> None:
+    sandbox = tmp_path / "hash-seed-root"
+    _prepare_snapshot_root(repo_root, sandbox)
+    command = [
+        sys.executable,
+        "-c",
+        "from pathlib import Path; from commander_lab.tools import build_local_snapshots; "
+        "build_local_snapshots(Path(__import__('sys').argv[1]))",
+        str(sandbox),
+    ]
+
+    snapshots: list[dict[str, bytes]] = []
+    for seed in ("1", "8675309"):
+        environment = os.environ.copy()
+        environment["PYTHONHASHSEED"] = seed
+        subprocess.run(command, check=True, env=environment)
+        snapshots.append(_snapshot_bytes(sandbox))
+
+    assert snapshots[0] == snapshots[1]

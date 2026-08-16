@@ -27,6 +27,17 @@ def test_phase7_candidate_pool_is_locally_verified() -> None:
     assert "Into the Roil" in service.verified_candidate_names
 
 
+def test_current_control_satisfies_current_optimization_constraints() -> None:
+    service = CommanderToolService(ROOT)
+    report = evaluate_constraints(
+        service._deck("rogshai/current"),
+        service._optimization_constraints("rogshai/current"),
+    )
+    assert report.valid is True
+    assert report.metrics["average_nonland_mana_value"] <= 2.8
+    assert report.metrics["high_mana_value_cards"] <= 9
+
+
 def test_complete_swap_matrix_preserves_every_requested_cell() -> None:
     service = CommanderToolService(ROOT)
     response = service.generate_swap_matrix(

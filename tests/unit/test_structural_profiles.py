@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
@@ -40,3 +45,30 @@ def test_strength_for_absent_role_is_rejected() -> None:
             roles=frozenset({CardRole.DRAW}),
             role_strengths={CardRole.RAMP: 1.0},
         )
+
+
+def test_profile_generation_is_stable_across_python_hash_seeds(
+    repo_root: Path, tmp_path: Path
+) -> None:
+    sandbox = tmp_path / "profiles-root"
+    for relative in ("data/cards/oracle_subset.json",):
+        source = repo_root / relative
+        target = sandbox / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    command = [
+        sys.executable,
+        "-c",
+        "from commander_lab.engine.structural.profiles import generate_project_profiles; "
+        "generate_project_profiles(__import__('sys').argv[1])",
+        str(sandbox),
+    ]
+
+    outputs: list[bytes] = []
+    for seed in ("1", "8675309"):
+        environment = os.environ.copy()
+        environment["PYTHONHASHSEED"] = seed
+        subprocess.run(command, check=True, env=environment)
+        outputs.append((sandbox / "data/cards/structural_role_profiles.json").read_bytes())
+
+    assert outputs[0] == outputs[1]

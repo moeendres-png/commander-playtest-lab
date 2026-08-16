@@ -1,1 +1,643 @@
-{"deck_id":"rogshai/current","name":"Ishai + Rograkh — Current Physical Photo-Verified Build","commander":{"commanders":["Ishai, Ojutai Dragonspeaker","Rograkh, Son of Rohgahh"],"uses_partner":true,"physical_commander_note":"Ishai is physically represented by Benedikta Harman (FCA #53)."},"cards":[{"oracle_name":"Ishai, Ojutai Dragonspeaker","zone":"commander"},{"oracle_name":"Rograkh, Son of Rohgahh","zone":"commander"},{"oracle_name":"Plains","quantity":4},{"oracle_name":"Shivan Reef"},{"oracle_name":"Mountain","quantity":4},{"oracle_name":"Island","quantity":8},{"oracle_name":"Springleaf Drum"},{"oracle_name":"Sol Ring"},{"oracle_name":"Arcane Signet"},{"oracle_name":"Talisman of Progress"},{"oracle_name":"Talisman of Creativity"},{"oracle_name":"Lightning Greaves"},{"oracle_name":"Swiftfoot Boots"},{"oracle_name":"Fellwar Stone"},{"oracle_name":"Esior, Wardwing Familiar"},{"oracle_name":"Faerie Mastermind"},{"oracle_name":"Soul-Guide Lantern"},{"oracle_name":"Relic of Legends"},{"oracle_name":"Kediss, Emberclaw Familiar"},{"oracle_name":"Harmonic Prodigy"},{"oracle_name":"Loyal Drake"},{"oracle_name":"Thunderclap Drake"},{"oracle_name":"Veyran, Voice of Duality"},{"oracle_name":"Ovika, Enigma Goliath"},{"oracle_name":"Archmage Emeritus"},{"oracle_name":"Guttersnipe"},{"oracle_name":"Kykar, Wind's Fury"},{"oracle_name":"Aerial Extortionist"},{"oracle_name":"Storm-Kiln Artist"},{"oracle_name":"Duelist's Heritage"},{"oracle_name":"Curiosity"},{"oracle_name":"Narset, Parter of Veils"},{"oracle_name":"Jeska, Thrice Reborn"},{"oracle_name":"Chandra, Torch of Defiance"},{"oracle_name":"Psychosis Crawler"},{"oracle_name":"Louisoix's Sacrifice"},{"oracle_name":"An Offer You Can't Refuse"},{"oracle_name":"Whirlwind of Thought"},{"oracle_name":"Path to Exile"},{"oracle_name":"Silence"},{"oracle_name":"Slip Out the Back"},{"oracle_name":"Swords to Plowshares"},{"oracle_name":"Wash Away"},{"oracle_name":"Loran's Escape"},{"oracle_name":"Counterspell"},{"oracle_name":"Boros Charm"},{"oracle_name":"Arcane Denial"},{"oracle_name":"Flare of Duplication"},{"oracle_name":"Dovin's Veto"},{"oracle_name":"Wear // Tear"},{"oracle_name":"Chaos Warp"},{"oracle_name":"Resculpt"},{"oracle_name":"Reality Shift"},{"oracle_name":"Negate"},{"oracle_name":"Dig Through Time"},{"oracle_name":"Magma Opus"},{"oracle_name":"Combat Research"},{"oracle_name":"Blacksmith's Skill"},{"oracle_name":"Preordain"},{"oracle_name":"Finale of Revelation"},{"oracle_name":"Consider"},{"oracle_name":"Expressive Iteration"},{"oracle_name":"Vandalblast"},{"oracle_name":"Mana Geyser"},{"oracle_name":"Chain Reaction"},{"oracle_name":"Furygale Flocking"},{"oracle_name":"Farewell"},{"oracle_name":"Blasphemous Act"},{"oracle_name":"Reliquary Tower"},{"oracle_name":"Scorched Geyser"},{"oracle_name":"Adarkar Wastes"},{"oracle_name":"Clifftop Retreat"},{"oracle_name":"Exotic Orchard"},{"oracle_name":"Command Tower"},{"oracle_name":"Cascade Bluffs"},{"oracle_name":"Glacial Fortress"},{"oracle_name":"Sulfur Falls"},{"oracle_name":"Port Town"},{"oracle_name":"Prairie Stream"},{"oracle_name":"Frostboil Snarl"},{"oracle_name":"Skycloud Expanse"},{"oracle_name":"Mystic Monastery"},{"oracle_name":"Fabled Passage"},{"oracle_name":"Evolving Wilds"},{"oracle_name":"Irrigated Farmland"},{"oracle_name":"Terramorphic Expanse"},{"oracle_name":"Sunhome, Fortress of the Legion"}],"data_as_of":"2026-08-15","source":{"source_type":"direct_user_photo_verification","source_name":"RogShai physical deck photos 2026-08-15","source_path":"data/decks/rogshai_current.txt","printing_source_path":"data/decks/rogshai_current_physical_printings.json","quality":"direct_user_verified","notes":"The photographed 100-card physical deck supersedes the 2026-08-11 provisional simulator baseline as current RogShai truth."},"deck_hash":"2b6258ae1c778784ed252bb46ff828343055177146634c77847506d33f4a4362","deck_hash_method":"sha256_exact_utf8_rogshai_current_txt_lf_with_trailing_newline","tags":["current","physical","photo_verified","rogshai"],"notes":"Current physical RogShai list. Collector/set printings are maintained separately in rogshai_current_physical_printings.json; simulator-facing oracle-name list remains in rogshai_current.txt."}
+{
+  "deck_id": "rogshai/current",
+  "name": "Ishai + Rograkh — Current Physical Photo-Verified Build",
+  "commander": {
+    "commanders": [
+      "Ishai, Ojutai Dragonspeaker",
+      "Rograkh, Son of Rohgahh"
+    ],
+    "uses_partner": true,
+    "commander_identity_override": null
+  },
+  "cards": [
+    {
+      "oracle_name": "Ishai, Ojutai Dragonspeaker",
+      "quantity": 1,
+      "zone": "commander",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Rograkh, Son of Rohgahh",
+      "quantity": 1,
+      "zone": "commander",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Plains",
+      "quantity": 4,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Shivan Reef",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mountain",
+      "quantity": 4,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Island",
+      "quantity": 8,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Springleaf Drum",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Arcane Signet",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Talisman of Progress",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Talisman of Creativity",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Lightning Greaves",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Swiftfoot Boots",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Fellwar Stone",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Esior, Wardwing Familiar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Faerie Mastermind",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Soul-Guide Lantern",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Relic of Legends",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Kediss, Emberclaw Familiar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Harmonic Prodigy",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Loyal Drake",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Thunderclap Drake",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Veyran, Voice of Duality",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ovika, Enigma Goliath",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Archmage Emeritus",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Guttersnipe",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Kykar, Wind's Fury",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Aerial Extortionist",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Storm-Kiln Artist",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Duelist's Heritage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Curiosity",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Narset, Parter of Veils",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Jeska, Thrice Reborn",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Chandra, Torch of Defiance",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Psychosis Crawler",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Louisoix's Sacrifice",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "An Offer You Can't Refuse",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Whirlwind of Thought",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Path to Exile",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Silence",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Slip Out the Back",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Swords to Plowshares",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Wash Away",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Loran's Escape",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Counterspell",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Boros Charm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Arcane Denial",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Flare of Duplication",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dovin's Veto",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Wear // Tear",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Chaos Warp",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Resculpt",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Reality Shift",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Negate",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dig Through Time",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Magma Opus",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Combat Research",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Blacksmith's Skill",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Preordain",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Finale of Revelation",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Consider",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Expressive Iteration",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Vandalblast",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mana Geyser",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Chain Reaction",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Furygale Flocking",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Farewell",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Blasphemous Act",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Reliquary Tower",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Scorched Geyser",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Adarkar Wastes",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Clifftop Retreat",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Exotic Orchard",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Command Tower",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Cascade Bluffs",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Glacial Fortress",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sulfur Falls",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Port Town",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Prairie Stream",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Frostboil Snarl",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Skycloud Expanse",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mystic Monastery",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Fabled Passage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Evolving Wilds",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Irrigated Farmland",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Terramorphic Expanse",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sunhome, Fortress of the Legion",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    }
+  ],
+  "format": "commander",
+  "data_as_of": "2026-08-15",
+  "source": {
+    "source_type": "direct_user_photo_verification",
+    "source_name": "RogShai physical deck photos 2026-08-15",
+    "source_path": "data/decks/rogshai_current.txt",
+    "retrieved_at": null,
+    "data_as_of": null,
+    "sha256": null,
+    "quality": "project_verified",
+    "notes": "The photographed physical 100-card deck supersedes the 2026-08-11 provisional simulator baseline as current RogShai truth. Exact printing identities are stored in rogshai_current_physical_printings.json."
+  },
+  "deck_hash": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3",
+  "tags": [
+    "current",
+    "photo_verified",
+    "physical",
+    "rogshai"
+  ],
+  "notes": "Current physical RogShai list. Set codes and collector numbers remain in the separate physical-printings projection; this normalized runtime file contains only fields accepted by the strict Deck schema."
+}

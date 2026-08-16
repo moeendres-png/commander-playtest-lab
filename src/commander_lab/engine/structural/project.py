@@ -51,8 +51,13 @@ def load_project_structural_decks(
     profiles = StructuralProfileCatalog.from_json(
         root_path / "data/cards/structural_role_profiles.json"
     )
-    overlay_path = root_path / "data/decks/rogshai_current_structural_overrides.json"
-    if overlay_path.exists():
+    overlay_paths = (
+        root_path / "data/decks/rogshai_current_structural_overrides.json",
+        root_path / "data/decks/rogshai_photo_verified_structural_overrides.json",
+    )
+    for overlay_path in overlay_paths:
+        if not overlay_path.exists():
+            continue
         overlay_payload = json.loads(overlay_path.read_text(encoding="utf-8"))
         overlay_rows = overlay_payload.get("profiles", [])
         if not isinstance(overlay_rows, list):

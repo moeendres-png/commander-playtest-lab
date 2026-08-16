@@ -19,7 +19,7 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["historical_own_deck_set"] == ["korvold/current"]
     assert truth["primary_deckbuilding_focus"] == "rogshai/current"
     assert truth["active_deck_hashes"] == {
-        "rogshai/current": "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"
+        "rogshai/current": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3"
     }
     assert truth["playstyle_policy"]["stage"] == "post_build_review_only"
     assert truth["playstyle_policy"]["objective_decision_signal"] is False

@@ -1120,7 +1120,11 @@ class StructuralProfileCatalog:
             "profile_count": len(self._profiles),
             "profiles": [profile.model_dump(mode="json") for profile in self.profiles],
         }
-        Path(path).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        Path(path).write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+            newline="\n",
+        )
 
 
 def build_structural_deck_profile(

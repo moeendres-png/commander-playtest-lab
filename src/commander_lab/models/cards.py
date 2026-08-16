@@ -5,7 +5,7 @@ from datetime import date
 from enum import StrEnum
 from typing import Annotated
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, field_serializer, field_validator, model_validator
 
 from .common import Color, DataQuality, FrozenModel, MutableModel, SourceRef
 
@@ -170,6 +170,11 @@ class Deck(MutableModel):
     deck_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     tags: set[str] = Field(default_factory=set)
     notes: str | None = None
+
+    @field_serializer("tags")
+    def serialize_tags(self, tags: set[str]) -> list[str]:
+        """Keep deck JSON stable across processes with different hash seeds."""
+        return sorted(tags)
 
     @model_validator(mode="after")
     def commanders_match_entries(self) -> Deck:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from commander_lab.engine.process_manager import EngineProcessManager
 from commander_lab.engine.rules.protocol import (
     REQUIRED_EXTERNAL_MESSAGE_TYPES,
     build_protocol_schema,
+    write_protocol_schema,
 )
 from commander_lab.engine.runtime_evidence import (
     build_runtime_attestation,
@@ -47,6 +49,17 @@ def test_required_external_compatibility_surface_is_complete() -> None:
         "shutdown_game",
     }
     assert set(REQUIRED_EXTERNAL_MESSAGE_TYPES).issubset(set(EngineMessageType))
+
+
+def test_protocol_schema_writer_preserves_existing_crlf_checkout(tmp_path: Path) -> None:
+    target = tmp_path / "engine-adapter-protocol.schema.json"
+    payload = json.dumps(build_protocol_schema(), indent=2, sort_keys=True) + "\n"
+    target.write_bytes(payload.replace("\n", "\r\n").encode("utf-8"))
+    before = target.read_bytes()
+
+    write_protocol_schema(target)
+
+    assert target.read_bytes() == before
 
 
 def test_log_rotation_keeps_bounded_backups(tmp_path: Path) -> None:
