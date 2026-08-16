@@ -25,6 +25,11 @@
             <artifactId>mage</artifactId>
             <version>${xmage.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mage</groupId>
+            <artifactId>mage-deck-constructed</artifactId>
+            <version>${xmage.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.code.gson</groupId>
