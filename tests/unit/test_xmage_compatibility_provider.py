@@ -1,0 +1,66 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+XMAGE_REPOSITORY = "https://github.com/moeendres-png/mage.git"
+XMAGE_ACTIONS_REPOSITORY = "moeendres-png/mage"
+XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
+
+HISTORICAL_REPOSITORY = "https://github.com/magefree/mage.git"
+HISTORICAL_COMMIT = "06d166b098ad36b277edef01116472203d5a047e"
+
+
+def test_current_xmage_compatibility_candidate_is_pinned(
+    repo_root: Path,
+) -> None:
+    config = json.loads((repo_root / "config/rules_engines.json").read_text(encoding="utf-8"))
+    primary = config["primary_engine"]
+
+    assert primary["repository"] == XMAGE_REPOSITORY
+    assert primary["commit"] == XMAGE_COMMIT
+    assert primary["production_ready"] is False
+    assert primary["real_execution"] is False
+
+    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    assert config["production_bridge"] == "not_built"
+    assert config["current_runtime"]["provider_selected"] is False
+    assert config["current_runtime"]["production_provider"] is None
+
+
+def test_current_bootstraps_use_compatibility_candidate(
+    repo_root: Path,
+) -> None:
+    windows = (repo_root / "scripts/bootstrap_engine_windows.ps1").read_text(encoding="utf-8")
+    linux = (repo_root / "scripts/bootstrap_engine_linux.sh").read_text(encoding="utf-8")
+
+    for text in (windows, linux):
+        assert XMAGE_REPOSITORY in text
+        assert XMAGE_COMMIT in text
+
+
+def test_current_external_workflow_uses_compatibility_candidate(
+    repo_root: Path,
+) -> None:
+    workflow = (repo_root / ".github/workflows/external-engine-integration.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert f"repository: {XMAGE_ACTIONS_REPOSITORY}" in workflow
+    assert f"default: {XMAGE_COMMIT}" in workflow
+    assert "git describe --tags --always" in workflow
+    assert "engine-bridge/pom.xml" in workflow
+
+
+def test_historical_jp3b_provider_evidence_remains_pinned(
+    repo_root: Path,
+) -> None:
+    for relative in (
+        ".github/workflows/j-p3b-xmage-fixtures.yml",
+        ".github/workflows/j-p3b-xmage-real-spike.yml",
+    ):
+        text = (repo_root / relative).read_text(encoding="utf-8")
+
+        assert HISTORICAL_REPOSITORY in text
+        assert HISTORICAL_COMMIT in text
+        assert XMAGE_COMMIT not in text

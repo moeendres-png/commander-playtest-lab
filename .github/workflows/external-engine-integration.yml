@@ -6,7 +6,7 @@ on:
       xmage_commit:
         description: Verified full XMage commit SHA
         required: true
-        default: 06d166b098ad36b277edef01116472203d5a047e
+        default: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
 
 permissions:
   contents: read
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout pinned XMage
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          repository: magefree/mage
+          repository: moeendres-png/mage
           ref: ${{ inputs.xmage_commit }}
           path: vendor/engine-source/xmage
           fetch-depth: 0
@@ -48,7 +48,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
           git cat-file -t "$XMAGE_COMMIT"
           git show --no-patch --format=fuller "$XMAGE_COMMIT"
-          git describe --tags --exact-match "$XMAGE_COMMIT" | tee ../../../artifacts/xmage-tag.txt
+          git describe --tags --always "$XMAGE_COMMIT" | tee ../../../artifacts/xmage-source-description.txt
       - name: Build XMage
         working-directory: vendor/engine-source/xmage
         run: |

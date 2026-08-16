@@ -8,8 +8,8 @@ MAVEN_VERSION="3.9.16"
 
 case "$PROVIDER" in
   xmage)
-    REPO="https://github.com/magefree/mage.git"
-    COMMIT="06d166b098ad36b277edef01116472203d5a047e"
+    REPO="${COMMANDER_LAB_XMAGE_REPOSITORY:-https://github.com/moeendres-png/mage.git}"
+    COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-77d7646da6958fdf8125ee7c8f4aabd130d21d4c}"
     REQUIRED_JAVA_MIN=8
     ;;
   forge)
