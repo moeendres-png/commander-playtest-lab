@@ -943,6 +943,51 @@ def _roles_for(card: CardIdentity) -> frozenset[CardRole]:
     is_land = "Land" in card.type_line or card.is_basic_land
     if is_land:
         roles.add(CardRole.MANA_SOURCE)
+    text = (card.oracle_text or "").casefold()
+    if "counter target spell" in text:
+        roles.add(CardRole.COUNTER)
+    if any(
+        token in text
+        for token in ("draw a card", "draw two cards", "draw three cards", "draw x cards")
+    ):
+        roles.add(CardRole.DRAW)
+    if any(
+        token in text
+        for token in ("scry ", "surveil ", "look at the top", "discard a card, then draw")
+    ):
+        roles.add(CardRole.SELECTION)
+    if any(
+        token in text
+        for token in (
+            "destroy target",
+            "exile target",
+            "return target nonland",
+            "return target creature",
+        )
+    ):
+        roles.add(CardRole.REMOVAL)
+    if any(token in text for token in ("destroy all", "exile all", "each creature gets -")):
+        roles.update({CardRole.REMOVAL, CardRole.WIPE})
+    if "return target" in text and "graveyard" in text:
+        roles.add(CardRole.RECURSION)
+    if "exile" in text and "graveyard" in text:
+        roles.add(CardRole.GRAVEYARD_HATE)
+    if "create " in text and " token" in text:
+        roles.add(CardRole.TOKEN_SOURCE)
+    if any(
+        token in text for token in ("hexproof", "indestructible", "phase out", "protection from")
+    ):
+        roles.add(CardRole.PROTECTION)
+    if "add " in text and "mana" in text:
+        roles.add(CardRole.RAMP)
+    if "search your library" in text and "land card" in text and "battlefield" in text:
+        roles.add(CardRole.RAMP)
+    if "sacrifice another" in text or "sacrifice a creature:" in text:
+        roles.add(CardRole.SACRIFICE_OUTLET)
+    if ("whenever " in text or "at the beginning" in text) and roles.intersection(
+        {CardRole.DRAW, CardRole.TOKEN_SOURCE, CardRole.RAMP, CardRole.PAYOFF}
+    ):
+        roles.add(CardRole.ENGINE)
     if not roles:
         roles.add(CardRole.ENABLER)
     return frozenset(roles)

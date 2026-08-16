@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import subprocess
 from collections.abc import Mapping
 from pathlib import Path
+from typing import cast
 
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
@@ -57,6 +59,10 @@ def build_campaign_readiness(
         five_player_scheduler.combinations_per_cycle, seed=2026081451
     )
     five_player_coverage = five_player_scheduler.coverage_report(five_player_cycle)
+    four_seat_counts = tuple(cast(Mapping[str, int], coverage["rogshai_seat_counts"]).values())
+    five_seat_counts = tuple(
+        cast(Mapping[str, int], five_player_coverage["rogshai_seat_counts"]).values()
+    )
     deck_manifest = json.loads((project / "data/decks/manifest.json").read_text(encoding="utf-8"))
     rogshai = deck_manifest["decks"]["rogshai/current"]
     provider = json.loads(
@@ -70,15 +76,16 @@ def build_campaign_readiness(
 
     software_ok = import_architecture_status == "PASS" and paired_isolation_status == "PASS"
     scheduler_ok = (
-        scheduler.combinations_per_cycle == 56
+        scheduler.combinations_per_cycle == math.comb(len(opponents.records()), 3)
+        and coverage["games"] == scheduler.combinations_per_cycle
         and coverage["opponent_exposure_imbalance"] == 0
-        and coverage["rogshai_seat_counts"] == {"1": 14, "2": 14, "3": 14, "4": 14}
+        and max(four_seat_counts) - min(four_seat_counts) <= 1
     )
     five_player_ok = (
-        five_player_scheduler.combinations_per_cycle == 70
+        five_player_scheduler.combinations_per_cycle == math.comb(len(opponents.records()), 4)
+        and five_player_coverage["games"] == five_player_scheduler.combinations_per_cycle
         and five_player_coverage["opponent_exposure_imbalance"] == 0
-        and five_player_coverage["rogshai_seat_counts"]
-        == {"1": 14, "2": 14, "3": 14, "4": 14, "5": 14}
+        and max(five_seat_counts) - min(five_seat_counts) <= 1
     )
     blockers: list[str] = []
     if not knowledge["knowledge_pipeline_ready"]:

@@ -18,17 +18,17 @@ def test_full_cycle_covers_all_triplets_and_balances_exposure_and_own_seats(repo
     scenarios = scheduler.schedule(scheduler.combinations_per_cycle, seed=2026081401)
     report = scheduler.coverage_report(scenarios)
 
-    assert len(repository.current_deck_ids()) == 8
-    assert scheduler.combinations_per_cycle == 56
-    assert len(scenarios) == 56
-    assert len({tuple(sorted(row.opponent_deck_ids)) for row in scenarios}) == 56
+    assert len(repository.current_deck_ids()) == 14
+    assert scheduler.combinations_per_cycle == 364
+    assert len(scenarios) == 364
+    assert len({tuple(sorted(row.opponent_deck_ids)) for row in scenarios}) == 364
     assert all(len(set(row.opponent_deck_ids)) == 3 for row in scenarios)
     assert all(len(row.opponent_seat_assignment) == 3 for row in scenarios)
     assert all(
         row.own_seat not in {seat for seat, _ in row.opponent_seat_assignment} for row in scenarios
     )
-    assert set(report["games_per_opponent"].values()) == {21}
-    assert report["rogshai_seat_counts"] == {"1": 14, "2": 14, "3": 14, "4": 14}
+    assert set(report["games_per_opponent"].values()) == {78}
+    assert report["rogshai_seat_counts"] == {"1": 91, "2": 91, "3": 91, "4": 91}
     assert report["complete_coverage_cycles"] == 1
     assert report["incomplete_remainder_games"] == 0
     assert report["opponent_exposure_imbalance"] == 0
@@ -65,9 +65,9 @@ def test_second_cycle_preserves_full_coverage_with_new_scenarios(repo_root) -> N
     rows = scheduler.schedule(2 * scheduler.combinations_per_cycle, seed=2026081402)
     report = scheduler.coverage_report(rows)
 
-    assert len(rows) == 112
+    assert len(rows) == 728
     assert report["complete_coverage_cycles"] == 2
     assert report["incomplete_remainder_games"] == 0
-    assert set(report["games_per_opponent"].values()) == {42}
+    assert set(report["games_per_opponent"].values()) == {156}
     assert set(report["games_per_opponent_triple"].values()) == {2}
     assert len({row.seed for row in rows}) == len(rows)

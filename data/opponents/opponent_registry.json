@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "data_as_of": "2026-08-10",
+  "data_as_of": "2026-08-16",
   "current": {
     "alen_morcant/current": "opponent/morcant-elves",
     "cosmic_spiderman/current": "opponent/cosmic-spiderman-midbudget",
@@ -9,7 +9,13 @@
     "doom_prevails/precon": "opponent/doom-prevails-precon",
     "dance_of_the_elements/precon": "opponent/dance-elements-precon",
     "wakanda_forever/precon": "opponent/wakanda-forever-precon",
-    "lorehold_spirit/precon": "opponent/lorehold-spirit-precon"
+    "lorehold_spirit/precon": "opponent/lorehold-spirit-precon",
+    "scions_spellcraft/precon": "opponent/scions-spellcraft-precon",
+    "counter_intelligence/precon": "opponent/counter-intelligence-precon",
+    "turtle_power/precon": "opponent/turtle-power-precon",
+    "silverquill_influence/precon": "opponent/silverquill-influence-precon",
+    "fantastic_four/precon": "opponent/fantastic-four-precon",
+    "avengers_assemble/precon": "opponent/avengers-assemble-precon"
   },
   "aliases": {
     "opponent/kaervek-reference": {

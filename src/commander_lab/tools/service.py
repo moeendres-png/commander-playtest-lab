@@ -3364,6 +3364,11 @@ class CommanderToolService:
             "opponent/doom-prevails-precon",
             "opponent/dance-elements-precon",
             "opponent/wakanda-forever-precon",
+            *sorted(
+                deck_id
+                for deck_id in self.decks
+                if (deck_id.startswith("opponent/") or deck_id == "kaervek/current")
+            ),
             "synthetic/aggro",
             "synthetic/control",
             "synthetic/engine",

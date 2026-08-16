@@ -6,8 +6,9 @@ from commander_lab.whole_deck.readiness import build_campaign_readiness
 def test_readiness_fails_closed_without_external_gates(repo_root) -> None:
     report = build_campaign_readiness(repo_root, smoke_status="PASS")
     assert report["primary_pod_scheduler_status"] == "PASS"
-    assert report["opponent_count"] == 8
-    assert report["opponent_full_cycle_combinations"] == 56
+    assert report["opponent_count"] == 14
+    assert report["opponent_full_cycle_combinations"] == 364
+    assert report["five_player_full_cycle_combinations"] == 1001
     assert report["knowledge_quality"]["knowledge_pipeline_ready"] is True
     assert report["external_engine_status"] == "NO_PROVIDER_READY"
     assert report["ready_for_official_campaign"] is False

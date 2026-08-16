@@ -60,7 +60,7 @@ def test_current_uncertainty_registry_preserves_known_unknown_counts(repo_root: 
     assert by_deck["opponent/morcant-elves"]["unknown_slot_count"] == 0
     doom = by_deck["opponent/doom-prevails-precon"]
     assert doom["baseline_precon_cards"] == 100
-    assert doom["upgrade_slots_unknown"] is True
+    assert doom["upgrade_slots_unknown"] is False
     assert (
         len(
             [
@@ -69,7 +69,7 @@ def test_current_uncertainty_registry_preserves_known_unknown_counts(repo_root: 
                 if r["deck_id"] == "opponent/doom-prevails-precon"
             ]
         )
-        == 3
+        == 1
     )
 
 

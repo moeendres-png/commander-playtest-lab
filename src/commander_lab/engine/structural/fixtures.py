@@ -7,11 +7,14 @@ from commander_lab.models import (
     Color,
     DataQuality,
     OpponentEvidenceKind,
+    OpponentProfile,
     StructuralCardProfile,
     StructuralDeckProfile,
 )
 from commander_lab.models.roles import StructuralMechanic
 from commander_lab.storage import sha256_value
+
+from .profiles import StructuralProfileCatalog, build_structural_deck_profile
 
 
 def _card(
@@ -175,6 +178,7 @@ def build_current_opponent_profiles(
     config_path: str | Path,
     *,
     data_snapshot_hash: str,
+    structural_catalog: StructuralProfileCatalog | None = None,
 ) -> dict[str, StructuralDeckProfile]:
     """Build current opponent role profiles from a versioned local configuration.
 
@@ -191,6 +195,56 @@ def build_current_opponent_profiles(
         commander_name = str(spec["commander"])
         quality = DataQuality(str(spec.get("data_quality", "project_inferred")))
         source_status = str(spec.get("source_status", "role_profile_only"))
+        exact_profile_path = spec.get("exact_profile_path")
+        exact_profile_id = spec.get("exact_profile_id", deck_id)
+        if exact_profile_path and structural_catalog is not None:
+            project_root = Path(config_path).resolve().parents[2]
+            exact_payload = json.loads(
+                (project_root / str(exact_profile_path)).read_text(encoding="utf-8")
+            )
+            rows = exact_payload.get("profiles", [exact_payload])
+            matches = [row for row in rows if row.get("profile_id") == exact_profile_id]
+            if len(matches) != 1:
+                raise ValueError(
+                    f"exact opponent profile {exact_profile_id} is missing or duplicated"
+                )
+            opponent = OpponentProfile.model_validate(matches[0])
+            if opponent.deck is None or opponent.deck.total_cards != 100:
+                raise ValueError(
+                    f"exact opponent profile {exact_profile_id} is not a 100-card deck"
+                )
+            profile = build_structural_deck_profile(
+                opponent.deck,
+                structural_catalog,
+                data_snapshot_hash=data_snapshot_hash,
+            )
+            inferred_cards = tuple(
+                card.model_copy(
+                    update={
+                        "source_quality": DataQuality.PROJECT_INFERRED,
+                        "notes": (
+                            "Exact official-precon card identity with project-inferred structural "
+                            "semantics; not external-rules-engine evidence."
+                        ),
+                    }
+                )
+                for card in profile.cards
+            )
+            profiles[deck_id] = profile.model_copy(
+                update={
+                    "cards": inferred_cards,
+                    "commander_base_costs": {
+                        name: float(spec.get("commander_cost", profile.commander_base_costs[name]))
+                        for name in profile.commander_names
+                    },
+                    "commander_base_power": {
+                        name: float(spec.get("commander_power", profile.commander_base_power[name]))
+                        for name in profile.commander_names
+                    },
+                    "commander_strategy": str(spec.get("strategy", "official_precon")),
+                }
+            )
+            continue
         snapshot_dir = spec.get("snapshot_dir")
         if spec.get("verified_full_list") and snapshot_dir:
             snapshot_root = Path(config_path).resolve().parents[2] / str(snapshot_dir)

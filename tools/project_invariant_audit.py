@@ -118,6 +118,49 @@ def _collect_exact_profile_ids(opponent_dir: Path) -> tuple[set[str], list[dict[
                     "quantity": quantity,
                 }
             )
+    bundle_path = opponent_dir / "official_precon_profiles.json"
+    if bundle_path.is_file():
+        rows = _load_json(bundle_path).get("profiles")
+        if not isinstance(rows, list):
+            problems.append({"kind": "missing_exact_profiles_list", "source": bundle_path.name})
+            rows = []
+        for payload in rows:
+            if not isinstance(payload, dict):
+                problems.append({"kind": "invalid_exact_profile", "source": bundle_path.name})
+                continue
+            profile_id = str(payload.get("profile_id", ""))
+            if not profile_id:
+                problems.append({"kind": "missing_exact_profile_id", "source": bundle_path.name})
+                continue
+            if profile_id in profile_ids:
+                problems.append(
+                    {
+                        "kind": "duplicate_exact_profile_id",
+                        "profile_id": profile_id,
+                        "source": bundle_path.name,
+                    }
+                )
+            profile_ids.add(profile_id)
+            deck = payload.get("deck")
+            cards = deck.get("cards", []) if isinstance(deck, dict) else []
+            quantity = sum(int(card.get("quantity", 0)) for card in cards if isinstance(card, dict))
+            uncertainty = payload.get("uncertainty")
+            exact_boundary = (
+                payload.get("list_status") == "official_precon"
+                and quantity == 100
+                and isinstance(uncertainty, dict)
+                and uncertainty.get("known_card_count") == 100
+                and uncertainty.get("synthetic_card_count") == 0
+            )
+            if not exact_boundary:
+                problems.append(
+                    {
+                        "kind": "precon_exact_boundary_mismatch",
+                        "profile_id": profile_id,
+                        "source": bundle_path.name,
+                        "quantity": quantity,
+                    }
+                )
     profile_ids.discard("")
     return profile_ids, problems
 

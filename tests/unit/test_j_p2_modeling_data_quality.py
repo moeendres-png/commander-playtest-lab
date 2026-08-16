@@ -89,7 +89,6 @@ def test_j_p2_opponent_profiles_use_explicit_evidence_taxonomy(repo_root: Path) 
     }
     assert set(profiles["opponent/doom-prevails-precon"]["evidence_kinds"]) == {
         "official_precon",
-        "unknown",
     }
     assert set(profiles["opponent/blight-curse-precon"]["evidence_kinds"]) == {
         "official_precon",

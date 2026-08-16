@@ -12,7 +12,7 @@ def test_current_opponent_repository_is_single_registry_projection(repo_root) ->
     repository = CurrentOpponentRepository(repo_root)
 
     assert set(repository.current_deck_ids()) == set(registry["current"].values())
-    assert len(repository.current_deck_ids()) == 8
+    assert len(repository.current_deck_ids()) == 14
     assert "opponent/lorehold-spirit-precon" in repository.current_deck_ids()
     assert "kaervek/current" in repository.current_deck_ids()
     assert set(repository.profiles()) == set(repository.current_deck_ids())
@@ -40,9 +40,9 @@ def test_service_robustness_fallback_uses_repository_before_synthetic(repo_root)
 
     service = CommanderToolService(repo_root)
     current = CurrentOpponentRepository(repo_root).current_deck_ids()
-    pod = service._opponent_pod_for_size((), 8)
+    pod = service._opponent_pod_for_size((), 15)
 
-    assert len(pod) == 7
+    assert len(pod) == 14
     assert set(pod) <= set(current)
     assert "opponent/lorehold-spirit-precon" in pod
     assert not any(deck_id.startswith("synthetic/") for deck_id in pod)
