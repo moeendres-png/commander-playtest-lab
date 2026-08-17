@@ -1,9 +1,16 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 final class JsonlBridge {
+
+    private final XmageDeckImporter deckImporter =
+            new XmageDeckImporter();
 
     record Result(String json, boolean shutdown) {
     }
@@ -60,6 +67,9 @@ final class JsonlBridge {
                             false
                     );
 
+            case "import_deck" ->
+                    importDeck(requestId, request);
+
             case "shutdown_engine" ->
                     success(requestId, shutdownPayload(), true);
 
@@ -67,10 +77,253 @@ final class JsonlBridge {
                     error(
                             requestId,
                             "unsupported_message",
-                            "B1 does not support message type: " + messageType,
+                            "B2 does not support message type: " + messageType,
                             false
                     );
         };
+    }
+
+    private Result importDeck(
+            String requestId,
+            JsonObject request
+    ) {
+        try {
+            if (!request.has("payload")
+                    || !request.get("payload").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_deck_payload",
+                        "IMPORT_DECK requires an object payload",
+                        false
+                );
+            }
+
+            JsonObject payload =
+                    request.getAsJsonObject("payload");
+
+            if (!payload.has("deck")
+                    || !payload.get("deck").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_deck_payload",
+                        "IMPORT_DECK requires payload.deck",
+                        false
+                );
+            }
+
+            JsonObject deck =
+                    payload.getAsJsonObject("deck");
+
+            String deckId =
+                    stringValue(deck, "deck_id");
+
+            String deckHash =
+                    stringValue(deck, "deck_hash");
+
+            List<String> mainboard =
+                    requiredStringArray(
+                            deck,
+                            "mainboard"
+                    );
+
+            List<String> commanders =
+                    requiredStringArray(
+                            deck,
+                            "commander_names"
+                    );
+
+            List<String> sideboard =
+                    optionalStringArray(
+                            deck,
+                            "sideboard"
+                    );
+
+            /*
+             * B2 supports Commander mainboard + commander zone only.
+             * Do not silently reinterpret a conventional sideboard.
+             */
+            if (!sideboard.isEmpty()) {
+                return error(
+                        requestId,
+                        "unsupported_deck_sideboard",
+                        "B2 IMPORT_DECK does not support nonempty sideboard",
+                        false
+                );
+            }
+
+            XmageDeckImporter.ImportResult imported =
+                    deckImporter.importCommanderDeck(
+                            deckId,
+                            deckHash,
+                            mainboard,
+                            commanders
+                    );
+
+            JsonObject handle =
+                    new JsonObject();
+
+            handle.addProperty(
+                    "backend",
+                    XmageProvider.ENGINE
+            );
+
+            handle.addProperty(
+                    "handle_id",
+                    imported.deckHandle()
+            );
+
+            handle.addProperty(
+                    "deck_id",
+                    imported.deckId()
+            );
+
+            handle.addProperty(
+                    "deck_hash",
+                    imported.deckHash()
+            );
+
+            JsonArray commanderNames =
+                    new JsonArray();
+
+            commanders.forEach(
+                    commanderNames::add
+            );
+
+            handle.add(
+                    "commander_names",
+                    commanderNames
+            );
+
+            handle.addProperty(
+                    "accepted_cards",
+                    imported.mainboardCount()
+                            + imported.commanderCount()
+            );
+
+            handle.add(
+                    "rejected_cards",
+                    new JsonArray()
+            );
+
+            handle.add(
+                    "warnings",
+                    new JsonArray()
+            );
+
+            JsonObject responsePayload =
+                    new JsonObject();
+
+            responsePayload.add(
+                    "deck_handle",
+                    handle
+            );
+
+            return success(
+                    requestId,
+                    responsePayload,
+                    false
+            );
+
+        } catch (XmageDeckImporter.ImportException exc) {
+            return error(
+                    requestId,
+                    "deck_import_failed",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_deck_payload",
+                    exc.getClass().getSimpleName()
+                            + ": "
+                            + exc.getMessage(),
+                    false
+            );
+        }
+    }
+
+    private static List<String> requiredStringArray(
+            JsonObject object,
+            String property
+    ) {
+        if (!object.has(property)
+                || object.get(property).isJsonNull()) {
+            throw new IllegalArgumentException(
+                    "Missing required array: "
+                            + property
+            );
+        }
+
+        return stringArray(
+                object,
+                property
+        );
+    }
+
+    private static List<String> optionalStringArray(
+            JsonObject object,
+            String property
+    ) {
+        if (!object.has(property)
+                || object.get(property).isJsonNull()) {
+            return List.of();
+        }
+
+        return stringArray(
+                object,
+                property
+        );
+    }
+
+    private static List<String> stringArray(
+            JsonObject object,
+            String property
+    ) {
+        if (!object.get(property).isJsonArray()) {
+            throw new IllegalArgumentException(
+                    property
+                            + " must be an array"
+            );
+        }
+
+        JsonArray array =
+                object.getAsJsonArray(property);
+
+        List<String> values =
+                new ArrayList<>(array.size());
+
+        for (int index = 0; index < array.size(); index++) {
+            if (!array.get(index).isJsonPrimitive()
+                    || !array.get(index)
+                    .getAsJsonPrimitive()
+                    .isString()) {
+                throw new IllegalArgumentException(
+                        property
+                                + "["
+                                + index
+                                + "] must be a string"
+                );
+            }
+
+            String value =
+                    array.get(index)
+                            .getAsString()
+                            .trim();
+
+            if (value.isBlank()) {
+                throw new IllegalArgumentException(
+                        property
+                                + "["
+                                + index
+                                + "] must be nonblank"
+                );
+            }
+
+            values.add(value);
+        }
+
+        return List.copyOf(values);
     }
 
     private static JsonObject startedPayload() {
@@ -81,7 +334,7 @@ final class JsonlBridge {
         payload.addProperty("started", true);
         payload.addProperty(
                 "phase",
-                "B1_HANDSHAKE_ONLY"
+                "B2_DECK_IMPORT"
         );
         return payload;
     }

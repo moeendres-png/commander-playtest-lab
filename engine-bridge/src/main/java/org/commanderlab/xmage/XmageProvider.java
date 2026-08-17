@@ -55,7 +55,7 @@ final class XmageProvider {
         capabilities.addProperty("multiplayer_supported", false);
         capabilities.addProperty("headless_supported", false);
         capabilities.addProperty("seed_supported", false);
-        capabilities.addProperty("deck_import_supported", false);
+        capabilities.addProperty("deck_import_supported", true);
         capabilities.addProperty("legal_actions_supported", false);
         capabilities.addProperty("action_submission_supported", false);
         capabilities.addProperty("event_log_supported", false);
@@ -94,7 +94,7 @@ final class XmageProvider {
 
         JsonArray notes = new JsonArray();
         notes.add(
-                "B1 real XMage runtime loaded; gameplay capabilities not implemented"
+                "B2 real XMage deck import implemented; gameplay capabilities not implemented"
         );
         notes.add(
                 "NO_PROVIDER_READY remains in force"
