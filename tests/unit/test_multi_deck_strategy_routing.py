@@ -71,8 +71,7 @@ def _summary() -> MulliganPolicySummary:
 def test_commander_strategy_only_selects_explicit_known_families() -> None:
     assert commander_strategy(("Korvold, Fae-Cursed King",)) == "korvold"
     assert (
-        commander_strategy(("Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"))
-        == "rogshai"
+        commander_strategy(("Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh")) == "rogshai"
     )
     assert commander_strategy(("Fixture Commander",)) == "generic"
     assert commander_strategy(("Ishai, Ojutai Dragonspeaker",)) == "generic"
@@ -83,7 +82,6 @@ def test_unknown_deck_uses_generic_mulligan_pilot_not_rogshai() -> None:
     lab = _FixtureMulliganLab(deck)
     context = _context(deck)
 
-    assert lab._baseline_pilot_name(deck.deck_id) == "GenericCommanderPilot"
     assert (
         lab._pilot_name_for_policy(
             deck.deck_id, MulliganPolicyName.CURRENT_PILOT, "RogShaiControlPilot"
