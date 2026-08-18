@@ -46,16 +46,20 @@ final class XmageProvider {
         JsonObject capabilities = new JsonObject();
 
         /*
-         * B1 deliberately advertises no gameplay capability.
-         * Loading a real XMage runtime is not equivalent to implementing
-         * Commander gameplay through the Lab protocol.
+         * B3 advertises only capabilities proven by the real bridge:
+         * Commander/Partner deck import, 2-5 player Commander game
+         * construction, and headless game start through Protocol 2.
+         *
+         * This does not imply an action loop, tactical control, replay,
+         * deterministic seeding, or production-provider readiness.
          */
-        capabilities.addProperty("commander_supported", false);
-        capabilities.addProperty("partner_supported", false);
-        capabilities.addProperty("multiplayer_supported", false);
-        capabilities.addProperty("headless_supported", false);
+        capabilities.addProperty("commander_supported", true);
+        capabilities.addProperty("partner_supported", true);
+        capabilities.addProperty("multiplayer_supported", true);
+        capabilities.addProperty("max_players", 5);
+        capabilities.addProperty("headless_supported", true);
         capabilities.addProperty("seed_supported", false);
-        capabilities.addProperty("deck_import_supported", false);
+        capabilities.addProperty("deck_import_supported", true);
         capabilities.addProperty("legal_actions_supported", false);
         capabilities.addProperty("action_submission_supported", false);
         capabilities.addProperty("event_log_supported", false);
@@ -84,8 +88,8 @@ final class XmageProvider {
         /*
          * This identifies the kind of runtime behind the bridge.
          * It does NOT grant semantic external-engine validation.
-         * The Lab health gate must still report DEGRADED because the
-         * required gameplay capabilities above are false.
+         * The Lab health gate must still report DEGRADED because legal
+         * actions, action submission, and event-log capabilities remain false.
          */
         capabilities.addProperty(
                 "runtime_kind",
@@ -94,7 +98,7 @@ final class XmageProvider {
 
         JsonArray notes = new JsonArray();
         notes.add(
-                "B1 real XMage runtime loaded; gameplay capabilities not implemented"
+                "B3 real XMage Commander construction/start implemented; action-loop capabilities remain unavailable"
         );
         notes.add(
                 "NO_PROVIDER_READY remains in force"

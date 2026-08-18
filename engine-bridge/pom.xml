@@ -25,6 +25,17 @@
             <artifactId>mage</artifactId>
             <version>${xmage.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mage</groupId>
+            <artifactId>mage-deck-constructed</artifactId>
+            <version>${xmage.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mage</groupId>
+            <artifactId>mage-game-commanderfreeforall</artifactId>
+            <version>${xmage.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -52,6 +63,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
+                <configuration>
+                    <workingDirectory>${project.build.directory}</workingDirectory>
+                    <systemPropertyVariables>
+                        <commanderlab.repoRoot>${project.basedir}/..</commanderlab.repoRoot>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
 
             <plugin>

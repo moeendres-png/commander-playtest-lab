@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from collections import Counter
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from .common import FrozenModel, MutableModel
 from .game import GameEvent, GameState
+
+RulesCardZone = Literal["commander", "main", "sideboard"]
 
 
 class ValidationLevel(StrEnum):
@@ -97,12 +100,28 @@ class RulesEngineProbe(FrozenModel):
     details: tuple[str, ...] = ()
 
 
+class RulesCardPrinting(FrozenModel):
+    oracle_name: str = Field(min_length=1)
+    set_code: str = Field(min_length=1)
+    collector_number: str = Field(min_length=1)
+    zone: RulesCardZone
+
+    @field_validator("oracle_name", "set_code", "collector_number")
+    @classmethod
+    def strip_required_text(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("printing identity fields cannot be blank")
+        return normalized
+
+
 class RulesDeckInput(FrozenModel):
     deck_id: str
     name: str
     commander_names: tuple[str, ...]
     mainboard: tuple[str, ...]
     sideboard: tuple[str, ...] = ()
+    card_printings: tuple[RulesCardPrinting, ...] = ()
     deck_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     source_path: str | None = None
 
@@ -113,6 +132,21 @@ class RulesDeckInput(FrozenModel):
             raise ValueError(f"Commander deck must contain exactly 100 cards; observed {total}")
         if len(self.commander_names) not in {1, 2}:
             raise ValueError("Commander configuration must contain one commander or two partners")
+        if self.card_printings:
+            expected: Counter[tuple[str, RulesCardZone]] = Counter()
+            expected.update((name, "commander") for name in self.commander_names)
+            expected.update((name, "main") for name in self.mainboard)
+            expected.update((name, "sideboard") for name in self.sideboard)
+            observed: Counter[tuple[str, RulesCardZone]] = Counter(
+                (printing.oracle_name, printing.zone) for printing in self.card_printings
+            )
+            if observed != expected:
+                missing = expected - observed
+                unexpected = observed - expected
+                raise ValueError(
+                    "card printings do not exactly match deck zones; "
+                    f"missing={dict(missing)}, unexpected={dict(unexpected)}"
+                )
         return self
 
 
@@ -263,6 +297,7 @@ __all__ = [
     "InteractionSpec",
     "InteractionValidation",
     "RulesBackend",
+    "RulesCardPrinting",
     "RulesDeckHandle",
     "RulesDeckInput",
     "RulesEngineAvailability",

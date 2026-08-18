@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import queue
@@ -289,35 +290,58 @@ class JsonLineBridgeClient:
         caps = EngineCapabilityHandshake.model_validate(caps_raw.get("capabilities", caps_raw))
         return hello, caps
 
-    def close(self) -> None:
+    def close(self, *, request_shutdown: bool = True) -> None:
         with self._lock:
             process = self._process
             if process is None:
                 return
+
             stdout_thread = self._stdout_thread
             stderr_thread = self._stderr_thread
+
             try:
-                if process.poll() is None:
+                if process.poll() is None and request_shutdown:
                     try:
                         try:
-                            self.request(EngineMessageType.SHUTDOWN_ENGINE, timeout_seconds=2.0)
+                            self.request(
+                                EngineMessageType.SHUTDOWN_ENGINE,
+                                timeout_seconds=2.0,
+                            )
                         except Exception:
-                            self.request(EngineMessageType.SHUTDOWN_GAME, timeout_seconds=2.0)
+                            self.request(
+                                EngineMessageType.SHUTDOWN_GAME,
+                                timeout_seconds=2.0,
+                            )
                     except Exception:
-                        process.terminate()
+                        if process.poll() is None:
+                            process.terminate()
+
                 try:
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait(timeout=5)
             finally:
-                for stream in (process.stdin, process.stdout, process.stderr):
+                for stream in (
+                    process.stdin,
+                    process.stdout,
+                    process.stderr,
+                ):
                     if stream is not None and not stream.closed:
-                        stream.close()
+                        # Windows can invalidate a pipe handle as the
+                        # child process exits after SHUTDOWN_ENGINE.
+                        with contextlib.suppress(OSError):
+                            stream.close()
+
                 current = threading.current_thread()
-                for thread in (stdout_thread, stderr_thread):
+
+                for thread in (
+                    stdout_thread,
+                    stderr_thread,
+                ):
                     if thread is not None and thread is not current:
                         thread.join(timeout=2)
+
                 self._process = None
                 self._stdout_thread = None
                 self._stderr_thread = None
@@ -390,6 +414,11 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                         f"{hello.get('engine')}"
                     )
                 self._capabilities = caps
+                compatibility_fields = {
+                    name: value
+                    for name, value in caps.model_dump().items()
+                    if name in RulesEngineCapabilities.model_fields
+                }
                 compatibility = RulesEngineCapabilities(
                     deck_loading=caps.deck_import_supported,
                     commander_games=caps.commander_supported,
@@ -402,7 +431,7 @@ class ExternalRulesAdapter(RulesEngineAdapter):
                     game_logs=caps.event_log_supported,
                     multiplayer=caps.multiplayer_supported,
                     maximum_players=caps.max_players,
-                    **caps.model_dump(),
+                    **compatibility_fields,
                 )
                 return RulesEngineProbe(
                     backend=self.backend,
@@ -474,12 +503,26 @@ class ExternalRulesAdapter(RulesEngineAdapter):
     def get_provider_version(self) -> dict[str, Any]:
         return self._require_client().request(EngineMessageType.GET_PROVIDER_VERSION)
 
+    @staticmethod
+    def _deck_wire_payload(deck: RulesDeckInput) -> dict[str, Any]:
+        """Serialize only mechanical deck identity for an external rules engine."""
+        return deck.model_dump(
+            mode="json",
+            exclude={"source_path", "card_printings"},
+        )
+
     def import_deck(self, deck: RulesDeckInput) -> RulesDeckHandle:
         self._require_capability("deck_import_supported")
         result = self._require_client().request(
-            EngineMessageType.IMPORT_DECK, {"deck": deck.model_dump(mode="json")}
+            EngineMessageType.IMPORT_DECK,
+            {"deck": self._deck_wire_payload(deck)},
         )
-        return RulesDeckHandle.model_validate(result.get("deck_handle", result))
+        handle = RulesDeckHandle.model_validate(result.get("deck_handle", result))
+        if handle.backend != self.backend:
+            raise RulesEngineProtocolError(
+                f"{self.backend.value} bridge returned a {handle.backend.value} deck handle"
+            )
+        return handle
 
     def create_commander_game(self, request: RulesGameRequest) -> str:
         self._require_capability("commander_supported")
@@ -568,9 +611,18 @@ class ExternalRulesAdapter(RulesEngineAdapter):
 
     def shutdown_engine(self) -> None:
         client = self._require_client()
+
         if self._capabilities is not None and self._capabilities.engine_shutdown_supported:
-            client.request(EngineMessageType.SHUTDOWN_ENGINE, timeout_seconds=2.0)
-        client.close()
+            try:
+                client.request(
+                    EngineMessageType.SHUTDOWN_ENGINE,
+                    timeout_seconds=2.0,
+                )
+            finally:
+                client.close(request_shutdown=False)
+        else:
+            client.close()
+
         self._client = None
 
     def _legacy_request(self, method: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -579,11 +631,13 @@ class ExternalRulesAdapter(RulesEngineAdapter):
 
     def load_deck(self, deck: RulesDeckInput) -> RulesDeckHandle:
         self._require_capability("deck_import_supported")
+        wire_deck = self._deck_wire_payload(deck)
         if self._legacy_mode:
-            result = self._legacy_request("load_deck", {"deck": deck.model_dump(mode="json")})
+            result = self._legacy_request("load_deck", {"deck": wire_deck})
             return RulesDeckHandle.model_validate(result)
         result = self._require_client().request(
-            EngineMessageType.LOAD_DECK, {"deck": deck.model_dump(mode="json")}
+            EngineMessageType.IMPORT_DECK,
+            {"deck": wire_deck},
         )
         handle = RulesDeckHandle.model_validate(result.get("deck_handle", result))
         if handle.backend != self.backend:
