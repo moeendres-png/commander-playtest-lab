@@ -130,7 +130,10 @@ def main() -> None:
     )
     results.append(_completed("run commander denial", denial))
 
-    generic_holdout = service.run_holdout(
+    # This is a generic out-of-sample robustness exercise over caller-supplied pods. The public
+    # service method retains its historical run_holdout/HoldoutInput names for compatibility, but
+    # this smoke never resolves or consumes the sealed Optimizer-v2 holdout partition.
+    generic_oos = service.run_holdout(
         HoldoutInput(
             deck_id="rogshai/current",
             swaps=(swap,),
@@ -141,7 +144,7 @@ def main() -> None:
             seed=20260816,
         )
     )
-    results.append(_completed("run generic holdout workflow", generic_holdout))
+    results.append(_completed("run generic out-of-sample robustness", generic_oos))
 
     sensitivity = service.run_sensitivity(
         SensitivityInput(
@@ -180,7 +183,7 @@ def main() -> None:
     report_name = "j_p6_workflow_smoke_report.md"
     report = service.create_report(
         CreateReportInput(
-            title="J-P6 workflow smoke",
+            title="Decision-quality workflow smoke",
             tool_responses=(validate.model_dump(mode="json"), inspect.model_dump(mode="json")),
             output_name=report_name,
         )
@@ -191,6 +194,7 @@ def main() -> None:
         raise SystemExit("report output missing")
     report_path.unlink()
 
+    # Historical sealed-holdout evidence is read-only regression evidence here.
     p5 = json.loads((ROOT / "docs/J_P5_HOLDOUT_SEAL.json").read_text(encoding="utf-8"))
     if p5.get("evaluation_count") != 1 or p5.get("post_holdout_tuning_performed") is not False:
         raise SystemExit("P5 consumed holdout integrity changed")
@@ -200,10 +204,15 @@ def main() -> None:
     output.write_text(
         json.dumps(
             {
-                "schema_version": "1.2.0",
+                "schema_version": "1.3.0",
                 "evidence_class": "workflow_runtime_smoke",
-                "current_scope": "rogshai_only",
+                "runtime_scope": "rogshai/current",
+                "global_active_own_decks": ["korvold/current", "rogshai/current"],
+                "unresolved_operational_baselines": ["korvold/current"],
                 "canonical_deck_mutations": 0,
+                "generic_out_of_sample_robustness_executed": True,
+                "sealed_optimizer_holdout_executed": False,
+                "confirmatory_partition_executed": False,
                 "p5_holdout_regression_only": True,
                 "workflows": results,
             },
