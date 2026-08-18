@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import string
 from pathlib import Path
 from typing import Any
 
@@ -16,11 +17,17 @@ class CurrentModelResolutionError(ValueError):
 CURRENT_MODEL_RESOLUTION_PATH = Path("data/diagnostics/MODEL_RESOLUTION_CURRENT.json")
 
 
-def _require_hash(payload: dict[str, Any], key: str) -> str:
+def _require_hex_digest(payload: dict[str, Any], key: str, *, length: int) -> str:
     value = payload.get(key)
-    if not isinstance(value, str) or len(value) != 64:
-        raise CurrentModelResolutionError(f"current model resolution has invalid {key}")
-    return value
+    if (
+        not isinstance(value, str)
+        or len(value) != length
+        or any(character not in string.hexdigits for character in value)
+    ):
+        raise CurrentModelResolutionError(
+            f"current model resolution has invalid {key}; expected {length} hexadecimal characters"
+        )
+    return value.lower()
 
 
 def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
@@ -53,12 +60,21 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
     if isinstance(resolution, bool) or not isinstance(resolution, int | float) or resolution <= 0:
         raise CurrentModelResolutionError("current model resolution has no positive threshold")
     decision_use = payload.get("decision_use")
-    if not isinstance(decision_use, dict) or decision_use.get("paired_candidate_comparisons_allowed") is not True:
-        raise CurrentModelResolutionError("current resolution does not authorize paired candidate comparisons")
+    if (
+        not isinstance(decision_use, dict)
+        or decision_use.get("paired_candidate_comparisons_allowed") is not True
+    ):
+        raise CurrentModelResolutionError(
+            "current resolution does not authorize paired candidate comparisons"
+        )
 
-    stored_control_hash = _require_hash(payload, "structural_control_deck_hash")
-    stored_snapshot_hash = _require_hash(payload, "data_snapshot_hash")
-    stored_opponent_hash = _require_hash(payload, "opponent_registry_hash")
+    stored_control_hash = _require_hex_digest(
+        payload,
+        "structural_control_deck_hash",
+        length=64,
+    )
+    stored_snapshot_hash = _require_hex_digest(payload, "data_snapshot_hash", length=64)
+    stored_opponent_hash = _require_hex_digest(payload, "opponent_registry_hash", length=64)
 
     context, _, _ = enriched_context(project)
     control = context.materialize(
@@ -89,19 +105,31 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
 
     artifact = payload.get("measurement_artifact")
     if not isinstance(artifact, dict):
-        raise CurrentModelResolutionError("current model resolution has no measurement provenance")
-    for key in ("source_head", "measurement_json_sha256", "report_hash"):
-        value = artifact.get(key)
-        if not isinstance(value, str) or len(value) != 64:
-            raise CurrentModelResolutionError(f"measurement provenance has invalid {key}")
+        raise CurrentModelResolutionError(
+            "current model resolution has no measurement provenance"
+        )
+    source_head = _require_hex_digest(artifact, "source_head", length=40)
+    measurement_json_sha256 = _require_hex_digest(
+        artifact,
+        "measurement_json_sha256",
+        length=64,
+    )
+    report_hash = _require_hex_digest(artifact, "report_hash", length=64)
 
     return {
         **payload,
+        "measurement_artifact": {
+            **artifact,
+            "source_head": source_head,
+            "measurement_json_sha256": measurement_json_sha256,
+            "report_hash": report_hash,
+        },
         "freshness_validated": True,
         "freshness_inputs": current,
         "truth_boundary": (
             str(payload.get("truth_boundary", ""))
-            + " Freshness validation does not convert Structural evidence into empirical gameplay evidence."
+            + " Freshness validation does not convert Structural evidence into empirical "
+            "gameplay evidence."
         ).strip(),
     }
 
