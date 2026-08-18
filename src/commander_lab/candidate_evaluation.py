@@ -8,11 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.candidate_screening import CandidateScreener
-from commander_lab.cut_frontier import build_static_swap_rows, select_diverse_swap_frontier
+from commander_lab.cut_frontier import build_static_swap_rows
 from commander_lab.decision_context import (
     CandidateAvailability,
     CandidateProvenance,
-    DecisionContextError,
     TestCandidateSpec,
     load_decision_context_registry,
 )
@@ -24,7 +23,7 @@ from commander_lab.tools.service import CommanderToolService
 
 
 class CandidateEvaluationError(ValueError):
-    """Raised when a candidate-evaluation plan cannot preserve its declared truth boundary."""
+    """Raised when candidate-evaluation planning cannot preserve its truth boundary."""
 
 
 _LANE_PRIORITY = {
@@ -86,8 +85,8 @@ def _prepare_test_profiles(
     for profile in profiles:
         if profile.card.oracle_name not in authorized_names:
             raise CandidateEvaluationError(
-                "a hypothetical structural profile requires a matching explicit TestCandidateSpec: "
-                f"{profile.card.oracle_name}"
+                "a hypothetical structural profile requires a matching explicit "
+                f"TestCandidateSpec: {profile.card.oracle_name}"
             )
         if profile.allowed_deck_ids and deck_id not in profile.allowed_deck_ids:
             raise CandidateEvaluationError(
@@ -100,7 +99,8 @@ def _prepare_test_profiles(
                     "physical_status": "simulation_only_hypothetical",
                     "notes": (
                         (profile.notes or "")
-                        + " Explicit simulation-only test profile; this does not assert physical ownership."
+                        + " Explicit simulation-only test profile; this does not assert "
+                        "physical ownership."
                     ).strip(),
                 }
             )
@@ -120,7 +120,95 @@ def _effective_provenance(rows: Sequence[CandidateProvenance]) -> CandidateProve
     )
 
 
-def _frontier_metrics(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
+def _row_score_key(row: dict[str, Any]) -> tuple[float, str, str]:
+    raw_score = row.get("screening_delta", 0.0)
+    score = float(raw_score) if isinstance(raw_score, (int, float)) else 0.0
+    return (
+        -score,
+        str(row.get("add", row.get("candidate_id", ""))).casefold(),
+        str(row.get("remove", "")).casefold(),
+    )
+
+
+def _candidate_diverse_rows(
+    rows: Sequence[dict[str, Any]],
+    *,
+    max_pairs: int,
+    max_pairs_per_candidate: int,
+    seeded: Sequence[dict[str, Any]] = (),
+) -> list[dict[str, Any]]:
+    """Select a bounded frontier that maximizes candidate coverage before repeats.
+
+    Static score only orders otherwise eligible experiment rows. The selector first gives each
+    candidate one opportunity, preferring an unused cut, and only then allows another row for the
+    same candidate up to ``max_pairs_per_candidate``.
+    """
+
+    if max_pairs < 1 or max_pairs_per_candidate < 1:
+        raise CandidateEvaluationError("candidate-diversity budgets must be positive")
+
+    selected = list(seeded)
+    if len(selected) > max_pairs:
+        raise CandidateEvaluationError("seeded frontier exceeds max_pairs")
+
+    used_keys = {
+        (str(row.get("remove", "")), str(row.get("candidate_id", ""))) for row in selected
+    }
+    used_cuts = {str(row.get("remove", "")) for row in selected}
+    candidate_counts = Counter(str(row.get("candidate_id", "")) for row in selected)
+
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        candidate_id = str(row.get("candidate_id", ""))
+        key = (str(row.get("remove", "")), candidate_id)
+        if not candidate_id or key in used_keys:
+            continue
+        grouped[candidate_id].append(row)
+
+    for candidate_rows in grouped.values():
+        candidate_rows.sort(key=_row_score_key)
+    candidate_order = sorted(
+        grouped,
+        key=lambda candidate_id: (
+            _row_score_key(grouped[candidate_id][0]),
+            candidate_id,
+        ),
+    )
+
+    for target_count in range(1, max_pairs_per_candidate + 1):
+        for candidate_id in candidate_order:
+            if len(selected) >= max_pairs:
+                return selected
+            if candidate_counts[candidate_id] >= target_count:
+                continue
+            available = [
+                row
+                for row in grouped[candidate_id]
+                if (str(row.get("remove", "")), candidate_id) not in used_keys
+            ]
+            if not available:
+                continue
+            available.sort(
+                key=lambda row: (
+                    str(row.get("remove", "")) in used_cuts,
+                    _row_score_key(row),
+                )
+            )
+            chosen = available[0]
+            selected.append(chosen)
+            key = (str(chosen.get("remove", "")), candidate_id)
+            used_keys.add(key)
+            used_cuts.add(str(chosen.get("remove", "")))
+            candidate_counts[candidate_id] += 1
+
+    return selected
+
+
+def _frontier_metrics(
+    rows: Sequence[dict[str, Any]],
+    *,
+    max_pairs_per_candidate: int,
+) -> dict[str, Any]:
     cut_counts = Counter(str(row["remove"]) for row in rows)
     candidate_counts = Counter(str(row["add"]) for row in rows)
     lane_counts: Counter[str] = Counter()
@@ -136,11 +224,15 @@ def _frontier_metrics(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
         "pair_count": len(rows),
         "unique_cut_count": len(cut_counts),
         "unique_candidate_count": len(candidate_counts),
+        "max_pairs_per_candidate": max_pairs_per_candidate,
+        "observed_max_pairs_for_one_candidate": max(candidate_counts.values(), default=0),
         "cut_pair_distribution": dict(sorted(cut_counts.items())),
         "candidate_pair_distribution": dict(sorted(candidate_counts.items())),
         "cut_lane_distribution": dict(sorted(lane_counts.items())),
         "candidate_provenance_distribution": dict(sorted(provenance_counts.items())),
-        "selection_policy": "explicit_test_coverage_then_cut_diverse_structural_frontier",
+        "selection_policy": (
+            "explicit_test_coverage_then_candidate_first_cut_diverse_structural_frontier"
+        ),
         "truth_boundary": "frontier composition only; not empirical card strength",
     }
 
@@ -154,17 +246,23 @@ def build_candidate_evaluation_plan(
     test_candidates: Iterable[TestCandidateSpec] = (),
     test_candidate_profiles: Iterable[CandidateProfile] = (),
     max_pairs: int = 16,
+    max_pairs_per_candidate: int = 2,
     max_cut_hypotheses: int = 24,
     max_candidate_queue: int = 64,
 ) -> dict[str, Any]:
-    """Build the next bounded candidate/variant experiment plan for one active own deck.
+    """Build a bounded next-experiment plan for one active own deck.
 
-    This function intentionally stops before any paired simulation. Static structural scores only
-    choose a diverse experiment frontier. Explicit hypothetical cards remain simulation-only and
-    never become inventory, allocation, or purchase truth.
+    The function stops before paired simulation. Static structural scores only choose a diverse
+    experiment frontier. Explicit hypothetical cards remain simulation-only and never become
+    inventory, allocation, reservation, purchase, or final recommendation truth.
     """
 
-    if max_pairs < 1 or max_cut_hypotheses < 1 or max_candidate_queue < 1:
+    if (
+        max_pairs < 1
+        or max_pairs_per_candidate < 1
+        or max_cut_hypotheses < 1
+        or max_candidate_queue < 1
+    ):
         raise CandidateEvaluationError("candidate-evaluation budgets must be positive")
 
     root_path = Path(root).resolve()
@@ -233,7 +331,12 @@ def build_candidate_evaluation_plan(
         if provenance.availability is CandidateAvailability.PHYSICAL_FREE:
             profile = physical_profiles.get(oracle_name)
             screen_row = screen_by_name.get(oracle_name, {})
-            bucket = str(screen_row.get("bucket", "requires_profile_before_model_dependent_recommendation"))
+            bucket = str(
+                screen_row.get(
+                    "bucket",
+                    "requires_profile_before_model_dependent_recommendation",
+                )
+            )
         elif provenance.availability is CandidateAvailability.HYPOTHETICAL_TEST:
             profile = hypothetical_profiles.get(oracle_name)
             screen_row = {}
@@ -267,8 +370,9 @@ def build_candidate_evaluation_plan(
             lane = "deferred"
             next_action = "retain_for_later_exploration_not_default_frontier"
 
-        profile_candidate_id = profile.candidate_id if profile is not None else None
+        profile_candidate_id: str | None
         if profile is not None:
+            profile_candidate_id = profile.candidate_id
             if profile_candidate_id in profile_by_id:
                 raise CandidateEvaluationError(
                     f"duplicate candidate profile id in evaluation plan: {profile_candidate_id}"
@@ -277,6 +381,8 @@ def build_candidate_evaluation_plan(
             profile_provenance[profile_candidate_id] = provenance
             if provenance.availability is CandidateAvailability.HYPOTHETICAL_TEST:
                 explicit_profile_ids.add(profile_candidate_id)
+        else:
+            profile_candidate_id = None
 
         roles = (
             tuple(sorted(role.value for role in profile.card.roles))
@@ -301,7 +407,10 @@ def build_candidate_evaluation_plan(
                 "source_hash": provenance.source_hash,
                 "provenance_options": [row.as_dict() for row in provenance_options],
                 "screening_bucket": bucket,
-                "screening_confidence": screen_row.get("confidence", "explicit_test_user_authorized"),
+                "screening_confidence": screen_row.get(
+                    "confidence",
+                    "explicit_test_user_authorized",
+                ),
                 "roles": roles,
                 "package_ids": package_ids,
                 "package_context_required": bool(package_ids),
@@ -339,19 +448,24 @@ def build_candidate_evaluation_plan(
         next_candidate_queue.append(row)
         queue_ids.add(str(row["evaluation_candidate_id"]))
 
-    frontier_profiles = {
-        str(row["profile_candidate_id"]): profile_by_id[str(row["profile_candidate_id"])]
-        for row in all_queue_rows
-        if row["frontier_eligible"] is True and row["profile_candidate_id"] is not None
-    }
-    protected = frozenset(str(value) for value in tool_service.protected_cards.get(selected_deck_id, ()))
+    frontier_profiles: dict[str, CandidateProfile] = {}
+    for row in all_queue_rows:
+        if row["frontier_eligible"] is not True:
+            continue
+        raw_profile_id = row["profile_candidate_id"]
+        if not isinstance(raw_profile_id, str):
+            continue
+        frontier_profiles[raw_profile_id] = profile_by_id[raw_profile_id]
+
+    protected = frozenset(
+        str(value) for value in tool_service.protected_cards.get(selected_deck_id, ())
+    )
     static_rows = build_static_swap_rows(
         baseline,
         frontier_profiles,
         protected=protected,
         max_cut_hypotheses=max_cut_hypotheses,
     )
-
     constraints = tool_service._optimization_constraints(selected_deck_id)
 
     def validate_row(row: dict[str, Any]) -> dict[str, Any] | None:
@@ -428,7 +542,8 @@ def build_candidate_evaluation_plan(
             "structural_rationale": list(built.rationale),
             "affected_matchups": list(built.affected_matchups),
             "truth_boundary": (
-                "constraint-valid structural experiment candidate; not empirical deck-power evidence"
+                "constraint-valid structural experiment candidate; "
+                "not empirical deck-power evidence"
             ),
         }
 
@@ -436,57 +551,50 @@ def build_candidate_evaluation_plan(
     mandatory_hypothetical: list[dict[str, Any]] = []
     for profile_candidate_id in sorted(explicit_profile_ids):
         candidate_rows = sorted(
-            (
-                row
-                for row in static_rows
-                if str(row["candidate_id"]) == profile_candidate_id
-            ),
-            key=lambda row: (
-                -float(row["screening_delta"]),
-                str(row["remove"]).casefold(),
-            ),
+            (row for row in static_rows if str(row["candidate_id"]) == profile_candidate_id),
+            key=_row_score_key,
         )
         for row in candidate_rows:
             validated = validate_row(row)
-            if validated is not None:
-                key = (str(validated["remove"]), profile_candidate_id)
-                validated_by_key[key] = validated
-                mandatory_hypothetical.append(validated)
-                break
+            if validated is None:
+                continue
+            key = (str(validated["remove"]), profile_candidate_id)
+            validated_by_key[key] = validated
+            mandatory_hypothetical.append(validated)
+            break
 
     if len(mandatory_hypothetical) > max_pairs:
         raise CandidateEvaluationError(
             "variant frontier budget is smaller than the model-ready explicit test-candidate set"
         )
 
-    if static_rows:
-        broad_budget = min(len(static_rows), max(max_pairs * 8, max_pairs))
-        broad_rows, _ = select_diverse_swap_frontier(static_rows, max_pairs=broad_budget)
-        for row in broad_rows:
-            key = (str(row["remove"]), str(row["candidate_id"]))
-            if key in validated_by_key:
-                continue
-            validated = validate_row(row)
-            if validated is not None:
-                validated_by_key[key] = validated
+    probe_budget = min(len(static_rows), max(max_pairs * 8, max_pairs))
+    probe_rows = _candidate_diverse_rows(
+        static_rows,
+        max_pairs=probe_budget,
+        max_pairs_per_candidate=2,
+    )
+    for row in probe_rows:
+        key = (str(row["remove"]), str(row["candidate_id"]))
+        if key in validated_by_key:
+            continue
+        validated = validate_row(row)
+        if validated is not None:
+            validated_by_key[key] = validated
 
     mandatory_keys = {
         (str(row["remove"]), str(row["profile_candidate_id"]))
         for row in mandatory_hypothetical
     }
     remaining = [
-        row
-        for key, row in validated_by_key.items()
-        if key not in mandatory_keys
+        row for key, row in validated_by_key.items() if key not in mandatory_keys
     ]
-    supplement_budget = max_pairs - len(mandatory_hypothetical)
-    supplement: list[dict[str, Any]] = []
-    if supplement_budget > 0 and remaining:
-        supplement, _ = select_diverse_swap_frontier(
-            remaining,
-            max_pairs=min(supplement_budget, len(remaining)),
-        )
-    frontier = [*mandatory_hypothetical, *supplement]
+    frontier = _candidate_diverse_rows(
+        remaining,
+        max_pairs=max_pairs,
+        max_pairs_per_candidate=max_pairs_per_candidate,
+        seeded=mandatory_hypothetical,
+    )
     for index, row in enumerate(frontier, start=1):
         row["test_order"] = index
 
@@ -498,7 +606,9 @@ def build_candidate_evaluation_plan(
         {
             "package_id": package_id,
             "candidate_cards": sorted(names, key=str.casefold),
-            "next_action": "package_density_or_ablation_followup_before_single_card_recommendation",
+            "next_action": (
+                "package_density_or_ablation_followup_before_single_card_recommendation"
+            ),
             "truth_boundary": "package hypothesis only; no package-strength claim",
         }
         for package_id, names in sorted(package_groups.items())
@@ -506,13 +616,9 @@ def build_candidate_evaluation_plan(
 
     project_context = load_project_context(root_path)
     suggested_opponents = list(project_context.primary_opponent_deck_ids(selected_deck_id))
-    profile_queue = [
-        row
-        for row in all_queue_rows
-        if row["lane"] == "profile_required"
-    ]
+    profile_queue = [row for row in all_queue_rows if row["lane"] == "profile_required"]
     plan_core: dict[str, Any] = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "artifact_type": "candidate_evaluation_plan",
         "evidence_class": "structural_model_estimates",
         "deck_id": selected_deck_id,
@@ -522,7 +628,9 @@ def build_candidate_evaluation_plan(
         "candidate_discovery": {
             "discoverable_candidate_count": screened["discoverable_candidate_count"],
             "physical_legal_candidate_count": screened["physical_legal_candidate_count"],
-            "candidate_pool_after_default_screen": screened["candidate_pool_after_default_screen"],
+            "candidate_pool_after_default_screen": screened[
+                "candidate_pool_after_default_screen"
+            ],
             "explicit_hypothetical_candidate_count": len(explicit_queue),
             "model_ready_frontier_candidate_count": len(frontier_profiles),
             "profile_required_count": len(profile_queue),
@@ -534,12 +642,17 @@ def build_candidate_evaluation_plan(
         "static_swap_pool_count": len(static_rows),
         "validated_structural_variant_pool_count": len(validated_by_key),
         "variant_frontier": frontier,
-        "frontier_metrics": _frontier_metrics(frontier),
+        "frontier_metrics": _frontier_metrics(
+            frontier,
+            max_pairs_per_candidate=max_pairs_per_candidate,
+        ),
         "package_followups": package_followups,
         "suggested_opponent_ids": suggested_opponents,
         "next_stage_contract": {
             "step_1": "run paired structural comparisons for the bounded variant frontier",
-            "step_2": "add commander-denial and card/package ablation for surviving variants",
+            "step_2": (
+                "add commander-denial and card/package ablation for surviving variants"
+            ),
             "step_3": "test sensitivity/holdout/opponent-envelope robustness",
             "step_4": "emit DecisionBundle with trade-offs, uncertainty and next experiment",
             "opponent_frequency_weights_invented": False,
@@ -550,9 +663,19 @@ def build_candidate_evaluation_plan(
         "final_recommendation": False,
         "known_limitations": [
             "Static frontier scores are model-internal screening signals, not empirical winrates.",
-            "Unprofiled candidates remain discoverable but cannot enter model-dependent variants yet.",
+            (
+                "Unprofiled candidates remain discoverable but cannot enter "
+                "model-dependent variants yet."
+            ),
             "A package-tagged single-card probe is not a package-level recommendation.",
-            "Hypothetical test authorization permits simulation only and never asserts physical ownership.",
+            (
+                "Hypothetical test authorization permits simulation only and never asserts "
+                "physical ownership."
+            ),
+            (
+                "Candidate-first frontier diversity improves experiment coverage; it does not "
+                "constitute a card-strength ranking."
+            ),
         ],
         "truth_boundary": (
             "reproducible structural candidate/variant experiment plan; not empirical gameplay, "

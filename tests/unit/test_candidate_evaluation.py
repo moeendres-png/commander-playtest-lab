@@ -22,6 +22,7 @@ def test_current_candidate_evaluation_plan_builds_bounded_nonfinal_frontier() ->
         service=service,
         deck_id="rogshai/current",
         max_pairs=8,
+        max_pairs_per_candidate=2,
         max_cut_hypotheses=12,
         max_candidate_queue=32,
     )
@@ -37,6 +38,8 @@ def test_current_candidate_evaluation_plan_builds_bounded_nonfinal_frontier() ->
     assert all(row["constraint_valid"] is True for row in plan["variant_frontier"])
     assert all(row["requires_paired_validation"] is True for row in plan["variant_frontier"])
     assert all(row["final_recommendation"] is False for row in plan["variant_frontier"])
+    assert plan["frontier_metrics"]["max_pairs_per_candidate"] == 2
+    assert plan["frontier_metrics"]["observed_max_pairs_for_one_candidate"] <= 2
     assert "not empirical" in plan["truth_boundary"]
 
 
@@ -60,9 +63,7 @@ def test_unprofiled_explicit_test_candidate_is_preserved_for_profile_next() -> N
     )
 
     row = next(
-        item
-        for item in plan["next_candidate_queue"]
-        if item["oracle_name"] == spec.oracle_name
+        item for item in plan["next_candidate_queue"] if item["oracle_name"] == spec.oracle_name
     )
     assert row["availability"] == "hypothetical_test"
     assert row["quantity"] == 0
@@ -76,7 +77,9 @@ def test_unprofiled_explicit_test_candidate_is_preserved_for_profile_next() -> N
     assert all(item["add"] != spec.oracle_name for item in plan["variant_frontier"])
 
 
-def test_profiled_explicit_test_candidate_can_enter_simulation_only_frontier_without_inventory_claim() -> None:
+def test_profiled_explicit_test_candidate_can_enter_simulation_only_frontier_without_inventory_claim() -> (
+    None
+):
     service = CommanderToolService(ROOT)
     source = service.candidates["inventory/rootborn-defenses-677fdbcf"]
     oracle_name = "Hypothetical Rootborn Test Fixture"

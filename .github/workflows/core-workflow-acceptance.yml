@@ -116,8 +116,17 @@ jobs:
               if row.get('final_recommendation') is not False:
                   raise SystemExit('candidate frontier contains a premature recommendation')
 
+          metrics = plan.get('frontier_metrics')
+          if not isinstance(metrics, dict):
+              raise SystemExit('candidate frontier metrics are missing')
+          cap = metrics.get('max_pairs_per_candidate')
+          observed = metrics.get('observed_max_pairs_for_one_candidate')
+          if not isinstance(cap, int) or not isinstance(observed, int) or observed > cap:
+              raise SystemExit('candidate frontier violated its diversity cap')
+
           print('CORE_WORKFLOW_ACCEPTANCE=PASS')
           print('CANDIDATE_EVALUATION_ACCEPTANCE=PASS')
+          print('CANDIDATE_DIVERSITY_ACCEPTANCE=PASS')
           print('EVIDENCE_BOUNDARY=technical_and_structural_acceptance_not_deck_strength')
           PY
       - name: Assert tracked repository remains clean

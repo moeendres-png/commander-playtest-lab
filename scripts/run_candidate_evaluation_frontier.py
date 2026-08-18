@@ -21,10 +21,7 @@ def _source_hashes() -> dict[str, str | None]:
         "optimization_availability",
         "inactive_release_delta",
     )
-    return {
-        name: registry.source_hash(name, required=False)
-        for name in names
-    }
+    return {name: registry.source_hash(name, required=False) for name in names}
 
 
 def main() -> None:
@@ -37,6 +34,7 @@ def main() -> None:
         registry=registry,
         deck_id=registry.primary_deck_id,
         max_pairs=16,
+        max_pairs_per_candidate=2,
         max_cut_hypotheses=24,
         max_candidate_queue=64,
     )
@@ -53,6 +51,16 @@ def main() -> None:
     if any(row.get("requires_paired_validation") is not True for row in frontier):
         raise SystemExit("candidate frontier contains a row without paired-validation requirement")
 
+    metrics = plan.get("frontier_metrics")
+    if not isinstance(metrics, dict):
+        raise SystemExit("candidate evaluation produced no frontier metrics")
+    configured_cap = metrics.get("max_pairs_per_candidate")
+    observed_cap = metrics.get("observed_max_pairs_for_one_candidate")
+    if not isinstance(configured_cap, int) or not isinstance(observed_cap, int):
+        raise SystemExit("candidate frontier diversity metrics are malformed")
+    if observed_cap > configured_cap:
+        raise SystemExit("candidate frontier exceeded its per-candidate experiment cap")
+
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(
         json.dumps(plan, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
@@ -64,6 +72,8 @@ def main() -> None:
     print(f"PROFILE_REQUIRED={plan['candidate_discovery']['profile_required_count']}")
     print(f"VALIDATED_VARIANT_POOL={plan['validated_structural_variant_pool_count']}")
     print(f"VARIANT_FRONTIER={len(frontier)}")
+    print(f"UNIQUE_FRONTIER_CANDIDATES={metrics['unique_candidate_count']}")
+    print(f"MAX_PAIRS_FOR_ONE_CANDIDATE={observed_cap}")
     print("CANDIDATE_EVALUATION_BOUNDARY=structural_plan_not_final_recommendation")
 
 
