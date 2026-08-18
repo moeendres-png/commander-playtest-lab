@@ -4,7 +4,10 @@ from collections.abc import Iterable
 
 from commander_lab.models import Deck, StructuralDeckProfile
 
-from .profiles import StructuralProfileCatalog, build_structural_deck_profile as _legacy_build
+from .profiles import (
+    StructuralProfileCatalog,
+    build_structural_deck_profile as _legacy_build,
+)
 
 _KORVOLD = "Korvold, Fae-Cursed King"
 _ROGSHAI = frozenset({"Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"})
@@ -39,7 +42,9 @@ def build_project_structural_deck_profile(
     """
 
     profile = _legacy_build(deck, profiles, data_snapshot_hash=data_snapshot_hash)
-    return profile.model_copy(update={"commander_strategy": commander_strategy(profile.commander_names)})
+    return profile.model_copy(
+        update={"commander_strategy": commander_strategy(profile.commander_names)}
+    )
 
 
 __all__ = ["build_project_structural_deck_profile", "commander_strategy"]
