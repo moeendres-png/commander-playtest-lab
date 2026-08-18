@@ -9,7 +9,8 @@ from commander_lab.models.structural import validate_commander_deck_profile
 from commander_lab.storage import load_model
 
 from .fixtures import build_current_opponent_profiles, build_synthetic_deck_profile
-from .profiles import StructuralProfileCatalog, build_structural_deck_profile
+from .profiles import StructuralProfileCatalog
+from .strategy import build_project_structural_deck_profile
 
 
 def _merge_unique_structural_profiles(
@@ -85,7 +86,9 @@ def load_project_structural_decks(
             raise ValueError(
                 f"deck manifest id mismatch: expected {deck_id}, loaded {deck.deck_id} from {deck_path}"
             )
-        profile = build_structural_deck_profile(deck, profiles, data_snapshot_hash=snapshot_hash)
+        profile = build_project_structural_deck_profile(
+            deck, profiles, data_snapshot_hash=snapshot_hash
+        )
         profile = _attach_package_membership(profile, root_path)
         validate_commander_deck_profile(profile)
         _merge_unique_structural_profiles(
