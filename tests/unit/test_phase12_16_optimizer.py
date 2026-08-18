@@ -11,6 +11,7 @@ from commander_lab.models import (
     ValidateSwapInput,
     VariantSwap,
 )
+from commander_lab.repositories.candidates import load_current_optimization_availability_by_deck
 from commander_lab.tools.registry import TOOL_DEFINITIONS, ToolRegistry
 from commander_lab.tools.service import CommanderToolService
 
@@ -98,9 +99,13 @@ def test_engine_backed_matchup_returns_blocked_not_fake_success() -> None:
 def test_candidate_universe_uses_current_read_only_inventory() -> None:
     svc = service()
     assert len(svc.candidates) >= 300
-    assert {deck_id for c in svc.candidates.values() for deck_id in c.allowed_deck_ids} == {
-        "rogshai/current"
-    }
+    allowed_decks = {deck_id for c in svc.candidates.values() for deck_id in c.allowed_deck_ids}
+    assert allowed_decks == {"korvold/current", "rogshai/current"}
+    # Eligibility can describe both globally active own decks, but an unresolved operational
+    # Korvold baseline must not receive runtime-scoped free availability.
+    runtime_availability = load_current_optimization_availability_by_deck(ROOT)
+    assert "rogshai/current" in runtime_availability
+    assert "korvold/current" not in runtime_availability
     assert len(svc.verified_candidate_names) == len(svc.candidates)
     inferred = [c for c in svc.candidates.values() if c.candidate_id.startswith("inventory/")]
     assert inferred
