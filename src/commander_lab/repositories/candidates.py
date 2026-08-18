@@ -27,6 +27,8 @@ from commander_lab.semantic_features import (
 )
 
 BASIC_LANDS = {"Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes"}
+# Compatibility fallback only. Current deck scoping is derived from the deck-scoped eligibility
+# projection when it exists; new decks must not require editing this constant.
 DECK_COLORS: dict[str, frozenset[Color]] = {
     "rogshai/current": frozenset({Color.WHITE, Color.BLUE, Color.RED}),
 }
@@ -70,11 +72,20 @@ def _as_float(value: object, default: float = 0.0) -> float:
     raise ValueError(f"unsupported float value: {value!r}")
 
 
-def load_current_optimization_availability(root: str | Path) -> dict[str, int]:
-    """Load current availability without mutating sealed J-P5 evidence.
+def _scope_payload(root: Path) -> dict[str, object]:
+    path = root / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return dict(payload) if isinstance(payload, dict) else {}
 
-    J-P5 remains the frozen historical baseline. Current project-state deltas are applied from a
-    separate unsealed projection so later direct user decisions do not rewrite holdout evidence.
+
+def load_current_optimization_availability(root: str | Path) -> dict[str, int]:
+    """Load conservative current availability without rewriting sealed J-P5 evidence.
+
+    The J-P5 availability file remains historical input. A current release projection may only add
+    quantities from genuinely inactive former own decks. Active decks with unresolved operational
+    baselines are never treated as released; this intentionally fails closed on physical allocation.
     """
 
     root_path = Path(root)
@@ -88,13 +99,18 @@ def load_current_optimization_availability(root: str | Path) -> dict[str, int]:
     if not release_path.exists():
         return cards
     release = json.loads(release_path.read_text(encoding="utf-8"))
-    if release.get("active_own_decks") != ["rogshai/current"]:
-        raise ValueError("current active-own-deck projection must contain only rogshai/current")
-    if "korvold/current" not in release.get("inactive_former_own_decks", []):
-        raise ValueError("Korvold must be marked inactive before its allocations are released")
+    global_active = {str(value) for value in release.get("global_active_own_decks", [])}
+    inactive = {str(value) for value in release.get("inactive_former_own_decks", [])}
+    unresolved = {str(value) for value in release.get("unresolved_operational_baselines", [])}
+    if global_active & inactive:
+        raise ValueError("active own decks cannot be treated as inactive allocation releases")
+    if unresolved - global_active:
+        raise ValueError("unresolved operational baselines must remain globally active own decks")
     released = release.get("released_allocations", {})
     if not isinstance(released, dict):
         raise ValueError("released_allocations must be a mapping")
+    if unresolved and released:
+        raise ValueError("unresolved active deck allocations cannot be released")
     for name, quantity in released.items():
         amount = int(quantity)
         if amount < 0:
@@ -103,15 +119,59 @@ def load_current_optimization_availability(root: str | Path) -> dict[str, int]:
     return cards
 
 
-def load_current_candidate_eligibility(root: str | Path) -> dict[str, set[str]]:
-    path = Path(root) / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+def _candidate_eligibility_payload(root: Path) -> dict[str, object]:
+    path = root / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
     if not path.exists():
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
+    return dict(payload) if isinstance(payload, dict) else {}
+
+
+def load_current_candidate_eligibility(root: str | Path) -> dict[str, set[str]]:
+    payload = _candidate_eligibility_payload(Path(root))
+    rows_by_deck = payload.get("eligible_by_deck", {})
+    if not isinstance(rows_by_deck, dict):
+        return {}
     return {
         str(deck_id): {str(name) for name in rows}
-        for deck_id, rows in payload.get("eligible_by_deck", {}).items()
+        for deck_id, rows in rows_by_deck.items()
+        if isinstance(rows, dict)
     }
+
+
+def load_current_optimization_availability_by_deck(
+    root: str | Path,
+) -> dict[str, dict[str, int]]:
+    """Return deck-scoped physical eligibility quantities for operationally resolved decks.
+
+    The existing eligibility projection already records a physical quantity per deck. Decks whose
+    current operational baseline is unresolved are omitted rather than assigned speculative free
+    quantities.
+    """
+
+    root_path = Path(root)
+    payload = _candidate_eligibility_payload(root_path)
+    rows_by_deck = payload.get("eligible_by_deck", {})
+    if not isinstance(rows_by_deck, dict):
+        return {}
+    scope = _scope_payload(root_path)
+    unresolved = {str(value) for value in scope.get("unresolved_operational_baselines", [])}
+    result: dict[str, dict[str, int]] = {}
+    for raw_deck_id, raw_rows in rows_by_deck.items():
+        deck_id = str(raw_deck_id)
+        if deck_id in unresolved or not isinstance(raw_rows, dict):
+            continue
+        quantities: dict[str, int] = {}
+        for raw_name, raw_record in raw_rows.items():
+            if not isinstance(raw_record, dict):
+                continue
+            if raw_record.get("commander_legal") is not True:
+                continue
+            quantity = _as_int(raw_record.get("physical_available_quantity", 0))
+            if quantity > 0:
+                quantities[str(raw_name)] = quantity
+        result[deck_id] = quantities
+    return result
 
 
 def load_canonical_inventory_quantities(root: str | Path) -> dict[str, int]:
@@ -150,8 +210,8 @@ def _identity_from_inventory(row: dict[str, object]) -> CardIdentity:
                 source_path="drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
                 quality=DataQuality.PROJECT_VERIFIED,
                 notes=(
-                    "Physical identity and Oracle fields imported read-only; "
-                    "semantic roles are inferred separately."
+                    "Physical identity and Oracle fields imported read-only; semantic roles are "
+                    "inferred separately."
                 ),
             ),
         ),
@@ -173,7 +233,6 @@ def _produced_colors(identity: CardIdentity) -> frozenset[Color]:
 def _inferred_profile(identity: CardIdentity) -> StructuralCardProfile | None:
     baseline = build_default_profile(identity)
     roles = _inferred_roles(identity)
-    # Cards with no conservative machine-identifiable function stay semantically unknown.
     if not roles:
         return None
     roles = frozenset(set(roles) | set(baseline.roles))
@@ -216,14 +275,27 @@ def _inferred_profile(identity: CardIdentity) -> StructuralCardProfile | None:
             "multiplayer_scaling": scaling,
             "source_quality": DataQuality.PROJECT_INFERRED,
             "notes": (
-                "Structural-only keyword inference from the read-only canonical inventory Oracle text. "
-                "Suitable for candidate screening, not Tactical Oracle or external-rules validation."
+                "Structural-only keyword inference from the read-only canonical inventory Oracle "
+                "text. Suitable for candidate screening, not Tactical Oracle or external-rules "
+                "validation."
             ),
         }
     )
 
 
-def _allowed_decks(identity: CardIdentity) -> tuple[str, ...]:
+def _allowed_decks(
+    identity: CardIdentity,
+    *,
+    deck_eligibility: dict[str, set[str]],
+) -> tuple[str, ...]:
+    if deck_eligibility:
+        return tuple(
+            sorted(
+                deck_id
+                for deck_id, eligible_names in deck_eligibility.items()
+                if identity.oracle_name in eligible_names
+            )
+        )
     card_colors = set(identity.color_identity)
     return tuple(deck_id for deck_id, colors in DECK_COLORS.items() if card_colors <= set(colors))
 
@@ -241,6 +313,7 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
     curated = _load_curated(root_path)
     curated_by_name = {candidate.card.oracle_name: candidate for candidate in curated}
     annotations = load_canonical_feature_annotations(root_path)
+    deck_eligibility = load_current_candidate_eligibility(root_path)
     candidates: dict[str, CandidateProfile] = {}
 
     for row in inventory_rows(root_path):
@@ -252,18 +325,17 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
         if name in BASIC_LANDS:
             continue
         identity = _identity_from_inventory(row)
-        allowed = _allowed_decks(identity)
+        allowed = _allowed_decks(identity, deck_eligibility=deck_eligibility)
         if not allowed:
             continue
         curated_candidate = curated_by_name.get(name)
         if curated_candidate is not None:
-            allowed = (
-                tuple(deck for deck in allowed if deck in curated_candidate.allowed_deck_ids)
-                or curated_candidate.allowed_deck_ids
+            curated_overlap = tuple(
+                deck for deck in allowed if deck in curated_candidate.allowed_deck_ids
             )
             candidate = curated_candidate.model_copy(
                 update={
-                    "allowed_deck_ids": allowed,
+                    "allowed_deck_ids": curated_overlap or allowed,
                     "physical_status": "canonical_inventory_verified_owned",
                     "notes": (curated_candidate.notes or "")
                     + " Reverified against canonical inventory 2026-08-07.",
@@ -296,8 +368,8 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
                 physical_status="canonical_inventory_verified_owned",
                 notes=(
                     "Owned and Commander-legal in canonical inventory 2026-08-07; card function is "
-                    "structural-only keyword inference and requires "
-                    "higher-fidelity validation before recommendation."
+                    "structural-only keyword inference and requires higher-fidelity validation "
+                    "before recommendation."
                 ),
             )
         annotation = annotations.get(candidate.card.oracle_name)
@@ -308,8 +380,6 @@ def load_candidate_profiles(root: str | Path) -> dict[str, CandidateProfile]:
         candidate = candidate.model_copy(update={"card": fused})
         candidates[candidate.candidate_id] = candidate
 
-    # Preserve the historical curated candidates as a fallback if the canonical snapshot is
-    # unavailable.
     if not candidates:
         return {candidate.candidate_id: candidate for candidate in curated}
     return candidates
