@@ -7,6 +7,7 @@ from commander_lab.models import (
     CardAblationInput,
     CommanderDenialInput,
     CreateReportInput,
+    GenerateCandidateSwapsInput,
     HoldoutInput,
     InspectDeckInput,
     MatchupBatchInput,
@@ -54,6 +55,25 @@ def main() -> None:
     results.append(_completed("validate deck", validate))
     inspect = service.inspect_deck(InspectDeckInput(deck_id="rogshai/current", include_cards=False))
     results.append(_completed("inspect deck", inspect))
+
+    discovery = service.generate_candidate_swaps(
+        GenerateCandidateSwapsInput(
+            deck_id="rogshai/current",
+            candidate_ids=(SMOKE_CANDIDATE,),
+            max_candidates=1,
+        )
+    )
+    results.append(_completed("discover candidate swap", discovery))
+    if discovery.result.get("count") != 1:
+        raise SystemExit("candidate discovery did not return the requested physical smoke candidate")
+    discovered = discovery.result.get("candidates", [])
+    if not isinstance(discovered, list) or len(discovered) != 1:
+        raise SystemExit("candidate discovery payload shape changed")
+    candidate = discovered[0]
+    if not isinstance(candidate, dict) or candidate.get("recommendation_status") != "candidate_swap":
+        raise SystemExit("candidate discovery no longer returns a non-applied candidate swap")
+    if candidate.get("automatic_application") is not False:
+        raise SystemExit("candidate discovery attempted automatic deck mutation")
 
     matchup = service.run_matchup_batch(
         MatchupBatchInput(deck_ids=POD, iterations=1, workers=1, seed=20260811)
@@ -177,7 +197,7 @@ def main() -> None:
     output.write_text(
         json.dumps(
             {
-                "schema_version": "1.1.0",
+                "schema_version": "1.2.0",
                 "evidence_class": "workflow_runtime_smoke",
                 "current_scope": "rogshai_only",
                 "canonical_deck_mutations": 0,
