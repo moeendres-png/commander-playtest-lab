@@ -30,14 +30,13 @@ PRIMARY = (
     "opponent/cosmic-spiderman-midbudget",
 )
 POD = ("rogshai/current", *PRIMARY)
-SMOKE_CANDIDATE = "inventory/rootborn-defenses-677fdbcf"
-SWAP = VariantSwap(remove="Flare of Duplication", add_candidate_id=SMOKE_CANDIDATE)
 
 
 def _completed(name: str, response: object) -> dict[str, object]:
     status = getattr(response, "status", None)
     if status != ToolStatus.COMPLETED:
-        raise SystemExit(f"{name} did not complete: {status}")
+        errors = getattr(response, "errors", None)
+        raise SystemExit(f"{name} did not complete: {status}; errors={errors}")
     payload = response.model_dump(mode="json")  # type: ignore[attr-defined]
     return {
         "name": name,
@@ -57,15 +56,11 @@ def main() -> None:
     results.append(_completed("inspect deck", inspect))
 
     discovery = service.generate_candidate_swaps(
-        GenerateCandidateSwapsInput(
-            deck_id="rogshai/current",
-            candidate_ids=(SMOKE_CANDIDATE,),
-            max_candidates=1,
-        )
+        GenerateCandidateSwapsInput(deck_id="rogshai/current", max_candidates=1)
     )
     results.append(_completed("discover candidate swap", discovery))
     if discovery.result.get("count") != 1:
-        raise SystemExit("candidate discovery did not return the requested physical smoke candidate")
+        raise SystemExit("candidate discovery did not return one simulation-ready physical swap")
     discovered = discovery.result.get("candidates", [])
     if not isinstance(discovered, list) or len(discovered) != 1:
         raise SystemExit("candidate discovery payload shape changed")
@@ -74,6 +69,11 @@ def main() -> None:
         raise SystemExit("candidate discovery no longer returns a non-applied candidate swap")
     if candidate.get("automatic_application") is not False:
         raise SystemExit("candidate discovery attempted automatic deck mutation")
+    remove = str(candidate.get("remove") or "")
+    candidate_id = str(candidate.get("candidate_id") or "")
+    if not remove or not candidate_id:
+        raise SystemExit("candidate discovery omitted the remove or candidate_id link")
+    swap = VariantSwap(remove=remove, add_candidate_id=candidate_id)
 
     matchup = service.run_matchup_batch(
         MatchupBatchInput(deck_ids=POD, iterations=1, workers=1, seed=20260811)
@@ -83,7 +83,7 @@ def main() -> None:
     paired = service.compare_variants_paired(
         PairedVariantInput(
             deck_id="rogshai/current",
-            swaps=(SWAP,),
+            swaps=(swap,),
             opponent_deck_ids=PRIMARY,
             iterations=1,
             workers=1,
@@ -130,7 +130,7 @@ def main() -> None:
     generic_holdout = service.run_holdout(
         HoldoutInput(
             deck_id="rogshai/current",
-            swaps=(SWAP,),
+            swaps=(swap,),
             opponent_deck_ids=PRIMARY,
             holdout_pods=(PRIMARY,),
             iterations=1,
@@ -154,7 +154,7 @@ def main() -> None:
     search = service.search_variants(
         SearchVariantsInput(
             deck_id="rogshai/current",
-            candidate_ids=(SMOKE_CANDIDATE,),
+            candidate_ids=(candidate_id,),
             max_cuts=1,
             max_results=1,
             opponent_deck_ids=PRIMARY,
@@ -168,7 +168,7 @@ def main() -> None:
     recommend = service.recommend_upgrades(
         RecommendUpgradesInput(
             deck_id="rogshai/current",
-            candidate_ids=(SMOKE_CANDIDATE,),
+            candidate_ids=(candidate_id,),
             max_recommendations=1,
         )
     )
