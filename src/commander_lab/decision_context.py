@@ -145,7 +145,9 @@ class TestCandidateSpec:
 
     def __post_init__(self) -> None:
         if not self.oracle_name or not self.allowed_deck_ids or not self.source_id:
-            raise DecisionContextError("test candidate requires oracle name, deck ids and source id")
+            raise DecisionContextError(
+                "test candidate requires oracle name, deck ids and source id"
+            )
         if len(self.source_hash) != 64:
             raise DecisionContextError(f"invalid test-candidate source hash: {self.oracle_name}")
 
@@ -192,13 +194,12 @@ class DecisionRunContext:
     run_identity_hash: str
 
     def as_dict(self) -> dict[str, object]:
+        candidate_rows = [item.as_dict() for item in self.candidate_provenance]
         return {
             "deck_id": self.deck_id,
             "deck_hash": self.deck_hash,
             "variant_id": self.variant_id,
-            "candidate_provenance": [
-                item.as_dict() for item in self.candidate_provenance
-            ],
+            "candidate_provenance": candidate_rows,
             "opponent_ids": list(self.opponent_ids),
             "pilot_ids": list(self.pilot_ids),
             "pod_size": self.pod_size,
@@ -246,13 +247,11 @@ class DecisionContextRegistry:
 
     @property
     def snapshot_hash(self) -> str:
-        payload = {
-            "decks": [self._decks[key].as_dict() for key in sorted(self._decks)],
-            "candidates": [
-                self._candidates[key].as_dict() for key in sorted(self._candidates)
-            ],
-        }
-        return _sha256_json(payload)
+        deck_rows = [self._decks[key].as_dict() for key in sorted(self._decks)]
+        candidate_rows = [
+            self._candidates[key].as_dict() for key in sorted(self._candidates)
+        ]
+        return _sha256_json({"decks": deck_rows, "candidates": candidate_rows})
 
     def deck(self, deck_id: str) -> DeckDecisionContext:
         try:
@@ -270,12 +269,13 @@ class DecisionContextRegistry:
         allowed_states = {CandidateAvailability.PHYSICAL_FREE}
         if include_hypothetical_tests:
             allowed_states.add(CandidateAvailability.HYPOTHETICAL_TEST)
+        ordered = sorted(
+            self._candidates.values(),
+            key=lambda value: value.candidate_id,
+        )
         return tuple(
             row
-            for row in sorted(
-                self._candidates.values(),
-                key=lambda value: value.candidate_id,
-            )
+            for row in ordered
             if deck_id in row.allowed_deck_ids
             and row.availability in allowed_states
             and row.simulatable_for_improvement
@@ -420,20 +420,17 @@ def load_decision_context_registry(
             quantity = int(raw_spec.get("physical_available_quantity", 0))
             if quantity <= 0:
                 continue
+            source_id = f"repo:{candidate_path.relative_to(root_path).as_posix()}:{deck_id}"
             candidates.append(
                 CandidateProvenance(
                     candidate_id=_stable_id("physical", deck_id, str(oracle_name)),
                     oracle_name=str(oracle_name),
                     availability=CandidateAvailability.PHYSICAL_FREE,
                     allowed_deck_ids=(deck_id,),
-                    source_id=(
-                        f"repo:{candidate_path.relative_to(root_path).as_posix()}:{deck_id}"
-                    ),
+                    source_id=source_id,
                     source_hash=candidate_scope_hash,
                     quantity=quantity,
-                    notes=(
-                        "Free physical candidate projected from current deck-scoped eligibility."
-                    ),
+                    notes="Free physical candidate from current deck-scoped eligibility.",
                 )
             )
 

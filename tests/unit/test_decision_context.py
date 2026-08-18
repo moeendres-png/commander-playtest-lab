@@ -177,19 +177,12 @@ def test_multi_deck_fixture_keeps_candidate_and_run_contexts_separate(tmp_path: 
     assert alpha_run.deck_id == "fixture/alpha"
     assert beta_run.deck_id == "fixture/beta"
     assert alpha_run.run_identity_hash != beta_run.run_identity_hash
-    assert (
-        alpha_run.context_snapshot_hash
-        == beta_run.context_snapshot_hash
-        == registry.snapshot_hash
-    )
-    assert (
-        alpha_run.candidate_provenance[0].availability
-        is CandidateAvailability.PHYSICAL_FREE
-    )
-    assert (
-        beta_run.candidate_provenance[0].availability
-        is CandidateAvailability.HYPOTHETICAL_TEST
-    )
+    assert alpha_run.context_snapshot_hash == registry.snapshot_hash
+    assert beta_run.context_snapshot_hash == registry.snapshot_hash
+    alpha_availability = alpha_run.candidate_provenance[0].availability
+    beta_availability = beta_run.candidate_provenance[0].availability
+    assert alpha_availability is CandidateAvailability.PHYSICAL_FREE
+    assert beta_availability is CandidateAvailability.HYPOTHETICAL_TEST
 
     with pytest.raises(DecisionContextError, match="not scoped"):
         registry.build_run_context(

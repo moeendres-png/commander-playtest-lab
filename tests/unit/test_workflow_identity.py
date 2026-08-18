@@ -82,11 +82,7 @@ def test_priority_identity_invalidates_relevant_semantic_dependencies() -> None:
 
 def test_priority_identity_fails_closed_if_declared_dependency_is_missing() -> None:
     context = load_project_context(ROOT)
-    sources = tuple(
-        (key, value)
-        for key, value in context.source_hashes
-        if key != "pod_scenarios"
-    )
+    sources = tuple((key, value) for key, value in context.source_hashes if key != "pod_scenarios")
     with pytest.raises(WorkflowIdentityError, match="pod_scenarios"):
         build_priority_comparison_identity(replace(context, source_hashes=sources))
 
