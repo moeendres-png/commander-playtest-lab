@@ -19,8 +19,9 @@ DEFAULT_REFINED_ITERATIONS = 32
 MASTER_SEED = 20260818
 MAX_TURNS = 14
 MORE_SIMULATIONS_USEFUL = "MORE_SIMULATIONS_USEFUL"
-NO_MATERIAL_DECISION_DIFFERENCE = "NO_MATERIAL_DECISION_DIFFERENCE"
 STOP_WITH_PREFERENCE = "STOP_WITH_PREFERENCE"
+MODEL_NEEDS_DIFFERENT_METRIC = "MODEL_NEEDS_DIFFERENT_METRIC"
+MODEL_INFORMATION_LIMIT = "MODEL_INFORMATION_LIMIT"
 
 
 def _source_hashes() -> dict[str, str | None]:
@@ -82,7 +83,7 @@ def _run_stage(
     remove: str,
     candidate_id: str,
     iterations: int,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], dict[str, Any]]:
     comparison = facade.compare_validate(
         deck_id=deck_id,
         remove=remove,
@@ -101,10 +102,13 @@ def _run_stage(
         raise SystemExit("paired triage lost its structural evidence class")
     advancement = facade.advancement_decision(comparison)
     next_experiment = facade.diagnose_next_experiment(comparison)
-    return _compact_stage(
+    return (
+        _compact_stage(
+            comparison,
+            advancement=advancement,
+            next_experiment=next_experiment,
+        ),
         comparison,
-        advancement=advancement,
-        next_experiment=next_experiment,
     )
 
 
@@ -146,10 +150,11 @@ def main() -> None:
         service=service,
     )
     rows: list[dict[str, Any]] = []
+    final_comparisons: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     initial_status_counts: Counter[str] = Counter()
-    final_status_counts: Counter[str] = Counter()
-    final_advancement_counts: Counter[str] = Counter()
+    pairwise_final_status_counts: Counter[str] = Counter()
+    pairwise_final_advancement_counts: Counter[str] = Counter()
     total_newly_simulated_pairs = 0
     total_reused_prefix_pairs = 0
     refinement_count = 0
@@ -185,7 +190,7 @@ def main() -> None:
         if candidate.card.oracle_name != frontier_row.get("add"):
             raise SystemExit(f"frontier/profile candidate identity mismatch: {candidate_id}")
 
-        initial = _run_stage(
+        initial, initial_comparison = _run_stage(
             facade,
             deck_id=deck_id,
             remove=remove,
@@ -202,6 +207,7 @@ def main() -> None:
 
         refined: dict[str, Any] | None = None
         final_stage = initial
+        final_comparison = initial_comparison
         if initial_status == MORE_SIMULATIONS_USEFUL:
             next_experiment = initial.get("next_experiment")
             if not isinstance(next_experiment, dict):
@@ -218,7 +224,7 @@ def main() -> None:
             if next_experiment.get("next_experiment") != "run_next_paired_micro_batch":
                 raise SystemExit("precision refinement was not the recommended next experiment")
 
-            refined = _run_stage(
+            refined, refined_comparison = _run_stage(
                 facade,
                 deck_id=deck_id,
                 remove=remove,
@@ -245,19 +251,17 @@ def main() -> None:
             total_reused_prefix_pairs += int(reused_prefix)
             total_newly_simulated_pairs += int(simulated_suffix)
             final_stage = refined
+            final_comparison = refined_comparison
 
-        final_status = str(final_stage["decision_information_status"])
-        final_status_counts[final_status] += 1
+        pairwise_final_status = str(final_stage["decision_information_status"])
+        pairwise_final_status_counts[pairwise_final_status] += 1
         advancement = final_stage.get("advancement_decision")
         advancement_status = (
             str(advancement.get("status", "unknown"))
             if isinstance(advancement, dict)
             else "unknown"
         )
-        final_advancement_counts[advancement_status] += 1
-        eligible_for_finalist_followup = (
-            final_status == STOP_WITH_PREFERENCE and advancement_status == "advance"
-        )
+        pairwise_final_advancement_counts[advancement_status] += 1
 
         rows.append(
             {
@@ -270,9 +274,9 @@ def main() -> None:
                 "initial_stage": initial,
                 "refined_stage": refined,
                 "final_stage": "refined" if refined is not None else "initial",
-                "final_decision_information_status": final_status,
-                "final_advancement_status": advancement_status,
-                "eligible_for_finalist_followup": eligible_for_finalist_followup,
+                "pairwise_final_decision_information_status": pairwise_final_status,
+                "pairwise_final_advancement_status": advancement_status,
+                "eligible_for_finalist_followup": False,
                 "final_recommendation": False,
                 "truth_boundary": (
                     "adaptive within-candidate structural precision triage only; not empirical "
@@ -280,6 +284,39 @@ def main() -> None:
                 ),
             }
         )
+        final_comparisons.append(final_comparison)
+
+    if len(rows) != len(final_comparisons):
+        raise SystemExit("paired triage lost row/comparison alignment")
+
+    cohort = tuple(final_comparisons)
+    cohort_status_counts: Counter[str] = Counter()
+    cohort_model_reports: list[dict[str, Any]] = []
+    for row, comparison in zip(rows, final_comparisons, strict=True):
+        cohort_diagnosis = facade.diagnose_next_experiment(
+            comparison,
+            cohort_comparisons=cohort,
+            failure_mode_metrics=(),
+        )
+        cohort_status = _decision_information_status(cohort_diagnosis)
+        cohort_status_counts[cohort_status] += 1
+        model_informativeness = cohort_diagnosis.get("model_informativeness")
+        if not isinstance(model_informativeness, dict):
+            raise SystemExit("cohort diagnosis lost model-informativeness evidence")
+        cohort_model_reports.append(model_informativeness)
+        row["cohort_diagnosis"] = cohort_diagnosis
+        row["cohort_decision_information_status"] = cohort_status
+        row["eligible_for_finalist_followup"] = (
+            cohort_status == STOP_WITH_PREFERENCE
+            and row["pairwise_final_advancement_status"] == "advance"
+        )
+
+    model_report_hashes = {
+        str(report.get("report_hash")) for report in cohort_model_reports if report.get("report_hash")
+    }
+    if len(model_report_hashes) > 1:
+        raise SystemExit("cohort diagnosis produced inconsistent model-informativeness reports")
+    cohort_model_informativeness = cohort_model_reports[0] if cohort_model_reports else {}
 
     after = _source_hashes()
     if before != after:
@@ -297,10 +334,15 @@ def main() -> None:
         if row["eligible_for_finalist_followup"] is True:
             finalist_count += 1
 
+    model_limit = cohort_model_informativeness.get("status") == MODEL_INFORMATION_LIMIT
+    if model_limit and finalist_count:
+        raise SystemExit("model-information limit cannot simultaneously authorize finalist followup")
+
     payload: dict[str, Any] = {
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "artifact_type": "adaptive_paired_candidate_triage",
         "evidence_class": "structural_model_estimates",
+        "cohort_diagnostic_evidence_class": "structural_model_diagnostic",
         "deck_id": deck_id,
         "deck_hash": plan["deck_hash"],
         "frontier_plan_hash": plan["plan_hash"],
@@ -320,18 +362,38 @@ def main() -> None:
         "total_reused_prefix_pairs": total_reused_prefix_pairs,
         "total_final_valid_paired_runs": final_valid_runs,
         "initial_decision_information_status_counts": dict(sorted(initial_status_counts.items())),
-        "final_decision_information_status_counts": dict(sorted(final_status_counts.items())),
-        "final_advancement_status_counts": dict(sorted(final_advancement_counts.items())),
+        "final_decision_information_status_counts": dict(
+            sorted(pairwise_final_status_counts.items())
+        ),
+        "final_advancement_status_counts": dict(
+            sorted(pairwise_final_advancement_counts.items())
+        ),
+        "cohort_decision_information_status_counts": dict(sorted(cohort_status_counts.items())),
+        "cohort_model_informativeness": cohort_model_informativeness,
+        "cohort_diagnostic_inputs": {
+            "failure_mode_metrics": [],
+            "opponent_evidence_quality": {},
+            "note": (
+                "No synthetic opponent-frequency weights or unsupported failure metrics were "
+                "invented for this diagnostic."
+            ),
+        },
+        "model_information_limit_detected": model_limit,
         "eligible_for_finalist_followup_count": finalist_count,
         "results": rows,
         "skipped": skipped,
         "next_stage_policy": {
+            "MODEL_INFORMATION_LIMIT": (
+                "use existing continuous failure-mode metrics and narrower preregistered "
+                "hypotheses before adding more same-model seeds"
+            ),
             "eligible_for_finalist_followup": (
-                "only STOP_WITH_PREFERENCE plus advancement=advance may receive targeted "
+                "only cohort STOP_WITH_PREFERENCE plus advancement=advance may receive targeted "
                 "denial/ablation/sensitivity budget"
             ),
             "MORE_SIMULATIONS_USEFUL": (
-                "remain unresolved; another precision block requires a new bounded execution step"
+                "additional same-model precision is subordinate to the cohort model-information "
+                "diagnostic"
             ),
             "NO_MATERIAL_DECISION_DIFFERENCE": "stop_without_material_structural_preference",
             "STOP": "stop_or_return_to_candidate_screening",
@@ -346,12 +408,14 @@ def main() -> None:
             "Thirty-two paired iterations remain structural precision evidence, not final truth.",
             "Pairing is baseline-versus-variant within each candidate, not across candidates.",
             "Structural placement/share outputs are model estimates, not empirical Commander winrates.",
-            "A STOP_WITH_PREFERENCE signal is not sufficient alone for a deck change.",
+            "Cohort informativeness is a model diagnostic, not a card-strength ranking.",
+            "No explicit failure-mode metric is supplied in this first cohort diagnostic.",
             "Hypothetical test cards are not executed by the physical-only priority adapter.",
         ],
         "truth_boundary": (
-            "adaptive paired structural candidate triage; no empirical gameplay claim, no direct "
-            "cross-variant ranking, no inventory mutation, and no final deck recommendation"
+            "adaptive paired structural candidate triage plus cohort model diagnostic; no empirical "
+            "gameplay claim, no direct cross-variant ranking, no inventory mutation, and no final "
+            "deck recommendation"
         ),
     }
     payload["triage_hash"] = sha256_run_value(payload, root=ROOT)
@@ -375,15 +439,17 @@ def main() -> None:
         + json.dumps(dict(sorted(initial_status_counts.items())))
     )
     print(
-        "FINAL_DECISION_INFORMATION_STATUS_COUNTS="
-        + json.dumps(dict(sorted(final_status_counts.items())))
+        "PAIRWISE_FINAL_DECISION_INFORMATION_STATUS_COUNTS="
+        + json.dumps(dict(sorted(pairwise_final_status_counts.items())))
     )
     print(
-        "FINAL_ADVANCEMENT_STATUS_COUNTS="
-        + json.dumps(dict(sorted(final_advancement_counts.items())))
+        "COHORT_DECISION_INFORMATION_STATUS_COUNTS="
+        + json.dumps(dict(sorted(cohort_status_counts.items())))
     )
+    print(f"COHORT_MODEL_INFORMATION_STATUS={cohort_model_informativeness.get('status')}")
+    print(f"MODEL_INFORMATION_LIMIT_DETECTED={str(model_limit).lower()}")
     print(f"ELIGIBLE_FOR_FINALIST_FOLLOWUP={finalist_count}")
-    print("PAIRED_TRIAGE_BOUNDARY=adaptive_structural_precision_not_final_recommendation")
+    print("PAIRED_TRIAGE_BOUNDARY=structural_precision_plus_model_diagnostic_not_final_recommendation")
 
 
 if __name__ == "__main__":
