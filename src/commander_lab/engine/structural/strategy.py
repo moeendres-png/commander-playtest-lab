@@ -4,10 +4,8 @@ from collections.abc import Iterable
 
 from commander_lab.models import Deck, StructuralDeckProfile
 
-from .profiles import (
-    build_structural_deck_profile as _legacy_build,
-    StructuralProfileCatalog,
-)
+from .profiles import StructuralProfileCatalog
+from .profiles import build_structural_deck_profile as _legacy_build
 
 _KORVOLD = "Korvold, Fae-Cursed King"
 _ROGSHAI = frozenset({"Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"})
