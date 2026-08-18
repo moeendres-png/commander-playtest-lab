@@ -209,7 +209,9 @@ class PilotRegistry:
         if any(profile.commander_family == "generic" for profile in profiles):
             return profiles
         generic = next(
-            profile for profile in default_pilot_profiles() if profile.pilot_name == _GENERIC_PILOT_NAME
+            profile
+            for profile in default_pilot_profiles()
+            if profile.pilot_name == _GENERIC_PILOT_NAME
         )
         return (*profiles, generic)
 
