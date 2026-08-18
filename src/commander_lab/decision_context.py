@@ -248,9 +248,7 @@ class DecisionContextRegistry:
     @property
     def snapshot_hash(self) -> str:
         deck_rows = [self._decks[key].as_dict() for key in sorted(self._decks)]
-        candidate_rows = [
-            self._candidates[key].as_dict() for key in sorted(self._candidates)
-        ]
+        candidate_rows = [self._candidates[key].as_dict() for key in sorted(self._candidates)]
         return _sha256_json({"decks": deck_rows, "candidates": candidate_rows})
 
     def deck(self, deck_id: str) -> DeckDecisionContext:
@@ -269,10 +267,7 @@ class DecisionContextRegistry:
         allowed_states = {CandidateAvailability.PHYSICAL_FREE}
         if include_hypothetical_tests:
             allowed_states.add(CandidateAvailability.HYPOTHETICAL_TEST)
-        ordered = sorted(
-            self._candidates.values(),
-            key=lambda value: value.candidate_id,
-        )
+        ordered = sorted(self._candidates.values(), key=lambda value: value.candidate_id)
         return tuple(
             row
             for row in ordered
