@@ -104,9 +104,7 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
         "global_active_own_deck_set": list(context.global_active_own_deck_ids),
         "runtime_loaded_deck_set": list(context.runtime_loaded_deck_ids),
         "optimization_target_set": list(context.optimization_target_ids),
-        "unresolved_operational_baseline_set": list(
-            context.unresolved_operational_baseline_ids
-        ),
+        "unresolved_operational_baseline_set": list(context.unresolved_operational_baseline_ids),
         # Compatibility aliases: active_deck_set means the currently loaded runtime surface.
         "active_deck_set": list(context.runtime_loaded_deck_ids),
         "historical_own_deck_set": list(context.historical_own_deck_ids),
