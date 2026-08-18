@@ -12,11 +12,16 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_technical_truth_derives_current_versions_scope_and_engine_boundary() -> None:
     truth = build_technical_truth(ROOT)
+    assert truth["technical_truth_version"] == 2
     assert truth["package_version"] == __version__
     assert truth["engine_version"] == ENGINE_VERSION
     assert truth["schema_versions"]["database"] == SCHEMA_VERSION
+    assert truth["global_active_own_deck_set"] == ["korvold/current", "rogshai/current"]
+    assert truth["runtime_loaded_deck_set"] == ["rogshai/current"]
+    assert truth["optimization_target_set"] == ["rogshai/current"]
+    assert truth["unresolved_operational_baseline_set"] == ["korvold/current"]
     assert truth["active_deck_set"] == ["rogshai/current"]
-    assert truth["historical_own_deck_set"] == ["korvold/current"]
+    assert truth["historical_own_deck_set"] == []
     assert truth["primary_deckbuilding_focus"] == "rogshai/current"
     assert truth["active_deck_hashes"] == {
         "rogshai/current": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3"
@@ -32,10 +37,17 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["roadmap_mvp_state"]["model_informativeness_gate_present"] is True
     assert truth["roadmap_mvp_state"]["workflow_session_present"] is True
     assert truth["roadmap_mvp_state"]["public_high_level_workflow_surface_present"] is True
-    assert truth["external_engine_status"]["provider_decision"] == "NO_PROVIDER_READY"
-    assert truth["external_engine_status"]["production_provider_ready"] is False
+    external = truth["external_engine_status"]
+    assert external["provider_decision"] == "NO_PROVIDER_READY"
+    assert external["production_provider_ready"] is False
+    assert external["primary_provider"] == "xmage"
+    assert external["primary_status"] == "B3_PARTIAL"
+    assert external["primary_real_execution"] is True
+    assert external["decision_source"] == "config/rules_engines.json"
+    assert external["historical_provider_decision_source"] == "docs/J_P3_PROVIDER_DECISION.json"
     assert truth["current_blockers"] == []
     assert "external_rules_engine_validation_pending" in truth["documented_limitations"]
+    assert "unresolved_operational_own_deck_baseline" in truth["documented_limitations"]
     readiness = truth["first_run_readiness"]
     assert readiness["preparation_surface_present"] is True
     assert readiness["authorized_runner_surface_present"] is True
