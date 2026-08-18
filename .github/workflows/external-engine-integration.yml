@@ -88,7 +88,11 @@ jobs:
       - name: Verify current B3 capability truth
         run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py
       - name: Run real B3 JSONL process regression
-        run: python scripts/run_external_b3_regression.py
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b3_regression.py 2>&1 | tee artifacts/external-engine/b3-process.log
       - name: Record bridge identity
         shell: bash
         run: |
