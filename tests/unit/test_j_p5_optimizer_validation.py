@@ -58,7 +58,9 @@ def test_current_projection_does_not_release_unresolved_active_korvold_allocatio
     assert release["inactive_former_own_decks"] == []
     assert release["unresolved_operational_baselines"] == ["korvold/current"]
     assert release["released_allocations"] == {}
-    assert svc.candidate_inventory == {str(name): int(quantity) for name, quantity in sealed.items()}
+    assert svc.candidate_inventory == {
+        str(name): int(quantity) for name, quantity in sealed.items()
+    }
     by_deck = load_current_optimization_availability_by_deck(ROOT)
     assert "rogshai/current" in by_deck
     assert "korvold/current" not in by_deck
