@@ -286,7 +286,7 @@ def _inferred_profile(identity: CardIdentity) -> StructuralCardProfile | None:
 def _allowed_decks(
     identity: CardIdentity,
     *,
-    deck_eligibility: dict[str, set[str]],
+    deck_eligibility: dict[str, set[str]] | None = None,
 ) -> tuple[str, ...]:
     if deck_eligibility:
         return tuple(
