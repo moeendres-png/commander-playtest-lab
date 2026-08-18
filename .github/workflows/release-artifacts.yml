@@ -5,13 +5,17 @@ on:
     branches:
       - main
       - 'release/**'
+  pull_request:
+    paths:
+      - 'pyproject.toml'
+      - '.github/workflows/release-artifacts.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-artifacts-${{ github.ref }}
+  group: release-artifacts-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
