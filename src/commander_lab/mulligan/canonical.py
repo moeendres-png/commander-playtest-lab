@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from pathlib import Path
 from statistics import fmean
+from typing import Literal
 
 from commander_lab.mana_analysis import DeckManaAnalysis, ManaAnalyzer
 from commander_lab.models import (
@@ -30,6 +31,10 @@ from commander_lab.storage import sha256_value
 from .lab import MulliganLab as _LegacyMulliganLab
 from .lab import MulliganLabError
 
+type _KeepRuleContextKind = Literal[
+    "primary_pod", "holdout_pod", "opponent_ensemble", "pilot_profile"
+]
+
 
 class MulliganLab(_LegacyMulliganLab):
     """Mulligan Lab with canonical current and historical project contexts.
@@ -52,14 +57,6 @@ class MulliganLab(_LegacyMulliganLab):
 
     def _deck_strategy(self, deck_id: str) -> str:
         return self.deck(deck_id).commander_strategy.casefold()
-
-    def _baseline_pilot_name(self, deck_id: str) -> str:
-        strategy = self._deck_strategy(deck_id)
-        if strategy == "korvold":
-            return "KorvoldPilot"
-        if strategy in {"rogshai", "ishai_rograkh"}:
-            return "RogShaiPilot"
-        return "GenericCommanderPilot"
 
     def _pilot_name_for_policy(
         self, deck_id: str, policy: MulliganPolicyName, requested: str
@@ -198,7 +195,7 @@ class MulliganLab(_LegacyMulliganLab):
 
         baseline_policy = rule.policy
         pilot_name = "GenericCommanderPilot"
-        contexts: list[tuple[str, str, MulliganContext, int, str]] = [
+        contexts: list[tuple[str, _KeepRuleContextKind, MulliganContext, int, str]] = [
             ("primary", "primary_pod", context, 0, pilot_name),
             ("holdout-a", "holdout_pod", context, 1, pilot_name),
             ("holdout-b", "holdout_pod", context, 2, pilot_name),
