@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "protocol_version": "2.0.0",
   "primary_engine": {
     "provider": "xmage",
@@ -8,9 +8,9 @@
     "repository": "https://github.com/moeendres-png/mage.git",
     "source_archive": "https://github.com/moeendres-png/mage/archive/77d7646da6958fdf8125ee7c8f4aabd130d21d4c.tar.gz",
     "license": "MIT",
-    "role": "current XMage compatibility candidate; local full XMage regression validated; production JSONL bridge not yet built",
-    "status": "LOCAL_REGRESSION_VALIDATED",
-    "real_execution": false,
+    "role": "current XMage B3 compatibility bridge; real deck import plus Commander/Partner multiplayer construction and game start validated; production action loop remains absent",
+    "status": "B3_PARTIAL",
+    "real_execution": true,
     "production_ready": false
   },
   "secondary_engine": {
@@ -50,16 +50,36 @@
   },
   "current_runtime": {
     "external_engine_validation_pending": true,
-    "status": "real_partial_provider_evidence_no_production_bridge",
+    "status": "b3_real_partial_bridge_no_action_loop",
     "provider_selected": false,
     "production_provider": null,
-    "xmage_status": "PARTIAL",
+    "xmage_status": "B3_PARTIAL",
     "forge_status": "PARTIAL",
     "tactical_oracle_substitution_allowed": false,
-    "source_of_truth": "docs/J_P3_PROVIDER_DECISION.json"
+    "source_of_truth": "config/rules_engines.json"
   },
   "provider_decision": "NO_PROVIDER_READY",
-  "production_bridge": "not_built",
+  "production_bridge": "b3_partial_jsonl_bridge_no_action_loop",
+  "production_bridge_capabilities": {
+    "external_rules_engine_evidence": [
+      "real_deck_import",
+      "commander_partner_game_construction",
+      "multiplayer_2_to_5_player_construction",
+      "real_game_start",
+      "bounded_pause_resume_lifecycle"
+    ],
+    "production_blockers": [
+      "legal_action_enumeration",
+      "action_submission",
+      "event_log",
+      "deterministic_seed_control",
+      "replay",
+      "stack_priority_protocol_visibility",
+      "target_mode_trigger_order_control",
+      "externally_controlled_mulligans",
+      "per_game_shutdown"
+    ]
+  },
   "historical_phase85": {
     "status": "external_runtime_prepared_but_not_executed",
     "forge_pin": "forge-2.0.13 @ 852066bf4f761b302ed17cb011999d8a8fe08ad6",
