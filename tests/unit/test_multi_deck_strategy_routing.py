@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+import pytest
+
+from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
 from commander_lab.engine.structural.strategy import commander_strategy
 from commander_lab.models import CardRole, StructuralCardProfile, StructuralDeckProfile
 from commander_lab.models.mulligan import (
@@ -108,3 +113,47 @@ def test_generic_keep_rule_contains_no_rogshai_ishai_or_jeskai_assumptions() -> 
     assert rule.absolute_rule is False
     assert "early_blue_source_count" not in {clause.feature for clause in rule.clauses}
     assert all(term not in text for term in ("rogshai", "ishai", "jeskai"))
+
+
+def test_generic_pilot_profile_is_hash_agnostic_without_registry_data(tmp_path: Path) -> None:
+    profile = PilotRegistry(tmp_path).profile("GenericCommanderPilot")
+
+    assert profile.commander_family == "generic"
+    assert profile.is_baseline is True
+    assert profile.supported_deck_hashes == ()
+
+
+def test_generic_ensemble_neutralizes_only_legacy_injected_specialist_baseline(
+    tmp_path: Path,
+) -> None:
+    deck = _generic_profile()
+    runner = PilotEnsembleRunner(tmp_path, {deck.deck_id: deck})
+
+    assert runner._pilot_names_for_deck(
+        deck, ("RogShaiPilot", "GenericCommanderPilot")
+    ) == ("GenericCommanderPilot",)
+
+    with pytest.raises(ValueError, match="does not match deck strategy generic"):
+        runner._pilot_names_for_deck(deck, ("RogShaiControlPilot", "GenericCommanderPilot"))
+
+
+def test_generic_baseline_deviations_use_generic_pilot() -> None:
+    results = {
+        "GenericCommanderPilot": {
+            "average_placement": 2.5,
+            "place_1_share": 0.25,
+            "average_commander_damage": 4.0,
+            "average_engine_value": 3.0,
+            "political_visibility": 0.2,
+        }
+    }
+
+    PilotEnsembleRunner._add_baseline_deviations(results, "generic")
+
+    assert results["GenericCommanderPilot"]["deviation_from_baseline"] == {
+        "average_placement": 0.0,
+        "place_1_share": 0.0,
+        "commander_damage": 0.0,
+        "engine_value": 0.0,
+        "political_visibility": 0.0,
+    }
