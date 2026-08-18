@@ -26,10 +26,11 @@ def _curated_by_name() -> dict[str, CandidateProfile]:
     return {row.card.oracle_name: row for row in rows}
 
 
-def test_projection_is_complete_for_materialized_current_rows() -> None:
-    annotations = load_canonical_feature_annotations(ROOT)
+def test_current_rogshai_projection_is_complete_for_materialized_rows() -> None:
+    annotations = load_canonical_feature_annotations(ROOT, deck_id="rogshai/current")
     assert len(annotations) == 443
     counterspell = annotations["Counterspell"]
+    assert counterspell.deck_id == "rogshai/current"
     assert CardRole.COUNTER in counterspell.mapped_roles
     assert "package:rogshai:stack_interaction" in counterspell.package_ids
     kediss = annotations["Kediss, Emberclaw Familiar"]
@@ -39,7 +40,7 @@ def test_projection_is_complete_for_materialized_current_rows() -> None:
 
 def test_fusion_preserves_curated_numeric_profile_values() -> None:
     curated = _curated_by_name()
-    current = _by_name(load_candidate_profiles(ROOT))
+    current = _by_name(load_candidate_profiles(ROOT, deck_id="rogshai/current"))
     before = curated["Opt"].card
     after = current["Opt"].card
 
@@ -55,13 +56,15 @@ def test_fusion_preserves_curated_numeric_profile_values() -> None:
 
 
 def test_tools_adapter_is_explicit_alias_of_repository_loader() -> None:
-    current = load_candidate_profiles(ROOT)
-    repository = repository_candidates(ROOT)
+    current = load_candidate_profiles(ROOT, deck_id="rogshai/current")
+    repository = repository_candidates(ROOT, deck_id="rogshai/current")
     assert set(current) == set(repository)
     assert {key: value.card.model_dump(mode="json") for key, value in current.items()} == {
         key: value.card.model_dump(mode="json") for key, value in repository.items()
     }
-    summary = canonical_feature_fusion_summary(ROOT)
-    assert summary["rogshai_candidates_loaded"] > 0
+    summary = canonical_feature_fusion_summary(ROOT, deck_id="rogshai/current")
+    assert summary["deck_id"] == "rogshai/current"
+    assert summary["candidates_loaded"] > 0
     assert summary["canonical_overlay_candidates"] > 0
     assert summary["heuristic_or_curated_without_overlay"] >= 0
+    assert summary["feature_projection_configured"] is True

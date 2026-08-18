@@ -6,7 +6,10 @@ on:
     paths:
       - 'src/commander_lab/**'
       - 'scripts/run_j_p6_workflow_smoke.py'
+      - 'tests/unit/test_deck_policy_registry.py'
       - 'tests/unit/test_decision_context.py'
+      - 'tests/unit/test_candidate_screening.py'
+      - 'tests/unit/test_canonical_feature_fusion.py'
       - 'tests/unit/test_workflow_identity.py'
       - 'data/collections/current/**'
       - 'data/decks/**'
@@ -19,7 +22,10 @@ on:
     paths:
       - 'src/commander_lab/**'
       - 'scripts/run_j_p6_workflow_smoke.py'
+      - 'tests/unit/test_deck_policy_registry.py'
       - 'tests/unit/test_decision_context.py'
+      - 'tests/unit/test_candidate_screening.py'
+      - 'tests/unit/test_canonical_feature_fusion.py'
       - 'tests/unit/test_workflow_identity.py'
       - 'data/collections/current/**'
       - 'data/decks/**'
@@ -50,10 +56,13 @@ jobs:
           cache: pip
       - name: Install decision-workflow runtime
         run: python -m pip install -e '.[dev,api,openai]'
-      - name: Multi-deck and run-identity semantic contracts
+      - name: Multi-deck, candidate, feature and run-identity semantic contracts
         run: |
           python -m pytest -q \
+            tests/unit/test_deck_policy_registry.py \
             tests/unit/test_decision_context.py \
+            tests/unit/test_candidate_screening.py \
+            tests/unit/test_canonical_feature_fusion.py \
             tests/unit/test_workflow_identity.py
       - name: Current reference decision workflow
         run: python scripts/run_j_p6_workflow_smoke.py

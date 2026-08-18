@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "sources": {
+    "active_scope": "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+    "deck_manifest": "data/decks/manifest.json",
+    "inventory_snapshot": "data/canonical_import/2026-08-07/inventory_snapshot.json",
+    "candidate_eligibility": "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
+    "optimization_availability": "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json",
+    "inactive_release_delta": "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
+    "opponent_context": "data/collections/current/POD_SCENARIOS_CURRENT.json"
+  },
+  "deck_policies": {
+    "rogshai/current": {
+      "feature_projection_manifest": "data/collections/current/rogshai_feature_projection/manifest.json",
+      "package_prefixes": [
+        "package:rogshai:"
+      ]
+    }
+  },
+  "truth_boundary": "Routing and policy only. Deck activation is read from the live scope source; this registry does not activate decks, reserve inventory, mutate allocations, or turn historical deck data into current truth."
+}

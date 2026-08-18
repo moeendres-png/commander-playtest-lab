@@ -2,16 +2,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from commander_lab.candidate_screening import RogShaiCandidateScreener
+from commander_lab.candidate_screening import CandidateScreener, RogShaiCandidateScreener
 from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_rogshai_pool_screen_reduces_default_work_without_hiding_exploration() -> None:
+def test_current_rogshai_pool_screen_reduces_default_work_without_hiding_exploration() -> None:
     service = CommanderToolService(ROOT)
-    screener = RogShaiCandidateScreener(ROOT, service=service)
-    result = screener.screen_pool()
+    screener = CandidateScreener(ROOT, service=service)
+    result = screener.screen_pool("rogshai/current")
+    assert result["deck_id"] == "rogshai/current"
     assert result["physical_legal_candidate_count"] > 0
     assert result["candidate_pool_after_default_screen"] <= result["physical_legal_candidate_count"]
     assert result["unusual_candidates_remain_explorable"] is True
@@ -27,10 +28,11 @@ def test_rogshai_pool_screen_reduces_default_work_without_hiding_exploration() -
     assert result["semantic_evidence"]["llm_inferred_is_canonical"] is False
 
 
-def test_current_rogshai_challenge_set_covers_valid_static_buckets() -> None:
+def test_historical_rogshai_challenge_set_remains_regression_only() -> None:
     service = CommanderToolService(ROOT)
     screener = RogShaiCandidateScreener(ROOT, service=service)
     result = screener.benchmark_challenge_set()
+    assert result["historical_regression_only"] is True
     assert result["rogshai_variant_count"] == 6
     assert len(result["evaluated"]) == 6
     assert 0.0 < result["legal_candidate_recall"] <= 1.0
@@ -49,13 +51,14 @@ def test_current_rogshai_challenge_set_covers_valid_static_buckets() -> None:
     )
 
 
-def test_progressive_profile_lane_is_small_and_never_negative() -> None:
+def test_current_rogshai_projection_count_remains_a_data_regression_not_core_contract() -> None:
     service = CommanderToolService(ROOT)
-    result = RogShaiCandidateScreener(ROOT, service=service).screen_pool()
+    result = CandidateScreener(ROOT, service=service).screen_pool("rogshai/current")
     lane = result["progressive_model_coverage"]
 
     assert len(lane["selected"]) <= 12
     assert lane["unmodeled_is_negative"] is False
     assert lane["profiling_required_before_simulation"] is True
     assert all(row["performance_assumption"] is None for row in lane["selected"])
+    # Current projection regression only. Generic CandidateScreener has no fixed count.
     assert result["discoverable_candidate_count"] == 795

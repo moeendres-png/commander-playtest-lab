@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.canonical_features import load_canonical_feature_annotations
+from commander_lab.deck_registry import DeckPolicyRegistry, load_deck_policy_registry
 from commander_lab.models import CandidateProfile, DataQuality, StructuralDeckProfile, VariantSwap
 from commander_lab.optimization import build_search_candidate, profile_score
 from commander_lab.semantic_evidence import semantic_evidence_summary
@@ -145,30 +146,42 @@ def _profile_next(rows: list[dict[str, object]], *, limit: int = 12) -> list[dic
     ]
 
 
-class RogShaiCandidateScreener:
-    """Conservative static screen that reduces default simulation work without hiding exploration."""
+class CandidateScreener:
+    """Deck-scoped static screen driven by the live deck/policy registry."""
 
-    def __init__(self, root: str | Path, *, service: Any) -> None:
+    def __init__(
+        self,
+        root: str | Path,
+        *,
+        service: Any,
+        registry: DeckPolicyRegistry | None = None,
+    ) -> None:
         self.root = Path(root).resolve()
         self.service = service
+        self.registry = registry or load_deck_policy_registry(self.root)
 
-    def screen_pool(self, deck_id: str = "rogshai/current") -> dict[str, object]:
-        if deck_id != "rogshai/current":
-            raise ValueError("priority candidate screening is scoped to current RogShai")
+    def screen_pool(self, deck_id: str | None = None) -> dict[str, object]:
+        selected_deck_id = deck_id or self.registry.primary_deck_id
+        self.registry.assert_active(selected_deck_id)
 
-        eligibility_path = (
-            self.root / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
-        )
+        eligibility_path = self.registry.source_path("candidate_eligibility")
         payload = json.loads(eligibility_path.read_text(encoding="utf-8"))
-        raw_rows = payload.get("eligible_by_deck", {}).get(deck_id)
+        eligible_by_deck = payload.get("eligible_by_deck", {})
+        if not isinstance(eligible_by_deck, dict):
+            raise ValueError("current candidate eligibility has no eligible_by_deck mapping")
+        raw_rows = eligible_by_deck.get(selected_deck_id)
         if not isinstance(raw_rows, dict):
-            raise ValueError("current RogShai candidate eligibility is missing or invalid")
+            raise ValueError(
+                f"candidate eligibility is missing or invalid for active deck {selected_deck_id}"
+            )
 
-        manifest_path = (
-            self.root / "data/collections/current/rogshai_feature_projection/manifest.json"
-        )
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        expected_count = int(manifest.get("canonical_candidate_count", -1))
+        expected_count: int | None = None
+        feature_manifest_path = self.registry.feature_manifest_path(selected_deck_id)
+        if feature_manifest_path is not None:
+            manifest = json.loads(feature_manifest_path.read_text(encoding="utf-8"))
+            raw_expected = manifest.get("canonical_candidate_count")
+            if isinstance(raw_expected, int) and raw_expected >= 0:
+                expected_count = raw_expected
 
         eligible: dict[str, dict[str, object]] = {}
         excluded: dict[str, int] = {}
@@ -189,19 +202,25 @@ class RogShaiCandidateScreener:
                 continue
             eligible[str(name)] = dict(raw_spec)
 
-        if expected_count != len(eligible):
+        if expected_count is not None and expected_count != len(eligible):
             raise ValueError(
-                "current RogShai candidate universe disagrees with the canonical feature manifest: "
+                f"candidate universe disagrees with feature manifest for {selected_deck_id}: "
                 f"expected {expected_count}, got {len(eligible)}"
             )
 
-        all_profiles = load_candidate_profiles(self.root)
+        all_profiles = load_candidate_profiles(
+            self.root,
+            deck_id=selected_deck_id,
+            registry=self.registry,
+        )
         modeled_by_name = {
-            candidate.card.oracle_name: candidate
-            for candidate in all_profiles.values()
-            if deck_id in candidate.allowed_deck_ids
+            candidate.card.oracle_name: candidate for candidate in all_profiles.values()
         }
-        annotations = load_canonical_feature_annotations(self.root)
+        annotations = load_canonical_feature_annotations(
+            self.root,
+            deck_id=selected_deck_id,
+            registry=self.registry,
+        )
 
         modeled_candidates = [modeled_by_name[name] for name in eligible if name in modeled_by_name]
         by_signature: dict[tuple[object, ...], list[CandidateProfile]] = defaultdict(list)
@@ -344,7 +363,9 @@ class RogShaiCandidateScreener:
         counts = {bucket: 0 for bucket in bucket_order}
         for row in rows:
             counts[str(row["bucket"])] += 1
-        simulation_ready = sum(1 for row in rows if str(row["bucket"]) in {"advance", "explore"})
+        simulation_ready = sum(
+            1 for row in rows if str(row["bucket"]) in {"advance", "explore"}
+        )
         discoverable = len(rows)
         profile_next = _profile_next(rows)
         decision_material_semantic_unknowns = 0
@@ -362,7 +383,7 @@ class RogShaiCandidateScreener:
                 semantic_evidence_type_counts.get(evidence_type, 0) + 1
             )
         return {
-            "deck_id": deck_id,
+            "deck_id": selected_deck_id,
             "physical_legal_candidate_count": len(eligible),
             "discoverable_candidate_count": discoverable,
             "excluded_candidate_count_by_reason": excluded,
@@ -459,10 +480,23 @@ class RogShaiCandidateScreener:
             automatic_rejection=False,
         )
 
+
+class RogShaiCandidateScreener(CandidateScreener):
+    """Compatibility/historical adapter for the frozen J-P5 RogShai challenge set.
+
+    Pool screening itself is inherited from the generic registry-driven implementation. Only the
+    historical benchmark method is RogShai-specific.
+    """
+
+    def screen_pool(self, deck_id: str = "rogshai/current") -> dict[str, object]:
+        return super().screen_pool(deck_id)
+
     def benchmark_challenge_set(self) -> dict[str, object]:
+        deck_id = "rogshai/current"
+        self.registry.assert_active(deck_id)
         path = self.root / "data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json"
         payload = json.loads(path.read_text(encoding="utf-8"))
-        rows = [row for row in payload["variants"] if row["deck_id"] == "rogshai/current"]
+        rows = [row for row in payload["variants"] if row["deck_id"] == deck_id]
         evaluated: list[dict[str, object]] = []
         legal_count = 0
         good_count = 0
@@ -471,7 +505,7 @@ class RogShaiCandidateScreener:
         bad_rejected = 0
         for row in rows:
             decision = self.screen_swap(
-                baseline=self.service.decks["rogshai/current"],
+                baseline=self.service.decks[deck_id],
                 remove=str(row["remove"]),
                 add_candidate_id=str(row["add_candidate_id"]),
             )
@@ -496,7 +530,13 @@ class RogShaiCandidateScreener:
             "known_bad_candidate_rejection": bad_rejected / bad_count if bad_count else 1.0,
             "evaluated": evaluated,
             "evidence_boundary": payload["evidence_boundary"],
+            "historical_regression_only": True,
         }
 
 
-__all__ = ["CandidateScreenRow", "RogShaiCandidateScreener", "SwapScreenDecision"]
+__all__ = [
+    "CandidateScreenRow",
+    "CandidateScreener",
+    "RogShaiCandidateScreener",
+    "SwapScreenDecision",
+]
