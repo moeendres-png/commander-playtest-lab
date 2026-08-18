@@ -27,15 +27,16 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install build and test dependencies
+      - name: Install release dependencies
         run: |
-          python -m pip install -e '.[dev,api]'
+          python -m pip install -e '.[api]'
           python -m pip install build
       - name: Resolve and verify release metadata
         id: meta
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p release
           python - <<'PY'
           import importlib.metadata
           import os
@@ -50,28 +51,8 @@ jobs:
           with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
               handle.write(f"version={declared}\n")
           PY
-      - name: Static integrity checks
-        shell: bash
-        run: |
-          set -euo pipefail
-          git diff --check
-          python -m compileall -q src tests
-      - name: Run full test suite
-        shell: bash
-        run: |
-          set -o pipefail
-          mkdir -p release
-          python -m pytest -q 2>&1 | tee release/PLAYTEST_LAB_TEST_RESULTS.txt
-      - name: Assert tests leave repository clean
-        shell: bash
-        run: |
-          set -euo pipefail
-          status="$(git status --porcelain --untracked-files=all)"
-          if [[ -n "$status" ]]; then
-            echo "Test execution dirtied the repository."
-            printf '%s\n' "$status"
-            exit 1
-          fi
+          printf 'generic_validation_owner=CI/quality\ngit_head=%s\nrelease_full_pytest_rerun=false\n' \
+            "$GITHUB_SHA" > release/PLAYTEST_LAB_TEST_RESULTS.txt
       - name: Build wheel and sdist
         shell: bash
         run: |
@@ -93,7 +74,7 @@ jobs:
           git -C "$repo_dir" checkout --detach "$GITHUB_SHA"
           test "$(git -C "$repo_dir" rev-parse HEAD)" = "$GITHUB_SHA"
           (cd "$RUNNER_TEMP" && zip -qr "$GITHUB_WORKSPACE/release/commander-playtest-lab-${version}-repository.zip" commander-playtest-lab-repository)
-      - name: Write release status from checked-in truth
+      - name: Write release status from current checked-in truth
         shell: bash
         run: |
           set -euo pipefail
@@ -106,45 +87,83 @@ jobs:
           sha = os.environ["GITHUB_SHA"]
           version = os.environ["VERSION"]
           manifest = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
-          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
-          decks = manifest["decks"]
-          if manifest["active_own_decks"] != ["rogshai/current"]:
-              raise SystemExit("release requires RogShai as the sole active own deck")
-          if set(decks) != {"rogshai/current"}:
-              raise SystemExit("release manifest contains a competing current deck baseline")
-          rogshai = decks["rogshai/current"]
+          scope = json.loads(
+              Path("data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          engines = json.loads(Path("config/rules_engines.json").read_text(encoding="utf-8"))
 
+          global_active = scope["global_active_own_decks"]
+          runtime_loaded = scope["runtime_loaded_decks"]
+          optimization_targets = scope["optimization_targets"]
+          unresolved = scope["unresolved_operational_baselines"]
+          if manifest["global_active_own_decks"] != global_active:
+              raise SystemExit("release scope disagrees with manifest global own-deck truth")
+          if manifest["runtime_loaded_decks"] != runtime_loaded:
+              raise SystemExit("release scope disagrees with manifest runtime-loaded truth")
+          if manifest["active_own_decks"] != runtime_loaded:
+              raise SystemExit("legacy manifest active_own_decks alias is no longer runtime-scoped")
+          if manifest.get("active_own_decks_semantics") != "legacy_runtime_loaded_decks_compatibility_alias":
+              raise SystemExit("legacy active_own_decks semantics are not explicit")
+          if set(manifest["decks"]) != set(runtime_loaded):
+              raise SystemExit("runtime deck manifest does not exactly match loaded deck identities")
+          if set(unresolved) & set(runtime_loaded):
+              raise SystemExit("unresolved operational baseline was loaded into the runtime")
+          if "kaervek/current" not in manifest.get("frozen_opponent_decks", []):
+              raise SystemExit("Kaervek lost its frozen opponent-only boundary")
+
+          rogshai = manifest["decks"]["rogshai/current"]
           if not rogshai["validation"]["valid"]:
-              raise SystemExit("checked-in deck manifest is not valid")
+              raise SystemExit("checked-in RogShai runtime manifest is not valid")
+          if engines["provider_decision"] != "NO_PROVIDER_READY":
+              raise SystemExit("release unexpectedly claims a production external provider")
+          if engines["primary_engine"]["status"] != "B3_PARTIAL":
+              raise SystemExit("release external-engine truth is not the audited B3 boundary")
+          if engines["primary_engine"]["real_execution"] is not True:
+              raise SystemExit("B3 current truth lost real external-engine execution evidence")
+          if engines["primary_engine"]["production_ready"] is not False:
+              raise SystemExit("B3 current truth incorrectly claims production readiness")
 
           status = {
               "package_version": version,
               "git_head": sha,
-              "status": "deck_optimization_system_requires_external_work",
-              "external_engine_validation_pending": p3["primary_provider"] is None,
-              "external_engine_provider_decision": p3["decision"],
-              "external_engine_real_execution": any(
-                  provider["real_execution"] for provider in p3["providers"].values()
-              ),
-              "external_engine_production_bridge": p3["production_bridge"],
-              "xmage_status": p3["providers"]["xmage"]["status"],
-              "xmage_score": p3["providers"]["xmage"]["score"],
-              "xmage_real_execution": p3["providers"]["xmage"]["real_execution"],
-              "forge_status": p3["providers"]["forge"]["status"],
-              "forge_score": p3["providers"]["forge"]["score"],
-              "forge_real_execution": p3["providers"]["forge"]["real_execution"],
+              "status": "decision_support_system_b3_partial_external_engine",
               "canonical_deck_mutations": 0,
               "recommendations_applied": 0,
-              "runtime_state_directory": ".runtime/engine",
               "data_snapshot_hash": manifest["data_snapshot_hash"],
-              "active_own_decks": manifest["active_own_decks"],
-              "removed_operational_decks": manifest["removed_operational_decks"],
+              "global_active_own_decks": global_active,
+              "runtime_loaded_decks": runtime_loaded,
+              "optimization_targets": optimization_targets,
+              "unresolved_operational_baselines": unresolved,
+              "frozen_opponent_decks": manifest["frozen_opponent_decks"],
+              "runtime_allocation_valid": manifest["allocation_validation"]["valid"],
+              "runtime_allocation_scope": manifest["allocation_validation"]["scope"],
+              "global_allocation_status": (
+                  "unresolved_until_current_operational_baselines_are_known"
+                  if unresolved
+                  else "resolved"
+              ),
               "rogshai_current_hash": rogshai["deck_hash"],
               "rogshai_cards": rogshai["total_cards"],
               "rogshai_lands": rogshai["land_count"],
-              "allocation_valid": manifest["allocation_validation"]["valid"],
-              "truth_source": "data/decks/manifest.json",
-              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+              "external_engine_provider_decision": engines["provider_decision"],
+              "external_engine_production_bridge": engines["production_bridge"],
+              "external_engine_validation_pending": engines["current_runtime"][
+                  "external_engine_validation_pending"
+              ],
+              "xmage_status": engines["primary_engine"]["status"],
+              "xmage_real_execution": engines["primary_engine"]["real_execution"],
+              "xmage_production_ready": engines["primary_engine"]["production_ready"],
+              "xmage_commit": engines["primary_engine"]["commit"],
+              "forge_status": engines["secondary_engine"]["status"],
+              "forge_real_execution": engines["secondary_engine"]["real_execution"],
+              "truth_sources": {
+                  "deck_runtime": "data/decks/manifest.json",
+                  "project_scope": "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+                  "external_engine": "config/rules_engines.json",
+                  "historical_provider_decision": "docs/J_P3_PROVIDER_DECISION.json",
+              },
           }
           (release / "PLAYTEST_LAB_CURRENT_STATUS.json").write_text(
               json.dumps(status, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -153,16 +172,15 @@ jobs:
               "# Commander Playtest Lab – Current Status\n\n"
               f"- Package: `{version}`\n"
               f"- Git HEAD: `{sha}`\n"
-              "- Release deck truth source: `data/decks/manifest.json`.\n"
-              f"- Data snapshot hash: `{manifest['data_snapshot_hash']}`.\n"
-              "- Active own decks: `rogshai/current` only.\n"
-              "- Korvold: no current own-deck baseline or physical reservation.\n"
+              "- Global active own decks: `korvold/current`, `rogshai/current`.\n"
+              "- Runtime-loaded deck: `rogshai/current`.\n"
+              "- Korvold: globally active; exact current operational baseline unresolved and therefore not runtime-loaded.\n"
               f"- RogShai: {rogshai['total_cards']} cards / {rogshai['land_count']} lands; current hash `{rogshai['deck_hash']}`.\n"
-              f"- Current allocation valid: `{manifest['allocation_validation']['valid']}`.\n"
-              f"- External provider decision: `{p3['decision']}`; production bridge: `{p3['production_bridge']}`.\n"
-              f"- XMage: `{p3['providers']['xmage']['status']}` / {p3['providers']['xmage']['score']} / real execution `{p3['providers']['xmage']['real_execution']}`.\n"
-              f"- Forge: `{p3['providers']['forge']['status']}` / {p3['providers']['forge']['score']} / real execution `{p3['providers']['forge']['real_execution']}`.\n"
-              "- Validation boundary: structural model + Tactical Oracle + real partial external-provider feasibility evidence; no production-ready external bridge.\n"
+              "- Kaervek: frozen opponent-only.\n"
+              f"- External provider decision: `{engines['provider_decision']}`.\n"
+              f"- XMage: `{engines['primary_engine']['status']}` at `{engines['primary_engine']['commit']}`; real execution `{engines['primary_engine']['real_execution']}`; production ready `{engines['primary_engine']['production_ready']}`.\n"
+              "- External-engine boundary: B3 deck import + Commander/Partner 2–5 player construction/start/lifecycle only; no production action loop is claimed.\n"
+              "- Generic code/test quality is owned by the separate CI workflow; release does not rerun full pytest.\n"
               "- Canonical deck mutations by this technical release: 0.\n"
               "- Recommendations applied: 0.\n",
               encoding="utf-8",
@@ -177,21 +195,27 @@ jobs:
           from pathlib import Path
 
           source = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
-          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
+          scope = json.loads(
+              Path("data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          engines = json.loads(Path("config/rules_engines.json").read_text(encoding="utf-8"))
           release = json.loads(Path("release/PLAYTEST_LAB_CURRENT_STATUS.json").read_text(encoding="utf-8"))
-          assert source["active_own_decks"] == ["rogshai/current"]
-          assert set(source["decks"]) == {"rogshai/current"}
-          assert release["active_own_decks"] == ["rogshai/current"]
-          assert release["removed_operational_decks"] == ["korvold/current"]
+          assert release["global_active_own_decks"] == scope["global_active_own_decks"]
+          assert release["runtime_loaded_decks"] == source["runtime_loaded_decks"]
+          assert release["optimization_targets"] == scope["optimization_targets"]
+          assert release["unresolved_operational_baselines"] == ["korvold/current"]
+          assert release["frozen_opponent_decks"] == ["kaervek/current"]
           assert release["rogshai_current_hash"] == source["decks"]["rogshai/current"]["deck_hash"]
           assert release["rogshai_cards"] == 100
           assert release["rogshai_lands"] == 36
           assert release["data_snapshot_hash"] == source["data_snapshot_hash"]
-          assert release["allocation_valid"] == source["allocation_validation"]["valid"]
-          assert release["external_engine_provider_decision"] == p3["decision"]
-          assert release["xmage_real_execution"] is p3["providers"]["xmage"]["real_execution"]
-          assert release["forge_real_execution"] is p3["providers"]["forge"]["real_execution"]
-          assert release["external_engine_production_bridge"] == p3["production_bridge"]
+          assert release["runtime_allocation_valid"] == source["allocation_validation"]["valid"]
+          assert release["external_engine_provider_decision"] == engines["provider_decision"]
+          assert release["external_engine_production_bridge"] == engines["production_bridge"]
+          assert release["xmage_real_execution"] is True
+          assert release["xmage_production_ready"] is False
           PY
       - name: Write manifest and validation package
         shell: bash
@@ -223,17 +247,23 @@ jobs:
               sdist,
           ]
           manifest = {
-              "schema_version": 2,
+              "schema_version": 3,
               "release": version,
               "git_head": sha,
               "artifacts": artifacts,
-              "validation_level": "structural_tactical_and_real_external_feasibility_evidence",
-              "external_rules_engine_results": True,
+              "generic_validation_owner": "CI/quality",
+              "release_full_pytest_rerun": False,
+              "validation_level": "packaging_installability_roundtrip_and_current_truth",
+              "external_rules_engine_results_embedded": False,
               "external_engine_production_ready": False,
               "external_engine_provider_decision": "NO_PROVIDER_READY",
-              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+              "external_engine_truth_source": "config/rules_engines.json",
               "roundtrip_required": True,
-              "release_truth_source": "data/decks/manifest.json",
+              "release_truth_sources": [
+                  "data/decks/manifest.json",
+                  "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+                  "config/rules_engines.json",
+              ],
           }
           (release / "PLAYTEST_LAB_ARTIFACT_MANIFEST.json").write_text(
               json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
