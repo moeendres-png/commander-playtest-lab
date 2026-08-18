@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JsonlBridgeTest {
@@ -80,7 +81,7 @@ class JsonlBridgeTest {
     }
 
     @Test
-    void b2AdvertisesDeckImportButNoGameplay() {
+    void b3AdvertisesOnlyProvenConstructionAndStartCapabilities() {
         JsonlBridge.Result result =
                 bridge.handle(
                         request("r3", "get_capabilities")
@@ -97,16 +98,41 @@ class JsonlBridgeTest {
                 capabilities.get("runtime_kind").getAsString()
         );
 
-        assertFalse(
+        assertTrue(
                 capabilities.get("commander_supported")
                         .getAsBoolean()
         );
-        assertFalse(
+
+        assertTrue(
+                capabilities.get("partner_supported")
+                        .getAsBoolean()
+        );
+        assertTrue(
                 capabilities.get("multiplayer_supported")
+                        .getAsBoolean()
+        );
+
+        assertEquals(
+                5,
+                capabilities.get("max_players")
+                        .getAsInt()
+        );
+
+        assertTrue(
+                capabilities.get("headless_supported")
                         .getAsBoolean()
         );
         assertTrue(
                 capabilities.get("deck_import_supported")
+                        .getAsBoolean()
+        );
+        assertFalse(
+                capabilities.get("seed_supported")
+                        .getAsBoolean()
+        );
+
+        assertFalse(
+                capabilities.get("mulligan_supported")
                         .getAsBoolean()
         );
         assertFalse(
@@ -220,23 +246,174 @@ class JsonlBridgeTest {
 
         assertTrue(result.shutdown());
     }
-
     @Test
-    void unsupportedB3GameplayMessageFailsClosed() {
-        JsonlBridge.Result result =
-                bridge.handle(
-                        request("r5", "create_commander_game")
+    void b3CreatesAndStartsRealFourPlayerCommanderGameThroughJsonl()
+            throws Exception {
+
+        List<String> handles =
+                List.of(
+                        importRogShaiHandle("r-b3-import-1"),
+                        importRogShaiHandle("r-b3-import-2"),
+                        importRogShaiHandle("r-b3-import-3"),
+                        importRogShaiHandle("r-b3-import-4")
                 );
 
-        JsonObject response =
-                JsonParser.parseString(result.json())
-                        .getAsJsonObject();
+        JsonlBridge.Result createResult =
+                bridge.handle(
+                        createGameRequest(
+                                "r-b3-create",
+                                "b3-jsonl/four-player",
+                                handles,
+                                2,
+                                40
+                        )
+                );
 
-        assertFalse(response.get("success").getAsBoolean());
-        assertEquals("error", response.get("status").getAsString());
+        JsonObject createResponse =
+                JsonParser.parseString(
+                        createResult.json()
+                ).getAsJsonObject();
+
+        assertTrue(
+                createResponse.get("success")
+                        .getAsBoolean()
+        );
+
+        assertFalse(createResult.shutdown());
+
+        JsonObject created =
+                createResponse
+                        .getAsJsonObject("payload");
+
+        assertEquals(
+                "b3-jsonl/four-player",
+                created.get("game_id")
+                        .getAsString()
+        );
+
+        assertTrue(
+                created.get("game_handle")
+                        .getAsString()
+                        .startsWith("xmage-game-")
+        );
+
+        assertFalse(
+                created.get("engine_game_id")
+                        .getAsString()
+                        .isBlank()
+        );
+
+        assertEquals(
+                4,
+                created.get("player_count")
+                        .getAsInt()
+        );
+
+        assertEquals(
+                2,
+                created.get("starting_player_seat")
+                        .getAsInt()
+        );
+
+        JsonlBridge.Result startResult =
+                bridge.handle(
+                        startGameRequest(
+                                "r-b3-start",
+                                "b3-jsonl/four-player"
+                        )
+                );
+
+        JsonObject startResponse =
+                JsonParser.parseString(
+                        startResult.json()
+                ).getAsJsonObject();
+
+        assertTrue(
+                startResponse.get("success")
+                        .getAsBoolean()
+        );
+
+        assertFalse(startResult.shutdown());
+
+        JsonObject started =
+                startResponse
+                        .getAsJsonObject("payload");
+
+        assertEquals(
+                "b3-jsonl/four-player",
+                started.get("game_id")
+                        .getAsString()
+        );
+
+        assertEquals(
+                created.get("game_handle")
+                        .getAsString(),
+                started.get("game_handle")
+                        .getAsString()
+        );
+
+        assertEquals(
+                created.get("engine_game_id")
+                        .getAsString(),
+                started.get("engine_game_id")
+                        .getAsString()
+        );
+
+        assertEquals(
+                4,
+                started.get("player_count")
+                        .getAsInt()
+        );
+
+        assertFalse(
+                started.get("starting_player_id")
+                        .getAsString()
+                        .isBlank()
+        );
+
+        assertEquals(
+                1,
+                started.get("turn_number")
+                        .getAsInt()
+        );
+
+        assertTrue(
+                started.get("paused")
+                        .getAsBoolean()
+        );
     }
 
     @Test
+    void b3UnknownGameIdFailsClosed() {
+        JsonlBridge.Result result =
+                bridge.handle(
+                        startGameRequest(
+                                "r-b3-unknown-start",
+                                "missing/game"
+                        )
+                );
+
+        JsonObject response =
+                JsonParser.parseString(
+                        result.json()
+                ).getAsJsonObject();
+
+        assertFalse(
+                response.get("success")
+                        .getAsBoolean()
+        );
+
+        assertEquals(
+                "unknown_game_id",
+                response
+                        .getAsJsonArray("errors")
+                        .get(0)
+                        .getAsJsonObject()
+                        .get("code")
+                        .getAsString()
+        );
+    }
+@Test
     void protocolMismatchIsRejected() {
         String request = """
                 {
@@ -255,6 +432,192 @@ class JsonlBridgeTest {
                         .getAsJsonObject();
 
         assertFalse(response.get("success").getAsBoolean());
+    }
+    private String importRogShaiHandle(
+            String requestId
+    ) throws Exception {
+
+        JsonlBridge.Result result =
+                bridge.handle(
+                        rogShaiImportRequest(
+                                requestId
+                        )
+                );
+
+        JsonObject response =
+                JsonParser.parseString(
+                        result.json()
+                ).getAsJsonObject();
+
+        assertTrue(
+                response.get("success")
+                        .getAsBoolean()
+        );
+
+        return response
+                .getAsJsonObject("payload")
+                .getAsJsonObject("deck_handle")
+                .get("handle_id")
+                .getAsString();
+    }
+
+    private static String createGameRequest(
+            String requestId,
+            String gameId,
+            List<String> deckHandles,
+            int startingPlayerSeat,
+            int startingLife
+    ) {
+        JsonArray handles =
+                new JsonArray();
+
+        deckHandles.forEach(
+                handles::add
+        );
+
+        JsonObject gameRequest =
+                new JsonObject();
+
+        gameRequest.addProperty(
+                "game_id",
+                gameId
+        );
+
+        gameRequest.add(
+                "deck_handles",
+                handles
+        );
+
+        gameRequest.addProperty(
+                "format",
+                "commander"
+        );
+
+        gameRequest.add(
+                "seed",
+                com.google.gson.JsonNull.INSTANCE
+        );
+
+        gameRequest.addProperty(
+                "starting_player_seat",
+                startingPlayerSeat
+        );
+
+        gameRequest.addProperty(
+                "starting_life",
+                startingLife
+        );
+
+        gameRequest.add(
+                "deterministic_starting_state",
+                com.google.gson.JsonNull.INSTANCE
+        );
+
+        JsonObject payload =
+                new JsonObject();
+
+        payload.add(
+                "request",
+                gameRequest
+        );
+
+        JsonObject request =
+                new JsonObject();
+
+        request.addProperty(
+                "protocol_version",
+                "2.0.0"
+        );
+
+        request.addProperty(
+                "request_id",
+                requestId
+        );
+
+        request.addProperty(
+                "engine",
+                "xmage"
+        );
+
+        request.addProperty(
+                "game_id",
+                gameId
+        );
+
+        request.addProperty(
+                "message_type",
+                "create_commander_game"
+        );
+
+        request.addProperty(
+                "method",
+                "create_commander_game"
+        );
+
+        request.add(
+                "payload",
+                payload
+        );
+
+        request.add(
+                "params",
+                new JsonObject()
+        );
+
+        return request.toString();
+    }
+
+    private static String startGameRequest(
+            String requestId,
+            String gameId
+    ) {
+        JsonObject payload =
+                new JsonObject();
+
+        JsonObject request =
+                new JsonObject();
+
+        request.addProperty(
+                "protocol_version",
+                "2.0.0"
+        );
+
+        request.addProperty(
+                "request_id",
+                requestId
+        );
+
+        request.addProperty(
+                "engine",
+                "xmage"
+        );
+
+        request.addProperty(
+                "game_id",
+                gameId
+        );
+
+        request.addProperty(
+                "message_type",
+                "start_game"
+        );
+
+        request.addProperty(
+                "method",
+                "start_game"
+        );
+
+        request.add(
+                "payload",
+                payload
+        );
+
+        request.add(
+                "params",
+                new JsonObject()
+        );
+
+        return request.toString();
     }
 
     private static String rogShaiImportRequest(

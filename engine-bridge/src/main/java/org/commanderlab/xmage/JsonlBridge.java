@@ -5,12 +5,24 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 final class JsonlBridge {
 
     private final XmageDeckImporter deckImporter =
             new XmageDeckImporter();
+    private final XmageGameManager gameManager =
+            new XmageGameManager(deckImporter);
+
+    /*
+     * Protocol game_id is stable and client-facing.
+     * The mutable XMage Game is addressed internally by a process-local
+     * xmage-game-* handle.
+     */
+    private final Map<String, String> gameHandlesById =
+            new HashMap<>();
 
     record Result(String json, boolean shutdown) {
     }
@@ -69,6 +81,11 @@ final class JsonlBridge {
 
             case "import_deck" ->
                     importDeck(requestId, request);
+            case "create_commander_game" ->
+                    createCommanderGame(requestId, request);
+
+            case "start_game" ->
+                    startGame(requestId, request);
 
             case "shutdown_engine" ->
                     success(requestId, shutdownPayload(), true);
@@ -77,7 +94,7 @@ final class JsonlBridge {
                     error(
                             requestId,
                             "unsupported_message",
-                            "B2 does not support message type: " + messageType,
+                            "B3 does not support message type: " + messageType,
                             false
                     );
         };
@@ -242,6 +259,313 @@ final class JsonlBridge {
             );
         }
     }
+    private Result createCommanderGame(
+            String requestId,
+            JsonObject request
+    ) {
+        try {
+            if (!request.has("payload")
+                    || !request.get("payload").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_game_payload",
+                        "CREATE_COMMANDER_GAME requires an object payload",
+                        false
+                );
+            }
+
+            JsonObject payload =
+                    request.getAsJsonObject("payload");
+
+            if (!payload.has("request")
+                    || !payload.get("request").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_game_payload",
+                        "CREATE_COMMANDER_GAME requires payload.request",
+                        false
+                );
+            }
+
+            JsonObject gameRequest =
+                    payload.getAsJsonObject("request");
+
+            String gameId =
+                    stringValue(
+                            gameRequest,
+                            "game_id"
+                    ).trim();
+
+            if (gameId.isBlank()) {
+                return error(
+                        requestId,
+                        "invalid_game_payload",
+                        "game_id must be nonblank",
+                        false
+                );
+            }
+
+            String format =
+                    stringValue(
+                            gameRequest,
+                            "format"
+                    ).trim();
+
+            if (!"commander".equals(format)) {
+                return error(
+                        requestId,
+                        "unsupported_game_format",
+                        "B3 supports only format=commander",
+                        false
+                );
+            }
+
+            /*
+             * Seeded execution and deterministic starting-state injection
+             * belong to later gates. Never ignore them silently.
+             */
+            if (gameRequest.has("seed")
+                    && !gameRequest.get("seed").isJsonNull()) {
+                return error(
+                        requestId,
+                        "unsupported_game_option",
+                        "B3 does not support seed",
+                        false
+                );
+            }
+
+            if (gameRequest.has("deterministic_starting_state")
+                    && !gameRequest
+                            .get("deterministic_starting_state")
+                            .isJsonNull()) {
+                return error(
+                        requestId,
+                        "unsupported_game_option",
+                        "B3 does not support deterministic_starting_state",
+                        false
+                );
+            }
+
+            List<String> deckHandles =
+                    requiredStringArray(
+                            gameRequest,
+                            "deck_handles"
+                    );
+
+            int startingPlayerSeat =
+                    optionalInt(
+                            gameRequest,
+                            "starting_player_seat",
+                            0
+                    );
+
+            int startingLife =
+                    optionalInt(
+                            gameRequest,
+                            "starting_life",
+                            40
+                    );
+
+            if (gameHandlesById.containsKey(gameId)) {
+                return error(
+                        requestId,
+                        "duplicate_game_id",
+                        "Game already exists: " + gameId,
+                        false
+                );
+            }
+
+            XmageGameManager.CreateResult created =
+                    gameManager.createCommanderGame(
+                            gameId,
+                            new ArrayList<>(deckHandles),
+                            startingPlayerSeat,
+                            startingLife
+                    );
+
+            gameHandlesById.put(
+                    created.gameId(),
+                    created.gameHandle()
+            );
+
+            JsonObject responsePayload =
+                    new JsonObject();
+
+            responsePayload.addProperty(
+                    "game_id",
+                    created.gameId()
+            );
+
+            responsePayload.addProperty(
+                    "game_handle",
+                    created.gameHandle()
+            );
+
+            responsePayload.addProperty(
+                    "engine_game_id",
+                    created.engineGameId()
+            );
+
+            responsePayload.addProperty(
+                    "player_count",
+                    created.playerCount()
+            );
+
+            responsePayload.addProperty(
+                    "starting_player_seat",
+                    created.startingPlayerSeat()
+            );
+
+            return success(
+                    requestId,
+                    responsePayload,
+                    false
+            );
+
+        } catch (XmageGameManager.GameException exc) {
+            return error(
+                    requestId,
+                    "game_creation_failed",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_game_payload",
+                    exc.getClass().getSimpleName()
+                            + ": "
+                            + exc.getMessage(),
+                    false
+            );
+        }
+    }
+
+    private Result startGame(
+            String requestId,
+            JsonObject request
+    ) {
+        try {
+            if (!request.has("payload")
+                    || !request.get("payload").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_start_payload",
+                        "START_GAME requires an object payload",
+                        false
+                );
+            }
+
+            JsonObject payload =
+                    request.getAsJsonObject("payload");
+
+            /*
+             * Protocol-2 carries game_id on the request envelope.
+             * payload.game_id is retained only as a compatibility fallback
+             * for older direct bridge callers.
+             */
+            String gameId =
+                    stringValue(
+                            request,
+                            "game_id"
+                    ).trim();
+
+            if (gameId.isBlank()) {
+                gameId =
+                        stringValue(
+                                payload,
+                                "game_id"
+                        ).trim();
+            }
+
+            if (gameId.isBlank()) {
+                return error(
+                        requestId,
+                        "invalid_start_payload",
+                        "START_GAME requires nonblank game_id",
+                        false
+                );
+            }
+
+            String gameHandle =
+                    gameHandlesById.get(gameId);
+
+            if (gameHandle == null) {
+                return error(
+                        requestId,
+                        "unknown_game_id",
+                        "Unknown process-local game_id: " + gameId,
+                        false
+                );
+            }
+
+            XmageGameManager.StartResult started =
+                    gameManager.startGame(
+                            gameHandle
+                    );
+
+            JsonObject responsePayload =
+                    new JsonObject();
+
+            responsePayload.addProperty(
+                    "game_id",
+                    started.gameId()
+            );
+
+            responsePayload.addProperty(
+                    "game_handle",
+                    started.gameHandle()
+            );
+
+            responsePayload.addProperty(
+                    "engine_game_id",
+                    started.engineGameId()
+            );
+
+            responsePayload.addProperty(
+                    "player_count",
+                    started.playerCount()
+            );
+
+            responsePayload.addProperty(
+                    "starting_player_id",
+                    started.startingPlayerId()
+            );
+
+            responsePayload.addProperty(
+                    "turn_number",
+                    started.turnNumber()
+            );
+
+            responsePayload.addProperty(
+                    "paused",
+                    started.paused()
+            );
+
+            return success(
+                    requestId,
+                    responsePayload,
+                    false
+            );
+
+        } catch (XmageGameManager.GameException exc) {
+            return error(
+                    requestId,
+                    "game_start_failed",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_start_payload",
+                    exc.getClass().getSimpleName()
+                            + ": "
+                            + exc.getMessage(),
+                    false
+            );
+        }
+    }
 
     private static List<String> requiredStringArray(
             JsonObject object,
@@ -325,6 +649,37 @@ final class JsonlBridge {
 
         return List.copyOf(values);
     }
+    private static int optionalInt(
+            JsonObject object,
+            String property,
+            int defaultValue
+    ) {
+        if (!object.has(property)
+                || object.get(property).isJsonNull()) {
+            return defaultValue;
+        }
+
+        if (!object.get(property).isJsonPrimitive()
+                || !object.get(property)
+                        .getAsJsonPrimitive()
+                        .isNumber()) {
+            throw new IllegalArgumentException(
+                    property + " must be an integer"
+            );
+        }
+
+        String raw =
+                object.get(property)
+                        .getAsString();
+
+        if (!raw.matches("-?\\d+")) {
+            throw new IllegalArgumentException(
+                    property + " must be an integer"
+            );
+        }
+
+        return Integer.parseInt(raw);
+    }
 
     private static JsonObject startedPayload() {
         XmageProvider.verifyRuntimeLoaded();
@@ -334,7 +689,7 @@ final class JsonlBridge {
         payload.addProperty("started", true);
         payload.addProperty(
                 "phase",
-                "B2_DECK_IMPORT"
+                "B3_GAME_START"
         );
         return payload;
     }
