@@ -61,14 +61,17 @@ def test_fixed_seed_structural_result_is_deterministic() -> None:
     assert first_result == second_result
 
 
-def test_release_truth_includes_real_p3_feasibility_evidence() -> None:
+def test_release_truth_uses_current_b3_config_and_keeps_historical_p3_separate() -> None:
     workflow = (ROOT / ".github/workflows/release-artifacts.yml").read_text(encoding="utf-8")
-    assert "docs/J_P3_PROVIDER_DECISION.json" in workflow
+    assert "config/rules_engines.json" in workflow
+    assert "ACTIVE_OWN_DECKS_CURRENT.json" in workflow
     assert "external_engine_provider_decision" in workflow
     assert "xmage_real_execution" in workflow
-    assert "forge_real_execution" in workflow
-    assert "structural_tactical_and_real_external_feasibility_evidence" in workflow
-    assert 'external_engine_production_ready": False' in workflow
+    assert '"validation_level": "packaging_installability_roundtrip_and_current_truth"' in workflow
+    assert '"external_engine_production_ready": False' in workflow
     assert 'wheel-verify/bin/commander-lab" --help' in workflow
-    assert "XMage/Forge observations = 0" not in workflow
-    assert '"validation_level": "structural_and_tactical_only"' not in workflow
+    assert '"release_full_pytest_rerun": False' in workflow
+    assert "python -m pytest -q" not in workflow
+    # J-P3D is retained only as historical provenance metadata, never parsed as current truth.
+    assert '"historical_provider_decision": "docs/J_P3_PROVIDER_DECISION.json"' in workflow
+    assert 'Path("docs/J_P3_PROVIDER_DECISION.json")' not in workflow
