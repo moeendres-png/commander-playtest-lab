@@ -17,12 +17,22 @@ env:
   ENGINE_MODE: external
   ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
   PYTHONHASHSEED: "0"
+  COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
 
 jobs:
   build-and-integrate:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
+      - name: Validate immutable XMage input
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$XMAGE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "xmage_commit must be a full 40-character lowercase hexadecimal commit SHA" >&2
+            exit 1
+          }
       - name: Checkout lab
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Checkout pinned XMage
@@ -45,41 +55,54 @@ jobs:
       - name: Verify XMage commit and metadata
         working-directory: vendor/engine-source/xmage
         run: |
+          set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
           git cat-file -t "$XMAGE_COMMIT"
           git show --no-patch --format=fuller "$XMAGE_COMMIT"
-          git describe --tags --always "$XMAGE_COMMIT" | tee ../../../artifacts/xmage-source-description.txt
-      - name: Build XMage
+          mkdir -p ../../../artifacts/external-engine
+          git describe --tags --always "$XMAGE_COMMIT" | tee ../../../artifacts/external-engine/xmage-source-description.txt
+      - name: Build pinned XMage
         working-directory: vendor/engine-source/xmage
         run: |
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
       - name: Install lab
         run: python -m pip install -e '.[dev,api]'
-      - name: Require real provider-specific bridge
+      - name: Require provider-specific bridge
         run: |
           test -f engine-bridge/pom.xml || {
-            echo 'Provider-specific XMage Java bridge has not yet been implemented. This is a hard failure, not a fallback.' >&2
+            echo 'Provider-specific XMage Java bridge is missing. This is a hard failure, not a fallback.' >&2
             exit 1
           }
-      - name: Build bridge
+      - name: Build and test B3 bridge
         working-directory: engine-bridge
         run: mvn -B -ntp verify
-      - name: Run external acceptance
+      - name: Verify current B3 capability truth
+        run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py
+      - name: Run real B3 JSONL process regression
+        run: python scripts/run_external_b3_regression.py
+      - name: Record bridge identity
+        shell: bash
         run: |
-          scripts/start_engine.sh
-          trap 'scripts/stop_engine.sh || true' EXIT
-          scripts/verify_engine.sh
-          commander-lab validate-engine-phase85
-          python scripts/run_external_phase851.py
-      - name: Generate checksums
+          set -euo pipefail
+          mkdir -p artifacts/external-engine
+          sha256sum engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
+            > artifacts/external-engine/xmage-b3-bridge.sha256
+          printf 'lab_commit=%s\nxmage_commit=%s\nprotocol=2.0.0\nprovider=xmage\nevidence_class=external_rules_engine\n' \
+            "$GITHUB_SHA" "$XMAGE_COMMIT" \
+            > artifacts/external-engine/XMAGE_B3_RUNTIME_IDENTITY.txt
+      - name: Generate evidence checksums
         if: always()
-        run: find artifacts -type f -print0 | sort -z | xargs -0 sha256sum > artifacts/external-engine-checksums.sha256 || true
+        run: |
+          mkdir -p artifacts/external-engine
+          find artifacts/external-engine -type f ! -name 'external-engine-checksums.sha256' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > artifacts/external-engine/external-engine-checksums.sha256 || true
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: external-engine-evidence
+          name: external-engine-b3-evidence-${{ github.sha }}
           path: |
-            artifacts/
-            vendor/engine-source/xmage/**/target/*.jar
-            engine-bridge/target/*.jar
-          if-no-files-found: warn
+            artifacts/external-engine/
+            engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+          if-no-files-found: error
