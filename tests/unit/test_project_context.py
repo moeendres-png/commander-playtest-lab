@@ -155,7 +155,9 @@ def test_context_fails_closed_if_unresolved_deck_is_runtime_loaded(tmp_path: Pat
     payload["active_own_deck_ids"].append("korvold/current")
     path.write_text(json.dumps(payload), encoding="utf-8")
 
-    with pytest.raises(ProjectContextError, match="unresolved operational baseline cannot be runtime-loaded"):
+    with pytest.raises(
+        ProjectContextError, match="unresolved operational baseline cannot be runtime-loaded"
+    ):
         load_project_context(tmp_path)
 
 
