@@ -100,7 +100,9 @@ def build_candidate_pool_identity(root: str | Path, deck_id: str) -> CandidatePo
     source_registry_path = root_path / "data/sync/current_sources.json"
     inventory_path = root_path / "data/canonical_import/2026-08-07/inventory_snapshot.json"
     allocation_path = root_path / "data/collections/current_deck_allocations.json"
-    eligibility_path = root_path / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    eligibility_path = (
+        root_path / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    )
 
     scope = _load_json(scope_path)
     global_active = {str(value) for value in scope.get("global_active_own_decks", [])}
@@ -126,7 +128,9 @@ def build_candidate_pool_identity(root: str | Path, deck_id: str) -> CandidatePo
 
     source_registry = _load_json(source_registry_path)
     inventory_spec = source_registry.get("sources", {}).get("inventory", {})
-    inventory_source_id = inventory_spec.get("drive_file_id") if isinstance(inventory_spec, dict) else None
+    inventory_source_id = (
+        inventory_spec.get("drive_file_id") if isinstance(inventory_spec, dict) else None
+    )
     if not isinstance(inventory_source_id, str) or not inventory_source_id:
         raise ValueError("candidate pool inventory source id is missing")
 
@@ -180,7 +184,9 @@ def build_candidate_provenance(
     rows = eligibility.get("eligible_by_deck", {}).get(deck_id, {})
     row = rows.get(oracle_name) if isinstance(rows, dict) else None
     if not isinstance(row, dict):
-        raise ValueError(f"candidate is not present in current deck eligibility: {deck_id}: {oracle_name}")
+        raise ValueError(
+            f"candidate is not present in current deck eligibility: {deck_id}: {oracle_name}"
+        )
     if row.get("commander_legal") is not True:
         raise ValueError(f"candidate is not Commander-legal for {deck_id}: {oracle_name}")
     quantity = int(row.get("physical_available_quantity", 0))
