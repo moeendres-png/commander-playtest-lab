@@ -1,21 +1,42 @@
 {
-  "schema_version": "1.1.0",
-  "generated_at": "2026-08-11T23:24:00+02:00",
-  "verified_at": "2026-08-11T23:24:00+02:00",
+  "schema_version": "2.0.0",
+  "generated_at": "2026-08-18",
+  "verified_at": "2026-08-18",
   "current_valid": true,
   "status": "canonical_current_live_scope",
-  "active_own_decks": ["rogshai/current"],
-  "historical_own_decks": ["korvold/current"],
+  "global_active_own_decks": [
+    "korvold/current",
+    "rogshai/current"
+  ],
+  "runtime_loaded_decks": [
+    "rogshai/current"
+  ],
+  "optimization_targets": [
+    "rogshai/current"
+  ],
+  "unresolved_operational_baselines": [
+    "korvold/current"
+  ],
   "primary_deckbuilding_focus": "rogshai/current",
-  "active_own_deck_ids": ["rogshai/current"],
-  "primary_active_own_deck_id": "rogshai/current",
-  "inactive_former_own_deck_ids": ["korvold/current"],
+  "frozen_opponent_only_decks": [
+    "kaervek/current"
+  ],
+  "active_own_decks": [
+    "rogshai/current"
+  ],
+  "active_own_decks_semantics": "legacy_runtime_loaded_decks_compatibility_alias",
+  "active_own_deck_ids": [
+    "rogshai/current"
+  ],
+  "historical_own_decks": [],
+  "inactive_former_own_deck_ids": [],
   "korvold_historical_list_preserved": true,
+  "korvold_historical_list_is_current_baseline": false,
   "korvold_optimization_target": false,
-  "korvold_simultaneous_build_requirement": false,
+  "korvold_simultaneous_build_requirement": true,
+  "korvold_operational_baseline_status": "unresolved_current_baseline",
   "historical_deck_membership_is_quality_prior": false,
   "historical_allocation_blocks_active_deck": false,
-  "frozen_opponent_only_decks": ["kaervek/current"],
   "sources": {
     "AI_CANONICAL_STATE.json": {
       "drive_id": "1aYJ3x20Gbdv0wA-wI5eZXVKb-9sg-3u0",
@@ -30,6 +51,6 @@
       "sha256": "fae27631779012a3975c7116eec57f8acfef3d8142b413669c85eb04bfbd42af"
     }
   },
-  "source": "direct_user_decision_2026-08-11_plus_verified_cleanup_main_2b577c36",
-  "truth_boundary": "Live current-scope projection. J_FINAL_ACTIVE_SCOPE.json remains sealed historical J-FINAL evidence and is not a live context input."
+  "source": "direct_user_statement_2026-08-18_supersedes_drive_scope_2026-08-16",
+  "truth_boundary": "Global ownership, runtime loading, optimization targets and frozen opponents are distinct. Korvold is globally active by newer direct user statement, but its exact current 100-card operational baseline is unresolved and must not be reconstructed from historical files. active_own_decks is retained only as a legacy runtime-loaded compatibility alias."
 }
