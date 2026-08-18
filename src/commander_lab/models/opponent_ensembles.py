@@ -18,7 +18,7 @@ class ObservationStatus(StrEnum):
     SYNTHETIC_ASSUMPTION = "synthetic_assumption"
 
 
-OPPONENT_ENSEMBLE_SCHEMA_VERSION = "1.1.0"
+OPPONENT_ENSEMBLE_SCHEMA_VERSION = "1.2.0"
 
 
 class EnsembleWeightMode(StrEnum):
@@ -169,6 +169,7 @@ class EnsembleMatchupResult(FrozenModel):
     deck_id: str
     deck_hash: str
     ensemble_id: str
+    ensemble_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     per_variant: tuple[dict[str, Any], ...]
     average: float
     median: float
