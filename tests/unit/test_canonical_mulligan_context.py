@@ -30,12 +30,14 @@ def test_primary_rogshai_mulligan_context_uses_current_canonical_opponent_regist
     assert set(first) <= current
 
 
-def test_inactive_korvold_is_historical_context_only() -> None:
+def test_active_unresolved_korvold_is_not_runtime_loaded() -> None:
     lab = MulliganLab(ROOT)
     with pytest.raises(MulliganLabError, match="unknown deck"):
         lab.deck("korvold/current")
-    assert "korvold/current" not in lab.project_context.active_own_deck_ids
-    assert "korvold/current" in lab.project_context.historical_own_deck_ids
+    assert "korvold/current" in lab.project_context.global_active_own_deck_ids
+    assert "korvold/current" not in lab.project_context.runtime_loaded_deck_ids
+    assert "korvold/current" in lab.project_context.unresolved_operational_baseline_ids
+    assert "korvold/current" not in lab.project_context.historical_own_deck_ids
 
 
 def test_non_four_player_context_fails_closed_instead_of_inventing_opponents() -> None:
