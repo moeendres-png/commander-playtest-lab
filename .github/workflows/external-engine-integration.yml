@@ -52,7 +52,7 @@ jobs:
           path: vendor/engine-source/xmage
           fetch-depth: 0
       - name: Set up JDK 17
-        uses: actions/setup-java@7a445ee88d4e23b52c33c56cb891b5ed6a1a101 # v4 immutable revision
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5 immutable revision
         with:
           distribution: temurin
           java-version: "17"
