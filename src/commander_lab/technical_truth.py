@@ -52,7 +52,7 @@ def _json_object(path: Path) -> dict[str, Any]:
 
 
 def build_technical_truth(root: str | Path) -> dict[str, Any]:
-    """Return one read-only technical status projection derived from primary repo inputs."""
+    """Return one read-only technical status projection derived from current repo inputs."""
 
     root_path = Path(root).resolve()
     context = load_project_context(root_path)
@@ -63,7 +63,7 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     active_scope = _json_object(
         root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
     )
-    provider_decision = _json_object(root_path / "docs/J_P3_PROVIDER_DECISION.json")
+    engine_config = _json_object(root_path / "config/rules_engines.json")
 
     git_commit = _git(root_path, "rev-parse", "HEAD")
     git_tree = _git(root_path, "rev-parse", "HEAD^{tree}")
@@ -71,15 +71,21 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     tracked_status = _git(root_path, "status", "--porcelain", "--untracked-files=no")
     tracked_dirty = None if tracked_status is None else bool(tracked_status)
 
-    provider_status = provider_decision.get("decision") or "unknown"
-    external_ready = provider_status not in {"NO_PROVIDER_READY", "unknown"}
+    provider_status = str(engine_config.get("provider_decision") or "unknown")
+    primary_engine = engine_config.get("primary_engine")
+    primary_engine_payload = primary_engine if isinstance(primary_engine, dict) else {}
+    external_ready = bool(primary_engine_payload.get("production_ready", False)) and (
+        provider_status != "NO_PROVIDER_READY"
+    )
     blockers: list[str] = []
     documented_limitations: list[str] = []
     if not external_ready:
         documented_limitations.append("external_rules_engine_validation_pending")
+    if context.unresolved_operational_baseline_ids:
+        documented_limitations.append("unresolved_operational_own_deck_baseline")
 
     return {
-        "technical_truth_version": 1,
+        "technical_truth_version": 2,
         "package_version": __version__,
         "git": {
             "commit": git_commit,
@@ -93,8 +99,16 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "pod_scenarios": pod_payload.get("schema_version", "unknown"),
             "feature_projection": feature_manifest.get("schema_version", "unknown"),
             "active_scope": active_scope.get("schema_version", "unknown"),
+            "rules_engines": engine_config.get("schema_version", "unknown"),
         },
-        "active_deck_set": list(context.active_own_deck_ids),
+        "global_active_own_deck_set": list(context.global_active_own_deck_ids),
+        "runtime_loaded_deck_set": list(context.runtime_loaded_deck_ids),
+        "optimization_target_set": list(context.optimization_target_ids),
+        "unresolved_operational_baseline_set": list(
+            context.unresolved_operational_baseline_ids
+        ),
+        # Compatibility aliases: active_deck_set means the currently loaded runtime surface.
+        "active_deck_set": list(context.runtime_loaded_deck_ids),
         "historical_own_deck_set": list(context.historical_own_deck_ids),
         "primary_deckbuilding_focus": context.primary_deckbuilding_focus,
         "active_deck_hashes": dict(context.active_deck_hashes),
@@ -135,10 +149,17 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
         "external_engine_status": {
             "provider_decision": provider_status,
             "production_provider_ready": external_ready,
-            "decision_source": "docs/J_P3_PROVIDER_DECISION.json",
+            "primary_provider": primary_engine_payload.get("provider"),
+            "primary_status": primary_engine_payload.get("status"),
+            "primary_real_execution": primary_engine_payload.get("real_execution"),
+            "primary_commit": primary_engine_payload.get("commit"),
+            "production_bridge": engine_config.get("production_bridge"),
+            "decision_source": "config/rules_engines.json",
+            "historical_provider_decision_source": "docs/J_P3_PROVIDER_DECISION.json",
             "evidence_boundary": (
-                "Provider readiness metadata is technical project status, not evidence that an "
-                "external rules engine executed any current deck experiment."
+                "Current provider capability metadata can describe proven B3 external-engine "
+                "execution, but provider readiness remains false until the production action loop "
+                "is implemented and separately validated."
             ),
         },
         "first_run_readiness": {
