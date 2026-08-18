@@ -61,9 +61,6 @@ jobs:
       - name: Compile
         if: ${{ success() || failure() }}
         run: python -m compileall -q src tests
-      - name: Phase 8.6 audit
-        if: ${{ success() || failure() }}
-        run: commander-lab audit-phase86 --skip-tests || test $? -eq 2
       - name: Secret-pattern scan
         if: ${{ success() || failure() }}
         shell: bash
@@ -102,8 +99,6 @@ jobs:
         with:
           name: ci-evidence
           path: |
-            .runtime/audit/phase86/artifacts/audit/
-            .runtime/audit/phase86/PHASE86_VALIDATION_OUTPUT.json
             dist/
             artifacts/quality/
           if-no-files-found: warn

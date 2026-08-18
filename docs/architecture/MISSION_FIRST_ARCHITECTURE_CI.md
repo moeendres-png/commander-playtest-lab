@@ -74,7 +74,7 @@ remaining path coupling without changing deck semantics.
 | Compare variants under real project workflow | paired/ablation/denial/holdout/sensitivity/search/report | existing decision services | Core Workflow Acceptance current reference regression | `structural_model_estimates` technical smoke |
 | Preserve opponent uncertainty | registry/ensemble evidence labels | opponent repositories/models | normal test suite + core workflow | observed/inferred/synthetic kept distinct |
 | Validate external engine boundary | provider capability gate | rules adapter / XMage bridge | External XMage Integration (manual) | `external_rules_engine` only when executed |
-| Package software | deterministic release artifacts | build tooling | Release Artifacts | software artifact evidence |
+| Package software | SHA-bound wheel/sdist/source/repository/bundle | build tooling | Release Artifacts | software artifact evidence |
 
 ## Workflow inventory and disposition
 
@@ -86,7 +86,7 @@ remaining path coupling without changing deck semantics.
 | Optimizer Workflow Acceptance | optimizer paths, manual | evidence partition + CLI contract | bounded semantic gate | deduplicated |
 | Model Resolution Measurement | relevant paths, manual | technical structural resolution measurement | bounded measurement | keep |
 | Windows Runtime Hygiene | relevant paths/main, manual | Windows filesystem/runtime behavior | platform-specific | slimmed; no full duplicate suite |
-| Release Artifacts | release contract PR, main/release/manual | wheel/sdist/source/bundle | packaging only | no broad PR full-suite duplication |
+| Release Artifacts | release contract PR, main/release/manual | SHA-bound packaging + roundtrip + truth manifest | packaging only | no broad PR full-suite duplication |
 | Optimizer v2 Technical Benchmark | manual | expensive technical A/B | benchmark | keep on demand |
 | External XMage Integration | manual | real pinned provider integration | expensive external engine | keep on demand |
 | J-P3B XMage Native Fixtures | manual | historical native fixture evidence | expensive/historical | keep provenance |
@@ -101,10 +101,15 @@ and duplicate work, not in file count.
 
 ## CI ownership
 
-`CI / quality` owns Ruff lint, Ruff format, mypy, compile, the full pytest suite, phase audit, secret
-scan and wheel build. Acceptance workflows do not repeat those generic gates merely to create a
-second green signal. Security remains a separate CI job because dependency/SBOM/license evidence is
-a distinct contract.
+`CI / quality` owns Ruff lint, Ruff format, mypy, compile, the full pytest suite, secret-pattern scan
+and wheel build. Security remains a separate CI job because dependency/SBOM/license evidence is a
+distinct contract. Acceptance workflows do not repeat those generic gates merely to create another
+green signal.
+
+The historical Phase-8.6 audit is no longer a default PR quality step. Its useful checks remain in
+the normal test suite and the audit command remains available, but its generated provider narrative
+still described the pre-B3 state (for example, a missing Java bridge) after B3 had been merged. A
+historical phase report that emits stale runtime truth is not a durable quality gate.
 
 Core acceptance is intentionally semantic: it checks multi-deck context separation and then runs a
 small current reference user journey covering deck validation, structural matchup, paired variant,
@@ -113,9 +118,13 @@ reporting. The RogShai run is a reference fixture for that current journey, not 
 supports only RogShai and not evidence of deck strength.
 
 Historical J-FINAL now runs only manually or when its own regression script/workflow changes. Release
-packaging runs on main/release branches and on PRs that change the release contract itself. Windows
-CI is limited to Windows-specific filesystem/runtime and external-boundary behavior rather than a
-second full Python test suite.
+packaging runs on main/release branches and on PRs that change the release contract itself. It keeps
+SHA-bound repository/source artifacts, wheel verification, checksums and roundtrip validation but no
+longer reruns the full Python test suite owned by CI. Current B3 external-engine truth comes from
+`config/rules_engines.json`; `docs/J_P3_PROVIDER_DECISION.json` is retained explicitly as historical
+P3 feasibility evidence rather than silently promoted to current truth. Windows CI is limited to
+Windows-specific filesystem/runtime and external-boundary behavior rather than a second full Python
+test suite.
 
 ## Non-mutation boundary
 

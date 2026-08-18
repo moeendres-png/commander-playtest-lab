@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - 'release/**'
+      - "release/**"
   pull_request:
     paths:
-      - 'pyproject.toml'
-      - '.github/workflows/release-artifacts.yml'
+      - "pyproject.toml"
+      - ".github/workflows/release-artifacts.yml"
   workflow_dispatch:
 
 permissions:
@@ -21,14 +21,14 @@ concurrency:
 jobs:
   build-release:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
         with:
-          python-version: '3.12'
+          python-version: "3.12"
           cache: pip
       - name: Install build runtime
         run: |
@@ -43,12 +43,12 @@ jobs:
           import tomllib
           from pathlib import Path
 
-          declared = tomllib.loads(Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version']
-          installed = importlib.metadata.version('commander-playtest-lab')
+          declared = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          installed = importlib.metadata.version("commander-playtest-lab")
           if declared != installed:
-              raise SystemExit(f'version mismatch: pyproject={declared} installed={installed}')
-          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
-              handle.write(f'version={declared}\n')
+              raise SystemExit(f"version mismatch: pyproject={declared} installed={installed}")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+              handle.write(f"version={declared}\n")
           PY
       - name: Build wheel and source distribution
         run: |
@@ -58,37 +58,158 @@ jobs:
           version='${{ steps.meta.outputs.version }}'
           cp "dist/commander_playtest_lab-${version}-py3-none-any.whl" release/
           cp "dist/commander_playtest_lab-${version}.tar.gz" release/
-      - name: Build source and Git bundle artifacts
+      - name: Build SHA-bound source, repository and bundle artifacts
+        shell: bash
         run: |
           set -euo pipefail
           version='${{ steps.meta.outputs.version }}'
-          git archive --format=zip --output="release/commander-playtest-lab-${version}-source.zip" HEAD
+          git archive --format=zip --output="release/commander-playtest-lab-${version}-source.zip" "$GITHUB_SHA"
           git bundle create "release/commander-playtest-lab-${version}.bundle" HEAD --branches --tags
-      - name: Record release identity and evidence boundary
+          repo_dir="$RUNNER_TEMP/commander-playtest-lab-repository"
+          rm -rf "$repo_dir"
+          git clone --local --no-hardlinks "$GITHUB_WORKSPACE" "$repo_dir"
+          git -C "$repo_dir" checkout --detach "$GITHUB_SHA"
+          test "$(git -C "$repo_dir" rev-parse HEAD)" = "$GITHUB_SHA"
+          (cd "$RUNNER_TEMP" && zip -qr "$GITHUB_WORKSPACE/release/commander-playtest-lab-${version}-repository.zip" commander-playtest-lab-repository)
+      - name: Write current release status and evidence boundary
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
           python - <<'PY'
           import json
           import os
           from pathlib import Path
 
-          scope = json.loads(Path('data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json').read_text(encoding='utf-8'))
-          payload = {
-              'git_head': os.environ['GITHUB_SHA'],
-              'active_own_decks': scope.get('active_own_decks', []),
-              'primary_deckbuilding_focus': scope.get('primary_deckbuilding_focus'),
-              'artifact_purpose': 'software_release_packaging',
-              'simulation_validity_claim': False,
-              'deck_strength_claim': False,
-              'external_provider_readiness_claim': False,
-              'canonical_data_mutation': False,
+          release = Path("release")
+          sha = os.environ["GITHUB_SHA"]
+          version = os.environ["VERSION"]
+          scope = json.loads(Path("data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json").read_text(encoding="utf-8"))
+          manifest = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          rules = json.loads(Path("config/rules_engines.json").read_text(encoding="utf-8"))
+          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
+
+          active = scope.get("active_own_decks")
+          if not isinstance(active, list) or not active:
+              raise SystemExit("release requires at least one explicit active own deck")
+          decks = manifest.get("decks", {})
+          missing = [deck_id for deck_id in active if deck_id not in decks]
+          if missing:
+              raise SystemExit(f"active own decks missing from manifest: {missing}")
+          invalid = [deck_id for deck_id in active if not decks[deck_id].get("validation", {}).get("valid")]
+          if invalid:
+              raise SystemExit(f"active own decks are not valid: {invalid}")
+
+          primary = rules["primary_engine"]
+          secondary = rules["secondary_engine"]
+          missing_required = rules["current_runtime"].get("required_missing_capabilities", [])
+          if rules["provider_decision"] != "NO_PROVIDER_READY":
+              raise SystemExit("release refuses an unverified provider-readiness promotion")
+          if primary.get("production_ready") or secondary.get("production_ready"):
+              raise SystemExit("release refuses production-ready provider claim while NO_PROVIDER_READY")
+
+          status = {
+              "package_version": version,
+              "git_head": sha,
+              "active_own_decks": active,
+              "primary_deckbuilding_focus": scope.get("primary_deckbuilding_focus"),
+              "active_deck_hashes": {deck_id: decks[deck_id]["deck_hash"] for deck_id in active},
+              "canonical_deck_mutations": 0,
+              "inventory_mutations": 0,
+              "allocation_mutations": 0,
+              "artifact_purpose": "software_release_packaging",
+              "simulation_validity_claim": False,
+              "deck_strength_claim": False,
+              "external_engine_provider_decision": rules["provider_decision"],
+              "external_engine_production_ready": False,
+              "current_external_engine_status": rules["current_runtime"]["status"],
+              "current_external_engine_validation_level": "external_rules_engine_b3_game_start_only",
+              "xmage_real_execution": bool(primary.get("real_execution")),
+              "forge_real_execution": bool(secondary.get("real_execution")),
+              "xmage_missing_required_capabilities": missing_required,
+              "historical_p3_provider_decision": p3["decision"],
+              "historical_p3_validation_level": "structural_tactical_and_real_external_feasibility_evidence",
+              "historical_p3_xmage_real_execution": bool(p3["providers"]["xmage"]["real_execution"]),
+              "historical_p3_forge_real_execution": bool(p3["providers"]["forge"]["real_execution"]),
+              "current_external_engine_truth_source": "config/rules_engines.json",
+              "historical_external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+              "current_scope_truth_source": "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+              "deck_manifest_truth_source": "data/decks/manifest.json",
           }
-          Path('release/PLAYTEST_LAB_RELEASE_IDENTITY.json').write_text(
-              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          (release / "PLAYTEST_LAB_CURRENT_STATUS.json").write_text(
+              json.dumps(status, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          (release / "PLAYTEST_LAB_CURRENT_STATUS.md").write_text(
+              "# Commander Playtest Lab – Current Release Status\n\n"
+              f"- Package: `{version}`\n"
+              f"- Git HEAD: `{sha}`\n"
+              f"- Active own decks: `{', '.join(active)}`\n"
+              f"- External provider decision: `{rules['provider_decision']}`\n"
+              f"- XMage runtime status: `{rules['current_runtime']['xmage_status']}`\n"
+              f"- Missing required provider capabilities: `{', '.join(missing_required)}`\n"
+              "- Evidence boundary: B3 external-rules-engine evidence covers real pinned deck import, Commander construction and game start only.\n"
+              "- Historical J-P3 feasibility evidence is retained separately and is not current provider truth.\n"
+              "- This release package makes no deck-strength, empirical-win-rate or provider-readiness claim.\n"
+              "- Canonical deck/inventory/allocation mutations by release packaging: 0.\n",
+              encoding="utf-8",
           )
           PY
-      - name: Hash release artifacts
+      - name: Write artifact manifest
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          find release -maxdepth 1 -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > release/SHA256SUMS.txt
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          version = os.environ["VERSION"]
+          sha = os.environ["GITHUB_SHA"]
+          payload = {
+              "schema_version": 3,
+              "release": version,
+              "git_head": sha,
+              "release_evidence": "software_packaging_and_roundtrip",
+              "current_external_engine_validation_level": "external_rules_engine_b3_game_start_only",
+              "historical_p3_validation_level": "structural_tactical_and_real_external_feasibility_evidence",
+              "external_engine_production_ready": False,
+              "external_engine_provider_decision": "NO_PROVIDER_READY",
+              "deck_strength_claim": False,
+              "empirical_win_rate_claim": False,
+              "roundtrip_required": True,
+          }
+          Path("release/PLAYTEST_LAB_ARTIFACT_MANIFEST.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          PY
+          version='${{ steps.meta.outputs.version }}'
+          printf 'release=%s\ngit_head=%s\nroundtrip=pending\n' "$version" "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
+      - name: Verify package and artifact roundtrip
+        shell: bash
+        run: |
+          set -euo pipefail
+          version='${{ steps.meta.outputs.version }}'
+          unzip -tq "release/commander-playtest-lab-${version}-source.zip"
+          unzip -tq "release/commander-playtest-lab-${version}-repository.zip"
+          git bundle verify "release/commander-playtest-lab-${version}.bundle"
+          verify_dir="$RUNNER_TEMP/repository-roundtrip"
+          rm -rf "$verify_dir"
+          mkdir -p "$verify_dir"
+          unzip -q "release/commander-playtest-lab-${version}-repository.zip" -d "$verify_dir"
+          restored="$verify_dir/commander-playtest-lab-repository"
+          test "$(git -C "$restored" rev-parse HEAD)" = "$GITHUB_SHA"
+          git -C "$restored" fsck --full
+          python -m venv "$RUNNER_TEMP/wheel-verify"
+          "$RUNNER_TEMP/wheel-verify/bin/python" -m pip install --quiet "release/commander_playtest_lab-${version}-py3-none-any.whl"
+          test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "$version"
+          "$RUNNER_TEMP/wheel-verify/bin/commander-lab" --help >/dev/null
+          printf 'release=%s\ngit_head=%s\nroundtrip=passed\n' "$version" "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
+      - name: Generate and verify checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release
+          find . -maxdepth 1 -type f ! -name 'PLAYTEST_LAB_SHA256SUMS.txt' -printf '%f\n' | sort | xargs sha256sum > PLAYTEST_LAB_SHA256SUMS.txt
+          sha256sum -c PLAYTEST_LAB_SHA256SUMS.txt
       - name: Assert tracked repository remains clean
         run: |
           test -z "$(git status --porcelain --untracked-files=no)"
