@@ -26,7 +26,7 @@ def test_current_scope_separates_global_active_from_runtime_and_never_releases_k
     service = CommanderToolService(ROOT)
     # Backward-compatible service constant still denotes the loaded runtime surface, not global
     # ownership. Global project truth comes from ProjectContextSnapshot.
-    assert service.ACTIVE_OWN_DECK_IDS == context.runtime_loaded_deck_ids
+    assert context.runtime_loaded_deck_ids == service.ACTIVE_OWN_DECK_IDS
     assert frozenset({"kaervek/current"}) == service.FROZEN_OPPONENT_ONLY_DECK_IDS
 
     release = json.loads(
