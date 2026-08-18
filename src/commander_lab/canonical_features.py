@@ -111,12 +111,8 @@ def load_canonical_feature_annotations(
             tags = frozenset(str(value) for value in raw_tags)
             unknown = tags - set(ROLE_TAG_MAP) - set(UNMAPPED_TAGS)
             if unknown:
-                raise CanonicalFeatureError(
-                    f"unmapped feature tags for {name}: {sorted(unknown)}"
-                )
-            mapped = frozenset(
-                role for tag in tags for role in ROLE_TAG_MAP.get(tag, frozenset())
-            )
+                raise CanonicalFeatureError(f"unmapped feature tags for {name}: {sorted(unknown)}")
+            mapped = frozenset(role for tag in tags for role in ROLE_TAG_MAP.get(tag, frozenset()))
             packages = frozenset(str(value) for value in raw_packages)
             invalid_packages = sorted(
                 package for package in packages if not policy.package_id_allowed(package)

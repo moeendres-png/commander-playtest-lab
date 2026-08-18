@@ -92,9 +92,7 @@ class DeckPolicyRegistry:
             else frozenset()
         )
 
-        primary = scope.get("primary_deckbuilding_focus") or scope.get(
-            "primary_active_own_deck_id"
-        )
+        primary = scope.get("primary_deckbuilding_focus") or scope.get("primary_active_own_deck_id")
         self.primary_deck_id = str(primary) if primary else active[0]
         if self.primary_deck_id not in self.active_deck_ids:
             raise DeckRegistryError(
@@ -168,9 +166,7 @@ class DeckPolicyRegistry:
             if required:
                 raise DeckRegistryError(f"deck-registry source is not configured: {source_name}")
             return self.root / "__missing_optional_source__"
-        _relative, resolved = _safe_relative_path(
-            self.root, value, field=f"sources.{source_name}"
-        )
+        _relative, resolved = _safe_relative_path(self.root, value, field=f"sources.{source_name}")
         if required and not resolved.is_file():
             raise DeckRegistryError(
                 f"configured deck-registry source is missing: {source_name} -> {resolved}"
@@ -222,7 +218,9 @@ class DeckPolicyRegistry:
             "primary_deck_id": self.primary_deck_id,
             "policies": {
                 deck_id: {
-                    "commander_identity": sorted(color.value for color in policy.commander_identity),
+                    "commander_identity": sorted(
+                        color.value for color in policy.commander_identity
+                    ),
                     "feature_projection_manifest": policy.feature_projection_manifest,
                     "package_prefixes": list(policy.package_prefixes),
                 }

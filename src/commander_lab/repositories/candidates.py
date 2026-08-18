@@ -4,7 +4,6 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Any
 
 from commander_lab.canonical_features import (
     fuse_canonical_features,
@@ -294,12 +293,12 @@ def _profile_for_deck_packages(
 ) -> StructuralCardProfile:
     policy = registry.policy(deck_id)
     retained = frozenset(
-        package_id
-        for package_id in profile.package_ids
-        if policy.package_id_allowed(package_id)
+        package_id for package_id in profile.package_ids if policy.package_id_allowed(package_id)
     )
-    return profile if retained == profile.package_ids else profile.model_copy(
-        update={"package_ids": retained}
+    return (
+        profile
+        if retained == profile.package_ids
+        else profile.model_copy(update={"package_ids": retained})
     )
 
 
@@ -317,6 +316,7 @@ def load_candidate_profiles(
 ) -> dict[str, CandidateProfile]:
     root_path = Path(root).resolve()
     deck_registry = registry or load_deck_policy_registry(root_path)
+    selected_decks: tuple[str, ...]
     if deck_id is not None:
         deck_registry.assert_active(deck_id)
         selected_decks = (deck_id,)

@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
+from commander_lab.candidate_screening import CandidateScreener
 from commander_lab.canonical_features import (
     CanonicalFeatureError,
     load_canonical_feature_annotations,
 )
-from commander_lab.candidate_screening import CandidateScreener
 from commander_lab.deck_registry import DeckPolicyRegistry
 from commander_lab.models import Color
 from commander_lab.repositories.candidates import (
@@ -221,12 +221,8 @@ def test_feature_projection_is_deck_scoped_and_prefix_guarded(tmp_path: Path) ->
     _fixture_project(tmp_path)
     registry = DeckPolicyRegistry(tmp_path)
 
-    alpha = load_canonical_feature_annotations(
-        tmp_path, deck_id="fixture/alpha", registry=registry
-    )
-    beta = load_canonical_feature_annotations(
-        tmp_path, deck_id="fixture/beta", registry=registry
-    )
+    alpha = load_canonical_feature_annotations(tmp_path, deck_id="fixture/alpha", registry=registry)
+    beta = load_canonical_feature_annotations(tmp_path, deck_id="fixture/beta", registry=registry)
 
     assert alpha["White Insight"].package_ids == frozenset({"package:alpha:draw"})
     assert beta["Blue Denial"].package_ids == frozenset({"package:beta:counter"})
@@ -238,9 +234,7 @@ def test_feature_projection_is_deck_scoped_and_prefix_guarded(tmp_path: Path) ->
         [["White Insight", ["card_draw"], ["package:beta:leak"]]],
     )
     with pytest.raises(CanonicalFeatureError, match="escape configured deck policy"):
-        load_canonical_feature_annotations(
-            tmp_path, deck_id="fixture/alpha", registry=registry
-        )
+        load_canonical_feature_annotations(tmp_path, deck_id="fixture/alpha", registry=registry)
 
 
 def test_candidate_profiles_and_screening_do_not_leak_between_decks(tmp_path: Path) -> None:

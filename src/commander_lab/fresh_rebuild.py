@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
+from commander_lab.deck_registry import DeckPolicyRegistry, load_deck_policy_registry
 from commander_lab.models import (
     CandidateProfile,
     CardIdentity,
@@ -79,10 +80,15 @@ def _contract(root: Path) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-def _candidate_rows(root: Path, contract: Mapping[str, object]) -> list[dict[str, object]]:
-    """Return base inventory plus the small verified 2026-08-10 Drive delta."""
+def _candidate_rows(
+    root: Path,
+    contract: Mapping[str, object],
+    *,
+    registry: DeckPolicyRegistry,
+) -> list[dict[str, object]]:
+    """Return registry-routed base inventory plus the verified K1/K2 Drive delta."""
 
-    rows = [dict(row) for row in inventory_rows(root)]
+    rows = [dict(row) for row in inventory_rows(root, registry=registry)]
     delta = contract.get("current_drive_inventory_delta", [])
     if not isinstance(delta, list):
         raise FreshRebuildDataError("current_drive_inventory_delta must be a list")
@@ -98,14 +104,19 @@ def _candidate_rows(root: Path, contract: Mapping[str, object]) -> list[dict[str
     return list(by_name.values())
 
 
-def _current_rogshai_eligibility(root: Path) -> dict[str, dict[str, object]]:
-    """Load the canonical current RogShai candidate/availability projection.
+def _current_rogshai_eligibility(
+    root: Path,
+    *,
+    registry: DeckPolicyRegistry,
+) -> dict[str, dict[str, object]]:
+    """Load current RogShai eligibility through the live deck registry.
 
     Historical own-deck membership is deliberately excluded from this current physical
     availability contract. Inactive Korvold must never reduce RogShai availability.
     """
 
-    path = root / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    registry.assert_active(ROGSHAI_DECK_ID)
+    path = registry.source_path("candidate_eligibility")
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -186,12 +197,15 @@ def load_fresh_rebuild_runtime(root: str | Path) -> dict[str, object]:
 
 
 def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
-    project = Path(root)
+    project = Path(root).resolve()
+    registry = load_deck_policy_registry(project)
+    registry.assert_active(ROGSHAI_DECK_ID)
     contract = _contract(project)
     pool = cast(dict[str, object], contract["rogshai_candidate_pool"])
-    rows = _candidate_rows(project, contract)
-    current_eligibility = _current_rogshai_eligibility(project)
+    rows = _candidate_rows(project, contract, registry=registry)
+    current_eligibility = _current_rogshai_eligibility(project, registry=registry)
     profiles = _explicit_profiles(project)
+    inventory_source_path = registry.source_relative_path("inventory_snapshot")
 
     candidates: dict[str, CandidateProfile] = {}
     review_required: dict[str, CardIdentity] = {}
@@ -205,8 +219,15 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
             continue
         if str(row.get("commander_legality", "")).casefold() != "legal":
             continue
-        identity = _identity_from_inventory(row)
-        if ROGSHAI_DECK_ID not in _allowed_decks(identity):
+        identity = _identity_from_inventory(
+            row,
+            inventory_source_path=inventory_source_path,
+        )
+        if ROGSHAI_DECK_ID not in _allowed_decks(
+            identity,
+            registry,
+            (ROGSHAI_DECK_ID,),
+        ):
             continue
         name = identity.oracle_name
         names.add(name)
@@ -280,8 +301,7 @@ def load_fresh_rogshai_universe(root: str | Path) -> FreshRogShaiUniverse:
         coverage_status_by_name=coverage_status,
         candidate_facts_by_name=facts,
         source_inventory_path=(
-            "data/canonical_import/2026-08-07/inventory_snapshot.json + "
-            "K1_K2_RUNTIME_CONTRACT.current_drive_inventory_delta"
+            f"{inventory_source_path} + K1_K2_RUNTIME_CONTRACT.current_drive_inventory_delta"
         ),
         runtime_sha256=runtime_hash,
     )

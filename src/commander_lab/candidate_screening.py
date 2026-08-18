@@ -363,9 +363,7 @@ class CandidateScreener:
         counts = {bucket: 0 for bucket in bucket_order}
         for row in rows:
             counts[str(row["bucket"])] += 1
-        simulation_ready = sum(
-            1 for row in rows if str(row["bucket"]) in {"advance", "explore"}
-        )
+        simulation_ready = sum(1 for row in rows if str(row["bucket"]) in {"advance", "explore"})
         discoverable = len(rows)
         profile_next = _profile_next(rows)
         decision_material_semantic_unknowns = 0
@@ -484,12 +482,9 @@ class CandidateScreener:
 class RogShaiCandidateScreener(CandidateScreener):
     """Compatibility/historical adapter for the frozen J-P5 RogShai challenge set.
 
-    Pool screening itself is inherited from the generic registry-driven implementation. Only the
+    Pool screening is inherited from the generic registry-driven implementation. Only the
     historical benchmark method is RogShai-specific.
     """
-
-    def screen_pool(self, deck_id: str = "rogshai/current") -> dict[str, object]:
-        return super().screen_pool(deck_id)
 
     def benchmark_challenge_set(self) -> dict[str, object]:
         deck_id = "rogshai/current"
