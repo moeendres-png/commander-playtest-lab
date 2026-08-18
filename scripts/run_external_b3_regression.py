@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import math
+import os
 from pathlib import Path
 
 from commander_lab.engine.rules.bridge import ExternalRulesAdapter
 from commander_lab.models import (
+    EngineMessageType,
     RulesBackend,
     RulesDeckInput,
     RulesEngineAvailability,
@@ -32,15 +35,72 @@ def _runtime_deck() -> RulesDeckInput:
     )
 
 
+def _timeout_from_environment(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise SystemExit(f"{name} must be a finite positive number of seconds") from exc
+    if not math.isfinite(value) or value <= 0.0 or value > 600.0:
+        raise SystemExit(f"{name} must be > 0 and <= 600 seconds")
+    return value
+
+
+def _shutdown_for_regression(
+    adapter: ExternalRulesAdapter,
+    *,
+    timeout_seconds: float,
+) -> dict[str, object]:
+    """Use a CI-only shutdown budget without changing production adapter defaults."""
+
+    client = getattr(adapter, "_client", None)
+    if client is None:
+        return {
+            "status": "not_started",
+            "timeout_seconds": timeout_seconds,
+        }
+    try:
+        client.request(
+            EngineMessageType.SHUTDOWN_ENGINE,
+            timeout_seconds=timeout_seconds,
+        )
+    finally:
+        client.close(request_shutdown=False)
+    return {
+        "status": "graceful",
+        "timeout_seconds": timeout_seconds,
+    }
+
+
 def main() -> None:
-    adapter = ExternalRulesAdapter(RulesBackend.XMAGE, cwd=ROOT)
+    request_timeout_seconds = _timeout_from_environment(
+        "XMAGE_B3_REQUEST_TIMEOUT_SECONDS",
+        20.0,
+    )
+    shutdown_timeout_seconds = _timeout_from_environment(
+        "XMAGE_B3_SHUTDOWN_TIMEOUT_SECONDS",
+        2.0,
+    )
+    adapter = ExternalRulesAdapter(
+        RulesBackend.XMAGE,
+        cwd=ROOT,
+        request_timeout_seconds=request_timeout_seconds,
+    )
     evidence: dict[str, object] = {
         "schema_version": "1.0.0",
         "evidence_class": "external_rules_engine",
         "scope": "xmage_b3_process_regression",
         "automatic_canonical_mutation": False,
         "unsupported_capabilities_exercised": [],
+        "timeout_budget_seconds": {
+            "request": request_timeout_seconds,
+            "shutdown": shutdown_timeout_seconds,
+        },
     }
+    primary_failure = False
+    shutdown_evidence: dict[str, object] | None = None
     try:
         probe = adapter.probe()
         if probe.availability is not RulesEngineAvailability.AVAILABLE:
@@ -123,9 +183,25 @@ def main() -> None:
                 "status": "passed",
             }
         )
+    except BaseException:
+        primary_failure = True
+        raise
     finally:
-        adapter.shutdown_engine()
+        if primary_failure:
+            try:
+                _shutdown_for_regression(
+                    adapter,
+                    timeout_seconds=shutdown_timeout_seconds,
+                )
+            except Exception:
+                pass
+        else:
+            shutdown_evidence = _shutdown_for_regression(
+                adapter,
+                timeout_seconds=shutdown_timeout_seconds,
+            )
 
+    evidence["shutdown"] = shutdown_evidence
     output = ROOT / "artifacts/external-engine/XMAGE_B3_PROCESS_REGRESSION.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
