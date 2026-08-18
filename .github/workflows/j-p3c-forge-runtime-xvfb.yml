@@ -1,9 +1,7 @@
-name: J-P3C Forge Runtime XVFB Probe
+name: Historical J-P3C Forge Runtime XVFB Probe
 
 on:
-  push:
-    branches:
-      - roadmap/j-p3c-forge-real-spike
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,6 +22,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Record historical evidence boundary
+        run: echo 'historical_provenance_only=true'
 
       - name: Acquire and build exact Forge release
         shell: bash
