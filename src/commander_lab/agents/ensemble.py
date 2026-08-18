@@ -27,6 +27,7 @@ from .pilots import build_pilot
 
 ESTIMATE_TYPE = "structural_model_estimates"
 REGISTRY_SCHEMA_VERSION = "1.0.0"
+_GENERIC_PILOT_NAME = "GenericCommanderPilot"
 
 
 def _canonical_hash(payload: dict[str, Any]) -> str:
@@ -39,7 +40,7 @@ def _canonical_hash(payload: dict[str, Any]) -> str:
 def _profile(
     pilot_name: str,
     family: str,
-    deck_hash: str,
+    deck_hash: str | None,
     source_rules: tuple[str, ...],
     description: str,
     *,
@@ -61,7 +62,7 @@ def _profile(
         "weights": pilot.weights.model_dump(mode="json"),
         "mode": PilotDecisionMode.DETERMINISTIC.value,
         "allowed_deviation": 0.25 if not baseline else 0.0,
-        "supported_deck_hashes": [deck_hash],
+        "supported_deck_hashes": [deck_hash] if deck_hash is not None else [],
         "information_policy": PilotInformationPolicy().model_dump(mode="json"),
         "description": description,
         "is_baseline": baseline,
@@ -165,6 +166,14 @@ def default_pilot_profiles() -> tuple[PilotProfile, ...]:
             ("rogshai.current.jeska-finish-window", "rogshai.current.silence-window"),
             "Waits for protected Jeska, double-strike or Silence finish windows.",
         ),
+        _profile(
+            _GENERIC_PILOT_NAME,
+            "generic",
+            None,
+            (),
+            "Deck-hash-agnostic structural baseline for arbitrary Commander fixtures and future decks.",
+            baseline=True,
+        ),
     )
 
 
@@ -196,7 +205,13 @@ class PilotRegistry:
         if not self.registry_path.exists():
             return default_pilot_profiles()
         payload = json.loads(self.registry_path.read_text(encoding="utf-8"))
-        return tuple(PilotProfile.model_validate(row) for row in payload["profiles"])
+        profiles = tuple(PilotProfile.model_validate(row) for row in payload["profiles"])
+        if any(profile.commander_family == "generic" for profile in profiles):
+            return profiles
+        generic = next(
+            profile for profile in default_pilot_profiles() if profile.pilot_name == _GENERIC_PILOT_NAME
+        )
+        return (*profiles, generic)
 
     def ensembles(self) -> tuple[PilotEnsembleDefinition, ...]:
         if not self.ensemble_path.exists():
@@ -246,6 +261,11 @@ class PilotEnsembleRunner:
         self.registry = PilotRegistry(self.root)
 
     def _validate_profile_scope(self, profile: PilotProfile, deck: StructuralDeckProfile) -> None:
+        if profile.commander_family != deck.commander_strategy:
+            raise ValueError(
+                f"pilot {profile.pilot_name} family {profile.commander_family} does not match "
+                f"deck strategy {deck.commander_strategy}"
+            )
         if profile.supported_deck_hashes and deck.deck_hash not in profile.supported_deck_hashes:
             raise ValueError(
                 f"pilot {profile.pilot_name} does not support deck hash {deck.deck_hash}"
@@ -253,6 +273,41 @@ class PilotEnsembleRunner:
         policy = profile.information_policy
         if policy.hidden_opponent_hands or policy.random_library_order or policy.exact_future_draws:
             raise ValueError("omniscient pilot profile rejected")
+
+    def _pilot_names_for_deck(
+        self, deck: StructuralDeckProfile, pilot_names: Iterable[str]
+    ) -> tuple[str, ...]:
+        requested = tuple(dict.fromkeys(pilot_names))
+        if not requested:
+            return tuple(
+                profile.pilot_name
+                for profile in self.registry.profiles()
+                if profile.commander_family == deck.commander_strategy
+            )
+
+        profiles = tuple(self.registry.profile(name) for name in requested)
+        compatible = tuple(
+            profile.pilot_name
+            for profile in profiles
+            if profile.commander_family == deck.commander_strategy
+        )
+        incompatible = tuple(
+            profile for profile in profiles if profile.commander_family != deck.commander_strategy
+        )
+        legacy_injected_baseline = (
+            deck.commander_strategy == "generic"
+            and bool(compatible)
+            and len(incompatible) == 1
+            and profiles[0] is incompatible[0]
+            and incompatible[0].is_baseline
+            and incompatible[0].pilot_name in {"KorvoldPilot", "RogShaiPilot"}
+        )
+        if incompatible and not legacy_injected_baseline:
+            names = ", ".join(profile.pilot_name for profile in incompatible)
+            raise ValueError(
+                f"pilot profiles do not match deck strategy {deck.commander_strategy}: {names}"
+            )
+        return compatible if legacy_injected_baseline else requested
 
     def benchmark(
         self,
@@ -266,13 +321,7 @@ class PilotEnsembleRunner:
         output_name: str | None = None,
     ) -> dict[str, Any]:
         deck = self.decks[deck_id]
-        names = tuple(pilot_names)
-        if not names:
-            names = tuple(
-                p.pilot_name
-                for p in self.registry.profiles()
-                if p.commander_family == deck.commander_strategy
-            )
+        names = self._pilot_names_for_deck(deck, pilot_names)
         results: dict[str, dict[str, Any]] = {}
         output_root = (
             self.root
@@ -550,7 +599,13 @@ class PilotEnsembleRunner:
 
     @staticmethod
     def _add_baseline_deviations(results: dict[str, dict[str, Any]], family: str) -> None:
-        baseline_name = "KorvoldPilot" if family == "korvold" else "RogShaiPilot"
+        baseline_name = {
+            "korvold": "KorvoldPilot",
+            "rogshai": "RogShaiPilot",
+            "generic": _GENERIC_PILOT_NAME,
+        }.get(family)
+        if baseline_name is None:
+            return
         baseline = results.get(baseline_name)
         if baseline is None:
             return
