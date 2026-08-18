@@ -61,7 +61,11 @@ def test_priority_identity_invalidates_relevant_semantic_dependencies() -> None:
     )
     changed_scenario = replace(
         context,
-        source_hashes=_replace_hash(context.source_hashes, "pod_scenarios", "b" * 64),
+        source_hashes=_replace_hash(
+            context.source_hashes,
+            "pod_scenarios",
+            "b" * 64,
+        ),
     )
     feature_key = next(
         key for key, _value in context.source_hashes if key.startswith("drive_feature:")
@@ -78,7 +82,11 @@ def test_priority_identity_invalidates_relevant_semantic_dependencies() -> None:
 
 def test_priority_identity_fails_closed_if_declared_dependency_is_missing() -> None:
     context = load_project_context(ROOT)
-    sources = tuple((key, value) for key, value in context.source_hashes if key != "pod_scenarios")
+    sources = tuple(
+        (key, value)
+        for key, value in context.source_hashes
+        if key != "pod_scenarios"
+    )
     with pytest.raises(WorkflowIdentityError, match="pod_scenarios"):
         build_priority_comparison_identity(replace(context, source_hashes=sources))
 
@@ -93,7 +101,10 @@ def test_priority_identity_is_deck_scoped_for_multi_deck_fixture() -> None:
         current,
         active_own_deck_ids=("fixture/alpha", "fixture/beta"),
         primary_deckbuilding_focus="fixture/alpha",
-        active_deck_hashes=(("fixture/alpha", "1" * 64), ("fixture/beta", "2" * 64)),
+        active_deck_hashes=(
+            ("fixture/alpha", "1" * 64),
+            ("fixture/beta", "2" * 64),
+        ),
         source_hashes=tuple(sorted(sources.items())),
     )
 

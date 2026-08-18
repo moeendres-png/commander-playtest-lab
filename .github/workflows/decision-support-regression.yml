@@ -1,13 +1,17 @@
 name: Decision Support Regression
 
 on:
+  pull_request:
+    paths:
+      - 'scripts/run_j_final_acceptance.py'
+      - '.github/workflows/decision-support-regression.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: decision-support-regression-${{ github.ref }}
+  group: decision-support-regression-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:

@@ -3,10 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Iterable
 
 
 class DecisionContextError(ValueError):
@@ -14,10 +14,7 @@ class DecisionContextError(ValueError):
 
 
 class CandidateAvailability(StrEnum):
-    """Provenance state for a deck-improvement candidate.
-
-    These states describe availability/provenance, not card strength and not simulation evidence.
-    """
+    """Availability/provenance state for a deck-improvement candidate."""
 
     PHYSICAL_OWNED = "physical_owned"
     PHYSICAL_RESERVED = "physical_reserved"
@@ -37,10 +34,25 @@ _DECISION_EVIDENCE_CLASSES = frozenset(
         "synthetic_assumption",
     }
 )
+_NONPHYSICAL_AVAILABILITY = frozenset(
+    {
+        CandidateAvailability.HYPOTHETICAL_TEST,
+        CandidateAvailability.PURCHASE_CANDIDATE,
+        CandidateAvailability.OPPONENT_CARD,
+        CandidateAvailability.UNKNOWN,
+    }
+)
+_SIMULATABLE_AVAILABILITY = frozenset(
+    {
+        CandidateAvailability.PHYSICAL_FREE,
+        CandidateAvailability.HYPOTHETICAL_TEST,
+    }
+)
 
 
 def _sha256_bytes(payload: bytes) -> str:
-    return hashlib.sha256(payload.replace(b"\r\n", b"\n").replace(b"\r", b"\n")).hexdigest()
+    normalized = payload.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(normalized).hexdigest()
 
 
 def _sha256_file(path: Path) -> str:
@@ -50,9 +62,12 @@ def _sha256_file(path: Path) -> str:
 
 
 def _sha256_json(payload: object) -> str:
-    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
-        "utf-8"
-    )
+    raw = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
 
 
@@ -96,23 +111,17 @@ class CandidateProvenance:
         if len(self.allowed_deck_ids) != len(set(self.allowed_deck_ids)):
             raise DecisionContextError(f"duplicate allowed deck id: {self.candidate_id}")
         if self.availability is CandidateAvailability.PHYSICAL_FREE and self.quantity <= 0:
-            raise DecisionContextError(f"free physical candidate has no available copy: {self.candidate_id}")
-        if self.availability in {
-            CandidateAvailability.HYPOTHETICAL_TEST,
-            CandidateAvailability.PURCHASE_CANDIDATE,
-            CandidateAvailability.OPPONENT_CARD,
-            CandidateAvailability.UNKNOWN,
-        } and self.quantity != 0:
+            raise DecisionContextError(
+                f"free physical candidate has no available copy: {self.candidate_id}"
+            )
+        if self.availability in _NONPHYSICAL_AVAILABILITY and self.quantity != 0:
             raise DecisionContextError(
                 f"non-physical candidate must not advertise physical quantity: {self.candidate_id}"
             )
 
     @property
     def simulatable_for_improvement(self) -> bool:
-        return self.availability in {
-            CandidateAvailability.PHYSICAL_FREE,
-            CandidateAvailability.HYPOTHETICAL_TEST,
-        }
+        return self.availability in _SIMULATABLE_AVAILABILITY
 
     @property
     def physically_available(self) -> bool:
@@ -187,7 +196,9 @@ class DecisionRunContext:
             "deck_id": self.deck_id,
             "deck_hash": self.deck_hash,
             "variant_id": self.variant_id,
-            "candidate_provenance": [item.as_dict() for item in self.candidate_provenance],
+            "candidate_provenance": [
+                item.as_dict() for item in self.candidate_provenance
+            ],
             "opponent_ids": list(self.opponent_ids),
             "pilot_ids": list(self.pilot_ids),
             "pod_size": self.pod_size,
@@ -201,8 +212,8 @@ class DecisionRunContext:
 class DecisionContextRegistry:
     """Immutable deck-scoped context registry for decision-support workflows.
 
-    It deliberately does not reserve cards, mutate canonical data, or convert hypothetical test
-    candidates into physical inventory. A caller must provide the selected ``deck_id`` explicitly.
+    The registry never reserves cards, mutates canonical data, or converts hypothetical test
+    candidates into physical inventory. Callers select the own ``deck_id`` explicitly.
     """
 
     def __init__(
@@ -235,12 +246,13 @@ class DecisionContextRegistry:
 
     @property
     def snapshot_hash(self) -> str:
-        return _sha256_json(
-            {
-                "decks": [self._decks[key].as_dict() for key in sorted(self._decks)],
-                "candidates": [self._candidates[key].as_dict() for key in sorted(self._candidates)],
-            }
-        )
+        payload = {
+            "decks": [self._decks[key].as_dict() for key in sorted(self._decks)],
+            "candidates": [
+                self._candidates[key].as_dict() for key in sorted(self._candidates)
+            ],
+        }
+        return _sha256_json(payload)
 
     def deck(self, deck_id: str) -> DeckDecisionContext:
         try:
@@ -260,7 +272,10 @@ class DecisionContextRegistry:
             allowed_states.add(CandidateAvailability.HYPOTHETICAL_TEST)
         return tuple(
             row
-            for row in sorted(self._candidates.values(), key=lambda value: value.candidate_id)
+            for row in sorted(
+                self._candidates.values(),
+                key=lambda value: value.candidate_id,
+            )
             if deck_id in row.allowed_deck_ids
             and row.availability in allowed_states
             and row.simulatable_for_improvement
@@ -283,7 +298,7 @@ class DecisionContextRegistry:
             raise DecisionContextError("variant id is required")
         if evidence_class not in _DECISION_EVIDENCE_CLASSES:
             raise DecisionContextError(f"unsupported evidence class: {evidence_class}")
-        if pod_size < 2 or pod_size > 10:
+        if not 2 <= pod_size <= 10:
             raise DecisionContextError("pod size must be between 2 and 10")
         if seed < 0:
             raise DecisionContextError("seed must be non-negative")
@@ -304,15 +319,15 @@ class DecisionContextRegistry:
                 )
             selected.append(candidate)
 
-        opponent_tuple = tuple(str(value) for value in opponent_ids)
-        pilot_tuple = tuple(str(value) for value in pilot_ids)
+        opponents = tuple(str(value) for value in opponent_ids)
+        pilots = tuple(str(value) for value in pilot_ids)
         payload = {
             "registry_snapshot_hash": self.snapshot_hash,
             "deck": deck.as_dict(),
             "variant_id": variant_id,
             "candidates": [row.as_dict() for row in selected],
-            "opponent_ids": list(opponent_tuple),
-            "pilot_ids": list(pilot_tuple),
+            "opponent_ids": list(opponents),
+            "pilot_ids": list(pilots),
             "pod_size": pod_size,
             "seed": seed,
             "evidence_class": evidence_class,
@@ -322,8 +337,8 @@ class DecisionContextRegistry:
             deck_hash=deck.deck_hash,
             variant_id=variant_id,
             candidate_provenance=tuple(selected),
-            opponent_ids=opponent_tuple,
-            pilot_ids=pilot_tuple,
+            opponent_ids=opponents,
+            pilot_ids=pilots,
             pod_size=pod_size,
             seed=seed,
             evidence_class=evidence_class,
@@ -337,11 +352,10 @@ def load_decision_context_registry(
     *,
     test_candidates: Iterable[TestCandidateSpec] = (),
 ) -> DecisionContextRegistry:
-    """Load current own-deck decision context without encoding a specific deck identity.
+    """Load live own-deck decision context without encoding a specific deck identity.
 
-    The repository's current live scope decides which decks are active. Explicit test candidates
-    are caller-provided and stay ``hypothetical_test``; this function never writes them to inventory
-    or allocation files.
+    Explicit test candidates are caller-provided and remain ``hypothetical_test``. Loading the
+    context never writes them to inventory or allocation files.
     """
 
     root_path = Path(root).resolve()
@@ -401,9 +415,7 @@ def load_decision_context_registry(
         if not isinstance(raw_rows, dict):
             raise DecisionContextError(f"candidate eligibility is invalid for {deck_id}")
         for oracle_name, raw_spec in raw_rows.items():
-            if not isinstance(raw_spec, dict):
-                continue
-            if raw_spec.get("commander_legal") is not True:
+            if not isinstance(raw_spec, dict) or raw_spec.get("commander_legal") is not True:
                 continue
             quantity = int(raw_spec.get("physical_available_quantity", 0))
             if quantity <= 0:
@@ -414,10 +426,14 @@ def load_decision_context_registry(
                     oracle_name=str(oracle_name),
                     availability=CandidateAvailability.PHYSICAL_FREE,
                     allowed_deck_ids=(deck_id,),
-                    source_id=f"repo:{candidate_path.relative_to(root_path).as_posix()}:{deck_id}",
+                    source_id=(
+                        f"repo:{candidate_path.relative_to(root_path).as_posix()}:{deck_id}"
+                    ),
                     source_hash=candidate_scope_hash,
                     quantity=quantity,
-                    notes="Free physical candidate projected from current deck-scoped eligibility.",
+                    notes=(
+                        "Free physical candidate projected from current deck-scoped eligibility."
+                    ),
                 )
             )
 
@@ -436,7 +452,6 @@ def load_decision_context_registry(
                 allowed_deck_ids=tuple(spec.allowed_deck_ids),
                 source_id=spec.source_id,
                 source_hash=spec.source_hash,
-                quantity=0,
                 notes=spec.notes,
             )
         )

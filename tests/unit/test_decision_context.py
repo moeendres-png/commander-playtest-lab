@@ -177,9 +177,19 @@ def test_multi_deck_fixture_keeps_candidate_and_run_contexts_separate(tmp_path: 
     assert alpha_run.deck_id == "fixture/alpha"
     assert beta_run.deck_id == "fixture/beta"
     assert alpha_run.run_identity_hash != beta_run.run_identity_hash
-    assert alpha_run.context_snapshot_hash == beta_run.context_snapshot_hash == registry.snapshot_hash
-    assert alpha_run.candidate_provenance[0].availability is CandidateAvailability.PHYSICAL_FREE
-    assert beta_run.candidate_provenance[0].availability is CandidateAvailability.HYPOTHETICAL_TEST
+    assert (
+        alpha_run.context_snapshot_hash
+        == beta_run.context_snapshot_hash
+        == registry.snapshot_hash
+    )
+    assert (
+        alpha_run.candidate_provenance[0].availability
+        is CandidateAvailability.PHYSICAL_FREE
+    )
+    assert (
+        beta_run.candidate_provenance[0].availability
+        is CandidateAvailability.HYPOTHETICAL_TEST
+    )
 
     with pytest.raises(DecisionContextError, match="not scoped"):
         registry.build_run_context(
@@ -202,6 +212,6 @@ def test_purchase_candidate_is_not_implicitly_test_approved(tmp_path: Path) -> N
     registry = load_decision_context_registry(tmp_path)
     assert all(
         row.availability is not CandidateAvailability.PURCHASE_CANDIDATE
-        for deck_id in registry.deck_ids
-        for row in registry.candidates_for_deck(deck_id)
+        for own_deck_id in registry.deck_ids
+        for row in registry.candidates_for_deck(own_deck_id)
     )
