@@ -175,9 +175,7 @@ class DeckPolicyRegistry:
 
     def source_relative_path(self, source_name: str) -> str:
         value = self._source_specs.get(source_name)
-        relative, _resolved = _safe_relative_path(
-            self.root, value, field=f"sources.{source_name}"
-        )
+        relative, _resolved = _safe_relative_path(self.root, value, field=f"sources.{source_name}")
         return relative
 
     def source_hash(self, source_name: str, *, required: bool = True) -> str | None:
