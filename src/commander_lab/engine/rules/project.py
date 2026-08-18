@@ -4,6 +4,17 @@ import json
 from pathlib import Path
 
 from commander_lab.models import RulesCardPrinting, RulesDeckInput
+from commander_lab.models.rules import RulesCardZone
+
+
+def _parse_rules_card_zone(value: object, *, position: int) -> RulesCardZone:
+    if value == "commander":
+        return "commander"
+    if value == "main":
+        return "main"
+    if value == "sideboard":
+        return "sideboard"
+    raise ValueError(f"physical printing position {position} has invalid zone")
 
 
 def _load_rules_card_printings(
@@ -40,11 +51,7 @@ def _load_rules_card_printings(
         if not isinstance(row, dict):
             raise ValueError("physical printing card records must be JSON objects")
         position = row.get("position")
-        if (
-            not isinstance(position, int)
-            or isinstance(position, bool)
-            or position < 1
-        ):
+        if not isinstance(position, int) or isinstance(position, bool) or position < 1:
             raise ValueError(f"invalid physical printing position: {position!r}")
         if position in rows_by_position:
             raise ValueError(f"duplicate physical printing position: {position}")
@@ -65,25 +72,14 @@ def _load_rules_card_printings(
         oracle_name = row.get("oracle_name")
         set_code = row.get("set")
         collector_number = row.get("collector_number")
-        zone = row.get("zone", "main")
+        zone = _parse_rules_card_zone(row.get("zone", "main"), position=position)
 
         if not isinstance(oracle_name, str):
-            raise ValueError(
-                f"physical printing position {position} has invalid oracle_name"
-            )
+            raise ValueError(f"physical printing position {position} has invalid oracle_name")
         if not isinstance(set_code, str):
-            raise ValueError(
-                f"physical printing position {position} has invalid set"
-            )
+            raise ValueError(f"physical printing position {position} has invalid set")
         if not isinstance(collector_number, str):
-            raise ValueError(
-                f"physical printing position {position} has invalid collector_number"
-            )
-        if not isinstance(zone, str):
-            raise ValueError(
-                f"physical printing position {position} has invalid zone"
-            )
-
+            raise ValueError(f"physical printing position {position} has invalid collector_number")
         printings.append(
             RulesCardPrinting(
                 oracle_name=oracle_name,
@@ -169,8 +165,7 @@ def load_project_rules_decks(root: str | Path) -> dict[str, RulesDeckInput]:
                 or Path(physical_printings_file).name != physical_printings_file
             ):
                 raise ValueError(
-                    "current deck manifest entry has invalid physical_printings_file: "
-                    f"{deck_id!r}"
+                    f"current deck manifest entry has invalid physical_printings_file: {deck_id!r}"
                 )
             physical_printings_path = base / physical_printings_file
 

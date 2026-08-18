@@ -612,10 +612,7 @@ class ExternalRulesAdapter(RulesEngineAdapter):
     def shutdown_engine(self) -> None:
         client = self._require_client()
 
-        if (
-            self._capabilities is not None
-            and self._capabilities.engine_shutdown_supported
-        ):
+        if self._capabilities is not None and self._capabilities.engine_shutdown_supported:
             try:
                 client.request(
                     EngineMessageType.SHUTDOWN_ENGINE,

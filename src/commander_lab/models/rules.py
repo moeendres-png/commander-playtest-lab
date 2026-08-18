@@ -9,6 +9,8 @@ from pydantic import Field, field_validator, model_validator
 from .common import FrozenModel, MutableModel
 from .game import GameEvent, GameState
 
+RulesCardZone = Literal["commander", "main", "sideboard"]
+
 
 class ValidationLevel(StrEnum):
     STRUCTURAL_ONLY = "structural_only"
@@ -102,7 +104,7 @@ class RulesCardPrinting(FrozenModel):
     oracle_name: str = Field(min_length=1)
     set_code: str = Field(min_length=1)
     collector_number: str = Field(min_length=1)
-    zone: Literal["commander", "main", "sideboard"]
+    zone: RulesCardZone
 
     @field_validator("oracle_name", "set_code", "collector_number")
     @classmethod
@@ -131,10 +133,13 @@ class RulesDeckInput(FrozenModel):
         if len(self.commander_names) not in {1, 2}:
             raise ValueError("Commander configuration must contain one commander or two partners")
         if self.card_printings:
-            expected = Counter((name, "commander") for name in self.commander_names)
+            expected: Counter[tuple[str, RulesCardZone]] = Counter()
+            expected.update((name, "commander") for name in self.commander_names)
             expected.update((name, "main") for name in self.mainboard)
             expected.update((name, "sideboard") for name in self.sideboard)
-            observed = Counter((printing.oracle_name, printing.zone) for printing in self.card_printings)
+            observed: Counter[tuple[str, RulesCardZone]] = Counter(
+                (printing.oracle_name, printing.zone) for printing in self.card_printings
+            )
             if observed != expected:
                 missing = expected - observed
                 unexpected = observed - expected
