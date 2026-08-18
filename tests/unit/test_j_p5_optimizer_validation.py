@@ -7,6 +7,10 @@ from commander_lab.decision_statistics import holm_adjust, paired_randomization_
 from commander_lab.models import ObjectiveVector
 from commander_lab.optimization import DEFAULT_CONSTRAINTS, evaluate_constraints
 from commander_lab.optimization.jp5 import build_recommendation_trace, paired_seed_set_identity
+from commander_lab.repositories.candidates import (
+    load_current_optimization_availability,
+    load_current_optimization_availability_by_deck,
+)
 from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,22 +46,26 @@ def test_robust_objective_has_exact_required_axes() -> None:
     }
 
 
-def test_current_projection_applies_inactive_korvold_release_without_rewriting_p5() -> None:
+def test_current_projection_does_not_release_unresolved_active_korvold_allocations() -> None:
     svc = CommanderToolService(ROOT)
     sealed = json.loads(
         (ROOT / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json").read_text()
     )["cards"]
     release = json.loads(
         (ROOT / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json").read_text()
-    )["released_allocations"]
-    expected = {str(name): int(quantity) for name, quantity in sealed.items()}
-    for name, quantity in release.items():
-        expected[str(name)] = expected.get(str(name), 0) + int(quantity)
-    assert svc.candidate_inventory == expected
-    assert len(release) == 83
+    )
+    assert release["global_active_own_decks"] == ["korvold/current", "rogshai/current"]
+    assert release["inactive_former_own_decks"] == []
+    assert release["unresolved_operational_baselines"] == ["korvold/current"]
+    assert release["released_allocations"] == {}
+    assert svc.candidate_inventory == {str(name): int(quantity) for name, quantity in sealed.items()}
+    by_deck = load_current_optimization_availability_by_deck(ROOT)
+    assert "rogshai/current" in by_deck
+    assert "korvold/current" not in by_deck
+    assert load_current_optimization_availability(ROOT) == svc.candidate_inventory
     assert len(svc.candidates) >= 300
-    assert {deck_id for c in svc.candidates.values() for deck_id in c.allowed_deck_ids} == {
-        "rogshai/current"
+    assert "rogshai/current" in {
+        deck_id for candidate in svc.candidates.values() for deck_id in candidate.allowed_deck_ids
     }
 
 
@@ -75,7 +83,7 @@ def test_wrong_commander_identity_fails_closed() -> None:
     assert any(issue.code == "commander_identity" for issue in report.issues)
 
 
-def test_inactive_korvold_does_not_create_a_current_locked_cut() -> None:
+def test_unresolved_korvold_does_not_create_a_current_locked_cut() -> None:
     protected = json.loads((ROOT / "config/protected_cards.json").read_text(encoding="utf-8"))
     assert protected.get("protected_cards", {}) in ({}, [])
     svc = CommanderToolService(ROOT)
