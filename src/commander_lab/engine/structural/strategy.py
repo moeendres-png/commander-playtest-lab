@@ -5,8 +5,8 @@ from collections.abc import Iterable
 from commander_lab.models import Deck, StructuralDeckProfile
 
 from .profiles import (
-    StructuralProfileCatalog,
     build_structural_deck_profile as _legacy_build,
+    StructuralProfileCatalog,
 )
 
 _KORVOLD = "Korvold, Fae-Cursed King"
