@@ -133,7 +133,7 @@ def test_generic_ensemble_neutralizes_only_legacy_injected_specialist_baseline(
         deck, ("RogShaiPilot", "GenericCommanderPilot")
     ) == ("GenericCommanderPilot",)
 
-    with pytest.raises(ValueError, match="does not match deck strategy generic"):
+    with pytest.raises(ValueError, match="do not match deck strategy generic"):
         runner._pilot_names_for_deck(deck, ("RogShaiControlPilot", "GenericCommanderPilot"))
 
 
