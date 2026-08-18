@@ -28,6 +28,10 @@ class OpponentEnsembleStore:
     def path(self, ensemble_id: str) -> Path:
         return self.base / f"{ensemble_id}.json"
 
+    @staticmethod
+    def ensemble_hash(ensemble: OpponentEnsemble) -> str:
+        return sha256_value(ensemble.model_dump(mode="json"))
+
     def save(
         self,
         ensemble: OpponentEnsemble,
@@ -83,6 +87,7 @@ class OpponentEnsembleStore:
         OpponentEnsemble.model_validate(ensemble.model_dump())
         return {
             "ensemble_id": ensemble.ensemble_id,
+            "ensemble_hash": self.ensemble_hash(ensemble),
             "variant_count": len(ensemble.variants),
             "weight_mode": ensemble.weight_mode,
             "synthetic_variants": sum(v.synthetic for v in ensemble.variants),
@@ -151,6 +156,7 @@ class OpponentEnsembleStore:
         seed: int = 20260806,
     ) -> EnsembleMatchupResult:
         ensemble = self.load(ensemble_id)
+        ensemble_hash = self.ensemble_hash(ensemble)
         resilience = self._deck_resilience(deck)
         rows: list[dict[str, Any]] = []
         values: list[float] = []
@@ -186,6 +192,7 @@ class OpponentEnsembleStore:
             deck_id=deck.deck_id,
             deck_hash=deck.deck_hash,
             ensemble_id=ensemble.ensemble_id,
+            ensemble_hash=ensemble_hash,
             per_variant=tuple(rows),
             average=weighted_average,
             median=median(values),
@@ -234,6 +241,7 @@ class OpponentEnsembleStore:
         positive_count = sum(delta > 0 for delta in deltas)
         return {
             "ensemble_id": ensemble_id,
+            "ensemble_hash": baseline_result.ensemble_hash,
             "baseline_deck_hash": baseline.deck_hash,
             "candidate_deck_hash": candidate.deck_hash,
             "average_delta": fmean(deltas),
@@ -252,6 +260,7 @@ class OpponentEnsembleStore:
             "# Opponent Ensemble Report",
             "",
             f"Ensemble: `{ensemble.ensemble_id}`",
+            f"Ensemble hash: `{self.ensemble_hash(ensemble)}`",
             f"Commander: {ensemble.commander}",
             f"Variants: {len(ensemble.variants)}",
             f"Weight mode: {ensemble.weight_mode}",
