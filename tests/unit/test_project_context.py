@@ -11,7 +11,7 @@ from commander_lab.project_context import ProjectContextError, load_project_cont
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> None:
+def test_current_context_separates_global_active_from_runtime_scope() -> None:
     first = load_project_context(ROOT)
     second = load_project_context(ROOT)
 
@@ -20,11 +20,17 @@ def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> No
         "opponent/doom-prevails-precon",
         "opponent/cosmic-spiderman-midbudget",
     )
-    assert first.active_own_deck_ids == ("rogshai/current",)
-    assert first.historical_own_deck_ids == ("korvold/current",)
+    assert first.global_active_own_deck_ids == ("korvold/current", "rogshai/current")
+    assert first.runtime_loaded_deck_ids == ("rogshai/current",)
+    assert first.active_own_deck_ids == first.runtime_loaded_deck_ids
+    assert first.optimization_target_ids == ("rogshai/current",)
+    assert first.unresolved_operational_baseline_ids == ("korvold/current",)
+    assert first.historical_own_deck_ids == ()
     assert first.primary_opponent_deck_ids("rogshai/current") == expected
     with pytest.raises(ProjectContextError, match="no canonical primary scenario"):
         first.primary_opponent_deck_ids("korvold/current")
+    # The old Korvold scenario is retained only as historical reference/provenance; it is not a
+    # current operational deck baseline.
     assert first.historical_reference_opponent_deck_ids("korvold/current") == expected
     assert first.snapshot_hash == second.snapshot_hash
     assert len(first.snapshot_hash) == 64
@@ -126,6 +132,30 @@ def test_context_fails_closed_when_live_scope_is_stale(tmp_path: Path) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
     with pytest.raises(ProjectContextError, match="stale"):
+        load_project_context(tmp_path)
+
+
+def test_context_fails_closed_if_unresolved_active_allocations_are_released(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    path = tmp_path / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["released_allocations"] = {"Lightning Greaves": 1}
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ProjectContextError, match="must not be treated as released"):
+        load_project_context(tmp_path)
+
+
+def test_context_fails_closed_if_unresolved_deck_is_runtime_loaded(tmp_path: Path) -> None:
+    _copy_context_inputs(tmp_path)
+    path = tmp_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["runtime_loaded_decks"].append("korvold/current")
+    payload["active_own_decks"].append("korvold/current")
+    payload["active_own_deck_ids"].append("korvold/current")
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ProjectContextError, match="unresolved operational baseline cannot be runtime-loaded"):
         load_project_context(tmp_path)
 
 
