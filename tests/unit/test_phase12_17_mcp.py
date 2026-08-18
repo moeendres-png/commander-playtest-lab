@@ -88,8 +88,10 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
 
     status = request(server, 71, "resources/read", modern_params(uri="commander-lab://status"))
     status_payload = json.loads(status["result"]["contents"][0]["text"])
+    # Backward-compatible active_own_deck_ids denotes the loaded runtime surface, not global
+    # ownership. Korvold is globally active but intentionally unresolved/not runtime-loaded.
     assert status_payload["active_own_deck_ids"] == ["rogshai/current"]
-    assert "korvold/current" in status_payload["historical_own_deck_ids"]
+    assert status_payload["historical_own_deck_ids"] == []
     assert status_payload["primary_deckbuilding_focus"] == "rogshai/current"
     assert "phases" not in status_payload
 
