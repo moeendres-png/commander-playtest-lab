@@ -16,7 +16,10 @@ Evidence boundaries remain strict:
 - CI/runtime smoke success is technical acceptance evidence, not deck-strength evidence.
 
 `NO_PROVIDER_READY` remains in force until the external provider satisfies the required production
-capabilities; architecture/CI cleanup cannot promote provider readiness.
+capabilities; architecture/CI cleanup cannot promote provider readiness. The merged B3 XMage bridge
+is real `external_rules_engine` evidence for pinned-runtime deck import, Commander construction and
+game start only. Legal-action enumeration, action submission and event logging remain required
+missing capabilities.
 
 ## Current data state versus system capability
 
@@ -35,13 +38,13 @@ The generic decision-context contract lives in `commander_lab.decision_context`:
   evidence class and the immutable context snapshot;
 - cross-deck candidate leakage fails closed.
 
-The canonical current loader intentionally projects only physically free candidates from the
-current eligibility source. Hypothetical test candidates are an explicit caller input and remain
-`hypothetical_test` with quantity zero.
+The current loader projects only physically free candidates from the current eligibility source.
+Hypothetical test candidates are an explicit caller input and remain `hypothetical_test` with
+quantity zero.
 
 ## Legacy/current adapters
 
-The following RogShai references remain intentional and are not treated as generic-core contracts:
+The following RogShai references remain intentional and are not generic-core contracts:
 
 - `RogShaiCandidateScreener`: current RogShai policy/regression adapter and J-P5 challenge-set
   provenance;
@@ -49,10 +52,17 @@ The following RogShai references remain intentional and are not treated as gener
 - J-FINAL artifacts/scripts: historical RogShai decision-support regression;
 - current canonical feature projection paths and current candidate eligibility data.
 
-Legacy service/repository paths still contain current-scope conveniences. New mission-first code
-must consume `DecisionContextRegistry`/deck-scoped workflow identity rather than infer that the
-current one-deck state is universal. Removing the remaining legacy conveniences is a controlled
-compatibility migration, not a reason to alter canonical MTG data.
+Two compatibility paths still encode current-scope conveniences: the legacy candidate repository's
+RogShai color mapping and `CommanderToolService.ACTIVE_OWN_DECK_IDS` in its fallback inventory path.
+The latter is not used by the normal current projected-availability path. New mission-first code
+must consume `DecisionContextRegistry` and deck-scoped workflow identity rather than infer that the
+current one-deck state is universal. Removing these compatibility conveniences is a controlled
+migration, not a reason to alter canonical MTG data.
+
+The current project-context/inventory projection also still names the dated canonical-import
+snapshot and the RogShai feature-projection directory. Those are current-data projection concerns,
+not contracts of the new decision-context API; a future canonical pointer/registry can remove the
+remaining path coupling without changing deck semantics.
 
 ## User-goal traceability
 
@@ -72,11 +82,11 @@ compatibility migration, not a reason to alter canonical MTG data.
 | --- | --- | --- | --- | --- |
 | CI | PR, main, manual | Quality + Security | central generic checks | keep as quality owner |
 | Core Workflow Acceptance | relevant PR/main, manual | decision-context + current E2E reference contract | bounded semantic smoke | replaces J-P6 Acceptance |
-| Decision Support Regression | manual | historical J-FINAL RogShai regression | historical regression | replaces J-FINAL Acceptance |
+| Decision Support Regression | own workflow/script PR, manual | historical J-FINAL RogShai regression | historical regression | replaces J-FINAL Acceptance |
 | Optimizer Workflow Acceptance | optimizer paths, manual | evidence partition + CLI contract | bounded semantic gate | deduplicated |
 | Model Resolution Measurement | relevant paths, manual | technical structural resolution measurement | bounded measurement | keep |
 | Windows Runtime Hygiene | relevant paths/main, manual | Windows filesystem/runtime behavior | platform-specific | slimmed; no full duplicate suite |
-| Release Artifacts | main/release/manual | wheel/sdist/source/bundle | packaging only | no PR full-suite duplication |
+| Release Artifacts | release contract PR, main/release/manual | wheel/sdist/source/bundle | packaging only | no broad PR full-suite duplication |
 | Optimizer v2 Technical Benchmark | manual | expensive technical A/B | benchmark | keep on demand |
 | External XMage Integration | manual | real pinned provider integration | expensive external engine | keep on demand |
 | J-P3B XMage Native Fixtures | manual | historical native fixture evidence | expensive/historical | keep provenance |
@@ -84,6 +94,10 @@ compatibility migration, not a reason to alter canonical MTG data.
 | J-P3C Forge Real Spike | old roadmap push, manual | historical Forge spike | expensive/historical | keep provenance; not PR CI |
 | J-P3C Forge Runtime XVFB Probe | old roadmap push | historical Forge runtime probe | expensive/historical | keep provenance; not PR CI |
 | J-P6 Performance Evidence | old roadmap push, manual | frozen performance evidence | historical/benchmark | keep on demand |
+
+The total workflow count remains 14: two old acceptance workflows were replaced by two semantically
+named workflows rather than adding another layer. The important reduction is in default execution
+and duplicate work, not in file count.
 
 ## CI ownership
 
@@ -97,6 +111,11 @@ small current reference user journey covering deck validation, structural matchu
 card/package ablation, commander denial, holdout, sensitivity, variant search, recommendation and
 reporting. The RogShai run is a reference fixture for that current journey, not proof that the core
 supports only RogShai and not evidence of deck strength.
+
+Historical J-FINAL now runs only manually or when its own regression script/workflow changes. Release
+packaging runs on main/release branches and on PRs that change the release contract itself. Windows
+CI is limited to Windows-specific filesystem/runtime and external-boundary behavior rather than a
+second full Python test suite.
 
 ## Non-mutation boundary
 
