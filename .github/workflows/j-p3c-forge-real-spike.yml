@@ -1,9 +1,6 @@
-name: J-P3C Forge Real Spike
+name: Historical J-P3C Forge Real Spike
 
 on:
-  push:
-    branches:
-      - roadmap/j-p3c-forge-real-spike
   workflow_dispatch:
 
 permissions:
@@ -27,6 +24,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Record historical evidence boundary
+        run: echo 'historical_provenance_only=true'
 
       - name: Record host and frozen identities
         shell: bash
@@ -176,6 +176,7 @@ jobs:
           set -eu
           mkdir -p J_P3_FORGE_RAW_EVIDENCE/runtime
           {
+            echo "historical_provenance_only=true"
             echo "build_outcome=${{ steps.build.outcome }}"
             echo "commander_sim_outcome=${{ steps.sim.outcome }}"
             echo "repeated_seed_outcome=${{ steps.replay.outcome }}"
