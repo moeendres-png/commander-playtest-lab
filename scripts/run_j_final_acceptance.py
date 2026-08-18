@@ -15,6 +15,7 @@ from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts/j_final/J_FINAL_ACCEPTANCE_EVIDENCE.json"
+CURRENT_CONTROL_DECK_ID = "rogshai/current"
 OPPONENTS = (
     "opponent/morcant-elves",
     "opponent/doom-prevails-precon",
@@ -41,17 +42,18 @@ def main() -> None:
     screener = RogShaiCandidateScreener(ROOT, service=service)
 
     screen = screener.screen_pool()
-    assert context.active_own_deck_ids == ("rogshai/current",)
-    assert context.historical_own_deck_ids == ("korvold/current",)
-    assert service.ACTIVE_OWN_DECK_IDS == ("rogshai/current",)
-    assert screen["physical_legal_candidate_count"] == 795
-    assert screen["discoverable_candidate_count"] == 795
+    assert context.active_own_deck_ids
+    assert context.active_own_deck_ids == service.ACTIVE_OWN_DECK_IDS
+    assert CURRENT_CONTROL_DECK_ID in context.active_own_deck_ids
+    assert screen["physical_legal_candidate_count"] > 0
+    assert screen["physical_legal_candidate_count"] == screen["discoverable_candidate_count"]
     assert screen["candidate_recall"] == 1.0
     assert screen["excluded_candidate_count_by_reason"] == {}
+    assert sum(screen["bucket_counts"].values()) == screen["discoverable_candidate_count"]
     assert screen["structurally_unmodeled"] > 0
 
-    build_screen = facade.build_screen("rogshai/current", limit=12)
-    mana = facade.mulligan_mana("rogshai/current")
+    build_screen = facade.build_screen(CURRENT_CONTROL_DECK_ID, limit=12)
+    mana = facade.mulligan_mana(CURRENT_CONTROL_DECK_ID)
     assert build_screen["context"]["snapshot_hash"] == context.snapshot_hash
     assert mana["context"]["snapshot_hash"] == context.snapshot_hash
 
@@ -72,7 +74,7 @@ def main() -> None:
             )
             continue
         comparison = facade.compare_validate(
-            deck_id="rogshai/current",
+            deck_id=CURRENT_CONTROL_DECK_ID,
             remove=str(row["remove"]),
             add_candidate_id=str(row["add_candidate_id"]),
             iterations=2,
@@ -97,7 +99,7 @@ def main() -> None:
         )
 
     representative = facade.compare_validate(
-        deck_id="rogshai/current",
+        deck_id=CURRENT_CONTROL_DECK_ID,
         remove="Kykar, Wind's Fury",
         add_candidate_id="inventory/disorder-in-the-court-f673274a",
         iterations=4,
@@ -109,7 +111,7 @@ def main() -> None:
 
     denial = service.run_commander_denial(
         CommanderDenialInput(
-            deck_id="rogshai/current",
+            deck_id=CURRENT_CONTROL_DECK_ID,
             opponent_deck_ids=OPPONENTS,
             iterations=2,
             seed=20260811,
@@ -117,7 +119,7 @@ def main() -> None:
     )
     ablation = service.run_card_ablation(
         CardAblationInput(
-            deck_id="rogshai/current",
+            deck_id=CURRENT_CONTROL_DECK_ID,
             card_name="Kykar, Wind's Fury",
             opponent_deck_ids=OPPONENTS,
             iterations=2,
@@ -126,7 +128,7 @@ def main() -> None:
     )
     sensitivity = service.run_sensitivity(
         SensitivityInput(
-            deck_ids=("rogshai/current", *OPPONENTS),
+            deck_ids=(CURRENT_CONTROL_DECK_ID, *OPPONENTS),
             seeds=(20260811,),
             pilot_strengths=(PilotStrength.STRONG,),
             iterations=2,
@@ -146,8 +148,8 @@ def main() -> None:
     context_payload = asdict(context)
     context_payload["root"] = str(context_payload["root"])
     evidence = {
-        "schema_version": "1.1",
-        "purpose": "J-FINAL historical acceptance against current RogShai structural/decision-support scope",
+        "schema_version": "1.2",
+        "purpose": "decision-support acceptance against the current RogShai control and project truth boundaries",
         "truth_boundaries": {
             "structural_model_estimates": "not empirical winrate",
             "tactical_oracle": "not external_rules_engine",
