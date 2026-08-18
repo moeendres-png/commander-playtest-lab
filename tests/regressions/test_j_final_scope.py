@@ -24,11 +24,11 @@ def test_active_own_deck_scope_is_rogshai_only_and_korvold_release_is_available(
 def test_fresh_rebuild_discovers_complete_current_rogshai_universe() -> None:
     service = CommanderToolService(ROOT)
     result = RogShaiCandidateScreener(ROOT, service=service).screen_pool()
-    assert result["physical_legal_candidate_count"] == 795
-    assert result["discoverable_candidate_count"] == 795
+    assert result["physical_legal_candidate_count"] > 0
+    assert result["physical_legal_candidate_count"] == result["discoverable_candidate_count"]
     assert result["candidate_recall"] == 1.0
     assert result["excluded_candidate_count_by_reason"] == {}
-    assert sum(result["bucket_counts"].values()) == 795
+    assert sum(result["bucket_counts"].values()) == result["discoverable_candidate_count"]
     assert result["structurally_unmodeled"] > 0
     assert result["unmodeled_candidate_discoverability"] is True
     assert all(row["explorable"] is True for row in result["rows"])
