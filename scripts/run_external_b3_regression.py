@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import math
 import os
@@ -188,13 +189,11 @@ def main() -> None:
         raise
     finally:
         if primary_failure:
-            try:
+            with contextlib.suppress(Exception):
                 _shutdown_for_regression(
                     adapter,
                     timeout_seconds=shutdown_timeout_seconds,
                 )
-            except Exception:
-                pass
         else:
             shutdown_evidence = _shutdown_for_regression(
                 adapter,
