@@ -1,6 +1,15 @@
 name: External XMage Integration
 
 on:
+  pull_request:
+    paths:
+      - "engine-bridge/**"
+      - "src/commander_lab/engine/rules/**"
+      - "src/commander_lab/models/engine_runtime.py"
+      - "src/commander_lab/models/rules.py"
+      - "config/rules_engines.json"
+      - "scripts/run_external_b3_regression.py"
+      - ".github/workflows/external-engine-integration.yml"
   workflow_dispatch:
     inputs:
       xmage_commit:
@@ -12,7 +21,7 @@ permissions:
   contents: read
 
 env:
-  XMAGE_COMMIT: ${{ inputs.xmage_commit }}
+  XMAGE_COMMIT: ${{ inputs.xmage_commit || '77d7646da6958fdf8125ee7c8f4aabd130d21d4c' }}
   ENGINE_PROVIDER: xmage
   ENGINE_MODE: external
   ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
@@ -39,7 +48,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: moeendres-png/mage
-          ref: ${{ inputs.xmage_commit }}
+          ref: ${{ env.XMAGE_COMMIT }}
           path: vendor/engine-source/xmage
           fetch-depth: 0
       - name: Set up JDK 17
