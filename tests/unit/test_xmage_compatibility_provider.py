@@ -59,6 +59,9 @@ def test_current_external_workflow_uses_compatibility_candidate(
     assert f"default: {XMAGE_COMMIT}" in workflow
     assert "git describe --tags --always" in workflow
     assert "engine-bridge/pom.xml" in workflow
+    assert 'XMAGE_B3_REQUEST_TIMEOUT_SECONDS: "120"' in workflow
+    assert 'XMAGE_B3_SHUTDOWN_TIMEOUT_SECONDS: "30"' in workflow
+    assert "python scripts/run_external_b3_regression.py" in workflow
 
 
 def test_historical_jp3b_provider_evidence_remains_pinned(
