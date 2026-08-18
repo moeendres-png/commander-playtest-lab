@@ -13,6 +13,7 @@ from commander_lab.repositories.candidates import (
     load_canonical_inventory_quantities,
     load_current_candidate_eligibility,
     load_current_optimization_availability,
+    load_current_optimization_availability_by_deck,
 )
 
 _inventory_rows = inventory_rows
@@ -26,4 +27,5 @@ __all__ = [
     "load_canonical_inventory_quantities",
     "load_current_candidate_eligibility",
     "load_current_optimization_availability",
+    "load_current_optimization_availability_by_deck",
 ]
