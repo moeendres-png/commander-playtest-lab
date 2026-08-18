@@ -65,7 +65,10 @@ def main() -> None:
     if not isinstance(discovered, list) or len(discovered) != 1:
         raise SystemExit("candidate discovery payload shape changed")
     candidate = discovered[0]
-    if not isinstance(candidate, dict) or candidate.get("recommendation_status") != "candidate_swap":
+    if (
+        not isinstance(candidate, dict)
+        or candidate.get("recommendation_status") != "candidate_swap"
+    ):
         raise SystemExit("candidate discovery no longer returns a non-applied candidate swap")
     if candidate.get("automatic_application") is not False:
         raise SystemExit("candidate discovery attempted automatic deck mutation")
