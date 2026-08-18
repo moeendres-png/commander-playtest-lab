@@ -26,6 +26,8 @@ env:
   ENGINE_MODE: external
   ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
   PYTHONHASHSEED: "0"
+  XMAGE_B3_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B3_SHUTDOWN_TIMEOUT_SECONDS: "30"
   COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
 
