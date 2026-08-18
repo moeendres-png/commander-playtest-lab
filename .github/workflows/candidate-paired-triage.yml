@@ -7,6 +7,7 @@ on:
       - 'src/commander_lab/candidate_evaluation.py'
       - 'src/commander_lab/priority_workflows.py'
       - 'src/commander_lab/decision_information.py'
+      - 'src/commander_lab/model_informativeness.py'
       - 'src/commander_lab/advancement.py'
       - 'src/commander_lab/optimization/**'
       - 'scripts/run_candidate_paired_triage.py'
@@ -39,7 +40,7 @@ jobs:
           CANDIDATE_TRIAGE_INITIAL_ITERATIONS: '8'
           CANDIDATE_TRIAGE_REFINED_ITERATIONS: '32'
         run: python scripts/run_candidate_paired_triage.py
-      - name: Verify triage evidence boundary and prefix reuse
+      - name: Verify triage evidence, prefix reuse and cohort gate
         run: |
           python - <<'PY'
           import json
@@ -51,6 +52,8 @@ jobs:
           payload = json.loads(path.read_text(encoding='utf-8'))
           if payload.get('evidence_class') != 'structural_model_estimates':
               raise SystemExit('paired triage lost its structural evidence class')
+          if payload.get('cohort_diagnostic_evidence_class') != 'structural_model_diagnostic':
+              raise SystemExit('cohort diagnosis lost its model-diagnostic evidence class')
           if payload.get('direct_cross_variant_pairing') is not False:
               raise SystemExit('paired triage incorrectly claims cross-variant pairing')
           if payload.get('direct_cross_variant_ranking_allowed') is not False:
@@ -103,16 +106,45 @@ jobs:
               elif refined is not None:
                   raise SystemExit('closed initial row received unnecessary additional precision')
 
+              cohort_diagnosis = row.get('cohort_diagnosis')
+              if not isinstance(cohort_diagnosis, dict):
+                  raise SystemExit('paired triage row lost cohort diagnosis')
+              cohort_model = cohort_diagnosis.get('model_informativeness')
+              if not isinstance(cohort_model, dict):
+                  raise SystemExit('cohort diagnosis lost model informativeness')
+
           if payload.get('refinement_candidate_count') != expected_refinements:
               raise SystemExit('refinement count disagrees with decision-information states')
           if payload.get('total_reused_prefix_pairs') != expected_refinements * 8:
               raise SystemExit('aggregate prefix reuse does not match refined rows')
 
+          cohort_model = payload.get('cohort_model_informativeness')
+          if not isinstance(cohort_model, dict):
+              raise SystemExit('aggregate cohort model diagnostic is missing')
+          model_status = cohort_model.get('status')
+          if model_status not in {'INFORMATIVE', 'MODEL_INFORMATION_LIMIT'}:
+              raise SystemExit(f'unknown cohort model status: {model_status}')
+          if model_status == 'MODEL_INFORMATION_LIMIT':
+              if payload.get('eligible_for_finalist_followup_count') != 0:
+                  raise SystemExit('model-information limit incorrectly authorized finalists')
+              for row in results:
+                  cohort_diagnosis = row['cohort_diagnosis']
+                  state = cohort_diagnosis.get('decision_information_state')
+                  if not isinstance(state, dict):
+                      raise SystemExit('cohort diagnosis lost decision-information state')
+                  if state.get('status') != 'MODEL_NEEDS_DIFFERENT_METRIC':
+                      raise SystemExit('model limit did not redirect decision-information status')
+                  if cohort_diagnosis.get('next_experiment') != (
+                      'diagnose_model_information_before_more_seed_work'
+                  ):
+                      raise SystemExit('model limit did not stop blind same-model seed expansion')
+
           print('CANDIDATE_PAIRED_TRIAGE=PASS')
           print('ADAPTIVE_PRECISION=8_TO_32_ONLY_WHEN_MORE_SIMULATIONS_USEFUL')
           print('PREFIX_REUSE=PASS')
+          print(f'COHORT_MODEL_INFORMATION={model_status}')
           print('PAIRING_SCOPE=baseline_vs_variant_within_candidate_only')
-          print('EVIDENCE_BOUNDARY=structural_precision_not_empirical_winrate')
+          print('EVIDENCE_BOUNDARY=structural_precision_plus_model_diagnostic_not_empirical_winrate')
           PY
       - name: Assert tracked repository remains clean
         shell: bash
