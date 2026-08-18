@@ -155,7 +155,10 @@ def load_current_optimization_availability_by_deck(
     if not isinstance(rows_by_deck, dict):
         return {}
     scope = _scope_payload(root_path)
-    unresolved = {str(value) for value in scope.get("unresolved_operational_baselines", [])}
+    raw_unresolved = scope.get("unresolved_operational_baselines", [])
+    if not isinstance(raw_unresolved, list):
+        raise ValueError("unresolved_operational_baselines must be a list")
+    unresolved = {str(value) for value in raw_unresolved}
     result: dict[str, dict[str, int]] = {}
     for raw_deck_id, raw_rows in rows_by_deck.items():
         deck_id = str(raw_deck_id)
