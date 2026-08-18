@@ -4,9 +4,22 @@ on:
   pull_request:
     paths:
       - "src/commander_lab/model_resolution_measurement.py"
+      - "src/commander_lab/fresh_rebuild.py"
+      - "src/commander_lab/repositories/candidates.py"
+      - "src/commander_lab/engine/structural/**"
+      - "src/commander_lab/whole_deck/**"
       - "scripts/measure_model_resolution.py"
       - "tests/unit/test_model_resolution_measurement.py"
+      - "tests/unit/test_decision_quality.py"
       - "data/diagnostics/MODEL_RESOLUTION_CURRENT.json"
+      - "data/decks/rogshai_current.json"
+      - "data/decks/rogshai_current_card_catalog_overrides.json"
+      - "data/decks/rogshai_photo_verified_structural_overrides.json"
+      - "data/collections/current/**"
+      - "data/collections/current_deck_allocations.json"
+      - "data/opponents/**"
+      - "data/pilots/pilot_registry.json"
+      - "config/phase7_optimization.json"
       - ".github/workflows/model-resolution-measurement.yml"
   workflow_dispatch:
 
@@ -44,7 +57,7 @@ jobs:
             --max-turns 35 \
             --workers 2 \
             --calibrated-sesoi 0.05
-      - name: Verify evidence boundaries
+      - name: Verify evidence boundaries and current-source identity
         run: |
           python - <<'PY'
           import json
@@ -52,6 +65,8 @@ jobs:
           report = json.loads(Path('artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json').read_text())
           if report.get('status') != 'MEASURED':
               raise SystemExit('model resolution was not measured')
+          if report.get('deck_id') != 'rogshai/current':
+              raise SystemExit('model resolution measured the wrong current deck')
           if report.get('confirmatory_evidence_consumed') is not False:
               raise SystemExit('confirmatory evidence was consumed')
           if report.get('sealed_holdout_evidence_consumed') is not False:
@@ -63,14 +78,31 @@ jobs:
           if report.get('official_rogshai_optimizer_run') is not False:
               raise SystemExit('technical calibration was mislabeled as an official optimizer run')
           resolution = report.get('effective_resolution')
-          if not isinstance(resolution, (int, float)) or resolution < 0.05:
+          if not isinstance(resolution, (int, float)) or isinstance(resolution, bool) or resolution < 0.05:
               raise SystemExit('effective resolution violates calibrated SESOI floor')
+          for key in ('deck_hash', 'data_snapshot_hash', 'opponent_registry_hash', 'report_hash'):
+              value = report.get(key)
+              if not isinstance(value, str) or len(value) != 64:
+                  raise SystemExit(f'model resolution lost reproducible {key}')
+          decision_use = report.get('decision_use')
+          if not isinstance(decision_use, dict):
+              raise SystemExit('model resolution lost decision-use contract')
+          if decision_use.get('paired_candidate_comparisons_allowed') is not True:
+              raise SystemExit('model resolution unexpectedly rejects paired candidate comparisons')
           PY
-      - name: Hash artifact
-        run: sha256sum artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json > artifacts/model-resolution/SHA256SUMS.txt
+      - name: Record source head and hashes
+        run: |
+          git rev-parse HEAD > artifacts/model-resolution/SOURCE_HEAD.txt
+          sha256sum artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json > artifacts/model-resolution/SHA256SUMS.txt
+      - name: Assert tracked repository remains clean
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain --untracked-files=no)"
+          git diff --exit-code
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: model-resolution-measurement
+          name: model-resolution-measurement-${{ github.sha }}
           path: artifacts/model-resolution/
           if-no-files-found: error
+          retention-days: 14
