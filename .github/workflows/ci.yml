@@ -62,7 +62,11 @@ jobs:
           mypy src/commander_lab 2>&1 | tee artifacts/quality/mypy.txt
       - name: Test suite
         if: ${{ success() || failure() }}
-        run: pytest -q
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/quality
+          pytest -q 2>&1 | tee artifacts/quality/pytest.txt
       - name: Compile
         if: ${{ success() || failure() }}
         run: python -m compileall -q src tests scripts
