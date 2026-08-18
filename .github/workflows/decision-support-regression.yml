@@ -1,0 +1,44 @@
+name: Decision Support Regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: decision-support-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  historical-rogshai-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install historical regression runtime
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Repository integrity
+        run: |
+          git fsck --full
+          git diff --check
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Run historical J-FINAL decision-support regression
+        run: python scripts/run_j_final_acceptance.py
+      - name: Assert tracked repository remains clean
+        run: |
+          test -z "$(git status --porcelain --untracked-files=no)"
+          git diff --exit-code
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        if: always()
+        with:
+          name: decision-support-regression-${{ github.sha }}
+          path: artifacts/j_final/
+          if-no-files-found: error
+          retention-days: 30

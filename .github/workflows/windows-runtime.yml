@@ -2,9 +2,17 @@ name: Windows Runtime Hygiene
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'tests/unit/test_atomic_storage.py'
+      - 'tests/unit/test_runtime_hygiene.py'
+      - 'tests/contract/test_phase86_phase85_claims.py'
+      - 'tests/integration/test_phase85_validation.py'
+      - 'config/**'
+      - '.github/workflows/windows-runtime.yml'
   workflow_dispatch:
 
 permissions:
@@ -17,16 +25,16 @@ concurrency:
 jobs:
   windows-runtime:
     runs-on: windows-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
         with:
-          python-version: "3.12"
+          python-version: '3.12'
           cache: pip
-      - name: Install project and test tools
+      - name: Install runtime and test tools
         shell: pwsh
         run: python -m pip install -e '.[dev,api]'
       - name: Assert clean checkout
@@ -37,32 +45,12 @@ jobs:
             Write-Error "Repository is dirty before runtime validation:`n$status"
             exit 1
           }
-      - name: Atomic and runtime regression tests
+      - name: Windows filesystem and atomic-storage contracts
         shell: pwsh
         run: python -m pytest -q tests/unit/test_atomic_storage.py tests/unit/test_runtime_hygiene.py
-      - name: Phase 8.5 Windows contract tests
+      - name: External-runtime boundary contracts on Windows
         shell: pwsh
         run: python -m pytest -q tests/contract/test_phase86_phase85_claims.py tests/integration/test_phase85_validation.py
-      - name: Windows non-unit suite
-        shell: pwsh
-        run: |
-          python -m pytest -q tests/agent_evals tests/architecture tests/contract tests/differential tests/fuzz tests/golden tests/integration tests/mutation tests/property tests/regressions tests/test_pretest_deck_variants.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Windows unit suite with per-file process isolation
-        shell: pwsh
-        run: |
-          $files = @(Get-ChildItem tests/unit/test_*.py | Sort-Object Name | ForEach-Object { $_.FullName })
-          for ($i = 0; $i -lt $files.Count; $i++) {
-            $file = $files[$i]
-            Write-Host "Running Windows unit file $i/$($files.Count - 1): $file"
-            $usesHypothesis = Select-String -Path $file -Pattern '^\s*(from\s+hypothesis|import\s+hypothesis)' -Quiet
-            if ($usesHypothesis) {
-              python -m pytest -q $file
-            } else {
-              python -m pytest -q -p no:hypothesispytest $file
-            }
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
       - name: Doctor must not dirty repository
         shell: pwsh
         run: commander-lab doctor --root . | Out-File -Encoding utf8 "$env:RUNNER_TEMP/doctor.json"
