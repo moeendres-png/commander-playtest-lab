@@ -78,9 +78,7 @@ def _prepare_test_profiles(
     *,
     deck_id: str,
 ) -> dict[str, CandidateProfile]:
-    authorized_names = {
-        spec.oracle_name for spec in specs if deck_id in set(spec.allowed_deck_ids)
-    }
+    authorized_names = {spec.oracle_name for spec in specs if deck_id in set(spec.allowed_deck_ids)}
     prepared: list[CandidateProfile] = []
     for profile in profiles:
         if profile.card.oracle_name not in authorized_names:
@@ -151,9 +149,7 @@ def _candidate_diverse_rows(
     if len(selected) > max_pairs:
         raise CandidateEvaluationError("seeded frontier exceeds max_pairs")
 
-    used_keys = {
-        (str(row.get("remove", "")), str(row.get("candidate_id", ""))) for row in selected
-    }
+    used_keys = {(str(row.get("remove", "")), str(row.get("candidate_id", ""))) for row in selected}
     used_cuts = {str(row.get("remove", "")) for row in selected}
     candidate_counts = Counter(str(row.get("candidate_id", "")) for row in selected)
 
@@ -583,12 +579,9 @@ def build_candidate_evaluation_plan(
             validated_by_key[key] = validated
 
     mandatory_keys = {
-        (str(row["remove"]), str(row["profile_candidate_id"]))
-        for row in mandatory_hypothetical
+        (str(row["remove"]), str(row["profile_candidate_id"])) for row in mandatory_hypothetical
     }
-    remaining = [
-        row for key, row in validated_by_key.items() if key not in mandatory_keys
-    ]
+    remaining = [row for key, row in validated_by_key.items() if key not in mandatory_keys]
     frontier = _candidate_diverse_rows(
         remaining,
         max_pairs=max_pairs,
@@ -628,9 +621,7 @@ def build_candidate_evaluation_plan(
         "candidate_discovery": {
             "discoverable_candidate_count": screened["discoverable_candidate_count"],
             "physical_legal_candidate_count": screened["physical_legal_candidate_count"],
-            "candidate_pool_after_default_screen": screened[
-                "candidate_pool_after_default_screen"
-            ],
+            "candidate_pool_after_default_screen": screened["candidate_pool_after_default_screen"],
             "explicit_hypothetical_candidate_count": len(explicit_queue),
             "model_ready_frontier_candidate_count": len(frontier_profiles),
             "profile_required_count": len(profile_queue),
@@ -650,9 +641,7 @@ def build_candidate_evaluation_plan(
         "suggested_opponent_ids": suggested_opponents,
         "next_stage_contract": {
             "step_1": "run paired structural comparisons for the bounded variant frontier",
-            "step_2": (
-                "add commander-denial and card/package ablation for surviving variants"
-            ),
+            "step_2": ("add commander-denial and card/package ablation for surviving variants"),
             "step_3": "test sensitivity/holdout/opponent-envelope robustness",
             "step_4": "emit DecisionBundle with trade-offs, uncertainty and next experiment",
             "opponent_frequency_weights_invented": False,
