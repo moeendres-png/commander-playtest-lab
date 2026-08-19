@@ -74,6 +74,8 @@ final class JsonlBridge {
             case "get_legal_actions" -> getLegalActions(requestId, request);
             case "pass_priority" -> passPriority(requestId, request);
             case "submit_action" -> submitAction(requestId, request);
+            case "export_event_log", "get_event_log" -> exportEventLog(requestId, request);
+            case "shutdown_game" -> shutdownGame(requestId, request);
             case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
             default -> error(
                     requestId,
@@ -143,12 +145,7 @@ final class JsonlBridge {
             responsePayload.add("deck_handle", handle);
             return success(requestId, responsePayload, false);
         } catch (XmageDeckImporter.ImportException exc) {
-            return error(
-                    requestId,
-                    "deck_import_failed",
-                    exc.getMessage(),
-                    false
-            );
+            return error(requestId, "deck_import_failed", exc.getMessage(), false);
         } catch (Exception exc) {
             return error(
                     requestId,
@@ -196,15 +193,11 @@ final class JsonlBridge {
                 );
             }
 
-            /*
-             * Seeded execution and deterministic starting-state injection are
-             * still unproven. Never silently accept them.
-             */
             if (gameRequest.has("seed") && !gameRequest.get("seed").isJsonNull()) {
                 return error(
                         requestId,
                         "unsupported_game_option",
-                        "B4-C does not support seed",
+                        "B4-D does not support seed",
                         false
                 );
             }
@@ -213,17 +206,13 @@ final class JsonlBridge {
                 return error(
                         requestId,
                         "unsupported_game_option",
-                        "B4-C does not support deterministic_starting_state",
+                        "B4-D does not support deterministic_starting_state",
                         false
                 );
             }
 
             List<String> deckHandles = requiredStringArray(gameRequest, "deck_handles");
-            int startingPlayerSeat = optionalInt(
-                    gameRequest,
-                    "starting_player_seat",
-                    0
-            );
+            int startingPlayerSeat = optionalInt(gameRequest, "starting_player_seat", 0);
             int startingLife = optionalInt(gameRequest, "starting_life", 40);
             boolean externalControl = optionalBoolean(
                     gameRequest,
@@ -254,19 +243,16 @@ final class JsonlBridge {
             responsePayload.addProperty("game_handle", created.gameHandle());
             responsePayload.addProperty("engine_game_id", created.engineGameId());
             responsePayload.addProperty("player_count", created.playerCount());
-            responsePayload.addProperty(
-                    "starting_player_seat",
-                    created.startingPlayerSeat()
-            );
+            responsePayload.addProperty("starting_player_seat", created.startingPlayerSeat());
             responsePayload.addProperty("external_control", created.externalControl());
-            return success(requestId, responsePayload, false);
-        } catch (XmageGameManager.GameException exc) {
-            return error(
+            return success(
                     requestId,
-                    "game_creation_failed",
-                    exc.getMessage(),
-                    false
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(created.gameHandle())
             );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "game_creation_failed", exc.getMessage(), false);
         } catch (Exception exc) {
             return error(
                     requestId,
@@ -310,21 +296,18 @@ final class JsonlBridge {
             responsePayload.addProperty("game_handle", started.gameHandle());
             responsePayload.addProperty("engine_game_id", started.engineGameId());
             responsePayload.addProperty("player_count", started.playerCount());
-            responsePayload.addProperty(
-                    "starting_player_id",
-                    started.startingPlayerId()
-            );
+            responsePayload.addProperty("starting_player_id", started.startingPlayerId());
             responsePayload.addProperty("turn_number", started.turnNumber());
             responsePayload.addProperty("paused", started.paused());
             responsePayload.addProperty("external_control", started.externalControl());
-            return success(requestId, responsePayload, false);
-        } catch (XmageGameManager.GameException exc) {
-            return error(
+            return success(
                     requestId,
-                    "game_start_failed",
-                    exc.getMessage(),
-                    false
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
             );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "game_start_failed", exc.getMessage(), false);
         } catch (Exception exc) {
             return error(
                     requestId,
@@ -339,45 +322,26 @@ final class JsonlBridge {
         try {
             JsonObject payload = optionalObjectPayload(request);
             String gameId = requestGameId(request, payload);
-            if (gameId.isBlank()) {
-                return error(
-                        requestId,
-                        "invalid_state_payload",
-                        "GET_GAME_STATE requires nonblank game_id",
-                        false
-                );
-            }
-
-            String gameHandle = gameHandlesById.get(gameId);
-            if (gameHandle == null) {
-                return error(
-                        requestId,
-                        "unknown_game_id",
-                        "Unknown process-local game_id: " + gameId,
-                        false
-                );
-            }
+            String gameHandle = requireGameHandle(gameId);
 
             XmageGameManager.StateSnapshot snapshot = gameManager.snapshotState(gameHandle);
             JsonObject responsePayload = new JsonObject();
             responsePayload.addProperty("game_id", snapshot.gameId());
             responsePayload.addProperty("engine_game_id", snapshot.engineGameId());
-            responsePayload.addProperty(
-                    "state_observation_offset",
-                    snapshot.stateObservationOffset()
-            );
+            responsePayload.addProperty("state_observation_offset", snapshot.stateObservationOffset());
             responsePayload.addProperty("seed_controlled", false);
             responsePayload.addProperty("legal_actions_complete", false);
-            responsePayload.addProperty("event_log_supported", false);
+            responsePayload.addProperty("event_log_supported", true);
+            responsePayload.addProperty("event_log_scope", "external_bridge_audit_boundaries");
             responsePayload.add("state", snapshot.state());
-            return success(requestId, responsePayload, false);
-        } catch (XmageGameManager.GameException exc) {
-            return error(
+            return success(
                     requestId,
-                    "game_state_failed",
-                    exc.getMessage(),
-                    false
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
             );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "game_state_failed", exc.getMessage(), false);
         } catch (Exception exc) {
             return error(
                     requestId,
@@ -392,38 +356,19 @@ final class JsonlBridge {
         try {
             JsonObject payload = optionalObjectPayload(request);
             String gameId = requestGameId(request, payload);
-            if (gameId.isBlank()) {
-                return error(
-                        requestId,
-                        "invalid_legal_actions_payload",
-                        "GET_LEGAL_ACTIONS requires nonblank game_id",
-                        false
-                );
-            }
-
-            String gameHandle = gameHandlesById.get(gameId);
-            if (gameHandle == null) {
-                return error(
-                        requestId,
-                        "unknown_game_id",
-                        "Unknown process-local game_id: " + gameId,
-                        false
-                );
-            }
-
-            XmageGameManager.LegalActionsSnapshot snapshot =
-                    gameManager.legalActions(gameHandle);
+            String gameHandle = requireGameHandle(gameId);
+            XmageGameManager.LegalActionsSnapshot snapshot = gameManager.legalActions(gameHandle);
 
             JsonObject responsePayload = legalActionsPayload(snapshot);
             responsePayload.addProperty("global_capability_promoted", false);
-            return success(requestId, responsePayload, false);
-        } catch (XmageGameManager.GameException exc) {
-            return error(
+            return success(
                     requestId,
-                    "legal_actions_failed",
-                    exc.getMessage(),
-                    false
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
             );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "legal_actions_failed", exc.getMessage(), false);
         } catch (Exception exc) {
             return error(
                     requestId,
@@ -444,6 +389,7 @@ final class JsonlBridge {
             String gameId = requestGameId(request, payload);
             String gameHandle = requireGameHandle(gameId);
             XmageGameManager.LegalActionsSnapshot before = gameManager.legalActions(gameHandle);
+            String preStateHash = gameManager.stateHash(gameHandle);
 
             XmageActionExecutor.ExecutionResult executed = XmageActionExecutor.passPriority(
                     gameManager.requireGame(gameHandle),
@@ -453,12 +399,24 @@ final class JsonlBridge {
                     stringValue(payload, "action_id").trim()
             );
 
+            String postStateHash = gameManager.stateHash(gameHandle);
+            gameManager.recordExternalAction(
+                    gameHandle,
+                    executed,
+                    preStateHash,
+                    postStateHash
+            );
             XmageGameManager.StateSnapshot state = gameManager.snapshotState(gameHandle);
             XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
             JsonObject responsePayload = actionExecutionPayload(executed, state, after);
             responsePayload.addProperty("bounded_submission", true);
             responsePayload.addProperty("global_capability_promoted", false);
-            return success(requestId, responsePayload, false);
+            return success(
+                    requestId,
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
+            );
         } catch (XmageActionExecutor.ActionException exc) {
             return error(requestId, "external_action_rejected", exc.getMessage(), false);
         } catch (XmageGameManager.GameException exc) {
@@ -492,6 +450,7 @@ final class JsonlBridge {
             }
 
             XmageGameManager.LegalActionsSnapshot before = gameManager.legalActions(gameHandle);
+            String preStateHash = gameManager.stateHash(gameHandle);
             XmageActionExecutor.ExecutionResult executed = XmageActionExecutor.submitAction(
                     gameManager.requireGame(gameHandle),
                     before,
@@ -499,12 +458,24 @@ final class JsonlBridge {
                     payload.getAsJsonObject("proposal")
             );
 
+            String postStateHash = gameManager.stateHash(gameHandle);
+            gameManager.recordExternalAction(
+                    gameHandle,
+                    executed,
+                    preStateHash,
+                    postStateHash
+            );
             XmageGameManager.StateSnapshot state = gameManager.snapshotState(gameHandle);
             XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
             JsonObject responsePayload = actionExecutionPayload(executed, state, after);
             responsePayload.addProperty("bounded_submission", true);
             responsePayload.addProperty("global_capability_promoted", false);
-            return success(requestId, responsePayload, false);
+            return success(
+                    requestId,
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
+            );
         } catch (XmageActionExecutor.ActionException exc) {
             return error(requestId, "external_action_rejected", exc.getMessage(), false);
         } catch (XmageGameManager.GameException exc) {
@@ -513,6 +484,84 @@ final class JsonlBridge {
             return error(
                     requestId,
                     "invalid_submit_action_payload",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private Result exportEventLog(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = optionalObjectPayload(request);
+            String gameId = requestGameId(request, payload);
+            String gameHandle = requireGameHandle(gameId);
+            long afterOffset = optionalLong(payload, "after_offset", 0L);
+            XmageGameManager.EventLogSnapshot snapshot =
+                    gameManager.exportEventLog(gameHandle, afterOffset);
+
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.add("log", snapshot.log());
+            responsePayload.addProperty("game_id", snapshot.gameId());
+            responsePayload.addProperty("engine_game_id", snapshot.engineGameId());
+            responsePayload.addProperty("latest_event_offset", snapshot.latestEventOffset());
+            responsePayload.addProperty("returned_event_count", snapshot.totalEvents());
+            responsePayload.addProperty("event_log_source", "xmage_bridge_external_control");
+            responsePayload.addProperty("raw_internal_xmage_gameevent_exhaustive", false);
+            return success(
+                    requestId,
+                    responsePayload,
+                    false,
+                    snapshot.latestEventOffset()
+            );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "event_log_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_event_log_payload",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private Result shutdownGame(String requestId, JsonObject request) {
+        JsonObject payload;
+        String gameId = "";
+        String gameHandle = null;
+        try {
+            payload = optionalObjectPayload(request);
+            gameId = requestGameId(request, payload);
+            gameHandle = requireGameHandle(gameId);
+            XmageGameManager.ShutdownResult shutdown = gameManager.shutdownGame(gameHandle);
+            gameHandlesById.remove(gameId, gameHandle);
+
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", shutdown.gameId());
+            responsePayload.addProperty("engine_game_id", shutdown.engineGameId());
+            responsePayload.addProperty("shutdown", true);
+            responsePayload.addProperty("final_event_offset", shutdown.finalEventOffset());
+            responsePayload.addProperty(
+                    "released_deck_handle_count",
+                    shutdown.releasedDeckHandleCount()
+            );
+            responsePayload.addProperty("stored_game_count", shutdown.storedGameCount());
+            responsePayload.add("final_log", shutdown.finalLog());
+            return success(
+                    requestId,
+                    responsePayload,
+                    false,
+                    shutdown.finalEventOffset()
+            );
+        } catch (XmageGameManager.GameException exc) {
+            if (!gameId.isBlank() && gameHandle != null) {
+                gameHandlesById.remove(gameId, gameHandle);
+            }
+            return error(requestId, "game_shutdown_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_game_shutdown_payload",
                     exceptionMessage(exc),
                     false
             );
@@ -602,22 +651,14 @@ final class JsonlBridge {
         return gameId;
     }
 
-    private static List<String> requiredStringArray(
-            JsonObject object,
-            String property
-    ) {
+    private static List<String> requiredStringArray(JsonObject object, String property) {
         if (!object.has(property) || object.get(property).isJsonNull()) {
-            throw new IllegalArgumentException(
-                    "Missing required array: " + property
-            );
+            throw new IllegalArgumentException("Missing required array: " + property);
         }
         return stringArray(object, property);
     }
 
-    private static List<String> optionalStringArray(
-            JsonObject object,
-            String property
-    ) {
+    private static List<String> optionalStringArray(JsonObject object, String property) {
         if (!object.has(property) || object.get(property).isJsonNull()) {
             return List.of();
         }
@@ -649,11 +690,15 @@ final class JsonlBridge {
         return List.copyOf(values);
     }
 
-    private static int optionalInt(
-            JsonObject object,
-            String property,
-            int defaultValue
-    ) {
+    private static int optionalInt(JsonObject object, String property, int defaultValue) {
+        long value = optionalLong(object, property, defaultValue);
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(property + " is outside integer range");
+        }
+        return (int) value;
+    }
+
+    private static long optionalLong(JsonObject object, String property, long defaultValue) {
         if (!object.has(property) || object.get(property).isJsonNull()) {
             return defaultValue;
         }
@@ -665,7 +710,7 @@ final class JsonlBridge {
         if (!raw.matches("-?\\d+")) {
             throw new IllegalArgumentException(property + " must be an integer");
         }
-        return Integer.parseInt(raw);
+        return Long.parseLong(raw);
     }
 
     private static boolean optionalBoolean(
@@ -688,7 +733,7 @@ final class JsonlBridge {
         JsonObject payload = new JsonObject();
         payload.addProperty("engine", XmageProvider.ENGINE);
         payload.addProperty("started", true);
-        payload.addProperty("phase", "B4C_BOUNDED_ACTION_SUBMISSION");
+        payload.addProperty("phase", "B4D_EVENT_LOG_LIFECYCLE");
         return payload;
     }
 
@@ -699,16 +744,21 @@ final class JsonlBridge {
         return payload;
     }
 
+    private static Result success(String requestId, JsonObject payload, boolean shutdown) {
+        return success(requestId, payload, shutdown, 0L);
+    }
+
     private static Result success(
             String requestId,
             JsonObject payload,
-            boolean shutdown
+            boolean shutdown,
+            long engineEventOffset
     ) {
         JsonObject response = baseResponse(requestId);
         response.addProperty("success", true);
         response.addProperty("status", "ok");
         response.add("payload", payload);
-        response.addProperty("engine_event_offset", 0);
+        response.addProperty("engine_event_offset", engineEventOffset);
         return new Result(response.toString(), shutdown);
     }
 
@@ -736,10 +786,7 @@ final class JsonlBridge {
 
     private static JsonObject baseResponse(String requestId) {
         JsonObject response = new JsonObject();
-        response.addProperty(
-                "protocol_version",
-                XmageProvider.PROTOCOL_VERSION
-        );
+        response.addProperty("protocol_version", XmageProvider.PROTOCOL_VERSION);
         response.addProperty("request_id", requestId);
         return response;
     }
