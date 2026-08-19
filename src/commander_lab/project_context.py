@@ -84,9 +84,6 @@ def _sha256_file(path: Path) -> str:
         raise ProjectContextError(f"required project-context input is missing: {path}")
     payload = path.read_bytes()
     if path.suffix.casefold() in {".json", ".jsonl", ".yaml", ".yml", ".txt", ".md"}:
-        # Git may materialize text blobs with CRLF on Windows and LF elsewhere.
-        # Project context is a semantic identity, so checkout-only newline changes
-        # must not invalidate caches or otherwise alter RunIdentity.
         payload = payload.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
     return hashlib.sha256(payload).hexdigest()
 
@@ -103,10 +100,7 @@ def _load_json(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _resolve_entities(
-    entity_ids: list[str],
-    registry: dict[str, Any],
-) -> tuple[str, ...]:
+def _resolve_entities(entity_ids: list[str], registry: dict[str, Any]) -> tuple[str, ...]:
     current = registry.get("current")
     if not isinstance(current, dict):
         raise ProjectContextError("opponent registry has no current mapping")
@@ -133,7 +127,6 @@ def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, st
     missing = sorted(_REQUIRED_FEATURE_SOURCES - set(source_artifacts))
     if missing:
         raise ProjectContextError(f"canonical feature manifest is missing sources: {missing}")
-
     hashes: dict[str, str] = {}
     for source_name, raw in source_artifacts.items():
         if not isinstance(raw, dict):
@@ -143,7 +136,6 @@ def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, st
         if not isinstance(drive_id, str) or not isinstance(digest, str) or len(digest) != 64:
             raise ProjectContextError(f"invalid feature source identity: {source_name}")
         hashes[f"drive_feature:{source_name}:{drive_id}"] = digest
-
     projection_root = root / "data/collections/current/rogshai_feature_projection"
     parts = manifest.get("parts")
     if not isinstance(parts, list) or not parts:
@@ -174,8 +166,6 @@ def _load_scope(scope_path: Path) -> tuple[tuple[str, ...], tuple[str, ...], str
         raise ProjectContextError("a deck cannot be both active and historical")
     if focus not in active:
         raise ProjectContextError("primary deckbuilding focus is not an active own deck")
-    if active != ("rogshai/current",):
-        raise ProjectContextError(f"current project scope must be RogShai-only; got {active}")
     if scope.get("historical_allocation_blocks_active_deck") is not False:
         raise ProjectContextError("historical allocation must not block the active own deck")
     if scope.get("current_valid") is not True:
@@ -236,12 +226,27 @@ def _validate_playstyle(payload: dict[str, Any]) -> str:
     return preference_type
 
 
+def _validate_decision_registry(registry: dict[str, Any], active: tuple[str, ...]) -> None:
+    policies = registry.get("deck_policies")
+    if not isinstance(policies, dict):
+        raise ProjectContextError("deck decision registry has no deck_policies mapping")
+    missing = sorted(set(active) - {str(value) for value in policies})
+    if missing:
+        raise ProjectContextError(f"active decks are missing decision-registry policies: {missing}")
+
+
 def _active_deck_hashes(
     root: Path, manifest: dict[str, Any], active: tuple[str, ...]
 ) -> tuple[tuple[tuple[str, str], ...], dict[str, Path]]:
     manifest_active = tuple(str(value) for value in manifest.get("active_own_decks", []))
     if manifest_active != active:
         raise ProjectContextError("deck manifest and live active-deck scope disagree")
+    global_active = manifest.get("global_active_own_decks")
+    if (
+        not isinstance(global_active, list)
+        or tuple(str(value) for value in global_active) != active
+    ):
+        raise ProjectContextError("global deck manifest and live active-deck scope disagree")
     decks = manifest.get("decks")
     if not isinstance(decks, dict):
         raise ProjectContextError("deck manifest has no deck identity mapping")
@@ -257,6 +262,11 @@ def _active_deck_hashes(
         raw = decks.get(deck_id)
         if not isinstance(raw, dict):
             raise ProjectContextError(f"active deck is missing from deck manifest: {deck_id}")
+        validation = raw.get("validation")
+        if not isinstance(validation, dict) or validation.get("valid") is not True:
+            raise ProjectContextError(
+                f"active deck is not marked valid in deck manifest: {deck_id}"
+            )
         digest = raw.get("deck_hash")
         if not isinstance(digest, str) or len(digest) != 64:
             raise ProjectContextError(f"active deck has invalid hash identity: {deck_id}")
@@ -315,6 +325,7 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "opponent_registry": root_path / "data/opponents/opponent_registry.json",
         "pilot_registry": root_path / "data/pilots/pilot_registry.json",
         "deck_manifest": root_path / "data/decks/manifest.json",
+        "deck_decision_registry": root_path / "config/deck_decision_registry.json",
         "inventory_snapshot": root_path
         / "data/canonical_import/2026-08-07/inventory_snapshot.json",
         "allocation_snapshot": root_path / "data/collections/current_deck_allocations.json",
@@ -330,6 +341,7 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
 
     active, historical, focus, scope = _load_scope(paths["active_scope"])
     _validate_live_scope_projection(scope)
+    _validate_decision_registry(_load_json(paths["deck_decision_registry"]), active)
     playstyle = _load_json(paths["playstyle_preference"])
     playstyle_type = _validate_playstyle(playstyle)
     playstyle_hash = source_hash_dict["playstyle_preference"]
