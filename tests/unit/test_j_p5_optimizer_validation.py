@@ -5,7 +5,6 @@ from pathlib import Path
 
 from commander_lab.decision_statistics import holm_adjust, paired_randomization_p_value
 from commander_lab.models import ObjectiveVector
-from commander_lab.optimization import DEFAULT_CONSTRAINTS, evaluate_constraints
 from commander_lab.optimization.jp5 import build_recommendation_trace, paired_seed_set_identity
 from commander_lab.tools.service import CommanderToolService
 
