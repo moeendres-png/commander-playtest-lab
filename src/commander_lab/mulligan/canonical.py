@@ -135,15 +135,19 @@ class MulliganLab(_LegacyMulliganLab):
         hand = tuple(cards)
         baseline = super().features(deck, hand)
         mana = self.mana_analyzer.analyze_opening_hand(deck, hand)
-        required = {
-            "W",
-            "U",
-            "R",
-        } if deck.deck_id == "rogshai/current" else {
-            color.value
-            for card in deck.cards
-            for color in (*card.color_identity, *card.color_requirements.keys())
-        }
+        required = (
+            {
+                "W",
+                "U",
+                "R",
+            }
+            if deck.deck_id == "rogshai/current"
+            else {
+                color.value
+                for card in deck.cards
+                for color in (*card.color_identity, *card.color_requirements.keys())
+            }
+        )
         present = sum(mana.colored_sources.get(color, 0) > 0 for color in required)
         stability = present / max(1, len(required))
         return baseline.model_copy(
