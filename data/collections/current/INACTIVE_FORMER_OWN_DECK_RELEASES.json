@@ -1,18 +1,15 @@
 {
   "schema_version": "2.0.0",
-  "generated_at": "2026-08-18",
+  "generated_at": "2026-08-19",
   "status": "current_no_released_active_deck_allocations",
   "global_active_own_decks": [
-    "korvold/current",
     "rogshai/current"
   ],
   "runtime_loaded_decks": [
     "rogshai/current"
   ],
   "inactive_former_own_decks": [],
-  "unresolved_operational_baselines": [
-    "korvold/current"
-  ],
+  "unresolved_operational_baselines": [],
   "released_allocations": {},
-  "notes": "Compatibility projection retained so sealed J-P5 evidence is not rewritten. Korvold is globally active by the newer direct user statement of 2026-08-18, therefore historical Korvold allocations must not be treated as released current availability. Its exact current operational 100-card baseline remains unresolved; availability must fail closed rather than reconstruct allocations from archived decklists."
+  "notes": "Compatibility projection retained so sealed historical evidence is not rewritten. Superseded former-own-deck state is not reconstructed into live allocation truth."
 }
