@@ -16,7 +16,7 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["engine_version"] == ENGINE_VERSION
     assert truth["schema_versions"]["database"] == SCHEMA_VERSION
     assert truth["active_deck_set"] == ["rogshai/current"]
-    assert truth["historical_own_deck_set"] == ["korvold/current"]
+    assert truth["historical_own_deck_set"] == []
     assert truth["primary_deckbuilding_focus"] == "rogshai/current"
     assert truth["active_deck_hashes"] == {
         "rogshai/current": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3"
