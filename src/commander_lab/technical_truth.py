@@ -209,14 +209,30 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "preference_hash": context.playstyle_preference_hash,
         },
         "roadmap_mvp_state": {
-            "j_p6_merged_baseline_is_ancestor": _is_ancestor(root_path, J_P6_MERGED_BASELINE_COMMIT),
-            "priority_context_surface_present": (root_path / "src/commander_lab/project_context.py").is_file(),
-            "priority_workflow_surface_present": (root_path / "src/commander_lab/priority_workflows.py").is_file(),
-            "exact_result_cache_surface_present": (root_path / "src/commander_lab/storage/result_cache.py").is_file(),
-            "production_adaptive_scheduler_present": (root_path / "src/commander_lab/adaptive_budget.py").is_file(),
-            "model_informativeness_gate_present": (root_path / "src/commander_lab/model_informativeness.py").is_file(),
-            "workflow_session_present": (root_path / "src/commander_lab/workflow_session.py").is_file(),
-            "public_high_level_workflow_surface_present": (root_path / "src/commander_lab/tools/registry.py").is_file(),
+            "j_p6_merged_baseline_is_ancestor": _is_ancestor(
+                root_path, J_P6_MERGED_BASELINE_COMMIT
+            ),
+            "priority_context_surface_present": (
+                root_path / "src/commander_lab/project_context.py"
+            ).is_file(),
+            "priority_workflow_surface_present": (
+                root_path / "src/commander_lab/priority_workflows.py"
+            ).is_file(),
+            "exact_result_cache_surface_present": (
+                root_path / "src/commander_lab/storage/result_cache.py"
+            ).is_file(),
+            "production_adaptive_scheduler_present": (
+                root_path / "src/commander_lab/adaptive_budget.py"
+            ).is_file(),
+            "model_informativeness_gate_present": (
+                root_path / "src/commander_lab/model_informativeness.py"
+            ).is_file(),
+            "workflow_session_present": (
+                root_path / "src/commander_lab/workflow_session.py"
+            ).is_file(),
+            "public_high_level_workflow_surface_present": (
+                root_path / "src/commander_lab/tools/registry.py"
+            ).is_file(),
         },
         "external_engine_status": {
             "provider_decision": provider_status,
