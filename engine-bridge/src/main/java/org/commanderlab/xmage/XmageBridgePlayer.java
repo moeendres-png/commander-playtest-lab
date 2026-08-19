@@ -15,13 +15,13 @@ import mage.choices.Choice;
 import mage.constants.MultiAmountType;
 import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
+import mage.players.net.UserData;
 import mage.game.Game;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
 import mage.game.tournament.Tournament;
 import mage.players.Player;
 import mage.players.PlayerImpl;
-import mage.players.net.UserData;
 import mage.target.Target;
 import mage.target.TargetAmount;
 import mage.target.TargetCard;
@@ -40,7 +40,7 @@ import java.util.UUID;
  * <p>The no-controller constructor preserves the validated B3 behavior: keep
  * the opening hand, decline optional choices, declare no attackers/blockers,
  * and pass priority. B4-B may instead attach an ExternalDecisionController;
- * then priority is paused and published only after that controller is armed.</p>
+ * then priority is paused and published rather than silently auto-passed.</p>
  */
 final class XmageBridgePlayer extends PlayerImpl {
 
@@ -60,10 +60,14 @@ final class XmageBridgePlayer extends PlayerImpl {
     ) {
         super(name, range);
         this.externalDecisionController = externalDecisionController;
-        setUserData(UserData.getDefaultUserDataView());
+        setUserData(
+                UserData.getDefaultUserDataView()
+        );
     }
 
-    private XmageBridgePlayer(XmageBridgePlayer player) {
+    private XmageBridgePlayer(
+            XmageBridgePlayer player
+    ) {
         super(player);
         this.externalDecisionController = player.externalDecisionController;
     }
@@ -75,20 +79,19 @@ final class XmageBridgePlayer extends PlayerImpl {
 
     @Override
     public boolean priority(Game game) {
-        if (externalDecisionController == null || !externalDecisionController.isArmed()) {
+        if (externalDecisionController == null) {
             /*
-             * Validated B3 lifecycle path and B4-B pre-handoff traversal.
-             * XMage playPriority() loops until isPassed() becomes true, so
-             * returning false alone is insufficient.
+             * Validated B3 lifecycle path. XMage playPriority() loops until
+             * isPassed() becomes true, so returning false alone is insufficient.
              */
             pass(game);
             return false;
         }
 
         /*
-         * Armed B4-B external-control path. Capture the real XMage decision
-         * before pausing. GameImpl checks isPaused() on the priority loop and
-         * returns control to Protocol 2 without a busy wait or tactical fallback.
+         * B4-B external-control path. Capture the real XMage decision before
+         * pausing. GameImpl checks isPaused() on the priority loop and returns
+         * control to the JSONL bridge without a busy wait or tactical fallback.
          */
         externalDecisionController.capturePriority(this, game);
         game.pause();
@@ -96,17 +99,32 @@ final class XmageBridgePlayer extends PlayerImpl {
     }
 
     @Override
-    public boolean choose(Outcome outcome, Target target, Ability source, Game game) {
+    public boolean choose(
+            Outcome outcome,
+            Target target,
+            Ability source,
+            Game game
+    ) {
         if (target instanceof TargetPlayer) {
             for (Player player : game.getPlayers().values()) {
                 if (player.getId().equals(getId())
-                        && target.canTarget(getId(), source, game)
+                        && target.canTarget(
+                                getId(),
+                                source,
+                                game
+                        )
                         && !target.contains(getId())) {
-                    target.add(player.getId(), game);
+
+                    target.add(
+                            player.getId(),
+                            game
+                    );
+
                     return true;
                 }
             }
         }
+
         return false;
     }
 
@@ -121,7 +139,13 @@ final class XmageBridgePlayer extends PlayerImpl {
         cards.getCards(game)
                 .stream()
                 .map(MageItem::getId)
-                .forEach(cardId -> target.add(cardId, game));
+                .forEach(
+                        cardId -> target.add(
+                                cardId,
+                                game
+                        )
+                );
+
         return true;
     }
 
@@ -133,24 +157,39 @@ final class XmageBridgePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
-        UUID cardId = Iterables.getOnlyElement(cards.getCards(game)).getId();
+        UUID cardId =
+                Iterables.getOnlyElement(
+                        cards.getCards(game)
+                ).getId();
+
         if (chooseScry(game, cardId)) {
             target.add(cardId, game);
             return true;
         }
+
         return false;
     }
 
-    List<UUID> chooseDiscardBottom(Game game, int count, List<UUID> cardIds) {
+    List<UUID> chooseDiscardBottom(
+            Game game,
+            int count,
+            List<UUID> cardIds
+    ) {
         return cardIds.subList(0, count);
     }
 
-    boolean chooseScry(Game game, UUID cardId) {
+    boolean chooseScry(
+            Game game,
+            UUID cardId
+    ) {
         return false;
     }
 
     @Override
-    public void shuffleLibrary(Ability source, Game game) {
+    public void shuffleLibrary(
+            Ability source,
+            Game game
+    ) {
         /*
          * B3/B4 compatibility bridge testing is not seeded gameplay evidence.
          * Deterministic/randomized gameplay is promoted only after a real gate.
@@ -177,16 +216,37 @@ final class XmageBridgePlayer extends PlayerImpl {
     }
 
     @Override
-    public boolean chooseTarget(Outcome outcome, Target target, Ability source, Game game) {
+    public boolean chooseTarget(
+            Outcome outcome,
+            Target target,
+            Ability source,
+            Game game
+    ) {
         if (target.getFilter().getMessage() != null
-                && target.getFilter().getMessage()
-                .endsWith(" more) to put on the bottom of your library")) {
+                && target.getFilter()
+                        .getMessage()
+                        .endsWith(
+                                " more) to put on the bottom of your library"
+                        )) {
+
             chooseDiscardBottom(
                     game,
                     target.getMinNumberOfTargets(),
-                    new ArrayList<>(target.possibleTargets(null, source, game))
-            ).forEach(cardId -> target.add(cardId, game));
+                    new ArrayList<>(
+                            target.possibleTargets(
+                                    null,
+                                    source,
+                                    game
+                            )
+                    )
+            ).forEach(
+                    cardId -> target.add(
+                            cardId,
+                            game
+                    )
+            );
         }
+
         return false;
     }
 
@@ -201,12 +261,19 @@ final class XmageBridgePlayer extends PlayerImpl {
     }
 
     @Override
-    public boolean chooseMulligan(Game game) {
+    public boolean chooseMulligan(
+            Game game
+    ) {
         return false;
     }
 
     @Override
-    public boolean chooseUse(Outcome outcome, String message, Ability source, Game game) {
+    public boolean chooseUse(
+            Outcome outcome,
+            String message,
+            Ability source,
+            Game game
+    ) {
         return false;
     }
 
@@ -224,7 +291,11 @@ final class XmageBridgePlayer extends PlayerImpl {
     }
 
     @Override
-    public boolean choose(Outcome outcome, Choice choice, Game game) {
+    public boolean choose(
+            Outcome outcome,
+            Choice choice,
+            Game game
+    ) {
         return false;
     }
 
@@ -279,16 +350,27 @@ final class XmageBridgePlayer extends PlayerImpl {
     }
 
     @Override
-    public Mode chooseMode(Modes modes, Ability source, Game game) {
+    public Mode chooseMode(
+            Modes modes,
+            Ability source,
+            Game game
+    ) {
         return null;
     }
 
     @Override
-    public void selectAttackers(Game game, UUID attackingPlayerId) {
+    public void selectAttackers(
+            Game game,
+            UUID attackingPlayerId
+    ) {
     }
 
     @Override
-    public void selectBlockers(Ability source, Game game, UUID defendingPlayerId) {
+    public void selectBlockers(
+            Ability source,
+            Game game,
+            UUID defendingPlayerId
+    ) {
     }
 
     @Override
@@ -315,14 +397,24 @@ final class XmageBridgePlayer extends PlayerImpl {
     }
 
     @Override
-    public void sideboard(Match match, Deck deck) {
+    public void sideboard(
+            Match match,
+            Deck deck
+    ) {
     }
 
     @Override
-    public void construct(Tournament tournament, Deck deck) {
+    public void construct(
+            Tournament tournament,
+            Deck deck
+    ) {
     }
 
     @Override
-    public void pickCard(List<Card> cards, Deck deck, Draft draft) {
+    public void pickCard(
+            List<Card> cards,
+            Deck deck,
+            Draft draft
+    ) {
     }
 }
