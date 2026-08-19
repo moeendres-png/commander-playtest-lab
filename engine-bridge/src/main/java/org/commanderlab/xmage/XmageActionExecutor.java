@@ -208,7 +208,7 @@ final class XmageActionExecutor {
         if (matches.size() != 1) {
             throw new ActionException("AMBIGUOUS_EXTERNAL_ACTION_ID");
         }
-        return matches.getFirst();
+        return matches.get(0);
     }
 
     private static void requireEmptyArray(JsonObject object, String property) {
@@ -220,7 +220,7 @@ final class XmageActionExecutor {
             throw new ActionException(property + " must be an array");
         }
         JsonArray array = value.getAsJsonArray();
-        if (!array.isEmpty()) {
+        if (array.size() != 0) {
             throw new ActionException(
                     "ACTION_CHOICE_CONTROL_REQUIRED: " + property + " is not supported in B4-C"
             );
@@ -235,7 +235,7 @@ final class XmageActionExecutor {
         if (!value.isJsonObject()) {
             throw new ActionException(property + " must be an object");
         }
-        if (!value.getAsJsonObject().isEmpty()) {
+        if (value.getAsJsonObject().size() != 0) {
             throw new ActionException(
                     "ACTION_CHOICE_CONTROL_REQUIRED: " + property + " is not supported in B4-C"
             );
