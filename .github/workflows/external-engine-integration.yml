@@ -12,6 +12,7 @@ on:
       - "scripts/run_external_b3_regression.py"
       - "scripts/run_external_b4a_regression.py"
       - "scripts/run_external_b4b_regression.py"
+      - "scripts/run_external_b4c_regression.py"
       - ".github/workflows/external-engine-integration.yml"
   workflow_dispatch:
     inputs:
@@ -33,6 +34,7 @@ env:
   XMAGE_B3_SHUTDOWN_TIMEOUT_SECONDS: "30"
   XMAGE_B4A_REQUEST_TIMEOUT_SECONDS: "120"
   XMAGE_B4B_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B4C_REQUEST_TIMEOUT_SECONDS: "120"
   COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
 
@@ -95,21 +97,21 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p ../artifacts/external-engine
-          mvn -B -ntp -DskipTests compile 2>&1 | tee ../artifacts/external-engine/b4b-main-compile.log
+          mvn -B -ntp -DskipTests compile 2>&1 | tee ../artifacts/external-engine/b4c-main-compile.log
       - name: Compile XMage bridge test sources
         working-directory: engine-bridge
         shell: bash
         run: |
           set -o pipefail
           mkdir -p ../artifacts/external-engine
-          mvn -B -ntp -DskipTests test-compile 2>&1 | tee ../artifacts/external-engine/b4b-test-compile.log
+          mvn -B -ntp -DskipTests test-compile 2>&1 | tee ../artifacts/external-engine/b4c-test-compile.log
       - name: Run XMage bridge tests and package
         working-directory: engine-bridge
         shell: bash
         run: |
           set -o pipefail
           mkdir -p ../artifacts/external-engine
-          mvn -B -ntp verify 2>&1 | tee ../artifacts/external-engine/b4b-bridge-verify.log
+          mvn -B -ntp verify 2>&1 | tee ../artifacts/external-engine/b4c-bridge-verify.log
       - name: Verify current provider capability truth
         run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py tests/unit/test_models.py
       - name: Run real B3 JSONL process regression
@@ -130,6 +132,12 @@ jobs:
           set -o pipefail
           mkdir -p artifacts/external-engine
           python scripts/run_external_b4b_regression.py 2>&1 | tee artifacts/external-engine/b4b-process.log
+      - name: Run real B4-C priority/action regression
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b4c_regression.py 2>&1 | tee artifacts/external-engine/b4c-process.log
       - name: Record bridge identity
         shell: bash
         run: |
@@ -151,7 +159,7 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: external-engine-b4b-evidence-${{ github.sha }}
+          name: external-engine-b4c-evidence-${{ github.sha }}
           path: |
             artifacts/external-engine/
             engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
