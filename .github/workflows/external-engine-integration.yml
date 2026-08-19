@@ -6,9 +6,11 @@ on:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/**"
       - "src/commander_lab/models/engine_runtime.py"
+      - "src/commander_lab/models/game.py"
       - "src/commander_lab/models/rules.py"
       - "config/rules_engines.json"
       - "scripts/run_external_b3_regression.py"
+      - "scripts/run_external_b4a_regression.py"
       - ".github/workflows/external-engine-integration.yml"
   workflow_dispatch:
     inputs:
@@ -28,6 +30,7 @@ env:
   PYTHONHASHSEED: "0"
   XMAGE_B3_REQUEST_TIMEOUT_SECONDS: "120"
   XMAGE_B3_SHUTDOWN_TIMEOUT_SECONDS: "30"
+  XMAGE_B4A_REQUEST_TIMEOUT_SECONDS: "120"
   COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
 
@@ -84,27 +87,33 @@ jobs:
             echo 'Provider-specific XMage Java bridge is missing. This is a hard failure, not a fallback.' >&2
             exit 1
           }
-      - name: Build and test B3 bridge
+      - name: Build and test XMage bridge
         working-directory: engine-bridge
         run: mvn -B -ntp verify
-      - name: Verify current B3 capability truth
-        run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py
+      - name: Verify current provider capability truth
+        run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py tests/unit/test_models.py
       - name: Run real B3 JSONL process regression
         shell: bash
         run: |
           set -o pipefail
           mkdir -p artifacts/external-engine
           python scripts/run_external_b3_regression.py 2>&1 | tee artifacts/external-engine/b3-process.log
+      - name: Run real B4-A state observation regression
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b4a_regression.py 2>&1 | tee artifacts/external-engine/b4a-process.log
       - name: Record bridge identity
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts/external-engine
           sha256sum engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
-            > artifacts/external-engine/xmage-b3-bridge.sha256
+            > artifacts/external-engine/xmage-bridge.sha256
           printf 'lab_commit=%s\nxmage_commit=%s\nprotocol=2.0.0\nprovider=xmage\nevidence_class=external_rules_engine\n' \
             "$GITHUB_SHA" "$XMAGE_COMMIT" \
-            > artifacts/external-engine/XMAGE_B3_RUNTIME_IDENTITY.txt
+            > artifacts/external-engine/XMAGE_RUNTIME_IDENTITY.txt
       - name: Generate evidence checksums
         if: always()
         run: |
@@ -116,7 +125,7 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: external-engine-b3-evidence-${{ github.sha }}
+          name: external-engine-b4a-evidence-${{ github.sha }}
           path: |
             artifacts/external-engine/
             engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
