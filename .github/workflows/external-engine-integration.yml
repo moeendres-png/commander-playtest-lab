@@ -29,7 +29,7 @@ env:
   ENGINE_PROVIDER: xmage
   ENGINE_MODE: external
   ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
-  PYTHONHASHSEED: "0"
+  PYTHONHASHSEED: 0
   XMAGE_B3_REQUEST_TIMEOUT_SECONDS: "120"
   XMAGE_B3_SHUTDOWN_TIMEOUT_SECONDS: "30"
   XMAGE_B4A_REQUEST_TIMEOUT_SECONDS: "120"
@@ -59,7 +59,7 @@ jobs:
           repository: moeendres-png/mage
           ref: ${{ env.XMAGE_COMMIT }}
           path: vendor/engine-source/xmage
-          fetch-depth: 0
+          fetch-depth: 1
       - name: Set up JDK 17
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5 immutable revision
         with:
