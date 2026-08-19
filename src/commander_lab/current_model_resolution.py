@@ -40,13 +40,35 @@ def _validated_stored_software_identity(payload: dict[str, Any]) -> dict[str, An
         raise CurrentModelResolutionError(
             "current model resolution has no content-addressed software identity"
         )
-    if raw.get("schema_version") != "1.0.0":
+    if raw.get("schema_version") != "1.1.0":
         raise CurrentModelResolutionError(
             "current model resolution has an unsupported software identity schema"
         )
+    source_objects = raw.get("source_objects")
+    scope_paths = raw.get("scope_paths")
+    if not isinstance(source_objects, dict) or not source_objects:
+        raise CurrentModelResolutionError(
+            "current model resolution has no auditable resolution-source manifest"
+        )
+    if not isinstance(scope_paths, list) or not scope_paths:
+        raise CurrentModelResolutionError(
+            "current model resolution has no auditable resolution-source scope"
+        )
+    normalized_objects: dict[str, str] = {}
+    for path, digest in source_objects.items():
+        if not isinstance(path, str) or not path:
+            raise CurrentModelResolutionError("current model resolution has invalid source path")
+        normalized_objects[path] = _require_hex_digest({"digest": digest}, "digest", length=40)
+    normalized_scope = [str(path) for path in scope_paths]
+    if sorted(normalized_scope) != sorted(normalized_objects):
+        raise CurrentModelResolutionError(
+            "current model resolution software scope and source manifest disagree"
+        )
     identity = {
         **raw,
-        "commander_lab_tree_sha1": _require_hex_digest(raw, "commander_lab_tree_sha1", length=40),
+        "resolution_source_manifest_sha256": _require_hex_digest(
+            raw, "resolution_source_manifest_sha256", length=64
+        ),
         "measurement_entrypoint_blob_sha1": _require_hex_digest(
             raw, "measurement_entrypoint_blob_sha1", length=40
         ),
@@ -54,6 +76,8 @@ def _validated_stored_software_identity(payload: dict[str, Any]) -> dict[str, An
             raw, "package_manifest_blob_sha1", length=40
         ),
         "identity_sha256": _require_hex_digest(raw, "identity_sha256", length=64),
+        "source_objects": normalized_objects,
+        "scope_paths": normalized_scope,
     }
     return identity
 
@@ -62,8 +86,9 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
     """Load and live-validate the current Structural resolution contract.
 
     Freshness is defined by the same Whole-Deck control materialization, data snapshot, opponent
-    registry, and content-addressed software inputs used by the measurement protocol. A mismatch
-    fails closed rather than silently falling back to a zero or historical resolution threshold.
+    registry, and content-addressed Structural-measurement software inputs used by the measurement
+    protocol. A mismatch fails closed rather than silently falling back to a zero or historical
+    resolution threshold. Unrelated external-engine code is intentionally outside that identity.
     """
 
     project = Path(root).resolve()
@@ -141,7 +166,7 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
 
     software_keys = (
         "identity_version",
-        "commander_lab_tree_sha1",
+        "resolution_source_manifest_sha256",
         "measurement_entrypoint_blob_sha1",
         "package_manifest_blob_sha1",
         "identity_sha256",
@@ -154,6 +179,18 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
         for key in software_keys
         if stored_software_identity.get(key) != current_software_identity.get(key)
     }
+    if stored_software_identity.get("scope_paths") != current_software_identity.get("scope_paths"):
+        software_mismatches["scope_paths"] = {
+            "stored": stored_software_identity.get("scope_paths"),
+            "current": current_software_identity.get("scope_paths"),
+        }
+    if stored_software_identity.get("source_objects") != current_software_identity.get(
+        "source_objects"
+    ):
+        software_mismatches["source_objects"] = {
+            "stored_manifest": stored_software_identity.get("resolution_source_manifest_sha256"),
+            "current_manifest": current_software_identity.get("resolution_source_manifest_sha256"),
+        }
     if software_mismatches:
         raise CurrentModelResolutionError(
             "current model-resolution evidence is stale for the live software identity: "
