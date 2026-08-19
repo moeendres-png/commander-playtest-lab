@@ -81,7 +81,7 @@ class JsonlBridgeTest {
     }
 
     @Test
-    void b3AdvertisesOnlyProvenConstructionAndStartCapabilities() {
+    void b4dAdvertisesProvenCapabilitiesWithoutProviderReadiness() {
         JsonlBridge.Result result =
                 bridge.handle(
                         request("r3", "get_capabilities")
@@ -143,8 +143,12 @@ class JsonlBridgeTest {
                 capabilities.get("action_submission_supported")
                         .getAsBoolean()
         );
-        assertFalse(
+        assertTrue(
                 capabilities.get("event_log_supported")
+                        .getAsBoolean()
+        );
+        assertTrue(
+                capabilities.get("game_shutdown_supported")
                         .getAsBoolean()
         );
 
