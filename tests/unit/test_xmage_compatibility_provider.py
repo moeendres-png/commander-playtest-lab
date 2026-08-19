@@ -8,7 +8,7 @@ XMAGE_ACTIONS_REPOSITORY = "moeendres-png/mage"
 XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
 
 
-def test_current_xmage_b3_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:
+def test_current_xmage_b4a_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:
     config = json.loads((repo_root / "config/rules_engines.json").read_text(encoding="utf-8"))
     primary = config["primary_engine"]
     runtime = config["current_runtime"]
@@ -17,12 +17,19 @@ def test_current_xmage_b3_runtime_truth_is_pinned_and_fail_closed(repo_root: Pat
     assert primary["commit"] == XMAGE_COMMIT
     assert primary["production_ready"] is False
     assert primary["real_execution"] is True
-    assert primary["status"] == "B3_GAME_START_VALIDATED_DEGRADED"
+    assert primary["status"] == "B4A_STATE_OBSERVATION_VALIDATED_DEGRADED"
+    assert {
+        "game_state_observation",
+        "priority_visible",
+        "stack_visible",
+        "monotonic_state_observation_offset",
+    }.issubset(primary["validated_capabilities"])
 
     assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["production_bridge"] == "b3_partial_game_start_bridge"
+    assert config["production_bridge"] == "b4a_partial_state_observation_bridge"
     assert runtime["provider_selected"] is False
     assert runtime["production_provider"] is None
+    assert runtime["xmage_status"] == "PARTIAL_B4A_STATE_OBSERVATION"
     assert runtime["required_missing_capabilities"] == [
         "legal_actions_supported",
         "action_submission_supported",
@@ -49,9 +56,11 @@ def test_current_external_workflow_uses_compatibility_candidate(repo_root: Path)
     assert f"default: {XMAGE_COMMIT}" in workflow
     assert "git describe --tags --always" in workflow
     assert "engine-bridge/pom.xml" in workflow
+    assert "scripts/run_external_b3_regression.py" in workflow
+    assert "scripts/run_external_b4a_regression.py" in workflow
 
 
-def test_b3_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path) -> None:
+def test_b4a_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path) -> None:
     bridge_root = repo_root / "engine-bridge"
 
     assert (bridge_root / "pom.xml").is_file()
@@ -78,7 +87,12 @@ def test_b3_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path) 
     config = json.loads((repo_root / "config/rules_engines.json").read_text(encoding="utf-8"))
 
     assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["production_bridge"] == "b3_partial_game_start_bridge"
+    assert config["production_bridge"] == "b4a_partial_state_observation_bridge"
     assert config["primary_engine"]["production_ready"] is False
     assert config["primary_engine"]["real_execution"] is True
     assert config["current_runtime"]["provider_selected"] is False
+    assert config["primary_engine"]["missing_required_capabilities"] == [
+        "legal_actions_supported",
+        "action_submission_supported",
+        "event_log_supported",
+    ]

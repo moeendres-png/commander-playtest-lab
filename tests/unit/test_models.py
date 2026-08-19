@@ -37,6 +37,18 @@ def test_game_state_rejects_unknown_active_player() -> None:
         )
 
 
+def test_game_state_allows_truthful_unknown_external_rng_identity() -> None:
+    state = GameState(
+        game_id="external-no-seed",
+        seed=None,
+        rng_counter=None,
+        players=(PlayerState(player_id="p1", seat=0, zones=ZoneState()),),
+    )
+
+    assert state.seed is None
+    assert state.rng_counter is None
+
+
 def test_action_proposal_is_structured_and_immutable() -> None:
     proposal = ActionProposal(
         proposal_id="proposal-1",

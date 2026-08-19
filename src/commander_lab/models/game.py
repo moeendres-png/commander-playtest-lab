@@ -121,8 +121,13 @@ class GameEvent(FrozenModel):
 
 class GameState(FrozenModel):
     game_id: str
-    seed: int = Field(ge=0)
-    rng_counter: int = Field(default=0, ge=0)
+    # External rules engines are not required to expose or control their RNG.
+    # `None` means the seed is genuinely unknown/uncontrolled; callers must not
+    # synthesize a numeric sentinel such as 0 and mistake it for reproducibility.
+    seed: int | None = Field(default=None, ge=0)
+    # Structural runs still default to a deterministic counter of zero. External
+    # adapters may explicitly return null when the provider exposes no RNG counter.
+    rng_counter: int | None = Field(default=0, ge=0)
     status: GameStatus = GameStatus.NOT_STARTED
     turn_number: int = Field(default=0, ge=0)
     active_player_id: str | None = None

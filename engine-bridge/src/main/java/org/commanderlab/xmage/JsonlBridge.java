@@ -7,8 +7,8 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
+
 final class JsonlBridge {
 
     private final XmageDeckImporter deckImporter =
@@ -83,9 +83,10 @@ final class JsonlBridge {
                     importDeck(requestId, request);
             case "create_commander_game" ->
                     createCommanderGame(requestId, request);
-
             case "start_game" ->
                     startGame(requestId, request);
+            case "get_game_state" ->
+                    getGameState(requestId, request);
 
             case "shutdown_engine" ->
                     success(requestId, shutdownPayload(), true);
@@ -94,7 +95,8 @@ final class JsonlBridge {
                     error(
                             requestId,
                             "unsupported_message",
-                            "B3 does not support message type: " + messageType,
+                            "Current XMage bridge does not support message type: "
+                                    + messageType,
                             false
                     );
         };
@@ -259,6 +261,7 @@ final class JsonlBridge {
             );
         }
     }
+
     private Result createCommanderGame(
             String requestId,
             JsonObject request
@@ -459,24 +462,8 @@ final class JsonlBridge {
             JsonObject payload =
                     request.getAsJsonObject("payload");
 
-            /*
-             * Protocol-2 carries game_id on the request envelope.
-             * payload.game_id is retained only as a compatibility fallback
-             * for older direct bridge callers.
-             */
             String gameId =
-                    stringValue(
-                            request,
-                            "game_id"
-                    ).trim();
-
-            if (gameId.isBlank()) {
-                gameId =
-                        stringValue(
-                                payload,
-                                "game_id"
-                        ).trim();
-            }
+                    requestGameId(request, payload);
 
             if (gameId.isBlank()) {
                 return error(
@@ -567,6 +554,121 @@ final class JsonlBridge {
         }
     }
 
+    private Result getGameState(
+            String requestId,
+            JsonObject request
+    ) {
+        try {
+            JsonObject payload =
+                    request.has("payload")
+                            && request.get("payload").isJsonObject()
+                            ? request.getAsJsonObject("payload")
+                            : new JsonObject();
+
+            String gameId =
+                    requestGameId(request, payload);
+
+            if (gameId.isBlank()) {
+                return error(
+                        requestId,
+                        "invalid_state_payload",
+                        "GET_GAME_STATE requires nonblank game_id",
+                        false
+                );
+            }
+
+            String gameHandle =
+                    gameHandlesById.get(gameId);
+
+            if (gameHandle == null) {
+                return error(
+                        requestId,
+                        "unknown_game_id",
+                        "Unknown process-local game_id: " + gameId,
+                        false
+                );
+            }
+
+            XmageGameManager.StateSnapshot snapshot =
+                    gameManager.snapshotState(gameHandle);
+
+            JsonObject responsePayload =
+                    new JsonObject();
+            responsePayload.addProperty(
+                    "game_id",
+                    snapshot.gameId()
+            );
+            responsePayload.addProperty(
+                    "engine_game_id",
+                    snapshot.engineGameId()
+            );
+            responsePayload.addProperty(
+                    "state_observation_offset",
+                    snapshot.stateObservationOffset()
+            );
+            responsePayload.addProperty(
+                    "seed_controlled",
+                    false
+            );
+            responsePayload.addProperty(
+                    "legal_actions_complete",
+                    false
+            );
+            responsePayload.addProperty(
+                    "event_log_supported",
+                    false
+            );
+            responsePayload.add(
+                    "state",
+                    snapshot.state()
+            );
+
+            return success(
+                    requestId,
+                    responsePayload,
+                    false
+            );
+
+        } catch (XmageGameManager.GameException exc) {
+            return error(
+                    requestId,
+                    "game_state_failed",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_state_payload",
+                    exc.getClass().getSimpleName()
+                            + ": "
+                            + exc.getMessage(),
+                    false
+            );
+        }
+    }
+
+    private static String requestGameId(
+            JsonObject request,
+            JsonObject payload
+    ) {
+        String gameId =
+                stringValue(
+                        request,
+                        "game_id"
+                ).trim();
+
+        if (gameId.isBlank()) {
+            gameId =
+                    stringValue(
+                            payload,
+                            "game_id"
+                    ).trim();
+        }
+
+        return gameId;
+    }
+
     private static List<String> requiredStringArray(
             JsonObject object,
             String property
@@ -649,6 +751,7 @@ final class JsonlBridge {
 
         return List.copyOf(values);
     }
+
     private static int optionalInt(
             JsonObject object,
             String property,
@@ -661,8 +764,8 @@ final class JsonlBridge {
 
         if (!object.get(property).isJsonPrimitive()
                 || !object.get(property)
-                        .getAsJsonPrimitive()
-                        .isNumber()) {
+                .getAsJsonPrimitive()
+                .isNumber()) {
             throw new IllegalArgumentException(
                     property + " must be an integer"
             );
@@ -689,7 +792,7 @@ final class JsonlBridge {
         payload.addProperty("started", true);
         payload.addProperty(
                 "phase",
-                "B3_GAME_START"
+                "B4A_STATE_OBSERVATION"
         );
         return payload;
     }
@@ -729,8 +832,8 @@ final class JsonlBridge {
         error.addProperty("message", message);
         error.addProperty("retryable", retryable);
 
-        com.google.gson.JsonArray errors =
-                new com.google.gson.JsonArray();
+        JsonArray errors =
+                new JsonArray();
         errors.add(error);
 
         response.add("errors", errors);

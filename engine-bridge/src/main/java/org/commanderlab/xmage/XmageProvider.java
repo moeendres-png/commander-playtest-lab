@@ -46,12 +46,9 @@ final class XmageProvider {
         JsonObject capabilities = new JsonObject();
 
         /*
-         * B3 advertises only capabilities proven by the real bridge:
-         * Commander/Partner deck import, 2-5 player Commander game
-         * construction, and headless game start through Protocol 2.
-         *
-         * This does not imply an action loop, tactical control, replay,
-         * deterministic seeding, or production-provider readiness.
+         * B4-A extends the real B3 lifecycle with read-only observation of the
+         * running pinned XMage Game. Priority and stack fields are read from
+         * XMage directly; this does not imply an external decision/action loop.
          */
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
@@ -64,8 +61,8 @@ final class XmageProvider {
         capabilities.addProperty("action_submission_supported", false);
         capabilities.addProperty("event_log_supported", false);
         capabilities.addProperty("replay_supported", false);
-        capabilities.addProperty("stack_visible", false);
-        capabilities.addProperty("priority_visible", false);
+        capabilities.addProperty("stack_visible", true);
+        capabilities.addProperty("priority_visible", true);
         capabilities.addProperty("commander_damage_visible", false);
         capabilities.addProperty("commander_tax_visible", false);
         capabilities.addProperty("starting_state_injection_supported", false);
@@ -98,7 +95,10 @@ final class XmageProvider {
 
         JsonArray notes = new JsonArray();
         notes.add(
-                "B3 real XMage Commander construction/start implemented; action-loop capabilities remain unavailable"
+                "B4-A real XMage read-only game-state observation implemented; external action-loop capabilities remain unavailable"
+        );
+        notes.add(
+                "Seed remains unknown/uncontrolled; no numeric sentinel is synthesized"
         );
         notes.add(
                 "NO_PROVIDER_READY remains in force"

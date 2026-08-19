@@ -1,16 +1,28 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import mage.MageItem;
+import mage.cards.Card;
 import mage.cards.decks.Deck;
+import mage.constants.CommanderCardType;
+import mage.constants.ManaType;
 import mage.constants.MultiplayerAttackOption;
 import mage.constants.PhaseStep;
 import mage.constants.RangeOfInfluence;
+import mage.constants.TurnPhase;
+import mage.counters.CounterType;
 import mage.game.CommanderFreeForAll;
 import mage.game.Game;
 import mage.game.GameOptions;
 import mage.game.mulligan.MulliganType;
+import mage.game.permanent.Permanent;
+import mage.game.stack.StackObject;
 import mage.players.Player;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +49,14 @@ final class XmageGameManager {
             String startingPlayerId,
             int turnNumber,
             boolean paused
+    ) {
+    }
+
+    record StateSnapshot(
+            String gameId,
+            String engineGameId,
+            long stateObservationOffset,
+            JsonObject state
     ) {
     }
 
@@ -67,6 +87,8 @@ final class XmageGameManager {
 
         private Lifecycle lifecycle =
                 Lifecycle.CREATED;
+
+        private long stateObservationOffset = 0L;
 
         private ManagedGame(
                 String gameId,
@@ -321,30 +343,15 @@ final class XmageGameManager {
     StartResult startGame(
             String gameHandle
     ) {
-        String validatedHandle =
-                requireText(
-                        gameHandle,
-                        "game_handle"
-                );
-
         ManagedGame managed =
-                gamesByHandle.get(
-                        validatedHandle
-                );
-
-        if (managed == null) {
-            throw new GameException(
-                    "UNKNOWN_GAME_HANDLE: "
-                            + validatedHandle
-            );
-        }
+                requireManagedGame(gameHandle);
 
         synchronized (managed) {
             if (managed.lifecycle
                     == Lifecycle.STARTED) {
                 throw new GameException(
                         "GAME_ALREADY_STARTED: "
-                                + validatedHandle
+                                + requireText(gameHandle, "game_handle")
                 );
             }
 
@@ -352,7 +359,7 @@ final class XmageGameManager {
                     == Lifecycle.FAILED) {
                 throw new GameException(
                         "GAME_START_PREVIOUSLY_FAILED: "
-                                + validatedHandle
+                                + requireText(gameHandle, "game_handle")
                 );
             }
 
@@ -470,7 +477,7 @@ final class XmageGameManager {
                     Lifecycle.STARTED;
 
             return new StartResult(
-                    validatedHandle,
+                    requireText(gameHandle, "game_handle"),
                     managed.gameId,
                     managed.game.getId()
                             .toString(),
@@ -485,7 +492,129 @@ final class XmageGameManager {
         }
     }
 
+    StateSnapshot snapshotState(
+            String gameHandle
+    ) {
+        ManagedGame managed =
+                requireManagedGame(gameHandle);
+
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException(
+                        "GAME_STATE_UNAVAILABLE: game must be started"
+                );
+            }
+
+            Game game = managed.game;
+            TurnPhase turnPhase = game.getTurnPhaseType();
+
+            if (turnPhase == null) {
+                throw new GameException(
+                        "GAME_STATE_UNAVAILABLE: XMage turn phase is unavailable"
+                );
+            }
+
+            managed.stateObservationOffset++;
+
+            JsonObject state = new JsonObject();
+            state.addProperty("game_id", managed.gameId);
+            state.add("seed", JsonNull.INSTANCE);
+            state.add("rng_counter", JsonNull.INSTANCE);
+            state.addProperty(
+                    "status",
+                    game.hasEnded()
+                            ? "completed"
+                            : "in_progress"
+            );
+            state.addProperty(
+                    "turn_number",
+                    game.getState().getTurnNum()
+            );
+            addNullableUuid(
+                    state,
+                    "active_player_id",
+                    game.getActivePlayerId()
+            );
+            addNullableUuid(
+                    state,
+                    "priority_player_id",
+                    game.getPriorityPlayerId()
+            );
+            state.addProperty(
+                    "phase",
+                    turnPhaseValue(turnPhase)
+            );
+
+            PhaseStep turnStep = game.getTurnStepType();
+            if (turnStep == null) {
+                state.add("step", JsonNull.INSTANCE);
+            } else {
+                state.addProperty(
+                        "step",
+                        turnStep.name().toLowerCase()
+                );
+            }
+
+            JsonArray players = new JsonArray();
+            for (int seat = 0; seat < managed.players.size(); seat++) {
+                players.add(
+                        playerState(
+                                game,
+                                managed.players.get(seat),
+                                seat
+                        )
+                );
+            }
+            state.add("players", players);
+
+            JsonArray stack = new JsonArray();
+            for (StackObject stackObject : game.getStack()) {
+                stack.add(stackObject.getId().toString());
+            }
+            state.add("stack", stack);
+
+            /*
+             * Legal-action completeness belongs to B4-B. An empty list here
+             * is a schema placeholder only and is paired with an explicit
+             * false completeness marker in the surrounding response.
+             */
+            state.add("legal_actions", new JsonArray());
+
+            JsonArray winnerIds = new JsonArray();
+            for (Player player : managed.players) {
+                if (player.hasWon()) {
+                    winnerIds.add(player.getId().toString());
+                }
+            }
+            state.add("winner_ids", winnerIds);
+
+            /*
+             * B4-A has no exported event stream yet. Keep this at zero rather
+             * than inventing event identity; state_observation_offset below is
+             * deliberately a separate observation sequence.
+             */
+            state.addProperty("event_sequence", 0);
+
+            return new StateSnapshot(
+                    managed.gameId,
+                    game.getId().toString(),
+                    managed.stateObservationOffset,
+                    state
+            );
+        }
+    }
+
     Game requireGame(
+            String gameHandle
+    ) {
+        return requireManagedGame(gameHandle).game;
+    }
+
+    int storedGameCount() {
+        return gamesByHandle.size();
+    }
+
+    private ManagedGame requireManagedGame(
             String gameHandle
     ) {
         String validatedHandle =
@@ -506,11 +635,143 @@ final class XmageGameManager {
             );
         }
 
-        return managed.game;
+        return managed;
     }
 
-    int storedGameCount() {
-        return gamesByHandle.size();
+    private static JsonObject playerState(
+            Game game,
+            Player player,
+            int seat
+    ) {
+        JsonObject state = new JsonObject();
+        state.addProperty(
+                "player_id",
+                player.getId().toString()
+        );
+        state.addProperty("seat", seat);
+        state.addProperty("life", player.getLife());
+        state.addProperty(
+                "poison_counters",
+                player.getCountersCount(CounterType.POISON)
+        );
+
+        /*
+         * Commander-damage and commander-tax visibility are not promoted in
+         * B4-A. Empty maps are truthful at the bounded start-state regression;
+         * their capability flags remain false until dedicated evidence exists.
+         */
+        state.add("commander_damage_received", new JsonObject());
+        state.add("commander_cast_count", new JsonObject());
+
+        JsonObject manaPool = new JsonObject();
+        manaPool.addProperty("white", player.getManaPool().get(ManaType.WHITE));
+        manaPool.addProperty("blue", player.getManaPool().get(ManaType.BLUE));
+        manaPool.addProperty("black", player.getManaPool().get(ManaType.BLACK));
+        manaPool.addProperty("red", player.getManaPool().get(ManaType.RED));
+        manaPool.addProperty("green", player.getManaPool().get(ManaType.GREEN));
+        manaPool.addProperty("colorless", player.getManaPool().get(ManaType.COLORLESS));
+        state.add("mana_pool", manaPool);
+
+        JsonObject zones = new JsonObject();
+        zones.add(
+                "library",
+                uuidArray(player.getLibrary().getCardList())
+        );
+        zones.add(
+                "hand",
+                itemArray(player.getHand().getCards(game))
+        );
+
+        List<Permanent> battlefield =
+                game.getBattlefield()
+                        .getAllPermanents()
+                        .stream()
+                        .filter(
+                                permanent -> player.getId()
+                                        .equals(permanent.getControllerId())
+                        )
+                        .toList();
+        zones.add(
+                "battlefield",
+                itemArray(battlefield)
+        );
+        zones.add(
+                "graveyard",
+                itemArray(player.getGraveyard().getCards(game))
+        );
+        zones.add(
+                "exile",
+                itemArray(
+                        game.getExile()
+                                .getCardsOwned(game, player.getId())
+                )
+        );
+        zones.add(
+                "command",
+                itemArray(
+                        game.getCommanderCardsFromCommandZone(
+                                player,
+                                CommanderCardType.COMMANDER_OR_OATHBREAKER
+                        )
+                )
+        );
+        state.add("zones", zones);
+
+        state.addProperty(
+                "land_plays_remaining",
+                Math.max(
+                        0,
+                        player.getLandsPerTurn()
+                                - player.getLandsPlayed()
+                )
+        );
+        state.addProperty("has_lost", player.hasLost());
+
+        return state;
+    }
+
+    private static JsonArray itemArray(
+            Collection<? extends MageItem> items
+    ) {
+        JsonArray result = new JsonArray();
+        for (MageItem item : items) {
+            result.add(item.getId().toString());
+        }
+        return result;
+    }
+
+    private static JsonArray uuidArray(
+            Collection<UUID> ids
+    ) {
+        JsonArray result = new JsonArray();
+        for (UUID id : ids) {
+            result.add(id.toString());
+        }
+        return result;
+    }
+
+    private static void addNullableUuid(
+            JsonObject object,
+            String property,
+            UUID value
+    ) {
+        if (value == null) {
+            object.add(property, JsonNull.INSTANCE);
+        } else {
+            object.addProperty(property, value.toString());
+        }
+    }
+
+    private static String turnPhaseValue(
+            TurnPhase turnPhase
+    ) {
+        return switch (turnPhase) {
+            case BEGINNING -> "beginning";
+            case PRECOMBAT_MAIN -> "precombat_main";
+            case COMBAT -> "combat";
+            case POSTCOMBAT_MAIN -> "postcombat_main";
+            case END -> "ending";
+        };
     }
 
     private static String requireText(
