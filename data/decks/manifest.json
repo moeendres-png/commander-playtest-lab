@@ -66,9 +66,5 @@
     },
     "scope": "runtime_loaded_decks_only"
   },
-  "removed_operational_decks": [
-    "korvold/current"
-  ],
-  "removed_operational_decks_semantics": "historical_inactive_former_own_deck_not_global_active",
-  "notes": "RogShai is the sole active own deck and current optimization target. Korvold is an inactive former own deck retained only for historical/regression reference. Kaervek remains a frozen opponent."
+  "notes": "RogShai is the sole active own deck and current optimization target. Kaervek remains a frozen opponent. Superseded former-own-deck snapshots are not current project sources."
 }
