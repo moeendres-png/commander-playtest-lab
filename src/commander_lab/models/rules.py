@@ -169,6 +169,7 @@ class RulesGameRequest(FrozenModel):
     starting_player_seat: int = Field(default=0, ge=0)
     starting_life: int = Field(default=40, ge=1)
     deterministic_starting_state: dict[str, Any] | None = None
+    external_control: bool = False
 
     @model_validator(mode="after")
     def validate_pod(self) -> RulesGameRequest:
