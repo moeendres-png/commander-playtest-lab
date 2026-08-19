@@ -204,7 +204,9 @@ def main() -> None:
                 delta_events = [dict(item) for item in delta["log"]["events"]]
                 _validate_events(delta_events)
                 if len(delta_events) != 1 or delta_events[0]["event_type"] != "action_submitted":
-                    raise SystemExit("B4-D did not link the real submitted action into the event stream")
+                    raise SystemExit(
+                        "B4-D did not link the real submitted action into the event stream"
+                    )
                 action_event = delta_events[0]
                 payload = dict(action_event["payload"])
                 if payload.get("decision_id") != decision.get("decision_id"):
