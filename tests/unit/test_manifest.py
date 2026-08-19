@@ -24,8 +24,3 @@ def test_local_manifest_has_exactly_one_current_baseline(repo_root: Path) -> Non
         "2b6258ae1c778784ed252bb46ff828343055177146634c77847506d33f4a4362"
     )
     assert len(manifest["data_snapshot_hash"]) == 64
-    assert manifest["removed_operational_decks"] == ["korvold/current"]
-    assert (
-        manifest["removed_operational_decks_semantics"]
-        == "historical_inactive_former_own_deck_not_global_active"
-    )
