@@ -89,8 +89,7 @@ def model_resolution_software_identity(root: str | Path) -> dict[str, Any]:
         )
 
     source_objects = {
-        path: _git(project, "rev-parse", f"HEAD:{path}").lower()
-        for path in _RELEVANT_GIT_PATHS
+        path: _git(project, "rev-parse", f"HEAD:{path}").lower() for path in _RELEVANT_GIT_PATHS
     }
     for path, value in source_objects.items():
         if len(value) != 40 or any(character not in "0123456789abcdef" for character in value):
@@ -104,9 +103,7 @@ def model_resolution_software_identity(root: str | Path) -> dict[str, Any]:
     canonical = {
         "identity_version": MODEL_RESOLUTION_SOFTWARE_IDENTITY_VERSION,
         "resolution_source_manifest_sha256": source_manifest_sha256,
-        "measurement_entrypoint_blob_sha1": source_objects[
-            "scripts/measure_model_resolution.py"
-        ],
+        "measurement_entrypoint_blob_sha1": source_objects["scripts/measure_model_resolution.py"],
         "package_manifest_blob_sha1": source_objects["pyproject.toml"],
     }
     identity_sha256 = hashlib.sha256(
