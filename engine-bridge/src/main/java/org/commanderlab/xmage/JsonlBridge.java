@@ -11,28 +11,23 @@ import java.util.Map;
 
 final class JsonlBridge {
 
-    private final XmageDeckImporter deckImporter =
-            new XmageDeckImporter();
-    private final XmageGameManager gameManager =
-            new XmageGameManager(deckImporter);
+    private final XmageDeckImporter deckImporter = new XmageDeckImporter();
+    private final XmageGameManager gameManager = new XmageGameManager(deckImporter);
 
     /*
-     * Protocol game_id is stable and client-facing.
-     * The mutable XMage Game is addressed internally by a process-local
-     * xmage-game-* handle.
+     * Protocol game_id is stable and client-facing. The mutable XMage Game is
+     * addressed internally by a process-local xmage-game-* handle.
      */
-    private final Map<String, String> gameHandlesById =
-            new HashMap<>();
+    private final Map<String, String> gameHandlesById = new HashMap<>();
 
     record Result(String json, boolean shutdown) {
     }
 
     Result handle(String input) {
         JsonObject request;
-
         try {
             request = JsonParser.parseString(input).getAsJsonObject();
-        } catch (Exception ex) {
+        } catch (Exception exc) {
             return error(
                     "",
                     "invalid_json",
@@ -43,7 +38,6 @@ final class JsonlBridge {
 
         String requestId = stringValue(request, "request_id");
         String protocolVersion = stringValue(request, "protocol_version");
-
         if (!XmageProvider.PROTOCOL_VERSION.equals(protocolVersion)) {
             return error(
                     requestId,
@@ -62,66 +56,40 @@ final class JsonlBridge {
         }
 
         return switch (messageType) {
-            case "start_engine" ->
-                    success(requestId, startedPayload(), false);
-
-            case "get_provider_version" ->
-                    success(
-                            requestId,
-                            XmageProvider.providerVersion(),
-                            false
-                    );
-
-            case "get_capabilities" ->
-                    success(
-                            requestId,
-                            XmageProvider.capabilitiesPayload(),
-                            false
-                    );
-
-            case "import_deck" ->
-                    importDeck(requestId, request);
-            case "create_commander_game" ->
-                    createCommanderGame(requestId, request);
-            case "start_game" ->
-                    startGame(requestId, request);
-            case "get_game_state" ->
-                    getGameState(requestId, request);
-
-            case "shutdown_engine" ->
-                    success(requestId, shutdownPayload(), true);
-
-            default ->
-                    error(
-                            requestId,
-                            "unsupported_message",
-                            "Current XMage bridge does not support message type: "
-                                    + messageType,
-                            false
-                    );
+            case "start_engine" -> success(requestId, startedPayload(), false);
+            case "get_provider_version" -> success(
+                    requestId,
+                    XmageProvider.providerVersion(),
+                    false
+            );
+            case "get_capabilities" -> success(
+                    requestId,
+                    XmageProvider.capabilitiesPayload(),
+                    false
+            );
+            case "import_deck" -> importDeck(requestId, request);
+            case "create_commander_game" -> createCommanderGame(requestId, request);
+            case "start_game" -> startGame(requestId, request);
+            case "get_game_state" -> getGameState(requestId, request);
+            case "get_legal_actions" -> getLegalActions(requestId, request);
+            case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
+            default -> error(
+                    requestId,
+                    "unsupported_message",
+                    "Current XMage bridge does not support message type: " + messageType,
+                    false
+            );
         };
     }
 
-    private Result importDeck(
-            String requestId,
-            JsonObject request
-    ) {
+    private Result importDeck(String requestId, JsonObject request) {
         try {
-            if (!request.has("payload")
-                    || !request.get("payload").isJsonObject()) {
-                return error(
-                        requestId,
-                        "invalid_deck_payload",
-                        "IMPORT_DECK requires an object payload",
-                        false
-                );
-            }
-
-            JsonObject payload =
-                    request.getAsJsonObject("payload");
-
-            if (!payload.has("deck")
-                    || !payload.get("deck").isJsonObject()) {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_deck_payload",
+                    "IMPORT_DECK requires an object payload"
+            );
+            if (!payload.has("deck") || !payload.get("deck").isJsonObject()) {
                 return error(
                         requestId,
                         "invalid_deck_payload",
@@ -130,37 +98,13 @@ final class JsonlBridge {
                 );
             }
 
-            JsonObject deck =
-                    payload.getAsJsonObject("deck");
+            JsonObject deck = payload.getAsJsonObject("deck");
+            String deckId = stringValue(deck, "deck_id");
+            String deckHash = stringValue(deck, "deck_hash");
+            List<String> mainboard = requiredStringArray(deck, "mainboard");
+            List<String> commanders = requiredStringArray(deck, "commander_names");
+            List<String> sideboard = optionalStringArray(deck, "sideboard");
 
-            String deckId =
-                    stringValue(deck, "deck_id");
-
-            String deckHash =
-                    stringValue(deck, "deck_hash");
-
-            List<String> mainboard =
-                    requiredStringArray(
-                            deck,
-                            "mainboard"
-                    );
-
-            List<String> commanders =
-                    requiredStringArray(
-                            deck,
-                            "commander_names"
-                    );
-
-            List<String> sideboard =
-                    optionalStringArray(
-                            deck,
-                            "sideboard"
-                    );
-
-            /*
-             * B2 supports Commander mainboard + commander zone only.
-             * Do not silently reinterpret a conventional sideboard.
-             */
             if (!sideboard.isEmpty()) {
                 return error(
                         requestId,
@@ -170,79 +114,32 @@ final class JsonlBridge {
                 );
             }
 
-            XmageDeckImporter.ImportResult imported =
-                    deckImporter.importCommanderDeck(
-                            deckId,
-                            deckHash,
-                            mainboard,
-                            commanders
-                    );
-
-            JsonObject handle =
-                    new JsonObject();
-
-            handle.addProperty(
-                    "backend",
-                    XmageProvider.ENGINE
+            XmageDeckImporter.ImportResult imported = deckImporter.importCommanderDeck(
+                    deckId,
+                    deckHash,
+                    mainboard,
+                    commanders
             );
 
-            handle.addProperty(
-                    "handle_id",
-                    imported.deckHandle()
-            );
+            JsonObject handle = new JsonObject();
+            handle.addProperty("backend", XmageProvider.ENGINE);
+            handle.addProperty("handle_id", imported.deckHandle());
+            handle.addProperty("deck_id", imported.deckId());
+            handle.addProperty("deck_hash", imported.deckHash());
 
-            handle.addProperty(
-                    "deck_id",
-                    imported.deckId()
-            );
-
-            handle.addProperty(
-                    "deck_hash",
-                    imported.deckHash()
-            );
-
-            JsonArray commanderNames =
-                    new JsonArray();
-
-            commanders.forEach(
-                    commanderNames::add
-            );
-
-            handle.add(
-                    "commander_names",
-                    commanderNames
-            );
-
+            JsonArray commanderNames = new JsonArray();
+            commanders.forEach(commanderNames::add);
+            handle.add("commander_names", commanderNames);
             handle.addProperty(
                     "accepted_cards",
-                    imported.mainboardCount()
-                            + imported.commanderCount()
+                    imported.mainboardCount() + imported.commanderCount()
             );
+            handle.add("rejected_cards", new JsonArray());
+            handle.add("warnings", new JsonArray());
 
-            handle.add(
-                    "rejected_cards",
-                    new JsonArray()
-            );
-
-            handle.add(
-                    "warnings",
-                    new JsonArray()
-            );
-
-            JsonObject responsePayload =
-                    new JsonObject();
-
-            responsePayload.add(
-                    "deck_handle",
-                    handle
-            );
-
-            return success(
-                    requestId,
-                    responsePayload,
-                    false
-            );
-
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.add("deck_handle", handle);
+            return success(requestId, responsePayload, false);
         } catch (XmageDeckImporter.ImportException exc) {
             return error(
                     requestId,
@@ -254,34 +151,20 @@ final class JsonlBridge {
             return error(
                     requestId,
                     "invalid_deck_payload",
-                    exc.getClass().getSimpleName()
-                            + ": "
-                            + exc.getMessage(),
+                    exceptionMessage(exc),
                     false
             );
         }
     }
 
-    private Result createCommanderGame(
-            String requestId,
-            JsonObject request
-    ) {
+    private Result createCommanderGame(String requestId, JsonObject request) {
         try {
-            if (!request.has("payload")
-                    || !request.get("payload").isJsonObject()) {
-                return error(
-                        requestId,
-                        "invalid_game_payload",
-                        "CREATE_COMMANDER_GAME requires an object payload",
-                        false
-                );
-            }
-
-            JsonObject payload =
-                    request.getAsJsonObject("payload");
-
-            if (!payload.has("request")
-                    || !payload.get("request").isJsonObject()) {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_game_payload",
+                    "CREATE_COMMANDER_GAME requires an object payload"
+            );
+            if (!payload.has("request") || !payload.get("request").isJsonObject()) {
                 return error(
                         requestId,
                         "invalid_game_payload",
@@ -290,15 +173,8 @@ final class JsonlBridge {
                 );
             }
 
-            JsonObject gameRequest =
-                    payload.getAsJsonObject("request");
-
-            String gameId =
-                    stringValue(
-                            gameRequest,
-                            "game_id"
-                    ).trim();
-
+            JsonObject gameRequest = payload.getAsJsonObject("request");
+            String gameId = stringValue(gameRequest, "game_id").trim();
             if (gameId.isBlank()) {
                 return error(
                         requestId,
@@ -308,66 +184,50 @@ final class JsonlBridge {
                 );
             }
 
-            String format =
-                    stringValue(
-                            gameRequest,
-                            "format"
-                    ).trim();
-
+            String format = stringValue(gameRequest, "format").trim();
             if (!"commander".equals(format)) {
                 return error(
                         requestId,
                         "unsupported_game_format",
-                        "B3 supports only format=commander",
+                        "B4 compatibility bridge supports only format=commander",
                         false
                 );
             }
 
             /*
-             * Seeded execution and deterministic starting-state injection
-             * belong to later gates. Never ignore them silently.
+             * Seeded execution and deterministic starting-state injection are
+             * still unproven. Never silently accept them.
              */
-            if (gameRequest.has("seed")
-                    && !gameRequest.get("seed").isJsonNull()) {
+            if (gameRequest.has("seed") && !gameRequest.get("seed").isJsonNull()) {
                 return error(
                         requestId,
                         "unsupported_game_option",
-                        "B3 does not support seed",
+                        "B4-B does not support seed",
                         false
                 );
             }
-
             if (gameRequest.has("deterministic_starting_state")
-                    && !gameRequest
-                            .get("deterministic_starting_state")
-                            .isJsonNull()) {
+                    && !gameRequest.get("deterministic_starting_state").isJsonNull()) {
                 return error(
                         requestId,
                         "unsupported_game_option",
-                        "B3 does not support deterministic_starting_state",
+                        "B4-B does not support deterministic_starting_state",
                         false
                 );
             }
 
-            List<String> deckHandles =
-                    requiredStringArray(
-                            gameRequest,
-                            "deck_handles"
-                    );
-
-            int startingPlayerSeat =
-                    optionalInt(
-                            gameRequest,
-                            "starting_player_seat",
-                            0
-                    );
-
-            int startingLife =
-                    optionalInt(
-                            gameRequest,
-                            "starting_life",
-                            40
-                    );
+            List<String> deckHandles = requiredStringArray(gameRequest, "deck_handles");
+            int startingPlayerSeat = optionalInt(
+                    gameRequest,
+                    "starting_player_seat",
+                    0
+            );
+            int startingLife = optionalInt(gameRequest, "starting_life", 40);
+            boolean externalControl = optionalBoolean(
+                    gameRequest,
+                    "external_control",
+                    false
+            );
 
             if (gameHandlesById.containsKey(gameId)) {
                 return error(
@@ -378,53 +238,26 @@ final class JsonlBridge {
                 );
             }
 
-            XmageGameManager.CreateResult created =
-                    gameManager.createCommanderGame(
-                            gameId,
-                            new ArrayList<>(deckHandles),
-                            startingPlayerSeat,
-                            startingLife
-                    );
-
-            gameHandlesById.put(
-                    created.gameId(),
-                    created.gameHandle()
+            XmageGameManager.CreateResult created = gameManager.createCommanderGame(
+                    gameId,
+                    new ArrayList<>(deckHandles),
+                    startingPlayerSeat,
+                    startingLife,
+                    externalControl
             );
+            gameHandlesById.put(created.gameId(), created.gameHandle());
 
-            JsonObject responsePayload =
-                    new JsonObject();
-
-            responsePayload.addProperty(
-                    "game_id",
-                    created.gameId()
-            );
-
-            responsePayload.addProperty(
-                    "game_handle",
-                    created.gameHandle()
-            );
-
-            responsePayload.addProperty(
-                    "engine_game_id",
-                    created.engineGameId()
-            );
-
-            responsePayload.addProperty(
-                    "player_count",
-                    created.playerCount()
-            );
-
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", created.gameId());
+            responsePayload.addProperty("game_handle", created.gameHandle());
+            responsePayload.addProperty("engine_game_id", created.engineGameId());
+            responsePayload.addProperty("player_count", created.playerCount());
             responsePayload.addProperty(
                     "starting_player_seat",
                     created.startingPlayerSeat()
             );
-
-            return success(
-                    requestId,
-                    responsePayload,
-                    false
-            );
-
+            responsePayload.addProperty("external_control", created.externalControl());
+            return success(requestId, responsePayload, false);
         } catch (XmageGameManager.GameException exc) {
             return error(
                     requestId,
@@ -436,35 +269,20 @@ final class JsonlBridge {
             return error(
                     requestId,
                     "invalid_game_payload",
-                    exc.getClass().getSimpleName()
-                            + ": "
-                            + exc.getMessage(),
+                    exceptionMessage(exc),
                     false
             );
         }
     }
 
-    private Result startGame(
-            String requestId,
-            JsonObject request
-    ) {
+    private Result startGame(String requestId, JsonObject request) {
         try {
-            if (!request.has("payload")
-                    || !request.get("payload").isJsonObject()) {
-                return error(
-                        requestId,
-                        "invalid_start_payload",
-                        "START_GAME requires an object payload",
-                        false
-                );
-            }
-
-            JsonObject payload =
-                    request.getAsJsonObject("payload");
-
-            String gameId =
-                    requestGameId(request, payload);
-
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_start_payload",
+                    "START_GAME requires an object payload"
+            );
+            String gameId = requestGameId(request, payload);
             if (gameId.isBlank()) {
                 return error(
                         requestId,
@@ -474,9 +292,7 @@ final class JsonlBridge {
                 );
             }
 
-            String gameHandle =
-                    gameHandlesById.get(gameId);
-
+            String gameHandle = gameHandlesById.get(gameId);
             if (gameHandle == null) {
                 return error(
                         requestId,
@@ -486,55 +302,20 @@ final class JsonlBridge {
                 );
             }
 
-            XmageGameManager.StartResult started =
-                    gameManager.startGame(
-                            gameHandle
-                    );
-
-            JsonObject responsePayload =
-                    new JsonObject();
-
-            responsePayload.addProperty(
-                    "game_id",
-                    started.gameId()
-            );
-
-            responsePayload.addProperty(
-                    "game_handle",
-                    started.gameHandle()
-            );
-
-            responsePayload.addProperty(
-                    "engine_game_id",
-                    started.engineGameId()
-            );
-
-            responsePayload.addProperty(
-                    "player_count",
-                    started.playerCount()
-            );
-
+            XmageGameManager.StartResult started = gameManager.startGame(gameHandle);
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", started.gameId());
+            responsePayload.addProperty("game_handle", started.gameHandle());
+            responsePayload.addProperty("engine_game_id", started.engineGameId());
+            responsePayload.addProperty("player_count", started.playerCount());
             responsePayload.addProperty(
                     "starting_player_id",
                     started.startingPlayerId()
             );
-
-            responsePayload.addProperty(
-                    "turn_number",
-                    started.turnNumber()
-            );
-
-            responsePayload.addProperty(
-                    "paused",
-                    started.paused()
-            );
-
-            return success(
-                    requestId,
-                    responsePayload,
-                    false
-            );
-
+            responsePayload.addProperty("turn_number", started.turnNumber());
+            responsePayload.addProperty("paused", started.paused());
+            responsePayload.addProperty("external_control", started.externalControl());
+            return success(requestId, responsePayload, false);
         } catch (XmageGameManager.GameException exc) {
             return error(
                     requestId,
@@ -546,28 +327,16 @@ final class JsonlBridge {
             return error(
                     requestId,
                     "invalid_start_payload",
-                    exc.getClass().getSimpleName()
-                            + ": "
-                            + exc.getMessage(),
+                    exceptionMessage(exc),
                     false
             );
         }
     }
 
-    private Result getGameState(
-            String requestId,
-            JsonObject request
-    ) {
+    private Result getGameState(String requestId, JsonObject request) {
         try {
-            JsonObject payload =
-                    request.has("payload")
-                            && request.get("payload").isJsonObject()
-                            ? request.getAsJsonObject("payload")
-                            : new JsonObject();
-
-            String gameId =
-                    requestGameId(request, payload);
-
+            JsonObject payload = optionalObjectPayload(request);
+            String gameId = requestGameId(request, payload);
             if (gameId.isBlank()) {
                 return error(
                         requestId,
@@ -577,9 +346,7 @@ final class JsonlBridge {
                 );
             }
 
-            String gameHandle =
-                    gameHandlesById.get(gameId);
-
+            String gameHandle = gameHandlesById.get(gameId);
             if (gameHandle == null) {
                 return error(
                         requestId,
@@ -589,46 +356,19 @@ final class JsonlBridge {
                 );
             }
 
-            XmageGameManager.StateSnapshot snapshot =
-                    gameManager.snapshotState(gameHandle);
-
-            JsonObject responsePayload =
-                    new JsonObject();
-            responsePayload.addProperty(
-                    "game_id",
-                    snapshot.gameId()
-            );
-            responsePayload.addProperty(
-                    "engine_game_id",
-                    snapshot.engineGameId()
-            );
+            XmageGameManager.StateSnapshot snapshot = gameManager.snapshotState(gameHandle);
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", snapshot.gameId());
+            responsePayload.addProperty("engine_game_id", snapshot.engineGameId());
             responsePayload.addProperty(
                     "state_observation_offset",
                     snapshot.stateObservationOffset()
             );
-            responsePayload.addProperty(
-                    "seed_controlled",
-                    false
-            );
-            responsePayload.addProperty(
-                    "legal_actions_complete",
-                    false
-            );
-            responsePayload.addProperty(
-                    "event_log_supported",
-                    false
-            );
-            responsePayload.add(
-                    "state",
-                    snapshot.state()
-            );
-
-            return success(
-                    requestId,
-                    responsePayload,
-                    false
-            );
-
+            responsePayload.addProperty("seed_controlled", false);
+            responsePayload.addProperty("legal_actions_complete", false);
+            responsePayload.addProperty("event_log_supported", false);
+            responsePayload.add("state", snapshot.state());
+            return success(requestId, responsePayload, false);
         } catch (XmageGameManager.GameException exc) {
             return error(
                     requestId,
@@ -640,32 +380,91 @@ final class JsonlBridge {
             return error(
                     requestId,
                     "invalid_state_payload",
-                    exc.getClass().getSimpleName()
-                            + ": "
-                            + exc.getMessage(),
+                    exceptionMessage(exc),
                     false
             );
         }
     }
 
-    private static String requestGameId(
-            JsonObject request,
-            JsonObject payload
-    ) {
-        String gameId =
-                stringValue(
-                        request,
-                        "game_id"
-                ).trim();
+    private Result getLegalActions(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = optionalObjectPayload(request);
+            String gameId = requestGameId(request, payload);
+            if (gameId.isBlank()) {
+                return error(
+                        requestId,
+                        "invalid_legal_actions_payload",
+                        "GET_LEGAL_ACTIONS requires nonblank game_id",
+                        false
+                );
+            }
 
-        if (gameId.isBlank()) {
-            gameId =
-                    stringValue(
-                            payload,
-                            "game_id"
-                    ).trim();
+            String gameHandle = gameHandlesById.get(gameId);
+            if (gameHandle == null) {
+                return error(
+                        requestId,
+                        "unknown_game_id",
+                        "Unknown process-local game_id: " + gameId,
+                        false
+                );
+            }
+
+            XmageGameManager.LegalActionsSnapshot snapshot =
+                    gameManager.legalActions(gameHandle);
+
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", snapshot.gameId());
+            responsePayload.addProperty("engine_game_id", snapshot.engineGameId());
+            responsePayload.addProperty("decision_offset", snapshot.decisionOffset());
+            responsePayload.addProperty("decision_id", snapshot.decisionId());
+            responsePayload.addProperty("actor_id", snapshot.actorId());
+            responsePayload.addProperty("decision_kind", snapshot.decisionKind());
+            responsePayload.addProperty("complete", snapshot.complete());
+            responsePayload.addProperty("global_capability_promoted", false);
+
+            JsonArray actions = new JsonArray();
+            snapshot.actions().forEach(actions::add);
+            responsePayload.add("actions", actions);
+            return success(requestId, responsePayload, false);
+        } catch (XmageGameManager.GameException exc) {
+            return error(
+                    requestId,
+                    "legal_actions_failed",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_legal_actions_payload",
+                    exceptionMessage(exc),
+                    false
+            );
         }
+    }
 
+    private static JsonObject requireObjectPayload(
+            JsonObject request,
+            String code,
+            String message
+    ) {
+        if (!request.has("payload") || !request.get("payload").isJsonObject()) {
+            throw new IllegalArgumentException(code + ": " + message);
+        }
+        return request.getAsJsonObject("payload");
+    }
+
+    private static JsonObject optionalObjectPayload(JsonObject request) {
+        return request.has("payload") && request.get("payload").isJsonObject()
+                ? request.getAsJsonObject("payload")
+                : new JsonObject();
+    }
+
+    private static String requestGameId(JsonObject request, JsonObject payload) {
+        String gameId = stringValue(request, "game_id").trim();
+        if (gameId.isBlank()) {
+            gameId = stringValue(payload, "game_id").trim();
+        }
         return gameId;
     }
 
@@ -673,82 +472,46 @@ final class JsonlBridge {
             JsonObject object,
             String property
     ) {
-        if (!object.has(property)
-                || object.get(property).isJsonNull()) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
             throw new IllegalArgumentException(
-                    "Missing required array: "
-                            + property
+                    "Missing required array: " + property
             );
         }
-
-        return stringArray(
-                object,
-                property
-        );
+        return stringArray(object, property);
     }
 
     private static List<String> optionalStringArray(
             JsonObject object,
             String property
     ) {
-        if (!object.has(property)
-                || object.get(property).isJsonNull()) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
             return List.of();
         }
-
-        return stringArray(
-                object,
-                property
-        );
+        return stringArray(object, property);
     }
 
-    private static List<String> stringArray(
-            JsonObject object,
-            String property
-    ) {
+    private static List<String> stringArray(JsonObject object, String property) {
         if (!object.get(property).isJsonArray()) {
-            throw new IllegalArgumentException(
-                    property
-                            + " must be an array"
-            );
+            throw new IllegalArgumentException(property + " must be an array");
         }
 
-        JsonArray array =
-                object.getAsJsonArray(property);
-
-        List<String> values =
-                new ArrayList<>(array.size());
-
+        JsonArray array = object.getAsJsonArray(property);
+        List<String> values = new ArrayList<>(array.size());
         for (int index = 0; index < array.size(); index++) {
             if (!array.get(index).isJsonPrimitive()
-                    || !array.get(index)
-                    .getAsJsonPrimitive()
-                    .isString()) {
+                    || !array.get(index).getAsJsonPrimitive().isString()) {
                 throw new IllegalArgumentException(
-                        property
-                                + "["
-                                + index
-                                + "] must be a string"
+                        property + "[" + index + "] must be a string"
                 );
             }
-
-            String value =
-                    array.get(index)
-                            .getAsString()
-                            .trim();
-
+            String value = array.get(index).getAsString().trim();
             if (value.isBlank()) {
                 throw new IllegalArgumentException(
-                        property
-                                + "["
-                                + index
-                                + "] must be nonblank"
+                        property + "[" + index + "] must be nonblank"
                 );
             }
-
             values.add(value);
         }
-
         return List.copyOf(values);
     }
 
@@ -757,43 +520,41 @@ final class JsonlBridge {
             String property,
             int defaultValue
     ) {
-        if (!object.has(property)
-                || object.get(property).isJsonNull()) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
             return defaultValue;
         }
-
         if (!object.get(property).isJsonPrimitive()
-                || !object.get(property)
-                .getAsJsonPrimitive()
-                .isNumber()) {
-            throw new IllegalArgumentException(
-                    property + " must be an integer"
-            );
+                || !object.get(property).getAsJsonPrimitive().isNumber()) {
+            throw new IllegalArgumentException(property + " must be an integer");
         }
-
-        String raw =
-                object.get(property)
-                        .getAsString();
-
+        String raw = object.get(property).getAsString();
         if (!raw.matches("-?\\d+")) {
-            throw new IllegalArgumentException(
-                    property + " must be an integer"
-            );
+            throw new IllegalArgumentException(property + " must be an integer");
         }
-
         return Integer.parseInt(raw);
+    }
+
+    private static boolean optionalBoolean(
+            JsonObject object,
+            String property,
+            boolean defaultValue
+    ) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
+            return defaultValue;
+        }
+        if (!object.get(property).isJsonPrimitive()
+                || !object.get(property).getAsJsonPrimitive().isBoolean()) {
+            throw new IllegalArgumentException(property + " must be a boolean");
+        }
+        return object.get(property).getAsBoolean();
     }
 
     private static JsonObject startedPayload() {
         XmageProvider.verifyRuntimeLoaded();
-
         JsonObject payload = new JsonObject();
         payload.addProperty("engine", XmageProvider.ENGINE);
         payload.addProperty("started", true);
-        payload.addProperty(
-                "phase",
-                "B4A_STATE_OBSERVATION"
-        );
+        payload.addProperty("phase", "B4B_DECISION_HANDOFF");
         return payload;
     }
 
@@ -831,14 +592,11 @@ final class JsonlBridge {
         error.addProperty("code", code);
         error.addProperty("message", message);
         error.addProperty("retryable", retryable);
-
-        JsonArray errors =
-                new JsonArray();
+        JsonArray errors = new JsonArray();
         errors.add(error);
 
         response.add("errors", errors);
         response.addProperty("engine_event_offset", 0);
-
         return new Result(response.toString(), false);
     }
 
@@ -852,14 +610,14 @@ final class JsonlBridge {
         return response;
     }
 
-    private static String stringValue(
-            JsonObject object,
-            String property
-    ) {
-        if (!object.has(property)
-                || object.get(property).isJsonNull()) {
+    private static String stringValue(JsonObject object, String property) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
             return "";
         }
         return object.get(property).getAsString();
+    }
+
+    private static String exceptionMessage(Exception exc) {
+        return exc.getClass().getSimpleName() + ": " + exc.getMessage();
     }
 }
