@@ -120,11 +120,14 @@ def main() -> None:
         if (capabilities.max_players or 0) < 5:
             raise SystemExit("B3 capability regression: max_players < 5")
 
+        # B3 protects its own lifecycle surface. Later validated phases may promote
+        # orthogonal capabilities (for example B4-D event logging) without making
+        # this historical B3 regression stale. Production-wide unsupported claims
+        # remain guarded by the current provider-truth tests and config.
         forbidden_claims = {
             "seed_supported": capabilities.seed_supported,
             "legal_actions_supported": capabilities.legal_actions_supported,
             "action_submission_supported": capabilities.action_submission_supported,
-            "event_log_supported": capabilities.event_log_supported,
             "replay_supported": capabilities.replay_supported,
         }
         unexpectedly_enabled = sorted(name for name, value in forbidden_claims.items() if value)
