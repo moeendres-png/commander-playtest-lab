@@ -5,6 +5,10 @@ import string
 from pathlib import Path
 from typing import Any
 
+from commander_lab.model_resolution_software_identity import (
+    ModelResolutionSoftwareIdentityError,
+    model_resolution_software_identity,
+)
 from commander_lab.whole_deck.lab_context import enriched_context
 from commander_lab.whole_deck.orchestrator import WholeDeckCampaignOrchestrator
 from commander_lab.whole_deck.search_context import current_control_mainboard
@@ -30,12 +34,38 @@ def _require_hex_digest(payload: dict[str, Any], key: str, *, length: int) -> st
     return value.lower()
 
 
+def _validated_stored_software_identity(payload: dict[str, Any]) -> dict[str, Any]:
+    raw = payload.get("software_identity")
+    if not isinstance(raw, dict):
+        raise CurrentModelResolutionError(
+            "current model resolution has no content-addressed software identity"
+        )
+    if raw.get("schema_version") != "1.0.0":
+        raise CurrentModelResolutionError(
+            "current model resolution has an unsupported software identity schema"
+        )
+    identity = {
+        **raw,
+        "commander_lab_tree_sha1": _require_hex_digest(
+            raw, "commander_lab_tree_sha1", length=40
+        ),
+        "measurement_entrypoint_blob_sha1": _require_hex_digest(
+            raw, "measurement_entrypoint_blob_sha1", length=40
+        ),
+        "package_manifest_blob_sha1": _require_hex_digest(
+            raw, "package_manifest_blob_sha1", length=40
+        ),
+        "identity_sha256": _require_hex_digest(raw, "identity_sha256", length=64),
+    }
+    return identity
+
+
 def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
     """Load and live-validate the current Structural resolution contract.
 
-    Freshness is defined by the same Whole-Deck control materialization, data snapshot, and
-    opponent registry used by the measurement protocol. A mismatch fails closed rather than
-    silently falling back to a zero or historical resolution threshold.
+    Freshness is defined by the same Whole-Deck control materialization, data snapshot, opponent
+    registry, and content-addressed software inputs used by the measurement protocol. A mismatch
+    fails closed rather than silently falling back to a zero or historical resolution threshold.
     """
 
     project = Path(root).resolve()
@@ -75,6 +105,7 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
     )
     stored_snapshot_hash = _require_hex_digest(payload, "data_snapshot_hash", length=64)
     stored_opponent_hash = _require_hex_digest(payload, "opponent_registry_hash", length=64)
+    stored_software_identity = _validated_stored_software_identity(payload)
 
     context, _, _ = enriched_context(project)
     control = context.materialize(
@@ -82,6 +113,13 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
         label="model-resolution-current-control",
     )
     orchestrator = WholeDeckCampaignOrchestrator(project)
+    try:
+        current_software_identity = model_resolution_software_identity(project)
+    except ModelResolutionSoftwareIdentityError as exc:
+        raise CurrentModelResolutionError(
+            "current model-resolution software freshness cannot be proven"
+        ) from exc
+
     current = {
         "structural_control_deck_hash": control.deck_hash,
         "data_snapshot_hash": control.data_snapshot_hash,
@@ -103,6 +141,27 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
             + json.dumps(mismatches, sort_keys=True)
         )
 
+    software_keys = (
+        "identity_version",
+        "commander_lab_tree_sha1",
+        "measurement_entrypoint_blob_sha1",
+        "package_manifest_blob_sha1",
+        "identity_sha256",
+    )
+    software_mismatches = {
+        key: {
+            "stored": stored_software_identity.get(key),
+            "current": current_software_identity.get(key),
+        }
+        for key in software_keys
+        if stored_software_identity.get(key) != current_software_identity.get(key)
+    }
+    if software_mismatches:
+        raise CurrentModelResolutionError(
+            "current model-resolution evidence is stale for the live software identity: "
+            + json.dumps(software_mismatches, sort_keys=True)
+        )
+
     artifact = payload.get("measurement_artifact")
     if not isinstance(artifact, dict):
         raise CurrentModelResolutionError("current model resolution has no measurement provenance")
@@ -116,6 +175,7 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
 
     return {
         **payload,
+        "software_identity": stored_software_identity,
         "measurement_artifact": {
             **artifact,
             "source_head": source_head,
@@ -123,7 +183,10 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
             "report_hash": report_hash,
         },
         "freshness_validated": True,
-        "freshness_inputs": current,
+        "freshness_inputs": {
+            **current,
+            "software_identity": current_software_identity,
+        },
         "truth_boundary": (
             str(payload.get("truth_boundary", ""))
             + " Freshness validation does not convert Structural evidence into empirical "
