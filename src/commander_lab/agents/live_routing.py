@@ -54,7 +54,13 @@ def pilot_family(pilot_name: str) -> str:
         return "kaervek"
     if normalized == "genericcommanderpilot":
         return "generic"
-    if normalized in {"aggropilot", "controlpilot", "enginepilot", "graveyardpilot", "artifactpilot"}:
+    if normalized in {
+        "aggropilot",
+        "controlpilot",
+        "enginepilot",
+        "graveyardpilot",
+        "artifactpilot",
+    }:
         return normalized.removesuffix("pilot")
     return "unknown"
 
@@ -81,7 +87,9 @@ def _validate_family(strategy: str, pilot_name: str) -> None:
     actual = pilot_family(pilot_name)
 
     if actual == "retired_korvold":
-        raise ValueError(f"retired former-own-deck pilot is not available for live routing: {pilot_name}")
+        raise ValueError(
+            f"retired former-own-deck pilot is not available for live routing: {pilot_name}"
+        )
 
     if expected in {"rogshai", "kaervek", "generic"} and actual != expected:
         raise ValueError(
