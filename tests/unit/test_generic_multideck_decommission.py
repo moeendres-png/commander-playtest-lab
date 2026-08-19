@@ -5,8 +5,13 @@ from types import SimpleNamespace
 
 import pytest
 
-from commander_lab.agents import GenericCommanderPilot, KaervekOpponentPilot, RogShaiPilot
-from commander_lab.agents import auto_pilot_name, build_pilot
+from commander_lab.agents import (
+    GenericCommanderPilot,
+    KaervekOpponentPilot,
+    RogShaiPilot,
+    auto_pilot_name,
+    build_pilot,
+)
 from commander_lab.agents.ensemble import PilotRegistry
 from commander_lab.engine.structural.project import live_commander_strategy
 from commander_lab.models import PilotConfig
@@ -74,14 +79,20 @@ def test_canonical_pilot_registry_contains_generic_and_rogshai_but_no_korvold() 
     assert not any(name.casefold().startswith("korvold") for name in names)
     generic = next(profile for profile in profiles if profile.pilot_name == "GenericCommanderPilot")
     assert generic.supported_deck_hashes == ()
-    assert all(value == 1.0 for key, value in generic.weights.as_dict().items() if key != "political_visibility")
+    assert all(
+        value == 1.0
+        for key, value in generic.weights.as_dict().items()
+        if key != "political_visibility"
+    )
     assert generic.weights.political_visibility == -0.65
 
 
 def test_canonical_mulligan_routes_non_rogshai_fixture_to_generic() -> None:
     lab = MulliganLab(ROOT)
     generic_deck = next(
-        deck for deck in lab.decks.values() if deck.commander_strategy in {"aggro", "control", "engine"}
+        deck
+        for deck in lab.decks.values()
+        if deck.commander_strategy in {"aggro", "control", "engine"}
     )
     assert (
         lab._pilot_name_for_policy(
