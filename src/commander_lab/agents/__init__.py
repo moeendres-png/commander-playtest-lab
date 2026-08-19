@@ -1,3 +1,5 @@
+from .live_routing import auto_pilot_name as auto_pilot_name
+from .live_routing import build_pilot as build_pilot
 from .optimization_orchestrator import (
     OptimizationPlan as OptimizationPlan,
 )
@@ -31,8 +33,6 @@ from .pilots import (
     RogShaiSpellslingerPilot,
     RogShaiTempoPilot,
     RogShaiVoltronPilot,
-    auto_pilot_name,
-    build_pilot,
 )
 
 __all__ = [
