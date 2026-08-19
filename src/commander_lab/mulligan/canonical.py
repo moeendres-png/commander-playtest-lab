@@ -21,7 +21,6 @@ from commander_lab.storage import sha256_value
 from .lab import MulliganLab as _LegacyMulliganLab
 from .lab import MulliganLabError
 
-
 _ROGSHAI_POLICY_PILOTS = {
     MulliganPolicyName.CONSERVATIVE: "RogShaiControlPilot",
     MulliganPolicyName.CURVE_ORIENTED: "RogShaiTempoPilot",
