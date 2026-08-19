@@ -94,16 +94,23 @@ jobs:
               if not isinstance(value, str) or len(value) != 64:
                   raise SystemExit(f'model resolution lost reproducible {key}')
           software = report.get('software_identity')
-          if not isinstance(software, dict):
-              raise SystemExit('model resolution lost content-addressed software identity')
-          for key in (
-              'commander_lab_tree_sha1',
-              'measurement_entrypoint_blob_sha1',
-              'package_manifest_blob_sha1',
-          ):
+          if not isinstance(software, dict) or software.get('schema_version') != '1.1.0':
+              raise SystemExit('model resolution lost scoped content-addressed software identity')
+          manifest = software.get('resolution_source_manifest_sha256')
+          if not isinstance(manifest, str) or len(manifest) != 64:
+              raise SystemExit('model resolution lost resolution-source manifest digest')
+          for key in ('measurement_entrypoint_blob_sha1', 'package_manifest_blob_sha1'):
               value = software.get(key)
               if not isinstance(value, str) or len(value) != 40:
                   raise SystemExit(f'model resolution lost software identity component {key}')
+          scope = software.get('scope_paths')
+          objects = software.get('source_objects')
+          if not isinstance(scope, list) or not scope:
+              raise SystemExit('model resolution lost auditable software scope')
+          if not isinstance(objects, dict) or set(objects) != set(scope):
+              raise SystemExit('model resolution software scope and object manifest disagree')
+          if 'src/commander_lab/models/game.py' in scope:
+              raise SystemExit('external gameplay model leaked into Structural resolution identity')
           identity_sha256 = software.get('identity_sha256')
           if not isinstance(identity_sha256, str) or len(identity_sha256) != 64:
               raise SystemExit('model resolution lost software identity digest')
