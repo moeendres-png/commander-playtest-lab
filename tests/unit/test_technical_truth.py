@@ -46,7 +46,7 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert external["provider_decision"] == "NO_PROVIDER_READY"
     assert external["production_provider_ready"] is False
     assert external["primary_provider"] == "xmage"
-    assert external["primary_status"] == "B3_GAME_START_VALIDATED_DEGRADED"
+    assert external["primary_status"] == "B4A_STATE_OBSERVATION_VALIDATED_DEGRADED"
     assert external["primary_real_execution"] is True
     assert external["decision_source"] == "config/rules_engines.json"
     assert external["historical_provider_decision_source"] == "docs/J_P3_PROVIDER_DECISION.json"
