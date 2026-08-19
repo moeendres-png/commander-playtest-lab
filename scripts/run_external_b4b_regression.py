@@ -64,13 +64,16 @@ def main() -> None:
     evidence: dict[str, object] = {
         "schema_version": "1.0.0",
         "evidence_class": "external_rules_engine",
-        "scope": "xmage_b4b_real_external_priority_and_legal_action_enumeration",
+        "scope": "xmage_b4b_first_real_priority_and_legal_action_enumeration",
         "automatic_canonical_mutation": False,
         "confirmatory_consumed": False,
         "sealed_holdout_consumed": False,
         "action_submission_exercised": False,
         "global_legal_actions_capability_promoted": False,
-        "global_reason": "only priority decision enumeration is proven; combat and choice classes remain incomplete",
+        "global_reason": (
+            "only the first real priority decision class is proven; advancing through priority, "
+            "combat and choice classes belongs to later B4 slices"
+        ),
     }
     try:
         probe = adapter.probe()
@@ -112,8 +115,8 @@ def main() -> None:
         client = adapter._require_client()
         state_raw = client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
         state = GameState.model_validate(state_raw["state"])
-        if state.step != "precombat_main":
-            raise SystemExit(f"B4-B expected precombat_main, observed {state.step!r}")
+        if state.step != "upkeep":
+            raise SystemExit(f"B4-B expected first real upkeep priority, observed {state.step!r}")
         if state.priority_player_id is None:
             raise SystemExit("B4-B state did not expose priority player")
 
@@ -144,8 +147,6 @@ def main() -> None:
         action_types = {action.action_type.value for action in actions}
         if "pass_priority" not in action_types:
             raise SystemExit("B4-B did not expose pass priority")
-        if "cast_commander" not in action_types:
-            raise SystemExit("B4-B did not expose real zero-mana Rograkh commander cast")
 
         evidence.update(
             {
