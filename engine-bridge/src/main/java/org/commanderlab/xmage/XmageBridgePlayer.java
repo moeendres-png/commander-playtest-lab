@@ -35,20 +35,31 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Minimal headless player used only for the XMage bridge lifecycle.
+ * Headless bridge player for the real pinned XMage lifecycle.
  *
- * <p>B3 does not make tactical decisions. The player keeps its opening hand,
- * declines optional choices, declares no attackers/blockers, and passes every
- * priority. Unlike XMage's StubPlayer it implements a real copy operation, so
- * GameState bookmarks and rollback snapshots remain structurally valid.</p>
+ * <p>The no-controller constructor preserves the validated B3 behavior: keep
+ * the opening hand, decline optional choices, declare no attackers/blockers,
+ * and pass priority. B4-B may instead attach an ExternalDecisionController;
+ * then priority is paused and published rather than silently auto-passed.</p>
  */
 final class XmageBridgePlayer extends PlayerImpl {
+
+    private final ExternalDecisionController externalDecisionController;
 
     XmageBridgePlayer(
             String name,
             RangeOfInfluence range
     ) {
+        this(name, range, null);
+    }
+
+    XmageBridgePlayer(
+            String name,
+            RangeOfInfluence range,
+            ExternalDecisionController externalDecisionController
+    ) {
         super(name, range);
+        this.externalDecisionController = externalDecisionController;
         setUserData(
                 UserData.getDefaultUserDataView()
         );
@@ -58,6 +69,7 @@ final class XmageBridgePlayer extends PlayerImpl {
             XmageBridgePlayer player
     ) {
         super(player);
+        this.externalDecisionController = player.externalDecisionController;
     }
 
     @Override
@@ -67,11 +79,22 @@ final class XmageBridgePlayer extends PlayerImpl {
 
     @Override
     public boolean priority(Game game) {
+        if (externalDecisionController == null) {
+            /*
+             * Validated B3 lifecycle path. XMage playPriority() loops until
+             * isPassed() becomes true, so returning false alone is insufficient.
+             */
+            pass(game);
+            return false;
+        }
+
         /*
-         * XMage playPriority() loops until isPassed() becomes true.
-         * Returning false alone, as StubPlayer does, is insufficient.
+         * B4-B external-control path. Capture the real XMage decision before
+         * pausing. GameImpl checks isPaused() on the priority loop and returns
+         * control to the JSONL bridge without a busy wait or tactical fallback.
          */
-        pass(game);
+        externalDecisionController.capturePriority(this, game);
+        game.pause();
         return false;
     }
 
@@ -168,8 +191,8 @@ final class XmageBridgePlayer extends PlayerImpl {
             Game game
     ) {
         /*
-         * B3 is a lifecycle test, not randomized gameplay evidence.
-         * Randomized/pilot-driven game execution belongs to later gates.
+         * B3/B4 compatibility bridge testing is not seeded gameplay evidence.
+         * Deterministic/randomized gameplay is promoted only after a real gate.
          */
     }
 

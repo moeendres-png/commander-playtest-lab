@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.MageItem;
-import mage.cards.Card;
 import mage.cards.decks.Deck;
 import mage.constants.CommanderCardType;
 import mage.constants.ManaType;
@@ -37,7 +36,8 @@ final class XmageGameManager {
             String gameId,
             String engineGameId,
             int playerCount,
-            int startingPlayerSeat
+            int startingPlayerSeat,
+            boolean externalControl
     ) {
     }
 
@@ -48,7 +48,8 @@ final class XmageGameManager {
             int playerCount,
             String startingPlayerId,
             int turnNumber,
-            boolean paused
+            boolean paused,
+            boolean externalControl
     ) {
     }
 
@@ -57,6 +58,18 @@ final class XmageGameManager {
             String engineGameId,
             long stateObservationOffset,
             JsonObject state
+    ) {
+    }
+
+    record LegalActionsSnapshot(
+            String gameId,
+            String engineGameId,
+            long decisionOffset,
+            String decisionId,
+            String actorId,
+            String decisionKind,
+            boolean complete,
+            List<JsonObject> actions
     ) {
     }
 
@@ -84,10 +97,10 @@ final class XmageGameManager {
         private final List<Player> players;
         private final int startingPlayerSeat;
         private final int startingLife;
+        private final boolean externalControl;
+        private final ExternalDecisionController externalDecisionController;
 
-        private Lifecycle lifecycle =
-                Lifecycle.CREATED;
-
+        private Lifecycle lifecycle = Lifecycle.CREATED;
         private long stateObservationOffset = 0L;
 
         private ManagedGame(
@@ -95,39 +108,33 @@ final class XmageGameManager {
                 CommanderFreeForAll game,
                 List<Player> players,
                 int startingPlayerSeat,
-                int startingLife
+                int startingLife,
+                boolean externalControl,
+                ExternalDecisionController externalDecisionController
         ) {
             this.gameId = gameId;
             this.game = game;
             this.players = players;
-            this.startingPlayerSeat =
-                    startingPlayerSeat;
-            this.startingLife =
-                    startingLife;
+            this.startingPlayerSeat = startingPlayerSeat;
+            this.startingLife = startingLife;
+            this.externalControl = externalControl;
+            this.externalDecisionController = externalDecisionController;
         }
     }
 
     private final XmageDeckImporter deckImporter;
-
-    private final Map<String, ManagedGame> gamesByHandle =
-            new ConcurrentHashMap<>();
+    private final Map<String, ManagedGame> gamesByHandle = new ConcurrentHashMap<>();
 
     /*
      * XMage Deck contains mutable concrete Card objects.
      * One imported deck handle therefore belongs to at most one game.
      */
-    private final Set<String> claimedDeckHandles =
-            ConcurrentHashMap.newKeySet();
+    private final Set<String> claimedDeckHandles = ConcurrentHashMap.newKeySet();
 
-    XmageGameManager(
-            XmageDeckImporter deckImporter
-    ) {
+    XmageGameManager(XmageDeckImporter deckImporter) {
         if (deckImporter == null) {
-            throw new IllegalArgumentException(
-                    "deckImporter must not be null"
-            );
+            throw new IllegalArgumentException("deckImporter must not be null");
         }
-
         this.deckImporter = deckImporter;
     }
 
@@ -137,77 +144,67 @@ final class XmageGameManager {
             int startingPlayerSeat,
             int startingLife
     ) {
-        String validatedGameId =
-                requireText(gameId, "game_id");
+        return createCommanderGame(
+                gameId,
+                requestedDeckHandles,
+                startingPlayerSeat,
+                startingLife,
+                false
+        );
+    }
+
+    CreateResult createCommanderGame(
+            String gameId,
+            List<String> requestedDeckHandles,
+            int startingPlayerSeat,
+            int startingLife,
+            boolean externalControl
+    ) {
+        String validatedGameId = requireText(gameId, "game_id");
 
         if (requestedDeckHandles == null) {
-            throw new GameException(
-                    "INVALID_GAME: deck_handles must not be null"
-            );
+            throw new GameException("INVALID_GAME: deck_handles must not be null");
         }
 
-        List<String> deckHandles =
-                new ArrayList<>(requestedDeckHandles);
+        List<String> deckHandles = new ArrayList<>(requestedDeckHandles);
 
-        if (deckHandles.size() < 2
-                || deckHandles.size() > 5) {
+        if (deckHandles.size() < 2 || deckHandles.size() > 5) {
             throw new GameException(
                     "INVALID_PLAYER_COUNT: expected 2 to 5 players; observed "
                             + deckHandles.size()
             );
         }
 
-        if (startingPlayerSeat < 0
-                || startingPlayerSeat >= deckHandles.size()) {
+        if (startingPlayerSeat < 0 || startingPlayerSeat >= deckHandles.size()) {
             throw new GameException(
-                    "INVALID_STARTING_PLAYER_SEAT: "
-                            + startingPlayerSeat
+                    "INVALID_STARTING_PLAYER_SEAT: " + startingPlayerSeat
             );
         }
 
         if (startingLife < 1) {
-            throw new GameException(
-                    "INVALID_STARTING_LIFE: "
-                            + startingLife
-            );
+            throw new GameException("INVALID_STARTING_LIFE: " + startingLife);
         }
 
-        Set<String> distinct =
-                new HashSet<>();
-
+        Set<String> distinct = new HashSet<>();
         for (int index = 0; index < deckHandles.size(); index++) {
-            String handle =
-                    requireText(
-                            deckHandles.get(index),
-                            "deck_handles[" + index + "]"
-                    );
-
+            String handle = requireText(
+                    deckHandles.get(index),
+                    "deck_handles[" + index + "]"
+            );
             deckHandles.set(index, handle);
-
             if (!distinct.add(handle)) {
-                throw new GameException(
-                        "DUPLICATE_DECK_HANDLE: "
-                                + handle
-                );
+                throw new GameException("DUPLICATE_DECK_HANDLE: " + handle);
             }
         }
 
-        /*
-         * Resolve all handles before claiming any.
-         */
-        List<Deck> decks =
-                new ArrayList<>(deckHandles.size());
-
+        List<Deck> decks = new ArrayList<>(deckHandles.size());
         try {
             for (String handle : deckHandles) {
-                decks.add(
-                        deckImporter.requireDeck(handle)
-                );
+                decks.add(deckImporter.requireDeck(handle));
             }
         } catch (XmageDeckImporter.ImportException exc) {
             throw new GameException(
-                    "DECK_HANDLE_RESOLUTION_FAILED: "
-                            + exc.getMessage(),
+                    "DECK_HANDLE_RESOLUTION_FAILED: " + exc.getMessage(),
                     exc
             );
         }
@@ -215,80 +212,49 @@ final class XmageGameManager {
         synchronized (claimedDeckHandles) {
             for (String handle : deckHandles) {
                 if (claimedDeckHandles.contains(handle)) {
-                    throw new GameException(
-                            "DECK_HANDLE_ALREADY_IN_USE: "
-                                    + handle
-                    );
+                    throw new GameException("DECK_HANDLE_ALREADY_IN_USE: " + handle);
                 }
             }
-
             claimedDeckHandles.addAll(deckHandles);
         }
 
         boolean createdSuccessfully = false;
 
         try {
-            CommanderFreeForAll game =
-                    new CommanderFreeForAll(
-                            MultiplayerAttackOption.MULTIPLE,
-                            RangeOfInfluence.ALL,
-                            MulliganType.GAME_DEFAULT
-                                    .getMulligan(0),
-                            startingLife,
-                            7
-                    );
-
-            game.setNumPlayers(
-                    deckHandles.size()
+            CommanderFreeForAll game = new CommanderFreeForAll(
+                    MultiplayerAttackOption.MULTIPLE,
+                    RangeOfInfluence.ALL,
+                    MulliganType.GAME_DEFAULT.getMulligan(0),
+                    startingLife,
+                    7
             );
+            game.setNumPlayers(deckHandles.size());
 
-            GameOptions options =
-                    new GameOptions();
-
+            GameOptions options = new GameOptions();
             options.rollbackTurnsAllowed = false;
-
             game.setGameOptions(options);
 
-            List<Player> players =
-                    new ArrayList<>(decks.size());
+            ExternalDecisionController decisionController = externalControl
+                    ? new ExternalDecisionController()
+                    : null;
 
+            List<Player> players = new ArrayList<>(decks.size());
             for (int index = 0; index < decks.size(); index++) {
-                Deck deck =
-                        decks.get(index);
+                Deck deck = decks.get(index);
+                XmageBridgePlayer player = new XmageBridgePlayer(
+                        "Bridge Seat " + (index + 1),
+                        RangeOfInfluence.ALL,
+                        decisionController
+                );
 
-                XmageBridgePlayer player =
-                        new XmageBridgePlayer(
-                                "Bridge Seat "
-                                        + (index + 1),
-                                RangeOfInfluence.ALL
-                        );
-
-                /*
-                 * XMage's own server-side tests register all concrete cards
-                 * before attaching the Deck to the Player.
-                 */
                 player.init(game);
-
-                game.loadCards(
-                        deck.getCards(),
-                        player.getId()
-                );
-
-                game.loadCards(
-                        deck.getSideboard(),
-                        player.getId()
-                );
-
-                game.addPlayer(
-                        player,
-                        deck
-                );
-
+                game.loadCards(deck.getCards(), player.getId());
+                game.loadCards(deck.getSideboard(), player.getId());
+                game.addPlayer(player, deck);
                 players.add(player);
             }
 
-            if (game.getPlayers().size()
-                    != deckHandles.size()) {
+            if (game.getPlayers().size() != deckHandles.size()) {
                 throw new GameException(
                         "XMAGE_PLAYER_SETUP_FAILED: expected "
                                 + deckHandles.size()
@@ -297,27 +263,20 @@ final class XmageGameManager {
                 );
             }
 
-            String gameHandle;
-
-            ManagedGame managed =
-                    new ManagedGame(
-                            validatedGameId,
-                            game,
-                            List.copyOf(players),
-                            startingPlayerSeat,
-                            startingLife
-                    );
-
-            do {
-                gameHandle =
-                        "xmage-game-"
-                                + UUID.randomUUID();
-            } while (
-                    gamesByHandle.putIfAbsent(
-                            gameHandle,
-                            managed
-                    ) != null
+            ManagedGame managed = new ManagedGame(
+                    validatedGameId,
+                    game,
+                    List.copyOf(players),
+                    startingPlayerSeat,
+                    startingLife,
+                    externalControl,
+                    decisionController
             );
+
+            String gameHandle;
+            do {
+                gameHandle = "xmage-game-" + UUID.randomUUID();
+            } while (gamesByHandle.putIfAbsent(gameHandle, managed) != null);
 
             createdSuccessfully = true;
 
@@ -326,131 +285,109 @@ final class XmageGameManager {
                     validatedGameId,
                     game.getId().toString(),
                     game.getPlayers().size(),
-                    startingPlayerSeat
+                    startingPlayerSeat,
+                    externalControl
             );
-
         } finally {
             if (!createdSuccessfully) {
                 synchronized (claimedDeckHandles) {
-                    claimedDeckHandles.removeAll(
-                            deckHandles
-                    );
+                    claimedDeckHandles.removeAll(deckHandles);
                 }
             }
         }
     }
 
-    StartResult startGame(
-            String gameHandle
-    ) {
-        ManagedGame managed =
-                requireManagedGame(gameHandle);
+    StartResult startGame(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
 
         synchronized (managed) {
-            if (managed.lifecycle
-                    == Lifecycle.STARTED) {
+            if (managed.lifecycle == Lifecycle.STARTED) {
                 throw new GameException(
-                        "GAME_ALREADY_STARTED: "
-                                + requireText(gameHandle, "game_handle")
+                        "GAME_ALREADY_STARTED: " + requireText(gameHandle, "game_handle")
                 );
             }
-
-            if (managed.lifecycle
-                    == Lifecycle.FAILED) {
+            if (managed.lifecycle == Lifecycle.FAILED) {
                 throw new GameException(
                         "GAME_START_PREVIOUSLY_FAILED: "
                                 + requireText(gameHandle, "game_handle")
                 );
             }
 
-            GameOptions options =
-                    managed.game.getOptions();
+            GameOptions options = managed.game.getOptions();
 
-            /*
-             * Do not use stopOnTurn=1 / UNTAP here.
-             *
-             * GameImpl handles that special case before Turn.play(), without
-             * pausing. Instead use XMage's normal Phase stop hook at UPKEEP.
-             * Phase.checkStopOnStepOption(...) calls game.pause(), making the
-             * returned state explicitly resumable through Game.resume().
-             */
-            options.stopOnTurn = 1;
-            options.stopAtStep = PhaseStep.UPKEEP;
+            if (managed.externalControl) {
+                /*
+                 * Reach precombat main under an engine-owned stop hook first.
+                 * Then clear the hook and resume until the real priority player
+                 * publishes a B4-B decision and pauses from priority(). This
+                 * produces a useful main-phase decision without an auto-pass.
+                 */
+                options.stopOnTurn = 1;
+                options.stopAtStep = PhaseStep.PRECOMBAT_MAIN;
+            } else {
+                /* Validated B3 bounded handoff. */
+                options.stopOnTurn = 1;
+                options.stopAtStep = PhaseStep.UPKEEP;
+            }
 
-            Player choosingPlayer =
-                    managed.players.get(
-                            managed.startingPlayerSeat
-                    );
+            Player choosingPlayer = managed.players.get(managed.startingPlayerSeat);
 
             try {
-                managed.game.start(
-                        choosingPlayer.getId()
-                );
-            } catch (RuntimeException | Error exc) {
-                managed.lifecycle =
-                        Lifecycle.FAILED;
+                managed.game.start(choosingPlayer.getId());
 
+                if (managed.externalControl) {
+                    if (!managed.game.isPaused()) {
+                        throw new GameException(
+                                "XMAGE_EXTERNAL_CONTROL_START_FAILED: "
+                                        + "precombat-main setup hook was not reached"
+                        );
+                    }
+                    options.stopOnTurn = 0;
+                    options.stopAtStep = null;
+                    managed.game.resume();
+                }
+            } catch (RuntimeException | Error exc) {
+                managed.lifecycle = Lifecycle.FAILED;
+                if (exc instanceof GameException gameException) {
+                    throw gameException;
+                }
                 throw new GameException(
-                        "XMAGE_GAME_START_FAILED: "
-                                + exc.getMessage(),
+                        "XMAGE_GAME_START_FAILED: " + exc.getMessage(),
                         exc
                 );
             }
 
-            if (managed.game.getTotalErrorsCount()
-                    != 0) {
-                managed.lifecycle =
-                        Lifecycle.FAILED;
-
+            if (managed.game.getTotalErrorsCount() != 0) {
+                managed.lifecycle = Lifecycle.FAILED;
                 throw new GameException(
-                        "XMAGE_GAME_START_FAILED: "
-                                + "XMage reported "
+                        "XMAGE_GAME_START_FAILED: XMage reported "
                                 + managed.game.getTotalErrorsCount()
                                 + " internal engine error(s)"
                 );
             }
-            if (managed.game.getStartingPlayerId()
-                    == null) {
-                managed.lifecycle =
-                        Lifecycle.FAILED;
-
+            if (managed.game.getStartingPlayerId() == null) {
+                managed.lifecycle = Lifecycle.FAILED;
                 throw new GameException(
-                        "XMAGE_GAME_START_FAILED: "
-                                + "starting player was not established"
+                        "XMAGE_GAME_START_FAILED: starting player was not established"
                 );
             }
-
             if (!managed.game.isPaused()) {
-                managed.lifecycle =
-                        Lifecycle.FAILED;
-
+                managed.lifecycle = Lifecycle.FAILED;
                 throw new GameException(
-                        "XMAGE_GAME_START_FAILED: "
-                                + "game did not pause at the B3 handoff boundary"
+                        "XMAGE_GAME_START_FAILED: game did not pause at the requested handoff boundary"
+                );
+            }
+            if (managed.game.getState().getTurnNum() != 1) {
+                managed.lifecycle = Lifecycle.FAILED;
+                throw new GameException(
+                        "XMAGE_GAME_START_FAILED: unexpected turn number "
+                                + managed.game.getState().getTurnNum()
                 );
             }
 
-            if (managed.game.getState()
-                    .getTurnNum() != 1) {
-                managed.lifecycle =
-                        Lifecycle.FAILED;
-
-                throw new GameException(
-                        "XMAGE_GAME_START_FAILED: "
-                                + "unexpected turn number "
-                                + managed.game.getState()
-                                        .getTurnNum()
-                );
-            }
-
-            for (Player player
-                    : managed.game.getPlayers().values()) {
-
-                if (player.getLife()
-                        != managed.startingLife) {
-                    managed.lifecycle =
-                            Lifecycle.FAILED;
-
+            for (Player player : managed.game.getPlayers().values()) {
+                if (player.getLife() != managed.startingLife) {
+                    managed.lifecycle = Lifecycle.FAILED;
                     throw new GameException(
                             "XMAGE_GAME_START_FAILED: "
                                     + player.getName()
@@ -458,12 +395,8 @@ final class XmageGameManager {
                                     + player.getLife()
                     );
                 }
-
-                if (player.getHand().size()
-                        != 7) {
-                    managed.lifecycle =
-                            Lifecycle.FAILED;
-
+                if (!managed.externalControl && player.getHand().size() != 7) {
+                    managed.lifecycle = Lifecycle.FAILED;
                     throw new GameException(
                             "XMAGE_GAME_START_FAILED: "
                                     + player.getName()
@@ -473,30 +406,94 @@ final class XmageGameManager {
                 }
             }
 
-            managed.lifecycle =
-                    Lifecycle.STARTED;
+            if (managed.externalControl) {
+                if (managed.externalDecisionController == null) {
+                    managed.lifecycle = Lifecycle.FAILED;
+                    throw new GameException(
+                            "XMAGE_EXTERNAL_CONTROL_START_FAILED: controller is unavailable"
+                    );
+                }
+                try {
+                    ExternalDecisionController.Decision decision =
+                            managed.externalDecisionController.requireCurrentDecision(
+                                    managed.game.getId().toString()
+                            );
+                    if (!"priority".equals(decision.decisionKind())) {
+                        throw new GameException(
+                                "XMAGE_EXTERNAL_CONTROL_START_FAILED: "
+                                        + "unexpected decision kind "
+                                        + decision.decisionKind()
+                        );
+                    }
+                } catch (IllegalStateException exc) {
+                    managed.lifecycle = Lifecycle.FAILED;
+                    throw new GameException(
+                            "XMAGE_EXTERNAL_CONTROL_START_FAILED: " + exc.getMessage(),
+                            exc
+                    );
+                }
+            }
+
+            managed.lifecycle = Lifecycle.STARTED;
 
             return new StartResult(
                     requireText(gameHandle, "game_handle"),
                     managed.gameId,
-                    managed.game.getId()
-                            .toString(),
-                    managed.game.getPlayers()
-                            .size(),
-                    managed.game.getStartingPlayerId()
-                            .toString(),
-                    managed.game.getState()
-                            .getTurnNum(),
-                    managed.game.isPaused()
+                    managed.game.getId().toString(),
+                    managed.game.getPlayers().size(),
+                    managed.game.getStartingPlayerId().toString(),
+                    managed.game.getState().getTurnNum(),
+                    managed.game.isPaused(),
+                    managed.externalControl
             );
         }
     }
 
-    StateSnapshot snapshotState(
-            String gameHandle
-    ) {
-        ManagedGame managed =
-                requireManagedGame(gameHandle);
+    LegalActionsSnapshot legalActions(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException(
+                        "LEGAL_ACTIONS_UNAVAILABLE: game must be started"
+                );
+            }
+            if (!managed.externalControl || managed.externalDecisionController == null) {
+                throw new GameException(
+                        "LEGAL_ACTIONS_UNAVAILABLE: game was not created with external_control=true"
+                );
+            }
+            if (!managed.game.isPaused()) {
+                throw new GameException(
+                        "LEGAL_ACTIONS_UNAVAILABLE: game is not paused at an external decision"
+                );
+            }
+
+            try {
+                ExternalDecisionController.Decision decision =
+                        managed.externalDecisionController.requireCurrentDecision(
+                                managed.game.getId().toString()
+                        );
+                return new LegalActionsSnapshot(
+                        managed.gameId,
+                        managed.game.getId().toString(),
+                        decision.decisionOffset(),
+                        decision.decisionId(),
+                        decision.actorId(),
+                        decision.decisionKind(),
+                        decision.complete(),
+                        decision.actions()
+                );
+            } catch (IllegalStateException exc) {
+                throw new GameException(
+                        "LEGAL_ACTIONS_UNAVAILABLE: " + exc.getMessage(),
+                        exc
+                );
+            }
+        }
+    }
+
+    StateSnapshot snapshotState(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
 
         synchronized (managed) {
             if (managed.lifecycle != Lifecycle.STARTED) {
@@ -507,7 +504,6 @@ final class XmageGameManager {
 
             Game game = managed.game;
             TurnPhase turnPhase = game.getTurnPhaseType();
-
             if (turnPhase == null) {
                 throw new GameException(
                         "GAME_STATE_UNAVAILABLE: XMage turn phase is unavailable"
@@ -522,48 +518,23 @@ final class XmageGameManager {
             state.add("rng_counter", JsonNull.INSTANCE);
             state.addProperty(
                     "status",
-                    game.hasEnded()
-                            ? "completed"
-                            : "in_progress"
+                    game.hasEnded() ? "completed" : "in_progress"
             );
-            state.addProperty(
-                    "turn_number",
-                    game.getState().getTurnNum()
-            );
-            addNullableUuid(
-                    state,
-                    "active_player_id",
-                    game.getActivePlayerId()
-            );
-            addNullableUuid(
-                    state,
-                    "priority_player_id",
-                    game.getPriorityPlayerId()
-            );
-            state.addProperty(
-                    "phase",
-                    turnPhaseValue(turnPhase)
-            );
+            state.addProperty("turn_number", game.getState().getTurnNum());
+            addNullableUuid(state, "active_player_id", game.getActivePlayerId());
+            addNullableUuid(state, "priority_player_id", game.getPriorityPlayerId());
+            state.addProperty("phase", turnPhaseValue(turnPhase));
 
             PhaseStep turnStep = game.getTurnStepType();
             if (turnStep == null) {
                 state.add("step", JsonNull.INSTANCE);
             } else {
-                state.addProperty(
-                        "step",
-                        turnStep.name().toLowerCase()
-                );
+                state.addProperty("step", turnStep.name().toLowerCase());
             }
 
             JsonArray players = new JsonArray();
             for (int seat = 0; seat < managed.players.size(); seat++) {
-                players.add(
-                        playerState(
-                                game,
-                                managed.players.get(seat),
-                                seat
-                        )
-                );
+                players.add(playerState(game, managed.players.get(seat), seat));
             }
             state.add("players", players);
 
@@ -574,9 +545,8 @@ final class XmageGameManager {
             state.add("stack", stack);
 
             /*
-             * Legal-action completeness belongs to B4-B. An empty list here
-             * is a schema placeholder only and is paired with an explicit
-             * false completeness marker in the surrounding response.
+             * Endpoint completeness remains false through B4-B because combat
+             * and other choice boundaries are not yet enumerated globally.
              */
             state.add("legal_actions", new JsonArray());
 
@@ -587,12 +557,6 @@ final class XmageGameManager {
                 }
             }
             state.add("winner_ids", winnerIds);
-
-            /*
-             * B4-A has no exported event stream yet. Keep this at zero rather
-             * than inventing event identity; state_observation_offset below is
-             * deliberately a separate observation sequence.
-             */
             state.addProperty("event_sequence", 0);
 
             return new StateSnapshot(
@@ -604,9 +568,7 @@ final class XmageGameManager {
         }
     }
 
-    Game requireGame(
-            String gameHandle
-    ) {
+    Game requireGame(String gameHandle) {
         return requireManagedGame(gameHandle).game;
     }
 
@@ -614,40 +576,18 @@ final class XmageGameManager {
         return gamesByHandle.size();
     }
 
-    private ManagedGame requireManagedGame(
-            String gameHandle
-    ) {
-        String validatedHandle =
-                requireText(
-                        gameHandle,
-                        "game_handle"
-                );
-
-        ManagedGame managed =
-                gamesByHandle.get(
-                        validatedHandle
-                );
-
+    private ManagedGame requireManagedGame(String gameHandle) {
+        String validatedHandle = requireText(gameHandle, "game_handle");
+        ManagedGame managed = gamesByHandle.get(validatedHandle);
         if (managed == null) {
-            throw new GameException(
-                    "UNKNOWN_GAME_HANDLE: "
-                            + validatedHandle
-            );
+            throw new GameException("UNKNOWN_GAME_HANDLE: " + validatedHandle);
         }
-
         return managed;
     }
 
-    private static JsonObject playerState(
-            Game game,
-            Player player,
-            int seat
-    ) {
+    private static JsonObject playerState(Game game, Player player, int seat) {
         JsonObject state = new JsonObject();
-        state.addProperty(
-                "player_id",
-                player.getId().toString()
-        );
+        state.addProperty("player_id", player.getId().toString());
         state.addProperty("seat", seat);
         state.addProperty("life", player.getLife());
         state.addProperty(
@@ -655,11 +595,6 @@ final class XmageGameManager {
                 player.getCountersCount(CounterType.POISON)
         );
 
-        /*
-         * Commander-damage and commander-tax visibility are not promoted in
-         * B4-A. Empty maps are truthful at the bounded start-state regression;
-         * their capability flags remain false until dedicated evidence exists.
-         */
         state.add("commander_damage_received", new JsonObject());
         state.add("commander_cast_count", new JsonObject());
 
@@ -673,38 +608,19 @@ final class XmageGameManager {
         state.add("mana_pool", manaPool);
 
         JsonObject zones = new JsonObject();
-        zones.add(
-                "library",
-                uuidArray(player.getLibrary().getCardList())
-        );
-        zones.add(
-                "hand",
-                itemArray(player.getHand().getCards(game))
-        );
+        zones.add("library", uuidArray(player.getLibrary().getCardList()));
+        zones.add("hand", itemArray(player.getHand().getCards(game)));
 
-        List<Permanent> battlefield =
-                game.getBattlefield()
-                        .getAllPermanents()
-                        .stream()
-                        .filter(
-                                permanent -> player.getId()
-                                        .equals(permanent.getControllerId())
-                        )
-                        .toList();
-        zones.add(
-                "battlefield",
-                itemArray(battlefield)
-        );
-        zones.add(
-                "graveyard",
-                itemArray(player.getGraveyard().getCards(game))
-        );
+        List<Permanent> battlefield = game.getBattlefield()
+                .getAllPermanents()
+                .stream()
+                .filter(permanent -> player.getId().equals(permanent.getControllerId()))
+                .toList();
+        zones.add("battlefield", itemArray(battlefield));
+        zones.add("graveyard", itemArray(player.getGraveyard().getCards(game)));
         zones.add(
                 "exile",
-                itemArray(
-                        game.getExile()
-                                .getCardsOwned(game, player.getId())
-                )
+                itemArray(game.getExile().getCardsOwned(game, player.getId()))
         );
         zones.add(
                 "command",
@@ -719,20 +635,14 @@ final class XmageGameManager {
 
         state.addProperty(
                 "land_plays_remaining",
-                Math.max(
-                        0,
-                        player.getLandsPerTurn()
-                                - player.getLandsPlayed()
-                )
+                Math.max(0, player.getLandsPerTurn() - player.getLandsPlayed())
         );
         state.addProperty("has_lost", player.hasLost());
 
         return state;
     }
 
-    private static JsonArray itemArray(
-            Collection<? extends MageItem> items
-    ) {
+    private static JsonArray itemArray(Collection<? extends MageItem> items) {
         JsonArray result = new JsonArray();
         for (MageItem item : items) {
             result.add(item.getId().toString());
@@ -740,9 +650,7 @@ final class XmageGameManager {
         return result;
     }
 
-    private static JsonArray uuidArray(
-            Collection<UUID> ids
-    ) {
+    private static JsonArray uuidArray(Collection<UUID> ids) {
         JsonArray result = new JsonArray();
         for (UUID id : ids) {
             result.add(id.toString());
@@ -762,9 +670,7 @@ final class XmageGameManager {
         }
     }
 
-    private static String turnPhaseValue(
-            TurnPhase turnPhase
-    ) {
+    private static String turnPhaseValue(TurnPhase turnPhase) {
         return switch (turnPhase) {
             case BEGINNING -> "beginning";
             case PRECOMBAT_MAIN -> "precombat_main";
@@ -774,19 +680,12 @@ final class XmageGameManager {
         };
     }
 
-    private static String requireText(
-            String value,
-            String fieldName
-    ) {
-        if (value == null
-                || value.isBlank()) {
+    private static String requireText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
             throw new GameException(
-                    "INVALID_FIELD: "
-                            + fieldName
-                            + " must be nonblank"
+                    "INVALID_FIELD: " + fieldName + " must be nonblank"
             );
         }
-
         return value.trim();
     }
 }
