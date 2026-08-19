@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import mage.abilities.Ability;
 import mage.abilities.ActivatedAbility;
 import mage.constants.AbilityType;
+import mage.constants.CommanderCardType;
 import mage.game.Game;
 import mage.players.Player;
 import mage.target.Target;
@@ -85,7 +86,11 @@ final class ExternalDecisionController {
                         .thenComparing(ability -> ability.getOriginalId().toString())
         );
 
-        Set<UUID> commanderIds = game.getCommandersIds(player);
+        Set<UUID> commanderIds = game.getCommandersIds(
+                player,
+                CommanderCardType.COMMANDER_OR_OATHBREAKER,
+                false
+        );
 
         for (ActivatedAbility ability : playable) {
             String actionType = actionType(ability, commanderIds);
