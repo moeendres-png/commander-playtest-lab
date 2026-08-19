@@ -51,6 +51,13 @@ def _json_object(path: Path) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _string_list(payload: dict[str, Any], key: str) -> list[str]:
+    raw = payload.get(key)
+    if not isinstance(raw, list):
+        return []
+    return [str(value) for value in raw]
+
+
 def build_technical_truth(root: str | Path) -> dict[str, Any]:
     """Return one read-only technical status projection derived from current repo inputs."""
 
@@ -71,6 +78,19 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     tracked_status = _git(root_path, "status", "--porcelain", "--untracked-files=no")
     tracked_dirty = None if tracked_status is None else bool(tracked_status)
 
+    runtime_loaded = _string_list(active_scope, "runtime_loaded_decks")
+    if not runtime_loaded:
+        runtime_loaded = list(context.active_own_deck_ids)
+    global_active = _string_list(active_scope, "global_active_own_decks")
+    if not global_active:
+        global_active = _string_list(active_scope, "active_own_decks") or list(
+            context.active_own_deck_ids
+        )
+    optimization_targets = _string_list(active_scope, "optimization_targets")
+    if not optimization_targets:
+        optimization_targets = [context.primary_deckbuilding_focus]
+    unresolved = _string_list(active_scope, "unresolved_operational_baselines")
+
     provider_status = str(engine_config.get("provider_decision") or "unknown")
     primary_engine = engine_config.get("primary_engine")
     primary_engine_payload = primary_engine if isinstance(primary_engine, dict) else {}
@@ -81,7 +101,7 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     documented_limitations: list[str] = []
     if not external_ready:
         documented_limitations.append("external_rules_engine_validation_pending")
-    if context.unresolved_operational_baseline_ids:
+    if unresolved:
         documented_limitations.append("unresolved_operational_own_deck_baseline")
 
     return {
@@ -101,12 +121,12 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "active_scope": active_scope.get("schema_version", "unknown"),
             "rules_engines": engine_config.get("schema_version", "unknown"),
         },
-        "global_active_own_deck_set": list(context.global_active_own_deck_ids),
-        "runtime_loaded_deck_set": list(context.runtime_loaded_deck_ids),
-        "optimization_target_set": list(context.optimization_target_ids),
-        "unresolved_operational_baseline_set": list(context.unresolved_operational_baseline_ids),
-        # Compatibility aliases: active_deck_set means the currently loaded runtime surface.
-        "active_deck_set": list(context.runtime_loaded_deck_ids),
+        "global_active_own_deck_set": global_active,
+        "runtime_loaded_deck_set": runtime_loaded,
+        "optimization_target_set": optimization_targets,
+        "unresolved_operational_baseline_set": unresolved,
+        # Compatibility alias: active_deck_set means the currently loaded runtime surface.
+        "active_deck_set": runtime_loaded,
         "historical_own_deck_set": list(context.historical_own_deck_ids),
         "primary_deckbuilding_focus": context.primary_deckbuilding_focus,
         "active_deck_hashes": dict(context.active_deck_hashes),
