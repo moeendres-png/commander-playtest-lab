@@ -91,13 +91,25 @@ jobs:
           }
       - name: Compile XMage bridge main sources
         working-directory: engine-bridge
-        run: mvn -B -ntp -DskipTests compile
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p ../artifacts/external-engine
+          mvn -B -ntp -DskipTests compile 2>&1 | tee ../artifacts/external-engine/b4b-main-compile.log
       - name: Compile XMage bridge test sources
         working-directory: engine-bridge
-        run: mvn -B -ntp -DskipTests test-compile
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p ../artifacts/external-engine
+          mvn -B -ntp -DskipTests test-compile 2>&1 | tee ../artifacts/external-engine/b4b-test-compile.log
       - name: Run XMage bridge tests and package
         working-directory: engine-bridge
-        run: mvn -B -ntp verify
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p ../artifacts/external-engine
+          mvn -B -ntp verify 2>&1 | tee ../artifacts/external-engine/b4b-bridge-verify.log
       - name: Verify current provider capability truth
         run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py tests/unit/test_models.py
       - name: Run real B3 JSONL process regression
