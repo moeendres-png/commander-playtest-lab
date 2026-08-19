@@ -6,6 +6,9 @@ on:
       - main
       - "release/**"
   pull_request:
+    paths:
+      - "pyproject.toml"
+      - ".github/workflows/release-artifacts.yml"
   workflow_dispatch:
 
 permissions:
@@ -18,7 +21,7 @@ concurrency:
 jobs:
   build-release:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -27,65 +30,40 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install build and test dependencies
+      - name: Install build runtime
         run: |
-          python -m pip install -e '.[dev,api]'
+          python -m pip install -e .
           python -m pip install build
-      - name: Resolve and verify release metadata
+      - name: Resolve package version
         id: meta
-        shell: bash
         run: |
-          set -euo pipefail
           python - <<'PY'
           import importlib.metadata
           import os
           import tomllib
           from pathlib import Path
 
-          pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
-          declared = pyproject["project"]["version"]
+          declared = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
           installed = importlib.metadata.version("commander-playtest-lab")
           if declared != installed:
               raise SystemExit(f"version mismatch: pyproject={declared} installed={installed}")
           with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
               handle.write(f"version={declared}\n")
           PY
-      - name: Static integrity checks
-        shell: bash
+      - name: Build wheel and source distribution
         run: |
           set -euo pipefail
-          git diff --check
-          python -m compileall -q src tests
-      - name: Run full test suite
-        shell: bash
-        run: |
-          set -o pipefail
           mkdir -p release
-          python -m pytest -q 2>&1 | tee release/PLAYTEST_LAB_TEST_RESULTS.txt
-      - name: Assert tests leave repository clean
-        shell: bash
-        run: |
-          set -euo pipefail
-          status="$(git status --porcelain --untracked-files=all)"
-          if [[ -n "$status" ]]; then
-            echo "Test execution dirtied the repository."
-            printf '%s\n' "$status"
-            exit 1
-          fi
-      - name: Build wheel and sdist
-        shell: bash
-        run: |
-          set -euo pipefail
-          version='${{ steps.meta.outputs.version }}'
           python -m build 2>&1 | tee release/PLAYTEST_LAB_BUILD_RESULTS.txt
+          version='${{ steps.meta.outputs.version }}'
           cp "dist/commander_playtest_lab-${version}-py3-none-any.whl" release/
           cp "dist/commander_playtest_lab-${version}.tar.gz" release/
-      - name: Build source, repository and bundle artifacts
+      - name: Build SHA-bound source, repository and bundle artifacts
         shell: bash
         run: |
           set -euo pipefail
           version='${{ steps.meta.outputs.version }}'
-          git archive --format=zip --output="release/commander-playtest-lab-${version}-source.zip" HEAD
+          git archive --format=zip --output="release/commander-playtest-lab-${version}-source.zip" "$GITHUB_SHA"
           git bundle create "release/commander-playtest-lab-${version}.bundle" HEAD --branches --tags
           repo_dir="$RUNNER_TEMP/commander-playtest-lab-repository"
           rm -rf "$repo_dir"
@@ -93,11 +71,11 @@ jobs:
           git -C "$repo_dir" checkout --detach "$GITHUB_SHA"
           test "$(git -C "$repo_dir" rev-parse HEAD)" = "$GITHUB_SHA"
           (cd "$RUNNER_TEMP" && zip -qr "$GITHUB_WORKSPACE/release/commander-playtest-lab-${version}-repository.zip" commander-playtest-lab-repository)
-      - name: Write release status from checked-in truth
-        shell: bash
+      - name: Write current release status and evidence boundary
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          set -euo pipefail
-          VERSION='${{ steps.meta.outputs.version }}' python - <<'PY'
+          python - <<'PY'
           import json
           import os
           from pathlib import Path
@@ -105,163 +83,119 @@ jobs:
           release = Path("release")
           sha = os.environ["GITHUB_SHA"]
           version = os.environ["VERSION"]
+          scope = json.loads(Path("data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json").read_text(encoding="utf-8"))
           manifest = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
+          rules = json.loads(Path("config/rules_engines.json").read_text(encoding="utf-8"))
           p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
-          decks = manifest["decks"]
-          if manifest["active_own_decks"] != ["rogshai/current"]:
-              raise SystemExit("release requires RogShai as the sole active own deck")
-          if set(decks) != {"rogshai/current"}:
-              raise SystemExit("release manifest contains a competing current deck baseline")
-          rogshai = decks["rogshai/current"]
 
-          if not rogshai["validation"]["valid"]:
-              raise SystemExit("checked-in deck manifest is not valid")
+          active = scope.get("active_own_decks")
+          if not isinstance(active, list) or not active:
+              raise SystemExit("release requires at least one explicit active own deck")
+          manifest_active = manifest.get("global_active_own_decks")
+          if manifest_active != active:
+              raise SystemExit(
+                  "release current-scope drift: active scope and deck manifest disagree: "
+                  f"scope={active} manifest={manifest_active}"
+              )
+          decks = manifest.get("decks", {})
+          missing = [deck_id for deck_id in active if deck_id not in decks]
+          if missing:
+              raise SystemExit(f"active own decks missing from manifest: {missing}")
+          invalid = [deck_id for deck_id in active if not decks[deck_id].get("validation", {}).get("valid")]
+          if invalid:
+              raise SystemExit(f"active own decks are not valid: {invalid}")
+
+          primary = rules["primary_engine"]
+          secondary = rules["secondary_engine"]
+          missing_required = rules["current_runtime"].get("required_missing_capabilities", [])
+          if rules["provider_decision"] != "NO_PROVIDER_READY":
+              raise SystemExit("release refuses an unverified provider-readiness promotion")
+          if primary.get("production_ready") or secondary.get("production_ready"):
+              raise SystemExit("release refuses production-ready provider claim while NO_PROVIDER_READY")
 
           status = {
               "package_version": version,
               "git_head": sha,
-              "status": "deck_optimization_system_requires_external_work",
-              "external_engine_validation_pending": p3["primary_provider"] is None,
-              "external_engine_provider_decision": p3["decision"],
-              "external_engine_real_execution": any(
-                  provider["real_execution"] for provider in p3["providers"].values()
-              ),
-              "external_engine_production_bridge": p3["production_bridge"],
-              "xmage_status": p3["providers"]["xmage"]["status"],
-              "xmage_score": p3["providers"]["xmage"]["score"],
-              "xmage_real_execution": p3["providers"]["xmage"]["real_execution"],
-              "forge_status": p3["providers"]["forge"]["status"],
-              "forge_score": p3["providers"]["forge"]["score"],
-              "forge_real_execution": p3["providers"]["forge"]["real_execution"],
+              "active_own_decks": active,
+              "primary_deckbuilding_focus": scope.get("primary_deckbuilding_focus"),
+              "active_deck_hashes": {deck_id: decks[deck_id]["deck_hash"] for deck_id in active},
               "canonical_deck_mutations": 0,
-              "recommendations_applied": 0,
-              "runtime_state_directory": ".runtime/engine",
-              "data_snapshot_hash": manifest["data_snapshot_hash"],
-              "active_own_decks": manifest["active_own_decks"],
-              "removed_operational_decks": manifest["removed_operational_decks"],
-              "rogshai_current_hash": rogshai["deck_hash"],
-              "rogshai_cards": rogshai["total_cards"],
-              "rogshai_lands": rogshai["land_count"],
-              "allocation_valid": manifest["allocation_validation"]["valid"],
-              "truth_source": "data/decks/manifest.json",
-              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+              "inventory_mutations": 0,
+              "allocation_mutations": 0,
+              "artifact_purpose": "software_release_packaging",
+              "simulation_validity_claim": False,
+              "deck_strength_claim": False,
+              "external_engine_provider_decision": rules["provider_decision"],
+              "external_engine_production_ready": False,
+              "current_external_engine_status": rules["current_runtime"]["status"],
+              "current_external_engine_validation_level": "external_rules_engine_b3_game_start_only",
+              "xmage_real_execution": bool(primary.get("real_execution")),
+              "forge_real_execution": bool(secondary.get("real_execution")),
+              "xmage_missing_required_capabilities": missing_required,
+              "historical_p3_provider_decision": p3["decision"],
+              "historical_p3_validation_level": "structural_tactical_and_real_external_feasibility_evidence",
+              "historical_p3_xmage_real_execution": bool(p3["providers"]["xmage"]["real_execution"]),
+              "historical_p3_forge_real_execution": bool(p3["providers"]["forge"]["real_execution"]),
+              "current_external_engine_truth_source": "config/rules_engines.json",
+              "historical_external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+              "current_scope_truth_source": "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+              "deck_manifest_truth_source": "data/decks/manifest.json",
           }
           (release / "PLAYTEST_LAB_CURRENT_STATUS.json").write_text(
               json.dumps(status, indent=2, sort_keys=True) + "\n", encoding="utf-8"
           )
           (release / "PLAYTEST_LAB_CURRENT_STATUS.md").write_text(
-              "# Commander Playtest Lab – Current Status\n\n"
+              "# Commander Playtest Lab – Current Release Status\n\n"
               f"- Package: `{version}`\n"
               f"- Git HEAD: `{sha}`\n"
-              "- Release deck truth source: `data/decks/manifest.json`.\n"
-              f"- Data snapshot hash: `{manifest['data_snapshot_hash']}`.\n"
-              "- Active own decks: `rogshai/current` only.\n"
-              "- Korvold: no current own-deck baseline or physical reservation.\n"
-              f"- RogShai: {rogshai['total_cards']} cards / {rogshai['land_count']} lands; current hash `{rogshai['deck_hash']}`.\n"
-              f"- Current allocation valid: `{manifest['allocation_validation']['valid']}`.\n"
-              f"- External provider decision: `{p3['decision']}`; production bridge: `{p3['production_bridge']}`.\n"
-              f"- XMage: `{p3['providers']['xmage']['status']}` / {p3['providers']['xmage']['score']} / real execution `{p3['providers']['xmage']['real_execution']}`.\n"
-              f"- Forge: `{p3['providers']['forge']['status']}` / {p3['providers']['forge']['score']} / real execution `{p3['providers']['forge']['real_execution']}`.\n"
-              "- Validation boundary: structural model + Tactical Oracle + real partial external-provider feasibility evidence; no production-ready external bridge.\n"
-              "- Canonical deck mutations by this technical release: 0.\n"
-              "- Recommendations applied: 0.\n",
+              f"- Active own decks: `{', '.join(active)}`\n"
+              f"- External provider decision: `{rules['provider_decision']}`\n"
+              f"- XMage runtime status: `{rules['current_runtime']['xmage_status']}`\n"
+              f"- Missing required provider capabilities: `{', '.join(missing_required)}`\n"
+              "- Evidence boundary: B3 external-rules-engine evidence covers real pinned deck import, Commander construction and game start only.\n"
+              "- Historical J-P3 feasibility evidence is retained separately and is not current provider truth.\n"
+              "- This release package makes no deck-strength, empirical-win-rate or provider-readiness claim.\n"
+              "- Canonical deck/inventory/allocation mutations by release packaging: 0.\n",
               encoding="utf-8",
           )
           PY
-      - name: Regression-check release truth
-        shell: bash
+      - name: Write artifact manifest
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          set -euo pipefail
           python - <<'PY'
-          import json
-          from pathlib import Path
-
-          source = json.loads(Path("data/decks/manifest.json").read_text(encoding="utf-8"))
-          p3 = json.loads(Path("docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8"))
-          release = json.loads(Path("release/PLAYTEST_LAB_CURRENT_STATUS.json").read_text(encoding="utf-8"))
-          assert source["active_own_decks"] == ["rogshai/current"]
-          assert set(source["decks"]) == {"rogshai/current"}
-          assert release["active_own_decks"] == ["rogshai/current"]
-          assert release["removed_operational_decks"] == ["korvold/current"]
-          assert release["rogshai_current_hash"] == source["decks"]["rogshai/current"]["deck_hash"]
-          assert release["rogshai_cards"] == 100
-          assert release["rogshai_lands"] == 36
-          assert release["data_snapshot_hash"] == source["data_snapshot_hash"]
-          assert release["allocation_valid"] == source["allocation_validation"]["valid"]
-          assert release["external_engine_provider_decision"] == p3["decision"]
-          assert release["xmage_real_execution"] is p3["providers"]["xmage"]["real_execution"]
-          assert release["forge_real_execution"] is p3["providers"]["forge"]["real_execution"]
-          assert release["external_engine_production_bridge"] == p3["production_bridge"]
-          PY
-      - name: Write manifest and validation package
-        shell: bash
-        run: |
-          set -euo pipefail
-          VERSION='${{ steps.meta.outputs.version }}' python - <<'PY'
           import json
           import os
           from pathlib import Path
 
-          release = Path("release")
           version = os.environ["VERSION"]
           sha = os.environ["GITHUB_SHA"]
-          wheel = f"commander_playtest_lab-{version}-py3-none-any.whl"
-          sdist = f"commander_playtest_lab-{version}.tar.gz"
-          artifacts = [
-              "PLAYTEST_LAB_ARTIFACT_MANIFEST.json",
-              "PLAYTEST_LAB_BUILD_RESULTS.txt",
-              "PLAYTEST_LAB_CURRENT_STATUS.json",
-              "PLAYTEST_LAB_CURRENT_STATUS.md",
-              "PLAYTEST_LAB_REPRODUCIBILITY.txt",
-              "PLAYTEST_LAB_SHA256SUMS.txt",
-              "PLAYTEST_LAB_TEST_RESULTS.txt",
-              f"commander-playtest-lab-{version}-validation.zip",
-              f"commander-playtest-lab-{version}-repository.zip",
-              f"commander-playtest-lab-{version}-source.zip",
-              f"commander-playtest-lab-{version}.bundle",
-              wheel,
-              sdist,
-          ]
-          manifest = {
-              "schema_version": 2,
+          payload = {
+              "schema_version": 3,
               "release": version,
               "git_head": sha,
-              "artifacts": artifacts,
-              "validation_level": "structural_tactical_and_real_external_feasibility_evidence",
-              "external_rules_engine_results": True,
+              "release_evidence": "software_packaging_and_roundtrip",
+              "current_external_engine_validation_level": "external_rules_engine_b3_game_start_only",
+              "historical_p3_validation_level": "structural_tactical_and_real_external_feasibility_evidence",
               "external_engine_production_ready": False,
               "external_engine_provider_decision": "NO_PROVIDER_READY",
-              "external_engine_truth_source": "docs/J_P3_PROVIDER_DECISION.json",
+              "deck_strength_claim": False,
+              "empirical_win_rate_claim": False,
               "roundtrip_required": True,
-              "release_truth_source": "data/decks/manifest.json",
           }
-          (release / "PLAYTEST_LAB_ARTIFACT_MANIFEST.json").write_text(
-              json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          Path("release/PLAYTEST_LAB_ARTIFACT_MANIFEST.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
           )
           PY
           version='${{ steps.meta.outputs.version }}'
           printf 'release=%s\ngit_head=%s\nroundtrip=pending\n' "$version" "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
-          (cd release && zip -q "commander-playtest-lab-${version}-validation.zip" \
-            PLAYTEST_LAB_TEST_RESULTS.txt \
-            PLAYTEST_LAB_BUILD_RESULTS.txt \
-            PLAYTEST_LAB_CURRENT_STATUS.md \
-            PLAYTEST_LAB_CURRENT_STATUS.json \
-            PLAYTEST_LAB_ARTIFACT_MANIFEST.json)
-      - name: Generate checksums
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd release
-          find . -maxdepth 1 -type f ! -name 'PLAYTEST_LAB_SHA256SUMS.txt' -printf '%f\n' | sort | xargs sha256sum > PLAYTEST_LAB_SHA256SUMS.txt
-      - name: Roundtrip verification
+      - name: Verify package and artifact roundtrip
         shell: bash
         run: |
           set -euo pipefail
           version='${{ steps.meta.outputs.version }}'
-          (cd release && sha256sum -c PLAYTEST_LAB_SHA256SUMS.txt)
           unzip -tq "release/commander-playtest-lab-${version}-source.zip"
           unzip -tq "release/commander-playtest-lab-${version}-repository.zip"
-          unzip -tq "release/commander-playtest-lab-${version}-validation.zip"
           git bundle verify "release/commander-playtest-lab-${version}.bundle"
           verify_dir="$RUNNER_TEMP/repository-roundtrip"
           rm -rf "$verify_dir"
@@ -275,13 +209,20 @@ jobs:
           test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "$version"
           "$RUNNER_TEMP/wheel-verify/bin/commander-lab" --help >/dev/null
           printf 'release=%s\ngit_head=%s\nroundtrip=passed\n' "$version" "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
-          (cd release && grep -v 'PLAYTEST_LAB_REPRODUCIBILITY.txt$' PLAYTEST_LAB_SHA256SUMS.txt > PLAYTEST_LAB_SHA256SUMS.tmp)
-          (cd release && mv PLAYTEST_LAB_SHA256SUMS.tmp PLAYTEST_LAB_SHA256SUMS.txt && sha256sum PLAYTEST_LAB_REPRODUCIBILITY.txt >> PLAYTEST_LAB_SHA256SUMS.txt)
-          (cd release && sha256sum -c PLAYTEST_LAB_SHA256SUMS.txt)
-      - name: Upload release package
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+      - name: Generate and verify checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release
+          find . -maxdepth 1 -type f ! -name 'PLAYTEST_LAB_SHA256SUMS.txt' -printf '%f\n' | sort | xargs sha256sum > PLAYTEST_LAB_SHA256SUMS.txt
+          sha256sum -c PLAYTEST_LAB_SHA256SUMS.txt
+      - name: Assert tracked repository remains clean
+        run: |
+          test -z "$(git status --porcelain --untracked-files=no)"
+          git diff --exit-code
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
         with:
-          name: commander-playtest-lab-${{ steps.meta.outputs.version }}-release
+          name: commander-playtest-lab-release-${{ steps.meta.outputs.version }}-${{ github.sha }}
           path: release/
           if-no-files-found: error
-          retention-days: 90
+          retention-days: 30

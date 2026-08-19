@@ -141,3 +141,35 @@ def test_playstyle_annotations_do_not_change_objective_workflow_results() -> Non
 
     for key in ("bucket_counts", "candidate_pool_after_default_screen", "candidates"):
         assert before[key] == after[key]
+
+
+def test_public_advancement_interface_applies_resolution_and_model_information() -> None:
+    comparison = {
+        "status": "completed",
+        "paired": {
+            "confidence_interval": [0.50, 0.60],
+            "distributionally_robust_lower_bound": 0.05,
+        },
+    }
+    measured = {"status": "MEASURED", "effective_resolution": 0.392857142857143}
+
+    separated = PriorityWorkflowFacade.advancement_decision(
+        comparison,
+        model_resolution=measured,
+    )
+    assert separated["status"] == "advance"
+
+    unresolved = PriorityWorkflowFacade.advancement_decision(
+        comparison,
+        model_resolution={"status": "MEASURED", "effective_resolution": 0.70},
+    )
+    assert unresolved["status"] == "diagnose"
+    assert unresolved["reason_code"] == "unresolved_or_lower_tail_unfavorable"
+
+    governed = PriorityWorkflowFacade.advancement_decision(
+        comparison,
+        model_informativeness={"status": "MODEL_INFORMATION_LIMIT"},
+        model_resolution=measured,
+    )
+    assert governed["status"] == "diagnose"
+    assert governed["reason_code"] == "model_information_limit"

@@ -42,7 +42,7 @@ def main() -> None:
 
     screen = screener.screen_pool()
     assert context.active_own_deck_ids == ("rogshai/current",)
-    assert context.historical_own_deck_ids == ("korvold/current",)
+    assert context.historical_own_deck_ids == ()
     assert service.ACTIVE_OWN_DECK_IDS == ("rogshai/current",)
     assert screen["physical_legal_candidate_count"] == 795
     assert screen["discoverable_candidate_count"] == 795

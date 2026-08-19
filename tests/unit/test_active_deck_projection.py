@@ -11,6 +11,6 @@ def test_live_active_deck_projection_is_rogshai_only() -> None:
         )
     )
     assert payload["active_own_deck_ids"] == ["rogshai/current"]
-    assert payload["inactive_former_own_deck_ids"] == ["korvold/current"]
-    assert payload["korvold_optimization_target"] is False
-    assert payload["korvold_simultaneous_build_requirement"] is False
+    assert payload["inactive_former_own_deck_ids"] == []
+    assert payload["historical_own_decks"] == []
+    assert payload["primary_active_own_deck_id"] == "rogshai/current"

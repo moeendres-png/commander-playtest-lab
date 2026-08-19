@@ -62,13 +62,21 @@ def _select_prefixes(
 
 def build_priority_comparison_identity(
     context: ProjectContextSnapshot,
+    deck_id: str | None = None,
 ) -> WorkflowSemanticIdentity:
-    """Project the global governance snapshot onto inputs consumed by priority comparison.
+    """Project governance inputs onto one deck-scoped priority comparison identity.
 
-    Opponent deck content is bound separately by exact opponent deck hashes in RunIdentity.
-    Historical handoffs, unrelated external-engine configs and calibration/search configs are not
-    semantic dependencies of the current structural paired comparison.
+    The current canonical data may contain only one active own deck, but that is a data-state
+    property rather than an API contract. Callers may select any active ``deck_id`` represented by
+    the supplied context. Opponent deck content remains bound separately by exact opponent hashes
+    in ``RunIdentity``.
     """
+
+    selected_deck_id = deck_id or context.primary_deckbuilding_focus
+    if selected_deck_id not in context.active_own_deck_ids:
+        raise WorkflowIdentityError(
+            f"priority comparison deck is not active in this context: {selected_deck_id}"
+        )
 
     sources = dict(context.source_hashes)
     policies = dict(context.policy_config_hashes)
@@ -83,7 +91,7 @@ def build_priority_comparison_identity(
             "opponent_registry",
             "pod_scenarios",
             "protected_cards",
-            "active_deck:rogshai/current",
+            f"active_deck:{selected_deck_id}",
         ),
         kind="source",
     )
@@ -104,8 +112,8 @@ def build_priority_comparison_identity(
         kind="policy",
     )
     return WorkflowSemanticIdentity(
-        schema_version="1.0.0",
-        workflow_name="priority_structural_paired_comparison",
+        schema_version="1.1.0",
+        workflow_name=f"priority_structural_paired_comparison:{selected_deck_id}",
         software_version=context.software_version,
         engine_version=context.engine_version,
         source_dependencies=selected_sources,

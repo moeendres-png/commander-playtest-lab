@@ -84,12 +84,11 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
         modern_params(name="optimize-deck", arguments={}),
     )
     assert "rogshai/current" in default_prompt["result"]["messages"][0]["content"]["text"]
-    assert "korvold/current" not in default_prompt["result"]["messages"][0]["content"]["text"]
 
     status = request(server, 71, "resources/read", modern_params(uri="commander-lab://status"))
     status_payload = json.loads(status["result"]["contents"][0]["text"])
     assert status_payload["active_own_deck_ids"] == ["rogshai/current"]
-    assert "korvold/current" in status_payload["historical_own_deck_ids"]
+    assert status_payload["historical_own_deck_ids"] == []
     assert status_payload["primary_deckbuilding_focus"] == "rogshai/current"
     assert "phases" not in status_payload
 
@@ -110,7 +109,6 @@ def test_modern_mcp_is_stateless_and_exposes_tools_resources_prompts() -> None:
     malformed = request(server, 10, "resources/read", modern_params())
     assert malformed["error"]["code"] == -32602
 
-    # 2026-07-28 removed initialize and the custom shutdown lifecycle from the core.
     init = request(
         server,
         11,

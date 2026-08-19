@@ -2,11 +2,9 @@
   "active_own_decks": [
     "rogshai/current"
   ],
-  "generated_at": "2026-08-11T04:57:00+02:00",
-  "inactive_former_own_decks": [
-    "korvold/current"
-  ],
-  "notes": "Current-project delta over the sealed J-P5 availability snapshot. Historical J-P5 evidence remains byte-unchanged; released Korvold allocations no longer consume RogShai availability.",
+  "generated_at": "2026-08-19",
+  "inactive_former_own_decks": [],
+  "notes": "Current-project availability delta retained for compatibility with sealed historical evidence. The mapping represents released own-card reservations only; it is not a former decklist, current deck identity, quality prior, or optimization input.",
   "released_allocations": {
     "Aftermath Analyst": 1,
     "Ancient Grudge": 1,
@@ -47,7 +45,6 @@
     "Ignoble Hierarch": 1,
     "Jund Panorama": 1,
     "Karplusan Forest": 1,
-    "Korvold, Fae-Cursed King": 1,
     "Lightning Greaves": 1,
     "Llanowar Wastes": 1,
     "Massacre Wurm": 1,

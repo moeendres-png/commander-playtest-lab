@@ -1,0 +1,191 @@
+name: Candidate Paired Triage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/commander_lab/candidate_evaluation.py'
+      - 'src/commander_lab/current_model_resolution.py'
+      - 'src/commander_lab/priority_workflows.py'
+      - 'src/commander_lab/decision_information.py'
+      - 'src/commander_lab/model_informativeness.py'
+      - 'src/commander_lab/advancement.py'
+      - 'src/commander_lab/optimization/**'
+      - 'data/diagnostics/MODEL_RESOLUTION_CURRENT.json'
+      - 'scripts/run_candidate_paired_triage.py'
+      - 'scripts/apply_candidate_resolution_gate.py'
+      - '.github/workflows/candidate-paired-triage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidate-paired-triage-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  paired-structural-triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install structural triage runtime
+        run: python -m pip install -e '.[dev]'
+      - name: Run adaptive paired candidate triage
+        env:
+          CANDIDATE_TRIAGE_INITIAL_ITERATIONS: '8'
+          CANDIDATE_TRIAGE_REFINED_ITERATIONS: '32'
+        run: python scripts/run_candidate_paired_triage.py
+      - name: Apply fresh measured model-resolution gate
+        run: python scripts/apply_candidate_resolution_gate.py
+      - name: Verify triage evidence, prefix reuse, cohort and resolution gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path(
+              'artifacts/candidate_evaluation/CURRENT_PAIRED_CANDIDATE_TRIAGE.json'
+          )
+          payload = json.loads(path.read_text(encoding='utf-8'))
+          if payload.get('evidence_class') != 'structural_model_estimates':
+              raise SystemExit('paired triage lost its structural evidence class')
+          if payload.get('cohort_diagnostic_evidence_class') != 'structural_model_diagnostic':
+              raise SystemExit('cohort diagnosis lost its model-diagnostic evidence class')
+          if payload.get('direct_cross_variant_pairing') is not False:
+              raise SystemExit('paired triage incorrectly claims cross-variant pairing')
+          if payload.get('direct_cross_variant_ranking_allowed') is not False:
+              raise SystemExit('paired triage incorrectly allows direct candidate ranking')
+          if payload.get('canonical_mutation_performed') is not False:
+              raise SystemExit('paired triage mutated canonical data')
+          if payload.get('inventory_reservation_performed') is not False:
+              raise SystemExit('paired triage reserved inventory')
+          if payload.get('final_recommendation') is not False:
+              raise SystemExit('paired triage emitted a premature final recommendation')
+
+          initial_iterations = payload.get('initial_iterations_per_variant')
+          refined_iterations = payload.get('refined_iterations_per_open_variant')
+          if initial_iterations != 8 or refined_iterations != 32:
+              raise SystemExit('paired triage precision budgets drifted from the declared contract')
+
+          results = payload.get('results')
+          if not isinstance(results, list) or not results:
+              raise SystemExit('paired triage produced no executed candidate results')
+          expected_refinements = 0
+          for row in results:
+              provenance = row.get('candidate_provenance')
+              if not isinstance(provenance, dict):
+                  raise SystemExit('paired triage row lost candidate provenance')
+              if provenance.get('availability') != 'physical_free':
+                  raise SystemExit('physical-only priority adapter executed nonphysical candidate')
+              if row.get('final_recommendation') is not False:
+                  raise SystemExit('paired triage row emitted a premature recommendation')
+
+              initial = row.get('initial_stage')
+              if not isinstance(initial, dict):
+                  raise SystemExit('paired triage row lost its initial stage')
+              if initial.get('evidence_class') != 'structural_model_estimates':
+                  raise SystemExit('initial paired stage lost structural evidence class')
+              initial_status = initial.get('decision_information_status')
+              refined = row.get('refined_stage')
+              if initial_status == 'MORE_SIMULATIONS_USEFUL':
+                  expected_refinements += 1
+                  if not isinstance(refined, dict):
+                      raise SystemExit('open initial row was not refined')
+                  incremental = refined.get('incremental_execution')
+                  if not isinstance(incremental, dict):
+                      raise SystemExit('refined row lost incremental execution provenance')
+                  if incremental.get('reused_prefix_count') != 8:
+                      raise SystemExit('refined row did not reuse the 8-pair prefix')
+                  if incremental.get('incremental_simulated_count') != 24:
+                      raise SystemExit('refined row did not simulate exactly the 24-pair suffix')
+                  if refined.get('evidence_class') != 'structural_model_estimates':
+                      raise SystemExit('refined paired stage lost structural evidence class')
+              elif refined is not None:
+                  raise SystemExit('closed initial row received unnecessary additional precision')
+
+              cohort_diagnosis = row.get('cohort_diagnosis')
+              if not isinstance(cohort_diagnosis, dict):
+                  raise SystemExit('paired triage row lost cohort diagnosis')
+              cohort_model = cohort_diagnosis.get('model_informativeness')
+              if not isinstance(cohort_model, dict):
+                  raise SystemExit('cohort diagnosis lost model informativeness')
+
+              validated_resolution = row.get('validated_model_resolution')
+              if not isinstance(validated_resolution, dict):
+                  raise SystemExit('paired triage row lost validated model resolution')
+              if validated_resolution.get('freshness_validated') is not True:
+                  raise SystemExit('candidate decision used stale model resolution')
+              for key in (
+                  'resolution_only_decision_information_state',
+                  'governed_decision_information_state',
+                  'resolution_aware_advancement_decision',
+              ):
+                  if not isinstance(row.get(key), dict):
+                      raise SystemExit(f'candidate row lost {key}')
+
+          if payload.get('refinement_candidate_count') != expected_refinements:
+              raise SystemExit('refinement count disagrees with decision-information states')
+          if payload.get('total_reused_prefix_pairs') != expected_refinements * 8:
+              raise SystemExit('aggregate prefix reuse does not match refined rows')
+
+          cohort_model = payload.get('cohort_model_informativeness')
+          if not isinstance(cohort_model, dict):
+              raise SystemExit('aggregate cohort model diagnostic is missing')
+          model_status = cohort_model.get('status')
+          if model_status not in {'INFORMATIVE', 'MODEL_INFORMATION_LIMIT'}:
+              raise SystemExit(f'unknown cohort model status: {model_status}')
+          if model_status == 'MODEL_INFORMATION_LIMIT':
+              if payload.get('eligible_for_finalist_followup_count') != 0:
+                  raise SystemExit('model-information limit incorrectly authorized finalists')
+              for row in results:
+                  cohort_diagnosis = row['cohort_diagnosis']
+                  state = cohort_diagnosis.get('decision_information_state')
+                  if not isinstance(state, dict):
+                      raise SystemExit('cohort diagnosis lost decision-information state')
+                  if state.get('status') != 'MODEL_NEEDS_DIFFERENT_METRIC':
+                      raise SystemExit('model limit did not redirect decision-information status')
+                  if cohort_diagnosis.get('next_experiment') != (
+                      'diagnose_model_information_before_more_seed_work'
+                  ):
+                      raise SystemExit('model limit did not stop blind same-model seed expansion')
+
+          gate = payload.get('model_resolution_gate')
+          if not isinstance(gate, dict):
+              raise SystemExit('paired triage lost the measured model-resolution gate')
+          if gate.get('status') != 'MEASURED' or gate.get('freshness_validated') is not True:
+              raise SystemExit('model-resolution gate is not fresh measured evidence')
+          resolution = gate.get('effective_resolution')
+          if not isinstance(resolution, (int, float)) or isinstance(resolution, bool) or resolution <= 0:
+              raise SystemExit('model-resolution gate has no positive threshold')
+          if payload.get('resolution_gate_applied') is not True:
+              raise SystemExit('paired triage did not apply model resolution')
+
+          print('CANDIDATE_PAIRED_TRIAGE=PASS')
+          print('ADAPTIVE_PRECISION=8_TO_32_ONLY_WHEN_MORE_SIMULATIONS_USEFUL')
+          print('PREFIX_REUSE=PASS')
+          print(f'COHORT_MODEL_INFORMATION={model_status}')
+          print(f'VALIDATED_MODEL_RESOLUTION={resolution}')
+          print('MODEL_RESOLUTION_FRESHNESS=PASS')
+          print('PAIRING_SCOPE=baseline_vs_variant_within_candidate_only')
+          print('EVIDENCE_BOUNDARY=structural_precision_plus_model_diagnostic_not_empirical_winrate')
+          PY
+      - name: Assert tracked repository remains clean
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain --untracked-files=no)"
+          git diff --exit-code
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        if: always()
+        with:
+          name: candidate-paired-triage-${{ github.sha }}
+          path: artifacts/candidate_evaluation/CURRENT_PAIRED_CANDIDATE_TRIAGE.json
+          if-no-files-found: error
+          retention-days: 14

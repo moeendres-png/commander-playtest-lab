@@ -1,0 +1,145 @@
+name: Core Workflow Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/commander_lab/**'
+      - 'scripts/run_j_p6_workflow_smoke.py'
+      - 'scripts/run_candidate_evaluation_frontier.py'
+      - 'tests/unit/test_deck_policy_registry.py'
+      - 'tests/unit/test_decision_context.py'
+      - 'tests/unit/test_candidate_screening.py'
+      - 'tests/unit/test_candidate_evaluation.py'
+      - 'tests/unit/test_canonical_feature_fusion.py'
+      - 'tests/unit/test_workflow_identity.py'
+      - 'data/collections/current/**'
+      - 'data/decks/**'
+      - 'data/opponents/**'
+      - 'data/pilots/**'
+      - 'config/**'
+      - '.github/workflows/core-workflow-acceptance.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/commander_lab/**'
+      - 'scripts/run_j_p6_workflow_smoke.py'
+      - 'scripts/run_candidate_evaluation_frontier.py'
+      - 'tests/unit/test_deck_policy_registry.py'
+      - 'tests/unit/test_decision_context.py'
+      - 'tests/unit/test_candidate_screening.py'
+      - 'tests/unit/test_candidate_evaluation.py'
+      - 'tests/unit/test_canonical_feature_fusion.py'
+      - 'tests/unit/test_workflow_identity.py'
+      - 'data/collections/current/**'
+      - 'data/decks/**'
+      - 'data/opponents/**'
+      - 'data/pilots/**'
+      - 'config/**'
+      - '.github/workflows/core-workflow-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-workflow-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  decision-workflow-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install decision-workflow runtime
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Multi-deck, candidate, feature and run-identity semantic contracts
+        run: |
+          python -m pytest -q \
+            tests/unit/test_deck_policy_registry.py \
+            tests/unit/test_decision_context.py \
+            tests/unit/test_candidate_screening.py \
+            tests/unit/test_candidate_evaluation.py \
+            tests/unit/test_canonical_feature_fusion.py \
+            tests/unit/test_workflow_identity.py
+      - name: Current candidate-evaluation frontier
+        run: python scripts/run_candidate_evaluation_frontier.py
+      - name: Current reference decision workflow
+        run: python scripts/run_j_p6_workflow_smoke.py
+      - name: Verify acceptance evidence boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          smoke_path = Path('artifacts/j_p6/J_P6_WORKFLOW_SMOKE.json')
+          smoke = json.loads(smoke_path.read_text(encoding='utf-8'))
+          if smoke.get('evidence_class') != 'workflow_runtime_smoke':
+              raise SystemExit('reference workflow smoke lost its technical-only evidence boundary')
+          if smoke.get('canonical_deck_mutations') != 0:
+              raise SystemExit('acceptance workflow mutated canonical deck data')
+          workflows = smoke.get('workflows')
+          if not isinstance(workflows, list) or not workflows:
+              raise SystemExit('reference workflow produced no workflow evidence')
+          for row in workflows:
+              identity = row.get('run_identity_hash')
+              if not isinstance(identity, str) or len(identity) != 64:
+                  raise SystemExit(f"missing run identity for {row.get('name')}")
+
+          plan_path = Path(
+              'artifacts/candidate_evaluation/CURRENT_CANDIDATE_EVALUATION_PLAN.json'
+          )
+          plan = json.loads(plan_path.read_text(encoding='utf-8'))
+          if plan.get('evidence_class') != 'structural_model_estimates':
+              raise SystemExit('candidate evaluation lost its structural evidence class')
+          if plan.get('canonical_mutation_performed') is not False:
+              raise SystemExit('candidate evaluation mutated canonical data')
+          if plan.get('inventory_reservation_performed') is not False:
+              raise SystemExit('candidate evaluation reserved physical inventory')
+          if plan.get('final_recommendation') is not False:
+              raise SystemExit('candidate evaluation incorrectly emitted a final recommendation')
+          frontier = plan.get('variant_frontier')
+          if not isinstance(frontier, list) or not frontier:
+              raise SystemExit('candidate evaluation produced no bounded variant frontier')
+          for row in frontier:
+              if row.get('constraint_valid') is not True:
+                  raise SystemExit('candidate frontier contains an invalid variant')
+              if row.get('requires_paired_validation') is not True:
+                  raise SystemExit('candidate frontier bypassed paired validation')
+              if row.get('final_recommendation') is not False:
+                  raise SystemExit('candidate frontier contains a premature recommendation')
+
+          metrics = plan.get('frontier_metrics')
+          if not isinstance(metrics, dict):
+              raise SystemExit('candidate frontier metrics are missing')
+          cap = metrics.get('max_pairs_per_candidate')
+          observed = metrics.get('observed_max_pairs_for_one_candidate')
+          if not isinstance(cap, int) or not isinstance(observed, int) or observed > cap:
+              raise SystemExit('candidate frontier violated its diversity cap')
+
+          print('CORE_WORKFLOW_ACCEPTANCE=PASS')
+          print('CANDIDATE_EVALUATION_ACCEPTANCE=PASS')
+          print('CANDIDATE_DIVERSITY_ACCEPTANCE=PASS')
+          print('EVIDENCE_BOUNDARY=technical_and_structural_acceptance_not_deck_strength')
+          PY
+      - name: Assert tracked repository remains clean
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain --untracked-files=no)"
+          git diff --exit-code
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        if: always()
+        with:
+          name: core-workflow-acceptance-${{ github.sha }}
+          path: |
+            artifacts/j_p6/
+            artifacts/candidate_evaluation/
+          if-no-files-found: error
+          retention-days: 14

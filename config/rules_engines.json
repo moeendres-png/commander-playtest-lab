@@ -8,10 +8,24 @@
     "repository": "https://github.com/moeendres-png/mage.git",
     "source_archive": "https://github.com/moeendres-png/mage/archive/77d7646da6958fdf8125ee7c8f4aabd130d21d4c.tar.gz",
     "license": "MIT",
-    "role": "current XMage compatibility candidate; local full XMage regression validated; production JSONL bridge not yet built",
-    "status": "LOCAL_REGRESSION_VALIDATED",
-    "real_execution": false,
-    "production_ready": false
+    "role": "real pinned XMage B3 bridge for deck import plus Commander game construction/start; tactical control capabilities remain incomplete",
+    "status": "B3_GAME_START_VALIDATED_DEGRADED",
+    "real_execution": true,
+    "production_ready": false,
+    "validated_capabilities": [
+      "commander_supported",
+      "partner_supported",
+      "multiplayer_supported",
+      "headless_supported",
+      "deck_import_supported",
+      "commander_game_construction",
+      "game_start_to_turn_1_upkeep"
+    ],
+    "missing_required_capabilities": [
+      "legal_actions_supported",
+      "action_submission_supported",
+      "event_log_supported"
+    ]
   },
   "secondary_engine": {
     "provider": "forge",
@@ -50,16 +64,22 @@
   },
   "current_runtime": {
     "external_engine_validation_pending": true,
-    "status": "real_partial_provider_evidence_no_production_bridge",
+    "status": "external_rules_engine_b3_game_start_degraded",
     "provider_selected": false,
     "production_provider": null,
-    "xmage_status": "PARTIAL",
+    "xmage_status": "PARTIAL_B3_GAME_START",
     "forge_status": "PARTIAL",
+    "required_missing_capabilities": [
+      "legal_actions_supported",
+      "action_submission_supported",
+      "event_log_supported"
+    ],
     "tactical_oracle_substitution_allowed": false,
-    "source_of_truth": "docs/J_P3_PROVIDER_DECISION.json"
+    "source_of_truth": "merged_pr_78_plus_b3_real_process_manager_truth"
   },
   "provider_decision": "NO_PROVIDER_READY",
-  "production_bridge": "not_built",
+  "production_bridge": "b3_partial_game_start_bridge",
+  "truth_boundary": "B3 is external_rules_engine evidence for real pinned XMage deck import, Commander construction and game start only. It is not tactical gameplay, event-log, replay, win-rate or production-provider evidence.",
   "historical_phase85": {
     "status": "external_runtime_prepared_but_not_executed",
     "forge_pin": "forge-2.0.13 @ 852066bf4f761b302ed17cb011999d8a8fe08ad6",
