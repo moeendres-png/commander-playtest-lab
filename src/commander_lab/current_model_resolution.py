@@ -46,9 +46,7 @@ def _validated_stored_software_identity(payload: dict[str, Any]) -> dict[str, An
         )
     identity = {
         **raw,
-        "commander_lab_tree_sha1": _require_hex_digest(
-            raw, "commander_lab_tree_sha1", length=40
-        ),
+        "commander_lab_tree_sha1": _require_hex_digest(raw, "commander_lab_tree_sha1", length=40),
         "measurement_entrypoint_blob_sha1": _require_hex_digest(
             raw, "measurement_entrypoint_blob_sha1", length=40
         ),
