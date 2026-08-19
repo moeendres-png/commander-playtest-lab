@@ -7,7 +7,6 @@
   "data_snapshot_hash": "095288b1a9c74800aa251dc8d511ef2dd95ff018372869bf6141a83c313e611f",
   "status": "current_physical_photo_verified",
   "global_active_own_decks": [
-    "korvold/current",
     "rogshai/current"
   ],
   "current_optimization_target": "rogshai/current",
@@ -67,9 +66,5 @@
     },
     "scope": "runtime_loaded_decks_only"
   },
-  "removed_operational_decks": [
-    "korvold/current"
-  ],
-  "removed_operational_decks_semantics": "removed_from_runtime_loaded_decks_not_global_ownership",
-  "notes": "Korvold and RogShai are globally active own decks. This runtime snapshot loads only RogShai as the current optimization target; Korvold is not deleted or globally inactive. Kaervek remains a frozen opponent."
+  "notes": "RogShai is the sole active own deck and current optimization target. Kaervek remains a frozen opponent. Superseded former-own-deck snapshots are not current project sources."
 }
