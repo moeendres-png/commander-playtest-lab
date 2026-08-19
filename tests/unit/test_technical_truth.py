@@ -1,21 +1,26 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
+
+import pytest
 
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
+from commander_lab.project_context import load_project_context
 from commander_lab.storage.database import SCHEMA_VERSION
-from commander_lab.technical_truth import build_technical_truth
+from commander_lab.technical_truth import _official_run_truth, build_technical_truth
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_technical_truth_derives_current_versions_scope_and_engine_boundary() -> None:
     truth = build_technical_truth(ROOT)
-    assert truth["technical_truth_version"] == 2
+    assert truth["technical_truth_version"] == 3
     assert truth["package_version"] == __version__
     assert truth["engine_version"] == ENGINE_VERSION
     assert truth["schema_versions"]["database"] == SCHEMA_VERSION
+    assert truth["schema_versions"]["official_run_truth"] == "1.0.0"
     assert truth["global_active_own_deck_set"] == ["rogshai/current"]
     assert truth["runtime_loaded_deck_set"] == ["rogshai/current"]
     assert truth["optimization_target_set"] == ["rogshai/current"]
@@ -52,9 +57,45 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert readiness["preparation_surface_present"] is True
     assert readiness["authorized_runner_surface_present"] is True
     assert readiness["preliminary_run"]["official_first_run"] is False
-    assert readiness["official_run"] == {
-        "default_status": "not_started",
-        "authorization_required": True,
-    }
+    official = readiness["official_run"]
+    assert official["status"] == "completed"
+    assert official["deck_id"] == "rogshai/current"
+    assert official["deck_hash"] == (
+        "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3"
+    )
+    assert official["git_commit"] == "12a0b35e1bf8ee54b6ccc39db57682d35c3a1dc7"
+    assert official["project_context_hash"] == (
+        "c600722324fb62157d450a50a1907eea9d80c60453d5b6007c746b34f16477d9"
+    )
+    assert official["seed_set_hash"] == (
+        "4131880dd7b3998afb7d74c5e288fb9aaeb52b0913c68c2c9490ac910c8a9ba6"
+    )
+    assert official["evidence_class"] == "structural_model_estimates"
+    assert official["evidence_boundary"] == "structural_model_estimates != empirical_winrates"
+    assert official["canonical_mutation"] is False
+    assert official["truth_pointer"] == "data/runs/current/OFFICIAL_ROGSHAI_RUN_CURRENT.json"
     assert truth["git"]["commit"]
     assert truth["git"]["tree"]
+
+
+def _write_pointer(root: Path, payload: str) -> None:
+    path = root / "data/runs/current/OFFICIAL_ROGSHAI_RUN_CURRENT.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(payload, encoding="utf-8")
+
+
+def test_official_run_truth_fails_closed_on_malformed_pointer(tmp_path: Path) -> None:
+    context = load_project_context(ROOT)
+    _write_pointer(tmp_path, "{malformed")
+    with pytest.raises(ValueError, match="malformed"):
+        _official_run_truth(tmp_path, context)
+
+
+def test_official_run_truth_fails_closed_on_stale_deck_hash(tmp_path: Path) -> None:
+    context = load_project_context(ROOT)
+    source = ROOT / "data/runs/current/OFFICIAL_ROGSHAI_RUN_CURRENT.json"
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    payload["deck_hash"] = "0" * 64
+    _write_pointer(tmp_path, json.dumps(payload))
+    with pytest.raises(ValueError, match="stale"):
+        _official_run_truth(tmp_path, context)
