@@ -16,8 +16,7 @@ def test_model_resolution_software_identity_is_content_addressed(repo_root) -> N
     assert len(identity["package_manifest_blob_sha1"]) == 40
     assert len(identity["identity_sha256"]) == 64
     assert (
-        identity["freshness_semantics"]
-        == "content_addressed_relevant_software_not_commit_identity"
+        identity["freshness_semantics"] == "content_addressed_relevant_software_not_commit_identity"
     )
 
 
