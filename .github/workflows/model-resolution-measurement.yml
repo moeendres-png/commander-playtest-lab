@@ -4,12 +4,16 @@ on:
   pull_request:
     paths:
       - "src/commander_lab/model_resolution_measurement.py"
+      - "src/commander_lab/model_resolution_software_identity.py"
+      - "src/commander_lab/current_model_resolution.py"
       - "src/commander_lab/fresh_rebuild.py"
       - "src/commander_lab/repositories/candidates.py"
       - "src/commander_lab/engine/structural/**"
       - "src/commander_lab/whole_deck/**"
       - "scripts/measure_model_resolution.py"
       - "tests/unit/test_model_resolution_measurement.py"
+      - "tests/unit/test_model_resolution_software_identity.py"
+      - "tests/unit/test_current_model_resolution.py"
       - "tests/unit/test_decision_quality.py"
       - "data/diagnostics/MODEL_RESOLUTION_CURRENT.json"
       - "data/decks/rogshai_current.json"
@@ -43,7 +47,12 @@ jobs:
       - name: Install
         run: python -m pip install -e '.[dev]'
       - name: Unit contract
-        run: pytest -q tests/unit/test_model_resolution_measurement.py tests/unit/test_decision_quality.py
+        run: >-
+          pytest -q
+          tests/unit/test_model_resolution_measurement.py
+          tests/unit/test_model_resolution_software_identity.py
+          tests/unit/test_current_model_resolution.py
+          tests/unit/test_decision_quality.py
       - name: Measure current Structural resolution
         run: |
           mkdir -p artifacts/model-resolution
@@ -84,6 +93,20 @@ jobs:
               value = report.get(key)
               if not isinstance(value, str) or len(value) != 64:
                   raise SystemExit(f'model resolution lost reproducible {key}')
+          software = report.get('software_identity')
+          if not isinstance(software, dict):
+              raise SystemExit('model resolution lost content-addressed software identity')
+          for key in (
+              'commander_lab_tree_sha1',
+              'measurement_entrypoint_blob_sha1',
+              'package_manifest_blob_sha1',
+          ):
+              value = software.get(key)
+              if not isinstance(value, str) or len(value) != 40:
+                  raise SystemExit(f'model resolution lost software identity component {key}')
+          identity_sha256 = software.get('identity_sha256')
+          if not isinstance(identity_sha256, str) or len(identity_sha256) != 64:
+              raise SystemExit('model resolution lost software identity digest')
           decision_use = report.get('decision_use')
           if not isinstance(decision_use, dict):
               raise SystemExit('model resolution lost decision-use contract')

@@ -10,6 +10,20 @@ from commander_lab.current_model_resolution import (
     _require_hex_digest,
     load_current_model_resolution,
 )
+from commander_lab.model_resolution_software_identity import model_resolution_software_identity
+
+
+def _current_payload(repo_root) -> dict[str, object]:
+    source = repo_root / current_model_resolution.CURRENT_MODEL_RESOLUTION_PATH
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    assert isinstance(payload, dict)
+    return payload
+
+
+def _install_payload(tmp_path, monkeypatch, payload: dict[str, object]) -> None:
+    current = tmp_path / "MODEL_RESOLUTION_CURRENT.json"
+    current.write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr(current_model_resolution, "CURRENT_MODEL_RESOLUTION_PATH", current)
 
 
 def test_model_resolution_provenance_distinguishes_git_sha1_from_sha256() -> None:
@@ -38,14 +52,30 @@ def test_model_resolution_provenance_distinguishes_git_sha1_from_sha256() -> Non
         _require_hex_digest({"source_head": "z" * 40}, "source_head", length=40)
 
 
-def test_current_model_resolution_loads_with_fresh_live_provenance(repo_root) -> None:
-    payload = load_current_model_resolution(repo_root)
+def test_current_model_resolution_without_software_identity_fails_closed(
+    repo_root, tmp_path, monkeypatch
+) -> None:
+    payload = _current_payload(repo_root)
+    payload.pop("software_identity", None)
+    _install_payload(tmp_path, monkeypatch, payload)
 
-    assert payload["status"] == "MEASURED"
-    assert payload["effective_resolution"] == pytest.approx(0.392857142857143)
-    assert payload["freshness_validated"] is True
-    assert payload["evidence_class"] == "structural_model_estimates"
-    artifact = payload["measurement_artifact"]
+    with pytest.raises(CurrentModelResolutionError, match="no content-addressed software identity"):
+        load_current_model_resolution(repo_root)
+
+
+def test_repository_current_model_resolution_loads_with_fresh_live_provenance(repo_root) -> None:
+    loaded = load_current_model_resolution(repo_root)
+
+    assert loaded["status"] == "MEASURED"
+    assert loaded["effective_resolution"] == pytest.approx(0.3749999999999998)
+    assert loaded["freshness_validated"] is True
+    assert loaded["evidence_class"] == "structural_model_estimates"
+    identity = loaded["software_identity"]
+    assert len(identity["commander_lab_tree_sha1"]) == 40
+    assert len(identity["measurement_entrypoint_blob_sha1"]) == 40
+    assert len(identity["package_manifest_blob_sha1"]) == 40
+    assert len(identity["identity_sha256"]) == 64
+    artifact = loaded["measurement_artifact"]
     assert len(artifact["source_head"]) == 40
     assert len(artifact["measurement_json_sha256"]) == 64
     assert len(artifact["report_hash"]) == 64
@@ -62,12 +92,23 @@ def test_current_model_resolution_loads_with_fresh_live_provenance(repo_root) ->
 def test_current_model_resolution_stale_live_hashes_fail_closed(
     repo_root, tmp_path, monkeypatch, field: str
 ) -> None:
-    source = repo_root / current_model_resolution.CURRENT_MODEL_RESOLUTION_PATH
-    payload = json.loads(source.read_text(encoding="utf-8"))
+    payload = _current_payload(repo_root)
+    payload["software_identity"] = model_resolution_software_identity(repo_root)
     payload[field] = "0" * 64
-    stale = tmp_path / "MODEL_RESOLUTION_CURRENT.json"
-    stale.write_text(json.dumps(payload), encoding="utf-8")
-    monkeypatch.setattr(current_model_resolution, "CURRENT_MODEL_RESOLUTION_PATH", stale)
+    _install_payload(tmp_path, monkeypatch, payload)
 
     with pytest.raises(CurrentModelResolutionError, match="stale for the live decision inputs"):
+        current_model_resolution.load_current_model_resolution(repo_root)
+
+
+def test_current_model_resolution_stale_software_identity_fails_closed(
+    repo_root, tmp_path, monkeypatch
+) -> None:
+    payload = _current_payload(repo_root)
+    identity = model_resolution_software_identity(repo_root)
+    identity["identity_sha256"] = "0" * 64
+    payload["software_identity"] = identity
+    _install_payload(tmp_path, monkeypatch, payload)
+
+    with pytest.raises(CurrentModelResolutionError, match="stale for the live software identity"):
         current_model_resolution.load_current_model_resolution(repo_root)
