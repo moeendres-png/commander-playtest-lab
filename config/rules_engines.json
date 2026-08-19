@@ -8,8 +8,8 @@
     "repository": "https://github.com/moeendres-png/mage.git",
     "source_archive": "https://github.com/moeendres-png/mage/archive/77d7646da6958fdf8125ee7c8f4aabd130d21d4c.tar.gz",
     "license": "MIT",
-    "role": "real pinned XMage B4-A bridge for deck import, Commander game start and read-only live state observation; external decision/action capabilities remain incomplete",
-    "status": "B4A_STATE_OBSERVATION_VALIDATED_DEGRADED",
+    "role": "real pinned XMage B4-C bounded bridge for deck import, Commander game start, live state observation, current-priority legal-action handoff and fail-closed targetless/nonmodal action submission; complete external game control remains incomplete",
+    "status": "B4C_BOUNDED_ACTION_SUBMISSION_VALIDATED_DEGRADED",
     "real_execution": true,
     "production_ready": false,
     "validated_capabilities": [
@@ -23,7 +23,12 @@
       "game_state_observation",
       "priority_visible",
       "stack_visible",
-      "monotonic_state_observation_offset"
+      "monotonic_state_observation_offset",
+      "bounded_current_priority_legal_action_enumeration",
+      "bounded_priority_pass_submission",
+      "bounded_targetless_nonmodal_action_submission",
+      "stale_decision_action_rejection",
+      "real_rograkh_commander_cast_to_stack"
     ],
     "missing_required_capabilities": [
       "legal_actions_supported",
@@ -68,10 +73,10 @@
   },
   "current_runtime": {
     "external_engine_validation_pending": true,
-    "status": "external_rules_engine_b4a_state_observation_degraded",
+    "status": "external_rules_engine_b4c_bounded_action_submission_degraded",
     "provider_selected": false,
     "production_provider": null,
-    "xmage_status": "PARTIAL_B4A_STATE_OBSERVATION",
+    "xmage_status": "PARTIAL_B4C_BOUNDED_ACTION_SUBMISSION",
     "forge_status": "PARTIAL",
     "required_missing_capabilities": [
       "legal_actions_supported",
@@ -79,11 +84,11 @@
       "event_log_supported"
     ],
     "tactical_oracle_substitution_allowed": false,
-    "source_of_truth": "real_b4a_process_regression_on_pinned_xmage_plus_current_pr_head"
+    "source_of_truth": "real_b4c_process_regression_on_pinned_xmage_plus_current_pr_head"
   },
   "provider_decision": "NO_PROVIDER_READY",
-  "production_bridge": "b4a_partial_state_observation_bridge",
-  "truth_boundary": "B4-A is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live read-only game-state observation, priority visibility and stack visibility. Seed remains unknown/uncontrolled and legal-action enumeration, action submission, event logging, replay and a complete production game loop remain unproven; this is not tactical gameplay, win-rate or production-provider evidence.",
+  "production_bridge": "b4c_bounded_action_submission_bridge",
+  "truth_boundary": "B4-C is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live state observation, current-priority decision/legal-action handoff, real priority passing, stale decision/action rejection and bounded submission-ready targetless/nonmodal action execution including a real Rograkh commander cast onto the XMage stack. This does not prove globally complete legal-action enumeration or action submission: target, mode, choice, combat, event-log, mulligan, seed-control, replay and complete production game-loop coverage remain unproven. It is not win-rate evidence and does not make XMage a production-ready provider.",
   "historical_phase85": {
     "status": "external_runtime_prepared_but_not_executed",
     "forge_pin": "forge-2.0.13 @ 852066bf4f761b302ed17cb011999d8a8fe08ad6",
