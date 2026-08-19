@@ -114,17 +114,15 @@ def test_registry_has_required_profiles_and_stable_hashes() -> None:
     profiles = registry.profiles()
     names = {profile.pilot_name for profile in profiles}
     assert {
-        "KorvoldValuePilot",
-        "KorvoldSacrificePilot",
-        "KorvoldLandRebuildPilot",
-        "KorvoldAggressivePilot",
-        "KorvoldConservativePilot",
+        "GenericCommanderPilot",
+        "RogShaiPilot",
         "RogShaiTempoPilot",
         "RogShaiVoltronPilot",
         "RogShaiSpellslingerPilot",
         "RogShaiControlPilot",
         "RogShaiProtectedFinishPilot",
     } <= names
+    assert not any(name.casefold().startswith("korvold") for name in names)
     assert all(len(profile.parameter_hash) == 64 for profile in profiles)
     assert all(not profile.information_policy.hidden_opponent_hands for profile in profiles)
     assert all(not profile.information_policy.random_library_order for profile in profiles)
