@@ -63,11 +63,17 @@ def test_current_model_resolution_without_software_identity_fails_closed(
         load_current_model_resolution(repo_root)
 
 
-def test_repository_current_model_resolution_is_stale_until_scoped_identity_is_promoted(
-    repo_root,
-) -> None:
-    with pytest.raises(CurrentModelResolutionError, match="unsupported software identity schema"):
-        load_current_model_resolution(repo_root)
+def test_repository_current_model_resolution_loads_with_scoped_freshness(repo_root) -> None:
+    loaded = load_current_model_resolution(repo_root)
+
+    assert loaded["status"] == "MEASURED"
+    assert loaded["effective_resolution"] == pytest.approx(0.3749999999999998)
+    assert loaded["freshness_validated"] is True
+    assert loaded["software_identity"]["schema_version"] == "1.1.0"
+    assert (
+        loaded["software_identity"]["identity_sha256"]
+        == "9802486ddfa37c226447fac970154b7a7cfe2f607e561c13c7ffb7be2f533c9a"
+    )
 
 
 def test_current_model_resolution_loads_with_fresh_live_provenance(
