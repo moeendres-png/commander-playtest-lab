@@ -25,6 +25,17 @@ jobs:
     steps:
       - name: Checkout lab
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Validate exact XMage input
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$XMAGE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || {
+            echo 'xmage_commit must be exactly 40 lowercase hexadecimal characters.' >&2
+            exit 1
+          }
+          mkdir -p artifacts/external-engine
+
       - name: Checkout pinned XMage
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -32,48 +43,82 @@ jobs:
           ref: ${{ inputs.xmage_commit }}
           path: vendor/engine-source/xmage
           fetch-depth: 0
+
       - name: Set up JDK 17
         uses: actions/setup-java@7a445ee88d4e23b52c33c56cb891b5ed6a1a101 # v4 immutable revision
         with:
           distribution: temurin
           java-version: "17"
           cache: maven
+
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: "3.12"
           cache: pip
+
       - name: Verify XMage commit and metadata
         working-directory: vendor/engine-source/xmage
         run: |
+          set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
           git cat-file -t "$XMAGE_COMMIT"
           git show --no-patch --format=fuller "$XMAGE_COMMIT"
-          git describe --tags --always "$XMAGE_COMMIT" | tee ../../../artifacts/xmage-source-description.txt
+          git describe --tags --always "$XMAGE_COMMIT" | tee ../../../artifacts/external-engine/xmage-source-description.txt
+
       - name: Build XMage
         working-directory: vendor/engine-source/xmage
         run: |
-          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+          if test -x ./mvnw; then
+            ./mvnw -B -ntp -DskipTests install
+          else
+            mvn -B -ntp -DskipTests install
+          fi
+
       - name: Install lab
         run: python -m pip install -e '.[dev,api]'
+
       - name: Require real provider-specific bridge
         run: |
           test -f engine-bridge/pom.xml || {
             echo 'Provider-specific XMage Java bridge has not yet been implemented. This is a hard failure, not a fallback.' >&2
             exit 1
           }
-      - name: Build bridge
+
+      - name: Build and verify B3 bridge
         working-directory: engine-bridge
         run: mvn -B -ntp verify
-      - name: Run external acceptance
+
+      - name: Configure real XMage bridge process
+        shell: bash
         run: |
+          set -euo pipefail
+          BRIDGE_JAR="$GITHUB_WORKSPACE/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
+          test -f "$BRIDGE_JAR"
+          sha256sum "$BRIDGE_JAR" | tee artifacts/external-engine/bridge-jar.sha256
+          printf 'COMMANDER_LAB_XMAGE_BRIDGE_JAR=%s\n' "$BRIDGE_JAR" >> "$GITHUB_ENV"
+          printf 'COMMANDER_LAB_XMAGE_BRIDGE_CMD=java -jar %s\n' "$BRIDGE_JAR" >> "$GITHUB_ENV"
+
+      - name: Run real B3 external regression
+        shell: bash
+        run: |
+          set -euo pipefail
           scripts/start_engine.sh
           trap 'scripts/stop_engine.sh || true' EXIT
           scripts/verify_engine.sh
-          commander-lab validate-engine-phase85
-          python scripts/run_external_phase851.py
+          python scripts/run_external_b3_regression.py
+
       - name: Generate checksums
         if: always()
-        run: find artifacts -type f -print0 | sort -z | xargs -0 sha256sum > artifacts/external-engine-checksums.sha256 || true
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          tmp="$(mktemp)"
+          find artifacts -type f ! -name external-engine-checksums.sha256 -print0 \
+            | sort -z \
+            | xargs -0 -r sha256sum > "$tmp"
+          mv "$tmp" artifacts/external-engine-checksums.sha256
+
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
