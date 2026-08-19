@@ -205,7 +205,9 @@ def _validate_playstyle(payload: dict[str, Any]) -> str:
         "recommendation_status_signal_allowed",
     )
     if any(payload.get(field) is not False for field in prohibited_decision_signals):
-        raise ProjectContextError("playstyle preference can still affect an objective decision stage")
+        raise ProjectContextError(
+            "playstyle preference can still affect an objective decision stage"
+        )
     if payload.get("review_stage") != "after_objective_build_and_comparison_decision":
         raise ProjectContextError("playstyle review is not strictly post-build")
     explicitly_not = payload.get("explicitly_not")
@@ -240,7 +242,10 @@ def _active_deck_hashes(
     if manifest_active != active:
         raise ProjectContextError("deck manifest and live active-deck scope disagree")
     global_active = manifest.get("global_active_own_decks")
-    if not isinstance(global_active, list) or tuple(str(value) for value in global_active) != active:
+    if (
+        not isinstance(global_active, list)
+        or tuple(str(value) for value in global_active) != active
+    ):
         raise ProjectContextError("global deck manifest and live active-deck scope disagree")
     decks = manifest.get("decks")
     if not isinstance(decks, dict):
@@ -259,7 +264,9 @@ def _active_deck_hashes(
             raise ProjectContextError(f"active deck is missing from deck manifest: {deck_id}")
         validation = raw.get("validation")
         if not isinstance(validation, dict) or validation.get("valid") is not True:
-            raise ProjectContextError(f"active deck is not marked valid in deck manifest: {deck_id}")
+            raise ProjectContextError(
+                f"active deck is not marked valid in deck manifest: {deck_id}"
+            )
         digest = raw.get("deck_hash")
         if not isinstance(digest, str) or len(digest) != 64:
             raise ProjectContextError(f"active deck has invalid hash identity: {deck_id}")
@@ -297,7 +304,9 @@ def _policy_config_hashes(root: Path) -> tuple[tuple[str, str], ...]:
     if not config_root.is_dir():
         raise ProjectContextError("required policy/config directory is missing")
     paths = sorted(
-        path for path in config_root.rglob("*") if path.is_file() and path.suffix in {".json", ".yaml"}
+        path
+        for path in config_root.rglob("*")
+        if path.is_file() and path.suffix in {".json", ".yaml"}
     )
     if not paths:
         raise ProjectContextError("no policy/config identities are available")
@@ -308,17 +317,22 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     root_path = Path(root).resolve()
     paths = {
         "active_scope": root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
-        "playstyle_preference": root_path / "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
-        "inactive_deck_releases": root_path / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
+        "playstyle_preference": root_path
+        / "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
+        "inactive_deck_releases": root_path
+        / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
         "pod_scenarios": root_path / "data/collections/current/POD_SCENARIOS_CURRENT.json",
         "opponent_registry": root_path / "data/opponents/opponent_registry.json",
         "pilot_registry": root_path / "data/pilots/pilot_registry.json",
         "deck_manifest": root_path / "data/decks/manifest.json",
         "deck_decision_registry": root_path / "config/deck_decision_registry.json",
-        "inventory_snapshot": root_path / "data/canonical_import/2026-08-07/inventory_snapshot.json",
+        "inventory_snapshot": root_path
+        / "data/canonical_import/2026-08-07/inventory_snapshot.json",
         "allocation_snapshot": root_path / "data/collections/current_deck_allocations.json",
-        "candidate_eligibility": root_path / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
-        "feature_projection_manifest": root_path / "data/collections/current/rogshai_feature_projection/manifest.json",
+        "candidate_eligibility": root_path
+        / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
+        "feature_projection_manifest": root_path
+        / "data/collections/current/rogshai_feature_projection/manifest.json",
         "protected_cards": root_path / "config/protected_cards.json",
     }
     source_hash_dict = {name: _sha256_file(path) for name, path in paths.items()}
@@ -343,7 +357,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     if not isinstance(candidate_scope, dict) or not isinstance(candidate_feature, dict):
         raise ProjectContextError("candidate universe source identity is missing")
     if candidate_scope.get("sha256") != candidate_feature.get("sha256"):
-        raise ProjectContextError("active scope and feature projection disagree on candidate universe")
+        raise ProjectContextError(
+            "active scope and feature projection disagree on candidate universe"
+        )
 
     pods = _load_json(paths["pod_scenarios"])
     registry = _load_json(paths["opponent_registry"])
@@ -354,7 +370,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "playstyle_generated_at": str(playstyle.get("generated_at", "unknown")),
     }
     if "unknown" in freshness.values():
-        raise ProjectContextError("required synchronized project-context freshness metadata is missing")
+        raise ProjectContextError(
+            "required synchronized project-context freshness metadata is missing"
+        )
 
     frequency_policy = str(pods.get("frequency_policy", ""))
     if "No fixed opponent frequency" not in frequency_policy:
@@ -372,11 +390,16 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         if not isinstance(raw, dict):
             raise ProjectContextError("invalid scenario record")
         scenario_type = raw.get("scenario_type")
-        if scenario_type in {"primary_four_player_context", "historical_reference_four_player_context"}:
+        if scenario_type in {
+            "primary_four_player_context",
+            "historical_reference_four_player_context",
+        }:
             deck_id = raw.get("own_deck")
             entity_ids = raw.get("opponent_entity_ids")
             if not isinstance(deck_id, str) or not isinstance(entity_ids, list):
-                raise ProjectContextError("four-player scenario is missing deck or opponent entities")
+                raise ProjectContextError(
+                    "four-player scenario is missing deck or opponent entities"
+                )
             if raw.get("pod_size") != 4 or len(entity_ids) != 3:
                 raise ProjectContextError("four-player scenario must contain exactly 3 opponents")
             normalized_entities = tuple(str(value) for value in entity_ids)
@@ -388,7 +411,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
                 primary[deck_id] = resolved
             else:
                 if deck_id in historical_references:
-                    raise ProjectContextError(f"multiple historical reference scenarios for {deck_id}")
+                    raise ProjectContextError(
+                        f"multiple historical reference scenarios for {deck_id}"
+                    )
                 historical_references[deck_id] = resolved
         elif scenario_type == "opponent_pool_not_fixed_pod":
             entity_ids = raw.get("opponent_entity_ids")
@@ -398,10 +423,14 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
 
     missing_active = sorted(set(active) - set(primary))
     if missing_active:
-        raise ProjectContextError(f"active own decks are missing primary scenarios: {missing_active}")
+        raise ProjectContextError(
+            f"active own decks are missing primary scenarios: {missing_active}"
+        )
     unexpected_primary = sorted(set(primary) - set(active))
     if unexpected_primary:
-        raise ProjectContextError(f"current primary scenarios reference non-active own decks: {unexpected_primary}")
+        raise ProjectContextError(
+            f"current primary scenarios reference non-active own decks: {unexpected_primary}"
+        )
     unexpected_historical = sorted(set(historical_references) - set(historical))
     if unexpected_historical:
         raise ProjectContextError(
@@ -415,7 +444,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         entity_id for deck_id in active for entity_id in primary_entities.get(deck_id, ())
     }
     if active_primary_entities.intersection(holdout):
-        raise ProjectContextError("holdout opponent was silently promoted into active primary scenario")
+        raise ProjectContextError(
+            "holdout opponent was silently promoted into active primary scenario"
+        )
 
     holdout_decks = _resolve_entities(list(holdout), registry)
     deck_manifest = _load_json(paths["deck_manifest"])
