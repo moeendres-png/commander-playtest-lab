@@ -8,7 +8,7 @@ import pytest
 from commander_lab.decision_context import (
     CandidateAvailability,
     DecisionContextError,
-    TestCandidateSpec,
+    TestCandidateSpec as CandidateSpecFixture,
     load_decision_context_registry,
 )
 
@@ -122,7 +122,7 @@ def test_multi_deck_fixture_keeps_candidate_and_run_contexts_separate(tmp_path: 
     registry = load_decision_context_registry(
         tmp_path,
         test_candidates=(
-            TestCandidateSpec(
+            CandidateSpecFixture(
                 oracle_name="Beta Theory Card",
                 allowed_deck_ids=("fixture/beta",),
                 source_id="user:test-candidates:fixture",
