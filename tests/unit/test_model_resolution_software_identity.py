@@ -28,6 +28,7 @@ def test_model_resolution_software_identity_is_content_addressed(repo_root) -> N
 def test_model_resolution_software_scope_separates_structural_from_external_gameplay() -> None:
     scope = set(model_resolution_software_scope())
 
+    assert "src/commander_lab/model_resolution_software_identity.py" in scope
     assert "src/commander_lab/engine/structural" in scope
     assert "src/commander_lab/whole_deck" in scope
     assert "src/commander_lab/agents" in scope
