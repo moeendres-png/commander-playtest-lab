@@ -176,12 +176,8 @@ def _load_scope(scope_path: Path) -> tuple[tuple[str, ...], tuple[str, ...], str
         raise ProjectContextError("primary deckbuilding focus is not an active own deck")
     if active != ("rogshai/current",):
         raise ProjectContextError(f"current project scope must be RogShai-only; got {active}")
-    if "korvold/current" not in historical:
-        raise ProjectContextError("current scope lost the historical Korvold regression identity")
-    if scope.get("korvold_simultaneous_build_requirement") is not False:
-        raise ProjectContextError("inactive Korvold must not be a simultaneous build requirement")
     if scope.get("historical_allocation_blocks_active_deck") is not False:
-        raise ProjectContextError("historical allocation must not block the active RogShai deck")
+        raise ProjectContextError("historical allocation must not block the active own deck")
     if scope.get("current_valid") is not True:
         raise ProjectContextError("live active-deck scope is stale or not marked current-valid")
     if scope.get("status") != "canonical_current_live_scope":
@@ -201,12 +197,6 @@ def _validate_live_scope_projection(payload: dict[str, Any]) -> None:
         raise ProjectContextError("live active-deck projection contradicts itself")
     if payload.get("primary_active_own_deck_id") != payload.get("primary_deckbuilding_focus"):
         raise ProjectContextError("live active-deck projection has conflicting primary identities")
-    if payload.get("korvold_optimization_target") is not False:
-        raise ProjectContextError(
-            "live active-deck projection still treats Korvold as optimization target"
-        )
-    if payload.get("korvold_simultaneous_build_requirement") is not False:
-        raise ProjectContextError("live active-deck projection still requires simultaneous Korvold")
 
 
 def _validate_playstyle(payload: dict[str, Any]) -> str:
@@ -255,6 +245,12 @@ def _active_deck_hashes(
     decks = manifest.get("decks")
     if not isinstance(decks, dict):
         raise ProjectContextError("deck manifest has no deck identity mapping")
+    unexpected_manifest_decks = sorted(set(str(value) for value in decks) - set(active))
+    if unexpected_manifest_decks:
+        raise ProjectContextError(
+            "deck manifest contains non-active operational deck identities: "
+            f"{unexpected_manifest_decks}"
+        )
     identities: list[tuple[str, str]] = []
     deck_paths: dict[str, Path] = {}
     for deck_id in active:
@@ -290,8 +286,6 @@ def _active_deck_hashes(
             raise ProjectContextError(f"active deck commander identity mismatch: {deck_id}")
         identities.append((deck_id, digest))
         deck_paths[deck_id] = deck_path
-    if "korvold/current" in decks:
-        raise ProjectContextError("inactive Korvold is still an operational current deck manifest")
     return tuple(identities), deck_paths
 
 
