@@ -11,6 +11,17 @@ from commander_lab.storage import load_model
 from .fixtures import build_current_opponent_profiles, build_synthetic_deck_profile
 from .profiles import StructuralProfileCatalog, build_structural_deck_profile
 
+_ROGSHAI_COMMANDERS = frozenset(
+    {"Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"}
+)
+
+
+def live_commander_strategy(deck: Deck) -> str:
+    """Resolve the current own-deck structural strategy without stale deck-family fallbacks."""
+
+    commanders = frozenset(deck.commander.commanders)
+    return "rogshai" if commanders == _ROGSHAI_COMMANDERS else "generic"
+
 
 def _merge_unique_structural_profiles(
     target: dict[str, StructuralDeckProfile],
@@ -86,6 +97,7 @@ def load_project_structural_decks(
                 f"deck manifest id mismatch: expected {deck_id}, loaded {deck.deck_id} from {deck_path}"
             )
         profile = build_structural_deck_profile(deck, profiles, data_snapshot_hash=snapshot_hash)
+        profile = profile.model_copy(update={"commander_strategy": live_commander_strategy(deck)})
         profile = _attach_package_membership(profile, root_path)
         validate_commander_deck_profile(profile)
         _merge_unique_structural_profiles(
