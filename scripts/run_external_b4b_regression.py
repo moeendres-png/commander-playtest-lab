@@ -62,18 +62,14 @@ def main() -> None:
         request_timeout_seconds=request_timeout_seconds,
     )
     evidence: dict[str, object] = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "evidence_class": "external_rules_engine",
         "scope": "xmage_b4b_first_real_priority_and_legal_action_enumeration",
         "automatic_canonical_mutation": False,
         "confirmatory_consumed": False,
         "sealed_holdout_consumed": False,
         "action_submission_exercised": False,
-        "global_legal_actions_capability_promoted": False,
-        "global_reason": (
-            "only the first real priority decision class is proven; advancing through priority, "
-            "combat and choice classes belongs to later B4 slices"
-        ),
+        "later_capabilities": "not_part_of_b4b_regression_contract",
     }
     try:
         probe = adapter.probe()
@@ -81,13 +77,6 @@ def main() -> None:
             raise SystemExit(f"XMage bridge is not available: {probe.model_dump(mode='json')}")
 
         capabilities = probe.capabilities
-        if capabilities.legal_actions_supported:
-            raise SystemExit("B4-B must not promote global legal_actions_supported")
-        if capabilities.action_submission_supported:
-            raise SystemExit("B4-B must not promote action_submission_supported")
-        if capabilities.event_log_supported:
-            raise SystemExit("B4-B must not promote event_log_supported")
-
         deck = _runtime_deck()
         handles = tuple(adapter.import_deck(deck).handle_id for _ in range(4))
         game_id = "ci-b4b-priority-4p"
@@ -123,8 +112,6 @@ def main() -> None:
         first = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
         second = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
 
-        if first.get("global_capability_promoted") is not False:
-            raise SystemExit("B4-B widened global legal-actions capability")
         if first.get("decision_kind") != "priority":
             raise SystemExit(f"B4-B unexpected decision kind: {first.get('decision_kind')!r}")
         if first.get("actor_id") != state.priority_player_id:
