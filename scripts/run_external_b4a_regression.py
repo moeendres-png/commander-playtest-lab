@@ -139,7 +139,9 @@ def main() -> None:
 
         for player in state.players:
             if player.life != 40:
-                raise SystemExit(f"B4-A unexpected life total for {player.player_id}: {player.life}")
+                raise SystemExit(
+                    f"B4-A unexpected life total for {player.player_id}: {player.life}"
+                )
             if len(player.zones.hand) != 7:
                 raise SystemExit(f"B4-A unexpected hand size for {player.player_id}")
             if len(player.zones.library) != 91:
@@ -151,8 +153,7 @@ def main() -> None:
         second_offset = int(second_raw.get("state_observation_offset", -1))
         if first_offset < 1 or second_offset != first_offset + 1:
             raise SystemExit(
-                "B4-A state observation offset is not monotonic: "
-                f"{first_offset} -> {second_offset}"
+                f"B4-A state observation offset is not monotonic: {first_offset} -> {second_offset}"
             )
         if first_raw.get("seed_controlled") is not False:
             raise SystemExit("B4-A seed-control boundary is not explicit")
