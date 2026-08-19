@@ -475,11 +475,13 @@ class PriorityWorkflowFacade:
         comparison: dict[str, Any],
         *,
         model_informativeness: dict[str, Any] | None = None,
+        model_resolution: dict[str, Any] | None = None,
         profile_required: bool = False,
     ) -> dict[str, Any]:
         return decide_advancement(
             comparison,
             model_informativeness=model_informativeness,
+            model_resolution=model_resolution,
             profile_required=profile_required,
         ).as_dict()
 

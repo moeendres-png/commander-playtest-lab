@@ -5,7 +5,6 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from commander_lab.advancement import decide_advancement
 from commander_lab.current_model_resolution import load_current_model_resolution
 from commander_lab.decision_information import build_decision_information_state
 from commander_lab.priority_workflows import PriorityWorkflowFacade
@@ -56,7 +55,6 @@ def main() -> None:
         raise SystemExit("paired triage artifact has no cohort model diagnostic")
 
     facade = PriorityWorkflowFacade(ROOT)
-    policy = facade._advancement_policy()
     resolution_only_counts: Counter[str] = Counter()
     governed_counts: Counter[str] = Counter()
     advancement_counts: Counter[str] = Counter()
@@ -78,11 +76,11 @@ def main() -> None:
             model_resolution=resolution,
             model_informativeness=cohort_model,
         ).as_dict()
-        advancement = decide_advancement(
+        advancement = facade.advancement_decision(
             comparison,
-            policy,
+            model_informativeness=cohort_model,
             model_resolution=resolution,
-        ).as_dict()
+        )
 
         resolution_only_status = str(resolution_only_state.get("status", "UNKNOWN"))
         governed_status = str(governed_state.get("status", "UNKNOWN"))
@@ -145,8 +143,7 @@ def main() -> None:
     )
     print(f"VALIDATED_EFFECTIVE_RESOLUTION={float(effective_resolution)}")
     print(
-        "RESOLUTION_ONLY_STATUS_COUNTS="
-        + json.dumps(dict(sorted(resolution_only_counts.items())))
+        "RESOLUTION_ONLY_STATUS_COUNTS=" + json.dumps(dict(sorted(resolution_only_counts.items())))
     )
     print("GOVERNED_STATUS_COUNTS=" + json.dumps(dict(sorted(governed_counts.items()))))
     print("ADVANCEMENT_STATUS_COUNTS=" + json.dumps(dict(sorted(advancement_counts.items()))))

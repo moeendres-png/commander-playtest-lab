@@ -68,7 +68,7 @@ def test_local_snapshot_build_is_portable_across_root_paths(
     assert "printing_source_path" not in rogshai["source"]
     manifest = json.loads((first_root / "data/decks/manifest.json").read_text())
     assert manifest["data_snapshot_hash"]
-    assert manifest["global_active_own_decks"] == ["korvold/current", "rogshai/current"]
+    assert manifest["global_active_own_decks"] == ["rogshai/current"]
     assert manifest["runtime_loaded_decks"] == ["rogshai/current"]
 
 

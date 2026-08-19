@@ -105,9 +105,7 @@ def load_current_model_resolution(root: str | Path) -> dict[str, Any]:
 
     artifact = payload.get("measurement_artifact")
     if not isinstance(artifact, dict):
-        raise CurrentModelResolutionError(
-            "current model resolution has no measurement provenance"
-        )
+        raise CurrentModelResolutionError("current model resolution has no measurement provenance")
     source_head = _require_hex_digest(artifact, "source_head", length=40)
     measurement_json_sha256 = _require_hex_digest(
         artifact,

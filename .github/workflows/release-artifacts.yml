@@ -91,6 +91,12 @@ jobs:
           active = scope.get("active_own_decks")
           if not isinstance(active, list) or not active:
               raise SystemExit("release requires at least one explicit active own deck")
+          manifest_active = manifest.get("global_active_own_decks")
+          if manifest_active != active:
+              raise SystemExit(
+                  "release current-scope drift: active scope and deck manifest disagree: "
+                  f"scope={active} manifest={manifest_active}"
+              )
           decks = manifest.get("decks", {})
           missing = [deck_id for deck_id in active if deck_id not in decks]
           if missing:

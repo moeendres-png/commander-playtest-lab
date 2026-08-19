@@ -7,7 +7,7 @@ from pathlib import Path
 def test_local_manifest_has_exactly_one_current_baseline(repo_root: Path) -> None:
     manifest = json.loads((repo_root / "data/decks/manifest.json").read_text(encoding="utf-8"))
     assert manifest["google_drive_modified"] is False
-    assert manifest["global_active_own_decks"] == ["korvold/current", "rogshai/current"]
+    assert manifest["global_active_own_decks"] == ["rogshai/current"]
     assert manifest["current_optimization_target"] == "rogshai/current"
     assert manifest["runtime_loaded_decks"] == ["rogshai/current"]
     assert manifest["frozen_opponent_decks"] == ["kaervek/current"]
@@ -25,3 +25,7 @@ def test_local_manifest_has_exactly_one_current_baseline(repo_root: Path) -> Non
     )
     assert len(manifest["data_snapshot_hash"]) == 64
     assert manifest["removed_operational_decks"] == ["korvold/current"]
+    assert (
+        manifest["removed_operational_decks_semantics"]
+        == "historical_inactive_former_own_deck_not_global_active"
+    )

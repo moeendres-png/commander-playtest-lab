@@ -186,7 +186,9 @@ def main() -> None:
             raise SystemExit("frontier row has unresolved physical candidate identity")
         candidate = service.candidates.get(candidate_id)
         if candidate is None:
-            raise SystemExit(f"frontier candidate is missing from structural repository: {candidate_id}")
+            raise SystemExit(
+                f"frontier candidate is missing from structural repository: {candidate_id}"
+            )
         if candidate.card.oracle_name != frontier_row.get("add"):
             raise SystemExit(f"frontier/profile candidate identity mismatch: {candidate_id}")
 
@@ -312,7 +314,9 @@ def main() -> None:
         )
 
     model_report_hashes = {
-        str(report.get("report_hash")) for report in cohort_model_reports if report.get("report_hash")
+        str(report.get("report_hash"))
+        for report in cohort_model_reports
+        if report.get("report_hash")
     }
     if len(model_report_hashes) > 1:
         raise SystemExit("cohort diagnosis produced inconsistent model-informativeness reports")
@@ -336,7 +340,9 @@ def main() -> None:
 
     model_limit = cohort_model_informativeness.get("status") == MODEL_INFORMATION_LIMIT
     if model_limit and finalist_count:
-        raise SystemExit("model-information limit cannot simultaneously authorize finalist followup")
+        raise SystemExit(
+            "model-information limit cannot simultaneously authorize finalist followup"
+        )
 
     payload: dict[str, Any] = {
         "schema_version": "1.2.0",
@@ -365,9 +371,7 @@ def main() -> None:
         "final_decision_information_status_counts": dict(
             sorted(pairwise_final_status_counts.items())
         ),
-        "final_advancement_status_counts": dict(
-            sorted(pairwise_final_advancement_counts.items())
-        ),
+        "final_advancement_status_counts": dict(sorted(pairwise_final_advancement_counts.items())),
         "cohort_decision_information_status_counts": dict(sorted(cohort_status_counts.items())),
         "cohort_model_informativeness": cohort_model_informativeness,
         "cohort_diagnostic_inputs": {
@@ -449,7 +453,9 @@ def main() -> None:
     print(f"COHORT_MODEL_INFORMATION_STATUS={cohort_model_informativeness.get('status')}")
     print(f"MODEL_INFORMATION_LIMIT_DETECTED={str(model_limit).lower()}")
     print(f"ELIGIBLE_FOR_FINALIST_FOLLOWUP={finalist_count}")
-    print("PAIRED_TRIAGE_BOUNDARY=structural_precision_plus_model_diagnostic_not_final_recommendation")
+    print(
+        "PAIRED_TRIAGE_BOUNDARY=structural_precision_plus_model_diagnostic_not_final_recommendation"
+    )
 
 
 if __name__ == "__main__":

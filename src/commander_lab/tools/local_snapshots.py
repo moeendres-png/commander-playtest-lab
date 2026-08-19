@@ -126,7 +126,7 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
         "authoritative_oracle_snapshot": False,
         "data_snapshot_hash": data_hash,
         "status": "current_physical_photo_verified",
-        "global_active_own_decks": ["korvold/current", "rogshai/current"],
+        "global_active_own_decks": ["rogshai/current"],
         "current_optimization_target": "rogshai/current",
         "runtime_loaded_decks": ["rogshai/current"],
         "frozen_opponent_decks": ["kaervek/current"],
@@ -158,11 +158,11 @@ def build_local_snapshots(root: str | Path) -> dict[str, object]:
             "scope": "runtime_loaded_decks_only",
         },
         "removed_operational_decks": ["korvold/current"],
-        "removed_operational_decks_semantics": "removed_from_runtime_loaded_decks_not_global_ownership",
+        "removed_operational_decks_semantics": "historical_inactive_former_own_deck_not_global_active",
         "notes": (
-            "Korvold and RogShai are globally active own decks. This runtime snapshot loads only "
-            "RogShai as the current optimization target; Korvold is not deleted or globally inactive. "
-            "Kaervek remains a frozen opponent."
+            "RogShai is the sole active own deck and current optimization target. Korvold is an "
+            "inactive former own deck retained only for historical/regression reference. Kaervek "
+            "remains a frozen opponent."
         ),
     }
     (deck_dir / "manifest.json").write_text(
