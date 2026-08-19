@@ -5,6 +5,7 @@ import random
 from pathlib import Path
 
 from commander_lab.agents import build_pilot
+from commander_lab.agents.pilots import KorvoldPilot
 from commander_lab.models import PilotConfig, PilotDecisionMode
 
 from .models import EvalCaseResult, EvalStatus, EvalTier, GoldenDecisionCase
@@ -22,14 +23,18 @@ def run_golden_cases(
 ) -> list[EvalCaseResult]:
     results: list[EvalCaseResult] = []
     for case in cases:
-        pilot = build_pilot(
-            PilotConfig(
-                pilot_name="auto",
-                strength=case.strength,
-                mode=PilotDecisionMode.DETERMINISTIC,
-                mistake_rate=0.0,
-            ),
-            strategy=case.strategy,
+        config = PilotConfig(
+            pilot_name="auto",
+            strength=case.strength,
+            mode=PilotDecisionMode.DETERMINISTIC,
+            mistake_rate=0.0,
+        )
+        # Historical Korvold golden cases remain executable as provenance/eval fixtures,
+        # but they must not route through the live own-deck pilot selector.
+        pilot = (
+            KorvoldPilot(config)
+            if case.strategy.casefold() == "korvold"
+            else build_pilot(config, strategy=case.strategy)
         )
         state = case.state.model_copy(update={"seat_position": case.seat})
         decision = pilot.choose_action(state, case.actions, random.Random(0))
