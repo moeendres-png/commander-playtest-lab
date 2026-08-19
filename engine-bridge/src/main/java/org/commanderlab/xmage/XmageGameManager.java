@@ -73,6 +73,25 @@ final class XmageGameManager {
     ) {
     }
 
+    record EventLogSnapshot(
+            String gameId,
+            String engineGameId,
+            long latestEventOffset,
+            int totalEvents,
+            JsonObject log
+    ) {
+    }
+
+    record ShutdownResult(
+            String gameId,
+            String engineGameId,
+            long finalEventOffset,
+            int releasedDeckHandleCount,
+            int storedGameCount,
+            JsonObject finalLog
+    ) {
+    }
+
     static final class GameException extends RuntimeException {
 
         GameException(String message) {
@@ -95,10 +114,12 @@ final class XmageGameManager {
         private final String gameId;
         private final CommanderFreeForAll game;
         private final List<Player> players;
+        private final List<String> deckHandles;
         private final int startingPlayerSeat;
         private final int startingLife;
         private final boolean externalControl;
         private final ExternalDecisionController externalDecisionController;
+        private final XmageAuditEventLog eventLog;
 
         private Lifecycle lifecycle = Lifecycle.CREATED;
         private long stateObservationOffset = 0L;
@@ -107,6 +128,7 @@ final class XmageGameManager {
                 String gameId,
                 CommanderFreeForAll game,
                 List<Player> players,
+                List<String> deckHandles,
                 int startingPlayerSeat,
                 int startingLife,
                 boolean externalControl,
@@ -115,10 +137,12 @@ final class XmageGameManager {
             this.gameId = gameId;
             this.game = game;
             this.players = players;
+            this.deckHandles = deckHandles;
             this.startingPlayerSeat = startingPlayerSeat;
             this.startingLife = startingLife;
             this.externalControl = externalControl;
             this.externalDecisionController = externalDecisionController;
+            this.eventLog = new XmageAuditEventLog(gameId, game.getId().toString());
         }
     }
 
@@ -127,7 +151,8 @@ final class XmageGameManager {
 
     /*
      * XMage Deck contains mutable concrete Card objects.
-     * One imported deck handle therefore belongs to at most one game.
+     * One imported deck handle therefore belongs to at most one live game.
+     * B4-D releases those claims only after explicit per-game shutdown/cleanup.
      */
     private final Set<String> claimedDeckHandles = ConcurrentHashMap.newKeySet();
 
@@ -267,6 +292,7 @@ final class XmageGameManager {
                     validatedGameId,
                     game,
                     List.copyOf(players),
+                    List.copyOf(deckHandles),
                     startingPlayerSeat,
                     startingLife,
                     externalControl,
@@ -277,6 +303,20 @@ final class XmageGameManager {
             do {
                 gameHandle = "xmage-game-" + UUID.randomUUID();
             } while (gamesByHandle.putIfAbsent(gameHandle, managed) != null);
+
+            JsonObject createdPayload = new JsonObject();
+            createdPayload.addProperty("player_count", game.getPlayers().size());
+            createdPayload.addProperty("starting_player_seat", startingPlayerSeat);
+            createdPayload.addProperty("external_control", externalControl);
+            managed.eventLog.record(
+                    "game_created",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    createdPayload
+            );
 
             createdSuccessfully = true;
 
@@ -319,8 +359,7 @@ final class XmageGameManager {
                 /*
                  * Reach precombat main under an engine-owned stop hook first.
                  * Then clear the hook and resume until the real priority player
-                 * publishes a B4-B decision and pauses from priority(). This
-                 * produces a useful main-phase decision without an auto-pass.
+                 * publishes a B4-B decision and pauses from priority().
                  */
                 options.stopOnTurn = 1;
                 options.stopAtStep = PhaseStep.PRECOMBAT_MAIN;
@@ -435,6 +474,22 @@ final class XmageGameManager {
             }
 
             managed.lifecycle = Lifecycle.STARTED;
+            JsonObject startedPayload = new JsonObject();
+            startedPayload.addProperty(
+                    "starting_player_id",
+                    managed.game.getStartingPlayerId().toString()
+            );
+            startedPayload.addProperty("turn_number", managed.game.getState().getTurnNum());
+            startedPayload.addProperty("external_control", managed.externalControl);
+            managed.eventLog.record(
+                    "game_started",
+                    managed.game.getStartingPlayerId().toString(),
+                    null,
+                    null,
+                    null,
+                    stateHash(managed),
+                    startedPayload
+            );
 
             return new StartResult(
                     requireText(gameHandle, "game_handle"),
@@ -453,9 +508,7 @@ final class XmageGameManager {
         ManagedGame managed = requireManagedGame(gameHandle);
         synchronized (managed) {
             if (managed.lifecycle != Lifecycle.STARTED) {
-                throw new GameException(
-                        "LEGAL_ACTIONS_UNAVAILABLE: game must be started"
-                );
+                throw new GameException("LEGAL_ACTIONS_UNAVAILABLE: game must be started");
             }
             if (!managed.externalControl || managed.externalDecisionController == null) {
                 throw new GameException(
@@ -494,76 +547,149 @@ final class XmageGameManager {
 
     StateSnapshot snapshotState(String gameHandle) {
         ManagedGame managed = requireManagedGame(gameHandle);
-
         synchronized (managed) {
             if (managed.lifecycle != Lifecycle.STARTED) {
-                throw new GameException(
-                        "GAME_STATE_UNAVAILABLE: game must be started"
-                );
+                throw new GameException("GAME_STATE_UNAVAILABLE: game must be started");
             }
-
-            Game game = managed.game;
-            TurnPhase turnPhase = game.getTurnPhaseType();
-            if (turnPhase == null) {
-                throw new GameException(
-                        "GAME_STATE_UNAVAILABLE: XMage turn phase is unavailable"
-                );
-            }
-
             managed.stateObservationOffset++;
-
-            JsonObject state = new JsonObject();
-            state.addProperty("game_id", managed.gameId);
-            state.add("seed", JsonNull.INSTANCE);
-            state.add("rng_counter", JsonNull.INSTANCE);
-            state.addProperty(
-                    "status",
-                    game.hasEnded() ? "completed" : "in_progress"
-            );
-            state.addProperty("turn_number", game.getState().getTurnNum());
-            addNullableUuid(state, "active_player_id", game.getActivePlayerId());
-            addNullableUuid(state, "priority_player_id", game.getPriorityPlayerId());
-            state.addProperty("phase", turnPhaseValue(turnPhase));
-
-            PhaseStep turnStep = game.getTurnStepType();
-            if (turnStep == null) {
-                state.add("step", JsonNull.INSTANCE);
-            } else {
-                state.addProperty("step", turnStep.name().toLowerCase());
-            }
-
-            JsonArray players = new JsonArray();
-            for (int seat = 0; seat < managed.players.size(); seat++) {
-                players.add(playerState(game, managed.players.get(seat), seat));
-            }
-            state.add("players", players);
-
-            JsonArray stack = new JsonArray();
-            for (StackObject stackObject : game.getStack()) {
-                stack.add(stackObject.getId().toString());
-            }
-            state.add("stack", stack);
-
-            /*
-             * Endpoint completeness remains false through B4-B because combat
-             * and other choice boundaries are not yet enumerated globally.
-             */
-            state.add("legal_actions", new JsonArray());
-
-            JsonArray winnerIds = new JsonArray();
-            for (Player player : managed.players) {
-                if (player.hasWon()) {
-                    winnerIds.add(player.getId().toString());
-                }
-            }
-            state.add("winner_ids", winnerIds);
-            state.addProperty("event_sequence", 0);
-
             return new StateSnapshot(
                     managed.gameId,
-                    game.getId().toString(),
+                    managed.game.getId().toString(),
                     managed.stateObservationOffset,
-                    state
+                    buildState(managed)
+            );
+        }
+    }
+
+    String stateHash(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException("GAME_STATE_UNAVAILABLE: game must be started");
+            }
+            return stateHash(managed);
+        }
+    }
+
+    void recordExternalAction(
+            String gameHandle,
+            XmageActionExecutor.ExecutionResult executed,
+            String preStateHash,
+            String postStateHash
+    ) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException("EVENT_LOG_UNAVAILABLE: game must be started");
+            }
+            JsonObject payload = new JsonObject();
+            payload.addProperty("action_type", executed.actionType());
+            if (executed.sourceObjectId() == null) {
+                payload.add("source_object_id", JsonNull.INSTANCE);
+            } else {
+                payload.addProperty("source_object_id", executed.sourceObjectId());
+            }
+            if (executed.sourceName() == null) {
+                payload.add("source_name", JsonNull.INSTANCE);
+            } else {
+                payload.addProperty("source_name", executed.sourceName());
+            }
+            payload.addProperty("bounded_submission", true);
+            String eventType = "pass_priority".equals(executed.actionType())
+                    ? "priority_passed"
+                    : "action_submitted";
+            managed.eventLog.record(
+                    eventType,
+                    executed.actorId(),
+                    executed.decisionId(),
+                    executed.actionId(),
+                    preStateHash,
+                    postStateHash,
+                    payload
+            );
+        }
+    }
+
+    EventLogSnapshot exportEventLog(String gameHandle, long afterOffset) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            JsonObject log;
+            try {
+                log = managed.eventLog.exportLog(afterOffset);
+            } catch (IllegalArgumentException exc) {
+                throw new GameException("INVALID_EVENT_OFFSET: " + exc.getMessage(), exc);
+            }
+            return new EventLogSnapshot(
+                    managed.gameId,
+                    managed.game.getId().toString(),
+                    managed.eventLog.latestOffset(),
+                    log.getAsJsonArray("events").size(),
+                    log
+            );
+        }
+    }
+
+    long latestEventOffset(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            return managed.eventLog.latestOffset();
+        }
+    }
+
+    ShutdownResult shutdownGame(String gameHandle) {
+        String validatedHandle = requireText(gameHandle, "game_handle");
+        ManagedGame managed = requireManagedGame(validatedHandle);
+
+        synchronized (managed) {
+            String preStateHash = null;
+            if (managed.lifecycle == Lifecycle.STARTED) {
+                preStateHash = stateHash(managed);
+            }
+
+            JsonObject payload = new JsonObject();
+            payload.addProperty("lifecycle_before_shutdown", managed.lifecycle.name().toLowerCase());
+            payload.addProperty("game_had_ended", managed.game.hasEnded());
+            managed.eventLog.record(
+                    "game_shutdown",
+                    null,
+                    null,
+                    null,
+                    preStateHash,
+                    null,
+                    payload
+            );
+
+            JsonObject finalLog = managed.eventLog.exportLog(0L);
+            long finalOffset = managed.eventLog.latestOffset();
+            RuntimeException cleanupFailure = null;
+            try {
+                if (managed.lifecycle == Lifecycle.STARTED && !managed.game.hasEnded()) {
+                    managed.game.end();
+                }
+                managed.game.cleanUp();
+            } catch (RuntimeException exc) {
+                cleanupFailure = exc;
+            } finally {
+                gamesByHandle.remove(validatedHandle, managed);
+                synchronized (claimedDeckHandles) {
+                    claimedDeckHandles.removeAll(managed.deckHandles);
+                }
+            }
+
+            if (cleanupFailure != null) {
+                throw new GameException(
+                        "XMAGE_GAME_SHUTDOWN_FAILED: " + cleanupFailure.getMessage(),
+                        cleanupFailure
+                );
+            }
+
+            return new ShutdownResult(
+                    managed.gameId,
+                    managed.game.getId().toString(),
+                    finalOffset,
+                    managed.deckHandles.size(),
+                    gamesByHandle.size(),
+                    finalLog
             );
         }
     }
@@ -585,15 +711,69 @@ final class XmageGameManager {
         return managed;
     }
 
+    private static String stateHash(ManagedGame managed) {
+        return XmageAuditEventLog.stateHash(buildState(managed));
+    }
+
+    private static JsonObject buildState(ManagedGame managed) {
+        Game game = managed.game;
+        TurnPhase turnPhase = game.getTurnPhaseType();
+        if (turnPhase == null) {
+            throw new GameException("GAME_STATE_UNAVAILABLE: XMage turn phase is unavailable");
+        }
+
+        JsonObject state = new JsonObject();
+        state.addProperty("game_id", managed.gameId);
+        state.add("seed", JsonNull.INSTANCE);
+        state.add("rng_counter", JsonNull.INSTANCE);
+        state.addProperty("status", game.hasEnded() ? "completed" : "in_progress");
+        state.addProperty("turn_number", game.getState().getTurnNum());
+        addNullableUuid(state, "active_player_id", game.getActivePlayerId());
+        addNullableUuid(state, "priority_player_id", game.getPriorityPlayerId());
+        state.addProperty("phase", turnPhaseValue(turnPhase));
+
+        PhaseStep turnStep = game.getTurnStepType();
+        if (turnStep == null) {
+            state.add("step", JsonNull.INSTANCE);
+        } else {
+            state.addProperty("step", turnStep.name().toLowerCase());
+        }
+
+        JsonArray players = new JsonArray();
+        for (int seat = 0; seat < managed.players.size(); seat++) {
+            players.add(playerState(game, managed.players.get(seat), seat));
+        }
+        state.add("players", players);
+
+        JsonArray stack = new JsonArray();
+        for (StackObject stackObject : game.getStack()) {
+            stack.add(stackObject.getId().toString());
+        }
+        state.add("stack", stack);
+
+        /*
+         * Endpoint completeness remains false through bounded B4-C because
+         * combat and choice classes are not yet globally enumerated.
+         */
+        state.add("legal_actions", new JsonArray());
+
+        JsonArray winnerIds = new JsonArray();
+        for (Player player : managed.players) {
+            if (player.hasWon()) {
+                winnerIds.add(player.getId().toString());
+            }
+        }
+        state.add("winner_ids", winnerIds);
+        state.addProperty("event_sequence", managed.eventLog.latestOffset());
+        return state;
+    }
+
     private static JsonObject playerState(Game game, Player player, int seat) {
         JsonObject state = new JsonObject();
         state.addProperty("player_id", player.getId().toString());
         state.addProperty("seat", seat);
         state.addProperty("life", player.getLife());
-        state.addProperty(
-                "poison_counters",
-                player.getCountersCount(CounterType.POISON)
-        );
+        state.addProperty("poison_counters", player.getCountersCount(CounterType.POISON));
 
         state.add("commander_damage_received", new JsonObject());
         state.add("commander_cast_count", new JsonObject());
@@ -618,10 +798,7 @@ final class XmageGameManager {
                 .toList();
         zones.add("battlefield", itemArray(battlefield));
         zones.add("graveyard", itemArray(player.getGraveyard().getCards(game)));
-        zones.add(
-                "exile",
-                itemArray(game.getExile().getCardsOwned(game, player.getId()))
-        );
+        zones.add("exile", itemArray(game.getExile().getCardsOwned(game, player.getId())));
         zones.add(
                 "command",
                 itemArray(
@@ -638,7 +815,6 @@ final class XmageGameManager {
                 Math.max(0, player.getLandsPerTurn() - player.getLandsPlayed())
         );
         state.addProperty("has_lost", player.hasLost());
-
         return state;
     }
 
@@ -658,11 +834,7 @@ final class XmageGameManager {
         return result;
     }
 
-    private static void addNullableUuid(
-            JsonObject object,
-            String property,
-            UUID value
-    ) {
+    private static void addNullableUuid(JsonObject object, String property, UUID value) {
         if (value == null) {
             object.add(property, JsonNull.INSTANCE);
         } else {
@@ -682,9 +854,7 @@ final class XmageGameManager {
 
     private static String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new GameException(
-                    "INVALID_FIELD: " + fieldName + " must be nonblank"
-            );
+            throw new GameException("INVALID_FIELD: " + fieldName + " must be nonblank");
         }
         return value.trim();
     }
