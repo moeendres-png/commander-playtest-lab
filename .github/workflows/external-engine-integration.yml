@@ -89,7 +89,13 @@ jobs:
             echo 'Provider-specific XMage Java bridge is missing. This is a hard failure, not a fallback.' >&2
             exit 1
           }
-      - name: Build and test XMage bridge
+      - name: Compile XMage bridge main sources
+        working-directory: engine-bridge
+        run: mvn -B -ntp -DskipTests compile
+      - name: Compile XMage bridge test sources
+        working-directory: engine-bridge
+        run: mvn -B -ntp -DskipTests test-compile
+      - name: Run XMage bridge tests and package
         working-directory: engine-bridge
         run: mvn -B -ntp verify
       - name: Verify current provider capability truth
