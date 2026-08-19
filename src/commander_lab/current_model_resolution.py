@@ -58,9 +58,7 @@ def _validated_stored_software_identity(payload: dict[str, Any]) -> dict[str, An
     for path, digest in source_objects.items():
         if not isinstance(path, str) or not path:
             raise CurrentModelResolutionError("current model resolution has invalid source path")
-        normalized_objects[path] = _require_hex_digest(
-            {"digest": digest}, "digest", length=40
-        )
+        normalized_objects[path] = _require_hex_digest({"digest": digest}, "digest", length=40)
     normalized_scope = [str(path) for path in scope_paths]
     if sorted(normalized_scope) != sorted(normalized_objects):
         raise CurrentModelResolutionError(
