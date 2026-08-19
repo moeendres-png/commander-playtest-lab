@@ -20,6 +20,7 @@ MODEL_RESOLUTION_SOFTWARE_IDENTITY_VERSION = "model-resolution-software-identity
 # Adding a new dependency to the measurement path requires adding it here.
 _RELEVANT_GIT_PATHS = (
     "src/commander_lab/model_resolution_measurement.py",
+    "src/commander_lab/model_resolution_software_identity.py",
     "src/commander_lab/engine/structural",
     "src/commander_lab/whole_deck",
     "src/commander_lab/agents",
