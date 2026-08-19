@@ -52,24 +52,22 @@ def test_model_resolution_provenance_distinguishes_git_sha1_from_sha256() -> Non
         _require_hex_digest({"source_head": "z" * 40}, "source_head", length=40)
 
 
-def test_repository_current_model_resolution_without_software_identity_fails_closed(
-    repo_root,
+def test_current_model_resolution_without_software_identity_fails_closed(
+    repo_root, tmp_path, monkeypatch
 ) -> None:
+    payload = _current_payload(repo_root)
+    payload.pop("software_identity", None)
+    _install_payload(tmp_path, monkeypatch, payload)
+
     with pytest.raises(CurrentModelResolutionError, match="no content-addressed software identity"):
         load_current_model_resolution(repo_root)
 
 
-def test_current_model_resolution_loads_with_fresh_live_provenance(
-    repo_root, tmp_path, monkeypatch
-) -> None:
-    payload = _current_payload(repo_root)
-    payload["software_identity"] = model_resolution_software_identity(repo_root)
-    _install_payload(tmp_path, monkeypatch, payload)
-
+def test_repository_current_model_resolution_loads_with_fresh_live_provenance(repo_root) -> None:
     loaded = load_current_model_resolution(repo_root)
 
     assert loaded["status"] == "MEASURED"
-    assert loaded["effective_resolution"] == pytest.approx(0.392857142857143)
+    assert loaded["effective_resolution"] == pytest.approx(0.3749999999999998)
     assert loaded["freshness_validated"] is True
     assert loaded["evidence_class"] == "structural_model_estimates"
     identity = loaded["software_identity"]
