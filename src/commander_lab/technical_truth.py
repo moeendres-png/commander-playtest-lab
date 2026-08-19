@@ -1,16 +1,21 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
-from commander_lab.project_context import load_project_context
+from commander_lab.project_context import ProjectContextSnapshot, load_project_context
 from commander_lab.storage.database import SCHEMA_VERSION
 
 J_P6_MERGED_BASELINE_COMMIT = "5d1b77796c9ae75173855a54f6e531cc3a0c7814"
+_OFFICIAL_RUN_RELATIVE_PATH = Path("data/runs/current/OFFICIAL_ROGSHAI_RUN_CURRENT.json")
+_HEX40 = re.compile(r"^[0-9a-f]{40}$")
+_HEX64 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _git(root: Path, *args: str) -> str | None:
@@ -58,11 +63,76 @@ def _string_list(payload: dict[str, Any], key: str) -> list[str]:
     return [str(value) for value in raw]
 
 
+def _official_run_truth(root: Path, context: ProjectContextSnapshot) -> dict[str, Any]:
+    path = root / _OFFICIAL_RUN_RELATIVE_PATH
+    if not path.is_file():
+        raise ValueError(f"official run truth pointer is missing: {path}")
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"official run truth pointer is malformed: {path}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("official run truth pointer must be a JSON object")
+
+    if payload.get("schema_version") != "1.0.0":
+        raise ValueError("unsupported official run truth schema")
+    if payload.get("status") != "completed":
+        raise ValueError("current official run truth must identify a completed run")
+
+    completed_at = payload.get("completed_at")
+    if not isinstance(completed_at, str):
+        raise ValueError("official run truth has no completed_at timestamp")
+    try:
+        parsed_completed_at = datetime.fromisoformat(completed_at)
+    except ValueError as exc:
+        raise ValueError("official run truth completed_at is not ISO-8601") from exc
+    if parsed_completed_at.tzinfo is None:
+        raise ValueError("official run truth completed_at must include a timezone")
+
+    git_commit = payload.get("git_commit")
+    if not isinstance(git_commit, str) or _HEX40.fullmatch(git_commit) is None:
+        raise ValueError("official run truth has an invalid source git commit")
+
+    deck_id = payload.get("deck_id")
+    if not isinstance(deck_id, str) or deck_id not in context.active_own_deck_ids:
+        raise ValueError("official run truth does not reference a current active own deck")
+    active_hashes = dict(context.active_deck_hashes)
+    deck_hash = payload.get("deck_hash")
+    if not isinstance(deck_hash, str) or _HEX64.fullmatch(deck_hash) is None:
+        raise ValueError("official run truth has an invalid deck hash")
+    if active_hashes.get(deck_id) != deck_hash:
+        raise ValueError("official run truth deck hash is stale relative to current active deck")
+
+    for key in ("project_context_hash", "seed_set_hash"):
+        value = payload.get(key)
+        if not isinstance(value, str) or _HEX64.fullmatch(value) is None:
+            raise ValueError(f"official run truth has an invalid {key}")
+
+    if payload.get("evidence_class") != "structural_model_estimates":
+        raise ValueError("official run truth has an invalid evidence class")
+    if payload.get("evidence_boundary") != "structural_model_estimates != empirical_winrates":
+        raise ValueError("official run truth lost the structural evidence boundary")
+    if payload.get("canonical_mutation") is not False:
+        raise ValueError("official run truth may not claim a canonical mutation")
+    if payload.get("authorization_required") is not True:
+        raise ValueError("official run truth lost the authorization boundary")
+
+    source = payload.get("source")
+    if not isinstance(source, dict) or source.get("type") != "official_structural_run":
+        raise ValueError("official run truth has no valid provenance source")
+    for key in ("artifact_stamp", "identity_artifact", "report_artifact"):
+        if not isinstance(source.get(key), str) or not source[key]:
+            raise ValueError(f"official run truth source is missing {key}")
+
+    return {**payload, "truth_pointer": _OFFICIAL_RUN_RELATIVE_PATH.as_posix()}
+
+
 def build_technical_truth(root: str | Path) -> dict[str, Any]:
     """Return one read-only technical status projection derived from current repo inputs."""
 
     root_path = Path(root).resolve()
     context = load_project_context(root_path)
+    official_run = _official_run_truth(root_path, context)
     pod_payload = _json_object(root_path / "data/collections/current/POD_SCENARIOS_CURRENT.json")
     feature_manifest = _json_object(
         root_path / "data/collections/current/rogshai_feature_projection/manifest.json"
@@ -105,7 +175,7 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
         documented_limitations.append("unresolved_operational_own_deck_baseline")
 
     return {
-        "technical_truth_version": 2,
+        "technical_truth_version": 3,
         "package_version": __version__,
         "git": {
             "commit": git_commit,
@@ -120,12 +190,12 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "feature_projection": feature_manifest.get("schema_version", "unknown"),
             "active_scope": active_scope.get("schema_version", "unknown"),
             "rules_engines": engine_config.get("schema_version", "unknown"),
+            "official_run_truth": official_run.get("schema_version", "unknown"),
         },
         "global_active_own_deck_set": global_active,
         "runtime_loaded_deck_set": runtime_loaded,
         "optimization_target_set": optimization_targets,
         "unresolved_operational_baseline_set": unresolved,
-        # Compatibility alias: active_deck_set means the currently loaded runtime surface.
         "active_deck_set": runtime_loaded,
         "historical_own_deck_set": list(context.historical_own_deck_ids),
         "primary_deckbuilding_focus": context.primary_deckbuilding_focus,
@@ -139,30 +209,14 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "preference_hash": context.playstyle_preference_hash,
         },
         "roadmap_mvp_state": {
-            "j_p6_merged_baseline_is_ancestor": _is_ancestor(
-                root_path, J_P6_MERGED_BASELINE_COMMIT
-            ),
-            "priority_context_surface_present": (
-                root_path / "src/commander_lab/project_context.py"
-            ).is_file(),
-            "priority_workflow_surface_present": (
-                root_path / "src/commander_lab/priority_workflows.py"
-            ).is_file(),
-            "exact_result_cache_surface_present": (
-                root_path / "src/commander_lab/storage/result_cache.py"
-            ).is_file(),
-            "production_adaptive_scheduler_present": (
-                root_path / "src/commander_lab/adaptive_budget.py"
-            ).is_file(),
-            "model_informativeness_gate_present": (
-                root_path / "src/commander_lab/model_informativeness.py"
-            ).is_file(),
-            "workflow_session_present": (
-                root_path / "src/commander_lab/workflow_session.py"
-            ).is_file(),
-            "public_high_level_workflow_surface_present": (
-                root_path / "src/commander_lab/tools/registry.py"
-            ).is_file(),
+            "j_p6_merged_baseline_is_ancestor": _is_ancestor(root_path, J_P6_MERGED_BASELINE_COMMIT),
+            "priority_context_surface_present": (root_path / "src/commander_lab/project_context.py").is_file(),
+            "priority_workflow_surface_present": (root_path / "src/commander_lab/priority_workflows.py").is_file(),
+            "exact_result_cache_surface_present": (root_path / "src/commander_lab/storage/result_cache.py").is_file(),
+            "production_adaptive_scheduler_present": (root_path / "src/commander_lab/adaptive_budget.py").is_file(),
+            "model_informativeness_gate_present": (root_path / "src/commander_lab/model_informativeness.py").is_file(),
+            "workflow_session_present": (root_path / "src/commander_lab/workflow_session.py").is_file(),
+            "public_high_level_workflow_surface_present": (root_path / "src/commander_lab/tools/registry.py").is_file(),
         },
         "external_engine_status": {
             "provider_decision": provider_status,
@@ -192,10 +246,7 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
                 "official_first_run": False,
                 "deck_mutation_authority": False,
             },
-            "official_run": {
-                "default_status": "not_started",
-                "authorization_required": True,
-            },
+            "official_run": official_run,
         },
         "current_blockers": blockers,
         "documented_limitations": documented_limitations,
