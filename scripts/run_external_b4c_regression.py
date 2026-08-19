@@ -56,7 +56,9 @@ def _timeout_from_environment(name: str, default: float) -> float:
 
 def _pass_payload(decision: dict[str, Any]) -> dict[str, Any]:
     pass_actions = [
-        action for action in decision.get("actions", ()) if action.get("action_type") == "pass_priority"
+        action
+        for action in decision.get("actions", ())
+        if action.get("action_type") == "pass_priority"
     ]
     if len(pass_actions) != 1:
         raise SystemExit(f"B4-C expected exactly one pass action, observed {len(pass_actions)}")
@@ -95,8 +97,13 @@ def _expect_stale(
         client.request(message_type, payload, game_id=game_id)
     except RulesEngineProtocolError as exc:
         message = str(exc)
-        if "STALE_EXTERNAL_DECISION" not in message and "STALE_OR_UNKNOWN_EXTERNAL_ACTION" not in message:
-            raise SystemExit(f"B4-C stale replay failed for an unexpected reason: {message}") from exc
+        if (
+            "STALE_EXTERNAL_DECISION" not in message
+            and "STALE_OR_UNKNOWN_EXTERNAL_ACTION" not in message
+        ):
+            raise SystemExit(
+                f"B4-C stale replay failed for an unexpected reason: {message}"
+            ) from exc
         return
     raise SystemExit("B4-C stale decision/action replay unexpectedly mutated or succeeded")
 
@@ -205,7 +212,9 @@ def main() -> None:
                 source_id = str(action["source_object_id"])
                 before_command = _player_command_zone(state, str(decision["actor_id"]))
                 if source_id not in before_command:
-                    raise SystemExit("B4-C commander source is not in the actor command zone before cast")
+                    raise SystemExit(
+                        "B4-C commander source is not in the actor command zone before cast"
+                    )
 
                 proposal = _proposal(decision, action)
                 payload = {
@@ -227,7 +236,9 @@ def main() -> None:
                 after = GameState.model_validate(result["state"])
                 after_command = _player_command_zone(after, str(decision["actor_id"]))
                 if source_id in after_command:
-                    raise SystemExit("B4-C Rograkh remained in command zone after successful XMage cast")
+                    raise SystemExit(
+                        "B4-C Rograkh remained in command zone after successful XMage cast"
+                    )
                 if not after.stack:
                     raise SystemExit("B4-C Rograkh cast did not produce a real XMage stack object")
                 next_decision = dict(result["next_decision"])
@@ -279,12 +290,16 @@ def main() -> None:
                 )
                 stale_pass_rejected = True
         else:
-            raise SystemExit("B4-C did not reach a submission-ready Rograkh cast within 64 decisions")
+            raise SystemExit(
+                "B4-C did not reach a submission-ready Rograkh cast within 64 decisions"
+            )
 
         if cast_evidence is None:
             raise SystemExit("B4-C did not record Rograkh cast evidence")
         if not stale_pass_rejected or not stale_submit_rejected:
-            raise SystemExit("B4-C stale-decision protection was not proven for both pass and submit")
+            raise SystemExit(
+                "B4-C stale-decision protection was not proven for both pass and submit"
+            )
 
         evidence.update(
             {
