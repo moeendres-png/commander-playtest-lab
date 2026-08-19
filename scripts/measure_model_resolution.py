@@ -8,6 +8,8 @@ from commander_lab.model_resolution_measurement import (
     ModelResolutionMeasurementProtocol,
     measure_current_model_resolution,
 )
+from commander_lab.model_resolution_software_identity import model_resolution_software_identity
+from commander_lab.storage import sha256_value
 
 
 def main() -> None:
@@ -32,7 +34,11 @@ def main() -> None:
         workers=args.workers,
         calibrated_sesoi=args.calibrated_sesoi,
     )
-    report = measure_current_model_resolution(args.root, protocol=protocol)
+    raw_report = measure_current_model_resolution(args.root, protocol=protocol)
+    report = {key: value for key, value in raw_report.items() if key != "report_hash"}
+    report["software_identity"] = model_resolution_software_identity(args.root)
+    report["report_hash"] = sha256_value(report)
+
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -42,6 +48,7 @@ def main() -> None:
                 "status": report["status"],
                 "effective_resolution": report["effective_resolution"],
                 "report_hash": report["report_hash"],
+                "software_identity_sha256": report["software_identity"]["identity_sha256"],
                 "output": str(output),
             },
             sort_keys=True,
