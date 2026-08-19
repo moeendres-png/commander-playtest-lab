@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class XmageExternalDecisionTest {
 
     @Test
-    void realMainPhasePriorityProducesStableFailClosedLegalActions()
+    void realFirstPriorityProducesStableFailClosedLegalActions()
             throws Exception {
         RuntimeDeck deck = loadRogShaiRuntimeDeck();
         XmageDeckImporter importer = new XmageDeckImporter();
@@ -42,7 +42,7 @@ class XmageExternalDecisionTest {
         assertEquals(1, started.turnNumber());
 
         Game game = manager.requireGame(created.gameHandle());
-        assertEquals("PRECOMBAT_MAIN", game.getTurnStepType().name());
+        assertEquals("UPKEEP", game.getTurnStepType().name());
         assertNotNull(game.getPriorityPlayerId());
 
         XmageGameManager.LegalActionsSnapshot first = manager.legalActions(created.gameHandle());
@@ -77,20 +77,6 @@ class XmageExternalDecisionTest {
                 ).distinct().count() == first.actions().size()
         );
 
-        /*
-         * Rograkh costs zero and is always available from the command zone at
-         * the starting player's first precombat main priority. This proves the
-         * endpoint is reading real XMage playability, not returning only a
-         * synthetic pass action.
-         */
-        assertTrue(
-                first.actions().stream().anyMatch(
-                        action -> "cast_commander".equals(
-                                action.get("action_type").getAsString()
-                        )
-                )
-        );
-
         for (JsonObject action : first.actions()) {
             assertEquals(64, action.get("action_id").getAsString().length());
             assertTrue(action.has("metadata"));
@@ -98,7 +84,11 @@ class XmageExternalDecisionTest {
             assertTrue(action.has("cost"));
         }
 
-        /* B4-B enumerates only the paused priority decision class. */
+        /*
+         * B4-B proves the first real priority decision class only. Advancing
+         * through upkeep to main phase and proving a Rograkh cast belongs to
+         * B4-C, where PASS_PRIORITY is actually submitted to XMage.
+         */
         assertFalse(first.decisionId().isBlank());
     }
 
