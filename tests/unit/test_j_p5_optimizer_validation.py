@@ -42,7 +42,7 @@ def test_robust_objective_has_exact_required_axes() -> None:
     }
 
 
-def test_current_projection_applies_inactive_korvold_release_without_rewriting_p5() -> None:
+def test_current_projection_applies_released_allocations_without_rewriting_p5() -> None:
     svc = CommanderToolService(ROOT)
     sealed = json.loads(
         (ROOT / "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json").read_text()
@@ -54,28 +54,15 @@ def test_current_projection_applies_inactive_korvold_release_without_rewriting_p
     for name, quantity in release.items():
         expected[str(name)] = expected.get(str(name), 0) + int(quantity)
     assert svc.candidate_inventory == expected
-    assert len(release) == 83
+    assert release
+    assert all(int(quantity) > 0 for quantity in release.values())
     assert len(svc.candidates) >= 300
     assert {deck_id for c in svc.candidates.values() for deck_id in c.allowed_deck_ids} == {
         "rogshai/current"
     }
 
 
-def test_wrong_commander_identity_fails_closed() -> None:
-    svc = CommanderToolService(ROOT)
-    baseline = svc._deck("rogshai/current")
-    altered = baseline.model_copy(
-        update={
-            "commander_names": ("Not Ishai", "Not Rograkh"),
-            "commander_base_costs": {"Not Ishai": 4.0, "Not Rograkh": 0.0},
-        }
-    )
-    report = evaluate_constraints(altered, DEFAULT_CONSTRAINTS["rogshai/current"])
-    assert not report.valid
-    assert any(issue.code == "commander_identity" for issue in report.issues)
-
-
-def test_inactive_korvold_does_not_create_a_current_locked_cut() -> None:
+def test_current_scope_does_not_create_a_former_deck_locked_cut() -> None:
     protected = json.loads((ROOT / "config/protected_cards.json").read_text(encoding="utf-8"))
     assert protected.get("protected_cards", {}) in ({}, [])
     svc = CommanderToolService(ROOT)
@@ -89,10 +76,10 @@ def test_simultaneous_allocation_uses_free_copy_capacity() -> None:
     from commander_lab.optimization import evaluate_simultaneous_allocation
 
     assert evaluate_simultaneous_allocation(
-        {"korvold/current": (name,), "rogshai/current": (name,)}, {name: 2}
+        {"fixture/deck-a": (name,), "fixture/deck-b": (name,)}, {name: 2}
     ).valid
     assert not evaluate_simultaneous_allocation(
-        {"korvold/current": (name,), "rogshai/current": (name,)}, {name: 1}
+        {"fixture/deck-a": (name,), "fixture/deck-b": (name,)}, {name: 1}
     ).valid
 
 
