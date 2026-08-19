@@ -11,9 +11,7 @@ from commander_lab.storage import load_model
 from .fixtures import build_current_opponent_profiles, build_synthetic_deck_profile
 from .profiles import StructuralProfileCatalog, build_structural_deck_profile
 
-_ROGSHAI_COMMANDERS = frozenset(
-    {"Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"}
-)
+_ROGSHAI_COMMANDERS = frozenset({"Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"})
 
 
 def live_commander_strategy(deck: Deck) -> str:
