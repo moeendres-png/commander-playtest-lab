@@ -46,9 +46,12 @@ final class XmageProvider {
         JsonObject capabilities = new JsonObject();
 
         /*
-         * B4-A extends the real B3 lifecycle with read-only observation of the
-         * running pinned XMage Game. Priority and stack fields are read from
-         * XMage directly; this does not imply an external decision/action loop.
+         * B4-C retains the real B4-A observation surface and adds bounded
+         * external control for the current live priority decision: real pass
+         * execution and submission-ready targetless/nonmodal actions are
+         * validated against XMage. The global legal-actions/action-submission
+         * flags remain false because target, mode, choice and combat classes
+         * are not yet complete.
          */
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
@@ -84,9 +87,9 @@ final class XmageProvider {
 
         /*
          * This identifies the kind of runtime behind the bridge.
-         * It does NOT grant semantic external-engine validation.
-         * The Lab health gate must still report DEGRADED because legal
-         * actions, action submission, and event-log capabilities remain false.
+         * It does NOT grant production-provider readiness. The Lab health gate
+         * must remain DEGRADED while the globally required complete legal-action,
+         * action-submission and event-log capabilities remain false.
          */
         capabilities.addProperty(
                 "runtime_kind",
@@ -95,7 +98,7 @@ final class XmageProvider {
 
         JsonArray notes = new JsonArray();
         notes.add(
-                "B4-A real XMage read-only game-state observation implemented; external action-loop capabilities remain unavailable"
+                "B4-C real XMage bounded current-priority action control is validated, including stale-request rejection and a real Rograkh commander cast; global legal-action and action-submission completeness remain unavailable"
         );
         notes.add(
                 "Seed remains unknown/uncontrolled; no numeric sentinel is synthesized"

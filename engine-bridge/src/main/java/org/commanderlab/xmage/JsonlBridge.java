@@ -72,6 +72,8 @@ final class JsonlBridge {
             case "start_game" -> startGame(requestId, request);
             case "get_game_state" -> getGameState(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId, request);
+            case "pass_priority" -> passPriority(requestId, request);
+            case "submit_action" -> submitAction(requestId, request);
             case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
             default -> error(
                     requestId,
@@ -202,7 +204,7 @@ final class JsonlBridge {
                 return error(
                         requestId,
                         "unsupported_game_option",
-                        "B4-B does not support seed",
+                        "B4-C does not support seed",
                         false
                 );
             }
@@ -211,7 +213,7 @@ final class JsonlBridge {
                 return error(
                         requestId,
                         "unsupported_game_option",
-                        "B4-B does not support deterministic_starting_state",
+                        "B4-C does not support deterministic_starting_state",
                         false
                 );
             }
@@ -412,19 +414,8 @@ final class JsonlBridge {
             XmageGameManager.LegalActionsSnapshot snapshot =
                     gameManager.legalActions(gameHandle);
 
-            JsonObject responsePayload = new JsonObject();
-            responsePayload.addProperty("game_id", snapshot.gameId());
-            responsePayload.addProperty("engine_game_id", snapshot.engineGameId());
-            responsePayload.addProperty("decision_offset", snapshot.decisionOffset());
-            responsePayload.addProperty("decision_id", snapshot.decisionId());
-            responsePayload.addProperty("actor_id", snapshot.actorId());
-            responsePayload.addProperty("decision_kind", snapshot.decisionKind());
-            responsePayload.addProperty("complete", snapshot.complete());
+            JsonObject responsePayload = legalActionsPayload(snapshot);
             responsePayload.addProperty("global_capability_promoted", false);
-
-            JsonArray actions = new JsonArray();
-            snapshot.actions().forEach(actions::add);
-            responsePayload.add("actions", actions);
             return success(requestId, responsePayload, false);
         } catch (XmageGameManager.GameException exc) {
             return error(
@@ -441,6 +432,149 @@ final class JsonlBridge {
                     false
             );
         }
+    }
+
+    private Result passPriority(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_pass_priority_payload",
+                    "PASS_PRIORITY requires an object payload"
+            );
+            String gameId = requestGameId(request, payload);
+            String gameHandle = requireGameHandle(gameId);
+            XmageGameManager.LegalActionsSnapshot before = gameManager.legalActions(gameHandle);
+
+            XmageActionExecutor.ExecutionResult executed = XmageActionExecutor.passPriority(
+                    gameManager.requireGame(gameHandle),
+                    before,
+                    stringValue(payload, "decision_id").trim(),
+                    stringValue(payload, "actor_id").trim(),
+                    stringValue(payload, "action_id").trim()
+            );
+
+            XmageGameManager.StateSnapshot state = gameManager.snapshotState(gameHandle);
+            XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
+            JsonObject responsePayload = actionExecutionPayload(executed, state, after);
+            responsePayload.addProperty("bounded_submission", true);
+            responsePayload.addProperty("global_capability_promoted", false);
+            return success(requestId, responsePayload, false);
+        } catch (XmageActionExecutor.ActionException exc) {
+            return error(requestId, "external_action_rejected", exc.getMessage(), false);
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "pass_priority_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_pass_priority_payload",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private Result submitAction(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_submit_action_payload",
+                    "SUBMIT_ACTION requires an object payload"
+            );
+            String gameId = requestGameId(request, payload);
+            String gameHandle = requireGameHandle(gameId);
+            if (!payload.has("proposal") || !payload.get("proposal").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_submit_action_payload",
+                        "SUBMIT_ACTION requires payload.proposal",
+                        false
+                );
+            }
+
+            XmageGameManager.LegalActionsSnapshot before = gameManager.legalActions(gameHandle);
+            XmageActionExecutor.ExecutionResult executed = XmageActionExecutor.submitAction(
+                    gameManager.requireGame(gameHandle),
+                    before,
+                    stringValue(payload, "decision_id").trim(),
+                    payload.getAsJsonObject("proposal")
+            );
+
+            XmageGameManager.StateSnapshot state = gameManager.snapshotState(gameHandle);
+            XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
+            JsonObject responsePayload = actionExecutionPayload(executed, state, after);
+            responsePayload.addProperty("bounded_submission", true);
+            responsePayload.addProperty("global_capability_promoted", false);
+            return success(requestId, responsePayload, false);
+        } catch (XmageActionExecutor.ActionException exc) {
+            return error(requestId, "external_action_rejected", exc.getMessage(), false);
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "submit_action_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_submit_action_payload",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private String requireGameHandle(String gameId) {
+        if (gameId == null || gameId.isBlank()) {
+            throw new IllegalArgumentException("game_id must be nonblank");
+        }
+        String gameHandle = gameHandlesById.get(gameId);
+        if (gameHandle == null) {
+            throw new XmageGameManager.GameException(
+                    "Unknown process-local game_id: " + gameId
+            );
+        }
+        return gameHandle;
+    }
+
+    private static JsonObject legalActionsPayload(
+            XmageGameManager.LegalActionsSnapshot snapshot
+    ) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("game_id", snapshot.gameId());
+        payload.addProperty("engine_game_id", snapshot.engineGameId());
+        payload.addProperty("decision_offset", snapshot.decisionOffset());
+        payload.addProperty("decision_id", snapshot.decisionId());
+        payload.addProperty("actor_id", snapshot.actorId());
+        payload.addProperty("decision_kind", snapshot.decisionKind());
+        payload.addProperty("complete", snapshot.complete());
+        JsonArray actions = new JsonArray();
+        snapshot.actions().forEach(actions::add);
+        payload.add("actions", actions);
+        return payload;
+    }
+
+    private static JsonObject actionExecutionPayload(
+            XmageActionExecutor.ExecutionResult executed,
+            XmageGameManager.StateSnapshot state,
+            XmageGameManager.LegalActionsSnapshot after
+    ) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("game_id", state.gameId());
+        payload.addProperty("engine_game_id", state.engineGameId());
+        payload.addProperty("executed_decision_id", executed.decisionId());
+        payload.addProperty("executed_action_id", executed.actionId());
+        payload.addProperty("executed_action_type", executed.actionType());
+        payload.addProperty("executed_actor_id", executed.actorId());
+        if (executed.sourceObjectId() == null) {
+            payload.add("executed_source_object_id", com.google.gson.JsonNull.INSTANCE);
+        } else {
+            payload.addProperty("executed_source_object_id", executed.sourceObjectId());
+        }
+        if (executed.sourceName() == null) {
+            payload.add("executed_source_name", com.google.gson.JsonNull.INSTANCE);
+        } else {
+            payload.addProperty("executed_source_name", executed.sourceName());
+        }
+        payload.addProperty("state_observation_offset", state.stateObservationOffset());
+        payload.add("state", state.state());
+        payload.add("next_decision", legalActionsPayload(after));
+        return payload;
     }
 
     private static JsonObject requireObjectPayload(
@@ -554,7 +688,7 @@ final class JsonlBridge {
         JsonObject payload = new JsonObject();
         payload.addProperty("engine", XmageProvider.ENGINE);
         payload.addProperty("started", true);
-        payload.addProperty("phase", "B4B_DECISION_HANDOFF");
+        payload.addProperty("phase", "B4C_BOUNDED_ACTION_SUBMISSION");
         return payload;
     }
 
