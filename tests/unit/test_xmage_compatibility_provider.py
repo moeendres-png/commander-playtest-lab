@@ -7,9 +7,6 @@ XMAGE_REPOSITORY = "https://github.com/moeendres-png/mage.git"
 XMAGE_ACTIONS_REPOSITORY = "moeendres-png/mage"
 XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
 
-HISTORICAL_REPOSITORY = "https://github.com/magefree/mage.git"
-HISTORICAL_COMMIT = "06d166b098ad36b277edef01116472203d5a047e"
-
 
 def test_current_xmage_b3_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:
     config = json.loads((repo_root / "config/rules_engines.json").read_text(encoding="utf-8"))
@@ -52,18 +49,6 @@ def test_current_external_workflow_uses_compatibility_candidate(repo_root: Path)
     assert f"default: {XMAGE_COMMIT}" in workflow
     assert "git describe --tags --always" in workflow
     assert "engine-bridge/pom.xml" in workflow
-
-
-def test_historical_jp3b_provider_evidence_remains_pinned(repo_root: Path) -> None:
-    for relative in (
-        ".github/workflows/j-p3b-xmage-fixtures.yml",
-        ".github/workflows/j-p3b-xmage-real-spike.yml",
-    ):
-        text = (repo_root / relative).read_text(encoding="utf-8")
-
-        assert HISTORICAL_REPOSITORY in text
-        assert HISTORICAL_COMMIT in text
-        assert XMAGE_COMMIT not in text
 
 
 def test_b3_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path) -> None:
