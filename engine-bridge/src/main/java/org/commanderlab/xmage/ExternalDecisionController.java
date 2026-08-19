@@ -42,11 +42,27 @@ final class ExternalDecisionController {
 
     private Decision currentDecision;
     private long decisionOffset = 0L;
+    private boolean armed = false;
+
+    synchronized void arm() {
+        if (armed) {
+            throw new IllegalStateException("EXTERNAL_DECISION_ALREADY_ARMED");
+        }
+        armed = true;
+    }
+
+    synchronized boolean isArmed() {
+        return armed;
+    }
 
     synchronized Decision capturePriority(
             Player player,
             Game game
     ) {
+        if (!armed) {
+            throw new IllegalStateException("EXTERNAL_DECISION_NOT_ARMED");
+        }
+
         decisionOffset++;
 
         String gameId = game.getId().toString();
@@ -137,10 +153,7 @@ final class ExternalDecisionController {
 
             JsonObject choicesSchema = new JsonObject();
             choicesSchema.add("target_groups", targetGroups);
-            choicesSchema.addProperty(
-                    "modal",
-                    ability.isModal()
-            );
+            choicesSchema.addProperty("modal", ability.isModal());
             if (ability.isModal()) {
                 JsonArray modes = new JsonArray();
                 ability.getModes().forEach((id, mode) -> modes.add(id.toString()));
@@ -167,14 +180,8 @@ final class ExternalDecisionController {
                     "ability_original_id",
                     ability.getOriginalId().toString()
             );
-            metadata.addProperty(
-                    "ability_type",
-                    ability.getAbilityType().name()
-            );
-            metadata.addProperty(
-                    "submission_ready",
-                    submissionReady
-            );
+            metadata.addProperty("ability_type", ability.getAbilityType().name());
+            metadata.addProperty("submission_ready", submissionReady);
             metadata.addProperty(
                     "target_enumeration_complete",
                     targetEnumerationComplete
@@ -224,14 +231,10 @@ final class ExternalDecisionController {
             String engineGameId
     ) {
         if (currentDecision == null) {
-            throw new IllegalStateException(
-                    "NO_EXTERNAL_DECISION_AVAILABLE"
-            );
+            throw new IllegalStateException("NO_EXTERNAL_DECISION_AVAILABLE");
         }
         if (!currentDecision.engineGameId().equals(engineGameId)) {
-            throw new IllegalStateException(
-                    "EXTERNAL_DECISION_GAME_MISMATCH"
-            );
+            throw new IllegalStateException("EXTERNAL_DECISION_GAME_MISMATCH");
         }
         return currentDecision;
     }
@@ -297,9 +300,7 @@ final class ExternalDecisionController {
         String abilityId = ability == null
                 ? "none"
                 : ability.getOriginalId().toString();
-        String sourceId = sourceObjectId == null
-                ? "none"
-                : sourceObjectId;
+        String sourceId = sourceObjectId == null ? "none" : sourceObjectId;
 
         JsonObject action = new JsonObject();
         action.addProperty(
