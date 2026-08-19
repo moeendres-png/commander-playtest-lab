@@ -11,7 +11,7 @@ from commander_lab.project_context import ProjectContextError, load_project_cont
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> None:
+def test_current_context_resolves_sole_active_deck_without_former_deck_identity() -> None:
     first = load_project_context(ROOT)
     second = load_project_context(ROOT)
 
@@ -21,11 +21,10 @@ def test_current_context_resolves_rogshai_primary_and_korvold_historical() -> No
         "opponent/cosmic-spiderman-midbudget",
     )
     assert first.active_own_deck_ids == ("rogshai/current",)
-    assert first.historical_own_deck_ids == ("korvold/current",)
+    assert first.historical_own_deck_ids == ()
     assert first.primary_opponent_deck_ids("rogshai/current") == expected
-    with pytest.raises(ProjectContextError, match="no canonical primary scenario"):
-        first.primary_opponent_deck_ids("korvold/current")
-    assert first.historical_reference_opponent_deck_ids("korvold/current") == expected
+    with pytest.raises(ProjectContextError, match="no historical reference scenario"):
+        first.historical_reference_opponent_deck_ids("former/current")
     assert first.snapshot_hash == second.snapshot_hash
     assert len(first.snapshot_hash) == 64
     assert "opponent/blight-curse-precon" in first.holdout_deck_ids
