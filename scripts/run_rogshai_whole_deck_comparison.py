@@ -18,12 +18,12 @@ from statistics import fmean
 from typing import Any
 
 from commander_lab.current_model_resolution import load_current_model_resolution
+from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength
+from commander_lab.pod_scheduling import BalancedPodScenarioScheduler
+from commander_lab.repositories.opponents import CurrentOpponentRepository
+from commander_lab.whole_deck.campaign import run_balanced_paired_campaign
 from commander_lab.whole_deck.lab_context import enriched_context
 from commander_lab.whole_deck.models import PolicyId
-from commander_lab.whole_deck.orchestrator import (
-    WholeDeckCampaignOrchestrator,
-    WholeDeckCampaignSpecification,
-)
 from commander_lab.whole_deck.policies import get_policy
 from commander_lab.whole_deck.search import WholeDeckSearchEngine
 from commander_lab.whole_deck.search_context import current_control_mainboard
@@ -34,23 +34,31 @@ CANDIDATE_ID = "rogshai/final_recommended_2026-08-20"
 CANDIDATE_PATH = Path("data/decks/candidates/rogshai_final_recommended_2026-08-20.json")
 OUTPUT_DIR = Path("artifacts/rogshai_whole_deck_comparison")
 COMMANDERS = {"Ishai, Ojutai Dragonspeaker", "Rograkh, Son of Rohgahh"}
-MASTER_SEED = 20260820
-ALLOWED_GAMES = {32, 128, 256}
+OPPONENT_IDS = (
+    "opponent/blight-curse-precon",
+    "opponent/cosmic-spiderman-midbudget",
+    "opponent/dance-elements-precon",
+    "opponent/doom-prevails-precon",
+    "kaervek/current",
+    "opponent/morcant-elves",
+    "opponent/wakanda-forever-precon",
+)
 EVIDENCE = "structural_model_estimates"
+MASTER_SEED = 20260820
+HOLDOUT_SEED_XOR = 0x5F37_9A21
+ALLOWED_GAMES = {32, 128, 256}
 
 
-def dump(path: Path, value: object) -> None:
+def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def file_sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    h.update(path.read_bytes())
-    return h.hexdigest()
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def git_sha(root: Path) -> str:
+def commit_sha(root: Path) -> str:
     if os.getenv("GITHUB_SHA"):
         return os.environ["GITHUB_SHA"]
     try:
@@ -59,20 +67,21 @@ def git_sha(root: Path) -> str:
         return "unknown"
 
 
-def candidate_mainboard(payload: dict[str, Any]) -> tuple[str, ...]:
-    if payload.get("deck_id") != CANDIDATE_ID or payload.get("format") != "commander":
+def load_candidate(path: Path) -> tuple[dict[str, Any], tuple[str, ...]]:
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict) or raw.get("deck_id") != CANDIDATE_ID or raw.get("format") != "commander":
         raise ValueError("candidate identity/format mismatch")
-    block = payload.get("commander")
-    if not isinstance(block, dict) or set(map(str, block.get("commanders", []))) != COMMANDERS:
+    commander = raw.get("commander")
+    if not isinstance(commander, dict) or set(map(str, commander.get("commanders", []))) != COMMANDERS:
         raise ValueError("candidate commanders must be exactly Ishai + Rograkh")
-    if block.get("uses_partner") is not True:
+    if commander.get("uses_partner") is not True:
         raise ValueError("candidate must explicitly use partner commanders")
-    rows = payload.get("cards")
+    rows = raw.get("cards")
     if not isinstance(rows, list):
         raise ValueError("candidate cards must be a list")
-    total = commander_total = 0
     main: list[str] = []
     commander_counts: dict[str, int] = defaultdict(int)
+    total = 0
     for row in rows:
         if not isinstance(row, dict):
             raise ValueError("candidate card row must be an object")
@@ -83,55 +92,50 @@ def candidate_mainboard(payload: dict[str, Any]) -> tuple[str, ...]:
             raise ValueError(f"invalid candidate row: {row!r}")
         total += qty
         if zone == "commander":
-            commander_total += qty
             commander_counts[name] += qty
         else:
             main.extend([name] * qty)
-    if total != 100 or commander_total != 2 or len(main) != 98:
-        raise ValueError(f"candidate must be 2+98=100; got {commander_total}+{len(main)}={total}")
-    if any(commander_counts.get(name) != 1 for name in COMMANDERS):
-        raise ValueError("each candidate commander must occur exactly once")
-    return tuple(main)
+    if total != 100 or len(main) != 98 or any(commander_counts.get(name) != 1 for name in COMMANDERS):
+        raise ValueError("candidate must contain exactly two partner commanders and 98 main cards")
+    return raw, tuple(main)
 
 
-def delta(row: dict[str, Any]) -> float:
-    # Native campaign semantics: positive means candidate/variant improves placement.
+def paired_delta(row: dict[str, Any]) -> float:
     return float(row["baseline_placement"]) - float(row["variant_placement"])
 
 
-def grouped(observations: list[dict[str, Any]], key: Callable[[dict[str, Any]], str]) -> dict[str, float]:
-    values: dict[str, list[float]] = defaultdict(list)
-    for row in observations:
-        values[key(row)].append(delta(row))
-    return {name: fmean(rows) for name, rows in sorted(values.items())}
+def grouped_delta(rows: list[dict[str, Any]], key: Callable[[dict[str, Any]], str]) -> dict[str, float]:
+    grouped: dict[str, list[float]] = defaultdict(list)
+    for row in rows:
+        grouped[key(row)].append(paired_delta(row))
+    return {name: fmean(values) for name, values in sorted(grouped.items())}
 
 
-def diagnostics(campaign: dict[str, Any], resolution: float) -> dict[str, Any]:
-    observations = campaign.get("paired_observations")
-    paired = campaign.get("paired")
-    if not isinstance(observations, list) or not observations or not isinstance(paired, dict):
-        raise ValueError("malformed paired campaign")
-    mean_delta = float(paired["paired_placement_delta"])
-    interval = list(paired["paired_bootstrap_interval"])
-    seat = grouped(observations, lambda row: str(row["own_seat"]))
-    groups = grouped(observations, lambda row: "|".join(sorted(map(str, row["opponent_deck_ids"]))))
+def diagnostic(campaign: dict[str, Any], resolution: float) -> dict[str, Any]:
+    rows = campaign["paired_observations"]
+    if not isinstance(rows, list) or not rows:
+        raise ValueError("paired campaign has no observations")
+    value = float(campaign["paired"]["paired_placement_delta"])
+    interval = [float(v) for v in campaign["paired"]["paired_bootstrap_interval"]]
+    seat = grouped_delta(rows, lambda row: str(row["own_seat"]))
+    pods = grouped_delta(rows, lambda row: "|".join(sorted(map(str, row["opponent_deck_ids"]))))
     return {
-        "paired_placement_delta": mean_delta,
+        "paired_placement_delta": value,
         "delta_semantics": "baseline_placement-candidate_placement; positive=candidate_better",
-        "paired_bootstrap_interval": [float(interval[0]), float(interval[1])],
+        "paired_bootstrap_interval": interval,
         "effective_resolution": resolution,
-        "above_resolution": abs(mean_delta) >= resolution,
+        "above_resolution": abs(value) >= resolution,
+        "all_ties": all(abs(paired_delta(row)) < 1e-12 for row in rows),
         "per_seat_paired_delta": seat,
-        "per_opponent_group_paired_delta": groups,
-        "material_seat_conflicts": {k: v for k, v in seat.items() if abs(v) >= resolution and v * mean_delta < 0},
-        "material_opponent_group_conflicts": {k: v for k, v in groups.items() if abs(v) >= resolution and v * mean_delta < 0},
-        "all_ties": all(abs(delta(row)) < 1e-12 for row in observations),
+        "per_opponent_group_paired_delta": pods,
+        "material_seat_conflicts": {k: v for k, v in seat.items() if abs(v) >= resolution and v * value < 0},
+        "material_opponent_group_conflicts": {k: v for k, v in pods.items() if abs(v) >= resolution and v * value < 0},
     }
 
 
-def decide(primary: dict[str, Any], holdout: dict[str, Any] | None, resolution: float) -> tuple[str, dict[str, Any]]:
-    p = diagnostics(primary, resolution)
-    h = diagnostics(holdout, resolution) if holdout is not None else None
+def decide(primary: dict[str, Any], holdout: dict[str, Any], resolution: float) -> tuple[str, dict[str, Any]]:
+    p = diagnostic(primary, resolution)
+    h = diagnostic(holdout, resolution)
     value = float(p["paired_placement_delta"])
     detail: dict[str, Any] = {"primary": p, "holdout": h}
     if p["all_ties"]:
@@ -140,10 +144,14 @@ def decide(primary: dict[str, Any], holdout: dict[str, Any] | None, resolution: 
     if abs(value) < resolution:
         detail["reason"] = "primary paired placement delta is below live model resolution"
         return "KEEP_OPEN_BELOW_RESOLUTION", detail
-    holdout_conflict = h is not None and abs(float(h["paired_placement_delta"])) >= resolution and float(h["paired_placement_delta"]) * value < 0
-    if p["material_seat_conflicts"] or p["material_opponent_group_conflicts"] or holdout_conflict:
+    holdout_value = float(h["paired_placement_delta"])
+    conflict = (
+        bool(p["material_seat_conflicts"])
+        or bool(p["material_opponent_group_conflicts"])
+        or (abs(holdout_value) >= resolution and holdout_value * value < 0)
+    )
+    if conflict:
         detail["reason"] = "material seat/opponent-group or holdout direction conflict"
-        detail["holdout_direction_conflict"] = holdout_conflict
         return "KEEP_OPEN_SCENARIO_DEPENDENT", detail
     low, high = p["paired_bootstrap_interval"]
     if not ((value > 0 and low > 0) or (value < 0 and high < 0)):
@@ -153,11 +161,71 @@ def decide(primary: dict[str, Any], holdout: dict[str, Any] | None, resolution: 
     return ("CANDIDATE_ADVANCES" if value > 0 else "CURRENT_PREFERRED"), detail
 
 
-def summary(path: Path, manifest: dict[str, Any], status: str, detail: dict[str, Any] | None, error: str | None = None) -> None:
+def run_pair(root: Path, baseline: Any, candidate: Any, args: argparse.Namespace) -> dict[str, Any]:
+    repo = CurrentOpponentRepository(root)
+    record_map = {record.deck_id: record for record in repo.records()}
+    missing = sorted(set(OPPONENT_IDS) - set(record_map))
+    if missing:
+        raise RuntimeError(f"preregistered current opponents are missing: {missing}")
+    records = tuple(record_map[deck_id] for deck_id in OPPONENT_IDS)
+    profiles = {deck_id: repo.profile(deck_id) for deck_id in OPPONENT_IDS}
+    scheduler = BalancedPodScenarioScheduler(records, opponent_registry_hash=repo.registry_hash)
+    pilot = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+
+    primary_scenarios = scheduler.schedule(args.games, seed=args.seed)
+    holdout_seed = args.seed ^ HOLDOUT_SEED_XOR
+    holdout_scenarios = scheduler.schedule(args.holdout_games, seed=holdout_seed)
+    if {s.seed for s in primary_scenarios} & {s.seed for s in holdout_scenarios}:
+        raise RuntimeError("primary and holdout scenario seeds overlap")
+
+    def campaign(scenarios: Any, seed: int) -> dict[str, Any]:
+        return run_balanced_paired_campaign(
+            baseline=baseline,
+            variant=candidate,
+            opponent_profiles=profiles,
+            scenarios=scenarios,
+            pilot_config=pilot,
+            max_turns=args.max_turns,
+            statistics_seed=seed,
+            workers=args.workers,
+        )
+
+    return {
+        "campaign_specification": {
+            "primary_games": args.games,
+            "holdout_games": args.holdout_games,
+            "seed": args.seed,
+            "max_turns": args.max_turns,
+            "workers": args.workers,
+            "pod_size": 4,
+            "frequency_interpretation": "experimental_equal_coverage_not_real_meta_frequency",
+            "opponent_scope": "preregistered_seven_current_local_opponents",
+        },
+        "opponent_registry_hash": repo.registry_hash,
+        "opponent_deck_ids": list(OPPONENT_IDS),
+        "opponent_evidence": {deck_id: list(repo.evidence_by_deck_id().get(deck_id, ("unknown",))) for deck_id in OPPONENT_IDS},
+        "primary": {
+            "scenarios": [row.as_dict() for row in primary_scenarios],
+            "coverage_report": scheduler.coverage_report(primary_scenarios),
+            "campaign": campaign(primary_scenarios, args.seed),
+        },
+        "holdout": {
+            "construction_use": False,
+            "master_seed": holdout_seed,
+            "scenarios": [row.as_dict() for row in holdout_scenarios],
+            "coverage_report": scheduler.coverage_report(holdout_scenarios),
+            "campaign": campaign(holdout_scenarios, holdout_seed),
+        },
+    }
+
+
+def write_summary(path: Path, manifest: dict[str, Any], detail: dict[str, Any] | None, error: str | None = None) -> None:
+    status = manifest["run_status"]
     lines = [
         "# RogShai Whole-Deck Paired Comparison", "",
         f"- Campaign: `{CAMPAIGN_ID}`", f"- Reference: `{BASELINE_ID}`", f"- Candidate: `{CANDIDATE_ID}`",
         f"- Decision: `{status}`", f"- Evidence: `{EVIDENCE}`",
+        "- Opponent scope: preregistered seven current local opponents.",
         "- Opponent frequencies: experimental equal coverage, not observed local meta frequency.",
         "- Canonical deck mutation: false", "",
     ]
@@ -165,28 +233,14 @@ def summary(path: Path, manifest: dict[str, Any], status: str, detail: dict[str,
         lines += ["## Run error", "", f"`{error}`", ""]
     if detail:
         p = detail["primary"]
-        lines += [
-            "## Primary metric", "",
-            f"- Paired placement delta: `{p['paired_placement_delta']}` (positive favors candidate)",
-            f"- Live effective resolution: `{p['effective_resolution']}`",
-            f"- Above resolution: `{p['above_resolution']}`",
-            f"- Reason: {detail['reason']}", "",
-        ]
-    lines += [
-        "## Evidence boundary", "",
-        "Structural model estimates only; not empirical Commander win-rate or external rules-engine evidence.",
-        "The balanced campaign exposes placement, structural place-1 share, total damage and cards drawn; unexposed diagnostics are not fabricated.",
-        "Commander-denial, 3P and 5P robustness remain separate campaigns.", "",
-        "## Reproducibility", "",
-        f"- Commit: `{manifest.get('commit_sha')}`", f"- Master seed: `{manifest.get('master_seed')}`",
-        f"- Primary paired scenarios: `{manifest.get('primary_games')}`", f"- Holdout paired scenarios: `{manifest.get('holdout_games')}`", "",
-    ]
+        lines += ["## Primary metric", "", f"- Paired placement delta: `{p['paired_placement_delta']}` (positive favors candidate)", f"- Live effective resolution: `{p['effective_resolution']}`", f"- Above resolution: `{p['above_resolution']}`", f"- Reason: {detail['reason']}", ""]
+    lines += ["## Evidence boundary", "", "Structural model estimates only; not empirical Commander win-rate or external rules-engine evidence.", "Commander-denial, 3P and 5P robustness remain separate campaigns.", ""]
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def checksums(output: Path) -> None:
+def write_checksums(output: Path) -> None:
     target = output / "sha256sums.txt"
-    target.write_text("\n".join(f"{file_sha256(p)}  {p.name}" for p in sorted(output.iterdir()) if p.is_file() and p != target) + "\n", encoding="utf-8")
+    target.write_text("\n".join(f"{sha256(path)}  {path.name}" for path in sorted(output.iterdir()) if path.is_file() and path != target) + "\n", encoding="utf-8")
 
 
 def run(args: argparse.Namespace) -> int:
@@ -194,23 +248,29 @@ def run(args: argparse.Namespace) -> int:
     output = root / OUTPUT_DIR
     output.mkdir(parents=True, exist_ok=True)
     manifest: dict[str, Any] = {
-        "campaign_id": CAMPAIGN_ID, "baseline_id": BASELINE_ID, "candidate_id": CANDIDATE_ID,
-        "commit_sha": git_sha(root), "master_seed": args.seed, "primary_games": args.games,
-        "holdout_games": args.holdout_games, "max_turns": args.max_turns, "workers": args.workers,
-        "evidence_class": EVIDENCE, "run_status": "RUN_INVALID", "canonical_deck_mutated": False,
-        "inventory_mutated": False, "allocation_mutated": False, "reservation_created": False,
+        "campaign_id": CAMPAIGN_ID,
+        "baseline_id": BASELINE_ID,
+        "candidate_id": CANDIDATE_ID,
+        "commit_sha": commit_sha(root),
+        "master_seed": args.seed,
+        "primary_games": args.games,
+        "holdout_games": args.holdout_games,
+        "max_turns": args.max_turns,
+        "workers": args.workers,
+        "evidence_class": EVIDENCE,
+        "run_status": "RUN_INVALID",
+        "canonical_deck_mutated": False,
+        "inventory_mutated": False,
+        "allocation_mutated": False,
+        "reservation_created": False,
         "automatic_candidate_promotion": False,
     }
     try:
         if args.games not in ALLOWED_GAMES or args.holdout_games < 1:
             raise ValueError("invalid preregistered campaign budget")
-        path = root / CANDIDATE_PATH
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        if not isinstance(payload, dict):
-            raise ValueError("candidate payload must be an object")
-        candidate_board = candidate_mainboard(payload)
+        candidate_path = root / CANDIDATE_PATH
+        payload, candidate_board = load_candidate(candidate_path)
 
-        # This live validation fails closed if current deck/data/opponents/software make the stored threshold stale.
         resolution_payload = load_current_model_resolution(root)
         resolution = float(resolution_payload["effective_resolution"])
         context, enrichment, _ = enriched_context(root)
@@ -225,18 +285,9 @@ def run(args: argparse.Namespace) -> int:
 
         baseline = context.materialize(current_board, label=BASELINE_ID).model_copy(update={"deck_id": BASELINE_ID})
         candidate = context.materialize(candidate_board, label=CANDIDATE_ID).model_copy(update={"deck_id": CANDIDATE_ID})
-        orchestrator = WholeDeckCampaignOrchestrator(root)
-        result = orchestrator.run_pair(
-            baseline=baseline, variant=candidate,
-            specification=WholeDeckCampaignSpecification(
-                primary_games=args.games, holdout_games=args.holdout_games, seed=args.seed,
-                max_turns=args.max_turns, workers=args.workers,
-            ),
-        )
-        primary_bundle = result["primary"]
-        holdout_bundle = result["holdout"]
-        primary = primary_bundle["campaign"]
-        holdout = holdout_bundle["campaign"] if isinstance(holdout_bundle, dict) else None
+        result = run_pair(root, baseline, candidate, args)
+        primary = result["primary"]["campaign"]
+        holdout = result["holdout"]["campaign"]
         if primary.get("evidence_class") != EVIDENCE:
             raise RuntimeError("paired campaign lost structural evidence boundary")
         pairing = primary.get("pairing_conditions", {})
@@ -246,7 +297,8 @@ def run(args: argparse.Namespace) -> int:
 
         status, detail = decide(primary, holdout, resolution)
         manifest.update({
-            "run_status": status, "candidate_file_sha256": file_sha256(path),
+            "run_status": status,
+            "candidate_file_sha256": sha256(candidate_path),
             "candidate_declared_deck_hash": payload.get("deck_hash"),
             "candidate_source_sha256": payload.get("source", {}).get("sha256"),
             "candidate_source_drive_file_id": "1VK9kv8yhvorml0zyTKKiMV4sDUubhYtJ",
@@ -258,38 +310,35 @@ def run(args: argparse.Namespace) -> int:
             "whole_deck_enrichment_snapshot_hash": enrichment.snapshot_hash,
             "opponent_registry_hash": result["opponent_registry_hash"],
             "opponent_deck_ids": result["opponent_deck_ids"],
+            "opponent_evidence": result["opponent_evidence"],
+            "opponent_scope": result["campaign_specification"]["opponent_scope"],
             "frequency_interpretation": result["campaign_specification"]["frequency_interpretation"],
             "model_resolution": {"effective_resolution": resolution, "metric": resolution_payload.get("metric"), "status": resolution_payload.get("status"), "freshness_validated": resolution_payload.get("freshness_validated"), "measurement_artifact": resolution_payload.get("measurement_artifact")},
             "candidate_hard_gate": candidate_gate.model_dump(mode="json"),
-            "current_hard_gate": current_gate.model_dump(mode="json"), "pairing_conditions": pairing,
-            "decision_semantics": "paired_placement_delta=baseline placement-candidate placement; positive favors candidate",
+            "current_hard_gate": current_gate.model_dump(mode="json"),
+            "pairing_conditions": pairing,
         })
-        dump(output / "run_manifest.json", manifest)
-        dump(output / "scenario_matrix.json", {
-            "campaign_id": CAMPAIGN_ID, "primary": primary_bundle["scenarios"],
-            "primary_coverage": primary_bundle["coverage_report"],
-            "holdout": holdout_bundle["scenarios"] if isinstance(holdout_bundle, dict) else [],
-            "holdout_coverage": holdout_bundle["coverage_report"] if isinstance(holdout_bundle, dict) else None,
+        write_json(output / "run_manifest.json", manifest)
+        write_json(output / "scenario_matrix.json", {
+            "campaign_id": CAMPAIGN_ID,
+            "primary": result["primary"]["scenarios"],
+            "primary_coverage": result["primary"]["coverage_report"],
+            "holdout": result["holdout"]["scenarios"],
+            "holdout_coverage": result["holdout"]["coverage_report"],
+            "opponent_deck_ids": result["opponent_deck_ids"],
             "frequency_interpretation": result["campaign_specification"]["frequency_interpretation"],
         })
-        dump(output / "paired_results.json", {
-            "campaign_id": CAMPAIGN_ID, "decision": status, "decision_detail": detail, "primary_campaign": primary,
-            "secondary_metric_scope": {
-                "available": ["average_placement", "structural_model_estimated_place_1_share", "damage", "cards_drawn"],
-                "not_exposed": ["life", "commander_damage", "ishai_peak_power", "ramp_events", "engine_value", "removal_events", "board_wipe_events", "archenemy_frequency"],
-                "policy": "do_not_fabricate_unexposed_diagnostics",
-            },
-        })
-        dump(output / "holdout_results.json", {"campaign_id": CAMPAIGN_ID, "construction_use": False, "holdout": holdout_bundle})
-        summary(output / "summary.md", manifest, status, detail)
-        checksums(output)
+        write_json(output / "paired_results.json", {"campaign_id": CAMPAIGN_ID, "decision": status, "decision_detail": detail, "primary_campaign": primary})
+        write_json(output / "holdout_results.json", {"campaign_id": CAMPAIGN_ID, "construction_use": False, "holdout": result["holdout"]})
+        write_summary(output / "summary.md", manifest, detail)
+        write_checksums(output)
         print(json.dumps({"status": status, "output_dir": str(output)}, sort_keys=True))
         return 0
     except Exception as exc:
         manifest.update({"run_status": "RUN_INVALID", "error_type": type(exc).__name__, "error": str(exc)})
-        dump(output / "run_manifest.json", manifest)
-        summary(output / "summary.md", manifest, "RUN_INVALID", None, f"{type(exc).__name__}: {exc}")
-        checksums(output)
+        write_json(output / "run_manifest.json", manifest)
+        write_summary(output / "summary.md", manifest, None, f"{type(exc).__name__}: {exc}")
+        write_checksums(output)
         print(f"RUN_INVALID: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 2
 
