@@ -20,7 +20,10 @@ from typing import Any
 from commander_lab.current_model_resolution import load_current_model_resolution
 from commander_lab.whole_deck.lab_context import enriched_context
 from commander_lab.whole_deck.models import PolicyId
-from commander_lab.whole_deck.orchestrator import WholeDeckCampaignOrchestrator, WholeDeckCampaignSpecification
+from commander_lab.whole_deck.orchestrator import (
+    WholeDeckCampaignOrchestrator,
+    WholeDeckCampaignSpecification,
+)
 from commander_lab.whole_deck.policies import get_policy
 from commander_lab.whole_deck.search import WholeDeckSearchEngine
 from commander_lab.whole_deck.search_context import current_control_mainboard
