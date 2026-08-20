@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.1",
+  "effective_date": "2026-08-20",
+  "contract_id": "rogshai-hierarchical-pareto-1E-v1",
+  "precision_contract_id": "rogshai-hybrid-sequential-2F-v1",
+  "status": "frozen_for_next_fresh_campaign",
+  "operational_pod_sizes": [4],
+  "evidence_type": "structural_model_estimates",
+  "practical_effect": {
+    "metric": "placement_improvement",
+    "unit": "average_placement_positions",
+    "sesoi": 0.05,
+    "sesoi_is_model_precision": false
+  },
+  "gate_order": [
+    "CURRENT_TRUTH_VALIDITY",
+    "PRACTICAL_EFFECT_AND_2F_PRECISION",
+    "FOUR_PLAYER_ROBUSTNESS",
+    "SEMANTIC_FIDELITY",
+    "PARETO_FINAL_COMPARISON",
+    "COMMANDER_DENIAL_AND_PACKAGE_ABLATION_DIAGNOSTICS",
+    "FREEZE_SINGLE_CHALLENGER",
+    "FRESH_SINGLE_LOOK_SEALED_HOLDOUT"
+  ],
+  "search_objective_boundary": {
+    "qd_and_robust_lower_bound": "exploratory_discovery_and_shortlisting_only",
+    "may_directly_declare_winner": false
+  },
+  "confirmatory_precision": {
+    "policy_id": "rogshai-hybrid-sequential-2F-v1",
+    "shortlist_limit": 8,
+    "planned_paired_4p_budgets": [128, 256, 512, 1024, 2048],
+    "family_alpha": 0.05,
+    "multiplicity_rule": "alpha_candidate_look = 0.05 / (5 * frozen_shortlist_size)",
+    "mcse_max_for_promotion": 0.025,
+    "seed_block_count": 4,
+    "seed_stability_rule": "all block means >= -0.05 and max abs deviation from pooled <= max(0.10, 4*MCSE)",
+    "promotion_candidate_rule": "interval_low > 0.05 AND MCSE <= 0.025 AND seed_stability AND broad_4p_robustness AND semantic_fidelity",
+    "reject_harm_rule": "interval_high < 0",
+    "futility_min_budget": 1024,
+    "futility_rule": "interval_high < 0.05",
+    "ceiling_unresolved_status": "PRECISION_LIMIT"
+  },
+  "robustness": {
+    "broad_stratum_noninferiority_margin": -0.05,
+    "axes": [
+      "opponent_composition",
+      "pilot_mulligan_policy",
+      "seat_position",
+      "commander_denial",
+      "package_ablation",
+      "worst_case",
+      "rebuild",
+      "protection",
+      "interaction",
+      "finish"
+    ],
+    "opponent_frequency_weights_invented": false
+  },
+  "pareto": {
+    "universal_super_score": false,
+    "shortlist_limit": 8,
+    "tie_break": [
+      "worst_broad_stratum",
+      "paired_effect",
+      "precision",
+      "semantic_support",
+      "fewer_changed_slots",
+      "stable_deck_hash"
+    ]
+  },
+  "critical_diagnostics": {
+    "fresh_partition": true,
+    "holdout_independent": true,
+    "commander_denial": ["commander_1", "commander_2", "both"],
+    "package_ablation": "highest-density package among challenger additions when present",
+    "evidence_boundary": "synthetic_assumption + structural_model_estimates"
+  },
+  "sealed_holdout": {
+    "single_challenger_only": true,
+    "paired_4p_budget": 2048,
+    "planned_looks": 1,
+    "two_sided_confidence": 0.95,
+    "winner_rule": "interval_low > 0.05 AND broad_4p_robustness AND critical_diagnostics_pass",
+    "failure_result": "NO_WINNER",
+    "consumed_historical_holdout_reuse_forbidden": true
+  },
+  "canonical_mutation": false
+}

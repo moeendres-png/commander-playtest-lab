@@ -6,24 +6,15 @@ on:
       - "src/commander_lab/model_resolution_measurement.py"
       - "src/commander_lab/model_resolution_software_identity.py"
       - "src/commander_lab/current_model_resolution.py"
-      - "src/commander_lab/fresh_rebuild.py"
-      - "src/commander_lab/repositories/candidates.py"
-      - "src/commander_lab/engine/structural/**"
       - "src/commander_lab/whole_deck/**"
-      - "scripts/measure_model_resolution.py"
+      - "src/commander_lab/optimizer_v2_cli.py"
       - "tests/unit/test_model_resolution_measurement.py"
       - "tests/unit/test_model_resolution_software_identity.py"
       - "tests/unit/test_current_model_resolution.py"
-      - "tests/unit/test_decision_quality.py"
+      - "tests/unit/test_optimizer_v2_decision_runtime.py"
       - "data/diagnostics/MODEL_RESOLUTION_CURRENT.json"
-      - "data/decks/rogshai_current.json"
-      - "data/decks/rogshai_current_card_catalog_overrides.json"
-      - "data/decks/rogshai_photo_verified_structural_overrides.json"
-      - "data/collections/current/**"
-      - "data/collections/current_deck_allocations.json"
-      - "data/opponents/**"
-      - "data/pilots/pilot_registry.json"
-      - "config/phase7_optimization.json"
+      - "data/decision/DECISION_CONTRACT_CURRENT.json"
+      - "docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md"
       - ".github/workflows/model-resolution-measurement.yml"
   workflow_dispatch:
 
@@ -35,9 +26,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  bounded-technical-measurement:
+  legacy-resolution-retirement:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
@@ -46,93 +37,57 @@ jobs:
           cache: pip
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Unit contract
+      - name: Preserve legacy measurement implementation as provenance
         run: >-
           pytest -q
           tests/unit/test_model_resolution_measurement.py
           tests/unit/test_model_resolution_software_identity.py
           tests/unit/test_current_model_resolution.py
-          tests/unit/test_decision_quality.py
-      - name: Measure current Structural resolution
-        run: |
-          mkdir -p artifacts/model-resolution
-          python scripts/measure_model_resolution.py \
-            --root . \
-            --output artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json \
-            --seed 2026081517 \
-            --blocks 4 \
-            --games-per-block 56 \
-            --pilot-games 56 \
-            --max-turns 35 \
-            --workers 2 \
-            --calibrated-sesoi 0.05
-      - name: Verify evidence boundaries and current-source identity
+      - name: Verify 2F replaces the legacy hard gate
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          report = json.loads(Path('artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json').read_text())
-          if report.get('status') != 'MEASURED':
-              raise SystemExit('model resolution was not measured')
-          if report.get('deck_id') != 'rogshai/current':
-              raise SystemExit('model resolution measured the wrong current deck')
-          if report.get('confirmatory_evidence_consumed') is not False:
-              raise SystemExit('confirmatory evidence was consumed')
-          if report.get('sealed_holdout_evidence_consumed') is not False:
-              raise SystemExit('sealed holdout evidence was consumed')
-          if report.get('candidate_search_performed') is not False:
-              raise SystemExit('candidate search occurred during technical calibration')
-          if report.get('canonical_deck_mutation') is not False:
-              raise SystemExit('canonical deck mutation occurred')
-          if report.get('official_rogshai_optimizer_run') is not False:
-              raise SystemExit('technical calibration was mislabeled as an official optimizer run')
-          resolution = report.get('effective_resolution')
-          if not isinstance(resolution, (int, float)) or isinstance(resolution, bool) or resolution < 0.05:
-              raise SystemExit('effective resolution violates calibrated SESOI floor')
-          for key in ('deck_hash', 'data_snapshot_hash', 'opponent_registry_hash', 'report_hash'):
-              value = report.get(key)
-              if not isinstance(value, str) or len(value) != 64:
-                  raise SystemExit(f'model resolution lost reproducible {key}')
-          software = report.get('software_identity')
-          if not isinstance(software, dict) or software.get('schema_version') != '1.1.0':
-              raise SystemExit('model resolution lost scoped content-addressed software identity')
-          manifest = software.get('resolution_source_manifest_sha256')
-          if not isinstance(manifest, str) or len(manifest) != 64:
-              raise SystemExit('model resolution lost resolution-source manifest digest')
-          for key in ('measurement_entrypoint_blob_sha1', 'package_manifest_blob_sha1'):
-              value = software.get(key)
-              if not isinstance(value, str) or len(value) != 40:
-                  raise SystemExit(f'model resolution lost software identity component {key}')
-          scope = software.get('scope_paths')
-          objects = software.get('source_objects')
-          if not isinstance(scope, list) or not scope:
-              raise SystemExit('model resolution lost auditable software scope')
-          if not isinstance(objects, dict) or set(objects) != set(scope):
-              raise SystemExit('model resolution software scope and object manifest disagree')
-          if 'src/commander_lab/models/game.py' in scope:
-              raise SystemExit('external gameplay model leaked into Structural resolution identity')
-          identity_sha256 = software.get('identity_sha256')
-          if not isinstance(identity_sha256, str) or len(identity_sha256) != 64:
-              raise SystemExit('model resolution lost software identity digest')
-          decision_use = report.get('decision_use')
-          if not isinstance(decision_use, dict):
-              raise SystemExit('model resolution lost decision-use contract')
-          if decision_use.get('paired_candidate_comparisons_allowed') is not True:
-              raise SystemExit('model resolution unexpectedly rejects paired candidate comparisons')
+
+          contract = json.loads(Path('data/decision/DECISION_CONTRACT_CURRENT.json').read_text())
+          if contract.get('precision_contract_id') != 'rogshai-hybrid-sequential-2F-v1':
+              raise SystemExit('current decision contract is not 2F')
+          practical = contract.get('practical_effect')
+          if not isinstance(practical, dict) or practical.get('sesoi_is_model_precision') is not False:
+              raise SystemExit('SESOI and Model Precision were re-coupled')
+
+          policy = Path('docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md').read_text()
+          required = (
+              'The former single hard gate',
+              'is retired for candidate promotion, elimination and equivalence decisions',
+              'instead of one scalar resolution number',
+          )
+          for marker in required:
+              if marker not in policy:
+                  raise SystemExit(f'precision policy lost retirement marker: {marker}')
+
+          runtime = Path(
+              'src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py'
+          ).read_text()
+          forbidden = (
+              'load_current_model_resolution',
+              'CURRENT_MODEL_RESOLUTION_PATH',
+              'effective_resolution',
+          )
+          for marker in forbidden:
+              if marker in runtime:
+                  raise SystemExit(f'legacy resolution hard gate leaked into 1E/2F runtime: {marker}')
+
+          historical = json.loads(Path('data/diagnostics/MODEL_RESOLUTION_CURRENT.json').read_text())
+          if historical.get('evidence_class') != 'structural_model_estimates':
+              raise SystemExit('legacy measurement lost its evidence boundary')
+          if historical.get('sealed_holdout_evidence_consumed') is not False:
+              raise SystemExit('legacy measurement consumed sealed holdout evidence')
+          if historical.get('candidate_search_performed') is not False:
+              raise SystemExit('legacy measurement performed candidate search')
           PY
-      - name: Record source head and hashes
-        run: |
-          git rev-parse HEAD > artifacts/model-resolution/SOURCE_HEAD.txt
-          sha256sum artifacts/model-resolution/MODEL_RESOLUTION_MEASURED.json > artifacts/model-resolution/SHA256SUMS.txt
       - name: Assert tracked repository remains clean
         shell: bash
         run: |
           test -z "$(git status --porcelain --untracked-files=no)"
           git diff --exit-code
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        if: always()
-        with:
-          name: model-resolution-measurement-${{ github.sha }}
-          path: artifacts/model-resolution/
-          if-no-files-found: error
-          retention-days: 14

@@ -6,19 +6,20 @@ from pathlib import Path
 import typer
 
 from commander_lab.storage import atomic_write_json
-from commander_lab.whole_deck.optimizer_v2_release import (
-    build_release_manifest_from_project,
-    load_release_manifest,
-    run_release_confirmatory,
-    run_release_holdout,
-    run_release_search,
-    verify_release_preflight,
+from commander_lab.whole_deck.optimizer_v2_decision_runtime import (
+    build_decision_manifest_from_project,
+    load_decision_manifest,
+    run_critical_diagnostics,
+    run_decision_confirmatory,
+    run_decision_holdout,
+    run_decision_search,
+    verify_decision_preflight,
 )
 
 app = typer.Typer(
     add_completion=False,
     no_args_is_help=True,
-    help="Manifest-bound adaptive RogShai Optimizer v2 runner.",
+    help="Manifest-bound RogShai Optimizer v2 runner with frozen 1E/2F decision gates.",
 )
 
 
@@ -26,20 +27,22 @@ app = typer.Typer(
 def manifest_command(
     output: Path = typer.Option(..., "--output"),
     run_id: str = typer.Option("rogshai-optimizer-v2", "--run-id"),
-    seed: int = typer.Option(2026081507, "--seed", min=0),
+    seed: int = typer.Option(2026082001, "--seed", min=0),
     exploratory_games: int = typer.Option(256, "--exploratory-games", min=1),
     calibration_games: int = typer.Option(128, "--calibration-games", min=1),
-    confirmatory_games: int = typer.Option(512, "--confirmatory-games", min=1),
-    holdout_games: int = typer.Option(512, "--holdout-games", min=1),
+    confirmatory_games: int = typer.Option(2048, "--confirmatory-games", min=1),
+    diagnostics_games: int = typer.Option(512, "--diagnostics-games", min=1),
+    holdout_games: int = typer.Option(2048, "--holdout-games", min=1),
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
-    frozen = build_release_manifest_from_project(
+    frozen = build_decision_manifest_from_project(
         root,
         run_id=run_id,
         search_seed=seed,
         exploratory_games=exploratory_games,
         calibration_games=calibration_games,
         confirmatory_games=confirmatory_games,
+        diagnostics_games=diagnostics_games,
         holdout_games=holdout_games,
     )
     atomic_write_json(output, frozen.model_dump(mode="json"))
@@ -48,11 +51,15 @@ def manifest_command(
             {
                 "status": "frozen",
                 "manifest_hash": frozen.manifest_hash,
+                "decision_runtime_version": frozen.decision_runtime_version,
                 "output": str(output),
+                "operational_pod_size": frozen.operational_pod_size,
+                "rogshai_candidate_count": frozen.rogshai_candidate_count,
                 "partitions": {
                     "exploratory": frozen.exploratory.identity,
                     "calibration": frozen.calibration_partition.identity,
                     "confirmatory": frozen.confirmatory.identity,
+                    "critical_diagnostics": frozen.critical_diagnostics.identity,
                     "sealed_holdout": frozen.sealed_holdout.identity,
                 },
             },
@@ -67,8 +74,8 @@ def preflight_command(
     manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
-    frozen = load_release_manifest(manifest)
-    typer.echo(json.dumps(verify_release_preflight(root, frozen), indent=2, sort_keys=True))
+    frozen = load_decision_manifest(manifest)
+    typer.echo(json.dumps(verify_decision_preflight(root, frozen), indent=2, sort_keys=True))
 
 
 @app.command("run")
@@ -79,8 +86,8 @@ def run_command(
     max_turns: int = typer.Option(35, "--max-turns", min=1),
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
-    frozen = load_release_manifest(manifest)
-    result = run_release_search(
+    frozen = load_decision_manifest(manifest)
+    result = run_decision_search(
         root,
         frozen,
         run_directory=output_dir,
@@ -97,18 +104,37 @@ def confirm_command(
     output_dir: Path = typer.Option(Path(".runtime/optimizer-v2"), "--output-dir"),
     workers: int = typer.Option(1, "--workers", min=1),
     max_turns: int = typer.Option(35, "--max-turns", min=1),
-    budget: int | None = typer.Option(None, "--budget", min=1),
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
-    frozen = load_release_manifest(manifest)
-    result = run_release_confirmatory(
+    frozen = load_decision_manifest(manifest)
+    result = run_decision_confirmatory(
         root,
         frozen,
         frontier_path=frontier,
         run_directory=output_dir,
         workers=workers,
         max_turns=max_turns,
-        budget=budget,
+    )
+    typer.echo(json.dumps(result, indent=2, sort_keys=True))
+
+
+@app.command("diagnose")
+def diagnose_command(
+    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
+    confirmatory: Path = typer.Option(..., "--confirmatory", exists=True, dir_okay=False),
+    output_dir: Path = typer.Option(Path(".runtime/optimizer-v2"), "--output-dir"),
+    workers: int = typer.Option(1, "--workers", min=1),
+    max_turns: int = typer.Option(35, "--max-turns", min=1),
+    root: Path = typer.Option(Path("."), "--root"),
+) -> None:
+    frozen = load_decision_manifest(manifest)
+    result = run_critical_diagnostics(
+        root,
+        frozen,
+        confirmatory_path=confirmatory,
+        run_directory=output_dir,
+        workers=workers,
+        max_turns=max_turns,
     )
     typer.echo(json.dumps(result, indent=2, sort_keys=True))
 
@@ -117,23 +143,23 @@ def confirm_command(
 def holdout_command(
     manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
     confirmatory: Path = typer.Option(..., "--confirmatory", exists=True, dir_okay=False),
+    diagnostics: Path = typer.Option(..., "--diagnostics", exists=True, dir_okay=False),
     output_dir: Path = typer.Option(Path(".runtime/optimizer-v2"), "--output-dir"),
     authorize_holdout: bool = typer.Option(False, "--authorize-holdout"),
     workers: int = typer.Option(1, "--workers", min=1),
     max_turns: int = typer.Option(35, "--max-turns", min=1),
-    budget: int | None = typer.Option(None, "--budget", min=1),
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
-    frozen = load_release_manifest(manifest)
-    result = run_release_holdout(
+    frozen = load_decision_manifest(manifest)
+    result = run_decision_holdout(
         root,
         frozen,
         confirmatory_path=confirmatory,
+        diagnostics_path=diagnostics,
         run_directory=output_dir,
         authorize_holdout=authorize_holdout,
         workers=workers,
         max_turns=max_turns,
-        budget=budget,
     )
     typer.echo(json.dumps(result, indent=2, sort_keys=True))
 

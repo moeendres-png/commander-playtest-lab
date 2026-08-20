@@ -11,12 +11,30 @@ from commander_lab.current_model_resolution import (
     load_current_model_resolution,
 )
 from commander_lab.model_resolution_software_identity import model_resolution_software_identity
+from commander_lab.whole_deck.lab_context import enriched_context
+from commander_lab.whole_deck.orchestrator import WholeDeckCampaignOrchestrator
+from commander_lab.whole_deck.search import current_control_mainboard
 
 
 def _current_payload(repo_root) -> dict[str, object]:
     source = repo_root / current_model_resolution.CURRENT_MODEL_RESOLUTION_PATH
     payload = json.loads(source.read_text(encoding="utf-8"))
     assert isinstance(payload, dict)
+    return payload
+
+
+def _fresh_test_payload(repo_root) -> dict[str, object]:
+    payload = _current_payload(repo_root)
+    context, _, _ = enriched_context(repo_root)
+    control = context.materialize(
+        current_control_mainboard(repo_root),
+        label="model-resolution-test-control",
+    )
+    orchestrator = WholeDeckCampaignOrchestrator(repo_root)
+    payload["structural_control_deck_hash"] = control.deck_hash
+    payload["data_snapshot_hash"] = control.data_snapshot_hash
+    payload["opponent_registry_hash"] = orchestrator.opponents.registry_hash
+    payload["software_identity"] = model_resolution_software_identity(repo_root)
     return payload
 
 
@@ -55,7 +73,7 @@ def test_model_resolution_provenance_distinguishes_git_sha1_from_sha256() -> Non
 def test_current_model_resolution_without_software_identity_fails_closed(
     repo_root, tmp_path, monkeypatch
 ) -> None:
-    payload = _current_payload(repo_root)
+    payload = _fresh_test_payload(repo_root)
     payload.pop("software_identity", None)
     _install_payload(tmp_path, monkeypatch, payload)
 
@@ -63,24 +81,15 @@ def test_current_model_resolution_without_software_identity_fails_closed(
         load_current_model_resolution(repo_root)
 
 
-def test_repository_current_model_resolution_loads_with_scoped_freshness(repo_root) -> None:
-    loaded = load_current_model_resolution(repo_root)
-
-    assert loaded["status"] == "MEASURED"
-    assert loaded["effective_resolution"] == pytest.approx(0.3749999999999998)
-    assert loaded["freshness_validated"] is True
-    assert loaded["software_identity"]["schema_version"] == "1.1.0"
-    assert (
-        loaded["software_identity"]["identity_sha256"]
-        == "9802486ddfa37c226447fac970154b7a7cfe2f607e561c13c7ffb7be2f533c9a"
-    )
+def test_repository_current_model_resolution_is_legacy_and_stale(repo_root) -> None:
+    with pytest.raises(CurrentModelResolutionError, match="stale for the live decision inputs"):
+        load_current_model_resolution(repo_root)
 
 
 def test_current_model_resolution_loads_with_fresh_live_provenance(
     repo_root, tmp_path, monkeypatch
 ) -> None:
-    payload = _current_payload(repo_root)
-    payload["software_identity"] = model_resolution_software_identity(repo_root)
+    payload = _fresh_test_payload(repo_root)
     _install_payload(tmp_path, monkeypatch, payload)
 
     loaded = load_current_model_resolution(repo_root)
@@ -113,8 +122,7 @@ def test_current_model_resolution_loads_with_fresh_live_provenance(
 def test_current_model_resolution_stale_live_hashes_fail_closed(
     repo_root, tmp_path, monkeypatch, field: str
 ) -> None:
-    payload = _current_payload(repo_root)
-    payload["software_identity"] = model_resolution_software_identity(repo_root)
+    payload = _fresh_test_payload(repo_root)
     payload[field] = "0" * 64
     _install_payload(tmp_path, monkeypatch, payload)
 
@@ -125,7 +133,7 @@ def test_current_model_resolution_stale_live_hashes_fail_closed(
 def test_current_model_resolution_stale_software_identity_fails_closed(
     repo_root, tmp_path, monkeypatch
 ) -> None:
-    payload = _current_payload(repo_root)
+    payload = _fresh_test_payload(repo_root)
     identity = model_resolution_software_identity(repo_root)
     identity["identity_sha256"] = "0" * 64
     payload["software_identity"] = identity

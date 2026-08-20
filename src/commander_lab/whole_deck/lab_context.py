@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import base64
+import json
+import zlib
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from commander_lab.models import StructuralCardProfile
+from commander_lab.models import CardRole, StructuralCardProfile
+from commander_lab.models.roles import StructuralMechanic
 from commander_lab.repositories.candidates import inventory_rows
 from commander_lab.semantic_features import (
     SEMANTIC_FEATURE_VERSION,
@@ -16,9 +20,15 @@ from commander_lab.storage import sha256_value
 from .enrichment import WholeDeckKnowledgeEnrichment, classify_threat_answers
 from .models import PolicyId
 from .search import WholeDeckSearchEngine
-from .search_context import SearchCard, WholeDeckSearchContext
+from .search_context import (
+    SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE,
+    SEMANTIC_STRUCTURALLY_MODELED,
+    SearchCard,
+    WholeDeckSearchContext,
+)
 
-WHOLE_DECK_LAB_VERSION = "whole-deck-design-lab-0.3.0"
+WHOLE_DECK_LAB_VERSION = "whole-deck-design-lab-0.4.1"
+SEMANTIC_PROJECTION_PATH = Path("data/cards/rogshai_semantic_projection_current.zlib.b64")
 
 
 def _sanitize_profile(
@@ -47,6 +57,158 @@ def _sanitize_profile(
     )
 
 
+def _projection_profile(
+    profile: StructuralCardProfile,
+    raw: dict[str, Any],
+) -> StructuralCardProfile:
+    role_values = tuple(str(value) for value in raw.get("r", ()))
+    roles = frozenset(CardRole(value) for value in role_values)
+    strength_overrides = raw.get("s", {})
+    if not isinstance(strength_overrides, dict):
+        raise RuntimeError(f"semantic projection role strengths malformed: {profile.oracle_name}")
+    strengths = {role: 1.0 for role in roles}
+    for key, value in strength_overrides.items():
+        role = CardRole(str(key))
+        if role not in roles:
+            raise RuntimeError(
+                f"semantic projection strength references absent role for {profile.oracle_name}: {role.value}"
+            )
+        strengths[role] = float(value)
+    mechanics = frozenset(StructuralMechanic(str(value)) for value in raw.get("m", ()))
+    package_ids = frozenset(str(value) for value in raw.get("p", ()))
+    state = str(raw.get("q", SEMANTIC_STRUCTURALLY_MODELED))
+    if state not in {
+        SEMANTIC_STRUCTURALLY_MODELED,
+        SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE,
+    }:
+        raise RuntimeError(
+            f"semantic projection contains unsupported state for {profile.oracle_name}: {state}"
+        )
+    return profile.model_copy(
+        update={
+            "roles": roles,
+            "role_strengths": strengths,
+            "mechanic_tags": mechanics,
+            "package_ids": package_ids,
+            "commander_synergy": float(raw.get("c", 0.0)),
+            "floor_value": float(raw.get("f", 0.5)),
+            "immediate_impact": float(raw.get("i", 0.5)),
+            "turn_cycle_risk": float(raw.get("t", 0.5)),
+            "multiplayer_scaling": float(raw.get("u", 0.0)),
+            "notes": (
+                (profile.notes or "")
+                + " Current full-physical CKB structural semantic projection applied."
+            ).strip(),
+        }
+    )
+
+
+def _decode_semantic_projection(path: Path) -> tuple[dict[str, Any], bool]:
+    try:
+        compressed = base64.b64decode(path.read_text(encoding="ascii"), validate=True)
+    except Exception as exc:
+        raise RuntimeError("current RogShai semantic projection base64 is invalid") from exc
+
+    checksum_recovered = False
+    try:
+        decoded = zlib.decompress(compressed)
+    except zlib.error as exc:
+        if "incorrect data check" not in str(exc) or len(compressed) <= 6:
+            raise RuntimeError(
+                "current RogShai semantic projection cannot be decompressed"
+            ) from exc
+        try:
+            decoded = zlib.decompress(compressed[2:-4], wbits=-zlib.MAX_WBITS)
+            checksum_recovered = True
+        except zlib.error as raw_exc:
+            raise RuntimeError(
+                "current RogShai semantic projection checksum recovery failed"
+            ) from raw_exc
+
+    try:
+        payload = json.loads(decoded.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("current RogShai semantic projection payload is invalid") from exc
+    if not isinstance(payload, dict):
+        raise RuntimeError("current RogShai semantic projection payload must be an object")
+    return payload, checksum_recovered
+
+
+def _apply_semantic_projection(
+    project: Path,
+    base: WholeDeckSearchContext,
+) -> tuple[WholeDeckSearchContext, str]:
+    path = project / SEMANTIC_PROJECTION_PATH
+    if not path.is_file():
+        raise RuntimeError(f"current RogShai semantic projection is missing: {path}")
+    payload, checksum_recovered = _decode_semantic_projection(path)
+    templates = payload.get("t")
+    row_index = payload.get("r")
+    if not isinstance(templates, list) or not isinstance(row_index, dict):
+        raise RuntimeError("current RogShai semantic projection rows are malformed")
+
+    expected = set(base.cards)
+    raw_actual = {str(name) for name in row_index}
+    corrupt_name = "Alandra5 Sky Dreamer"
+    canonical_name = "Alandra, Sky Dreamer"
+    if checksum_recovered and raw_actual != expected:
+        missing = expected - raw_actual
+        extra = raw_actual - expected
+        if missing == {canonical_name} and extra == {corrupt_name}:
+            repaired_index = dict(row_index)
+            repaired_index[canonical_name] = repaired_index.pop(corrupt_name)
+            row_index = repaired_index
+            payload = {**payload, "r": repaired_index}
+
+    rows: dict[str, dict[str, Any]] = {}
+    for name, template_index in row_index.items():
+        if not isinstance(template_index, int) or not 0 <= template_index < len(templates):
+            raise RuntimeError(f"semantic projection template index is malformed: {name}")
+        template = templates[template_index]
+        if not isinstance(template, dict):
+            raise RuntimeError(f"semantic projection template is malformed: {name}")
+        rows[str(name)] = template
+    actual = set(rows)
+    if actual != expected:
+        missing_names = sorted(expected - actual)
+        extra_names = sorted(actual - expected)
+        raise RuntimeError(
+            "current RogShai semantic projection does not match the candidate universe: "
+            f"missing={missing_names[:8]} extra={extra_names[:8]}"
+        )
+    cards: dict[str, SearchCard] = {}
+    for name, card in base.cards.items():
+        raw = rows[name]
+        state = str(raw.get("q", SEMANTIC_STRUCTURALLY_MODELED))
+        profile = _projection_profile(card.profile, raw)
+        cards[name] = SearchCard(
+            oracle_name=card.oracle_name,
+            profile=profile,
+            available_quantity=card.available_quantity,
+            is_basic=card.is_basic,
+            semantic_evidence="full_physical_ckb_structural_projection",
+            semantic_known=True,
+            color_identity=card.color_identity,
+            semantic_state=state,
+            search_utility_override=card.search_utility_override,
+        )
+    projection_hash = sha256_value(payload)
+    context = WholeDeckSearchContext(
+        cards=cards,
+        snapshot_hash=sha256_value(
+            {
+                "fresh_universe": base.snapshot_hash,
+                "semantic_projection": projection_hash,
+            }
+        ),
+        commander_names=base.commander_names,
+        root=base.root,
+        fresh_universe=base.fresh_universe,
+        mana_analyzer=base.mana_analyzer,
+    )
+    return context, projection_hash
+
+
 def enriched_context(
     root: str | Path,
 ) -> tuple[
@@ -55,7 +217,8 @@ def enriched_context(
     dict[str, tuple[frozenset[str], frozenset[str]]],
 ]:
     project = Path(root).resolve()
-    base = WholeDeckSearchContext.from_project(project)
+    raw_base = WholeDeckSearchContext.from_project(project)
+    base, projection_hash = _apply_semantic_projection(project, raw_base)
     enrichment = WholeDeckKnowledgeEnrichment.load(project)
     facts = {str(row.get("oracle_name", "")): row for row in inventory_rows(project)}
     cards: dict[str, SearchCard] = {}
@@ -85,6 +248,7 @@ def enriched_context(
     snapshot = sha256_value(
         {
             "fresh_universe": base.snapshot_hash,
+            "semantic_projection": projection_hash,
             "enrichment": enrichment.snapshot_hash,
             "semantic_feature_version": SEMANTIC_FEATURE_VERSION,
             "lab_version": WHOLE_DECK_LAB_VERSION,
