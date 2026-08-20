@@ -43,6 +43,11 @@ jobs:
       HOLDOUT_GAMES: ${{ github.event_name == 'workflow_dispatch' && inputs.holdout_games || '16' }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Snapshot canonical RogShai truth
+        shell: bash
+        run: |
+          sha256sum data/decks/manifest.json data/decks/rogshai_current.json > /tmp/rogshai-canonical-before.sha256
+          git diff --exit-code -- data/decks/manifest.json data/decks/rogshai_current.json
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: "3.12"
@@ -63,11 +68,6 @@ jobs:
           tests/unit/test_whole_deck_public_integration.py
       - name: Lint comparison runner
         run: ruff check scripts/run_rogshai_whole_deck_comparison.py
-      - name: Snapshot canonical RogShai truth
-        shell: bash
-        run: |
-          sha256sum data/decks/manifest.json data/decks/rogshai_current.json > /tmp/rogshai-canonical-before.sha256
-          git diff --exit-code -- data/decks/manifest.json data/decks/rogshai_current.json
       - name: Run preregistered paired Whole-Deck campaign
         run: |
           python scripts/run_rogshai_whole_deck_comparison.py \
