@@ -1,5 +1,30 @@
 {
-  "schema_version": "1.0",
+  "active_own_decks": [
+    "rogshai/current"
+  ],
+  "frozen_opponent_only_decks": [
+    "kaervek/current"
+  ],
+  "historical_allocation_blocks_active_deck": false,
+  "historical_deck_membership_is_quality_prior": false,
+  "historical_own_decks": [],
+  "operational_own_pool_policy": {
+    "colorless_included": true,
+    "dargo_tymna_is_active_deck": false,
+    "dargo_tymna_theorycraft_color_identity": [
+      "W",
+      "B",
+      "R"
+    ],
+    "eligibility_rule": "commander_legal AND (CI subset WUR OR CI subset WBR)",
+    "rogshai_color_identity": [
+      "W",
+      "U",
+      "R"
+    ]
+  },
+  "primary_deckbuilding_focus": "rogshai/current",
+  "schema_version": "1.1",
   "sources": {
     "AI_CANONICAL_STATE.json": {
       "drive_id": "1aYJ3x20Gbdv0wA-wI5eZXVKb-9sg-3u0",
@@ -14,19 +39,6 @@
       "sha256": "fae27631779012a3975c7116eec57f8acfef3d8142b413669c85eb04bfbd42af"
     }
   },
-  "verified_at": "2026-08-11T05:37:00+02:00",
-  "active_own_decks": [
-    "rogshai/current"
-  ],
-  "primary_deckbuilding_focus": "rogshai/current",
-  "historical_own_decks": [
-    "korvold/current"
-  ],
-  "frozen_opponent_only_decks": [
-    "kaervek/current"
-  ],
-  "korvold_simultaneous_build_requirement": false,
-  "historical_deck_membership_is_quality_prior": false,
-  "historical_allocation_blocks_active_deck": false,
-  "truth_boundary": "Current Drive scope projection for deterministic lab context only; it does not mutate canonical deck lists or inventory."
+  "truth_boundary": "Current operational scope projection. Former-own-deck Korvold data is not an operational candidate/allocation input; dedicated historical/release artifacts retain provenance.",
+  "verified_at": "2026-08-11T05:37:00+02:00"
 }
