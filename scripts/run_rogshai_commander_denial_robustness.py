@@ -9,10 +9,21 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 from statistics import fmean
 from typing import Any
+
+from run_rogshai_whole_deck_comparison import (
+    CANDIDATE_ID,
+    CANDIDATE_PATH,
+    COMMANDERS,
+    OPPONENT_IDS,
+    commit_sha,
+    load_candidate,
+    sha256,
+    write_checksums,
+    write_json,
+)
 
 from commander_lab.current_model_resolution import load_current_model_resolution
 from commander_lab.decision_statistics import paired_bootstrap_interval
@@ -31,17 +42,6 @@ from commander_lab.whole_deck.models import PolicyId
 from commander_lab.whole_deck.policies import get_policy
 from commander_lab.whole_deck.search import WholeDeckSearchEngine
 from commander_lab.whole_deck.search_context import current_control_mainboard
-from run_rogshai_whole_deck_comparison import (
-    CANDIDATE_ID,
-    CANDIDATE_PATH,
-    COMMANDERS,
-    OPPONENT_IDS,
-    commit_sha,
-    load_candidate,
-    sha256,
-    write_checksums,
-    write_json,
-)
 
 CAMPAIGN_ID = "rogshai-commander-denial-robustness-2026-08-20-v1"
 BASELINE_ID = "rogshai/current"
@@ -93,14 +93,10 @@ def denial_profile(
     )
 
 
-def paired_delta(row: dict[str, Any]) -> float:
-    return float(row["baseline_placement"]) - float(row["variant_placement"])
-
-
 def campaign_diagnostic(campaign: dict[str, Any], resolution: float) -> dict[str, Any]:
     paired = campaign["paired"]
     value = float(paired["paired_placement_delta"])
-    interval = tuple(float(value) for value in paired["paired_bootstrap_interval"])
+    interval = tuple(float(item) for item in paired["paired_bootstrap_interval"])
     return {
         "candidate_vs_current_paired_placement_delta": value,
         "delta_semantics": "current_placement-candidate_placement; positive=candidate_better",
@@ -292,7 +288,7 @@ def run_campaigns(
                 raise RuntimeError(f"{state} paired campaign condition failed: {key}")
         campaigns[state] = campaign
 
-    metadata = {
+    return campaigns, {
         "opponent_registry_hash": repo.registry_hash,
         "opponent_deck_ids": list(OPPONENT_IDS),
         "opponent_evidence": {
@@ -303,7 +299,6 @@ def run_campaigns(
         "coverage_report": scheduler.coverage_report(scenarios),
         "frequency_interpretation": "experimental_equal_coverage_not_real_meta_frequency",
     }
-    return campaigns, metadata
 
 
 def write_summary(
@@ -418,12 +413,13 @@ def run(args: argparse.Namespace) -> int:
         candidate = context.materialize(candidate_board, label=CANDIDATE_ID).model_copy(
             update={"deck_id": CANDIDATE_ID}
         )
-        decks: dict[str, dict[str, StructuralDeckProfile]] = {}
-        for state, denied in STRESS_STATES.items():
-            decks[state] = {
+        decks = {
+            state: {
                 "current": denial_profile(current, state=state, denied_commanders=denied),
                 "candidate": denial_profile(candidate, state=state, denied_commanders=denied),
             }
+            for state, denied in STRESS_STATES.items()
+        }
 
         campaigns, metadata = run_campaigns(root, decks, args)
         diagnostics = {
@@ -448,9 +444,7 @@ def run(args: argparse.Namespace) -> int:
                 "baseline_structural_deck_hash": current.deck_hash,
                 "candidate_structural_deck_hash": candidate.deck_hash,
                 "stress_profile_hashes": {
-                    state: {
-                        key: deck.deck_hash for key, deck in pair.items()
-                    }
+                    state: {key: deck.deck_hash for key, deck in pair.items()}
                     for state, pair in decks.items()
                 },
                 "data_snapshot_hash": context.snapshot_hash,
