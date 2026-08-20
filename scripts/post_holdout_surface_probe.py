@@ -3,14 +3,10 @@ from __future__ import annotations
 import dataclasses
 import inspect
 import json
+import typing
 from pathlib import Path
 
-from commander_lab.engine.structural import (
-    StructuralDeckProfile,
-    StructuralMatchConfig,
-    StructuralMatchResult,
-    StructuralSimulator,
-)
+from commander_lab.engine.structural import StructuralSimulator
 from commander_lab.robustness import load_project_structural_decks, run_structural_policy_tournament
 from commander_lab.whole_deck.lab import WholeDeckDesignLab
 
@@ -34,15 +30,21 @@ def methods(cls):
 
 
 def fields(cls):
+    if cls is None:
+        return None
     if not dataclasses.is_dataclass(cls):
-        return {"dataclass": False, "signature": sig(cls)}
+        return {"dataclass": False, "name": getattr(cls, "__name__", repr(cls)), "signature": sig(cls)}
     return {
-        f.name: {
-            "type": str(f.type),
-            "default": None if f.default is dataclasses.MISSING else repr(f.default),
-            "factory": None if f.default_factory is dataclasses.MISSING else repr(f.default_factory),
-        }
-        for f in dataclasses.fields(cls)
+        "name": cls.__name__,
+        "module": cls.__module__,
+        "fields": {
+            f.name: {
+                "type": str(f.type),
+                "default": None if f.default is dataclasses.MISSING else repr(f.default),
+                "factory": None if f.default_factory is dataclasses.MISSING else repr(f.default_factory),
+            }
+            for f in dataclasses.fields(cls)
+        },
     }
 
 
@@ -52,12 +54,16 @@ def main() -> None:
     lab = WholeDeckDesignLab(root)
     context = getattr(lab, "context", None)
     baseline = decks.get("rogshai/current")
+    hints = typing.get_type_hints(StructuralSimulator.simulate)
+    config_type = hints.get("config")
+    result_type = hints.get("return")
+    deck_type = type(baseline) if baseline is not None else None
     payload = {
         "evidence_guard": {"holdout_accessed": False, "purpose": "surface_probe_only"},
         "structural_simulator": {"signature": sig(StructuralSimulator), "methods": methods(StructuralSimulator)},
-        "structural_match_config": fields(StructuralMatchConfig),
-        "structural_match_result": fields(StructuralMatchResult),
-        "structural_deck_profile": fields(StructuralDeckProfile),
+        "structural_match_config": fields(config_type),
+        "structural_match_result": fields(result_type),
+        "structural_deck_profile": fields(deck_type),
         "baseline_profile": dataclasses.asdict(baseline) if baseline is not None and dataclasses.is_dataclass(baseline) else repr(baseline),
         "run_structural_policy_tournament": sig(run_structural_policy_tournament),
         "whole_deck_design_lab": {
