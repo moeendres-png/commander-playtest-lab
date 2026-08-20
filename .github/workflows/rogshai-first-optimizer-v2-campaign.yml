@@ -37,7 +37,7 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/rogshai-first-optimizer-v2
           printf 'commit=%s\ntree=%s\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" | tee artifacts/rogshai-first-optimizer-v2/SOFTWARE_IDENTITY.txt
-          git status --porcelain=v1 | tee artifacts/rogshai-first-optimizer-v2/GIT_STATUS_BEFORE.txt
+          git status --porcelain=v1 --untracked-files=no | tee artifacts/rogshai-first-optimizer-v2/GIT_STATUS_BEFORE.txt
 
       - name: Freeze manifest
         run: |
@@ -73,7 +73,7 @@ jobs:
           set -euo pipefail
           python -m commander_lab.optimizer_v2_cli confirm \
             --manifest artifacts/rogshai-first-optimizer-v2/manifest.json \
-            --frontier artifacts/rogshai-first-optimizer-v2/rogshai-first-official-optimizer-v2-20260820/frontier-handoff.json \
+            --frontier artifacts/rogshai-first-optimizer-v2/frontier-handoff.json \
             --output-dir artifacts/rogshai-first-optimizer-v2 \
             --workers 4 \
             --max-turns 35 \
@@ -84,7 +84,7 @@ jobs:
           set -euo pipefail
           python -m commander_lab.optimizer_v2_cli holdout \
             --manifest artifacts/rogshai-first-optimizer-v2/manifest.json \
-            --confirmatory artifacts/rogshai-first-optimizer-v2/rogshai-first-official-optimizer-v2-20260820/confirmatory-report.json \
+            --confirmatory artifacts/rogshai-first-optimizer-v2/confirmatory-report.json \
             --output-dir artifacts/rogshai-first-optimizer-v2 \
             --authorize-holdout \
             --workers 4 \
@@ -92,30 +92,41 @@ jobs:
             | tee artifacts/rogshai-first-optimizer-v2/holdout-cli.json
 
       - name: Build campaign summary and checksums
+        if: always()
         run: |
           set -euo pipefail
           python - <<'PY'
           import json
           from pathlib import Path
           root = Path('artifacts/rogshai-first-optimizer-v2')
-          run = root / 'rogshai-first-official-optimizer-v2-20260820'
-          summary = {'run_dir': str(run), 'files': sorted(str(p.relative_to(root)) for p in root.rglob('*') if p.is_file())}
-          for name in ('optimizer-search-report.json','frontier-handoff.json','confirmatory-report.json','sealed-holdout-report.json'):
-              p = run / name
+          summary = {
+              'run_dir': str(root),
+              'files': sorted(str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()),
+          }
+          for name in (
+              'optimizer-search-report.json',
+              'frontier-handoff.json',
+              'confirmatory-report.json',
+              'holdout-report.json',
+          ):
+              p = root / name
               if p.exists():
-                  data = json.loads(p.read_text(encoding='utf-8'))
-                  summary[name] = data
-          (root / 'CAMPAIGN_SUMMARY.json').write_text(json.dumps(summary, indent=2, sort_keys=True), encoding='utf-8')
+                  summary[name] = json.loads(p.read_text(encoding='utf-8'))
+          (root / 'CAMPAIGN_SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True), encoding='utf-8'
+          )
           PY
           find artifacts/rogshai-first-optimizer-v2 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/rogshai-first-optimizer-v2/SHA256SUMS
 
-      - name: Verify no canonical mutation
+      - name: Verify no tracked/canonical mutation
+        if: always()
         run: |
           set -euo pipefail
-          git status --porcelain=v1 | tee artifacts/rogshai-first-optimizer-v2/GIT_STATUS_AFTER.txt
-          test -z "$(git status --porcelain=v1)"
+          git status --porcelain=v1 --untracked-files=no | tee artifacts/rogshai-first-optimizer-v2/GIT_STATUS_AFTER.txt
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
 
       - name: Upload campaign evidence
+        if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: rogshai-first-optimizer-v2-${{ github.event.pull_request.head.sha || github.sha }}
