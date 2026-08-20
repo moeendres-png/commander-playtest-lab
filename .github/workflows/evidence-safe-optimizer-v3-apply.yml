@@ -1,0 +1,98 @@
+name: Evidence-safe Optimizer v3 Apply
+
+on:
+  push:
+    branches:
+      - feat/evidence-safe-optimizer-v3-20260820
+    paths:
+      - .github/workflows/evidence-safe-optimizer-v3-apply.yml
+      - scripts/apply_evidence_safe_optimizer_v3.py
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/evidence-safe-optimizer-v3-20260820
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+
+      - name: Apply architecture migration
+        run: python scripts/apply_evidence_safe_optimizer_v3.py
+
+      - name: Focused architecture tests
+        run: python -m pytest -q tests/test_evidence_safe_optimizer_v3.py
+
+      - name: Synthetic old-vs-new policy benchmark
+        run: |
+          mkdir -p artifacts/audit/evidence_safe_optimizer_v3
+          python scripts/benchmark_evidence_safe_policy.py --repetitions 2000 --assert-acceptance \
+            | tee artifacts/audit/evidence_safe_optimizer_v3/policy_benchmark.json
+
+      - name: Lint changed architecture surfaces
+        run: |
+          python -m ruff check \
+            src/commander_lab/evidence_policy.py \
+            src/commander_lab/sequential_decision.py \
+            src/commander_lab/advancement.py \
+            src/commander_lab/decision_information.py \
+            src/commander_lab/adaptive_budget.py \
+            src/commander_lab/whole_deck/optimizer_v2.py \
+            src/commander_lab/whole_deck/optimizer_search.py \
+            src/commander_lab/whole_deck/optimizer_v2_evaluator.py \
+            src/commander_lab/whole_deck/optimizer_advancement.py \
+            src/commander_lab/whole_deck/optimizer_v2_release.py \
+            src/commander_lab/whole_deck/optimizer_v2_release_models.py \
+            tests/test_evidence_safe_optimizer_v3.py \
+            scripts/benchmark_evidence_safe_policy.py
+
+      - name: Full test suite
+        run: python -m pytest -q
+
+      - name: Remove one-shot migration machinery
+        run: |
+          rm .github/workflows/evidence-safe-optimizer-v3-apply.yml
+          rm scripts/apply_evidence_safe_optimizer_v3.py
+
+      - name: Commit verified architecture
+        run: |
+          git config user.name "commander-playtest-lab-bot"
+          git config user.email "commander-playtest-lab-bot@users.noreply.github.com"
+          git add -- \
+            pyproject.toml \
+            CHANGELOG.md \
+            README.md \
+            src/commander_lab/evidence_policy.py \
+            src/commander_lab/sequential_decision.py \
+            src/commander_lab/advancement.py \
+            src/commander_lab/decision_information.py \
+            src/commander_lab/adaptive_budget.py \
+            src/commander_lab/whole_deck/optimizer_v2.py \
+            src/commander_lab/whole_deck/optimizer_search.py \
+            src/commander_lab/whole_deck/optimizer_v2_evaluator.py \
+            src/commander_lab/whole_deck/optimizer_advancement.py \
+            src/commander_lab/whole_deck/optimizer_v2_release.py \
+            src/commander_lab/whole_deck/optimizer_v2_release_models.py \
+            tests/test_evidence_safe_optimizer_v3.py \
+            scripts/benchmark_evidence_safe_policy.py \
+            artifacts/audit/evidence_safe_optimizer_v3/policy_benchmark.json \
+            .github/workflows/evidence-safe-optimizer-v3-apply.yml \
+            scripts/apply_evidence_safe_optimizer_v3.py
+          git diff --cached --check
+          git commit -m "feat: evidence-safe optimizer v3 decision architecture"
+          git push origin HEAD:feat/evidence-safe-optimizer-v3-20260820
