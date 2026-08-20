@@ -59,7 +59,7 @@ jobs:
           )
           PY
       - name: Install quality dependencies
-        run: python -m pip install -e '.[dev]'
+        run: python -m pip install -e '.[dev,api,openai]'
       - name: Verify bounded fix
         shell: bash
         run: |
