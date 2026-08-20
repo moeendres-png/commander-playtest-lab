@@ -76,7 +76,7 @@ class CriticalDiagnosticsPartition(FrozenModel):
         *,
         master_seed: int,
         games: int,
-    ) -> "CriticalDiagnosticsPartition":
+    ) -> CriticalDiagnosticsPartition:
         scenarios = tuple(orchestrator.scheduler.schedule(games, seed=master_seed))
         payload = {
             "partition_id": "critical_diagnostics",
@@ -84,7 +84,12 @@ class CriticalDiagnosticsPartition(FrozenModel):
             "scenario_ids": tuple(row.scenario_id for row in scenarios),
             "scenario_seeds": tuple(row.seed for row in scenarios),
         }
-        return cls(**payload, identity=sha256_value(payload))
+        return cls(
+            master_seed=master_seed,
+            scenario_ids=tuple(row.scenario_id for row in scenarios),
+            scenario_seeds=tuple(row.seed for row in scenarios),
+            identity=sha256_value(payload),
+        )
 
 
 class DecisionOptimizerV2Manifest(OptimizerV2Manifest):
@@ -99,7 +104,7 @@ class DecisionOptimizerV2Manifest(OptimizerV2Manifest):
     critical_diagnostics: CriticalDiagnosticsPartition
 
     @model_validator(mode="after")
-    def validate_decision_contract(self) -> "DecisionOptimizerV2Manifest":
+    def validate_decision_contract(self) -> DecisionOptimizerV2Manifest:
         if self.operational_pod_size != 4:
             raise ValueError("current decision runtime is 4-player only")
         partitions = (
@@ -115,7 +120,9 @@ class DecisionOptimizerV2Manifest(OptimizerV2Manifest):
         if any(diag_seeds & values for values in seed_sets):
             raise ValueError("critical diagnostics seed leakage into another evidence partition")
         if any(diag_scenarios & values for values in scenario_sets):
-            raise ValueError("critical diagnostics scenario leakage into another evidence partition")
+            raise ValueError(
+                "critical diagnostics scenario leakage into another evidence partition"
+            )
         if len(self.confirmatory.scenario_ids) < CONFIRMATORY_LOOKS[-1]:
             raise ValueError("confirmatory partition is below frozen 2F ceiling")
         if len(self.sealed_holdout.scenario_ids) != 2048:
@@ -136,7 +143,9 @@ def build_decision_manifest_from_project(
     policies: Sequence[str] = DEFAULT_POLICIES,
 ) -> DecisionOptimizerV2Manifest:
     if confirmatory_games != 2048 or holdout_games != 2048:
-        raise ValueError("current frozen 2F/holdout policy requires 2048 confirmatory and holdout scenarios")
+        raise ValueError(
+            "current frozen 2F/holdout policy requires 2048 confirmatory and holdout scenarios"
+        )
     root_path = Path(root).resolve()
     required = (
         DECISION_CONTRACT_PATH,
@@ -227,8 +236,11 @@ def verify_decision_preflight(
         "candidate_count": len(lab.context.cards) == manifest.rogshai_candidate_count,
         "semantic_unknown_zero": not unknown,
         "contract_1e": contract.get("contract_id") == "rogshai-hierarchical-pareto-1E-v1",
-        "precision_contract_2f": contract.get("precision_contract_id") == "rogshai-hybrid-sequential-2F-v1",
-        "sesoi_separate_from_precision": float(contract.get("practical_effect", {}).get("sesoi", -1))
+        "precision_contract_2f": contract.get("precision_contract_id")
+        == "rogshai-hybrid-sequential-2F-v1",
+        "sesoi_separate_from_precision": float(
+            contract.get("practical_effect", {}).get("sesoi", -1)
+        )
         == SESOI
         and contract.get("practical_effect", {}).get("sesoi_is_model_precision") is False,
         "confirmatory_2f_budget": len(manifest.confirmatory.scenario_ids) == 2048,
@@ -313,13 +325,19 @@ class DecisionPartitionEvaluator(CachedPartitionEvaluator):
         self.decision_confidence = confidence
         super().__init__(*args, **kwargs)
 
-    def _identity(self, *, candidate_hash: str, scenarios: tuple[Any, ...], budget: int) -> dict[str, Any]:
-        identity = super()._identity(candidate_hash=candidate_hash, scenarios=scenarios, budget=budget)
+    def _identity(
+        self, *, candidate_hash: str, scenarios: tuple[Any, ...], budget: int
+    ) -> dict[str, Any]:
+        identity = super()._identity(
+            candidate_hash=candidate_hash, scenarios=scenarios, budget=budget
+        )
         identity["decision_runtime_version"] = DECISION_RUNTIME_VERSION
         identity["decision_interval_confidence"] = self.decision_confidence
         return identity
 
-    def _compute(self, *, candidate: Any, scenarios: tuple[Any, ...], budget: int) -> dict[str, Any]:
+    def _compute(
+        self, *, candidate: Any, scenarios: tuple[Any, ...], budget: int
+    ) -> dict[str, Any]:
         observations: list[dict[str, object]] = []
         pilot_deltas: dict[str, list[float]] = defaultdict(list)
         groups = (
@@ -374,7 +392,9 @@ class DecisionPartitionEvaluator(CachedPartitionEvaluator):
         if len(differences) != budget:
             raise RuntimeError("decision evaluator did not cover requested frozen budget")
         interval = _normal_interval(differences, self.decision_confidence)
-        bootstrap95 = paired_bootstrap_interval(differences, confidence=0.95, seed=statistics_seed + 23)
+        bootstrap95 = paired_bootstrap_interval(
+            differences, confidence=0.95, seed=statistics_seed + 23
+        )
         mcse = monte_carlo_standard_error(differences)
         per_seat: dict[str, list[float]] = defaultdict(list)
         per_opponent: dict[str, list[float]] = defaultdict(list)
@@ -427,8 +447,17 @@ def _broad_robustness(payload: Mapping[str, Any]) -> dict[str, object]:
         seat_means if isinstance(seat_means, Mapping) else {},
         opponent_means if isinstance(opponent_means, Mapping) else {},
     )
-    values = [float(value) for group in groups for value in group.values() if isinstance(value, int | float)]
-    complete = len(pilot_means) == 2 and set(str(key) for key in seat_means) == {"1", "2", "3", "4"} and bool(opponent_means)
+    values = [
+        float(value)
+        for group in groups
+        for value in group.values()
+        if isinstance(value, int | float)
+    ]
+    complete = (
+        len(pilot_means) == 2
+        and set(str(key) for key in seat_means) == {"1", "2", "3", "4"}
+        and bool(opponent_means)
+    )
     worst = min(values) if values else float("-inf")
     return {
         "pass": complete and worst >= ROBUSTNESS_MARGIN,
@@ -454,7 +483,9 @@ def _semantic_fidelity(lab: WholeDeckDesignLab, variant: WholeDeckVariant) -> di
     return {"pass": not unknown, "unknown_cards": unknown}
 
 
-def _shortlist(handoff: FrontierHandoff, limit: int = SHORTLIST_LIMIT) -> tuple[dict[str, Any], ...]:
+def _shortlist(
+    handoff: FrontierHandoff, limit: int = SHORTLIST_LIMIT
+) -> tuple[dict[str, Any], ...]:
     rows = [row for row in handoff.elites if isinstance(row.get("evaluation"), dict)]
     rows.sort(
         key=lambda row: (
@@ -534,6 +565,11 @@ def _changed_slots(control: Sequence[str], candidate: Sequence[str]) -> int:
     return sum(max(0, right[name] - left[name]) for name in set(left) | set(right))
 
 
+def _mapping_float(mapping: Mapping[str, object], key: str) -> float:
+    value = mapping.get(key, 0.0)
+    return float(value) if isinstance(value, int | float) else 0.0
+
+
 def _pareto_dimensions(row: Mapping[str, Any]) -> dict[str, float]:
     terminal = row["terminal_evaluation"]
     variant = WholeDeckVariant.model_validate(row["variant"])
@@ -544,18 +580,27 @@ def _pareto_dimensions(row: Mapping[str, Any]) -> dict[str, float]:
         "paired_effect": float(terminal["score"]),
         "worst_broad_stratum": float(robustness["worst_broad_stratum_mean"]),
         "precision_inverse_mcse": -float(terminal["mcse"]),
-        "interaction": sum(float(role_map.get(key, 0.0)) for key in ("counter", "removal", "wipe", "graveyard_hate")),
-        "protection": float(role_map.get("protection", 0.0)),
-        "velocity": sum(float(role_map.get(key, 0.0)) for key in ("ramp", "selection", "draw")),
-        "finish": sum(float(role_map.get(key, 0.0)) for key in ("finisher", "payoff", "combat_payoff")),
-        "semantic_support": float(variant.feature_vector.get("semantic_support_fraction", 0.0) or 0.0),
+        "interaction": sum(
+            _mapping_float(role_map, key)
+            for key in ("counter", "removal", "wipe", "graveyard_hate")
+        ),
+        "protection": _mapping_float(role_map, "protection"),
+        "velocity": sum(_mapping_float(role_map, key) for key in ("ramp", "selection", "draw")),
+        "finish": sum(
+            _mapping_float(role_map, key) for key in ("finisher", "payoff", "combat_payoff")
+        ),
+        "semantic_support": float(
+            variant.feature_vector.get("semantic_support_fraction", 0.0) or 0.0
+        ),
         "multiplayer_scaling": float(variant.feature_vector.get("multiplayer_scaling", 0.0) or 0.0),
     }
 
 
 def _dominates(left: Mapping[str, float], right: Mapping[str, float]) -> bool:
     keys = tuple(left)
-    return all(left[key] >= right[key] for key in keys) and any(left[key] > right[key] for key in keys)
+    return all(left[key] >= right[key] for key in keys) and any(
+        left[key] > right[key] for key in keys
+    )
 
 
 def _select_single_challenger(
@@ -583,7 +628,9 @@ def _select_single_challenger(
             dimensions[deck_hash]["paired_effect"],
             dimensions[deck_hash]["precision_inverse_mcse"],
             dimensions[deck_hash]["semantic_support"],
-            -_changed_slots(control, WholeDeckVariant.model_validate(by_hash[deck_hash]["variant"]).mainboard),
+            -_changed_slots(
+                control, WholeDeckVariant.model_validate(by_hash[deck_hash]["variant"]).mainboard
+            ),
             deck_hash,
         ),
     )
@@ -778,7 +825,9 @@ def _ablate_added_package(
                     "multiplayer_scaling": 0.0,
                     "conditional_strength": (),
                     "package_ids": frozenset(pid for pid in card.package_ids if pid != package_id),
-                    "notes": ((card.notes or "") + " Synthetic package-ablation stress only.").strip(),
+                    "notes": (
+                        (card.notes or "") + " Synthetic package-ablation stress only."
+                    ).strip(),
                 }
             )
         )
@@ -843,11 +892,16 @@ def run_critical_diagnostics(
     run_path = Path(run_directory).resolve()
     verify_decision_preflight(root_path, manifest)
     confirmatory = json.loads(Path(confirmatory_path).read_text(encoding="utf-8"))
-    if not isinstance(confirmatory, dict) or confirmatory.get("manifest_hash") != manifest.manifest_hash:
+    if (
+        not isinstance(confirmatory, dict)
+        or confirmatory.get("manifest_hash") != manifest.manifest_hash
+    ):
         raise RuntimeError("confirmatory report manifest mismatch")
     deck_hash = confirmatory.get("single_challenger_hash")
     if not isinstance(deck_hash, str) or not deck_hash:
-        raise RuntimeError("critical diagnostics require exactly one frozen confirmatory challenger")
+        raise RuntimeError(
+            "critical diagnostics require exactly one frozen confirmatory challenger"
+        )
     handoff = _load_handoff(run_path / "frontier-handoff.json", manifest)
     elite = next((row for row in handoff.elites if str(row.get("deck_hash")) == deck_hash), None)
     if elite is None:
@@ -897,9 +951,7 @@ def run_critical_diagnostics(
         name for name in candidate_counts if candidate_counts[name] > control_counts.get(name, 0)
     )
     package_counts: Counter[str] = Counter(
-        package_id
-        for name in added
-        for package_id in lab.context.cards[name].profile.package_ids
+        package_id for name in added for package_id in lab.context.cards[name].profile.package_ids
     )
     ablation_package = None
     if package_counts:
@@ -927,10 +979,16 @@ def run_critical_diagnostics(
             seed=manifest.critical_diagnostics.master_seed + index * 101,
         )
         if condition.startswith("ablate_added_package:"):
-            passed = float(result["interval_high"]) >= ROBUSTNESS_MARGIN and float(result["mean_delta"]) >= -0.10
+            passed = (
+                _number(result, "interval_high") >= ROBUSTNESS_MARGIN
+                and _number(result, "mean_delta") >= -0.10
+            )
             rule = "not clearly >SESOI worse after top added-package ablation; mean >= -0.10"
         else:
-            passed = float(result["mean_delta"]) >= ROBUSTNESS_MARGIN and float(result["interval_high"]) >= ROBUSTNESS_MARGIN
+            passed = (
+                _number(result, "mean_delta") >= ROBUSTNESS_MARGIN
+                and _number(result, "interval_high") >= ROBUSTNESS_MARGIN
+            )
             rule = "mean candidate delta under matched denial >= -SESOI and not clearly materially worse"
         rows.append(
             {
@@ -978,14 +1036,23 @@ def run_decision_holdout(
     verify_decision_preflight(root_path, manifest)
     confirmatory = json.loads(Path(confirmatory_path).read_text(encoding="utf-8"))
     diagnostics = json.loads(Path(diagnostics_path).read_text(encoding="utf-8"))
-    if not isinstance(confirmatory, dict) or confirmatory.get("manifest_hash") != manifest.manifest_hash:
+    if (
+        not isinstance(confirmatory, dict)
+        or confirmatory.get("manifest_hash") != manifest.manifest_hash
+    ):
         raise RuntimeError("confirmatory report manifest mismatch")
-    if not isinstance(diagnostics, dict) or diagnostics.get("manifest_hash") != manifest.manifest_hash:
+    if (
+        not isinstance(diagnostics, dict)
+        or diagnostics.get("manifest_hash") != manifest.manifest_hash
+    ):
         raise RuntimeError("critical diagnostics report manifest mismatch")
     deck_hash = confirmatory.get("single_challenger_hash")
     if not isinstance(deck_hash, str) or not deck_hash:
         raise RuntimeError("holdout requires exactly one frozen challenger")
-    if diagnostics.get("challenger_hash") != deck_hash or diagnostics.get("critical_diagnostics_pass") is not True:
+    if (
+        diagnostics.get("challenger_hash") != deck_hash
+        or diagnostics.get("critical_diagnostics_pass") is not True
+    ):
         raise RuntimeError("critical diagnostics did not authorize the frozen challenger")
     handoff = _load_handoff(run_path / "frontier-handoff.json", manifest)
     elite = next((row for row in handoff.elites if str(row.get("deck_hash")) == deck_hash), None)

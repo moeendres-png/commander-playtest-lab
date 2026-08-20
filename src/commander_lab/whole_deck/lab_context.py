@@ -113,7 +113,9 @@ def _decode_semantic_projection(path: Path) -> dict[str, Any]:
         decoded = zlib.decompress(compressed)
     except zlib.error as exc:
         if "incorrect data check" not in str(exc) or len(compressed) <= 6:
-            raise RuntimeError("current RogShai semantic projection cannot be decompressed") from exc
+            raise RuntimeError(
+                "current RogShai semantic projection cannot be decompressed"
+            ) from exc
         try:
             decoded = zlib.decompress(compressed[2:-4], wbits=-zlib.MAX_WBITS)
         except zlib.error as raw_exc:
