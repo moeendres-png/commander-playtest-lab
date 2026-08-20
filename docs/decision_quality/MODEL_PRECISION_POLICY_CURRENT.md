@@ -7,78 +7,68 @@
 
 ## 1. Retired model-resolution hard gate
 
-The former single hard gate based on
+The former single hard gate `effective_resolution = max(calibrated_sesoi, independent_same-model_seed-block_range)` is retired for candidate promotion, elimination and equivalence decisions. The historical value `0.375` and the four-block range remain diagnostic provenance only; neither is an intrinsic Structural Model resolution floor.
 
-`effective_resolution = max(calibrated_sesoi, independent_same-model_seed-block_range)`
-
-is retired for candidate promotion, elimination and equivalence decisions.
-
-The historical value `0.375` was dominated by a low sampling budget and is not treated as an intrinsic Structural Model resolution floor. The four-block range remains diagnostic provenance only.
-
-Historical calibration evidence:
-
-| games per independent seed block | historical range-derived value | block-mean MCSE |
-|---:|---:|---:|
-| 56 | 0.375000 | 0.068400 |
-| 112 | 0.142857 | 0.026786 |
-| 224 | 0.093750 | 0.018841 |
-| 448 | 0.113839 | 0.020251 |
-
-The non-monotone 224→448 range confirms that four-block range is itself an unstable hard threshold.
-
-## 2. SESOI and precision are separate
+## 2. SESOI is separate from precision
 
 `SESOI = 0.05 average placement positions`.
 
-SESOI means the minimum effect considered practically relevant for a deck decision. It is not Model Precision and is not inflated by seed-block range, seat sensitivity, opponent sensitivity, pilot sensitivity, or other robustness axes.
+SESOI is the minimum practical deck-decision effect. It is not Model Precision and is not inflated by seed-block, seat, opponent or pilot variation.
 
-## 3. Model Precision
+## 3. 2F hybrid precision contract
 
-There is no single scalar `MODEL_RESOLUTION` used as a universal hard gate. Precision is represented as a budget-dependent precision curve and reported with:
+Confirmatory inference combines four preregistered components instead of one scalar resolution number:
 
-- paired effect interval;
-- bootstrap uncertainty;
-- MCSE / Monte-Carlo uncertainty where supported;
-- independent same-model seed-block diagnostics;
-- outcome/tie compression diagnostics.
+1. **sequential paired 4P budgets:** `128 → 256 → 512 → 1024 → 2048`;
+2. **multiplicity-adjusted paired confidence interval** across the frozen shortlist and five planned looks;
+3. **MCSE gate:** `MCSE <= 0.025` for promotion;
+4. **within-partition seed stability:** four deterministic interleaved seed blocks, all block means `>= -0.05`, and maximum block deviation from the pooled mean `<= max(0.10, 4 × MCSE)`.
 
-Independent same-model seed blocks are `PRECISION_ONLY_SAME_MODEL`. They do not resolve opponent-input uncertainty or model discrepancy.
+The seed-block condition is `PRECISION_ONLY_SAME_MODEL`; it is not real-world replication or opponent-input validation.
 
-## 4. Sequential confirmatory sampling — policy 2E
+## 4. Shortlist multiplicity
 
-Planned paired 4P looks:
+Before confirmatory evidence is opened, exploratory QD evidence freezes at most **8** candidates. Search `robust_lower_bound` and QD cell quality are discovery/shortlisting heuristics only.
 
-`128 → 256 → 512 → 1024 → 2048`
+For a frozen shortlist of size `K`, family alpha is `0.05` across all `5 × K` planned candidate-look decisions:
 
-The five looks are preregistered. Family error target is 0.05; a conservative Bonferroni allocation uses `alpha = 0.01` per look, corresponding to a two-sided 99% interval at each planned look.
+`alpha_candidate_look = 0.05 / (5 × K)`
 
-Decision rules at each planned look:
+The corresponding two-sided decision confidence is `1 - alpha_candidate_look`. This is fixed from shortlist size before confirmatory evaluation and cannot be selected after seeing confirmatory outcomes.
 
-- `PROMOTION_CANDIDATE` if interval lower bound `> +0.05`, subject to all 1E robustness/semantic/Pareto gates;
-- `REJECT_HARM` if interval upper bound `< 0`;
-- from `n >= 1024`, `FUTILITY_BELOW_SESOI` if interval upper bound `< +0.05`;
-- otherwise `MORE_SAMPLES` until the preregistered ceiling;
-- at the ceiling, unresolved candidates are `PRECISION_LIMIT`, never forced to WIN/LOSE.
+## 5. Sequential decision rules
 
-## 5. Final sealed holdout
+At each planned look:
 
-The final holdout is not sequential.
+- clear harm: interval upper bound `< 0` → `REJECT_HARM`;
+- from `n >= 1024`, inability to reach practical relevance: interval upper bound `< +0.05` → `FUTILITY_BELOW_SESOI`;
+- interval lower bound `> +0.05` can become `PROMOTION_CANDIDATE` only if MCSE, seed stability, broad 4P robustness and semantic-fidelity gates also pass;
+- otherwise continue to the next preregistered look;
+- unresolved at `2048` → `PRECISION_LIMIT`, `BLOCKED_PRECISION`, `BLOCKED_ROBUSTNESS`, or `BLOCKED_SEMANTIC_FIDELITY` as appropriate. No result is forced to WIN/LOSE.
 
-- exactly one challenger is frozen before holdout opening;
-- `2048` paired 4P scenarios;
+## 6. 4P robustness remains separate
+
+Broad strata are pilot policy, own seat and per-opponent exposure. Promotion requires complete broad-stratum coverage and no broad-stratum mean worse than one SESOI (`-0.05`). Exact opponent triples remain diagnostics and are never converted into invented local-frequency weights.
+
+Commander-denial and package-ablation use a separate fresh diagnostics partition after confirmatory finalist selection and before holdout. These are synthetic Structural stress tests, not observations.
+
+## 7. Pareto and single challenger
+
+Candidates that pass confirmatory gates are compared on a multidimensional Pareto surface. No universal weighted card/deck score is introduced. If multiple candidates remain non-dominated, a preregistered lexicographic tie-break uses, in order: worst broad stratum, paired effect, precision, semantic support, fewer changed slots, stable deck hash. Exactly one challenger may proceed to critical diagnostics and then holdout.
+
+## 8. Final sealed holdout
+
+The final holdout is not sequential:
+
+- exactly one challenger is frozen before opening;
+- exactly `2048` paired 4P scenarios;
 - one planned evaluation;
 - two-sided 95% interval;
-- final winner requires holdout lower bound `> +0.05` and every frozen critical robustness gate to pass;
-- otherwise `WINNING_VARIANT = NONE`.
+- winner requires holdout lower bound `> +0.05`, complete broad 4P robustness, and a passing frozen critical-diagnostics report;
+- otherwise `NO_WINNER`.
 
-The consumed first Optimizer-v2 holdout is never reused.
+The consumed historical Optimizer-v2 holdout is never reused.
 
-## 6. Robustness is not precision
+## 9. Evidence boundary
 
-Seat position, opponent composition, pilot/mulligan policy, commander denial, ablation, rebuild, protection, interaction, finish and worst-case sensitivity remain separate 4P robustness axes.
-
-For broad sufficiently populated seat/opponent/pilot strata, a point-estimate degradation worse than one SESOI (`-0.05`) is a preregistered robustness warning/blocking threshold for the 1E final decision path. Exact opponent triples remain diagnostics; no opponent-frequency probabilities are invented.
-
-## 7. Truth boundary
-
-This policy governs Structural decision precision only. It does not create empirical Commander winrates, real-world replication, Tactical Oracle evidence, or external-rules-engine evidence.
+This contract governs Structural decision precision only. It does not create empirical Commander winrates, independent real-world replication, Tactical Oracle evidence or external-rules-engine evidence.
