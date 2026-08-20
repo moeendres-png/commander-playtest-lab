@@ -10,16 +10,6 @@
     "refresh_rules_before_canonical_rebuild": true
   },
   "commander_rules": {
-    "korvold": {
-      "color_identity": [
-        "B",
-        "R",
-        "G"
-      ],
-      "commanders": [
-        "Korvold, Fae-Cursed King"
-      ]
-    },
     "rogshai": {
       "color_identity": [
         "W",
@@ -72,6 +62,25 @@
     "storage_location_does_not_define_ownership": true
   },
   "manual_real_game_logging": "disabled_by_user_policy",
+  "operational_own_pool_scope": {
+    "colorless_identity_included": true,
+    "dargo_tymna_physically_allocated": false,
+    "dargo_tymna_physically_built": false,
+    "dargo_tymna_theorycraft_color_identity": [
+      "W",
+      "B",
+      "R"
+    ],
+    "dargo_tymna_theorycraft_only": true,
+    "eligibility_rule": "commander_legal AND (CI subset WUR OR CI subset WBR)",
+    "former_own_deck_rules_operationally_excluded": true,
+    "hard_constraint": true,
+    "rogshai_color_identity": [
+      "W",
+      "U",
+      "R"
+    ]
+  },
   "opponent_card_policy": "not part of own pool unless independently present in canonical inventory",
   "opponent_reservation_policy": {
     "additional_owned_copies_remain_available": true,
@@ -113,7 +122,7 @@
     "last_checked": "2026-08-10",
     "status": "official Wizards Commander format and Banned & Restricted pages checked on 2026-08-10; no newer August 10 announcement was located at the acceptance time, so legality remains volatile and must be rechecked after any later announcement."
   },
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "simultaneous_buildability": {
     "hard_constraint": true,
     "policy": "sum of nonbasic copies across simultaneously built own decks may not exceed free physical quantity after opponent reservations"
@@ -123,11 +132,10 @@
     "nonbasic_max_copies_per_deck": 1
   },
   "source_drive_id": "1wgL82JgiaoKoKVAfS6W-lhGZJRJH0i2l",
-  "source_role": "machine-readable projection of canonical bias-neutral deckbuilding rules; does not replace source",
+  "source_role": "machine-readable current operational deckbuilding constraints projection; historical former-own-deck rules are excluded from current candidate operations",
   "stable_entity_ids": {
     "cards": "CARD_IDENTITY_REGISTRY_CURRENT.jsonl -> card_id",
     "decks": {
-      "korvold": "deck:korvold",
       "rogshai": "deck:rogshai"
     },
     "opponents": "OPPONENT_REGISTRY_CURRENT.json -> opponent_entity_id",
