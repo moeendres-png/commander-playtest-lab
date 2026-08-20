@@ -1,0 +1,70 @@
+name: Model Resolution Scaling Audit
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/model-resolution-scaling-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: model-resolution-scaling-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scaling-audit:
+    name: games-per-block-${{ matrix.games_per_block }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        games_per_block: [56, 112, 224, 448]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Measure 4P null precision at budget
+        run: |
+          mkdir -p artifacts/model-resolution-scaling/${{ matrix.games_per_block }}
+          python scripts/measure_model_resolution.py \
+            --root . \
+            --output artifacts/model-resolution-scaling/${{ matrix.games_per_block }}/measurement.json \
+            --seed 2026081517 \
+            --blocks 4 \
+            --games-per-block ${{ matrix.games_per_block }} \
+            --pilot-games 56 \
+            --max-turns 35 \
+            --workers 2 \
+            --calibrated-sesoi 0.05
+      - name: Verify technical-only evidence boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          budget = "${{ matrix.games_per_block }}"
+          p = json.loads(Path(f"artifacts/model-resolution-scaling/{budget}/measurement.json").read_text())
+          assert p["status"] == "MEASURED"
+          assert p["evidence_class"] == "structural_model_estimates"
+          assert p["confirmatory_evidence_consumed"] is False
+          assert p["sealed_holdout_evidence_consumed"] is False
+          assert p["candidate_search_performed"] is False
+          assert p["canonical_deck_mutation"] is False
+          assert p["protocol"]["games_per_seed_block"] == int(budget)
+          assert p["protocol"]["independent_seed_blocks"] == 4
+          PY
+      - name: Record checksum
+        run: sha256sum artifacts/model-resolution-scaling/${{ matrix.games_per_block }}/measurement.json > artifacts/model-resolution-scaling/${{ matrix.games_per_block }}/SHA256SUMS.txt
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: model-resolution-scaling-${{ matrix.games_per_block }}-${{ github.sha }}
+          path: artifacts/model-resolution-scaling/${{ matrix.games_per_block }}/
+          if-no-files-found: error
+          retention-days: 14
