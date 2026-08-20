@@ -75,6 +75,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           root = Path('artifacts/rogshai_commander_denial_robustness')
@@ -113,7 +114,7 @@ jobs:
               'opponent/wakanda-forever-precon',
           ]:
               raise SystemExit('denial run opponent scope drifted')
-          expected_games = int('${GAMES}')
+          expected_games = int(os.environ['GAMES'])
           if manifest.get('games_per_state') != expected_games:
               raise SystemExit('denial run game budget mismatch')
           if manifest.get('total_structural_games') != expected_games * 8:
