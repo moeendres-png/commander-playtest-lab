@@ -1,0 +1,220 @@
+name: One-shot operational own-pool cleanup
+
+on:
+  push:
+    branches:
+      - cleanup/operational-own-pool-scope-20260820
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Prune stale operational own-pool data
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          current = root / 'data/collections/current'
+          eligibility_path = current / 'J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json'
+          availability_path = current / 'J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json'
+          constraints_path = current / 'J_P5_DECK_BUILD_CONSTRAINTS_CURRENT.json'
+          final_scope_path = current / 'J_FINAL_ACTIVE_SCOPE.json'
+          active_scope_path = current / 'ACTIVE_OWN_DECKS_CURRENT.json'
+          inventory_path = root / 'data/canonical_import/2026-08-07/inventory_snapshot.json'
+
+          def load(path):
+              return json.loads(path.read_text(encoding='utf-8'))
+
+          def dump(path, payload):
+              path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+
+          active_scope = load(active_scope_path)
+          active = tuple(active_scope['active_own_decks'])
+          if active != ('rogshai/current',):
+              raise SystemExit(f'Unexpected active own-deck scope: {active!r}')
+
+          eligibility = load(eligibility_path)
+          old_by_deck = eligibility.get('eligible_by_deck')
+          if not isinstance(old_by_deck, dict) or 'rogshai/current' not in old_by_deck:
+              raise SystemExit('Missing RogShai eligibility block')
+          rogshai = old_by_deck['rogshai/current']
+          if len(rogshai) != 795:
+              raise SystemExit(f'Expected 795 RogShai candidates, got {len(rogshai)}')
+
+          # Build identity facts before pruning. The legacy deck maps plus the read-only
+          # inventory snapshot are used only to identify the legal WUR/WBR union.
+          identities = {}
+          for deck_rows in old_by_deck.values():
+              if not isinstance(deck_rows, dict):
+                  continue
+              for name, spec in deck_rows.items():
+                  if not isinstance(spec, dict):
+                      continue
+                  ci = frozenset(str(v) for v in spec.get('color_identity', []))
+                  legal = spec.get('commander_legal') is True
+                  previous = identities.get(name)
+                  if previous and previous != (ci, legal):
+                      raise SystemExit(f'Conflicting identity facts for {name}: {previous} vs {(ci, legal)}')
+                  identities[name] = (ci, legal)
+
+          inventory = load(inventory_path)
+          for card in inventory.get('cards', []):
+              if not isinstance(card, dict) or not card.get('oracle_name'):
+                  continue
+              name = str(card['oracle_name'])
+              raw_ci = str(card.get('color_identity') or '')
+              ci = frozenset(ch for ch in raw_ci if ch in 'WUBRG')
+              legal = str(card.get('commander_legality', '')).casefold() == 'legal'
+              identities.setdefault(name, (ci, legal))
+
+          allowed_wur = frozenset('WUR')
+          allowed_wbr = frozenset('WBR')
+          def operationally_allowed(name):
+              fact = identities.get(name)
+              if fact is None:
+                  raise KeyError(name)
+              ci, legal = fact
+              return legal and (ci <= allowed_wur or ci <= allowed_wbr)
+
+          # Candidate eligibility is an active-deck operational map, not historical provenance.
+          eligibility['eligible_by_deck'] = {'rogshai/current': rogshai}
+          if isinstance(eligibility.get('source_hashes'), dict):
+              eligibility['source_hashes'] = {
+                  'rogshai': eligibility['source_hashes'].get('rogshai')
+              }
+          eligibility['scope_policy'] = {
+              'status': 'current_active_own_deck_only',
+              'active_own_decks': ['rogshai/current'],
+              'former_own_decks_excluded_from_operational_map': True,
+              'colorless_included': True,
+              'truth_boundary': 'Historical former-own-deck provenance is kept outside this current candidate map.'
+          }
+
+          # Availability stays quantity-identical for retained names; only cards outside the
+          # current legal WUR/WBR own-pool are removed. Standard basics remain separate by policy.
+          availability = load(availability_path)
+          old_cards = availability.get('cards')
+          if not isinstance(old_cards, dict):
+              raise SystemExit('Optimization availability has no cards mapping')
+          unknown = sorted(name for name in old_cards if name not in identities)
+          if unknown:
+              raise SystemExit(f'No identity facts for optimization cards: {unknown}')
+          filtered_cards = {
+              name: qty for name, qty in old_cards.items() if operationally_allowed(name)
+          }
+          if len(filtered_cards) != 1003:
+              raise SystemExit(f'Expected 1003 non-standard-basic operational availability rows, got {len(filtered_cards)}')
+          availability['cards'] = filtered_cards
+          availability['schema_version'] = '1.1'
+          availability['quantity_semantics'] = (
+              'free_unallocated_quantity after current own-deck allocations and opponent reservations; '
+              'restricted to commander-legal CI subset WUR or WBR; standard basics handled separately by policy'
+          )
+          availability['scope_policy'] = {
+              'status': 'operational_wur_wbr_union_only',
+              'eligibility_rule': 'commander_legal AND (CI subset WUR OR CI subset WBR)',
+              'colorless_included': True,
+              'standard_basics_handled_separately': True,
+              'stale_full_inventory_removed': True,
+              'truth_boundary': 'Own-card optimization availability only; opponent universes and historical provenance are separate.'
+          }
+
+          constraints = load(constraints_path)
+          rules = constraints.get('commander_rules', {})
+          if isinstance(rules, dict):
+              rules.pop('korvold', None)
+          stable_decks = constraints.get('stable_entity_ids', {}).get('decks')
+          if isinstance(stable_decks, dict):
+              stable_decks.pop('korvold', None)
+          constraints['schema_version'] = '1.3'
+          constraints['operational_own_pool_scope'] = {
+              'hard_constraint': True,
+              'eligibility_rule': 'commander_legal AND (CI subset WUR OR CI subset WBR)',
+              'rogshai_color_identity': ['W', 'U', 'R'],
+              'dargo_tymna_theorycraft_color_identity': ['W', 'B', 'R'],
+              'colorless_identity_included': True,
+              'dargo_tymna_theorycraft_only': True,
+              'dargo_tymna_physically_built': False,
+              'dargo_tymna_physically_allocated': False,
+              'former_own_deck_rules_operationally_excluded': True
+          }
+          constraints['source_role'] = (
+              'machine-readable current operational deckbuilding constraints projection; '
+              'historical former-own-deck rules are excluded from current candidate operations'
+          )
+
+          final_scope = load(final_scope_path)
+          final_scope['schema_version'] = '1.1'
+          final_scope['historical_own_decks'] = []
+          final_scope.pop('korvold_simultaneous_build_requirement', None)
+          final_scope['operational_own_pool_policy'] = {
+              'eligibility_rule': 'commander_legal AND (CI subset WUR OR CI subset WBR)',
+              'rogshai_color_identity': ['W', 'U', 'R'],
+              'dargo_tymna_theorycraft_color_identity': ['W', 'B', 'R'],
+              'colorless_included': True,
+              'dargo_tymna_is_active_deck': False
+          }
+          final_scope['truth_boundary'] = (
+              'Current operational scope projection. Former-own-deck Korvold data is not an operational '
+              'candidate/allocation input; dedicated historical/release artifacts retain provenance.'
+          )
+
+          # Hard invariants.
+          if set(eligibility['eligible_by_deck']) != set(active):
+              raise SystemExit('Candidate map contains non-active own decks')
+          for name, spec in rogshai.items():
+              ci = frozenset(str(v) for v in spec.get('color_identity', []))
+              if spec.get('commander_legal') is not True or not ci <= allowed_wur:
+                  raise SystemExit(f'Invalid RogShai candidate after cleanup: {name} {sorted(ci)}')
+          for name in filtered_cards:
+              if not operationally_allowed(name):
+                  raise SystemExit(f'Out-of-scope optimization card retained: {name}')
+          if 'korvold' in constraints.get('commander_rules', {}):
+              raise SystemExit('Korvold remains in current commander rules')
+          if final_scope.get('historical_own_decks'):
+              raise SystemExit('Current scope still carries historical own decks')
+
+          dump(eligibility_path, eligibility)
+          dump(availability_path, availability)
+          dump(constraints_path, constraints)
+          dump(final_scope_path, final_scope)
+
+          print('PASS: active candidate decks =', list(eligibility['eligible_by_deck']))
+          print('PASS: RogShai candidates =', len(rogshai))
+          print('PASS: WUR/WBR optimization availability rows =', len(filtered_cards))
+          print('PASS: Korvold removed from current operational constraints/scope')
+          PY
+
+      - name: Validate JSON and diff
+        shell: bash
+        run: |
+          python -m json.tool data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json >/dev/null
+          python -m json.tool data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json >/dev/null
+          python -m json.tool data/collections/current/J_P5_DECK_BUILD_CONSTRAINTS_CURRENT.json >/dev/null
+          python -m json.tool data/collections/current/J_FINAL_ACTIVE_SCOPE.json >/dev/null
+          git diff --check
+          git diff --stat
+
+      - name: Commit cleanup and remove one-shot workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/one-shot-operational-own-pool-cleanup.yml
+          git add data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json
+          git add data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json
+          git add data/collections/current/J_P5_DECK_BUILD_CONSTRAINTS_CURRENT.json
+          git add data/collections/current/J_FINAL_ACTIVE_SCOPE.json
+          git commit -m 'data: prune stale own-pool operational scope [skip ci]'
+          git push origin HEAD:cleanup/operational-own-pool-scope-20260820
