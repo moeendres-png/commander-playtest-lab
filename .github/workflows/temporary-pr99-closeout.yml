@@ -64,6 +64,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          ruff format src/commander_lab/whole_deck/lab_context.py src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py tests/unit/test_pre_campaign_governance_finalization.py
           ruff check src/commander_lab/whole_deck/lab_context.py src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py tests/unit/test_pre_campaign_governance_finalization.py
           ruff format --check src/commander_lab/whole_deck/lab_context.py src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py tests/unit/test_pre_campaign_governance_finalization.py
           mypy src/commander_lab
