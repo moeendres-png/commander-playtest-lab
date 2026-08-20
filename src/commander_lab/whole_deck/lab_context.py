@@ -103,12 +103,13 @@ def _projection_profile(
     )
 
 
-def _decode_semantic_projection(path: Path) -> dict[str, Any]:
+def _decode_semantic_projection(path: Path) -> tuple[dict[str, Any], bool]:
     try:
         compressed = base64.b64decode(path.read_text(encoding="ascii"), validate=True)
     except Exception as exc:
         raise RuntimeError("current RogShai semantic projection base64 is invalid") from exc
 
+    checksum_recovered = False
     try:
         decoded = zlib.decompress(compressed)
     except zlib.error as exc:
@@ -118,6 +119,7 @@ def _decode_semantic_projection(path: Path) -> dict[str, Any]:
             ) from exc
         try:
             decoded = zlib.decompress(compressed[2:-4], wbits=-zlib.MAX_WBITS)
+            checksum_recovered = True
         except zlib.error as raw_exc:
             raise RuntimeError(
                 "current RogShai semantic projection checksum recovery failed"
@@ -129,7 +131,7 @@ def _decode_semantic_projection(path: Path) -> dict[str, Any]:
         raise RuntimeError("current RogShai semantic projection payload is invalid") from exc
     if not isinstance(payload, dict):
         raise RuntimeError("current RogShai semantic projection payload must be an object")
-    return payload
+    return payload, checksum_recovered
 
 
 def _apply_semantic_projection(
@@ -139,11 +141,25 @@ def _apply_semantic_projection(
     path = project / SEMANTIC_PROJECTION_PATH
     if not path.is_file():
         raise RuntimeError(f"current RogShai semantic projection is missing: {path}")
-    payload = _decode_semantic_projection(path)
+    payload, checksum_recovered = _decode_semantic_projection(path)
     templates = payload.get("t")
     row_index = payload.get("r")
     if not isinstance(templates, list) or not isinstance(row_index, dict):
         raise RuntimeError("current RogShai semantic projection rows are malformed")
+
+    expected = set(base.cards)
+    raw_actual = {str(name) for name in row_index}
+    corrupt_name = "Alandra5 Sky Dreamer"
+    canonical_name = "Alandra, Sky Dreamer"
+    if checksum_recovered and raw_actual != expected:
+        missing = expected - raw_actual
+        extra = raw_actual - expected
+        if missing == {canonical_name} and extra == {corrupt_name}:
+            repaired_index = dict(row_index)
+            repaired_index[canonical_name] = repaired_index.pop(corrupt_name)
+            row_index = repaired_index
+            payload = {**payload, "r": repaired_index}
+
     rows: dict[str, dict[str, Any]] = {}
     for name, template_index in row_index.items():
         if not isinstance(template_index, int) or not 0 <= template_index < len(templates):
@@ -152,7 +168,6 @@ def _apply_semantic_projection(
         if not isinstance(template, dict):
             raise RuntimeError(f"semantic projection template is malformed: {name}")
         rows[str(name)] = template
-    expected = set(base.cards)
     actual = set(rows)
     if actual != expected:
         missing = sorted(expected - actual)
