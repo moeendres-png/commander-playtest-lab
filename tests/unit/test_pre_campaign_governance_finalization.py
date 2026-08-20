@@ -21,9 +21,9 @@ def test_enriched_context_preserves_three_state_semantics(repo_root) -> None:
     }
 
     assert counts == {
-        SEMANTIC_STRUCTURALLY_MODELED: 542,
-        SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE: 18,
-        SEMANTIC_UNKNOWN: 235,
+        SEMANTIC_STRUCTURALLY_MODELED: 774,
+        SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE: 21,
+        SEMANTIC_UNKNOWN: 0,
     }
     assert sum(counts.values()) == 795
 
@@ -42,9 +42,9 @@ def test_public_enriched_discoverability_reports_true_unknown_partition(repo_roo
     report = payload["discoverability"]
 
     assert report["search_eligible_candidate_count"] == 793
-    assert report["structurally_modeled_eligible_count"] == 540
-    assert report["known_no_functional_eligible_count"] == 18
-    assert report["semantic_unknown_eligible_count"] == 235
+    assert report["structurally_modeled_eligible_count"] == 772
+    assert report["known_no_functional_eligible_count"] == 21
+    assert report["semantic_unknown_eligible_count"] == 0
     assert (
         report["structurally_modeled_eligible_count"]
         + report["known_no_functional_eligible_count"]

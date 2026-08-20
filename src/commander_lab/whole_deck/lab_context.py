@@ -170,11 +170,11 @@ def _apply_semantic_projection(
         rows[str(name)] = template
     actual = set(rows)
     if actual != expected:
-        missing = sorted(expected - actual)
-        extra = sorted(actual - expected)
+        missing_names = sorted(expected - actual)
+        extra_names = sorted(actual - expected)
         raise RuntimeError(
             "current RogShai semantic projection does not match the candidate universe: "
-            f"missing={missing[:8]} extra={extra[:8]}"
+            f"missing={missing_names[:8]} extra={extra_names[:8]}"
         )
     cards: dict[str, SearchCard] = {}
     for name, card in base.cards.items():

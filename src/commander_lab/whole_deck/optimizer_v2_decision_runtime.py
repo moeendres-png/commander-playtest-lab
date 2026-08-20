@@ -589,10 +589,8 @@ def _pareto_dimensions(row: Mapping[str, Any]) -> dict[str, float]:
         "finish": sum(
             _mapping_float(role_map, key) for key in ("finisher", "payoff", "combat_payoff")
         ),
-        "semantic_support": float(
-            variant.feature_vector.get("semantic_support_fraction", 0.0) or 0.0
-        ),
-        "multiplayer_scaling": float(variant.feature_vector.get("multiplayer_scaling", 0.0) or 0.0),
+        "semantic_support": _mapping_float(variant.feature_vector, "semantic_support_fraction"),
+        "multiplayer_scaling": _mapping_float(variant.feature_vector, "multiplayer_scaling"),
     }
 
 
