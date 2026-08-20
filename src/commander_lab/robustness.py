@@ -746,7 +746,7 @@ def run_structural_self_play(
     deck_ids: tuple[str, ...] = ("rogshai/current",),
     pilot_profiles: tuple[str, ...] = PILOT_PROFILES,
     politics: str = "rational_threat_focus",
-    pod_sizes: tuple[int, ...] = (3, 4, 5),
+    pod_sizes: tuple[int, ...] = (4,),
     max_turns: int = 20,
 ) -> dict[str, Any]:
     """Run actual Structural Simulator self-play with one policy profile on every seat.
@@ -755,6 +755,11 @@ def run_structural_self_play(
     strategy-specific deck/pilot implementation while sharing the same visible-state
     utility profile. Unknown opponent cards are never fabricated.
     """
+    if pod_sizes != (4,):
+        raise ValueError(
+            "Operational Commander Playtest Lab self-play is 4-player only; "
+            "3P/5P pod sensitivity is out of project scope."
+        )
     if politics not in POLITICS_REGIMES:
         raise KeyError(f"unknown politics regime: {politics}")
     if not set(pilot_profiles) <= set(PILOT_PROFILES):
