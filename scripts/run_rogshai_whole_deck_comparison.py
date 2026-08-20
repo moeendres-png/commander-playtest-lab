@@ -12,9 +12,10 @@ import os
 import subprocess
 import sys
 from collections import defaultdict
+from collections.abc import Callable
 from pathlib import Path
 from statistics import fmean
-from typing import Any, Callable
+from typing import Any
 
 from commander_lab.current_model_resolution import load_current_model_resolution
 from commander_lab.whole_deck.lab_context import enriched_context
@@ -296,7 +297,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--games", type=int, choices=sorted(ALLOWED_GAMES), default=32)
     parser.add_argument("--holdout-games", type=int, default=16)
     parser.add_argument("--seed", type=int, default=MASTER_SEED)
-    parser.add_argument("--max-turns", type=int, default=14)
+    parser.add_argument("--max-turns", type=int, default=35)
     parser.add_argument("--workers", type=int, default=1)
     return parser.parse_args()
 
