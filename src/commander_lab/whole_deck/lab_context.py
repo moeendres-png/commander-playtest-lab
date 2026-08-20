@@ -27,7 +27,7 @@ from .search_context import (
     WholeDeckSearchContext,
 )
 
-WHOLE_DECK_LAB_VERSION = "whole-deck-design-lab-0.4.0"
+WHOLE_DECK_LAB_VERSION = "whole-deck-design-lab-0.4.1"
 SEMANTIC_PROJECTION_PATH = Path("data/cards/rogshai_semantic_projection_current.zlib.b64")
 
 
@@ -103,6 +103,33 @@ def _projection_profile(
     )
 
 
+def _decode_semantic_projection(path: Path) -> dict[str, Any]:
+    try:
+        compressed = base64.b64decode(path.read_text(encoding="ascii"), validate=True)
+    except Exception as exc:
+        raise RuntimeError("current RogShai semantic projection base64 is invalid") from exc
+
+    try:
+        decoded = zlib.decompress(compressed)
+    except zlib.error as exc:
+        if "incorrect data check" not in str(exc) or len(compressed) <= 6:
+            raise RuntimeError("current RogShai semantic projection cannot be decompressed") from exc
+        try:
+            decoded = zlib.decompress(compressed[2:-4], wbits=-zlib.MAX_WBITS)
+        except zlib.error as raw_exc:
+            raise RuntimeError(
+                "current RogShai semantic projection checksum recovery failed"
+            ) from raw_exc
+
+    try:
+        payload = json.loads(decoded.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("current RogShai semantic projection payload is invalid") from exc
+    if not isinstance(payload, dict):
+        raise RuntimeError("current RogShai semantic projection payload must be an object")
+    return payload
+
+
 def _apply_semantic_projection(
     project: Path,
     base: WholeDeckSearchContext,
@@ -110,11 +137,7 @@ def _apply_semantic_projection(
     path = project / SEMANTIC_PROJECTION_PATH
     if not path.is_file():
         raise RuntimeError(f"current RogShai semantic projection is missing: {path}")
-    try:
-        compressed = base64.b64decode(path.read_text(encoding="ascii"), validate=True)
-        payload = json.loads(zlib.decompress(compressed).decode("utf-8"))
-    except Exception as exc:
-        raise RuntimeError("current RogShai semantic projection cannot be decoded") from exc
+    payload = _decode_semantic_projection(path)
     templates = payload.get("t")
     row_index = payload.get("r")
     if not isinstance(templates, list) or not isinstance(row_index, dict):
