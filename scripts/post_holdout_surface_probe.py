@@ -71,7 +71,7 @@ def main() -> None:
             "methods": methods(WholeDeckDesignLab),
             "context_type": type(context).__name__ if context is not None else None,
             "context_methods": methods(type(context)) if context is not None else {},
-            "context_attrs": sorted(vars(context)) if context is not None else [],
+            "context_attrs": sorted(name for name in dir(context) if not name.startswith("_")) if context is not None else [],
         },
         "structural_deck_ids": sorted(decks),
     }
