@@ -3,9 +3,22 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
+from commander_lab.evidence_policy import (
+    EvidenceAction,
+    ModelState,
+    RobustnessState,
+    classify_evidence,
+)
 from commander_lab.storage import sha256_value
 
-AdvancementStatus = Literal["advance", "diagnose", "reject", "profile_required"]
+AdvancementStatus = Literal[
+    "advance",
+    "diagnose",
+    "reject",
+    "profile_required",
+    "tradeoff_review",
+    "inconclusive",
+]
 
 
 @dataclass(frozen=True)
@@ -16,6 +29,12 @@ class AdvancementDecision:
     sensitivity_allowed: bool
     expensive_ablation_allowed: bool
     evidence_class: str = "structural_advancement_decision"
+    evidence_action: str | None = None
+    direction_state: str | None = None
+    sampling_state: str | None = None
+    model_state: str | None = None
+    technical_resolution: float | None = None
+    sesoi: float | None = None
 
     def payload(self) -> dict[str, Any]:
         return asdict(self)
@@ -37,6 +56,13 @@ def _embedded_mapping(
     return dict(raw) if isinstance(raw, dict) else {}
 
 
+def _number(mapping: dict[str, Any], key: str) -> float | None:
+    value = mapping.get(key)
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return float(value)
+
+
 def decide_advancement(
     comparison: dict[str, Any],
     *,
@@ -45,12 +71,13 @@ def decide_advancement(
     structural_fidelity: dict[str, Any] | None = None,
     model_resolution: dict[str, Any] | None = None,
     profile_required: bool = False,
+    sesoi: float | None = None,
 ) -> AdvancementDecision:
-    """Apply fail-closed preregistered gates before finalist-only work.
+    """Apply hard-integrity gates, then evidence-safe paired advancement.
 
-    Decision-quality metadata may be supplied explicitly or embedded in the comparison. Legacy
-    comparisons without the new metadata remain readable, but any supplied decision-quality limit
-    is upstream of effect-based advancement.
+    Numeric model resolution and SESOI are reporting diagnostics only. They never decide whether a
+    candidate advances or is eliminated. Explicit input/fidelity/informativeness limitations remain
+    upstream because more same-model seeds cannot repair those limits.
     """
 
     if comparison.get("status") != "completed":
@@ -82,6 +109,8 @@ def decide_advancement(
             reason="domain/input evidence cannot support finalist advancement for this scope",
             sensitivity_allowed=False,
             expensive_ablation_allowed=False,
+            model_state=ModelState.NEEDS_DIFFERENT_EVIDENCE.value,
+            evidence_action=EvidenceAction.ESCALATE_EVIDENCE.value,
         )
     if fidelity and fidelity.get("strong_decision_allowed") is not True:
         return AdvancementDecision(
@@ -90,6 +119,8 @@ def decide_advancement(
             reason="question-specific structural fidelity is insufficient for finalist advancement",
             sensitivity_allowed=False,
             expensive_ablation_allowed=False,
+            model_state=ModelState.NEEDS_DIFFERENT_EVIDENCE.value,
+            evidence_action=EvidenceAction.ESCALATE_EVIDENCE.value,
         )
     if informativeness.get("status") == "MODEL_INFORMATION_LIMIT":
         return AdvancementDecision(
@@ -98,14 +129,18 @@ def decide_advancement(
             reason="more seeds alone cannot repair the detected model-information limit",
             sensitivity_allowed=False,
             expensive_ablation_allowed=False,
+            model_state=ModelState.MODEL_LIMITED.value,
+            evidence_action=EvidenceAction.ESCALATE_EVIDENCE.value,
         )
     if resolution and resolution.get("status") != "MEASURED":
         return AdvancementDecision(
             status="diagnose",
             reason_code="model_resolution_unmeasured",
-            reason="synthetic calibration alone does not establish Structural Model resolution",
+            reason="structural model diagnostics are incomplete for this comparison scope",
             sensitivity_allowed=False,
             expensive_ablation_allowed=False,
+            model_state=ModelState.NEEDS_DIFFERENT_EVIDENCE.value,
+            evidence_action=EvidenceAction.ESCALATE_EVIDENCE.value,
         )
 
     paired = comparison.get("paired", {})
@@ -120,37 +155,62 @@ def decide_advancement(
         )
     low = float(interval[0])
     high = float(interval[1])
-    robust = float(paired.get("distributionally_robust_lower_bound", 0.0))
-    effective_resolution = 0.0
-    if resolution:
-        raw_resolution = resolution.get("effective_resolution")
-        if isinstance(raw_resolution, (int, float)) and not isinstance(raw_resolution, bool):
-            effective_resolution = max(0.0, float(raw_resolution))
-    if low > effective_resolution and robust >= 0.0:
-        return AdvancementDecision(
-            status="advance",
-            reason_code="separated_positive_beyond_resolution_and_lower_tail_nonnegative",
-            reason=(
-                "central interval is positive beyond the available Structural decision resolution "
-                "and the robust lower-tail bound is nonnegative"
-            ),
-            sensitivity_allowed=True,
-            expensive_ablation_allowed=True,
-        )
-    if high < -effective_resolution:
-        return AdvancementDecision(
-            status="reject",
-            reason_code="separated_negative_beyond_resolution",
-            reason="paired structural interval is materially separated in the unfavorable direction",
-            sensitivity_allowed=False,
-            expensive_ablation_allowed=False,
-        )
+    effect = _number(paired, "placement_improvement")
+    if effect is None:
+        effect = (low + high) / 2.0
+    robust = _number(paired, "distributionally_robust_lower_bound")
+    technical_resolution = _number(resolution, "effective_resolution") if resolution else None
+
+    precision_context = comparison.get("precision_context")
+    remaining_budget: int | None = None
+    if isinstance(precision_context, dict):
+        current = precision_context.get("current_iterations")
+        ceiling = precision_context.get("preregistered_precision_ceiling")
+        if isinstance(current, int) and isinstance(ceiling, int):
+            remaining_budget = max(0, ceiling - current)
+
+    flags: tuple[str, ...] = ()
+    robustness = RobustnessState.NOT_TESTED
+    if robust is not None:
+        robustness = RobustnessState.ROBUST if robust >= 0.0 else RobustnessState.TRADEOFF
+        if robust < 0.0:
+            flags = ("distributionally_robust_lower_bound_negative",)
+
+    evidence = classify_evidence(
+        paired_delta_estimate=effect,
+        descriptive_interval=(low, high),
+        remaining_budget=remaining_budget,
+        technical_resolution=technical_resolution,
+        sesoi=sesoi,
+        robustness_state=robustness,
+        tradeoff_flags=flags,
+    )
+
+    status_by_action: dict[EvidenceAction, AdvancementStatus] = {
+        EvidenceAction.ADVANCE: "advance",
+        EvidenceAction.SAFE_ELIMINATE: "reject",
+        EvidenceAction.CONTINUE_SAMPLING: "diagnose",
+        EvidenceAction.ESCALATE_EVIDENCE: "diagnose",
+        EvidenceAction.TRADEOFF_REVIEW: "tradeoff_review",
+        EvidenceAction.INCONCLUSIVE: "inconclusive",
+    }
+    status = status_by_action[evidence.action]
+    allow_followup = evidence.action in {
+        EvidenceAction.ADVANCE,
+        EvidenceAction.TRADEOFF_REVIEW,
+    }
     return AdvancementDecision(
-        status="diagnose",
-        reason_code="unresolved_or_lower_tail_unfavorable",
-        reason="the variant is not qualified for finalist-only sensitivity",
-        sensitivity_allowed=False,
-        expensive_ablation_allowed=False,
+        status=status,
+        reason_code=f"evidence_safe_{evidence.action.value.lower()}",
+        reason=evidence.action_reason,
+        sensitivity_allowed=allow_followup,
+        expensive_ablation_allowed=allow_followup,
+        evidence_action=evidence.action.value,
+        direction_state=evidence.direction_state.value,
+        sampling_state=evidence.sampling_state.value,
+        model_state=evidence.model_state.value,
+        technical_resolution=technical_resolution,
+        sesoi=sesoi,
     )
 
 
