@@ -8,8 +8,8 @@
     "repository": "https://github.com/moeendres-png/mage.git",
     "source_archive": "https://github.com/moeendres-png/mage/archive/77d7646da6958fdf8125ee7c8f4aabd130d21d4c.tar.gz",
     "license": "MIT",
-    "role": "real pinned XMage B4-C bounded bridge for deck import, Commander game start, live state observation, current-priority legal-action handoff and fail-closed targetless/nonmodal action submission; complete external game control remains incomplete",
-    "status": "B4C_BOUNDED_ACTION_SUBMISSION_VALIDATED_DEGRADED",
+    "role": "real pinned XMage B4-D bounded bridge for deck import, Commander game start, live state observation, current-priority legal-action handoff, fail-closed targetless/nonmodal action submission, external audit event export and explicit per-game lifecycle cleanup; complete external game control remains incomplete",
+    "status": "B4D_EVENT_LOG_LIFECYCLE_VALIDATED_DEGRADED",
     "real_execution": true,
     "production_ready": false,
     "validated_capabilities": [
@@ -28,12 +28,17 @@
       "bounded_priority_pass_submission",
       "bounded_targetless_nonmodal_action_submission",
       "stale_decision_action_rejection",
-      "real_rograkh_commander_cast_to_stack"
+      "real_rograkh_commander_cast_to_stack",
+      "event_log_supported",
+      "monotonic_event_offset",
+      "action_decision_event_linkage",
+      "pre_post_state_hashes",
+      "game_shutdown_supported",
+      "repeated_game_lifecycle_cleanup"
     ],
     "missing_required_capabilities": [
       "legal_actions_supported",
-      "action_submission_supported",
-      "event_log_supported"
+      "action_submission_supported"
     ]
   },
   "secondary_engine": {
@@ -73,22 +78,21 @@
   },
   "current_runtime": {
     "external_engine_validation_pending": true,
-    "status": "external_rules_engine_b4c_bounded_action_submission_degraded",
+    "status": "external_rules_engine_b4d_event_log_lifecycle_degraded",
     "provider_selected": false,
     "production_provider": null,
-    "xmage_status": "PARTIAL_B4C_BOUNDED_ACTION_SUBMISSION",
+    "xmage_status": "PARTIAL_B4D_EVENT_LOG_LIFECYCLE",
     "forge_status": "PARTIAL",
     "required_missing_capabilities": [
       "legal_actions_supported",
-      "action_submission_supported",
-      "event_log_supported"
+      "action_submission_supported"
     ],
     "tactical_oracle_substitution_allowed": false,
-    "source_of_truth": "real_b4c_process_regression_on_pinned_xmage_plus_current_pr_head"
+    "source_of_truth": "real_b4d_process_regression_on_pinned_xmage_plus_current_pr_head"
   },
   "provider_decision": "NO_PROVIDER_READY",
-  "production_bridge": "b4c_bounded_action_submission_bridge",
-  "truth_boundary": "B4-C is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live state observation, current-priority decision/legal-action handoff, real priority passing, stale decision/action rejection and bounded submission-ready targetless/nonmodal action execution including a real Rograkh commander cast onto the XMage stack. This does not prove globally complete legal-action enumeration or action submission: target, mode, choice, combat, event-log, mulligan, seed-control, replay and complete production game-loop coverage remain unproven. It is not win-rate evidence and does not make XMage a production-ready provider.",
+  "production_bridge": "b4d_event_log_lifecycle_bridge",
+  "truth_boundary": "B4-D is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live state observation, current-priority decision/legal-action handoff, real priority passing, stale decision/action rejection, bounded submission-ready targetless/nonmodal action execution including a real Rograkh commander cast, an externally exportable monotonic bridge audit event stream with action/decision identity and pre/post state hashes, and explicit per-game XMage lifecycle cleanup/reuse. The audit stream covers real bridge/XMage lifecycle and externally controlled action boundaries; it is not claimed to be an exhaustive raw internal XMage GameEvent tap. Globally complete legal-action enumeration and action submission remain unproven because target, mode, choice and combat classes are incomplete. Mulligan, seed-control, replay and complete production game-loop coverage remain unproven. This is not win-rate evidence and does not make XMage a production-ready provider.",
   "historical_phase85": {
     "status": "external_runtime_prepared_but_not_executed",
     "forge_pin": "forge-2.0.13 @ 852066bf4f761b302ed17cb011999d8a8fe08ad6",

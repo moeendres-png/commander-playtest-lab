@@ -46,12 +46,15 @@ final class XmageProvider {
         JsonObject capabilities = new JsonObject();
 
         /*
-         * B4-C retains the real B4-A observation surface and adds bounded
-         * external control for the current live priority decision: real pass
-         * execution and submission-ready targetless/nonmodal actions are
-         * validated against XMage. The global legal-actions/action-submission
-         * flags remain false because target, mode, choice and combat classes
-         * are not yet complete.
+         * B4-D retains the real B4-A/B4-B/B4-C state and action surfaces and
+         * adds an externally exportable, monotonic audit event stream plus
+         * explicit per-game XMage end/cleanup. The event stream records real
+         * bridge/XMage lifecycle and externally controlled action boundaries;
+         * it is deliberately not described as an exhaustive internal
+         * mage.game.events.GameEvent tap.
+         *
+         * Global legal-actions/action-submission flags remain false because
+         * target, mode, choice and combat classes are not yet complete.
          */
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
@@ -62,7 +65,7 @@ final class XmageProvider {
         capabilities.addProperty("deck_import_supported", true);
         capabilities.addProperty("legal_actions_supported", false);
         capabilities.addProperty("action_submission_supported", false);
-        capabilities.addProperty("event_log_supported", false);
+        capabilities.addProperty("event_log_supported", true);
         capabilities.addProperty("replay_supported", false);
         capabilities.addProperty("stack_visible", true);
         capabilities.addProperty("priority_visible", true);
@@ -70,42 +73,30 @@ final class XmageProvider {
         capabilities.addProperty("commander_tax_visible", false);
         capabilities.addProperty("starting_state_injection_supported", false);
         capabilities.addProperty("scenario_injection_supported", false);
-
         capabilities.addProperty("healthcheck_supported", true);
-
         capabilities.addProperty("target_selection_supported", false);
         capabilities.addProperty("mode_selection_supported", false);
         capabilities.addProperty("trigger_order_supported", false);
         capabilities.addProperty("mulligan_supported", false);
         capabilities.addProperty("concede_supported", false);
-        capabilities.addProperty("game_shutdown_supported", false);
-
-        /*
-         * Process shutdown itself is implemented in B1.
-         */
+        capabilities.addProperty("game_shutdown_supported", true);
         capabilities.addProperty("engine_shutdown_supported", true);
-
-        /*
-         * This identifies the kind of runtime behind the bridge.
-         * It does NOT grant production-provider readiness. The Lab health gate
-         * must remain DEGRADED while the globally required complete legal-action,
-         * action-submission and event-log capabilities remain false.
-         */
-        capabilities.addProperty(
-                "runtime_kind",
-                "external_rules_engine"
-        );
+        capabilities.addProperty("runtime_kind", "external_rules_engine");
 
         JsonArray notes = new JsonArray();
         notes.add(
-                "B4-C real XMage bounded current-priority action control is validated, including stale-request rejection and a real Rograkh commander cast; global legal-action and action-submission completeness remain unavailable"
+                "B4-D real XMage bridge audit event log is externally exportable with monotonic sequence, action/decision identity and pre/post state hashes; it covers bridge lifecycle and externally controlled action boundaries and is not an exhaustive raw internal XMage GameEvent tap"
+        );
+        notes.add(
+                "B4-D explicit per-game XMage end/cleanup and deck-handle release are implemented for repeated games in one bridge process"
+        );
+        notes.add(
+                "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable"
         );
         notes.add(
                 "Seed remains unknown/uncontrolled; no numeric sentinel is synthesized"
         );
-        notes.add(
-                "NO_PROVIDER_READY remains in force"
-        );
+        notes.add("NO_PROVIDER_READY remains in force");
         capabilities.add("notes", notes);
 
         JsonObject result = new JsonObject();

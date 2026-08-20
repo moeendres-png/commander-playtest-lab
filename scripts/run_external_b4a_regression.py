@@ -61,15 +61,14 @@ def main() -> None:
         request_timeout_seconds=request_timeout_seconds,
     )
     evidence: dict[str, object] = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "evidence_class": "external_rules_engine",
         "scope": "xmage_b4a_real_game_state_observation",
         "automatic_canonical_mutation": False,
         "confirmatory_consumed": False,
         "sealed_holdout_consumed": False,
-        "seed_claim": "unknown_uncontrolled",
-        "event_log_claim": "not_supported_in_b4a",
-        "legal_actions_claim": "not_supported_in_b4a",
+        "seed_claim": "unknown_uncontrolled_for_this_run",
+        "later_capabilities": "not_part_of_b4a_regression_contract",
     }
     try:
         probe = adapter.probe()
@@ -89,14 +88,6 @@ def main() -> None:
         missing = sorted(name for name, value in required.items() if not value)
         if missing:
             raise SystemExit(f"B4-A capability regression: missing {missing}")
-        if capabilities.seed_supported:
-            raise SystemExit("B4-A must not claim deterministic seed support")
-        if capabilities.legal_actions_supported:
-            raise SystemExit("B4-A must not claim legal-action support")
-        if capabilities.action_submission_supported:
-            raise SystemExit("B4-A must not claim action-submission support")
-        if capabilities.event_log_supported:
-            raise SystemExit("B4-A must not claim event-log support")
 
         deck = _runtime_deck()
         handles = tuple(adapter.import_deck(deck).handle_id for _ in range(4))
@@ -159,8 +150,6 @@ def main() -> None:
             raise SystemExit("B4-A seed-control boundary is not explicit")
         if first_raw.get("legal_actions_complete") is not False:
             raise SystemExit("B4-A legal-action completeness boundary widened")
-        if first_raw.get("event_log_supported") is not False:
-            raise SystemExit("B4-A event-log boundary widened")
 
         evidence.update(
             {
@@ -179,6 +168,7 @@ def main() -> None:
                 "library_sizes": [len(player.zones.library) for player in state.players],
                 "command_zone_sizes": [len(player.zones.command) for player in state.players],
                 "stack_size": len(state.stack),
+                "event_sequence_observed": state.event_sequence,
                 "status": "passed",
             }
         )

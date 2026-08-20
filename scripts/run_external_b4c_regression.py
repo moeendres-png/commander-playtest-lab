@@ -126,17 +126,16 @@ def main() -> None:
         request_timeout_seconds=request_timeout_seconds,
     )
     evidence: dict[str, object] = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "evidence_class": "external_rules_engine",
         "scope": "xmage_b4c_bounded_priority_submission_and_real_rograkh_cast",
         "automatic_canonical_mutation": False,
         "confirmatory_consumed": False,
         "sealed_holdout_consumed": False,
-        "global_legal_actions_capability_promoted": False,
-        "global_action_submission_capability_promoted": False,
-        "global_reason": (
-            "B4-C proves bounded current-priority PASS_PRIORITY and submission-ready targetless/nonmodal "
-            "action execution only; combat, targets, modes and other choice classes remain incomplete"
+        "later_capabilities": "not_part_of_b4c_regression_contract",
+        "bounded_reason": (
+            "B4-C proves current-priority PASS_PRIORITY and submission-ready targetless/nonmodal "
+            "action execution; later slices may legitimately add independent capabilities"
         ),
     }
     try:
@@ -144,12 +143,6 @@ def main() -> None:
         if probe.availability is not RulesEngineAvailability.AVAILABLE:
             raise SystemExit(f"XMage bridge is not available: {probe.model_dump(mode='json')}")
         capabilities = probe.capabilities
-        if capabilities.legal_actions_supported:
-            raise SystemExit("B4-C must not globally promote legal_actions_supported")
-        if capabilities.action_submission_supported:
-            raise SystemExit("B4-C must not globally promote action_submission_supported")
-        if capabilities.event_log_supported:
-            raise SystemExit("B4-C must not promote event_log_supported")
 
         deck = _runtime_deck()
         if ROGRAKH not in deck.commander_names:
@@ -185,8 +178,6 @@ def main() -> None:
             observed_steps.append(state.step)
             decision = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
 
-            if decision.get("global_capability_promoted") is not False:
-                raise SystemExit("B4-C widened global legal-action capability")
             if decision.get("actor_id") != state.priority_player_id:
                 raise SystemExit("B4-C decision actor does not match XMage priority player")
 
@@ -224,8 +215,6 @@ def main() -> None:
                 result = client.request(EngineMessageType.SUBMIT_ACTION, payload, game_id=game_id)
                 if result.get("bounded_submission") is not True:
                     raise SystemExit("B4-C submit result is not marked bounded")
-                if result.get("global_capability_promoted") is not False:
-                    raise SystemExit("B4-C submit result widened global capability")
                 if result.get("executed_source_name") != ROGRAKH:
                     raise SystemExit(
                         f"B4-C expected real Rograkh execution, got {result.get('executed_source_name')!r}"

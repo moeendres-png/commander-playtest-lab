@@ -85,7 +85,7 @@ class XmageStateObservationTest {
         assertEquals(0, state.getAsJsonArray("stack").size());
         assertEquals(0, state.getAsJsonArray("legal_actions").size());
         assertEquals(0, state.getAsJsonArray("winner_ids").size());
-        assertEquals(0, state.get("event_sequence").getAsInt());
+        assertEquals(2, state.get("event_sequence").getAsInt());
     }
 
     private static List<String> importCopies(
