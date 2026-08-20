@@ -10,6 +10,7 @@ on:
       - "src/commander_lab/optimizer_v2_cli.py"
       - "tests/unit/test_model_resolution_measurement.py"
       - "tests/unit/test_model_resolution_software_identity.py"
+      - "tests/unit/test_current_model_resolution.py"
       - "tests/unit/test_optimizer_v2_decision_runtime.py"
       - "data/diagnostics/MODEL_RESOLUTION_CURRENT.json"
       - "data/decision/DECISION_CONTRACT_CURRENT.json"
@@ -41,6 +42,7 @@ jobs:
           pytest -q
           tests/unit/test_model_resolution_measurement.py
           tests/unit/test_model_resolution_software_identity.py
+          tests/unit/test_current_model_resolution.py
       - name: Verify 2F replaces the legacy hard gate
         run: |
           python - <<'PY'
@@ -56,9 +58,9 @@ jobs:
 
           policy = Path('docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md').read_text()
           required = (
-              'former single hard gate',
-              'is retired',
-              'There is no single scalar `MODEL_RESOLUTION` used as a universal hard gate',
+              'The former single hard gate',
+              'is retired for candidate promotion, elimination and equivalence decisions',
+              'instead of one scalar resolution number',
           )
           for marker in required:
               if marker not in policy:
