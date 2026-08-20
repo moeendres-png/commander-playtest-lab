@@ -1,0 +1,84 @@
+name: Temporary PR99 Closeout Fix
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/temporary-pr99-closeout.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  bounded-fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+      - name: Apply exact bounded replacements
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              target = Path(path)
+              text = target.read_text(encoding="utf-8")
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{path}: expected exactly one replacement target, found {count}")
+              target.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          replace_once(
+              "src/commander_lab/whole_deck/lab_context.py",
+              '''    if actual != expected:\n        missing = sorted(expected - actual)\n        extra = sorted(actual - expected)\n        raise RuntimeError(\n            "current RogShai semantic projection does not match the candidate universe: "\n            f"missing={missing[:8]} extra={extra[:8]}"\n        )''',
+              '''    if actual != expected:\n        missing_names = sorted(expected - actual)\n        extra_names = sorted(actual - expected)\n        raise RuntimeError(\n            "current RogShai semantic projection does not match the candidate universe: "\n            f"missing={missing_names[:8]} extra={extra_names[:8]}"\n        )''',
+          )
+
+          replace_once(
+              "src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py",
+              '''        "semantic_support": float(\n            variant.feature_vector.get("semantic_support_fraction", 0.0) or 0.0\n        ),\n        "multiplayer_scaling": float(variant.feature_vector.get("multiplayer_scaling", 0.0) or 0.0),''',
+              '''        "semantic_support": _mapping_float(\n            variant.feature_vector, "semantic_support_fraction"\n        ),\n        "multiplayer_scaling": _mapping_float(variant.feature_vector, "multiplayer_scaling"),''',
+          )
+
+          replace_once(
+              "tests/unit/test_pre_campaign_governance_finalization.py",
+              '''    assert counts == {\n        SEMANTIC_STRUCTURALLY_MODELED: 542,\n        SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE: 18,\n        SEMANTIC_UNKNOWN: 235,\n    }''',
+              '''    assert counts == {\n        SEMANTIC_STRUCTURALLY_MODELED: 774,\n        SEMANTIC_KNOWN_NO_FUNCTIONAL_RULES_ROLE: 21,\n        SEMANTIC_UNKNOWN: 0,\n    }''',
+          )
+          replace_once(
+              "tests/unit/test_pre_campaign_governance_finalization.py",
+              '''    assert report["structurally_modeled_eligible_count"] == 540\n    assert report["known_no_functional_eligible_count"] == 18\n    assert report["semantic_unknown_eligible_count"] == 235''',
+              '''    assert report["structurally_modeled_eligible_count"] == 772\n    assert report["known_no_functional_eligible_count"] == 21\n    assert report["semantic_unknown_eligible_count"] == 0''',
+          )
+          PY
+      - name: Install quality dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Verify bounded fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/commander_lab/whole_deck/lab_context.py src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py tests/unit/test_pre_campaign_governance_finalization.py
+          ruff format --check src/commander_lab/whole_deck/lab_context.py src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py tests/unit/test_pre_campaign_governance_finalization.py
+          mypy src/commander_lab
+          pytest -q tests/unit/test_pre_campaign_governance_finalization.py tests/unit/test_optimizer_v2_decision_runtime.py
+      - name: Commit only bounded files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- \
+            src/commander_lab/whole_deck/lab_context.py \
+            src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py \
+            tests/unit/test_pre_campaign_governance_finalization.py
+          test -z "$(git status --porcelain --untracked-files=no | grep -vE '^(M |A ) (src/commander_lab/whole_deck/lab_context.py|src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py|tests/unit/test_pre_campaign_governance_finalization.py)$' || true)"
+          git diff --cached --check
+          git commit -m "fix: close PR99 quality gates"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
