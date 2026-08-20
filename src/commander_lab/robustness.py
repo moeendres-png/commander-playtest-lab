@@ -241,10 +241,17 @@ _STRENGTH = {
 class PolicyTournamentConfig:
     seed: int = 20260807
     rounds: int = 128
-    pod_sizes: tuple[int, ...] = (3, 4, 5)
+    pod_sizes: tuple[int, ...] = (4,)
     iterations_per_scenario: int = 1
     max_turns: int = 24
     workers: int = 1
+
+    def __post_init__(self) -> None:
+        if self.pod_sizes != (4,):
+            raise ValueError(
+                "Operational Commander Playtest Lab simulations are 4-player only; "
+                "3P/5P pod sensitivity is out of project scope."
+            )
 
 
 def _hash_float(*parts: object) -> float:
