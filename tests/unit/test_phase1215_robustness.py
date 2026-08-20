@@ -31,7 +31,7 @@ def test_policy_tournament_is_deterministic_and_structural(repo_root: Path) -> N
     assert a["hidden_information_access"] is False
     assert a["empirical_weights_used"] is False
     assert {x["pilot"] for x in a["rankings"]} == set(PILOT_PROFILES)
-    assert {row["pod_size"] for row in a["scenario_rows"]} == {3, 4, 5}
+    assert {row["pod_size"] for row in a["scenario_rows"]} == {4}
 
 
 def test_structural_policy_mapping_uses_real_pilot_weights_and_truth_boundary(
@@ -79,7 +79,7 @@ def test_structural_policy_tournament_executes_real_simulator(repo_root: Path) -
     result = run_structural_policy_tournament(
         repo_root,
         config=PolicyTournamentConfig(
-            pod_sizes=(3,), iterations_per_scenario=1, max_turns=10, rounds=2
+            pod_sizes=(4,), iterations_per_scenario=1, max_turns=10, rounds=2
         ),
         deck_ids=("rogshai/current",),
         pilot_profiles=("weak", "strong"),
@@ -106,13 +106,13 @@ def test_structural_policy_tournament_is_worker_independent(repo_root: Path) -> 
     }
     one = run_structural_policy_tournament(
         config=PolicyTournamentConfig(
-            seed=99, rounds=2, pod_sizes=(3,), iterations_per_scenario=1, max_turns=8, workers=1
+            seed=99, rounds=2, pod_sizes=(4,), iterations_per_scenario=1, max_turns=8, workers=1
         ),
         **kwargs,
     )
     two = run_structural_policy_tournament(
         config=PolicyTournamentConfig(
-            seed=99, rounds=2, pod_sizes=(3,), iterations_per_scenario=1, max_turns=8, workers=2
+            seed=99, rounds=2, pod_sizes=(4,), iterations_per_scenario=1, max_turns=8, workers=2
         ),
         **kwargs,
     )
@@ -128,7 +128,7 @@ def test_structural_self_play_uses_same_profile_on_all_seats(repo_root: Path) ->
         repo_root,
         deck_ids=("rogshai/current",),
         pilot_profiles=("weak", "strong"),
-        pod_sizes=(3,),
+        pod_sizes=(4,),
         max_turns=8,
         seed=1234,
     )
