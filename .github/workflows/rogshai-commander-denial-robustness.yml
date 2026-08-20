@@ -1,0 +1,144 @@
+name: RogShai Commander-Denial Robustness
+
+on:
+  pull_request:
+    paths:
+      - "scripts/run_rogshai_commander_denial_robustness.py"
+      - "scripts/run_rogshai_whole_deck_comparison.py"
+      - "data/decks/candidates/rogshai_final_recommended_2026-08-20.json"
+      - ".github/workflows/rogshai-commander-denial-robustness.yml"
+  workflow_dispatch:
+    inputs:
+      games:
+        description: "Paired scenarios per stress state"
+        required: false
+        default: "32"
+        type: choice
+        options:
+          - "32"
+          - "64"
+          - "128"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rogshai-commander-denial-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  GAMES: ${{ inputs.games || '32' }}
+
+jobs:
+  commander-denial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Snapshot canonical RogShai truth
+        shell: bash
+        run: |
+          sha256sum data/decks/manifest.json data/decks/rogshai_current.json > /tmp/rogshai-denial-canonical-before.sha256
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Focused Structural and Whole-Deck contracts
+        run: >-
+          pytest -q
+          tests/unit/test_balanced_pod_scheduler.py
+          tests/unit/test_current_model_resolution.py
+          tests/unit/test_current_opponent_repository.py
+          tests/unit/test_structural_simulator.py
+          tests/unit/test_whole_deck_balanced_campaign.py
+          tests/unit/test_whole_deck_search_hard_gate.py
+      - name: Lint commander-denial runner
+        run: ruff check scripts/run_rogshai_commander_denial_robustness.py
+      - name: Run preregistered commander-denial robustness axis
+        run: >-
+          python scripts/run_rogshai_commander_denial_robustness.py
+          --root .
+          --games "${GAMES}"
+          --seed 2026082061
+          --max-turns 35
+          --workers 2
+      - name: Verify canonical RogShai truth unchanged
+        if: always()
+        shell: bash
+        run: |
+          sha256sum --check /tmp/rogshai-denial-canonical-before.sha256
+          git diff --exit-code -- data/decks/manifest.json data/decks/rogshai_current.json
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Verify robustness artifacts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('artifacts/rogshai_commander_denial_robustness')
+          manifest = json.loads((root / 'run_manifest.json').read_text())
+          results = json.loads((root / 'denial_results.json').read_text())
+          matrix = json.loads((root / 'scenario_matrix.json').read_text())
+          allowed = {
+              'NO_CLEAR_DENIAL_ROBUSTNESS_EDGE',
+              'CANDIDATE_DENIAL_EDGE',
+              'CURRENT_DENIAL_EDGE',
+              'MIXED_DENIAL_EFFECTS',
+          }
+          if manifest.get('run_status') not in allowed:
+              raise SystemExit(f"unexpected denial status: {manifest.get('run_status')}")
+          if manifest.get('evidence_class') != 'structural_model_estimates':
+              raise SystemExit('denial run lost Structural evidence boundary')
+          if manifest.get('synthetic_assumption') != 'commander_unavailable_full_game_via_unreachable_command_zone_cost':
+              raise SystemExit('denial run lost explicit synthetic assumption')
+          if manifest.get('automatic_candidate_promotion') is not False:
+              raise SystemExit('denial run attempted automatic promotion')
+          if manifest.get('canonical_deck_mutated') is not False:
+              raise SystemExit('denial run claims canonical mutation')
+          expected_states = {'normal', 'rograkh_denied', 'ishai_denied', 'both_denied'}
+          campaigns = results.get('campaigns')
+          if not isinstance(campaigns, dict) or set(campaigns) != expected_states:
+              raise SystemExit('denial run has unexpected stress states')
+          if matrix.get('same_scenarios_reused_across_all_stress_states') is not True:
+              raise SystemExit('denial run did not preserve common scenario matrix')
+          if manifest.get('opponent_deck_ids') != [
+              'opponent/blight-curse-precon',
+              'opponent/cosmic-spiderman-midbudget',
+              'opponent/dance-elements-precon',
+              'opponent/doom-prevails-precon',
+              'kaervek/current',
+              'opponent/morcant-elves',
+              'opponent/wakanda-forever-precon',
+          ]:
+              raise SystemExit('denial run opponent scope drifted')
+          expected_games = int('${GAMES}')
+          if manifest.get('games_per_state') != expected_games:
+              raise SystemExit('denial run game budget mismatch')
+          if manifest.get('total_structural_games') != expected_games * 8:
+              raise SystemExit('denial run total game accounting mismatch')
+          for state, campaign in campaigns.items():
+              if campaign.get('evidence_class') != 'structural_model_estimates':
+                  raise SystemExit(f'{state} lost Structural evidence boundary')
+              pairing = campaign.get('pairing_conditions', {})
+              required = (
+                  'same_scenarios',
+                  'same_match_seeds',
+                  'same_own_seats',
+                  'same_opponent_seat_assignments',
+                  'same_pilot_configuration',
+                  'same_turn_cap',
+                  'common_random_numbers',
+              )
+              if not all(pairing.get(key) is True for key in required):
+                  raise SystemExit(f'{state} lost paired comparison invariants')
+          PY
+          (cd artifacts/rogshai_commander_denial_robustness && sha256sum --check sha256sums.txt)
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: rogshai-commander-denial-${{ github.sha }}
+          path: artifacts/rogshai_commander_denial_robustness/
+          if-no-files-found: warn
+          retention-days: 14
