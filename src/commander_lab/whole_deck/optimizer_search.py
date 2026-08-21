@@ -5,7 +5,7 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from statistics import fmean
-from typing import Any
+from typing import Any, cast
 
 from commander_lab.decision_statistics import (
     distributionally_robust_lower_bound,
@@ -80,7 +80,7 @@ def _placement(row: Mapping[str, object], key: str) -> float:
 def _evaluator_mechanics_gate(evaluator: EvaluationFunction) -> EligibilityFunction | None:
     explicit = getattr(evaluator, "structural_decision_safe", None)
     if callable(explicit):
-        return cast_eligibility(explicit)
+        return cast(EligibilityFunction, explicit)
 
     context = getattr(evaluator, "context", None)
     control = getattr(evaluator, "control", None)
@@ -89,9 +89,7 @@ def _evaluator_mechanics_gate(evaluator: EvaluationFunction) -> EligibilityFunct
     if context is None or cards is None:
         return None
     control_mainboard = tuple(
-        str(card.oracle_name)
-        for card in cards
-        if str(card.oracle_name) not in commander_names
+        str(card.oracle_name) for card in cards if str(card.oracle_name) not in commander_names
     )
 
     def _gate(variant: WholeDeckVariant) -> bool:
@@ -104,10 +102,6 @@ def _evaluator_mechanics_gate(evaluator: EvaluationFunction) -> EligibilityFunct
         return assessment.get("pass") is True
 
     return _gate
-
-
-def cast_eligibility(value: Any) -> EligibilityFunction:
-    return value
 
 
 class AdaptiveWholeDeckSearch:
@@ -240,9 +234,7 @@ class AdaptiveWholeDeckSearch:
         )
         history: list[dict[str, Any]] = []
         seen: dict[str, WholeDeckVariant] = {row.deck_hash: row for row in legal_initial}
-        variants_by_id: dict[str, WholeDeckVariant] = {
-            row.variant_id: row for row in legal_initial
-        }
+        variants_by_id: dict[str, WholeDeckVariant] = {row.variant_id: row for row in legal_initial}
         evaluations_by_variant: dict[str, ExploratoryEvaluation] = {}
 
         initial_eval, calls, pairs = self._evaluate_batch(
