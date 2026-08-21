@@ -36,8 +36,10 @@ class StructuralSimulator(LegacyStructuralSimulator):
     """Decision-safety overlay for the legacy Structural core.
 
     The core remains a Structural model, not a comprehensive Magic rules engine. This overlay
-    fixes state/CRN bugs that are mechanically unambiguous and fails closed on aborts in balanced
-    decision campaigns. Mechanics that still need tactical/external rules are separately gated.
+    fixes state/CRN bugs that are mechanically unambiguous. Aborted games remain observable in
+    the raw Structural result so exploratory and regression callers can inspect them; strong
+    decision consumers must censor them rather than treating their provisional placements as
+    ordinary evidence. Mechanics that still need tactical/external rules are separately gated.
     """
 
     def _initialize_players(
@@ -108,18 +110,12 @@ class StructuralSimulator(LegacyStructuralSimulator):
                 }
             )
             effective = config.model_copy(update={"limits": limits})
-        result = super().simulate(
+        return super().simulate(
             effective,
             run_id=run_id,
             event_log_path=event_log_path,
             capture_events=capture_events,
         )
-        if decision_campaign and result.aborted:
-            raise RuntimeError(
-                "Structural decision evidence censored: aborted match must not receive a normal "
-                f"placement ({result.abort_reason})"
-            )
-        return result
 
     def _cast_commander(
         self,
