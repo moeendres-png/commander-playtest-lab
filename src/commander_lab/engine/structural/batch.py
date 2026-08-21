@@ -5,7 +5,8 @@ import json
 import math
 import multiprocessing
 import os
-from collections.abc import Iterable
+from collections import Counter
+from collections.abc import Callable, Iterable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 from statistics import fmean
@@ -18,6 +19,7 @@ from commander_lab.models import (
     StructuralDeckProfile,
     StructuralMatchConfig,
     StructuralMatchResult,
+    StructuralPlayerMetrics,
 )
 
 from .simulator import ENGINE_VERSION
@@ -104,10 +106,6 @@ def run_structural_batch(
         raw_results = [_run_worker(task) for task in tasks]
     else:
         chunksize = max(1, len(tasks) // (config.workers * 4))
-        # Pytest captures file descriptors through pipes. A spawned process pool can
-        # block the parent in ``anon_pipe_write`` after earlier subprocess-heavy
-        # integration tests. Use a bounded thread executor only inside pytest; normal
-        # product runs retain the process pool and its CPU scaling.
         if "PYTEST_CURRENT_TEST" in os.environ:
             _initialize_worker(deck_payloads)
             with ThreadPoolExecutor(max_workers=config.workers) as executor:
@@ -144,6 +142,75 @@ def run_structural_batch(
         )
         batch.result_path = str(result_path)
     return batch
+
+
+def _telemetry_number_summary(
+    rows: list[StructuralPlayerMetrics],
+    getter: Callable[[StructuralPlayerMetrics], float | int | None],
+) -> dict[str, float | int | None]:
+    measured = [float(value) for row in rows if (value := getter(row)) is not None]
+    return {
+        "n": len(rows),
+        "measured_count": len(measured),
+        "not_measured_count": len(rows) - len(measured),
+        "sum": sum(measured) if measured else None,
+        "mean": fmean(measured) if measured else None,
+    }
+
+
+def _telemetry_reason_summary(rows: list[StructuralPlayerMetrics]) -> dict[str, object]:
+    measured = [row.stranded_reasons for row in rows if row.stranded_reasons is not None]
+    counts: Counter[str] = Counter()
+    for reasons in measured:
+        counts.update(reasons or {})
+    return {
+        "n": len(rows),
+        "measured_count": len(measured),
+        "not_measured_count": len(rows) - len(measured),
+        "counts": dict(sorted(counts.items())),
+    }
+
+
+def _summarize_t1_telemetry(rows: list[StructuralPlayerMetrics]) -> dict[str, object]:
+    return {
+        "status_counts": dict(sorted(Counter(row.fidelity_telemetry_status for row in rows).items())),
+        "unused_mana": _telemetry_number_summary(rows, lambda row: row.unused_mana),
+        "colored_mana_failures": _telemetry_number_summary(
+            rows, lambda row: row.colored_mana_failures
+        ),
+        "stranded_spells": _telemetry_number_summary(rows, lambda row: row.stranded_spells),
+        "stranded_reasons": _telemetry_reason_summary(rows),
+        "commander_recast_affordability": _telemetry_number_summary(
+            rows, lambda row: row.commander_recast_affordability
+        ),
+    }
+
+
+def _aggregate_t1_telemetry(results: list[StructuralMatchResult]) -> dict[str, object]:
+    by_deck: dict[str, list[StructuralPlayerMetrics]] = {}
+    by_pilot: dict[str, list[StructuralPlayerMetrics]] = {}
+    all_rows: list[StructuralPlayerMetrics] = []
+    for result in results:
+        for metrics in result.player_metrics.values():
+            all_rows.append(metrics)
+            by_deck.setdefault(metrics.deck_id, []).append(metrics)
+            pilot_key = f"{metrics.pilot_name}:{metrics.pilot_strength}:{metrics.pilot_mode}"
+            by_pilot.setdefault(pilot_key, []).append(metrics)
+    return {
+        "schema_version": "t1-partial-v1",
+        "scope": "diagnostic_only_no_scoring_effect",
+        "measurement_boundary": (
+            "Structural state only. Color failures use the current presence-only color payer; "
+            "stranding measures only observable total-mana and missing-color blockers."
+        ),
+        "all_players": _summarize_t1_telemetry(all_rows),
+        "deck_metrics": {
+            key: _summarize_t1_telemetry(rows) for key, rows in sorted(by_deck.items())
+        },
+        "pilot_metrics": {
+            key: _summarize_t1_telemetry(rows) for key, rows in sorted(by_pilot.items())
+        },
+    }
 
 
 def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> dict[str, object]:
@@ -223,4 +290,5 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
         ),
         "deck_metrics": summarize(by_deck),
         "pilot_metrics": summarize(by_pilot),
+        "fidelity_telemetry": _aggregate_t1_telemetry(result_list),
     }

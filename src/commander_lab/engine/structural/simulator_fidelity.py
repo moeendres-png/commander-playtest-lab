@@ -8,8 +8,10 @@ from commander_lab.agents import build_pilot
 from commander_lab.models import (
     PilotConfig,
     StructuralCardProfile,
+    StructuralDeckProfile,
     StructuralMatchConfig,
     StructuralMatchResult,
+    StructuralPlayerMetrics,
 )
 
 from .simulator import (
@@ -19,6 +21,11 @@ from .simulator import (
     _Commander,
     _EventRecorder,
     _Player,
+)
+from .telemetry import (
+    T1TelemetryAccumulator,
+    classify_payment_blocker,
+    is_structural_reaction_only,
 )
 
 FIDELITY_ENGINE_VERSION = "structural-fidelity-overlay-2026-08-21-v1"
@@ -42,7 +49,14 @@ class StructuralSimulator(LegacyStructuralSimulator):
     the raw Structural result so exploratory and regression callers can inspect them; strong
     decision consumers must censor them rather than treating their provisional placements as
     ordinary evidence. Mechanics that still need tactical/external rules are separately gated.
+
+    T1 fidelity telemetry is observation-only. It reads the same state Structural already uses for
+    action legality and never changes RNG, action choice, scoring, search rewards, or advancement.
     """
+
+    def __init__(self, decks: dict[str, StructuralDeckProfile]) -> None:
+        super().__init__(decks)
+        self._t1_telemetry: dict[str, T1TelemetryAccumulator] = {}
 
     def _initialize_players(
         self,
@@ -100,6 +114,7 @@ class StructuralSimulator(LegacyStructuralSimulator):
         event_log_path: str | Path | None = None,
         capture_events: bool | None = None,
     ) -> StructuralMatchResult:
+        self._t1_telemetry = {}
         decision_campaign = run_id.startswith("balanced")
         effective = config
         if decision_campaign:
@@ -117,6 +132,70 @@ class StructuralSimulator(LegacyStructuralSimulator):
             run_id=run_id,
             event_log_path=event_log_path,
             capture_events=capture_events,
+        )
+
+    def _telemetry_for(self, player: _Player) -> T1TelemetryAccumulator:
+        return self._t1_telemetry.setdefault(player.player_id, T1TelemetryAccumulator())
+
+    def _choose_action(
+        self,
+        player: _Player,
+        players: list[_Player],
+        turn_number: int,
+        recorder: _EventRecorder,
+    ) -> tuple[str, StructuralCardProfile | str, float] | None:
+        selected = super()._choose_action(player, players, turn_number, recorder)
+        if selected is None:
+            accumulator = self._telemetry_for(player)
+            accumulator.decision_windows += 1
+            for card in player.hand:
+                if card.is_land or is_structural_reaction_only(card):
+                    continue
+                blocker = classify_payment_blocker(
+                    mana_available=player.mana_available,
+                    available_colors=player.available_colors,
+                    card=card,
+                )
+                if blocker is None:
+                    continue
+                accumulator.stranded_spells += 1
+                accumulator.stranded_reasons[blocker] += 1
+                if blocker == "missing_color":
+                    accumulator.colored_mana_failures += 1
+        return selected
+
+    def _end_step(
+        self, player: _Player, players: list[_Player], recorder: _EventRecorder, turn: int
+    ) -> None:
+        accumulator = self._telemetry_for(player)
+        accumulator.unused_mana += max(0.0, player.mana_available)
+        for commander in player.commanders.values():
+            if commander.casts <= 0 or commander.on_battlefield:
+                continue
+            requirements = self._commander_color_requirements(player, commander.name)
+            accumulator.record_recast(
+                commander.name,
+                affordable=self._can_pay(player, commander.next_cost, requirements),
+            )
+        super()._end_step(player, players, recorder, turn)
+
+    def _final_metrics(self, player: _Player) -> StructuralPlayerMetrics:
+        metrics = super()._final_metrics(player)
+        accumulator = self._telemetry_for(player)
+        measured = accumulator.decision_windows > 0
+        return metrics.model_copy(
+            update={
+                "unused_mana": accumulator.unused_mana if measured else None,
+                "colored_mana_failures": (
+                    accumulator.colored_mana_failures if measured else None
+                ),
+                "stranded_spells": accumulator.stranded_spells if measured else None,
+                "stranded_reasons": (
+                    dict(sorted(accumulator.stranded_reasons.items())) if measured else None
+                ),
+                "commander_recast_affordability": accumulator.recast_affordability(),
+                "fidelity_telemetry_status": "PARTIAL" if measured else "NOT_MEASURED",
+            }
         )
 
     def _cast_commander(
