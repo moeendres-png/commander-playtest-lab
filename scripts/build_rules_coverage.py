@@ -126,7 +126,11 @@ def _load_current_opponents(root: Path, records: dict[str, dict[str, Any]]) -> N
                 rec = _record(records, name)
                 rec["deck_versions"].append(deck_id)
                 rec["source_status"].append(
-                    str(payload.get("evidence_status") or payload.get("data_status") or "current_opponent")
+                    str(
+                        payload.get("evidence_status")
+                        or payload.get("data_status")
+                        or "current_opponent"
+                    )
                 )
                 rec["evidence_files"].append(str(path.relative_to(root)))
 
@@ -204,7 +208,14 @@ def main() -> int:
         if not isinstance(package, dict):
             continue
         package_id = str(package.get("package_id") or "unknown")
-        for key in ("core_cards", "support_cards", "optional_cards", "enablers", "payoffs", "finishers"):
+        for key in (
+            "core_cards",
+            "support_cards",
+            "optional_cards",
+            "enablers",
+            "payoffs",
+            "finishers",
+        ):
             for row in package.get(key, []):
                 name = _name(row)
                 if name:
@@ -220,7 +231,9 @@ def main() -> int:
     for name in sorted(records):
         rec = records[name]
         tactical_row = tactical_cards.get(name, {}) if isinstance(tactical_cards, dict) else {}
-        tactical = isinstance(tactical_row, dict) and int(tactical_row.get("tactical_passed", 0)) > 0
+        tactical = (
+            isinstance(tactical_row, dict) and int(tactical_row.get("tactical_passed", 0)) > 0
+        )
         structural = bool(roles.get(name))
         status = "tactical_only" if tactical else "structural_only" if structural else "unsupported"
         assert status in ALLOWED_COVERAGE
@@ -241,11 +254,19 @@ def main() -> int:
                 "forge_rules_verified": False,
                 "external_rules_engine_evidence": False,
                 "coverage_status": status,
-                "fallback_policy": "tactical_oracle" if tactical else "structural_only" if structural else "unsupported",
+                "fallback_policy": (
+                    "tactical_oracle"
+                    if tactical
+                    else "structural_only"
+                    if structural
+                    else "unsupported"
+                ),
                 "inventory_candidate": bool(rec.get("inventory_candidate")),
                 "inventory_quantity": rec.get("inventory_quantity"),
                 "inventory_metadata": rec.get("inventory_metadata"),
-                "source_status": sorted(set(str(value) for value in rec["source_status"] if value)),
+                "source_status": sorted(
+                    set(str(value) for value in rec["source_status"] if value)
+                ),
                 "evidence_files": sorted(set(rec["evidence_files"])),
             }
         )
@@ -268,7 +289,10 @@ def main() -> int:
         deck_counts: dict[str, int] = defaultdict(int)
         for row in rows:
             deck_counts[row["coverage_status"]] += 1
-        deck_stats[deck_id] = {"unique_oracle_names": len(rows), "coverage": dict(deck_counts)}
+        deck_stats[deck_id] = {
+            "unique_oracle_names": len(rows),
+            "coverage": dict(deck_counts),
+        }
 
     card_registry = {
         "schema_version": 3,
