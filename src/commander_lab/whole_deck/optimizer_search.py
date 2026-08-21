@@ -16,6 +16,7 @@ from commander_lab.pod_scheduling import PodScenario
 
 from .campaign import run_balanced_paired_campaign
 from .lab_context import EnrichedWholeDeckSearchEngine
+from .mechanics_fidelity import assess_variant_mechanics
 from .optimizer_advancement import CandidatePairedEvidence, merge_pairing_conditions
 from .optimizer_v2 import (
     EvidenceContext,
@@ -37,6 +38,7 @@ from .orchestrator import WholeDeckCampaignOrchestrator
 from .search_models import WholeDeckMutation, WholeDeckNeighborhood, WholeDeckVariant
 
 EvaluationFunction = Callable[[WholeDeckVariant, int, int], ExploratoryEvaluation]
+EligibilityFunction = Callable[[WholeDeckVariant], bool]
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,7 +80,9 @@ class AdaptiveWholeDeckSearch:
     """Performance-informed search over existing legal Whole-Deck operators.
 
     Results are exploratory only. Confirmatory and holdout execution are intentionally
-    absent so search feedback cannot consume either evidence partition.
+    absent so search feedback cannot consume either evidence partition. Candidates outside
+    the question-specific Structural mechanics contract may receive the first screening
+    budget, but cannot consume later Structural racing budgets or train adaptive rewards.
     """
 
     def __init__(
@@ -99,6 +103,15 @@ class AdaptiveWholeDeckSearch:
         self.qd = qd
         self.racing = racing
         self.learning = learning
+        candidate_gate = getattr(evaluator, "structural_decision_safe", None)
+        self.expensive_evidence_eligible: EligibilityFunction | None = (
+            candidate_gate if callable(candidate_gate) else None
+        )
+
+    def _eligible_for_expensive_evidence(self, variant: WholeDeckVariant) -> bool:
+        if self.expensive_evidence_eligible is None:
+            return True
+        return bool(self.expensive_evidence_eligible(variant))
 
     def _evaluate_batch(
         self,
@@ -136,7 +149,13 @@ class AdaptiveWholeDeckSearch:
         variant_by_id = {variant.variant_id: variant for variant in variants}
         active_ids = tuple(by_id)
         for budget_index, budget in enumerate(self.racing.budgets[1:], start=1):
-            active_rows = tuple(by_id[candidate_id] for candidate_id in active_ids)
+            active_rows = tuple(
+                by_id[candidate_id]
+                for candidate_id in active_ids
+                if self._eligible_for_expensive_evidence(variant_by_id[candidate_id])
+            )
+            if not active_rows:
+                break
             survivor_ids = select_racing_survivors(active_rows, config=self.racing)
             next_rows: dict[str, ExploratoryEvaluation] = {}
             for index, candidate_id in enumerate(survivor_ids):
@@ -271,8 +290,12 @@ class AdaptiveWholeDeckSearch:
             total_pairs += pairs
             operator_rewards: dict[str, list[float]] = defaultdict(list)
             policy_rewards: dict[str, list[float]] = defaultdict(list)
+            proposal_by_id = {proposal.variant_id: proposal for proposal in proposals}
             for row in generation_eval:
                 evaluations_by_variant[row.candidate_id] = row
+                variant = proposal_by_id[row.candidate_id]
+                if not self._eligible_for_expensive_evidence(variant):
+                    continue
                 parent_id, operator_name, policy_id = proposal_metadata[row.candidate_id]
                 parent_eval = evaluations_by_variant.get(parent_id)
                 reward = row.robust_lower_bound - (
@@ -345,6 +368,7 @@ class ProjectPairedEvaluator:
         self.manifest = manifest
         self.orchestrator = orchestrator
         self.context = context
+        self.control_mainboard = control_mainboard
         self.control = context.materialize(control_mainboard, label="optimizer-v2-control")
         if self.control.deck_hash != manifest.control_deck_hash:
             raise ValueError("optimizer manifest control hash does not match current control")
@@ -358,6 +382,15 @@ class ProjectPairedEvaluator:
         )
         _verify_partition(self.scenarios, manifest.exploratory)
         self.advancement_evidence: dict[str, CandidatePairedEvidence] = {}
+
+    def structural_decision_safe(self, variant: WholeDeckVariant) -> bool:
+        assessment = assess_variant_mechanics(
+            self.context,
+            control=self.control_mainboard,
+            candidate=variant.mainboard,
+            deck_hash=variant.deck_hash,
+        )
+        return assessment.get("pass") is True
 
     def __call__(
         self,
