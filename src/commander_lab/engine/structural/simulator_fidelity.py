@@ -14,6 +14,8 @@ from commander_lab.models import (
 
 from .simulator import (
     StructuralSimulator as LegacyStructuralSimulator,
+)
+from .simulator import (
     _Commander,
     _EventRecorder,
     _Player,
