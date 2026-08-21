@@ -13,10 +13,10 @@ from commander_lab.models import (
 )
 
 from .simulator import (
-    StructuralSimulator as LegacyStructuralSimulator,
     _Commander,
     _EventRecorder,
     _Player,
+    StructuralSimulator as LegacyStructuralSimulator,
 )
 
 FIDELITY_ENGINE_VERSION = "structural-fidelity-overlay-2026-08-21-v1"
