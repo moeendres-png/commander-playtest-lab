@@ -7,7 +7,9 @@ from commander_lab.models import Color, StructuralCardProfile
 from commander_lab.models.roles import CardRole
 
 FACT_FIDELITY_VERSION = "structural-card-facts-2026-08-21-v1"
-_PERMANENT_TYPES = frozenset({"Artifact", "Battle", "Creature", "Enchantment", "Land", "Planeswalker"})
+_PERMANENT_TYPES = frozenset(
+    {"Artifact", "Battle", "Creature", "Enchantment", "Land", "Planeswalker"}
+)
 _SIMPLE_COLOR_SYMBOL = re.compile(r"\{([WUBRG])\}")
 
 
