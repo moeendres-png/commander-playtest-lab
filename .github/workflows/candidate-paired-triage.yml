@@ -5,15 +5,12 @@ on:
     branches: [main]
     paths:
       - 'src/commander_lab/candidate_evaluation.py'
-      - 'src/commander_lab/current_model_resolution.py'
       - 'src/commander_lab/priority_workflows.py'
       - 'src/commander_lab/decision_information.py'
       - 'src/commander_lab/model_informativeness.py'
       - 'src/commander_lab/advancement.py'
       - 'src/commander_lab/optimization/**'
-      - 'data/diagnostics/MODEL_RESOLUTION_CURRENT.json'
       - 'scripts/run_candidate_paired_triage.py'
-      - 'scripts/apply_candidate_resolution_gate.py'
       - '.github/workflows/candidate-paired-triage.yml'
   workflow_dispatch:
 
@@ -43,9 +40,7 @@ jobs:
           CANDIDATE_TRIAGE_INITIAL_ITERATIONS: '8'
           CANDIDATE_TRIAGE_REFINED_ITERATIONS: '32'
         run: python scripts/run_candidate_paired_triage.py
-      - name: Apply fresh measured model-resolution gate
-        run: python scripts/apply_candidate_resolution_gate.py
-      - name: Verify triage evidence, prefix reuse, cohort and resolution gates
+      - name: Verify exploratory triage evidence, prefix reuse and cohort diagnostics
         run: |
           python - <<'PY'
           import json
@@ -69,6 +64,11 @@ jobs:
               raise SystemExit('paired triage reserved inventory')
           if payload.get('final_recommendation') is not False:
               raise SystemExit('paired triage emitted a premature final recommendation')
+          if payload.get('resolution_gate_applied') is True:
+              raise SystemExit('retired effective-resolution gate was reactivated')
+          legacy_gate = payload.get('model_resolution_gate')
+          if isinstance(legacy_gate, dict) and legacy_gate.get('effective_resolution') is not None:
+              raise SystemExit('triage artifact contains an operative legacy resolution threshold')
 
           initial_iterations = payload.get('initial_iterations_per_variant')
           refined_iterations = payload.get('refined_iterations_per_open_variant')
@@ -118,19 +118,6 @@ jobs:
               if not isinstance(cohort_model, dict):
                   raise SystemExit('cohort diagnosis lost model informativeness')
 
-              validated_resolution = row.get('validated_model_resolution')
-              if not isinstance(validated_resolution, dict):
-                  raise SystemExit('paired triage row lost validated model resolution')
-              if validated_resolution.get('freshness_validated') is not True:
-                  raise SystemExit('candidate decision used stale model resolution')
-              for key in (
-                  'resolution_only_decision_information_state',
-                  'governed_decision_information_state',
-                  'resolution_aware_advancement_decision',
-              ):
-                  if not isinstance(row.get(key), dict):
-                      raise SystemExit(f'candidate row lost {key}')
-
           if payload.get('refinement_candidate_count') != expected_refinements:
               raise SystemExit('refinement count disagrees with decision-information states')
           if payload.get('total_reused_prefix_pairs') != expected_refinements * 8:
@@ -157,25 +144,13 @@ jobs:
                   ):
                       raise SystemExit('model limit did not stop blind same-model seed expansion')
 
-          gate = payload.get('model_resolution_gate')
-          if not isinstance(gate, dict):
-              raise SystemExit('paired triage lost the measured model-resolution gate')
-          if gate.get('status') != 'MEASURED' or gate.get('freshness_validated') is not True:
-              raise SystemExit('model-resolution gate is not fresh measured evidence')
-          resolution = gate.get('effective_resolution')
-          if not isinstance(resolution, (int, float)) or isinstance(resolution, bool) or resolution <= 0:
-              raise SystemExit('model-resolution gate has no positive threshold')
-          if payload.get('resolution_gate_applied') is not True:
-              raise SystemExit('paired triage did not apply model resolution')
-
           print('CANDIDATE_PAIRED_TRIAGE=PASS')
           print('ADAPTIVE_PRECISION=8_TO_32_ONLY_WHEN_MORE_SIMULATIONS_USEFUL')
           print('PREFIX_REUSE=PASS')
           print(f'COHORT_MODEL_INFORMATION={model_status}')
-          print(f'VALIDATED_MODEL_RESOLUTION={resolution}')
-          print('MODEL_RESOLUTION_FRESHNESS=PASS')
+          print('LEGACY_EFFECTIVE_RESOLUTION_GATE=RETIRED_1E_2F_REQUIRED')
           print('PAIRING_SCOPE=baseline_vs_variant_within_candidate_only')
-          print('EVIDENCE_BOUNDARY=structural_precision_plus_model_diagnostic_not_empirical_winrate')
+          print('EVIDENCE_BOUNDARY=exploratory_structural_precision_plus_model_diagnostic_not_final_decision')
           PY
       - name: Assert tracked repository remains clean
         shell: bash
