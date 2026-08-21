@@ -473,8 +473,7 @@ def run_decision_confirmatory_guarded(
     routed_frontier = write_structural_confirmatory_frontier(
         frontier_path,
         fidelity=fidelity,
-        output_path=Path(run_directory).resolve()
-        / "frontier-handoff-structural-confirmatory.json",
+        output_path=Path(run_directory).resolve() / "frontier-handoff-structural-confirmatory.json",
     )
     result = dict(
         run_decision_confirmatory(
