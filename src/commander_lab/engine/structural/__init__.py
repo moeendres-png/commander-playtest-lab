@@ -9,17 +9,14 @@ from .profiles import (
 )
 from .project import load_project_structural_decks
 from .scheduling import effective_worker_count, run_structural_batch
-from .simulator import (
-    ENGINE_VERSION,
-    StructuralSimulator,
-    commander_cast_cost,
-    commander_damage_is_lethal,
-)
+from .simulator import ENGINE_VERSION, commander_cast_cost, commander_damage_is_lethal
+from .simulator_fidelity import FIDELITY_ENGINE_VERSION, StructuralSimulator
 from .triggers import AbstractTrigger, order_simultaneous_triggers, trigger_resolution_order
 from .validation import VALIDATION_SCENARIOS, run_phase3_validation
 
 __all__ = [
     "ENGINE_VERSION",
+    "FIDELITY_ENGINE_VERSION",
     "VALIDATION_SCENARIOS",
     "AbstractTrigger",
     "StructuralProfileCatalog",
