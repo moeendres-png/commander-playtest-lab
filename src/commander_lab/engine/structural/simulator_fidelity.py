@@ -5,7 +5,12 @@ import random
 from pathlib import Path
 
 from commander_lab.agents import build_pilot
-from commander_lab.models import PilotConfig, StructuralMatchConfig, StructuralMatchResult
+from commander_lab.models import (
+    PilotConfig,
+    StructuralCardProfile,
+    StructuralMatchConfig,
+    StructuralMatchResult,
+)
 
 from .simulator import (
     StructuralSimulator as LegacyStructuralSimulator,
@@ -49,9 +54,6 @@ class StructuralSimulator(LegacyStructuralSimulator):
             rng.shuffle(library)
             pilot_config = config.pilot_configs[seat] if config.pilot_configs else PilotConfig()
             pilot = build_pilot(pilot_config, strategy=deck.commander_strategy)
-
-            # CRN contract: paired baseline/variant runs may have different match labels, but
-            # stochastic pilot streams must depend only on the paired scenario seed and seat.
             pilot_seed_raw = hashlib.sha256(
                 f"{FIDELITY_ENGINE_VERSION}|{config.seed}|pilot|{seat}".encode()
             ).digest()
@@ -97,8 +99,6 @@ class StructuralSimulator(LegacyStructuralSimulator):
         decision_campaign = run_id.startswith("balanced")
         effective = config
         if decision_campaign:
-            # The legacy no-progress heuristic counts only life loss. Disable it as an earlier
-            # decision endpoint; max-turns remains the bounded stop and any abort is censored.
             limits = config.limits.model_copy(
                 update={
                     "max_no_progress_turns": min(
@@ -131,8 +131,6 @@ class StructuralSimulator(LegacyStructuralSimulator):
     ) -> bool:
         commander = player.commanders[name]
         if not commander.on_battlefield:
-            # A zone change creates a new object. Ishai counters and other temporary power
-            # changes must not survive removal/counter/recast.
             commander.power = commander.base_power
         return super()._cast_commander(player, name, players, recorder, score)
 
@@ -143,10 +141,7 @@ class StructuralSimulator(LegacyStructuralSimulator):
         threat_score: float,
         recorder: _EventRecorder,
     ) -> bool:
-        # Target-restricted/alternative-cost counters are not representable by the core stack
-        # abstraction. Remove them from this reaction window rather than let them counter an
-        # illegal spell. The mechanics gate routes their card-swap decisions to a higher layer.
-        held: list[tuple[_Player, int, object]] = []
+        held: list[tuple[_Player, int, StructuralCardProfile]] = []
         for opponent in players:
             for index in range(len(opponent.hand) - 1, -1, -1):
                 card = opponent.hand[index]
@@ -156,8 +151,8 @@ class StructuralSimulator(LegacyStructuralSimulator):
         try:
             return super()._attempt_counter(caster, players, threat_score, recorder)
         finally:
-            for opponent, index, raw_card in reversed(held):
-                opponent.hand.insert(index, raw_card)  # type: ignore[arg-type]
+            for opponent, index, card in reversed(held):
+                opponent.hand.insert(index, card)
 
     @staticmethod
     def _reset_absent_commanders(players: list[_Player]) -> None:
@@ -169,19 +164,19 @@ class StructuralSimulator(LegacyStructuralSimulator):
     def _resolve_removal(
         self,
         player: _Player,
-        card: object,
+        card: StructuralCardProfile,
         players: list[_Player],
         recorder: _EventRecorder,
     ) -> None:
-        super()._resolve_removal(player, card, players, recorder)  # type: ignore[arg-type]
+        super()._resolve_removal(player, card, players, recorder)
         self._reset_absent_commanders(players)
 
     def _resolve_wipe(
         self,
         player: _Player,
-        card: object,
+        card: StructuralCardProfile,
         players: list[_Player],
         recorder: _EventRecorder,
     ) -> None:
-        super()._resolve_wipe(player, card, players, recorder)  # type: ignore[arg-type]
+        super()._resolve_wipe(player, card, players, recorder)
         self._reset_absent_commanders(players)
