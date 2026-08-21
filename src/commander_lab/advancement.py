@@ -6,6 +6,7 @@ from typing import Any, Literal
 from commander_lab.storage import sha256_value
 
 AdvancementStatus = Literal["advance", "diagnose", "reject", "profile_required"]
+LEGACY_ADVANCEMENT_REASON = "legacy_advancement_retired_use_optimizer_v2_1E_2F"
 
 
 @dataclass(frozen=True)
@@ -46,11 +47,13 @@ def decide_advancement(
     model_resolution: dict[str, Any] | None = None,
     profile_required: bool = False,
 ) -> AdvancementDecision:
-    """Apply fail-closed preregistered gates before finalist-only work.
+    """Compatibility shim for the retired pre-1E/2F advancement API.
 
-    Decision-quality metadata may be supplied explicitly or embedded in the comparison. Legacy
-    comparisons without the new metadata remain readable, but any supplied decision-quality limit
-    is upstream of effect-based advancement.
+    Historical callers may still use this function to diagnose hard-constraint, domain,
+    fidelity, model-information, and stale-resolution problems. It must never use the retired
+    ``effective_resolution`` value to authorize sensitivity, ablation, promotion, rejection, or
+    canonical deck changes. Once the diagnostic prerequisites are satisfied, current decisions
+    are routed to the manifest-bound Optimizer-v2 1E/2F path.
     """
 
     if comparison.get("status") != "completed":
@@ -103,55 +106,18 @@ def decide_advancement(
         return AdvancementDecision(
             status="diagnose",
             reason_code="model_resolution_unmeasured",
-            reason="synthetic calibration alone does not establish Structural Model resolution",
+            reason="legacy resolution metadata is stale or unmeasured; it cannot authorize advancement",
             sensitivity_allowed=False,
             expensive_ablation_allowed=False,
         )
 
-    paired = comparison.get("paired", {})
-    interval = paired.get("confidence_interval", ()) if isinstance(paired, dict) else ()
-    if not isinstance(interval, list | tuple) or len(interval) != 2:
-        return AdvancementDecision(
-            status="diagnose",
-            reason_code="missing_uncertainty_interval",
-            reason="paired comparison lacks the uncertainty evidence required to advance",
-            sensitivity_allowed=False,
-            expensive_ablation_allowed=False,
-        )
-    low = float(interval[0])
-    high = float(interval[1])
-    robust = float(paired.get("distributionally_robust_lower_bound", 0.0))
-    effective_resolution = 0.0
-    if resolution:
-        raw_resolution = resolution.get("effective_resolution")
-        if isinstance(raw_resolution, (int, float)) and not isinstance(raw_resolution, bool):
-            effective_resolution = max(0.0, float(raw_resolution))
-    if low > effective_resolution and robust >= 0.0:
-        return AdvancementDecision(
-            status="advance",
-            reason_code="separated_positive_beyond_resolution_and_lower_tail_nonnegative",
-            reason=(
-                "central interval is positive beyond the available Structural decision resolution "
-                "and the robust lower-tail bound is nonnegative"
-            ),
-            sensitivity_allowed=True,
-            expensive_ablation_allowed=True,
-        )
-    if high < -effective_resolution:
-        return AdvancementDecision(
-            status="reject",
-            reason_code="separated_negative_beyond_resolution",
-            reason="paired structural interval is materially separated in the unfavorable direction",
-            sensitivity_allowed=False,
-            expensive_ablation_allowed=False,
-        )
     return AdvancementDecision(
         status="diagnose",
-        reason_code="unresolved_or_lower_tail_unfavorable",
-        reason="the variant is not qualified for finalist-only sensitivity",
+        reason_code=LEGACY_ADVANCEMENT_REASON,
+        reason=(
+            "legacy effective-resolution advancement is retired; use the manifest-bound "
+            "Optimizer v2 1E/2F confirmatory decision path"
+        ),
         sensitivity_allowed=False,
         expensive_ablation_allowed=False,
     )
-
-
-__all__ = ["AdvancementDecision", "decide_advancement"]

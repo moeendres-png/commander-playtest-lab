@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from commander_lab.advancement import decide_advancement
+from commander_lab.advancement import LEGACY_ADVANCEMENT_REASON, decide_advancement
 from commander_lab.model_informativeness import assess_model_informativeness
 
 
@@ -48,7 +48,7 @@ def test_more_seeds_without_more_information_cannot_promote_quality() -> None:
     assert repeated.evidence_class == "structural_model_diagnostic"
 
 
-def test_discriminative_golden_artifact_permits_comparison() -> None:
+def test_discriminative_golden_artifact_is_informative_but_legacy_gate_stays_retired() -> None:
     report = assess_model_informativeness(
         baseline_place_1_share=0.55,
         seat_results={
@@ -73,8 +73,9 @@ def test_discriminative_golden_artifact_permits_comparison() -> None:
     )
 
     assert report.status == "INFORMATIVE"
-    assert decision.status == "advance"
-    assert decision.sensitivity_allowed is True
+    assert decision.status == "diagnose"
+    assert decision.reason_code == LEGACY_ADVANCEMENT_REASON
+    assert decision.sensitivity_allowed is False
 
 
 def test_information_limit_blocks_finalist_advancement() -> None:
@@ -90,5 +91,6 @@ def test_information_limit_blocks_finalist_advancement() -> None:
     )
 
     assert decision.status == "diagnose"
+    assert decision.reason_code == "model_information_limit"
     assert decision.sensitivity_allowed is False
     assert decision.expensive_ablation_allowed is False

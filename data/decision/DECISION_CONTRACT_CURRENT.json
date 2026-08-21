@@ -1,8 +1,10 @@
 {
-  "schema_version": "1.1",
-  "effective_date": "2026-08-20",
+  "schema_version": "1.2",
+  "effective_date": "2026-08-21",
   "contract_id": "rogshai-hierarchical-pareto-1E-v1",
   "precision_contract_id": "rogshai-hybrid-sequential-2F-v1",
+  "mechanics_contract_id": "rogshai-question-specific-mechanics-fidelity-v1",
+  "structural_semantic_model_version": "structural-mechanics-fidelity-2026-08-21-v1",
   "status": "frozen_for_next_fresh_campaign",
   "operational_pod_sizes": [4],
   "evidence_type": "structural_model_estimates",
@@ -17,6 +19,7 @@
     "PRACTICAL_EFFECT_AND_2F_PRECISION",
     "FOUR_PLAYER_ROBUSTNESS",
     "SEMANTIC_FIDELITY",
+    "QUESTION_SPECIFIC_MECHANICS_FIDELITY",
     "PARETO_FINAL_COMPARISON",
     "COMMANDER_DENIAL_AND_PACKAGE_ABLATION_DIAGNOSTICS",
     "FREEZE_SINGLE_CHALLENGER",
@@ -25,6 +28,27 @@
   "search_objective_boundary": {
     "qd_and_robust_lower_bound": "exploratory_discovery_and_shortlisting_only",
     "may_directly_declare_winner": false
+  },
+  "mechanics_fidelity": {
+    "question_scope": "variant_delta_against_current_control",
+    "tiers": [
+      "MECHANISTICALLY_SUPPORTED",
+      "APPROXIMATED_DECISION_SAFE",
+      "APPROXIMATED_SCREENING_ONLY",
+      "TACTICAL_REQUIRED",
+      "EXTERNAL_RULES_REQUIRED",
+      "UNSUPPORTED"
+    ],
+    "structural_confirmatory_allowed": [
+      "MECHANISTICALLY_SUPPORTED",
+      "APPROXIMATED_DECISION_SAFE"
+    ],
+    "exploratory_screening_only": ["APPROXIMATED_SCREENING_ONLY"],
+    "higher_layer_or_fail_closed": ["TACTICAL_REQUIRED", "EXTERNAL_RULES_REQUIRED"],
+    "always_fail_closed": ["UNSUPPORTED"],
+    "baseline_rules_complete_claim": false,
+    "stale_evidence_rule": "semantic model version mismatch => STALE_MODEL_VERSION and rerun confirmatory",
+    "provider_fallback_rule": "if the required tactical/external provider is not validated for the mechanic, do not promote"
   },
   "confirmatory_precision": {
     "policy_id": "rogshai-hybrid-sequential-2F-v1",
@@ -35,7 +59,7 @@
     "mcse_max_for_promotion": 0.025,
     "seed_block_count": 4,
     "seed_stability_rule": "all block means >= -0.05 and max abs deviation from pooled <= max(0.10, 4*MCSE)",
-    "promotion_candidate_rule": "interval_low > 0.05 AND MCSE <= 0.025 AND seed_stability AND broad_4p_robustness AND semantic_fidelity",
+    "promotion_candidate_rule": "interval_low > 0.05 AND MCSE <= 0.025 AND seed_stability AND broad_4p_robustness AND semantic_fidelity AND question_specific_mechanics_fidelity",
     "reject_harm_rule": "interval_high < 0",
     "futility_min_budget": 1024,
     "futility_rule": "interval_high < 0.05",
@@ -81,7 +105,7 @@
     "paired_4p_budget": 2048,
     "planned_looks": 1,
     "two_sided_confidence": 0.95,
-    "winner_rule": "interval_low > 0.05 AND broad_4p_robustness AND critical_diagnostics_pass",
+    "winner_rule": "interval_low > 0.05 AND broad_4p_robustness AND critical_diagnostics_pass AND question_specific_mechanics_fidelity",
     "failure_result": "NO_WINNER",
     "consumed_historical_holdout_reuse_forbidden": true
   },

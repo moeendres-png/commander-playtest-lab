@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from commander_lab.advancement import LEGACY_ADVANCEMENT_REASON
 from commander_lab.priority_workflows import PriorityWorkflowFacade
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -143,7 +144,7 @@ def test_playstyle_annotations_do_not_change_objective_workflow_results() -> Non
         assert before[key] == after[key]
 
 
-def test_public_advancement_interface_applies_resolution_and_model_information() -> None:
+def test_public_advancement_interface_preserves_diagnostics_but_retires_resolution_gate() -> None:
     comparison = {
         "status": "completed",
         "paired": {
@@ -157,14 +158,15 @@ def test_public_advancement_interface_applies_resolution_and_model_information()
         comparison,
         model_resolution=measured,
     )
-    assert separated["status"] == "advance"
+    assert separated["status"] == "diagnose"
+    assert separated["reason_code"] == LEGACY_ADVANCEMENT_REASON
 
-    unresolved = PriorityWorkflowFacade.advancement_decision(
+    changed_threshold = PriorityWorkflowFacade.advancement_decision(
         comparison,
         model_resolution={"status": "MEASURED", "effective_resolution": 0.70},
     )
-    assert unresolved["status"] == "diagnose"
-    assert unresolved["reason_code"] == "unresolved_or_lower_tail_unfavorable"
+    assert changed_threshold["status"] == "diagnose"
+    assert changed_threshold["reason_code"] == LEGACY_ADVANCEMENT_REASON
 
     governed = PriorityWorkflowFacade.advancement_decision(
         comparison,
