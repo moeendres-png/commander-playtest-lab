@@ -5,9 +5,9 @@ from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from commander_lab.models import CardRole, StructuralMechanic
+from commander_lab.models.roles import CardRole, StructuralMechanic
 from commander_lab.storage import atomic_write_json, sha256_value
 
 from .lab import WholeDeckDesignLab
@@ -34,9 +34,6 @@ DECISION_SAFE_TIERS = frozenset(
     }
 )
 
-# Explicitly classified current RogShai cards whose real rules text cannot be represented
-# faithfully enough by the present Structural resolver. These rows intentionally fail closed
-# for confirmatory decisions when the card is added or removed by a candidate.
 TACTICAL_REQUIRED_CARDS = frozenset(
     {
         "Silence",
@@ -79,9 +76,9 @@ EXTERNAL_RULES_REQUIRED_CARDS = frozenset(
     }
 )
 
-# These roles are intentionally never promoted from the legacy Structural abstraction to
-# decision-safe by default. Exact targeting, payment, stack, wipe, combat, and attachment
-# legality is still absent or incomplete in the legacy resolver.
+# Exact targeting, stack, wipe, combat, payment and attachment legality is not represented by
+# the legacy Structural resolver. These categories therefore cannot silently become strong
+# confirmatory evidence merely because their semantic profile is known.
 TACTICAL_ROLES = frozenset({CardRole.COUNTER, CardRole.PROTECTION})
 EXTERNAL_RULES_ROLES = frozenset({CardRole.REMOVAL, CardRole.WIPE, CardRole.COMBAT_PAYOFF})
 SCREENING_ONLY_ROLES = frozenset(
@@ -132,17 +129,10 @@ def classify_card_semantics(
     mechanic_tags: Iterable[StructuralMechanic],
     is_basic: bool = False,
 ) -> tuple[MechanicsFidelityTier, tuple[str, ...]]:
-    """Classify one card for Structural decision use.
-
-    This is deliberately conservative. The current engine may still use lower-fidelity
-    approximations during exploratory screening, but confirmatory evidence is allowed only
-    for cards classified as decision-safe in the *variant delta*.
-    """
+    """Return the strongest evidence layer permitted for one card's Structural semantics."""
 
     role_set = frozenset(roles)
     mechanic_set = frozenset(mechanic_tags)
-    reasons: list[str] = []
-
     if semantic_state == SEMANTIC_UNKNOWN:
         return MechanicsFidelityTier.UNSUPPORTED, ("semantic_unknown",)
     if oracle_name in TACTICAL_REQUIRED_CARDS:
@@ -152,25 +142,25 @@ def classify_card_semantics(
             "explicit_external_rules_contract",
         )
     if role_set & TACTICAL_ROLES:
-        reasons.append("stack_or_protection_legality_not_mechanistic")
-        return MechanicsFidelityTier.TACTICAL_REQUIRED, tuple(reasons)
+        return MechanicsFidelityTier.TACTICAL_REQUIRED, (
+            "stack_or_protection_legality_not_mechanistic",
+        )
     if role_set & EXTERNAL_RULES_ROLES:
-        reasons.append("target_wipe_or_combat_legality_not_mechanistic")
-        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, tuple(reasons)
+        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, (
+            "target_wipe_or_combat_legality_not_mechanistic",
+        )
     if mechanic_set & EXTERNAL_RULES_MECHANICS:
-        reasons.append("mechanic_requires_rules_accurate_state_or_sequencing")
-        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, tuple(reasons)
+        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, (
+            "mechanic_requires_rules_accurate_state_or_sequencing",
+        )
     if role_set & SCREENING_ONLY_ROLES or mechanic_set & SCREENING_ONLY_MECHANICS:
-        reasons.append("structural_abstraction_is_screening_only")
-        return MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY, tuple(reasons)
+        return MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY, (
+            "structural_abstraction_is_screening_only",
+        )
     if is_basic:
         return MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE, (
             "basic_land_quantity_only; source-color legality remains separately gated",
         )
-
-    # Pure draw/selection/recursion/graveyard-hate/enabler rows with known semantics are
-    # currently accepted only as approximated decision-safe. Any richer role/mechanic above
-    # takes precedence and fails closed.
     if role_set <= {
         CardRole.DRAW,
         CardRole.SELECTION,
@@ -181,7 +171,6 @@ def classify_card_semantics(
         return MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE, (
             "known_simple_structural_role_without_high_risk_mechanic_tag",
         )
-
     return MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY, (
         "no_explicit_decision_safe_mechanics_contract",
     )
@@ -219,8 +208,6 @@ def _card_assessment(context: Any, oracle_name: str) -> dict[str, object]:
 def changed_card_multiset(
     control: Sequence[str], candidate: Sequence[str]
 ) -> tuple[tuple[str, int, str], ...]:
-    """Return the symmetric multiset delta as (name, quantity, direction)."""
-
     left = Counter(control)
     right = Counter(candidate)
     rows: list[tuple[str, int, str]] = []
@@ -260,32 +247,34 @@ def assess_variant_mechanics(
         "pass": not blocked,
         "decision_safe_tiers": sorted(tier.value for tier in DECISION_SAFE_TIERS),
         "truth_boundary": (
-            "Structural mechanics fidelity gate for this card-swap question only; "
-            "not a claim that the entire baseline deck is rules-complete"
+            "Structural mechanics fidelity gate for this card-swap question only; not a claim "
+            "that the entire baseline deck is rules-complete"
         ),
     }
 
 
-def _shortlist_rows(payload: Mapping[str, object], limit: int = SHORTLIST_LIMIT) -> tuple[dict[str, Any], ...]:
+def _shortlist_rows(
+    payload: Mapping[str, object], limit: int = SHORTLIST_LIMIT
+) -> tuple[dict[str, Any], ...]:
     raw_elites = payload.get("elites")
     if not isinstance(raw_elites, list):
         raise RuntimeError("frontier mechanics gate requires an elites list")
     rows = [
-        row
+        cast(dict[str, Any], row)
         for row in raw_elites
         if isinstance(row, dict) and isinstance(row.get("evaluation"), dict)
     ]
     rows.sort(
         key=lambda row: (
-            -float(row["evaluation"].get("robust_lower_bound", -999.0)),
-            -float(row["evaluation"].get("score", -999.0)),
+            -float(cast(Mapping[str, object], row["evaluation"]).get("robust_lower_bound", -999.0)),
+            -float(cast(Mapping[str, object], row["evaluation"]).get("score", -999.0)),
             str(row.get("deck_hash", "")),
         )
     )
     selected: list[dict[str, Any]] = []
     seen_cells: set[str] = set()
     for row in rows:
-        evaluation = row["evaluation"]
+        evaluation = cast(Mapping[str, object], row["evaluation"])
         cell = str(evaluation.get("qd_cell", ""))
         if cell and cell not in seen_cells:
             selected.append(row)
@@ -303,17 +292,14 @@ def _shortlist_rows(payload: Mapping[str, object], limit: int = SHORTLIST_LIMIT)
     return tuple(selected)
 
 
-def assess_frontier_mechanics(
-    root: str | Path,
-    frontier_path: str | Path,
-) -> dict[str, object]:
+def assess_frontier_mechanics(root: str | Path, frontier_path: str | Path) -> dict[str, object]:
     root_path = Path(root).resolve()
     payload = json.loads(Path(frontier_path).read_text(encoding="utf-8-sig"))
     if not isinstance(payload, dict):
         raise RuntimeError("frontier mechanics gate requires a JSON object")
     lab = WholeDeckDesignLab(root_path)
     control = current_control_mainboard(root_path)
-    shortlist = _shortlist_rows(payload)
+    shortlist = _shortlist_rows(cast(Mapping[str, object], payload))
     assessments: list[dict[str, object]] = []
     malformed: list[str] = []
     for index, row in enumerate(shortlist):
@@ -323,7 +309,7 @@ def assess_frontier_mechanics(
             continue
         try:
             variant = WholeDeckVariant.model_validate(raw_variant)
-        except Exception as exc:  # Pydantic exposes rich validation details; fail closed here.
+        except Exception as exc:
             malformed.append(f"shortlist[{index}].variant_invalid:{exc}")
             continue
         assessments.append(
@@ -334,9 +320,8 @@ def assess_frontier_mechanics(
                 deck_hash=variant.deck_hash,
             )
         )
-
     blocked = [row for row in assessments if row.get("pass") is not True]
-    report = {
+    return {
         "schema_version": "1.0.0",
         "semantic_model_version": STRUCTURAL_SEMANTIC_MODEL_VERSION,
         "semantic_model_identity": sha256_value(
@@ -369,17 +354,15 @@ def assess_frontier_mechanics(
             "remain fixed context and are not upgraded to empirical or rules-engine evidence."
         ),
     }
-    return report
 
 
 def require_frontier_mechanics_decision_safe(
-    root: str | Path,
-    frontier_path: str | Path,
+    root: str | Path, frontier_path: str | Path
 ) -> dict[str, object]:
     report = assess_frontier_mechanics(root, frontier_path)
     if report["pass"] is not True:
-        blocked = ", ".join(str(value) for value in report["blocked_variant_hashes"])
-        malformed = "; ".join(str(value) for value in report["malformed_rows"])
+        blocked = ", ".join(str(value) for value in cast(list[object], report["blocked_variant_hashes"]))
+        malformed = "; ".join(str(value) for value in cast(list[object], report["malformed_rows"]))
         detail = blocked or malformed or "unknown mechanics fidelity failure"
         raise RuntimeError(
             "confirmatory Structural decision blocked by question-specific mechanics fidelity: "
@@ -403,7 +386,7 @@ def require_confirmatory_mechanics_artifact(path: str | Path) -> dict[str, objec
         )
     if fidelity.get("pass") is not True:
         raise RuntimeError("confirmatory artifact failed the mechanics fidelity contract")
-    return fidelity
+    return cast(dict[str, object], fidelity)
 
 
 def run_decision_confirmatory_guarded(
@@ -418,15 +401,16 @@ def run_decision_confirmatory_guarded(
     from .optimizer_v2_decision_runtime import run_decision_confirmatory
 
     fidelity = require_frontier_mechanics_decision_safe(root, frontier_path)
-    result = run_decision_confirmatory(
-        root,
-        manifest,
-        frontier_path=frontier_path,
-        run_directory=run_directory,
-        workers=workers,
-        max_turns=max_turns,
+    result = dict(
+        run_decision_confirmatory(
+            root,
+            manifest,
+            frontier_path=frontier_path,
+            run_directory=run_directory,
+            workers=workers,
+            max_turns=max_turns,
+        )
     )
-    result = dict(result)
     result["mechanics_fidelity"] = fidelity
     atomic_write_json(Path(run_directory).resolve() / "confirmatory-report.json", result)
     return result
