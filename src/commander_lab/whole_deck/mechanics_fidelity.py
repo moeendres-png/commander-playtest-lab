@@ -161,13 +161,17 @@ def classify_card_semantics(
         return MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE, (
             "basic_land_quantity_only; source-color legality remains separately gated",
         )
-    if role_set <= {
-        CardRole.DRAW,
-        CardRole.SELECTION,
-        CardRole.RECURSION,
-        CardRole.GRAVEYARD_HATE,
-        CardRole.ENABLER,
-    } and not mechanic_set:
+    if (
+        role_set
+        <= {
+            CardRole.DRAW,
+            CardRole.SELECTION,
+            CardRole.RECURSION,
+            CardRole.GRAVEYARD_HATE,
+            CardRole.ENABLER,
+        }
+        and not mechanic_set
+    ):
         return MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE, (
             "known_simple_structural_role_without_high_risk_mechanic_tag",
         )
@@ -253,6 +257,13 @@ def assess_variant_mechanics(
     }
 
 
+def _mapping_number(mapping: Mapping[str, object], key: str, default: float) -> float:
+    value = mapping.get(key, default)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    return default
+
+
 def _shortlist_rows(
     payload: Mapping[str, object], limit: int = SHORTLIST_LIMIT
 ) -> tuple[dict[str, Any], ...]:
@@ -266,8 +277,10 @@ def _shortlist_rows(
     ]
     rows.sort(
         key=lambda row: (
-            -float(cast(Mapping[str, object], row["evaluation"]).get("robust_lower_bound", -999.0)),
-            -float(cast(Mapping[str, object], row["evaluation"]).get("score", -999.0)),
+            -_mapping_number(
+                cast(Mapping[str, object], row["evaluation"]), "robust_lower_bound", -999.0
+            ),
+            -_mapping_number(cast(Mapping[str, object], row["evaluation"]), "score", -999.0),
             str(row.get("deck_hash", "")),
         )
     )
@@ -361,7 +374,9 @@ def require_frontier_mechanics_decision_safe(
 ) -> dict[str, object]:
     report = assess_frontier_mechanics(root, frontier_path)
     if report["pass"] is not True:
-        blocked = ", ".join(str(value) for value in cast(list[object], report["blocked_variant_hashes"]))
+        blocked = ", ".join(
+            str(value) for value in cast(list[object], report["blocked_variant_hashes"])
+        )
         malformed = "; ".join(str(value) for value in cast(list[object], report["malformed_rows"]))
         detail = blocked or malformed or "unknown mechanics fidelity failure"
         raise RuntimeError(
