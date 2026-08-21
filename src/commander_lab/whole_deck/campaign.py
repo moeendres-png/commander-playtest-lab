@@ -118,6 +118,9 @@ def _simulate_one(
         "place_1": float(own_metrics.placement == 1),
         "damage": float(own_metrics.normal_damage_dealt + own_metrics.commander_damage_dealt),
         "cards_drawn": float(own_metrics.cards_drawn),
+        "completed": result.completed,
+        "aborted": result.aborted,
+        "abort_reason": result.abort_reason,
         "log_sha256": result.log_sha256,
     }
 
@@ -194,6 +197,12 @@ def _run_scenario_worker(payload: dict[str, Any]) -> dict[str, object]:
         "variant_damage": variant_row["damage"],
         "baseline_cards_drawn": baseline_row["cards_drawn"],
         "variant_cards_drawn": variant_row["cards_drawn"],
+        "baseline_completed": baseline_row["completed"],
+        "variant_completed": variant_row["completed"],
+        "baseline_aborted": baseline_row["aborted"],
+        "variant_aborted": variant_row["aborted"],
+        "baseline_abort_reason": baseline_row["abort_reason"],
+        "variant_abort_reason": variant_row["abort_reason"],
         "baseline_log_sha256": baseline_row["log_sha256"],
         "variant_log_sha256": variant_row["log_sha256"],
         "candidate_isolation": True,
@@ -220,6 +229,7 @@ def _single_deck_summary(
     place_1 = tuple(
         _numeric_float(row[f"{prefix}_place_1"], field=f"{prefix}_place_1") for row in observations
     )
+    aborted_games = sum(row.get(f"{prefix}_aborted") is True for row in observations)
     placement_distribution = Counter(int(value) for value in placements)
     per_opponent: dict[str, list[float]] = defaultdict(list)
     per_group: dict[str, list[float]] = defaultdict(list)
@@ -234,6 +244,8 @@ def _single_deck_summary(
     ci = _mean_ci(place_1, seed=seed)
     summary: dict[str, object] = {
         "games": len(observations),
+        "aborted_games": aborted_games,
+        "decision_eligible_games": len(observations) - aborted_games,
         "pod_size": pod_size,
         "structural_model_estimated_place_1_share": fmean(place_1),
         "place_1_share_model_interval": ci,
@@ -326,6 +338,11 @@ def run_balanced_paired_campaign(
         ) as executor:
             observations = list(executor.map(_run_scenario_worker, tasks, chunksize=chunksize))
     rows = tuple(sorted(observations, key=lambda row: _numeric_int(row["index"], field="index")))
+    censored_pairs = tuple(
+        row
+        for row in rows
+        if row.get("baseline_aborted") is True or row.get("variant_aborted") is True
+    )
     differences = tuple(
         _numeric_float(row["baseline_placement"], field="baseline_placement")
         - _numeric_float(row["variant_placement"], field="variant_placement")
@@ -372,6 +389,12 @@ def run_balanced_paired_campaign(
         "variant": variant_summary,
         "paired": paired,
         "paired_observations": list(rows),
+        "censored_pair_count": len(censored_pairs),
+        "decision_evidence_eligible": not censored_pairs,
+        "censoring_contract": (
+            "aborted Structural matches remain visible for exploratory diagnostics; provisional "
+            "placements from any aborted pair are forbidden as strong confirmatory evidence"
+        ),
         "pairing_conditions": {
             "candidates_share_match": False,
             "same_scenarios": True,
