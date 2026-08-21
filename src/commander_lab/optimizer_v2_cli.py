@@ -6,12 +6,16 @@ from pathlib import Path
 import typer
 
 from commander_lab.storage import atomic_write_json
+from commander_lab.whole_deck.mechanics_fidelity import (
+    STRUCTURAL_SEMANTIC_MODEL_VERSION,
+    assess_frontier_mechanics,
+    run_critical_diagnostics_guarded,
+    run_decision_confirmatory_guarded,
+    run_decision_holdout_guarded,
+)
 from commander_lab.whole_deck.optimizer_v2_decision_runtime import (
     build_decision_manifest_from_project,
     load_decision_manifest,
-    run_critical_diagnostics,
-    run_decision_confirmatory,
-    run_decision_holdout,
     run_decision_search,
     verify_decision_preflight,
 )
@@ -19,7 +23,7 @@ from commander_lab.whole_deck.optimizer_v2_decision_runtime import (
 app = typer.Typer(
     add_completion=False,
     no_args_is_help=True,
-    help="Manifest-bound RogShai Optimizer v2 runner with frozen 1E/2F decision gates.",
+    help="Manifest-bound RogShai Optimizer v2 runner with frozen 1E/2F and mechanics-fidelity gates.",
 )
 
 
@@ -52,6 +56,7 @@ def manifest_command(
                 "status": "frozen",
                 "manifest_hash": frozen.manifest_hash,
                 "decision_runtime_version": frozen.decision_runtime_version,
+                "structural_semantic_model_version": STRUCTURAL_SEMANTIC_MODEL_VERSION,
                 "output": str(output),
                 "operational_pod_size": frozen.operational_pod_size,
                 "rogshai_candidate_count": frozen.rogshai_candidate_count,
@@ -75,7 +80,22 @@ def preflight_command(
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
     frozen = load_decision_manifest(manifest)
-    typer.echo(json.dumps(verify_decision_preflight(root, frozen), indent=2, sort_keys=True))
+    report = dict(verify_decision_preflight(root, frozen))
+    report["structural_semantic_model_version"] = STRUCTURAL_SEMANTIC_MODEL_VERSION
+    report["mechanics_fidelity_policy"] = (
+        "exploratory_screening_allowed; confirmatory decisions require decision-safe variant deltas"
+    )
+    typer.echo(json.dumps(report, indent=2, sort_keys=True))
+
+
+@app.command("fidelity")
+def fidelity_command(
+    frontier: Path = typer.Option(..., "--frontier", exists=True, dir_okay=False),
+    root: Path = typer.Option(Path("."), "--root"),
+) -> None:
+    """Report the question-specific mechanics gate for a frozen frontier."""
+
+    typer.echo(json.dumps(assess_frontier_mechanics(root, frontier), indent=2, sort_keys=True))
 
 
 @app.command("run")
@@ -107,7 +127,7 @@ def confirm_command(
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
     frozen = load_decision_manifest(manifest)
-    result = run_decision_confirmatory(
+    result = run_decision_confirmatory_guarded(
         root,
         frozen,
         frontier_path=frontier,
@@ -128,7 +148,7 @@ def diagnose_command(
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
     frozen = load_decision_manifest(manifest)
-    result = run_critical_diagnostics(
+    result = run_critical_diagnostics_guarded(
         root,
         frozen,
         confirmatory_path=confirmatory,
@@ -151,7 +171,7 @@ def holdout_command(
     root: Path = typer.Option(Path("."), "--root"),
 ) -> None:
     frozen = load_decision_manifest(manifest)
-    result = run_decision_holdout(
+    result = run_decision_holdout_guarded(
         root,
         frozen,
         confirmatory_path=confirmatory,
