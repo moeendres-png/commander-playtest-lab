@@ -51,6 +51,7 @@ class OptimizerSearchReport:
     evaluation_calls: int
     requested_scenario_pairs: int
     feedback_changed_proposals: bool
+    screening_only_hashes: tuple[str, ...] = ()
 
 
 def _weighted_choice(rng: random.Random, weights: Mapping[str, float]) -> str:
@@ -76,13 +77,47 @@ def _placement(row: Mapping[str, object], key: str) -> float:
     return float(value)
 
 
+def _evaluator_mechanics_gate(evaluator: EvaluationFunction) -> EligibilityFunction | None:
+    explicit = getattr(evaluator, "structural_decision_safe", None)
+    if callable(explicit):
+        return cast_eligibility(explicit)
+
+    context = getattr(evaluator, "context", None)
+    control = getattr(evaluator, "control", None)
+    cards = getattr(control, "cards", None)
+    commander_names = frozenset(getattr(control, "commander_names", ()))
+    if context is None or cards is None:
+        return None
+    control_mainboard = tuple(
+        str(card.oracle_name)
+        for card in cards
+        if str(card.oracle_name) not in commander_names
+    )
+
+    def _gate(variant: WholeDeckVariant) -> bool:
+        assessment = assess_variant_mechanics(
+            context,
+            control=control_mainboard,
+            candidate=variant.mainboard,
+            deck_hash=variant.deck_hash,
+        )
+        return assessment.get("pass") is True
+
+    return _gate
+
+
+def cast_eligibility(value: Any) -> EligibilityFunction:
+    return value
+
+
 class AdaptiveWholeDeckSearch:
     """Performance-informed search over existing legal Whole-Deck operators.
 
     Results are exploratory only. Confirmatory and holdout execution are intentionally
     absent so search feedback cannot consume either evidence partition. Candidates outside
     the question-specific Structural mechanics contract may receive the first screening
-    budget, but cannot consume later Structural racing budgets or train adaptive rewards.
+    budget, but cannot consume later Structural racing budgets, occupy the decision-search
+    QD archive, become search parents, or train adaptive rewards.
     """
 
     def __init__(
@@ -103,10 +138,7 @@ class AdaptiveWholeDeckSearch:
         self.qd = qd
         self.racing = racing
         self.learning = learning
-        candidate_gate = getattr(evaluator, "structural_decision_safe", None)
-        self.expensive_evidence_eligible: EligibilityFunction | None = (
-            candidate_gate if callable(candidate_gate) else None
-        )
+        self.expensive_evidence_eligible = _evaluator_mechanics_gate(evaluator)
 
     def _eligible_for_expensive_evidence(self, variant: WholeDeckVariant) -> bool:
         if self.expensive_evidence_eligible is None:
@@ -180,7 +212,9 @@ class AdaptiveWholeDeckSearch:
 
         final_rows = list(by_id.values())
         for row in final_rows:
-            archive.admit(variant_by_id[row.candidate_id], row)
+            variant = variant_by_id[row.candidate_id]
+            if self._eligible_for_expensive_evidence(variant):
+                archive.admit(variant, row)
         return final_rows, calls, scenario_pairs
 
     def run(
@@ -206,6 +240,9 @@ class AdaptiveWholeDeckSearch:
         )
         history: list[dict[str, Any]] = []
         seen: dict[str, WholeDeckVariant] = {row.deck_hash: row for row in legal_initial}
+        variants_by_id: dict[str, WholeDeckVariant] = {
+            row.variant_id: row for row in legal_initial
+        }
         evaluations_by_variant: dict[str, ExploratoryEvaluation] = {}
 
         initial_eval, calls, pairs = self._evaluate_batch(
@@ -274,6 +311,7 @@ class AdaptiveWholeDeckSearch:
                 if not proposal.hard_gate.valid or proposal.deck_hash in seen:
                     continue
                 seen[proposal.deck_hash] = proposal
+                variants_by_id[proposal.variant_id] = proposal
                 proposals.append(proposal)
                 proposal_metadata[proposal.variant_id] = (
                     parent.variant_id,
@@ -297,10 +335,15 @@ class AdaptiveWholeDeckSearch:
                 if not self._eligible_for_expensive_evidence(variant):
                     continue
                 parent_id, operator_name, policy_id = proposal_metadata[row.candidate_id]
+                parent_variant = variants_by_id.get(parent_id)
+                if parent_variant is None or not self._eligible_for_expensive_evidence(
+                    parent_variant
+                ):
+                    continue
                 parent_eval = evaluations_by_variant.get(parent_id)
-                reward = row.robust_lower_bound - (
-                    parent_eval.robust_lower_bound if parent_eval is not None else 0.0
-                )
+                if parent_eval is None:
+                    continue
+                reward = row.robust_lower_bound - parent_eval.robust_lower_bound
                 operator_rewards[operator_name].append(reward)
                 policy_rewards[policy_id].append(reward)
 
@@ -338,6 +381,13 @@ class AdaptiveWholeDeckSearch:
             if not proposals:
                 break
 
+        screening_only_hashes = tuple(
+            sorted(
+                variant.deck_hash
+                for variant in seen.values()
+                if not self._eligible_for_expensive_evidence(variant)
+            )
+        )
         return OptimizerSearchReport(
             generations=tuple(history),
             archive=archive.coverage(),
@@ -347,6 +397,7 @@ class AdaptiveWholeDeckSearch:
             evaluation_calls=total_calls,
             requested_scenario_pairs=total_pairs,
             feedback_changed_proposals=feedback_changed,
+            screening_only_hashes=screening_only_hashes,
         )
 
 
