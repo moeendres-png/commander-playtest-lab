@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from commander_lab.engine.structural.fact_fidelity import apply_current_card_facts
 from commander_lab.engine.structural.profiles import build_default_profile
 from commander_lab.fresh_rebuild import (
     ROGSHAI_COMMANDERS,
@@ -20,7 +21,7 @@ from commander_lab.storage import sha256_value
 
 from .oracle_fact_verification import verified_empty_oracle_names
 
-SEARCH_ENGINE_VERSION = "whole-deck-search-0.1.0"
+SEARCH_ENGINE_VERSION = "whole-deck-search-0.1.1-fact-fidelity"
 JESKAI = frozenset({"W", "U", "R"})
 INTERACTION_ROLES = frozenset({CardRole.COUNTER, CardRole.REMOVAL, CardRole.PROTECTION})
 ENGINE_ROLES = frozenset({CardRole.ENGINE, CardRole.ENABLER, CardRole.PAYOFF})
@@ -124,6 +125,14 @@ class WholeDeckSearchContext:
                 else:
                     semantic_evidence = "fact_only_semantics_unknown"
                     semantic_state = SEMANTIC_UNKNOWN
+
+            # Current Oracle/type/mana facts always override legacy name tables before the
+            # optimizer can materialize a Structural candidate. This removes the old
+            # PERMANENT_EXCEPTIONS/color-identity-as-pips behavior from the official v2 path.
+            profile = apply_current_card_facts(
+                profile,
+                universe.candidate_facts_by_name.get(name),
+            )
             color_identity = (
                 frozenset(color.value for color in identity.color_identity)
                 if identity is not None
@@ -163,9 +172,6 @@ class WholeDeckSearchContext:
 
     def materialize(self, mainboard: tuple[str, ...], *, label: str) -> StructuralDeckProfile:
         if self.root is not None and self.fresh_universe is not None:
-            # Materialization must preserve the runtime-hardened profiles used by Search.
-            # Otherwise recipient-aware mana/package corrections can be lost before
-            # ManaAnalyzer/Structural evaluation for already-modeled cards.
             overrides = {name: self.cards[name].profile for name in set(mainboard)}
             deck = build_fresh_rogshai_profile(
                 self.root,
