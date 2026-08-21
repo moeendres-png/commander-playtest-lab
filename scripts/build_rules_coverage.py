@@ -106,10 +106,21 @@ def _load_current_rogshai(root: Path, records: dict[str, dict[str, Any]]) -> Non
         raise RuntimeError(f"current RogShai registry expected 100 cards, got {quantity_total}")
 
 
+def _current_opponent_deck_paths(opponents_root: Path) -> tuple[Path, ...]:
+    """Return current opponent deck registries without traversing historical snapshots."""
+
+    paths = set(opponents_root.glob("*.json"))
+    for path in opponents_root.rglob("deck.json"):
+        relative_parts = path.relative_to(opponents_root).parts
+        if "current" in relative_parts and "historical" not in relative_parts:
+            paths.add(path)
+    return tuple(sorted(paths))
+
+
 def _load_current_opponents(root: Path, records: dict[str, dict[str, Any]]) -> None:
     opponents_root = root / "data/decks/opponents"
     if opponents_root.is_dir():
-        for path in sorted(opponents_root.glob("*.json")):
+        for path in _current_opponent_deck_paths(opponents_root):
             payload = load(path)
             if not isinstance(payload, dict):
                 continue
@@ -119,20 +130,35 @@ def _load_current_opponents(root: Path, records: dict[str, dict[str, Any]]) -> N
                 raw_rows = list(raw_rows)
             if not isinstance(raw_rows, list):
                 continue
+            verified_full = payload.get("verified_full_list") is True
+            source_status = (
+                "verified_full_deck"
+                if verified_full
+                else str(
+                    payload.get("evidence_status")
+                    or payload.get("data_status")
+                    or "current_opponent"
+                )
+            )
+            quantity_total = 0
             for row in raw_rows:
+                if not isinstance(row, dict):
+                    continue
                 name = _name(row)
                 if name is None:
                     continue
+                quantity = row.get("quantity", 1)
+                if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity < 1:
+                    raise RuntimeError(f"invalid current opponent quantity for {deck_id}: {name}")
+                quantity_total += quantity
                 rec = _record(records, name)
                 rec["deck_versions"].append(deck_id)
-                rec["source_status"].append(
-                    str(
-                        payload.get("evidence_status")
-                        or payload.get("data_status")
-                        or "current_opponent"
-                    )
-                )
+                rec["source_status"].append(source_status)
                 rec["evidence_files"].append(str(path.relative_to(root)))
+            if verified_full and quantity_total != 100:
+                raise RuntimeError(
+                    f"verified full opponent registry {deck_id} expected 100 cards, got {quantity_total}"
+                )
 
     ensembles_root = root / "data/opponent_ensembles"
     if ensembles_root.is_dir():
@@ -292,11 +318,19 @@ def main() -> int:
             "coverage": dict(deck_counts),
         }
 
+    opponent_sources = []
+    opponents_root = root / "data/decks/opponents"
+    if opponents_root.is_dir():
+        opponent_sources = [
+            str(path.relative_to(root)) for path in _current_opponent_deck_paths(opponents_root)
+        ]
+
     card_registry = {
         "schema_version": 3,
         "source_scope": "current_registries_only",
         "dated_canonical_import_used": False,
         "current_source_files": list(CURRENT_SOURCE_FILES),
+        "discovered_current_opponent_sources": opponent_sources,
         "external_engine_execution_status": "not_run_by_builder",
         "cards": coverage,
         "coverage_counts": dict(counts),
