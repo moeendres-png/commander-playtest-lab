@@ -2,11 +2,19 @@
 
 Status date: 2026-08-21
 
+Closeout verdict: `PASS`
+
+`FULL_124_CLOSEOUT = PASS`
+
+`ROGSHAI_FIDELITY_GATE = PASS`
+
 Base main: `e8effd269252da93577c8142e48ec4286b21bfe8` (`v1.23.0`)
 
 Repair branch: `repair/simulation-fidelity-124-closeout-v2-20260821`
 
 Pull request: `#100`
+
+Acceptance code head: `9791ec8372cf75365fee6c2e05f08317051ba709`
 
 ## Scope and evidence boundary
 
@@ -76,8 +84,30 @@ Current rules coverage is built from current deck/candidate/role/validation/oppo
 
 No entry in this closeout upgrades Tactical Oracle results to external-rules-engine evidence. XMage/Forge evidence may be called `external_rules_engine` only when the provider was actually executed and validated for the relevant scenario class. If a required scenario class has no validated provider, the correct decision behavior is fail closed.
 
-## Final acceptance requirement
+## Final acceptance evidence
 
-This closeout becomes merge-ready only when the final PR head passes all applicable repository gates, including CI (Ruff, Ruff format, strict Mypy, pytest, compile/build/security), Core Workflow Acceptance, Optimizer Workflow Acceptance, Windows Runtime Hygiene, Candidate Paired Triage, and Model Resolution Measurement.
+The acceptance code head `9791ec8372cf75365fee6c2e05f08317051ba709` passed every applicable PR gate on 2026-08-21:
+
+- CI run `#1061` / run id `32516677296`: `success`.
+  - Ruff lint: `success`.
+  - Ruff format: `success`; 649 files already formatted.
+  - strict Mypy: `success`; no issues found in 235 source files.
+  - pytest: `success`; 687 passed, 1 skipped in 351.07s. The single skip is the differential test that requires a configured XMage or Forge differential command; no external-rules-engine result is fabricated from that skip.
+  - compileall: `success`.
+  - secret-pattern scan: `success`; no secret patterns found.
+  - wheel build: `success`; `commander_playtest_lab-1.23.0-py3-none-any.whl` built successfully.
+  - dependency audit: `success`; no known vulnerabilities found.
+  - CycloneDX SBOM and license report: `success`.
+- Core Workflow Acceptance run `#167` / run id `32516677339`: `success`.
+- Optimizer Workflow Acceptance run `#256` / run id `32516677333`: `success`.
+- Windows Runtime Hygiene run `#977` / run id `32516677288`: `success`.
+- Candidate Paired Triage run `#76` / run id `32516677274`: `success`.
+- Model Resolution Measurement run `#116` / run id `32516677418`: `success`.
+
+No simulator feature, deck list, inventory allocation, holdout decision, or canonical deck state was changed as part of this acceptance closeout.
+
+This PASS is evidence-scoped: it establishes that the actionable 124-point simulator-fidelity audit is closed for the repository's current decision architecture under the contracts above. It does not claim rules-engine completeness or empirical win-rate validity.
+
+The documentation commit that records this verdict must itself remain green under the applicable PR gates before PR #100 is marked ready for review. That final documentation-only revalidation does not broaden the evidence claim.
 
 A green closeout does not authorize a canonical deck or inventory mutation.
