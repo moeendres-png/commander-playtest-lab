@@ -11,6 +11,7 @@ from commander_lab.models.roles import CardRole, StructuralMechanic
 from commander_lab.storage import atomic_write_json, sha256_value
 
 from .lab import WholeDeckDesignLab
+from .optimizer_v2_release_models import FrontierHandoff
 from .search_context import SEMANTIC_UNKNOWN, current_control_mainboard
 from .search_models import WholeDeckVariant
 
@@ -262,9 +263,7 @@ def _mapping_number(mapping: Mapping[str, object], key: str, default: float) -> 
     return default
 
 
-def _shortlist_rows(
-    payload: Mapping[str, object], limit: int = SHORTLIST_LIMIT
-) -> tuple[dict[str, Any], ...]:
+def _ranked_rows(payload: Mapping[str, object]) -> tuple[dict[str, Any], ...]:
     raw_elites = payload.get("elites")
     if not isinstance(raw_elites, list):
         raise RuntimeError("frontier mechanics gate requires an elites list")
@@ -282,6 +281,12 @@ def _shortlist_rows(
             str(row.get("deck_hash", "")),
         )
     )
+    return tuple(rows)
+
+
+def _diverse_rows(
+    rows: Sequence[dict[str, Any]], limit: int = SHORTLIST_LIMIT
+) -> tuple[dict[str, Any], ...]:
     selected: list[dict[str, Any]] = []
     seen_cells: set[str] = set()
     for row in rows:
@@ -303,6 +308,12 @@ def _shortlist_rows(
     return tuple(selected)
 
 
+def _shortlist_rows(
+    payload: Mapping[str, object], limit: int = SHORTLIST_LIMIT
+) -> tuple[dict[str, Any], ...]:
+    return _diverse_rows(_ranked_rows(payload), limit)
+
+
 def assess_frontier_mechanics(root: str | Path, frontier_path: str | Path) -> dict[str, object]:
     root_path = Path(root).resolve()
     payload = json.loads(Path(frontier_path).read_text(encoding="utf-8-sig"))
@@ -310,30 +321,35 @@ def assess_frontier_mechanics(root: str | Path, frontier_path: str | Path) -> di
         raise RuntimeError("frontier mechanics gate requires a JSON object")
     lab = WholeDeckDesignLab(root_path)
     control = current_control_mainboard(root_path)
-    shortlist = _shortlist_rows(cast(Mapping[str, object], payload))
+    ranked = _ranked_rows(cast(Mapping[str, object], payload))
     assessments: list[dict[str, object]] = []
     malformed: list[str] = []
-    for index, row in enumerate(shortlist):
+    eligible_rows: list[dict[str, Any]] = []
+    for index, row in enumerate(ranked):
         raw_variant = row.get("variant")
         if not isinstance(raw_variant, dict):
-            malformed.append(f"shortlist[{index}].variant_missing")
+            malformed.append(f"frontier[{index}].variant_missing")
             continue
         try:
             variant = WholeDeckVariant.model_validate(raw_variant)
         except Exception as exc:
-            malformed.append(f"shortlist[{index}].variant_invalid:{exc}")
+            malformed.append(f"frontier[{index}].variant_invalid:{exc}")
             continue
-        assessments.append(
-            assess_variant_mechanics(
-                lab.context,
-                control=control,
-                candidate=variant.mainboard,
-                deck_hash=variant.deck_hash,
-            )
+        assessment = assess_variant_mechanics(
+            lab.context,
+            control=control,
+            candidate=variant.mainboard,
+            deck_hash=variant.deck_hash,
         )
+        assessment["frontier_rank"] = index + 1
+        assessments.append(assessment)
+        if assessment.get("pass") is True:
+            eligible_rows.append(row)
+    shortlist = _diverse_rows(eligible_rows)
+    eligible_hashes = [str(row.get("deck_hash", "")) for row in shortlist]
     blocked = [row for row in assessments if row.get("pass") is not True]
     return {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "semantic_model_version": STRUCTURAL_SEMANTIC_MODEL_VERSION,
         "semantic_model_identity": sha256_value(
             {
@@ -345,12 +361,14 @@ def assess_frontier_mechanics(root: str | Path, frontier_path: str | Path) -> di
                 "screening_only_roles": sorted(role.value for role in SCREENING_ONLY_ROLES),
             }
         ),
-        "question_scope": "confirmatory_shortlist_variant_delta",
+        "question_scope": "frontier_variant_delta_with_structural_confirmatory_routing",
+        "frontier_candidate_count": len(ranked),
         "shortlist_size": len(shortlist),
+        "structural_confirmatory_eligible_hashes": eligible_hashes,
         "assessments": assessments,
         "malformed_rows": malformed,
         "blocked_variant_hashes": [str(row.get("deck_hash")) for row in blocked],
-        "pass": not blocked and not malformed,
+        "pass": bool(shortlist) and not malformed,
         "routing_contract": {
             MechanicsFidelityTier.MECHANISTICALLY_SUPPORTED.value: "STRUCTURAL_CONFIRMATORY_ALLOWED",
             MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE.value: "STRUCTURAL_CONFIRMATORY_ALLOWED",
@@ -360,9 +378,11 @@ def assess_frontier_mechanics(root: str | Path, frontier_path: str | Path) -> di
             MechanicsFidelityTier.UNSUPPORTED.value: "FAIL_CLOSED",
         },
         "truth_boundary": (
-            "Pass means every changed card in the confirmatory shortlist is permitted by the "
-            "question-specific Structural mechanics contract. Baseline residual approximations "
-            "remain fixed context and are not upgraded to empirical or rules-engine evidence."
+            "Pass means at least one frontier candidate is question-specifically permitted for "
+            "Structural confirmatory evaluation. Non-decision-safe candidates remain visible and "
+            "are routed to their required evidence layer instead of blocking unrelated eligible "
+            "candidates. Baseline residual approximations remain fixed context and are not upgraded "
+            "to empirical or rules-engine evidence."
         ),
     }
 
@@ -372,16 +392,52 @@ def require_frontier_mechanics_decision_safe(
 ) -> dict[str, object]:
     report = assess_frontier_mechanics(root, frontier_path)
     if report["pass"] is not True:
+        malformed = "; ".join(str(value) for value in cast(list[object], report["malformed_rows"]))
         blocked = ", ".join(
             str(value) for value in cast(list[object], report["blocked_variant_hashes"])
         )
-        malformed = "; ".join(str(value) for value in cast(list[object], report["malformed_rows"]))
-        detail = blocked or malformed or "unknown mechanics fidelity failure"
+        detail = malformed or blocked or "no structurally confirmatory-eligible frontier candidate"
         raise RuntimeError(
             "confirmatory Structural decision blocked by question-specific mechanics fidelity: "
             + detail
         )
     return report
+
+
+def write_structural_confirmatory_frontier(
+    frontier_path: str | Path,
+    *,
+    fidelity: Mapping[str, object],
+    output_path: str | Path,
+) -> Path:
+    payload = json.loads(Path(frontier_path).read_text(encoding="utf-8-sig"))
+    if not isinstance(payload, dict):
+        raise RuntimeError("frontier mechanics routing requires a JSON object")
+    manifest_hash = payload.get("manifest_hash")
+    if not isinstance(manifest_hash, str) or not manifest_hash:
+        raise RuntimeError("frontier mechanics routing requires a manifest hash")
+    eligible = fidelity.get("structural_confirmatory_eligible_hashes")
+    if not isinstance(eligible, list) or not eligible:
+        raise RuntimeError("frontier mechanics routing has no eligible Structural shortlist")
+    raw_elites = payload.get("elites")
+    if not isinstance(raw_elites, list):
+        raise RuntimeError("frontier mechanics routing requires an elites list")
+    by_hash = {
+        str(row.get("deck_hash", "")): cast(dict[str, Any], row)
+        for row in raw_elites
+        if isinstance(row, dict)
+    }
+    selected: list[dict[str, Any]] = []
+    for value in eligible:
+        deck_hash = str(value)
+        row = by_hash.get(deck_hash)
+        if row is None:
+            raise RuntimeError(f"frontier mechanics routing lost eligible candidate {deck_hash}")
+        selected.append(row)
+    handoff = FrontierHandoff.create(manifest_hash=manifest_hash, elites=tuple(selected))
+    destination = Path(output_path).resolve()
+    atomic_write_json(destination, handoff.model_dump(mode="json"))
+    return destination
 
 
 def require_confirmatory_mechanics_artifact(path: str | Path) -> dict[str, object]:
@@ -414,17 +470,23 @@ def run_decision_confirmatory_guarded(
     from .optimizer_v2_decision_runtime import run_decision_confirmatory
 
     fidelity = require_frontier_mechanics_decision_safe(root, frontier_path)
+    routed_frontier = write_structural_confirmatory_frontier(
+        frontier_path,
+        fidelity=fidelity,
+        output_path=Path(run_directory).resolve() / "frontier-handoff-structural-confirmatory.json",
+    )
     result = dict(
         run_decision_confirmatory(
             root,
             manifest,
-            frontier_path=frontier_path,
+            frontier_path=routed_frontier,
             run_directory=run_directory,
             workers=workers,
             max_turns=max_turns,
         )
     )
     result["mechanics_fidelity"] = fidelity
+    result["mechanics_routed_frontier"] = str(routed_frontier)
     atomic_write_json(Path(run_directory).resolve() / "confirmatory-report.json", result)
     return result
 
