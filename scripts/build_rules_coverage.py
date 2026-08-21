@@ -264,9 +264,7 @@ def main() -> int:
                 "inventory_candidate": bool(rec.get("inventory_candidate")),
                 "inventory_quantity": rec.get("inventory_quantity"),
                 "inventory_metadata": rec.get("inventory_metadata"),
-                "source_status": sorted(
-                    set(str(value) for value in rec["source_status"] if value)
-                ),
+                "source_status": sorted(set(str(value) for value in rec["source_status"] if value)),
                 "evidence_files": sorted(set(rec["evidence_files"])),
             }
         )
