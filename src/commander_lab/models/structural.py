@@ -43,7 +43,6 @@ class StructuralCardProfile(FrozenModel):
 
     @field_serializer("roles", "mechanic_tags", "color_identity", "produces_colors", "package_ids")
     def serialize_sets(self, values: frozenset[object]) -> list[object]:
-        """Serialize unordered structural fields deterministically across processes."""
         return sorted(values, key=lambda value: getattr(value, "value", str(value)))
 
     @field_serializer("role_strengths")
@@ -100,13 +99,6 @@ class StructuralDeckProfile(FrozenModel):
 def validate_commander_deck_profile(
     profile: StructuralDeckProfile, *, expected_card_count: int = 100
 ) -> StructuralDeckProfile:
-    """Fail closed for production Commander deck profiles.
-
-    `StructuralDeckProfile` itself also serves deterministic fixtures, so the universal model
-    validates commander identity/presence while this production boundary enforces the Commander
-    deck-size contract. The count includes commander profile records; the simulator removes those
-    profiles from the library at match initialization.
-    """
     if expected_card_count < len(profile.commander_names):
         raise ValueError("expected card count cannot be smaller than commander count")
     if len(profile.cards) != expected_card_count:
@@ -221,6 +213,19 @@ class StructuralPlayerMetrics(FrozenModel):
     eliminated_turn: int | None = None
     elimination_reason: str | None = None
 
+    # Fidelity diagnostics are explicit even before the Structural core can measure them.
+    # None means NOT_MEASURED; it must never be interpreted as zero/good performance.
+    unused_mana: float | None = None
+    mana_source_usage: dict[str, int] | None = None
+    colored_mana_failures: int | None = None
+    stranded_spells: int | None = None
+    stranded_reasons: dict[str, int] | None = None
+    dead_card_rate: float | None = Field(default=None, ge=0.0, le=1.0)
+    commander_recast_affordability: float | None = Field(default=None, ge=0.0, le=1.0)
+    turns_to_restore_pressure_after_disruption: float | None = Field(default=None, ge=0.0)
+    interaction_quality: float | None = None
+    fidelity_telemetry_status: Literal["NOT_MEASURED", "PARTIAL", "MEASURED"] = "NOT_MEASURED"
+
 
 class StructuralMatchResult(FrozenModel):
     run_id: str
@@ -238,6 +243,7 @@ class StructuralMatchResult(FrozenModel):
     event_count: int
     event_log_path: str | None = None
     log_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    fidelity_telemetry_contract: Literal["explicit_not_measured_v1"] = "explicit_not_measured_v1"
 
 
 class StructuralBatchResult(MutableModel):
