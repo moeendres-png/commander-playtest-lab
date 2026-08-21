@@ -138,9 +138,7 @@ def classify_card_semantics(
     if oracle_name in TACTICAL_REQUIRED_CARDS:
         return MechanicsFidelityTier.TACTICAL_REQUIRED, ("explicit_tactical_contract",)
     if oracle_name in EXTERNAL_RULES_REQUIRED_CARDS:
-        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, (
-            "explicit_external_rules_contract",
-        )
+        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, ("explicit_external_rules_contract",)
     if role_set & TACTICAL_ROLES:
         return MechanicsFidelityTier.TACTICAL_REQUIRED, (
             "stack_or_protection_legality_not_mechanistic",
