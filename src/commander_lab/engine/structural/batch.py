@@ -20,7 +20,8 @@ from commander_lab.models import (
     StructuralMatchResult,
 )
 
-from .simulator import ENGINE_VERSION, StructuralSimulator
+from .simulator import ENGINE_VERSION
+from .simulator_fidelity import StructuralSimulator
 
 _WORKER_DECKS: dict[str, StructuralDeckProfile] = {}
 
