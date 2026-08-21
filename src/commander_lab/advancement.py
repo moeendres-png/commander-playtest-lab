@@ -29,6 +29,15 @@ class AdvancementDecision:
         return {"decision_hash": self.decision_hash, **self.payload()}
 
 
+def _embedded_mapping(
+    comparison: dict[str, Any], explicit: dict[str, Any] | None, key: str
+) -> dict[str, Any]:
+    if explicit is not None:
+        return explicit
+    raw = comparison.get(key)
+    return dict(raw) if isinstance(raw, dict) else {}
+
+
 def decide_advancement(
     comparison: dict[str, Any],
     *,
@@ -40,13 +49,13 @@ def decide_advancement(
 ) -> AdvancementDecision:
     """Compatibility shim for the retired pre-1E/2F advancement API.
 
-    The historical function used ``effective_resolution`` as an operative promotion/rejection
-    threshold. That decision architecture is retired. Keeping this symbol importable avoids
-    breaking archival readers, but it can no longer authorize sensitivity, ablation, promotion,
-    rejection, or canonical deck changes. All current decisions must use Optimizer v2 1E/2F.
+    Historical callers may still use this function to diagnose hard-constraint, domain,
+    fidelity, model-information, and stale-resolution problems. It must never use the retired
+    ``effective_resolution`` value to authorize sensitivity, ablation, promotion, rejection, or
+    canonical deck changes. Once the diagnostic prerequisites are satisfied, current decisions
+    are routed to the manifest-bound Optimizer-v2 1E/2F path.
     """
 
-    del model_informativeness, domain_validity, structural_fidelity, model_resolution
     if comparison.get("status") != "completed":
         return AdvancementDecision(
             status="reject",
@@ -63,6 +72,45 @@ def decide_advancement(
             sensitivity_allowed=False,
             expensive_ablation_allowed=False,
         )
+
+    domain = _embedded_mapping(comparison, domain_validity, "domain_validity")
+    fidelity = _embedded_mapping(comparison, structural_fidelity, "structural_fidelity")
+    resolution = _embedded_mapping(comparison, model_resolution, "model_resolution")
+    informativeness = _embedded_mapping(comparison, model_informativeness, "model_informativeness")
+
+    if domain and domain.get("strong_decision_allowed") is not True:
+        return AdvancementDecision(
+            status="diagnose",
+            reason_code="domain_input_validity_limit",
+            reason="domain/input evidence cannot support finalist advancement for this scope",
+            sensitivity_allowed=False,
+            expensive_ablation_allowed=False,
+        )
+    if fidelity and fidelity.get("strong_decision_allowed") is not True:
+        return AdvancementDecision(
+            status="diagnose",
+            reason_code="structural_fidelity_limit",
+            reason="question-specific structural fidelity is insufficient for finalist advancement",
+            sensitivity_allowed=False,
+            expensive_ablation_allowed=False,
+        )
+    if informativeness.get("status") == "MODEL_INFORMATION_LIMIT":
+        return AdvancementDecision(
+            status="diagnose",
+            reason_code="model_information_limit",
+            reason="more seeds alone cannot repair the detected model-information limit",
+            sensitivity_allowed=False,
+            expensive_ablation_allowed=False,
+        )
+    if resolution and resolution.get("status") != "MEASURED":
+        return AdvancementDecision(
+            status="diagnose",
+            reason_code="model_resolution_unmeasured",
+            reason="legacy resolution metadata is stale or unmeasured; it cannot authorize advancement",
+            sensitivity_allowed=False,
+            expensive_ablation_allowed=False,
+        )
+
     return AdvancementDecision(
         status="diagnose",
         reason_code=LEGACY_ADVANCEMENT_REASON,
@@ -73,6 +121,3 @@ def decide_advancement(
         sensitivity_allowed=False,
         expensive_ablation_allowed=False,
     )
-
-
-__all__ = ["AdvancementDecision", "LEGACY_ADVANCEMENT_REASON", "decide_advancement"]
