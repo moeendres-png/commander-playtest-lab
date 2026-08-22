@@ -1,3 +1,4 @@
+# Non-consuming readiness only; this workflow never opens gameplay evidence partitions.
 name: RogShai Official Fresh Optimizer-v2 Readiness Post PR113
 
 on:
