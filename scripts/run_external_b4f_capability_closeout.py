@@ -20,7 +20,6 @@ ILLEGAL_PATH = ARTIFACTS / "XMAGE_B4F_ILLEGAL_ACTION_REJECTION.json"
 B4C_PATH = ARTIFACTS / "XMAGE_B4C_ACTION_REGRESSION.json"
 DESCRIPTOR_PATH = ARTIFACTS / "XMAGE_B4F_CAPABILITIES.json"
 BINDING_PATH = ARTIFACTS / "XMAGE_B4F_CAPABILITY_BINDING.json"
-PIN_PATH = ARTIFACTS / "XMAGE_B4F_PROVIDER_PIN_VALIDATION.json"
 SCENARIO_CONTRACT = "provider_state_injection_v1"
 
 
@@ -76,9 +75,7 @@ def main() -> None:
             f"B4-F XMage pin mismatch: environment={xmage_commit}, config={configured_commit}"
         )
     if configured_protocol != ENGINE_PROTOCOL_VERSION:
-        raise SystemExit(
-            "B4-F protocol pin mismatch between config and Python protocol contract"
-        )
+        raise SystemExit("B4-F protocol pin mismatch between config and Python protocol contract")
     if replay.get("provider_commit") != xmage_commit:
         raise SystemExit("B4-F replay evidence is bound to a different XMage commit")
     if replay.get("scenario_contract") != SCENARIO_CONTRACT:
@@ -187,41 +184,13 @@ def main() -> None:
         "status": "passed",
     }
 
-    pin_validation = {
-        "schema_version": "1.0.0",
-        "provider": "xmage",
-        "checks": {
-            "environment_commit_matches_config": True,
-            "live_provider_commit_matches_pin": True,
-            "live_provider_protocol_matches_config": True,
-            "python_protocol_matches_config": True,
-            "replay_evidence_matches_provider_pin": True,
-            "scenario_contract_matches_replay": True,
-            "bridge_artifact_sha256_measured": True,
-            "frozen_fixture_set_sha256_measured": True,
-            "capability_hash_recomputed": _sha256_json(binding_material) == capability_hash,
-            "global_capability_flags_not_overclaimed": True,
-        },
-        "provider_version": provider,
-        "bridge_artifact_sha256": bridge_sha256,
-        "frozen_fixture_set_sha256": fixture_sha256,
-        "capability_hash": capability_hash,
-        "status": "passed",
-    }
-
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
     DESCRIPTOR_PATH.write_text(
         json.dumps(descriptor, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    BINDING_PATH.write_text(
-        json.dumps(binding, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
-    PIN_PATH.write_text(
-        json.dumps(pin_validation, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    BINDING_PATH.write_text(json.dumps(binding, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(DESCRIPTOR_PATH.read_text(encoding="utf-8"))
     print(BINDING_PATH.read_text(encoding="utf-8"))
-    print(PIN_PATH.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
