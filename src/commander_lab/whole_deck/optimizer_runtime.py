@@ -217,21 +217,29 @@ def _initial_variants(
         if policy.policy_id == PolicyId.CURRENT_CONTROL:
             anchor_id = result.control_variant_id
             if anchor_id is None:
-                raise RuntimeError("CURRENT_CONTROL construction result is missing its control arm")
+                raise RuntimeError(
+                    "CURRENT_CONTROL construction result is missing its control arm"
+                )
             anchor = next(
                 (variant for variant in result.variants if variant.variant_id == anchor_id),
                 None,
             )
             if anchor is None:
-                raise RuntimeError("CURRENT_CONTROL control arm is missing from construction variants")
+                raise RuntimeError(
+                    "CURRENT_CONTROL control arm is missing from construction variants"
+                )
             if not anchor.hard_gate.valid:
                 raise RuntimeError("CURRENT_CONTROL control arm failed construction hard gates")
             if anchor.mainboard != control:
-                raise RuntimeError("CURRENT_CONTROL control arm does not match the exact current control")
+                raise RuntimeError(
+                    "CURRENT_CONTROL control arm does not match the exact current control"
+                )
             control_anchor = anchor
     if PolicyId.CURRENT_CONTROL in policy_ids:
         if control_anchor is None:
-            raise RuntimeError("CURRENT_CONTROL policy produced no explicit optimizer search anchor")
+            raise RuntimeError(
+                "CURRENT_CONTROL policy produced no explicit optimizer search anchor"
+            )
         # The exact control is a separate decision-safe search anchor, not a construction
         # finalist. Force its own policy identity when the same deck hash appears elsewhere
         # so Fresh-Rebuild policies remain control-blind and cannot become its search parent.
