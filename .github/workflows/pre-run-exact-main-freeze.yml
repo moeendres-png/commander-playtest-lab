@@ -1,0 +1,122 @@
+name: Pre-Run Exact Main Freeze
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pre-run-exact-main-freeze.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pre-run-exact-main-freeze-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TARGET_COMMIT: 0a79921a4d373579a3fb6236dcd8a6c84d87d165
+  TARGET_TREE: b1a264bb25e21da614e450aba9ecda0d89de6a93
+  PRE_RUN_SEED: '2026082201'
+
+jobs:
+  exact-main-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact canonical main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.TARGET_COMMIT }}
+          fetch-depth: 1
+      - name: Assert exact commit and tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$TARGET_TREE"
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install optimizer runtime
+        run: python -m pip install -e '.[dev]'
+      - name: Generate fresh non-consuming manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/pre-run-freeze
+          commander-lab-optimizer manifest \
+            --output artifacts/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            --run-id rogshai-official-fresh-20260822-pre-run-freeze \
+            --seed "$PRE_RUN_SEED" \
+            | tee artifacts/pre-run-freeze/manifest-output.json
+      - name: Run exact-main preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer preflight \
+            --manifest artifacts/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            | tee artifacts/pre-run-freeze/preflight-output.json
+      - name: Assert frozen readiness contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('artifacts/pre-run-freeze')
+          manifest_output = json.loads((root / 'manifest-output.json').read_text())
+          preflight = json.loads((root / 'preflight-output.json').read_text())
+          manifest = json.loads((root / 'ROGSHAI_PRE_RUN_MANIFEST.json').read_text())
+
+          assert manifest_output['status'] == 'frozen'
+          assert manifest['software_commit'] == '0a79921a4d373579a3fb6236dcd8a6c84d87d165'
+          assert manifest['software_tree'] == 'b1a264bb25e21da614e450aba9ecda0d89de6a93'
+          assert preflight['status'] == 'pass'
+          assert preflight['operational_pod_size'] == 4
+          assert preflight['candidate_count'] == 795
+          assert preflight['semantic_unknown_count'] == 0
+          assert preflight['partition_disjointness'] == 'validated_fail_closed_by_manifest'
+          assert preflight['decision_checks']['contract_1e'] is True
+          assert preflight['decision_checks']['precision_contract_2f'] is True
+          assert preflight['checks']['git_commit'] is True
+          assert preflight['checks']['git_tree'] is True
+          assert preflight['checks']['tracked_clean'] is True
+
+          summary = {
+              'status': 'pass',
+              'evidence_consumed': False,
+              'target_commit': manifest['software_commit'],
+              'target_tree': manifest['software_tree'],
+              'manifest_hash': manifest_output['manifest_hash'],
+              'run_id': manifest['run_id'],
+              'seed': manifest['search_seed'],
+              'operational_pod_size': preflight['operational_pod_size'],
+              'candidate_count': preflight['candidate_count'],
+              'semantic_unknown_count': preflight['semantic_unknown_count'],
+              'partition_disjointness': preflight['partition_disjointness'],
+              'contract_1e': preflight['decision_checks']['contract_1e'],
+              'precision_contract_2f': preflight['decision_checks']['precision_contract_2f'],
+              'historical_holdout_reuse': False,
+              'canonical_mutation': False,
+          }
+          (root / 'PRE_RUN_FREEZE_SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+      - name: Record checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum artifacts/pre-run-freeze/* > artifacts/pre-run-freeze/SHA256SUMS.txt
+      - name: Upload pre-run freeze evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        with:
+          name: pre-run-freeze-exact-main-0a79921
+          path: artifacts/pre-run-freeze/
+          if-no-files-found: error
+          retention-days: 90
