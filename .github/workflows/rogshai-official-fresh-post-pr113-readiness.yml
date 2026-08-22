@@ -144,7 +144,7 @@ jobs:
           assert ready['semantic_unknown_count'] == 0
           assert ready['CURRENT_CONTROL_SEARCH_ANCHOR'] == 'present_exact_current_control'
           assert anchor['status'] == 'pass'
-          assert anchor['exact_control_anchor_policy'] == 'current_control'
+          assert anchor['exact_control_anchor_policy'] == 'CURRENT_CONTROL'
           assert anchor['evidence_consumed'] is False
           assert pre['status'] == 'pass'
           forbidden = (
