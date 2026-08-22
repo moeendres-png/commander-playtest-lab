@@ -1,5 +1,7 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -8,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Phase6DifferentialAdapterValidationTest {
 
@@ -62,6 +65,22 @@ class Phase6DifferentialAdapterValidationTest {
     @Test
     void rejectsFractionalCommanderDamageBeforeProviderScenarioCreation() throws Exception {
         assertRejects(damageFixture("40", "12.5"));
+    }
+
+    @Test
+    void preservesNullLossReasonKeyForNonLosingCommanderDamageState() throws Exception {
+        Path input = tempDir.resolve("input.json");
+        Path output = tempDir.resolve("output.json");
+        Files.writeString(input, damageFixture("40", "12"), StandardCharsets.UTF_8);
+
+        Phase6DifferentialAdapter.run(input, output);
+
+        JsonObject response = JsonParser.parseString(
+                Files.readString(output, StandardCharsets.UTF_8)
+        ).getAsJsonObject();
+        JsonObject normalized = response.getAsJsonObject("normalized_output");
+        assertTrue(normalized.has("loss_reason"));
+        assertTrue(normalized.get("loss_reason").isJsonNull());
     }
 
     private void assertRejects(String payload) throws Exception {
