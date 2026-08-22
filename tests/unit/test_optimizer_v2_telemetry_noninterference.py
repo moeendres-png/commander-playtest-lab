@@ -3,7 +3,11 @@ from __future__ import annotations
 from commander_lab.engine.structural import StructuralSimulator
 from commander_lab.engine.structural.simulator import _Player
 from commander_lab.engine.structural.telemetry import T1TelemetryAccumulator
-from commander_lab.models import StructuralAbortLimits, StructuralMatchConfig, StructuralPlayerMetrics
+from commander_lab.models import (
+    StructuralAbortLimits,
+    StructuralMatchConfig,
+    StructuralPlayerMetrics,
+)
 
 
 class _TelemetryDiscardingSimulator(StructuralSimulator):
