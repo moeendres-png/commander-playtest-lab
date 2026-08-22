@@ -62,8 +62,6 @@ def test_real_xmage_or_forge_differential_cases(repo_root: Path) -> None:
     results = run_configured_differential_cases(cases)
     assert len(results) >= 3
     failures = [
-        result.model_dump(mode="json")
-        for result in results
-        if result.status != EvalStatus.PASSED
+        result.model_dump(mode="json") for result in results if result.status != EvalStatus.PASSED
     ]
     assert not failures, failures
