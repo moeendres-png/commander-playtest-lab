@@ -5,10 +5,13 @@ on:
     paths:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/**"
+      - "src/commander_lab/evals/differential.py"
       - "src/commander_lab/models/engine_runtime.py"
       - "src/commander_lab/models/game.py"
       - "src/commander_lab/models/rules.py"
       - "config/rules_engines.json"
+      - "data/evals/differential/rules_cases.json"
+      - "tests/differential/test_phase6_differential.py"
       - "scripts/run_external_b3_regression.py"
       - "scripts/run_external_b4a_regression.py"
       - "scripts/run_external_b4b_regression.py"
@@ -146,6 +149,13 @@ jobs:
           set -o pipefail
           mkdir -p artifacts/external-engine
           python scripts/run_external_b4d_regression.py 2>&1 | tee artifacts/external-engine/b4d-process.log
+      - name: Audit Phase-6 differential contract against current provider boundary
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          pytest -q -rs tests/differential/test_phase6_differential.py 2>&1 \
+            | tee artifacts/external-engine/phase6-differential.log
       - name: Record bridge identity
         shell: bash
         run: |
