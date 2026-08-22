@@ -21,10 +21,12 @@ import mage.watchers.common.CommanderInfoWatcher;
 import mage.watchers.common.CommanderPlaysCountWatcher;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +37,9 @@ import java.util.UUID;
  *
  * <p>This adapter deliberately uses XMage's own Commander watchers and
  * GameCommanderImpl state-based-action implementation. The fixture setup is a
- * test-only starting-state injection boundary; normalized outcomes are observed
- * from XMage state and are not calculated by Commander Playtest Lab rules code.</p>
+ * test-only starting-state injection boundary. Provider-observed state and
+ * adapter-derived normalization fields are reported separately through explicit
+ * per-field provenance; adapter summaries must not be promoted to provider rules claims.</p>
  */
 final class Phase6DifferentialAdapter {
 
@@ -51,11 +54,16 @@ final class Phase6DifferentialAdapter {
                 Files.readString(inputPath, StandardCharsets.UTF_8),
                 JsonObject.class
         );
+        if (request == null) {
+            throw new IllegalArgumentException("request must be a JSON object");
+        }
         String caseId = requireText(request, "case_id");
-        JsonObject inputState = request.getAsJsonObject("input_state");
-        if (inputState == null) {
+        JsonElement inputStateElement = request.get("input_state");
+        if (inputStateElement == null || !inputStateElement.isJsonObject()) {
             throw new IllegalArgumentException("input_state must be an object");
         }
+        JsonObject inputState = inputStateElement.getAsJsonObject();
+        requireExactText(inputState, "format", "commander");
 
         JsonObject normalized = switch (caseId) {
             case "commander_tax_third_cast" -> commanderTax(inputState);
@@ -70,12 +78,15 @@ final class Phase6DifferentialAdapter {
         response.addProperty("provider_commit", "77d7646da6958fdf8125ee7c8f4aabd130d21d4c");
         response.addProperty("scenario_mode", "provider_state_injection_v1");
         response.add("normalized_output", normalized);
+        response.add("normalized_output_provenance", normalizedOutputProvenance(caseId));
         Files.writeString(outputPath, GSON.toJson(response) + "\n", StandardCharsets.UTF_8);
     }
 
     private static JsonObject commanderTax(JsonObject inputState) {
+        requireExactText(inputState, "action", "cast_commander");
         String commanderName = requireText(inputState, "commander_name");
-        int priorCasts = requireInt(inputState, "prior_command_zone_casts");
+        int priorCasts = requireNonNegativeInt(inputState, "prior_command_zone_casts");
+        int printedManaValue = requireNonNegativeInt(inputState, "printed_mana_value");
         Scenario scenario = Scenario.singleCommander(commanderName);
         try {
             Player actor = scenario.players().get(0);
@@ -103,6 +114,12 @@ final class Phase6DifferentialAdapter {
             SpellAbility ability = commander.getSpellAbility().copy();
             ability.setControllerId(actor.getId());
             int baseCost = ability.getManaCostsToPay().manaValue();
+            if (baseCost != printedManaValue) {
+                throw new IllegalStateException(
+                        "fixture printed_mana_value does not match XMage base spell cost for "
+                                + commanderName + ": fixture=" + printedManaValue + ", xmage=" + baseCost
+                );
+            }
             boolean commanderCostApplied = commander.commanderCost(
                     scenario.game(),
                     ability,
@@ -121,13 +138,26 @@ final class Phase6DifferentialAdapter {
     }
 
     private static JsonObject commanderDamage(JsonObject inputState) {
-        JsonObject requestedDamage = inputState.getAsJsonObject("commander_damage");
-        if (requestedDamage == null || requestedDamage.size() == 0) {
+        requireExactText(inputState, "action", "check_state_based_actions");
+        int defendingLife = requireNonNegativeInt(inputState, "defending_player_life");
+        if (defendingLife != 40) {
+            throw new IllegalArgumentException(
+                    "provider_state_injection_v1 currently supports defending_player_life=40 only"
+            );
+        }
+        JsonElement requestedDamageElement = inputState.get("commander_damage");
+        if (requestedDamageElement == null || !requestedDamageElement.isJsonObject()) {
+            throw new IllegalArgumentException("commander_damage must be a non-empty object");
+        }
+        JsonObject requestedDamage = requestedDamageElement.getAsJsonObject();
+        if (requestedDamage.size() == 0) {
             throw new IllegalArgumentException("commander_damage must be a non-empty object");
         }
         List<String> commanderNames = new ArrayList<>();
+        Map<String, Integer> validatedDamage = new LinkedHashMap<>();
         for (String name : requestedDamage.keySet()) {
             commanderNames.add(name);
+            validatedDamage.put(name, requireNonNegativeInt(requestedDamage, name));
         }
         Scenario scenario = Scenario.partnerCommanders(commanderNames);
         try {
@@ -135,9 +165,9 @@ final class Phase6DifferentialAdapter {
             Player defender = scenario.players().get(1);
             int maximum = 0;
 
-            for (Map.Entry<String, JsonElement> entry : requestedDamage.entrySet()) {
+            for (Map.Entry<String, Integer> entry : validatedDamage.entrySet()) {
                 String commanderName = entry.getKey();
-                int amount = entry.getValue().getAsInt();
+                int amount = entry.getValue();
                 Card commander = findCommander(scenario.game(), attacker, commanderName);
                 CommanderInfoWatcher watcher = scenario.game().getState().getWatcher(
                         CommanderInfoWatcher.class,
@@ -202,11 +232,67 @@ final class Phase6DifferentialAdapter {
         return value;
     }
 
-    private static int requireInt(JsonObject object, String name) {
+    private static void requireExactText(JsonObject object, String name, String expected) {
+        String observed = requireText(object, name);
+        if (!expected.equals(observed)) {
+            throw new IllegalArgumentException(
+                    name + " must be " + expected + " for provider_state_injection_v1, observed " + observed
+            );
+        }
+    }
+
+    private static int requireNonNegativeInt(JsonObject object, String name) {
         if (!object.has(name) || object.get(name).isJsonNull()) {
             throw new IllegalArgumentException(name + " is required");
         }
-        return object.get(name).getAsInt();
+        JsonElement element = object.get(name);
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+            throw new IllegalArgumentException(name + " must be an integer");
+        }
+        final int value;
+        try {
+            BigDecimal numeric = element.getAsBigDecimal();
+            value = numeric.intValueExact();
+        } catch (ArithmeticException | NumberFormatException exc) {
+            throw new IllegalArgumentException(name + " must be a 32-bit integer", exc);
+        }
+        if (value < 0) {
+            throw new IllegalArgumentException(name + " must be non-negative");
+        }
+        return value;
+    }
+
+    private static JsonObject normalizedOutputProvenance(String caseId) {
+        JsonObject provenance = new JsonObject();
+        switch (caseId) {
+            case "commander_tax_third_cast" -> {
+                provenance.addProperty(
+                        "total_cast_cost",
+                        "xmage_spell_ability_after_CommanderCostModification"
+                );
+                provenance.addProperty(
+                        "commander_tax",
+                        "adapter_difference_of_xmage_total_and_base_spell_cost"
+                );
+                provenance.addProperty(
+                        "legal",
+                        "adapter_validation_of_xmage_commander_cost_application_and_watcher_count"
+                );
+            }
+            case "commander_damage_not_combined", "commander_damage_exactly_twenty_one" -> {
+                provenance.addProperty("player_loses", "xmage_player_hasLost_after_commander_state_based_actions");
+                provenance.addProperty(
+                        "loss_reason",
+                        "adapter_label_from_fixture_scope_when_xmage_player_hasLost_is_true"
+                );
+                provenance.addProperty(
+                        "maximum_single_commander_damage",
+                        "adapter_summary_of_injected_xmage_CommanderInfoWatcher_state"
+                );
+            }
+            default -> throw new IllegalArgumentException("unsupported Phase-6 case: " + caseId);
+        }
+        return provenance;
     }
 
     private record Scenario(
