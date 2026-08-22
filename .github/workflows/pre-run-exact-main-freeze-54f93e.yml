@@ -1,0 +1,241 @@
+name: Pre-Run Exact Main Freeze 54f93e
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pre-run-exact-main-freeze-54f93e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pre-run-exact-main-freeze-54f93e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TARGET_COMMIT: 54f93e29d50033e4641585a98060ea46a79deffb
+  TARGET_TREE: fc7b89f3f004ced761b3bf4e9518932d9986b59e
+  PRE_RUN_SEED: '2026082201'
+  PACKAGE_VERSION: '1.23.0'
+
+jobs:
+  exact-main-freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact canonical main with history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.TARGET_COMMIT }}
+          fetch-depth: 0
+
+      - name: Assert exact canonical main identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$TARGET_TREE"
+          test "$(git rev-parse refs/remotes/origin/main)" = "$TARGET_COMMIT"
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install exact-main optimizer runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[dev]'
+
+      - name: Generate exact-main manifest and non-consuming preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/pre-run-freeze
+          commander-lab-optimizer manifest \
+            --output artifacts/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            --run-id rogshai-official-fresh-20260822-post-pr107-pre-run-freeze \
+            --seed "$PRE_RUN_SEED" \
+            | tee artifacts/pre-run-freeze/manifest-output.json
+          commander-lab-optimizer preflight \
+            --manifest artifacts/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            | tee artifacts/pre-run-freeze/preflight-output.json
+
+      - name: Assert exact-main readiness contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          target_commit = '54f93e29d50033e4641585a98060ea46a79deffb'
+          target_tree = 'fc7b89f3f004ced761b3bf4e9518932d9986b59e'
+          root = Path('artifacts/pre-run-freeze')
+          frozen = json.loads((root / 'manifest-output.json').read_text())
+          preflight = json.loads((root / 'preflight-output.json').read_text())
+          manifest = json.loads((root / 'ROGSHAI_PRE_RUN_MANIFEST.json').read_text())
+
+          assert frozen['status'] == 'frozen'
+          assert manifest['software_commit'] == target_commit
+          assert manifest['software_tree'] == target_tree
+          assert preflight['status'] == 'pass'
+          assert preflight['operational_pod_size'] == 4
+          assert preflight['candidate_count'] == 795
+          assert preflight['semantic_unknown_count'] == 0
+          assert preflight['partition_disjointness'] == 'validated_fail_closed_by_manifest'
+          assert preflight['decision_checks']['contract_1e'] is True
+          assert preflight['decision_checks']['precision_contract_2f'] is True
+          assert preflight['checks']['git_commit'] is True
+          assert preflight['checks']['git_tree'] is True
+          assert preflight['checks']['tracked_clean'] is True
+
+          summary = {
+              'status': 'pass',
+              'evidence_consumed': False,
+              'target_commit': manifest['software_commit'],
+              'target_tree': manifest['software_tree'],
+              'manifest_hash': frozen['manifest_hash'],
+              'run_id': manifest['run_id'],
+              'seed': manifest['search_seed'],
+              'operational_pod_size': preflight['operational_pod_size'],
+              'candidate_count': preflight['candidate_count'],
+              'semantic_unknown_count': preflight['semantic_unknown_count'],
+              'partition_disjointness': preflight['partition_disjointness'],
+              'contract_1e': preflight['decision_checks']['contract_1e'],
+              'precision_contract_2f': preflight['decision_checks']['precision_contract_2f'],
+              'historical_holdout_reuse': False,
+              'canonical_mutation': False,
+          }
+          (root / 'PRE_RUN_FREEZE_SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+          sha256sum artifacts/pre-run-freeze/* > artifacts/pre-run-freeze/SHA256SUMS.txt
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Build exact-main wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade build
+          python -m build --wheel
+
+      - name: Assemble exact-main recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf artifacts/exact-main-recovery
+          mkdir -p artifacts/exact-main-recovery/payload
+          git archive --format=zip \
+            --output=artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main-source.zip \
+            "$TARGET_COMMIT"
+          git branch --force recovery-exact-main "$TARGET_COMMIT"
+          git bundle create \
+            artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle \
+            recovery-exact-main
+          cp dist/commander_playtest_lab-1.23.0-py3-none-any.whl \
+            artifacts/exact-main-recovery/payload/
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          pre = Path('artifacts/pre-run-freeze')
+          payload = Path('artifacts/exact-main-recovery/payload')
+          summary = json.loads((pre / 'PRE_RUN_FREEZE_SUMMARY.json').read_text())
+          provenance = {
+              'status': 'exact_main_recovery',
+              'repository': 'moeendres-png/commander-playtest-lab',
+              'package_version': '1.23.0',
+              'canonical_main_commit': '54f93e29d50033e4641585a98060ea46a79deffb',
+              'canonical_main_tree': 'fc7b89f3f004ced761b3bf4e9518932d9986b59e',
+              'pre_run_manifest_hash': summary['manifest_hash'],
+              'pre_run_run_id': summary['run_id'],
+              'pre_run_seed': summary['seed'],
+              'operational_pod_size': 4,
+              'candidate_count': summary['candidate_count'],
+              'semantic_unknown_count': summary['semantic_unknown_count'],
+              'historical_holdout_reuse_allowed': False,
+              'campaign_evidence_consumed_by_recovery': False,
+              'canonical_domain_mutation': False,
+              'evidence_boundary': 'recovery artifact only; not gameplay evidence; Structural remains structural_model_estimates',
+          }
+          (payload / 'RECOVERY_PROVENANCE.json').write_text(
+              json.dumps(provenance, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          (cd artifacts/exact-main-recovery/payload && sha256sum * > SHA256SUMS.txt)
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          root = Path('artifacts/exact-main-recovery')
+          payload = root / 'payload'
+          out = root / 'commander-playtest-lab-1.23.0-exact-main-54f93e2-recovery.zip'
+          with zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for p in sorted(payload.iterdir()):
+                  z.write(p, arcname=p.name)
+          PY
+          sha256sum artifacts/exact-main-recovery/commander-playtest-lab-1.23.0-exact-main-54f93e2-recovery.zip \
+            | tee artifacts/exact-main-recovery/OUTER_SHA256.txt
+
+      - name: Verify exact-main recovery independently
+        shell: bash
+        run: |
+          set -euo pipefail
+          git bundle verify artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle
+          test "$(git rev-list -1 recovery-exact-main)" = "$TARGET_COMMIT"
+          rm -rf /tmp/commander-lab-recovery-clone
+          git clone --quiet --branch recovery-exact-main \
+            artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle \
+            /tmp/commander-lab-recovery-clone
+          test "$(git -C /tmp/commander-lab-recovery-clone rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git -C /tmp/commander-lab-recovery-clone rev-parse HEAD^{tree})" = "$TARGET_TREE"
+          (cd artifacts/exact-main-recovery/payload && sha256sum -c SHA256SUMS.txt)
+          python - <<'PY'
+          from pathlib import Path
+          import json, zipfile
+
+          root = Path('artifacts/exact-main-recovery')
+          out = root / 'commander-playtest-lab-1.23.0-exact-main-54f93e2-recovery.zip'
+          with zipfile.ZipFile(out) as z:
+              names = set(z.namelist())
+          required = {
+              'commander-playtest-lab-1.23.0-exact-main-source.zip',
+              'commander-playtest-lab-1.23.0-exact-main.bundle',
+              'commander_playtest_lab-1.23.0-py3-none-any.whl',
+              'RECOVERY_PROVENANCE.json',
+              'SHA256SUMS.txt',
+          }
+          assert required <= names, names
+          provenance = json.loads((root / 'payload' / 'RECOVERY_PROVENANCE.json').read_text())
+          assert provenance['canonical_main_commit'] == '54f93e29d50033e4641585a98060ea46a79deffb'
+          assert provenance['canonical_main_tree'] == 'fc7b89f3f004ced761b3bf4e9518932d9986b59e'
+          assert provenance['campaign_evidence_consumed_by_recovery'] is False
+          assert provenance['historical_holdout_reuse_allowed'] is False
+          PY
+
+      - name: Upload pre-run freeze evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        with:
+          name: pre-run-freeze-exact-main-54f93e2
+          path: artifacts/pre-run-freeze/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload exact-main recovery
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        with:
+          name: commander-playtest-lab-1.23.0-exact-main-54f93e2-recovery
+          path: |
+            artifacts/exact-main-recovery/commander-playtest-lab-1.23.0-exact-main-54f93e2-recovery.zip
+            artifacts/exact-main-recovery/OUTER_SHA256.txt
+            artifacts/exact-main-recovery/payload/SHA256SUMS.txt
+            artifacts/exact-main-recovery/payload/RECOVERY_PROVENANCE.json
+          if-no-files-found: error
+          retention-days: 90
