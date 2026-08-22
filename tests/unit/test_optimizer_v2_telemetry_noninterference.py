@@ -11,7 +11,7 @@ from commander_lab.models import (
 
 
 class _TelemetryDiscardingSimulator(StructuralSimulator):
-    """Control path with identical Structural execution but no retained T1 observations."""
+    """Control path with identical Structural execution but no retained fidelity observations."""
 
     def _telemetry_for(self, player: _Player) -> T1TelemetryAccumulator:
         return T1TelemetryAccumulator()
@@ -20,16 +20,16 @@ class _TelemetryDiscardingSimulator(StructuralSimulator):
         return metrics
 
 
-def test_optimizer_v2_t1_telemetry_is_execution_and_scoring_inert(structural_decks) -> None:
+def test_optimizer_v2_t1_t2_telemetry_is_execution_and_scoring_inert(structural_decks) -> None:
     config = StructuralMatchConfig(
-        match_id="optimizer-t1-noninterference",
+        match_id="optimizer-t1-t2-noninterference",
         seed=2026082201,
         deck_ids=("rogshai/current", "kaervek/current", "synthetic/control", "synthetic/aggro"),
         limits=StructuralAbortLimits(max_turns=30, max_events=20_000, max_no_progress_turns=30),
     )
-    measured = StructuralSimulator(structural_decks).simulate(config, run_id="balanced-t1-proof")
+    measured = StructuralSimulator(structural_decks).simulate(config, run_id="balanced-t2-proof")
     control = _TelemetryDiscardingSimulator(structural_decks).simulate(
-        config, run_id="balanced-t1-proof"
+        config, run_id="balanced-t2-proof"
     )
 
     assert measured.placements == control.placements
@@ -42,18 +42,27 @@ def test_optimizer_v2_t1_telemetry_is_execution_and_scoring_inert(structural_dec
     assert measured.event_count == control.event_count
     assert measured.log_sha256 == control.log_sha256
 
+    telemetry_fields = (
+        "unused_mana",
+        "mana_source_usage",
+        "colored_mana_failures",
+        "stranded_spells",
+        "stranded_reasons",
+        "dead_card_rate",
+        "commander_recast_affordability",
+        "turns_to_restore_pressure_after_disruption",
+        "rebuild_disruption_events",
+        "rebuild_completed_recoveries",
+        "rebuild_open_recoveries",
+        "rebuild_disruption_classes",
+        "interaction_quality",
+        "fidelity_telemetry_status",
+    )
     for player_id, measured_metrics in measured.player_metrics.items():
         control_metrics = control.player_metrics[player_id]
         measured_payload = measured_metrics.model_dump(mode="json")
         control_payload = control_metrics.model_dump(mode="json")
-        for field in (
-            "unused_mana",
-            "colored_mana_failures",
-            "stranded_spells",
-            "stranded_reasons",
-            "commander_recast_affordability",
-            "fidelity_telemetry_status",
-        ):
+        for field in telemetry_fields:
             measured_payload.pop(field)
             control_payload.pop(field)
         assert measured_payload == control_payload
