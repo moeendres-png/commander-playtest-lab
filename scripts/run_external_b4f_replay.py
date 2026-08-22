@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import subprocess
 import tempfile
@@ -21,12 +22,26 @@ def _sha256_json(payload: object) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def _timeout_from_environment(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise SystemExit(f"{name} must be a finite positive number of seconds") from exc
+    if not math.isfinite(value) or value <= 0.0 or value > 600.0:
+        raise SystemExit(f"{name} must be > 0 and <= 600 seconds")
+    return value
+
+
 def _invoke_case(
     *,
     command_template: tuple[str, ...],
     case_id: str,
     description: str,
     input_state: dict[str, object],
+    timeout_seconds: float,
 ) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="commander-lab-b4f-replay-") as temp_dir:
         input_path = Path(temp_dir) / "input.json"
@@ -52,7 +67,7 @@ def _invoke_case(
             command,
             capture_output=True,
             text=True,
-            timeout=120.0,
+            timeout=timeout_seconds,
             check=False,
         )
         if completed.returncode != 0:
@@ -77,9 +92,14 @@ def main() -> None:
     if len(xmage_commit) != 40 or any(char not in "0123456789abcdef" for char in xmage_commit):
         raise SystemExit("B4-F replay requires a full lowercase XMAGE_COMMIT pin")
 
+    timeout_seconds = _timeout_from_environment("XMAGE_B4F_REQUEST_TIMEOUT_SECONDS", 120.0)
     cases = load_differential_cases(FIXTURES)
+    xmage_cases = tuple(case for case in cases if case.backend in {"xmage", "either"})
+    if not xmage_cases:
+        raise SystemExit("B4-F replay fixture set contains no XMage-eligible cases")
+
     case_evidence: list[dict[str, object]] = []
-    for case in cases:
+    for case in xmage_cases:
         observations: list[dict[str, object]] = []
         hashes: list[str] = []
         for round_number in range(1, REPLAY_ROUNDS + 1):
@@ -88,6 +108,7 @@ def main() -> None:
                 case_id=case.case_id,
                 description=case.description,
                 input_state=dict(case.input_state),
+                timeout_seconds=timeout_seconds,
             )
             if payload.get("provider") != "xmage":
                 raise SystemExit(f"B4-F replay provider mismatch for {case.case_id}")
@@ -98,6 +119,15 @@ def main() -> None:
             normalized = payload.get("normalized_output")
             if not isinstance(normalized, dict):
                 raise SystemExit(f"B4-F replay normalized output missing for {case.case_id}")
+            provenance = payload.get("normalized_output_provenance")
+            if not isinstance(provenance, dict):
+                raise SystemExit(f"B4-F replay output provenance missing for {case.case_id}")
+            if set(provenance) != set(normalized):
+                raise SystemExit(
+                    "B4-F replay provenance keys differ from normalized output for "
+                    f"{case.case_id}: normalized_keys={sorted(normalized)}, "
+                    f"provenance_keys={sorted(provenance)}"
+                )
             mismatches = {
                 key: {
                     "expected": case.expected_normalized.get(key),
@@ -114,6 +144,7 @@ def main() -> None:
                 "provider_commit": payload.get("provider_commit"),
                 "scenario_mode": payload.get("scenario_mode"),
                 "normalized_output": normalized,
+                "normalized_output_provenance": provenance,
             }
             observation_hash = _sha256_json(stable_payload)
             hashes.append(observation_hash)
@@ -122,6 +153,7 @@ def main() -> None:
                     "round": round_number,
                     "observation_sha256": observation_hash,
                     "normalized_output": normalized,
+                    "normalized_output_provenance": provenance,
                 }
             )
         if len(set(hashes)) != 1:
@@ -146,6 +178,8 @@ def main() -> None:
         "provider_commit": xmage_commit,
         "scenario_contract": SCENARIO_MODE,
         "replay_rounds_per_fixture": REPLAY_ROUNDS,
+        "xmage_eligible_fixture_count": len(xmage_cases),
+        "configured_request_timeout_seconds": timeout_seconds,
         "process_model": "fresh_xmage_jvm_per_observation",
         "full_seeded_game_replay_claimed": False,
         "seed_controlled": False,

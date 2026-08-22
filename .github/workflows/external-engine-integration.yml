@@ -48,7 +48,7 @@ env:
   COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
   COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD: >-
-    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar {input} {output}
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar phase6 {input} {output}
 
 jobs:
   build-and-integrate:
@@ -209,6 +209,15 @@ jobs:
         if: always()
         with:
           name: external-engine-b4f-evidence-${{ github.sha }}
+          path: |
+            artifacts/external-engine/
+            engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+          if-no-files-found: error
+      - name: Upload legacy B4-D artifact-name compatibility alias
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: external-engine-b4d-evidence-${{ github.sha }}
           path: |
             artifacts/external-engine/
             engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar

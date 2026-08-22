@@ -57,6 +57,9 @@ def main() -> None:
     configured_protocol = str(config.get("protocol_version", ""))
     bridge_sha256 = _sha256_file(BRIDGE_JAR)
     fixture_sha256 = _sha256_file(FIXTURE_PATH)
+    replay_sha256 = _sha256_file(ARTIFACTS / "XMAGE_B4F_PHASE6_REPLAY.json")
+    illegal_sha256 = _sha256_file(ARTIFACTS / "XMAGE_B4F_ILLEGAL_ACTION_REJECTION.json")
+    b4c_sha256 = _sha256_file(ARTIFACTS / "XMAGE_B4C_ACTION_REGRESSION.json")
     descriptor_sha256 = _sha256_json(descriptor)
 
     material = binding.get("binding_material")
@@ -70,6 +73,9 @@ def main() -> None:
         "scenario_contract": "provider_state_injection_v1",
         "frozen_fixture_set": str(FIXTURE_PATH.relative_to(ROOT)),
         "frozen_fixture_set_sha256": fixture_sha256,
+        "phase6_replay_evidence_sha256": replay_sha256,
+        "illegal_action_evidence_sha256": illegal_sha256,
+        "b4c_action_evidence_sha256": b4c_sha256,
         "capability_descriptor_sha256": descriptor_sha256,
     }
     if material != expected_material:
@@ -126,12 +132,18 @@ def main() -> None:
             "descriptor_matches_provider_pin": True,
             "bridge_artifact_sha256_matches_binding": True,
             "frozen_fixture_set_sha256_matches_binding": True,
+            "phase6_replay_evidence_sha256_matches_binding": True,
+            "illegal_action_evidence_sha256_matches_binding": True,
+            "b4c_action_evidence_sha256_matches_binding": True,
             "capability_descriptor_sha256_matches_binding": True,
             "capability_hash_recomputed": True,
         },
         "xmage_commit": xmage_commit,
         "bridge_artifact_sha256": bridge_sha256,
         "frozen_fixture_set_sha256": fixture_sha256,
+        "phase6_replay_evidence_sha256": replay_sha256,
+        "illegal_action_evidence_sha256": illegal_sha256,
+        "b4c_action_evidence_sha256": b4c_sha256,
         "capability_descriptor_sha256": descriptor_sha256,
         "capability_hash": expected_capability_hash,
         "status": "passed",

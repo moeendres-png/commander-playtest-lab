@@ -32,6 +32,20 @@ B4-F implementation/evidence head reviewed before this closeout-only commit:
 - capability descriptor SHA256: `ac325f0b816482701644350a59fe290529336804229c0c2d8aee73418e9efc69`
 - capability hash: `164332b6484c427dc8d8ae52098d72897043ca44bb52d1417e82701dbb4519f4`
 
+## Post-closeout evidence-boundary hardening
+
+A follow-up review tightened the wording and machine-readable boundary of the B4-F evidence without changing the original Fidelity decision. The original hashes above remain historical provenance for the initial B4-F closeout; subsequent B4-F capability artifacts are expected to bind the exact runtime evidence files that support their claims.
+
+The bounded Commander Damage evidence is now interpreted narrowly:
+
+- XMage provider-derived: `player_loses` after XMage Commander state-based actions evaluate already separated `CommanderInfoWatcher` state;
+- adapter-derived normalization: `loss_reason` and `maximum_single_commander_damage`;
+- **not proven by this fixture**: combat-path attribution of damage to separate commanders before the watcher state is populated.
+
+Accordingly, `commander_damage_per_commander_separation=PROVEN` is retired as an overbroad capability label. The replacement bounded claim is `commander_damage_state_based_loss_from_separated_injected_watcher_state=PROVEN`, while `commander_damage_combat_attribution_per_commander=NOT_PROVEN`. This clarification does not broaden Structural fidelity and does not alter `FIDELITY_RECLASSIFICATION=NONE`.
+
+The follow-up capability binding also includes SHA-256 identities for the Phase-6 replay evidence, illegal-action evidence and B4-C action evidence, so the capability hash binds both runtime/provider identity and the exact supporting evidence chain.
+
 ## B4-F gates reviewed
 
 The following gates passed through the real pinned XMage path:
@@ -40,7 +54,7 @@ The following gates passed through the real pinned XMage path:
 2. repeated fresh-process reconstruction: three fresh XMage JVM processes for each frozen fixture;
 3. explicit non-enumerated/illegal action rejection against a current provider decision, with provider state and decision identity unchanged after rejection and a subsequent valid action succeeding;
 4. machine-readable bounded capability descriptor;
-5. capability binding to XMage commit, bridge artifact SHA, protocol, scenario contract and frozen fixture set;
+5. capability binding to XMage commit, bridge artifact SHA, protocol, scenario contract, frozen fixture set and exact supporting B4-C/B4-F evidence-file hashes;
 6. separate provider-pin validation reproducing the capability hash and matching the live provider identity.
 
 Frozen Phase-6 rules cases:
@@ -133,8 +147,8 @@ Bounded/proven for the pinned XMage provider path:
 - real four-player Commander runtime for the validated path;
 - frozen provider-state reconstruction for the three Phase-6 fixtures;
 - Commander Tax on a third command-zone cast in the frozen case;
-- per-Commander damage separation in the frozen case;
-- 21 damage from one Commander causing the frozen-case loss;
+- state-based loss evaluation from already separated injected CommanderInfoWatcher damage state in the frozen cases;
+- 21 injected Commander Damage in one CommanderInfoWatcher causing the frozen-case loss;
 - current-priority machine-readable actions for the validated bounded path;
 - bounded targetless/nonmodal state-bound submission for the validated path;
 - stale/non-enumerated action rejection for the validated path;
@@ -152,6 +166,7 @@ The following remain outside the demonstrated capability surface:
 - complete target submission;
 - complete mode/choice submission;
 - complete combat decision submission;
+- combat-path attribution of damage to separate commanders before CommanderInfoWatcher state is populated;
 - complete attachment legality;
 - complete stack/priority sequencing for arbitrary cards;
 - card-specific rules correctness for the current Tactical/External Rules card sets.
@@ -169,8 +184,9 @@ Therefore:
 | Evidence item | External provider result | Structural fidelity effect |
 |---|---|---|
 | Commander Tax third cast fixture | proven for frozen XMage case | none |
-| Commander damage separation fixture | proven for frozen XMage case | none |
-| 21 Commander Damage loss fixture | proven for frozen XMage case | none |
+| Commander damage state-based loss from already separated injected watcher state | proven for frozen XMage case | none |
+| Combat-path per-Commander damage attribution | not proven by these fixtures | none |
+| 21 Commander Damage loss from injected watcher state | proven for frozen XMage case | none |
 | stale/non-enumerated action rejection | proven for bounded current-decision path | none |
 | fresh-process reconstruction | proven for frozen fixtures | none |
 | seed-controlled full-game replay | not proven | none |
