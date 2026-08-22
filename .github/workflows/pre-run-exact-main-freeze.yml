@@ -17,6 +17,7 @@ env:
   TARGET_COMMIT: 0a79921a4d373579a3fb6236dcd8a6c84d87d165
   TARGET_TREE: b1a264bb25e21da614e450aba9ecda0d89de6a93
   PRE_RUN_SEED: '2026082201'
+  PRE_RUN_MANIFEST_HASH: 82e3d681d468b3bfe7f107fda3f2d67d37ce7adfd1b0133aae206d7e2ae09cc9
 
 jobs:
   exact-main-preflight:
@@ -73,6 +74,7 @@ jobs:
           manifest = json.loads((root / 'ROGSHAI_PRE_RUN_MANIFEST.json').read_text())
 
           assert manifest_output['status'] == 'frozen'
+          assert manifest_output['manifest_hash'] == '82e3d681d468b3bfe7f107fda3f2d67d37ce7adfd1b0133aae206d7e2ae09cc9'
           assert manifest['software_commit'] == '0a79921a4d373579a3fb6236dcd8a6c84d87d165'
           assert manifest['software_tree'] == 'b1a264bb25e21da614e450aba9ecda0d89de6a93'
           assert preflight['status'] == 'pass'
@@ -118,5 +120,121 @@ jobs:
         with:
           name: pre-run-freeze-exact-main-0a79921
           path: artifacts/pre-run-freeze/
+          if-no-files-found: error
+          retention-days: 90
+
+  exact-main-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact canonical main with history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.TARGET_COMMIT }}
+          fetch-depth: 0
+      - name: Assert exact recovery source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$TARGET_TREE"
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: '3.12'
+      - name: Build exact-main wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade build
+          python -m build --wheel
+      - name: Assemble recovery payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf artifacts/exact-main-recovery
+          mkdir -p artifacts/exact-main-recovery/payload
+          git archive --format=zip \
+            --output=artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main-source.zip \
+            "$TARGET_COMMIT"
+          git bundle create \
+            artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle \
+            "$TARGET_COMMIT"
+          cp dist/commander_playtest_lab-1.23.0-py3-none-any.whl \
+            artifacts/exact-main-recovery/payload/
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = Path('artifacts/exact-main-recovery/payload')
+          provenance = {
+              'status': 'exact_main_recovery',
+              'repository': 'moeendres-png/commander-playtest-lab',
+              'package_version': '1.23.0',
+              'canonical_main_commit': '0a79921a4d373579a3fb6236dcd8a6c84d87d165',
+              'canonical_main_tree': 'b1a264bb25e21da614e450aba9ecda0d89de6a93',
+              'pre_run_manifest_hash': '82e3d681d468b3bfe7f107fda3f2d67d37ce7adfd1b0133aae206d7e2ae09cc9',
+              'pre_run_workflow_run_id': 32586879674,
+              'pre_run_artifact_id': 9479279166,
+              'operational_pod_size': 4,
+              'historical_holdout_reuse_allowed': False,
+              'campaign_evidence_consumed_by_recovery': False,
+              'canonical_domain_mutation': False,
+              'evidence_boundary': 'recovery artifact only; not gameplay evidence; Structural remains structural_model_estimates',
+          }
+          (payload / 'RECOVERY_PROVENANCE.json').write_text(
+              json.dumps(provenance, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          (cd artifacts/exact-main-recovery/payload && sha256sum * > SHA256SUMS.txt)
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          root = Path('artifacts/exact-main-recovery')
+          payload = root / 'payload'
+          out = root / 'commander-playtest-lab-1.23.0-exact-main-0a79921-recovery.zip'
+          with zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for p in sorted(payload.iterdir()):
+                  z.write(p, arcname=p.name)
+          PY
+          sha256sum artifacts/exact-main-recovery/commander-playtest-lab-1.23.0-exact-main-0a79921-recovery.zip \
+            | tee artifacts/exact-main-recovery/OUTER_SHA256.txt
+      - name: Verify recovery payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          git bundle verify artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle
+          python - <<'PY'
+          from pathlib import Path
+          import json, zipfile
+
+          root = Path('artifacts/exact-main-recovery')
+          out = root / 'commander-playtest-lab-1.23.0-exact-main-0a79921-recovery.zip'
+          with zipfile.ZipFile(out) as z:
+              names = set(z.namelist())
+          required = {
+              'commander-playtest-lab-1.23.0-exact-main-source.zip',
+              'commander-playtest-lab-1.23.0-exact-main.bundle',
+              'commander_playtest_lab-1.23.0-py3-none-any.whl',
+              'RECOVERY_PROVENANCE.json',
+              'SHA256SUMS.txt',
+          }
+          assert required <= names, names
+          provenance = json.loads((root / 'payload' / 'RECOVERY_PROVENANCE.json').read_text())
+          assert provenance['canonical_main_commit'] == '0a79921a4d373579a3fb6236dcd8a6c84d87d165'
+          assert provenance['canonical_main_tree'] == 'b1a264bb25e21da614e450aba9ecda0d89de6a93'
+          assert provenance['campaign_evidence_consumed_by_recovery'] is False
+          PY
+      - name: Upload exact-main recovery
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        with:
+          name: commander-playtest-lab-1.23.0-exact-main-0a79921-recovery
+          path: |
+            artifacts/exact-main-recovery/commander-playtest-lab-1.23.0-exact-main-0a79921-recovery.zip
+            artifacts/exact-main-recovery/OUTER_SHA256.txt
+            artifacts/exact-main-recovery/payload/SHA256SUMS.txt
+            artifacts/exact-main-recovery/payload/RECOVERY_PROVENANCE.json
           if-no-files-found: error
           retention-days: 90
