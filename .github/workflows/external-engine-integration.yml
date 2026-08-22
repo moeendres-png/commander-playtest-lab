@@ -42,6 +42,8 @@ env:
   XMAGE_B4D_REQUEST_TIMEOUT_SECONDS: "120"
   COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+  COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar {input} {output}
 
 jobs:
   build-and-integrate:
@@ -149,7 +151,7 @@ jobs:
           set -o pipefail
           mkdir -p artifacts/external-engine
           python scripts/run_external_b4d_regression.py 2>&1 | tee artifacts/external-engine/b4d-process.log
-      - name: Audit Phase-6 differential contract against current provider boundary
+      - name: Run provider-bound Phase-6 differential fixtures
         shell: bash
         run: |
           set -o pipefail
@@ -163,7 +165,7 @@ jobs:
           mkdir -p artifacts/external-engine
           sha256sum engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
             > artifacts/external-engine/xmage-bridge.sha256
-          printf 'lab_commit=%s\nxmage_commit=%s\nprotocol=2.0.0\nprovider=xmage\nevidence_class=external_rules_engine\n' \
+          printf 'lab_commit=%s\nxmage_commit=%s\nprotocol=2.0.0\nprovider=xmage\nevidence_class=external_rules_engine\nphase6_scenario_mode=provider_state_injection_v1\n' \
             "$GITHUB_SHA" "$XMAGE_COMMIT" \
             > artifacts/external-engine/XMAGE_RUNTIME_IDENTITY.txt
       - name: Generate evidence checksums
@@ -177,7 +179,7 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: external-engine-b4d-evidence-${{ github.sha }}
+          name: external-engine-b4f-evidence-${{ github.sha }}
           path: |
             artifacts/external-engine/
             engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
