@@ -206,6 +206,18 @@ def _summarize_fidelity_telemetry(rows: list[StructuralPlayerMetrics]) -> dict[s
         "turns_to_restore_pressure_after_disruption": _telemetry_number_summary(
             rows, lambda row: row.turns_to_restore_pressure_after_disruption
         ),
+        "rebuild_disruption_events": _telemetry_number_summary(
+            rows, lambda row: row.rebuild_disruption_events
+        ),
+        "rebuild_completed_recoveries": _telemetry_number_summary(
+            rows, lambda row: row.rebuild_completed_recoveries
+        ),
+        "rebuild_open_recoveries": _telemetry_number_summary(
+            rows, lambda row: row.rebuild_open_recoveries
+        ),
+        "rebuild_disruption_classes": _telemetry_presence_summary(
+            rows, lambda row: row.rebuild_disruption_classes
+        ),
     }
 
 
@@ -226,7 +238,8 @@ def _aggregate_fidelity_telemetry(results: list[StructuralMatchResult]) -> dict[
             "Structural state only. T1 color failures use the current presence-only color payer; "
             "stranding measures observable total-mana and missing-color blockers. T2 rebuild time "
             "uses only explicit commander-removal, engine-loss, and board-wipe state transitions "
-            "with exact pre-disruption recovery invariants. mana_source_usage remains NOT_MEASURED "
+            "with exact pre-disruption recovery invariants. Open rebuild episodes are censored and "
+            "reported separately rather than treated as zero. mana_source_usage remains NOT_MEASURED "
             "because payments are not source-bound; dead_card_rate remains NOT_MEASURED because "
             "Structural lacks complete timing, target, prerequisite, and meaningful-function state."
         ),
