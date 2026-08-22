@@ -169,7 +169,7 @@ jobs:
           printf 'vehicle_head=%s\ncanonical_main=%s\ncanonical_tree=%s\nmanifest_hash=%s\nmanifest_seed=%s\nrun_started=false\nevidence_consumed=false\nholdout_opened=false\n' \
             "${{ github.event.pull_request.head.sha }}" "$FROZEN_MAIN_COMMIT" "$FROZEN_MAIN_TREE" "$MANIFEST_HASH" "$MANIFEST_SEED" \
             > "$READY_DIR/READINESS_PROVENANCE.txt"
-          find "$READY_DIR" -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > "$READY_DIR/SHA256SUMS.txt"
+          (cd "$READY_DIR" && find . -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt)
 
       - name: Upload immutable non-consuming readiness evidence
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
