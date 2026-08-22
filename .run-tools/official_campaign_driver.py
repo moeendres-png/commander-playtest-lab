@@ -9,9 +9,10 @@ import subprocess
 import sys
 import time
 from collections import Counter
-from datetime import datetime, timezone
+from collections.abc import Mapping, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 EXPECTED_PACKAGE_VERSION = "1.23.0"
 DEFAULT_DIVERSIFIED_STARTS = 2
@@ -20,7 +21,7 @@ DEFAULT_FINALISTS_PER_POLICY = 4
 
 
 def utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def sha256_file(path: Path) -> str:
@@ -41,13 +42,13 @@ def load_json(path: Path) -> Any:
 
 
 def git(root: Path, *args: str) -> str:
-    cp = subprocess.run(
-        ["git", "-C", str(root), *args], check=True, text=True, capture_output=True
-    )
+    cp = subprocess.run(["git", "-C", str(root), *args], check=True, text=True, capture_output=True)
     return cp.stdout.strip()
 
 
-def verify_runtime_identity(root: Path, expected_commit: str, expected_tree: str) -> dict[str, object]:
+def verify_runtime_identity(
+    root: Path, expected_commit: str, expected_tree: str
+) -> dict[str, object]:
     commit = git(root, "rev-parse", "HEAD")
     tree = git(root, "rev-parse", "HEAD^{tree}")
     tracked = git(root, "status", "--porcelain=v1", "--untracked-files=no")
@@ -65,7 +66,9 @@ def verify_runtime_identity(root: Path, expected_commit: str, expected_tree: str
     }
 
 
-def run_cli(*, root: Path, output_dir: Path, label: str, args: Sequence[str]) -> tuple[dict[str, Any] | None, float]:
+def run_cli(
+    *, root: Path, output_dir: Path, label: str, args: Sequence[str]
+) -> tuple[dict[str, Any] | None, float]:
     started = time.perf_counter()
     cp = subprocess.run(
         ["commander-lab-optimizer", *args], cwd=root, text=True, capture_output=True
@@ -99,7 +102,16 @@ def extract_archive_cell_count(archive: object) -> int | str:
     return "NOT_MEASURED"
 
 
-def stage_integrity(*, output_dir: Path, phase: str, root: Path, expected_commit: str, expected_tree: str, manifest_hash: str, holdout_opened: bool) -> None:
+def stage_integrity(
+    *,
+    output_dir: Path,
+    phase: str,
+    root: Path,
+    expected_commit: str,
+    expected_tree: str,
+    manifest_hash: str,
+    holdout_opened: bool,
+) -> None:
     identity = verify_runtime_identity(root, expected_commit, expected_tree)
     write_json(
         output_dir / f"INTEGRITY_{phase.upper()}.json",
@@ -119,7 +131,17 @@ def stage_integrity(*, output_dir: Path, phase: str, root: Path, expected_commit
     )
 
 
-def non_consuming_readiness(*, root: Path, manifest_path: Path, output_dir: Path, expected_commit: str, expected_tree: str, expected_manifest_hash: str, expected_manifest_file_sha256: str, expected_seed: int) -> dict[str, Any]:
+def non_consuming_readiness(
+    *,
+    root: Path,
+    manifest_path: Path,
+    output_dir: Path,
+    expected_commit: str,
+    expected_tree: str,
+    expected_manifest_hash: str,
+    expected_manifest_file_sha256: str,
+    expected_seed: int,
+) -> dict[str, Any]:
     identity = verify_runtime_identity(root, expected_commit, expected_tree)
     if sha256_file(manifest_path) != expected_manifest_file_sha256:
         raise RuntimeError("manifest file SHA-256 mismatch")
@@ -127,7 +149,10 @@ def non_consuming_readiness(*, root: Path, manifest_path: Path, output_dir: Path
     from commander_lab.whole_deck.lab import WholeDeckDesignLab
     from commander_lab.whole_deck.models import PolicyId
     from commander_lab.whole_deck.optimizer_runtime import DEFAULT_POLICIES, _initial_variants
-    from commander_lab.whole_deck.optimizer_v2_decision_runtime import load_decision_manifest, verify_decision_preflight
+    from commander_lab.whole_deck.optimizer_v2_decision_runtime import (
+        load_decision_manifest,
+        verify_decision_preflight,
+    )
     from commander_lab.whole_deck.optimizer_v2_release import run_release_search
     from commander_lab.whole_deck.search_context import current_control_mainboard
 
@@ -224,7 +249,15 @@ def non_consuming_readiness(*, root: Path, manifest_path: Path, output_dir: Path
     return report
 
 
-def freeze_challenger(*, root: Path, output_dir: Path, manifest_hash: str, expected_commit: str, expected_tree: str, confirmatory: Mapping[str, Any]) -> dict[str, Any]:
+def freeze_challenger(
+    *,
+    root: Path,
+    output_dir: Path,
+    manifest_hash: str,
+    expected_commit: str,
+    expected_tree: str,
+    confirmatory: Mapping[str, Any],
+) -> dict[str, Any]:
     from commander_lab.whole_deck.lab import WholeDeckDesignLab
     from commander_lab.whole_deck.search_context import current_control_mainboard
     from commander_lab.whole_deck.search_models import WholeDeckVariant
@@ -256,7 +289,9 @@ def freeze_challenger(*, root: Path, output_dir: Path, manifest_hash: str, expec
     challenger_100 = list(candidate_profile.commander_names) + list(variant.mainboard)
     control_100 = list(control_profile.commander_names) + list(control_mainboard)
     if len(challenger_100) != 100 or len(control_100) != 100:
-        raise RuntimeError(f"freeze expected exact 100-card lists; got challenger={len(challenger_100)}, control={len(control_100)}")
+        raise RuntimeError(
+            f"freeze expected exact 100-card lists; got challenger={len(challenger_100)}, control={len(control_100)}"
+        )
     freeze = {
         "status": "FROZEN_NO_FURTHER_TUNING",
         "timestamp": utc_now(),
@@ -284,7 +319,16 @@ def freeze_challenger(*, root: Path, output_dir: Path, manifest_hash: str, expec
     return freeze
 
 
-def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, manifest_hash: str, manifest_seed: int, durations: Mapping[str, float], terminal_error: str | None) -> None:
+def closeout(
+    *,
+    output_dir: Path,
+    expected_commit: str,
+    expected_tree: str,
+    manifest_hash: str,
+    manifest_seed: int,
+    durations: Mapping[str, float],
+    terminal_error: str | None,
+) -> None:
     def maybe(name: str) -> dict[str, Any] | None:
         path = output_dir / name
         if not path.is_file():
@@ -303,7 +347,9 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
     search_audit = maybe("optimizer-execution-audit-search.json")
     confirm_audit = maybe("optimizer-execution-audit-confirmatory.json")
     holdout_audit = maybe("optimizer-execution-audit-holdout.json")
-    evidence_consumed = any(value is not None for value in (calibration, search, confirm, diagnostics, holdout))
+    evidence_consumed = any(
+        value is not None for value in (calibration, search, confirm, diagnostics, holdout)
+    )
     holdout_opened = holdout is not None
 
     entries: list[dict[str, Any]] = [
@@ -357,7 +403,9 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
                 "reproduction": "current immutable execution artifact",
                 "affected_stage": "current_execution",
                 "affected_candidates": "SEE_RAW_ARTIFACTS",
-                "affected_evidence": "CURRENT_EVIDENCE_CONSUMED_BEFORE_FAILURE" if evidence_consumed else "NONE",
+                "affected_evidence": "CURRENT_EVIDENCE_CONSUMED_BEFORE_FAILURE"
+                if evidence_consumed
+                else "NONE",
                 "root_cause_or_best_hypothesis": "UNKNOWN_PENDING_LOG_REVIEW",
                 "confidence": "OBSERVED_FAILURE",
                 "decision_materiality": "FAIL_CLOSED",
@@ -368,7 +416,10 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
                 "status": "OPEN",
             }
         )
-    write_json(output_dir / "RUN_FLAW_LEDGER.json", {"schema_version": "1.1.0", "manifest_hash": manifest_hash, "entries": entries})
+    write_json(
+        output_dir / "RUN_FLAW_LEDGER.json",
+        {"schema_version": "1.1.0", "manifest_hash": manifest_hash, "entries": entries},
+    )
 
     search_payload = search.get("search") if isinstance(search, dict) else None
     if isinstance(search_payload, dict):
@@ -376,16 +427,26 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
         archive = search_payload.get("archive")
         diversity = {
             "status": "MEASURED_FROM_OPTIMIZER_SEARCH_REPORT",
-            "unique_legal_decks_generated": search_payload.get("unique_legal_decks", "NOT_MEASURED"),
-            "unique_legal_decks_evaluated": search_payload.get("unique_legal_decks", "NOT_MEASURED"),
+            "unique_legal_decks_generated": search_payload.get(
+                "unique_legal_decks", "NOT_MEASURED"
+            ),
+            "unique_legal_decks_evaluated": search_payload.get(
+                "unique_legal_decks", "NOT_MEASURED"
+            ),
             "duplicate_decks_removed": "NOT_EXPLICITLY_EXPOSED",
-            "search_generations": len(generations) - 1 if isinstance(generations, list) else "NOT_MEASURED",
+            "search_generations": len(generations) - 1
+            if isinstance(generations, list)
+            else "NOT_MEASURED",
             "qd_cells_occupied": extract_archive_cell_count(archive),
             "qd_archive": archive if isinstance(archive, dict) else "NOT_MEASURED",
             "operator_weights": search_payload.get("operator_weights", "NOT_MEASURED"),
             "policy_weights": search_payload.get("policy_weights", "NOT_MEASURED"),
-            "screening_only_count": len(search_payload.get("screening_only_hashes", [])) if isinstance(search_payload.get("screening_only_hashes"), list) else "NOT_MEASURED",
-            "requested_scenario_pairs": search_payload.get("requested_scenario_pairs", "NOT_MEASURED"),
+            "screening_only_count": len(search_payload.get("screening_only_hashes", []))
+            if isinstance(search_payload.get("screening_only_hashes"), list)
+            else "NOT_MEASURED",
+            "requested_scenario_pairs": search_payload.get(
+                "requested_scenario_pairs", "NOT_MEASURED"
+            ),
             "evaluation_calls": search_payload.get("evaluation_calls", "NOT_MEASURED"),
             "candidate_card_exposure": "NOT_MEASURED_BY_CURRENT_REPORT",
             "package_coverage": "NOT_MEASURED_BY_CURRENT_REPORT",
@@ -396,11 +457,57 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
     else:
         diversity = {"status": "NOT_RUN", "reason": "search report absent"}
     write_json(output_dir / "SEARCH_DIVERSITY_REPORT.json", diversity)
-    write_json(output_dir / "QD_ARCHIVE_REPORT.json", {"status": diversity.get("status"), "qd_cells_occupied": diversity.get("qd_cells_occupied", "NOT_RUN"), "archive": diversity.get("qd_archive", "NOT_RUN")})
-    write_json(output_dir / "PAIRING_INTEGRITY_AUDIT.json", {"status": "RAW_RUNTIME_AUDIT_CAPTURED" if search_audit or confirm_audit or holdout_audit else "NOT_RUN", "search_audit": search_audit, "confirmatory_audit": confirm_audit, "holdout_audit": holdout_audit, "truth_boundary": "pairing claims are limited to manifest-bound runtime audit outputs"})
-    write_json(output_dir / "RNG_DETERMINISM_AUDIT.json", {"status": "MANIFEST_AND_RUNTIME_BOUND" if evidence_consumed else "NOT_RUN", "manifest_hash": manifest_hash, "canonical_main_commit": expected_commit, "canonical_main_tree": expected_tree, "PYTHONHASHSEED": os.environ.get("PYTHONHASHSEED", "UNKNOWN"), "truth_boundary": "no external replication claim"})
-    write_json(output_dir / "CACHE_INTEGRITY_AUDIT.json", {"status": "RAW_RUNTIME_AUDIT_CAPTURED" if search_audit or confirm_audit or holdout_audit else "NOT_RUN", "manifest_hash": manifest_hash, "search_audit": search_audit, "confirmatory_audit": confirm_audit, "holdout_audit": holdout_audit})
-    write_json(output_dir / "RUNTIME_HEALTH_TIMELINE.json", {"durations_seconds": dict(durations), "terminal_error": terminal_error, "timestamp": utc_now()})
+    write_json(
+        output_dir / "QD_ARCHIVE_REPORT.json",
+        {
+            "status": diversity.get("status"),
+            "qd_cells_occupied": diversity.get("qd_cells_occupied", "NOT_RUN"),
+            "archive": diversity.get("qd_archive", "NOT_RUN"),
+        },
+    )
+    write_json(
+        output_dir / "PAIRING_INTEGRITY_AUDIT.json",
+        {
+            "status": "RAW_RUNTIME_AUDIT_CAPTURED"
+            if search_audit or confirm_audit or holdout_audit
+            else "NOT_RUN",
+            "search_audit": search_audit,
+            "confirmatory_audit": confirm_audit,
+            "holdout_audit": holdout_audit,
+            "truth_boundary": "pairing claims are limited to manifest-bound runtime audit outputs",
+        },
+    )
+    write_json(
+        output_dir / "RNG_DETERMINISM_AUDIT.json",
+        {
+            "status": "MANIFEST_AND_RUNTIME_BOUND" if evidence_consumed else "NOT_RUN",
+            "manifest_hash": manifest_hash,
+            "canonical_main_commit": expected_commit,
+            "canonical_main_tree": expected_tree,
+            "PYTHONHASHSEED": os.environ.get("PYTHONHASHSEED", "UNKNOWN"),
+            "truth_boundary": "no external replication claim",
+        },
+    )
+    write_json(
+        output_dir / "CACHE_INTEGRITY_AUDIT.json",
+        {
+            "status": "RAW_RUNTIME_AUDIT_CAPTURED"
+            if search_audit or confirm_audit or holdout_audit
+            else "NOT_RUN",
+            "manifest_hash": manifest_hash,
+            "search_audit": search_audit,
+            "confirmatory_audit": confirm_audit,
+            "holdout_audit": holdout_audit,
+        },
+    )
+    write_json(
+        output_dir / "RUNTIME_HEALTH_TIMELINE.json",
+        {
+            "durations_seconds": dict(durations),
+            "terminal_error": terminal_error,
+            "timestamp": utc_now(),
+        },
+    )
     write_json(output_dir / "PERFORMANCE_PROFILE.json", {"durations_seconds": dict(durations)})
 
     if fidelity is not None:
@@ -408,10 +515,24 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
     if confirm is not None:
         write_json(output_dir / "CONFIRMATORY_RESULTS.json", confirm)
     if diagnostics is not None:
-        denial = [row for row in diagnostics.get("rows", []) if isinstance(row, dict) and str(row.get("condition", "")).startswith("deny_")]
-        ablation = [row for row in diagnostics.get("rows", []) if isinstance(row, dict) and str(row.get("condition", "")).startswith("ablate_")]
-        write_json(output_dir / "COMMANDER_DENIAL_RESULTS.json", {"rows": denial, "truth_boundary": diagnostics.get("evidence_boundary")})
-        write_json(output_dir / "PACKAGE_ABLATION_RESULTS.json", {"rows": ablation, "truth_boundary": diagnostics.get("evidence_boundary")})
+        denial = [
+            row
+            for row in diagnostics.get("rows", [])
+            if isinstance(row, dict) and str(row.get("condition", "")).startswith("deny_")
+        ]
+        ablation = [
+            row
+            for row in diagnostics.get("rows", [])
+            if isinstance(row, dict) and str(row.get("condition", "")).startswith("ablate_")
+        ]
+        write_json(
+            output_dir / "COMMANDER_DENIAL_RESULTS.json",
+            {"rows": denial, "truth_boundary": diagnostics.get("evidence_boundary")},
+        )
+        write_json(
+            output_dir / "PACKAGE_ABLATION_RESULTS.json",
+            {"rows": ablation, "truth_boundary": diagnostics.get("evidence_boundary")},
+        )
     if holdout is not None:
         write_json(output_dir / "SEALED_HOLDOUT_RESULT.json", holdout)
 
@@ -425,14 +546,53 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
     ):
         path = output_dir / name
         if not path.exists():
-            write_json(path, {"status": "NOT_MEASURED_UNLESS_EXPOSED_IN_RAW_ARTIFACTS", "scope": scope, "not_invented": True})
+            write_json(
+                path,
+                {
+                    "status": "NOT_MEASURED_UNLESS_EXPOSED_IN_RAW_ARTIFACTS",
+                    "scope": scope,
+                    "not_invented": True,
+                },
+            )
 
-    patch_recommendations: dict[str, Any] = {"P0": [], "P1": [], "P2": [], "DEFER_NOT_JUSTIFIED": [], "known_resolved": ["PR #113 calibration-first decision-integrity gate", "execution vehicle anchor-call mismatch RFL-20260823-002"], "post_run_audit_required": evidence_consumed}
+    patch_recommendations: dict[str, Any] = {
+        "P0": [],
+        "P1": [],
+        "P2": [],
+        "DEFER_NOT_JUSTIFIED": [],
+        "known_resolved": [
+            "PR #113 calibration-first decision-integrity gate",
+            "execution vehicle anchor-call mismatch RFL-20260823-002",
+        ],
+        "post_run_audit_required": evidence_consumed,
+    }
     if terminal_error is not None:
         patch_recommendations["P0"].append("Classify current failure before any new decision run")
     write_json(output_dir / "PATCH_RECOMMENDATIONS.json", patch_recommendations)
-    write_json(output_dir / "RUN_SPEC.json", {"scope": "official_fresh_rogshai_optimizer_v2", "operational_pod_size": 4, "manifest_hash": manifest_hash, "manifest_seed": manifest_seed, "canonical_main_commit": expected_commit, "canonical_main_tree": expected_tree, "holdout_policy": "one frozen challenger; one look; exactly 2048 paired 4P scenarios", "structural_truth_boundary": "structural_model_estimates != empirical_winrates", "tactical_truth_boundary": "Tactical Oracle != external_rules_engine", "canonical_domain_mutation_allowed": False})
-    write_json(output_dir / "MANIFEST_REFERENCE.json", {"manifest_hash": manifest_hash, "seed": manifest_seed, "canonical_main_commit": expected_commit, "canonical_main_tree": expected_tree})
+    write_json(
+        output_dir / "RUN_SPEC.json",
+        {
+            "scope": "official_fresh_rogshai_optimizer_v2",
+            "operational_pod_size": 4,
+            "manifest_hash": manifest_hash,
+            "manifest_seed": manifest_seed,
+            "canonical_main_commit": expected_commit,
+            "canonical_main_tree": expected_tree,
+            "holdout_policy": "one frozen challenger; one look; exactly 2048 paired 4P scenarios",
+            "structural_truth_boundary": "structural_model_estimates != empirical_winrates",
+            "tactical_truth_boundary": "Tactical Oracle != external_rules_engine",
+            "canonical_domain_mutation_allowed": False,
+        },
+    )
+    write_json(
+        output_dir / "MANIFEST_REFERENCE.json",
+        {
+            "manifest_hash": manifest_hash,
+            "seed": manifest_seed,
+            "canonical_main_commit": expected_commit,
+            "canonical_main_tree": expected_tree,
+        },
+    )
 
     final_bundle = {
         "OFFICIAL_FRESH_RUN_COMPLETE": terminal_error is None and search is not None,
@@ -458,11 +618,15 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
         "CRITICAL_DIAGNOSTICS_COMPLETE": diagnostics is not None,
         "HOLDOUT_OPENED": holdout_opened,
         "HOLDOUT_GAMES": 2048 if holdout_opened else 0,
-        "OFFICIAL_WINNER_DECLARED": bool(holdout and holdout.get("official_winner_declared") is True),
+        "OFFICIAL_WINNER_DECLARED": bool(
+            holdout and holdout.get("official_winner_declared") is True
+        ),
         "PAIRING_INTEGRITY": "SEE_PAIRING_INTEGRITY_AUDIT",
         "CACHE_INTEGRITY": "SEE_CACHE_INTEGRITY_AUDIT",
         "RNG_INTEGRITY": "SEE_RNG_DETERMINISM_AUDIT",
-        "CROSS_PARTITION_INTEGRITY": "PASS_BY_FROZEN_MANIFEST_PREFLIGHT" if preflight else "NOT_RUN",
+        "CROSS_PARTITION_INTEGRITY": "PASS_BY_FROZEN_MANIFEST_PREFLIGHT"
+        if preflight
+        else "NOT_RUN",
         "CANONICAL_DECK_CHANGED": False,
         "INVENTORY_CHANGED": False,
         "ALLOCATION_CHANGED": False,
@@ -491,11 +655,21 @@ def closeout(*, output_dir: Path, expected_commit: str, expected_tree: str, mani
     if terminal_error:
         human.extend(["", "## Fail-closed error", "", terminal_error])
     if freeze:
-        human.extend(["", "## Frozen proposed challenger", "", f"- deck hash: `{freeze.get('challenger_deck_hash')}`", "- status: `PROPOSED_ONLY / NOT_CANONICAL / NOT_APPLIED`"])
+        human.extend(
+            [
+                "",
+                "## Frozen proposed challenger",
+                "",
+                f"- deck hash: `{freeze.get('challenger_deck_hash')}`",
+                "- status: `PROPOSED_ONLY / NOT_CANONICAL / NOT_APPLIED`",
+            ]
+        )
     (output_dir / "FINAL_HUMAN_REPORT.md").write_text("\n".join(human) + "\n", encoding="utf-8")
 
     checksum_lines: list[str] = []
-    for path in sorted(p for p in output_dir.rglob("*") if p.is_file() and p.name != "SHA256SUMS.txt"):
+    for path in sorted(
+        p for p in output_dir.rglob("*") if p.is_file() and p.name != "SHA256SUMS.txt"
+    ):
         checksum_lines.append(f"{sha256_file(path)}  {path.relative_to(output_dir).as_posix()}")
     (output_dir / "SHA256SUMS.txt").write_text("\n".join(checksum_lines) + "\n", encoding="utf-8")
 
@@ -520,7 +694,15 @@ def execute_campaign(args: argparse.Namespace) -> int:
             expected_seed=args.expected_seed,
         )
         durations["readiness"] = time.perf_counter() - started
-        stage_integrity(output_dir=output_dir, phase="pre_evidence", root=root, expected_commit=args.expected_commit, expected_tree=args.expected_tree, manifest_hash=args.expected_manifest_hash, holdout_opened=False)
+        stage_integrity(
+            output_dir=output_dir,
+            phase="pre_evidence",
+            root=root,
+            expected_commit=args.expected_commit,
+            expected_tree=args.expected_tree,
+            manifest_hash=args.expected_manifest_hash,
+            holdout_opened=False,
+        )
         if args.mode == "preflight":
             return 0
 
@@ -528,7 +710,19 @@ def execute_campaign(args: argparse.Namespace) -> int:
             root=root,
             output_dir=output_dir,
             label="exploratory-cli",
-            args=("run", "--manifest", str(manifest_path), "--output-dir", str(output_dir), "--workers", str(args.workers), "--max-turns", str(args.max_turns), "--root", str(root)),
+            args=(
+                "run",
+                "--manifest",
+                str(manifest_path),
+                "--output-dir",
+                str(output_dir),
+                "--workers",
+                str(args.workers),
+                "--max-turns",
+                str(args.max_turns),
+                "--root",
+                str(root),
+            ),
         )
         calibration = load_json(output_dir / "calibration-report.json")
         search = load_json(output_dir / "optimizer-search-report.json")
@@ -542,13 +736,27 @@ def execute_campaign(args: argparse.Namespace) -> int:
             raise RuntimeError("holdout partition opened during search")
         write_json(output_dir / "CALIBRATION_RESULTS.json", calibration)
         write_json(output_dir / "EXPLORATORY_SEARCH_REPORT.json", search)
-        stage_integrity(output_dir=output_dir, phase="post_search", root=root, expected_commit=args.expected_commit, expected_tree=args.expected_tree, manifest_hash=args.expected_manifest_hash, holdout_opened=False)
+        stage_integrity(
+            output_dir=output_dir,
+            phase="post_search",
+            root=root,
+            expected_commit=args.expected_commit,
+            expected_tree=args.expected_tree,
+            manifest_hash=args.expected_manifest_hash,
+            holdout_opened=False,
+        )
 
         fidelity_payload, durations["fidelity"] = run_cli(
             root=root,
             output_dir=output_dir,
             label="fidelity-cli",
-            args=("fidelity", "--frontier", str(output_dir / "frontier-handoff.json"), "--root", str(root)),
+            args=(
+                "fidelity",
+                "--frontier",
+                str(output_dir / "frontier-handoff.json"),
+                "--root",
+                str(root),
+            ),
         )
         if fidelity_payload is None:
             raise RuntimeError("fidelity CLI did not return JSON")
@@ -556,21 +764,51 @@ def execute_campaign(args: argparse.Namespace) -> int:
         write_json(output_dir / "frontier-fidelity.json", fidelity)
         write_json(output_dir / "CANDIDATE_FIDELITY_ROUTING.json", fidelity)
         if fidelity.get("pass") is not True:
-            stage_integrity(output_dir=output_dir, phase="fidelity_no_structural_shortlist", root=root, expected_commit=args.expected_commit, expected_tree=args.expected_tree, manifest_hash=args.expected_manifest_hash, holdout_opened=False)
+            stage_integrity(
+                output_dir=output_dir,
+                phase="fidelity_no_structural_shortlist",
+                root=root,
+                expected_commit=args.expected_commit,
+                expected_tree=args.expected_tree,
+                manifest_hash=args.expected_manifest_hash,
+                holdout_opened=False,
+            )
             return 0
 
         _, durations["confirmatory"] = run_cli(
             root=root,
             output_dir=output_dir,
             label="confirmatory-cli",
-            args=("confirm", "--manifest", str(manifest_path), "--frontier", str(output_dir / "frontier-handoff.json"), "--output-dir", str(output_dir), "--workers", str(args.workers), "--max-turns", str(args.max_turns), "--root", str(root)),
+            args=(
+                "confirm",
+                "--manifest",
+                str(manifest_path),
+                "--frontier",
+                str(output_dir / "frontier-handoff.json"),
+                "--output-dir",
+                str(output_dir),
+                "--workers",
+                str(args.workers),
+                "--max-turns",
+                str(args.max_turns),
+                "--root",
+                str(root),
+            ),
         )
         confirm = load_json(output_dir / "confirmatory-report.json")
         if confirm.get("manifest_hash") != args.expected_manifest_hash:
             raise RuntimeError("confirmatory manifest mismatch")
         if confirm.get("sealed_holdout_partition_opened") is not False:
             raise RuntimeError("holdout opened during confirmatory")
-        stage_integrity(output_dir=output_dir, phase="post_confirmatory", root=root, expected_commit=args.expected_commit, expected_tree=args.expected_tree, manifest_hash=args.expected_manifest_hash, holdout_opened=False)
+        stage_integrity(
+            output_dir=output_dir,
+            phase="post_confirmatory",
+            root=root,
+            expected_commit=args.expected_commit,
+            expected_tree=args.expected_tree,
+            manifest_hash=args.expected_manifest_hash,
+            holdout_opened=False,
+        )
         challenger = confirm.get("single_challenger_hash")
         if not isinstance(challenger, str) or not challenger:
             return 0
@@ -579,18 +817,47 @@ def execute_campaign(args: argparse.Namespace) -> int:
             root=root,
             output_dir=output_dir,
             label="diagnostics-cli",
-            args=("diagnose", "--manifest", str(manifest_path), "--confirmatory", str(output_dir / "confirmatory-report.json"), "--output-dir", str(output_dir), "--workers", str(args.workers), "--max-turns", str(args.max_turns), "--root", str(root)),
+            args=(
+                "diagnose",
+                "--manifest",
+                str(manifest_path),
+                "--confirmatory",
+                str(output_dir / "confirmatory-report.json"),
+                "--output-dir",
+                str(output_dir),
+                "--workers",
+                str(args.workers),
+                "--max-turns",
+                str(args.max_turns),
+                "--root",
+                str(root),
+            ),
         )
         diagnostics = load_json(output_dir / "critical-diagnostics-report.json")
         if diagnostics.get("manifest_hash") != args.expected_manifest_hash:
             raise RuntimeError("critical diagnostics manifest mismatch")
         if diagnostics.get("challenger_hash") != challenger:
             raise RuntimeError("critical diagnostics challenger mismatch")
-        stage_integrity(output_dir=output_dir, phase="post_diagnostics", root=root, expected_commit=args.expected_commit, expected_tree=args.expected_tree, manifest_hash=args.expected_manifest_hash, holdout_opened=False)
+        stage_integrity(
+            output_dir=output_dir,
+            phase="post_diagnostics",
+            root=root,
+            expected_commit=args.expected_commit,
+            expected_tree=args.expected_tree,
+            manifest_hash=args.expected_manifest_hash,
+            holdout_opened=False,
+        )
         if diagnostics.get("critical_diagnostics_pass") is not True:
             return 0
 
-        freeze = freeze_challenger(root=root, output_dir=output_dir, manifest_hash=args.expected_manifest_hash, expected_commit=args.expected_commit, expected_tree=args.expected_tree, confirmatory=confirm)
+        freeze = freeze_challenger(
+            root=root,
+            output_dir=output_dir,
+            manifest_hash=args.expected_manifest_hash,
+            expected_commit=args.expected_commit,
+            expected_tree=args.expected_tree,
+            confirmatory=confirm,
+        )
         if (output_dir / "holdout-report.json").exists():
             raise RuntimeError("holdout report existed before authorized one-look opening")
         if freeze.get("holdout_looks_authorized") != 1:
@@ -600,21 +867,54 @@ def execute_campaign(args: argparse.Namespace) -> int:
             root=root,
             output_dir=output_dir,
             label="holdout-cli",
-            args=("holdout", "--manifest", str(manifest_path), "--confirmatory", str(output_dir / "confirmatory-report.json"), "--diagnostics", str(output_dir / "critical-diagnostics-report.json"), "--output-dir", str(output_dir), "--authorize-holdout", "--workers", str(args.workers), "--max-turns", str(args.max_turns), "--root", str(root)),
+            args=(
+                "holdout",
+                "--manifest",
+                str(manifest_path),
+                "--confirmatory",
+                str(output_dir / "confirmatory-report.json"),
+                "--diagnostics",
+                str(output_dir / "critical-diagnostics-report.json"),
+                "--output-dir",
+                str(output_dir),
+                "--authorize-holdout",
+                "--workers",
+                str(args.workers),
+                "--max-turns",
+                str(args.max_turns),
+                "--root",
+                str(root),
+            ),
         )
         holdout = load_json(output_dir / "holdout-report.json")
         if holdout.get("single_frozen_challenger_hash") != freeze.get("challenger_deck_hash"):
             raise RuntimeError("holdout challenger does not match frozen challenger")
         if holdout.get("paired_4p_budget") != 2048 or holdout.get("planned_looks") != 1:
             raise RuntimeError("holdout violated one-look 2048-pair contract")
-        stage_integrity(output_dir=output_dir, phase="post_holdout", root=root, expected_commit=args.expected_commit, expected_tree=args.expected_tree, manifest_hash=args.expected_manifest_hash, holdout_opened=True)
+        stage_integrity(
+            output_dir=output_dir,
+            phase="post_holdout",
+            root=root,
+            expected_commit=args.expected_commit,
+            expected_tree=args.expected_tree,
+            manifest_hash=args.expected_manifest_hash,
+            holdout_opened=True,
+        )
         return 0
     except Exception as exc:
         terminal_error = f"{type(exc).__name__}: {exc}"
         (output_dir / "TERMINAL_ERROR.txt").write_text(terminal_error + "\n", encoding="utf-8")
         return 1
     finally:
-        closeout(output_dir=output_dir, expected_commit=args.expected_commit, expected_tree=args.expected_tree, manifest_hash=args.expected_manifest_hash, manifest_seed=args.expected_seed, durations=durations, terminal_error=terminal_error)
+        closeout(
+            output_dir=output_dir,
+            expected_commit=args.expected_commit,
+            expected_tree=args.expected_tree,
+            manifest_hash=args.expected_manifest_hash,
+            manifest_seed=args.expected_seed,
+            durations=durations,
+            terminal_error=terminal_error,
+        )
 
 
 def parse_args() -> argparse.Namespace:
