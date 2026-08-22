@@ -188,8 +188,10 @@ def _initial_variants(
     control = current_control_mainboard(lab.root)
     engines: dict[str, EnrichedWholeDeckSearchEngine] = {}
     by_hash: dict[str, WholeDeckVariant] = {}
-    for index, raw in enumerate(policies):
-        policy = get_policy(PolicyId(raw))
+    control_anchor: WholeDeckVariant | None = None
+    policy_ids = tuple(PolicyId(raw) for raw in policies)
+    for index, policy_id in enumerate(policy_ids):
+        policy = get_policy(policy_id)
         config = WholeDeckSearchConfig(
             seed=manifest.search_seed + index * 1009,
             diversified_starts=diversified_starts,
@@ -212,6 +214,28 @@ def _initial_variants(
                 previous = by_hash.get(variant.deck_hash)
                 if previous is None or variant.objective_prior > previous.objective_prior:
                     by_hash[variant.deck_hash] = variant
+        if policy.policy_id == PolicyId.CURRENT_CONTROL:
+            anchor_id = result.control_variant_id
+            if anchor_id is None:
+                raise RuntimeError("CURRENT_CONTROL construction result is missing its control arm")
+            anchor = next(
+                (variant for variant in result.variants if variant.variant_id == anchor_id),
+                None,
+            )
+            if anchor is None:
+                raise RuntimeError("CURRENT_CONTROL control arm is missing from construction variants")
+            if not anchor.hard_gate.valid:
+                raise RuntimeError("CURRENT_CONTROL control arm failed construction hard gates")
+            if anchor.mainboard != control:
+                raise RuntimeError("CURRENT_CONTROL control arm does not match the exact current control")
+            control_anchor = anchor
+    if PolicyId.CURRENT_CONTROL in policy_ids:
+        if control_anchor is None:
+            raise RuntimeError("CURRENT_CONTROL policy produced no explicit optimizer search anchor")
+        # The exact control is a separate decision-safe search anchor, not a construction
+        # finalist. Force its own policy identity when the same deck hash appears elsewhere
+        # so Fresh-Rebuild policies remain control-blind and cannot become its search parent.
+        by_hash[control_anchor.deck_hash] = control_anchor
     if not by_hash:
         raise RuntimeError("construction priors produced no legal optimizer seeds")
     return engines, tuple(sorted(by_hash.values(), key=lambda row: row.deck_hash))
