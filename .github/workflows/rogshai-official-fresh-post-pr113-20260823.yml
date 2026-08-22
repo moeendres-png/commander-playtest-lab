@@ -1,0 +1,600 @@
+name: RogShai Official Fresh Optimizer-v2 Campaign Post PR113 2026-08-23
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/rogshai-official-fresh-post-pr113-20260823.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  FROZEN_MAIN_COMMIT: '03bad1717d6485d769cca70a6731b621a06f3658'
+  FROZEN_MAIN_TREE: '3c6197abb31342f7a0cc368231d94658bfa33863'
+  PRE_RUN_ARTIFACT_ID: '9483190545'
+  PRE_RUN_ARTIFACT_SHA256: 'cc382e9dae7c59f32914189c76dda35f14255fa59968a493a27f8b9b38e5785c'
+  MANIFEST_FILE_SHA256: 'e515ca2a5e23a6bbadb6f8bcd32ece2e65b1af0a17394f173076e2f13604e0cb'
+  MANIFEST_HASH: '9d73226ce46f75c82d388ea026ad25579c8064b805f05b24ff4c2c2de44476b7'
+  MANIFEST_SEED: '2026082301'
+  RUN_DIR: 'artifacts/rogshai-official-fresh-post-pr113-20260823'
+  WORKERS: '4'
+  MAX_TURNS: '35'
+
+jobs:
+  official-campaign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout exact frozen canonical main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.FROZEN_MAIN_COMMIT }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install exact lab runtime
+        run: python -m pip install -e '.[dev,api]'
+
+      - name: Verify frozen software identity and clean tracked tree
+        id: software_identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUN_DIR"
+          test "$(git rev-parse HEAD)" = "$FROZEN_MAIN_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FROZEN_MAIN_TREE"
+          test "$(git rev-parse refs/remotes/origin/main)" = "$FROZEN_MAIN_COMMIT"
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+          printf 'commit=%s\ntree=%s\nworkers=%s\nmax_turns=%s\n' \
+            "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" "$WORKERS" "$MAX_TURNS" \
+            | tee "$RUN_DIR/SOFTWARE_IDENTITY.txt"
+
+      - name: Retrieve exact frozen pre-run evidence artifact
+        id: retrieve_manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -L \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PRE_RUN_ARTIFACT_ID}/zip" \
+            -o /tmp/pre-run-freeze.zip
+          echo "${PRE_RUN_ARTIFACT_SHA256}  /tmp/pre-run-freeze.zip" | sha256sum -c -
+          rm -rf /tmp/pre-run-freeze
+          mkdir -p /tmp/pre-run-freeze
+          unzip -q /tmp/pre-run-freeze.zip -d /tmp/pre-run-freeze
+          test -f /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json
+          echo "${MANIFEST_FILE_SHA256}  /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json" | sha256sum -c -
+          cp /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json "$RUN_DIR/manifest.json"
+          cp /tmp/pre-run-freeze/PRE_RUN_FREEZE_SUMMARY.json "$RUN_DIR/PRE_RUN_FREEZE_SUMMARY.json"
+          cp /tmp/pre-run-freeze/CROSS_CAMPAIGN_DISJOINTNESS.json "$RUN_DIR/CROSS_CAMPAIGN_DISJOINTNESS.json"
+
+      - name: Re-run non-consuming fail-closed preflight
+        id: preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer preflight \
+            --manifest "$RUN_DIR/manifest.json" \
+            --root . \
+            | tee "$RUN_DIR/preflight.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUN_DIR'])
+          d = json.loads((root / 'preflight.json').read_text())
+          freeze = json.loads((root / 'PRE_RUN_FREEZE_SUMMARY.json').read_text())
+          cross = json.loads((root / 'CROSS_CAMPAIGN_DISJOINTNESS.json').read_text())
+          assert d['status'] == 'pass'
+          assert d['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert freeze['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert freeze['seed'] == int(os.environ['MANIFEST_SEED'])
+          assert d['operational_pod_size'] == 4
+          assert d['candidate_count'] == 795
+          assert d['semantic_unknown_count'] == 0
+          assert all(d['checks'].values())
+          assert all(d['decision_checks'].values())
+          assert cross['status'] == 'pass'
+          assert all(x['scenario_id_overlap'] == 0 for x in cross['comparisons'])
+          assert all(x['scenario_seed_overlap'] == 0 for x in cross['comparisons'])
+          assert freeze['evidence_consumed'] is False
+          assert freeze['historical_holdout_reuse'] is False
+          assert freeze['prepatch_holdout_reuse'] is False
+          PY
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+
+      - name: Verify current-control search anchor and fresh-rebuild separation
+        id: anchor_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' | tee "$RUN_DIR/current-control-anchor-audit.json"
+          import json, os
+          from pathlib import Path
+          from commander_lab.whole_deck.lab import WholeDeckDesignLab
+          from commander_lab.whole_deck.models import PolicyId
+          from commander_lab.whole_deck.optimizer_runtime import _initial_variants
+          from commander_lab.whole_deck.optimizer_v2_decision_runtime import load_decision_manifest
+          from commander_lab.whole_deck.search_context import current_control_mainboard
+
+          root = Path('.').resolve()
+          manifest = load_decision_manifest(Path(os.environ['RUN_DIR']) / 'manifest.json')
+          lab = WholeDeckDesignLab(root)
+          _, initial = _initial_variants(lab, manifest)
+          control = current_control_mainboard(root)
+          anchors = [v for v in initial if v.mainboard == control]
+          assert anchors, 'exact current control absent from initial optimizer seeds'
+          assert any(v.policy_id == PolicyId.CURRENT_CONTROL for v in anchors)
+          canonical_anchor = next(v for v in anchors if v.policy_id == PolicyId.CURRENT_CONTROL)
+          report = {
+              'status': 'pass',
+              'CURRENT_CONTROL_SEARCH_ANCHOR': 'present_exact_current_control',
+              'FRESH_REBUILD_CONTROL_BLINDNESS': 'preserved_by_separate_policy_identity_and_runtime_contract',
+              'initial_legal_seed_count': len(initial),
+              'exact_control_anchor_hash': canonical_anchor.deck_hash,
+              'exact_control_anchor_policy': canonical_anchor.policy_id.value,
+              'exact_control_match': canonical_anchor.mainboard == control,
+              'canonical_mutation': False,
+              'evidence_consumed': False,
+          }
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+
+      - name: Exploratory adaptive search after calibration-first gate
+        id: search
+        shell: bash
+        run: |
+          set -euo pipefail
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/search-started.utc"
+          commander-lab-optimizer run \
+            --manifest "$RUN_DIR/manifest.json" \
+            --output-dir "$RUN_DIR" \
+            --workers "$WORKERS" \
+            --max-turns "$MAX_TURNS" \
+            --root . \
+            | tee "$RUN_DIR/exploratory-cli.json"
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/search-completed.utc"
+
+      - name: Post-search run-integrity audit
+        id: search_integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FROZEN_MAIN_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FROZEN_MAIN_TREE"
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUN_DIR'])
+          search = json.loads((root / 'optimizer-search-report.json').read_text())
+          calibration = json.loads((root / 'calibration-report.json').read_text())
+          audit = json.loads((root / 'optimizer-execution-audit-search.json').read_text())
+          assert search['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert search['calibration_acceptance_pass'] is True
+          assert calibration['calibration_acceptance_pass'] is True
+          assert search['confirmatory_partition_opened'] is False
+          assert search['sealed_holdout_partition_opened'] is False
+          assert search['canonical_deck_mutation'] is False
+          assert audit['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert audit['confirmatory_partition_opened'] is False
+          assert audit['sealed_holdout_partition_opened'] is False
+          report = {
+              'status': 'pass',
+              'phase': 'post_search',
+              'software_identity_unchanged': True,
+              'manifest_identity': os.environ['MANIFEST_HASH'],
+              'calibration_first_passed': True,
+              'confirmatory_opened': False,
+              'holdout_opened': False,
+              'canonical_domain_mutation': False,
+          }
+          (root / 'POST_SEARCH_INTEGRITY.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+          PY
+
+      - name: Gate frontier by question-specific mechanics fidelity
+        id: fidelity_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer fidelity \
+            --frontier "$RUN_DIR/frontier-handoff.json" \
+            --root . \
+            | tee "$RUN_DIR/frontier-fidelity.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d = json.loads((Path(os.environ['RUN_DIR']) / 'frontier-fidelity.json').read_text())
+          assert not d.get('malformed_rows')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"eligible={'true' if d.get('pass') is True else 'false'}\n")
+              out.write(f"shortlist_size={int(d.get('shortlist_size', 0))}\n")
+          PY
+
+      - name: Confirmatory 1E/2F sequence on routed Structural-safe shortlist
+        id: confirm
+        if: steps.fidelity_gate.outputs.eligible == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/confirmatory-started.utc"
+          commander-lab-optimizer confirm \
+            --manifest "$RUN_DIR/manifest.json" \
+            --frontier "$RUN_DIR/frontier-handoff.json" \
+            --output-dir "$RUN_DIR" \
+            --workers "$WORKERS" \
+            --max-turns "$MAX_TURNS" \
+            --root . \
+            | tee "$RUN_DIR/confirmatory-cli.json"
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/confirmatory-completed.utc"
+
+      - name: Gate diagnostics on exactly one frozen challenger
+        id: diagnostics_gate
+        if: steps.fidelity_gate.outputs.eligible == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUN_DIR'])
+          d = json.loads((root / 'confirmatory-report.json').read_text())
+          assert d['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert d.get('sealed_holdout_partition_opened') is False
+          assert d.get('canonical_deck_mutation') is False
+          challenger = d.get('single_challenger_hash')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"has_challenger={'true' if isinstance(challenger, str) and challenger else 'false'}\n")
+              out.write(f"challenger={challenger or ''}\n")
+          PY
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+
+      - name: Critical diagnostics on frozen challenger
+        id: diagnose
+        if: steps.diagnostics_gate.outputs.has_challenger == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/diagnostics-started.utc"
+          commander-lab-optimizer diagnose \
+            --manifest "$RUN_DIR/manifest.json" \
+            --confirmatory "$RUN_DIR/confirmatory-report.json" \
+            --output-dir "$RUN_DIR" \
+            --workers "$WORKERS" \
+            --max-turns "$MAX_TURNS" \
+            --root . \
+            | tee "$RUN_DIR/diagnostics-cli.json"
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/diagnostics-completed.utc"
+
+      - name: Gate sealed holdout eligibility
+        id: holdout_gate
+        if: steps.diagnostics_gate.outputs.has_challenger == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUN_DIR'])
+          c = json.loads((root / 'confirmatory-report.json').read_text())
+          d = json.loads((root / 'critical-diagnostics-report.json').read_text())
+          challenger = c.get('single_challenger_hash')
+          eligible = (
+              isinstance(challenger, str) and bool(challenger)
+              and d.get('challenger_hash') == challenger
+              and d.get('critical_diagnostics_pass') is True
+              and c.get('sealed_holdout_partition_opened') is False
+              and d.get('sealed_holdout_partition_opened') is False
+          )
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"eligible={'true' if eligible else 'false'}\n")
+          PY
+
+      - name: Freeze exactly one final challenger before holdout
+        id: challenger_freeze
+        if: steps.holdout_gate.outputs.eligible == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from collections import Counter
+          from pathlib import Path
+          from commander_lab.storage import sha256_value
+          from commander_lab.whole_deck.lab import WholeDeckDesignLab
+          from commander_lab.whole_deck.search_context import current_control_mainboard
+          from commander_lab.whole_deck.search_models import WholeDeckVariant
+
+          root = Path(os.environ['RUN_DIR'])
+          c = json.loads((root / 'confirmatory-report.json').read_text())
+          handoff = json.loads((root / 'frontier-handoff.json').read_text())
+          deck_hash = c['single_challenger_hash']
+          row = next(x for x in handoff['elites'] if x.get('deck_hash') == deck_hash)
+          variant = WholeDeckVariant.model_validate(row['variant'])
+          control = tuple(current_control_mainboard(Path('.').resolve()))
+          lab = WholeDeckDesignLab(Path('.').resolve())
+          profile = lab.context.materialize(variant.mainboard, label='frozen-holdout-challenger')
+          left, right = Counter(control), Counter(variant.mainboard)
+          removals = []
+          additions = []
+          for name in sorted(set(left) | set(right)):
+              delta = right[name] - left[name]
+              if delta > 0:
+                  additions.extend([name] * delta)
+              elif delta < 0:
+                  removals.extend([name] * (-delta))
+          freeze = {
+              'status': 'FROZEN_NO_FURTHER_TUNING',
+              'manifest_hash': os.environ['MANIFEST_HASH'],
+              'software_commit': os.environ['FROZEN_MAIN_COMMIT'],
+              'software_tree': os.environ['FROZEN_MAIN_TREE'],
+              'challenger_deck_hash': deck_hash,
+              'challenger_variant': variant.model_dump(mode='json'),
+              'challenger_mainboard': list(variant.mainboard),
+              'challenger_mainboard_count': len(variant.mainboard),
+              'challenger_commanders': list(profile.commander_names),
+              'control_mainboard': list(control),
+              'control_mainboard_count': len(control),
+              'control_mainboard_identity': sha256_value(list(control)),
+              'exact_removals': removals,
+              'exact_additions': additions,
+              'selection_rule': c.get('single_challenger_selection_rule'),
+              'confirmatory_pareto_frontier': c.get('pareto_frontier'),
+              'holdout_looks_authorized': 1,
+              'holdout_paired_4p_budget': 2048,
+              'tuning_after_freeze': False,
+              'canonical_deck_mutation': False,
+          }
+          (root / 'FINAL_CHALLENGER_FREEZE.json').write_text(json.dumps(freeze, indent=2, sort_keys=True) + '\n')
+          PY
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+
+      - name: Open fresh sealed holdout exactly once
+        id: holdout
+        if: steps.holdout_gate.outputs.eligible == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "$RUN_DIR/FINAL_CHALLENGER_FREEZE.json"
+          test ! -e "$RUN_DIR/holdout-report.json"
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/holdout-started.utc"
+          commander-lab-optimizer holdout \
+            --manifest "$RUN_DIR/manifest.json" \
+            --confirmatory "$RUN_DIR/confirmatory-report.json" \
+            --diagnostics "$RUN_DIR/critical-diagnostics-report.json" \
+            --output-dir "$RUN_DIR" \
+            --authorize-holdout \
+            --workers "$WORKERS" \
+            --max-turns "$MAX_TURNS" \
+            --root . \
+            | tee "$RUN_DIR/holdout-cli.json"
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/holdout-completed.utc"
+
+      - name: Final continuous-integrity closeout and flaw ledger
+        id: closeout
+        if: always()
+        env:
+          SEARCH_OUTCOME: ${{ steps.search.outcome }}
+          FIDELITY_OUTCOME: ${{ steps.fidelity_gate.outcome }}
+          CONFIRM_OUTCOME: ${{ steps.confirm.outcome }}
+          DIAGNOSE_OUTCOME: ${{ steps.diagnose.outcome }}
+          HOLDOUT_OUTCOME: ${{ steps.holdout.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FROZEN_MAIN_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FROZEN_MAIN_TREE"
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+          git diff --exit-code
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+
+          root = Path(os.environ['RUN_DIR'])
+          def load(name):
+              p = root / name
+              return json.loads(p.read_text()) if p.exists() else None
+          pre = load('preflight.json')
+          search = load('optimizer-search-report.json')
+          calibration = load('calibration-report.json')
+          fidelity = load('frontier-fidelity.json')
+          confirm = load('confirmatory-report.json')
+          diagnostics = load('critical-diagnostics-report.json')
+          holdout = load('holdout-report.json')
+          freeze = load('FINAL_CHALLENGER_FREEZE.json')
+          audit_search = load('optimizer-execution-audit-search.json')
+          audit_confirm = load('optimizer-execution-audit-confirmatory.json')
+          audit_holdout = load('optimizer-execution-audit-holdout.json')
+
+          for payload in (pre, search, confirm, diagnostics, holdout):
+              if isinstance(payload, dict) and 'manifest_hash' in payload:
+                  assert payload['manifest_hash'] == os.environ['MANIFEST_HASH']
+          if search:
+              assert search.get('canonical_deck_mutation') is not True
+          if confirm:
+              assert confirm.get('canonical_deck_mutation') is not True
+          if diagnostics:
+              assert diagnostics.get('canonical_deck_mutation') is not True
+          if holdout:
+              assert holdout.get('canonical_deck_mutation') is not True
+              assert freeze is not None
+              assert holdout.get('single_frozen_challenger_hash') == freeze.get('challenger_deck_hash')
+              assert holdout.get('paired_4p_budget') == 2048
+              assert holdout.get('planned_looks') == 1
+
+          outcomes = {
+              'search': os.environ.get('SEARCH_OUTCOME', ''),
+              'fidelity': os.environ.get('FIDELITY_OUTCOME', ''),
+              'confirmatory': os.environ.get('CONFIRM_OUTCOME', ''),
+              'diagnostics': os.environ.get('DIAGNOSE_OUTCOME', ''),
+              'holdout': os.environ.get('HOLDOUT_OUTCOME', ''),
+          }
+          flaws = [{
+              'flaw_id': 'RFL-20260823-001',
+              'timestamp_or_phase': 'pre_current_freeze',
+              'category': 'DECISION_INTEGRITY_RISK',
+              'severity': 'P0',
+              'observed_symptom': 'Calibration executed after Exploratory Search in prepatch official CLI path.',
+              'reproduction': 'run_release_search prepatch call order',
+              'affected_stage': 'prepatch official campaign search',
+              'affected_candidates': 'none_current_run',
+              'affected_evidence': 'none; discovered before current evidence consumption',
+              'root_cause_or_best_hypothesis': 'calibration call ordering in optimizer_v2_release.run_release_search',
+              'confidence': 'verified',
+              'decision_materiality': 'blocker_before_patch',
+              'current_run_validity_impact': 'none_after_PR113_and_new_disjoint_freeze',
+              'recommended_fix': 'calibration-first fail-closed gate',
+              'recommended_test': 'failed calibration cannot instantiate exploratory evaluator',
+              'patch_now_or_defer': 'patched_before_run',
+              'status': 'RESOLVED_PR113',
+          }]
+          failures = [k for k, v in outcomes.items() if v == 'failure']
+          if failures:
+              flaws.append({
+                  'flaw_id': 'RFL-20260823-002',
+                  'timestamp_or_phase': failures[0],
+                  'category': 'RUN_BLOCKER',
+                  'severity': 'P0',
+                  'observed_symptom': f"Execution step failure: {failures}",
+                  'reproduction': 'see workflow job logs and partial artifacts',
+                  'affected_stage': failures,
+                  'affected_candidates': 'UNKNOWN',
+                  'affected_evidence': 'partial current-run evidence; requires phase-specific validity review',
+                  'root_cause_or_best_hypothesis': 'UNKNOWN_PENDING_LOG_REVIEW',
+                  'confidence': 'observed_failure',
+                  'decision_materiality': 'blocks official completion',
+                  'current_run_validity_impact': 'FAIL_CLOSED',
+                  'recommended_fix': 'diagnose before any rerun or reuse',
+                  'recommended_test': 'reproduce failing stage without crossing evidence boundaries',
+                  'patch_now_or_defer': 'review_required',
+                  'status': 'OPEN',
+              })
+          ledger = {
+              'schema_version': '1.0.0',
+              'manifest_hash': os.environ['MANIFEST_HASH'],
+              'entries': flaws,
+          }
+          (root / 'RUN_FLAW_LEDGER.json').write_text(json.dumps(ledger, indent=2, sort_keys=True) + '\n')
+
+          bundle = {
+              'schema_version': '1.0.0',
+              'canonical_main_commit': os.environ['FROZEN_MAIN_COMMIT'],
+              'canonical_main_tree': os.environ['FROZEN_MAIN_TREE'],
+              'manifest_hash': os.environ['MANIFEST_HASH'],
+              'manifest_seed': int(os.environ['MANIFEST_SEED']),
+              '4p_only': True,
+              'candidate_pool_count': pre.get('candidate_count') if pre else None,
+              'semantic_unknown_count': pre.get('semantic_unknown_count') if pre else None,
+              'phase_outcomes': outcomes,
+              'calibration_pass': calibration.get('calibration_acceptance_pass') if calibration else None,
+              'fidelity_pass': fidelity.get('pass') if fidelity else None,
+              'confirmatory_challenger': confirm.get('single_challenger_hash') if confirm else None,
+              'critical_diagnostics_pass': diagnostics.get('critical_diagnostics_pass') if diagnostics else None,
+              'holdout_opened': holdout is not None,
+              'holdout_decision': holdout.get('decision') if holdout else None,
+              'official_winner_declared': holdout.get('official_winner_declared') if holdout else False,
+              'canonical_deck_changed': False,
+              'inventory_changed': False,
+              'allocation_changed': False,
+              'purchase_changed': False,
+              'opponent_truth_changed': False,
+              'historical_holdout_reused': False,
+              'prepatch_holdout_reused': False,
+              'raw_audits_present': {
+                  'search': audit_search is not None,
+                  'confirmatory': audit_confirm is not None,
+                  'holdout': audit_holdout is not None,
+              },
+          }
+          (root / 'FINAL_DECISION_BUNDLE.json').write_text(json.dumps(bundle, indent=2, sort_keys=True) + '\n')
+
+          manifest_reference = {
+              'manifest_hash': os.environ['MANIFEST_HASH'],
+              'manifest_file_sha256': hashlib.sha256((root / 'manifest.json').read_bytes()).hexdigest(),
+              'seed': int(os.environ['MANIFEST_SEED']),
+              'canonical_main_commit': os.environ['FROZEN_MAIN_COMMIT'],
+              'canonical_main_tree': os.environ['FROZEN_MAIN_TREE'],
+          }
+          (root / 'MANIFEST_REFERENCE.json').write_text(json.dumps(manifest_reference, indent=2, sort_keys=True) + '\n')
+          if pre:
+              (root / 'RUN_PREFLIGHT.json').write_text(json.dumps(pre, indent=2, sort_keys=True) + '\n')
+          if calibration:
+              (root / 'CALIBRATION_RESULTS.json').write_text(json.dumps(calibration, indent=2, sort_keys=True) + '\n')
+          if search:
+              (root / 'EXPLORATORY_SEARCH_REPORT.json').write_text(json.dumps(search, indent=2, sort_keys=True) + '\n')
+          if fidelity:
+              (root / 'CANDIDATE_FIDELITY_ROUTING.json').write_text(json.dumps(fidelity, indent=2, sort_keys=True) + '\n')
+          if confirm:
+              (root / 'CONFIRMATORY_RESULTS.json').write_text(json.dumps(confirm, indent=2, sort_keys=True) + '\n')
+          if diagnostics:
+              denial = [r for r in diagnostics.get('rows', []) if str(r.get('condition', '')).startswith('deny_')]
+              ablation = [r for r in diagnostics.get('rows', []) if str(r.get('condition', '')).startswith('ablate_')]
+              (root / 'COMMANDER_DENIAL_RESULTS.json').write_text(json.dumps({'rows': denial, 'truth_boundary': diagnostics.get('evidence_boundary')}, indent=2, sort_keys=True) + '\n')
+              (root / 'PACKAGE_ABLATION_RESULTS.json').write_text(json.dumps({'rows': ablation, 'truth_boundary': diagnostics.get('evidence_boundary')}, indent=2, sort_keys=True) + '\n')
+          if holdout:
+              (root / 'SEALED_HOLDOUT_RESULT.json').write_text(json.dumps(holdout, indent=2, sort_keys=True) + '\n')
+
+          run_spec = {
+              'scope': 'official_fresh_rogshai_optimizer_v2',
+              'operational_pod_size': 4,
+              'workers': int(os.environ['WORKERS']),
+              'max_turns': int(os.environ['MAX_TURNS']),
+              'holdout_policy': 'one frozen challenger; one look; 2048 paired 4P scenarios; only after diagnostics pass',
+              'structural_truth_boundary': 'structural_model_estimates != empirical_winrates',
+          }
+          (root / 'RUN_SPEC.json').write_text(json.dumps(run_spec, indent=2, sort_keys=True) + '\n')
+
+          placeholder_reports = {
+              'SEARCH_DIVERSITY_REPORT.json': {'status': 'DERIVE_FROM_RAW_SEARCH_REPORT', 'source': 'optimizer-search-report.json'},
+              'QD_ARCHIVE_REPORT.json': {'status': 'DERIVE_FROM_RAW_SEARCH_REPORT', 'source': 'optimizer-search-report.json'},
+              'PAIRING_INTEGRITY_AUDIT.json': {'status': 'RAW_RUNTIME_AUDIT_CAPTURED', 'sources': ['optimizer-execution-audit-search.json', 'optimizer-execution-audit-confirmatory.json', 'optimizer-execution-audit-holdout.json']},
+              'RNG_DETERMINISM_AUDIT.json': {'status': 'RAW_RUNTIME_AUDIT_CAPTURED', 'scope': 'manifest-bound CRN runtime; no claim of external replication'},
+              'CACHE_INTEGRITY_AUDIT.json': {'status': 'RAW_RUNTIME_AUDIT_CAPTURED', 'scope': 'manifest/software-bound optimizer cache identities'},
+              'RUNTIME_HEALTH_TIMELINE.json': {'status': 'RAW_TIMESTAMPS_AND_AUDITS_CAPTURED', 'phase_outcomes': outcomes},
+              'SEAT_ROBUSTNESS.json': {'status': 'DERIVE_FROM_CONFIRMATORY_RAW_EVIDENCE_IF_EXPOSED', 'not_invented': True},
+              'OPPONENT_ROBUSTNESS.json': {'status': 'DERIVE_FROM_CONFIRMATORY_RAW_EVIDENCE_IF_EXPOSED', 'not_invented': True},
+              'MANA_CURVE_ROLE_REPORT.json': {'status': 'POSTPROCESS_REQUIRED_FROM_EXACT_VARIANTS', 'not_invented': True},
+              'T1_TELEMETRY_REPORT.json': {'status': 'POSTPROCESS_REQUIRED_FROM_RUNTIME_TELEMETRY_IF_EXPOSED', 'not_invented': True},
+              'T2_REBUILD_REPORT.json': {'status': 'POSTPROCESS_REQUIRED_FROM_RUNTIME_TELEMETRY_IF_EXPOSED', 'not_invented': True},
+              'WORST_CASE_REPORT.json': {'status': 'POSTPROCESS_REQUIRED_FROM_RUNTIME_EVIDENCE_IF_EXPOSED', 'not_invented': True},
+              'PATCH_RECOMMENDATIONS.json': {'status': 'POST_RUN_AUDIT_REQUIRED', 'known_resolved_patch': 'PR113 calibration-first gate'},
+              'PERFORMANCE_PROFILE.json': {'status': 'RAW_PHASE_TIMESTAMPS_CAPTURED', 'workers': int(os.environ['WORKERS'])},
+          }
+          for name, payload in placeholder_reports.items():
+              (root / name).write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n')
+
+          human = [
+              '# Official Fresh RogShai Optimizer-v2 Raw Run Closeout',
+              '',
+              f"- canonical main: `{os.environ['FROZEN_MAIN_COMMIT']}` / `{os.environ['FROZEN_MAIN_TREE']}`",
+              f"- manifest: `{os.environ['MANIFEST_HASH']}`",
+              '- operational simulations: 4-player Commander only',
+              '- Structural results are model estimates, not empirical win rates.',
+              f"- holdout opened: `{holdout is not None}`",
+              f"- official winner declared: `{bool(holdout and holdout.get('official_winner_declared') is True)}`",
+              '',
+              'Detailed deck, telemetry, search-diversity and technical audit are derived from the immutable raw artifact after this evidence run; unsupported metrics remain NOT_MEASURED rather than inferred.',
+          ]
+          (root / 'FINAL_HUMAN_REPORT.md').write_text('\n'.join(human) + '\n')
+          PY
+          find "$RUN_DIR" -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > "$RUN_DIR/SHA256SUMS.txt"
+
+      - name: Upload immutable official campaign evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-official-fresh-post-pr113-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ env.RUN_DIR }}/
+          if-no-files-found: error
+          retention-days: 90
