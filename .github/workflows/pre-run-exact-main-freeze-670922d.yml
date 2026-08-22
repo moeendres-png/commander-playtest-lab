@@ -1,0 +1,324 @@
+name: Pre-Run Exact Main Freeze 670922d
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pre-run-exact-main-freeze-670922d.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: pre-run-exact-main-freeze-670922d-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TARGET_COMMIT: 670922d4c0657b5d43ecf294a28057fe9ca5da1f
+  TARGET_TREE: f00cb7fec2190ea367fa9eaa472633aa04d402f5
+  PRE_RUN_SEED: '2026082202'
+  PACKAGE_VERSION: '1.23.0'
+  OLD_ARTIFACT_ID: '9480916106'
+  OLD_MANIFEST_SHA256: 7c990517d1bdef17265c35cbd75ceb361b4c0994ddfe230333767be96f0848e3
+  OLD_MANIFEST_HASH: 06ab4c124984f9ea6e3e3a05246c9317aba58dc0a9904ea3a02446b0141b92bc
+
+jobs:
+  exact-main-freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact canonical main with history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.TARGET_COMMIT }}
+          fetch-depth: 0
+
+      - name: Assert exact canonical main identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$TARGET_TREE"
+          test "$(git rev-parse refs/remotes/origin/main)" = "$TARGET_COMMIT"
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install exact-main optimizer runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[dev]'
+
+      - name: Fetch consumed previous manifest for cross-campaign disjointness
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/previous-freeze
+          mkdir -p /tmp/previous-freeze
+          curl --fail-with-body -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${OLD_ARTIFACT_ID}/zip" \
+            -o /tmp/previous-freeze.zip
+          unzip -q /tmp/previous-freeze.zip -d /tmp/previous-freeze
+          OLD_MANIFEST_PATH="$(find /tmp/previous-freeze -name ROGSHAI_PRE_RUN_MANIFEST.json -print -quit)"
+          test -n "$OLD_MANIFEST_PATH"
+          test "$(sha256sum "$OLD_MANIFEST_PATH" | awk '{print $1}')" = "$OLD_MANIFEST_SHA256"
+          cp "$OLD_MANIFEST_PATH" /tmp/previous-freeze/OLD_ROGSHAI_PRE_RUN_MANIFEST.json
+
+      - name: Generate fresh exact-main manifest and non-consuming preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/pre-run-freeze
+          commander-lab-optimizer manifest \
+            --output artifacts/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            --run-id rogshai-official-fresh-20260822-post-pr110-pre-run-freeze-v2 \
+            --seed "$PRE_RUN_SEED" \
+            | tee artifacts/pre-run-freeze/manifest-output.json
+          commander-lab-optimizer preflight \
+            --manifest artifacts/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            | tee artifacts/pre-run-freeze/preflight-output.json
+
+      - name: Assert fresh exact-main readiness and cross-campaign disjointness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          target_commit = '670922d4c0657b5d43ecf294a28057fe9ca5da1f'
+          target_tree = 'f00cb7fec2190ea367fa9eaa472633aa04d402f5'
+          old_manifest_hash = '06ab4c124984f9ea6e3e3a05246c9317aba58dc0a9904ea3a02446b0141b92bc'
+          root = Path('artifacts/pre-run-freeze')
+          frozen = json.loads((root / 'manifest-output.json').read_text())
+          preflight = json.loads((root / 'preflight-output.json').read_text())
+          manifest = json.loads((root / 'ROGSHAI_PRE_RUN_MANIFEST.json').read_text())
+          previous = json.loads(Path('/tmp/previous-freeze/OLD_ROGSHAI_PRE_RUN_MANIFEST.json').read_text())
+
+          assert frozen['status'] == 'frozen'
+          assert frozen['manifest_hash'] != old_manifest_hash
+          assert manifest['software_commit'] == target_commit
+          assert manifest['software_tree'] == target_tree
+          assert manifest['run_id'] != previous['run_id']
+          assert manifest['search_seed'] != previous['search_seed']
+          assert preflight['status'] == 'pass'
+          assert preflight['operational_pod_size'] == 4
+          assert preflight['candidate_count'] == 795
+          assert preflight['semantic_unknown_count'] == 0
+          assert preflight['partition_disjointness'] == 'validated_fail_closed_by_manifest'
+          assert preflight['decision_checks']['contract_1e'] is True
+          assert preflight['decision_checks']['precision_contract_2f'] is True
+          assert preflight['checks']['git_commit'] is True
+          assert preflight['checks']['git_tree'] is True
+          assert preflight['checks']['tracked_clean'] is True
+
+          for key in ('physical_pool_identity', 'control_deck_hash', 'opponent_data_identity', 'knowledge_identity'):
+              assert manifest[key] == previous[key], key
+          assert manifest['rogshai_candidate_count'] == previous['rogshai_candidate_count'] == 795
+
+          partition_keys = (
+              'exploratory',
+              'calibration_partition',
+              'confirmatory',
+              'critical_diagnostics',
+              'sealed_holdout',
+          )
+          new_sets = {k: set(manifest[k]['scenario_ids']) for k in partition_keys}
+          old_sets = {k: set(previous[k]['scenario_ids']) for k in partition_keys}
+          new_seed_sets = {k: set(manifest[k]['scenario_seeds']) for k in partition_keys}
+          old_seed_sets = {k: set(previous[k]['scenario_seeds']) for k in partition_keys}
+
+          for key in partition_keys:
+              assert len(new_sets[key]) == len(manifest[key]['scenario_ids'])
+              assert len(new_seed_sets[key]) == len(manifest[key]['scenario_seeds'])
+              assert manifest[key]['identity'] != previous[key]['identity'], key
+
+          for i, left in enumerate(partition_keys):
+              for right in partition_keys[i + 1:]:
+                  assert new_sets[left].isdisjoint(new_sets[right]), (left, right, 'scenario_ids')
+                  assert new_seed_sets[left].isdisjoint(new_seed_sets[right]), (left, right, 'scenario_seeds')
+
+          old_all_ids = set().union(*old_sets.values())
+          new_all_ids = set().union(*new_sets.values())
+          old_all_seeds = set().union(*old_seed_sets.values())
+          new_all_seeds = set().union(*new_seed_sets.values())
+          assert new_all_ids.isdisjoint(old_all_ids)
+          assert new_all_seeds.isdisjoint(old_all_seeds)
+
+          cross = {
+              'status': 'pass',
+              'previous_consumed_manifest_hash': old_manifest_hash,
+              'new_manifest_hash': frozen['manifest_hash'],
+              'partition_keys': list(partition_keys),
+              'new_partition_identities': {k: manifest[k]['identity'] for k in partition_keys},
+              'old_partition_identities': {k: previous[k]['identity'] for k in partition_keys},
+              'new_scenario_id_count': len(new_all_ids),
+              'old_scenario_id_count': len(old_all_ids),
+              'cross_campaign_scenario_id_overlap': 0,
+              'cross_campaign_scenario_seed_overlap': 0,
+              'internal_new_partition_disjointness': True,
+          }
+          (root / 'CROSS_CAMPAIGN_DISJOINTNESS.json').write_text(
+              json.dumps(cross, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          summary = {
+              'status': 'pass',
+              'evidence_consumed': False,
+              'target_commit': manifest['software_commit'],
+              'target_tree': manifest['software_tree'],
+              'manifest_hash': frozen['manifest_hash'],
+              'previous_consumed_manifest_hash': old_manifest_hash,
+              'run_id': manifest['run_id'],
+              'seed': manifest['search_seed'],
+              'operational_pod_size': preflight['operational_pod_size'],
+              'candidate_count': preflight['candidate_count'],
+              'semantic_unknown_count': preflight['semantic_unknown_count'],
+              'partition_disjointness': preflight['partition_disjointness'],
+              'cross_campaign_disjointness': 'pass_zero_overlap',
+              'contract_1e': preflight['decision_checks']['contract_1e'],
+              'precision_contract_2f': preflight['decision_checks']['precision_contract_2f'],
+              'historical_holdout_reuse': False,
+              'canonical_mutation': False,
+          }
+          (root / 'PRE_RUN_FREEZE_SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+          sha256sum artifacts/pre-run-freeze/* > artifacts/pre-run-freeze/SHA256SUMS.txt
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Build exact-main wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade build
+          python -m build --wheel
+
+      - name: Assemble exact-main recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf artifacts/exact-main-recovery
+          mkdir -p artifacts/exact-main-recovery/payload
+          git archive --format=zip \
+            --output=artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main-source.zip \
+            "$TARGET_COMMIT"
+          git branch --force recovery-exact-main "$TARGET_COMMIT"
+          git bundle create \
+            artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle \
+            recovery-exact-main
+          cp dist/commander_playtest_lab-1.23.0-py3-none-any.whl artifacts/exact-main-recovery/payload/
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          pre = Path('artifacts/pre-run-freeze')
+          payload = Path('artifacts/exact-main-recovery/payload')
+          summary = json.loads((pre / 'PRE_RUN_FREEZE_SUMMARY.json').read_text())
+          provenance = {
+              'status': 'exact_main_recovery',
+              'repository': 'moeendres-png/commander-playtest-lab',
+              'package_version': '1.23.0',
+              'canonical_main_commit': '670922d4c0657b5d43ecf294a28057fe9ca5da1f',
+              'canonical_main_tree': 'f00cb7fec2190ea367fa9eaa472633aa04d402f5',
+              'pre_run_manifest_hash': summary['manifest_hash'],
+              'previous_consumed_manifest_hash': summary['previous_consumed_manifest_hash'],
+              'pre_run_run_id': summary['run_id'],
+              'pre_run_seed': summary['seed'],
+              'operational_pod_size': 4,
+              'candidate_count': summary['candidate_count'],
+              'semantic_unknown_count': summary['semantic_unknown_count'],
+              'cross_campaign_disjointness': summary['cross_campaign_disjointness'],
+              'historical_holdout_reuse_allowed': False,
+              'campaign_evidence_consumed_by_recovery': False,
+              'canonical_domain_mutation': False,
+              'evidence_boundary': 'recovery artifact only; not gameplay evidence; Structural remains structural_model_estimates',
+          }
+          (payload / 'RECOVERY_PROVENANCE.json').write_text(
+              json.dumps(provenance, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          (cd artifacts/exact-main-recovery/payload && sha256sum * > SHA256SUMS.txt)
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          root = Path('artifacts/exact-main-recovery')
+          payload = root / 'payload'
+          out = root / 'commander-playtest-lab-1.23.0-exact-main-670922d-recovery.zip'
+          with zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for p in sorted(payload.iterdir()):
+                  z.write(p, arcname=p.name)
+          PY
+          sha256sum artifacts/exact-main-recovery/commander-playtest-lab-1.23.0-exact-main-670922d-recovery.zip \
+            | tee artifacts/exact-main-recovery/OUTER_SHA256.txt
+
+      - name: Verify exact-main recovery independently
+        shell: bash
+        run: |
+          set -euo pipefail
+          git bundle verify artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle
+          test "$(git rev-list -1 recovery-exact-main)" = "$TARGET_COMMIT"
+          rm -rf /tmp/commander-lab-recovery-clone
+          git clone --quiet --branch recovery-exact-main \
+            artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.0-exact-main.bundle \
+            /tmp/commander-lab-recovery-clone
+          test "$(git -C /tmp/commander-lab-recovery-clone rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git -C /tmp/commander-lab-recovery-clone rev-parse HEAD^{tree})" = "$TARGET_TREE"
+          (cd artifacts/exact-main-recovery/payload && sha256sum -c SHA256SUMS.txt)
+          python - <<'PY'
+          from pathlib import Path
+          import json, zipfile
+
+          root = Path('artifacts/exact-main-recovery')
+          out = root / 'commander-playtest-lab-1.23.0-exact-main-670922d-recovery.zip'
+          with zipfile.ZipFile(out) as z:
+              names = set(z.namelist())
+          required = {
+              'commander-playtest-lab-1.23.0-exact-main-source.zip',
+              'commander-playtest-lab-1.23.0-exact-main.bundle',
+              'commander_playtest_lab-1.23.0-py3-none-any.whl',
+              'RECOVERY_PROVENANCE.json',
+              'SHA256SUMS.txt',
+          }
+          assert required <= names, names
+          provenance = json.loads((root / 'payload' / 'RECOVERY_PROVENANCE.json').read_text())
+          assert provenance['canonical_main_commit'] == '670922d4c0657b5d43ecf294a28057fe9ca5da1f'
+          assert provenance['canonical_main_tree'] == 'f00cb7fec2190ea367fa9eaa472633aa04d402f5'
+          assert provenance['campaign_evidence_consumed_by_recovery'] is False
+          assert provenance['historical_holdout_reuse_allowed'] is False
+          assert provenance['cross_campaign_disjointness'] == 'pass_zero_overlap'
+          PY
+
+      - name: Upload fresh pre-run freeze evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: pre-run-freeze-exact-main-670922d
+          path: artifacts/pre-run-freeze/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload exact-main recovery
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: commander-playtest-lab-1.23.0-exact-main-670922d-recovery
+          path: |
+            artifacts/exact-main-recovery/commander-playtest-lab-1.23.0-exact-main-670922d-recovery.zip
+            artifacts/exact-main-recovery/OUTER_SHA256.txt
+            artifacts/exact-main-recovery/payload/SHA256SUMS.txt
+            artifacts/exact-main-recovery/payload/RECOVERY_PROVENANCE.json
+          if-no-files-found: error
+          retention-days: 90
