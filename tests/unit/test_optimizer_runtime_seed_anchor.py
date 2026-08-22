@@ -98,12 +98,15 @@ def test_initial_variants_includes_exact_control_anchor_when_zero_safe_construct
     anchor = next(variant for variant in initial if variant.deck_hash == "c" * 64)
     assert anchor.mainboard == control
     assert anchor.policy_id == PolicyId.CURRENT_CONTROL
-    assert assess_variant_mechanics(
-        context,
-        control=control,
-        candidate=anchor.mainboard,
-        deck_hash=anchor.deck_hash,
-    )["pass"] is True
+    assert (
+        assess_variant_mechanics(
+            context,
+            control=control,
+            candidate=anchor.mainboard,
+            deck_hash=anchor.deck_hash,
+        )["pass"]
+        is True
+    )
 
     construction_finalists = [
         variant for variant in initial if variant.deck_hash != anchor.deck_hash
@@ -115,6 +118,7 @@ def test_initial_variants_includes_exact_control_anchor_when_zero_safe_construct
             control=control,
             candidate=variant.mainboard,
             deck_hash=variant.deck_hash,
-        )["pass"] is False
+        )["pass"]
+        is False
         for variant in construction_finalists
     )
