@@ -17,6 +17,10 @@ on:
       - "scripts/run_external_b4b_regression.py"
       - "scripts/run_external_b4c_regression.py"
       - "scripts/run_external_b4d_regression.py"
+      - "scripts/run_external_b4f_replay.py"
+      - "scripts/run_external_b4f_illegal_action_regression.py"
+      - "scripts/run_external_b4f_capability_closeout.py"
+      - "scripts/run_external_b4f_provider_pin_validation.py"
       - ".github/workflows/external-engine-integration.yml"
   workflow_dispatch:
     inputs:
@@ -40,6 +44,7 @@ env:
   XMAGE_B4B_REQUEST_TIMEOUT_SECONDS: "120"
   XMAGE_B4C_REQUEST_TIMEOUT_SECONDS: "120"
   XMAGE_B4D_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B4F_REQUEST_TIMEOUT_SECONDS: "120"
   COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
   COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD: >-
@@ -158,6 +163,30 @@ jobs:
           mkdir -p artifacts/external-engine
           pytest -q -rs tests/differential/test_phase6_differential.py 2>&1 \
             | tee artifacts/external-engine/phase6-differential.log
+      - name: Run deterministic Phase-6 reconstruction replay
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_replay.py 2>&1 \
+            | tee artifacts/external-engine/b4f-phase6-replay.log
+      - name: Run explicit illegal-action rejection regression
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_illegal_action_regression.py 2>&1 \
+            | tee artifacts/external-engine/b4f-illegal-action.log
+      - name: Generate B4-F capability descriptor and binding
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_capability_closeout.py 2>&1 \
+            | tee artifacts/external-engine/b4f-capability-closeout.log
+      - name: Validate B4-F provider pin and capability hash
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_provider_pin_validation.py 2>&1 \
+            | tee artifacts/external-engine/b4f-provider-pin.log
       - name: Record bridge identity
         shell: bash
         run: |
