@@ -92,7 +92,9 @@ def main() -> None:
     try:
         probe = adapter.probe()
         if probe.availability is not RulesEngineAvailability.AVAILABLE:
-            raise SystemExit(f"B4-F final live provider probe failed: {probe.model_dump(mode='json')}")
+            raise SystemExit(
+                f"B4-F final live provider probe failed: {probe.model_dump(mode='json')}"
+            )
         provider = adapter.get_provider_version()
     finally:
         with contextlib.suppress(Exception):
