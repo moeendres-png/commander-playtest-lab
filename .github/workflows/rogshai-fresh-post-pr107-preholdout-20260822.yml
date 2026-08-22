@@ -1,0 +1,224 @@
+name: RogShai Fresh Optimizer-v2 Pre-Holdout Campaign 2026-08-22
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/rogshai-fresh-post-pr107-preholdout-20260822.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: "0"
+  FROZEN_MAIN_COMMIT: "54f93e29d50033e4641585a98060ea46a79deffb"
+  FROZEN_MAIN_TREE: "fc7b89f3f004ced761b3bf4e9518932d9986b59e"
+  PRE_RUN_ARTIFACT_ID: "9480916106"
+  PRE_RUN_ARTIFACT_SHA256: "89acc16d7874fbe70725199c17654082b7f6deed782c867f3cb5f529d6f2d80d"
+  MANIFEST_FILE_SHA256: "7c990517d1bdef17265c35cbd75ceb361b4c0994ddfe230333767be96f0848e3"
+  MANIFEST_HASH: "06ab4c124984f9ea6e3e3a05246c9317aba58dc0a9904ea3a02446b0141b92bc"
+  RUN_DIR: "artifacts/rogshai-fresh-post-pr107-preholdout-20260822"
+
+jobs:
+  preholdout-campaign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout exact frozen canonical main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.FROZEN_MAIN_COMMIT }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install exact lab runtime
+        run: python -m pip install -e '.[dev,api]'
+
+      - name: Verify frozen software identity and clean tracked tree
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUN_DIR"
+          test "$(git rev-parse HEAD)" = "$FROZEN_MAIN_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FROZEN_MAIN_TREE"
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+          printf 'commit=%s\ntree=%s\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" | tee "$RUN_DIR/SOFTWARE_IDENTITY.txt"
+
+      - name: Retrieve exact frozen pre-run evidence artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -L \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PRE_RUN_ARTIFACT_ID}/zip" \
+            -o /tmp/pre-run-freeze.zip
+          echo "${PRE_RUN_ARTIFACT_SHA256}  /tmp/pre-run-freeze.zip" | sha256sum -c -
+          mkdir -p /tmp/pre-run-freeze
+          unzip -q /tmp/pre-run-freeze.zip -d /tmp/pre-run-freeze
+          test -f /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json
+          echo "${MANIFEST_FILE_SHA256}  /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json" | sha256sum -c -
+          cp /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json "$RUN_DIR/manifest.json"
+          cp /tmp/pre-run-freeze/PRE_RUN_FREEZE_SUMMARY.json "$RUN_DIR/PRE_RUN_FREEZE_SUMMARY.json"
+
+      - name: Re-run non-consuming fail-closed preflight
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer preflight \
+            --manifest "$RUN_DIR/manifest.json" \
+            --root . \
+            | tee "$RUN_DIR/preflight.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ['RUN_DIR']) / 'preflight.json'
+          d = json.loads(p.read_text())
+          assert d['status'] == 'pass'
+          assert d['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert d['operational_pod_size'] == 4
+          assert d['candidate_count'] == 795
+          assert d['semantic_unknown_count'] == 0
+          assert all(d['checks'].values())
+          assert all(d['decision_checks'].values())
+          PY
+
+      - name: Exploratory adaptive search plus frozen calibration only
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer run \
+            --manifest "$RUN_DIR/manifest.json" \
+            --output-dir "$RUN_DIR" \
+            --workers 4 \
+            --max-turns 35 \
+            --root . \
+            | tee "$RUN_DIR/exploratory-cli.json"
+
+      - name: Gate frontier by question-specific mechanics fidelity
+        id: fidelity_gate
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer fidelity \
+            --frontier "$RUN_DIR/frontier-handoff.json" \
+            --root . \
+            | tee "$RUN_DIR/frontier-fidelity.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d = json.loads((Path(os.environ['RUN_DIR'])/'frontier-fidelity.json').read_text())
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"eligible={'true' if d.get('pass') is True else 'false'}\n")
+              out.write(f"shortlist_size={int(d.get('shortlist_size', 0))}\n")
+          assert not d.get('malformed_rows')
+          PY
+
+      - name: Confirmatory 1E/2F sequence on routed Structural-safe shortlist
+        if: steps.fidelity_gate.outputs.eligible == 'true'
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer confirm \
+            --manifest "$RUN_DIR/manifest.json" \
+            --frontier "$RUN_DIR/frontier-handoff.json" \
+            --output-dir "$RUN_DIR" \
+            --workers 4 \
+            --max-turns 35 \
+            --root . \
+            | tee "$RUN_DIR/confirmatory-cli.json"
+
+      - name: Gate diagnostics on exactly one frozen challenger
+        id: diagnostics_gate
+        if: steps.fidelity_gate.outputs.eligible == 'true'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ['RUN_DIR']) / 'confirmatory-report.json'
+          d = json.loads(p.read_text())
+          assert d['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert d.get('sealed_holdout_partition_opened') is False
+          challenger = d.get('single_challenger_hash')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"has_challenger={'true' if isinstance(challenger, str) and challenger else 'false'}\n")
+              out.write(f"challenger={challenger or ''}\n")
+          PY
+
+      - name: Critical diagnostics on frozen challenger
+        if: steps.diagnostics_gate.outputs.has_challenger == 'true'
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer diagnose \
+            --manifest "$RUN_DIR/manifest.json" \
+            --confirmatory "$RUN_DIR/confirmatory-report.json" \
+            --output-dir "$RUN_DIR" \
+            --workers 4 \
+            --max-turns 35 \
+            --root . \
+            | tee "$RUN_DIR/diagnostics-cli.json"
+
+      - name: Assert strict pre-holdout stop and no protected mutation
+        if: always()
+        run: |
+          set -euo pipefail
+          test ! -e "$RUN_DIR/holdout-report.json"
+          test ! -e "$RUN_DIR/holdout-cli.json"
+          test -z "$(git status --porcelain=v1 --untracked-files=no)"
+          git diff --exit-code
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUN_DIR'])
+          for name in ('optimizer-search-report.json', 'confirmatory-report.json', 'critical-diagnostics-report.json'):
+              p = root / name
+              if not p.exists():
+                  continue
+              d = json.loads(p.read_text())
+              assert d.get('sealed_holdout_partition_opened') is not True
+              assert d.get('canonical_deck_mutation') is not True
+          PY
+
+      - name: Build pre-holdout campaign summary and checksums
+        if: always()
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUN_DIR'])
+          summary = {
+              'schema_version': '1.0.0',
+              'campaign_scope': 'official_fresh_rogshai_optimizer_v2_pre_holdout',
+              'frozen_main_commit': os.environ['FROZEN_MAIN_COMMIT'],
+              'frozen_main_tree': os.environ['FROZEN_MAIN_TREE'],
+              'manifest_hash': os.environ['MANIFEST_HASH'],
+              'holdout_authorized': False,
+              'holdout_opened': False,
+              'files': sorted(str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()),
+          }
+          for name in (
+              'preflight.json',
+              'optimizer-search-report.json',
+              'frontier-fidelity.json',
+              'confirmatory-report.json',
+              'critical-diagnostics-report.json',
+          ):
+              p = root / name
+              if p.exists():
+                  summary[name] = json.loads(p.read_text())
+          (root / 'PRE_HOLDOUT_CAMPAIGN_SUMMARY.json').write_text(json.dumps(summary, indent=2, sort_keys=True), encoding='utf-8')
+          PY
+          find "$RUN_DIR" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$RUN_DIR/SHA256SUMS"
+
+      - name: Upload immutable pre-holdout campaign evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-fresh-post-pr107-preholdout-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ env.RUN_DIR }}/
+          if-no-files-found: error
+          retention-days: 30
