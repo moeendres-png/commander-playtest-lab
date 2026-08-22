@@ -68,10 +68,10 @@ class Phase6DifferentialAdapterValidationTest {
     }
 
     @Test
-    void preservesNullLossReasonKeyForNonLosingCommanderDamageState() throws Exception {
+    void preservesNullLossReasonKeyForFrozenNonCombinedDamageFixture() throws Exception {
         Path input = tempDir.resolve("input.json");
         Path output = tempDir.resolve("output.json");
-        Files.writeString(input, damageFixture("40", "12"), StandardCharsets.UTF_8);
+        Files.writeString(input, nonCombinedDamageFixture(), StandardCharsets.UTF_8);
 
         Phase6DifferentialAdapter.run(input, output);
 
@@ -127,5 +127,22 @@ class Phase6DifferentialAdapterValidationTest {
                   }
                 }
                 """.formatted(defendingLife, damage);
+    }
+
+    private static String nonCombinedDamageFixture() {
+        return """
+                {
+                  "case_id": "commander_damage_not_combined",
+                  "input_state": {
+                    "format": "commander",
+                    "defending_player_life": 40,
+                    "commander_damage": {
+                      "Ishai, Ojutai Dragonspeaker": 12,
+                      "Rograkh, Son of Rohgahh": 10
+                    },
+                    "action": "check_state_based_actions"
+                  }
+                }
+                """;
     }
 }
