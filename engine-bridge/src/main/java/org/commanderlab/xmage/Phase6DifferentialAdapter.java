@@ -3,6 +3,7 @@ package org.commanderlab.xmage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.abilities.SpellAbility;
 import mage.cards.Card;
@@ -194,7 +195,7 @@ final class Phase6DifferentialAdapter {
             if (loses) {
                 result.addProperty("loss_reason", "commander_damage");
             } else {
-                result.add("loss_reason", null);
+                result.add("loss_reason", JsonNull.INSTANCE);
             }
             result.addProperty("maximum_single_commander_damage", maximum);
             return result;
