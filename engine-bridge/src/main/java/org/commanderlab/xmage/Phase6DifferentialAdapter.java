@@ -50,13 +50,14 @@ final class Phase6DifferentialAdapter {
     }
 
     static void run(Path inputPath, Path outputPath) throws IOException {
-        JsonObject request = GSON.fromJson(
+        JsonElement requestElement = GSON.fromJson(
                 Files.readString(inputPath, StandardCharsets.UTF_8),
-                JsonObject.class
+                JsonElement.class
         );
-        if (request == null) {
+        if (requestElement == null || !requestElement.isJsonObject()) {
             throw new IllegalArgumentException("request must be a JSON object");
         }
+        JsonObject request = requestElement.getAsJsonObject();
         String caseId = requireText(request, "case_id");
         JsonElement inputStateElement = request.get("input_state");
         if (inputStateElement == null || !inputStateElement.isJsonObject()) {
