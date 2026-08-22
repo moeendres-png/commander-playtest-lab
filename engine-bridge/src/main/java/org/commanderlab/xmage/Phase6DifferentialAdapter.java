@@ -44,7 +44,7 @@ import java.util.UUID;
  */
 final class Phase6DifferentialAdapter {
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
     private static final String BACKEND_VERSION = "xmage-1.4.61@77d7646da6958fdf8125ee7c8f4aabd130d21d4c";
 
     private Phase6DifferentialAdapter() {
