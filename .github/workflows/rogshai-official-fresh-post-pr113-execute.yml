@@ -1,3 +1,4 @@
+# Armed execution only; marking the Draft PR ready-for-review is the sole campaign start signal.
 name: RogShai Official Fresh Optimizer-v2 Execute Post PR113
 
 on:
