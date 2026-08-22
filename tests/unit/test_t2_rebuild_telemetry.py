@@ -7,9 +7,7 @@ from commander_lab.models import StructuralAbortLimits, StructuralMatchConfig
 
 def test_t2_commander_removal_recovery_is_exact_and_turn_based() -> None:
     telemetry = T1TelemetryAccumulator()
-    assert telemetry.record_disruption(
-        "commander_removal", turn=3, commander_name="Commander A"
-    )
+    assert telemetry.record_disruption("commander_removal", turn=3, commander_name="Commander A")
     telemetry.observe_recovery(
         turn=4,
         commander_names_on_battlefield=set(),
@@ -32,9 +30,7 @@ def test_t2_commander_removal_recovery_is_exact_and_turn_based() -> None:
 
 def test_t2_engine_and_board_recovery_use_exact_pre_disruption_state() -> None:
     telemetry = T1TelemetryAccumulator()
-    assert telemetry.record_disruption(
-        "engine_loss", turn=4, baseline_engine_value=2.0
-    )
+    assert telemetry.record_disruption("engine_loss", turn=4, baseline_engine_value=2.0)
     assert telemetry.record_disruption(
         "board_wipe",
         turn=4,
@@ -62,12 +58,8 @@ def test_t2_engine_and_board_recovery_use_exact_pre_disruption_state() -> None:
 
 def test_t2_duplicate_open_disruption_is_not_double_counted() -> None:
     telemetry = T1TelemetryAccumulator()
-    assert telemetry.record_disruption(
-        "engine_loss", turn=2, baseline_engine_value=3.0
-    )
-    assert not telemetry.record_disruption(
-        "engine_loss", turn=3, baseline_engine_value=4.0
-    )
+    assert telemetry.record_disruption("engine_loss", turn=2, baseline_engine_value=3.0)
+    assert not telemetry.record_disruption("engine_loss", turn=3, baseline_engine_value=4.0)
     assert telemetry.rebuild_disruption_counts == {"engine_loss": 1}
     assert len(telemetry.open_rebuild_episodes) == 1
 
