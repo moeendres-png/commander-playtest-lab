@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.abilities.SpellAbility;
-import mage.abilities.effects.common.cost.CommanderCostModification;
 import mage.cards.Card;
 import mage.cards.decks.Deck;
 import mage.constants.CommanderCardType;
@@ -26,8 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,21 +102,18 @@ final class Phase6DifferentialAdapter {
             int observedPriorCasts = watcher.getPlaysCount(commander.getMainCard().getId());
             SpellAbility ability = commander.getSpellAbility().copy();
             ability.setControllerId(actor.getId());
-            CommanderCostModification modification = new CommanderCostModification(commander);
-            boolean legalCommanderCostApplication = modification.applies(ability, ability, scenario.game());
-            if (!legalCommanderCostApplication) {
-                throw new IllegalStateException("XMage did not identify the command-zone commander cost rule");
-            }
             int baseCost = ability.getManaCostsToPay().manaValue();
-            if (!modification.apply(scenario.game(), ability, ability)) {
-                throw new IllegalStateException("XMage commander cost modification returned false");
-            }
+            boolean commanderCostApplied = commander.commanderCost(
+                    scenario.game(),
+                    ability,
+                    ability
+            );
             int totalCost = ability.getManaCostsToPay().manaValue();
 
             JsonObject result = new JsonObject();
             result.addProperty("total_cast_cost", totalCost);
             result.addProperty("commander_tax", totalCost - baseCost);
-            result.addProperty("legal", legalCommanderCostApplication && observedPriorCasts == priorCasts);
+            result.addProperty("legal", commanderCostApplied && observedPriorCasts == priorCasts);
             return result;
         } finally {
             scenario.close();
