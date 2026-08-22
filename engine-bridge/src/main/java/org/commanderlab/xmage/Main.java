@@ -20,16 +20,18 @@ public final class Main {
          */
         XmageProvider.verifyRuntimeLoaded();
 
+        if (args.length == 3 && "phase6".equals(args[0])) {
+            Phase6DifferentialAdapter.run(Path.of(args[1]), Path.of(args[2]));
+            return;
+        }
         if (args.length == 2) {
+            // Backward-compatible B4-F file-mode form introduced before the explicit subcommand.
             Phase6DifferentialAdapter.run(Path.of(args[0]), Path.of(args[1]));
             return;
         }
-        if (args.length != 0) {
-            throw new IllegalArgumentException(
-                    "expected zero args for JSONL bridge mode or <input> <output> for Phase-6 differential mode"
-            );
-        }
-
+        // Preserve the pre-B4-F JSONL behavior for any other argument shape: historical
+        // callers may have supplied ignored launcher arguments. New file-mode callers
+        // should use: phase6 <input> <output>.
         JsonlBridge bridge = new JsonlBridge();
 
         try (
