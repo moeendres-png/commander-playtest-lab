@@ -1,0 +1,139 @@
+name: RogShai Official Fresh Optimizer-v2 Execute Post PR113
+
+on:
+  pull_request:
+    types: [ready_for_review]
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  FROZEN_MAIN_COMMIT: '03bad1717d6485d769cca70a6731b621a06f3658'
+  FROZEN_MAIN_TREE: '3c6197abb31342f7a0cc368231d94658bfa33863'
+  PRE_RUN_ARTIFACT_ID: '9483190545'
+  PRE_RUN_ARTIFACT_SHA256: 'cc382e9dae7c59f32914189c76dda35f14255fa59968a493a27f8b9b38e5785c'
+  MANIFEST_FILE_SHA256: 'e515ca2a5e23a6bbadb6f8bcd32ece2e65b1af0a17394f173076e2f13604e0cb'
+  MANIFEST_HASH: '9d73226ce46f75c82d388ea026ad25579c8064b805f05b24ff4c2c2de44476b7'
+  MANIFEST_SEED: '2026082301'
+  RUN_DIR: 'official-evidence'
+  WORKERS: '4'
+  MAX_TURNS: '35'
+
+jobs:
+  official-campaign:
+    if: >-
+      github.event.pull_request.head.ref == 'runs/rogshai-official-fresh-ready-post-pr113-20260823' &&
+      github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout immutable execution vehicle
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: vehicle
+          fetch-depth: 1
+
+      - name: Checkout exact canonical runtime separately
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.FROZEN_MAIN_COMMIT }}
+          path: runtime
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: runtime/pyproject.toml
+
+      - name: Fail closed on current-main or runtime drift before evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C runtime rev-parse HEAD)" = "$FROZEN_MAIN_COMMIT"
+          test "$(git -C runtime rev-parse HEAD^{tree})" = "$FROZEN_MAIN_TREE"
+          git -C runtime fetch origin main --quiet
+          test "$(git -C runtime rev-parse refs/remotes/origin/main)" = "$FROZEN_MAIN_COMMIT"
+          test -z "$(git -C runtime status --porcelain=v1 --untracked-files=no)"
+          test -f vehicle/.run-tools/official_campaign_driver.py
+          test ! -e runtime/.run-tools/official_campaign_driver.py
+
+      - name: Install exact canonical runtime
+        run: python -m pip install -e './runtime[dev,api]'
+
+      - name: Retrieve exact fresh frozen manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -L \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PRE_RUN_ARTIFACT_ID}/zip" \
+            -o /tmp/pre-run-freeze.zip
+          echo "${PRE_RUN_ARTIFACT_SHA256}  /tmp/pre-run-freeze.zip" | sha256sum -c -
+          rm -rf /tmp/pre-run-freeze
+          mkdir -p /tmp/pre-run-freeze
+          unzip -q /tmp/pre-run-freeze.zip -d /tmp/pre-run-freeze
+          test -f /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json
+          echo "${MANIFEST_FILE_SHA256}  /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json" | sha256sum -c -
+
+      - name: Compile exact execution driver before evidence
+        run: python -m py_compile vehicle/.run-tools/official_campaign_driver.py
+
+      - name: Execute official fresh campaign through guarded canonical CLI
+        id: execute
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$RUN_DIR"
+          python vehicle/.run-tools/official_campaign_driver.py \
+            --mode execute \
+            --root runtime \
+            --manifest /tmp/pre-run-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            --output-dir "$RUN_DIR" \
+            --expected-commit "$FROZEN_MAIN_COMMIT" \
+            --expected-tree "$FROZEN_MAIN_TREE" \
+            --expected-manifest-hash "$MANIFEST_HASH" \
+            --expected-manifest-file-sha256 "$MANIFEST_FILE_SHA256" \
+            --expected-seed "$MANIFEST_SEED" \
+            --workers "$WORKERS" \
+            --max-turns "$MAX_TURNS"
+
+      - name: Final immutable-runtime assertions
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C runtime rev-parse HEAD)" = "$FROZEN_MAIN_COMMIT"
+          test "$(git -C runtime rev-parse HEAD^{tree})" = "$FROZEN_MAIN_TREE"
+          test -z "$(git -C runtime status --porcelain=v1 --untracked-files=no)"
+          git -C runtime diff --exit-code
+          if [ -f "$RUN_DIR/holdout-report.json" ]; then
+            python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUN_DIR'])
+          h = json.loads((root / 'holdout-report.json').read_text())
+          f = json.loads((root / 'FINAL_CHALLENGER_FREEZE.json').read_text())
+          assert h['manifest_hash'] == os.environ['MANIFEST_HASH']
+          assert h['single_frozen_challenger_hash'] == f['challenger_deck_hash']
+          assert h['paired_4p_budget'] == 2048
+          assert h['planned_looks'] == 1
+          PY
+          fi
+
+      - name: Upload immutable official campaign evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-official-fresh-post-pr113-run-${{ github.event.pull_request.head.sha }}
+          path: ${{ env.RUN_DIR }}/
+          if-no-files-found: error
+          retention-days: 90
