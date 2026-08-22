@@ -162,6 +162,18 @@ def _telemetry_number_summary(
     }
 
 
+def _telemetry_presence_summary(
+    rows: list[StructuralPlayerMetrics],
+    getter: Callable[[StructuralPlayerMetrics], object | None],
+) -> dict[str, int]:
+    measured_count = sum(getter(row) is not None for row in rows)
+    return {
+        "n": len(rows),
+        "measured_count": measured_count,
+        "not_measured_count": len(rows) - measured_count,
+    }
+
+
 def _telemetry_reason_summary(rows: list[StructuralPlayerMetrics]) -> dict[str, object]:
     measured = [row.stranded_reasons for row in rows if row.stranded_reasons is not None]
     counts: Counter[str] = Counter()
@@ -175,7 +187,7 @@ def _telemetry_reason_summary(rows: list[StructuralPlayerMetrics]) -> dict[str, 
     }
 
 
-def _summarize_t1_telemetry(rows: list[StructuralPlayerMetrics]) -> dict[str, object]:
+def _summarize_fidelity_telemetry(rows: list[StructuralPlayerMetrics]) -> dict[str, object]:
     return {
         "status_counts": dict(
             sorted(Counter(row.fidelity_telemetry_status for row in rows).items())
@@ -189,10 +201,27 @@ def _summarize_t1_telemetry(rows: list[StructuralPlayerMetrics]) -> dict[str, ob
         "commander_recast_affordability": _telemetry_number_summary(
             rows, lambda row: row.commander_recast_affordability
         ),
+        "mana_source_usage": _telemetry_presence_summary(rows, lambda row: row.mana_source_usage),
+        "dead_card_rate": _telemetry_number_summary(rows, lambda row: row.dead_card_rate),
+        "turns_to_restore_pressure_after_disruption": _telemetry_number_summary(
+            rows, lambda row: row.turns_to_restore_pressure_after_disruption
+        ),
+        "rebuild_disruption_events": _telemetry_number_summary(
+            rows, lambda row: row.rebuild_disruption_events
+        ),
+        "rebuild_completed_recoveries": _telemetry_number_summary(
+            rows, lambda row: row.rebuild_completed_recoveries
+        ),
+        "rebuild_open_recoveries": _telemetry_number_summary(
+            rows, lambda row: row.rebuild_open_recoveries
+        ),
+        "rebuild_disruption_classes": _telemetry_presence_summary(
+            rows, lambda row: row.rebuild_disruption_classes
+        ),
     }
 
 
-def _aggregate_t1_telemetry(results: list[StructuralMatchResult]) -> dict[str, object]:
+def _aggregate_fidelity_telemetry(results: list[StructuralMatchResult]) -> dict[str, object]:
     by_deck: dict[str, list[StructuralPlayerMetrics]] = {}
     by_pilot: dict[str, list[StructuralPlayerMetrics]] = {}
     all_rows: list[StructuralPlayerMetrics] = []
@@ -204,17 +233,23 @@ def _aggregate_t1_telemetry(results: list[StructuralMatchResult]) -> dict[str, o
             by_pilot.setdefault(pilot_key, []).append(metrics)
     return {
         "schema_version": "t1-partial-v1",
+        "t2_extension_schema_version": "t2-rebuild-partial-v1",
         "scope": "diagnostic_only_no_scoring_effect",
         "measurement_boundary": (
-            "Structural state only. Color failures use the current presence-only color payer; "
-            "stranding measures only observable total-mana and missing-color blockers."
+            "Structural state only. T1 color failures use the current presence-only color payer; "
+            "stranding measures observable total-mana and missing-color blockers. T2 rebuild time "
+            "uses only explicit commander-removal, engine-loss, and board-wipe state transitions "
+            "with exact pre-disruption recovery invariants. Open rebuild episodes are censored and "
+            "reported separately rather than treated as zero. mana_source_usage remains NOT_MEASURED "
+            "because payments are not source-bound; dead_card_rate remains NOT_MEASURED because "
+            "Structural lacks complete timing, target, prerequisite, and meaningful-function state."
         ),
-        "all_players": _summarize_t1_telemetry(all_rows),
+        "all_players": _summarize_fidelity_telemetry(all_rows),
         "deck_metrics": {
-            key: _summarize_t1_telemetry(rows) for key, rows in sorted(by_deck.items())
+            key: _summarize_fidelity_telemetry(rows) for key, rows in sorted(by_deck.items())
         },
         "pilot_metrics": {
-            key: _summarize_t1_telemetry(rows) for key, rows in sorted(by_pilot.items())
+            key: _summarize_fidelity_telemetry(rows) for key, rows in sorted(by_pilot.items())
         },
     }
 
@@ -296,5 +331,5 @@ def aggregate_structural_results(results: Iterable[StructuralMatchResult]) -> di
         ),
         "deck_metrics": summarize(by_deck),
         "pilot_metrics": summarize(by_pilot),
-        "fidelity_telemetry": _aggregate_t1_telemetry(result_list),
+        "fidelity_telemetry": _aggregate_fidelity_telemetry(result_list),
     }

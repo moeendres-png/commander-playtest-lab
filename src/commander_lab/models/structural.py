@@ -223,6 +223,10 @@ class StructuralPlayerMetrics(FrozenModel):
     dead_card_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     commander_recast_affordability: float | None = Field(default=None, ge=0.0, le=1.0)
     turns_to_restore_pressure_after_disruption: float | None = Field(default=None, ge=0.0)
+    rebuild_disruption_events: int | None = Field(default=None, ge=0)
+    rebuild_completed_recoveries: int | None = Field(default=None, ge=0)
+    rebuild_open_recoveries: int | None = Field(default=None, ge=0)
+    rebuild_disruption_classes: dict[str, int] | None = None
     interaction_quality: float | None = None
     fidelity_telemetry_status: Literal["NOT_MEASURED", "PARTIAL", "MEASURED"] = "NOT_MEASURED"
 

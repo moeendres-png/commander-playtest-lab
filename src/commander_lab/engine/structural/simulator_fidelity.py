@@ -44,8 +44,11 @@ class StructuralSimulator(LegacyStructuralSimulator):
     decision consumers must censor them rather than treating their provisional placements as
     ordinary evidence. Mechanics that still need tactical/external rules are separately gated.
 
-    T1 fidelity telemetry is observation-only. It reads the same state Structural already uses for
-    action legality and never changes RNG, action choice, scoring, search rewards, or advancement.
+    Fidelity telemetry is observation-only. T1 reads payment and end-window state. T2 additionally
+    measures rebuild time only for explicit commander-removal, engine-loss, and board-wipe state
+    transitions. It deliberately leaves mana-source attribution and dead-card rate NOT_MEASURED
+    because the Structural core lacks source-bound payments and complete functional playability.
+    None of these observations change RNG, actions, scoring, search rewards, or advancement.
     """
 
     def __init__(self, decks: dict[str, StructuralDeckProfile]) -> None:
@@ -141,18 +144,38 @@ class StructuralSimulator(LegacyStructuralSimulator):
 
     def _attach_t1_metrics(self, metrics: StructuralPlayerMetrics) -> StructuralPlayerMetrics:
         accumulator = self._t1_telemetry.get(metrics.player_id)
-        if accumulator is None or accumulator.decision_windows == 0:
+        if accumulator is None:
             return metrics
-        return metrics.model_copy(
-            update={
-                "unused_mana": accumulator.unused_mana,
-                "colored_mana_failures": accumulator.colored_mana_failures,
-                "stranded_spells": accumulator.stranded_spells,
-                "stranded_reasons": dict(sorted(accumulator.stranded_reasons.items())),
-                "commander_recast_affordability": accumulator.recast_affordability(),
-                "fidelity_telemetry_status": "PARTIAL",
-            }
-        )
+        t1_measured = accumulator.decision_windows > 0
+        t2_observed = bool(accumulator.rebuild_disruption_counts)
+        if not t1_measured and not t2_observed:
+            return metrics
+        updates: dict[str, object] = {"fidelity_telemetry_status": "PARTIAL"}
+        if t1_measured:
+            updates.update(
+                {
+                    "unused_mana": accumulator.unused_mana,
+                    "colored_mana_failures": accumulator.colored_mana_failures,
+                    "stranded_spells": accumulator.stranded_spells,
+                    "stranded_reasons": dict(sorted(accumulator.stranded_reasons.items())),
+                    "commander_recast_affordability": accumulator.recast_affordability(),
+                }
+            )
+        if t2_observed:
+            updates.update(
+                {
+                    "turns_to_restore_pressure_after_disruption": accumulator.rebuild_mean_turns(),
+                    "rebuild_disruption_events": sum(
+                        accumulator.rebuild_disruption_counts.values()
+                    ),
+                    "rebuild_completed_recoveries": len(accumulator.rebuild_completed_turns),
+                    "rebuild_open_recoveries": len(accumulator.open_rebuild_episodes),
+                    "rebuild_disruption_classes": dict(
+                        sorted(accumulator.rebuild_disruption_counts.items())
+                    ),
+                }
+            )
+        return metrics.model_copy(update=updates)
 
     def _choose_action(
         self,
@@ -195,6 +218,16 @@ class StructuralSimulator(LegacyStructuralSimulator):
                 affordable=self._can_pay(player, commander.next_cost, requirements),
             )
         super()._end_step(player, players, recorder, turn)
+        accumulator.observe_recovery(
+            turn=turn,
+            commander_names_on_battlefield={
+                commander.name
+                for commander in player.commanders.values()
+                if commander.on_battlefield
+            },
+            board_power=player.board_power,
+            engine_value=player.engine_value,
+        )
 
     def _cast_commander(
         self,
@@ -243,7 +276,42 @@ class StructuralSimulator(LegacyStructuralSimulator):
         players: list[_Player],
         recorder: _EventRecorder,
     ) -> None:
+        before = {
+            target.player_id: (
+                {
+                    commander.name
+                    for commander in target.commanders.values()
+                    if commander.on_battlefield
+                },
+                target.engine_value,
+            )
+            for target in players
+            if target.alive
+        }
         super()._resolve_removal(player, card, players, recorder)
+        for target in players:
+            prior = before.get(target.player_id)
+            if prior is None:
+                continue
+            commanders_before, engine_before = prior
+            commanders_after = {
+                commander.name
+                for commander in target.commanders.values()
+                if commander.on_battlefield
+            }
+            accumulator = self._telemetry_for(target)
+            for commander_name in sorted(commanders_before - commanders_after):
+                accumulator.record_disruption(
+                    "commander_removal",
+                    turn=target.current_turn,
+                    commander_name=commander_name,
+                )
+            if engine_before > target.engine_value + 1e-9:
+                accumulator.record_disruption(
+                    "engine_loss",
+                    turn=target.current_turn,
+                    baseline_engine_value=engine_before,
+                )
         self._reset_absent_commanders(players)
 
     def _resolve_wipe(
@@ -253,5 +321,24 @@ class StructuralSimulator(LegacyStructuralSimulator):
         players: list[_Player],
         recorder: _EventRecorder,
     ) -> None:
+        before = {
+            target.player_id: (target.board_power, target.engine_value)
+            for target in players
+            if target.alive
+        }
         super()._resolve_wipe(player, card, players, recorder)
+        for target in players:
+            prior = before.get(target.player_id)
+            if prior is None:
+                continue
+            board_before, engine_before = prior
+            board_lost = board_before > target.board_power + 1e-9
+            engine_lost = engine_before > target.engine_value + 1e-9
+            if board_lost or engine_lost:
+                self._telemetry_for(target).record_disruption(
+                    "board_wipe",
+                    turn=target.current_turn,
+                    baseline_board_power=board_before if board_lost else 0.0,
+                    baseline_engine_value=engine_before if engine_lost else 0.0,
+                )
         self._reset_absent_commanders(players)
