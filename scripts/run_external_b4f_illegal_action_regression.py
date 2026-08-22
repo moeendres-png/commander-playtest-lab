@@ -115,10 +115,7 @@ def main() -> None:
         )
         if decision_before.get("actor_id") != before.priority_player_id:
             raise SystemExit("B4-F illegal-action actor does not match live XMage priority")
-        enumerated_ids = {
-            str(action["action_id"])
-            for action in decision_before.get("actions", ())
-        }
+        enumerated_ids = {str(action["action_id"]) for action in decision_before.get("actions", ())}
         illegal_action_id = "b4f-illegal-action-not-enumerated"
         if illegal_action_id in enumerated_ids:
             raise SystemExit("B4-F illegal-action sentinel unexpectedly exists in legal actions")
