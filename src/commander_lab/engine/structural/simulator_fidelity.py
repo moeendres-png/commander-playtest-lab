@@ -162,8 +162,18 @@ class StructuralSimulator(LegacyStructuralSimulator):
                 }
             )
         if t2_observed:
-            updates["turns_to_restore_pressure_after_disruption"] = (
-                accumulator.rebuild_mean_turns()
+            updates.update(
+                {
+                    "turns_to_restore_pressure_after_disruption": accumulator.rebuild_mean_turns(),
+                    "rebuild_disruption_events": sum(
+                        accumulator.rebuild_disruption_counts.values()
+                    ),
+                    "rebuild_completed_recoveries": len(accumulator.rebuild_completed_turns),
+                    "rebuild_open_recoveries": len(accumulator.open_rebuild_episodes),
+                    "rebuild_disruption_classes": dict(
+                        sorted(accumulator.rebuild_disruption_counts.items())
+                    ),
+                }
             )
         return metrics.model_copy(update=updates)
 
