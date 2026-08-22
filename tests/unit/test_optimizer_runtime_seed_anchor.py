@@ -115,7 +115,6 @@ def test_initial_variants_includes_exact_control_anchor_when_zero_safe_construct
             control=control,
             candidate=variant.mainboard,
             deck_hash=variant.deck_hash,
-        )["pass"]
-        is False
+        )["pass"] is False
         for variant in construction_finalists
     )
