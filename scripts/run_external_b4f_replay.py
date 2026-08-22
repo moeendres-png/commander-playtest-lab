@@ -124,7 +124,9 @@ def main() -> None:
                 raise SystemExit(f"B4-F replay output provenance missing for {case.case_id}")
             if set(provenance) != set(normalized):
                 raise SystemExit(
-                    f"B4-F replay provenance keys differ from normalized output for {case.case_id}"
+                    "B4-F replay provenance keys differ from normalized output for "
+                    f"{case.case_id}: normalized_keys={sorted(normalized)}, "
+                    f"provenance_keys={sorted(provenance)}"
                 )
             mismatches = {
                 key: {
