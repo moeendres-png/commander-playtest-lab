@@ -1,0 +1,35 @@
+name: Temp Ruff Format Probe
+
+on:
+  push:
+    branches:
+      - validation/ruff-format-probe-seed-anchor-20260822
+
+permissions:
+  contents: read
+
+jobs:
+  format-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install project formatter
+        run: python -m pip install -e '.[dev]'
+      - name: Capture exact Ruff formatting
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/format-probe
+          ruff format --diff . > artifacts/format-probe/ruff-format.diff || true
+          ruff format .
+          cp src/commander_lab/whole_deck/optimizer_runtime.py artifacts/format-probe/optimizer_runtime.py
+          cp tests/unit/test_optimizer_runtime_seed_anchor.py artifacts/format-probe/test_optimizer_runtime_seed_anchor.py
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ruff-format-probe
+          path: artifacts/format-probe/
+          if-no-files-found: error
