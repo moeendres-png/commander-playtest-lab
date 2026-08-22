@@ -107,9 +107,7 @@ def main() -> None:
                 if case.expected_normalized.get(key) != normalized.get(key)
             }
             if mismatches:
-                raise SystemExit(
-                    f"B4-F replay fixture mismatch for {case.case_id}: {mismatches}"
-                )
+                raise SystemExit(f"B4-F replay fixture mismatch for {case.case_id}: {mismatches}")
             stable_payload = {
                 "backend_version": payload.get("backend_version"),
                 "provider": payload.get("provider"),
