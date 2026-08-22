@@ -232,7 +232,8 @@ def _aggregate_fidelity_telemetry(results: list[StructuralMatchResult]) -> dict[
             pilot_key = f"{metrics.pilot_name}:{metrics.pilot_strength}:{metrics.pilot_mode}"
             by_pilot.setdefault(pilot_key, []).append(metrics)
     return {
-        "schema_version": "t1-t2-partial-v1",
+        "schema_version": "t1-partial-v1",
+        "t2_extension_schema_version": "t2-rebuild-partial-v1",
         "scope": "diagnostic_only_no_scoring_effect",
         "measurement_boundary": (
             "Structural state only. T1 color failures use the current presence-only color payer; "
