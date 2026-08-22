@@ -209,3 +209,59 @@ def test_evaluator_classifies_exploratory_evidence_only(
     )(variant, 1, 0)
     assert evaluation.evidence_context == EvidenceContext.EXPLORATORY
     assert evaluation.evidence_type == "structural_model_estimates"
+
+
+def test_release_search_fails_calibration_before_exploratory_evidence(
+    monkeypatch, project_root: Path, release_manifest, tmp_path: Path
+) -> None:
+    import commander_lab.whole_deck.optimizer_v2_release as release
+
+    events: list[str] = []
+
+    class _Lock:
+        def release(self) -> None:
+            events.append("lock_release")
+
+    class _Checkpoints:
+        def read(self, _stage: str):
+            return None
+
+    monkeypatch.setattr(release.OptimizerLock, "acquire", lambda *args, **kwargs: _Lock())
+    monkeypatch.setattr(release, "OptimizerCheckpointStore", lambda *args, **kwargs: _Checkpoints())
+    monkeypatch.setattr(
+        release, "verify_release_preflight", lambda *args, **kwargs: {"status": "pass"}
+    )
+    monkeypatch.setattr(release, "WholeDeckDesignLab", lambda *args, **kwargs: object())
+    monkeypatch.setattr(release, "WholeDeckCampaignOrchestrator", lambda *args, **kwargs: object())
+    monkeypatch.setattr(
+        release, "_initial_variants", lambda *args, **kwargs: ({"p": object()}, (object(),))
+    )
+
+    def _calibration(**kwargs):
+        events.append("calibration")
+        return {
+            "calibration_acceptance_pass": False,
+            "evaluator_audit": {},
+        }
+
+    monkeypatch.setattr(release, "_face_validity_calibration", _calibration)
+
+    def _exploratory_evaluator(*args, **kwargs):
+        events.append("exploratory_evaluator")
+        raise AssertionError("exploratory evaluator must not be created after failed calibration")
+
+    monkeypatch.setattr(release, "CachedPartitionEvaluator", _exploratory_evaluator)
+
+    with pytest.raises(
+        RuntimeError,
+        match="calibration acceptance failed before exploratory evidence consumption",
+    ):
+        release.run_release_search(
+            project_root,
+            release_manifest,
+            run_directory=tmp_path / "calibration-first",
+        )
+
+    assert "calibration" in events
+    assert "exploratory_evaluator" not in events
+    assert (tmp_path / "calibration-first" / "calibration-report.json").is_file()

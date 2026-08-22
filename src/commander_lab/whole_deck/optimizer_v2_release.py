@@ -380,6 +380,22 @@ def run_release_search(
             steps_per_start=steps_per_start,
             finalists_per_policy=finalists_per_policy,
         )
+        calibration = _face_validity_calibration(
+            root=root_path,
+            run_path=run_path,
+            manifest=manifest,
+            lab=lab,
+            orchestrator=orchestrator,
+            engines=engines,
+            initial=initial,
+            workers=workers,
+            max_turns=max_turns,
+        )
+        atomic_write_json(run_path / "calibration-report.json", calibration)
+        if calibration.get("calibration_acceptance_pass") is not True:
+            raise RuntimeError(
+                "calibration acceptance failed before exploratory evidence consumption"
+            )
         evaluator = CachedPartitionEvaluator(
             root=root_path,
             manifest=manifest,
@@ -419,17 +435,6 @@ def run_release_search(
             variants_by_hash=evaluator.variants_by_hash,
             evaluations_by_hash=evaluator.evaluations_by_hash,
             cached_payload_by_hash=evaluator.cached_payload_by_hash,
-            max_turns=max_turns,
-        )
-        calibration = _face_validity_calibration(
-            root=root_path,
-            run_path=run_path,
-            manifest=manifest,
-            lab=lab,
-            orchestrator=orchestrator,
-            engines=engines,
-            initial=initial,
-            workers=workers,
             max_turns=max_turns,
         )
         search_payload = {
