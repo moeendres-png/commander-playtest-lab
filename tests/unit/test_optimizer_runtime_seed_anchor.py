@@ -105,7 +105,9 @@ def test_initial_variants_includes_exact_control_anchor_when_zero_safe_construct
         deck_hash=anchor.deck_hash,
     )["pass"] is True
 
-    construction_finalists = [variant for variant in initial if variant.deck_hash != anchor.deck_hash]
+    construction_finalists = [
+        variant for variant in initial if variant.deck_hash != anchor.deck_hash
+    ]
     assert construction_finalists
     assert all(
         assess_variant_mechanics(
