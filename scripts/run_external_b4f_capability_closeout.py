@@ -63,6 +63,9 @@ def main() -> None:
         raise SystemExit("B4-F bridge artifact is missing")
     bridge_sha256 = _sha256_file(BRIDGE_JAR)
     fixture_sha256 = _sha256_file(FIXTURE_PATH)
+    replay_sha256 = _sha256_file(REPLAY_PATH)
+    illegal_sha256 = _sha256_file(ILLEGAL_PATH)
+    b4c_sha256 = _sha256_file(B4C_PATH)
 
     xmage_commit = os.getenv("XMAGE_COMMIT", "").strip()
     primary = config.get("primary_engine")
@@ -143,8 +146,8 @@ def main() -> None:
             "real_four_player_commander_runtime": "PROVEN",
             "frozen_phase6_provider_state_reconstruction": "PROVEN",
             "commander_tax_third_cast_state_and_cost": "PROVEN",
-            "commander_damage_per_commander_separation": "PROVEN",
-            "commander_damage_twenty_one_state_based_loss": "PROVEN",
+            "commander_damage_state_based_loss_from_separated_injected_watcher_state": "PROVEN",
+            "commander_damage_twenty_one_state_based_loss_from_injected_watcher_state": "PROVEN",
             "current_priority_machine_readable_legal_actions": "PROVEN_BOUNDED",
             "state_bound_targetless_nonmodal_submission": "PROVEN_BOUNDED",
             "stale_action_rejection": "PROVEN_BOUNDED",
@@ -158,6 +161,19 @@ def main() -> None:
             "seed_control": "NOT_PROVEN",
             "full_game_deterministic_replay": "NOT_PROVEN",
             "target_mode_choice_and_combat_submission_coverage": "NOT_PROVEN",
+            "commander_damage_combat_attribution_per_commander": "NOT_PROVEN",
+        },
+        "normalization_boundary": {
+            "provider_observed": [
+                "commander_tax total spell cost after XMage commander-cost modification",
+                "player_loses after XMage Commander state-based actions",
+            ],
+            "adapter_derived": [
+                "commander_tax as total-minus-base cost",
+                "legal as a fixture-contract validation flag",
+                "loss_reason label from frozen fixture scope",
+                "maximum_single_commander_damage summary from injected CommanderInfoWatcher state",
+            ],
         },
         "global_handshake_preserved": handshake.model_dump(mode="json"),
         "automatic_fidelity_reclassification": False,
@@ -173,6 +189,9 @@ def main() -> None:
         "scenario_contract": SCENARIO_CONTRACT,
         "frozen_fixture_set": str(FIXTURE_PATH.relative_to(ROOT)),
         "frozen_fixture_set_sha256": fixture_sha256,
+        "phase6_replay_evidence_sha256": replay_sha256,
+        "illegal_action_evidence_sha256": illegal_sha256,
+        "b4c_action_evidence_sha256": b4c_sha256,
         "capability_descriptor_sha256": descriptor_sha256,
     }
     capability_hash = _sha256_json(binding_material)
