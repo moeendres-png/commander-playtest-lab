@@ -106,6 +106,10 @@ def run_structural_batch(
         raw_results = [_run_worker(task) for task in tasks]
     else:
         chunksize = max(1, len(tasks) // (config.workers * 4))
+        # Pytest captures file descriptors through pipes. A spawned process pool can
+        # block the parent in ``anon_pipe_write`` after earlier subprocess-heavy
+        # integration tests. Use a bounded thread executor only inside pytest; normal
+        # product runs retain the process pool and its CPU scaling.
         if "PYTEST_CURRENT_TEST" in os.environ:
             _initialize_worker(deck_payloads)
             with ThreadPoolExecutor(max_workers=config.workers) as executor:
@@ -173,7 +177,9 @@ def _telemetry_reason_summary(rows: list[StructuralPlayerMetrics]) -> dict[str, 
 
 def _summarize_t1_telemetry(rows: list[StructuralPlayerMetrics]) -> dict[str, object]:
     return {
-        "status_counts": dict(sorted(Counter(row.fidelity_telemetry_status for row in rows).items())),
+        "status_counts": dict(
+            sorted(Counter(row.fidelity_telemetry_status for row in rows).items())
+        ),
         "unused_mana": _telemetry_number_summary(rows, lambda row: row.unused_mana),
         "colored_mana_failures": _telemetry_number_summary(
             rows, lambda row: row.colored_mana_failures

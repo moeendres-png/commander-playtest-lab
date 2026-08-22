@@ -14,14 +14,8 @@ from commander_lab.models import (
     StructuralPlayerMetrics,
 )
 
-from .simulator import (
-    StructuralSimulator as LegacyStructuralSimulator,
-)
-from .simulator import (
-    _Commander,
-    _EventRecorder,
-    _Player,
-)
+from .simulator import StructuralSimulator as LegacyStructuralSimulator
+from .simulator import _Commander, _EventRecorder, _Player
 from .telemetry import (
     T1TelemetryAccumulator,
     classify_payment_blocker,
@@ -127,15 +121,38 @@ class StructuralSimulator(LegacyStructuralSimulator):
                 }
             )
             effective = config.model_copy(update={"limits": limits})
-        return super().simulate(
+        result = super().simulate(
             effective,
             run_id=run_id,
             event_log_path=event_log_path,
             capture_events=capture_events,
         )
+        return result.model_copy(
+            update={
+                "player_metrics": {
+                    player_id: self._attach_t1_metrics(metrics)
+                    for player_id, metrics in result.player_metrics.items()
+                }
+            }
+        )
 
     def _telemetry_for(self, player: _Player) -> T1TelemetryAccumulator:
         return self._t1_telemetry.setdefault(player.player_id, T1TelemetryAccumulator())
+
+    def _attach_t1_metrics(self, metrics: StructuralPlayerMetrics) -> StructuralPlayerMetrics:
+        accumulator = self._t1_telemetry.get(metrics.player_id)
+        if accumulator is None or accumulator.decision_windows == 0:
+            return metrics
+        return metrics.model_copy(
+            update={
+                "unused_mana": accumulator.unused_mana,
+                "colored_mana_failures": accumulator.colored_mana_failures,
+                "stranded_spells": accumulator.stranded_spells,
+                "stranded_reasons": dict(sorted(accumulator.stranded_reasons.items())),
+                "commander_recast_affordability": accumulator.recast_affordability(),
+                "fidelity_telemetry_status": "PARTIAL",
+            }
+        )
 
     def _choose_action(
         self,
@@ -178,25 +195,6 @@ class StructuralSimulator(LegacyStructuralSimulator):
                 affordable=self._can_pay(player, commander.next_cost, requirements),
             )
         super()._end_step(player, players, recorder, turn)
-
-    def _final_metrics(self, player: _Player) -> StructuralPlayerMetrics:
-        metrics = super()._final_metrics(player)
-        accumulator = self._telemetry_for(player)
-        measured = accumulator.decision_windows > 0
-        return metrics.model_copy(
-            update={
-                "unused_mana": accumulator.unused_mana if measured else None,
-                "colored_mana_failures": (
-                    accumulator.colored_mana_failures if measured else None
-                ),
-                "stranded_spells": accumulator.stranded_spells if measured else None,
-                "stranded_reasons": (
-                    dict(sorted(accumulator.stranded_reasons.items())) if measured else None
-                ),
-                "commander_recast_affordability": accumulator.recast_affordability(),
-                "fidelity_telemetry_status": "PARTIAL" if measured else "NOT_MEASURED",
-            }
-        )
 
     def _cast_commander(
         self,

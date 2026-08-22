@@ -49,11 +49,7 @@ class T1TelemetryAccumulator:
 def is_structural_reaction_only(card: StructuralCardProfile) -> bool:
     """Return whether Structural deliberately withholds this spell from proactive main actions."""
 
-    return bool(
-        not card.is_permanent
-        and card.roles
-        and card.roles.issubset(_REACTION_ONLY_ROLES)
-    )
+    return bool(not card.is_permanent and card.roles and card.roles.issubset(_REACTION_ONLY_ROLES))
 
 
 def classify_payment_blocker(
