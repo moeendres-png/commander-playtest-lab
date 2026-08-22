@@ -217,9 +217,7 @@ def _initial_variants(
         if policy.policy_id == PolicyId.CURRENT_CONTROL:
             anchor_id = result.control_variant_id
             if anchor_id is None:
-                raise RuntimeError(
-                    "CURRENT_CONTROL construction result is missing its control arm"
-                )
+                raise RuntimeError("CURRENT_CONTROL construction result is missing its control arm")
             anchor = next(
                 (variant for variant in result.variants if variant.variant_id == anchor_id),
                 None,
