@@ -44,7 +44,7 @@ from .search import current_control_mainboard
 from .search_context import SEMANTIC_UNKNOWN
 from .search_models import WholeDeckVariant
 
-DECISION_RUNTIME_VERSION = "optimizer-v2-decision-runtime-1E-2F-1.1.0"
+DECISION_RUNTIME_VERSION = "optimizer-v2-decision-runtime-1E-2F-1.1.1"
 DECISION_CONTRACT_PATH = Path("data/decision/DECISION_CONTRACT_CURRENT.json")
 PRECISION_POLICY_PATH = Path("docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md")
 SEMANTIC_PROJECTION_PATH = Path("data/cards/rogshai_semantic_projection_current.zlib.b64")

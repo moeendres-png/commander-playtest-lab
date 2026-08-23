@@ -1,3 +1,10 @@
+## 1.23.2 - 2026-08-23
+
+- Fixed a Structural decision-fidelity overclaim: literal scry/draw shapes now carry verified runtime parameters; scry no longer draws to hand, scry depth is preserved, and instant-speed draw/selection routes to Tactical evidence.
+- Fail-closed creature tap-mana resources whose summoning-sickness/tap timing is not modeled by Structural confirmatory evidence.
+- Added deterministic outcome-independent COVERAGE_DEBT proposal emission without Structural reward leakage.
+- Added worker-equivalence/performance closeout evidence; workers remain default 1 unless production-sized speedup is separately demonstrated.
+
 ## 1.23.1 - 2026-08-23
 
 - Separate Structural decision-quality tags from question-specific rules-fidelity capabilities; Basic lands, verified simple draw/scry and unconditional fixed-mana resources now reach only the capability level the Structural runtime actually supports.

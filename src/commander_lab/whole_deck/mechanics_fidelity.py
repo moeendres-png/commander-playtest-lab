@@ -15,7 +15,7 @@ from .optimizer_v2_release_models import FrontierHandoff
 from .search_context import SEMANTIC_UNKNOWN, current_control_mainboard
 from .search_models import WholeDeckVariant
 
-STRUCTURAL_SEMANTIC_MODEL_VERSION = "structural-capability-fidelity-2026-08-23-v2"
+STRUCTURAL_SEMANTIC_MODEL_VERSION = "structural-capability-fidelity-2026-08-23-v3"
 SHORTLIST_LIMIT = 8
 
 
@@ -162,13 +162,13 @@ def _oracle_without_reminder(text: str) -> str:
     return " ".join(previous.replace("\n", " ").split()).strip()
 
 
-def _simple_draw_selection_capabilities(
-    oracle_text: str,
-) -> frozenset[StructuralCapability] | None:
-    """Recognize only the tiny draw/scry language the Structural resolver directly abstracts.
+def _simple_draw_selection_shape(oracle_text: str) -> dict[str, int | None] | None:
+    """Parse the tiny draw/scry language used by the fidelity contract.
 
-    This deliberately excludes shuffle, surveil, hand/library replacement, conditional draw,
-    opponent-dependent text, targets, modes, payments, triggers and other sequencing.
+    Parsing an Oracle shape is deliberately separate from claiming runtime support.  In
+    particular, the current Structural resolver's ``SELECTION`` role is *not* Oracle scry: it
+    looks at up to three cards and moves one directly to hand.  Keeping the parsed depth/count
+    lets the classifier fail closed instead of collapsing every ``scry N`` into one capability.
     """
 
     import re
@@ -202,20 +202,46 @@ def _simple_draw_selection_capabilities(
     if any(token in padded for token in forbidden):
         return None
 
-    # Normalize the one connector word used by Preordain.
     clauses = [
         piece.strip(" ,") for piece in re.split(r"[.;]|,\s*then\s+", lowered) if piece.strip(" ,")
     ]
-    capabilities: set[StructuralCapability] = set()
+    draw_count: int | None = None
+    scry_depth: int | None = None
+    number_words = {"a": 1, "one": 1, "two": 2, "three": 3, "four": 4}
     for clause in clauses:
-        if re.fullmatch(r"scry \d+", clause):
-            capabilities.add(StructuralCapability.SIMPLE_SELECTION)
+        scry = re.fullmatch(r"scry (\d+)", clause)
+        if scry:
+            if scry_depth is not None:
+                return None
+            scry_depth = int(scry.group(1))
             continue
-        if re.fullmatch(r"draw (?:a|one|two|three|four|\d+) cards?", clause):
-            capabilities.add(StructuralCapability.SIMPLE_DRAW)
+        draw = re.fullmatch(r"draw (a|one|two|three|four|\d+) cards?", clause)
+        if draw:
+            if draw_count is not None:
+                return None
+            token = draw.group(1)
+            draw_count = number_words.get(token, int(token) if token.isdigit() else 0)
             continue
         return None
-    return frozenset(capabilities) if capabilities else None
+    if draw_count is None and scry_depth is None:
+        return None
+    return {"draw_count": draw_count, "scry_depth": scry_depth}
+
+
+def _simple_draw_selection_capabilities(
+    oracle_text: str,
+) -> frozenset[StructuralCapability] | None:
+    """Backward-compatible shape helper; support is decided separately and fail-closed."""
+
+    shape = _simple_draw_selection_shape(oracle_text)
+    if shape is None:
+        return None
+    capabilities: set[StructuralCapability] = set()
+    if shape["draw_count"] is not None:
+        capabilities.add(StructuralCapability.SIMPLE_DRAW)
+    if shape["scry_depth"] is not None:
+        capabilities.add(StructuralCapability.SIMPLE_SELECTION)
+    return frozenset(capabilities)
 
 
 def _simple_fixed_mana_capability(oracle_text: str) -> bool:
@@ -246,6 +272,9 @@ def classify_card_semantics(
     is_basic: bool = False,
     oracle_text: str | None = None,
     type_line: str | None = None,
+    runtime_draw_count: int | None = None,
+    runtime_scry_depth: int | None = None,
+    runtime_timing_window: str | None = None,
 ) -> tuple[MechanicsFidelityTier, tuple[str, ...]]:
     """Return the strongest evidence layer justified by current Structural capabilities.
 
@@ -261,6 +290,9 @@ def classify_card_semantics(
         is_basic=is_basic,
         oracle_text=oracle_text,
         type_line=type_line,
+        runtime_draw_count=runtime_draw_count,
+        runtime_scry_depth=runtime_scry_depth,
+        runtime_timing_window=runtime_timing_window,
     )
     return cast(MechanicsFidelityTier, assessment["tier_enum"]), cast(
         tuple[str, ...], assessment["reasons"]
@@ -276,6 +308,9 @@ def _classify_card_capabilities(
     is_basic: bool,
     oracle_text: str | None,
     type_line: str | None,
+    runtime_draw_count: int | None = None,
+    runtime_scry_depth: int | None = None,
+    runtime_timing_window: str | None = None,
 ) -> dict[str, object]:
     role_set = frozenset(roles)
     mechanic_set = frozenset(mechanic_tags)
@@ -339,22 +374,53 @@ def _classify_card_capabilities(
         )
 
     text = oracle_text or ""
-    simple_draw_selection = _simple_draw_selection_capabilities(text) if text else None
-    if (
-        simple_draw_selection is not None
-        and role_set
-        and role_set
-        <= {
-            CardRole.DRAW,
-            CardRole.SELECTION,
-        }
-    ):
-        for capability in simple_draw_selection:
-            required.add(capability.value)
-            satisfied.add(capability.value)
+    simple_shape = _simple_draw_selection_shape(text) if text else None
+    if simple_shape is not None and role_set and role_set <= {CardRole.DRAW, CardRole.SELECTION}:
+        draw_count = simple_shape["draw_count"]
+        scry_depth = simple_shape["scry_depth"]
+        is_instant = bool(type_line and "Instant" in type_line)
+
+        if draw_count is not None:
+            required.add(StructuralCapability.SIMPLE_DRAW.value)
+        if scry_depth is not None:
+            required.add(StructuralCapability.SIMPLE_SELECTION.value)
+
+        # Instant-speed optionality is not exercised by the active-turn Structural action loop.
+        # Even when the literal effect resolves correctly, the timing question must route upward.
+        if is_instant or runtime_timing_window == "instant":
+            missing.add("rules_accurate_instant_timing")
+            return result(
+                MechanicsFidelityTier.TACTICAL_REQUIRED,
+                ("instant_timing_not_mechanistic",),
+            )
+
+        if scry_depth is not None:
+            if CardRole.SELECTION not in role_set:
+                missing.add("selection_role_projection")
+            if runtime_scry_depth != scry_depth:
+                missing.add("exact_scry_depth_runtime_parameter")
+            if CardRole.SELECTION not in role_set or runtime_scry_depth != scry_depth:
+                return result(
+                    MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY,
+                    ("scry_runtime_parameter_not_conformant",),
+                )
+            satisfied.add(StructuralCapability.SIMPLE_SELECTION.value)
+
+        if draw_count is not None:
+            if CardRole.DRAW not in role_set:
+                missing.add("draw_role_projection")
+            if runtime_draw_count != draw_count:
+                missing.add("exact_draw_count_runtime_parameter")
+            if CardRole.DRAW not in role_set or runtime_draw_count != draw_count:
+                return result(
+                    MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY,
+                    ("draw_runtime_parameter_not_conformant",),
+                )
+            satisfied.add(StructuralCapability.SIMPLE_DRAW.value)
+
         return result(
             MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE,
-            ("simple_draw_selection_matches_current_structural_capability",),
+            ("literal_sorcery_draw_scry_shape_matches_bounded_runtime_contract",),
         )
 
     if (
@@ -364,10 +430,16 @@ def _classify_card_capabilities(
         and _simple_fixed_mana_capability(text)
     ):
         required.add(StructuralCapability.SIMPLE_FIXED_MANA_RESOURCE.value)
+        if type_line and "Creature" in type_line:
+            missing.add("summoning_sickness_and_tap_activation_timing")
+            return result(
+                MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY,
+                ("creature_tap_mana_timing_not_mechanistic",),
+            )
         satisfied.add(StructuralCapability.SIMPLE_FIXED_MANA_RESOURCE.value)
         return result(
             MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE,
-            ("unconditional_fixed_mana_resource_matches_current_structural_capability",),
+            ("noncreature_fixed_mana_resource_matches_bounded_structural_abstraction",),
         )
 
     if role_set & DEFAULT_SCREENING_ONLY_ROLES:
@@ -414,6 +486,9 @@ def assess_card_fidelity(context: Any, oracle_name: str) -> dict[str, object]:
     raw_type_line = facts.get("type_line")
     oracle_text = raw_oracle_text if isinstance(raw_oracle_text, str) else None
     type_line = raw_type_line if isinstance(raw_type_line, str) else None
+    runtime_draw_count = getattr(profile, "draw_count", None)
+    runtime_scry_depth = getattr(profile, "scry_depth", None)
+    runtime_timing_window = getattr(profile, "timing_window", None)
     classified = _classify_card_capabilities(
         oracle_name,
         semantic_state=card.effective_semantic_state,
@@ -422,6 +497,9 @@ def assess_card_fidelity(context: Any, oracle_name: str) -> dict[str, object]:
         is_basic=bool(card.is_basic),
         oracle_text=oracle_text,
         type_line=type_line,
+        runtime_draw_count=runtime_draw_count,
+        runtime_scry_depth=runtime_scry_depth,
+        runtime_timing_window=runtime_timing_window,
     )
     return {
         "oracle_name": oracle_name,
@@ -442,6 +520,9 @@ def assess_card_fidelity(context: Any, oracle_name: str) -> dict[str, object]:
         ),
         "oracle_fact_shape_checked": bool(facts),
         "type_line": type_line,
+        "runtime_draw_count": runtime_draw_count,
+        "runtime_scry_depth": runtime_scry_depth,
+        "runtime_timing_window": runtime_timing_window,
     }
 
 

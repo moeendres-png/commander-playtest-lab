@@ -22,6 +22,12 @@ class StructuralCardProfile(FrozenModel):
     mana_value: float = Field(default=3.0, ge=0.0, le=20.0)
     roles: frozenset[CardRole]
     role_strengths: dict[CardRole, float] = Field(default_factory=dict)
+    # Narrow Oracle-backed execution parameters.  These are populated only from verified current
+    # facts and let the Structural resolver distinguish literal draw/scry shapes without pretending
+    # to implement arbitrary card text.
+    draw_count: int | None = Field(default=None, ge=1, le=20)
+    scry_depth: int | None = Field(default=None, ge=1, le=20)
+    timing_window: Literal["sorcery", "instant"] | None = None
     mechanic_tags: frozenset[StructuralMechanic] = frozenset()
     color_requirements: dict[Color, int] = Field(default_factory=dict)
     color_identity: frozenset[Color] = frozenset()
