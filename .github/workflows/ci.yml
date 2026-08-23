@@ -54,11 +54,16 @@ jobs:
           s = s.replace(
               '        "fidelity_distance_to_safe": sum(int(row.get("quantity", 1)) for row in blocked),\n',
               '        "fidelity_distance_to_safe": sum(\n'
-              '            quantity\n'
-              '            for row in blocked\n'
-              '            if isinstance((quantity := row.get("quantity", 1)), int)\n'
-              '            and not isinstance(quantity, bool)\n'
+              '            _quantity_value(row.get("quantity", 1)) for row in blocked\n'
               '        ),\n',
+          )
+          s = s.replace(
+              '\ndef assess_variant_mechanics(\n',
+              '\ndef _quantity_value(value: object) -> int:\n'
+              '    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:\n'
+              '        return value\n'
+              '    return 0\n\n\n'
+              'def assess_variant_mechanics(\n',
           )
           p.write_text(s)
 
