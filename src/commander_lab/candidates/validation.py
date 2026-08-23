@@ -32,6 +32,7 @@ class CardHardValidityRecord:
     color_identity: frozenset[str]
     commander_legality: str
     oracle_text: str = ""
+    physically_owned: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,11 +50,11 @@ def _load_json(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _target_deck_counts(
+def _target_deck_payload(
     root: Path,
     registry: DeckPolicyRegistry,
     target_deck_id: str,
-) -> Counter[str]:
+) -> dict[str, Any]:
     manifest = _load_json(registry.source_path("deck_manifest"))
     decks = manifest.get("decks")
     if not isinstance(decks, dict) or not isinstance(decks.get(target_deck_id), dict):
@@ -62,7 +63,15 @@ def _target_deck_counts(
     normalized_file = deck_meta.get("normalized_file")
     if not isinstance(normalized_file, str) or not normalized_file:
         raise ValueError(f"target deck has no normalized_file: {target_deck_id}")
-    deck = _load_json(root / "data" / "decks" / normalized_file)
+    return _load_json(root / "data" / "decks" / normalized_file)
+
+
+def _target_deck_counts(
+    root: Path,
+    registry: DeckPolicyRegistry,
+    target_deck_id: str,
+) -> Counter[str]:
+    deck = _target_deck_payload(root, registry, target_deck_id)
     counts: Counter[str] = Counter()
     raw_cards = deck.get("cards")
     if not isinstance(raw_cards, list):
@@ -78,14 +87,26 @@ def _target_deck_counts(
     return counts
 
 
-def _expected_commanders(registry: DeckPolicyRegistry, target_deck_id: str) -> tuple[str, ...]:
-    manifest = _load_json(registry.source_path("deck_manifest"))
-    decks = manifest.get("decks")
-    deck_meta = decks.get(target_deck_id) if isinstance(decks, dict) else None
-    raw = deck_meta.get("commanders") if isinstance(deck_meta, dict) else None
-    if not isinstance(raw, list) or not raw:
-        raise ValueError(f"target deck has no commander list: {target_deck_id}")
-    return tuple(str(value) for value in raw)
+def _expected_commanders(
+    root: Path,
+    registry: DeckPolicyRegistry,
+    target_deck_id: str,
+) -> tuple[str, ...]:
+    deck = _target_deck_payload(root, registry, target_deck_id)
+    raw_cards = deck.get("cards")
+    if not isinstance(raw_cards, list):
+        raise ValueError(f"target deck cards malformed: {target_deck_id}")
+    commanders: list[str] = []
+    for row in raw_cards:
+        if not isinstance(row, dict) or row.get("zone") != "commander":
+            continue
+        name = row.get("oracle_name")
+        quantity = row.get("quantity")
+        if isinstance(name, str) and isinstance(quantity, int) and quantity > 0:
+            commanders.extend([name] * quantity)
+    if not commanders:
+        raise ValueError(f"target deck has no commander cards: {target_deck_id}")
+    return tuple(commanders)
 
 
 def load_hard_validation_context(
@@ -110,13 +131,13 @@ def load_hard_validation_context(
     available = Counter({name: int(quantity) for name, quantity in free.items()})
     available.update(released_target)
 
-    rows = inventory_rows(root_path, registry=registry)
     cards: dict[str, CardHardValidityRecord] = {}
-    for row in rows:
+    for row in inventory_rows(root_path, registry=registry):
         name = row.get("oracle_name")
-        if not isinstance(name, str) or not name.strip() or row.get("currently_owned") is not True:
+        if not isinstance(name, str) or not name.strip():
             continue
-        quantity = int(row.get("quantity", 0) or 0)
+        physically_owned = row.get("currently_owned") is True
+        quantity = int(row.get("quantity", 0) or 0) if physically_owned else 0
         raw_identity = str(row.get("color_identity", "") or "")
         identity = frozenset(symbol for symbol in raw_identity if symbol in "WUBRG")
         cards[name] = CardHardValidityRecord(
@@ -126,11 +147,12 @@ def load_hard_validation_context(
             color_identity=identity,
             commander_legality=str(row.get("commander_legality", "unknown") or "unknown").casefold(),
             oracle_text=str(row.get("oracle_text", "") or ""),
+            physically_owned=physically_owned,
         )
 
     return HardValidationContext(
         target_deck_id=target,
-        expected_commanders=_expected_commanders(registry, target),
+        expected_commanders=_expected_commanders(root_path, registry, target),
         commander_identity=frozenset(color.value for color in registry.commander_identity(target)),
         cards=cards,
     )
@@ -172,6 +194,8 @@ def _validate_candidate(
         if card is None:
             reasons.add("UNKNOWN_REQUIRED_CARD")
             continue
+        if not card.physically_owned:
+            reasons.add("PHYSICAL_AVAILABILITY_INVALID")
         if card.commander_legality == "banned":
             reasons.add("BANNED_CARD_INVALID")
         elif card.commander_legality != "legal":
@@ -187,9 +211,6 @@ def _validate_candidate(
         if quantity > 1 and name not in BASIC_LANDS and not _has_unlimited_copy_rule(card):
             reasons.add("SINGLETON_INVALID")
 
-    # physical_printings is optional provenance. A partial printing map must never become a
-    # second, heuristic or completeness admission gate; physical truth is enforced above from
-    # the canonical owned/available inventory quantities.
     unknown = reasons - HARD_FAIL_CODES
     if unknown:
         raise AssertionError(f"validator emitted undocumented hard fail code(s): {sorted(unknown)}")
