@@ -1,0 +1,350 @@
+name: Post-PR117 Fresh Freeze Readiness
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/post-pr117-fresh-freeze-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  TARGET_COMMIT: ff3f6c3d6d0a269c992780c9f0a3ae9aba63f401
+  TARGET_TREE: cb5ad938eea9145c4dcf15d69e1580cfa68ef6c1
+  PACKAGE_VERSION: '1.23.1'
+  PRE_RUN_SEED: '2026082302'
+  RUN_ID: rogshai-official-fresh-20260823-post-pr117-fidelity-liveness-freeze-v1
+
+jobs:
+  exact-main-fresh-freeze-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact canonical main with history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.TARGET_COMMIT }}
+          fetch-depth: 0
+
+      - name: Assert exact canonical main identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$TARGET_TREE"
+          test "$(git rev-parse refs/remotes/origin/main)" = "$TARGET_COMMIT"
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install exact-main runtime
+        run: python -m pip install -e '.[dev]'
+
+      - name: Generate fresh manifest and non-consuming preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/fresh-freeze
+          commander-lab-optimizer manifest \
+            --output artifacts/fresh-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            --run-id "$RUN_ID" \
+            --seed "$PRE_RUN_SEED" \
+            | tee artifacts/fresh-freeze/manifest-output.json
+          commander-lab-optimizer preflight \
+            --manifest artifacts/fresh-freeze/ROGSHAI_PRE_RUN_MANIFEST.json \
+            | tee artifacts/fresh-freeze/preflight-output.json
+
+      - name: Run static fidelity liveness and readiness audits
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          from commander_lab.whole_deck.lab import WholeDeckDesignLab
+          from commander_lab.whole_deck.mechanics_fidelity import build_fidelity_liveness_audit
+          from commander_lab.whole_deck.models import PolicyId
+          from commander_lab.whole_deck.optimizer_runtime import DEFAULT_POLICIES, _initial_variants
+          from commander_lab.whole_deck.optimizer_v2 import QDConfig
+          from commander_lab.whole_deck.optimizer_v2_decision_runtime import (
+              load_decision_manifest,
+              verify_decision_preflight,
+          )
+          from commander_lab.whole_deck.search_context import current_control_mainboard
+
+          root = Path.cwd()
+          out = root / 'artifacts' / 'fresh-freeze'
+          manifest_path = out / 'ROGSHAI_PRE_RUN_MANIFEST.json'
+          manifest = load_decision_manifest(manifest_path)
+          preflight = verify_decision_preflight(root, manifest)
+          lab = WholeDeckDesignLab(root)
+          engines, initial = _initial_variants(
+              lab,
+              manifest,
+              policies=DEFAULT_POLICIES,
+              diversified_starts=2,
+              steps_per_start=8,
+              finalists_per_policy=4,
+          )
+          control = current_control_mainboard(root)
+          liveness = build_fidelity_liveness_audit(
+              lab.context,
+              control=control,
+              initial_variants=initial,
+              control_engine=engines.get(PolicyId.CURRENT_CONTROL.value),
+              qd_config=QDConfig(),
+              seed=manifest.search_seed ^ 0xF1DE11E5,
+          )
+          assert liveness['evidence_consuming'] is False
+          assert liveness['candidate_pool_count'] == 795
+          assert liveness['run_readiness'] == 'PASS'
+          assert liveness['decision_safe_card_count'] > 0
+          assert liveness['decision_safe_legal_neighbor_count'] > 0
+          (out / 'FIDELITY_LIVENESS_AUDIT.json').write_text(
+              json.dumps(liveness, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          anchors = [
+              row for row in initial
+              if row.mainboard == tuple(control)
+              and row.policy_id == PolicyId.CURRENT_CONTROL
+              and row.deck_hash == manifest.control_deck_hash
+          ]
+          anchor = {
+              'status': 'pass' if len(anchors) == 1 else 'fail',
+              'exact_anchor_count': len(anchors),
+              'control_deck_hash': manifest.control_deck_hash,
+              'current_control_search_anchor': len(anchors) == 1,
+              'fresh_rebuild_control_blindness': 'covered_by_exact-main regression suite',
+              'evidence_consuming': False,
+          }
+          assert anchor['status'] == 'pass'
+          (out / 'CURRENT_CONTROL_SEARCH_ANCHOR_AUDIT.json').write_text(
+              json.dumps(anchor, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          search_isolation = {
+              'status': 'pending_targeted_regressions',
+              'hypothesis_lane_outcome_independent': True,
+              'decision_lane_fidelity_gated': True,
+              'screening_only_later_structural_racing_allowed': False,
+              'screening_only_adaptive_decision_reward_allowed': False,
+              'screening_only_confirmatory_allowed': False,
+              'evidence_consuming': False,
+          }
+          (out / 'SEARCH_ARCHITECTURE_ISOLATION.json').write_text(
+              json.dumps(search_isolation, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          candidate_ledger = {
+              'status': 'pending_targeted_regressions',
+              'content_addressed': True,
+              'exact_100_card_list_required': True,
+              'hash_reconstruction_required': True,
+              'control_diff_reconstruction_required': True,
+              'evidence_consuming': False,
+          }
+          (out / 'CANDIDATE_LEDGER_CAPABILITY.json').write_text(
+              json.dumps(candidate_ledger, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          challenger = {
+              'status': 'pending_targeted_regressions',
+              'current_control_can_be_challenger': False,
+              'control_only_confirmatory_scenarios': 0,
+              'evidence_consuming': False,
+          }
+          (out / 'CURRENT_CONTROL_CHALLENGER_EXCLUSION.json').write_text(
+              json.dumps(challenger, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          frozen = json.loads((out / 'manifest-output.json').read_text())
+          manifest_raw = json.loads(manifest_path.read_text())
+          partition_keys = (
+              'exploratory', 'calibration_partition', 'confirmatory',
+              'critical_diagnostics', 'sealed_holdout'
+          )
+          id_sets = [set(manifest_raw[k]['scenario_ids']) for k in partition_keys]
+          seed_sets = [set(manifest_raw[k]['scenario_seeds']) for k in partition_keys]
+          assert len(set().union(*id_sets)) == sum(map(len, id_sets))
+          assert len(set().union(*seed_sets)) == sum(map(len, seed_sets))
+          internal = {
+              'status': 'pass',
+              'partition_keys': list(partition_keys),
+              'scenario_id_overlap': 0,
+              'scenario_seed_overlap': 0,
+              'internal_partition_disjointness': True,
+          }
+          (out / 'NEW_PARTITION_DISJOINTNESS.json').write_text(
+              json.dumps(internal, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          summary = {
+              'status': 'pending_targeted_regressions',
+              'evidence_consumed': False,
+              'target_commit': os.environ['TARGET_COMMIT'],
+              'target_tree': os.environ['TARGET_TREE'],
+              'package_version': os.environ['PACKAGE_VERSION'],
+              'manifest_hash': frozen['manifest_hash'],
+              'manifest_file_sha256': hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+              'run_id': manifest.run_id,
+              'seed': manifest.search_seed,
+              'candidate_count': preflight['candidate_count'],
+              'semantic_unknown_count': preflight['semantic_unknown_count'],
+              'operational_pod_size': preflight['operational_pod_size'],
+              'contract_1e': preflight['decision_checks']['contract_1e'],
+              'precision_contract_2f': preflight['decision_checks']['precision_contract_2f'],
+              'fidelity_liveness': liveness['fidelity_liveness'],
+              'decision_safe_card_count': liveness['decision_safe_card_count'],
+              'safe_noncontrol_neighbor_count': liveness['decision_safe_legal_neighbor_count'],
+              'current_control_search_anchor': True,
+              'new_partition_disjointness': True,
+              'historical_holdout_reused': False,
+              'new_holdout_opened': False,
+              'canonical_domain_mutation': False,
+          }
+          (out / 'READINESS_SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+
+      - name: Run non-consuming architecture regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          pytest -q \
+            tests/unit/test_mechanics_fidelity.py \
+            tests/unit/test_optimizer_search_fidelity_routing.py \
+            tests/unit/test_fidelity_liveness_and_candidate_ledger.py \
+            tests/unit/test_optimizer_v2_decision_runtime.py \
+            | tee artifacts/fresh-freeze/readiness-regressions.txt
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          out = Path('artifacts/fresh-freeze')
+          for name in (
+              'SEARCH_ARCHITECTURE_ISOLATION.json',
+              'CANDIDATE_LEDGER_CAPABILITY.json',
+              'CURRENT_CONTROL_CHALLENGER_EXCLUSION.json',
+          ):
+              p = out / name
+              row = json.loads(p.read_text())
+              row['status'] = 'pass'
+              row['targeted_regressions'] = 'pass'
+              p.write_text(json.dumps(row, indent=2, sort_keys=True) + '\n')
+          p = out / 'READINESS_SUMMARY.json'
+          row = json.loads(p.read_text())
+          row['status'] = 'pass'
+          row['search_architecture_isolation'] = 'pass'
+          row['candidate_ledger_capability'] = 'pass'
+          row['current_control_challenger_exclusion'] = 'pass'
+          row['control_only_confirmatory_scenarios'] = 0
+          p.write_text(json.dumps(row, indent=2, sort_keys=True) + '\n')
+          PY
+
+      - name: Assert no gameplay evidence was consumed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in calibration-report.json optimizer-search-report.json confirmatory-report.json critical-diagnostics-report.json holdout-report.json FINAL_CHALLENGER_FREEZE.json; do
+            test ! -e "artifacts/fresh-freeze/$f"
+          done
+          test -z "$(git status --porcelain --untracked-files=no)"
+          sha256sum artifacts/fresh-freeze/* > artifacts/fresh-freeze/SHA256SUMS.txt
+
+      - name: Build exact-main wheel and recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade build
+          python -m build --wheel
+          mkdir -p artifacts/exact-main-recovery/payload
+          git archive --format=zip \
+            --output=artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.1-exact-main-source.zip \
+            "$TARGET_COMMIT"
+          git branch --force recovery-exact-main "$TARGET_COMMIT"
+          git bundle create \
+            artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.1-exact-main.bundle \
+            recovery-exact-main
+          cp dist/commander_playtest_lab-1.23.1-py3-none-any.whl artifacts/exact-main-recovery/payload/
+          cp artifacts/fresh-freeze/READINESS_SUMMARY.json artifacts/exact-main-recovery/payload/
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('artifacts/exact-main-recovery/payload/RECOVERY_PROVENANCE.json')
+          p.write_text(json.dumps({
+              'status': 'exact_main_recovery',
+              'repository': 'moeendres-png/commander-playtest-lab',
+              'package_version': os.environ['PACKAGE_VERSION'],
+              'canonical_main_commit': os.environ['TARGET_COMMIT'],
+              'canonical_main_tree': os.environ['TARGET_TREE'],
+              'campaign_evidence_consumed_by_recovery': False,
+              'canonical_domain_mutation': False,
+          }, indent=2, sort_keys=True) + '\n')
+          PY
+          (cd artifacts/exact-main-recovery/payload && sha256sum * > SHA256SUMS.txt)
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+          root = Path('artifacts/exact-main-recovery')
+          out = root / 'commander-playtest-lab-1.23.1-exact-main-ff3f6c3-recovery.zip'
+          with zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for p in sorted((root / 'payload').iterdir()):
+                  z.write(p, arcname=p.name)
+          PY
+          sha256sum artifacts/exact-main-recovery/commander-playtest-lab-1.23.1-exact-main-ff3f6c3-recovery.zip \
+            | tee artifacts/exact-main-recovery/OUTER_SHA256.txt
+
+      - name: Verify recovery independently
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd artifacts/exact-main-recovery/payload && sha256sum -c SHA256SUMS.txt)
+          git bundle verify artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.1-exact-main.bundle
+          rm -rf /tmp/recovery-clone
+          git clone --quiet --branch recovery-exact-main \
+            artifacts/exact-main-recovery/payload/commander-playtest-lab-1.23.1-exact-main.bundle \
+            /tmp/recovery-clone
+          test "$(git -C /tmp/recovery-clone rev-parse HEAD)" = "$TARGET_COMMIT"
+          test "$(git -C /tmp/recovery-clone rev-parse HEAD^{tree})" = "$TARGET_TREE"
+
+      - name: Package immutable fresh freeze
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+          src = Path('artifacts/fresh-freeze')
+          out = Path('artifacts/ROGSHAI_PRE_RUN_FREEZE_EXACT_MAIN_ff3f6c3_EVIDENCE.zip')
+          with zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for p in sorted(src.iterdir()):
+                  z.write(p, arcname=p.name)
+          PY
+          sha256sum artifacts/ROGSHAI_PRE_RUN_FREEZE_EXACT_MAIN_ff3f6c3_EVIDENCE.zip \
+            | tee artifacts/FRESH_FREEZE_OUTER_SHA256.txt
+
+      - name: Upload exact-main recovery
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: exact-main-1.23.1-ff3f6c3-recovery
+          path: artifacts/exact-main-recovery/commander-playtest-lab-1.23.1-exact-main-ff3f6c3-recovery.zip
+          if-no-files-found: error
+
+      - name: Upload fresh freeze readiness
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-post-pr117-fresh-freeze-readiness
+          path: |
+            artifacts/ROGSHAI_PRE_RUN_FREEZE_EXACT_MAIN_ff3f6c3_EVIDENCE.zip
+            artifacts/FRESH_FREEZE_OUTER_SHA256.txt
+          if-no-files-found: error
