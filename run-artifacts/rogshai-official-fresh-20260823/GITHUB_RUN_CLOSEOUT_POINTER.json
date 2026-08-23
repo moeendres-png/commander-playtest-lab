@@ -1,0 +1,26 @@
+{
+  "branch_delete_without_explicit_user_approval": false,
+  "canonical_domain_mutation": false,
+  "canonical_runtime": {
+    "commit": "ff3f6c3d6d0a269c992780c9f0a3ae9aba63f401",
+    "package": "1.23.1",
+    "tree": "cb5ad938eea9145c4dcf15d69e1580cfa68ef6c1"
+  },
+  "critical_diagnostics_opened": false,
+  "decision": "MORE_DECISION_INFORMATION_REQUIRED",
+  "drive_bundle": {
+    "bytes": 1277847,
+    "file_id": "1jQQ9mYFuIlip40yiTAnJ8PbF7jiUfnlO",
+    "inner_sha256s_pass": true,
+    "raw_readback_byte_identical": true,
+    "sha256": "413f411eda08fc640bedf8b7c8b25a4b194ccd4d4f228a97f431f7d3489627d0"
+  },
+  "drive_human_report_file_id": "177G0rHhMsYkFn_ygp9mcHcj1HhUs-1wR",
+  "manifest_hash": "d43525cf6b770a8cd83b53f701993b504a33a9c39aba2ff9630e6c09876713e8",
+  "never_merge": true,
+  "official_winner_declared": false,
+  "run_id": "rogshai-official-fresh-20260823-post-pr117-fidelity-liveness-freeze-v1",
+  "schema_version": "1.0.0",
+  "sealed_holdout_opened": false,
+  "status": "OFFICIAL_FRESH_RUN_CLOSEOUT_NEVER_MERGE"
+}
