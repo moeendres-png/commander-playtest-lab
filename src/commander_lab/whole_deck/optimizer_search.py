@@ -493,9 +493,7 @@ class AdaptiveWholeDeckSearch:
             add_card = context.cards[add_name]
             # Coherence preference is outcome-independent: preserve land/nonland shape first, then
             # prefer role overlap.  A stable hash breaks any remaining ties deterministically.
-            add_roles = frozenset(
-                getattr(getattr(add_card, "profile", None), "roles", ())
-            )
+            add_roles = frozenset(getattr(getattr(add_card, "profile", None), "roles", ()))
             add_is_land = bool(getattr(add_card, "is_basic", False)) or bool(
                 getattr(getattr(add_card, "profile", None), "is_land", False)
             )
@@ -865,9 +863,7 @@ class AdaptiveWholeDeckSearch:
                 {
                     "generation": generation,
                     "candidate_count": len(proposals),
-                    "attempts": attempts
-                    + repair_counts["attempts"]
-                    + coverage_counts["attempts"],
+                    "attempts": attempts + repair_counts["attempts"] + coverage_counts["attempts"],
                     "decision_archive": archive.coverage(),
                     "hypothesis_archive": hypothesis_archive.coverage(),
                     "operator_weights": dict(operator_weights),
@@ -887,9 +883,7 @@ class AdaptiveWholeDeckSearch:
                     },
                     "fidelity_repair_generated": len(repair),
                     "coverage_debt_generated": len(coverage),
-                    "coverage_debt_targets_considered": coverage_counts[
-                        "target_cards_considered"
-                    ],
+                    "coverage_debt_targets_considered": coverage_counts["target_cards_considered"],
                     "coverage_debt_newly_exposed_cards": list(
                         coverage_counts["newly_exposed_cards"]
                     ),
