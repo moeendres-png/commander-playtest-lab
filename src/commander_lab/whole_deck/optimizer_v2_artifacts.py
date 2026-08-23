@@ -17,6 +17,18 @@ from .optimizer_v2 import descriptor_for_variant
 from .search_models import WholeDeckVariant
 
 
+def _int_value(value: object, default: int = 0) -> int:
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    return default
+
+
+def _float_value(value: object, default: float = 0.0) -> float:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    return default
+
+
 def _expanded_diff(
     control: Sequence[str], candidate: Sequence[str]
 ) -> tuple[list[str], list[str], list[dict[str, object]]]:
@@ -41,7 +53,7 @@ def _operator(variant: WholeDeckVariant) -> str:
 
 def _variant_fidelity_tier(assessment: Mapping[str, object]) -> str:
     if assessment.get("pass") is True:
-        if int(assessment.get("changed_slots", 0)) == 0:
+        if _int_value(assessment.get("changed_slots", 0)) == 0:
             return "NO_DELTA_CONTROL"
         return MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE.value
     route = str(assessment.get("required_next_evidence_layer", ""))
@@ -139,7 +151,7 @@ def build_candidate_ledger(
                 "exact_diff_vs_control": diff,
                 "removed_cards": removed,
                 "added_cards": added,
-                "changed_slots": int(assessment.get("changed_slots", 0)),
+                "changed_slots": _int_value(assessment.get("changed_slots", 0)),
                 "parent_variant_id": variant.parent_variant_id,
                 "parent_deck_hash": parent.deck_hash if parent is not None else None,
                 "construction_policy": variant.policy_id.value,
@@ -150,7 +162,7 @@ def build_candidate_ledger(
                 "objective_prior": variant.objective_prior,
                 "qd_descriptor": descriptor.model_dump(mode="json"),
                 "qd_cell": descriptor.cell(evaluator.manifest.qd),
-                "screening_budget": int(first.get("budget", first_eval.get("budget", 0))),
+                "screening_budget": _int_value(first.get("budget", first_eval.get("budget", 0))),
                 "screening_score": first_eval.get("score"),
                 "screening_interval": [
                     first_eval.get("interval_low"),
@@ -178,13 +190,14 @@ def build_candidate_ledger(
                 ),
                 "physical_legality_status": "PASS" if variant.hard_gate.valid else "FAIL",
                 "inventory_status": (
-                    "CHECKED"
-                    if variant.hard_gate.physical_inventory_checked
-                    else "NOT_CHECKED"
+                    "CHECKED" if variant.hard_gate.physical_inventory_checked else "NOT_CHECKED"
                 ),
                 "semantic_status": (
                     "KNOWN"
-                    if not any(str(row.get("tier")) == MechanicsFidelityTier.UNSUPPORTED.value for row in blocked_rows)
+                    if not any(
+                        str(row.get("tier")) == MechanicsFidelityTier.UNSUPPORTED.value
+                        for row in blocked_rows
+                    )
                     else "UNSUPPORTED_OR_UNKNOWN"
                 ),
                 "provenance": dict(variant.provenance),
@@ -207,7 +220,9 @@ def build_routed_hypothesis_queues(
     ledger: Mapping[str, object], *, limit: int = 8
 ) -> dict[str, object]:
     raw_rows = ledger.get("rows", [])
-    rows = [row for row in raw_rows if isinstance(row, Mapping)] if isinstance(raw_rows, list) else []
+    rows = (
+        [row for row in raw_rows if isinstance(row, Mapping)] if isinstance(raw_rows, list) else []
+    )
     groups: dict[str, list[dict[str, object]]] = {
         "TOP_STRUCTURAL_SCREENING_ONLY_HYPOTHESES": [],
         "TOP_TACTICAL_REQUIRED_HYPOTHESES": [],
@@ -231,7 +246,9 @@ def build_routed_hypothesis_queues(
         history = row.get("all_later_budget_history")
         if isinstance(history, list) and history:
             evaluation = history[-1].get("evaluation") if isinstance(history[-1], Mapping) else None
-            if isinstance(evaluation, Mapping) and isinstance(evaluation.get("novelty"), int | float):
+            if isinstance(evaluation, Mapping) and isinstance(
+                evaluation.get("novelty"), int | float
+            ):
                 novelty = float(evaluation["novelty"])
         priority = (
             (float(objective) if isinstance(objective, int | float) else 0.0)
@@ -254,7 +271,12 @@ def build_routed_hypothesis_queues(
             }
         )
     for key, values in groups.items():
-        values.sort(key=lambda row: (-float(row["hypothesis_priority"]), str(row["deck_hash"])))
+        values.sort(
+            key=lambda row: (
+                -_float_value(row.get("hypothesis_priority")),
+                str(row.get("deck_hash")),
+            )
+        )
         groups[key] = values[:limit]
     return {
         "schema_version": "1.0.0",

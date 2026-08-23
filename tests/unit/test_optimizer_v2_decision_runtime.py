@@ -163,9 +163,7 @@ def test_control_only_frontier_returns_no_challenger_without_opening_confirmator
         policy_version="test",
         seed=1,
         objective_prior=0.0,
-        hard_gate=WholeDeckHardGate(
-            valid=True, card_count=1, land_count=1, basic_count=1
-        ),
+        hard_gate=WholeDeckHardGate(valid=True, card_count=1, land_count=1, basic_count=1),
     )
     handoff = SimpleNamespace(
         elites=(

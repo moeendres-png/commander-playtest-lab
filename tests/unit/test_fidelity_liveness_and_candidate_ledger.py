@@ -115,7 +115,9 @@ def test_fidelity_repair_emitter_finds_real_safe_noncontrol_neighbors() -> None:
     )
 
 
-def test_candidate_ledger_is_complete_hash_verified_and_diff_reconstructable(tmp_path: Path) -> None:
+def test_candidate_ledger_is_complete_hash_verified_and_diff_reconstructable(
+    tmp_path: Path,
+) -> None:
     lab = WholeDeckDesignLab(ROOT)
     control = current_control_mainboard(ROOT)
     engine = _control_engine(lab)

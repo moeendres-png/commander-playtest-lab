@@ -123,7 +123,6 @@ def test_confirmatory_artifact_requires_current_semantic_model(tmp_path) -> None
     assert loaded["pass"] is True
 
 
-
 def test_strategic_tags_do_not_themselves_block_simple_capability() -> None:
     tier, reasons = classify_card_semantics(
         "Preordain-like",

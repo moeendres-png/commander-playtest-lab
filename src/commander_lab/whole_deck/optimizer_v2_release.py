@@ -450,9 +450,7 @@ def run_release_search(
             control_deck_hash=manifest.control_deck_hash,
         )
         hypothesis_queues = build_routed_hypothesis_queues(ledger)
-        write_candidate_artifacts(
-            run_path, ledger=ledger, queues=hypothesis_queues
-        )
+        write_candidate_artifacts(run_path, ledger=ledger, queues=hypothesis_queues)
         evaluator_audit = evaluator.audit().model_dump(mode="json")
         search_health_report = {
             "schema_version": "1.0.0",

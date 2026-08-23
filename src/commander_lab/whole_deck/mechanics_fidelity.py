@@ -203,7 +203,9 @@ def _simple_draw_selection_capabilities(
         return None
 
     # Normalize the one connector word used by Preordain.
-    clauses = [piece.strip(" ,") for piece in re.split(r"[.;]|,\s*then\s+", lowered) if piece.strip(" ,")]
+    clauses = [
+        piece.strip(" ,") for piece in re.split(r"[.;]|,\s*then\s+", lowered) if piece.strip(" ,")
+    ]
     capabilities: set[StructuralCapability] = set()
     for clause in clauses:
         if re.fullmatch(r"scry \d+", clause):
@@ -338,10 +340,15 @@ def _classify_card_capabilities(
 
     text = oracle_text or ""
     simple_draw_selection = _simple_draw_selection_capabilities(text) if text else None
-    if simple_draw_selection is not None and role_set and role_set <= {
-        CardRole.DRAW,
-        CardRole.SELECTION,
-    }:
+    if (
+        simple_draw_selection is not None
+        and role_set
+        and role_set
+        <= {
+            CardRole.DRAW,
+            CardRole.SELECTION,
+        }
+    ):
         for capability in simple_draw_selection:
             required.add(capability.value)
             satisfied.add(capability.value)
@@ -403,8 +410,10 @@ def assess_card_fidelity(context: Any, oracle_name: str) -> dict[str, object]:
         }
     profile = card.profile
     facts = _facts_for_context_card(context, oracle_name)
-    oracle_text = facts.get("oracle_text") if isinstance(facts.get("oracle_text"), str) else None
-    type_line = facts.get("type_line") if isinstance(facts.get("type_line"), str) else None
+    raw_oracle_text = facts.get("oracle_text")
+    raw_type_line = facts.get("type_line")
+    oracle_text = raw_oracle_text if isinstance(raw_oracle_text, str) else None
+    type_line = raw_type_line if isinstance(raw_type_line, str) else None
     classified = _classify_card_capabilities(
         oracle_name,
         semantic_state=card.effective_semantic_state,
@@ -468,6 +477,12 @@ def _required_next_evidence(blocked: Sequence[Mapping[str, object]]) -> str:
     return "STRUCTURAL_CONFIRMATORY_ALLOWED"
 
 
+def _quantity_value(value: object) -> int:
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return 0
+
+
 def assess_variant_mechanics(
     context: Any,
     *,
@@ -499,7 +514,9 @@ def assess_variant_mechanics(
         "blocked_cards": blocked,
         "blocked_reason_counts": dict(sorted(blocked_reasons.items())),
         "tier_counts": dict(sorted(tier_counts.items())),
-        "fidelity_distance_to_safe": sum(int(row.get("quantity", 1)) for row in blocked),
+        "fidelity_distance_to_safe": sum(
+            _quantity_value(row.get("quantity", 1)) for row in blocked
+        ),
         "required_next_evidence_layer": _required_next_evidence(blocked),
         "pass": not blocked,
         "decision_safe_tiers": sorted(tier.value for tier in DECISION_SAFE_TIERS),
@@ -661,6 +678,7 @@ def build_fidelity_liveness_audit(
         ),
     }
 
+
 def _mapping_number(mapping: Mapping[str, object], key: str, default: float) -> float:
     value = mapping.get(key, default)
     if isinstance(value, (int, float)) and not isinstance(value, bool):
@@ -763,8 +781,12 @@ def assess_frontier_mechanics(root: str | Path, frontier_path: str | Path) -> di
                 "external_rules_cards": sorted(EXTERNAL_RULES_REQUIRED_CARDS),
                 "tactical_roles": sorted(role.value for role in TACTICAL_ROLES),
                 "external_rules_roles": sorted(role.value for role in EXTERNAL_RULES_ROLES),
-                "default_screening_only_roles": sorted(role.value for role in DEFAULT_SCREENING_ONLY_ROLES),
-                "strategic_abstraction_mechanics": sorted(tag.value for tag in STRATEGIC_ABSTRACTION_MECHANICS),
+                "default_screening_only_roles": sorted(
+                    role.value for role in DEFAULT_SCREENING_ONLY_ROLES
+                ),
+                "strategic_abstraction_mechanics": sorted(
+                    tag.value for tag in STRATEGIC_ABSTRACTION_MECHANICS
+                ),
                 "capabilities": sorted(cap.value for cap in StructuralCapability),
             }
         ),

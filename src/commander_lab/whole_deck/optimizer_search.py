@@ -16,8 +16,8 @@ from commander_lab.pod_scheduling import PodScenario
 
 from .campaign import run_balanced_paired_campaign
 from .lab_context import EnrichedWholeDeckSearchEngine
-from .models import PolicyId
 from .mechanics_fidelity import assess_card_fidelity, assess_variant_mechanics
+from .models import PolicyId
 from .optimizer_advancement import CandidatePairedEvidence, merge_pairing_conditions
 from .optimizer_v2 import (
     EvidenceContext,
@@ -92,10 +92,7 @@ class HypothesisCoverageArchive:
 
     def coverage(self) -> dict[str, object]:
         variants = self.variants()
-        qd_cells = {
-            descriptor_for_variant(row).cell(self.config)
-            for row in variants
-        }
+        qd_cells = {descriptor_for_variant(row).cell(self.config) for row in variants}
         return {
             "archive_role": "HYPOTHESIS_GENERATION_COVERAGE_ONLY",
             "outcome_ranked": False,
@@ -104,8 +101,7 @@ class HypothesisCoverageArchive:
             "archive_size": len(variants),
             "qd_cells": sorted(qd_cells),
             "buckets": {
-                key: [row.deck_hash for row in self._buckets[key]]
-                for key in sorted(self._buckets)
+                key: [row.deck_hash for row in self._buckets[key]] for key in sorted(self._buckets)
             },
         }
 
@@ -123,9 +119,7 @@ def _evaluator_context_and_control(
     if context is None or cards is None:
         return context, None
     return context, tuple(
-        str(card.oracle_name)
-        for card in cards
-        if str(card.oracle_name) not in commander_names
+        str(card.oracle_name) for card in cards if str(card.oracle_name) not in commander_names
     )
 
 
@@ -151,6 +145,13 @@ def _variant_fidelity_assessment(
         candidate=variant.mainboard,
         deck_hash=variant.deck_hash,
     )
+
+
+def _nonnegative_int(value: object, default: int = 0) -> int:
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return default
+
 
 def _weighted_choice(rng: random.Random, weights: Mapping[str, float]) -> str:
     ordered = sorted(weights)
@@ -504,8 +505,7 @@ class AdaptiveWholeDeckSearch:
             (
                 row
                 for row in legal_initial
-                if row.policy_id == PolicyId.CURRENT_CONTROL
-                and row.parent_variant_id is None
+                if row.policy_id == PolicyId.CURRENT_CONTROL and row.parent_variant_id is None
             ),
             None,
         )
@@ -529,12 +529,14 @@ class AdaptiveWholeDeckSearch:
                 limit=repair_limit,
                 seen=seen,
             )
-            rejection_counts.update({
-                "raw_proposals_attempted": repair_counts["attempts"],
-                "noop_proposals_rejected": repair_counts["noop"],
-                "duplicate_proposals_rejected": repair_counts["duplicate"],
-                "illegal_proposals_rejected": repair_counts["illegal"],
-            })
+            rejection_counts.update(
+                {
+                    "raw_proposals_attempted": repair_counts["attempts"],
+                    "noop_proposals_rejected": repair_counts["noop"],
+                    "duplicate_proposals_rejected": repair_counts["duplicate"],
+                    "illegal_proposals_rejected": repair_counts["illegal"],
+                }
+            )
             proposals: list[WholeDeckVariant] = list(repair)
             proposal_metadata: dict[str, tuple[str, str, str, str]] = {}
             for proposal in repair:
@@ -633,7 +635,10 @@ class AdaptiveWholeDeckSearch:
                     continue
                 parent_id, operator_name, policy_id, _parent_source = metadata
                 parent_variant = variants_by_id.get(parent_id)
-                if parent_variant is None or self._assessment(parent_variant).get("pass") is not True:
+                if (
+                    parent_variant is None
+                    or self._assessment(parent_variant).get("pass") is not True
+                ):
                     continue
                 parent_eval = evaluations_by_variant.get(parent_id)
                 if parent_eval is None:
@@ -662,7 +667,8 @@ class AdaptiveWholeDeckSearch:
             )
             generation_assessments = [self._assessment(row) for row in proposals]
             distances = [
-                int(row.get("fidelity_distance_to_safe", 0)) for row in generation_assessments
+                _nonnegative_int(row.get("fidelity_distance_to_safe", 0))
+                for row in generation_assessments
             ]
             history.append(
                 {
@@ -679,7 +685,9 @@ class AdaptiveWholeDeckSearch:
                     "policy_rewards": {
                         key: list(values) for key, values in sorted(policy_rewards.items())
                     },
-                    "safe_promotions": sum(row.get("pass") is True for row in generation_assessments),
+                    "safe_promotions": sum(
+                        row.get("pass") is True for row in generation_assessments
+                    ),
                     "fidelity_distance_to_safe": {
                         "minimum": min(distances) if distances else None,
                         "mean": fmean(distances) if distances else None,
@@ -702,7 +710,9 @@ class AdaptiveWholeDeckSearch:
             str(row.get("required_next_evidence_layer", "UNKNOWN"))
             for row in assessment_by_hash.values()
         )
-        decision_safe_generated = sum(row.get("pass") is True for row in assessment_by_hash.values())
+        decision_safe_generated = sum(
+            row.get("pass") is True for row in assessment_by_hash.values()
+        )
         policies_seen = sorted({row.policy_id.value for row in seen.values()})
         operators_seen = sorted({self._operator_label(row) for row in seen.values()})
         all_cards = {name for row in seen.values() for name in row.mainboard}
@@ -719,7 +729,17 @@ class AdaptiveWholeDeckSearch:
                 package_ids.update(str(key) for key in packages)
             roles = variant.feature_vector.get("role_strengths", {})
             if isinstance(roles, Mapping):
-                role_profiles.add(repr(tuple(sorted((str(k), float(v)) for k, v in roles.items() if isinstance(v, int | float)))))
+                role_profiles.add(
+                    repr(
+                        tuple(
+                            sorted(
+                                (str(k), float(v))
+                                for k, v in roles.items()
+                                if isinstance(v, int | float)
+                            )
+                        )
+                    )
+                )
             descriptor = descriptor_for_variant(variant)
             mana_values.add(round(descriptor.average_nonland_mv, 3))
             land_counts.add(descriptor.land_count)
@@ -735,7 +755,7 @@ class AdaptiveWholeDeckSearch:
         }
         noncontrol_decision = {value for value in decision_hashes if value != control_hash}
         health_flags: list[str] = []
-        if int(hypothesis_coverage.get("occupied_qd_cells", 0)) <= 1 and len(seen) > 1:
+        if _nonnegative_int(hypothesis_coverage.get("occupied_qd_cells", 0)) <= 1 and len(seen) > 1:
             health_flags.append("SEARCH_COLLAPSE")
         if not noncontrol_decision:
             health_flags.extend(["DECISION_LANE_EMPTY", "FIDELITY_LIVENESS_LIMIT"])
@@ -760,7 +780,9 @@ class AdaptiveWholeDeckSearch:
             "operator_coverage": operators_seen,
             "operator_coverage_count": len(operators_seen),
             "candidate_card_exposure": len(all_cards),
-            "candidate_card_exposure_fraction": (len(all_cards) / pool_count if pool_count else None),
+            "candidate_card_exposure_fraction": (
+                len(all_cards) / pool_count if pool_count else None
+            ),
             "package_coverage": sorted(package_ids),
             "package_coverage_count": len(package_ids),
             "mana_curve_diversity": len(mana_values),
@@ -790,9 +812,7 @@ class AdaptiveWholeDeckSearch:
             },
             "decision_parent_count": len(parent_hashes["decision_lane"]),
             "hypothesis_generation_parent_count": len(parent_hashes["hypothesis_lane"]),
-            "parent_source_distribution": {
-                key: len(value) for key, value in parent_hashes.items()
-            },
+            "parent_source_distribution": {key: len(value) for key, value in parent_hashes.items()},
             "adaptive_reward_observation_count": adaptive_reward_observations,
             "adaptive_reward_changed_weights": feedback_changed,
             "total_structural_scenario_pairs_requested": total_pairs,

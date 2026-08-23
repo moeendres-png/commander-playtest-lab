@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.head_ref || github.ref }}
@@ -18,140 +18,6 @@ env:
   PYTHONHASHSEED: "0"
 
 jobs:
-  materialize-pr117-quality-fix:
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 117 }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: fix/post-official-fidelity-search-liveness-20260823
-          fetch-depth: 0
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
-        with:
-          python-version: "3.12"
-      - name: Install project and quality tools
-        run: python -m pip install -e '.[dev,api,openai]'
-      - name: Apply strict typing fixes
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-
-          p = Path('src/commander_lab/whole_deck/mechanics_fidelity.py')
-          s = p.read_text()
-          s = s.replace(
-              '    facts = _facts_for_context_card(context, oracle_name)\n'
-              '    oracle_text = facts.get("oracle_text") if isinstance(facts.get("oracle_text"), str) else None\n'
-              '    type_line = facts.get("type_line") if isinstance(facts.get("type_line"), str) else None\n',
-              '    facts = _facts_for_context_card(context, oracle_name)\n'
-              '    raw_oracle_text = facts.get("oracle_text")\n'
-              '    raw_type_line = facts.get("type_line")\n'
-              '    oracle_text = raw_oracle_text if isinstance(raw_oracle_text, str) else None\n'
-              '    type_line = raw_type_line if isinstance(raw_type_line, str) else None\n',
-          )
-          s = s.replace(
-              '        "fidelity_distance_to_safe": sum(int(row.get("quantity", 1)) for row in blocked),\n',
-              '        "fidelity_distance_to_safe": sum(\n'
-              '            _quantity_value(row.get("quantity", 1)) for row in blocked\n'
-              '        ),\n',
-          )
-          s = s.replace(
-              '\ndef assess_variant_mechanics(\n',
-              '\ndef _quantity_value(value: object) -> int:\n'
-              '    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:\n'
-              '        return value\n'
-              '    return 0\n\n\n'
-              'def assess_variant_mechanics(\n',
-          )
-          p.write_text(s)
-
-          p = Path('src/commander_lab/whole_deck/optimizer_search.py')
-          s = p.read_text()
-          s = s.replace(
-              'from .lab_context import EnrichedWholeDeckSearchEngine\n'
-              'from .models import PolicyId\n'
-              'from .mechanics_fidelity import assess_card_fidelity, assess_variant_mechanics\n',
-              'from .lab_context import EnrichedWholeDeckSearchEngine\n'
-              'from .mechanics_fidelity import assess_card_fidelity, assess_variant_mechanics\n'
-              'from .models import PolicyId\n',
-          )
-          marker = '\ndef _weighted_choice(rng: random.Random, weights: Mapping[str, float]) -> str:\n'
-          helper = (
-              '\ndef _nonnegative_int(value: object, default: int = 0) -> int:\n'
-              '    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:\n'
-              '        return value\n'
-              '    return default\n\n\n'
-              'def _weighted_choice(rng: random.Random, weights: Mapping[str, float]) -> str:\n'
-          )
-          s = s.replace(marker, helper)
-          s = s.replace(
-              '            distances = [\n'
-              '                int(row.get("fidelity_distance_to_safe", 0)) for row in generation_assessments\n'
-              '            ]\n',
-              '            distances = [\n'
-              '                _nonnegative_int(row.get("fidelity_distance_to_safe", 0))\n'
-              '                for row in generation_assessments\n'
-              '            ]\n',
-          )
-          s = s.replace(
-              '        if int(hypothesis_coverage.get("occupied_qd_cells", 0)) <= 1 and len(seen) > 1:\n',
-              '        if _nonnegative_int(hypothesis_coverage.get("occupied_qd_cells", 0)) <= 1 and len(seen) > 1:\n',
-          )
-          p.write_text(s)
-
-          p = Path('src/commander_lab/whole_deck/optimizer_v2_artifacts.py')
-          s = p.read_text()
-          marker = '\ndef _expanded_diff(\n'
-          helper = (
-              '\ndef _int_value(value: object, default: int = 0) -> int:\n'
-              '    if isinstance(value, int) and not isinstance(value, bool):\n'
-              '        return value\n'
-              '    return default\n\n\n'
-              'def _float_value(value: object, default: float = 0.0) -> float:\n'
-              '    if isinstance(value, (int, float)) and not isinstance(value, bool):\n'
-              '        return float(value)\n'
-              '    return default\n\n\n'
-              'def _expanded_diff(\n'
-          )
-          s = s.replace(marker, helper)
-          s = s.replace('        if int(assessment.get("changed_slots", 0)) == 0:\n', '        if _int_value(assessment.get("changed_slots", 0)) == 0:\n')
-          s = s.replace('                "changed_slots": int(assessment.get("changed_slots", 0)),\n', '                "changed_slots": _int_value(assessment.get("changed_slots", 0)),\n')
-          s = s.replace('                "screening_budget": int(first.get("budget", first_eval.get("budget", 0))),\n', '                "screening_budget": _int_value(first.get("budget", first_eval.get("budget", 0))),\n')
-          s = s.replace(
-              '        values.sort(key=lambda row: (-float(row["hypothesis_priority"]), str(row["deck_hash"])))\n',
-              '        values.sort(\n'
-              '            key=lambda row: (\n'
-              '                -_float_value(row.get("hypothesis_priority")), str(row.get("deck_hash"))\n'
-              '            )\n'
-              '        )\n',
-          )
-          p.write_text(s)
-          PY
-      - name: Canonical Ruff format and strict checks
-        run: |
-          ruff check . --fix
-          ruff format .
-          ruff check .
-          ruff format --check .
-          mypy src/commander_lab
-      - name: Focused regressions
-        run: pytest -q tests/unit/test_mechanics_fidelity.py tests/unit/test_optimizer_search_fidelity_routing.py tests/unit/test_fidelity_liveness_and_candidate_ledger.py tests/unit/test_optimizer_v2_decision_runtime.py
-      - name: Remove bootstrap surfaces and commit productive fixes
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f .github/workflows/pr117-ci-fix-materialize.yml
-          git checkout origin/main -- .github/workflows/ci.yml
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git diff --cached --check
-          test -n "$(git diff --cached --name-only)"
-          git commit -m "Fix PR117 strict quality diagnostics"
-          git push origin HEAD:fix/post-official-fidelity-search-liveness-20260823
-
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -200,6 +66,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           matches="$(
             git grep -nIE \
               -e '[s]k-[A-Za-z0-9_-]{20,}' \
@@ -209,6 +76,7 @@ jobs:
               ':(exclude)artifacts/**' \
               || true
           )"
+
           if [[ -n "$matches" ]]; then
             matches="$(
               printf '%s\n' "$matches" |
@@ -216,10 +84,12 @@ jobs:
                 true
             )"
           fi
+
           if [[ -n "$matches" ]]; then
             echo "Potential secret material found. Content suppressed."
             exit 1
           fi
+
           echo "No secret patterns found."
       - name: Build wheel
         if: ${{ success() || failure() }}
