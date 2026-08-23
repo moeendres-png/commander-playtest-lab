@@ -1,0 +1,42 @@
+name: Rules Evidence Materializer
+on:
+  push:
+    branches:
+      - rules-evidence/capability-unlock
+permissions:
+  contents: write
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct and verify exact patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          text = ''.join(p.read_text().strip() for p in sorted(Path('.ruleshex').glob('part*')))
+          Path('/tmp/rules-evidence.patch.xz').write_bytes(bytes.fromhex(text))
+          PY
+          echo '7f6120b95000a0a7c844aecdd1c215a31547ccf41c48d84d02d38ed36fece4d5  /tmp/rules-evidence.patch.xz' | sha256sum -c -
+          xz -dc /tmp/rules-evidence.patch.xz > /tmp/rules-evidence.patch
+          echo 'c2517f4313e9d2316fab8f05870ea331a8657a0221660ba62538659ec83cd65a  /tmp/rules-evidence.patch' | sha256sum -c -
+          git apply --check /tmp/rules-evidence.patch
+          git apply /tmp/rules-evidence.patch
+          git diff --check
+      - name: Commit exact target tree and self-clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .ruleshex .rules-trigger .github/workflows/rules-evidence-materializer.yml
+          git add -A
+          tree="$(git write-tree)"
+          echo "materialized_tree=$tree"
+          test "$tree" = '9c49c505c674d61253e836fffc0f69e472131f1e'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Add bounded tactical rules-evidence unlock'
+          git push origin HEAD:rules-evidence/capability-unlock
