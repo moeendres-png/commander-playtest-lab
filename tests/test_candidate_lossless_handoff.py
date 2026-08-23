@@ -8,6 +8,7 @@ from hypothesis import given, settings, strategies as st
 from pydantic import ValidationError
 
 from commander_lab.candidates.contracts import (
+    OUR_PILOT_TARGET_DECISION_POLICY,
     STRUCTURAL_SIMULATION_DECISION_AUTHORITY,
     TACTICAL_DECISION_AUTHORITY,
     XMAGE_TARGET_RULES_AUTHORITY,
@@ -36,6 +37,7 @@ def _card(name: str, *, quantity: int = 1, identity: str = "") -> CardHardValidi
         target_available_quantity=quantity,
         color_identity=frozenset(identity),
         commander_legality="legal",
+        physically_owned=True,
     )
 
 
@@ -62,6 +64,7 @@ def _candidate(
     *,
     mainboard: dict[str, int] | None = None,
     metadata: dict[str, Any] | None = None,
+    design_policy: str | None = None,
 ) -> DeckCandidate:
     return DeckCandidate(
         candidate_id=candidate_id,
@@ -69,6 +72,7 @@ def _candidate(
         commander_names=COMMANDERS,
         mainboard=mainboard or _base_mainboard(),
         metadata=metadata or {},
+        design_policy=design_policy,
     )
 
 
@@ -89,43 +93,62 @@ def _candidate_set(*candidates: DeckCandidate) -> DeckCandidateSet:
 
 def _prepare(*candidates: DeckCandidate):
     normalized, report = validate_candidate_set(_candidate_set(*candidates), _context())
-    return normalized, report, build_simulation_queue(normalized, report)
+    queue, invariant = build_simulation_queue(normalized, report)
+    return normalized, report, queue, invariant
 
 
 @pytest.mark.parametrize(
     ("metadata_key", "metadata_value"),
     [
         ("objective_prior", -1_000_000.0),
+        ("contextual_card_utility", -1_000_000.0),
         ("meta_distance", 1_000_000.0),
+        ("mana_soft_score", -1_000_000.0),
+        ("package_bonus", -1_000_000.0),
         ("structural_score", -9999.0),
+        ("structural_decision_safe", False),
         ("fidelity_tier", "UNSUPPORTED"),
         ("external_routing", "EXTERNAL_RULES_REQUIRED"),
         ("tactical_routing", "TACTICAL_REQUIRED"),
         ("screening_only", True),
         ("qd_archive_membership", False),
+        ("elite_membership", False),
+        ("frontier_membership", False),
         ("finalist_membership", False),
         ("current_distance", 1.0),
+        ("coverage_debt_status", "NOT_SELECTED"),
     ],
 )
-def test_heuristic_and_fidelity_metadata_never_blocks_queue(
+def test_non_admission_metadata_never_blocks_gameplay_queue(
     metadata_key: str,
     metadata_value: object,
 ) -> None:
-    normalized, report, (queue, invariant) = _prepare(
+    normalized, report, queue, invariant = _prepare(
         _candidate("candidate-a", metadata={metadata_key: metadata_value})
     )
     assert normalized.candidates[0].hard_validity == "PASS"
     assert report.hard_valid_unique_count == 1
     assert queue.output_simulation_queue_count == 1
     assert queue.candidates[0].candidate_id == "candidate-a"
+    assert queue.candidates[0].simulation_required is True
+    assert queue.candidates[0].pre_simulation_elimination_reason is None
     assert invariant.no_pre_simulation_heuristic_can_remove is True
+
+
+def test_policy_is_description_not_admission_gate() -> None:
+    _normalized, report, queue, _invariant = _prepare(
+        _candidate("policy-mismatch", design_policy="INTENTIONALLY_NONSTANDARD_POLICY")
+    )
+    assert report.hard_valid_unique_count == 1
+    assert queue.candidates[0].design_policy == "INTENTIONALLY_NONSTANDARD_POLICY"
 
 
 def test_unusual_land_count_remains_if_hard_valid() -> None:
     board = {"Plains": 40}
     board.update({f"Card {index:03d}": 1 for index in range(58)})
-    candidate = _candidate("low-convention-land-shape", mainboard=board)
-    candidate = candidate.model_copy(update={"land_count": 40})
+    candidate = _candidate("unusual-land-shape", mainboard=board).model_copy(
+        update={"land_count": 40}
+    )
     normalized, report = validate_candidate_set(_candidate_set(candidate), _context())
     queue, _invariant = build_simulation_queue(normalized, report)
     assert report.hard_valid_unique_count == 1
@@ -147,7 +170,26 @@ def test_hard_invalid_deck_is_blocked() -> None:
     assert invariant.lossless_handoff is True
 
 
-def test_identical_duplicate_is_deduplicated_with_provenance() -> None:
+def test_physical_unavailability_is_a_hard_gate() -> None:
+    unavailable = _card("Card 000")
+    unavailable = CardHardValidityRecord(
+        oracle_name=unavailable.oracle_name,
+        owned_quantity=0,
+        target_available_quantity=0,
+        color_identity=unavailable.color_identity,
+        commander_legality=unavailable.commander_legality,
+        physically_owned=False,
+    )
+    normalized, report = validate_candidate_set(
+        _candidate_set(_candidate("physical-invalid")),
+        _context({"Card 000": unavailable}),
+    )
+    queue, _invariant = build_simulation_queue(normalized, report)
+    assert "PHYSICAL_AVAILABILITY_INVALID" in report.results[0].hard_validity_reasons
+    assert queue.output_simulation_queue_count == 0
+
+
+def test_identical_duplicate_is_deduplicated_with_complete_provenance() -> None:
     normalized, report = validate_candidate_set(
         _candidate_set(_candidate("source-a"), _candidate("source-b")),
         _context(),
@@ -169,6 +211,7 @@ def test_structural_and_tactical_have_no_decision_authority() -> None:
     assert STRUCTURAL_SIMULATION_DECISION_AUTHORITY is False
     assert TACTICAL_DECISION_AUTHORITY is False
     assert XMAGE_TARGET_RULES_AUTHORITY is True
+    assert OUR_PILOT_TARGET_DECISION_POLICY is True
 
 
 def test_future_xmage_contract_is_strictly_four_player() -> None:
@@ -176,10 +219,10 @@ def test_future_xmage_contract_is_strictly_four_player() -> None:
         candidate_id="candidate-a",
         deck_hash="a" * 64,
         opponent_deck_ids=("opp-1", "opp-2", "opp-3"),
-        seat=0,
+        seat=1,
         scenario_id="scenario-a",
         seed=1,
-        xmage_commit="future-commit",
+        xmage_commit="b" * 40,
         bridge_version="bridge-v1",
         pilot_identity="our-pilot",
         pilot_version="pilot-v1",
@@ -192,10 +235,10 @@ def test_future_xmage_contract_is_strictly_four_player() -> None:
                 "deck_hash": "a" * 64,
                 "opponent_deck_ids": ["opp-1", "opp-2", "opp-3"],
                 "player_count": 3,
-                "seat": 0,
+                "seat": 1,
                 "scenario_id": "scenario-a",
                 "seed": 1,
-                "xmage_commit": "future-commit",
+                "xmage_commit": "b" * 40,
                 "bridge_version": "bridge-v1",
                 "pilot_identity": "our-pilot",
                 "pilot_version": "pilot-v1",
@@ -211,7 +254,7 @@ def test_future_xmage_contract_is_strictly_four_player() -> None:
     ),
     duplicate_sources=st.integers(min_value=0, max_value=8),
 )
-def test_property_simulation_queue_equals_unique_hard_valid_candidates(
+def test_property_queue_equals_unique_hard_valid_candidates(
     variant_indexes: list[int],
     duplicate_sources: int,
 ) -> None:
@@ -227,7 +270,7 @@ def test_property_simulation_queue_equals_unique_hard_valid_candidates(
                 metadata={
                     "objective_prior": -float(ordinal),
                     "meta_distance": float(ordinal) * 1000,
-                    "fidelity_tier": "UNSUPPORTED" if ordinal % 2 else "STRUCTURAL",
+                    "fidelity_tier": "UNSUPPORTED",
                     "qd_archive_membership": False,
                 },
             )
@@ -242,10 +285,9 @@ def test_property_simulation_queue_equals_unique_hard_valid_candidates(
         for row in report.results
         if row.hard_validity == "PASS" and not row.duplicate_identical_deck
     }
-    queued_ids = {row.candidate_id for row in queue.candidates}
-    assert queued_ids == expected_ids
+    assert {row.candidate_id for row in queue.candidates} == expected_ids
     assert queue.output_simulation_queue_count == report.hard_valid_unique_count
-    assert invariant.lossless_handoff is True
+    assert invariant.every_hard_valid_unique_candidate_queued is True
 
 
 def test_sixty_hard_valid_unique_candidates_losslessly_queue() -> None:
