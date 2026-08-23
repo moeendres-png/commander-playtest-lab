@@ -1,3 +1,9 @@
+## 1.23.3 - 2026-08-23
+
+- Added a bounded 4-player Tactical default-timing primitive for ordinary instant/sorcery casting windows; this enables targeted evidence for literal instant draw/scry candidates without promoting them to Structural or external-rules evidence.
+- Added question-specific Tactical candidate capability routing for exact literal instant draw/scry deltas, preserving all other Rules-Evidence blockers fail-closed.
+- Added Rules-Evidence readiness artifacts and historical routing replay for the consumed official RogShai candidate ledger.
+
 ## 1.23.2 - 2026-08-23
 
 - Fixed a Structural decision-fidelity overclaim: literal scry/draw shapes now carry verified runtime parameters; scry no longer draws to hand, scry depth is preserved, and instant-speed draw/selection routes to Tactical evidence.
