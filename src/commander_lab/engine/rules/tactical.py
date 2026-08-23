@@ -36,6 +36,8 @@ from commander_lab.storage.hashing import sha256_value
 
 from .base import RulesEngineAdapter, RulesEngineError
 
+TACTICAL_RULES_VERSION = "tactical-0.8.1"
+
 
 class TacticalRuleError(RulesEngineError):
     pass
@@ -129,6 +131,7 @@ class TacticalRuleOracle:
             "stack_lifo": self._stack_lifo,
             "zero_toughness": self._zero_toughness,
             "token_zone_change": self._token_zone_change,
+            "basic_spell_timing": self._basic_spell_timing,
         }
 
     @property
@@ -158,8 +161,49 @@ class TacticalRuleOracle:
             observed={key: observed.get(key) for key in spec.comparison_keys},
             comparison_keys=spec.comparison_keys,
             mismatches=mismatches,
-            backend_version="tactical-0.8.0",
+            backend_version=TACTICAL_RULES_VERSION,
         )
+
+    @staticmethod
+    def _basic_spell_timing(s: dict[str, Any]) -> dict[str, Any]:
+        """Bounded default timing legality for ordinary instant/sorcery spells.
+
+        This primitive intentionally models only the default timing permission. It does not model
+        card-specific timing restrictions, Flash, split second, static effects that change casting
+        permissions, targets, modes, mana generation, or strategic value of holding mana open.
+        """
+
+        spell_speed = str(s.get("spell_speed", "")).strip().lower()
+        phase = str(s.get("phase", "")).strip().lower()
+        has_priority = _bool(s.get("has_priority"))
+        can_pay_cost = _bool(s.get("can_pay_cost", True))
+        actor_is_active = _bool(s.get("actor_is_active"))
+        stack_empty = _bool(s.get("stack_empty", True))
+        player_count = int(s.get("player_count", 4))
+        if player_count != 4:
+            raise TacticalRuleError(
+                "basic_spell_timing decision fixture requires exactly 4 players"
+            )
+        if spell_speed not in {"instant", "sorcery"}:
+            raise TacticalRuleError("basic_spell_timing supports only instant or sorcery")
+
+        if not has_priority or not can_pay_cost:
+            can_cast = False
+        elif spell_speed == "instant":
+            can_cast = True
+        else:
+            can_cast = (
+                actor_is_active and phase in {"precombat_main", "postcombat_main"} and stack_empty
+            )
+
+        return {
+            "can_cast": can_cast,
+            "spell_speed": spell_speed,
+            "player_count": player_count,
+            "requires_priority": True,
+            "requires_active_main_phase": spell_speed == "sorcery",
+            "requires_empty_stack": spell_speed == "sorcery",
+        }
 
     @staticmethod
     def _commander_tax(s: dict[str, Any]) -> dict[str, Any]:
@@ -729,7 +773,7 @@ class TacticalRulesAdapter(RulesEngineAdapter):
         return RulesEngineProbe(
             backend=RulesBackend.TACTICAL,
             availability=RulesEngineAvailability.AVAILABLE,
-            backend_version="tactical-0.8.0",
+            backend_version=TACTICAL_RULES_VERSION,
             capabilities=RulesEngineCapabilities(
                 deck_loading=True,
                 commander_games=True,
@@ -907,7 +951,7 @@ class TacticalRulesAdapter(RulesEngineAdapter):
             final_state=session.state,
             normalized_result=normalized,
             validation_level=ValidationLevel.TACTICAL_ORACLE,
-            backend_version="tactical-0.8.0",
+            backend_version=TACTICAL_RULES_VERSION,
             warnings=("bounded tactical oracle; not a complete rules engine",),
         )
 

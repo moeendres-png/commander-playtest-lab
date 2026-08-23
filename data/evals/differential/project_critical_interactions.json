@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "catalog_name": "phase8_project_critical_interactions",
-  "interaction_count": 73,
+  "interaction_count": 75,
   "interactions": [
     {
       "interaction_id": "commander_tax_third_cast",
@@ -2060,6 +2060,72 @@
       "preferred_backend": "either",
       "source_notes": [
         "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "rogshai_opt_default_instant_timing_4p",
+      "description": "Opt is castable under default instant timing on an opponent turn when the actor has priority and can pay its cost.",
+      "category": "timing",
+      "cards": [
+        "Opt"
+      ],
+      "rule": "basic_spell_timing",
+      "input_state": {
+        "spell_speed": "instant",
+        "player_count": 4,
+        "phase": "postcombat_main",
+        "actor_is_active": false,
+        "has_priority": true,
+        "stack_empty": false,
+        "can_pay_cost": true
+      },
+      "expected_normalized": {
+        "can_cast": true,
+        "spell_speed": "instant",
+        "player_count": 4
+      },
+      "comparison_keys": [
+        "can_cast",
+        "spell_speed",
+        "player_count"
+      ],
+      "critical": true,
+      "preferred_backend": "tactical",
+      "source_notes": [
+        "Bounded default-timing fixture only; does not model card-specific restrictions, targets, mana-generation choices, or strategic value of holding mana open."
+      ]
+    },
+    {
+      "interaction_id": "rogshai_preordain_default_sorcery_timing_4p_negative",
+      "description": "Preordain is not castable under default sorcery timing on an opponent turn even when the actor has priority.",
+      "category": "timing",
+      "cards": [
+        "Preordain"
+      ],
+      "rule": "basic_spell_timing",
+      "input_state": {
+        "spell_speed": "sorcery",
+        "player_count": 4,
+        "phase": "postcombat_main",
+        "actor_is_active": false,
+        "has_priority": true,
+        "stack_empty": true,
+        "can_pay_cost": true
+      },
+      "expected_normalized": {
+        "can_cast": false,
+        "spell_speed": "sorcery",
+        "player_count": 4
+      },
+      "comparison_keys": [
+        "can_cast",
+        "spell_speed",
+        "player_count"
+      ],
+      "critical": true,
+      "preferred_backend": "tactical",
+      "source_notes": [
+        "Negative-conformance companion for the bounded default-timing fixture."
       ]
     }
   ]

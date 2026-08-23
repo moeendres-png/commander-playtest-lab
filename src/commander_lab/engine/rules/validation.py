@@ -26,7 +26,7 @@ from . import (
     registry as rules_registry,
 )
 
-PHASE8_ENGINE_VERSION = "tactical-0.8.0"
+PHASE8_ENGINE_VERSION = "tactical-0.8.1"
 
 
 def _catalog_card_names(root: Path) -> list[str]:
