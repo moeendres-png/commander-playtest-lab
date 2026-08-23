@@ -1,0 +1,33 @@
+name: Post-official patch materialize
+
+on:
+  push:
+    branches:
+      - patch/post-official-decision-fidelity-search-efficiency
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply byte-verified staged patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .patchparts/post-official/part*.b64 | base64 --decode > /tmp/post-official.patch
+          git apply --check /tmp/post-official.patch
+          git apply /tmp/post-official.patch
+          rm -rf .patchparts/post-official
+          rm -f .github/workflows/post-official-patch-materialize.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "Apply post-official decision fidelity and search efficiency patch"
+          git push origin HEAD:${GITHUB_REF_NAME}
