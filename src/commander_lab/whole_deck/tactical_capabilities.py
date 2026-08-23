@@ -21,8 +21,14 @@ def _supports_basic_literal_instant_timing(context: Any, row: dict[str, object])
     profile = card.profile
     return (
         getattr(profile, "timing_window", None) == "instant"
-        and (getattr(profile, "draw_count", None) is not None or getattr(profile, "scry_depth", None) is not None)
-        and not (getattr(profile, "draw_count", None) is None and getattr(profile, "scry_depth", None) is None)
+        and (
+            getattr(profile, "draw_count", None) is not None
+            or getattr(profile, "scry_depth", None) is not None
+        )
+        and not (
+            getattr(profile, "draw_count", None) is None
+            and getattr(profile, "scry_depth", None) is None
+        )
     )
 
 

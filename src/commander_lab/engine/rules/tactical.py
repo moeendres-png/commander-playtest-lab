@@ -36,7 +36,6 @@ from commander_lab.storage.hashing import sha256_value
 
 from .base import RulesEngineAdapter, RulesEngineError
 
-
 TACTICAL_RULES_VERSION = "tactical-0.8.1"
 
 
@@ -182,7 +181,9 @@ class TacticalRuleOracle:
         stack_empty = _bool(s.get("stack_empty", True))
         player_count = int(s.get("player_count", 4))
         if player_count != 4:
-            raise TacticalRuleError("basic_spell_timing decision fixture requires exactly 4 players")
+            raise TacticalRuleError(
+                "basic_spell_timing decision fixture requires exactly 4 players"
+            )
         if spell_speed not in {"instant", "sorcery"}:
             raise TacticalRuleError("basic_spell_timing supports only instant or sorcery")
 
@@ -191,7 +192,9 @@ class TacticalRuleOracle:
         elif spell_speed == "instant":
             can_cast = True
         else:
-            can_cast = actor_is_active and phase in {"precombat_main", "postcombat_main"} and stack_empty
+            can_cast = (
+                actor_is_active and phase in {"precombat_main", "postcombat_main"} and stack_empty
+            )
 
         return {
             "can_cast": can_cast,
