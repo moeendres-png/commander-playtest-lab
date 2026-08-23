@@ -39,6 +39,8 @@ jobs:
             src/commander_lab/engine/rules/tactical.py
             src/commander_lab/whole_deck/tactical_capabilities.py
           )
+          ruff check --fix "${files[@]}" || true
+          ruff format "${files[@]}"
           ruff check --fix "${files[@]}"
           ruff format "${files[@]}"
           ruff check "${files[@]}"
