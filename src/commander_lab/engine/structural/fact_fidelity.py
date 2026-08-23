@@ -37,14 +37,32 @@ def simple_draw_scry_shape(oracle_text: str | None) -> dict[str, int | None] | N
     if not lowered:
         return None
     forbidden = (
-        " if ", " when ", " whenever ", " unless ", " target ", " opponent", " shuffle",
-        " discard", " put ", " reveal", " surveil", " choose", " may draw", " for each",
-        " equal to", " instead", " sacrifice", " exile", " return",
+        " if ",
+        " when ",
+        " whenever ",
+        " unless ",
+        " target ",
+        " opponent",
+        " shuffle",
+        " discard",
+        " put ",
+        " reveal",
+        " surveil",
+        " choose",
+        " may draw",
+        " for each",
+        " equal to",
+        " instead",
+        " sacrifice",
+        " exile",
+        " return",
     )
     padded = f" {lowered} "
     if any(token in padded for token in forbidden):
         return None
-    clauses = [piece.strip(" ,") for piece in re.split(r"[.;]|,\s*then\s+", lowered) if piece.strip(" ,")]
+    clauses = [
+        piece.strip(" ,") for piece in re.split(r"[.;]|,\s*then\s+", lowered) if piece.strip(" ,")
+    ]
     draw_count: int | None = None
     scry_depth: int | None = None
     for clause in clauses:
@@ -65,7 +83,6 @@ def simple_draw_scry_shape(oracle_text: str | None) -> dict[str, int | None] | N
     if draw_count is None and scry_depth is None:
         return None
     return {"draw_count": draw_count, "scry_depth": scry_depth}
-
 
 
 def permanent_from_type_line(type_line: str) -> bool:

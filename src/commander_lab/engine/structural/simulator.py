@@ -1253,8 +1253,14 @@ class StructuralSimulator:
             # at least the neutral floor, order kept cards best-first, and move the rest to bottom
             # preserving their relative order. This is a legal scry state transition and, unlike
             # the legacy Selection abstraction, never moves a card directly to hand.
-            scored = [(self._opening_hand_value(row), index, row) for index, row in enumerate(looked)]
-            kept = [row for score, _index, row in sorted(scored, key=lambda x: (-x[0], x[1])) if score >= 0.75]
+            scored = [
+                (self._opening_hand_value(row), index, row) for index, row in enumerate(looked)
+            ]
+            kept = [
+                row
+                for score, _index, row in sorted(scored, key=lambda x: (-x[0], x[1]))
+                if score >= 0.75
+            ]
             bottomed = [row for score, _index, row in scored if score < 0.75]
             if not kept and looked:
                 best = max(scored, key=lambda x: (x[0], -x[1]))[2]

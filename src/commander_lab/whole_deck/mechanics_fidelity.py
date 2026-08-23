@@ -376,8 +376,8 @@ def _classify_card_capabilities(
     text = oracle_text or ""
     simple_shape = _simple_draw_selection_shape(text) if text else None
     if simple_shape is not None and role_set and role_set <= {CardRole.DRAW, CardRole.SELECTION}:
-        draw_count = cast(int | None, simple_shape["draw_count"])
-        scry_depth = cast(int | None, simple_shape["scry_depth"])
+        draw_count = simple_shape["draw_count"]
+        scry_depth = simple_shape["scry_depth"]
         is_instant = bool(type_line and "Instant" in type_line)
 
         if draw_count is not None:
@@ -422,7 +422,6 @@ def _classify_card_capabilities(
             MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE,
             ("literal_sorcery_draw_scry_shape_matches_bounded_runtime_contract",),
         )
-
 
     if (
         text

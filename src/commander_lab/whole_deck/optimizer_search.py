@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from statistics import fmean
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 from commander_lab.decision_statistics import (
     distributionally_robust_lower_bound,
@@ -41,6 +41,15 @@ from .search_models import WholeDeckMutation, WholeDeckNeighborhood, WholeDeckVa
 
 EvaluationFunction = Callable[[WholeDeckVariant, int, int], ExploratoryEvaluation]
 EligibilityFunction = Callable[[WholeDeckVariant], bool]
+
+
+class CoverageDebtCounters(TypedDict):
+    attempts: int
+    noop: int
+    duplicate: int
+    illegal: int
+    target_cards_considered: int
+    newly_exposed_cards: list[str]
 
 
 @dataclass(frozen=True, slots=True)
@@ -437,7 +446,7 @@ class AdaptiveWholeDeckSearch:
         generation: int,
         limit: int,
         seen: Mapping[str, WholeDeckVariant],
-    ) -> tuple[list[WholeDeckVariant], dict[str, object]]:
+    ) -> tuple[list[WholeDeckVariant], CoverageDebtCounters]:
         """Emit deterministic outcome-independent forced-inclusion coverage hypotheses.
 
         This lane pays down finite-search exposure debt only.  It does not read Structural
@@ -446,7 +455,7 @@ class AdaptiveWholeDeckSearch:
         lane only through the ordinary independent fidelity assessment.
         """
 
-        counters: dict[str, object] = {
+        counters: CoverageDebtCounters = {
             "attempts": 0,
             "noop": 0,
             "duplicate": 0,
@@ -480,50 +489,58 @@ class AdaptiveWholeDeckSearch:
         for add_name in candidates:
             if len(proposals) >= limit:
                 break
-            counters["target_cards_considered"] = int(counters["target_cards_considered"]) + 1
+            counters["target_cards_considered"] += 1
             add_card = context.cards[add_name]
             # Coherence preference is outcome-independent: preserve land/nonland shape first, then
             # prefer role overlap.  A stable hash breaks any remaining ties deterministically.
-            add_roles = set(getattr(getattr(add_card, "profile", None), "roles", ()))
+            add_roles = frozenset(getattr(getattr(add_card, "profile", None), "roles", ()))
             add_is_land = bool(getattr(add_card, "is_basic", False)) or bool(
                 getattr(getattr(add_card, "profile", None), "is_land", False)
             )
 
-            def removal_key(remove_name: str) -> tuple[int, int, str]:
+            def removal_key(
+                remove_name: str,
+                *,
+                add_name_bound: str = add_name,
+                add_roles_bound: frozenset[object] = add_roles,
+                add_is_land_bound: bool = add_is_land,
+            ) -> tuple[int, int, str]:
                 remove_card = context.cards.get(remove_name)
                 remove_profile = getattr(remove_card, "profile", None)
                 remove_is_land = bool(getattr(remove_card, "is_basic", False)) or bool(
                     getattr(remove_profile, "is_land", False)
                 )
                 remove_roles = set(getattr(remove_profile, "roles", ()))
-                same_land_class = 0 if remove_is_land == add_is_land else 1
-                role_gap = len(add_roles.symmetric_difference(remove_roles))
+                same_land_class = 0 if remove_is_land == add_is_land_bound else 1
+                role_gap = len(add_roles_bound.symmetric_difference(remove_roles))
                 tie = sha256_value(
                     {
                         "seed": self.seed,
                         "generation": generation,
-                        "add": add_name,
+                        "add": add_name_bound,
                         "remove": remove_name,
                     }
                 )
                 return same_land_class, role_gap, tie
 
             remove_names = [
-                name for name in sorted(control_counts) if name != add_name and control_counts[name] > 0
+                name
+                for name in sorted(control_counts)
+                if name != add_name and control_counts[name] > 0
             ]
             remove_names.sort(key=removal_key)
             for remove_name in remove_names:
-                counters["attempts"] = int(counters["attempts"]) + 1
+                counters["attempts"] += 1
                 board = list(control)
                 try:
                     index = board.index(remove_name)
                 except ValueError:
-                    counters["noop"] = int(counters["noop"]) + 1
+                    counters["noop"] += 1
                     continue
                 board[index] = add_name
                 candidate = tuple(board)
                 if candidate == control:
-                    counters["noop"] = int(counters["noop"]) + 1
+                    counters["noop"] += 1
                     continue
                 mutation = WholeDeckMutation(
                     neighborhood=WholeDeckNeighborhood.ROLE_PACKAGE,
@@ -533,9 +550,7 @@ class AdaptiveWholeDeckSearch:
                 )
                 proposal = engine.evaluate_mainboard(
                     candidate,
-                    seed=self.seed
-                    + generation * 3_000_017
-                    + int(counters["attempts"]),
+                    seed=self.seed + generation * 3_000_017 + counters["attempts"],
                     parent_variant_id=control_variant.variant_id,
                     mutation=mutation,
                 )
@@ -556,12 +571,12 @@ class AdaptiveWholeDeckSearch:
                     }
                 )
                 if not proposal.hard_gate.valid:
-                    counters["illegal"] = int(counters["illegal"]) + 1
+                    counters["illegal"] += 1
                     continue
                 if proposal.deck_hash in seen or any(
                     row.deck_hash == proposal.deck_hash for row in proposals
                 ):
-                    counters["duplicate"] = int(counters["duplicate"]) + 1
+                    counters["duplicate"] += 1
                     continue
                 proposals.append(proposal)
                 if exposure_counts[add_name] == 0:
@@ -688,10 +703,10 @@ class AdaptiveWholeDeckSearch:
             )
             rejection_counts.update(
                 {
-                    "raw_proposals_attempted": int(coverage_counts["attempts"]),
-                    "noop_proposals_rejected": int(coverage_counts["noop"]),
-                    "duplicate_proposals_rejected": int(coverage_counts["duplicate"]),
-                    "illegal_proposals_rejected": int(coverage_counts["illegal"]),
+                    "raw_proposals_attempted": coverage_counts["attempts"],
+                    "noop_proposals_rejected": coverage_counts["noop"],
+                    "duplicate_proposals_rejected": coverage_counts["duplicate"],
+                    "illegal_proposals_rejected": coverage_counts["illegal"],
                 }
             )
             proposals: list[WholeDeckVariant] = list(repair) + list(coverage)
@@ -716,7 +731,9 @@ class AdaptiveWholeDeckSearch:
                 )
                 seen[proposal.deck_hash] = proposal
                 variants_by_id[proposal.variant_id] = proposal
-                parent_hashes["hypothesis_lane"].add(control_variant.deck_hash if control_variant else "")
+                parent_hashes["hypothesis_lane"].add(
+                    control_variant.deck_hash if control_variant else ""
+                )
 
             attempts = 0
             max_attempts = max(proposals_per_generation * 12, 32)
@@ -846,7 +863,9 @@ class AdaptiveWholeDeckSearch:
                 {
                     "generation": generation,
                     "candidate_count": len(proposals),
-                    "attempts": attempts + repair_counts["attempts"] + int(coverage_counts["attempts"]),
+                    "attempts": attempts
+                    + repair_counts["attempts"]
+                    + coverage_counts["attempts"],
                     "decision_archive": archive.coverage(),
                     "hypothesis_archive": hypothesis_archive.coverage(),
                     "operator_weights": dict(operator_weights),
@@ -866,8 +885,12 @@ class AdaptiveWholeDeckSearch:
                     },
                     "fidelity_repair_generated": len(repair),
                     "coverage_debt_generated": len(coverage),
-                    "coverage_debt_targets_considered": int(coverage_counts["target_cards_considered"]),
-                    "coverage_debt_newly_exposed_cards": list(coverage_counts["newly_exposed_cards"]),
+                    "coverage_debt_targets_considered": coverage_counts[
+                        "target_cards_considered"
+                    ],
+                    "coverage_debt_newly_exposed_cards": list(
+                        coverage_counts["newly_exposed_cards"]
+                    ),
                 }
             )
             if not proposals:
@@ -964,7 +987,9 @@ class AdaptiveWholeDeckSearch:
             "candidate_card_exposure": len(all_cards),
             "candidate_card_exposure_names": sorted(all_cards),
             "candidate_card_unexposed_names": (
-                sorted(set(getattr(context, "cards", {})) - all_cards) if context is not None else []
+                sorted(set(getattr(context, "cards", {})) - all_cards)
+                if context is not None
+                else []
             ),
             "candidate_card_exposure_fraction": (
                 len(all_cards) / pool_count if pool_count else None
