@@ -493,7 +493,9 @@ class AdaptiveWholeDeckSearch:
             add_card = context.cards[add_name]
             # Coherence preference is outcome-independent: preserve land/nonland shape first, then
             # prefer role overlap.  A stable hash breaks any remaining ties deterministically.
-            add_roles = frozenset(getattr(getattr(add_card, "profile", None), "roles", ()))
+            add_roles = frozenset(
+                getattr(getattr(add_card, "profile", None), "roles", ())
+            )
             add_is_land = bool(getattr(add_card, "is_basic", False)) or bool(
                 getattr(getattr(add_card, "profile", None), "is_land", False)
             )
