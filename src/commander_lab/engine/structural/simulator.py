@@ -27,7 +27,7 @@ from commander_lab.models import (
 )
 from commander_lab.storage import atomic_write_text, canonical_json_bytes
 
-ENGINE_VERSION = "structural-0.6.0"
+ENGINE_VERSION = "structural-0.6.1"
 
 
 def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
@@ -1196,11 +1196,23 @@ class StructuralSimulator:
         ):
             player.first_independent_draw_engine_turn = player.current_turn
         if CardRole.DRAW in card.roles:
-            amount = max(1, math.ceil(card.strength(CardRole.DRAW)))
+            amount = (
+                card.draw_count
+                if card.draw_count is not None
+                else max(1, math.ceil(card.strength(CardRole.DRAW)))
+            )
             if card.oracle_name == "Korvold, Fae-Cursed King":
                 amount = 0
             if amount:
-                self._draw(player, min(3, amount), recorder, reason=f"{card.oracle_name}:draw")
+                # Literal verified draw counts are executed exactly. Legacy role-strength draw
+                # abstractions retain their historical cap and remain fidelity-gated separately.
+                resolved_amount = amount if card.draw_count is not None else min(3, amount)
+                self._draw(
+                    player,
+                    resolved_amount,
+                    recorder,
+                    reason=f"{card.oracle_name}:draw",
+                )
         if CardRole.SACRIFICE_OUTLET in card.roles or card.oracle_name in {
             "Harrow",
             "Deadly Dispute",
@@ -1234,6 +1246,40 @@ class StructuralSimulator:
     ) -> None:
         if not player.library:
             return
+        if card.scry_depth is not None:
+            depth = min(card.scry_depth, len(player.library))
+            looked = list(player.library[:depth])
+            # Deterministic bounded scry policy: keep cards whose structural opening-hand value is
+            # at least the neutral floor, order kept cards best-first, and move the rest to bottom
+            # preserving their relative order. This is a legal scry state transition and, unlike
+            # the legacy Selection abstraction, never moves a card directly to hand.
+            scored = [(self._opening_hand_value(row), index, row) for index, row in enumerate(looked)]
+            kept = [row for score, _index, row in sorted(scored, key=lambda x: (-x[0], x[1])) if score >= 0.75]
+            bottomed = [row for score, _index, row in scored if score < 0.75]
+            if not kept and looked:
+                best = max(scored, key=lambda x: (x[0], -x[1]))[2]
+                kept = [best]
+                bottomed = [row for row in looked if row is not best]
+            player.library = kept + player.library[depth:] + bottomed
+            recorder.emit(
+                "scry_resolved",
+                actor_id=player.player_id,
+                payload={
+                    "card": card.oracle_name,
+                    "scry_depth": card.scry_depth,
+                    "cards_seen": depth,
+                    "cards_moved_to_bottom": len(bottomed),
+                    "kept_on_top": [row.oracle_name for row in kept],
+                    "moved_to_bottom": [row.oracle_name for row in bottomed],
+                    "top_library_after_resolution": (
+                        player.library[0].oracle_name if player.library else None
+                    ),
+                },
+            )
+            return
+
+        # Legacy generic Selection remains a screening abstraction only. It is intentionally not
+        # treated as evidence that arbitrary selection Oracle text is rules-conformant.
         look = player.library[: min(3, len(player.library))]
         chosen = max(look, key=self._opening_hand_value)
         player.library.remove(chosen)

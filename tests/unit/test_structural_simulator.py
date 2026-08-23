@@ -87,3 +87,60 @@ def test_abort_limit_is_reported(structural_decks) -> None:
     assert result.aborted
     assert result.abort_reason == "max_turns"
     assert result.end_reason == "aborted_max_turns"
+
+
+def test_literal_scry_depth_is_distinct_and_never_draws_to_hand() -> None:
+    from types import SimpleNamespace
+
+    from commander_lab.engine.structural.simulator import _EventRecorder, _Player
+    from commander_lab.models import CardRole, StructuralCardProfile
+
+    def card(name: str, *, floor: float, impact: float) -> StructuralCardProfile:
+        return StructuralCardProfile(
+            oracle_name=name,
+            mana_value=2.0,
+            roles=frozenset({CardRole.ENABLER}),
+            floor_value=floor,
+            immediate_impact=impact,
+            is_permanent=False,
+        )
+
+    top_bad = card("Top Bad", floor=0.1, impact=0.1)
+    second_good = card("Second Good", floor=1.0, impact=1.0)
+    third = card("Third", floor=0.8, impact=0.8)
+    scry1 = StructuralCardProfile(
+        oracle_name="Scry One",
+        mana_value=1.0,
+        roles=frozenset({CardRole.SELECTION}),
+        scry_depth=1,
+        timing_window="sorcery",
+        is_permanent=False,
+    )
+    scry2 = scry1.model_copy(update={"oracle_name": "Scry Two", "scry_depth": 2})
+    simulator = StructuralSimulator({})
+
+    def resolve(profile: StructuralCardProfile):
+        player = _Player(
+            player_id="p1",
+            seat=0,
+            deck=SimpleNamespace(),
+            pilot=SimpleNamespace(),
+            pilot_rng=SimpleNamespace(),
+            library=[top_bad, second_good, third],
+        )
+        recorder = _EventRecorder("scry-test", capture=True)
+        simulator._resolve_selection(player, recorder, profile)
+        return player, recorder.events
+
+    one, one_events = resolve(scry1)
+    two, two_events = resolve(scry2)
+
+    assert one.hand == [] and one.cards_drawn == 0
+    assert two.hand == [] and two.cards_drawn == 0
+    assert one_events[-1]["event_type"] == "scry_resolved"
+    assert two_events[-1]["event_type"] == "scry_resolved"
+    assert one_events[-1]["payload"]["scry_depth"] == 1
+    assert two_events[-1]["payload"]["scry_depth"] == 2
+    assert one_events[-1]["payload"]["cards_seen"] == 1
+    assert two_events[-1]["payload"]["cards_seen"] == 2
+    assert [row.oracle_name for row in one.library] != [row.oracle_name for row in two.library]

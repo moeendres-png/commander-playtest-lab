@@ -165,3 +165,54 @@ def test_candidate_ledger_is_complete_hash_verified_and_diff_reconstructable(
     assert row["deck_hash"] == variant.deck_hash
     assert row["exact_diff_vs_control"] == []
     assert row["confirmatory_eligible"] is False
+
+
+def test_coverage_debt_emitter_is_deterministic_outcome_independent_and_legal() -> None:
+    from commander_lab.whole_deck.optimizer_search import AdaptiveWholeDeckSearch
+    from commander_lab.whole_deck.optimizer_v2 import LearningConfig, RacingConfig
+
+    lab = WholeDeckDesignLab(ROOT)
+    control = current_control_mainboard(ROOT)
+    engine = _control_engine(lab)
+    control_variant = engine.evaluate_mainboard(control, seed=61)
+
+    class _NoSimulationEvaluator:
+        def __call__(self, *_args, **_kwargs):
+            raise AssertionError("coverage-debt emission must not consume simulation outcomes")
+
+    evaluator = _NoSimulationEvaluator()
+    evaluator.context = lab.context
+    evaluator.control_mainboard = control
+    evaluator.control = lab.context.materialize(control, label="test-control")
+
+    search = AdaptiveWholeDeckSearch(
+        {PolicyId.CURRENT_CONTROL.value: engine},
+        evaluator=evaluator,
+        seed=71,
+        qd=QDConfig(),
+        racing=RacingConfig(),
+        learning=LearningConfig(),
+    )
+    seen = {control_variant.deck_hash: control_variant}
+    first, first_counts = search._coverage_debt_proposals(
+        control_variant=control_variant,
+        generation=1,
+        limit=4,
+        seen=seen,
+    )
+    second, second_counts = search._coverage_debt_proposals(
+        control_variant=control_variant,
+        generation=1,
+        limit=4,
+        seen=seen,
+    )
+
+    assert first
+    assert [row.deck_hash for row in first] == [row.deck_hash for row in second]
+    assert first_counts == second_counts
+    assert all(row.hard_gate.valid for row in first)
+    assert all(row.mainboard != control for row in first)
+    assert all(row.provenance["proposal_lane"] == "COVERAGE_DEBT" for row in first)
+    assert all(row.provenance["coverage_only_parent"] is True for row in first)
+    assert all(row.provenance["outcome_ranked"] is False for row in first)
+    assert first_counts["newly_exposed_cards"]

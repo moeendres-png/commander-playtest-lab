@@ -65,15 +65,48 @@ def test_mana_and_engine_abstractions_are_screening_only() -> None:
     assert engine_tier == MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY
 
 
-def test_simple_known_draw_can_be_approximated_decision_safe() -> None:
+def test_simple_sorcery_draw_one_can_be_approximated_decision_safe() -> None:
     tier, _ = classify_card_semantics(
         "Simple Draw",
         semantic_state="structurally_modeled",
         roles=(CardRole.DRAW,),
         mechanic_tags=(),
         oracle_text="Draw a card.",
+        type_line="Sorcery",
+        runtime_draw_count=1,
+        runtime_timing_window="sorcery",
     )
     assert tier == MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE
+
+
+def test_instant_draw_requires_tactical_timing() -> None:
+    tier, reasons = classify_card_semantics(
+        "Instant Draw",
+        semantic_state="structurally_modeled",
+        roles=(CardRole.DRAW,),
+        mechanic_tags=(),
+        oracle_text="Draw a card.",
+        type_line="Instant",
+        runtime_draw_count=1,
+        runtime_timing_window="instant",
+    )
+    assert tier == MechanicsFidelityTier.TACTICAL_REQUIRED
+    assert reasons == ("instant_timing_not_mechanistic",)
+
+
+def test_multi_card_draw_fails_closed_without_exact_count_contract() -> None:
+    tier, reasons = classify_card_semantics(
+        "Draw Three",
+        semantic_state="structurally_modeled",
+        roles=(CardRole.DRAW,),
+        mechanic_tags=(),
+        oracle_text="Draw three cards.",
+        type_line="Sorcery",
+        runtime_draw_count=1,
+        runtime_timing_window="sorcery",
+    )
+    assert tier == MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY
+    assert reasons == ("draw_runtime_parameter_not_conformant",)
 
 
 def test_variant_delta_is_multiset_aware() -> None:
@@ -123,7 +156,7 @@ def test_confirmatory_artifact_requires_current_semantic_model(tmp_path) -> None
     assert loaded["pass"] is True
 
 
-def test_strategic_tags_do_not_themselves_block_simple_capability() -> None:
+def test_scry_shape_is_safe_only_with_exact_runtime_parameters() -> None:
     tier, reasons = classify_card_semantics(
         "Preordain-like",
         semantic_state="structurally_modeled",
@@ -133,9 +166,45 @@ def test_strategic_tags_do_not_themselves_block_simple_capability() -> None:
             StructuralMechanic.COMMANDER_INDEPENDENT,
         ),
         oracle_text="Scry 2, then draw a card.",
+        type_line="Sorcery",
+        runtime_draw_count=1,
+        runtime_scry_depth=2,
+        runtime_timing_window="sorcery",
     )
     assert tier == MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE
-    assert "simple_draw_selection_matches_current_structural_capability" in reasons
+    assert reasons == ("literal_sorcery_draw_scry_shape_matches_bounded_runtime_contract",)
+
+
+def test_scry_shape_fails_closed_when_runtime_depth_does_not_match() -> None:
+    tier, reasons = classify_card_semantics(
+        "Bad Scry",
+        semantic_state="structurally_modeled",
+        roles=(CardRole.DRAW, CardRole.SELECTION),
+        mechanic_tags=(),
+        oracle_text="Scry 2, then draw a card.",
+        type_line="Sorcery",
+        runtime_draw_count=1,
+        runtime_scry_depth=1,
+        runtime_timing_window="sorcery",
+    )
+    assert tier == MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY
+    assert reasons == ("scry_runtime_parameter_not_conformant",)
+
+
+def test_instant_scry_draw_routes_to_tactical() -> None:
+    tier, reasons = classify_card_semantics(
+        "Opt-like",
+        semantic_state="structurally_modeled",
+        roles=(CardRole.DRAW, CardRole.SELECTION),
+        mechanic_tags=(),
+        oracle_text="Scry 1. Draw a card.",
+        type_line="Instant",
+        runtime_draw_count=1,
+        runtime_scry_depth=1,
+        runtime_timing_window="instant",
+    )
+    assert tier == MechanicsFidelityTier.TACTICAL_REQUIRED
+    assert reasons == ("instant_timing_not_mechanistic",)
 
 
 def test_basic_land_branch_is_reachable_before_generic_mana_screening() -> None:
@@ -169,6 +238,19 @@ def test_fixed_mana_is_safe_only_when_card_text_matches_narrow_capability() -> N
     )
     assert sol == MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE
     assert fellwar == MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY
+
+
+def test_creature_tap_mana_fails_closed_on_summoning_sickness() -> None:
+    tier, reasons = classify_card_semantics(
+        "Iron Myr",
+        semantic_state="structurally_modeled",
+        roles=(CardRole.RAMP,),
+        mechanic_tags=(),
+        oracle_text="{T}: Add {R}.",
+        type_line="Artifact Creature — Myr",
+    )
+    assert tier == MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY
+    assert reasons == ("creature_tap_mana_timing_not_mechanistic",)
 
 
 def test_complex_draw_is_not_upgraded_by_role_alone() -> None:

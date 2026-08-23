@@ -6,11 +6,66 @@ from collections.abc import Mapping
 from commander_lab.models import Color, StructuralCardProfile
 from commander_lab.models.roles import CardRole
 
-FACT_FIDELITY_VERSION = "structural-card-facts-2026-08-21-v1"
+FACT_FIDELITY_VERSION = "structural-card-facts-2026-08-23-v2"
 _PERMANENT_TYPES = frozenset(
     {"Artifact", "Battle", "Creature", "Enchantment", "Land", "Planeswalker"}
 )
 _SIMPLE_COLOR_SYMBOL = re.compile(r"\{([WUBRG])\}")
+
+_SIMPLE_DRAW = re.compile(r"draw (a|one|two|three|four|\d+) cards?", re.IGNORECASE)
+_SIMPLE_SCRY = re.compile(r"scry (\d+)", re.IGNORECASE)
+_NUMBER_WORDS = {"a": 1, "one": 1, "two": 2, "three": 3, "four": 4}
+
+
+def simple_draw_scry_shape(oracle_text: str | None) -> dict[str, int | None] | None:
+    """Return a conservative literal draw/scry shape from current Oracle text.
+
+    The parser recognizes only clauses made exclusively of ``scry N`` and literal ``draw N``.
+    It deliberately rejects conditional, replacement, target, shuffle, discard, reveal and other
+    sequencing language so these facts cannot silently widen Structural fidelity.
+    """
+
+    if not oracle_text:
+        return None
+    previous = oracle_text
+    while True:
+        cleaned = re.sub(r"\([^()]*\)", "", previous)
+        if cleaned == previous:
+            break
+        previous = cleaned
+    lowered = " ".join(previous.replace("\n", " ").split()).strip().rstrip(".").lower()
+    if not lowered:
+        return None
+    forbidden = (
+        " if ", " when ", " whenever ", " unless ", " target ", " opponent", " shuffle",
+        " discard", " put ", " reveal", " surveil", " choose", " may draw", " for each",
+        " equal to", " instead", " sacrifice", " exile", " return",
+    )
+    padded = f" {lowered} "
+    if any(token in padded for token in forbidden):
+        return None
+    clauses = [piece.strip(" ,") for piece in re.split(r"[.;]|,\s*then\s+", lowered) if piece.strip(" ,")]
+    draw_count: int | None = None
+    scry_depth: int | None = None
+    for clause in clauses:
+        scry = re.fullmatch(r"scry (\d+)", clause)
+        if scry:
+            if scry_depth is not None:
+                return None
+            scry_depth = int(scry.group(1))
+            continue
+        draw = re.fullmatch(r"draw (a|one|two|three|four|\d+) cards?", clause)
+        if draw:
+            if draw_count is not None:
+                return None
+            token = draw.group(1)
+            draw_count = _NUMBER_WORDS.get(token, int(token) if token.isdigit() else 0)
+            continue
+        return None
+    if draw_count is None and scry_depth is None:
+        return None
+    return {"draw_count": draw_count, "scry_depth": scry_depth}
+
 
 
 def permanent_from_type_line(type_line: str) -> bool:
@@ -51,6 +106,8 @@ def apply_current_card_facts(
     type_line = str(facts.get("type_line") or facts.get("card_type") or "").strip()
     mana_cost_raw = facts.get("mana_cost")
     mana_cost = str(mana_cost_raw) if isinstance(mana_cost_raw, str) else None
+    oracle_text_raw = facts.get("oracle_text")
+    oracle_text = str(oracle_text_raw) if isinstance(oracle_text_raw, str) else None
     updates: dict[str, object] = {}
     if type_line:
         derived_permanent = permanent_from_type_line(type_line)
@@ -68,6 +125,15 @@ def apply_current_card_facts(
             updates["is_land"] = True
     if mana_cost is not None:
         updates["color_requirements"] = simple_color_requirements(mana_cost)
+    shape = simple_draw_scry_shape(oracle_text)
+    if shape is not None:
+        updates["draw_count"] = shape["draw_count"]
+        updates["scry_depth"] = shape["scry_depth"]
+    if type_line:
+        if "Instant" in type_line:
+            updates["timing_window"] = "instant"
+        elif "Sorcery" in type_line:
+            updates["timing_window"] = "sorcery"
 
     # Silence is a timing restriction, never a counterspell. Leaving it as CardRole.COUNTER
     # allows the legacy resolver to remove an already-cast spell from the stack illegally.

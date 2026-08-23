@@ -13,6 +13,7 @@ from commander_lab.decision_statistics import (
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength
 from commander_lab.pod_scheduling import PodScenario
+from commander_lab.storage import sha256_value
 
 from .campaign import run_balanced_paired_campaign
 from .lab_context import EnrichedWholeDeckSearchEngine
@@ -429,6 +430,147 @@ class AdaptiveWholeDeckSearch:
             proposals.append(proposal)
         return proposals, counters
 
+    def _coverage_debt_proposals(
+        self,
+        *,
+        control_variant: WholeDeckVariant | None,
+        generation: int,
+        limit: int,
+        seen: Mapping[str, WholeDeckVariant],
+    ) -> tuple[list[WholeDeckVariant], dict[str, object]]:
+        """Emit deterministic outcome-independent forced-inclusion coverage hypotheses.
+
+        This lane pays down finite-search exposure debt only.  It does not read Structural
+        placement/effect values, does not rank by screening outcomes and does not bypass normal
+        legality or mechanics-fidelity gates.  A generated candidate may later enter the Decision
+        lane only through the ordinary independent fidelity assessment.
+        """
+
+        counters: dict[str, object] = {
+            "attempts": 0,
+            "noop": 0,
+            "duplicate": 0,
+            "illegal": 0,
+            "target_cards_considered": 0,
+            "newly_exposed_cards": [],
+        }
+        if control_variant is None or limit <= 0:
+            return [], counters
+        context, control = _evaluator_context_and_control(self.evaluator)
+        engine = self.engines.get(PolicyId.CURRENT_CONTROL.value)
+        if context is None or control is None or engine is None:
+            return [], counters
+
+        control_counts = Counter(control)
+        exposure_counts: Counter[str] = Counter()
+        for variant in seen.values():
+            exposure_counts.update(set(variant.mainboard))
+
+        candidates: list[str] = []
+        for name, card in sorted(context.cards.items()):
+            current = control_counts[name]
+            available = int(getattr(card, "available_quantity", 0))
+            if not bool(getattr(card, "is_basic", False)) and current >= available:
+                continue
+            candidates.append(name)
+        candidates.sort(key=lambda name: (exposure_counts[name], name))
+
+        proposals: list[WholeDeckVariant] = []
+        newly_exposed: list[str] = []
+        for add_name in candidates:
+            if len(proposals) >= limit:
+                break
+            counters["target_cards_considered"] = int(counters["target_cards_considered"]) + 1
+            add_card = context.cards[add_name]
+            # Coherence preference is outcome-independent: preserve land/nonland shape first, then
+            # prefer role overlap.  A stable hash breaks any remaining ties deterministically.
+            add_roles = set(getattr(getattr(add_card, "profile", None), "roles", ()))
+            add_is_land = bool(getattr(add_card, "is_basic", False)) or bool(
+                getattr(getattr(add_card, "profile", None), "is_land", False)
+            )
+
+            def removal_key(remove_name: str) -> tuple[int, int, str]:
+                remove_card = context.cards.get(remove_name)
+                remove_profile = getattr(remove_card, "profile", None)
+                remove_is_land = bool(getattr(remove_card, "is_basic", False)) or bool(
+                    getattr(remove_profile, "is_land", False)
+                )
+                remove_roles = set(getattr(remove_profile, "roles", ()))
+                same_land_class = 0 if remove_is_land == add_is_land else 1
+                role_gap = len(add_roles.symmetric_difference(remove_roles))
+                tie = sha256_value(
+                    {
+                        "seed": self.seed,
+                        "generation": generation,
+                        "add": add_name,
+                        "remove": remove_name,
+                    }
+                )
+                return same_land_class, role_gap, tie
+
+            remove_names = [
+                name for name in sorted(control_counts) if name != add_name and control_counts[name] > 0
+            ]
+            remove_names.sort(key=removal_key)
+            for remove_name in remove_names:
+                counters["attempts"] = int(counters["attempts"]) + 1
+                board = list(control)
+                try:
+                    index = board.index(remove_name)
+                except ValueError:
+                    counters["noop"] = int(counters["noop"]) + 1
+                    continue
+                board[index] = add_name
+                candidate = tuple(board)
+                if candidate == control:
+                    counters["noop"] = int(counters["noop"]) + 1
+                    continue
+                mutation = WholeDeckMutation(
+                    neighborhood=WholeDeckNeighborhood.ROLE_PACKAGE,
+                    removed=(remove_name,),
+                    added=(add_name,),
+                    changed_slots=1,
+                )
+                proposal = engine.evaluate_mainboard(
+                    candidate,
+                    seed=self.seed
+                    + generation * 3_000_017
+                    + int(counters["attempts"]),
+                    parent_variant_id=control_variant.variant_id,
+                    mutation=mutation,
+                )
+                proposal = proposal.model_copy(
+                    update={
+                        "provenance": {
+                            **proposal.provenance,
+                            "optimizer_operator": "coverage_debt",
+                            "proposal_lane": "COVERAGE_DEBT",
+                            "coverage_only_parent": True,
+                            "outcome_ranked": False,
+                            "control_aware_special_emitter": True,
+                            "fresh_rebuild_policy_prior": False,
+                            "optimizer_generation": generation,
+                            "coverage_target_card": add_name,
+                            "coverage_prior_exposure_count": exposure_counts[add_name],
+                        }
+                    }
+                )
+                if not proposal.hard_gate.valid:
+                    counters["illegal"] = int(counters["illegal"]) + 1
+                    continue
+                if proposal.deck_hash in seen or any(
+                    row.deck_hash == proposal.deck_hash for row in proposals
+                ):
+                    counters["duplicate"] = int(counters["duplicate"]) + 1
+                    continue
+                proposals.append(proposal)
+                if exposure_counts[add_name] == 0:
+                    newly_exposed.append(add_name)
+                break
+
+        counters["newly_exposed_cards"] = sorted(set(newly_exposed))
+        return proposals, counters
+
     def run(
         self,
         *,
@@ -537,7 +679,22 @@ class AdaptiveWholeDeckSearch:
                     "illegal_proposals_rejected": repair_counts["illegal"],
                 }
             )
-            proposals: list[WholeDeckVariant] = list(repair)
+            coverage_limit = min(2, max(1, proposals_per_generation // 8))
+            coverage, coverage_counts = self._coverage_debt_proposals(
+                control_variant=control_variant,
+                generation=generation,
+                limit=max(0, min(coverage_limit, proposals_per_generation - len(repair))),
+                seen=seen,
+            )
+            rejection_counts.update(
+                {
+                    "raw_proposals_attempted": int(coverage_counts["attempts"]),
+                    "noop_proposals_rejected": int(coverage_counts["noop"]),
+                    "duplicate_proposals_rejected": int(coverage_counts["duplicate"]),
+                    "illegal_proposals_rejected": int(coverage_counts["illegal"]),
+                }
+            )
+            proposals: list[WholeDeckVariant] = list(repair) + list(coverage)
             proposal_metadata: dict[str, tuple[str, str, str, str]] = {}
             for proposal in repair:
                 parent_id = proposal.parent_variant_id or ""
@@ -549,6 +706,17 @@ class AdaptiveWholeDeckSearch:
                 )
                 seen[proposal.deck_hash] = proposal
                 variants_by_id[proposal.variant_id] = proposal
+            for proposal in coverage:
+                parent_id = proposal.parent_variant_id or ""
+                proposal_metadata[proposal.variant_id] = (
+                    parent_id,
+                    "coverage_debt",
+                    PolicyId.CURRENT_CONTROL.value,
+                    "coverage_debt",
+                )
+                seen[proposal.deck_hash] = proposal
+                variants_by_id[proposal.variant_id] = proposal
+                parent_hashes["hypothesis_lane"].add(control_variant.deck_hash if control_variant else "")
 
             attempts = 0
             max_attempts = max(proposals_per_generation * 12, 32)
@@ -633,7 +801,11 @@ class AdaptiveWholeDeckSearch:
                 metadata = proposal_metadata.get(row.candidate_id)
                 if metadata is None:
                     continue
-                parent_id, operator_name, policy_id, _parent_source = metadata
+                parent_id, operator_name, policy_id, parent_source = metadata
+                if parent_source == "coverage_debt":
+                    # Coverage debt is hypothesis-generation infrastructure; its outcomes must not
+                    # train adaptive operator/policy rewards.
+                    continue
                 parent_variant = variants_by_id.get(parent_id)
                 if (
                     parent_variant is None
@@ -674,7 +846,7 @@ class AdaptiveWholeDeckSearch:
                 {
                     "generation": generation,
                     "candidate_count": len(proposals),
-                    "attempts": attempts + repair_counts["attempts"],
+                    "attempts": attempts + repair_counts["attempts"] + int(coverage_counts["attempts"]),
                     "decision_archive": archive.coverage(),
                     "hypothesis_archive": hypothesis_archive.coverage(),
                     "operator_weights": dict(operator_weights),
@@ -693,6 +865,9 @@ class AdaptiveWholeDeckSearch:
                         "mean": fmean(distances) if distances else None,
                     },
                     "fidelity_repair_generated": len(repair),
+                    "coverage_debt_generated": len(coverage),
+                    "coverage_debt_targets_considered": int(coverage_counts["target_cards_considered"]),
+                    "coverage_debt_newly_exposed_cards": list(coverage_counts["newly_exposed_cards"]),
                 }
             )
             if not proposals:
@@ -770,6 +945,13 @@ class AdaptiveWholeDeckSearch:
             if not {"SEARCH_COLLAPSE", "DECISION_LANE_EMPTY"}.intersection(health_flags)
             else health_flags[0]
         )
+        coverage_debt_cards = sorted(
+            {
+                str(name)
+                for row in history
+                for name in cast(list[object], row.get("coverage_debt_newly_exposed_cards", []))
+            }
+        )
         telemetry: dict[str, object] = {
             **dict(rejection_counts),
             "unique_legal_decks_generated": len(seen),
@@ -780,9 +962,19 @@ class AdaptiveWholeDeckSearch:
             "operator_coverage": operators_seen,
             "operator_coverage_count": len(operators_seen),
             "candidate_card_exposure": len(all_cards),
+            "candidate_card_exposure_names": sorted(all_cards),
+            "candidate_card_unexposed_names": (
+                sorted(set(getattr(context, "cards", {})) - all_cards) if context is not None else []
+            ),
             "candidate_card_exposure_fraction": (
                 len(all_cards) / pool_count if pool_count else None
             ),
+            "coverage_debt_newly_exposed_cards": coverage_debt_cards,
+            "coverage_debt_newly_exposed_card_count": len(coverage_debt_cards),
+            "coverage_debt_generated_count": sum(
+                int(row.get("coverage_debt_generated", 0)) for row in history
+            ),
+            "coverage_debt_outcome_ranked": False,
             "package_coverage": sorted(package_ids),
             "package_coverage_count": len(package_ids),
             "mana_curve_diversity": len(mana_values),
