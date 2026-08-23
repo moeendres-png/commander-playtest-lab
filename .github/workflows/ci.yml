@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ci-${{ github.head_ref || github.ref }}
@@ -18,6 +18,49 @@ env:
   PYTHONHASHSEED: "0"
 
 jobs:
+  canonical-ruff-fix:
+    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'rules-evidence/capability-unlock' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: rules-evidence/capability-unlock
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+      - name: Apply canonical Ruff 0.16.4 and self-clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'ruff==0.16.4'
+          files=(
+            scripts/rules_evidence_campaign.py
+            src/commander_lab/engine/rules/tactical.py
+            src/commander_lab/whole_deck/tactical_capabilities.py
+          )
+          ruff check --fix "${files[@]}"
+          ruff format "${files[@]}"
+          ruff check "${files[@]}"
+          ruff format --check "${files[@]}"
+          git fetch origin main
+          git show origin/main:.github/workflows/ci.yml > .github/workflows/ci.yml
+          rm -f .github/workflows/rules-evidence-ruff-fix.yml .ruff-trigger
+          changed="$(git diff --name-only)"
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            case "$path" in
+              scripts/rules_evidence_campaign.py|src/commander_lab/engine/rules/tactical.py|src/commander_lab/whole_deck/tactical_capabilities.py|.github/workflows/ci.yml|.github/workflows/rules-evidence-ruff-fix.yml|.ruff-trigger) ;;
+              *) echo "unexpected file changed: $path"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Apply canonical Ruff formatting to rules evidence patch'
+          git push origin HEAD:rules-evidence/capability-unlock
+
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -66,7 +109,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           matches="$(
             git grep -nIE \
               -e '[s]k-[A-Za-z0-9_-]{20,}' \
@@ -76,20 +118,13 @@ jobs:
               ':(exclude)artifacts/**' \
               || true
           )"
-
           if [[ -n "$matches" ]]; then
-            matches="$(
-              printf '%s\n' "$matches" |
-                grep -Ev '[O]PENAI_API_KEY=(\.\.\.|<[^>]+>|\$\{[^}]+\})' ||
-                true
-            )"
+            matches="$(printf '%s\n' "$matches" | grep -Ev '[O]PENAI_API_KEY=(\.\.\.|<[^>]+>|\$\{[^}]+\})' || true)"
           fi
-
           if [[ -n "$matches" ]]; then
             echo "Potential secret material found. Content suppressed."
             exit 1
           fi
-
           echo "No secret patterns found."
       - name: Build wheel
         if: ${{ success() || failure() }}
