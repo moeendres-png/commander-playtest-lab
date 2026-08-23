@@ -169,3 +169,48 @@ def test_cached_partition_evaluator_shape_gets_mechanics_gate_without_special_me
     assert (safe_hash, 4) in evaluator.calls
     assert (unsafe_hash, 4) not in evaluator.calls
     assert [variant.deck_hash for variant in archive.admitted] == [safe_hash]
+
+
+def test_hypothesis_archive_retains_screening_candidates_without_decision_admission(
+    monkeypatch,
+) -> None:
+    from commander_lab.whole_deck.optimizer_search import HypothesisCoverageArchive
+
+    safe_hash = "e" * 64
+    unsafe_hash = "f" * 64
+    safe = _variant(safe_hash)
+    unsafe = _variant(unsafe_hash)
+    evaluator = _Evaluator(safe_hash)
+    _patch_descriptors(monkeypatch)
+    search = AdaptiveWholeDeckSearch(
+        {PolicyId.OWNED_POOL_NEUTRAL.value: SimpleNamespace()},
+        evaluator=evaluator,
+        seed=1,
+        qd=QDConfig(),
+        racing=RacingConfig(budgets=(2, 4), minimum_survivors=1),
+        learning=LearningConfig(),
+    )
+    decision = _Archive()
+    hypothesis = HypothesisCoverageArchive(QDConfig())
+
+    search._evaluate_batch(
+        [safe, unsafe], generation=0, archive=decision, hypothesis_archive=hypothesis
+    )
+
+    assert {row.deck_hash for row in hypothesis.variants()} == {safe_hash, unsafe_hash}
+    assert [row.deck_hash for row in decision.admitted] == [safe_hash]
+    assert (unsafe_hash, 4) not in evaluator.calls
+
+
+def test_hypothesis_archive_ranking_uses_construction_prior_not_screening_outcome(
+    monkeypatch,
+) -> None:
+    from commander_lab.whole_deck.optimizer_search import HypothesisCoverageArchive
+
+    _patch_descriptors(monkeypatch)
+    low = _variant("1" * 64).model_copy(update={"objective_prior": 1.0})
+    high = _variant("2" * 64).model_copy(update={"objective_prior": 2.0})
+    archive = HypothesisCoverageArchive(QDConfig(), elites_per_bucket=1)
+    archive.admit(low, route="STRUCTURAL_SCREENING_ONLY")
+    archive.admit(high, route="STRUCTURAL_SCREENING_ONLY")
+    assert [row.deck_hash for row in archive.variants()] == [high.deck_hash]

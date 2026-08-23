@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from statistics import fmean
@@ -16,7 +16,8 @@ from commander_lab.pod_scheduling import PodScenario
 
 from .campaign import run_balanced_paired_campaign
 from .lab_context import EnrichedWholeDeckSearchEngine
-from .mechanics_fidelity import assess_variant_mechanics
+from .models import PolicyId
+from .mechanics_fidelity import assess_card_fidelity, assess_variant_mechanics
 from .optimizer_advancement import CandidatePairedEvidence, merge_pairing_conditions
 from .optimizer_v2 import (
     EvidenceContext,
@@ -52,7 +53,104 @@ class OptimizerSearchReport:
     requested_scenario_pairs: int
     feedback_changed_proposals: bool
     screening_only_hashes: tuple[str, ...] = ()
+    hypothesis_archive: dict[str, object] | None = None
+    telemetry: dict[str, object] | None = None
+    search_health: dict[str, object] | None = None
 
+
+class HypothesisCoverageArchive:
+    """Outcome-independent archive for structural coverage/hypothesis generation.
+
+    It never receives or ranks on Structural placement outcomes. Candidates are retained by QD cell,
+    evidence route and construction policy using only construction prior + deterministic hash. This
+    keeps low-fidelity hypotheses alive without granting their screening scores decision authority.
+    """
+
+    def __init__(self, config: QDConfig, *, elites_per_bucket: int = 2) -> None:
+        self.config = config
+        self.elites_per_bucket = max(1, elites_per_bucket)
+        self._buckets: dict[str, list[WholeDeckVariant]] = {}
+
+    def admit(self, variant: WholeDeckVariant, *, route: str) -> bool:
+        if not variant.hard_gate.valid:
+            return False
+        cell = descriptor_for_variant(variant).cell(self.config)
+        key = f"{cell}|{route}|{variant.policy_id.value}"
+        rows = [row for row in self._buckets.get(key, ()) if row.deck_hash != variant.deck_hash]
+        rows.append(variant)
+        rows.sort(key=lambda row: (-row.objective_prior, row.deck_hash))
+        kept = rows[: self.elites_per_bucket]
+        self._buckets[key] = kept
+        return any(row.deck_hash == variant.deck_hash for row in kept)
+
+    def variants(self) -> tuple[WholeDeckVariant, ...]:
+        by_hash: dict[str, WholeDeckVariant] = {}
+        for rows in self._buckets.values():
+            for row in rows:
+                by_hash.setdefault(row.deck_hash, row)
+        return tuple(by_hash[key] for key in sorted(by_hash))
+
+    def coverage(self) -> dict[str, object]:
+        variants = self.variants()
+        qd_cells = {
+            descriptor_for_variant(row).cell(self.config)
+            for row in variants
+        }
+        return {
+            "archive_role": "HYPOTHESIS_GENERATION_COVERAGE_ONLY",
+            "outcome_ranked": False,
+            "bucket_count": len(self._buckets),
+            "occupied_qd_cells": len(qd_cells),
+            "archive_size": len(variants),
+            "qd_cells": sorted(qd_cells),
+            "buckets": {
+                key: [row.deck_hash for row in self._buckets[key]]
+                for key in sorted(self._buckets)
+            },
+        }
+
+
+def _evaluator_context_and_control(
+    evaluator: EvaluationFunction,
+) -> tuple[Any | None, tuple[str, ...] | None]:
+    context = getattr(evaluator, "context", None)
+    explicit = getattr(evaluator, "control_mainboard", None)
+    if context is not None and isinstance(explicit, tuple):
+        return context, tuple(str(value) for value in explicit)
+    control = getattr(evaluator, "control", None)
+    cards = getattr(control, "cards", None)
+    commander_names = frozenset(getattr(control, "commander_names", ()))
+    if context is None or cards is None:
+        return context, None
+    return context, tuple(
+        str(card.oracle_name)
+        for card in cards
+        if str(card.oracle_name) not in commander_names
+    )
+
+
+def _variant_fidelity_assessment(
+    evaluator: EvaluationFunction,
+    variant: WholeDeckVariant,
+    *,
+    fallback_safe: bool,
+) -> dict[str, object]:
+    context, control = _evaluator_context_and_control(evaluator)
+    if context is None or control is None:
+        return {
+            "pass": fallback_safe,
+            "required_next_evidence_layer": (
+                "STRUCTURAL_CONFIRMATORY_ALLOWED" if fallback_safe else "STRUCTURAL_SCREENING_ONLY"
+            ),
+            "fidelity_distance_to_safe": 0 if fallback_safe else 1,
+            "tier_counts": {},
+        }
+    return assess_variant_mechanics(
+        context,
+        control=control,
+        candidate=variant.mainboard,
+        deck_hash=variant.deck_hash,
+    )
 
 def _weighted_choice(rng: random.Random, weights: Mapping[str, float]) -> str:
     ordered = sorted(weights)
@@ -105,13 +203,12 @@ def _evaluator_mechanics_gate(evaluator: EvaluationFunction) -> EligibilityFunct
 
 
 class AdaptiveWholeDeckSearch:
-    """Performance-informed search over existing legal Whole-Deck operators.
+    """Two-lane exploratory search with strict decision-evidence isolation.
 
-    Results are exploratory only. Confirmatory and holdout execution are intentionally
-    absent so search feedback cannot consume either evidence partition. Candidates outside
-    the question-specific Structural mechanics contract may receive the first screening
-    budget, but cannot consume later Structural racing budgets, occupy the decision-search
-    QD archive, become search parents, or train adaptive rewards.
+    Every legal candidate may enter the outcome-independent hypothesis/coverage archive after its
+    authorized first Structural screening look. Only question-specifically decision-safe candidates
+    may receive later Structural racing budgets, enter the decision QD archive, or train adaptive
+    performance rewards. Screening outcomes never rank or select hypothesis parents.
     """
 
     def __init__(
@@ -139,24 +236,49 @@ class AdaptiveWholeDeckSearch:
             return True
         return bool(self.expensive_evidence_eligible(variant))
 
+    def _assessment(self, variant: WholeDeckVariant) -> dict[str, object]:
+        safe = self._eligible_for_expensive_evidence(variant)
+        return _variant_fidelity_assessment(self.evaluator, variant, fallback_safe=safe)
+
+    @staticmethod
+    def _operator_label(variant: WholeDeckVariant) -> str:
+        explicit = variant.provenance.get("optimizer_operator")
+        if isinstance(explicit, str) and explicit:
+            return explicit
+        if variant.mutation is not None:
+            return variant.mutation.neighborhood.value
+        return "construction_prior"
+
     def _evaluate_batch(
         self,
         variants: Sequence[WholeDeckVariant],
         *,
         generation: int,
         archive: QualityDiversityArchive,
+        hypothesis_archive: HypothesisCoverageArchive | None = None,
     ) -> tuple[list[ExploratoryEvaluation], int, int]:
+        if hypothesis_archive is None:
+            hypothesis_archive = HypothesisCoverageArchive(self.qd)
         if not variants:
             return [], 0, 0
         current: list[ExploratoryEvaluation] = []
         calls = 0
         scenario_pairs = 0
         first_budget = self.racing.budgets[0]
+        assessments: dict[str, dict[str, object]] = {}
+        for variant in variants:
+            assessment = self._assessment(variant)
+            assessments[variant.variant_id] = assessment
+            hypothesis_archive.admit(
+                variant,
+                route=str(assessment.get("required_next_evidence_layer", "UNKNOWN")),
+            )
+        hypothesis_reference = hypothesis_archive.variants()
         for index, variant in enumerate(variants):
             raw = self.evaluator(variant, first_budget, generation * 100_003 + index)
             novelty = novelty_score(
                 variant,
-                archive.variants(),
+                hypothesis_reference,
                 neighbors=self.qd.novelty_neighbors,
             )
             current.append(
@@ -165,6 +287,7 @@ class AdaptiveWholeDeckSearch:
                         "generation": generation,
                         "novelty": novelty,
                         "qd_cell": descriptor_for_variant(variant).cell(self.qd),
+                        "operator": self._operator_label(variant),
                     }
                 )
             )
@@ -178,7 +301,7 @@ class AdaptiveWholeDeckSearch:
             active_rows = tuple(
                 by_id[candidate_id]
                 for candidate_id in active_ids
-                if self._eligible_for_expensive_evidence(variant_by_id[candidate_id])
+                if assessments[candidate_id].get("pass") is True
             )
             if not active_rows:
                 break
@@ -197,6 +320,7 @@ class AdaptiveWholeDeckSearch:
                         "generation": generation,
                         "novelty": previous.novelty,
                         "qd_cell": previous.qd_cell,
+                        "operator": self._operator_label(variant),
                     }
                 )
                 calls += 1
@@ -207,9 +331,102 @@ class AdaptiveWholeDeckSearch:
         final_rows = list(by_id.values())
         for row in final_rows:
             variant = variant_by_id[row.candidate_id]
-            if self._eligible_for_expensive_evidence(variant):
+            if assessments[row.candidate_id].get("pass") is True:
                 archive.admit(variant, row)
         return final_rows, calls, scenario_pairs
+
+    def _fidelity_repair_proposals(
+        self,
+        *,
+        control_variant: WholeDeckVariant | None,
+        generation: int,
+        limit: int,
+        seen: Mapping[str, WholeDeckVariant],
+    ) -> tuple[list[WholeDeckVariant], dict[str, int]]:
+        counters = {"attempts": 0, "noop": 0, "duplicate": 0, "illegal": 0}
+        if control_variant is None or limit <= 0:
+            return [], counters
+        context, control = _evaluator_context_and_control(self.evaluator)
+        engine = self.engines.get(PolicyId.CURRENT_CONTROL.value)
+        if context is None or control is None or engine is None:
+            return [], counters
+
+        control_counts = Counter(control)
+        safe_remove_names = [
+            name
+            for name in sorted(control_counts)
+            if assess_card_fidelity(context, name).get("decision_safe") is True
+        ]
+        safe_add_names: list[str] = []
+        for name, card in sorted(context.cards.items()):
+            if assess_card_fidelity(context, name).get("decision_safe") is not True:
+                continue
+            current = control_counts[name]
+            available = int(getattr(card, "available_quantity", 0))
+            if bool(getattr(card, "is_basic", False)) or current < available:
+                safe_add_names.append(name)
+        pairs = [
+            (remove_name, add_name)
+            for remove_name in safe_remove_names
+            for add_name in safe_add_names
+            if remove_name != add_name
+        ]
+        rng = random.Random(self.seed ^ (generation * 0x9E37_79B1))
+        rng.shuffle(pairs)
+        proposals: list[WholeDeckVariant] = []
+        for remove_name, add_name in pairs:
+            if len(proposals) >= limit:
+                break
+            counters["attempts"] += 1
+            board = list(control)
+            try:
+                index = board.index(remove_name)
+            except ValueError:
+                counters["noop"] += 1
+                continue
+            board[index] = add_name
+            candidate = tuple(board)
+            if candidate == control:
+                counters["noop"] += 1
+                continue
+            mutation = WholeDeckMutation(
+                neighborhood=WholeDeckNeighborhood.ROLE_PACKAGE,
+                removed=(remove_name,),
+                added=(add_name,),
+                changed_slots=1,
+            )
+            proposal = engine.evaluate_mainboard(
+                candidate,
+                seed=self.seed + generation * 2_000_003 + counters["attempts"],
+                parent_variant_id=control_variant.variant_id,
+                mutation=mutation,
+            )
+            proposal = proposal.model_copy(
+                update={
+                    "provenance": {
+                        **proposal.provenance,
+                        "optimizer_operator": "fidelity_repair",
+                        "proposal_lane": "DECISION_SAFE_REACHABILITY",
+                        "control_aware_special_emitter": True,
+                        "fresh_rebuild_policy_prior": False,
+                        "optimizer_generation": generation,
+                    }
+                }
+            )
+            if not proposal.hard_gate.valid:
+                counters["illegal"] += 1
+                continue
+            if proposal.deck_hash in seen or any(
+                row.deck_hash == proposal.deck_hash for row in proposals
+            ):
+                counters["duplicate"] += 1
+                continue
+            if self._assessment(proposal).get("pass") is not True:
+                # The emitter is a reachability helper, never a fidelity override.
+                counters["illegal"] += 1
+                continue
+            proposals.append(proposal)
+        return proposals, counters
 
     def run(
         self,
@@ -218,11 +435,28 @@ class AdaptiveWholeDeckSearch:
         generations: int,
         proposals_per_generation: int,
     ) -> OptimizerSearchReport:
-        legal_initial = [row for row in initial_variants if row.hard_gate.valid]
+        legal_initial = [
+            row.model_copy(
+                update={
+                    "provenance": {
+                        **row.provenance,
+                        "optimizer_generation": 0,
+                        "proposal_lane": (
+                            "DECISION_ANCHOR"
+                            if row.policy_id == PolicyId.CURRENT_CONTROL
+                            else "CONSTRUCTION_PRIOR"
+                        ),
+                    }
+                }
+            )
+            for row in initial_variants
+            if row.hard_gate.valid
+        ]
         if not legal_initial:
             raise ValueError("adaptive search has no legal initial variants")
 
         archive = QualityDiversityArchive(self.qd)
+        hypothesis_archive = HypothesisCoverageArchive(self.qd)
         rng = random.Random(self.seed)
         operator_weights = normalize_learning_weights(
             {name: 1.0 for name in operator_names()},
@@ -236,11 +470,19 @@ class AdaptiveWholeDeckSearch:
         seen: dict[str, WholeDeckVariant] = {row.deck_hash: row for row in legal_initial}
         variants_by_id: dict[str, WholeDeckVariant] = {row.variant_id: row for row in legal_initial}
         evaluations_by_variant: dict[str, ExploratoryEvaluation] = {}
+        rejection_counts: Counter[str] = Counter()
+        parent_hashes: dict[str, set[str]] = {
+            "decision_lane": set(),
+            "hypothesis_lane": set(),
+        }
+        adaptive_reward_observations = 0
+        generated_by_generation: dict[int, list[WholeDeckVariant]] = {0: list(legal_initial)}
 
         initial_eval, calls, pairs = self._evaluate_batch(
             legal_initial,
             generation=0,
             archive=archive,
+            hypothesis_archive=hypothesis_archive,
         )
         total_calls = calls
         total_pairs = pairs
@@ -251,26 +493,66 @@ class AdaptiveWholeDeckSearch:
                 "generation": 0,
                 "candidate_count": len(legal_initial),
                 "archive": archive.coverage(),
+                "decision_archive": archive.coverage(),
+                "hypothesis_archive": hypothesis_archive.coverage(),
                 "operator_weights": dict(operator_weights),
                 "policy_weights": dict(policy_weights),
             }
         )
         feedback_changed = False
+        control_variant = next(
+            (
+                row
+                for row in legal_initial
+                if row.policy_id == PolicyId.CURRENT_CONTROL
+                and row.parent_variant_id is None
+            ),
+            None,
+        )
 
         for generation in range(1, generations + 1):
-            parents = archive.variants()
+            combined: dict[str, WholeDeckVariant] = {
+                row.deck_hash: row for row in hypothesis_archive.variants()
+            }
+            combined.update({row.deck_hash: row for row in archive.variants()})
+            parents = tuple(combined[key] for key in sorted(combined))
             if not parents:
                 break
             parent_by_policy: dict[str, list[WholeDeckVariant]] = defaultdict(list)
             for parent in parents:
                 parent_by_policy[parent.policy_id.value].append(parent)
 
-            proposals: list[WholeDeckVariant] = []
-            proposal_metadata: dict[str, tuple[str, str, str]] = {}
+            repair_limit = min(4, max(1, proposals_per_generation // 6))
+            repair, repair_counts = self._fidelity_repair_proposals(
+                control_variant=control_variant,
+                generation=generation,
+                limit=repair_limit,
+                seen=seen,
+            )
+            rejection_counts.update({
+                "raw_proposals_attempted": repair_counts["attempts"],
+                "noop_proposals_rejected": repair_counts["noop"],
+                "duplicate_proposals_rejected": repair_counts["duplicate"],
+                "illegal_proposals_rejected": repair_counts["illegal"],
+            })
+            proposals: list[WholeDeckVariant] = list(repair)
+            proposal_metadata: dict[str, tuple[str, str, str, str]] = {}
+            for proposal in repair:
+                parent_id = proposal.parent_variant_id or ""
+                proposal_metadata[proposal.variant_id] = (
+                    parent_id,
+                    "fidelity_repair",
+                    PolicyId.CURRENT_CONTROL.value,
+                    "decision_lane",
+                )
+                seen[proposal.deck_hash] = proposal
+                variants_by_id[proposal.variant_id] = proposal
+
             attempts = 0
             max_attempts = max(proposals_per_generation * 12, 32)
             while len(proposals) < proposals_per_generation and attempts < max_attempts:
                 attempts += 1
+                rejection_counts["raw_proposals_attempted"] += 1
                 available_policy_weights = {
                     key: policy_weights[key] for key in policy_weights if parent_by_policy.get(key)
                 }
@@ -282,11 +564,15 @@ class AdaptiveWholeDeckSearch:
                     key=lambda row: row.deck_hash,
                 )
                 parent = parent_pool[rng.randrange(len(parent_pool))]
+                parent_safe = self._assessment(parent).get("pass") is True
+                parent_source = "decision_lane" if parent_safe else "hypothesis_lane"
+                parent_hashes[parent_source].add(parent.deck_hash)
                 operator_name = _weighted_choice(rng, operator_weights)
                 neighborhood = WholeDeckNeighborhood(operator_name)
                 engine = self.engines[policy_id]
                 board, removed, added = engine.propose(parent.mainboard, neighborhood, rng)
                 if board == parent.mainboard or not removed or not added:
+                    rejection_counts["noop_proposals_rejected"] += 1
                     continue
                 mutation = WholeDeckMutation(
                     neighborhood=neighborhood,
@@ -300,7 +586,20 @@ class AdaptiveWholeDeckSearch:
                     parent_variant_id=parent.variant_id,
                     mutation=mutation,
                 )
-                if not proposal.hard_gate.valid or proposal.deck_hash in seen:
+                proposal = proposal.model_copy(
+                    update={
+                        "provenance": {
+                            **proposal.provenance,
+                            "optimizer_generation": generation,
+                            "proposal_lane": parent_source,
+                        }
+                    }
+                )
+                if not proposal.hard_gate.valid:
+                    rejection_counts["illegal_proposals_rejected"] += 1
+                    continue
+                if proposal.deck_hash in seen:
+                    rejection_counts["duplicate_proposals_rejected"] += 1
                     continue
                 seen[proposal.deck_hash] = proposal
                 variants_by_id[proposal.variant_id] = proposal
@@ -309,12 +608,15 @@ class AdaptiveWholeDeckSearch:
                     parent.variant_id,
                     operator_name,
                     policy_id,
+                    parent_source,
                 )
 
+            generated_by_generation[generation] = list(proposals)
             generation_eval, calls, pairs = self._evaluate_batch(
                 proposals,
                 generation=generation,
                 archive=archive,
+                hypothesis_archive=hypothesis_archive,
             )
             total_calls += calls
             total_pairs += pairs
@@ -324,20 +626,24 @@ class AdaptiveWholeDeckSearch:
             for row in generation_eval:
                 evaluations_by_variant[row.candidate_id] = row
                 variant = proposal_by_id[row.candidate_id]
-                if not self._eligible_for_expensive_evidence(variant):
+                if self._assessment(variant).get("pass") is not True:
                     continue
-                parent_id, operator_name, policy_id = proposal_metadata[row.candidate_id]
+                metadata = proposal_metadata.get(row.candidate_id)
+                if metadata is None:
+                    continue
+                parent_id, operator_name, policy_id, _parent_source = metadata
                 parent_variant = variants_by_id.get(parent_id)
-                if parent_variant is None or not self._eligible_for_expensive_evidence(
-                    parent_variant
-                ):
+                if parent_variant is None or self._assessment(parent_variant).get("pass") is not True:
                     continue
                 parent_eval = evaluations_by_variant.get(parent_id)
                 if parent_eval is None:
                     continue
                 reward = row.robust_lower_bound - parent_eval.robust_lower_bound
-                operator_rewards[operator_name].append(reward)
-                policy_rewards[policy_id].append(reward)
+                if operator_name in operator_weights:
+                    operator_rewards[operator_name].append(reward)
+                if policy_id in policy_weights:
+                    policy_rewards[policy_id].append(reward)
+                adaptive_reward_observations += 1
 
             old_operator = dict(operator_weights)
             old_policy = dict(policy_weights)
@@ -354,12 +660,17 @@ class AdaptiveWholeDeckSearch:
             feedback_changed = feedback_changed or (
                 operator_weights != old_operator or policy_weights != old_policy
             )
+            generation_assessments = [self._assessment(row) for row in proposals]
+            distances = [
+                int(row.get("fidelity_distance_to_safe", 0)) for row in generation_assessments
+            ]
             history.append(
                 {
                     "generation": generation,
                     "candidate_count": len(proposals),
-                    "attempts": attempts,
-                    "archive": archive.coverage(),
+                    "attempts": attempts + repair_counts["attempts"],
+                    "decision_archive": archive.coverage(),
+                    "hypothesis_archive": hypothesis_archive.coverage(),
                     "operator_weights": dict(operator_weights),
                     "policy_weights": dict(policy_weights),
                     "operator_rewards": {
@@ -368,21 +679,127 @@ class AdaptiveWholeDeckSearch:
                     "policy_rewards": {
                         key: list(values) for key, values in sorted(policy_rewards.items())
                     },
+                    "safe_promotions": sum(row.get("pass") is True for row in generation_assessments),
+                    "fidelity_distance_to_safe": {
+                        "minimum": min(distances) if distances else None,
+                        "mean": fmean(distances) if distances else None,
+                    },
+                    "fidelity_repair_generated": len(repair),
                 }
             )
             if not proposals:
                 break
 
+        assessment_by_hash = {deck_hash: self._assessment(row) for deck_hash, row in seen.items()}
         screening_only_hashes = tuple(
             sorted(
-                variant.deck_hash
-                for variant in seen.values()
-                if not self._eligible_for_expensive_evidence(variant)
+                deck_hash
+                for deck_hash, assessment in assessment_by_hash.items()
+                if assessment.get("pass") is not True
             )
         )
+        route_counts: Counter[str] = Counter(
+            str(row.get("required_next_evidence_layer", "UNKNOWN"))
+            for row in assessment_by_hash.values()
+        )
+        decision_safe_generated = sum(row.get("pass") is True for row in assessment_by_hash.values())
+        policies_seen = sorted({row.policy_id.value for row in seen.values()})
+        operators_seen = sorted({self._operator_label(row) for row in seen.values()})
+        all_cards = {name for row in seen.values() for name in row.mainboard}
+        context, _control = _evaluator_context_and_control(self.evaluator)
+        pool_count = len(getattr(context, "cards", {})) if context is not None else 0
+        package_ids: set[str] = set()
+        role_profiles: set[str] = set()
+        mana_values: set[float] = set()
+        land_counts: set[int] = set()
+        finish_values: set[float] = set()
+        for variant in seen.values():
+            packages = variant.feature_vector.get("package_counts", {})
+            if isinstance(packages, Mapping):
+                package_ids.update(str(key) for key in packages)
+            roles = variant.feature_vector.get("role_strengths", {})
+            if isinstance(roles, Mapping):
+                role_profiles.add(repr(tuple(sorted((str(k), float(v)) for k, v in roles.items() if isinstance(v, int | float)))))
+            descriptor = descriptor_for_variant(variant)
+            mana_values.add(round(descriptor.average_nonland_mv, 3))
+            land_counts.add(descriptor.land_count)
+            finish_values.add(round(descriptor.finish_strength, 3))
+
+        decision_coverage = archive.coverage()
+        hypothesis_coverage = hypothesis_archive.coverage()
+        control_hash = str(getattr(getattr(self.evaluator, "control", None), "deck_hash", ""))
+        decision_hashes = {
+            deck_hash
+            for values in cast(Mapping[str, list[str]], decision_coverage.get("cells", {})).values()
+            for deck_hash in values
+        }
+        noncontrol_decision = {value for value in decision_hashes if value != control_hash}
+        health_flags: list[str] = []
+        if int(hypothesis_coverage.get("occupied_qd_cells", 0)) <= 1 and len(seen) > 1:
+            health_flags.append("SEARCH_COLLAPSE")
+        if not noncontrol_decision:
+            health_flags.extend(["DECISION_LANE_EMPTY", "FIDELITY_LIVENESS_LIMIT"])
+        if adaptive_reward_observations == 0:
+            health_flags.append("ADAPTIVE_REWARD_INACTIVE")
+        if route_counts["TACTICAL_EVIDENCE_REQUIRED"]:
+            health_flags.append("TACTICAL_EVIDENCE_NEEDED")
+        if route_counts["EXTERNAL_RULES_EVIDENCE_REQUIRED"]:
+            health_flags.append("EXTERNAL_RULES_EVIDENCE_NEEDED")
+        primary_status = (
+            "SEARCH_HEALTHY"
+            if not {"SEARCH_COLLAPSE", "DECISION_LANE_EMPTY"}.intersection(health_flags)
+            else health_flags[0]
+        )
+        telemetry: dict[str, object] = {
+            **dict(rejection_counts),
+            "unique_legal_decks_generated": len(seen),
+            "unique_legal_decks_evaluated": len(seen),
+            "duplicate_decks_removed": rejection_counts["duplicate_proposals_rejected"],
+            "construction_policy_coverage": policies_seen,
+            "construction_policy_coverage_count": len(policies_seen),
+            "operator_coverage": operators_seen,
+            "operator_coverage_count": len(operators_seen),
+            "candidate_card_exposure": len(all_cards),
+            "candidate_card_exposure_fraction": (len(all_cards) / pool_count if pool_count else None),
+            "package_coverage": sorted(package_ids),
+            "package_coverage_count": len(package_ids),
+            "mana_curve_diversity": len(mana_values),
+            "land_count_diversity": len(land_counts),
+            "role_profile_diversity": len(role_profiles),
+            "finish_axis_diversity": len(finish_values),
+            "hypothesis_qd_cells_occupied": hypothesis_coverage.get("occupied_qd_cells", 0),
+            "hypothesis_archive_size": hypothesis_coverage.get("archive_size", 0),
+            "decision_qd_cells_occupied": decision_coverage.get("occupied_cells", 0),
+            "decision_archive_size": decision_coverage.get("elite_count", 0),
+            "decision_safe_generated": decision_safe_generated,
+            "screening_only_generated": route_counts["STRUCTURAL_SCREENING_ONLY"],
+            "tactical_required_generated": route_counts["TACTICAL_EVIDENCE_REQUIRED"],
+            "external_required_generated": route_counts["EXTERNAL_RULES_EVIDENCE_REQUIRED"],
+            "unsupported_generated": route_counts["SEMANTIC_OR_MODEL_CAPABILITY_REQUIRED"],
+            "screening_or_higher_route_generated": len(seen) - decision_safe_generated,
+            "route_counts": dict(sorted(route_counts.items())),
+            "safe_promotions_by_generation": {
+                str(row["generation"]): row.get("safe_promotions", 0)
+                for row in history
+                if int(row["generation"]) > 0
+            },
+            "fidelity_distance_to_safe_by_generation": {
+                str(row["generation"]): row.get("fidelity_distance_to_safe")
+                for row in history
+                if int(row["generation"]) > 0
+            },
+            "decision_parent_count": len(parent_hashes["decision_lane"]),
+            "hypothesis_generation_parent_count": len(parent_hashes["hypothesis_lane"]),
+            "parent_source_distribution": {
+                key: len(value) for key, value in parent_hashes.items()
+            },
+            "adaptive_reward_observation_count": adaptive_reward_observations,
+            "adaptive_reward_changed_weights": feedback_changed,
+            "total_structural_scenario_pairs_requested": total_pairs,
+        }
         return OptimizerSearchReport(
             generations=tuple(history),
-            archive=archive.coverage(),
+            archive=decision_coverage,
             operator_weights=operator_weights,
             policy_weights=policy_weights,
             unique_legal_decks=len(seen),
@@ -390,6 +807,18 @@ class AdaptiveWholeDeckSearch:
             requested_scenario_pairs=total_pairs,
             feedback_changed_proposals=feedback_changed,
             screening_only_hashes=screening_only_hashes,
+            hypothesis_archive=hypothesis_coverage,
+            telemetry=telemetry,
+            search_health={
+                "primary_status": primary_status,
+                "flags": sorted(set(health_flags)),
+                "decision_noncontrol_elite_count": len(noncontrol_decision),
+                "decision_noncontrol_elite_hashes": sorted(noncontrol_decision),
+                "truth_boundary": (
+                    "Search-health diagnosis; hypothesis coverage does not upgrade screening "
+                    "outcomes into confirmatory evidence."
+                ),
+            },
         )
 
 

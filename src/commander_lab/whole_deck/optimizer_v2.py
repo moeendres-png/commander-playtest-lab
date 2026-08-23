@@ -20,7 +20,7 @@ from commander_lab.storage import atomic_write_json, build_exact_result_identity
 
 from .search_models import WholeDeckNeighborhood, WholeDeckVariant
 
-OPTIMIZER_V2_VERSION = "optimizer-v2-0.1.0"
+OPTIMIZER_V2_VERSION = "optimizer-v2-0.2.0"
 
 
 class EvidenceContext(StrEnum):

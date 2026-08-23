@@ -30,7 +30,7 @@ from .policies import get_policy
 from .search import current_control_mainboard
 from .search_models import WholeDeckSearchConfig, WholeDeckVariant
 
-OPTIMIZER_RUNTIME_VERSION = "optimizer-v2-runtime-0.2.0"
+OPTIMIZER_RUNTIME_VERSION = "optimizer-v2-runtime-0.3.0"
 DEFAULT_POLICIES = tuple(policy.value for policy in PolicyId)
 
 

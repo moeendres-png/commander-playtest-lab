@@ -44,7 +44,7 @@ from .search import current_control_mainboard
 from .search_context import SEMANTIC_UNKNOWN
 from .search_models import WholeDeckVariant
 
-DECISION_RUNTIME_VERSION = "optimizer-v2-decision-runtime-1E-2F-1.0.1"
+DECISION_RUNTIME_VERSION = "optimizer-v2-decision-runtime-1E-2F-1.1.0"
 DECISION_CONTRACT_PATH = Path("data/decision/DECISION_CONTRACT_CURRENT.json")
 PRECISION_POLICY_PATH = Path("docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md")
 SEMANTIC_PROJECTION_PATH = Path("data/cards/rogshai_semantic_projection_current.zlib.b64")
@@ -681,16 +681,38 @@ def run_decision_confirmatory(
     run_path = Path(run_directory).resolve()
     preflight = verify_decision_preflight(root_path, manifest)
     handoff = _load_handoff(frontier_path, manifest)
-    shortlist = _shortlist(handoff)
+    raw_shortlist = _shortlist(handoff)
+    control_mainboard = current_control_mainboard(root_path)
+    shortlist: tuple[dict[str, Any], ...] = tuple()
+    selected: list[dict[str, Any]] = []
+    excluded_control_hashes: list[str] = []
+    for elite in raw_shortlist:
+        raw_variant = elite.get("variant")
+        if not isinstance(raw_variant, Mapping):
+            continue
+        variant = WholeDeckVariant.model_validate(raw_variant)
+        is_control_hash = variant.deck_hash == manifest.control_deck_hash
+        is_control_mainboard = tuple(variant.mainboard) == tuple(control_mainboard)
+        if is_control_hash or is_control_mainboard:
+            excluded_control_hashes.append(variant.deck_hash)
+            continue
+        selected.append(elite)
+    shortlist = tuple(selected)
     if not shortlist:
         report: dict[str, object] = {
-            "schema_version": "2.0.0",
+            "schema_version": "2.1.0",
             "manifest_hash": manifest.manifest_hash,
+            "raw_shortlist_size": len(raw_shortlist),
             "shortlist_size": 0,
+            "excluded_current_control_hashes": sorted(set(excluded_control_hashes)),
+            "current_control_challenger_exclusion": True,
+            "confirmatory_partition_opened": False,
+            "confirmatory_scenarios_consumed": 0,
             "rows": [],
             "pareto_frontier": [],
             "single_challenger_hash": None,
             "decision": "NO_CHALLENGER",
+            "critical_diagnostics_required_before_holdout": False,
             "sealed_holdout_partition_opened": False,
             "canonical_deck_mutation": False,
         }
@@ -764,7 +786,7 @@ def run_decision_confirmatory(
     control = current_control_mainboard(root_path)
     pareto_frontier, chosen, selection_rule = _select_single_challenger(rows, control)
     report = {
-        "schema_version": "2.0.0",
+        "schema_version": "2.1.0",
         "runtime_version": DECISION_RUNTIME_VERSION,
         "manifest_hash": manifest.manifest_hash,
         "frontier_hash": handoff.frontier_hash,
@@ -772,7 +794,10 @@ def run_decision_confirmatory(
         "evidence_context": "confirmatory",
         "evidence_type": "structural_model_estimates",
         "shortlist_limit": SHORTLIST_LIMIT,
+        "raw_shortlist_size": len(raw_shortlist),
         "shortlist_size": len(shortlist),
+        "excluded_current_control_hashes": sorted(set(excluded_control_hashes)),
+        "current_control_challenger_exclusion": True,
         "shortlist_hashes": [str(row["deck_hash"]) for row in shortlist],
         "family_alpha": FAMILY_ALPHA,
         "planned_looks": list(CONFIRMATORY_LOOKS),
