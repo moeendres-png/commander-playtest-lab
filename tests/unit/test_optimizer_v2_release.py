@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -231,10 +232,17 @@ def test_release_search_fails_calibration_before_exploratory_evidence(
     monkeypatch.setattr(
         release, "verify_release_preflight", lambda *args, **kwargs: {"status": "pass"}
     )
-    monkeypatch.setattr(release, "WholeDeckDesignLab", lambda *args, **kwargs: object())
+    monkeypatch.setattr(
+        release, "WholeDeckDesignLab", lambda *args, **kwargs: SimpleNamespace(context=object())
+    )
     monkeypatch.setattr(release, "WholeDeckCampaignOrchestrator", lambda *args, **kwargs: object())
     monkeypatch.setattr(
         release, "_initial_variants", lambda *args, **kwargs: ({"p": object()}, (object(),))
+    )
+    monkeypatch.setattr(
+        release,
+        "build_fidelity_liveness_audit",
+        lambda *args, **kwargs: {"run_readiness": "PASS", "fidelity_liveness": "PASS"},
     )
 
     def _calibration(**kwargs):

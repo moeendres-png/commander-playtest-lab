@@ -86,6 +86,7 @@ class CachedPartitionEvaluator:
         self.manifest = manifest
         self.orchestrator = orchestrator
         self.context = context
+        self.control_mainboard = tuple(control_mainboard)
         self.evidence_context = evidence_context
         self.partition = _partition(manifest, evidence_context)
         self.control = context.materialize(control_mainboard, label="optimizer-v2-control")
@@ -117,6 +118,7 @@ class CachedPartitionEvaluator:
         self.variants_by_hash: dict[str, WholeDeckVariant] = {}
         self.evaluations_by_hash: dict[str, ExploratoryEvaluation] = {}
         self.cached_payload_by_hash: dict[str, dict[str, Any]] = {}
+        self.evaluation_history_by_hash: dict[str, list[dict[str, Any]]] = defaultdict(list)
         self._mulligan_lab: MulliganLab | None = None
 
     def _mulligan_sensitivity(self, candidate: Any, budget: int) -> dict[str, object]:
@@ -403,6 +405,26 @@ class CachedPartitionEvaluator:
         self.variants_by_hash[variant.deck_hash] = variant
         self.evaluations_by_hash[variant.deck_hash] = evaluation
         self.cached_payload_by_hash[variant.deck_hash] = payload
+        self.evaluation_history_by_hash[variant.deck_hash].append(
+            {
+                "budget": budget,
+                "evaluation": evaluation.model_dump(mode="json"),
+                "payload": {
+                    key: payload.get(key)
+                    for key in (
+                        "score",
+                        "interval_low",
+                        "interval_high",
+                        "robust_lower_bound",
+                        "observation_count",
+                        "mcse",
+                        "seed_stability",
+                        "sensitivity",
+                    )
+                    if key in payload
+                },
+            }
+        )
         return evaluation
 
     def audit(self) -> EvaluatorAudit:

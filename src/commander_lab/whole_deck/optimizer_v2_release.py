@@ -11,6 +11,8 @@ from typing import Any, cast
 from commander_lab.storage import atomic_write_json, sha256_value
 
 from .lab import WholeDeckDesignLab
+from .mechanics_fidelity import build_fidelity_liveness_audit
+from .models import PolicyId
 from .optimizer_calibration import calibration_report
 from .optimizer_runtime import (
     DEFAULT_POLICIES,
@@ -27,6 +29,11 @@ from .optimizer_v2 import (
     build_semantic_review_queue,
     decision_for_interval,
 )
+from .optimizer_v2_artifacts import (
+    build_candidate_ledger,
+    build_routed_hypothesis_queues,
+    write_candidate_artifacts,
+)
 from .optimizer_v2_diagnostics import build_near_frontier_diagnostics
 from .optimizer_v2_evaluator import CachedPartitionEvaluator
 from .optimizer_v2_release_models import (
@@ -40,7 +47,7 @@ from .search import current_control_mainboard
 from .search_context import SEMANTIC_UNKNOWN
 from .search_models import WholeDeckVariant
 
-OPTIMIZER_V2_RELEASE_RUNTIME = "optimizer-v2-release-runtime-1.0.0"
+OPTIMIZER_V2_RELEASE_RUNTIME = "optimizer-v2-release-runtime-1.1.0"
 
 
 def _calibration_partition(
@@ -380,6 +387,20 @@ def run_release_search(
             steps_per_start=steps_per_start,
             finalists_per_policy=finalists_per_policy,
         )
+        control_engine = engines.get(PolicyId.CURRENT_CONTROL.value)
+        liveness = build_fidelity_liveness_audit(
+            lab.context,
+            control=current_control_mainboard(root_path),
+            initial_variants=initial,
+            control_engine=control_engine,
+            qd_config=manifest.qd,
+            seed=manifest.search_seed ^ 0xF1DE_11E5,
+        )
+        atomic_write_json(run_path / "FIDELITY_LIVENESS_AUDIT.json", liveness)
+        if liveness.get("run_readiness") != "PASS":
+            raise RuntimeError(
+                "fidelity liveness is MODEL_INFORMATION_LIMIT before evidence consumption"
+            )
         calibration = _face_validity_calibration(
             root=root_path,
             run_path=run_path,
@@ -421,6 +442,34 @@ def run_release_search(
             generations=manifest.max_generations,
             proposals_per_generation=manifest.proposals_per_generation,
         )
+        ledger = build_candidate_ledger(
+            context=lab.context,
+            control_mainboard=current_control_mainboard(root_path),
+            evaluator=evaluator,
+            search_report=search_report,
+            control_deck_hash=manifest.control_deck_hash,
+        )
+        hypothesis_queues = build_routed_hypothesis_queues(ledger)
+        write_candidate_artifacts(run_path, ledger=ledger, queues=hypothesis_queues)
+        evaluator_audit = evaluator.audit().model_dump(mode="json")
+        search_health_report = {
+            "schema_version": "1.0.0",
+            "manifest_hash": manifest.manifest_hash,
+            "fidelity_liveness": liveness,
+            "search_health": search_report.search_health,
+            "search_telemetry": {
+                **(search_report.telemetry or {}),
+                "total_structural_scenario_pairs_executed": evaluator_audit[
+                    "executed_scenario_pairs"
+                ],
+                "cache_hits": evaluator_audit["cache_hits"],
+                "cache_misses": evaluator_audit["cache_misses"],
+                "cache_stores": evaluator_audit["cache_stores"],
+            },
+            "candidate_ledger_hash": ledger["ledger_hash"],
+            "screening_evidence_decision_leakage": False,
+        }
+        atomic_write_json(run_path / "SEARCH_HEALTH_REPORT.json", search_health_report)
         handoff = _build_frontier_handoff(
             manifest=manifest, search_report=search_report, evaluator=evaluator
         )
@@ -444,6 +493,10 @@ def run_release_search(
             "preflight": preflight,
             "search": asdict(search_report),
             "initial_legal_seed_count": len(initial),
+            "fidelity_liveness": liveness,
+            "candidate_ledger_hash": ledger["ledger_hash"],
+            "candidate_ledger_count": ledger["candidate_count"],
+            "search_health": search_health_report,
             "frontier_hash": handoff.frontier_hash,
             "semantic_unknown_total": semantic["semantic_unknown_total"],
             "frontier_relevant_unknowns": semantic["frontier_relevant_unknowns"],
@@ -469,7 +522,7 @@ def run_release_search(
             stage="search",
             evidence_context="exploratory+calibration",
             evaluator_payload={
-                "exploratory": evaluator.audit().model_dump(mode="json"),
+                "exploratory": evaluator_audit,
                 "calibration": calibration["evaluator_audit"],
             },
             outputs={
@@ -478,6 +531,10 @@ def run_release_search(
                 "semantic_queue": semantic,
                 "diagnostics": diagnostics,
                 "calibration": calibration,
+                "fidelity_liveness": liveness,
+                "candidate_ledger": ledger,
+                "hypothesis_queues": hypothesis_queues,
+                "search_health": search_health_report,
             },
             search_proposal_rejections=rejected,
         )

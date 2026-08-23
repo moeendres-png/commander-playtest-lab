@@ -1,3 +1,12 @@
+## 1.23.1 - 2026-08-23
+
+- Separate Structural decision-quality tags from question-specific rules-fidelity capabilities; Basic lands, verified simple draw/scry and unconditional fixed-mana resources now reach only the capability level the Structural runtime actually supports.
+- Add a non-consuming fidelity-liveness gate and a dedicated safe-neighborhood emitter so an empty Structural challenger space is detected before evidence rather than disguised as optimizer failure.
+- Split outcome-independent hypothesis/coverage search from the decision-bearing QD lane; screening-only outcomes remain barred from later Structural racing, adaptive decision rewards, confirmatory evidence and holdout selection.
+- Exclude exact Current Control from all challenger confirmatory paths before partition opening, making a control-only frontier an immediate zero-scenario `NO_CHALLENGER`.
+- Persist a content-addressed complete candidate ledger, routed hypothesis queues and reconciled search-health/diversity telemetry without additional gameplay simulation.
+- Preserve 4-player paired CRN semantics, Decision Contract 1E, Precision Contract 2F, canonical domain state and sealed-holdout boundaries.
+
 ## 1.20.0 - 2026-08-14
 
 - Replace Whole-Deck import-time monkeypatching with explicit repository, service and campaign dependency wiring; direct cold imports no longer depend on `commander_lab.tools` initialization.

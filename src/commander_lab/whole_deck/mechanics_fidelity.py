@@ -15,7 +15,7 @@ from .optimizer_v2_release_models import FrontierHandoff
 from .search_context import SEMANTIC_UNKNOWN, current_control_mainboard
 from .search_models import WholeDeckVariant
 
-STRUCTURAL_SEMANTIC_MODEL_VERSION = "structural-mechanics-fidelity-2026-08-21-v1"
+STRUCTURAL_SEMANTIC_MODEL_VERSION = "structural-capability-fidelity-2026-08-23-v2"
 SHORTLIST_LIMIT = 8
 
 
@@ -26,6 +26,19 @@ class MechanicsFidelityTier(StrEnum):
     TACTICAL_REQUIRED = "TACTICAL_REQUIRED"
     EXTERNAL_RULES_REQUIRED = "EXTERNAL_RULES_REQUIRED"
     UNSUPPORTED = "UNSUPPORTED"
+
+
+class StructuralCapability(StrEnum):
+    """Question-specific capabilities the current Structural runtime demonstrably exposes.
+
+    These are deliberately narrower than :class:`StructuralMechanic`. StructuralMechanic tags
+    describe deck-quality/strategy axes; they are not themselves proof of rules fidelity.
+    """
+
+    BASIC_LAND_SOURCE_QUANTITY = "basic_land_source_quantity"
+    SIMPLE_FIXED_MANA_RESOURCE = "simple_fixed_mana_resource"
+    SIMPLE_DRAW = "simple_draw"
+    SIMPLE_SELECTION = "simple_selection"
 
 
 DECISION_SAFE_TIERS = frozenset(
@@ -78,23 +91,15 @@ EXTERNAL_RULES_REQUIRED_CARDS = frozenset(
 )
 
 # Exact targeting, stack, wipe, combat, payment and attachment legality is not represented by
-# the legacy Structural resolver. These categories therefore cannot silently become strong
-# confirmatory evidence merely because their semantic profile is known.
+# the Structural resolver. These categories therefore cannot silently become strong confirmatory
+# evidence merely because their strategic/semantic profile is known.
 TACTICAL_ROLES = frozenset({CardRole.COUNTER, CardRole.PROTECTION})
 EXTERNAL_RULES_ROLES = frozenset({CardRole.REMOVAL, CardRole.WIPE, CardRole.COMBAT_PAYOFF})
-SCREENING_ONLY_ROLES = frozenset(
-    {
-        CardRole.MANA_SOURCE,
-        CardRole.RAMP,
-        CardRole.ENGINE,
-        CardRole.PAYOFF,
-        CardRole.FINISHER,
-        CardRole.TOKEN_SOURCE,
-        CardRole.SACRIFICE_OUTLET,
-        CardRole.LAND_SYNERGY,
-    }
-)
 
+# Only mechanics that inherently require rules-accurate state/action sequencing are hard fidelity
+# blockers. Strategic tags such as REBUILD, COMMANDER_INDEPENDENT, GO_WIDE, etc. are intentionally
+# absent: models.roles documents StructuralMechanic as a decision-quality axis, not a rules-fidelity
+# capability system.
 EXTERNAL_RULES_MECHANICS = frozenset(
     {
         StructuralMechanic.SACRIFICE_COST,
@@ -105,7 +110,10 @@ EXTERNAL_RULES_MECHANICS = frozenset(
         StructuralMechanic.STACK_INTERACTION,
     }
 )
-SCREENING_ONLY_MECHANICS = frozenset(
+
+# Kept as an explicit *strategic abstraction* set for reporting/backward-compatible semantic model
+# identity. Membership here does NOT itself block decision-safe fidelity anymore.
+STRATEGIC_ABSTRACTION_MECHANICS = frozenset(
     {
         StructuralMechanic.SACRIFICE_PAYOFF,
         StructuralMechanic.TOKEN_ENGINE,
@@ -121,6 +129,113 @@ SCREENING_ONLY_MECHANICS = frozenset(
     }
 )
 
+# Roles which remain screening-only unless a concrete, narrower capability matcher below proves
+# the exact card/question safe. This avoids the old error of globally upgrading every mana/ramp card.
+DEFAULT_SCREENING_ONLY_ROLES = frozenset(
+    {
+        CardRole.MANA_SOURCE,
+        CardRole.RAMP,
+        CardRole.ENGINE,
+        CardRole.ENABLER,
+        CardRole.PAYOFF,
+        CardRole.FINISHER,
+        CardRole.TOKEN_SOURCE,
+        CardRole.SACRIFICE_OUTLET,
+        CardRole.LAND_SYNERGY,
+        CardRole.RECURSION,
+        CardRole.GRAVEYARD_HATE,
+    }
+)
+
+
+def _oracle_without_reminder(text: str) -> str:
+    """Remove parenthetical reminder text for conservative simple-effect matching."""
+
+    import re
+
+    previous = text
+    while True:
+        cleaned = re.sub(r"\([^()]*\)", "", previous)
+        if cleaned == previous:
+            break
+        previous = cleaned
+    return " ".join(previous.replace("\n", " ").split()).strip()
+
+
+def _simple_draw_selection_capabilities(
+    oracle_text: str,
+) -> frozenset[StructuralCapability] | None:
+    """Recognize only the tiny draw/scry language the Structural resolver directly abstracts.
+
+    This deliberately excludes shuffle, surveil, hand/library replacement, conditional draw,
+    opponent-dependent text, targets, modes, payments, triggers and other sequencing.
+    """
+
+    import re
+
+    text = _oracle_without_reminder(oracle_text).rstrip(".")
+    if not text:
+        return None
+    lowered = text.lower()
+    forbidden = (
+        " if ",
+        " when ",
+        " whenever ",
+        " unless ",
+        " target ",
+        " opponent",
+        " shuffle",
+        " discard",
+        " put ",
+        " reveal",
+        " surveil",
+        " choose",
+        " may draw",
+        " for each",
+        " equal to",
+        " instead",
+        " sacrifice",
+        " exile",
+        " return",
+    )
+    padded = f" {lowered} "
+    if any(token in padded for token in forbidden):
+        return None
+
+    # Normalize the one connector word used by Preordain.
+    clauses = [
+        piece.strip(" ,") for piece in re.split(r"[.;]|,\s*then\s+", lowered) if piece.strip(" ,")
+    ]
+    capabilities: set[StructuralCapability] = set()
+    for clause in clauses:
+        if re.fullmatch(r"scry \d+", clause):
+            capabilities.add(StructuralCapability.SIMPLE_SELECTION)
+            continue
+        if re.fullmatch(r"draw (?:a|one|two|three|four|\d+) cards?", clause):
+            capabilities.add(StructuralCapability.SIMPLE_DRAW)
+            continue
+        return None
+    return frozenset(capabilities) if capabilities else None
+
+
+def _simple_fixed_mana_capability(oracle_text: str) -> bool:
+    """Recognize unconditional tap-for-fixed-mana text only."""
+
+    import re
+
+    text = _oracle_without_reminder(oracle_text)
+    return bool(re.fullmatch(r"\{T\}: Add (?:\{[WUBRGC]\})+\.", text))
+
+
+def _facts_for_context_card(context: Any, oracle_name: str) -> Mapping[str, object]:
+    universe = getattr(context, "fresh_universe", None)
+    facts = getattr(universe, "candidate_facts_by_name", None)
+    if isinstance(facts, Mapping):
+        row = facts.get(oracle_name)
+        if isinstance(row, Mapping):
+            return row
+    return {}
+
 
 def classify_card_semantics(
     oracle_name: str,
@@ -129,57 +244,158 @@ def classify_card_semantics(
     roles: Iterable[CardRole],
     mechanic_tags: Iterable[StructuralMechanic],
     is_basic: bool = False,
+    oracle_text: str | None = None,
+    type_line: str | None = None,
 ) -> tuple[MechanicsFidelityTier, tuple[str, ...]]:
-    """Return the strongest evidence layer permitted for one card's Structural semantics."""
+    """Return the strongest evidence layer justified by current Structural capabilities.
 
-    role_set = frozenset(roles)
-    mechanic_set = frozenset(mechanic_tags)
-    if semantic_state == SEMANTIC_UNKNOWN:
-        return MechanicsFidelityTier.UNSUPPORTED, ("semantic_unknown",)
-    if oracle_name in TACTICAL_REQUIRED_CARDS:
-        return MechanicsFidelityTier.TACTICAL_REQUIRED, ("explicit_tactical_contract",)
-    if oracle_name in EXTERNAL_RULES_REQUIRED_CARDS:
-        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, ("explicit_external_rules_contract",)
-    if role_set & TACTICAL_ROLES:
-        return MechanicsFidelityTier.TACTICAL_REQUIRED, (
-            "stack_or_protection_legality_not_mechanistic",
-        )
-    if role_set & EXTERNAL_RULES_ROLES:
-        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, (
-            "target_wipe_or_combat_legality_not_mechanistic",
-        )
-    if mechanic_set & EXTERNAL_RULES_MECHANICS:
-        return MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED, (
-            "mechanic_requires_rules_accurate_state_or_sequencing",
-        )
-    if role_set & SCREENING_ONLY_ROLES or mechanic_set & SCREENING_ONLY_MECHANICS:
-        return MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY, (
-            "structural_abstraction_is_screening_only",
-        )
-    if is_basic:
-        return MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE, (
-            "basic_land_quantity_only; source-color legality remains separately gated",
-        )
-    if (
-        role_set
-        <= {
-            CardRole.DRAW,
-            CardRole.SELECTION,
-            CardRole.RECURSION,
-            CardRole.GRAVEYARD_HATE,
-            CardRole.ENABLER,
-        }
-        and not mechanic_set
-    ):
-        return MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE, (
-            "known_simple_structural_role_without_high_risk_mechanic_tag",
-        )
-    return MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY, (
-        "no_explicit_decision_safe_mechanics_contract",
+    Strategic deck-quality tags are intentionally not treated as rules-fidelity blockers. A card
+    reaches decision-safe Structural evidence only through a concrete capability contract.
+    """
+
+    assessment = _classify_card_capabilities(
+        oracle_name,
+        semantic_state=semantic_state,
+        roles=roles,
+        mechanic_tags=mechanic_tags,
+        is_basic=is_basic,
+        oracle_text=oracle_text,
+        type_line=type_line,
+    )
+    return cast(MechanicsFidelityTier, assessment["tier_enum"]), cast(
+        tuple[str, ...], assessment["reasons"]
     )
 
 
-def _card_assessment(context: Any, oracle_name: str) -> dict[str, object]:
+def _classify_card_capabilities(
+    oracle_name: str,
+    *,
+    semantic_state: str,
+    roles: Iterable[CardRole],
+    mechanic_tags: Iterable[StructuralMechanic],
+    is_basic: bool,
+    oracle_text: str | None,
+    type_line: str | None,
+) -> dict[str, object]:
+    role_set = frozenset(roles)
+    mechanic_set = frozenset(mechanic_tags)
+    required: set[str] = set()
+    satisfied: set[str] = set()
+    missing: set[str] = set()
+
+    def result(
+        tier: MechanicsFidelityTier,
+        reasons: tuple[str, ...],
+    ) -> dict[str, object]:
+        return {
+            "tier_enum": tier,
+            "tier": tier.value,
+            "decision_safe": tier in DECISION_SAFE_TIERS,
+            "reasons": reasons,
+            "required_structural_capabilities": tuple(sorted(required)),
+            "satisfied_structural_capabilities": tuple(sorted(satisfied)),
+            "missing_structural_capabilities": tuple(sorted(missing)),
+        }
+
+    if semantic_state == SEMANTIC_UNKNOWN:
+        missing.add("verified_structural_semantics")
+        return result(MechanicsFidelityTier.UNSUPPORTED, ("semantic_unknown",))
+    if oracle_name in TACTICAL_REQUIRED_CARDS:
+        missing.add("rules_accurate_timing_or_stack_action")
+        return result(MechanicsFidelityTier.TACTICAL_REQUIRED, ("explicit_tactical_contract",))
+    if oracle_name in EXTERNAL_RULES_REQUIRED_CARDS:
+        missing.add("external_rules_execution_for_card")
+        return result(
+            MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED,
+            ("explicit_external_rules_contract",),
+        )
+    if role_set & TACTICAL_ROLES:
+        missing.add("rules_accurate_stack_or_protection_legality")
+        return result(
+            MechanicsFidelityTier.TACTICAL_REQUIRED,
+            ("stack_or_protection_legality_not_mechanistic",),
+        )
+    if role_set & EXTERNAL_RULES_ROLES:
+        missing.add("rules_accurate_target_wipe_or_combat_legality")
+        return result(
+            MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED,
+            ("target_wipe_or_combat_legality_not_mechanistic",),
+        )
+    if mechanic_set & EXTERNAL_RULES_MECHANICS:
+        missing.add("rules_accurate_state_or_trigger_sequencing")
+        return result(
+            MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED,
+            ("mechanic_requires_rules_accurate_state_or_sequencing",),
+        )
+
+    # This branch must precede generic mana-source screening. The old ordering made the intended
+    # Basic-land decision-safe contract unreachable.
+    if is_basic:
+        required.add(StructuralCapability.BASIC_LAND_SOURCE_QUANTITY.value)
+        satisfied.add(StructuralCapability.BASIC_LAND_SOURCE_QUANTITY.value)
+        return result(
+            MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE,
+            ("basic_land_quantity_and_color_source_are_explicitly_modeled",),
+        )
+
+    text = oracle_text or ""
+    simple_draw_selection = _simple_draw_selection_capabilities(text) if text else None
+    if (
+        simple_draw_selection is not None
+        and role_set
+        and role_set
+        <= {
+            CardRole.DRAW,
+            CardRole.SELECTION,
+        }
+    ):
+        for capability in simple_draw_selection:
+            required.add(capability.value)
+            satisfied.add(capability.value)
+        return result(
+            MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE,
+            ("simple_draw_selection_matches_current_structural_capability",),
+        )
+
+    if (
+        text
+        and role_set
+        and role_set <= {CardRole.MANA_SOURCE, CardRole.RAMP}
+        and _simple_fixed_mana_capability(text)
+    ):
+        required.add(StructuralCapability.SIMPLE_FIXED_MANA_RESOURCE.value)
+        satisfied.add(StructuralCapability.SIMPLE_FIXED_MANA_RESOURCE.value)
+        return result(
+            MechanicsFidelityTier.APPROXIMATED_DECISION_SAFE,
+            ("unconditional_fixed_mana_resource_matches_current_structural_capability",),
+        )
+
+    if role_set & DEFAULT_SCREENING_ONLY_ROLES:
+        missing.add("card_specific_structural_capability_contract")
+        return result(
+            MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY,
+            ("no_card_specific_decision_safe_capability_contract",),
+        )
+
+    # Even when the role happens to be draw/selection, absence of verified Oracle/fact shape must
+    # fail closed rather than globally promoting the role.
+    if role_set <= {CardRole.DRAW, CardRole.SELECTION} and role_set:
+        missing.add("simple_draw_selection_shape_verification")
+        return result(
+            MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY,
+            ("draw_selection_role_without_verified_simple_capability_shape",),
+        )
+
+    missing.add("explicit_decision_safe_structural_capability_contract")
+    return result(
+        MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY,
+        ("no_explicit_decision_safe_capability_contract",),
+    )
+
+
+def assess_card_fidelity(context: Any, oracle_name: str) -> dict[str, object]:
+    """Return the content-backed, question-specific fidelity contract for one project card."""
+
     card = context.cards.get(oracle_name)
     if card is None:
         return {
@@ -188,24 +404,49 @@ def _card_assessment(context: Any, oracle_name: str) -> dict[str, object]:
             "decision_safe": False,
             "reasons": ["card_missing_from_current_search_context"],
             "semantic_state": SEMANTIC_UNKNOWN,
+            "required_structural_capabilities": [],
+            "satisfied_structural_capabilities": [],
+            "missing_structural_capabilities": ["current_search_context_card"],
         }
     profile = card.profile
-    tier, reasons = classify_card_semantics(
+    facts = _facts_for_context_card(context, oracle_name)
+    raw_oracle_text = facts.get("oracle_text")
+    raw_type_line = facts.get("type_line")
+    oracle_text = raw_oracle_text if isinstance(raw_oracle_text, str) else None
+    type_line = raw_type_line if isinstance(raw_type_line, str) else None
+    classified = _classify_card_capabilities(
         oracle_name,
         semantic_state=card.effective_semantic_state,
         roles=profile.roles,
         mechanic_tags=profile.mechanic_tags,
         is_basic=bool(card.is_basic),
+        oracle_text=oracle_text,
+        type_line=type_line,
     )
     return {
         "oracle_name": oracle_name,
-        "tier": tier.value,
-        "decision_safe": tier in DECISION_SAFE_TIERS,
-        "reasons": list(reasons),
+        "tier": classified["tier"],
+        "decision_safe": classified["decision_safe"],
+        "reasons": list(cast(tuple[str, ...], classified["reasons"])),
         "semantic_state": card.effective_semantic_state,
         "roles": sorted(role.value for role in profile.roles),
         "mechanic_tags": sorted(tag.value for tag in profile.mechanic_tags),
+        "required_structural_capabilities": list(
+            cast(tuple[str, ...], classified["required_structural_capabilities"])
+        ),
+        "satisfied_structural_capabilities": list(
+            cast(tuple[str, ...], classified["satisfied_structural_capabilities"])
+        ),
+        "missing_structural_capabilities": list(
+            cast(tuple[str, ...], classified["missing_structural_capabilities"])
+        ),
+        "oracle_fact_shape_checked": bool(facts),
+        "type_line": type_line,
     }
+
+
+def _card_assessment(context: Any, oracle_name: str) -> dict[str, object]:
+    return assess_card_fidelity(context, oracle_name)
 
 
 def changed_card_multiset(
@@ -223,6 +464,25 @@ def changed_card_multiset(
     return tuple(rows)
 
 
+def _required_next_evidence(blocked: Sequence[Mapping[str, object]]) -> str:
+    tiers = {str(row.get("tier", "")) for row in blocked}
+    if MechanicsFidelityTier.UNSUPPORTED.value in tiers:
+        return "SEMANTIC_OR_MODEL_CAPABILITY_REQUIRED"
+    if MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED.value in tiers:
+        return "EXTERNAL_RULES_EVIDENCE_REQUIRED"
+    if MechanicsFidelityTier.TACTICAL_REQUIRED.value in tiers:
+        return "TACTICAL_EVIDENCE_REQUIRED"
+    if MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY.value in tiers:
+        return "STRUCTURAL_SCREENING_ONLY"
+    return "STRUCTURAL_CONFIRMATORY_ALLOWED"
+
+
+def _quantity_value(value: object) -> int:
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return 0
+
+
 def assess_variant_mechanics(
     context: Any,
     *,
@@ -233,25 +493,188 @@ def assess_variant_mechanics(
     delta = changed_card_multiset(control, candidate)
     changed: list[dict[str, object]] = []
     blocked: list[dict[str, object]] = []
+    tier_counts: Counter[str] = Counter()
+    blocked_reasons: Counter[str] = Counter()
     for name, quantity, direction in delta:
         row = _card_assessment(context, name)
         row.update({"quantity": quantity, "direction": direction})
         changed.append(row)
+        tier_counts[str(row["tier"])] += quantity
         if row["decision_safe"] is not True:
             blocked.append(row)
+            for reason in cast(list[str], row.get("reasons", [])):
+                blocked_reasons[reason] += quantity
     return {
-        "schema_version": "1.0.0",
+        "schema_version": "2.0.0",
         "semantic_model_version": STRUCTURAL_SEMANTIC_MODEL_VERSION,
         "question_scope": "variant_delta_against_current_control",
         "deck_hash": deck_hash,
         "changed_slots": sum(quantity for _, quantity, direction in delta if direction == "added"),
         "changed_cards": changed,
         "blocked_cards": blocked,
+        "blocked_reason_counts": dict(sorted(blocked_reasons.items())),
+        "tier_counts": dict(sorted(tier_counts.items())),
+        "fidelity_distance_to_safe": sum(
+            _quantity_value(row.get("quantity", 1)) for row in blocked
+        ),
+        "required_next_evidence_layer": _required_next_evidence(blocked),
         "pass": not blocked,
         "decision_safe_tiers": sorted(tier.value for tier in DECISION_SAFE_TIERS),
         "truth_boundary": (
-            "Structural mechanics fidelity gate for this card-swap question only; not a claim "
-            "that the entire baseline deck is rules-complete"
+            "Question-specific Structural capability gate for the changed-card delta only; "
+            "strategic StructuralMechanic tags are not rules-fidelity proof and the unchanged "
+            "baseline is not upgraded to rules-complete evidence."
+        ),
+    }
+
+
+def build_fidelity_liveness_audit(
+    context: Any,
+    *,
+    control: Sequence[str],
+    initial_variants: Sequence[WholeDeckVariant] = (),
+    control_engine: Any | None = None,
+    qd_config: Any | None = None,
+    seed: int = 0,
+) -> dict[str, object]:
+    """Statically characterize whether non-control Structural decision candidates are reachable.
+
+    The audit consumes no gameplay/scenario evidence. The legal-neighbor probe is exhaustive over
+    the one-for-one changed-slot neighborhood formed by cards whose *removal and addition* are both
+    decision-safe under the same delta contract. This is a conservative small-delta liveness gate,
+    not a claim that every larger coherent package can be Structural-confirmed.
+    """
+
+    card_rows = {name: assess_card_fidelity(context, name) for name in sorted(context.cards)}
+    tier_counts: Counter[str] = Counter(str(row["tier"]) for row in card_rows.values())
+    reason_counts: Counter[str] = Counter()
+    blocked_role_counts: Counter[str] = Counter()
+    blocked_mechanic_counts: Counter[str] = Counter()
+    for row in card_rows.values():
+        if row.get("decision_safe") is True:
+            continue
+        for reason in cast(list[str], row.get("reasons", [])):
+            reason_counts[reason] += 1
+        for role in cast(list[str], row.get("roles", [])):
+            blocked_role_counts[role] += 1
+        for tag in cast(list[str], row.get("mechanic_tags", [])):
+            blocked_mechanic_counts[tag] += 1
+
+    control_counts = Counter(control)
+    safe_control_names = tuple(
+        name
+        for name in sorted(control_counts)
+        if card_rows.get(name, {}).get("decision_safe") is True
+    )
+    safe_add_names: list[str] = []
+    for name, card in sorted(context.cards.items()):
+        row = card_rows[name]
+        if row.get("decision_safe") is not True:
+            continue
+        current_quantity = control_counts[name]
+        available = int(getattr(card, "available_quantity", 0))
+        is_basic = bool(getattr(card, "is_basic", False))
+        if is_basic or current_quantity < available:
+            safe_add_names.append(name)
+
+    legal_neighbors: dict[str, WholeDeckVariant] = {}
+    qd_cells: set[str] = set()
+    if control_engine is not None:
+        for remove_name in safe_control_names:
+            remove_index = next(
+                (index for index, name in enumerate(control) if name == remove_name),
+                None,
+            )
+            if remove_index is None:
+                continue
+            for add_name in safe_add_names:
+                if add_name == remove_name:
+                    continue
+                board = list(control)
+                board[remove_index] = add_name
+                candidate = tuple(board)
+                assessment = assess_variant_mechanics(
+                    context,
+                    control=control,
+                    candidate=candidate,
+                )
+                if assessment.get("pass") is not True:
+                    continue
+                variant = control_engine.evaluate_mainboard(
+                    candidate,
+                    seed=seed + len(legal_neighbors) + 1,
+                    parent_variant_id=None,
+                )
+                if not variant.hard_gate.valid or variant.mainboard == tuple(control):
+                    continue
+                legal_neighbors.setdefault(variant.deck_hash, variant)
+        if qd_config is not None and legal_neighbors:
+            # Local import avoids coupling the fidelity module's import graph to optimizer_v2.
+            from .optimizer_v2 import descriptor_for_variant
+
+            qd_cells = {
+                descriptor_for_variant(variant).cell(qd_config)
+                for variant in legal_neighbors.values()
+            }
+
+    safe_initial = tuple(
+        variant
+        for variant in initial_variants
+        if variant.hard_gate.valid
+        and variant.mainboard != tuple(control)
+        and assess_variant_mechanics(
+            context,
+            control=control,
+            candidate=variant.mainboard,
+            deck_hash=variant.deck_hash,
+        ).get("pass")
+        is True
+    )
+    decision_safe_cards = tuple(
+        name for name, row in card_rows.items() if row.get("decision_safe") is True
+    )
+    decision_safe_noncontrol_cards = tuple(
+        name for name in decision_safe_cards if name not in control_counts
+    )
+    reachable = bool(legal_neighbors or safe_initial)
+    status = "PASS" if reachable else "MODEL_INFORMATION_LIMIT"
+    return {
+        "schema_version": "1.0.0",
+        "semantic_model_version": STRUCTURAL_SEMANTIC_MODEL_VERSION,
+        "evidence_consuming": False,
+        "candidate_pool_count": len(card_rows),
+        "tier_counts": dict(sorted(tier_counts.items())),
+        "decision_safe_card_count": len(decision_safe_cards),
+        "decision_safe_noncontrol_card_count": len(decision_safe_noncontrol_cards),
+        "decision_safe_cards": list(decision_safe_cards),
+        "decision_safe_legal_neighbor_count": len(legal_neighbors),
+        "legal_single_swap_decision_safe_neighbor_count": len(legal_neighbors),
+        "small_delta_safe_neighbor_count": len(legal_neighbors),
+        "small_delta_definition": (
+            "exhaustive legal one-for-one changed-slot neighborhood; conservative subset of all "
+            "possible coherent <=2-slot/package changes"
+        ),
+        "safe_construction_seed_count": len(safe_initial),
+        "safe_construction_seed_hashes": [row.deck_hash for row in safe_initial],
+        "safe_qd_reachability": {
+            "reachable": reachable,
+            "decision_safe_qd_cells_reached": len(qd_cells),
+            "qd_cells": sorted(qd_cells),
+        },
+        "blocked_reason_distribution": dict(sorted(reason_counts.items())),
+        "blocked_role_counts": dict(sorted(blocked_role_counts.items())),
+        "blocked_mechanic_tag_counts": dict(sorted(blocked_mechanic_counts.items())),
+        "tactical_route_count": tier_counts[MechanicsFidelityTier.TACTICAL_REQUIRED.value],
+        "external_route_count": tier_counts[MechanicsFidelityTier.EXTERNAL_RULES_REQUIRED.value],
+        "screening_only_count": tier_counts[
+            MechanicsFidelityTier.APPROXIMATED_SCREENING_ONLY.value
+        ],
+        "unsupported_count": tier_counts[MechanicsFidelityTier.UNSUPPORTED.value],
+        "fidelity_liveness": status,
+        "run_readiness": "PASS" if reachable else "BLOCKED_OR_REROUTED_BEFORE_EVIDENCE",
+        "truth_boundary": (
+            "Static capability/reachability audit only; no gameplay evidence consumed and no "
+            "fidelity tier is widened to satisfy liveness."
         ),
     }
 
@@ -358,7 +781,13 @@ def assess_frontier_mechanics(root: str | Path, frontier_path: str | Path) -> di
                 "external_rules_cards": sorted(EXTERNAL_RULES_REQUIRED_CARDS),
                 "tactical_roles": sorted(role.value for role in TACTICAL_ROLES),
                 "external_rules_roles": sorted(role.value for role in EXTERNAL_RULES_ROLES),
-                "screening_only_roles": sorted(role.value for role in SCREENING_ONLY_ROLES),
+                "default_screening_only_roles": sorted(
+                    role.value for role in DEFAULT_SCREENING_ONLY_ROLES
+                ),
+                "strategic_abstraction_mechanics": sorted(
+                    tag.value for tag in STRATEGIC_ABSTRACTION_MECHANICS
+                ),
+                "capabilities": sorted(cap.value for cap in StructuralCapability),
             }
         ),
         "question_scope": "frontier_variant_delta_with_structural_confirmatory_routing",

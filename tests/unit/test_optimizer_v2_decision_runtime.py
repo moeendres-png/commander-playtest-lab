@@ -144,3 +144,58 @@ def test_sequential_status_has_preregistered_harm_futility_and_ceiling_states() 
     assert harm == "REJECT_HARM"
     assert futility == "FUTILITY_BELOW_SESOI"
     assert ceiling == "PRECISION_LIMIT"
+
+
+def test_control_only_frontier_returns_no_challenger_without_opening_confirmatory(
+    monkeypatch, tmp_path: Path
+) -> None:
+    import commander_lab.whole_deck.optimizer_v2_decision_runtime as runtime
+    from commander_lab.whole_deck.models import PolicyId
+    from commander_lab.whole_deck.search_models import WholeDeckHardGate, WholeDeckVariant
+
+    control = ("Island",)
+    control_hash = "a" * 64
+    variant = WholeDeckVariant(
+        variant_id="control",
+        deck_hash=control_hash,
+        mainboard=control,
+        policy_id=PolicyId.CURRENT_CONTROL,
+        policy_version="test",
+        seed=1,
+        objective_prior=0.0,
+        hard_gate=WholeDeckHardGate(valid=True, card_count=1, land_count=1, basic_count=1),
+    )
+    handoff = SimpleNamespace(
+        elites=(
+            {
+                "deck_hash": control_hash,
+                "variant": variant.model_dump(mode="json"),
+                "evaluation": {
+                    "robust_lower_bound": 0.0,
+                    "score": 0.0,
+                    "qd_cell": "L0:M0:I0",
+                },
+            },
+        )
+    )
+    manifest = SimpleNamespace(manifest_hash="m" * 64, control_deck_hash=control_hash)
+    monkeypatch.setattr(runtime, "verify_decision_preflight", lambda *_a, **_k: {"status": "pass"})
+    monkeypatch.setattr(runtime, "_load_handoff", lambda *_a, **_k: handoff)
+    monkeypatch.setattr(runtime, "current_control_mainboard", lambda _root: control)
+
+    def _forbidden(*_a, **_k):
+        raise AssertionError("confirmatory evaluator must not be instantiated for Current Control")
+
+    monkeypatch.setattr(runtime, "DecisionPartitionEvaluator", _forbidden)
+    result = runtime.run_decision_confirmatory(
+        tmp_path,
+        manifest,
+        frontier_path=tmp_path / "frontier.json",
+        run_directory=tmp_path / "run",
+    )
+    assert result["decision"] == "NO_CHALLENGER"
+    assert result["confirmatory_partition_opened"] is False
+    assert result["confirmatory_scenarios_consumed"] == 0
+    assert result["critical_diagnostics_required_before_holdout"] is False
+    assert result["sealed_holdout_partition_opened"] is False
+    assert result["current_control_challenger_exclusion"] is True
