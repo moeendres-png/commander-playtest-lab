@@ -1,0 +1,113 @@
+name: Exact Main Recovery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exact-main-recovery-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install build and validation runtime
+        run: |
+          python -m pip install -e '.[dev]'
+          python -m pip install build
+      - name: Focused exact-main candidate conformance
+        run: |
+          pytest -q tests/test_candidate_lossless_handoff.py
+          python scripts/run_candidate_handoff_conformance.py \
+            --root . --output-dir artifacts/candidate-handoff
+      - name: Build exact-main recovery payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          tree="$(git rev-parse HEAD^{tree})"
+          version="$(python - <<'PY'
+          import tomllib
+          from pathlib import Path
+          print(tomllib.loads(Path('pyproject.toml').read_text())['project']['version'])
+          PY
+          )"
+          short="${commit:0:12}"
+          inner="recovery/inner"
+          rm -rf recovery
+          mkdir -p "$inner"
+          python -m build --wheel --outdir "$inner"
+          git archive --format=tar.gz --output="$inner/source-${commit}.tar.gz" "$commit"
+          git bundle create "$inner/repository-${commit}.bundle" HEAD --branches --tags
+          cp -R artifacts/architecture "$inner/architecture-artifacts"
+          cp -R artifacts/candidate-handoff "$inner/candidate-handoff-validation"
+          python - <<PY
+          import json
+          from pathlib import Path
+          payload = {
+              'schema_version': 'exact-main-recovery-provenance-1.0.0',
+              'git_commit': '$commit',
+              'git_tree': '$tree',
+              'package_version': '$version',
+              'candidate_pipeline_runtime': 'candidate-pipeline-1.0.0',
+              'candidate_set_schema': 'deck-candidate-set-1.0.0',
+              'simulation_queue_schema': 'simulation-candidate-queue-1.0.0',
+              'official_gameplay_evidence_consumed': False,
+              'sealed_holdout_opened': False,
+              'canonical_mutation_performed': False,
+          }
+          Path('$inner/PROVENANCE.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          verify="$RUNNER_TEMP/recovery-bundle-clone"
+          rm -rf "$verify"
+          git clone "$inner/repository-${commit}.bundle" "$verify"
+          test "$(git -C "$verify" rev-parse HEAD)" = "$commit"
+          test "$(git -C "$verify" rev-parse HEAD^{tree})" = "$tree"
+          restored_version="$(python - <<PY
+          import tomllib
+          from pathlib import Path
+          print(tomllib.loads(Path('$verify/pyproject.toml').read_text())['project']['version'])
+          PY
+          )"
+          test "$restored_version" = "$version"
+          printf 'status=PASS\ncommit=%s\ntree=%s\npackage_version=%s\nfresh_bundle_clone=PASS\n' \
+            "$commit" "$tree" "$version" > "$inner/VALIDATION.txt"
+          (
+            cd "$inner"
+            find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
+          (
+            cd recovery
+            tar -czf "commander-playtest-lab-exact-main-${short}.tar.gz" inner
+            sha256sum "commander-playtest-lab-exact-main-${short}.tar.gz" \
+              > "commander-playtest-lab-exact-main-${short}.tar.gz.sha256"
+          )
+      - name: Verify outer recovery checksum
+        shell: bash
+        run: |
+          cd recovery
+          sha256sum -c *.tar.gz.sha256
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: exact-main-recovery-${{ github.sha }}
+          path: |
+            recovery/*.tar.gz
+            recovery/*.sha256
+          if-no-files-found: error
+          retention-days: 90
