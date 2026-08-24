@@ -1,3 +1,11 @@
+## 1.25.0 - 2026-08-24
+
+- Added a dedicated, exactly four-player XMage full-game lane with XMage as sole rules authority and Commander Lab Our Pilots as sole discretionary decision authority from mulligan through Game Over.
+- Added actor-scoped hidden-information redaction, fail-closed typed decision handoff, explicit seeded rules randomness, one isolated JVM per game, semantic replay gating, and no Structural/Tactical/XMage-AI/random/default decision fallback.
+- Added resumable content-addressed batch orchestration, failure classification, versioned full-game schemas/invariant reports, focused Java/Python contract tests, and a real pinned-XMage two-run technical conformance workflow.
+- Hardened replay identity and transcript privacy by removing process-local XMage UUIDs from pilot RNG identity and excluding actor-private pilot state from exported transcripts.
+- Preserved all canonical deck, inventory, allocation, purchase, opponent and holdout truth unchanged; migration games remain technical conformance only and are not official deck-strength evidence.
+
 ## 1.24.0 - 2026-08-24
 
 - Separated complete deck generation from the productive simulation-input path: the lab now accepts versioned external `DECK_CANDIDATE_SET` inputs and performs only objective hard validation plus exact identical-deck deduplication before gameplay handoff.
