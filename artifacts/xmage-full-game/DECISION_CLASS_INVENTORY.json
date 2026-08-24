@@ -1,0 +1,43 @@
+{
+  "schema_version": "xmage-full-game-decision-inventory-1.0.0",
+  "decision_protocol_version": "xmage-external-decision-protocol-1.0.0",
+  "operational_pod_size": 4,
+  "rules_authority": "xmage",
+  "decision_authority": "commander_lab_external_pilots",
+  "structural_decision_authority": false,
+  "tactical_decision_authority": false,
+  "xmage_ai_decision_authority": false,
+  "random_or_default_discretionary_fallback": false,
+  "decision_classes": [
+    {"decision_class": "priority", "xmage_entry_point": "Player.priority", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "target", "xmage_entry_point": "Player.chooseTarget", "policy_route": "BasePilot.evaluate_action", "fail_closed": true},
+    {"decision_class": "choose_object", "xmage_entry_point": "Player.choose", "policy_route": "BasePilot.evaluate_action", "fail_closed": true},
+    {"decision_class": "target_amount", "xmage_entry_point": "Player.chooseTargetAmount", "policy_route": "BasePilot.evaluate_action + BasePilot.choose_action numeric policy", "fail_closed": true},
+    {"decision_class": "mulligan", "xmage_entry_point": "Player.chooseMulligan", "policy_route": "BasePilot.should_keep_opening_hand", "fail_closed": true},
+    {"decision_class": "choose_use", "xmage_entry_point": "Player.chooseUse", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "choice", "xmage_entry_point": "Player.choose(Choice)", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "pile", "xmage_entry_point": "Player.choosePile", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "mana_payment", "xmage_entry_point": "Player.playMana", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "announce_x", "xmage_entry_point": "Player.announceX", "policy_route": "BasePilot.choose_action numeric policy", "fail_closed": true},
+    {"decision_class": "amount", "xmage_entry_point": "Player.getAmount", "policy_route": "BasePilot.choose_action numeric policy", "fail_closed": true},
+    {"decision_class": "multi_amount", "xmage_entry_point": "Player.getMultiAmountWithIndividualConstraints", "policy_route": "BasePilot.choose_action numeric policy", "fail_closed": true},
+    {"decision_class": "replacement_effect", "xmage_entry_point": "Player.chooseReplacementEffect", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "trigger_order", "xmage_entry_point": "Player.chooseTriggeredAbility", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "mode", "xmage_entry_point": "Player.chooseMode", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "declare_attacker", "xmage_entry_point": "Player.selectAttackers", "policy_route": "BasePilot.choose_combat_target", "fail_closed": true},
+    {"decision_class": "declare_blocker", "xmage_entry_point": "Player.selectBlockers", "policy_route": "BasePilot.evaluate_action", "fail_closed": true}
+  ],
+  "rules_randomness": {
+    "authority": "xmage",
+    "seed_source": "FutureXmageScenario.seed",
+    "process_scope": "one isolated JVM per game",
+    "xmage_rng": "mage.util.RandomUtil.setSeed(long)",
+    "bit_exact_replay_preclaimed": false
+  },
+  "out_of_scope_callbacks": ["sideboard", "limited_construct", "draft_pick"],
+  "out_of_scope_behavior": "fail_closed",
+  "evidence_class": "technical_conformance_only",
+  "official_gameplay_evidence_consumed": false,
+  "holdout_consumed": false,
+  "canonical_data_mutated": false
+}

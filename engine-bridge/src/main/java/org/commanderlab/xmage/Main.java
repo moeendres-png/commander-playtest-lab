@@ -29,40 +29,65 @@ public final class Main {
             Phase6DifferentialAdapter.run(Path.of(args[0]), Path.of(args[1]));
             return;
         }
-        // Preserve the pre-B4-F JSONL behavior for any other argument shape: historical
-        // callers may have supplied ignored launcher arguments. New file-mode callers
-        // should use: phase6 <input> <output>.
-        JsonlBridge bridge = new JsonlBridge();
+        if (args.length == 1 && "full-game".equals(args[0])) {
+            runFullGameJsonl();
+            return;
+        }
 
+        // Preserve the pre-B4-F JSONL behavior for every other argument shape:
+        // historical callers may have supplied ignored launcher arguments.
+        runCompatibilityJsonl();
+    }
+
+    private static void runCompatibilityJsonl() throws Exception {
+        JsonlBridge bridge = new JsonlBridge();
         try (
-                BufferedReader input = new BufferedReader(
-                        new InputStreamReader(
-                                System.in,
-                                StandardCharsets.UTF_8
-                        )
-                );
-                PrintWriter output = new PrintWriter(
-                        System.out,
-                        true,
-                        StandardCharsets.UTF_8
-                )
+                BufferedReader input = stdin();
+                PrintWriter output = stdout()
         ) {
             String line;
-
             while ((line = input.readLine()) != null) {
                 if (line.isBlank()) {
                     continue;
                 }
-
                 JsonlBridge.Result result = bridge.handle(line);
-
                 output.println(result.json());
                 output.flush();
-
                 if (result.shutdown()) {
                     break;
                 }
             }
         }
+    }
+
+    private static void runFullGameJsonl() throws Exception {
+        XmageFullGameJsonlBridge bridge = new XmageFullGameJsonlBridge();
+        try (
+                BufferedReader input = stdin();
+                PrintWriter output = stdout()
+        ) {
+            String line;
+            while ((line = input.readLine()) != null) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                XmageFullGameJsonlBridge.Result result = bridge.handle(line);
+                output.println(result.json());
+                output.flush();
+                if (result.shutdown()) {
+                    break;
+                }
+            }
+        }
+    }
+
+    private static BufferedReader stdin() {
+        return new BufferedReader(
+                new InputStreamReader(System.in, StandardCharsets.UTF_8)
+        );
+    }
+
+    private static PrintWriter stdout() {
+        return new PrintWriter(System.out, true, StandardCharsets.UTF_8);
     }
 }

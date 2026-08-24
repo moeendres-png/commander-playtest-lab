@@ -1,0 +1,143 @@
+name: XMage Full Game Conformance
+
+on:
+  pull_request:
+    paths:
+      - "engine-bridge/**"
+      - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/engine/rules/full_game_batch.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/models/pilots.py"
+      - "src/commander_lab/candidates/models.py"
+      - "artifacts/xmage-full-game/**"
+      - "tests/unit/test_xmage_full_game.py"
+      - "scripts/generate_full_game_contract_artifacts.py"
+      - "scripts/run_external_full_game_conformance.py"
+      - ".github/workflows/xmage-full-game-conformance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "engine-bridge/**"
+      - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/engine/rules/full_game_batch.py"
+      - "artifacts/xmage-full-game/**"
+      - "tests/unit/test_xmage_full_game.py"
+      - "scripts/generate_full_game_contract_artifacts.py"
+      - "scripts/run_external_full_game_conformance.py"
+      - ".github/workflows/xmage-full-game-conformance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  XMAGE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  PYTHONHASHSEED: "0"
+  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
+
+jobs:
+  conformance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify immutable XMage pin
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+      - name: Build pinned XMage
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+      - name: Install lab
+        run: python -m pip install -e '.[dev,api]'
+      - name: Generate versioned full-game contracts
+        run: python scripts/generate_full_game_contract_artifacts.py
+      - name: Run focused Python full-game tests
+        run: pytest -q tests/unit/test_xmage_full_game.py
+      - name: Build and verify XMage bridge including full-game contract tests
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+      - name: Run real seeded 4P game-over and replay conformance
+        run: python scripts/run_external_full_game_conformance.py
+      - name: Verify technical-evidence boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('artifacts/xmage-full-game')
+          conformance = json.loads((root / 'XMAGE_FULL_GAME_CONFORMANCE.json').read_text())
+          replay = json.loads((root / 'XMAGE_FULL_GAME_REPLAY_GATE.json').read_text())
+          hidden = json.loads((root / 'HIDDEN_INFORMATION_BOUNDARY_REPORT.json').read_text())
+          invariant = json.loads((root / 'ARCHITECTURE_INVARIANT_REPORT.json').read_text())
+          assert conformance['evidence_class'] == 'technical_conformance_only'
+          assert conformance['consumed_gameplay_evidence'] is False
+          assert conformance['holdout_consumed'] is False
+          assert conformance['official_campaign_eligible'] is False
+          assert conformance['rules_authority'] == 'xmage'
+          assert conformance['decision_authority'] == 'commander_lab_external_pilots'
+          assert conformance['structural_authority'] is False
+          assert conformance['tactical_authority'] is False
+          assert conformance['fallback_used'] is False
+          assert replay['semantic_replay_match'] is True
+          assert replay['bit_exact_replay_validated'] is False
+          assert hidden['status'] == 'PASS'
+          assert invariant['random_or_default_discretionary_fallback'] is False
+          assert invariant['canonical_data_mutated'] is False
+          PY
+      - name: Record test validation and checksums
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts/xmage-full-game
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path('artifacts/xmage-full-game/TEST_VALIDATION_REPORT.json')
+          payload = {
+              'schema_version': 'xmage-full-game-test-validation-1.0.0',
+              'lab_commit': os.environ.get('GITHUB_SHA'),
+              'xmage_commit': os.environ['XMAGE_COMMIT'],
+              'operational_pod_size': 4,
+              'rules_authority': 'xmage',
+              'decision_authority': 'commander_lab_external_pilots',
+              'evidence_class': 'technical_conformance_only',
+              'official_gameplay_evidence_consumed': False,
+              'holdout_consumed': False,
+              'canonical_data_mutated': False,
+              'workflow': 'XMage Full Game Conformance',
+          }
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n')
+          PY
+          find artifacts/xmage-full-game -type f ! -name SHA256SUMS -print0 \
+            | sort -z | xargs -0 sha256sum > artifacts/xmage-full-game/SHA256SUMS || true
+      - name: Upload full-game technical conformance evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: xmage-full-game-conformance-${{ github.sha }}
+          path: artifacts/xmage-full-game/
+          if-no-files-found: error
