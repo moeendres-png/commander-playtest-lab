@@ -74,7 +74,11 @@ class FullGameBatchRecord(_StrictModel):
     @model_validator(mode="after")
     def coherent_status(self) -> FullGameBatchRecord:
         if self.status == "completed":
-            if self.result is None or self.failure_class is not None or self.failure_message is not None:
+            if (
+                self.result is None
+                or self.failure_class is not None
+                or self.failure_message is not None
+            ):
                 raise ValueError("completed batch record requires result and no failure")
         elif self.result is not None or self.failure_class is None or not self.failure_message:
             raise ValueError("failed batch record requires classified failure and no result")

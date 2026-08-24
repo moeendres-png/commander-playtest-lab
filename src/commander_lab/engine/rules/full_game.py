@@ -329,8 +329,8 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
-        min_selections = int(request.get("min_selections", 0))
-        max_selections = int(request.get("max_selections", 0))
+        min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))
+        max_selections = int(request.get("maximum_selections", request.get("max_selections", 0)))
         decision_offset = int(request.get("decision_offset", -1))
         if decision_offset < 1:
             raise FullGameProtocolError("decision_offset must be a positive integer")

@@ -69,9 +69,7 @@ def _actor_state() -> dict[str, Any]:
             "battlefield": [],
             "graveyard": [],
             "command": [{"object_id": "commander", "name": "Isamaru, Hound of Konda"}],
-            "hand": [
-                {"object_id": f"card-{index}", "name": "Plains"} for index in range(7)
-            ],
+            "hand": [{"object_id": f"card-{index}", "name": "Plains"} for index in range(7)],
             "mana_pool": {
                 "white": 0,
                 "blue": 0,
@@ -120,8 +118,6 @@ def _boolean_request(*, decision_id: str, offset: int) -> dict[str, Any]:
         "context": {"outcome": "benefit"},
         "minimum_selections": 1,
         "maximum_selections": 1,
-        "min_selections": 1,
-        "max_selections": 1,
         "legal_options": [
             {
                 "option_id": "yes",
@@ -153,7 +149,9 @@ def _decks() -> tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckI
     )  # type: ignore[return-value]
 
 
-def _scenario(decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput]) -> FutureXmageScenario:
+def _scenario(
+    decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput],
+) -> FutureXmageScenario:
     assert decks[0].deck_hash is not None
     return FutureXmageScenario(
         candidate_id=decks[0].deck_id,
