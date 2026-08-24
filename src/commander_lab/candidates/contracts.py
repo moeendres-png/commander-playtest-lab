@@ -1,0 +1,89 @@
+from __future__ import annotations
+
+DECK_CANDIDATE_SET_SCHEMA_VERSION = "deck-candidate-set-1.0.0"
+CANDIDATE_VALIDATION_REPORT_SCHEMA_VERSION = "candidate-validation-report-1.0.0"
+SIMULATION_CANDIDATE_QUEUE_SCHEMA_VERSION = "simulation-candidate-queue-1.0.0"
+PRE_SIMULATION_INVARIANT_REPORT_SCHEMA_VERSION = "pre-simulation-invariant-report-1.0.0"
+FUTURE_XMAGE_SCENARIO_CONTRACT_VERSION = "future-xmage-scenario-contract-1.0.0"
+CANDIDATE_PIPELINE_RUNTIME_VERSION = "candidate-pipeline-1.0.0"
+
+STRUCTURAL_SIMULATION_DECISION_AUTHORITY = False
+STRUCTURAL_SIMULATION_REQUIRED_BEFORE_GAMEPLAY = False
+STRUCTURAL_SIMULATION_CAN_ELIMINATE_CANDIDATE = False
+STRUCTURAL_SIMULATION_CAN_DECLARE_OFFICIAL_WINNER = False
+TACTICAL_DECISION_AUTHORITY = False
+XMAGE_TARGET_RULES_AUTHORITY = True
+OUR_PILOT_TARGET_DECISION_POLICY = True
+
+OFFICIAL_GAMEPLAY_SIMULATION = False
+XMAGE_FULL_GAME_CAMPAIGN = False
+STRUCTURAL_OFFICIAL_CAMPAIGN = False
+TACTICAL_OFFICIAL_CAMPAIGN = False
+HOLDOUT_OPENED = False
+
+HARD_FAIL_CODES = frozenset(
+    {
+        "PHYSICAL_AVAILABILITY_INVALID",
+        "DECK_SIZE_INVALID",
+        "COMMANDER_COUNT_INVALID",
+        "COMMANDER_IDENTITY_INVALID",
+        "COLOR_IDENTITY_INVALID",
+        "COMMANDER_LEGALITY_INVALID",
+        "BANNED_CARD_INVALID",
+        "SINGLETON_INVALID",
+        "PHYSICAL_QUANTITY_INVALID",
+        "ACTIVE_ALLOCATION_CONFLICT",
+        "UNKNOWN_REQUIRED_CARD",
+        "MALFORMED_CARD_IDENTITY",
+        "DUPLICATE_IDENTICAL_DECK",
+        "CARD_LEGALITY_INVALID",
+        "PARTNER_PAIRING_INVALID",
+    }
+)
+
+NON_ADMISSION_FIELDS = frozenset(
+    {
+        "objective_prior",
+        "contextual_card_utility",
+        "meta_distance",
+        "mana_soft_score",
+        "package_bonus",
+        "structural_score",
+        "structural_decision_safe",
+        "fidelity_tier",
+        "tactical_routing",
+        "external_routing",
+        "screening_only",
+        "qd_archive_membership",
+        "elite_membership",
+        "frontier_membership",
+        "finalist_membership",
+        "current_distance",
+        "coverage_debt_status",
+        "design_policy",
+        "design_philosophy",
+    }
+)
+
+__all__ = [
+    "CANDIDATE_PIPELINE_RUNTIME_VERSION",
+    "CANDIDATE_VALIDATION_REPORT_SCHEMA_VERSION",
+    "DECK_CANDIDATE_SET_SCHEMA_VERSION",
+    "FUTURE_XMAGE_SCENARIO_CONTRACT_VERSION",
+    "HARD_FAIL_CODES",
+    "HOLDOUT_OPENED",
+    "NON_ADMISSION_FIELDS",
+    "OFFICIAL_GAMEPLAY_SIMULATION",
+    "OUR_PILOT_TARGET_DECISION_POLICY",
+    "PRE_SIMULATION_INVARIANT_REPORT_SCHEMA_VERSION",
+    "SIMULATION_CANDIDATE_QUEUE_SCHEMA_VERSION",
+    "STRUCTURAL_OFFICIAL_CAMPAIGN",
+    "STRUCTURAL_SIMULATION_CAN_DECLARE_OFFICIAL_WINNER",
+    "STRUCTURAL_SIMULATION_CAN_ELIMINATE_CANDIDATE",
+    "STRUCTURAL_SIMULATION_DECISION_AUTHORITY",
+    "STRUCTURAL_SIMULATION_REQUIRED_BEFORE_GAMEPLAY",
+    "TACTICAL_DECISION_AUTHORITY",
+    "TACTICAL_OFFICIAL_CAMPAIGN",
+    "XMAGE_FULL_GAME_CAMPAIGN",
+    "XMAGE_TARGET_RULES_AUTHORITY",
+]

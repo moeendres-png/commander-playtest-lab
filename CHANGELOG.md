@@ -1,3 +1,11 @@
+## 1.24.0 - 2026-08-24
+
+- Separated complete deck generation from the productive simulation-input path: the lab now accepts versioned external `DECK_CANDIDATE_SET` inputs and performs only objective hard validation plus exact identical-deck deduplication before gameplay handoff.
+- Added fail-closed lossless `SIMULATION_CANDIDATE_QUEUE` and invariant reporting so every hard-valid unique candidate must reach the future gameplay queue regardless of objective prior, meta distance, Structural score, fidelity tier, QD/archive/finalist status, Current distance, policy or routing metadata.
+- Reclassified Whole-Deck search/generation as deprecated for simulation admission; Structural Simulation and Tactical Oracle remain diagnostic/test systems without official deck-decision authority, while XMage and Our Pilots are the target rules and decision-policy authorities.
+- Added candidate CLI contracts, 60-candidate/property conformance coverage, architecture/filter inventory, exact-main recovery workflow and future 4-player XMage scenario interface without consuming gameplay evidence or opening a sealed holdout.
+- Preserved the canonical current deck, physical inventory quantities, allocations, purchases and opponent truth unchanged.
+
 ## 1.23.3 - 2026-08-23
 
 - Added a bounded 4-player Tactical default-timing primitive for ordinary instant/sorcery casting windows; this enables targeted evidence for literal instant draw/scry candidates without promoting them to Structural or external-rules evidence.

@@ -1,3 +1,3 @@
 """Commander Playtest Lab data and validation package."""
 
-__version__ = "1.23.3"
+__version__ = "1.24.0"

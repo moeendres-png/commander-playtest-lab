@@ -1,0 +1,120 @@
+name: Candidate Lossless Handoff Conformance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/commander_lab/candidates/**'
+      - 'src/commander_lab/cli/main.py'
+      - 'src/commander_lab/whole_deck/decision_authority.py'
+      - 'scripts/run_candidate_handoff_conformance.py'
+      - 'tests/test_candidate_lossless_handoff.py'
+      - 'artifacts/architecture/**'
+      - 'docs/architecture/deckbuilding-simulation-separation.md'
+      - 'pyproject.toml'
+      - '.github/workflows/candidate-lossless-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/commander_lab/candidates/**'
+      - 'src/commander_lab/cli/main.py'
+      - 'src/commander_lab/whole_deck/decision_authority.py'
+      - 'scripts/run_candidate_handoff_conformance.py'
+      - 'tests/test_candidate_lossless_handoff.py'
+      - 'artifacts/architecture/**'
+      - 'docs/architecture/deckbuilding-simulation-separation.md'
+      - 'pyproject.toml'
+      - '.github/workflows/candidate-lossless-handoff.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidate-lossless-handoff-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Focused no-pre-filter tests
+        run: pytest -q tests/test_candidate_lossless_handoff.py
+      - name: Canonical read-only handoff conformance
+        run: python scripts/run_candidate_handoff_conformance.py --root . --output-dir artifacts/candidate-handoff
+      - name: CLI contract
+        run: |
+          commander-lab candidates --help
+          commander-lab candidates normalize --help
+          commander-lab candidates validate --help
+          commander-lab candidates prepare-simulation --help
+          commander-lab candidates prepare-simulation \
+            artifacts/candidate-handoff/DECK_CANDIDATE_SET.input.json \
+            --root . \
+            --output-dir artifacts/candidate-handoff/cli
+      - name: Verify lossless equality and authority boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from commander_lab.candidates.contracts import (
+              STRUCTURAL_SIMULATION_DECISION_AUTHORITY,
+              TACTICAL_DECISION_AUTHORITY,
+              XMAGE_TARGET_RULES_AUTHORITY,
+          )
+
+          root = Path('artifacts/candidate-handoff')
+          queue = json.loads((root / 'SIMULATION_CANDIDATE_QUEUE.json').read_text())
+          invariant = json.loads((root / 'PRE_SIMULATION_INVARIANT_REPORT.json').read_text())
+          if queue['input_hard_valid_unique_count'] != queue['output_simulation_queue_count']:
+              raise SystemExit('candidate count loss detected')
+          if invariant['every_hard_valid_unique_candidate_queued'] is not True:
+              raise SystemExit('candidate-ID loss detected')
+          if invariant['no_pre_simulation_heuristic_can_remove'] is not True:
+              raise SystemExit('heuristic admission authority detected')
+          if STRUCTURAL_SIMULATION_DECISION_AUTHORITY or TACTICAL_DECISION_AUTHORITY:
+              raise SystemExit('legacy simulator retained decision authority')
+          if not XMAGE_TARGET_RULES_AUTHORITY:
+              raise SystemExit('XMage is not the target rules authority')
+          PY
+      - name: Write focused test validation report
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = {
+              'schema_version': 'test-validation-report-1.0.0',
+              'status': 'PASS',
+              'focused_candidate_tests': 'PASS',
+              'canonical_handoff_conformance': 'PASS',
+              'candidate_cli_contract': 'PASS',
+              'hard_valid_unique_input_count_tested': 60,
+              'simulation_queue_output_count_tested': 60,
+              'official_gameplay_evidence_consumed': False,
+              'sealed_holdout_opened': False,
+          }
+          Path('artifacts/candidate-handoff/TEST_VALIDATION_REPORT.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+      - name: Assert no tracked canonical mutation
+        run: |
+          test -z "$(git status --porcelain --untracked-files=no)"
+          git diff --exit-code
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: candidate-lossless-handoff-${{ github.sha }}
+          path: artifacts/candidate-handoff/
+          if-no-files-found: error
+          retention-days: 30
