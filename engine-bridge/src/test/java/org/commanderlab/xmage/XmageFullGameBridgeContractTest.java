@@ -66,9 +66,11 @@ class XmageFullGameBridgeContractTest {
 
         JsonObject response = response(bridge.handle(request("create_full_game", payload)).json());
         assertFalse(response.get("success").getAsBoolean());
+        JsonArray errors = response.getAsJsonArray("errors");
+        assertEquals(1, errors.size());
         assertEquals(
                 "invalid_player_count",
-                response.getAsJsonObject("error").get("code").getAsString()
+                errors.get(0).getAsJsonObject().get("code").getAsString()
         );
     }
 
