@@ -1,0 +1,53 @@
+name: Full Game One-Shot Final Formatter
+
+on:
+  push:
+    branches:
+      - engine/xmage-full-game-external-pilots
+    paths:
+      - .github/workflows/full-game-one-shot-final-format.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: engine/xmage-full-game-external-pilots
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Canonically format changed Python sources
+        run: |
+          set -euo pipefail
+          python -m pip install 'ruff==0.16.4'
+          ruff format \
+            src/commander_lab/engine/rules/full_game.py \
+            src/commander_lab/engine/rules/full_game_batch.py \
+            src/commander_lab/engine/rules/__init__.py \
+            scripts/run_external_full_game_conformance.py \
+            scripts/generate_full_game_contract_artifacts.py \
+            tests/unit/test_xmage_full_game.py \
+            tests/unit/test_xmage_full_game_decision_matrix.py
+          ruff check \
+            src/commander_lab/engine/rules/full_game.py \
+            src/commander_lab/engine/rules/full_game_batch.py \
+            src/commander_lab/engine/rules/__init__.py \
+            scripts/run_external_full_game_conformance.py \
+            scripts/generate_full_game_contract_artifacts.py \
+            tests/unit/test_xmage_full_game.py \
+            tests/unit/test_xmage_full_game_decision_matrix.py
+          rm .github/workflows/full-game-one-shot-final-format.yml
+      - name: Commit formatting
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/commander_lab/engine/rules/full_game.py src/commander_lab/engine/rules/full_game_batch.py src/commander_lab/engine/rules/__init__.py scripts/run_external_full_game_conformance.py scripts/generate_full_game_contract_artifacts.py tests/unit/test_xmage_full_game.py tests/unit/test_xmage_full_game_decision_matrix.py .github/workflows/full-game-one-shot-final-format.yml
+          git diff --cached --check
+          git commit -m 'style: format full-game migration sources'
+          git push origin HEAD:engine/xmage-full-game-external-pilots
