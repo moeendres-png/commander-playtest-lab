@@ -137,7 +137,8 @@ def load_hard_validation_context(
         if not isinstance(name, str) or not name.strip():
             continue
         physically_owned = row.get("currently_owned") is True
-        quantity = int(row.get("quantity", 0) or 0) if physically_owned else 0
+        raw_quantity = row.get("quantity", 0)
+        quantity = raw_quantity if physically_owned and isinstance(raw_quantity, int) else 0
         raw_identity = str(row.get("color_identity", "") or "")
         identity = frozenset(symbol for symbol in raw_identity if symbol in "WUBRG")
         cards[name] = CardHardValidityRecord(
@@ -145,7 +146,9 @@ def load_hard_validation_context(
             owned_quantity=max(0, quantity),
             target_available_quantity=max(0, int(available.get(name, 0))),
             color_identity=identity,
-            commander_legality=str(row.get("commander_legality", "unknown") or "unknown").casefold(),
+            commander_legality=str(
+                row.get("commander_legality", "unknown") or "unknown"
+            ).casefold(),
             oracle_text=str(row.get("oracle_text", "") or ""),
             physically_owned=physically_owned,
         )
