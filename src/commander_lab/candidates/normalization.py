@@ -11,7 +11,9 @@ def canonical_deck_payload(candidate: DeckCandidate) -> dict[str, object]:
         "commanders": sorted(candidate.commander_names, key=str.casefold),
         "mainboard": [
             {"oracle_name": name, "quantity": quantity}
-            for name, quantity in sorted(candidate.mainboard.items(), key=lambda item: item[0].casefold())
+            for name, quantity in sorted(
+                candidate.mainboard.items(), key=lambda item: item[0].casefold()
+            )
         ],
     }
 
