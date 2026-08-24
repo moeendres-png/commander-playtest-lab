@@ -9,7 +9,9 @@ on:
       - "src/commander_lab/agents/**"
       - "src/commander_lab/models/pilots.py"
       - "src/commander_lab/candidates/models.py"
+      - "artifacts/xmage-full-game/**"
       - "tests/unit/test_xmage_full_game.py"
+      - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
       - ".github/workflows/xmage-full-game-conformance.yml"
   push:
@@ -18,7 +20,9 @@ on:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
       - "src/commander_lab/engine/rules/full_game_batch.py"
+      - "artifacts/xmage-full-game/**"
       - "tests/unit/test_xmage_full_game.py"
+      - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
       - ".github/workflows/xmage-full-game-conformance.yml"
   workflow_dispatch:
@@ -68,6 +72,8 @@ jobs:
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
       - name: Install lab
         run: python -m pip install -e '.[dev,api]'
+      - name: Generate versioned full-game contracts
+        run: python scripts/generate_full_game_contract_artifacts.py
       - name: Run focused Python full-game tests
         run: pytest -q tests/unit/test_xmage_full_game.py
       - name: Build and verify XMage bridge including full-game contract tests
@@ -86,6 +92,7 @@ jobs:
           conformance = json.loads((root / 'XMAGE_FULL_GAME_CONFORMANCE.json').read_text())
           replay = json.loads((root / 'XMAGE_FULL_GAME_REPLAY_GATE.json').read_text())
           hidden = json.loads((root / 'HIDDEN_INFORMATION_BOUNDARY_REPORT.json').read_text())
+          invariant = json.loads((root / 'ARCHITECTURE_INVARIANT_REPORT.json').read_text())
           assert conformance['evidence_class'] == 'technical_conformance_only'
           assert conformance['consumed_gameplay_evidence'] is False
           assert conformance['holdout_consumed'] is False
@@ -98,6 +105,8 @@ jobs:
           assert replay['semantic_replay_match'] is True
           assert replay['bit_exact_replay_validated'] is False
           assert hidden['status'] == 'PASS'
+          assert invariant['random_or_default_discretionary_fallback'] is False
+          assert invariant['canonical_data_mutated'] is False
           PY
       - name: Record test validation and checksums
         if: always()
