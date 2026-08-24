@@ -6,6 +6,7 @@ import json
 import os
 import queue
 import random
+import re
 import shlex
 import subprocess
 import threading
@@ -344,7 +345,7 @@ class ExternalPilotDecisionPolicy:
         elif decision_class in {"announce_x", "amount", "multi_amount"}:
             numeric_choice = self._decide_numeric(runtime, pilot_state, context, rng)
         elif decision_class == "mana_payment":
-            selected = [self._decide_mana(runtime, pilot_state, options, rng)]
+            selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
         elif decision_class == "choose_use":
             selected = [self._decide_boolean(runtime, pilot_state, options, context, rng)]
         elif decision_class == "pile":
@@ -598,18 +599,53 @@ class ExternalPilotDecisionPolicy:
         runtime: _RuntimePilot,
         state: dict[str, Any],
         options: list[dict[str, Any]],
+        context: dict[str, Any],
         rng: random.Random,
     ) -> str:
         if not options:
             raise FullGameProtocolError("mana decision has no legal options")
+
+        pool_options = [
+            option
+            for option in options
+            if self._required_text(option, "option_type") == "mana_pool"
+        ]
+        if pool_options:
+            unpaid = str(context.get("unpaid_mana", "")).casefold()
+
+            def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
+                metadata = option.get("metadata")
+                meta = metadata if isinstance(metadata, dict) else {}
+                mana_type = str(meta.get("mana_type", "")).casefold()
+                symbol = {
+                    "white": "w",
+                    "blue": "u",
+                    "black": "b",
+                    "red": "r",
+                    "green": "g",
+                    "colorless": "c",
+                }.get(mana_type)
+                exact_required = 1 if symbol and f"{{{symbol}}}" in unpaid else 0
+                return exact_required, mana_type, str(option.get("label", "")).casefold()
+
+            return self._required_text(max(pool_options, key=pool_key), "option_id")
+
         actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[tuple[str, str], int] = {}
         for option in options:
             option_type = self._required_text(option, "option_type")
+            label = str(option.get("label", option_type))
+            key = (option_type, label.casefold())
+            occurrence = occurrences.get(key, 0)
+            occurrences[key] = occurrence + 1
+            stable_id = f"mana:{option_type}:{label.casefold()}:{occurrence}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
             actions.append(
                 PilotActionView(
-                    action_id=self._required_text(option, "option_id"),
+                    action_id=stable_id,
                     action_kind="pass" if option_type == "cancel_mana_payment" else "card",
-                    card_name=str(option.get("label", option_type)),
+                    card_name=label,
                     floor_value=0.1 if option_type == "cancel_mana_payment" else 0.75,
                     immediate_impact=0.0 if option_type == "cancel_mana_payment" else 0.55,
                     metadata={"xmage_option_type": option_type},
@@ -618,7 +654,10 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no mana decision")
-        return decision.selected_action_id
+        try:
+            return raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable mana action") from exc
 
     def _decide_numeric(
         self,
@@ -676,19 +715,34 @@ class ExternalPilotDecisionPolicy:
         if not attacks:
             return self._required_text(hold, "option_id")
         pilot_state = self._pilot_state(runtime, state)
-        actions = [self._combat_action(option, state) for option in attacks]
+        actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
+        for option in attacks:
+            label = str(option.get("label", "Attack"))
+            base = f"attack:{label.casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            action = self._combat_action(option, state).model_copy(update={"action_id": stable_id})
+            actions.append(action)
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
         actions.append(
             PilotActionView(
-                action_id=self._required_text(hold, "option_id"),
+                action_id="attack:hold",
                 action_kind="pass",
                 card_name="Hold attacker",
                 floor_value=0.1,
             )
         )
+        raw_by_stable_id["attack:hold"] = self._required_text(hold, "option_id")
         decision = runtime.pilot.choose_combat_target(pilot_state, actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no attack decision")
-        return decision.selected_action_id
+        try:
+            return raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable attack action") from exc
 
     def _decide_blocks(
         self,
@@ -703,15 +757,23 @@ class ExternalPilotDecisionPolicy:
             return []
         pilot_state = self._pilot_state(runtime, state)
         ranked: list[tuple[float, str]] = []
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
         for option in options:
-            action = self._combat_action(option, state)
+            label = str(option.get("label", "Block"))
+            base = f"block:{label.casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            action = self._combat_action(option, state).model_copy(update={"action_id": stable_id})
             score = runtime.pilot.evaluate_action(pilot_state, action).total_utility
-            ranked.append((score, action.action_id))
+            ranked.append((score, stable_id))
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
         ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
         actor = self._actor(state)
         life = float(actor.get("life", 40))
         take = max_selections if life <= 15 else min(max_selections, max(min_selections, 1))
-        return [option_id for _score, option_id in ranked[:take]]
+        return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
 
     def _pilot_state(self, runtime: _RuntimePilot, state: dict[str, Any]) -> PilotStateView:
         actor = self._actor(state)
@@ -1366,9 +1428,11 @@ class XmageFullGameRunner:
                         "kind": raw.get("kind"),
                         "decision_class": raw.get("decision_class"),
                         "actor_seat": raw.get("actor_seat"),
-                        "prompt": raw.get("prompt"),
+                        "prompt": XmageFullGameRunner._semantic_text(raw.get("prompt")),
                         "selected_option_types": raw.get("selected_option_types"),
-                        "selected_option_labels": raw.get("selected_option_labels"),
+                        "selected_option_labels": XmageFullGameRunner._semantic_text_list(
+                            raw.get("selected_option_labels")
+                        ),
                         "numeric_choice": raw.get("numeric_choice"),
                     }
                 )
@@ -1393,6 +1457,31 @@ class XmageFullGameRunner:
             "events": semantic_events,
             "outcomes": semantic_outcomes,
         }
+
+    @staticmethod
+    def _semantic_text(value: object) -> object:
+        if not isinstance(value, str):
+            return value
+        text = re.sub(
+            r"\s+object_id=(['\"])[^'\"]+\1",
+            "",
+            value,
+            flags=re.IGNORECASE,
+        )
+        text = re.sub(
+            r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b",
+            "<engine-object>",
+            text,
+        )
+        text = re.sub(r"(</font>)\s*\[[0-9a-fA-F]{3,8}\]", r"\1", text)
+        text = re.sub(r"\s*\[[0-9a-fA-F]{3,8}\](?=</div>|$)", "", text)
+        return text
+
+    @staticmethod
+    def _semantic_text_list(value: object) -> object:
+        if not isinstance(value, list):
+            return value
+        return [XmageFullGameRunner._semantic_text(item) for item in value]
 
     @staticmethod
     def _sha256(value: dict[str, Any]) -> str:

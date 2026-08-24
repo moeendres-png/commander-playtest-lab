@@ -116,6 +116,63 @@ def _request(
     }
 
 
+def test_mana_payment_spends_existing_pool_mana_before_tapping_another_source() -> None:
+    response = _policy().decide(
+        _request(
+            "mana_payment",
+            [
+                _option("cancel", "cancel_mana_payment", "Cancel"),
+                _option(
+                    "pool-white",
+                    "mana_pool",
+                    "Spend white mana from pool",
+                    mana_type="white",
+                    mana_available=1,
+                ),
+                _option("opaque-plains-ability", "mana_ability", "Plains — {T}: Add {W}."),
+            ],
+            minimum=1,
+            maximum=1,
+            context={"unpaid_mana": "{W}"},
+        )
+    )
+    assert response["selected_option_ids"] == ["pool-white"]
+
+
+def test_attacker_choice_is_independent_of_process_local_option_ids() -> None:
+    def choose(option_a: str, option_b: str) -> str:
+        options = [
+            _option("hold-random", "hold_attacker", "Hold attacker"),
+            _option(
+                option_a,
+                "declare_attacker",
+                "Isamaru attacks Full Game Seat 2",
+                defender_id="opponent-1",
+            ),
+            _option(
+                option_b,
+                "declare_attacker",
+                "Isamaru attacks Full Game Seat 3",
+                defender_id="opponent-2",
+            ),
+        ]
+        response = _policy().decide(
+            _request(
+                "declare_attacker",
+                options,
+                minimum=1,
+                maximum=1,
+                context={},
+            )
+        )
+        selected = response["selected_option_ids"][0]
+        return next(option["label"] for option in options if option["option_id"] == selected)
+
+    first = choose("opaque-a-1", "opaque-a-2")
+    second = choose("opaque-b-9", "opaque-b-7")
+    assert first == second
+
+
 @pytest.mark.parametrize(
     ("decision_class", "options", "minimum", "maximum", "context"),
     [

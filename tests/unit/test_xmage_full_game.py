@@ -242,6 +242,57 @@ def test_semantic_transcript_drops_private_state_and_engine_object_ids() -> None
     assert "opaque-random-uuid" not in encoded
 
 
+def test_semantic_transcript_normalizes_xmage_process_local_prompt_ids() -> None:
+    base = {
+        "seed": 3,
+        "turn_number": 2,
+        "decision_count": 1,
+        "outcomes": [],
+    }
+    first = {
+        **base,
+        "transcript": [
+            {
+                "sequence": 1,
+                "kind": "decision_requested",
+                "decision_class": "mana_payment",
+                "actor_seat": 0,
+                "prompt": (
+                    "{W}<div><font object_id='64c42435-d2e2-4aa3-8ce7-7a77ecaecc00'>"
+                    "Isamaru, Hound of Konda</font> [64c]</div>"
+                ),
+                "selected_option_types": None,
+                "selected_option_labels": None,
+                "numeric_choice": None,
+            }
+        ],
+    }
+    second = {
+        **base,
+        "transcript": [
+            {
+                "sequence": 1,
+                "kind": "decision_requested",
+                "decision_class": "mana_payment",
+                "actor_seat": 0,
+                "prompt": (
+                    "{W}<div><font object_id='07f0fab5-af4b-4f72-905b-bd7184dfc56a'>"
+                    "Isamaru, Hound of Konda</font> [07f]</div>"
+                ),
+                "selected_option_types": None,
+                "selected_option_labels": None,
+                "numeric_choice": None,
+            }
+        ],
+    }
+    first_semantic = XmageFullGameRunner.semantic_transcript(first)
+    second_semantic = XmageFullGameRunner.semantic_transcript(second)
+    assert first_semantic == second_semantic
+    encoded = json.dumps(first_semantic, sort_keys=True)
+    assert "object_id" not in encoded
+    assert "64c42435" not in encoded
+
+
 class _FakeRunner:
     def __init__(self, result: FullGameConformanceResult) -> None:
         self.result = result

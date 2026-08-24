@@ -15,6 +15,7 @@ import mage.cards.Card;
 import mage.cards.Cards;
 import mage.cards.decks.Deck;
 import mage.choices.Choice;
+import mage.constants.ManaType;
 import mage.constants.MultiAmountType;
 import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
@@ -371,6 +372,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
         JsonArray options = new JsonArray();
         Map<String, ActivatedAbility> byId = new LinkedHashMap<>();
+        Map<String, ManaType> poolManaById = new LinkedHashMap<>();
         String cancel = optionId("mana", "cancel");
         options.add(XmageFullGameDecisionController.option(
                 cancel,
@@ -378,6 +380,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 "cancel_mana_payment",
                 new JsonObject()
         ));
+        ManaType.getTrueManaTypes().stream()
+                .filter(manaType -> getManaPool().get(manaType) > 0)
+                .sorted(Comparator.comparing(Enum::name))
+                .forEach(manaType -> {
+                    String optionId = optionId("mana-pool", manaType.name());
+                    JsonObject metadata = new JsonObject();
+                    metadata.addProperty("mana_type", manaType.toString());
+                    metadata.addProperty("mana_available", getManaPool().get(manaType));
+                    options.add(XmageFullGameDecisionController.option(
+                            optionId,
+                            "Spend " + manaType.toString() + " mana from pool",
+                            "mana_pool",
+                            metadata
+                    ));
+                    poolManaById.put(optionId, manaType);
+                });
         for (ActivatedAbility manaAbility : manaAbilities) {
             String optionId = abilityOptionId("mana", manaAbility);
             options.add(XmageFullGameDecisionController.option(
@@ -402,6 +420,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
         ));
         if (cancel.equals(selected)) {
             return false;
+        }
+        ManaType poolManaType = poolManaById.get(selected);
+        if (poolManaType != null) {
+            getManaPool().unlockManaType(poolManaType);
+            return true;
         }
         ActivatedAbility manaAbility = byId.get(selected);
         if (manaAbility == null) {
