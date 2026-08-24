@@ -32,7 +32,7 @@ from commander_lab.models import (
 
 FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0"
 FULL_GAME_LANE = "xmage_full_game_external_pilots"
-FULL_GAME_EVIDENCE_CLASS = "technical_conformance_only"
+FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"
 XMAGE_FULL_GAME_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 
 
@@ -132,7 +132,9 @@ class _RawFullGameClient:
         if not command:
             raise ValueError("full-game bridge command must not be empty")
         if "full-game" not in command:
-            raise ValueError("full-game bridge command must explicitly include the full-game subcommand")
+            raise ValueError(
+                "full-game bridge command must explicitly include the full-game subcommand"
+            )
         self.command = command
         self.cwd = None if cwd is None else str(cwd)
         self.request_timeout_seconds = request_timeout_seconds
@@ -466,9 +468,7 @@ class ExternalPilotDecisionPolicy:
             if not isinstance(hand, list):
                 raise FullGameProtocolError("London bottom decision requires actor hand visibility")
             count = min_selections
-            card_actions = tuple(
-                self._hand_action(card) for card in hand if isinstance(card, dict)
-            )
+            card_actions = tuple(self._hand_action(card) for card in hand if isinstance(card, dict))
             selected = runtime.pilot.choose_bottom_cards(
                 card_actions,
                 count,
@@ -712,12 +712,13 @@ class ExternalPilotDecisionPolicy:
         source_id = str(meta.get("source_object_id") or "")
         actor = self._actor(state)
         command = actor.get("command")
+        command_items = command if isinstance(command, list) else []
         command_ids = {
-            str(item.get("object_id"))
-            for item in command
-            if isinstance(command, list) and isinstance(item, dict)
+            str(item.get("object_id")) for item in command_items if isinstance(item, dict)
         }
-        action_kind: Literal["card", "commander"] = "commander" if source_id in command_ids else "card"
+        action_kind: Literal["card", "commander"] = (
+            "commander" if source_id in command_ids else "card"
+        )
         return PilotActionView(
             action_id=self._required_text(option, "option_id"),
             action_kind=action_kind,
@@ -894,9 +895,7 @@ class ExternalPilotDecisionPolicy:
         )
 
     def _rng(self, decision_id: str, seat: int) -> random.Random:
-        digest = hashlib.sha256(
-            f"{self.scenario_seed}:{seat}:{decision_id}".encode()
-        ).digest()
+        digest = hashlib.sha256(f"{self.scenario_seed}:{seat}:{decision_id}".encode()).digest()
         return random.Random(int.from_bytes(digest[:8], "big"))
 
     @staticmethod
@@ -1029,7 +1028,9 @@ class XmageFullGameRunner:
                 },
             )
             if created.get("player_count") != 4 or created.get("seed") != scenario.seed:
-                raise FullGameConformanceError("full-game creation did not preserve 4p/seed contract")
+                raise FullGameConformanceError(
+                    "full-game creation did not preserve 4p/seed contract"
+                )
             if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
                 raise FullGameConformanceError("full-game creation returned unsafe evidence class")
             if created.get("holdout_consumed") is not False:
@@ -1213,7 +1214,11 @@ class XmageFullGameRunner:
     ) -> FullGameConformanceResult:
         if result.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
             raise FullGameConformanceError("result evidence class is not technical conformance")
-        for field in ("consumed_gameplay_evidence", "holdout_consumed", "official_campaign_eligible"):
+        for field in (
+            "consumed_gameplay_evidence",
+            "holdout_consumed",
+            "official_campaign_eligible",
+        ):
             if result.get(field) is not False:
                 raise FullGameConformanceError(f"unsafe full-game result flag: {field}")
         if result.get("rules_authority") != "xmage":
@@ -1298,15 +1303,15 @@ class XmageFullGameRunner:
 
 
 __all__ = [
-    "ExternalPilotDecisionPolicy",
     "FULL_GAME_DECISION_PROTOCOL_VERSION",
     "FULL_GAME_EVIDENCE_CLASS",
     "FULL_GAME_LANE",
+    "XMAGE_FULL_GAME_COMMAND_ENV",
+    "ExternalPilotDecisionPolicy",
     "FullGameConformanceError",
     "FullGameConformanceResult",
     "FullGamePilotBinding",
     "FullGameProtocolError",
     "FullGameReplayGate",
-    "XMAGE_FULL_GAME_COMMAND_ENV",
     "XmageFullGameRunner",
 ]
