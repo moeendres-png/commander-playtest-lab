@@ -12,6 +12,8 @@ import mage.game.events.TableEvent;
 import mage.game.mulligan.MulliganType;
 import mage.players.Player;
 import mage.util.RandomUtil;
+import mage.util.ThreadUtils;
+import mage.util.XmageThreadFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -141,11 +143,11 @@ final class XmageFullGameSession {
         }
         started = true;
         Player startingPlayer = players.get(startingPlayerSeat);
-        engineThread = new Thread(
-                () -> runEngine(startingPlayer.getId()),
-                "xmage-full-game-" + protocolGameId
+        XmageThreadFactory gameThreadFactory = new XmageThreadFactory(
+                ThreadUtils.THREAD_PREFIX_GAME + " full-game " + protocolGameId,
+                true
         );
-        engineThread.setDaemon(true);
+        engineThread = gameThreadFactory.newThread(() -> runEngine(startingPlayer.getId()));
         engineThread.start();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
         return statusPayload();
@@ -258,6 +260,10 @@ final class XmageFullGameSession {
         payload.addProperty("started", started);
         payload.addProperty("terminal", isEngineTerminal());
         payload.addProperty("engine_thread_alive", engineThread != null && engineThread.isAlive());
+        payload.addProperty(
+                "engine_thread_name",
+                engineThread == null ? "" : engineThread.getName()
+        );
         payload.addProperty("decision_count", controller.decisionCount());
         payload.addProperty("engine_error_count", game.getTotalErrorsCount());
         payload.add("engine_error_diagnostics", diagnosticPayload());
