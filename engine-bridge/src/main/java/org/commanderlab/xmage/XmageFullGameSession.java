@@ -8,12 +8,14 @@ import mage.constants.MultiplayerAttackOption;
 import mage.constants.RangeOfInfluence;
 import mage.game.CommanderFreeForAll;
 import mage.game.GameOptions;
+import mage.game.events.TableEvent;
 import mage.game.mulligan.MulliganType;
 import mage.players.Player;
 import mage.util.RandomUtil;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,6 +40,8 @@ final class XmageFullGameSession {
     private final XmageFullGameDecisionController controller;
     private final int startingPlayerSeat;
     private final AtomicReference<Throwable> engineFailure = new AtomicReference<>();
+    private final List<String> engineErrorDiagnostics =
+            Collections.synchronizedList(new ArrayList<>());
 
     private Thread engineThread;
     private boolean started;
@@ -94,6 +98,20 @@ final class XmageFullGameSession {
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
         game.setGameOptions(options);
+        game.addTableEventListener(event -> {
+            if (event.getEventType() != TableEvent.EventType.ERROR) {
+                return;
+            }
+            Exception exception = event.getException();
+            String exceptionClass = exception == null
+                    ? "unknown"
+                    : exception.getClass().getName();
+            String exceptionMessage = exception == null ? "" : safeMessage(exception);
+            String eventMessage = event.getMessage() == null ? "" : event.getMessage();
+            engineErrorDiagnostics.add(
+                    exceptionClass + ": " + exceptionMessage + " [event=" + eventMessage + "]"
+            );
+        });
 
         List<XmageFullGamePlayer> createdPlayers = new ArrayList<>(PLAYER_COUNT);
         for (int index = 0; index < PLAYER_COUNT; index++) {
@@ -210,6 +228,7 @@ final class XmageFullGameSession {
             if (game.getTotalErrorsCount() != 0) {
                 throw new IllegalStateException(
                         "XMAGE_INTERNAL_ERRORS: " + game.getTotalErrorsCount()
+                                + "; diagnostics=" + diagnosticSummary()
                 );
             }
         } catch (Throwable exc) {
@@ -240,6 +259,8 @@ final class XmageFullGameSession {
         payload.addProperty("terminal", isEngineTerminal());
         payload.addProperty("engine_thread_alive", engineThread != null && engineThread.isAlive());
         payload.addProperty("decision_count", controller.decisionCount());
+        payload.addProperty("engine_error_count", game.getTotalErrorsCount());
+        payload.add("engine_error_diagnostics", diagnosticPayload());
         payload.addProperty("evidence_class", EVIDENCE_CLASS);
         payload.addProperty("consumed_gameplay_evidence", false);
         payload.addProperty("holdout_consumed", false);
@@ -275,6 +296,26 @@ final class XmageFullGameSession {
         payload.add("outcomes", outcomes);
         payload.addProperty("turn_number", game.getState().getTurnNum());
         return payload;
+    }
+
+    private JsonArray diagnosticPayload() {
+        JsonArray payload = new JsonArray();
+        synchronized (engineErrorDiagnostics) {
+            for (String diagnostic : engineErrorDiagnostics) {
+                payload.add(diagnostic);
+            }
+        }
+        return payload;
+    }
+
+    private String diagnosticSummary() {
+        synchronized (engineErrorDiagnostics) {
+            if (engineErrorDiagnostics.isEmpty()) {
+                return "[]";
+            }
+            int limit = Math.min(5, engineErrorDiagnostics.size());
+            return engineErrorDiagnostics.subList(0, limit).toString();
+        }
     }
 
     private boolean isEngineTerminal() {
