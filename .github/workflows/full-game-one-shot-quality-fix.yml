@@ -1,0 +1,58 @@
+name: Full Game One-Shot Quality Fix
+
+on:
+  push:
+    branches:
+      - engine/xmage-full-game-external-pilots
+    paths:
+      - .github/workflows/full-game-one-shot-quality-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: engine/xmage-full-game-external-pilots
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Apply exact typing repairs and canonical Ruff formatting
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/commander_lab/engine/rules/full_game.py')
+          text = path.read_text(encoding='utf-8')
+          old = 'FULL_GAME_EVIDENCE_CLASS = "technical_conformance_only"'
+          new = 'FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"'
+          if old not in text:
+              raise SystemExit('expected evidence-class assignment not found')
+          text = text.replace(old, new, 1)
+
+          old = '''        command = actor.get("command")\n        command_ids = {\n            str(item.get("object_id"))\n            for item in command\n            if isinstance(command, list) and isinstance(item, dict)\n        }\n'''
+          new = '''        command = actor.get("command")\n        command_items = command if isinstance(command, list) else []\n        command_ids = {\n            str(item.get("object_id"))\n            for item in command_items\n            if isinstance(item, dict)\n        }\n'''
+          if old not in text:
+              raise SystemExit('expected command-id block not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          python -m pip install 'ruff==0.16.4'
+          ruff check --fix src/commander_lab/engine/rules/full_game.py
+          ruff format src/commander_lab/engine/rules/full_game.py
+          rm .github/workflows/full-game-one-shot-quality-fix.yml
+      - name: Commit exact repairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/commander_lab/engine/rules/full_game.py .github/workflows/full-game-one-shot-quality-fix.yml
+          git diff --cached --check
+          git commit -m 'fix: satisfy full-game quality gates'
+          git push origin HEAD:engine/xmage-full-game-external-pilots
