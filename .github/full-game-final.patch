@@ -1,0 +1,377 @@
+--- a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java
++++ b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java
+@@ -15,6 +15,7 @@
+ import mage.cards.Cards;
+ import mage.cards.decks.Deck;
+ import mage.choices.Choice;
++import mage.constants.ManaType;
+ import mage.constants.MultiAmountType;
+ import mage.constants.Outcome;
+ import mage.constants.RangeOfInfluence;
+@@ -371,6 +372,7 @@
+ 
+         JsonArray options = new JsonArray();
+         Map<String, ActivatedAbility> byId = new LinkedHashMap<>();
++        Map<String, ManaType> poolManaById = new LinkedHashMap<>();
+         String cancel = optionId("mana", "cancel");
+         options.add(XmageFullGameDecisionController.option(
+                 cancel,
+@@ -378,6 +380,22 @@
+                 "cancel_mana_payment",
+                 new JsonObject()
+         ));
++        ManaType.getTrueManaTypes().stream()
++                .filter(manaType -> getManaPool().get(manaType) > 0)
++                .sorted(Comparator.comparing(Enum::name))
++                .forEach(manaType -> {
++                    String optionId = optionId("mana-pool", manaType.name());
++                    JsonObject metadata = new JsonObject();
++                    metadata.addProperty("mana_type", manaType.toString());
++                    metadata.addProperty("mana_available", getManaPool().get(manaType));
++                    options.add(XmageFullGameDecisionController.option(
++                            optionId,
++                            "Spend " + manaType.toString() + " mana from pool",
++                            "mana_pool",
++                            metadata
++                    ));
++                    poolManaById.put(optionId, manaType);
++                });
+         for (ActivatedAbility manaAbility : manaAbilities) {
+             String optionId = abilityOptionId("mana", manaAbility);
+             options.add(XmageFullGameDecisionController.option(
+@@ -403,6 +421,11 @@
+         if (cancel.equals(selected)) {
+             return false;
+         }
++        ManaType poolManaType = poolManaById.get(selected);
++        if (poolManaType != null) {
++            getManaPool().unlockManaType(poolManaType);
++            return true;
++        }
+         ActivatedAbility manaAbility = byId.get(selected);
+         if (manaAbility == null) {
+             fail("ILLEGAL_ACTION", "mana option disappeared: " + selected);
+--- a/src/commander_lab/engine/rules/full_game.py
++++ b/src/commander_lab/engine/rules/full_game.py
+@@ -6,6 +6,7 @@
+ import os
+ import queue
+ import random
++import re
+ import shlex
+ import subprocess
+ import threading
+@@ -344,7 +345,7 @@
+         elif decision_class in {"announce_x", "amount", "multi_amount"}:
+             numeric_choice = self._decide_numeric(runtime, pilot_state, context, rng)
+         elif decision_class == "mana_payment":
+-            selected = [self._decide_mana(runtime, pilot_state, options, rng)]
++            selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
+         elif decision_class == "choose_use":
+             selected = [self._decide_boolean(runtime, pilot_state, options, context, rng)]
+         elif decision_class == "pile":
+@@ -598,18 +599,53 @@
+         runtime: _RuntimePilot,
+         state: dict[str, Any],
+         options: list[dict[str, Any]],
++        context: dict[str, Any],
+         rng: random.Random,
+     ) -> str:
+         if not options:
+             raise FullGameProtocolError("mana decision has no legal options")
++
++        pool_options = [
++            option
++            for option in options
++            if self._required_text(option, "option_type") == "mana_pool"
++        ]
++        if pool_options:
++            unpaid = str(context.get("unpaid_mana", "")).casefold()
++
++            def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
++                metadata = option.get("metadata")
++                meta = metadata if isinstance(metadata, dict) else {}
++                mana_type = str(meta.get("mana_type", "")).casefold()
++                symbol = {
++                    "white": "w",
++                    "blue": "u",
++                    "black": "b",
++                    "red": "r",
++                    "green": "g",
++                    "colorless": "c",
++                }.get(mana_type)
++                exact_required = 1 if symbol and f"{{{symbol}}}" in unpaid else 0
++                return exact_required, mana_type, str(option.get("label", "")).casefold()
++
++            return self._required_text(max(pool_options, key=pool_key), "option_id")
++
+         actions: list[PilotActionView] = []
++        raw_by_stable_id: dict[str, str] = {}
++        occurrences: dict[tuple[str, str], int] = {}
+         for option in options:
+             option_type = self._required_text(option, "option_type")
++            label = str(option.get("label", option_type))
++            key = (option_type, label.casefold())
++            occurrence = occurrences.get(key, 0)
++            occurrences[key] = occurrence + 1
++            stable_id = f"mana:{option_type}:{label.casefold()}:{occurrence}"
++            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+             actions.append(
+                 PilotActionView(
+-                    action_id=self._required_text(option, "option_id"),
++                    action_id=stable_id,
+                     action_kind="pass" if option_type == "cancel_mana_payment" else "card",
+-                    card_name=str(option.get("label", option_type)),
++                    card_name=label,
+                     floor_value=0.1 if option_type == "cancel_mana_payment" else 0.75,
+                     immediate_impact=0.0 if option_type == "cancel_mana_payment" else 0.55,
+                     metadata={"xmage_option_type": option_type},
+@@ -618,7 +654,10 @@
+         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
+         if decision.selected_action_id is None:
+             raise FullGameProtocolError("Commander Lab pilot returned no mana decision")
+-        return decision.selected_action_id
++        try:
++            return raw_by_stable_id[decision.selected_action_id]
++        except KeyError as exc:
++            raise FullGameProtocolError("pilot returned unknown stable mana action") from exc
+ 
+     def _decide_numeric(
+         self,
+@@ -676,19 +715,34 @@
+         if not attacks:
+             return self._required_text(hold, "option_id")
+         pilot_state = self._pilot_state(runtime, state)
+-        actions = [self._combat_action(option, state) for option in attacks]
++        actions: list[PilotActionView] = []
++        raw_by_stable_id: dict[str, str] = {}
++        occurrences: dict[str, int] = {}
++        for option in attacks:
++            label = str(option.get("label", "Attack"))
++            base = f"attack:{label.casefold()}"
++            occurrence = occurrences.get(base, 0)
++            occurrences[base] = occurrence + 1
++            stable_id = f"{base}:{occurrence}"
++            action = self._combat_action(option, state).model_copy(update={"action_id": stable_id})
++            actions.append(action)
++            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+         actions.append(
+             PilotActionView(
+-                action_id=self._required_text(hold, "option_id"),
++                action_id="attack:hold",
+                 action_kind="pass",
+                 card_name="Hold attacker",
+                 floor_value=0.1,
+             )
+         )
++        raw_by_stable_id["attack:hold"] = self._required_text(hold, "option_id")
+         decision = runtime.pilot.choose_combat_target(pilot_state, actions, rng)
+         if decision.selected_action_id is None:
+             raise FullGameProtocolError("Commander Lab pilot returned no attack decision")
+-        return decision.selected_action_id
++        try:
++            return raw_by_stable_id[decision.selected_action_id]
++        except KeyError as exc:
++            raise FullGameProtocolError("pilot returned unknown stable attack action") from exc
+ 
+     def _decide_blocks(
+         self,
+@@ -703,15 +757,23 @@
+             return []
+         pilot_state = self._pilot_state(runtime, state)
+         ranked: list[tuple[float, str]] = []
++        raw_by_stable_id: dict[str, str] = {}
++        occurrences: dict[str, int] = {}
+         for option in options:
+-            action = self._combat_action(option, state)
++            label = str(option.get("label", "Block"))
++            base = f"block:{label.casefold()}"
++            occurrence = occurrences.get(base, 0)
++            occurrences[base] = occurrence + 1
++            stable_id = f"{base}:{occurrence}"
++            action = self._combat_action(option, state).model_copy(update={"action_id": stable_id})
+             score = runtime.pilot.evaluate_action(pilot_state, action).total_utility
+-            ranked.append((score, action.action_id))
++            ranked.append((score, stable_id))
++            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+         ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+         actor = self._actor(state)
+         life = float(actor.get("life", 40))
+         take = max_selections if life <= 15 else min(max_selections, max(min_selections, 1))
+-        return [option_id for _score, option_id in ranked[:take]]
++        return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
+ 
+     def _pilot_state(self, runtime: _RuntimePilot, state: dict[str, Any]) -> PilotStateView:
+         actor = self._actor(state)
+@@ -1366,9 +1428,11 @@
+                         "kind": raw.get("kind"),
+                         "decision_class": raw.get("decision_class"),
+                         "actor_seat": raw.get("actor_seat"),
+-                        "prompt": raw.get("prompt"),
++                        "prompt": XmageFullGameRunner._semantic_text(raw.get("prompt")),
+                         "selected_option_types": raw.get("selected_option_types"),
+-                        "selected_option_labels": raw.get("selected_option_labels"),
++                        "selected_option_labels": XmageFullGameRunner._semantic_text_list(
++                            raw.get("selected_option_labels")
++                        ),
+                         "numeric_choice": raw.get("numeric_choice"),
+                     }
+                 )
+@@ -1395,6 +1459,31 @@
+         }
+ 
+     @staticmethod
++    def _semantic_text(value: object) -> object:
++        if not isinstance(value, str):
++            return value
++        text = re.sub(
++            r"\s+object_id=(['\"])[^'\"]+\1",
++            "",
++            value,
++            flags=re.IGNORECASE,
++        )
++        text = re.sub(
++            r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b",
++            "<engine-object>",
++            text,
++        )
++        text = re.sub(r"(</font>)\s*\[[0-9a-fA-F]{3,8}\]", r"\1", text)
++        text = re.sub(r"\s*\[[0-9a-fA-F]{3,8}\](?=</div>|$)", "", text)
++        return text
++
++    @staticmethod
++    def _semantic_text_list(value: object) -> object:
++        if not isinstance(value, list):
++            return value
++        return [XmageFullGameRunner._semantic_text(item) for item in value]
++
++    @staticmethod
+     def _sha256(value: dict[str, Any]) -> str:
+         payload = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+         return hashlib.sha256(payload.encode()).hexdigest()
+--- a/tests/unit/test_xmage_full_game.py
++++ b/tests/unit/test_xmage_full_game.py
+@@ -242,6 +242,57 @@
+     assert "opaque-random-uuid" not in encoded
+ 
+ 
++def test_semantic_transcript_normalizes_xmage_process_local_prompt_ids() -> None:
++    base = {
++        "seed": 3,
++        "turn_number": 2,
++        "decision_count": 1,
++        "outcomes": [],
++    }
++    first = {
++        **base,
++        "transcript": [
++            {
++                "sequence": 1,
++                "kind": "decision_requested",
++                "decision_class": "mana_payment",
++                "actor_seat": 0,
++                "prompt": (
++                    "{W}<div><font object_id='64c42435-d2e2-4aa3-8ce7-7a77ecaecc00'>"
++                    "Isamaru, Hound of Konda</font> [64c]</div>"
++                ),
++                "selected_option_types": None,
++                "selected_option_labels": None,
++                "numeric_choice": None,
++            }
++        ],
++    }
++    second = {
++        **base,
++        "transcript": [
++            {
++                "sequence": 1,
++                "kind": "decision_requested",
++                "decision_class": "mana_payment",
++                "actor_seat": 0,
++                "prompt": (
++                    "{W}<div><font object_id='07f0fab5-af4b-4f72-905b-bd7184dfc56a'>"
++                    "Isamaru, Hound of Konda</font> [07f]</div>"
++                ),
++                "selected_option_types": None,
++                "selected_option_labels": None,
++                "numeric_choice": None,
++            }
++        ],
++    }
++    first_semantic = XmageFullGameRunner.semantic_transcript(first)
++    second_semantic = XmageFullGameRunner.semantic_transcript(second)
++    assert first_semantic == second_semantic
++    encoded = json.dumps(first_semantic, sort_keys=True)
++    assert "object_id" not in encoded
++    assert "64c42435" not in encoded
++
++
+ class _FakeRunner:
+     def __init__(self, result: FullGameConformanceResult) -> None:
+         self.result = result
+--- a/tests/unit/test_xmage_full_game_decision_matrix.py
++++ b/tests/unit/test_xmage_full_game_decision_matrix.py
+@@ -116,6 +116,63 @@
+     }
+ 
+ 
++def test_mana_payment_spends_existing_pool_mana_before_tapping_another_source() -> None:
++    response = _policy().decide(
++        _request(
++            "mana_payment",
++            [
++                _option("cancel", "cancel_mana_payment", "Cancel"),
++                _option(
++                    "pool-white",
++                    "mana_pool",
++                    "Spend white mana from pool",
++                    mana_type="white",
++                    mana_available=1,
++                ),
++                _option("opaque-plains-ability", "mana_ability", "Plains — {T}: Add {W}."),
++            ],
++            minimum=1,
++            maximum=1,
++            context={"unpaid_mana": "{W}"},
++        )
++    )
++    assert response["selected_option_ids"] == ["pool-white"]
++
++
++def test_attacker_choice_is_independent_of_process_local_option_ids() -> None:
++    def choose(option_a: str, option_b: str) -> str:
++        options = [
++            _option("hold-random", "hold_attacker", "Hold attacker"),
++            _option(
++                option_a,
++                "declare_attacker",
++                "Isamaru attacks Full Game Seat 2",
++                defender_id="opponent-1",
++            ),
++            _option(
++                option_b,
++                "declare_attacker",
++                "Isamaru attacks Full Game Seat 3",
++                defender_id="opponent-2",
++            ),
++        ]
++        response = _policy().decide(
++            _request(
++                "declare_attacker",
++                options,
++                minimum=1,
++                maximum=1,
++                context={},
++            )
++        )
++        selected = response["selected_option_ids"][0]
++        return next(option["label"] for option in options if option["option_id"] == selected)
++
++    first = choose("opaque-a-1", "opaque-a-2")
++    second = choose("opaque-b-9", "opaque-b-7")
++    assert first == second
++
++
+ @pytest.mark.parametrize(
+     ("decision_class", "options", "minimum", "maximum", "context"),
+     [
