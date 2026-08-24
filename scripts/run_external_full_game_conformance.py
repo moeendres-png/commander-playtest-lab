@@ -173,16 +173,22 @@ def main() -> None:
         json.dumps(hidden, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(json.dumps({
-        "status": "PASS",
-        "decision_count": first.decision_count,
-        "winner_seats": first.winner_seats,
-        "semantic_replay_match": semantic_match,
-        "raw_result_match": raw_match,
-        "observed_decision_classes": accepted_classes,
-        "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
-        "evidence_class": FULL_GAME_EVIDENCE_CLASS,
-    }, indent=2, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "status": "PASS",
+                "decision_count": first.decision_count,
+                "winner_seats": first.winner_seats,
+                "semantic_replay_match": semantic_match,
+                "raw_result_match": raw_match,
+                "observed_decision_classes": accepted_classes,
+                "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
+                "evidence_class": FULL_GAME_EVIDENCE_CLASS,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":
