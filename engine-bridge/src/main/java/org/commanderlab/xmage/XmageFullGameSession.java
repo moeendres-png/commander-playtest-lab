@@ -145,7 +145,8 @@ final class XmageFullGameSession {
     JsonObject submit(JsonObject response) {
         ensureStarted();
         controller.submit(response);
-        controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
+        String submittedDecisionId = response.get("decision_id").getAsString();
+        awaitDecisionAdvance(submittedDecisionId, Duration.ofSeconds(20));
         return pendingDecisionPayload();
     }
 
@@ -169,6 +170,38 @@ final class XmageFullGameSession {
     boolean isTerminal() {
         return controller.terminalFailure() != null || controller.pendingDecision() == null
                 && engineThread != null && !engineThread.isAlive();
+    }
+
+    private void awaitDecisionAdvance(String submittedDecisionId, Duration timeout) {
+        long deadlineNanos = System.nanoTime() + timeout.toNanos();
+        while (true) {
+            if (controller.terminalFailure() != null || isEngineTerminal()) {
+                return;
+            }
+            JsonObject pending = controller.pendingDecision();
+            if (pending == null) {
+                return;
+            }
+            String pendingDecisionId = pending.get("decision_id").getAsString();
+            if (!submittedDecisionId.equals(pendingDecisionId)) {
+                return;
+            }
+            if (System.nanoTime() >= deadlineNanos) {
+                throw new XmageFullGameDecisionController.DecisionException(
+                        "DECISION_ADVANCE_TIMEOUT: engine did not consume " + submittedDecisionId
+                );
+            }
+            try {
+                Thread.sleep(1L);
+            } catch (InterruptedException exc) {
+                Thread.currentThread().interrupt();
+                throw new XmageFullGameDecisionController.DecisionException(
+                        "DECISION_ADVANCE_TIMEOUT: interrupted while advancing "
+                                + submittedDecisionId,
+                        exc
+                );
+            }
+        }
     }
 
     private void runEngine(UUID startingPlayerId) {
