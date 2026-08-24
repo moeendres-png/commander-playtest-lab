@@ -103,6 +103,23 @@ class FullGameBatchReport(_StrictModel):
     official_campaign_eligible: Literal[False] = False
     canonical_data_mutated: Literal[False] = False
 
+    @model_validator(mode="after")
+    def coherent_counts(self) -> FullGameBatchReport:
+        completed = sum(record.status == "completed" for record in self.records)
+        failed = sum(record.status == "failed" for record in self.records)
+        resumed = sum(record.resumed_from_completed_record for record in self.records)
+        if self.total_cases != len(self.records):
+            raise ValueError("total_cases must match the number of records")
+        if self.completed_cases != completed:
+            raise ValueError("completed_cases must match completed records")
+        if self.failed_cases != failed:
+            raise ValueError("failed_cases must match failed records")
+        if self.resumed_cases != resumed:
+            raise ValueError("resumed_cases must match resumed records")
+        if self.completed_cases + self.failed_cases != self.total_cases:
+            raise ValueError("every full-game batch record must be completed or failed")
+        return self
+
 
 class XmageFullGameBatchRunner:
     """Correctness-first batch layer around the one-process/one-game runner.
