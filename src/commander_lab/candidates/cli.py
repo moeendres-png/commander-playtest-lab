@@ -26,7 +26,11 @@ def normalize_command(
     write_json(output, normalized)
     typer.echo(
         json.dumps(
-            {"status": "pass", "candidate_count": normalized.candidate_count, "output": str(output)},
+            {
+                "status": "pass",
+                "candidate_count": normalized.candidate_count,
+                "output": str(output),
+            },
             sort_keys=True,
         )
     )
