@@ -55,7 +55,7 @@ def _current_candidate_set(root: Path) -> DeckCandidateSet:
     identity = tuple(sorted(color.value for color in registry.commander_identity(target)))
     candidate = DeckCandidate(
         candidate_id="canonical-current-conformance",
-        candidate_label="Canonical Current – hard-valid handoff conformance only",
+        candidate_label="Canonical Current - hard-valid handoff conformance only",
         commander_names=tuple(commanders),
         mainboard=dict(mainboard),
         current_control=True,
