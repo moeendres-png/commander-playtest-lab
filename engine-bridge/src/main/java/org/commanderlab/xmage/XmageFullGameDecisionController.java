@@ -133,7 +133,7 @@ final class XmageFullGameDecisionController {
 
         pendingRequest = request;
         response = null;
-        recordTranscript("decision_requested", request);
+        recordDecisionRequested(request);
         notifyAll();
 
         long deadlineNanos = System.nanoTime() + timeoutMillis * 1_000_000L;
@@ -269,21 +269,7 @@ final class XmageFullGameDecisionController {
                 List.copyOf(ordering),
                 numeric
         );
-        JsonObject accepted = new JsonObject();
-        accepted.addProperty("decision_id", decisionId);
-        accepted.addProperty("actor_id", actorId);
-        JsonArray selectedJson = new JsonArray();
-        selected.forEach(selectedJson::add);
-        accepted.add("selected_option_ids", selectedJson);
-        JsonArray orderingJson = new JsonArray();
-        ordering.forEach(orderingJson::add);
-        accepted.add("ordering", orderingJson);
-        if (numeric == null) {
-            accepted.add("numeric_choice", JsonNull.INSTANCE);
-        } else {
-            accepted.addProperty("numeric_choice", numeric);
-        }
-        recordTranscript("decision_accepted", accepted);
+        recordDecisionAccepted(pendingRequest, selected, numeric);
         notifyAll();
     }
 
@@ -312,6 +298,73 @@ final class XmageFullGameDecisionController {
 
     synchronized long decisionCount() {
         return decisionOffset;
+    }
+
+    private void recordDecisionRequested(JsonObject request) {
+        JsonObject event = new JsonObject();
+        event.addProperty("sequence", transcript.size() + 1L);
+        event.addProperty("kind", "decision_requested");
+        event.addProperty("decision_class", request.get("decision_class").getAsString());
+        event.addProperty("actor_seat", request.get("seat").getAsInt());
+        event.addProperty("prompt", request.get("prompt").getAsString());
+        event.addProperty(
+                "public_state_reference",
+                request.get("public_state_reference").getAsString()
+        );
+        event.addProperty(
+                "private_actor_state_reference",
+                request.get("private_actor_state_reference").getAsString()
+        );
+        JsonArray types = new JsonArray();
+        JsonArray labels = new JsonArray();
+        for (JsonElement element : request.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            types.add(option.has("option_type") ? option.get("option_type").getAsString() : "generic");
+            labels.add(option.has("label") ? option.get("label").getAsString() : "");
+        }
+        event.add("legal_option_types", types);
+        event.add("legal_option_labels", labels);
+        transcript.add(event);
+    }
+
+    private void recordDecisionAccepted(
+            JsonObject request,
+            List<String> selected,
+            Integer numeric
+    ) {
+        JsonObject event = new JsonObject();
+        event.addProperty("sequence", transcript.size() + 1L);
+        event.addProperty("kind", "decision_accepted");
+        event.addProperty("decision_class", request.get("decision_class").getAsString());
+        event.addProperty("actor_seat", request.get("seat").getAsInt());
+        event.addProperty("prompt", request.get("prompt").getAsString());
+        JsonArray selectedTypes = new JsonArray();
+        JsonArray selectedLabels = new JsonArray();
+        for (String selectedId : selected) {
+            for (JsonElement element : request.getAsJsonArray("legal_options")) {
+                JsonObject option = element.getAsJsonObject();
+                if (option.has("option_id")
+                        && selectedId.equals(option.get("option_id").getAsString())) {
+                    selectedTypes.add(
+                            option.has("option_type")
+                                    ? option.get("option_type").getAsString()
+                                    : "generic"
+                    );
+                    selectedLabels.add(
+                            option.has("label") ? option.get("label").getAsString() : ""
+                    );
+                    break;
+                }
+            }
+        }
+        event.add("selected_option_types", selectedTypes);
+        event.add("selected_option_labels", selectedLabels);
+        if (numeric == null) {
+            event.add("numeric_choice", JsonNull.INSTANCE);
+        } else {
+            event.addProperty("numeric_choice", numeric);
+        }
+        transcript.add(event);
     }
 
     private void recordFailure(String message) {

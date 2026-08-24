@@ -331,7 +331,10 @@ class ExternalPilotDecisionPolicy:
         context = dict(request.get("context") or {})
         min_selections = int(request.get("min_selections", 0))
         max_selections = int(request.get("max_selections", 0))
-        rng = self._rng(decision_id, seat)
+        decision_offset = int(request.get("decision_offset", -1))
+        if decision_offset < 1:
+            raise FullGameProtocolError("decision_offset must be a positive integer")
+        rng = self._rng(decision_offset, decision_class, seat)
 
         selected: list[str] = []
         numeric_choice: int | None = None
@@ -339,13 +342,13 @@ class ExternalPilotDecisionPolicy:
         if decision_class == "mulligan":
             selected = [self._decide_mulligan(runtime, pilot_state, options, rng)]
         elif decision_class in {"announce_x", "amount", "multi_amount"}:
-            numeric_choice = self._decide_numeric(context)
+            numeric_choice = self._decide_numeric(runtime, pilot_state, context, rng)
         elif decision_class == "mana_payment":
-            selected = [self._decide_mana(options)]
+            selected = [self._decide_mana(runtime, pilot_state, options, rng)]
         elif decision_class == "choose_use":
-            selected = [self._decide_boolean(options, context)]
+            selected = [self._decide_boolean(runtime, pilot_state, options, context, rng)]
         elif decision_class == "pile":
-            selected = [self._decide_pile(options, context)]
+            selected = [self._decide_pile(runtime, pilot_state, options, context, rng)]
         elif decision_class in {"choice", "replacement_effect", "trigger_order", "mode"}:
             selected = [self._decide_semantic_option(runtime, pilot_state, options, rng)]
         elif decision_class == "priority":
@@ -361,7 +364,7 @@ class ExternalPilotDecisionPolicy:
                 rng,
             )
             if decision_class == "target_amount":
-                numeric_choice = self._decide_numeric(context)
+                numeric_choice = self._decide_numeric(runtime, pilot_state, context, rng)
         elif decision_class == "declare_attacker":
             selected = [self._decide_attack(runtime, pilot_state, options, rng)]
         elif decision_class == "declare_blocker":
@@ -412,6 +415,8 @@ class ExternalPilotDecisionPolicy:
             commander_names=runtime.binding.commander_names,
             rng=rng,
         )
+        if self._mulligan_count[seat] >= 3:
+            keep = True
         desired = "keep" if keep else "mulligan"
         chosen = self._option_by_type(options, desired)
         if desired == "mulligan":
@@ -518,42 +523,110 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("Commander Lab pilot returned no semantic option")
         return decision.selected_action_id
 
-    def _decide_boolean(self, options: list[dict[str, Any]], context: dict[str, Any]) -> str:
+    def _decide_boolean(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        context: dict[str, Any],
+        rng: random.Random,
+    ) -> str:
+        if not options:
+            raise FullGameProtocolError("boolean decision has no legal options")
         outcome = str(context.get("outcome", "neutral")).casefold()
-        desired = outcome not in {"detriment", "detriment_to_controller"}
+        actions: list[PilotActionView] = []
         for option in options:
             metadata = option.get("metadata")
-            if isinstance(metadata, dict) and metadata.get("value") is desired:
-                return self._required_text(option, "option_id")
-        raise FullGameProtocolError("boolean decision lacks matching explicit value option")
+            value = metadata.get("value") if isinstance(metadata, dict) else None
+            if not isinstance(value, bool):
+                raise FullGameProtocolError("boolean option is missing explicit boolean value")
+            aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
+                not value and outcome in {"detriment", "detriment_to_controller"}
+            )
+            actions.append(
+                PilotActionView(
+                    action_id=self._required_text(option, "option_id"),
+                    action_kind="card",
+                    card_name=str(option.get("label", value)),
+                    floor_value=0.8 if aligned else 0.35,
+                    immediate_impact=0.45 if aligned else 0.15,
+                    metadata={"boolean_value": value, "decision_outcome": outcome},
+                )
+            )
+        decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
+        if decision.selected_action_id is None:
+            raise FullGameProtocolError("Commander Lab pilot returned no boolean decision")
+        return decision.selected_action_id
 
-    def _decide_pile(self, options: list[dict[str, Any]], context: dict[str, Any]) -> str:
+    def _decide_pile(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        context: dict[str, Any],
+        rng: random.Random,
+    ) -> str:
         if not options:
             raise FullGameProtocolError("pile decision has no legal options")
         outcome = str(context.get("outcome", "benefit")).casefold()
-        scored: list[tuple[int, str]] = []
+        benefit = outcome not in {"detriment", "detriment_to_controller"}
+        actions: list[PilotActionView] = []
         for option in options:
             metadata = option.get("metadata")
             cards = metadata.get("cards", []) if isinstance(metadata, dict) else []
             size = len(cards) if isinstance(cards, list) else 0
-            scored.append((size, self._required_text(option, "option_id")))
-        reverse = outcome not in {"detriment", "detriment_to_controller"}
-        scored.sort(key=lambda item: (item[0], item[1]), reverse=reverse)
-        return scored[0][1]
+            scaled = min(2.0, size / 4.0)
+            actions.append(
+                PilotActionView(
+                    action_id=self._required_text(option, "option_id"),
+                    action_kind="card",
+                    card_name=str(option.get("label", "Pile")),
+                    floor_value=(0.4 + scaled * 0.25) if benefit else max(0.0, 0.9 - scaled * 0.25),
+                    immediate_impact=(0.3 + scaled * 0.2)
+                    if benefit
+                    else max(0.0, 0.7 - scaled * 0.2),
+                    metadata={"pile_size": size, "decision_outcome": outcome},
+                )
+            )
+        decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
+        if decision.selected_action_id is None:
+            raise FullGameProtocolError("Commander Lab pilot returned no pile decision")
+        return decision.selected_action_id
 
-    def _decide_mana(self, options: list[dict[str, Any]]) -> str:
-        mana = [
-            option
-            for option in options
-            if self._required_text(option, "option_type") == "mana_ability"
-        ]
-        if mana:
-            mana.sort(key=lambda item: self._required_text(item, "option_id"))
-            return self._required_text(mana[0], "option_id")
-        cancel = self._option_by_type(options, "cancel_mana_payment")
-        return self._required_text(cancel, "option_id")
+    def _decide_mana(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        rng: random.Random,
+    ) -> str:
+        if not options:
+            raise FullGameProtocolError("mana decision has no legal options")
+        actions: list[PilotActionView] = []
+        for option in options:
+            option_type = self._required_text(option, "option_type")
+            actions.append(
+                PilotActionView(
+                    action_id=self._required_text(option, "option_id"),
+                    action_kind="pass" if option_type == "cancel_mana_payment" else "card",
+                    card_name=str(option.get("label", option_type)),
+                    floor_value=0.1 if option_type == "cancel_mana_payment" else 0.75,
+                    immediate_impact=0.0 if option_type == "cancel_mana_payment" else 0.55,
+                    metadata={"xmage_option_type": option_type},
+                )
+            )
+        decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
+        if decision.selected_action_id is None:
+            raise FullGameProtocolError("Commander Lab pilot returned no mana decision")
+        return decision.selected_action_id
 
-    def _decide_numeric(self, context: dict[str, Any]) -> int:
+    def _decide_numeric(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        context: dict[str, Any],
+        rng: random.Random,
+    ) -> int:
         if "numeric_min" not in context or "numeric_max" not in context:
             raise FullGameProtocolError("numeric decision missing explicit bounds")
         minimum = int(context["numeric_min"])
@@ -561,7 +634,31 @@ class ExternalPilotDecisionPolicy:
         if maximum < minimum:
             raise FullGameProtocolError("numeric decision has reversed bounds")
         outcome = str(context.get("outcome", "benefit")).casefold()
-        return minimum if outcome in {"detriment", "detriment_to_controller"} else maximum
+        if maximum - minimum <= 16:
+            values = list(range(minimum, maximum + 1))
+        else:
+            midpoint = minimum + (maximum - minimum) // 2
+            values = sorted({minimum, midpoint, maximum})
+        benefit = outcome not in {"detriment", "detriment_to_controller"}
+        span = max(1, maximum - minimum)
+        actions = [
+            PilotActionView(
+                action_id=f"numeric:{value}",
+                action_kind="card",
+                card_name=f"Choose {value}",
+                floor_value=(value - minimum) / span if benefit else (maximum - value) / span,
+                immediate_impact=0.5,
+                metadata={"numeric_value": value, "decision_outcome": outcome},
+            )
+            for value in values
+        ]
+        decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
+        if decision.selected_action_id is None:
+            raise FullGameProtocolError("Commander Lab pilot returned no numeric decision")
+        try:
+            return int(decision.selected_action_id.split(":", 1)[1])
+        except (IndexError, ValueError) as exc:
+            raise FullGameProtocolError("pilot returned malformed numeric decision") from exc
 
     def _decide_attack(
         self,
@@ -894,8 +991,9 @@ class ExternalPilotDecisionPolicy:
             sum(float(value) for value in mana.values() if isinstance(value, (int, float))),
         )
 
-    def _rng(self, decision_id: str, seat: int) -> random.Random:
-        digest = hashlib.sha256(f"{self.scenario_seed}:{seat}:{decision_id}".encode()).digest()
+    def _rng(self, decision_offset: int, decision_class: str, seat: int) -> random.Random:
+        material = f"{self.scenario_seed}:{seat}:{decision_offset}:{decision_class}"
+        digest = hashlib.sha256(material.encode()).digest()
         return random.Random(int.from_bytes(digest[:8], "big"))
 
     @staticmethod

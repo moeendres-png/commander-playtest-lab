@@ -135,7 +135,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean choose(Outcome outcome, Target target, Ability source, Game game) {
-        return chooseTargetInternal(false, target, source, game, null, null);
+        return chooseTargetInternal(outcome, false, target, source, game, null, null);
     }
 
     @Override
@@ -157,7 +157,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     ));
             context.add("xmage_options", supplied);
         }
-        return chooseTargetInternal(false, target, source, game, null, context);
+        context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
+        return chooseTargetInternal(outcome, false, target, source, game, null, context);
     }
 
     @Override
@@ -168,12 +169,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
-        return chooseTargetInternal(false, target, source, game, cards, null);
+        return chooseTargetInternal(outcome, false, target, source, game, cards, null);
     }
 
     @Override
     public boolean chooseTarget(Outcome outcome, Target target, Ability source, Game game) {
-        return chooseTargetInternal(true, target, source, game, null, null);
+        return chooseTargetInternal(outcome, true, target, source, game, null, null);
     }
 
     @Override
@@ -184,7 +185,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
-        return chooseTargetInternal(true, target, source, game, cards, null);
+        return chooseTargetInternal(outcome, true, target, source, game, cards, null);
     }
 
     @Override
@@ -209,6 +210,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("numeric_min", 1);
         context.addProperty("numeric_max", Math.max(1, remaining));
         context.addProperty("amount_remaining", remaining);
+        context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
 
         XmageFullGameDecisionController.DecisionResponse response = request(
                 game,
@@ -258,7 +260,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
-        return chooseBoolean(message, "choose_use", "Yes", "No", source, game);
+        JsonObject context = new JsonObject();
+        context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
+        return chooseBoolean(message, "choose_use", "Yes", "No", source, game, context);
     }
 
     @Override
@@ -272,6 +276,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Game game
     ) {
         JsonObject context = new JsonObject();
+        context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
         if (secondMessage != null) {
             context.addProperty("secondary_prompt", secondMessage);
         }
@@ -311,7 +316,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 1,
                 1,
                 options,
-                new JsonObject(),
+                outcomeContext(outcome),
                 null
         ));
         String value = choices.get(selected);
@@ -346,7 +351,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 1,
                 1,
                 options,
-                new JsonObject(),
+                outcomeContext(outcome),
                 null
         ));
         return first.equals(selected);
@@ -748,6 +753,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     private boolean chooseTargetInternal(
+            Outcome outcome,
             boolean targeted,
             Target target,
             Ability source,
@@ -779,6 +785,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         JsonObject context = suppliedContext == null ? new JsonObject() : suppliedContext.deepCopy();
         context.addProperty("targeted", targeted);
+        context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
         context.addProperty("target_description", target.getDescription());
         context.addProperty("target_name", target.getTargetName());
         context.addProperty("required", target.isRequired());
@@ -802,6 +809,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
             }
         }
         return !response.selectedOptionIds().isEmpty();
+    }
+
+    private static JsonObject outcomeContext(Outcome outcome) {
+        JsonObject context = new JsonObject();
+        context.addProperty(
+                "outcome",
+                outcome == null ? "neutral" : outcome.name().toLowerCase()
+        );
+        return context;
     }
 
     private boolean chooseBoolean(
