@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 PATH = Path("src/commander_lab/engine/structural/simulator.py")
 FIDELITY_PATH = Path("src/commander_lab/engine/structural/simulator_fidelity.py")
 

@@ -9,7 +9,6 @@ from typing import Any
 from commander_lab.engine.structural import StructuralSimulator, load_project_structural_decks
 from commander_lab.models import StructuralAbortLimits, StructuralMatchConfig
 
-
 AUDIT_SEEDS = (1103, 2207, 3301, 4409, 5519, 6619, 7727, 8837)
 LOGICAL_IDS = ("A", "B", "C", "D")
 RELEVANT_EVENTS = {
