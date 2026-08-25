@@ -1,0 +1,74 @@
+{
+  "schema_version": "rogshai-morcant-new-simulation-contract-1.0.0",
+  "campaign_id": "rogshai-morcant-balanced-post-seatfix-2026-08-25-v1",
+  "evidence_class": "structural_model_estimates",
+  "opponent_information_class": "morcant_partially_observed_synthetic_completion",
+  "runtime_source_commit": "1e209af9026dcc63a9f75f6632c7de59130fb925",
+  "engine_version": "structural-0.6.2",
+  "fidelity_overlay": "structural-fidelity-overlay-2026-08-25-v2",
+  "seat_symmetry_gate": {
+    "comparisons": 24,
+    "equivariant": 24,
+    "mismatches": 0,
+    "status": "PASS",
+    "workflow_run": 32887181759
+  },
+  "pod_size": 4,
+  "candidate_count": 48,
+  "candidate_ids": ["C001", "C002", "C003", "C004", "C005", "C006", "C007", "C008", "C009", "C010", "C011", "C012", "C013", "C014", "C015", "C016", "C017", "C018", "C019", "C020", "C021", "C022", "C023", "C024", "C025", "C026", "C027", "C028", "C029", "C030", "C031", "C032", "C033", "C034", "C035", "C036", "C037", "C038", "C039", "C040", "C041", "C042", "C043", "C044", "C045", "C046", "C047", "C048"],
+  "pre_gameplay_candidate_elimination": 0,
+  "unique_candidate_decks_required": true,
+  "scenarios_per_candidate": 144,
+  "target_game_count": 6912,
+  "blocks": 12,
+  "scenarios_per_block_per_candidate": 12,
+  "games_per_block": 576,
+  "morcant": {
+    "deck_id": "opponent/morcant-elves",
+    "required_every_game": true,
+    "source_status": "partially_observed_synthetic_completion_pool_constrained",
+    "working_completion": "54 confirmed + 18 provisional synthetic completion + 28 synthetic basics; 100 cards / 35 lands"
+  },
+  "cosmic": {
+    "deck_id": "opponent/cosmic-spiderman-midbudget",
+    "allowed": false
+  },
+  "rotating_opponents": {
+    "scions": "opponent/scions-spellcraft-precon",
+    "counter": "opponent/counter-intelligence-precon",
+    "turtle": "opponent/turtle-power-precon",
+    "silverquill": "opponent/silverquill-influence-precon",
+    "fantastic": "opponent/fantastic-four-precon",
+    "avengers": "opponent/avengers-assemble-precon"
+  },
+  "balance_targets": {
+    "candidate_physical_seat_each": 36,
+    "starting_player_physical_seat_each": 36,
+    "morcant_physical_seat_each": 36,
+    "morcant_relative_position_each": 48,
+    "rotating_opponent_appearances_each": 48,
+    "rotating_opponent_physical_seat_each": 12,
+    "rotating_opponent_relative_position_each": 16,
+    "rotating_pair_multiplicity": {"9": 6, "10": 9},
+    "candidate_by_starting_seat_cell_each": 9
+  },
+  "seed_policy": {
+    "count": 144,
+    "unique": true,
+    "disjoint_from_prior_campaigns_required": true,
+    "replacement_seeds_allowed": false,
+    "technical_retry": "same seed only"
+  },
+  "failure_policy": {
+    "completed_required": true,
+    "aborts_allowed_for_analysis": false,
+    "replacement_seed": false
+  },
+  "truth_boundaries": [
+    "Structural first-place fraction is not a real Commander win rate.",
+    "Structural simulator is not Rules Authority.",
+    "Morcant unknown/provisional slots are synthetic simulation assumptions.",
+    "Equalized co-opponent exposure is experimental design, not meta probability.",
+    "Historical seat-biased Structural results are not retroactively upgraded."
+  ]
+}
