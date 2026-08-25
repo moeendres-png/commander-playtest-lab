@@ -13,6 +13,13 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new, 1)
 
 
+def replace_first_of_two(text: str, old: str, new: str, label: str) -> str:
+    count = text.count(old)
+    if count != 2:
+        raise SystemExit(f"{label}: expected exactly two pre-fix matches, found {count}")
+    return text.replace(old, new, 1)
+
+
 def main() -> int:
     text = PATH.read_text(encoding="utf-8")
 
@@ -58,7 +65,7 @@ def main() -> int:
         "pilot opponent ordering",
     )
 
-    text = replace_once(
+    text = replace_first_of_two(
         text,
         '''        targets = [\n            opponent\n            for opponent in players\n            if opponent.alive and opponent.player_id != player.player_id\n        ]\n        if not targets:\n            return\n        state = self._pilot_state(player, players, max(1, player.current_turn))\n        target_actions: list[PilotActionView] = []\n        target_mapping: dict[str, _Player] = {}\n        for opponent in targets:\n''',
         '''        targets = sorted(\n            (\n                opponent\n                for opponent in players\n                if opponent.alive and opponent.player_id != player.player_id\n            ),\n            key=lambda opponent: (\n                (opponent.seat - player.seat) % len(players),\n                opponent.player_id,\n            ),\n        )\n        if not targets:\n            return\n        state = self._pilot_state(player, players, max(1, player.current_turn))\n        target_actions: list[PilotActionView] = []\n        target_mapping: dict[str, _Player] = {}\n        for opponent in targets:\n''',
