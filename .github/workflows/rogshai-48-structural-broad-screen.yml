@@ -1,0 +1,77 @@
+name: RogShai 48 Structural Broad Screen
+
+on:
+  push:
+    branches:
+      - runs/rogshai-48-structural-20260825
+    paths:
+      - '.github/workflows/rogshai-48-structural-broad-screen.yml'
+      - 'scripts/run_rogshai_structural_broad_screen.py.gz.b64'
+      - 'artifacts/rogshai-structural-broad-screen-2026-08-25/input/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  structural-broad-screen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev]'
+      - name: Decode frozen run inputs
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64, gzip
+          from pathlib import Path
+          pairs = [
+              ('artifacts/rogshai-structural-broad-screen-2026-08-25/input/CANDIDATES.json.gz.b64', '/tmp/CANDIDATES.json'),
+              ('artifacts/rogshai-structural-broad-screen-2026-08-25/input/SEED_SCHEDULE.json.gz.b64', '/tmp/SEED_SCHEDULE.json'),
+              ('scripts/run_rogshai_structural_broad_screen.py.gz.b64', '/tmp/run_rogshai_structural_broad_screen.py'),
+          ]
+          for source, target in pairs:
+              data = base64.b64decode(Path(source).read_text().strip())
+              Path(target).write_bytes(gzip.decompress(data))
+          PY
+      - name: Run complete 48 x 16 structural screen
+        run: |
+          python /tmp/run_rogshai_structural_broad_screen.py \
+            --root . \
+            --candidates /tmp/CANDIDATES.json \
+            --schedule /tmp/SEED_SCHEDULE.json \
+            --output artifacts/rogshai-structural-broad-screen-2026-08-25/results \
+            --max-turns 50
+      - name: Verify screening invariants
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('artifacts/rogshai-structural-broad-screen-2026-08-25/results/RUN_REPORT.json')
+          r = json.loads(p.read_text())
+          assert r['evidence_class'] == 'structural_model_estimates'
+          assert r['candidate_count'] == 48
+          assert r['games_per_candidate'] == 16
+          assert r['target_game_count'] == 768
+          assert r['pre_gameplay_candidate_elimination'] == 0
+          assert r['pairwise_rows'] == 1128
+          assert r['pod_size'] == 4
+          print('STRUCTURAL_SCREEN_CONTRACT=PASS')
+          print('COMPLETED', r['completed_game_count'])
+          print('ABORTED', r['aborted_game_count'])
+          PY
+      - name: Upload structural screening evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: rogshai-48-structural-broad-screen-${{ github.sha }}
+          path: artifacts/rogshai-structural-broad-screen-2026-08-25/results/
+          if-no-files-found: error
+          retention-days: 14
