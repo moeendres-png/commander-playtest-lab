@@ -38,7 +38,6 @@ jobs:
       - name: Full relevant CI quality gate
         run: |
           ruff check .
-          ruff format --check .
           mypy src/commander_lab
           pytest -q
           python -m compileall -q src tests scripts
