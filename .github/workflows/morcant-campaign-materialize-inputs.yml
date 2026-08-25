@@ -1,0 +1,63 @@
+name: Morcant Campaign Materialize Frozen Inputs
+
+on:
+  push:
+    branches:
+      - runs/rogshai-morcant-balanced-post-seatfix-20260825
+    paths:
+      - '.github/workflows/morcant-campaign-materialize-inputs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-morcant-balanced-post-seatfix-20260825
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Recover frozen 48-candidate input and proven runner
+        run: |
+          mkdir -p artifacts/rogshai-morcant-balanced-2026-08-25/input
+          curl -fsSL 'https://raw.githubusercontent.com/moeendres-png/commander-playtest-lab/runs/rogshai-48-structural-12opp-20260825/artifacts/rogshai-structural-broad-screen-2026-08-25/input/CANDIDATES.json.gz.b64' -o artifacts/rogshai-morcant-balanced-2026-08-25/input/CANDIDATES.json.gz.b64
+          curl -fsSL 'https://raw.githubusercontent.com/moeendres-png/commander-playtest-lab/runs/rogshai-48-structural-12opp-20260825/scripts/run_rogshai_structural_12opp_screen.py.gz.b64' -o /tmp/runner.gz.b64
+          python - <<'PY'
+          import base64, gzip, hashlib, json
+          from pathlib import Path
+
+          cand_b64=Path('artifacts/rogshai-morcant-balanced-2026-08-25/input/CANDIDATES.json.gz.b64')
+          candidates=gzip.decompress(base64.b64decode(cand_b64.read_text().strip()))
+          payload=json.loads(candidates)
+          Path('/tmp/CANDIDATES.json').write_bytes(candidates)
+          runner=gzip.decompress(base64.b64decode(Path('/tmp/runner.gz.b64').read_text().strip()))
+          Path('scripts/run_rogshai_morcant_balanced.py').write_bytes(runner)
+          meta={
+              'schema_version':'rogshai-morcant-frozen-inputs-1.0.0',
+              'candidate_payload_type':type(payload).__name__,
+              'candidate_count':len(payload if isinstance(payload,list) else payload.get('candidates',[])),
+              'candidates_sha256':hashlib.sha256(candidates).hexdigest(),
+              'runner_sha256':hashlib.sha256(runner).hexdigest(),
+              'source_branch':'runs/rogshai-48-structural-12opp-20260825',
+              'new_games_generated':False,
+          }
+          if meta['candidate_count'] != 48:
+              raise SystemExit(f"expected 48 frozen candidates, got {meta['candidate_count']}")
+          Path('artifacts/rogshai-morcant-balanced-2026-08-25/input/FROZEN_INPUTS.json').write_text(json.dumps(meta,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(meta,indent=2))
+          PY
+      - name: Syntax-check recovered runner
+        run: python -m py_compile scripts/run_rogshai_morcant_balanced.py
+      - name: Persist frozen inputs on run branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scripts/run_rogshai_morcant_balanced.py artifacts/rogshai-morcant-balanced-2026-08-25/input
+          git diff --cached --quiet && exit 0
+          git commit -m 'run: freeze Morcant campaign inputs and runner'
+          git push origin HEAD:runs/rogshai-morcant-balanced-post-seatfix-20260825
