@@ -10,6 +10,15 @@ on:
       - 'scripts/audit_structural_seat_symmetry.py'
       - 'tests/regressions/test_structural_seat_symmetry.py'
       - '.github/workflows/structural-seat-symmetry-audit.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/commander_lab/engine/structural/**'
+      - 'src/commander_lab/agents/**'
+      - 'scripts/audit_structural_seat_symmetry.py'
+      - 'tests/regressions/test_structural_seat_symmetry.py'
+      - '.github/workflows/structural-seat-symmetry-audit.yml'
   workflow_dispatch:
 
 permissions:
