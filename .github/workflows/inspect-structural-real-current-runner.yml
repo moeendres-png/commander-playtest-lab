@@ -1,0 +1,37 @@
+name: Inspect Structural Real-Current Runner
+
+on:
+  push:
+    branches:
+      - runs/rogshai-48-structural-12opp-20260825
+    paths:
+      - '.github/workflows/inspect-structural-real-current-runner.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Decode existing structural runner
+        run: |
+          python - <<'PY'
+          import base64, gzip
+          from pathlib import Path
+          src=Path('scripts/run_rogshai_structural_12opp_screen.py.gz.b64')
+          Path('/tmp/runner.py').write_bytes(gzip.decompress(base64.b64decode(src.read_text().strip())))
+          PY
+      - name: Print opponent-related runner sections
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path('/tmp/runner.py').read_text().splitlines()
+          needles=('morcant','cosmic','kaervek','blight','dance','lorehold','doom','wakanda','scions','counter','turtle','silverquill','fantastic','avengers','opponent_ids','OPPONENT')
+          for i,line in enumerate(lines,1):
+              if any(n.lower() in line.lower() for n in needles):
+                  lo=max(1,i-3); hi=min(len(lines),i+5)
+                  print(f'--- lines {lo}-{hi} ---')
+                  for j in range(lo,hi+1): print(f'{j}: {lines[j-1]}')
+          PY
