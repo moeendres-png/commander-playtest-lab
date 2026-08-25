@@ -1,0 +1,57 @@
+name: Equalized 192 Materialize Frozen Inputs
+
+on:
+  push:
+    branches:
+      - runs/rogshai-equalized-192-post-seatfix-20260825
+    paths:
+      - '.github/workflows/equalized-192-materialize-inputs.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-equalized-192-post-seatfix-20260825
+      - name: Fetch exact frozen 48-candidate population
+        run: |
+          mkdir -p artifacts/rogshai-equalized-192-2026-08-25/input
+          curl -fsSL 'https://raw.githubusercontent.com/moeendres-png/commander-playtest-lab/runs/rogshai-morcant-balanced-post-seatfix-20260825/artifacts/rogshai-morcant-balanced-2026-08-25/input/CANDIDATES.json.gz.b64' \
+            -o artifacts/rogshai-equalized-192-2026-08-25/input/CANDIDATES.json.gz.b64
+          python - <<'PY'
+          import base64, gzip, hashlib, json
+          from pathlib import Path
+          src=Path('artifacts/rogshai-equalized-192-2026-08-25/input/CANDIDATES.json.gz.b64')
+          raw=gzip.decompress(base64.b64decode(src.read_text().strip()))
+          payload=json.loads(raw)
+          assert isinstance(payload.get('candidates'), list) and len(payload['candidates'])==48
+          assert [row['candidate_id'] for row in payload['candidates']]==[f'C{i:03d}' for i in range(1,49)]
+          Path('/tmp/CANDIDATES.json').write_bytes(raw)
+          report={
+            'schema_version':'rogshai-equalized-192-frozen-inputs-1.0.0',
+            'source_branch':'runs/rogshai-morcant-balanced-post-seatfix-20260825',
+            'candidate_count':48,
+            'candidate_json_sha256':hashlib.sha256(raw).hexdigest(),
+            'encoded_file_sha256':hashlib.sha256(src.read_bytes()).hexdigest(),
+            'new_games_generated':False,
+          }
+          Path('artifacts/rogshai-equalized-192-2026-08-25/input/FROZEN_INPUTS.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(report,indent=2))
+          PY
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: equalized-192-decoded-candidates
+          path: /tmp/CANDIDATES.json
+          retention-days: 14
+      - name: Persist frozen input
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add artifacts/rogshai-equalized-192-2026-08-25/input/CANDIDATES.json.gz.b64 artifacts/rogshai-equalized-192-2026-08-25/input/FROZEN_INPUTS.json
+          git commit -m 'run: freeze equalized-192 candidate population'
+          git push origin HEAD:runs/rogshai-equalized-192-post-seatfix-20260825
