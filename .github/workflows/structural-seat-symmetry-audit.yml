@@ -58,19 +58,24 @@ jobs:
         run: |
           pytest -q tests/regressions/test_structural_seat_symmetry.py
           pytest -q tests/property/test_structural_properties.py
-      - name: Ruff modified source and audit tests
+      - name: Ruff autofix and verify modified files
         run: |
+          ruff check --fix src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py tests/regressions/test_structural_seat_symmetry.py scripts/audit_structural_seat_symmetry.py scripts/apply_structural_seat_symmetry_fix.py
           ruff check src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py tests/regressions/test_structural_seat_symmetry.py scripts/audit_structural_seat_symmetry.py scripts/apply_structural_seat_symmetry_fix.py
-      - name: Commit source fix only after all gates pass
+      - name: Re-run seat symmetry after autofix
+        run: |
+          python scripts/audit_structural_seat_symmetry.py --root . --output artifacts/structural-seat-symmetry-audit-post-ruff
+          pytest -q tests/regressions/test_structural_seat_symmetry.py
+      - name: Commit validated seat-symmetry fix
         if: github.event_name == 'pull_request'
         run: |
-          if git diff --quiet -- src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py; then
+          if git diff --quiet -- src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py scripts/audit_structural_seat_symmetry.py scripts/apply_structural_seat_symmetry_fix.py tests/regressions/test_structural_seat_symmetry.py; then
             echo 'SOURCE_FIX_ALREADY_COMMITTED=PASS'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py
+          git add src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py scripts/audit_structural_seat_symmetry.py scripts/apply_structural_seat_symmetry_fix.py tests/regressions/test_structural_seat_symmetry.py
           git commit -m 'fix: remove absolute seat bias from structural simulator [seat-fix-applied]'
           git push origin HEAD:fix/structural-seat-symmetry-20260825
       - name: Upload audit evidence
@@ -78,6 +83,8 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: structural-seat-symmetry-audit-${{ github.sha }}
-          path: artifacts/structural-seat-symmetry-audit/
+          path: |
+            artifacts/structural-seat-symmetry-audit/
+            artifacts/structural-seat-symmetry-audit-post-ruff/
           if-no-files-found: warn
           retention-days: 14
