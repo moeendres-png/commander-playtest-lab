@@ -45,10 +45,13 @@ jobs:
             python scripts/apply_structural_seat_symmetry_fix.py
           else
             grep -q 'ENGINE_VERSION = "structural-0.6.2"' src/commander_lab/engine/structural/simulator.py
+            grep -q 'FIDELITY_ENGINE_VERSION = "structural-fidelity-overlay-2026-08-25-v2"' src/commander_lab/engine/structural/simulator_fidelity.py
             echo 'STRUCTURAL_SEAT_SYMMETRY_FIX_ALREADY_APPLIED=PASS'
           fi
-      - name: Compile modified simulator
-        run: python -m py_compile src/commander_lab/engine/structural/simulator.py
+      - name: Compile modified structural runtime
+        run: |
+          python -m py_compile src/commander_lab/engine/structural/simulator.py
+          python -m py_compile src/commander_lab/engine/structural/simulator_fidelity.py
       - name: Run permutation-equivariance audit after fix
         run: python scripts/audit_structural_seat_symmetry.py --root . --output artifacts/structural-seat-symmetry-audit
       - name: Run focused regression tests
@@ -56,17 +59,18 @@ jobs:
           pytest -q tests/regressions/test_structural_seat_symmetry.py
           pytest -q tests/property/test_structural_properties.py
       - name: Ruff modified source and audit tests
-        run: ruff check src/commander_lab/engine/structural/simulator.py tests/regressions/test_structural_seat_symmetry.py scripts/audit_structural_seat_symmetry.py
+        run: |
+          ruff check src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py tests/regressions/test_structural_seat_symmetry.py scripts/audit_structural_seat_symmetry.py scripts/apply_structural_seat_symmetry_fix.py
       - name: Commit source fix only after all gates pass
         if: github.event_name == 'pull_request'
         run: |
-          if git diff --quiet -- src/commander_lab/engine/structural/simulator.py; then
+          if git diff --quiet -- src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py; then
             echo 'SOURCE_FIX_ALREADY_COMMITTED=PASS'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/commander_lab/engine/structural/simulator.py
+          git add src/commander_lab/engine/structural/simulator.py src/commander_lab/engine/structural/simulator_fidelity.py
           git commit -m 'fix: remove absolute seat bias from structural simulator [seat-fix-applied]'
           git push origin HEAD:fix/structural-seat-symmetry-20260825
       - name: Upload audit evidence
