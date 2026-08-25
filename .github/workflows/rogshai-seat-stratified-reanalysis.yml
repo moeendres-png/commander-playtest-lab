@@ -1,0 +1,53 @@
+name: RogShai Seat-Stratified Pairwise Reanalysis
+
+on:
+  push:
+    branches:
+      - runs/rogshai-48-structural-12opp-20260825
+    paths:
+      - '.github/workflows/rogshai-seat-stratified-reanalysis.yml'
+      - 'scripts/reanalyse_structural_seat_pairwise.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  reanalyse-existing-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Reanalyse existing 12,288 Structural games only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/reanalyse_structural_seat_pairwise.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --output artifacts/rogshai-seat-stratified-reanalysis-2026-08-25
+      - name: Verify no simulation outputs were generated
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/rogshai-seat-stratified-reanalysis-2026-08-25')
+          m=json.loads((root/'ANALYSIS_MANIFEST.json').read_text())
+          assert m['new_games_generated'] is False
+          assert m['total_existing_game_rows']==12288
+          assert m['replications']=={'R1':6144,'R2':6144}
+          assert m['pairs']==1128 and m['pairwise_seat_rows']==4512
+          assert m['games_per_candidate_per_seat']==64
+          assert len(m['selected_artifacts'])==16
+          print('SEAT_STRATIFIED_REANALYSIS_EXISTING_ONLY=PASS')
+          PY
+      - name: Upload reanalysis outputs
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-seat-stratified-pairwise-reanalysis-${{ github.sha }}
+          path: artifacts/rogshai-seat-stratified-reanalysis-2026-08-25/
+          if-no-files-found: error
+          retention-days: 14
