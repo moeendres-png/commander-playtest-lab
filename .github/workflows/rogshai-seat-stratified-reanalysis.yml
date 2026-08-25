@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-48-structural-12opp-20260825
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
@@ -44,6 +46,15 @@ jobs:
           assert len(m['selected_artifacts'])==16
           print('SEAT_STRATIFIED_REANALYSIS_EXISTING_ONLY=PASS')
           PY
+      - name: Persist validated analysis outputs on run branch
+        run: |
+          rm -rf artifacts/rogshai-seat-stratified-reanalysis-2026-08-25/_recovered
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add artifacts/rogshai-seat-stratified-reanalysis-2026-08-25
+          git diff --cached --quiet && exit 0
+          git commit -m 'analysis: persist seat-stratified pairwise outputs'
+          git push origin HEAD:runs/rogshai-48-structural-12opp-20260825
       - name: Upload reanalysis outputs
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
