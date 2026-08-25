@@ -74,7 +74,8 @@ jobs:
           from pathlib import Path
           p=Path('/tmp/runner.py')
           text=p.read_text()
-          text=re.sub(r'^RUN_ID = .*$', 'RUN_ID = "rogshai-48-structural-real-current-8-2026-08-25"', text, count=1, flags=re.M)
+          text,n_run=re.subn(r'^RUN_ID = .*$', 'RUN_ID = "rogshai-48-structural-real-current-8-2026-08-25"', text, count=1, flags=re.M)
+          assert n_run==1
           new_ids='''OPPONENT_IDS = {
               "morcant": "opponent/morcant-elves",
               "cosmic": "opponent/cosmic-spiderman-midbudget",
@@ -85,54 +86,26 @@ jobs:
               "lorehold": "opponent/lorehold-spirit-precon",
               "doom": "opponent/doom-prevails-precon",
           }'''
-          text,n=re.subn(r'OPPONENT_IDS = \{.*?\n\}', new_ids, text, count=1, flags=re.S)
-          assert n==1
-          new_validate='''def validate_schedule(payload):
-              rows = payload.get("schedule")
-              if not isinstance(rows, list) or len(rows) != 16:
-                  raise SystemExit("schedule must contain exactly 16 games")
-              seeds = [int(row["master_seed"]) for row in rows]
-              if len(set(seeds)) != 16:
-                  raise SystemExit("master seeds must be unique")
-              seat_counts = Counter(int(row["candidate_seat"]) for row in rows)
-              if seat_counts != Counter({1: 4, 2: 4, 3: 4, 4: 4}):
-                  raise SystemExit(f"candidate seat balance failed: {dict(seat_counts)}")
-              start_counts = Counter(int(row["xmage_starting_player_seat_0_based"]) for row in rows)
-              if start_counts != Counter({0: 4, 1: 4, 2: 4, 3: 4}):
-                  raise SystemExit(f"starting-player seat balance failed: {dict(start_counts)}")
-              opp_counts = Counter()
-              opp_seats = {key: Counter() for key in OPPONENT_IDS}
-              for row in rows:
-                  candidate_seat = int(row["candidate_seat"])
-                  by_seat = {int(k): str(v) for k, v in row["opponent_by_seat"].items()}
-                  if set(by_seat) != ({1, 2, 3, 4} - {candidate_seat}):
-                      raise SystemExit(f"opponent seat map malformed for seed {row['master_seed']}")
-                  if len(set(by_seat.values())) != 3:
-                      raise SystemExit(f"opponents must be distinct for seed {row['master_seed']}")
-                  triplet = [str(x) for x in row["opponent_triplet"]]
-                  if sorted(triplet) != sorted(by_seat.values()):
-                      raise SystemExit(f"triplet/seat mismatch for seed {row['master_seed']}")
-                  for seat, key in by_seat.items():
-                      if key not in OPPONENT_IDS:
-                          raise SystemExit(f"unknown opponent key {key}")
-                      opp_counts[key] += 1
-                      opp_seats[key][seat] += 1
-              expected = Counter({key: 6 for key in OPPONENT_IDS})
-              if opp_counts != expected:
-                  raise SystemExit(f"opponent appearance balance failed: {dict(opp_counts)}")
-              for key, counts in opp_seats.items():
-                  values = [counts[s] for s in [1, 2, 3, 4]]
-                  if sum(values) != 6 or any(v not in (1, 2) for v in values):
-                      raise SystemExit(f"opponent seat balance failed for {key}: {dict(counts)}")
-              return rows'''
-          text,n=re.subn(r'def validate_schedule\([^\n]*\):.*?\n\ndef materialize_candidates', new_validate+'\n\ndef materialize_candidates', text, count=1, flags=re.S)
-          assert n==1
-          text=text.replace('rogshai-12-complete-opponents-no-cosmic-no-morcant-2026-08-25','rogshai-real-current-8-opponents-2026-08-25')
-          text=text.replace('["opponent/cosmic-spiderman-midbudget", "opponent/morcant-elves"]','["opponent/scions-spellcraft-precon", "opponent/counter-intelligence-precon", "opponent/turtle-power-precon", "opponent/silverquill-influence-precon", "opponent/fantastic-four-precon", "opponent/avengers-assemble-precon"]')
-          text=text.replace('Cosmic and Morcant are excluded from this ensemble because their current complete lists are synthetic completions.','Morcant and Cosmic are included because the real decks are current/observed; their unknown slots remain explicitly synthetic completions and are not promoted to verified full lists.')
-          assert 'rogshai-12-complete-opponents-no-cosmic-no-morcant-2026-08-25' not in text
-          assert 'Cosmic and Morcant are excluded from this ensemble' not in text
+          text,n_ids=re.subn(r'OPPONENT_IDS = \{.*?\n\}', new_ids, text, count=1, flags=re.S)
+          assert n_ids==1
+          old_expected='expected = Counter({key: 4 for key in OPPONENT_IDS})'
+          assert old_expected in text
+          text=text.replace(old_expected,'expected = Counter({key: 6 for key in OPPONENT_IDS})',1)
+          old_seat='if counts != Counter({1: 1, 2: 1, 3: 1, 4: 1}):'
+          assert old_seat in text
+          text=text.replace(old_seat,'values = [counts[s] for s in [1, 2, 3, 4]]\n        if sum(values) != 6 or any(v not in (1, 2) for v in values):',1)
+          old_ensemble='rogshai-12-complete-opponents-no-cosmic-no-morcant-2026-08-25'
+          assert old_ensemble in text
+          text=text.replace(old_ensemble,'rogshai-real-current-8-opponents-2026-08-25')
+          old_excluded='["opponent/cosmic-spiderman-midbudget", "opponent/morcant-elves"]'
+          assert old_excluded in text
+          text=text.replace(old_excluded,'["opponent/scions-spellcraft-precon", "opponent/counter-intelligence-precon", "opponent/turtle-power-precon", "opponent/silverquill-influence-precon", "opponent/fantastic-four-precon", "opponent/avengers-assemble-precon"]',1)
+          old_note='Cosmic and Morcant are excluded from this ensemble because their current complete lists are synthetic completions.'
+          assert old_note in text
+          text=text.replace(old_note,'Morcant and Cosmic are included because the real decks are current/observed; their unknown slots remain explicitly synthetic completions and are not promoted to verified full lists.',1)
           p.write_text(text)
+          compile(text, str(p), 'exec')
+          print('REAL_CURRENT_8_RUNNER_PATCH=PASS')
           PY
 
       - name: Verify all eight current-real structural profiles resolve
