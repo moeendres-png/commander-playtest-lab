@@ -1,0 +1,313 @@
+name: RogShai Post-Fix Near-Neighbor Discrimination
+
+on:
+  push:
+    branches:
+      - runs/rogshai-near-neighbor-postfix-20260825
+    paths:
+      - '.github/workflows/rogshai-near-neighbor-postfix.yml'
+      - 'scripts/generate_rogshai_near_neighbor_candidates.py'
+      - 'scripts/generate_rogshai_near_neighbor_schedule.py'
+      - 'scripts/run_rogshai_near_neighbor_block.py'
+      - 'scripts/aggregate_rogshai_near_neighbor.py'
+      - 'artifacts/rogshai-near-neighbor-2026-08-25/input/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  quality_gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-near-neighbor-postfix-20260825
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install full quality environment
+        run: python -m pip install -e '.[dev,api,openai]'
+      - name: Full relevant CI quality gate
+        run: |
+          ruff check .
+          ruff format --check .
+          mypy src/commander_lab
+          pytest -q
+          python -m compileall -q src tests scripts
+      - name: Re-prove exact Structural seat symmetry on campaign head
+        run: |
+          python scripts/audit_structural_seat_symmetry.py --root . --output /tmp/seat-audit
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from commander_lab.engine.structural import ENGINE_VERSION, FIDELITY_ENGINE_VERSION
+          report=json.loads(Path('/tmp/seat-audit/SEAT_SYMMETRY_AUDIT.json').read_text())
+          assert report['seat_symmetry']=='PASS'
+          assert report['comparisons']==24
+          assert report['equivariant_comparisons']==24
+          assert report['mismatch_count']==0
+          assert ENGINE_VERSION=='structural-0.6.2'
+          assert FIDELITY_ENGINE_VERSION=='structural-fidelity-overlay-2026-08-25-v2'
+          print('NEAR_NEIGHBOR_SEAT_SYMMETRY=24/24_PASS')
+          PY
+          pytest -q tests/regressions/test_structural_seat_symmetry.py
+          pytest -q tests/property/test_structural_properties.py
+
+  preflight:
+    needs: quality_gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-near-neighbor-postfix-20260825
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev]'
+      - name: Freeze exact existing 48-candidate population
+        run: |
+          mkdir -p /tmp/preflight
+          curl -fsSL 'https://raw.githubusercontent.com/moeendres-png/commander-playtest-lab/runs/rogshai-morcant-balanced-post-seatfix-20260825/artifacts/rogshai-morcant-balanced-2026-08-25/input/CANDIDATES.json.gz.b64' -o /tmp/CANDIDATES.json.gz.b64
+          python - <<'PY'
+          import base64,gzip,hashlib,json
+          from pathlib import Path
+          raw=Path('/tmp/CANDIDATES.json.gz.b64').read_text().strip()
+          decoded=gzip.decompress(base64.b64decode(raw))
+          digest=hashlib.sha256(decoded).hexdigest()
+          assert digest=='0d57131bea1e437da670b461193a05646cb4175c458f7dae4bdf9e338073adc1', digest
+          payload=json.loads(decoded)
+          assert len(payload['candidates'])==48
+          assert [r['candidate_id'] for r in payload['candidates']]==[f'C{i:03d}' for i in range(1,49)]
+          Path('/tmp/preflight/BASE_CANDIDATES_48.json').write_bytes(decoded)
+          print('EXISTING_CANDIDATES=48/48_FROZEN')
+          PY
+      - name: Generate lossless 64-candidate near-neighbor population
+        run: |
+          python scripts/generate_rogshai_near_neighbor_candidates.py \
+            --base /tmp/preflight/BASE_CANDIDATES_48.json \
+            --output /tmp/preflight/CANDIDATES_64.json \
+            --audit-output /tmp/preflight/CANDIDATE_AUDIT.json
+      - name: Verify current physical evidence without allocation mutation
+        run: |
+          cp artifacts/rogshai-near-neighbor-2026-08-25/input/PHYSICAL_EVIDENCE.json /tmp/preflight/PHYSICAL_EVIDENCE.json
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          candidates=Path('/tmp/preflight/CANDIDATES_64.json')
+          evidence=json.loads(Path('/tmp/preflight/PHYSICAL_EVIDENCE.json').read_text())
+          audit=json.loads(Path('/tmp/preflight/CANDIDATE_AUDIT.json').read_text())
+          assert evidence['status']=='PASS'
+          assert evidence['candidate_count_checked']==64
+          assert evidence['all_candidates_individually_physically_supported'] is True
+          assert evidence['candidate_ids_with_availability_problem']=={}
+          assert evidence['physical_reservation_created'] is False
+          assert evidence['canonical_inventory_mutated'] is False
+          assert hashlib.sha256(candidates.read_bytes()).hexdigest()==evidence['candidate_payload_sha256']
+          assert audit['candidate_count']==64 and audit['existing_candidate_count']==48
+          assert audit['new_candidate_count']==16 and audit['exact_duplicate_count']==0
+          assert audit['all_focus_pairs_exactly_one_replacement_slot'] is True
+          assert audit['physical_reservation_created'] is False
+          print('PHYSICAL_AVAILABILITY_AND_CANDIDATE_AUDIT=PASS')
+          PY
+      - name: Generate exact balanced 80-scenario primary schedule
+        run: |
+          python scripts/generate_rogshai_near_neighbor_schedule.py \
+            --output /tmp/preflight/SEED_SCHEDULE.json \
+            --audit-output /tmp/preflight/BALANCE_AUDIT.json
+      - name: Prove fresh seed disjointness against all relevant prior Structural schedules
+        run: |
+          curl -fsSL 'https://raw.githubusercontent.com/moeendres-png/commander-playtest-lab/runs/rogshai-48-structural-12opp-20260825/scripts/generate_structural_ext2_schedule.py' -o /tmp/generate_ext2.py
+          curl -fsSL 'https://raw.githubusercontent.com/moeendres-png/commander-playtest-lab/runs/rogshai-48-structural-12opp-20260825/scripts/generate_structural_real_current_8_schedule.py' -o /tmp/generate_real8.py
+          curl -fsSL 'https://raw.githubusercontent.com/moeendres-png/commander-playtest-lab/runs/rogshai-morcant-balanced-post-seatfix-20260825/scripts/generate_morcant_balanced_schedule.py' -o /tmp/generate_morcant.py
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          prior=json.loads(Path('artifacts/rogshai-postfix-opponent-balance-2026-08-25/input/PRIOR_ACTUAL_BROAD_R1_SEEDS.json').read_text())
+          old=set(); sources=[]
+          for source in prior['sources']:
+              before=len(old); old.update(int(x) for x in source['master_seeds'])
+              sources.append({'source':source['campaign'],'new_unique_seeds':len(old)-before,'basis':source['evidence']})
+          def add_schedule(path,label,basis='deterministically regenerated frozen design'):
+              obj=json.loads(Path(path).read_text()); before=len(old)
+              old.update(int(r['master_seed']) for r in obj.get('schedule',[]))
+              old.update(int(x) for x in obj.get('master_seeds',[]))
+              sources.append({'source':label,'new_unique_seeds':len(old)-before,'basis':basis})
+          for block in range(9,17):
+              p=f'/tmp/ext2-{block}.json'; subprocess.run(['python','/tmp/generate_ext2.py','--block',str(block),'--output',p],check=True); add_schedule(p,f'12opp-R2-block-{block}')
+          for block in range(1,9):
+              p=f'/tmp/real8-{block}.json'; subprocess.run(['python','/tmp/generate_real8.py','--block',str(block),'--output',p],check=True); add_schedule(p,f'real-current-8-block-{block}')
+          subprocess.run(['python','/tmp/generate_morcant.py','--output','/tmp/morcant.json','--audit-output','/tmp/morcant-audit.json'],check=True)
+          add_schedule('/tmp/morcant.json','morcant-sensitivity-design')
+          subprocess.run(['python','scripts/generate_rogshai_postfix_balance_schedule.py','--output','/tmp/prior-postfix.json','--audit-output','/tmp/prior-postfix-audit.json'],check=True)
+          add_schedule('/tmp/prior-postfix.json','postfix-opponent-balance-7680-v3','actual completed campaign design')
+          new_obj=json.loads(Path('/tmp/preflight/SEED_SCHEDULE.json').read_text())
+          new={int(r['master_seed']) for r in new_obj['schedule']}
+          overlap=sorted(new & old)
+          assert len(new)==80 and not overlap, overlap
+          report={
+              'schema_version':'rogshai-near-neighbor-seed-disjointness-1.0.0',
+              'status':'PASS','new_seed_count':80,'prior_unique_seed_count_checked':len(old),
+              'overlap_count':0,'replacement_seeds_allowed':False,'sources':sources,
+          }
+          Path('/tmp/preflight/SEED_DISJOINTNESS_AUDIT.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(report,indent=2,sort_keys=True))
+          PY
+      - name: Materialize and hard-validate all 64 candidates plus six opponents
+        run: |
+          python - <<'PY'
+          import importlib.util,json
+          from pathlib import Path
+          from commander_lab.engine.structural import load_project_structural_decks
+          payload=json.loads(Path('/tmp/preflight/CANDIDATES_64.json').read_text())
+          spec=importlib.util.spec_from_file_location('runner','scripts/run_rogshai_near_neighbor_block.py')
+          module=importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(module)
+          candidates=module.materialize_candidates(Path('.').resolve(),payload)
+          assert len(candidates)==64 and len({d.deck_hash for d in candidates.values()})==64
+          assert all(f'C{i:03d}' in candidates for i in range(1,49))
+          assert all(f'N{i:03d}' in candidates for i in range(1,17))
+          decks=load_project_structural_decks(Path('.'),include_current_opponents=True)
+          for key,deck_id in module.OPPONENT_IDS.items():
+              assert deck_id in decks and len(decks[deck_id].cards)==100,(key,deck_id)
+          assert 'morcant' not in module.OPPONENT_IDS and 'cosmic' not in module.OPPONENT_IDS
+          report={
+              'status':'PASS','candidate_count':64,'existing_candidates_admitted':48,
+              'new_theorycraft_candidates_admitted':16,'unique_candidate_hashes':64,
+              'pre_gameplay_elimination':0,'opponents':module.OPPONENT_IDS,
+              'morcant_allowed':False,'cosmic_allowed':False,
+          }
+          Path('/tmp/preflight/PRE_GAMEPLAY_VALIDATION.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(report,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-near-neighbor-preflight
+          path: /tmp/preflight/
+          if-no-files-found: error
+          retention-days: 14
+
+  blocks:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        block: [1,2,3,4,5]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-near-neighbor-postfix-20260825
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        with:
+          name: rogshai-near-neighbor-preflight
+          path: /tmp/preflight
+      - name: Extract exact 16-scenario block
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          block=int(os.environ['BLOCK_NUM'])
+          master=json.loads(Path('/tmp/preflight/SEED_SCHEDULE.json').read_text())
+          rows=[r for r in master['schedule'] if int(r['block'])==block]
+          assert len(rows)==16
+          payload={'schema_version':master['schema_version'],'campaign_id':master['campaign_id'],'block':block,'schedule':rows}
+          Path('/tmp/BLOCK_SCHEDULE.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Run 64 x 16 post-fix Structural games
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          BLOCK=$(printf '%02d' "$BLOCK_NUM")
+          OUT="/tmp/results/block-${BLOCK}"
+          python scripts/run_rogshai_near_neighbor_block.py \
+            --root . \
+            --candidates /tmp/preflight/CANDIDATES_64.json \
+            --schedule /tmp/BLOCK_SCHEDULE.json \
+            --output "$OUT" \
+            --max-turns 50
+          cp /tmp/BLOCK_SCHEDULE.json "$OUT/BLOCK_SCHEDULE.json"
+          cp /tmp/preflight/BALANCE_AUDIT.json "$OUT/FULL_BALANCE_AUDIT.json"
+          cp /tmp/preflight/SEED_DISJOINTNESS_AUDIT.json "$OUT/SEED_DISJOINTNESS_AUDIT.json"
+      - name: Verify block invariants fail-closed
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          block=int(os.environ['BLOCK_NUM']); root=Path(f'/tmp/results/block-{block:02d}')
+          report=json.loads((root/'RUN_REPORT.json').read_text())
+          assert report['evidence_class']=='structural_model_estimates'
+          assert report['engine_version']=='structural-0.6.2'
+          assert report['fidelity_engine_version']=='structural-fidelity-overlay-2026-08-25-v2'
+          assert report['candidate_count']==64 and report['existing_candidate_count']==48
+          assert report['new_theorycraft_candidate_count']==16
+          assert report['games_per_candidate']==16 and report['target_game_count']==1024
+          assert report['completed_game_count']==1024 and report['aborted_game_count']==0
+          assert report['pre_gameplay_candidate_elimination']==0
+          assert report['morcant_excluded'] is True and report['cosmic_excluded'] is True
+          rows=[json.loads(x) for x in (root/'GAME_RESULTS.jsonl').read_text().splitlines() if x.strip()]
+          assert len(rows)==1024 and all(r['completed'] and not r['aborted'] for r in rows)
+          print(f'NEAR_NEIGHBOR_BLOCK_{block:02d}=1024/1024_PASS')
+          PY
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-near-neighbor-block-${{ matrix.block }}
+          path: /tmp/results/
+          if-no-files-found: error
+          retention-days: 14
+
+  aggregate:
+    needs: blocks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-near-neighbor-postfix-20260825
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        with:
+          pattern: rogshai-near-neighbor-block-*
+          path: /tmp/blocks
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        with:
+          name: rogshai-near-neighbor-preflight
+          path: /tmp/preflight
+      - name: Aggregate and audit all 5120 rows
+        run: |
+          python scripts/aggregate_rogshai_near_neighbor.py \
+            --input-root /tmp/blocks \
+            --candidates /tmp/preflight/CANDIDATES_64.json \
+            --output /tmp/aggregate
+          cp /tmp/preflight/CANDIDATE_AUDIT.json /tmp/aggregate/CANDIDATE_AUDIT.json
+          cp /tmp/preflight/BALANCE_AUDIT.json /tmp/aggregate/BALANCE_AUDIT.json
+          cp /tmp/preflight/SEED_DISJOINTNESS_AUDIT.json /tmp/aggregate/SEED_DISJOINTNESS_AUDIT.json
+          cp /tmp/preflight/PRE_GAMEPLAY_VALIDATION.json /tmp/aggregate/PRE_GAMEPLAY_VALIDATION.json
+          cp /tmp/preflight/PHYSICAL_EVIDENCE.json /tmp/aggregate/PHYSICAL_EVIDENCE.json
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-near-neighbor-aggregate-5120
+          path: /tmp/aggregate/
+          if-no-files-found: error
+          retention-days: 14
