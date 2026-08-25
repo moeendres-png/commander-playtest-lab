@@ -1,0 +1,9 @@
+{
+  "candidate_count": 48,
+  "candidate_payload_type": "dict",
+  "candidates_sha256": "0d57131bea1e437da670b461193a05646cb4175c458f7dae4bdf9e338073adc1",
+  "new_games_generated": false,
+  "runner_sha256": "03b891c76e203bd6005132bc2d59a0523b75e71315c239c60843a490ba8d85f4",
+  "schema_version": "rogshai-morcant-frozen-inputs-1.0.0",
+  "source_branch": "runs/rogshai-48-structural-12opp-20260825"
+}
