@@ -1,0 +1,93 @@
+{
+  "ensemble_id": "rogshai-12-complete-opponents-no-cosmic-no-morcant-2026-08-25",
+  "evidence_class": "structural_model_estimates",
+  "excluded": [
+    {
+      "key": "cosmic",
+      "reason": "partially_observed / synthetic_completion_public_deck; explicitly excluded by user"
+    },
+    {
+      "key": "morcant",
+      "reason": "partially_observed / synthetic_completion_pool_constrained; excluded to keep the main ensemble complete-list only"
+    }
+  ],
+  "games_per_candidate": 128,
+  "notes": [
+    "All 12 opponents are complete-list structural profiles in current project data.",
+    "Equal representation is a test-design balance, not a claim about real-world frequency.",
+    "Structural Simulation is model evidence and not empirical Commander gameplay or external Rules Authority."
+  ],
+  "opponents": [
+    {
+      "deck_id": "kaervek/current",
+      "evidence": "verified_full_deck / frozen_opponent_only",
+      "key": "kaervek"
+    },
+    {
+      "deck_id": "opponent/blight-curse-precon",
+      "evidence": "official_precon_baseline / commander_preference_observed",
+      "key": "blight"
+    },
+    {
+      "deck_id": "opponent/dance-elements-precon",
+      "evidence": "official_precon_baseline",
+      "key": "dance"
+    },
+    {
+      "deck_id": "opponent/lorehold-spirit-precon",
+      "evidence": "official_precon / exact_100; real unchanged precon confirmed",
+      "key": "lorehold"
+    },
+    {
+      "deck_id": "opponent/doom-prevails-precon",
+      "evidence": "official_precon_baseline",
+      "key": "doom"
+    },
+    {
+      "deck_id": "opponent/wakanda-forever-precon",
+      "evidence": "official_precon_baseline",
+      "key": "wakanda"
+    },
+    {
+      "deck_id": "opponent/scions-spellcraft-precon",
+      "evidence": "official_precon / exact_100 / benchmark",
+      "key": "scions"
+    },
+    {
+      "deck_id": "opponent/counter-intelligence-precon",
+      "evidence": "official_precon / exact_100 / benchmark",
+      "key": "counter"
+    },
+    {
+      "deck_id": "opponent/turtle-power-precon",
+      "evidence": "official_precon / exact_100 / benchmark",
+      "key": "turtle"
+    },
+    {
+      "deck_id": "opponent/silverquill-influence-precon",
+      "evidence": "official_precon / exact_100 / benchmark",
+      "key": "silverquill"
+    },
+    {
+      "deck_id": "opponent/fantastic-four-precon",
+      "evidence": "official_precon / exact_100 / benchmark",
+      "key": "fantastic"
+    },
+    {
+      "deck_id": "opponent/avengers-assemble-precon",
+      "evidence": "official_precon / exact_100 / benchmark",
+      "key": "avengers"
+    }
+  ],
+  "pair_cooccurrence_distribution": {
+    "5": 12,
+    "6": 54
+  },
+  "per_opponent_appearances_per_candidate": 32,
+  "per_opponent_per_seat_per_candidate": 8,
+  "pod_size": 4,
+  "schema_version": "rogshai-structural-opponent-ensemble-1.0.0",
+  "total_candidate_games": 6144,
+  "unique_opponent_triplets": 128,
+  "weighting": "equal_frequency_test_design_not_meta_prior"
+}
