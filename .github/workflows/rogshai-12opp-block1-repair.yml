@@ -1,0 +1,74 @@
+name: RogShai Structural 12-Opponent Block 1 Repair
+
+on:
+  push:
+    branches:
+      - runs/rogshai-48-structural-12opp-20260825
+    paths:
+      - '.github/workflows/rogshai-12opp-block1-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  structural-12opp-block1-repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev]'
+      - name: Decode frozen inputs with corrected block 1 schedule
+        shell: bash
+        env:
+          SCHEDULE_B64: 'H4sIAD1WjWoC/92ZUW+bMBCA3/srEM+lwoakzfY2af9gD5OmCjngJlbApraTNar632cIEDAm4CaRlj4lZ8ydfd/dcYb3O8dxlyhFNMbuN+ddiWogRjQhCZI4EhjJKGZbKkVzWU0ASgjvawl2pKAjhYVUCh+HMZflOaOYygjlOUa8sHywEOWYRwmON0cFx8nHhTTTyj/FuJoPqvlCIi4JXUV5ivbV5Wr9kR8tkcBJex9+Z62juzrs467ai7tMWbnY0riLqcDZMsURKUy4nK3EGhEPQC9mWZ5iib16N8KjTI2KjMTFv4xx5XHpQR/OPf/JgzO31LhCWds1DZXC5LyckSEhy13ipODzp1xgocZf+NCvnNLIUJMDTQ41eabJc01+1OQnTV50ZeBrsrY+oK0PaOsD2vqAtj4wV+Jz6RcRr3GyTXHjk4Z4N7TV9aBB3HKmGte92A7G5b6+u9ZbRY/7ojgqNSR2749XikhSwUJWa9keLlLDLfFi7lbDH31jkpMiepqtlFf72mpFraHjYqqx50Z7scmI0AS/HZNHDVe2VNBRyVFcGHV//v6lYviHDxrV7luGVsqBplw7JhmcMh0004N2kRjGBcZwwYm4SiiCpDvMX7ckTduOK5Ld/Ys2yjjqEatcfzawAdu12dPI4FWQ+XbIwDRkcAxZYJNhKeN4zdKkx2vAnyUztMN0hbmwpdbc11JoWkDb9mlwwQ2BG8210CbXjKWxJLdBmO/wpkdNxIRRa2ZGOwYTXe0DuMIbKo2jeTazybNTpTFhLOvR6j1tpgLTtRkBTs+w2VWQATtkcBqycAzZ3ArZIaL1ziMpm3ud4SVLYs/CpNyafyVQjzag9IiHZnrBJdsN3eYkRI9XQRTYIQqnIRpt5J9sEJnCHJ5qC+WWS3XguEA2VZqse8KnG2otRvNpYQOrH+3wZKt4qFfnp5Re9hqDp0EtbqipGAMFfBtQhjYMDmVbcNmsMpjuKh86HPtf6KgFrF5mGEpdMNjJh82D7Rrt37QKCG7pTcbY8wpAG1aG1z+wlUA9UJ+pgAYbvRI4LafgDfUVY6dgENicgg1lKBjgF+rHsPNxmY7Bkw9WILihhn00u0Krhl0Pczh4DK5dbFsFdQu6ck3vEKPwhhiNPq2sXlj0K10w1ASG7aebJSiTvs927GD2lerg3KYOGopTYD4Fhx2K59dA4/vbKYdhMP+PaHU+dWUoUjVcqD20vzzGLMsY9Yo9ePUHMQ9A5TAPPPgP/uEjozK3wqXnJd/GKpJRGuE3idWmk6j1+ZUKIsmOyP3hNjVZrqOlcm+C+L64H79uUeq9cPWLabx3JBbSSbAgK/rdoUw6iDo4ywknMUqdWnPrhpwTxt27j7t/stGc65UeAAA='
+        run: |
+          python - <<'PY'
+          import base64, gzip, os
+          from pathlib import Path
+          for source, target in [
+              ('artifacts/rogshai-structural-broad-screen-2026-08-25/input/CANDIDATES.json.gz.b64', '/tmp/CANDIDATES.json'),
+              ('scripts/run_rogshai_structural_12opp_screen.py.gz.b64', '/tmp/run_rogshai_structural_12opp_screen.py'),
+          ]:
+              Path(target).write_bytes(gzip.decompress(base64.b64decode(Path(source).read_text().strip())))
+          Path('/tmp/SEED_SCHEDULE.json').write_bytes(gzip.decompress(base64.b64decode(os.environ['SCHEDULE_B64'])))
+          PY
+      - name: Run repaired block 1
+        run: |
+          OUT='artifacts/rogshai-structural-12opp-2026-08-25/block-01-repair/results'
+          python /tmp/run_rogshai_structural_12opp_screen.py \
+            --root . \
+            --candidates /tmp/CANDIDATES.json \
+            --schedule /tmp/SEED_SCHEDULE.json \
+            --output "$OUT" \
+            --max-turns 50
+          cp /tmp/SEED_SCHEDULE.json "$OUT/SEED_SCHEDULE.json"
+          cp artifacts/rogshai-structural-12opp-2026-08-25/input/OPPONENT_ENSEMBLE_CONTRACT.json "$OUT/OPPONENT_ENSEMBLE_CONTRACT.json"
+      - name: Verify repaired block 1 invariants
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('artifacts/rogshai-structural-12opp-2026-08-25/block-01-repair/results/RUN_REPORT.json').read_text())
+          assert r['evidence_class']=='structural_model_estimates'
+          assert r['candidate_count']==48 and r['games_per_candidate']==16
+          assert r['target_game_count']==768 and r['completed_game_count']==768 and r['aborted_game_count']==0
+          assert r['pre_gameplay_candidate_elimination']==0 and r['pairwise_rows']==1128 and r['pod_size']==4
+          assert len(r['opponent_ids'])==12
+          assert r['opponent_weighting']=='equal_frequency_test_design_not_meta_prior'
+          assert set(r['excluded_opponent_profiles'])=={'opponent/cosmic-spiderman-midbudget','opponent/morcant-elves'}
+          print('STRUCTURAL_12OPP_BLOCK_01_REPAIR=PASS')
+          PY
+      - name: Upload repaired block 1 evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: rogshai-structural-12opp-block-1-repair-${{ github.sha }}
+          path: artifacts/rogshai-structural-12opp-2026-08-25/block-01-repair/results/
+          if-no-files-found: error
+          retention-days: 14
