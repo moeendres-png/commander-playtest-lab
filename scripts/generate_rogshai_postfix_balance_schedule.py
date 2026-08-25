@@ -43,8 +43,7 @@ def _build_rows() -> list[dict]:
                 scored.append((score, option))
             _, chosen = min(scored, key=lambda item: item[0])
             opponent_by_seat = {
-                str(seat): opponent
-                for seat, opponent in zip(available_seats, chosen, strict=True)
+                str(seat): opponent for seat, opponent in zip(available_seats, chosen, strict=True)
             }
             for seat, opponent in zip(available_seats, chosen, strict=True):
                 physical_counts[opponent][seat] += 1
@@ -62,7 +61,9 @@ def _build_rows() -> list[dict]:
 
     cells: dict[tuple[int, int], list[int]] = defaultdict(list)
     for index, row in enumerate(rows):
-        cells[(int(row["candidate_seat"]), int(row["starting_player_seat_0_based"]) + 1)].append(index)
+        cells[(int(row["candidate_seat"]), int(row["starting_player_seat_0_based"]) + 1)].append(
+            index
+        )
     if set(map(len, cells.values())) != {10} or len(cells) != 16:
         raise SystemExit("candidate-seat x starting-seat cells are not exactly 10 each")
 
@@ -71,7 +72,16 @@ def _build_rows() -> list[dict]:
             row_index = cells[cell][block - 1]
             rows[row_index]["block"] = block
 
-    ordered = sorted(rows, key=lambda row: (int(row["block"]), int(row["candidate_seat"]), int(row["starting_player_seat_0_based"]), int(row["triplet_index"]), int(row["triplet_replicate"])))
+    ordered = sorted(
+        rows,
+        key=lambda row: (
+            int(row["block"]),
+            int(row["candidate_seat"]),
+            int(row["starting_player_seat_0_based"]),
+            int(row["triplet_index"]),
+            int(row["triplet_replicate"]),
+        ),
+    )
     for index, row in enumerate(ordered, start=1):
         row["scenario_index"] = index
         row["seed_index"] = index
@@ -88,7 +98,9 @@ def _audit(rows: list[dict]) -> dict:
 
     candidate_seats = Counter(int(row["candidate_seat"]) for row in rows)
     starting_seats = Counter(int(row["starting_player_seat_0_based"]) + 1 for row in rows)
-    cells = Counter((int(row["candidate_seat"]), int(row["starting_player_seat_0_based"]) + 1) for row in rows)
+    cells = Counter(
+        (int(row["candidate_seat"]), int(row["starting_player_seat_0_based"]) + 1) for row in rows
+    )
     triplet_counts = Counter(tuple(row["opponent_triplet"]) for row in rows)
     opponent_counts: Counter[str] = Counter()
     physical: dict[str, Counter[int]] = {opponent: Counter() for opponent in OPPONENTS}
@@ -125,7 +137,9 @@ def _audit(rows: list[dict]) -> dict:
         raise SystemExit(f"opponent appearance balance failed: {dict(opponent_counts)}")
     for opponent in OPPONENTS:
         if physical[opponent] != Counter({seat: 20 for seat in range(1, 5)}):
-            raise SystemExit(f"physical seat balance failed for {opponent}: {dict(physical[opponent])}")
+            raise SystemExit(
+                f"physical seat balance failed for {opponent}: {dict(physical[opponent])}"
+            )
         values = [relative[opponent][position] for position in (1, 2, 3)]
         if max(values) - min(values) > 2:
             raise SystemExit(f"relative-position balance too wide for {opponent}: {values}")
