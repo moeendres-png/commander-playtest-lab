@@ -1,0 +1,8 @@
+{
+  "candidate_count": 48,
+  "candidate_json_sha256": "0d57131bea1e437da670b461193a05646cb4175c458f7dae4bdf9e338073adc1",
+  "encoded_file_sha256": "d9a967e4dd1e0bd77a35836d99f9f688aa56cf6d77a5db0e3f38d090bf25e565",
+  "new_games_generated": false,
+  "schema_version": "rogshai-equalized-192-frozen-inputs-1.0.0",
+  "source_branch": "runs/rogshai-morcant-balanced-post-seatfix-20260825"
+}
