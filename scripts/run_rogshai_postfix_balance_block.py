@@ -94,8 +94,12 @@ def materialize_candidates(root: Path, payload: dict):
     for row in rows:
         mainboard = tuple(str(name) for name in row["mainboard"])
         if len(mainboard) != 98:
-            raise SystemExit(f"{row['candidate_id']} mainboard has {len(mainboard)} cards, expected 98")
-        deck = context.materialize(mainboard, label=f"postfix-balance-{row['candidate_id'].lower()}")
+            raise SystemExit(
+                f"{row['candidate_id']} mainboard has {len(mainboard)} cards, expected 98"
+            )
+        deck = context.materialize(
+            mainboard, label=f"postfix-balance-{row['candidate_id'].lower()}"
+        )
         if len(deck.cards) != 100:
             raise SystemExit(f"{row['candidate_id']} materialized to {len(deck.cards)} cards")
         if deck.deck_hash in structural_hashes:
@@ -144,7 +148,9 @@ def main() -> int:
     with results_path.open("w", encoding="utf-8", newline="\n") as results_file:
         for candidate_id, own in candidates.items():
             source_row = next(
-                row for row in candidate_payload["candidates"] if row["candidate_id"] == candidate_id
+                row
+                for row in candidate_payload["candidates"]
+                if row["candidate_id"] == candidate_id
             )
             for row in schedule:
                 candidate_seat = int(row["candidate_seat"])
@@ -185,7 +191,9 @@ def main() -> int:
                     "candidate_seat": candidate_seat,
                     "starting_player_seat_0_based": int(row["starting_player_seat_0_based"]),
                     "opponent_triplet": list(row["opponent_triplet"]),
-                    "opponent_by_seat": {str(key): value for key, value in sorted(opponent_by_seat.items())},
+                    "opponent_by_seat": {
+                        str(key): value for key, value in sorted(opponent_by_seat.items())
+                    },
                     "completed": bool(result.completed),
                     "aborted": bool(result.aborted),
                     "abort_reason": result.abort_reason,
@@ -206,7 +214,9 @@ def main() -> int:
                     "truth_boundary": "Structural model sample only; not empirical Commander win rate or external-rules evidence.",
                 }
                 observations[candidate_id].append(observation)
-                results_file.write(json.dumps(observation, sort_keys=True, ensure_ascii=False) + "\n")
+                results_file.write(
+                    json.dumps(observation, sort_keys=True, ensure_ascii=False) + "\n"
+                )
 
     summaries = []
     for candidate_id in sorted(observations):
@@ -218,12 +228,26 @@ def main() -> int:
                 "games_scheduled": len(rows),
                 "games_completed": len(completed),
                 "games_aborted": sum(int(row["aborted"]) for row in rows),
-                "structural_first_place_count": sum(int(row["candidate_first_place"]) for row in completed),
-                "structural_first_place_fraction": fmean(float(row["candidate_first_place"]) for row in completed) if completed else None,
-                "mean_placement": fmean(float(row["candidate_placement"]) for row in completed) if completed else None,
-                "mean_damage": fmean(float(row["candidate_damage"]) for row in completed) if completed else None,
-                "mean_cards_drawn": fmean(float(row["candidate_cards_drawn"]) for row in completed) if completed else None,
-                "mean_turns": fmean(float(row["turns"]) for row in completed) if completed else None,
+                "structural_first_place_count": sum(
+                    int(row["candidate_first_place"]) for row in completed
+                ),
+                "structural_first_place_fraction": fmean(
+                    float(row["candidate_first_place"]) for row in completed
+                )
+                if completed
+                else None,
+                "mean_placement": fmean(float(row["candidate_placement"]) for row in completed)
+                if completed
+                else None,
+                "mean_damage": fmean(float(row["candidate_damage"]) for row in completed)
+                if completed
+                else None,
+                "mean_cards_drawn": fmean(float(row["candidate_cards_drawn"]) for row in completed)
+                if completed
+                else None,
+                "mean_turns": fmean(float(row["turns"]) for row in completed)
+                if completed
+                else None,
                 "evidence_class": EVIDENCE_CLASS,
             }
         )
