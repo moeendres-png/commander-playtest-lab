@@ -1,9 +1,9 @@
-name: RogShai 48 Structural Broad Screen
+name: RogShai Structural Extension Block 2
 
 on:
   push:
     branches:
-      - runs/rogshai-48-structural-20260825
+      - runs/rogshai-48-structural-ext-b2-20260825
     paths:
       - '.github/workflows/rogshai-48-structural-broad-screen.yml'
       - 'scripts/run_rogshai_structural_broad_screen.py.gz.b64'
@@ -63,7 +63,9 @@ jobs:
           assert r['pre_gameplay_candidate_elimination'] == 0
           assert r['pairwise_rows'] == 1128
           assert r['pod_size'] == 4
-          print('STRUCTURAL_SCREEN_CONTRACT=PASS')
+          assert r['completed_game_count'] == 768
+          assert r['aborted_game_count'] == 0
+          print('STRUCTURAL_EXTENSION_BLOCK_2=PASS')
           print('COMPLETED', r['completed_game_count'])
           print('ABORTED', r['aborted_game_count'])
           PY
@@ -71,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: rogshai-48-structural-broad-screen-${{ github.sha }}
+          name: rogshai-structural-extension-block-2-${{ github.sha }}
           path: artifacts/rogshai-structural-broad-screen-2026-08-25/results/
           if-no-files-found: error
           retention-days: 14
