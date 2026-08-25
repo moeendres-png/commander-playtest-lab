@@ -1,0 +1,46 @@
+{
+  "schema_version": "rogshai-opponent-coverage-before-morcant-1.0.0",
+  "basis": [
+    {"campaign": "12-opponent replication R1", "games_per_candidate": 128},
+    {"campaign": "12-opponent replication R2", "games_per_candidate": 128},
+    {"campaign": "real-current 8", "games_per_candidate": 128, "workflow_run": 32840864886}
+  ],
+  "appearances_per_candidate": {
+    "morcant": 48,
+    "kaervek": 112,
+    "blight": 112,
+    "dance": 112,
+    "lorehold": 112,
+    "doom": 112,
+    "wakanda": 112,
+    "scions": 64,
+    "counter": 64,
+    "turtle": 64,
+    "silverquill": 64,
+    "fantastic": 64,
+    "avengers": 64,
+    "cosmic": 48
+  },
+  "evidence_classes": {
+    "morcant": "partially_observed_synthetic_completion_pool_constrained",
+    "cosmic": "partially_observed_synthetic_completion_public_deck",
+    "kaervek": "verified_full_deck_frozen_opponent_only",
+    "blight": "official_precon_baseline_commander_preference_observed",
+    "dance": "official_precon_baseline",
+    "lorehold": "official_precon_exact_100_real_unchanged",
+    "doom": "official_precon_baseline",
+    "wakanda": "official_precon_baseline",
+    "scions": "official_precon_exact_100_benchmark",
+    "counter": "official_precon_exact_100_benchmark",
+    "turtle": "official_precon_exact_100_benchmark",
+    "silverquill": "official_precon_exact_100_benchmark",
+    "fantastic": "official_precon_exact_100_benchmark",
+    "avengers": "official_precon_exact_100_benchmark"
+  },
+  "new_campaign_rule": {
+    "morcant_required_every_game": true,
+    "cosmic_excluded": true,
+    "rotating_opponents_to_fill_coverage_gap": ["scions", "counter", "turtle", "silverquill", "fantastic", "avengers"]
+  },
+  "truth_boundary": "Counts are experimental appearances per RogShai candidate, not metagame probabilities."
+}
