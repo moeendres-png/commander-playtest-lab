@@ -1,0 +1,89 @@
+{
+  "schema_version": "rogshai-structural-opponent-ensemble-1.0.0",
+  "ensemble_id": "rogshai-real-current-8-opponents-2026-08-25",
+  "evidence_class": "structural_model_estimates",
+  "pod_size": 4,
+  "games_per_candidate": 128,
+  "total_candidate_games": 6144,
+  "weighting": "equal_frequency_test_design_not_meta_prior",
+  "eligibility_rule": "include only opponent deck profiles supported by current project truth as real/current opponent decks; exclude future_benchmark_not_observed profiles",
+  "opponents": [
+    {
+      "key": "morcant",
+      "deck_id": "opponent/morcant-elves",
+      "evidence": "partially_observed / synthetic_completion_pool_constrained",
+      "real_current_existence": true,
+      "list_completeness_truth": "54 hard/provenance-confirmed slots; remaining working completion synthetic"
+    },
+    {
+      "key": "cosmic",
+      "deck_id": "opponent/cosmic-spiderman-midbudget",
+      "evidence": "partially_observed / synthetic_completion_public_deck",
+      "real_current_existence": true,
+      "list_completeness_truth": "4 hard-known cards; public-deck completion synthetic"
+    },
+    {
+      "key": "blight",
+      "deck_id": "opponent/blight-curse-precon",
+      "evidence": "official_precon_baseline / commander_preference_observed",
+      "real_current_existence": true
+    },
+    {
+      "key": "dance",
+      "deck_id": "opponent/dance-elements-precon",
+      "evidence": "official_precon_baseline; ownership supported in current opponent baseline",
+      "real_current_existence": true
+    },
+    {
+      "key": "wakanda",
+      "deck_id": "opponent/wakanda-forever-precon",
+      "evidence": "official_precon_baseline in current real-opponent baseline",
+      "real_current_existence": true
+    },
+    {
+      "key": "kaervek",
+      "deck_id": "kaervek/current",
+      "evidence": "verified_full_deck / frozen_opponent_only",
+      "real_current_existence": true
+    },
+    {
+      "key": "lorehold",
+      "deck_id": "opponent/lorehold-spirit-precon",
+      "evidence": "official unchanged precon; possession and real play directly confirmed",
+      "real_current_existence": true
+    },
+    {
+      "key": "doom",
+      "deck_id": "opponent/doom-prevails-precon",
+      "evidence": "official_precon_baseline; ownership supported in current opponent baseline",
+      "real_current_existence": true
+    }
+  ],
+  "excluded_benchmark_only_profiles": [
+    "opponent/scions-spellcraft-precon",
+    "opponent/counter-intelligence-precon",
+    "opponent/turtle-power-precon",
+    "opponent/silverquill-influence-precon",
+    "opponent/fantastic-four-precon",
+    "opponent/avengers-assemble-precon"
+  ],
+  "design_targets": {
+    "candidate_games": 128,
+    "candidate_seat_appearances_each": 32,
+    "opponent_appearances_each": 48,
+    "opponent_appearances_each_per_physical_seat": 12,
+    "starting_player_seat_appearances_each": 32,
+    "distinct_opponents_per_game": 3,
+    "unique_possible_triplets": 56,
+    "triplet_multiplicity_target": "40 triplets x2 and 16 triplets x3",
+    "pair_cooccurrence_target": "8 pairs x13 and 20 pairs x14"
+  },
+  "seed_policy": "128 unique positive 31-bit master seeds derived from SHA-256(campaign_id|global_game_index), common across all 48 candidates and disjoint from prior date-like seed ranges",
+  "notes": [
+    "Structural Simulation is model evidence, not empirical Commander gameplay or Rules Authority.",
+    "Real/current deck existence does not promote partial or synthetic card-list evidence to verified-full-deck evidence.",
+    "Morcant and Cosmic remain explicitly synthetic-completion inputs for unknown slots.",
+    "Equal opponent representation is an experimental balance, not an observed metagame frequency claim.",
+    "No canonical opponent truth, deck list, inventory, allocation, or purchase state is changed by this run contract."
+  ]
+}
