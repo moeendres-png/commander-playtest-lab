@@ -1,9 +1,9 @@
-name: RogShai Structural Extension Block 1
+name: RogShai Structural Extension Block 7
 
 on:
   push:
     branches:
-      - runs/rogshai-48-structural-ext-b1-20260825
+      - runs/rogshai-48-structural-ext-b7-20260825
     paths:
       - '.github/workflows/rogshai-48-structural-broad-screen.yml'
       - 'scripts/run_rogshai_structural_broad_screen.py.gz.b64'
@@ -28,7 +28,7 @@ jobs:
       - name: Decode frozen run inputs
         shell: bash
         run: |
-          python - <<'PY'
+          python - <<'PY2'
           import base64, gzip
           from pathlib import Path
           pairs = [
@@ -39,7 +39,7 @@ jobs:
           for source, target in pairs:
               data = base64.b64decode(Path(source).read_text().strip())
               Path(target).write_bytes(gzip.decompress(data))
-          PY
+          PY2
       - name: Run complete 48 x 16 structural screen
         run: |
           python /tmp/run_rogshai_structural_broad_screen.py \
@@ -51,7 +51,7 @@ jobs:
       - name: Verify screening invariants
         shell: bash
         run: |
-          python - <<'PY'
+          python - <<'PY2'
           import json
           from pathlib import Path
           p = Path('artifacts/rogshai-structural-broad-screen-2026-08-25/results/RUN_REPORT.json')
@@ -65,15 +65,15 @@ jobs:
           assert r['pod_size'] == 4
           assert r['completed_game_count'] == 768
           assert r['aborted_game_count'] == 0
-          print('STRUCTURAL_EXTENSION_BLOCK_1=PASS')
+          print('STRUCTURAL_EXTENSION_BLOCK_7=PASS')
           print('COMPLETED', r['completed_game_count'])
           print('ABORTED', r['aborted_game_count'])
-          PY
+          PY2
       - name: Upload structural screening evidence
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: rogshai-structural-extension-block-1-${{ github.sha }}
+          name: rogshai-structural-extension-block-7-${{ github.sha }}
           path: artifacts/rogshai-structural-broad-screen-2026-08-25/results/
           if-no-files-found: error
           retention-days: 14
