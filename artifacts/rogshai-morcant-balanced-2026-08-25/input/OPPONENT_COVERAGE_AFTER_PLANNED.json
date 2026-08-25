@@ -1,0 +1,32 @@
+{
+  "schema_version": "rogshai-opponent-coverage-after-planned-morcant-1.0.0",
+  "new_scenarios_per_candidate": 144,
+  "new_games_total": 6912,
+  "new_appearances_per_candidate": {
+    "morcant": 144,
+    "scions": 48,
+    "counter": 48,
+    "turtle": 48,
+    "silverquill": 48,
+    "fantastic": 48,
+    "avengers": 48
+  },
+  "planned_cumulative_appearances_per_candidate": {
+    "morcant": 192,
+    "kaervek": 112,
+    "blight": 112,
+    "dance": 112,
+    "lorehold": 112,
+    "doom": 112,
+    "wakanda": 112,
+    "scions": 112,
+    "counter": 112,
+    "turtle": 112,
+    "silverquill": 112,
+    "fantastic": 112,
+    "avengers": 112,
+    "cosmic": 48
+  },
+  "balance_statement": "All rotating non-Morcant, non-Cosmic opponents end at exactly 112 appearances per candidate. Morcant is intentionally oversampled because it is required in every new game. Cosmic receives zero new appearances.",
+  "truth_boundary": "Coverage balance is test-design balance, not an inferred real meta frequency."
+}
