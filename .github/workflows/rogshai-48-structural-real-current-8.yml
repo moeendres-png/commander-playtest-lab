@@ -1,0 +1,258 @@
+name: RogShai 48 Structural Real-Current 8 Opponents
+
+on:
+  push:
+    branches:
+      - runs/rogshai-48-structural-12opp-20260825
+    paths:
+      - '.github/workflows/rogshai-48-structural-real-current-8.yml'
+      - 'scripts/generate_structural_real_current_8_schedule.py'
+      - 'artifacts/rogshai-structural-real-current-8-2026-08-25/input/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  design-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Audit full 128-game real-current design
+        run: |
+          python scripts/generate_structural_real_current_8_schedule.py --audit-output /tmp/DESIGN_AUDIT.json
+          cat /tmp/DESIGN_AUDIT.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/DESIGN_AUDIT.json'))
+          assert x['game_count']==128
+          assert x['opponent_appearances_each']==48
+          assert x['opponent_seat_appearances_each']==12
+          assert x['seed_count']==128
+          assert {int(k):v for k,v in x['triplet_multiplicity_distribution'].items()}=={2:40,3:16}
+          assert {int(k):v for k,v in x['pair_multiplicity_distribution'].items()}=={13:8,14:20}
+          print('REAL_CURRENT_8_DESIGN=PASS')
+          PY
+
+  structural-real-current-screen:
+    needs: design-audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        block: [1, 2, 3, 4, 5, 6, 7, 8]
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev]'
+
+      - name: Decode frozen candidates and structural runner
+        run: |
+          python - <<'PY'
+          import base64, gzip
+          from pathlib import Path
+          pairs=[
+            ('artifacts/rogshai-structural-broad-screen-2026-08-25/input/CANDIDATES.json.gz.b64','/tmp/CANDIDATES.json'),
+            ('scripts/run_rogshai_structural_12opp_screen.py.gz.b64','/tmp/runner.py'),
+          ]
+          for src,dst in pairs:
+              Path(dst).write_bytes(gzip.decompress(base64.b64decode(Path(src).read_text().strip())))
+          PY
+
+      - name: Patch runner only for frozen real-current 8-opponent campaign
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          p=Path('/tmp/runner.py')
+          text=p.read_text()
+          text=re.sub(r'^RUN_ID = .*$', 'RUN_ID = "rogshai-48-structural-real-current-8-2026-08-25"', text, count=1, flags=re.M)
+          new_ids='''OPPONENT_IDS = {
+              "morcant": "opponent/morcant-elves",
+              "cosmic": "opponent/cosmic-spiderman-midbudget",
+              "blight": "opponent/blight-curse-precon",
+              "dance": "opponent/dance-elements-precon",
+              "wakanda": "opponent/wakanda-forever-precon",
+              "kaervek": "kaervek/current",
+              "lorehold": "opponent/lorehold-spirit-precon",
+              "doom": "opponent/doom-prevails-precon",
+          }'''
+          text,n=re.subn(r'OPPONENT_IDS = \{.*?\n\}', new_ids, text, count=1, flags=re.S)
+          assert n==1
+          new_validate='''def validate_schedule(payload):
+              rows = payload.get("schedule")
+              if not isinstance(rows, list) or len(rows) != 16:
+                  raise SystemExit("schedule must contain exactly 16 games")
+              seeds = [int(row["master_seed"]) for row in rows]
+              if len(set(seeds)) != 16:
+                  raise SystemExit("master seeds must be unique")
+              seat_counts = Counter(int(row["candidate_seat"]) for row in rows)
+              if seat_counts != Counter({1: 4, 2: 4, 3: 4, 4: 4}):
+                  raise SystemExit(f"candidate seat balance failed: {dict(seat_counts)}")
+              start_counts = Counter(int(row["xmage_starting_player_seat_0_based"]) for row in rows)
+              if start_counts != Counter({0: 4, 1: 4, 2: 4, 3: 4}):
+                  raise SystemExit(f"starting-player seat balance failed: {dict(start_counts)}")
+              opp_counts = Counter()
+              opp_seats = {key: Counter() for key in OPPONENT_IDS}
+              for row in rows:
+                  candidate_seat = int(row["candidate_seat"])
+                  by_seat = {int(k): str(v) for k, v in row["opponent_by_seat"].items()}
+                  if set(by_seat) != ({1, 2, 3, 4} - {candidate_seat}):
+                      raise SystemExit(f"opponent seat map malformed for seed {row['master_seed']}")
+                  if len(set(by_seat.values())) != 3:
+                      raise SystemExit(f"opponents must be distinct for seed {row['master_seed']}")
+                  triplet = [str(x) for x in row["opponent_triplet"]]
+                  if sorted(triplet) != sorted(by_seat.values()):
+                      raise SystemExit(f"triplet/seat mismatch for seed {row['master_seed']}")
+                  for seat, key in by_seat.items():
+                      if key not in OPPONENT_IDS:
+                          raise SystemExit(f"unknown opponent key {key}")
+                      opp_counts[key] += 1
+                      opp_seats[key][seat] += 1
+              expected = Counter({key: 6 for key in OPPONENT_IDS})
+              if opp_counts != expected:
+                  raise SystemExit(f"opponent appearance balance failed: {dict(opp_counts)}")
+              for key, counts in opp_seats.items():
+                  values = [counts[s] for s in [1, 2, 3, 4]]
+                  if sum(values) != 6 or any(v not in (1, 2) for v in values):
+                      raise SystemExit(f"opponent seat balance failed for {key}: {dict(counts)}")
+              return rows'''
+          text,n=re.subn(r'def validate_schedule\([^\n]*\):.*?\n\ndef materialize_candidates', new_validate+'\n\ndef materialize_candidates', text, count=1, flags=re.S)
+          assert n==1
+          text=text.replace('rogshai-12-complete-opponents-no-cosmic-no-morcant-2026-08-25','rogshai-real-current-8-opponents-2026-08-25')
+          text=text.replace('["opponent/cosmic-spiderman-midbudget", "opponent/morcant-elves"]','["opponent/scions-spellcraft-precon", "opponent/counter-intelligence-precon", "opponent/turtle-power-precon", "opponent/silverquill-influence-precon", "opponent/fantastic-four-precon", "opponent/avengers-assemble-precon"]')
+          text=text.replace('Cosmic and Morcant are excluded from this ensemble because their current complete lists are synthetic completions.','Morcant and Cosmic are included because the real decks are current/observed; their unknown slots remain explicitly synthetic completions and are not promoted to verified full lists.')
+          assert 'rogshai-12-complete-opponents-no-cosmic-no-morcant-2026-08-25' not in text
+          assert 'Cosmic and Morcant are excluded from this ensemble' not in text
+          p.write_text(text)
+          PY
+
+      - name: Verify all eight current-real structural profiles resolve
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from commander_lab.engine.structural import load_project_structural_decks
+          ids={
+              'morcant':'opponent/morcant-elves',
+              'cosmic':'opponent/cosmic-spiderman-midbudget',
+              'blight':'opponent/blight-curse-precon',
+              'dance':'opponent/dance-elements-precon',
+              'wakanda':'opponent/wakanda-forever-precon',
+              'kaervek':'kaervek/current',
+              'lorehold':'opponent/lorehold-spirit-precon',
+              'doom':'opponent/doom-prevails-precon',
+          }
+          decks=load_project_structural_decks(Path('.'), include_current_opponents=True)
+          missing={k:v for k,v in ids.items() if v not in decks}
+          assert not missing, missing
+          bad={k:len(decks[v].cards) for k,v in ids.items() if len(decks[v].cards)!=100}
+          assert not bad, bad
+          print('REAL_CURRENT_8_PROFILE_RESOLUTION=PASS')
+          for k,v in ids.items(): print(k,v,len(decks[v].cards))
+          PY
+
+      - name: Generate fresh block schedule and prove seed disjointness
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          python scripts/generate_structural_real_current_8_schedule.py --block "$BLOCK_NUM" --output /tmp/SEED_SCHEDULE.json --audit-output /tmp/DESIGN_AUDIT.json
+          python - <<'PY'
+          import base64, gzip, json, subprocess
+          from pathlib import Path
+          current=set(json.load(open('/tmp/SEED_SCHEDULE.json'))['master_seeds'])
+          old=set()
+          def add_obj(obj):
+              if isinstance(obj,dict):
+                  if 'master_seeds' in obj: old.update(int(x) for x in obj['master_seeds'])
+                  if 'schedule' in obj: old.update(int(x['master_seed']) for x in obj['schedule'] if isinstance(x,dict) and 'master_seed' in x)
+          for p in Path('artifacts').rglob('*SEED_SCHEDULE*.json.gz.b64'):
+              try:
+                  add_obj(json.loads(gzip.decompress(base64.b64decode(p.read_text().strip())).decode()))
+              except Exception:
+                  pass
+          gen=Path('scripts/generate_structural_ext2_schedule.py')
+          if gen.exists():
+              for b in [2,9,10,11,12,13,14,15,16]:
+                  out=Path(f'/tmp/old-{b}.json')
+                  subprocess.run(['python',str(gen),'--block',str(b),'--output',str(out)],check=True)
+                  add_obj(json.loads(out.read_text()))
+          overlap=sorted(current & old)
+          assert not overlap, f'new/prior seed overlap: {overlap}'
+          assert len(current)==16
+          print('BLOCK_SEED_DISJOINTNESS=PASS')
+          print('OLD_SEEDS_CHECKED',len(old))
+          print('NEW_SEEDS',sorted(current))
+          PY
+
+      - name: Run 48 x 16 structural games for real-current opponent block
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          BLOCK=$(printf "%02d" "$BLOCK_NUM")
+          OUT="artifacts/rogshai-structural-real-current-8-2026-08-25/block-${BLOCK}/results"
+          python /tmp/runner.py \
+            --root . \
+            --candidates /tmp/CANDIDATES.json \
+            --schedule /tmp/SEED_SCHEDULE.json \
+            --output "$OUT" \
+            --max-turns 50
+          cp /tmp/SEED_SCHEDULE.json "$OUT/SEED_SCHEDULE.json"
+          cp /tmp/DESIGN_AUDIT.json "$OUT/DESIGN_AUDIT.json"
+          cp artifacts/rogshai-structural-real-current-8-2026-08-25/input/OPPONENT_ENSEMBLE_CONTRACT.json "$OUT/OPPONENT_ENSEMBLE_CONTRACT.json"
+
+      - name: Verify block invariants
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from collections import Counter
+          from pathlib import Path
+          b=int(os.environ['BLOCK_NUM'])
+          p=Path(f'artifacts/rogshai-structural-real-current-8-2026-08-25/block-{b:02d}/results/RUN_REPORT.json')
+          r=json.loads(p.read_text())
+          assert r['evidence_class']=='structural_model_estimates'
+          assert r['candidate_count']==48
+          assert r['games_per_candidate']==16
+          assert r['target_game_count']==768
+          assert r['completed_game_count']==768
+          assert r['aborted_game_count']==0
+          assert r['pre_gameplay_candidate_elimination']==0
+          assert r['pairwise_rows']==1128
+          assert r['pod_size']==4
+          assert len(r['opponent_ids'])==8
+          assert r['opponent_ensemble_id']=='rogshai-real-current-8-opponents-2026-08-25'
+          assert r['opponent_weighting']=='equal_frequency_test_design_not_meta_prior'
+          expected_excluded={
+              'opponent/scions-spellcraft-precon',
+              'opponent/counter-intelligence-precon',
+              'opponent/turtle-power-precon',
+              'opponent/silverquill-influence-precon',
+              'opponent/fantastic-four-precon',
+              'opponent/avengers-assemble-precon',
+          }
+          assert set(r['excluded_opponent_profiles'])==expected_excluded
+          schedule=json.loads((p.parent/'SEED_SCHEDULE.json').read_text())['schedule']
+          assert Counter(o for row in schedule for o in row['opponent_triplet'])==Counter({k:6 for k in r['opponent_ids']})
+          assert sum(1 for _ in (p.parent/'GAME_RESULTS.jsonl').open())==768
+          print(f'STRUCTURAL_REAL_CURRENT_8_BLOCK_{b:02d}=PASS')
+          print('COMPLETED',r['completed_game_count'])
+          print('ABORTED',r['aborted_game_count'])
+          PY
+
+      - name: Upload real-current structural evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: rogshai-structural-real-current-8-block-${{ matrix.block }}-${{ github.sha }}
+          path: artifacts/rogshai-structural-real-current-8-2026-08-25/block-*/results/
+          if-no-files-found: error
+          retention-days: 14
