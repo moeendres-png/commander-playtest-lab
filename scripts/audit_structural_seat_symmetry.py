@@ -135,7 +135,9 @@ def _run_one(
         capture_events=True,
     )
     if result.aborted:
-        raise RuntimeError(f"audit game aborted for seed={seed} shift={shift}: {result.abort_reason}")
+        raise RuntimeError(
+            f"audit game aborted for seed={seed} shift={shift}: {result.abort_reason}"
+        )
     winner_logical = sorted(
         _logical_for_player_id(deck_order, player_id) for player_id in result.winner_ids
     )
@@ -217,7 +219,20 @@ def main() -> int:
         json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(json.dumps({key: report[key] for key in ("comparisons", "equivariant_comparisons", "mismatch_count", "seat_symmetry")}, indent=2))
+    print(
+        json.dumps(
+            {
+                key: report[key]
+                for key in (
+                    "comparisons",
+                    "equivariant_comparisons",
+                    "mismatch_count",
+                    "seat_symmetry",
+                )
+            },
+            indent=2,
+        )
+    )
     return 0 if not mismatches else 1
 
 

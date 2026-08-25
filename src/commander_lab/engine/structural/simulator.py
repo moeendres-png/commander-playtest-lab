@@ -1953,9 +1953,7 @@ class StructuralSimulator:
             player.placement = tied_placement
             player.eliminated_turn = turn
             if player.elimination_reason is None:
-                player.elimination_reason = (
-                    "commander_damage" if commander_lethal else "life_total"
-                )
+                player.elimination_reason = "commander_damage" if commander_lethal else "life_total"
             recorder.emit(
                 "player_eliminated",
                 actor_id=player.player_id,
