@@ -1,0 +1,88 @@
+name: RogShai 48 Structural 12-Opponent Replication 2
+
+on:
+  push:
+    branches:
+      - runs/rogshai-48-structural-12opp-20260825
+    paths:
+      - '.github/workflows/rogshai-48-structural-12opp-replication2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  structural-12opp-replication2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        block: [9, 10, 11, 12, 13, 14, 15, 16]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev]'
+      - name: Decode candidates and runner
+        run: |
+          python - <<'PY'
+          import base64, gzip
+          from pathlib import Path
+          for source,target in [
+            ('artifacts/rogshai-structural-broad-screen-2026-08-25/input/CANDIDATES.json.gz.b64','/tmp/CANDIDATES.json'),
+            ('scripts/run_rogshai_structural_12opp_screen.py.gz.b64','/tmp/run_screen.py'),
+          ]:
+            Path(target).write_bytes(gzip.decompress(base64.b64decode(Path(source).read_text().strip())))
+          PY
+      - name: Generate replication schedule
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: python scripts/generate_structural_ext2_schedule.py --block "$BLOCK_NUM" --output /tmp/SEED_SCHEDULE.json
+      - name: Run 48 x 16 structural games
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          BLOCK=$(printf "%02d" "$BLOCK_NUM")
+          OUT="artifacts/rogshai-structural-12opp-replication2-2026-08-25/block-${BLOCK}/results"
+          python /tmp/run_screen.py --root . --candidates /tmp/CANDIDATES.json --schedule /tmp/SEED_SCHEDULE.json --output "$OUT" --max-turns 50
+          cp /tmp/SEED_SCHEDULE.json "$OUT/SEED_SCHEDULE.json"
+          cp artifacts/rogshai-structural-12opp-2026-08-25/input/OPPONENT_ENSEMBLE_CONTRACT.json "$OUT/OPPONENT_ENSEMBLE_CONTRACT.json"
+      - name: Verify block invariants
+        env:
+          BLOCK_NUM: ${{ matrix.block }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from collections import Counter
+          from pathlib import Path
+          b=int(os.environ['BLOCK_NUM']); block=f'{b:02d}'
+          out=Path(f'artifacts/rogshai-structural-12opp-replication2-2026-08-25/block-{block}/results')
+          r=json.loads((out/'RUN_REPORT.json').read_text())
+          s=json.loads((out/'SEED_SCHEDULE.json').read_text())
+          assert r['evidence_class']=='structural_model_estimates'
+          assert r['candidate_count']==48 and r['games_per_candidate']==16
+          assert r['target_game_count']==768 and r['completed_game_count']==768 and r['aborted_game_count']==0
+          assert r['pre_gameplay_candidate_elimination']==0 and r['pairwise_rows']==1128 and r['pod_size']==4
+          assert len(r['opponent_ids'])==12
+          assert r['opponent_weighting']=='equal_frequency_test_design_not_meta_prior'
+          assert set(r['excluded_opponent_profiles'])=={'opponent/cosmic-spiderman-midbudget','opponent/morcant-elves'}
+          assert Counter(g['candidate_seat'] for g in s['schedule'])==Counter({1:4,2:4,3:4,4:4})
+          appearances=Counter(); byseat=Counter()
+          for g in s['schedule']:
+            for seat,opp in g['opponent_by_seat'].items():
+              appearances[opp]+=1; byseat[(opp,int(seat))]+=1
+          assert len(appearances)==12 and set(appearances.values())=={4}
+          assert set(byseat.values())=={1}
+          print(f'STRUCTURAL_12OPP_REPLICATION2_BLOCK_{block}=PASS')
+          PY
+      - name: Upload replication evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rogshai-structural-12opp-replication2-block-${{ matrix.block }}-${{ github.sha }}
+          path: artifacts/rogshai-structural-12opp-replication2-2026-08-25/block-*/results/
+          if-no-files-found: error
+          retention-days: 14
