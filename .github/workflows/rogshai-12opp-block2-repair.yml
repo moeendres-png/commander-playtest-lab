@@ -1,0 +1,101 @@
+name: RogShai Structural 12-Opponent Block 2 Repair
+
+on:
+  push:
+    branches:
+      - runs/rogshai-48-structural-12opp-20260825
+    paths:
+      - '.github/workflows/rogshai-12opp-block2-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  structural-12opp-block2-repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev]'
+      - name: Decode fixed inputs
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64, gzip
+          from pathlib import Path
+          for source, target in [
+              ('artifacts/rogshai-structural-broad-screen-2026-08-25/input/CANDIDATES.json.gz.b64', '/tmp/CANDIDATES.json'),
+              ('scripts/run_rogshai_structural_12opp_screen.py.gz.b64', '/tmp/run_rogshai_structural_12opp_screen.py'),
+          ]:
+              Path(target).write_bytes(gzip.decompress(base64.b64decode(Path(source).read_text().strip())))
+          PY
+          cat > /tmp/SEED_SCHEDULE.json <<'JSON'
+{
+  "balance": {
+    "candidate_seat_counts": {"1": 4, "2": 4, "3": 4, "4": 4},
+    "opponent_appearance_count_per_deck": 4,
+    "opponent_seat_count_per_deck_per_seat": 1,
+    "starting_player_seat_counts_0_based": {"0": 4, "1": 4, "2": 4, "3": 4}
+  },
+  "block": 2,
+  "ensemble_id": "rogshai-12-complete-opponents-no-cosmic-no-morcant-2026-08-25",
+  "game_count_per_candidate": 16,
+  "master_seeds": [2026090301,2026090302,2026090303,2026090304,2026090305,2026090306,2026090307,2026090308,2026090309,2026090310,2026090311,2026090312,2026090313,2026090314,2026090315,2026090316],
+  "schedule": [
+    {"candidate_seat":2,"master_seed":2026090301,"opponent_by_seat":{"1":"wakanda","3":"scions","4":"silverquill"},"opponent_triplet":["scions","silverquill","wakanda"],"seed_index":1,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":3,"xmage_starting_player_seat_1_based":4},
+    {"candidate_seat":4,"master_seed":2026090302,"opponent_by_seat":{"1":"turtle","2":"fantastic","3":"silverquill"},"opponent_triplet":["fantastic","silverquill","turtle"],"seed_index":2,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":1,"xmage_starting_player_seat_1_based":2},
+    {"candidate_seat":1,"master_seed":2026090303,"opponent_by_seat":{"2":"silverquill","3":"wakanda","4":"doom"},"opponent_triplet":["doom","silverquill","wakanda"],"seed_index":3,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":0,"xmage_starting_player_seat_1_based":1},
+    {"candidate_seat":4,"master_seed":2026090304,"opponent_by_seat":{"1":"silverquill","2":"avengers","3":"turtle"},"opponent_triplet":["avengers","silverquill","turtle"],"seed_index":4,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":2,"xmage_starting_player_seat_1_based":3},
+    {"candidate_seat":1,"master_seed":2026090305,"opponent_by_seat":{"2":"doom","3":"dance","4":"scions"},"opponent_triplet":["dance","doom","scions"],"seed_index":5,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":2,"xmage_starting_player_seat_1_based":3},
+    {"candidate_seat":1,"master_seed":2026090306,"opponent_by_seat":{"2":"counter","3":"kaervek","4":"fantastic"},"opponent_triplet":["counter","fantastic","kaervek"],"seed_index":6,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":1,"xmage_starting_player_seat_1_based":2},
+    {"candidate_seat":3,"master_seed":2026090307,"opponent_by_seat":{"1":"counter","2":"dance","4":"lorehold"},"opponent_triplet":["counter","dance","lorehold"],"seed_index":7,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":1,"xmage_starting_player_seat_1_based":2},
+    {"candidate_seat":4,"master_seed":2026090308,"opponent_by_seat":{"1":"scions","2":"wakanda","3":"lorehold"},"opponent_triplet":["lorehold","scions","wakanda"],"seed_index":8,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":0,"xmage_starting_player_seat_1_based":1},
+    {"candidate_seat":2,"master_seed":2026090309,"opponent_by_seat":{"1":"avengers","3":"blight","4":"wakanda"},"opponent_triplet":["avengers","blight","wakanda"],"seed_index":9,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":1,"xmage_starting_player_seat_1_based":2},
+    {"candidate_seat":3,"master_seed":2026090310,"opponent_by_seat":{"1":"blight","2":"scions","4":"counter"},"opponent_triplet":["blight","counter","scions"],"seed_index":10,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":2,"xmage_starting_player_seat_1_based":3},
+    {"candidate_seat":3,"master_seed":2026090311,"opponent_by_seat":{"1":"doom","2":"lorehold","4":"kaervek"},"opponent_triplet":["doom","kaervek","lorehold"],"seed_index":11,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":0,"xmage_starting_player_seat_1_based":1},
+    {"candidate_seat":4,"master_seed":2026090312,"opponent_by_seat":{"1":"fantastic","2":"blight","3":"avengers"},"opponent_triplet":["avengers","blight","fantastic"],"seed_index":12,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":3,"xmage_starting_player_seat_1_based":4},
+    {"candidate_seat":2,"master_seed":2026090313,"opponent_by_seat":{"1":"lorehold","3":"counter","4":"blight"},"opponent_triplet":["blight","counter","lorehold"],"seed_index":13,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":0,"xmage_starting_player_seat_1_based":1},
+    {"candidate_seat":2,"master_seed":2026090314,"opponent_by_seat":{"1":"kaervek","3":"doom","4":"turtle"},"opponent_triplet":["doom","kaervek","turtle"],"seed_index":14,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":2,"xmage_starting_player_seat_1_based":3},
+    {"candidate_seat":3,"master_seed":2026090315,"opponent_by_seat":{"1":"dance","2":"kaervek","4":"avengers"},"opponent_triplet":["avengers","dance","kaervek"],"seed_index":15,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":3,"xmage_starting_player_seat_1_based":4},
+    {"candidate_seat":1,"master_seed":2026090316,"opponent_by_seat":{"2":"turtle","3":"fantastic","4":"dance"},"opponent_triplet":["dance","fantastic","turtle"],"seed_index":16,"triplet_contract":"EXT12-B02","xmage_starting_player_seat_0_based":3,"xmage_starting_player_seat_1_based":4}
+  ],
+  "schema_version":"rogshai-common-seed-schedule-12opp-1.0.0",
+  "stage":"structural_extended_opponent_sensitivity",
+  "truth_boundary":"equal-frequency test design; not an empirical opponent-frequency prior"
+}
+JSON
+      - name: Run repaired block 2
+        run: |
+          OUT='artifacts/rogshai-structural-12opp-2026-08-25/block-02-repair/results'
+          python /tmp/run_rogshai_structural_12opp_screen.py --root . --candidates /tmp/CANDIDATES.json --schedule /tmp/SEED_SCHEDULE.json --output "$OUT" --max-turns 50
+          cp /tmp/SEED_SCHEDULE.json "$OUT/SEED_SCHEDULE.json"
+          cp artifacts/rogshai-structural-12opp-2026-08-25/input/OPPONENT_ENSEMBLE_CONTRACT.json "$OUT/OPPONENT_ENSEMBLE_CONTRACT.json"
+      - name: Verify repaired block 2 invariants
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('artifacts/rogshai-structural-12opp-2026-08-25/block-02-repair/results/RUN_REPORT.json').read_text())
+          assert r['evidence_class']=='structural_model_estimates'
+          assert r['candidate_count']==48 and r['games_per_candidate']==16
+          assert r['target_game_count']==768 and r['completed_game_count']==768 and r['aborted_game_count']==0
+          assert r['pre_gameplay_candidate_elimination']==0 and r['pairwise_rows']==1128 and r['pod_size']==4
+          assert len(r['opponent_ids'])==12
+          assert r['opponent_weighting']=='equal_frequency_test_design_not_meta_prior'
+          assert set(r['excluded_opponent_profiles'])=={'opponent/cosmic-spiderman-midbudget','opponent/morcant-elves'}
+          print('STRUCTURAL_12OPP_BLOCK_02_REPAIR=PASS')
+          PY
+      - name: Upload repaired block 2 evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: rogshai-structural-12opp-block-2-repair-${{ github.sha }}
+          path: artifacts/rogshai-structural-12opp-2026-08-25/block-02-repair/results/
+          if-no-files-found: error
+          retention-days: 14
