@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 PATH = Path("src/commander_lab/engine/structural/simulator.py")
+FIDELITY_PATH = Path("src/commander_lab/engine/structural/simulator_fidelity.py")
 
 
 def replace_once(text: str, old: str, new: str, label: str) -> str:
@@ -78,8 +79,6 @@ def main() -> int:
         "removal target id",
     )
 
-    # Graveyard targeting has the same pre-fix target-list shape as removal after the first
-    # replacement has been consumed, so replace the remaining occurrence once.
     text = replace_once(
         text,
         '''        targets = [\n            opponent\n            for opponent in players\n            if opponent.alive and opponent.player_id != player.player_id\n        ]\n        if not targets:\n            return\n        state = self._pilot_state(player, players, max(1, player.current_turn))\n        target_actions: list[PilotActionView] = []\n        target_mapping: dict[str, _Player] = {}\n        for opponent in targets:\n''',
@@ -113,8 +112,30 @@ def main() -> int:
         "simultaneous eliminations",
     )
 
+    fidelity = FIDELITY_PATH.read_text(encoding="utf-8")
+    fidelity = replace_once(
+        fidelity,
+        "import hashlib\nimport random\n",
+        "",
+        "fidelity obsolete rng imports",
+    )
+    fidelity = replace_once(
+        fidelity,
+        'FIDELITY_ENGINE_VERSION = "structural-fidelity-overlay-2026-08-21-v1"',
+        'FIDELITY_ENGINE_VERSION = "structural-fidelity-overlay-2026-08-25-v2"',
+        "fidelity engine version",
+    )
+    fidelity = replace_once(
+        fidelity,
+        '''    def _initialize_players(\n        self,\n        config: StructuralMatchConfig,\n        rng: random.Random,\n        recorder: _EventRecorder,\n    ) -> list[_Player]:\n        players: list[_Player] = []\n        for seat, deck_id in enumerate(config.deck_ids):\n            deck = self.decks[deck_id]\n            commander_names = set(deck.commander_names)\n            library = [card for card in deck.cards if card.oracle_name not in commander_names]\n            rng.shuffle(library)\n            pilot_config = config.pilot_configs[seat] if config.pilot_configs else PilotConfig()\n            pilot = build_pilot(pilot_config, strategy=deck.commander_strategy)\n            pilot_seed_raw = hashlib.sha256(\n                f"{FIDELITY_ENGINE_VERSION}|{config.seed}|pilot|{seat}".encode()\n            ).digest()\n            player = _Player(\n                player_id=f"p{seat + 1}",\n                seat=seat,\n                deck=deck,\n                pilot=pilot,\n                pilot_rng=random.Random(int.from_bytes(pilot_seed_raw[:8], "big")),\n                library=library,\n                commanders={\n                    name: _Commander(\n                        name=name,\n                        base_cost=deck.commander_base_costs[name],\n                        base_power=deck.commander_base_power.get(name, 2.0),\n                        power=deck.commander_base_power.get(name, 2.0),\n                    )\n                    for name in deck.commander_names\n                },\n            )\n            if config.opening_hand_overrides and config.opening_hand_overrides[seat] is not None:\n                self._apply_opening_hand_override(\n                    player, config.opening_hand_overrides[seat] or (), rng, recorder\n                )\n            else:\n                self._london_mulligan(\n                    player,\n                    rng,\n                    recorder,\n                    config.free_multiplayer_mulligan and len(config.deck_ids) >= 3,\n                )\n            players.append(player)\n        return players\n''',
+        '''    def _initialize_players(\n        self,\n        config: StructuralMatchConfig,\n        starting_seat: int,\n        recorder: _EventRecorder,\n    ) -> list[_Player]:\n        players: list[_Player] = []\n        pod_size = len(config.deck_ids)\n        for seat, deck_id in enumerate(config.deck_ids):\n            deck = self.decks[deck_id]\n            commander_names = set(deck.commander_names)\n            library = [card for card in deck.cards if card.oracle_name not in commander_names]\n            relative_position = (seat - starting_seat) % pod_size\n            library_rng = self._deterministic_rng(config.seed, "library", relative_position)\n            library_rng.shuffle(library)\n            pilot_config = config.pilot_configs[seat] if config.pilot_configs else PilotConfig()\n            pilot = build_pilot(pilot_config, strategy=deck.commander_strategy)\n            player = _Player(\n                player_id=f"p{seat + 1}",\n                seat=seat,\n                deck=deck,\n                pilot=pilot,\n                pilot_rng=self._deterministic_rng(config.seed, "pilot", relative_position),\n                library=library,\n                commanders={\n                    name: _Commander(\n                        name=name,\n                        base_cost=deck.commander_base_costs[name],\n                        base_power=deck.commander_base_power.get(name, 2.0),\n                        power=deck.commander_base_power.get(name, 2.0),\n                    )\n                    for name in deck.commander_names\n                },\n            )\n            if config.opening_hand_overrides and config.opening_hand_overrides[seat] is not None:\n                self._apply_opening_hand_override(\n                    player, config.opening_hand_overrides[seat] or (), library_rng, recorder\n                )\n            else:\n                self._london_mulligan(\n                    player,\n                    library_rng,\n                    recorder,\n                    config.free_multiplayer_mulligan and len(config.deck_ids) >= 3,\n                )\n            players.append(player)\n        return players\n''',
+        "fidelity initialize player streams",
+    )
+
     PATH.write_text(text, encoding="utf-8")
+    FIDELITY_PATH.write_text(fidelity, encoding="utf-8")
     print("STRUCTURAL_SEAT_SYMMETRY_FIX_APPLIED=PASS")
+    print("STRUCTURAL_FIDELITY_OVERLAY_SEAT_FIX_APPLIED=PASS")
     return 0
 
 
