@@ -8,7 +8,7 @@ on:
       - '.github/workflows/format-eightopp-campaign.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   PYTHONHASHSEED: "0"
@@ -34,12 +34,15 @@ jobs:
             scripts/generate_rogshai_postfix_eightopp_equalize_schedule.py \
             scripts/run_rogshai_postfix_eightopp_equalize_block.py \
             scripts/aggregate_rogshai_postfix_eightopp_equalize.py
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
-          name: eightopp-ruff-formatted-scripts
-          path: |
-            scripts/generate_rogshai_postfix_eightopp_equalize_schedule.py
-            scripts/run_rogshai_postfix_eightopp_equalize_block.py
+      - name: Commit formatter output and clean temporary guards
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f tmp_should_not_exist tmp_format_guard tmp_format_guard2
+          git add \
+            scripts/generate_rogshai_postfix_eightopp_equalize_schedule.py \
+            scripts/run_rogshai_postfix_eightopp_equalize_block.py \
             scripts/aggregate_rogshai_postfix_eightopp_equalize.py
-          if-no-files-found: error
-          retention-days: 1
+          git add -u
+          git commit -m 'chore: Ruff-format eight-opponent campaign scripts'
+          git push origin HEAD:runs/rogshai-postfix-eightopp-equalize-15360-20260826
