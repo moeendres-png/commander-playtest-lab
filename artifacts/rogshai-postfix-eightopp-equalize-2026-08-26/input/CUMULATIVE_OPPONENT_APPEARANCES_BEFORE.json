@@ -1,0 +1,37 @@
+{
+  "schema_version": "rogshai-postfix-cumulative-opponent-appearances-1.0.0",
+  "scope": "C001-C048 post-fix Structural evidence only",
+  "status": "SOURCE_BACKED_DERIVATION",
+  "per_candidate_before_new_equalization": {
+    "cosmic": 0,
+    "morcant": 192,
+    "kaervek": 232,
+    "blight": 232,
+    "dance": 232,
+    "lorehold": 232,
+    "doom": 232,
+    "wakanda": 232
+  },
+  "derivation": [
+    {
+      "campaign": "rogshai-postfix-opponent-balance-7680-2026-08-25-v1",
+      "workflow_run_id": 32895067249,
+      "aggregate_artifact_id": 9581006289,
+      "aggregate_artifact_sha256": "1847214a5afb9364f1e63cf30dd38f9c6f5b4a4c685fa4932448989c83aa5e0e",
+      "effect": "cumulative_after established Morcant, Kaervek, Blight, Dance, Lorehold, Doom, Wakanda at 192 appearances per C001-C048; Cosmic received zero new games"
+    },
+    {
+      "campaign": "rogshai-postfix-near-neighbor-64x80-2026-08-25-v1",
+      "workflow_run_id": 32900360984,
+      "aggregate_artifact_id": 9583169863,
+      "aggregate_artifact_sha256": "ba42807e6548465219e9b9eee739a4ba78c7c3f93460aead004c48f661f7f2ef",
+      "effect": "added 40 appearances per C001-C048 for Kaervek, Blight, Dance, Lorehold, Doom, Wakanda; Morcant and Cosmic received zero games"
+    }
+  ],
+  "truth_boundaries": [
+    "These are test-design appearance counts, not real-meta frequency priors.",
+    "Cosmic has zero post-fix appearance count before the new run; historical pre-fix Cosmic rows are not upgraded or folded into clean post-fix evidence.",
+    "Morcant remains partially observed with synthetic completion; count equality does not upgrade evidence quality.",
+    "Near-neighbor N001-N016 have a different evidence history and are intentionally outside this cumulative-equalization population."
+  ]
+}
