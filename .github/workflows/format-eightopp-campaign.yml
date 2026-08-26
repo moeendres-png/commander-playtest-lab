@@ -1,0 +1,45 @@
+name: Format Eight-Opponent Campaign Scripts
+
+on:
+  push:
+    branches:
+      - runs/rogshai-postfix-eightopp-equalize-15360-20260826
+    paths:
+      - '.github/workflows/format-eightopp-campaign.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-postfix-eightopp-equalize-15360-20260826
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'ruff==0.16.4'
+      - name: Format exact campaign scripts
+        run: |
+          ruff format \
+            scripts/generate_rogshai_postfix_eightopp_equalize_schedule.py \
+            scripts/run_rogshai_postfix_eightopp_equalize_block.py \
+            scripts/aggregate_rogshai_postfix_eightopp_equalize.py
+          ruff format --check \
+            scripts/generate_rogshai_postfix_eightopp_equalize_schedule.py \
+            scripts/run_rogshai_postfix_eightopp_equalize_block.py \
+            scripts/aggregate_rogshai_postfix_eightopp_equalize.py
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: eightopp-ruff-formatted-scripts
+          path: |
+            scripts/generate_rogshai_postfix_eightopp_equalize_schedule.py
+            scripts/run_rogshai_postfix_eightopp_equalize_block.py
+            scripts/aggregate_rogshai_postfix_eightopp_equalize.py
+          if-no-files-found: error
+          retention-days: 1
