@@ -142,9 +142,9 @@ def main() -> int:
             {1: 80, 2: 80, 3: 80, 4: 80}
         ):
             raise SystemExit(f"{candidate} candidate seat balance failed")
-        if Counter(int(row["starting_player_seat_0_based"]) + 1 for row in candidate_rows) != Counter(
-            {1: 80, 2: 80, 3: 80, 4: 80}
-        ):
+        if Counter(
+            int(row["starting_player_seat_0_based"]) + 1 for row in candidate_rows
+        ) != Counter({1: 80, 2: 80, 3: 80, 4: 80}):
             raise SystemExit(f"{candidate} starting seat balance failed")
 
         opponent_presence = Counter(
@@ -184,7 +184,9 @@ def main() -> int:
             cell = [row for row in candidate_rows if opponent in row["opponent_triplet"]]
             expected = NEW_TARGETS[opponent]
             if len(cell) != expected:
-                raise SystemExit(f"{candidate}/{opponent} has {len(cell)} rows, expected {expected}")
+                raise SystemExit(
+                    f"{candidate}/{opponent} has {len(cell)} rows, expected {expected}"
+                )
             opponent_fp[opponent] = fmean(float(row["candidate_first_place"]) for row in cell)
             opponent_place[opponent] = fmean(float(row["candidate_placement"]) for row in cell)
             conditioned.append(
@@ -288,9 +290,7 @@ def main() -> int:
         "opponent_evidence_classes": OPPONENT_EVIDENCE_CLASSES,
         "cumulative_before_per_candidate": CUMULATIVE_BEFORE,
         "new_appearances_per_candidate": NEW_TARGETS,
-        "cumulative_after_per_candidate": {
-            opponent: TARGET_AFTER for opponent in OPPONENTS
-        },
+        "cumulative_after_per_candidate": {opponent: TARGET_AFTER for opponent in OPPONENTS},
         "equalized_after_each": TARGET_AFTER,
         "cosmic_proxy_new_games_per_candidate": NEW_TARGETS["cosmic"],
         "morcant_synthetic_new_games_per_candidate": NEW_TARGETS["morcant"],

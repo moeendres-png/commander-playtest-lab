@@ -69,9 +69,7 @@ def _build_triplets() -> list[tuple[str, str, str]]:
         if remaining[first] <= 0:
             break
         choices = [
-            opponent
-            for opponent in NON_COSMIC
-            if opponent != first and remaining[opponent] > 0
+            opponent for opponent in NON_COSMIC if opponent != first and remaining[opponent] > 0
         ]
         if not choices:
             raise SystemExit("non-Cosmic degree sequence became unrealizable")
@@ -138,8 +136,7 @@ def _build_rows() -> list[dict]:
 
         chosen = min(options, key=option_score)
         opponent_by_seat = {
-            str(seat): opponent
-            for seat, opponent in zip(available_seats, chosen, strict=True)
+            str(seat): opponent for seat, opponent in zip(available_seats, chosen, strict=True)
         }
         for seat, opponent in zip(available_seats, chosen, strict=True):
             physical_counts[opponent][seat] += 1
@@ -197,8 +194,7 @@ def _audit(rows: list[dict]) -> dict:
     candidate_seats = Counter(int(row["candidate_seat"]) for row in rows)
     starting_seats = Counter(int(row["starting_player_seat_0_based"]) + 1 for row in rows)
     cells = Counter(
-        (int(row["candidate_seat"]), int(row["starting_player_seat_0_based"]) + 1)
-        for row in rows
+        (int(row["candidate_seat"]), int(row["starting_player_seat_0_based"]) + 1) for row in rows
     )
     block_sizes = Counter(int(row["block"]) for row in rows)
     triplet_counts = Counter(tuple(sorted(row["opponent_triplet"])) for row in rows)
@@ -218,9 +214,7 @@ def _audit(rows: list[dict]) -> dict:
         for pair in combinations(sorted(triplet), 2):
             pair_counts[pair] += 1
 
-        seat_map = {
-            int(seat): str(opponent) for seat, opponent in row["opponent_by_seat"].items()
-        }
+        seat_map = {int(seat): str(opponent) for seat, opponent in row["opponent_by_seat"].items()}
         if set(seat_map) != ({1, 2, 3, 4} - {candidate_seat}):
             raise SystemExit("malformed opponent seat map")
         if set(seat_map.values()) != set(triplet):
@@ -240,8 +234,7 @@ def _audit(rows: list[dict]) -> dict:
         raise SystemExit(f"new appearance targets failed: {dict(appearances)}")
 
     cumulative_after = {
-        opponent: CUMULATIVE_BEFORE[opponent] + appearances[opponent]
-        for opponent in OPPONENTS
+        opponent: CUMULATIVE_BEFORE[opponent] + appearances[opponent] for opponent in OPPONENTS
     }
     if set(cumulative_after.values()) != {TARGET_AFTER}:
         raise SystemExit(f"cumulative opponent equalization failed: {cumulative_after}")
@@ -252,7 +245,9 @@ def _audit(rows: list[dict]) -> dict:
         if max(physical_values) - min(physical_values) > 1:
             raise SystemExit(f"physical seat imbalance too wide for {opponent}: {physical_values}")
         if max(relative_values) - min(relative_values) > 1:
-            raise SystemExit(f"relative position imbalance too wide for {opponent}: {relative_values}")
+            raise SystemExit(
+                f"relative position imbalance too wide for {opponent}: {relative_values}"
+            )
 
     return {
         "schema_version": "rogshai-postfix-eightopp-equalization-audit-1.0.0",

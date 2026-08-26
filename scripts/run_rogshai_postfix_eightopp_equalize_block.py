@@ -237,19 +237,39 @@ def main() -> int:
                 results_file.write(json.dumps(observation, sort_keys=True) + "\n")
     summaries = []
     for candidate_id in sorted(observations):
-        completed = [row for row in observations[candidate_id] if row["completed"] and not row["aborted"]]
-        summaries.append({
-            "candidate_id": candidate_id,
-            "games_scheduled": len(observations[candidate_id]),
-            "games_completed": len(completed),
-            "games_aborted": sum(int(row["aborted"]) for row in observations[candidate_id]),
-            "first_place_fraction": fmean(float(row["candidate_first_place"]) for row in completed) if completed else None,
-            "mean_placement": fmean(float(row["candidate_placement"]) for row in completed) if completed else None,
-            "mean_damage": fmean(float(row["candidate_damage"]) for row in completed) if completed else None,
-            "mean_commander_damage": fmean(float(row["candidate_commander_damage"]) for row in completed) if completed else None,
-            "mean_cards_drawn": fmean(float(row["candidate_cards_drawn"]) for row in completed) if completed else None,
-            "mean_turns": fmean(float(row["turns"]) for row in completed) if completed else None,
-        })
+        completed = [
+            row for row in observations[candidate_id] if row["completed"] and not row["aborted"]
+        ]
+        summaries.append(
+            {
+                "candidate_id": candidate_id,
+                "games_scheduled": len(observations[candidate_id]),
+                "games_completed": len(completed),
+                "games_aborted": sum(int(row["aborted"]) for row in observations[candidate_id]),
+                "first_place_fraction": fmean(
+                    float(row["candidate_first_place"]) for row in completed
+                )
+                if completed
+                else None,
+                "mean_placement": fmean(float(row["candidate_placement"]) for row in completed)
+                if completed
+                else None,
+                "mean_damage": fmean(float(row["candidate_damage"]) for row in completed)
+                if completed
+                else None,
+                "mean_commander_damage": fmean(
+                    float(row["candidate_commander_damage"]) for row in completed
+                )
+                if completed
+                else None,
+                "mean_cards_drawn": fmean(float(row["candidate_cards_drawn"]) for row in completed)
+                if completed
+                else None,
+                "mean_turns": fmean(float(row["turns"]) for row in completed)
+                if completed
+                else None,
+            }
+        )
     summary_path = output / "CANDIDATE_SUMMARY.csv"
     with summary_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(summaries[0]))
