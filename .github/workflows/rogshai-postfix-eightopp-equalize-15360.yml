@@ -2,6 +2,11 @@ name: RogShai Post-Fix Eight-Opponent Equalization 15360
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - runs/rogshai-postfix-eightopp-equalize-15360-20260826
+    paths:
+      - '.github/workflows/rogshai-postfix-eightopp-equalize-15360.yml'
 
 permissions:
   contents: read
