@@ -122,7 +122,11 @@ def _build_rows() -> list[dict]:
         options = list(permutations(triplet))
         rng.shuffle(options)
 
-        def option_score(option: tuple[str, str, str]) -> float:
+        def option_score(
+            option: tuple[str, str, str],
+            available_seats: list[int] = available_seats,
+            candidate_seat: int = candidate_seat,
+        ) -> float:
             score = 0.0
             for seat, opponent in zip(available_seats, option, strict=True):
                 before = physical_counts[opponent][seat]
