@@ -7,6 +7,9 @@ on:
       - runs/rogshai-postfix-eightopp-equalize-15360-20260826
     paths:
       - '.github/workflows/rogshai-postfix-eightopp-equalize-15360.yml'
+      - 'scripts/generate_rogshai_postfix_eightopp_equalize_schedule.py'
+      - 'scripts/run_rogshai_postfix_eightopp_equalize_block.py'
+      - 'scripts/aggregate_rogshai_postfix_eightopp_equalize.py'
 
 permissions:
   contents: read
