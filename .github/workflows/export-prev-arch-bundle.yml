@@ -1,0 +1,23 @@
+name: Export Previous Architecture Bundle
+
+on:
+  push:
+    branches: [runs/rogshai-frontier-factorial-118784-20260826]
+    paths: ['.github/workflows/export-prev-arch-bundle.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: runs/rogshai-frontier-factorial-118784-20260826
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: previous-arch-frontier-bundle
+          path: artifacts/rogshai-architecture-frontier-2026-08-26/input/ARCH_FRONTIER_CAMPAIGN_BUNDLE.tar.gz.b64
+          if-no-files-found: error
+          retention-days: 1
