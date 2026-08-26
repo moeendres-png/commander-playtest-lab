@@ -1,155 +1,23 @@
-name: RogShai Post-Fix Architecture Frontier 40960
+name: Export Previous Architecture Bundle
 
 on:
-  workflow_dispatch:
   push:
-    branches: [runs/rogshai-architecture-frontier-40960-20260826]
+    branches: [runs/rogshai-frontier-factorial-118784-20260826]
     paths: ['.github/workflows/rogshai-architecture-frontier-40960.yml']
 
 permissions:
   contents: read
-  actions: read
-
-env:
-  PYTHONHASHSEED: "0"
-  BUNDLE: artifacts/rogshai-architecture-frontier-2026-08-26/input/ARCH_FRONTIER_CAMPAIGN_BUNDLE.tar.gz.b64
 
 jobs:
-  quality_gate:
+  export:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: runs/rogshai-architecture-frontier-40960-20260826
-          fetch-depth: 0
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
-        with: {python-version: '3.12', cache: pip}
-      - run: python -m pip install -e '.[dev,api,openai]'
-      - name: Decode frozen campaign
-        run: python scripts/decode_arch_frontier_bundle.py --bundle "$BUNDLE" --output /tmp/campaign
-      - name: Full relevant CI quality gate
-        run: |
-          ruff check .
-          mypy src/commander_lab
-          pytest -q
-          python -m compileall -q src tests scripts /tmp/campaign/scripts
-      - name: Re-prove exact Structural seat symmetry
-        run: |
-          python scripts/audit_structural_seat_symmetry.py --root . --output /tmp/seat-audit
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          from commander_lab.engine.structural import ENGINE_VERSION,FIDELITY_ENGINE_VERSION
-          r=json.loads(Path('/tmp/seat-audit/SEAT_SYMMETRY_AUDIT.json').read_text())
-          assert r['seat_symmetry']=='PASS' and r['comparisons']==24 and r['equivariant_comparisons']==24 and r['mismatch_count']==0
-          assert ENGINE_VERSION=='structural-0.6.2'
-          assert FIDELITY_ENGINE_VERSION=='structural-fidelity-overlay-2026-08-25-v2'
-          print('ARCH_FRONTIER_SEAT_SYMMETRY=24/24_PASS')
-          PY
-          pytest -q tests/regressions/test_structural_seat_symmetry.py
-          pytest -q tests/property/test_structural_properties.py
-
-  preflight:
-    needs: quality_gate
-    runs-on: ubuntu-24.04
-    timeout-minutes: 35
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: runs/rogshai-architecture-frontier-40960-20260826
-          fetch-depth: 0
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
-        with: {python-version: '3.12'}
-      - run: python -m pip install -e '.[dev]'
-      - run: python scripts/decode_arch_frontier_bundle.py --bundle "$BUNDLE" --output /tmp/campaign
-      - name: Lossless candidate, schedule, seed and opponent preflight
-        run: python scripts/preflight_arch_frontier.py --root . --campaign /tmp/campaign --output /tmp/preflight
+          ref: runs/rogshai-frontier-factorial-118784-20260826
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: arch-frontier-preflight-40960
-          path: /tmp/preflight/
+          name: previous-arch-frontier-bundle
+          path: artifacts/rogshai-architecture-frontier-2026-08-26/input/ARCH_FRONTIER_CAMPAIGN_BUNDLE.tar.gz.b64
           if-no-files-found: error
-          retention-days: 14
-
-  blocks:
-    needs: preflight
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      max-parallel: 10
-      matrix:
-        block: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64]
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with: {ref: runs/rogshai-architecture-frontier-40960-20260826}
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
-        with: {python-version: '3.12'}
-      - run: python -m pip install -e '.[dev]'
-      - run: python scripts/decode_arch_frontier_bundle.py --bundle "$BUNDLE" --output /tmp/campaign
-      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
-        with: {name: arch-frontier-preflight-40960, path: /tmp/preflight}
-      - name: Extract exact 32-scenario block
-        env: {BLOCK_NUM: '${{ matrix.block }}'}
-        run: |
-          python - <<'PY'
-          import json,os
-          from pathlib import Path
-          b=int(os.environ['BLOCK_NUM']); m=json.loads(Path('/tmp/preflight/SEED_SCHEDULE.json').read_text())
-          rows=[x for x in m['schedule'] if int(x['block'])==b]; assert len(rows)==32
-          Path('/tmp/BLOCK_SCHEDULE.json').write_text(json.dumps({'schema_version':m['schema_version'],'campaign_id':m['campaign_id'],'block':b,'schedule':rows},indent=2,sort_keys=True)+'\n')
-          PY
-      - name: Run 20 x 32 post-fix Structural games
-        env: {BLOCK_NUM: '${{ matrix.block }}'}
-        run: |
-          B=$(printf '%02d' "$BLOCK_NUM"); OUT="/tmp/results/block-${B}"
-          python /tmp/campaign/scripts/run_arch_frontier_block.py --root . --candidates /tmp/campaign/input/CANDIDATES_20.json --schedule /tmp/BLOCK_SCHEDULE.json --output "$OUT" --max-turns 50
-          cp /tmp/BLOCK_SCHEDULE.json "$OUT/BLOCK_SCHEDULE.json"
-      - name: Verify block invariants fail-closed
-        env: {BLOCK_NUM: '${{ matrix.block }}'}
-        run: |
-          python - <<'PY'
-          import json,os
-          from pathlib import Path
-          b=int(os.environ['BLOCK_NUM']); p=Path(f'/tmp/results/block-{b:02d}'); r=json.loads((p/'RUN_REPORT.json').read_text())
-          assert r['evidence_class']=='structural_model_estimates' and r['engine_version']=='structural-0.6.2'
-          assert r['candidate_count']==20 and r['games_per_candidate']==32 and r['target_game_count']==640
-          assert r['completed_game_count']==640 and r['aborted_game_count']==0 and r['pre_gameplay_candidate_elimination']==0
-          rows=[json.loads(x) for x in (p/'GAME_RESULTS.jsonl').read_text().splitlines() if x.strip()]
-          assert len(rows)==640 and all(x['completed'] and not x['aborted'] for x in rows)
-          print(f'ARCH_FRONTIER_BLOCK_{b:02d}=640/640_PASS')
-          PY
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
-          name: arch-frontier-block-${{ matrix.block }}
-          path: /tmp/results/
-          if-no-files-found: error
-          retention-days: 14
-
-  aggregate:
-    needs: blocks
-    runs-on: ubuntu-24.04
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with: {ref: runs/rogshai-architecture-frontier-40960-20260826}
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
-        with: {python-version: '3.12'}
-      - run: python -m pip install -e '.[dev]'
-      - run: python scripts/decode_arch_frontier_bundle.py --bundle "$BUNDLE" --output /tmp/campaign
-      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
-        with: {pattern: arch-frontier-block-*, path: /tmp/blocks}
-      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
-        with: {name: arch-frontier-preflight-40960, path: /tmp/preflight}
-      - name: Aggregate and audit all 40960 rows
-        run: |
-          python /tmp/campaign/scripts/aggregate_arch_frontier.py --input-root /tmp/blocks --output /tmp/aggregate --balance-audit /tmp/preflight/BALANCE_AUDIT.json
-          cp /tmp/preflight/SEED_DISJOINTNESS_AUDIT.json /tmp/aggregate/SEED_DISJOINTNESS_AUDIT.json
-          cp /tmp/preflight/PRE_GAMEPLAY_VALIDATION.json /tmp/aggregate/PRE_GAMEPLAY_VALIDATION.json
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
-          name: arch-frontier-aggregate-40960
-          path: /tmp/aggregate/
-          if-no-files-found: error
-          retention-days: 14
+          retention-days: 1
