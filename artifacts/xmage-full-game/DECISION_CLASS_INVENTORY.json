@@ -15,7 +15,7 @@
     {"decision_class": "target_amount", "xmage_entry_point": "Player.chooseTargetAmount", "policy_route": "BasePilot.evaluate_action + BasePilot.choose_action numeric policy", "fail_closed": true},
     {"decision_class": "mulligan", "xmage_entry_point": "Player.chooseMulligan", "policy_route": "BasePilot.should_keep_opening_hand", "fail_closed": true},
     {"decision_class": "choose_use", "xmage_entry_point": "Player.chooseUse", "policy_route": "BasePilot.choose_action", "fail_closed": true},
-    {"decision_class": "choice", "xmage_entry_point": "Player.choose(Choice)", "policy_route": "BasePilot.choose_action", "fail_closed": true},
+    {"decision_class": "choice", "xmage_entry_point": "Player.choose(Choice)", "additional_xmage_entry_points": ["Player.chooseAbilityForCast", "Player.chooseLandOrSpellAbility"], "policy_route": "BasePilot.choose_action", "fail_closed": true},
     {"decision_class": "pile", "xmage_entry_point": "Player.choosePile", "policy_route": "BasePilot.choose_action", "fail_closed": true},
     {"decision_class": "mana_payment", "xmage_entry_point": "Player.playMana", "policy_route": "BasePilot.choose_action", "fail_closed": true},
     {"decision_class": "announce_x", "xmage_entry_point": "Player.announceX", "policy_route": "BasePilot.choose_action numeric policy", "fail_closed": true},

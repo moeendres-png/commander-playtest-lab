@@ -9,6 +9,8 @@ import mage.abilities.Ability;
 import mage.abilities.ActivatedAbility;
 import mage.abilities.Mode;
 import mage.abilities.Modes;
+import mage.abilities.PlayLandAbility;
+import mage.abilities.SpellAbility;
 import mage.abilities.TriggeredAbility;
 import mage.abilities.costs.mana.ManaCost;
 import mage.cards.Card;
@@ -19,6 +21,7 @@ import mage.constants.ManaType;
 import mage.constants.MultiAmountType;
 import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
+import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
@@ -87,6 +90,137 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public XmageFullGamePlayer copy() {
         return new XmageFullGamePlayer(this);
+    }
+
+    @Override
+    public SpellAbility chooseAbilityForCast(Card card, Game game, boolean noMana) {
+        if (card == null || game == null) {
+            fail("BRIDGE_PROTOCOL_ERROR", "cast ability choice requires card and game");
+            return null;
+        }
+        Zone zone = game.getState().getZone(card.getMainCard().getId());
+        Map<UUID, SpellAbility> castable = PlayerImpl.getCastableSpellAbilities(
+                game,
+                getId(),
+                card,
+                zone,
+                noMana
+        );
+        if (castable.isEmpty()) {
+            fail("NO_LEGAL_ACTION", "XMage supplied no castable spell ability for " + card.getIdName());
+            return null;
+        }
+        List<SpellAbility> legal = castable.values().stream()
+                .sorted(Comparator.comparing(this::abilitySortKey))
+                .toList();
+        if (legal.size() == 1) {
+            return legal.get(0);
+        }
+
+        JsonArray options = new JsonArray();
+        Map<String, SpellAbility> byOption = new LinkedHashMap<>();
+        for (SpellAbility ability : legal) {
+            String optionId = abilityOptionId("cast-choice", ability);
+            JsonObject metadata = abilityMetadata(ability, game);
+            metadata.addProperty("card_id", card.getId().toString());
+            metadata.addProperty("card_name", card.getName());
+            metadata.addProperty("zone", zone == null ? "unknown" : zone.name().toLowerCase());
+            metadata.addProperty("no_mana", noMana);
+            options.add(XmageFullGameDecisionController.option(
+                    optionId,
+                    abilityLabel(ability, game),
+                    "cast_ability",
+                    metadata
+            ));
+            byOption.put(optionId, ability);
+        }
+        JsonObject context = new JsonObject();
+        context.addProperty("choice_domain", "cast_ability");
+        context.addProperty("card_id", card.getId().toString());
+        context.addProperty("card_name", card.getName());
+        context.addProperty("zone", zone == null ? "unknown" : zone.name().toLowerCase());
+        context.addProperty("no_mana", noMana);
+        String selected = requireSingle(request(
+                game,
+                "choice",
+                "Choose how to cast " + card.getName(),
+                1,
+                1,
+                options,
+                context,
+                null
+        ));
+        SpellAbility chosen = byOption.get(selected);
+        if (chosen == null) {
+            fail("ILLEGAL_ACTION", "cast ability option disappeared: " + selected);
+        }
+        return chosen;
+    }
+
+    @Override
+    public ActivatedAbility chooseLandOrSpellAbility(Card card, Game game, boolean noMana) {
+        if (card == null || game == null) {
+            fail("BRIDGE_PROTOCOL_ERROR", "land-or-spell choice requires card and game");
+            return null;
+        }
+        Zone zone = game.getState().getZone(card.getMainCard().getId());
+        Map<UUID, ActivatedAbility> legalById = new LinkedHashMap<>();
+        PlayerImpl.getCastableSpellAbilities(game, getId(), card, zone, noMana)
+                .forEach(legalById::putIfAbsent);
+        getPlayableActivatedAbilities(card, zone, game).forEach((abilityId, ability) -> {
+            if (ability instanceof PlayLandAbility) {
+                legalById.putIfAbsent(abilityId, ability);
+            }
+        });
+        if (legalById.isEmpty()) {
+            fail("NO_LEGAL_ACTION", "XMage supplied no legal land-or-spell ability for " + card.getIdName());
+            return null;
+        }
+        List<ActivatedAbility> legal = legalById.values().stream()
+                .sorted(Comparator.comparing(this::abilitySortKey))
+                .toList();
+        if (legal.size() == 1) {
+            return legal.get(0);
+        }
+
+        JsonArray options = new JsonArray();
+        Map<String, ActivatedAbility> byOption = new LinkedHashMap<>();
+        for (ActivatedAbility ability : legal) {
+            String optionId = abilityOptionId("land-or-spell-choice", ability);
+            JsonObject metadata = abilityMetadata(ability, game);
+            metadata.addProperty("card_id", card.getId().toString());
+            metadata.addProperty("card_name", card.getName());
+            metadata.addProperty("zone", zone == null ? "unknown" : zone.name().toLowerCase());
+            metadata.addProperty("no_mana", noMana);
+            options.add(XmageFullGameDecisionController.option(
+                    optionId,
+                    abilityLabel(ability, game),
+                    ability instanceof PlayLandAbility ? "play_land_ability" : "cast_ability",
+                    metadata
+            ));
+            byOption.put(optionId, ability);
+        }
+        JsonObject context = new JsonObject();
+        context.addProperty("choice_domain", "land_or_spell_ability");
+        context.addProperty("card_id", card.getId().toString());
+        context.addProperty("card_name", card.getName());
+        context.addProperty("zone", zone == null ? "unknown" : zone.name().toLowerCase());
+        context.addProperty("no_mana", noMana);
+        String selected = requireSingle(request(
+                game,
+                "choice",
+                "Choose land or spell ability for " + card.getName(),
+                1,
+                1,
+                options,
+                context,
+                null
+        ));
+        ActivatedAbility chosen = byOption.get(selected);
+        if (chosen == null) {
+            fail("ILLEGAL_ACTION", "land-or-spell option disappeared: " + selected);
+        }
+        return chosen;
     }
 
     @Override
@@ -224,7 +358,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 source
         );
         String selected = requireSingle(response);
-        int amount = response.numericChoice() == null ? 1 : response.numericChoice();
+        int amount = requireNumericChoice(response, "target_amount");
         UUID targetId = UUID.fromString(selected);
         target.addTarget(targetId, amount, source, game);
         return true;
@@ -917,7 +1051,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 context,
                 source
         );
-        if (response.numericChoice() == null) {
+        return requireNumericChoice(response, decisionClass);
+    }
+
+    int requireNumericChoice(
+            XmageFullGameDecisionController.DecisionResponse response,
+            String decisionClass
+    ) {
+        if (response == null || response.numericChoice() == null) {
             fail("PILOT_RESPONSE_INVALID", "numeric choice required for " + decisionClass);
         }
         return response.numericChoice();
