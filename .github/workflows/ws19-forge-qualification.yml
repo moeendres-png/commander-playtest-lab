@@ -101,7 +101,7 @@ jobs:
           actual="$(cd vendor/engine-source/forge && mvn -q -DforceStdout help:evaluate -Dexpression=project.version | tail -n 1)"
           test "$actual" = "$FORGE_VERSION"
 
-      - name: Generate GPL-side strict controller and probe in separate Forge workspace
+      - name: Generate GPL-side strict controller and probe outside Forge source tree
         shell: bash
         run: |
           set -euo pipefail
@@ -116,43 +116,53 @@ jobs:
             | tee artifacts/ws19/generator-summary.json
           test "$(python -c 'import json; print(json.load(open("artifacts/ws19/generated/callback_inventory.json"))["abstract_method_count"])')" -gt 0
           test "$(python -c 'import json; print(len(json.load(open("artifacts/ws19/generated/callback_inventory.json"))["stock_remote_default_findings"]))')" -gt 0
-          install -D artifacts/ws19/generated/java/forge/game/player/StrictExternalPlayerControllerGenerated.java \
-            vendor/engine-source/forge/forge-game/src/test/java/forge/game/player/StrictExternalPlayerControllerGenerated.java
-          install -D artifacts/ws19/generated/java/forge/game/player/Ws19ForgeProbeProvider.java \
-            vendor/engine-source/forge/forge-game/src/test/java/forge/game/player/Ws19ForgeProbeProvider.java
+          git -C vendor/engine-source/forge diff --exit-code
 
-      - name: Build pinned Forge modules plus generated strict provider artifacts
+      - name: Build pinned unmodified Forge game modules
         working-directory: vendor/engine-source/forge
         shell: bash
         run: |
           set -o pipefail
           mvn -B -ntp -pl forge-game -am -DskipTests install 2>&1 | tee ../../../artifacts/ws19/forge-build.log
+          git diff --exit-code
 
-      - name: Build Forge-side provider runtime classpath
+      - name: Build Forge-side dependency classpath
         working-directory: vendor/engine-source/forge/forge-game
         shell: bash
         run: |
           set -euo pipefail
-          mvn -B -ntp dependency:build-classpath -DincludeScope=test \
+          mvn -B -ntp dependency:build-classpath -DincludeScope=compile \
             -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws19/dependency-classpath.txt"
+
+      - name: Compile generated GPL-side provider against pinned Forge game classes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws19/provider-classes
+          compile_cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$(cat artifacts/ws19/dependency-classpath.txt)"
+          javac -cp "$compile_cp" \
+            -d artifacts/ws19/provider-classes \
+            artifacts/ws19/generated/java/forge/game/player/StrictExternalPlayerControllerGenerated.java \
+            artifacts/ws19/generated/java/forge/game/player/Ws19ForgeProbeProvider.java
           printf '%s:%s:%s\n' \
-            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/test-classes" \
+            "$GITHUB_WORKSPACE/artifacts/ws19/provider-classes" \
             "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
-            "$(cat "$GITHUB_WORKSPACE/artifacts/ws19/dependency-classpath.txt")" \
-            > "$GITHUB_WORKSPACE/artifacts/ws19/provider.classpath"
+            "$(cat artifacts/ws19/dependency-classpath.txt)" \
+            > artifacts/ws19/provider.classpath
+          git -C vendor/engine-source/forge diff --exit-code
 
       - name: Record exact Forge-side provider build identity
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p artifacts/ws19
           sha256sum \
             artifacts/ws19/generated/java/forge/game/player/StrictExternalPlayerControllerGenerated.java \
             artifacts/ws19/generated/java/forge/game/player/Ws19ForgeProbeProvider.java \
-            vendor/engine-source/forge/forge-game/target/test-classes/forge/game/player/StrictExternalPlayerControllerGenerated.class \
-            vendor/engine-source/forge/forge-game/target/test-classes/forge/game/player/Ws19ForgeProbeProvider.class \
+            artifacts/ws19/provider-classes/forge/game/player/StrictExternalPlayerControllerGenerated.class \
+            artifacts/ws19/provider-classes/forge/game/player/Ws19ForgeProbeProvider.class \
             > artifacts/ws19/FORGE_PROVIDER_BUILD_SHA256SUMS
           java -version 2> artifacts/ws19/java-version.txt
+          mvn -version > artifacts/ws19/maven-version.txt
           {
             printf 'target_base_commit=%s\n' "$TARGET_BASE_COMMIT"
             printf 'forge_commit=%s\n' "$FORGE_COMMIT"
@@ -160,6 +170,7 @@ jobs:
             printf 'forge_version=%s\n' "$FORGE_VERSION"
             printf 'protocol=commander-lab.rules-service/1.1.0\n'
             printf 'process_boundary=separate_jvm\n'
+            printf 'forge_source_tree_modified=false\n'
             printf 'forge_gui_on_provider_classpath=false_required\n'
             printf 'forge_ai_on_provider_classpath=false_required\n'
           } > artifacts/ws19/RUNTIME_IDENTITY.txt
