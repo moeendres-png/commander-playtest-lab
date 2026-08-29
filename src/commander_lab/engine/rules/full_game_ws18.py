@@ -57,7 +57,6 @@ class DynamicExternalPilotDecisionPolicy(ExternalPilotDecisionPolicy):
         self._mulligan_count = {seat: 0 for seat in expected}
 
     def _pilot_state(self, runtime: _RuntimePilot, state: dict[str, Any]) -> PilotStateView:
-        base = super()._pilot_state(runtime, state)
         configured = int(state.get("player_count", 0))
         if configured not in SUPPORTED_PLAYER_COUNTS:
             players = state.get("players")
@@ -66,9 +65,24 @@ class DynamicExternalPilotDecisionPolicy(ExternalPilotDecisionPolicy):
             raise FullGameConformanceError(
                 f"actor observation has invalid player_count={configured}"
             )
+
+        # The inherited state builder is the proven WS-07 decision adapter, but it
+        # predates WS-18 and validates a hard-coded 4P pod before this override can
+        # replace pod_size.  For seat 5 only, build the inherited view with a
+        # validation-safe shadow seat, then reconstruct and validate the final
+        # actor view with the real immutable seat and dynamic pod cardinality.
+        base_runtime = runtime
+        if runtime.binding.seat > 4:
+            base_runtime = _RuntimePilot(
+                binding=runtime.binding.model_copy(update={"seat": 4}),
+                pilot=runtime.pilot,
+            )
+        base = super()._pilot_state(base_runtime, state)
         opponents = tuple(base.opponents)
-        return base.model_copy(
-            update={
+        return PilotStateView.model_validate(
+            {
+                **base.model_dump(),
+                "seat_position": runtime.binding.seat,
                 "pod_size": configured,
                 "opponents_to_act_before_next_turn": len(opponents),
             }
