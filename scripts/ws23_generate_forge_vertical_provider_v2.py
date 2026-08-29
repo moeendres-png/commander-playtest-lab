@@ -20,6 +20,8 @@ EXTRA_EXTERNAL = {
     "orderSimultaneousSa",
 }
 
+EXTRA_AUTOMATIC = {"playSpellAbilityNoStack"}
+
 
 BROKER_REF_METHOD = r"""
         String chooseRefs(String kind, Player actor, java.util.List<String> labels, java.util.List<String> publicRefs) {
@@ -68,6 +70,11 @@ def v2_method_body(original, name: str) -> list[str]:
         return [
             "return Ws23ForgeAuthority.chooseAbilityToPlay(broker, player, hostCard, abilities);"
         ]
+    if name == "playSpellAbilityNoStack":
+        return [
+            "Ws23ForgeAuthority.playSpellAbilityNoStack(this, broker, player, effectSA, mayChoseNewTargets);",
+            "return;",
+        ]
     if name == "chooseSpellAbilityToPlay":
         return ["return Ws23ForgeAuthority.choosePriority(broker, player, getGame());"]
     if name == "playChosenSpellAbility":
@@ -100,14 +107,18 @@ def v2_method_body(original, name: str) -> list[str]:
 def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     original_body = base.method_body
     original_external = set(base.EXTERNALLY_IMPLEMENTED)
+    original_automatic = set(base.AUTOMATIC)
     try:
         base.method_body = lambda name: v2_method_body(original_body, name)
         base.EXTERNALLY_IMPLEMENTED |= EXTRA_EXTERNAL
+        base.AUTOMATIC |= EXTRA_AUTOMATIC
         java, mapping = base.render(source, forge_commit, forge_tree)
     finally:
         base.method_body = original_body
         base.EXTERNALLY_IMPLEMENTED.clear()
         base.EXTERNALLY_IMPLEMENTED.update(original_external)
+        base.AUTOMATIC.clear()
+        base.AUTOMATIC.update(original_automatic)
 
     marker = "        boolean chooseBoolean(String kind, Player actor, String trueLabel, String falseLabel) {"
     if marker not in java:
