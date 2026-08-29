@@ -116,7 +116,9 @@ def java_string(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def render_probe_provider(*, forge_commit: str, forge_tree: str, forge_version: str, abstract_count: int) -> str:
+def render_probe_provider(
+    *, forge_commit: str, forge_tree: str, forge_version: str, abstract_count: int
+) -> str:
     return f'''// SPDX-License-Identifier: GPL-3.0-or-later
 package forge.game.player;
 
@@ -280,7 +282,9 @@ def main() -> None:
         "strict_generated_controller_policy": "EVERY_ABSTRACT_METHOD_THROWS_WS19_UNROUTED_DECISION_UNLESS_FUTURE_ROUTED",
     }
     inventory_path = out / "callback_inventory.json"
-    inventory_path.write_text(json.dumps(inventory, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    inventory_path.write_text(
+        json.dumps(inventory, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
     manifest = {
         "schema_version": "ws19-forge-generated-gpl-artifacts/1.0.0",
@@ -295,9 +299,16 @@ def main() -> None:
         },
         "license_boundary": "Generated Java artifacts are GPL-side qualification artifacts and must not be imported into the proprietary Commander Lab package.",
     }
-    (out / "generated_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (out / "generated_manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
-    print(json.dumps({"abstract_method_count": len(methods), "stock_remote_defaults": len(defaults)}, sort_keys=True))
+    print(
+        json.dumps(
+            {"abstract_method_count": len(methods), "stock_remote_defaults": len(defaults)},
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":
