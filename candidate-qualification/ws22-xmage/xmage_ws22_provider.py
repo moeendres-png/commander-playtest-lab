@@ -34,7 +34,9 @@ _UUID_RE = re.compile(
 
 
 def _canonical_json(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
+        "utf-8"
+    )
 
 
 def _sha256(value: Any) -> str:
@@ -149,7 +151,9 @@ def _run_player_count_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
             "reason": f"Fixture cardinality mismatch: {fixture_id} expects {expected_count}, got {requested_count}.",
             "artifact_hashes": {},
         }
-    decks = tuple(_deck_for_player_count(seat, expected_count) for seat in range(1, expected_count + 1))
+    decks = tuple(
+        _deck_for_player_count(seat, expected_count) for seat in range(1, expected_count + 1)
+    )
     pilots = tuple(_binding(seat, decks[seat - 1]) for seat in range(1, expected_count + 1))
     own = decks[0]
     assert own.deck_hash is not None
@@ -167,11 +171,16 @@ def _run_player_count_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
         pilot_version="1.0.0",
         decision_policy_version="xmage-ws22-player-count-policy-1.0.0",
     )
-    result = XmageFullGameRunnerV2(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000).run(
-        scenario=scenario, decks=decks, pilots=pilots
-    )
+    result = XmageFullGameRunnerV2(
+        cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000
+    ).run(scenario=scenario, decks=decks, pilots=pilots)
     outcomes = result.result_payload.get("outcomes")
-    if not result.terminal or result.decision_count <= 0 or not isinstance(outcomes, list) or len(outcomes) != expected_count:
+    if (
+        not result.terminal
+        or result.decision_count <= 0
+        or not isinstance(outcomes, list)
+        or len(outcomes) != expected_count
+    ):
         return {
             "verdict": "FAIL",
             "evidence_class": "RUNTIME_VERIFIED",
@@ -216,7 +225,9 @@ class Session:
 
     def player_id_for_zero_seat(self, seat: int) -> str:
         if seat < 0 or seat >= len(self.players):
-            raise FullGameProtocolError(f"COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: invalid native seat {seat}")
+            raise FullGameProtocolError(
+                f"COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: invalid native seat {seat}"
+            )
         return str(self.players[seat]["player_id"])
 
     def zero_seat_for_player_id(self, player_id: str) -> int:
@@ -238,9 +249,9 @@ class Session:
         if isinstance(value, dict):
             result: dict[str, Any] = {}
             for key, child in value.items():
-                if key == "seat" and isinstance(child, int):
-                    result[key] = child + 1
-                elif key in {"viewer_seat", "decision_subject_seat"} and isinstance(child, int):
+                if (
+                    key == "seat" or key in {"viewer_seat", "decision_subject_seat"}
+                ) and isinstance(child, int):
                     result[key] = child + 1
                 elif key.endswith("player_id") and isinstance(child, str) and _UUID_RE.match(child):
                     result[key] = self.semantic_id(child)
@@ -265,7 +276,9 @@ class Session:
         status = self.last_status or self.refresh_status()
         failure = status.get("failure")
         if isinstance(failure, dict):
-            raise FullGameProtocolError("XMAGE_PROVIDER_FAILURE: " + json.dumps(failure, sort_keys=True))
+            raise FullGameProtocolError(
+                "XMAGE_PROVIDER_FAILURE: " + json.dumps(failure, sort_keys=True)
+            )
         native = status.get("decision")
         if not isinstance(native, dict):
             if bool(status.get("terminal")):
@@ -285,14 +298,18 @@ class Session:
 
         native_options = native.get("legal_options")
         if not isinstance(native_options, list):
-            raise FullGameProtocolError("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: legal_options is not an array")
+            raise FullGameProtocolError(
+                "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: legal_options is not an array"
+            )
         self.decision_index += 1
         external_decision_id = f"decision-{self.decision_index:08d}"
         external_options: list[dict[str, Any]] = []
         external_to_native: dict[str, str] = {}
         for index, option in enumerate(native_options, start=1):
             if not isinstance(option, dict) or not isinstance(option.get("option_id"), str):
-                raise FullGameProtocolError("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: option lacks provider identity")
+                raise FullGameProtocolError(
+                    "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: option lacks provider identity"
+                )
             external_id = f"option-{index:04d}"
             external_to_native[external_id] = option["option_id"]
             external_options.append(
@@ -331,7 +348,10 @@ class Session:
         external_options: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         if external_options is None:
-            reverse = {native_id: external_id for external_id, native_id in binding.external_to_native.items()}
+            reverse = {
+                native_id: external_id
+                for external_id, native_id in binding.external_to_native.items()
+            }
             external_options = []
             for option in native.get("legal_options") or []:
                 if not isinstance(option, dict):
@@ -339,7 +359,9 @@ class Session:
                 native_id = str(option.get("option_id", ""))
                 external_id = reverse.get(native_id)
                 if external_id is None:
-                    raise FullGameProtocolError("STALE_DECISION: native option set changed while pending")
+                    raise FullGameProtocolError(
+                        "STALE_DECISION: native option set changed while pending"
+                    )
                 external_options.append(
                     {
                         "option_id": external_id,
@@ -379,11 +401,15 @@ class Provider:
 
     def handle(self, request: dict[str, Any]) -> dict[str, Any]:
         if request.get("protocol") != PROTOCOL:
-            return _error(request, "PROTOCOL_VERSION_MISMATCH", f"expected {PROTOCOL}", terminal=True)
+            return _error(
+                request, "PROTOCOL_VERSION_MISMATCH", f"expected {PROTOCOL}", terminal=True
+            )
         message_type = str(request.get("message_type", ""))
         try:
             if message_type == "HELLO_REQUEST":
-                return _base_response(request, "HELLO_RESPONSE", {"metadata": _metadata()}, state_revision=0)
+                return _base_response(
+                    request, "HELLO_RESPONSE", {"metadata": _metadata()}, state_revision=0
+                )
             if message_type == "OPEN_SESSION":
                 return self._open(request)
             if message_type == "OBSERVE":
@@ -396,10 +422,18 @@ class Provider:
                 return self._close(request)
             if message_type == "RUN_FIXTURE":
                 return self._run_fixture(request)
-            return _error(request, "UNSUPPORTED_MESSAGE_TYPE", f"unsupported RSP message type {message_type!r}")
+            return _error(
+                request,
+                "UNSUPPORTED_MESSAGE_TYPE",
+                f"unsupported RSP message type {message_type!r}",
+            )
         except FullGameProtocolError as exc:
             text = str(exc)
-            code = "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER" if "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER" in text else "PROVIDER_FAILURE"
+            code = (
+                "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER"
+                if "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER" in text
+                else "PROVIDER_FAILURE"
+            )
             return _error(
                 request,
                 code,
@@ -422,19 +456,27 @@ class Provider:
         if self.session is None:
             raise FullGameProtocolError("SESSION_NOT_OPEN")
         if request.get("session_id") != self.session.session_id:
-            raise FullGameProtocolError(f"SESSION_ID_MISMATCH: expected {self.session.session_id!r}")
+            raise FullGameProtocolError(
+                f"SESSION_ID_MISMATCH: expected {self.session.session_id!r}"
+            )
         return self.session
 
     def _open(self, request: dict[str, Any]) -> dict[str, Any]:
         if self.session is not None:
-            return _error(request, "SESSION_ALREADY_OPEN", "one XMage game per rules process", terminal=True)
+            return _error(
+                request, "SESSION_ALREADY_OPEN", "one XMage game per rules process", terminal=True
+            )
         payload = request.get("payload")
         if not isinstance(payload, dict):
             return _error(request, "INVALID_REQUEST", "OPEN_SESSION payload must be an object")
         session_id = str(request.get("session_id") or payload.get("session_id") or "").strip()
         players = payload.get("players")
         if not session_id or not isinstance(players, list) or len(players) not in {2, 3, 4, 5}:
-            return _error(request, "INVALID_REQUEST", "OPEN_SESSION requires session_id and exactly 2 through 5 players")
+            return _error(
+                request,
+                "INVALID_REQUEST",
+                "OPEN_SESSION requires session_id and exactly 2 through 5 players",
+            )
         normalized: list[dict[str, Any]] = []
         seen: set[str] = set()
         for index, player in enumerate(players, start=1):
@@ -444,7 +486,11 @@ class Provider:
             seat = int(player.get("seat", index))
             deck = player.get("deck")
             if not player_id or player_id in seen or seat != index or not isinstance(deck, dict):
-                return _error(request, "INVALID_REQUEST", "players require unique player_id, contiguous 1-based seat, and deck")
+                return _error(
+                    request,
+                    "INVALID_REQUEST",
+                    "players require unique player_id, contiguous 1-based seat, and deck",
+                )
             seen.add(player_id)
             normalized.append({"player_id": player_id, "seat": seat, "deck": deck})
         seed = int(payload.get("seed", 0))
@@ -480,7 +526,13 @@ class Provider:
             if created.get("player_count") != len(normalized):
                 raise FullGameProtocolError("SESSION_CARDINALITY_MISMATCH")
             status = client.request("start_full_game")
-            self.session = Session(session_id=session_id, players=normalized, seed=seed, client=client, last_status=status)
+            self.session = Session(
+                session_id=session_id,
+                players=normalized,
+                seed=seed,
+                client=client,
+                last_status=status,
+            )
             self.session.terminal = bool(status.get("terminal"))
         except Exception:
             client.close()
@@ -503,7 +555,13 @@ class Provider:
         session = self._require_session(request)
         viewer_id = str(request.get("actor_id") or "").strip()
         if not viewer_id:
-            return _error(request, "INVALID_REQUEST", "OBSERVE requires actor_id", session_id=session.session_id, state_revision=session.state_revision)
+            return _error(
+                request,
+                "INVALID_REQUEST",
+                "OBSERVE requires actor_id",
+                session_id=session.session_id,
+                state_revision=session.state_revision,
+            )
         payload = request.get("payload")
         payload = payload if isinstance(payload, dict) else {}
         subject_id = str(payload.get("decision_subject_player_id") or viewer_id)
@@ -537,11 +595,21 @@ class Provider:
                 return _base_response(
                     request,
                     "DECISION_FRAME",
-                    {"terminal": True, "terminal_result": session.sanitize(result), "decision": None},
+                    {
+                        "terminal": True,
+                        "terminal_result": session.sanitize(result),
+                        "decision": None,
+                    },
                     session_id=session.session_id,
                     state_revision=session.state_revision,
                 )
-            return _error(request, "NO_DECISION_AVAILABLE", "XMage has no pending decision and is not terminal", session_id=session.session_id, state_revision=session.state_revision)
+            return _error(
+                request,
+                "NO_DECISION_AVAILABLE",
+                "XMage has no pending decision and is not terminal",
+                session_id=session.session_id,
+                state_revision=session.state_revision,
+            )
         return _base_response(
             request,
             "DECISION_FRAME",
@@ -555,21 +623,54 @@ class Provider:
         session = self._require_session(request)
         payload = request.get("payload")
         if not isinstance(payload, dict) or session.pending is None:
-            return _error(request, "STALE_DECISION", "no pending decision", session_id=session.session_id, state_revision=session.state_revision)
+            return _error(
+                request,
+                "STALE_DECISION",
+                "no pending decision",
+                session_id=session.session_id,
+                state_revision=session.state_revision,
+            )
         binding = session.pending
         if payload.get("decision_id") != binding.external_decision_id:
-            return _error(request, "STALE_DECISION", "decision_id does not match pending frame", session_id=session.session_id, state_revision=session.state_revision)
-        if int(payload.get("state_revision", -1)) != binding.state_revision or payload.get("options_digest") != binding.options_digest:
-            return _error(request, "STALE_DECISION", "revision/options digest does not match pending frame", session_id=session.session_id, state_revision=session.state_revision)
+            return _error(
+                request,
+                "STALE_DECISION",
+                "decision_id does not match pending frame",
+                session_id=session.session_id,
+                state_revision=session.state_revision,
+            )
+        if (
+            int(payload.get("state_revision", -1)) != binding.state_revision
+            or payload.get("options_digest") != binding.options_digest
+        ):
+            return _error(
+                request,
+                "STALE_DECISION",
+                "revision/options digest does not match pending frame",
+                session_id=session.session_id,
+                state_revision=session.state_revision,
+            )
         selected_external = payload.get("selected_option_ids") or []
         ordering_external = payload.get("ordering") or []
         if not isinstance(selected_external, list) or not isinstance(ordering_external, list):
-            return _error(request, "INVALID_DECISION", "selected_option_ids and ordering must be arrays", session_id=session.session_id, state_revision=session.state_revision)
+            return _error(
+                request,
+                "INVALID_DECISION",
+                "selected_option_ids and ordering must be arrays",
+                session_id=session.session_id,
+                state_revision=session.state_revision,
+            )
         try:
             selected_native = [binding.external_to_native[str(item)] for item in selected_external]
             ordering_native = [binding.external_to_native[str(item)] for item in ordering_external]
         except KeyError as exc:
-            return _error(request, "ILLEGAL_ACTION", f"option was not offered: {exc.args[0]}", session_id=session.session_id, state_revision=session.state_revision)
+            return _error(
+                request,
+                "ILLEGAL_ACTION",
+                f"option was not offered: {exc.args[0]}",
+                session_id=session.session_id,
+                state_revision=session.state_revision,
+            )
         native_response: dict[str, Any] = {
             "decision_id": binding.native_decision_id,
             "actor_id": binding.native_actor_id,
@@ -598,13 +699,28 @@ class Provider:
         revision = session.state_revision
         session.client.close()
         self.session = None
-        return _base_response(request, "SESSION_CLOSED", {"closed": True}, session_id=session_id, state_revision=revision)
+        return _base_response(
+            request,
+            "SESSION_CLOSED",
+            {"closed": True},
+            session_id=session_id,
+            state_revision=revision,
+        )
 
     def _run_fixture(self, request: dict[str, Any]) -> dict[str, Any]:
         payload = request.get("payload")
         fixture = payload.get("fixture") if isinstance(payload, dict) else None
         if not isinstance(fixture, dict):
-            return _base_response(request, "FIXTURE_RESULT", {"verdict": "FAIL", "evidence_class": "RUNTIME_VERIFIED", "reason": "RUN_FIXTURE payload.fixture is required", "artifact_hashes": {}})
+            return _base_response(
+                request,
+                "FIXTURE_RESULT",
+                {
+                    "verdict": "FAIL",
+                    "evidence_class": "RUNTIME_VERIFIED",
+                    "reason": "RUN_FIXTURE payload.fixture is required",
+                    "artifact_hashes": {},
+                },
+            )
         fixture_id = str(fixture.get("fixture_id", ""))
         if fixture_id not in PLAYER_COUNT_FIXTURES:
             return _base_response(
@@ -620,7 +736,12 @@ class Provider:
         try:
             result = _run_player_count_fixture(fixture)
         except Exception as exc:
-            result = {"verdict": "FAIL", "evidence_class": "RUNTIME_VERIFIED", "reason": f"XMage runtime fixture raised {type(exc).__name__}: {exc}", "artifact_hashes": {}}
+            result = {
+                "verdict": "FAIL",
+                "evidence_class": "RUNTIME_VERIFIED",
+                "reason": f"XMage runtime fixture raised {type(exc).__name__}: {exc}",
+                "artifact_hashes": {},
+            }
         return _base_response(request, "FIXTURE_RESULT", result)
 
 
@@ -643,7 +764,12 @@ def main() -> int:
                     "session_id": None,
                     "actor_id": None,
                     "state_revision": None,
-                    "payload": {"error_code": "INVALID_JSON", "message": f"{type(exc).__name__}: {exc}", "retryable": False, "terminal": False},
+                    "payload": {
+                        "error_code": "INVALID_JSON",
+                        "message": f"{type(exc).__name__}: {exc}",
+                        "retryable": False,
+                        "terminal": False,
+                    },
                 }
             print(json.dumps(response, sort_keys=True), flush=True)
     finally:
