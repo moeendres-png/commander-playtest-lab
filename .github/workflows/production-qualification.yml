@@ -47,6 +47,17 @@ jobs:
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
+      - name: Install qualification runtime
+        run: python -m pip install -e '.[dev]'
+      - name: Verify qualification runtime imports
+        run: |
+          python - <<'PY'
+          import runpy
+          from jsonschema import Draft202012Validator
+
+          assert Draft202012Validator is not None
+          runpy.run_path("qualification/harness.py", run_name="ws17r_harness_import_probe")
+          PY
       - name: Assert exact main SHA and materialize provider absence honestly
         shell: bash
         run: |
@@ -93,7 +104,7 @@ jobs:
           fi
       - name: Hash runtime evidence
         run: |
-          find qualification/evidence/runtime qualification/aggregate/runtime -type f -print0 | sort -z | xargs -0 sha256sum > qualification/aggregate/runtime/SHA256SUMS
+          find qualification/evidence/runtime qualification/aggregate/runtime -type f ! -path 'qualification/aggregate/runtime/SHA256SUMS' -print0 | sort -z | xargs -0 sha256sum > qualification/aggregate/runtime/SHA256SUMS
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: production-qualification-${{ github.sha }}
