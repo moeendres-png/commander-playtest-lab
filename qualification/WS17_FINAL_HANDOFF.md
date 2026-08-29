@@ -19,9 +19,7 @@ The exact original WS-10 outputs and bundle could not be recovered from supplied
 
 ## Authority Lock
 
-Official Wizards Rules page and `MagicCompRules 20260807` URLs are verified, effective 2026-08-07. Raw byte-preserving download failed on the available execution path; original and normalized hashes remain unknown. Gatherer/official Oracle remains inaccessible for authoritative bulk acquisition, so `AUTHORITATIVE_ORACLE = UNKNOWN`.
-
-
+Official Wizards Rules page and `MagicCompRules 20260807` URLs are verified, effective 2026-08-07. Raw byte-preserving download failed on both available raw execution paths; original and normalized hashes remain unknown. Gatherer/official Oracle remains inaccessible for authoritative bulk acquisition, so `AUTHORITATIVE_ORACLE = UNKNOWN`.
 
 ## Repository Changes
 
@@ -40,7 +38,7 @@ Branch: `ws17/common-qualification-infrastructure`. Draft PR: `#130`. The branch
 
 ## Tests Executed
 
-Local WS-17 infrastructure tests: **8/8 PASS**. They validate all JSON Schemas, common manifest shape/card count, missing-provider `NOT_RUN`, exact-main SHA mismatch failure, and mandatory-obligation fail-closed semantics. GitHub-side Base64 transport, reconstructed TAR digest, full `WS17_SHA256SUMS`, and WS-10R bundle digest also verified PASS before repository materialization.
+Local WS-17 infrastructure tests: **12/12 PASS**. They validate all JSON Schemas, common manifest shape/card count, missing-provider `NOT_RUN`, exact-main SHA mismatch failure, mandatory-obligation fail-closed semantics, full SHA-256 manifest coverage, WS-10R ZIP integrity, exact-main workflow invariants, and exact JSON→Markdown regeneration. GitHub-side Base64 transport, reconstructed TAR digest, full `WS17_SHA256SUMS`, and WS-10R bundle digest also verified PASS before repository materialization.
 
 ## Tests Not Run
 

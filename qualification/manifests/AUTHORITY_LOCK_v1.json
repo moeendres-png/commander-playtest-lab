@@ -4,13 +4,17 @@
     "authority": "Wizards of the Coast",
     "browser_verified": true,
     "effective_date": "2026-08-07",
-    "failure": "Official media URL was reachable through browser/web extraction, but the available raw-file download path failed; no byte-exact artifact was fabricated.",
+    "failure": "Official media URL was reachable through browser/web extraction, but two available raw-file download paths failed; no byte-exact artifact or SHA-256 was fabricated.",
     "normalized_text_sha256": null,
     "official_pdf_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.pdf",
     "official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
     "original_bytes_preserved": false,
     "original_sha256": null,
     "pdf_first_page_verified": true,
+    "raw_download_attempts": [
+      "initial browser/work raw-file path: FAILED",
+      "2026-08-29 container raw download of official Wizards TXT URL: FAILED"
+    ],
     "rules_page": "https://magic.wizards.com/en/rules",
     "status": "AUTHORITY_IDENTIFIED_BYTES_UNAVAILABLE"
   },

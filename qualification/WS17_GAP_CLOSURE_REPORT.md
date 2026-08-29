@@ -12,11 +12,9 @@ The exact WS-00 reconciliation artifact was also not recovered. The rematerializ
 
 ## Authority Lock
 
-The official Wizards Rules page and official `MagicCompRules 20260807` PDF/TXT URLs were verified; the PDF states an effective date of **August 7, 2026**. The browser surface could read the document, but the available raw download path failed, so original bytes and byte SHA-256 remain **UNKNOWN** rather than fabricated.
+The official Wizards Rules page and official `MagicCompRules 20260807` PDF/TXT URLs were verified; the PDF states an effective date of **August 7, 2026**. The browser surface could read the document, but both available raw download paths failed, so original bytes and byte SHA-256 remain **UNKNOWN** rather than fabricated.
 
 Authoritative Gatherer/Oracle acquisition remained inaccessible through the available browser/search surface for the required identity set. `AUTHORITATIVE_ORACLE = UNKNOWN`. No Scryfall, engine script, or helper cache was promoted to official authority.
-
-
 
 ## Infrastructure Closed
 

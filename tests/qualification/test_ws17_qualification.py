@@ -67,3 +67,64 @@ def test_active_deck_denominators_are_exact():
     assert len(d['rogshai_kaervek_shared_identity_list']) == 10
     assert d['active_deck_source_locks']['rogshai']['git_blob'] == '4db4174011e6ea0b07196e68165aa4549cff1971'
     assert d['active_deck_source_locks']['kaervek']['git_blob'] == 'beebc3cf50e32b29db5c1e594821f754da69249d'
+
+
+def _verify_sha256_manifest(manifest_path: Path, base: Path):
+    entries=[]
+    for raw in manifest_path.read_text(encoding='utf-8').splitlines():
+        if not raw.strip():
+            continue
+        digest, rel = raw.split('  ', 1)
+        target=base/rel
+        assert target.is_file(), rel
+        import hashlib
+        assert hashlib.sha256(target.read_bytes()).hexdigest() == digest, rel
+        entries.append(rel)
+    return entries
+
+
+def test_all_ws17_hash_manifests_verify_and_cover_changed_artifacts():
+    root_entries=set(_verify_sha256_manifest(ROOT/'WS17_SHA256SUMS', ROOT))
+    expected={'pyproject.toml','.github/workflows/production-qualification.yml','tests/qualification/test_ws17_qualification.py'}
+    expected |= {str(p.relative_to(ROOT)) for p in (ROOT/'qualification').rglob('*') if p.is_file() and '__pycache__' not in p.parts}
+    assert root_entries == expected
+    q_entries=set(_verify_sha256_manifest(ROOT/'qualification/SHA256SUMS', ROOT/'qualification'))
+    expected_q={str(p.relative_to(ROOT/'qualification')) for p in (ROOT/'qualification').rglob('*') if p.is_file() and p.name!='SHA256SUMS' and '__pycache__' not in p.parts}
+    assert q_entries == expected_q
+
+
+def test_ws10r_bundle_and_internal_hashes_verify():
+    import hashlib, zipfile
+    ws=ROOT/'qualification/protocol/ws10r'
+    bundle=ws/'WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip'
+    digest_line=(ws/'WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip.sha256').read_text().strip()
+    expected_digest, name=digest_line.split('  ',1)
+    assert name == bundle.name
+    assert hashlib.sha256(bundle.read_bytes()).hexdigest() == expected_digest
+    inner={}
+    for line in (ws/'SHA256SUMS').read_text().splitlines():
+        d,n=line.split('  ',1); inner[n]=d
+    with zipfile.ZipFile(bundle) as z:
+        names=set(z.namelist())
+        assert set(inner) | {'SHA256SUMS'} == names
+        for name,digest in inner.items():
+            assert hashlib.sha256(z.read(name)).hexdigest() == digest
+        assert z.read('SHA256SUMS') == (ws/'SHA256SUMS').read_bytes()
+
+
+def test_exact_main_workflow_is_unfiltered_and_provider_absence_is_fail_closed():
+    text=(ROOT/'.github/workflows/production-qualification.yml').read_text(encoding='utf-8')
+    assert 'paths:' not in text and 'paths-ignore:' not in text
+    assert "github.event_name == 'push' && github.ref == 'refs/heads/main'" in text
+    assert "COMMANDER_LAB_RSP_PROVIDER_CMD: ${{ vars.COMMANDER_LAB_RSP_PROVIDER_CMD || '' }}" in text
+    assert 'run_args+=(--command "$COMMANDER_LAB_RSP_PROVIDER_CMD")' in text
+    assert "assert p['production_admission'] == 'FAIL'" in text
+    assert "assert any(x['verdict'] == 'NOT_RUN' for x in p['blocking_results'])" in text
+
+
+def test_production_admission_markdown_exactly_regenerates_from_json(tmp_path):
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('ws17_harness', ROOT/'qualification/harness.py')
+    mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    expected=mod.render_md(ROOT/'qualification/aggregate/PRODUCTION_ADMISSION.json')
+    assert (ROOT/'qualification/aggregate/PRODUCTION_ADMISSION.md').read_text(encoding='utf-8') == expected

@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+env:
+  COMMANDER_LAB_RSP_PROVIDER_CMD: ${{ vars.COMMANDER_LAB_RSP_PROVIDER_CMD || '' }}
+  COMMANDER_LAB_PRODUCTION_PROVIDER: ${{ vars.COMMANDER_LAB_PRODUCTION_PROVIDER || 'NO_PRODUCTION_PROVIDER_SELECTED' }}
+
 concurrency:
   group: production-qualification-${{ github.sha }}
   cancel-in-progress: false
@@ -50,12 +54,17 @@ jobs:
           actual="$(git rev-parse HEAD)"
           test "$actual" = "$GITHUB_SHA"
           mkdir -p qualification/evidence/runtime qualification/aggregate/runtime
-          python qualification/harness.py run \
-            --candidate "${COMMANDER_LAB_PRODUCTION_PROVIDER:-NO_PRODUCTION_PROVIDER_SELECTED}" \
-            --source-lock qualification/WS17_SOURCE_LOCK.json \
-            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
-            --output qualification/evidence/runtime/COMMON_RESULTS.json \
-            ${COMMANDER_LAB_RSP_PROVIDER_CMD:+--command "$COMMANDER_LAB_RSP_PROVIDER_CMD"}
+          run_args=(
+            run
+            --candidate "$COMMANDER_LAB_PRODUCTION_PROVIDER"
+            --source-lock qualification/WS17_SOURCE_LOCK.json
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json
+            --output qualification/evidence/runtime/COMMON_RESULTS.json
+          )
+          if [[ -n "${COMMANDER_LAB_RSP_PROVIDER_CMD:-}" ]]; then
+            run_args+=(--command "$COMMANDER_LAB_RSP_PROVIDER_CMD")
+          fi
+          python qualification/harness.py "${run_args[@]}"
           python qualification/harness.py aggregate \
             --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
             --results qualification/evidence/runtime/COMMON_RESULTS.json \
@@ -64,15 +73,24 @@ jobs:
             --output qualification/aggregate/runtime/PRODUCTION_ADMISSION.json \
             --md-output qualification/aggregate/runtime/PRODUCTION_ADMISSION.md
       - name: Verify mandatory obligations cannot be satisfied by skips or missing provider
+        shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY'
           import json
           from pathlib import Path
           p=json.loads(Path('qualification/aggregate/runtime/PRODUCTION_ADMISSION.json').read_text())
           assert p['production_admission'] in {'PASS','FAIL'}
-          if '${{ env.COMMANDER_LAB_RSP_PROVIDER_CMD }}' == '':
-              assert p['production_admission'] == 'FAIL'
           PY
+          if [[ -z "${COMMANDER_LAB_RSP_PROVIDER_CMD:-}" ]]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('qualification/aggregate/runtime/PRODUCTION_ADMISSION.json').read_text())
+          assert p['production_admission'] == 'FAIL'
+          assert any(x['verdict'] == 'NOT_RUN' for x in p['blocking_results'])
+          PY
+          fi
       - name: Hash runtime evidence
         run: |
           find qualification/evidence/runtime qualification/aggregate/runtime -type f -print0 | sort -z | xargs -0 sha256sum > qualification/aggregate/runtime/SHA256SUMS
