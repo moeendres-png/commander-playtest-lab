@@ -28,6 +28,12 @@ MIN_PLAYER_COUNT = 2
 MAX_PLAYER_COUNT = 5
 SUPPORTED_PLAYER_COUNTS = tuple(range(MIN_PLAYER_COUNT, MAX_PLAYER_COUNT + 1))
 
+# WS-22 extends the native decision envelope with explicit decision-subject
+# identity while preserving the existing option/submission fields. The V2
+# runner therefore binds to the exact 1.1 bridge identity rather than silently
+# accepting the legacy 1.0 handshake.
+FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.1.0"
+
 
 class FullGamePilotBindingV2(FullGamePilotBinding):
     """WS-18 binding supporting the technical 2P-5P production-candidate surface."""
