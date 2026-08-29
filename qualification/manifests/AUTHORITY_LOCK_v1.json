@@ -1,0 +1,29 @@
+{
+  "attempted_at": "2026-08-29T14:18:00+02:00",
+  "comprehensive_rules": {
+    "authority": "Wizards of the Coast",
+    "browser_verified": true,
+    "effective_date": "2026-08-07",
+    "failure": "Official media URL was reachable through browser/web extraction, but the available raw-file download path failed; no byte-exact artifact was fabricated.",
+    "normalized_text_sha256": null,
+    "official_pdf_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.pdf",
+    "official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+    "original_bytes_preserved": false,
+    "original_sha256": null,
+    "pdf_first_page_verified": true,
+    "rules_page": "https://magic.wizards.com/en/rules",
+    "status": "AUTHORITY_IDENTIFIED_BYTES_UNAVAILABLE"
+  },
+  "oracle": {
+    "attempts": [
+      "Google/website search for Gatherer card pages",
+      "official Magic card database path discovery"
+    ],
+    "authoritative_oracle": "UNKNOWN",
+    "authority": "Wizards Gatherer / official Oracle",
+    "failure": "The available web surface did not return authoritative Gatherer card records for the required identities. Secondary sources were not promoted to authority.",
+    "status": "UNKNOWN"
+  },
+  "schema_version": "authority-lock/1.0.0",
+  "secondary_sources_promoted": false
+}

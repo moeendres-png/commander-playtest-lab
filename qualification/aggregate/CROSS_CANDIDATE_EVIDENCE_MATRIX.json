@@ -1,0 +1,61 @@
+{
+  "candidates": {
+    "argentum": {
+      "AUTHORITY_BLOCKED": true,
+      "DIRECT_CARD_COVERAGE_FAIL": true,
+      "DIRECT_PILOT_BOUNDARY_FAIL": true,
+      "DIRECT_RULES_FAIL": true,
+      "PROTOCOL_ADAPTER_MISSING": true,
+      "QUALIFICATION_INFRASTRUCTURE_MISSING": false,
+      "REMEDIATION_REQUIRED": true,
+      "RUNTIME_NOT_RUN": true,
+      "RUNTIME_PASS": false
+    },
+    "forge": {
+      "AUTHORITY_BLOCKED": true,
+      "DIRECT_CARD_COVERAGE_FAIL": false,
+      "DIRECT_PILOT_BOUNDARY_FAIL": true,
+      "DIRECT_RULES_FAIL": false,
+      "PROTOCOL_ADAPTER_MISSING": true,
+      "QUALIFICATION_INFRASTRUCTURE_MISSING": false,
+      "REMEDIATION_REQUIRED": true,
+      "RUNTIME_NOT_RUN": true,
+      "RUNTIME_PASS": false
+    },
+    "phase_rs": {
+      "AUTHORITY_BLOCKED": true,
+      "DIRECT_CARD_COVERAGE_FAIL": false,
+      "DIRECT_PILOT_BOUNDARY_FAIL": false,
+      "DIRECT_RULES_FAIL": true,
+      "PROTOCOL_ADAPTER_MISSING": true,
+      "QUALIFICATION_INFRASTRUCTURE_MISSING": false,
+      "REMEDIATION_REQUIRED": true,
+      "RUNTIME_NOT_RUN": true,
+      "RUNTIME_PASS": false
+    },
+    "xmage": {
+      "AUTHORITY_BLOCKED": true,
+      "DIRECT_CARD_COVERAGE_FAIL": false,
+      "DIRECT_PILOT_BOUNDARY_FAIL": false,
+      "DIRECT_RULES_FAIL": true,
+      "PROTOCOL_ADAPTER_MISSING": true,
+      "QUALIFICATION_INFRASTRUCTURE_MISSING": false,
+      "REMEDIATION_REQUIRED": true,
+      "RUNTIME_NOT_RUN": true,
+      "RUNTIME_PASS": false
+    }
+  },
+  "legend": [
+    "DIRECT_RULES_FAIL",
+    "DIRECT_PILOT_BOUNDARY_FAIL",
+    "DIRECT_CARD_COVERAGE_FAIL",
+    "PROTOCOL_ADAPTER_MISSING",
+    "QUALIFICATION_INFRASTRUCTURE_MISSING",
+    "AUTHORITY_BLOCKED",
+    "RUNTIME_NOT_RUN",
+    "RUNTIME_PASS",
+    "REMEDIATION_REQUIRED"
+  ],
+  "note": "QUALIFICATION_INFRASTRUCTURE_MISSING is false after WS-17 materialization; runtime remains not run because candidate adapters and/or substantive remediations are absent.",
+  "schema_version": "cross-candidate-evidence-matrix/1.0.0"
+}

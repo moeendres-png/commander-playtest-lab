@@ -1,0 +1,2528 @@
+{
+  "af_results": [
+    {
+      "gate_id": "AF00",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF01",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF02",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF03",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF04",
+      "reason": "Direct preserved failure",
+      "verdict": "FAIL"
+    },
+    {
+      "gate_id": "AF05",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF06",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF07",
+      "reason": "Direct preserved failure",
+      "verdict": "FAIL"
+    },
+    {
+      "gate_id": "AF08",
+      "reason": "Direct preserved failure",
+      "verdict": "FAIL"
+    },
+    {
+      "gate_id": "AF09",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF10",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "gate_id": "AF11",
+      "reason": "Common RSP runtime not executed / authority incomplete",
+      "verdict": "UNKNOWN"
+    }
+  ],
+  "authority_status": "BLOCKED_ORACLE_AND_BYTE_EXACT_CR",
+  "candidate": "argentum",
+  "classifications": [
+    "DIRECT_RULES_FAIL",
+    "DIRECT_PILOT_BOUNDARY_FAIL",
+    "DIRECT_CARD_COVERAGE_FAIL",
+    "PROTOCOL_ADAPTER_MISSING",
+    "RUNTIME_NOT_RUN",
+    "AUTHORITY_BLOCKED",
+    "REMEDIATION_REQUIRED"
+  ],
+  "common_runtime_reason": "RSP 1.1 common adapter unavailable at this exact candidate lock; no candidate Rules remediation performed.",
+  "common_runtime_status": "NOT_RUN",
+  "direct_failures": [
+    "Gym step auto-passes priority while stack non-empty / internal authority.",
+    "Convenience playGame has built-in DecisionResponder and first-affordable-action fallbacks.",
+    "Player.AnOpponent uses firstOrNull().",
+    "External decision domains and observations are incomplete.",
+    "Partner/multiple commanders missing.",
+    "Only 9/29 frozen regression cards had concrete implementation evidence at WS-16 lock."
+  ],
+  "fixture_results": [
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_2P",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_3P",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_4P",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_5P",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-PRIO-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-PRIO-5",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TRIG-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TRIG-5",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TURN-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TURN-5",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-5",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-TAX-2",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-TAX-4",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-DMG-SAME-21",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-PARTNER-TAX",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-PARTNER-DMG",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-MULL-2",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-MULL-4",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-START-2",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-START-3",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_PRIORITY",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_TARGET",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_TARGET_AMOUNT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_MULLIGAN",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_USE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOICE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_PILE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_ANNOUNCE_X",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_MULTI_AMOUNT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_TRIGGER_ORDER",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_MODE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_ABILITY",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_DECLARE_ATTACKER",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_DECLARE_BLOCKER",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_FIRST_OPTION",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_RANDOM_OPTION",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_INTERNAL_AI",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_GUI_DEFAULT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_SILENT_SKIP",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_01",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_02",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_03",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_04",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_05",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_06",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_07",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_08",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_09",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_10",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_11",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_12",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_13",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_14",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_15",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_16",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_17",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_18",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_19",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "RNG_RULES_TAPE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_COSTS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_PRIORITY",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_STACK",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_TARGETS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_MODES",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_TRIGGERS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_REPLACEMENT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_PREVENTION",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_LAYERS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_COPY",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_CONTROL",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_COMBAT",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_01",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_02",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_03",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_04",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_05",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_06",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_07",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_08",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_09",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_10",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_11",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_12",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_13",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_14",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_15",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_16",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_17",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_18",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_19",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_20",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_21",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_22",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_23",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_24",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_25",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_26",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_27",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_28",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "argentum",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_29",
+      "omission_reason_code": "REMEDIATION_REQUIRED",
+      "reason": "A thin lossless adapter is not currently possible because the external decision/observation surface and pilot-authority boundary are incomplete; substantive engine remediation is required first.",
+      "source_lock": {
+        "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+        "license": "MIT",
+        "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+        "repository": "wingedsheep/argentum-engine",
+        "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+        "verified": "GITHUB_CONNECTOR"
+      },
+      "verdict": "NOT_RUN"
+    }
+  ],
+  "freeze_eligible": false,
+  "schema_version": "candidate-evidence/1.0.0",
+  "source_lock": {
+    "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+    "license": "MIT",
+    "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+    "repository": "wingedsheep/argentum-engine",
+    "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+    "verified": "GITHUB_CONNECTOR"
+  },
+  "thin_adapter_assessment": "External decision surface is not complete enough for a thin lossless adapter without substantive engine remediation."
+}

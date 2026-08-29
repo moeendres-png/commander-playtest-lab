@@ -1,0 +1,10 @@
+{
+  "architecture_freeze_contract": "1.1.0",
+  "bundle_digest_file": "WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip.sha256",
+  "bundle_sha256_embedded": false,
+  "migration_decision": "Version advanced from unavailable 1.0.0 artifact to new 1.1.0 authority to avoid a false byte or semantic identity claim.",
+  "original_ws10_byte_identity": "UNKNOWN",
+  "protocol": "commander-lab.rules-service/1.1.0",
+  "replacement_authority": "WS-17 controlled rematerialization",
+  "schema_version": "ws10r-bundle-identity/1.1.0"
+}
