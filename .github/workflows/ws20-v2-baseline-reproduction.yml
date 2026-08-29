@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse \"$WS20_V2_BASELINE_SHA^{tree}\")" = "$WS20_V2_BASELINE_TREE"
+          test "$(git rev-parse "${WS20_V2_BASELINE_SHA}^{tree}")" = "$WS20_V2_BASELINE_TREE"
           git merge-base --is-ancestor "$WS20_V2_BASELINE_SHA" HEAD
           test "$(git show -s --format=%T "$WS20_V2_BASELINE_SHA")" = "$WS20_V2_BASELINE_TREE"
 
