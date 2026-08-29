@@ -113,10 +113,10 @@ public final class Ws23ForgeAuthority {
         return sb.append("]}").toString();
     }
 
-    private static String battlefield(Player viewer, Game game) {
+    private static String publicZone(Player viewer, Game game, ZoneType zone) {
         StringBuilder sb = new StringBuilder("[");
         boolean first = true;
-        for (Card card : game.getCardsIn(ZoneType.Battlefield)) {
+        for (Card card : game.getCardsIn(zone)) {
             if (!first) sb.append(',');
             first = false;
             boolean visible = identityVisible(card, viewer);
@@ -150,8 +150,9 @@ public final class Ws23ForgeAuthority {
 
         return "{\"actor_id\":" + q(viewer.getName())
                 + ",\"hands\":" + hands
-                + ",\"battlefield\":" + battlefield(viewer, game)
+                + ",\"battlefield\":" + publicZone(viewer, game, ZoneType.Battlefield)
                 + ",\"libraries\":" + libraries
+                + ",\"stack\":" + publicZone(viewer, game, ZoneType.Stack)
                 + ",\"stack_count\":" + game.getStack().size() + "}";
     }
 
@@ -208,6 +209,24 @@ public final class Ws23ForgeAuthority {
         seat2.getZone(ZoneType.Library).remove(library);
     }
 
+    private static void emitStackProof(Game game, Ws23ForgeVerticalProvider.Broker broker) {
+        Player seat1 = game.getPlayers().get(0);
+        Player seat2 = game.getPlayers().get(1);
+        String seat1Obs = observation(seat1, game);
+        String seat2Obs = observation(seat2, game);
+        boolean boltPublic = seat1Obs.contains("Lightning Bolt") && seat2Obs.contains("Lightning Bolt");
+        if (!boltPublic || game.getStack().isEmpty()) {
+            throw new IllegalStateException("WS23_PUBLIC_STACK_OBSERVATION_FAILED");
+        }
+        broker.out.println("{\"protocol\":" + q(Ws23ForgeVerticalProvider.PROTOCOL)
+                + ",\"message_type\":\"STACK_OBSERVATION_PROOF\",\"request_id\":\"ws23-stack-proof\""
+                + ",\"session_id\":" + q(Ws23ForgeVerticalProvider.SESSION_ID)
+                + ",\"payload\":{\"public_stack_identity_visible\":true"
+                + ",\"seat1_observation\":" + seat1Obs
+                + ",\"seat2_observation\":" + seat2Obs + "}}");
+        broker.out.flush();
+    }
+
     /** Called by the real Match.startGame start hook after mulligans and before the first priority loop. */
     static void installScenario(Game game, Ws23ForgeVerticalProvider.Broker broker) {
         runHoneycardProof(game, broker);
@@ -224,13 +243,21 @@ public final class Ws23ForgeAuthority {
 
         Card attacker = loadActualCard(game, seat1, "Grizzly Bears", "10E", CardRarity.Common);
         seat1.getZone(ZoneType.Battlefield).add(attacker);
+        attacker.setController(seat1, game.getNextTimestamp());
         attacker.setSickness(false);
         scenarioAttackerId = attacker.getId();
 
         Card blocker = loadActualCard(game, seat2, "Grizzly Bears", "10E", CardRarity.Common);
         seat2.getZone(ZoneType.Battlefield).add(blocker);
+        blocker.setController(seat2, game.getNextTimestamp());
         blocker.setSickness(false);
         scenarioBlockerId = blocker.getId();
+
+        Card commander = loadActualCard(
+                game, seat1, "Rograkh, Son of Rohgahh", "CMR", CardRarity.Uncommon);
+        seat1.getZone(ZoneType.Battlefield).add(commander);
+        commander.setController(seat1, game.getNextTimestamp());
+        seat1.addCommander(commander);
 
         broker.out.println("{\"protocol\":" + q(Ws23ForgeVerticalProvider.PROTOCOL)
                 + ",\"message_type\":\"SCENARIO_READY\",\"request_id\":\"ws23-scenario\""
@@ -238,8 +265,47 @@ public final class Ws23ForgeAuthority {
                 + ",\"payload\":{\"bolt_ref\":" + q(cardRef(bolt))
                 + ",\"attacker_ref\":" + q(cardRef(attacker))
                 + ",\"blocker_ref\":" + q(cardRef(blocker))
+                + ",\"commander_ref\":" + q(cardRef(commander))
                 + ",\"target_player_ref\":" + q(playerRef(seat2)) + "}}");
         broker.out.flush();
+
+        game.getAction().moveToHand(commander, null);
+        boolean commanderInCommand = seat1.getCardsIn(ZoneType.Command).stream()
+                .anyMatch(card -> card.isCommander()
+                        && "Rograkh, Son of Rohgahh".equals(card.getName()));
+        if (!commanderInCommand) {
+            throw new IllegalStateException("WS23_COMMANDER_REPLACEMENT_DID_NOT_MOVE_TO_COMMAND");
+        }
+        broker.out.println("{\"protocol\":" + q(Ws23ForgeVerticalProvider.PROTOCOL)
+                + ",\"message_type\":\"COMMANDER_PROOF\",\"request_id\":\"ws23-commander-proof\""
+                + ",\"session_id\":" + q(Ws23ForgeVerticalProvider.SESSION_ID)
+                + ",\"payload\":{\"card_identity\":\"Rograkh, Son of Rohgahh\""
+                + ",\"actual_card_fixture_id\":\"CARD_02\""
+                + ",\"common_fixture_id\":\"WS05-CMD-ZONE-HAND-YES\""
+                + ",\"native_commander_replacement_applied\":true}}");
+        broker.out.flush();
+    }
+
+    static SpellAbility chooseAbilityToPlay(
+            Ws23ForgeVerticalProvider.Broker broker,
+            Player actor,
+            Card host,
+            List<SpellAbility> abilities) {
+        if (abilities == null || abilities.isEmpty()) {
+            throw new UnsupportedOperationException("WS23_FAIL_CLOSED_UNSUPPORTED:getAbilityToPlay:EMPTY");
+        }
+        if (abilities.size() == 1) {
+            broker.recordAutomatic("getAbilityToPlay:SINGLE");
+            return abilities.get(0);
+        }
+        List<String> labels = new ArrayList<>();
+        List<String> refs = new ArrayList<>();
+        for (int i = 0; i < abilities.size(); i++) {
+            labels.add("FORGE_ABILITY_VARIANT");
+            refs.add("ability:" + host.getId() + ":" + i);
+        }
+        String choice = broker.chooseRefs("getAbilityToPlay", actor, labels, refs);
+        return abilities.get(Integer.parseInt(choice.substring(1)));
     }
 
     static List<SpellAbility> choosePriority(
@@ -285,6 +351,20 @@ public final class Ws23ForgeAuthority {
             scenarioActionChosen = true;
         }
         return List.of(selected);
+    }
+
+    static boolean playChosenSpellAbility(
+            PlayerController controller,
+            Ws23ForgeVerticalProvider.Broker broker,
+            Player actor,
+            SpellAbility ability,
+            Game game) {
+        boolean chosenScenarioAction = ability.getHostCard().getId() == scenarioBoltId;
+        boolean played = PlaySpellAbility.playSpellAbility(controller, actor, ability);
+        if (played && chosenScenarioAction && scenarioActionChosen) {
+            emitStackProof(game, broker);
+        }
+        return played;
     }
 
     static boolean chooseTargets(
@@ -391,6 +471,29 @@ public final class Ws23ForgeAuthority {
             GameEntity affected,
             String question) {
         return broker.chooseBoolean("confirmReplacementEffect", actor, "APPLY", "DECLINE");
+    }
+
+    static List<SpellAbility> orderSimultaneous(
+            Ws23ForgeVerticalProvider.Broker broker,
+            Player actor,
+            List<SpellAbility> activePlayerSAs) {
+        if (activePlayerSAs == null || activePlayerSAs.size() <= 1) {
+            broker.recordAutomatic("orderSimultaneousSa:ZERO_OR_ONE");
+            return activePlayerSAs;
+        }
+        if (activePlayerSAs.size() != 2) {
+            throw new UnsupportedOperationException(
+                    "WS23_FAIL_CLOSED_UNSUPPORTED:orderSimultaneousSa:MORE_THAN_TWO");
+        }
+        String choice = broker.chooseRefs(
+                "orderSimultaneousSa",
+                actor,
+                List.of("ORDER", "ORDER"),
+                List.of("order:0,1", "order:1,0"));
+        if ("o0".equals(choice)) {
+            return List.of(activePlayerSAs.get(0), activePlayerSAs.get(1));
+        }
+        return List.of(activePlayerSAs.get(1), activePlayerSAs.get(0));
     }
 
     static void declareAttackers(
