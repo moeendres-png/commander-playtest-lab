@@ -234,9 +234,7 @@ class FutureXmageScenario(StrictModel):
     @model_validator(mode="after")
     def cardinality_matches(self) -> FutureXmageScenario:
         if len(self.opponent_deck_ids) != self.player_count - 1:
-            raise ValueError(
-                "opponent_deck_ids must contain exactly player_count - 1 opponents"
-            )
+            raise ValueError("opponent_deck_ids must contain exactly player_count - 1 opponents")
         if self.seat > self.player_count:
             raise ValueError("scenario seat cannot exceed player_count")
         return self
