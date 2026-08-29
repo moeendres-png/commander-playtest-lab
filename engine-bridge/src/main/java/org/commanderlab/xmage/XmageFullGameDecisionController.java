@@ -27,7 +27,7 @@ import java.util.Set;
  */
 final class XmageFullGameDecisionController {
 
-    static final String PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0";
+    static final String PROTOCOL_VERSION = "xmage-external-decision-protocol-1.1.0";
 
     record DecisionResponse(
             String decisionId,
@@ -69,7 +69,7 @@ final class XmageFullGameDecisionController {
 
     synchronized DecisionResponse request(
             Game game,
-            Player actor,
+            Player decisionSubject,
             String decisionClass,
             String prompt,
             int minimumSelections,
@@ -87,8 +87,8 @@ final class XmageFullGameDecisionController {
         if (pendingRequest != null) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: concurrent pending decision");
         }
-        if (game == null || actor == null) {
-            throw new DecisionException("BRIDGE_PROTOCOL_ERROR: game/actor unavailable");
+        if (game == null || decisionSubject == null) {
+            throw new DecisionException("BRIDGE_PROTOCOL_ERROR: game/decision subject unavailable");
         }
         if (decisionClass == null || decisionClass.isBlank()) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: decision_class is blank");
@@ -97,11 +97,14 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
+        XmageKnowledgeLedger ledger = XmageFullGameStateRedactor.knowledgeLedger(game);
+        Player decisionAuthority = ledger.decisionAuthority(game, decisionSubject);
         XmageFullGameObservationGateway.SafeDecision safeDecision;
         try {
             safeDecision = XmageFullGameObservationGateway.validate(
                     game,
-                    actor,
+                    decisionAuthority,
+                    decisionSubject,
                     prompt,
                     context,
                     legalOptions,
@@ -116,12 +119,14 @@ final class XmageFullGameDecisionController {
         }
 
         decisionOffset++;
-        String actorId = actor.getId().toString();
+        String actorId = decisionAuthority.getId().toString();
+        String subjectId = decisionSubject.getId().toString();
         String gameId = game.getId().toString();
         String decisionId = stableId(
                 gameId,
                 Long.toString(decisionOffset),
                 actorId,
+                subjectId,
                 decisionClass
         );
 
@@ -134,7 +139,9 @@ final class XmageFullGameDecisionController {
         request.addProperty("decision_id", decisionId);
         request.addProperty("decision_offset", decisionOffset);
         request.addProperty("actor_id", actorId);
-        request.addProperty("seat", XmageFullGameStateRedactor.seat(game, actor.getId()));
+        request.addProperty("seat", XmageFullGameStateRedactor.seat(game, decisionAuthority.getId()));
+        request.addProperty("decision_subject_id", subjectId);
+        request.addProperty("decision_subject_seat", XmageFullGameStateRedactor.seat(game, decisionSubject.getId()));
         request.addProperty("decision_class", decisionClass);
         request.addProperty("prompt", safeDecision.prompt());
         request.add("context", safeDecision.context());
@@ -146,9 +153,7 @@ final class XmageFullGameDecisionController {
         request.addProperty("timeout_millis", timeoutMillis);
         request.add(
                 "source_object",
-                safeDecision.sourceObject() == null
-                        ? JsonNull.INSTANCE
-                        : safeDecision.sourceObject()
+                safeDecision.sourceObject() == null ? JsonNull.INSTANCE : safeDecision.sourceObject()
         );
         request.addProperty("xmage_identity", game.getClass().getName());
         request.addProperty("protocol_identity", PROTOCOL_VERSION);
@@ -250,8 +255,7 @@ final class XmageFullGameDecisionController {
         int max = pendingRequest.get("maximum_selections").getAsInt();
         if (selected.size() < min || selected.size() > max) {
             throw new DecisionException(
-                    "PILOT_RESPONSE_INVALID: selected " + selected.size()
-                            + " options, expected " + min + ".." + max
+                    "PILOT_RESPONSE_INVALID: selected " + selected.size() + " options, expected " + min + ".." + max
             );
         }
         if (new HashSet<>(selected).size() != selected.size()) {
@@ -329,15 +333,10 @@ final class XmageFullGameDecisionController {
         event.addProperty("kind", "decision_requested");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        event.addProperty("decision_subject_seat", request.get("decision_subject_seat").getAsInt());
         event.addProperty("prompt", request.get("prompt").getAsString());
-        event.addProperty(
-                "public_state_reference",
-                request.get("public_state_reference").getAsString()
-        );
-        event.addProperty(
-                "private_actor_state_reference",
-                request.get("private_actor_state_reference").getAsString()
-        );
+        event.addProperty("public_state_reference", request.get("public_state_reference").getAsString());
+        event.addProperty("private_actor_state_reference", request.get("private_actor_state_reference").getAsString());
         JsonArray types = new JsonArray();
         JsonArray labels = new JsonArray();
         for (JsonElement element : request.getAsJsonArray("legal_options")) {
@@ -350,32 +349,22 @@ final class XmageFullGameDecisionController {
         transcript.add(event);
     }
 
-    private void recordDecisionAccepted(
-            JsonObject request,
-            List<String> selected,
-            Integer numeric
-    ) {
+    private void recordDecisionAccepted(JsonObject request, List<String> selected, Integer numeric) {
         JsonObject event = new JsonObject();
         event.addProperty("sequence", transcript.size() + 1L);
         event.addProperty("kind", "decision_accepted");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        event.addProperty("decision_subject_seat", request.get("decision_subject_seat").getAsInt());
         event.addProperty("prompt", request.get("prompt").getAsString());
         JsonArray selectedTypes = new JsonArray();
         JsonArray selectedLabels = new JsonArray();
         for (String selectedId : selected) {
             for (JsonElement element : request.getAsJsonArray("legal_options")) {
                 JsonObject option = element.getAsJsonObject();
-                if (option.has("option_id")
-                        && selectedId.equals(option.get("option_id").getAsString())) {
-                    selectedTypes.add(
-                            option.has("option_type")
-                                    ? option.get("option_type").getAsString()
-                                    : "generic"
-                    );
-                    selectedLabels.add(
-                            option.has("label") ? option.get("label").getAsString() : ""
-                    );
+                if (option.has("option_id") && selectedId.equals(option.get("option_id").getAsString())) {
+                    selectedTypes.add(option.has("option_type") ? option.get("option_type").getAsString() : "generic");
+                    selectedLabels.add(option.has("label") ? option.get("label").getAsString() : "");
                     break;
                 }
             }
