@@ -1,0 +1,367 @@
+name: WS20 v2 phase.rs Remediation + Requalification
+
+on:
+  push:
+    branches:
+      - ws20/phase-rs-remediation-requalification-v2
+    paths:
+      - "qualification/providers/phase_rs/**"
+      - "scripts/ws20_phase_rs_card_crosswalk.py"
+      - "scripts/ws20_v2_build_candidate_evidence.py"
+      - "tests/qualification/test_ws20_phase_rs.py"
+      - ".github/workflows/ws20-v2-phase-rs-qualification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS20_BASELINE_SHA: c83e52ae79ff2242578757c0f517badbb1a2621c
+  WS20_BASELINE_TREE: 551c0d55a171508618d2b7d29e0f49b19893f886
+  PHASE_REPO: phase-rs/phase
+  PHASE_COMMIT: 5c87559082f4703c10c3f70692a02bb675c5e576
+  PHASE_TREE: f4c7abc087566979672097baadd259dc0040874d
+  PHASE_COMMANDER_BLOB: 95cdac34e2f11c5236c437882e533d5917cb78a6
+  PHASE_TOOLCHAIN: nightly-2026-04-19
+  RSP_PROTOCOL: commander-lab.rules-service/1.1.0
+  PYTHONHASHSEED: "0"
+
+jobs:
+  remediate-and-requalify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact WS-20 v2 branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Verify post-WS17R baseline ancestry and preservation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws20-v2
+          test "$(git rev-parse "${WS20_BASELINE_SHA}^{tree}")" = "$WS20_BASELINE_TREE"
+          git merge-base --is-ancestor "$WS20_BASELINE_SHA" HEAD
+          grep -F "python -m pip install -e '.[dev]'" .github/workflows/production-qualification.yml
+          grep -F 'Verify qualification runtime imports' .github/workflows/production-qualification.yml
+          grep -F "! -path 'qualification/aggregate/runtime/SHA256SUMS'" .github/workflows/production-qualification.yml
+          test -f tests/qualification/test_ws17r_exact_main_runtime.py
+          git show -s --format=fuller "$WS20_BASELINE_SHA" > artifacts/ws20-v2/target-baseline-commit.txt
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install committed qualification runtime
+        run: python -m pip install -e '.[dev]'
+
+      - name: Re-run healthy common baseline and WS-20 contract regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          pytest -q \
+            tests/qualification/test_ws17_qualification.py \
+            tests/qualification/test_ws17r_exact_main_runtime.py \
+            tests/qualification/test_ws20_phase_rs.py \
+            2>&1 | tee artifacts/ws20-v2/foundry-qualification-tests.log
+          python qualification/harness.py validate \
+            qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
+          python - <<'PY'
+          import json
+          m=json.load(open('qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json'))
+          assert m['protocol']=='commander-lab.rules-service/1.1.0'
+          assert len(m['fixtures'])==135
+          assert all(x['mandatory'] is True for x in m['fixtures'])
+          assert len({x['fixture_id'] for x in m['fixtures']})==135
+          print('COMMON_QUALIFICATION_BASELINE=HEALTHY')
+          PY
+
+      - name: Record exact common input hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum \
+            qualification/protocol/ws10r/WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip \
+            qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json \
+            qualification/providers/phase_rs/PINNED_SOURCE.json \
+            qualification/providers/phase_rs/ws10r_provider.py \
+            > artifacts/ws20-v2/common-input-sha256.txt
+          manifest_sha="$(sha256sum qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json | cut -d' ' -f1)"
+          provider_sha="$(sha256sum qualification/providers/phase_rs/ws10r_provider.py | cut -d' ' -f1)"
+          echo "WS20_COMMON_MANIFEST_SHA256=$manifest_sha" >> "$GITHUB_ENV"
+          echo "WS20_PROVIDER_SHA256=$provider_sha" >> "$GITHUB_ENV"
+
+      - name: Checkout exact fresh phase.rs source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: phase-rs/phase
+          ref: ${{ env.PHASE_COMMIT }}
+          path: vendor/phase
+          fetch-depth: 1
+
+      - name: Verify phase.rs source lock and unchanged blocker
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd vendor/phase
+          test "$(git rev-parse HEAD)" = "$PHASE_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$PHASE_TREE"
+          test "$(git rev-parse HEAD:crates/engine/src/game/commander.rs)" = "$PHASE_COMMANDER_BLOB"
+          grep -F 'channel = "nightly-2026-04-19"' rust-toolchain.toml
+          grep -F 'version = "0.67.0"' Cargo.toml
+          grep -F 'license = "MIT OR Apache-2.0"' Cargo.toml
+          test "$(git rev-parse HEAD:LICENSE-MIT)" = "757ab5c3f8cddd11a8f05d4d16d6d0bd5bc5ba1a"
+          test "$(git rev-parse HEAD:LICENSE-APACHE)" = "f5c2a72aa04b76d55ba884bee16541b2a6851bfc"
+          grep -F 'TODO(strict): CR 702.73a' crates/engine/src/game/commander.rs
+          git show -s --format=fuller HEAD > ../../artifacts/ws20-v2/phase-source-commit.txt
+          printf 'repository=%s\ncommit=%s\ntree=%s\ntoolchain=%s\nversion=0.67.0\nlicense=MIT OR Apache-2.0\n' \
+            "$PHASE_REPO" "$PHASE_COMMIT" "$PHASE_TREE" "$PHASE_TOOLCHAIN" \
+            > ../../artifacts/ws20-v2/phase-source-lock-runtime.txt
+
+      - name: Install exact Rust toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install "$PHASE_TOOLCHAIN" --profile minimal --component rustfmt,clippy
+          rustup default "$PHASE_TOOLCHAIN"
+          rustc --version | tee artifacts/ws20-v2/rustc-version.txt
+          cargo --version | tee artifacts/ws20-v2/cargo-version.txt
+
+      - name: Freshly reproduce Changeling failure before remediation
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ws20-v2-phase-repro
+          cp -a vendor/phase /tmp/ws20-v2-phase-repro
+          python qualification/providers/phase_rs/apply_ws20_changeling_remediation.py \
+            /tmp/ws20-v2-phase-repro --repro-only
+          set +e
+          (cd /tmp/ws20-v2-phase-repro && cargo test -p phase-engine \
+            ws20_repro_changeling_commander_is_every_creature_type -- --nocapture) \
+            > artifacts/ws20-v2/changeling-prepatch-reproduction.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > artifacts/ws20-v2/changeling-prepatch-exit-code.txt
+          test "$code" -ne 0 || { echo 'Fresh unpatched source unexpectedly passed Changeling reproducer' >&2; exit 1; }
+          grep -F 'CR 702.73a: a Changeling commander must be every creature type' \
+            artifacts/ws20-v2/changeling-prepatch-reproduction.log
+          echo 'CHANGELING_PREPATCH_REPRODUCTION=FAIL_AS_EXPECTED' \
+            | tee artifacts/ws20-v2/changeling-prepatch-verdict.txt
+
+      - name: Apply generalized Rules-Core remediation and hash candidate build
+        shell: bash
+        run: |
+          set -euo pipefail
+          python qualification/providers/phase_rs/apply_ws20_changeling_remediation.py vendor/phase
+          (cd vendor/phase && cargo fmt --all)
+          (cd vendor/phase && git diff --binary) > artifacts/ws20-v2/phase-rs-changeling-remediation.patch
+          test -s artifacts/ws20-v2/phase-rs-changeling-remediation.patch
+          patch_sha="$(sha256sum artifacts/ws20-v2/phase-rs-changeling-remediation.patch | cut -d' ' -f1)"
+          printf '%s  %s\n' "$patch_sha" 'artifacts/ws20-v2/phase-rs-changeling-remediation.patch' \
+            > artifacts/ws20-v2/phase-rs-changeling-remediation.patch.sha256
+          patched_tree="$({ cd vendor/phase; git add crates/engine/src/game/commander.rs; git write-tree; git reset --mixed HEAD >/dev/null; })"
+          echo "WS20_PHASE_PATCHED_TREE=$patched_tree" >> "$GITHUB_ENV"
+          echo "WS20_PHASE_PATCH_SHA256=$patch_sha" >> "$GITHUB_ENV"
+          cat > artifacts/ws20-v2/candidate-build-identity.json <<JSON
+          {
+            "schema_version": "ws20-v2-build-identity/1.0.0",
+            "target_baseline": "$WS20_BASELINE_SHA",
+            "target_baseline_tree": "$WS20_BASELINE_TREE",
+            "upstream_repository": "$PHASE_REPO",
+            "upstream_commit": "$PHASE_COMMIT",
+            "upstream_tree": "$PHASE_TREE",
+            "patched_tree": "$patched_tree",
+            "patch_sha256": "$patch_sha",
+            "provider_sha256": "$WS20_PROVIDER_SHA256",
+            "common_manifest_sha256": "$WS20_COMMON_MANIFEST_SHA256",
+            "protocol": "$RSP_PROTOCOL"
+          }
+          JSON
+
+      - name: Runtime-verify Changeling remediation and controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd vendor/phase
+          cargo test -p phase-engine ws20_ -- --nocapture \
+            2>&1 | tee ../../artifacts/ws20-v2/changeling-postpatch-tests.log
+          cargo test -p phase-engine commander_creature_types -- --nocapture \
+            2>&1 | tee ../../artifacts/ws20-v2/commander-creature-type-regression.log
+          cd ../..
+          cat > artifacts/ws20-v2/direct-regression.json <<'JSON'
+          {
+            "changeling_prepatch": "FAIL_AS_EXPECTED",
+            "changeling_postpatch": "PASS",
+            "evidence_class": "RUNTIME_VERIFIED",
+            "scope": "direct phase.rs Rules-Core regression only; does not promote common fixtures"
+          }
+          JSON
+
+      - name: Run broader phase.rs Commander regression and engine build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd vendor/phase
+          cargo test -p phase-engine commander -- --nocapture \
+            2>&1 | tee ../../artifacts/ws20-v2/phase-commander-tests.log
+          cargo check -p phase-engine \
+            2>&1 | tee ../../artifacts/ws20-v2/phase-engine-cargo-check.log
+          cargo build -p phase-engine \
+            2>&1 | tee ../../artifacts/ws20-v2/phase-engine-build.log
+
+      - name: Fresh pilot-boundary audit of production provider route
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '# phase.rs autonomous helper source census (presence is not route use)'
+            git -C vendor/phase grep -n -E 'auto_play|phase_ai|random|first\(\)|default.*choice' -- \
+              crates/phase-ai crates/server-core crates/engine/src 2>/dev/null || true
+          } > artifacts/ws20-v2/pilot-boundary-source-census.txt
+          provider_hits="$(grep -Eic 'phase_ai|auto_play|random\.choice|first option|default yes|default no' \
+            qualification/providers/phase_rs/ws10r_provider.py || true)"
+          test "$provider_hits" -eq 0
+          cat > artifacts/ws20-v2/pilot-boundary-audit.json <<JSON
+          {
+            "provider_route_forbidden_reference_count": $provider_hits,
+            "provider_route": "qualification/providers/phase_rs/ws10r_provider.py",
+            "native_action_authority": "phase_engine::types::actions::GameAction",
+            "autonomous_phase_ai_exists_outside_provider_route": true,
+            "full_production_route_implemented": false,
+            "unsupported_policy": "fail-closed"
+          }
+          JSON
+
+      - name: Generate fresh provider handshake bound to candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python qualification/providers/phase_rs/ws10r_provider.py <<'JSON' \
+            | tee artifacts/ws20-v2/provider-handshake.json
+          {"protocol":"commander-lab.rules-service/1.1.0","message_type":"HANDSHAKE","request_id":"ws20-v2-handshake","session_id":null,"payload":{}}
+          JSON
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws20-v2/provider-handshake.json'))['payload']
+          assert p['production_capable'] is False
+          assert p['target_baseline']=='c83e52ae79ff2242578757c0f517badbb1a2621c'
+          assert p['upstream_commit']=='5c87559082f4703c10c3f70692a02bb675c5e576'
+          assert p['patched_tree']
+          assert p['patch_sha256']
+          assert p['provider_sha256']
+          assert p['common_manifest_sha256']
+          print('WS10R_HANDSHAKE_TRUTHFUL=PASS')
+          PY
+
+      - name: Regenerate exact 29/87 phase.rs card source crosswalk
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws20_phase_rs_card_crosswalk.py \
+            --phase-root vendor/phase \
+            --domain-manifest qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json \
+            --source-lock qualification/providers/phase_rs/PINNED_SOURCE.json \
+            --output artifacts/ws20-v2/card-crosswalk.json
+
+      - name: Execute all 135 exact common fixtures through fail-closed provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset WS20_RUNTIME_RESULT_MAP || true
+          python qualification/harness.py run \
+            --candidate phase_rs_ws20_v2 \
+            --source-lock qualification/providers/phase_rs/PINNED_SOURCE.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --command 'python qualification/providers/phase_rs/ws10r_provider.py' \
+            --output artifacts/ws20-v2/COMMON_RESULTS.json
+          python - <<'PY'
+          import collections, json
+          rows=json.load(open('artifacts/ws20-v2/COMMON_RESULTS.json'))['fixture_results']
+          assert len(rows)==135
+          assert len({x['fixture_id'] for x in rows})==135
+          counts=collections.Counter(x['verdict'] for x in rows)
+          # No exact native common-fixture materializer exists yet. The required
+          # behavior is explicit non-PASS, never synthetic success.
+          assert counts['PASS']==0
+          assert counts['UNSUPPORTED']==135
+          json.dump({
+            'fixture_count':135,
+            'verdict_counts':dict(sorted(counts.items())),
+            'all_accounted':True,
+            'historical_pre_ws17r_evidence_used_for_verdicts':False,
+          }, open('artifacts/ws20-v2/common-fixture-summary.json','w'), indent=2, sort_keys=True)
+          print(dict(counts))
+          PY
+
+      - name: Aggregate current common results and require non-admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          python qualification/harness.py aggregate \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --results artifacts/ws20-v2/COMMON_RESULTS.json \
+            --admitted-main-sha "$WS20_BASELINE_SHA" \
+            --actual-sha "$WS20_BASELINE_SHA" \
+            --output artifacts/ws20-v2/PRODUCTION_ADMISSION.json \
+            --md-output artifacts/ws20-v2/PRODUCTION_ADMISSION.md
+          python - <<'PY'
+          import json
+          a=json.load(open('artifacts/ws20-v2/PRODUCTION_ADMISSION.json'))
+          assert a['production_admission']=='FAIL'
+          assert a['required_fixture_count']==135
+          assert a['pass_count']==0
+          assert len(a['blocking_results'])==135
+          print('PHASE_RS_PRODUCTION_ADMISSION=FAIL_EXPECTED_FROM_CURRENT_EVIDENCE')
+          PY
+
+      - name: Build schema-valid post-WS17R candidate evidence and matrices
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws20_v2_build_candidate_evidence.py \
+            --common-results artifacts/ws20-v2/COMMON_RESULTS.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --source-lock qualification/providers/phase_rs/PINNED_SOURCE.json \
+            --build-identity artifacts/ws20-v2/candidate-build-identity.json \
+            --provider-handshake artifacts/ws20-v2/provider-handshake.json \
+            --direct-regression artifacts/ws20-v2/direct-regression.json \
+            --pilot-audit artifacts/ws20-v2/pilot-boundary-audit.json \
+            --output artifacts/ws20-v2/candidate-result.json \
+            --matrix-output artifacts/ws20-v2/qualification-matrices.json
+          python qualification/harness.py validate \
+            artifacts/ws20-v2/candidate-result.json \
+            qualification/evidence/candidate_result_v1.schema.json
+          python - <<'PY'
+          import json
+          r=json.load(open('artifacts/ws20-v2/candidate-result.json'))
+          assert len(r['fixture_results'])==135
+          assert r['freeze_eligible'] is False
+          assert all(x['verdict']=='UNSUPPORTED' for x in r['fixture_results'])
+          assert r['af_results'][8]['gate_id']=='AF08'
+          assert r['af_results'][8]['verdict']=='PARTIAL'
+          print('POST_WS17R_CANDIDATE_EVIDENCE=SCHEMA_VALID')
+          PY
+
+      - name: Hash every current WS-20 v2 evidence artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws20-v2
+          find artifacts/ws20-v2 -type f ! -name SHA256SUMS -print0 \
+            | sort -z | xargs -0 sha256sum > artifacts/ws20-v2/SHA256SUMS || true
+          if test -s artifacts/ws20-v2/SHA256SUMS; then
+            (cd / && sha256sum -c /home/runner/work/commander-playtest-lab/commander-playtest-lab/artifacts/ws20-v2/SHA256SUMS)
+          fi
+
+      - name: Upload current WS-20 v2 evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws20-v2-phase-rs-evidence-${{ github.sha }}
+          path: artifacts/ws20-v2/
+          if-no-files-found: error
