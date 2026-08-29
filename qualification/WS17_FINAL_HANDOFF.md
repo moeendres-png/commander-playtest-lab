@@ -1,115 +1,258 @@
-# COMMANDER SIMULATION FOUNDRY — WS-17 FINAL HANDOFF
+# WS-17 FINAL HANDOFF
 
 ## Source Lock
 
-- Target: `moeendres-png/commander-playtest-lab`
-- Fresh `main`: `3ad43c38c44299fd8d72b94f30af61d409c47b9e`
-- Tree: `001462343b93d0190c65c0b91055200604d5376e`
-- Package: `1.25.0`, `LicenseRef-Proprietary`
-- Exact WS-00 artifact: **UNAVAILABLE / UNKNOWN byte identity**
-- Original WS-10 bundle: **UNAVAILABLE / UNKNOWN byte identity**
+Target repository `moeendres-png/commander-playtest-lab` was freshly locked at main commit `3ad43c38c44299fd8d72b94f30af61d409c47b9e`, tree `001462343b93d0190c65c0b91055200604d5376e` before WS-17 materialization.
+
+Final WS-17 branch: `ws17/common-qualification-infrastructure`.
+Draft PR: `#130`.
+The PR remains draft and unmerged; merge is outside WS-17 authorization.
 
 ## Work Completed
 
-WS-17 materialized the common qualification layer rather than changing candidate Rules Cores. G00–G15, AF00–AF11, denominator manifests, authority lock, common fixtures, evidence schemas, the harness, negative invariants, exact-main admission workflow, baseline aggregates and candidate-comparable reports now exist as durable machine artifacts.
+WS-17 materialized a provider-neutral, machine-readable qualification system for current XMage, Forge, phase.rs and Argentum evidence without remediating candidate Rules Cores.
+
+It includes:
+
+- controlled WS-10R protocol/architecture bundle;
+- WS-01 G00-G15 and AF00-AF11 machine obligations;
+- canonical actual-card/rules denominators;
+- authority lock with explicit UNKNOWN boundaries;
+- 135 common provider-neutral fixtures;
+- normalized evidence/result schemas;
+- executable common harness;
+- fail-closed admission aggregation;
+- exact-main Production Qualification workflow;
+- per-candidate current-lock evidence reports;
+- cross-candidate evidence matrix;
+- negative invariant tests;
+- complete SHA-256 manifests.
+
+No candidate Rules Core was modified.
 
 ## Artifact Recovery / Rematerialization
 
-The exact original WS-10 outputs and bundle could not be recovered from supplied files, connected Drive or the repository. WS-17 therefore fail-closed on byte identity and created **WS-10R**. The new protocol is `commander-lab.rules-service/1.1.0` and AF result/catalog version is `1.1.0`. Version `1.0.0` is not reused because semantic/byte identity with the missing bundle cannot be demonstrated.
+The exact original WS-10 machine bundle could not be recovered from supplied artifacts, connected Google Drive, or the target repository. Its historical byte identity remains `UNKNOWN`; WS-17 does not claim reconstruction.
+
+A controlled replacement was therefore materialized as **WS-10R / `commander-lab.rules-service/1.1.0` / AF 1.1.0**. Version `1.0.0` was not silently reused because compatibility with the unavailable normative byte artifact could not be demonstrated.
+
+WS-10R bundle SHA-256:
+
+`2f002a4d020e99e44270239fd3a894e9be6f08eddf9fdd233b81ba8d3f070577`
+
+All contained schemas and internal SHA-256 entries are executable-test verified.
 
 ## Authority Lock
 
-Official Wizards Rules page and `MagicCompRules 20260807` URLs are verified, effective 2026-08-07. Raw byte-preserving download failed on both available raw execution paths; original and normalized hashes remain unknown. Gatherer/official Oracle remains inaccessible for authoritative bulk acquisition, so `AUTHORITATIVE_ORACLE = UNKNOWN`.
+Official Wizards authority identified:
+
+- Comprehensive Rules artifact family: `MagicCompRules 20260807`;
+- effective date: **August 7, 2026**.
+
+The available browser surface confirmed the official source, but two available raw-download paths failed to preserve the authoritative source bytes. Exact original CR SHA-256 therefore remains `UNKNOWN` rather than fabricated.
+
+Authoritative Wizards/Gatherer Oracle bulk acquisition also remained unavailable. Therefore:
+
+`AUTHORITATIVE_ORACLE = UNKNOWN`
+
+No Scryfall, engine script, cache, or secondary source was promoted to official authority.
 
 ## Repository Changes
 
-Branch: `ws17/common-qualification-infrastructure`. Draft PR: `#130`. The branch contains only provider-neutral qualification infrastructure, schemas/manifests/tests/workflow and reports. No candidate engine repository is modified. Forge remains constrained to a genuine separate process/service topology.
+Branch: `ws17/common-qualification-infrastructure`.
+Draft PR: `#130`.
+
+The branch contains only WS-17 provider-neutral qualification infrastructure, schemas/manifests/tests/workflow and reports. Forge remains constrained to a genuine separate GPL-compatible process/service boundary. No upstream candidate repository was permanently modified.
+
+The final mechanical Ruff/import correction was committed and its dependent hash manifests refreshed. The final CI-verified WS-17 head is:
+
+`17a200377aceb5739384c8c68688e43e35d3dfe6`
 
 ## Qualification Infrastructure
 
-- `135` common fixtures in one manifest.
-- Includes independent 2P/3P/4P/5P lifecycle requirements.
-- Includes WS-05 multiplayer/Commander MUST cases.
-- Includes 17 pilot decision families plus prohibited fallback negatives.
-- Includes actor-aware hidden-information + honeycard suite.
-- Includes RulesRngTape / DecisionTape / EventTape / clean-process replay obligations.
-- Includes micro-rules surface and all 29 frozen real cards behaviorally.
-- Harness only transports provider-offered semantics; it implements no Magic legality.
+The common fixture manifest contains **135 fixtures** and covers:
+
+- 2P, 3P, 4P and 5P execution requirements;
+- WS-05 multiplayer/Commander MUST semantics;
+- pilot-boundary decision families and prohibited fallback paths;
+- actor-aware hidden-information/honeycard checks;
+- RulesRngTape / DecisionTape / EventTape / clean-process replay obligations;
+- micro-rules surface;
+- all 29 frozen real cards behaviorally.
+
+The harness transports provider-offered semantics and does not implement Magic legality.
+
+Canonical card-domain denominators preserved include:
+
+- known actual-card universe: **1385**;
+- physical identities: **1338**;
+- RogShai operational candidate universe: **795**;
+- current RogShai identities: **87**;
+- current Kaervek identities: **77**;
+- unknown real opponent slots: **142**.
+
+No missing opponent identity was invented.
 
 ## Tests Executed
 
-Local WS-17 infrastructure tests: **12/12 PASS**. They validate all JSON Schemas, common manifest shape/card count, missing-provider `NOT_RUN`, exact-main SHA mismatch failure, mandatory-obligation fail-closed semantics, full SHA-256 manifest coverage, WS-10R ZIP integrity, exact-main workflow invariants, and exact JSON→Markdown regeneration. GitHub-side Base64 transport, reconstructed TAR digest, full `WS17_SHA256SUMS`, and WS-10R bundle digest also verified PASS before repository materialization.
+Local WS-17 infrastructure tests: **12/12 PASS**. They validate JSON Schemas, common manifest/card denominator shape, missing-provider `NOT_RUN`, exact-main SHA mismatch failure, mandatory-obligation fail-closed semantics, complete SHA-256 manifest coverage, WS-10R ZIP integrity, workflow invariants, and exact JSON→Markdown regeneration.
+
+Final GitHub evidence on exact WS-17 head `17a200377aceb5739384c8c68688e43e35d3dfe6`:
+
+- General CI run #1275: **SUCCESS**;
+  - Ruff lint: PASS;
+  - Ruff format: PASS;
+  - Mypy strict: PASS;
+  - full test suite: PASS;
+  - compile: PASS;
+  - secret-pattern scan: PASS;
+  - wheel build: PASS;
+  - security/dependency audit/SBOM/license report: PASS.
+- Production Qualification run #11: **SUCCESS** on PR infrastructure validation.
+- Candidate Lossless Handoff Conformance run #38: **SUCCESS**.
+- Release Artifacts run #895: **SUCCESS**.
+
+The PR-only `exact-main-admission` job is intentionally ineligible to provide production admission evidence. Exact-main admission runs only on an exact `main` push; a PR skip never becomes PASS.
 
 ## Tests Not Run
 
-No common RSP 1.1 candidate runtime was executed because no candidate exposes a current compliant common adapter without additional candidate-specific implementation/remediation. No performance benchmark, campaign, holdout, deck optimization or provider remediation was run.
+No common RSP 1.1 candidate runtime was executed because no current exact candidate exposes a compliant common adapter without additional candidate-specific implementation/remediation.
+
+No performance benchmark, gameplay campaign, sealed holdout, deck-optimization campaign or candidate Rules remediation was run.
 
 ## Cross-Candidate Evidence Matrix
 
 Machine-readable matrix: `qualification/aggregate/CROSS_CANDIDATE_EVIDENCE_MATRIX.json`.
 
-- XMage: direct player-count + observation failures; adapter missing; runtime not run.
-- Forge: direct stock-remote pilot-boundary failure; separate-process provider missing; runtime not run.
-- phase.rs: direct Changeling Commander rules failure; adapter missing; runtime not run.
-- Argentum: direct pilot/rules/card-coverage failures; adapter cannot be lossless without substantive remediation; runtime not run.
+- **XMage:** direct player-count and observation failures; protocol adapter missing; common runtime `NOT_RUN`; remediation required.
+- **Forge:** direct stock-remote pilot-boundary/default failure; compliant separate-process provider missing; common runtime `NOT_RUN`; provider implementation/remediation required.
+- **phase.rs:** direct Changeling Commander rules failure; protocol adapter missing; common runtime `NOT_RUN`; remediation required.
+- **Argentum:** direct pilot/rules/card-coverage failures; adapter cannot be lossless without substantive remediation; common runtime `NOT_RUN`; remediation required.
+
+The matrix distinguishes `DIRECT_RULES_FAIL`, `DIRECT_PILOT_BOUNDARY_FAIL`, `DIRECT_CARD_COVERAGE_FAIL`, `PROTOCOL_ADAPTER_MISSING`, `QUALIFICATION_INFRASTRUCTURE_MISSING`, `AUTHORITY_BLOCKED`, `RUNTIME_NOT_RUN`, `RUNTIME_PASS`, and `REMEDIATION_REQUIRED` rather than collapsing all evidence into one generic FAIL.
 
 ## Direct Candidate Failures
 
-Existing WS-13–16 direct failures are preserved and never erased by infrastructure classification.
+Existing WS-13 through WS-16 direct failures are preserved and never erased by infrastructure classification.
+
+### XMage
+
+- current integration rejects 2P/3P/5P;
+- actor-safe observation completeness is insufficient.
+
+### Forge
+
+- existing stock remote path contains prohibited defaults;
+- no compliant RSP provider currently exists;
+- GPL separation remains mandatory.
+
+### phase.rs
+
+- current direct Changeling Commander semantics blocker remains.
+
+### Argentum
+
+- Gym step auto-pass/internal authority;
+- forbidden first/default/AI paths;
+- `Player.AnOpponent.firstOrNull()`;
+- incomplete external decision domains;
+- observation gaps;
+- Partner/multiple commanders missing;
+- materially incomplete frozen 29-card implementation denominator.
 
 ## Infrastructure-Caused UNKNOWNs Closed
 
-- One canonical fixture denominator now exists.
-- One verdict vocabulary/evidence schema now exists.
-- One executable provider-neutral harness now exists.
-- Exact-main admission cannot infer PASS from missing provider, skip, path filters or PR-only execution.
-- WS-10 normative artifact identity problem is explicitly replaced by versioned WS-10R rather than falsely reconstructed.
+WS-17 closes the prior common-infrastructure asymmetry:
+
+- common fixture denominator exists;
+- common verdict vocabulary exists;
+- common evidence schemas exist;
+- common executable harness exists;
+- machine-readable candidate reports exist;
+- exact-main admission is fail-closed;
+- provider absence is `NOT_RUN`;
+- mandatory skips cannot satisfy obligations;
+- PR-only execution cannot supply exact-main production credit;
+- WS-10 byte-identity uncertainty was replaced explicitly with WS-10R rather than silently reconstructed;
+- repository mechanical Ruff/format/hash closeout is now CI-verified PASS.
 
 ## Remaining UNKNOWNs
 
-- Authoritative Oracle/Gatherer lock.
-- Byte-exact official CR artifact/hash through the available raw-download path.
-- Exact hidden WS-00 bytes/requirements beyond what is restated by newer direct instruction and WS-01–09.
-- Common RSP runtime for every candidate until adapters/remediations exist.
+Remaining project-level UNKNOWNs are not WS-17 infrastructure defects:
+
+1. authoritative Oracle/Gatherer lock;
+2. byte-exact official Comprehensive Rules artifact/hash;
+3. historical exact WS-00 reconciliation bytes not recovered;
+4. common RSP runtime results for current XMage, Forge, phase.rs and Argentum builds;
+5. candidate-specific remediation outcomes.
 
 ## PASS / FAIL / UNKNOWN
 
 - `WS17_INFRASTRUCTURE_MATERIALIZATION = PASS`
+- `WS17_FINAL_PR_CI_CLOSEOUT = PASS`
 - `WS17_AUTHORITY_LOCK = PARTIAL / ORACLE UNKNOWN`
 - `PRODUCTION_ADMISSION = FAIL`
 - `ARCHITECTURE_FREEZE = FAIL / UNFROZEN`
 - `ARCHITECTURE_WINNER = NONE`
 
+WS-17 itself is **COMPLETE**. This does not imply Production Admission or Architecture Freeze PASS.
+
 ## Architecture Freeze Status
 
-**FAIL / UNFROZEN.** No candidate currently has all required AF gates PASS.
+`ARCHITECTURE_FREEZE = FAIL / UNFROZEN`
+
+No current candidate has demonstrated PASS across all mandatory AF correctness gates under common runtime evidence. No winner is selected.
 
 ## Remaining Blockers
 
-1. Official authoritative Oracle acquisition.
-2. Byte-preserved official CR artifact acquisition/hash.
-3. Candidate-specific RSP adapters/remediation without legality reconstruction.
-4. Common runtime execution after those adapters exist.
+No WS-17 infrastructure/CI closeout blocker remains.
+
+Project-level blockers now move to candidate-specific remediation/provider implementation plus the remaining authoritative Oracle/CR-byte acquisition problem.
 
 ## Outputs
 
-All qualification artifacts are hashed by `qualification/SHA256SUMS`; the repository-change set (including workflow, tests, and `pyproject.toml`) is additionally covered by root `WS17_SHA256SUMS`.
+Primary durable repository outputs:
+
+- `qualification/WS17_SOURCE_LOCK.json`
+- `qualification/protocol/ws10r/`
+- `qualification/obligations/FULL_RULES_REQUIREMENTS_CONTRACT_v1.json`
+- `qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json`
+- `qualification/manifests/AUTHORITY_LOCK_v1.json`
+- `qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json`
+- `qualification/obligations/QUALIFICATION_OBLIGATION_CATALOG_v1.json`
+- `qualification/evidence/normalized_evidence_v1.schema.json`
+- `qualification/evidence/candidate_result_v1.schema.json`
+- `qualification/harness.py`
+- `tests/qualification/test_ws17_qualification.py`
+- `.github/workflows/production-qualification.yml`
+- `qualification/evidence/candidates/*.json`
+- `qualification/aggregate/CROSS_CANDIDATE_EVIDENCE_MATRIX.json`
+- `qualification/WS17_GAP_CLOSURE_REPORT.md`
+- `qualification/WS17_FINAL_HANDOFF.md`
+- `qualification/SHA256SUMS`
+- `WS17_SHA256SUMS`
 
 ## Draft PR
 
-https://github.com/moeendres-png/commander-playtest-lab/pull/130 — DRAFT, not authorized to merge.
+https://github.com/moeendres-png/commander-playtest-lab/pull/130
+
+Status: **DRAFT / OPEN / UNMERGED**.
+
+Merge remains unauthorized by WS-17.
 
 ## Dependencies Unblocked
 
-Common infrastructure/evidence equalization is no longer a reason for candidate qualification results to be incomparable. Future candidate workstreams can target one frozen manifest/schema and return normalized evidence.
+Candidate requalification can now use one provider-neutral executable denominator, common verdict semantics, common evidence schemas, exact-main admission rules and common artifact hashing rather than candidate-specific prose qualification.
+
+The project can proceed to candidate remediation/requalification without reopening WS-17 infrastructure work.
 
 ## Exact Next Action
 
-Open **more than one remediation/requalification workstream in parallel**, while keeping each independent:
+Open **multiple candidate remediation/requalification workstreams in parallel**; do not perform them inside WS-17:
 
-1. **XMage remediation/requalification** — highest value because an existing strict external 4P pilot boundary and real full-game runtime already exist; focus only on 2P/3P/5P generalization, actor-safe observation completeness, and RSP 1.1 adapter mapping.
-2. **phase.rs remediation/requalification** — in parallel, because the direct current blocker is narrow (Changeling Commander semantics) and its typed human interaction architecture is promising.
-3. **Forge provider implementation/requalification** — separately, build the GPL-side genuine service/RSP provider without using the stock defaulting remote path; do not embed Forge classes in the Lab process.
-4. **Argentum remediation/requalification** — lower priority until pilot authority, `firstOrNull`, observation/decision completeness, Partner, and card breadth are repaired.
+1. **XMage remediation/requalification** — highest priority because it is closest to an existing full-game lane but still has direct player-count/observation blockers.
+2. **phase.rs remediation/requalification** — parallel, preserving the direct Changeling Commander failure until fixed and runtime-verified.
+3. **Forge provider implementation/requalification** — separate GPL-compatible process/service only, then common harness execution.
+4. **Argentum remediation/requalification** — parallel/lower priority because current pilot-boundary, Commander and card-coverage gaps are broader.
 
-Do not select a winner until common runtime evidence exists and all mandatory AF gates are PASS for at least one candidate.
+Do not select a production provider until one or more exact candidate builds achieve runtime `PASS` for every mandatory AF correctness gate under the common WS-10R/WS-17 qualification framework.
