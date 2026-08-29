@@ -25,7 +25,7 @@ Official Wizards Rules page and `MagicCompRules 20260807` URLs are verified, eff
 
 ## Repository Changes
 
-A dedicated WS-17 branch is intended to contain only provider-neutral qualification infrastructure, schemas/manifests/tests/workflow and reports. No candidate engine repository is modified. Forge remains constrained to a genuine separate process/service topology.
+Branch: `ws17/common-qualification-infrastructure`. Draft PR: `#130`. The branch contains only provider-neutral qualification infrastructure, schemas/manifests/tests/workflow and reports. No candidate engine repository is modified. Forge remains constrained to a genuine separate process/service topology.
 
 ## Qualification Infrastructure
 
@@ -40,7 +40,7 @@ A dedicated WS-17 branch is intended to contain only provider-neutral qualificat
 
 ## Tests Executed
 
-Local WS-17 infrastructure tests validate all JSON Schemas, common manifest shape/card count, missing-provider `NOT_RUN`, exact-main SHA mismatch failure, and mandatory-obligation fail-closed semantics.
+Local WS-17 infrastructure tests: **8/8 PASS**. They validate all JSON Schemas, common manifest shape/card count, missing-provider `NOT_RUN`, exact-main SHA mismatch failure, and mandatory-obligation fail-closed semantics. GitHub-side Base64 transport, reconstructed TAR digest, full `WS17_SHA256SUMS`, and WS-10R bundle digest also verified PASS before repository materialization.
 
 ## Tests Not Run
 
@@ -99,7 +99,7 @@ All qualification artifacts are hashed by `qualification/SHA256SUMS`; the reposi
 
 ## Draft PR
 
-Populated after branch/PR creation.
+https://github.com/moeendres-png/commander-playtest-lab/pull/130 — DRAFT, not authorized to merge.
 
 ## Dependencies Unblocked
 
