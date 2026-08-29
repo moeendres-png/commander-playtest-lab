@@ -32,6 +32,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p artifacts/ws23-v2
           test "$(git merge-base HEAD "$WS19_HEAD")" = "$WS19_HEAD"
           echo "$WS10R_BUNDLE_SHA256  qualification/protocol/ws10r/WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip" | sha256sum -c -
           echo "$COMMON_MANIFEST_SHA256  qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json" | sha256sum -c -
@@ -39,6 +40,9 @@ jobs:
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: "3.12"
+
+      - name: Install pinned v2 quality tool
+        run: python -m pip install ruff==0.16.5
 
       - name: Check v2 Python sources
         shell: bash
@@ -168,6 +172,7 @@ jobs:
         if: always()
         shell: bash
         run: |
+          mkdir -p artifacts/ws23-v2
           find artifacts/ws23-v2 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws23-v2/SHA256SUMS || true
 
       - name: Upload v2 evidence
