@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 from pathlib import Path
 
-import ws23_generate_forge_vertical_provider as base
+base = importlib.import_module("ws23_generate_forge_vertical_provider")
 
 
 EXTRA_EXTERNAL = {
