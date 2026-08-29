@@ -11,7 +11,6 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import PilotStateView, RulesDeckInput
 
 from .full_game import (
-    FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     FULL_GAME_LANE,
     ExternalPilotDecisionPolicy,
@@ -66,9 +65,7 @@ class DynamicExternalPilotDecisionPolicy(ExternalPilotDecisionPolicy):
         state = request.get("pilot_state")
         if isinstance(state, dict) and not str(state.get("actor_id") or "").strip():
             authority = str(
-                state.get("decision_authority_player_id")
-                or state.get("viewer_player_id")
-                or ""
+                state.get("decision_authority_player_id") or state.get("viewer_player_id") or ""
             ).strip()
             if not authority:
                 raise FullGameConformanceError(
