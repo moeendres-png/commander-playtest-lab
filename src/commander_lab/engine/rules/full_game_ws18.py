@@ -62,6 +62,25 @@ class DynamicExternalPilotDecisionPolicy(ExternalPilotDecisionPolicy):
         self.scenario_seed = scenario_seed
         self._mulligan_count = {seat: 0 for seat in expected}
 
+    def decide(self, request: dict[str, Any]) -> dict[str, Any]:
+        state = request.get("pilot_state")
+        if isinstance(state, dict) and not str(state.get("actor_id") or "").strip():
+            authority = str(
+                state.get("decision_authority_player_id")
+                or state.get("viewer_player_id")
+                or ""
+            ).strip()
+            if not authority:
+                raise FullGameConformanceError(
+                    "actor-scoped knowledge view exposes neither actor nor decision authority"
+                )
+            # WS-22's KnowledgeLedger is authoritative for viewer/decision-authority
+            # identity.  The inherited WS-07 pilot adapter historically names that
+            # same identity actor_id.  Add only this compatibility alias; do not
+            # infer legality, options, decision subject, or hidden information here.
+            request = {**request, "pilot_state": {**state, "actor_id": authority}}
+        return super().decide(request)
+
     def _pilot_state(self, runtime: _RuntimePilot, state: dict[str, Any]) -> PilotStateView:
         configured = int(state.get("player_count", 0))
         if configured not in SUPPORTED_PLAYER_COUNTS:
