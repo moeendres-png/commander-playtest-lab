@@ -221,9 +221,7 @@ def main() -> None:
     lines += ["", "## 29-Card Corpus", ""]
     for row in cards:
         lines.append(f"- `{row['card_identity']}` / `{row['fixture_id']}` — **{row['verdict']}**")
-    (out / "WS19_COMMON_EXECUTION_REPORT.md").write_text(
-        "\n".join(lines) + "\n", encoding="utf-8"
-    )
+    (out / "WS19_COMMON_EXECUTION_REPORT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     hashes = {}
     for path in sorted(out.iterdir()):
