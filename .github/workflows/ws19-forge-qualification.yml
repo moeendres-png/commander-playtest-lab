@@ -7,14 +7,14 @@ on:
     paths:
       - "scripts/ws19_*.py"
       - "tests/qualification/test_ws19_forge_isolation.py"
-      - "qualification/evidence/ws19/forge/**"
+      - "artifacts/ws19/forge/**"
       - ".github/workflows/ws19-forge-qualification.yml"
   pull_request:
     branches: [main]
     paths:
       - "scripts/ws19_*.py"
       - "tests/qualification/test_ws19_forge_isolation.py"
-      - "qualification/evidence/ws19/forge/**"
+      - "artifacts/ws19/forge/**"
       - ".github/workflows/ws19-forge-qualification.yml"
 
 permissions:
@@ -98,7 +98,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          actual="$(cd vendor/engine-source/forge && mvn -q -DforceStdout help:evaluate -Dexpression=project.version)"
+          actual="$(cd vendor/engine-source/forge && mvn -q -DforceStdout help:evaluate -Dexpression=project.version | tail -n 1)"
           test "$actual" = "$FORGE_VERSION"
 
       - name: Generate GPL-side strict controller and probe in separate Forge workspace
@@ -192,7 +192,7 @@ jobs:
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws19/provider.classpath) forge.game.player.Ws19ForgeProbeProvider"
           python qualification/harness.py run \
             --candidate forge \
-            --source-lock qualification/evidence/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json \
+            --source-lock artifacts/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json \
             --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
             --command "python scripts/ws19_run_forge_provider.py" \
             --output artifacts/ws19/COMMON_RESULTS.json
@@ -206,7 +206,7 @@ jobs:
             --results artifacts/ws19/COMMON_RESULTS.json \
             --handshake artifacts/ws19/handshake.json \
             --inventory artifacts/ws19/generated/callback_inventory.json \
-            --source-lock qualification/evidence/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json \
+            --source-lock artifacts/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json \
             --output-dir artifacts/ws19/evidence
           python qualification/harness.py validate \
             artifacts/ws19/evidence/WS19_CANDIDATE_RESULT.json \
