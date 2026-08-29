@@ -1,0 +1,56 @@
+name: WS17 Materialize Verified Payload
+
+on:
+  push:
+    branches:
+      - ws17/common-qualification-infrastructure
+    paths:
+      - '.ws17/**'
+      - '.github/workflows/ws17-materialize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Verify Base64 transport
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload="$RUNNER_TEMP/ws17_payload.b64"
+          cat .ws17/chunk* > "$payload"
+          printf '%s  %s\n' '90be0e27a71936422e2596fa3d3b8b621e1b5871cbdcb54e4e3d027203874e64' "$payload" | sha256sum -c -
+      - name: Decode and verify materialization archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload="$RUNNER_TEMP/ws17_payload.b64"
+          archive="$RUNNER_TEMP/ws17_materialization.tar.gz"
+          base64 --decode "$payload" > "$archive"
+          printf '%s  %s\n' 'f0c1c8bf0d9894f4b020e0dc095668111249d51b148649c9eeb7dabd18342ae4' "$archive" | sha256sum -c -
+      - name: Materialize and verify WS-17 tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/ws17_materialization.tar.gz"
+          tar -xzf "$archive" -C .
+          sha256sum -c WS17_SHA256SUMS
+          (cd qualification/protocol/ws10r && sha256sum -c WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip.sha256)
+      - name: Commit materialized infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .ws17
+          rm -f .github/workflows/ws17-materialize.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'feat(ws17): materialize common qualification infrastructure'
+          git push origin HEAD:ws17/common-qualification-infrastructure
