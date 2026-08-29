@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import FullGameProtocolError, _RuntimePilot
 from commander_lab.engine.rules.full_game_ws18 import (
+    SUPPORTED_PLAYER_COUNTS,
     DynamicExternalPilotDecisionPolicy,
     FullGamePilotBindingV2,
-    SUPPORTED_PLAYER_COUNTS,
 )
 from commander_lab.models import PilotConfig
 
