@@ -162,13 +162,14 @@ public final class Ws23ForgeAuthority {
         String ownName = "WS23_HONEY_OWN_HAND_7B3D";
         String oppName = "WS23_HONEY_OPP_HAND_A91C";
         String publicName = "WS23_HONEY_PUBLIC_BATTLEFIELD_44E2";
-        String facedownName = "WS23_HONEY_FACEDOWN_126F";
+        String facedownName = "Grizzly Bears";
         String libraryName = "WS23_HONEY_LIBRARY_88D0";
 
         Card ownHand = syntheticCard(game, seat1, ownName, ZoneType.Hand);
         Card oppHand = syntheticCard(game, seat2, oppName, ZoneType.Hand);
         Card publicBattlefield = syntheticCard(game, seat2, publicName, ZoneType.Battlefield);
-        Card facedown = syntheticCard(game, seat2, facedownName, ZoneType.Battlefield);
+        Card facedown = loadActualCard(game, seat2, facedownName, "10E", CardRarity.Common);
+        seat2.getZone(ZoneType.Battlefield).add(facedown);
         if (!facedown.turnFaceDown()) {
             throw new IllegalStateException("WS23_HONEY_FACEDOWN_SETUP_FAILED");
         }
@@ -304,6 +305,7 @@ public final class Ws23ForgeAuthority {
         if (candidates.isEmpty()) {
             return false;
         }
+        List<GameEntity> legalCandidates = new ArrayList<>();
         List<String> labels = new ArrayList<>();
         List<String> refs = new ArrayList<>();
         for (GameEntity candidate : candidates) {
@@ -313,6 +315,7 @@ public final class Ws23ForgeAuthority {
             if (candidate instanceof Card card && !identityVisible(card, actor)) {
                 throw new UnsupportedOperationException("WS23_FAIL_CLOSED_UNSUPPORTED:chooseTargetsFor:HIDDEN_TARGET");
             }
+            legalCandidates.add(candidate);
             labels.add("NATIVE_TARGET");
             if (candidate instanceof Player p) {
                 refs.add(playerRef(p));
@@ -327,7 +330,7 @@ public final class Ws23ForgeAuthority {
         }
         String choice = broker.chooseRefs("target", actor, labels, refs);
         int index = Integer.parseInt(choice.substring(1));
-        GameEntity chosen = candidates.stream().filter(ability::canTarget).toList().get(index);
+        GameEntity chosen = legalCandidates.get(index);
         if (!ability.getTargets().add(chosen)) {
             throw new Ws23ForgeVerticalProvider.ControlledStop("WS23_TARGET_NATIVE_ADD_REJECTED");
         }
