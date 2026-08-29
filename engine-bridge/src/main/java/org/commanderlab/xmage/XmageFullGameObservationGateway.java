@@ -9,6 +9,7 @@ import mage.game.Game;
 import mage.players.Player;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -150,7 +151,7 @@ final class XmageFullGameObservationGateway {
                 );
             }
         }
-        String folded = value.casefold();
+        String folded = value.toLowerCase(Locale.ROOT);
         for (String name : index.privateOnlyNames()) {
             if (!name.isBlank() && folded.contains(name)) {
                 throw new IllegalStateException(
@@ -162,7 +163,7 @@ final class XmageFullGameObservationGateway {
 
     private static void addName(Set<String> names, String value) {
         if (value != null && !value.isBlank()) {
-            names.add(value.casefold());
+            names.add(value.toLowerCase(Locale.ROOT));
         }
     }
 
