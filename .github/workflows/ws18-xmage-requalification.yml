@@ -1,0 +1,167 @@
+name: WS-18 XMage Requalification
+
+on:
+  pull_request:
+    paths:
+      - "engine-bridge/**"
+      - "src/commander_lab/candidates/models.py"
+      - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/engine/rules/full_game_ws18.py"
+      - "qualification/providers/xmage_ws18_provider.py"
+      - "qualification/candidates/xmage/WS18_SOURCE_LOCK.json"
+      - "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json"
+      - "qualification/harness.py"
+      - "tests/unit/test_ws18_xmage_remediation.py"
+      - ".github/workflows/ws18-xmage-requalification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  XMAGE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  PYTHONHASHSEED: "0"
+  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
+
+jobs:
+  candidate-requalification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Verify immutable source locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          lock = json.loads(Path('qualification/candidates/xmage/WS18_SOURCE_LOCK.json').read_text())
+          assert lock['target_repository']['baseline_commit'] == 'c83e52ae79ff2242578757c0f517badbb1a2621c'
+          assert lock['xmage']['commit'] == '77d7646da6958fdf8125ee7c8f4aabd130d21d4c'
+          assert lock['protocol']['id'] == 'commander-lab.rules-service/1.1.0'
+          assert lock['scope']['technical_player_counts'] == [2, 3, 4, 5]
+          assert lock['scope']['production_provider_selected'] is False
+          PY
+
+      - name: Build pinned XMage
+        working-directory: vendor/engine-source/xmage
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+
+      - name: Install lab validation runtime
+        run: python -m pip install -e '.[dev,api]'
+
+      - name: Run WS-18 Python contracts
+        run: pytest -q tests/unit/test_ws18_xmage_remediation.py tests/unit/test_xmage_full_game.py
+
+      - name: Build and test XMage bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+
+      - name: Run unchanged WS-17 common harness through XMage RSP 1.1 adapter
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/ws18-xmage
+          python qualification/harness.py run \
+            --candidate XMAGE_WS18 \
+            --source-lock qualification/candidates/xmage/WS18_SOURCE_LOCK.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --command "python qualification/providers/xmage_ws18_provider.py" \
+            --output qualification/evidence/ws18-xmage/COMMON_RESULTS.json
+          python qualification/harness.py aggregate \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --results qualification/evidence/ws18-xmage/COMMON_RESULTS.json \
+            --admitted-main-sha "$GITHUB_SHA" \
+            --actual-sha "$GITHUB_SHA" \
+            --output qualification/evidence/ws18-xmage/CANDIDATE_AGGREGATE.json \
+            --md-output qualification/evidence/ws18-xmage/CANDIDATE_AGGREGATE.md
+
+      - name: Enforce truthful WS-18 result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('qualification/evidence/ws18-xmage')
+          results = json.loads((root / 'COMMON_RESULTS.json').read_text())['fixture_results']
+          by_id = {item['fixture_id']: item for item in results}
+          expected = ['PLAYER_COUNT_2P', 'PLAYER_COUNT_3P', 'PLAYER_COUNT_4P', 'PLAYER_COUNT_5P']
+          for fixture_id in expected:
+              result = by_id[fixture_id]
+              assert result['verdict'] == 'PASS', result
+              assert result['evidence_class'] == 'RUNTIME_VERIFIED', result
+              assert result['artifact_hashes'].get('semantic_transcript_sha256'), result
+              assert result['artifact_hashes'].get('raw_result_sha256'), result
+          unmaterialized = [item for item in results if item['fixture_id'] not in expected]
+          assert unmaterialized, 'common denominator unexpectedly contains only player-count fixtures'
+          assert all(item['verdict'] != 'PASS' for item in unmaterialized), (
+              'WS-18 adapter may not infer PASS for unmaterialized common fixtures'
+          )
+          aggregate = json.loads((root / 'CANDIDATE_AGGREGATE.json').read_text())
+          assert aggregate['production_admission'] == 'FAIL', aggregate
+          assert aggregate['pass_count'] == len(expected), aggregate
+          summary = {
+              'schema_version': 'ws18-xmage-requalification-summary/1.0.0',
+              'candidate': 'XMAGE_WS18',
+              'lab_commit': __import__('os').environ['GITHUB_SHA'],
+              'xmage_commit': __import__('os').environ['XMAGE_COMMIT'],
+              'runtime_verified_player_count_fixtures': expected,
+              'runtime_verified_player_count_passes': len(expected),
+              'common_required_fixture_count': aggregate['required_fixture_count'],
+              'common_pass_count': aggregate['pass_count'],
+              'candidate_common_admission': aggregate['production_admission'],
+              'unmaterialized_common_fixtures_remain_blocking': True,
+              'denominators_modified': False,
+              'production_provider_selected': False,
+              'merge_authorized': False,
+          }
+          (root / 'WS18_REQUALIFICATION_SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n'
+          )
+          PY
+
+      - name: Hash WS-18 evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p qualification/evidence/ws18-xmage
+          find qualification/evidence/ws18-xmage -type f ! -name SHA256SUMS -print0 \
+            | sort -z | xargs -0 sha256sum > qualification/evidence/ws18-xmage/SHA256SUMS || true
+
+      - name: Upload WS-18 qualification evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws18-xmage-requalification-${{ github.sha }}
+          path: qualification/evidence/ws18-xmage/
+          if-no-files-found: error
