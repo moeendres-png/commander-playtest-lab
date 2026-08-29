@@ -11,6 +11,7 @@ base = importlib.import_module("ws23_generate_forge_vertical_provider")
 
 EXTRA_EXTERNAL = {
     "getAbilityToPlay",
+    "getCostDecisionMaker",
     "chooseTargetsFor",
     "payManaCost",
     "applyManaToCost",
@@ -21,6 +22,49 @@ EXTRA_EXTERNAL = {
 }
 
 EXTRA_AUTOMATIC = {"playSpellAbilityNoStack"}
+
+COST_VISITOR_TYPES = (
+    "CostBehold",
+    "CostBeholdExile",
+    "CostGainControl",
+    "CostChooseColor",
+    "CostChooseCreatureType",
+    "CostCollectEvidence",
+    "CostDiscard",
+    "CostDamage",
+    "CostDraw",
+    "CostExile",
+    "CostExileFromStack",
+    "CostExiledMoveToGrave",
+    "CostExert",
+    "CostEnlist",
+    "CostFlipCoin",
+    "CostForage",
+    "CostRollDice",
+    "CostMill",
+    "CostAddMana",
+    "CostPayLife",
+    "CostPayEnergy",
+    "CostGainLife",
+    "CostPartMana",
+    "CostPromiseGift",
+    "CostPutCardToLib",
+    "CostTap",
+    "CostSacrifice",
+    "CostReturn",
+    "CostReveal",
+    "CostRevealChosen",
+    "CostRemoveAnyCounter",
+    "CostRemoveCounter",
+    "CostPutCounter",
+    "CostPutCounterYou",
+    "CostUntapType",
+    "CostUntap",
+    "CostUnattach",
+    "CostTapType",
+    "CostPayShards",
+    "CostBlight",
+)
 
 
 BROKER_REF_METHOD = r"""
@@ -64,12 +108,56 @@ BROKER_REF_METHOD = r"""
 
 """
 
+COST_DECISION_MAKER_TEMPLATE = r"""
+    static final class Ws23CostDecisionMaker extends CostDecisionMakerBase {
+        final Broker broker;
+
+        Ws23CostDecisionMaker(Broker broker, Player actor, SpellAbility ability, boolean effect) {
+            super(actor, effect, ability, ability == null ? null : ability.getHostCard());
+            this.broker = broker;
+        }
+
+        @Override
+        public boolean paysRightAfterDecision() {
+            return false;
+        }
+
+__VISITS__
+    }
+
+"""
+
+
+def cost_decision_maker_java() -> str:
+    methods: list[str] = []
+    for cost_type in COST_VISITOR_TYPES:
+        if cost_type == "CostPartMana":
+            body = (
+                'broker.recordAutomatic("costDecision:CostPartMana:DEFER_TO_CONTROLLER");\n'
+                "            return PaymentDecision.number(0);"
+            )
+        else:
+            body = (
+                'throw new UnsupportedOperationException("WS23_FAIL_CLOSED_UNSUPPORTED:costPart:'
+                + cost_type
+                + '");'
+            )
+        methods.append(
+            "        @Override\n"
+            f"        public PaymentDecision visit({cost_type} cost) {{\n"
+            f"            {body}\n"
+            "        }"
+        )
+    return COST_DECISION_MAKER_TEMPLATE.replace("__VISITS__", "\n\n".join(methods))
+
 
 def v2_method_body(original, name: str) -> list[str]:
     if name == "getAbilityToPlay":
         return [
             "return Ws23ForgeAuthority.chooseAbilityToPlay(broker, player, hostCard, abilities);"
         ]
+    if name == "getCostDecisionMaker":
+        return ["return new Ws23CostDecisionMaker(broker, player, ability, effect);"]
     if name == "playSpellAbilityNoStack":
         return [
             'broker.recordAutomatic("playSpellAbilityNoStack:FORGE_CORE");',
@@ -126,6 +214,11 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
         raise RuntimeError("base broker marker changed")
     java = java.replace(marker, BROKER_REF_METHOD + marker, 1)
 
+    controller_marker = "    static final class Ws23Controller extends PlayerController {"
+    if controller_marker not in java:
+        raise RuntimeError("base controller marker changed")
+    java = java.replace(controller_marker, cost_decision_maker_java() + controller_marker, 1)
+
     old_rules = "        GameRules rules = new GameRules(GameType.Constructed);"
     new_rules = (
         "        GameRules rules = new GameRules(GameType.Constructed);\n"
@@ -152,6 +245,7 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
     mapping["authority_helper"] = "Ws23ForgeAuthority"
     mapping["gate_a_base_preserved"] = True
     mapping["support_scope"] = "BOUNDED_VERTICAL_SLICE_ONLY"
+    mapping["cost_decision_policy"] = "MANA_DEFERRED_TO_EXTERNAL_CONTROLLER_OTHER_COSTS_FAIL_CLOSED"
     return java, mapping
 
 
