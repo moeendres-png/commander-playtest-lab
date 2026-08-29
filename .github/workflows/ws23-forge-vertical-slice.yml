@@ -1,0 +1,187 @@
+name: WS-23 Forge Production Vertical Slice
+
+on:
+  push:
+    branches:
+      - ws23/forge-production-provider
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  WS19_HEAD: 5822250fb865351d457f8970a00fc1f23083fd3c
+  WS19_RUNTIME_COMMIT: d06fe667e5bc432709cf9244ea2188a543386c91
+  FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+  FORGE_LICENSE_BLOB: e72bfddabc15be5718a7cc061ac10e47741d8219
+  FORGE_PLAYER_CONTROLLER_BLOB: 192ef8737ecd645b75d50782693d5eab948d43a7
+  FORGE_REMOTE_GUI_BLOB: 768faa260fd3d8049258f38419e48704e257a490
+  WS10R_BUNDLE_SHA256: 2f002a4d020e99e44270239fd3a894e9be6f08eddf9fdd233b81ba8d3f070577
+  COMMON_MANIFEST_SHA256: e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4
+
+jobs:
+  forge-vertical-slice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout WS-23 branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Verify WS-19 ancestry and frozen protocol inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$WS19_HEAD")" = "$WS19_HEAD"
+          git cat-file -e "$WS19_RUNTIME_COMMIT^{commit}"
+          echo "$WS10R_BUNDLE_SHA256  qualification/protocol/ws10r/WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip" | sha256sum -c -
+          echo "$COMMON_MANIFEST_SHA256  qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json" | sha256sum -c -
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+
+      - name: Preserve WS-19 Python regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/ws19_generate_forge_probe.py scripts/ws19_run_forge_provider.py scripts/ws23_generate_forge_vertical_provider.py scripts/ws23_run_vertical_session.py
+
+      - name: Checkout exact Forge source into separate GPL workspace
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+
+      - name: Verify Forge source and GPL locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd vendor/engine-source/forge
+          test "$(git rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          test "$(git hash-object LICENSE)" = "$FORGE_LICENSE_BLOB"
+          test "$(git hash-object forge-game/src/main/java/forge/game/player/PlayerController.java)" = "$FORGE_PLAYER_CONTROLLER_BLOB"
+          test "$(git hash-object forge-gui/src/main/java/forge/gamemodes/net/server/RemoteClientGuiGame.java)" = "$FORGE_REMOTE_GUI_BLOB"
+          grep -q "GNU GENERAL PUBLIC LICENSE" LICENSE
+          grep -q "Version 3" LICENSE
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build pinned unmodified Forge game modules
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -o pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install 2>&1 | tee ../../../artifacts/ws23-forge-build.log
+          git diff --exit-code
+
+      - name: Resolve isolated Forge game compile classpath
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile \
+            -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws23-dependency-classpath.txt"
+
+      - name: Regenerate WS-19 strict shell and assert callback regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws23/ws19-regression
+          python scripts/ws19_generate_forge_probe.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --remote-client-gui vendor/engine-source/forge/forge-gui/src/main/java/forge/gamemodes/net/server/RemoteClientGuiGame.java \
+            --output-dir artifacts/ws23/ws19-regression \
+            --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE" --forge-version "$FORGE_VERSION" \
+            | tee artifacts/ws23/ws19-regression/generator-summary.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws23/ws19-regression/callback_inventory.json'))
+          assert p['abstract_method_count'] == 109
+          assert len(p['stock_remote_default_findings']) == 3
+          PY
+
+      - name: Generate WS-23 GPL-side provider and callback map
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws23/generated
+          python scripts/ws23_generate_forge_vertical_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir artifacts/ws23/generated \
+            --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE" \
+            | tee artifacts/ws23/generator-summary.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws23/generated/player_controller_mapping.json'))
+          assert p['abstract_method_count'] == 109
+          allowed={'EXTERNALLY_IMPLEMENTED','RULES_AUTOMATIC_NONDISCRETIONARY','PROVEN_UNREACHABLE','FAIL_CLOSED_UNSUPPORTED'}
+          assert {x['classification'] for x in p['callbacks']} <= allowed
+          assert any(x['classification']=='EXTERNALLY_IMPLEMENTED' for x in p['callbacks'])
+          assert any(x['classification']=='FAIL_CLOSED_UNSUPPORTED' for x in p['callbacks'])
+          PY
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi' artifacts/ws23/generated/java
+
+      - name: Compile WS-23 provider outside proprietary runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws23/provider-classes
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat artifacts/ws23-dependency-classpath.txt)"
+          javac -cp "$cp" -d artifacts/ws23/provider-classes artifacts/ws23/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/artifacts/ws23/provider-classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" "$(cat artifacts/ws23-dependency-classpath.txt)" > artifacts/ws23/provider.classpath
+          ! grep -Eq 'forge-(ai|gui)' artifacts/ws23/provider.classpath
+          git -C vendor/engine-source/forge diff --exit-code
+
+      - name: Execute real 4-seat Forge session with external pilot decisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws23/provider.classpath) forge.game.player.Ws23ForgeVerticalProvider"
+          python scripts/ws23_run_vertical_session.py --output artifacts/ws23/REAL_SESSION_PROOF.json | tee artifacts/ws23/real-session-summary.json
+
+      - name: Record process and license boundary evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib
+          cp=pathlib.Path('artifacts/ws23/provider.classpath').read_text().strip()
+          evidence={
+            'schema_version':'ws23-gpl-process-boundary/1.0.0',
+            'provider_process':'separate java process',
+            'proprietary_client':'scripts/ws23_run_vertical_session.py',
+            'forge_classes_in_proprietary_process':False,
+            'provider_classpath_contains_forge_ai_or_gui':('forge-ai' in cp or 'forge-gui' in cp),
+            'forge_source_permanently_modified':False,
+            'protocol':'commander-lab.rules-service/1.1.0',
+          }
+          assert not evidence['provider_classpath_contains_forge_ai_or_gui']
+          pathlib.Path('artifacts/ws23/GPL_PROCESS_BOUNDARY.json').write_text(json.dumps(evidence,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Hash WS-23 artifact bundle
+        if: always()
+        shell: bash
+        run: |
+          find artifacts/ws23 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws23/SHA256SUMS || true
+
+      - name: Upload WS-23 evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws23-forge-vertical-${{ github.sha }}
+          path: artifacts/ws23/
+          if-no-files-found: error
+          retention-days: 90
