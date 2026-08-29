@@ -1,0 +1,19 @@
+{
+  "candidate": "phase.rs",
+  "canonical_repository": "phase-rs/phase",
+  "requested_historical_repository": "JJarrie/phase-rs",
+  "upstream_commit": "bc218c51cec9cc2cec56f5c4de7c72be3d8e331c",
+  "upstream_tree": "6e3f70d7de25c1f28919b73b2ee32654ee866ac0",
+  "ws15_commit": "92c67b872c2a7f69c4a2069f0d0c3cb1b6b0d4c6",
+  "ws15_to_fresh_ahead": 7,
+  "ws15_to_fresh_behind": 0,
+  "historical_jjarrie_head": "df3518d2464826b222b2cb659d1426c9425094ed",
+  "rust_toolchain": "nightly-2026-04-19",
+  "licenses": ["MIT", "Apache-2.0"],
+  "source_lock_date": "2026-08-29",
+  "notes": [
+    "phase-rs/phase is the current canonical upstream used by WS-15 and remains the current source truth.",
+    "JJarrie/phase-rs is retained only as provenance because its head remains the older historical mirror.",
+    "The WS-15 Changeling TODO in crates/engine/src/game/commander.rs is unchanged at the fresh upstream commit."
+  ]
+}
