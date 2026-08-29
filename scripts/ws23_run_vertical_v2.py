@@ -58,7 +58,9 @@ def choose_option(
         return matches[0]["option_id"]
     if kind == "mana_payment":
         if len(options) != 1 or options[0].get("kind") != "NATIVE_MANA":
-            raise AssertionError(f"bounded mana probe expected one Forge-filtered mana option: {options}")
+            raise AssertionError(
+                f"bounded mana probe expected one Forge-filtered mana option: {options}"
+            )
         state["mana"] = True
         return options[0]["option_id"]
     if kind == "declareAttackers":
@@ -83,7 +85,9 @@ def choose_option(
         return apply_options[0]["option_id"]
     if kind in {"confirmAction", "chooseBinary", "confirmPayment"}:
         if len(options) != 2:
-            raise AssertionError(f"bounded binary frame must contain exactly two options: {options}")
+            raise AssertionError(
+                f"bounded binary frame must contain exactly two options: {options}"
+            )
         return options[0]["option_id"]
 
     raise AssertionError(f"unexpected decision kind escaped strict v2 surface: {kind}")
