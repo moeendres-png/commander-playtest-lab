@@ -193,7 +193,7 @@ def v2_method_body(original, name: str) -> list[str]:
         return ["Ws23ForgeAuthority.declareBlockers(broker, player, defender, combat);", "return;"]
     if name == "assignCombatDamage":
         return [
-            'if (blockers == null || blockers.size() != 1 || defender != null || overrideOrder || (remaining != null && remaining.size() > 1)) throw failClosed("assignCombatDamage:NON_UNIQUE");',
+            'if (blockers == null || blockers.size() != 1 || (attacker.hasKeyword(forge.game.keyword.Keyword.TRAMPLE) && defender != null) || (attacker.hasKeyword("You may assign CARDNAME\'s combat damage divided as you choose among defending player and/or any number of creatures they control.") && overrideOrder) || (attacker.hasKeyword("Trample:Planeswalker") && defender instanceof Card)) throw failClosed("assignCombatDamage:NON_UNIQUE");',
             'broker.recordAutomatic("assignCombatDamage:UNIQUE_SINGLE_BLOCKER");',
             "java.util.Map<Card, Integer> assigned = new java.util.HashMap<>();",
             "assigned.put(blockers.get(0), damageDealt);",
