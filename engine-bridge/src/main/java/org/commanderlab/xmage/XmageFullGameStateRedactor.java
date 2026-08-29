@@ -58,7 +58,7 @@ final class XmageFullGameStateRedactor {
     }
 
     static int stablePlayerCount(Game game) {
-        return game == null ? 0 : knowledgeLedger(game).livePlayerOrder(game).size();
+        return game == null ? 0 : knowledgeLedger(game).registeredPlayerCount();
     }
 
     static int seat(Game game, java.util.UUID playerId) {
