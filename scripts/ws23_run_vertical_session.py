@@ -68,7 +68,9 @@ def main() -> int:
             payload = msg["payload"]
             kind = payload["decision_kind"]
             if kind not in ALLOWED_KINDS:
-                raise AssertionError(f"unexpected decision kind escaped fail-closed surface: {kind}")
+                raise AssertionError(
+                    f"unexpected decision kind escaped fail-closed surface: {kind}"
+                )
             option_ids = [o["option_id"] for o in payload["options"]]
             if payload["options_digest"] != canonical_digest(option_ids):
                 raise AssertionError(f"options digest mismatch: {payload}")
@@ -97,7 +99,7 @@ def main() -> int:
         proc.wait(timeout=20)
     except subprocess.TimeoutExpired:
         proc.kill()
-        raise AssertionError("provider did not terminate after controlled slice stop")
+        raise AssertionError("provider did not terminate after controlled slice stop") from None
     stderr = proc.stderr.read() if proc.stderr is not None else ""
     evidence = {
         "schema_version": "ws23-real-session-proof/1.0.0",
@@ -120,7 +122,16 @@ def main() -> int:
     created = next((m for m in transcript if m.get("message_type") == "SESSION_CREATED"), None)
     if created is None or created["payload"]["snapshot"]["player_count"] != 4:
         return 5
-    print(json.dumps({"verdict": "PASS", "priority_decisions": result["payload"]["priority_decisions"], "stop_reason": stop_reason}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "verdict": "PASS",
+                "priority_decisions": result["payload"]["priority_decisions"],
+                "stop_reason": stop_reason,
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 
