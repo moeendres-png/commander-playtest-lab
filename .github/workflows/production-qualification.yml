@@ -1,0 +1,104 @@
+name: Production Qualification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  COMMANDER_LAB_RSP_PROVIDER_CMD: ${{ vars.COMMANDER_LAB_RSP_PROVIDER_CMD || '' }}
+  COMMANDER_LAB_PRODUCTION_PROVIDER: ${{ vars.COMMANDER_LAB_PRODUCTION_PROVIDER || 'NO_PRODUCTION_PROVIDER_SELECTED' }}
+
+concurrency:
+  group: production-qualification-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install validation runtime
+        run: python -m pip install -e '.[dev]'
+      - name: Validate WS-17 qualification infrastructure
+        run: pytest -q tests/qualification
+      - name: Validate canonical fixture manifest
+        run: python qualification/harness.py validate qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
+
+  exact-main-admission:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Assert exact main SHA and materialize provider absence honestly
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$GITHUB_SHA"
+          mkdir -p qualification/evidence/runtime qualification/aggregate/runtime
+          run_args=(
+            run
+            --candidate "$COMMANDER_LAB_PRODUCTION_PROVIDER"
+            --source-lock qualification/WS17_SOURCE_LOCK.json
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json
+            --output qualification/evidence/runtime/COMMON_RESULTS.json
+          )
+          if [[ -n "${COMMANDER_LAB_RSP_PROVIDER_CMD:-}" ]]; then
+            run_args+=(--command "$COMMANDER_LAB_RSP_PROVIDER_CMD")
+          fi
+          python qualification/harness.py "${run_args[@]}"
+          python qualification/harness.py aggregate \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --results qualification/evidence/runtime/COMMON_RESULTS.json \
+            --admitted-main-sha "$GITHUB_SHA" \
+            --actual-sha "$actual" \
+            --output qualification/aggregate/runtime/PRODUCTION_ADMISSION.json \
+            --md-output qualification/aggregate/runtime/PRODUCTION_ADMISSION.md
+      - name: Verify mandatory obligations cannot be satisfied by skips or missing provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('qualification/aggregate/runtime/PRODUCTION_ADMISSION.json').read_text())
+          assert p['production_admission'] in {'PASS','FAIL'}
+          PY
+          if [[ -z "${COMMANDER_LAB_RSP_PROVIDER_CMD:-}" ]]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('qualification/aggregate/runtime/PRODUCTION_ADMISSION.json').read_text())
+          assert p['production_admission'] == 'FAIL'
+          assert any(x['verdict'] == 'NOT_RUN' for x in p['blocking_results'])
+          PY
+          fi
+      - name: Hash runtime evidence
+        run: |
+          find qualification/evidence/runtime qualification/aggregate/runtime -type f -print0 | sort -z | xargs -0 sha256sum > qualification/aggregate/runtime/SHA256SUMS
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: production-qualification-${{ github.sha }}
+          path: |
+            qualification/evidence/runtime/
+            qualification/aggregate/runtime/
+          if-no-files-found: error
+          retention-days: 90

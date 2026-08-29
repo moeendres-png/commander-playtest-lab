@@ -1,0 +1,208 @@
+{
+  "gates": [
+    {
+      "id": "G00",
+      "name": "SOURCE_LOCK",
+      "required": true,
+      "requires": [
+        "exact lab repository commit/tree/build",
+        "exact Rules Core identity",
+        "exact protocol version",
+        "exact Decision Contract hash",
+        "exact domain manifests"
+      ],
+      "semantics": "Failure or ambiguity blocks admission."
+    },
+    {
+      "id": "G01",
+      "name": "DOMAIN_FRESHNESS",
+      "required": true,
+      "requires": [
+        "current pinned Comprehensive Rules",
+        "current pinned Oracle",
+        "current Commander / B&R authority",
+        "deck legality state",
+        "opponent/deck provenance"
+      ],
+      "semantics": "Stale or unknown domain authority blocks admission."
+    },
+    {
+      "id": "G02",
+      "name": "PLAYER_COUNT",
+      "required": true,
+      "requires": [
+        "requested player count in qualified technical scope",
+        "official default deck-decision evidence exactly 4 players",
+        "technical platform target 2P, 3P, 4P, 5P PASS"
+      ],
+      "semantics": "Mandatory technical cardinalities are 2P–5P."
+    },
+    {
+      "id": "G03",
+      "name": "RULES_CONFORMANCE",
+      "required": true,
+      "requires": [
+        "all production-reachable general rules semantics in the admitted closure are qualified"
+      ],
+      "semantics": "No partial closure may be promoted to PASS."
+    },
+    {
+      "id": "G04",
+      "name": "CARD_REACHABILITY",
+      "required": true,
+      "requires": [
+        "all production-reachable card and interaction semantics for exact admitted domain are qualified",
+        "import/parse support is insufficient"
+      ],
+      "semantics": "Runtime behavior is required where behavior is claimed."
+    },
+    {
+      "id": "G05",
+      "name": "LEGAL_ACTIONS",
+      "required": true,
+      "requires": [
+        "complete legal action set",
+        "no illegal offered action",
+        "stale action rejection",
+        "correct costs/targets/timing"
+      ],
+      "semantics": "Rules Core is authority."
+    },
+    {
+      "id": "G06",
+      "name": "PILOT_AUTHORITY",
+      "required": true,
+      "requires": [
+        "Rules Core is sole legality authority",
+        "pilot only chooses discretionary options",
+        "no hidden/default/random/AI fallback",
+        "unsupported decision fails closed"
+      ],
+      "semantics": "No second rules engine in pilot/adapter."
+    },
+    {
+      "id": "G07",
+      "name": "HIDDEN_INFO",
+      "required": true,
+      "requires": [
+        "correct actor-scoped state",
+        "no hidden-info leak to pilot",
+        "no private-state leak in production artifacts",
+        "no illicit reconstruction path"
+      ],
+      "semantics": "All outbound fields are part of the leakage boundary."
+    },
+    {
+      "id": "G08",
+      "name": "RNG",
+      "required": true,
+      "requires": [
+        "declared RNG algorithm(s)",
+        "root seed",
+        "rules RNG attribution",
+        "pilot RNG attribution",
+        "deterministic seed derivation"
+      ],
+      "semantics": "Rules RNG and pilot RNG are distinct."
+    },
+    {
+      "id": "G09",
+      "name": "REPLAY",
+      "required": true,
+      "requires": [
+        "clean-process semantic replay under same manifest"
+      ],
+      "semantics": "Replay divergence blocks admission."
+    },
+    {
+      "id": "G10",
+      "name": "COMMANDER_MULTIPLAYER",
+      "required": true,
+      "requires": [
+        "all relevant Commander and multiplayer semantics including applicable Partner semantics"
+      ],
+      "semantics": "Runtime fixtures are required for MUST semantics."
+    },
+    {
+      "id": "G11",
+      "name": "RUNTIME_RELIABILITY",
+      "required": true,
+      "requires": [
+        "no crash",
+        "no hang",
+        "no timeout under frozen campaign policy",
+        "no unclassified engine failure",
+        "no protocol desync",
+        "no state corruption"
+      ],
+      "semantics": "Technical failure remains evidence and may not be replaced."
+    },
+    {
+      "id": "G12",
+      "name": "INTEROP_LICENSE",
+      "required": true,
+      "requires": [
+        "technical interoperability and licensing compatibility for actual integration/distribution model"
+      ],
+      "semantics": "Forge must remain across genuine separate-process/service boundary under WS-09."
+    },
+    {
+      "id": "G13",
+      "name": "GAME_ADMISSION",
+      "required": true,
+      "requires": [
+        "G00–G12 all PASS"
+      ],
+      "semantics": "A game is Full-Rules production evidence only when all pre-admission gates PASS."
+    },
+    {
+      "id": "G14",
+      "name": "DECISION_CAMPAIGN",
+      "required": true,
+      "requires": [
+        "frozen campaign contract",
+        "admitted baseline/challenger identities",
+        "exact 4P scope",
+        "predeclared seed/opponent/seat/statistical policy",
+        "no post-hoc exclusions"
+      ],
+      "semantics": "Campaign evidence cannot repair qualification gaps."
+    },
+    {
+      "id": "G15",
+      "name": "HOLDOUT",
+      "required": false,
+      "requires": [
+        "only required if enabled by campaign contract",
+        "authorized lifecycle state",
+        "no prior compromise",
+        "no tuning exposure",
+        "no historical consumed reuse",
+        "evaluation exactly as frozen"
+      ],
+      "semantics": "NOT_APPLICABLE only when campaign contract disables holdout."
+    }
+  ],
+  "global_semantics": {
+    "CODE_DERIVED_NE_RUNTIME_VERIFIED": true,
+    "NOT_RUN_NE_PASS": true,
+    "PARTIAL_NE_FULL": true,
+    "UNKNOWN_NE_PASS": true,
+    "import_or_registration_ne_card_functionality": true,
+    "performance_ne_rules_correctness": true
+  },
+  "production_decision_scope": {
+    "default_players": 4,
+    "technical_required_player_counts": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "technical_should_player_counts": [
+      6
+    ]
+  },
+  "schema_version": "full-rules-requirements-contract/1.0.0",
+  "source": "WS-01_FINAL_HANDOFF.md + newest WS-17 instruction"
+}

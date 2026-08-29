@@ -1,0 +1,63 @@
+{
+  "$id": "https://commander-lab.local/schemas/rules_service_protocol_v1_1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actor_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "message_type": {
+      "enum": [
+        "HELLO_REQUEST",
+        "HELLO_RESPONSE",
+        "OPEN_SESSION",
+        "SESSION_OPENED",
+        "OBSERVE",
+        "OBSERVATION",
+        "NEXT_DECISION",
+        "DECISION_FRAME",
+        "SUBMIT_DECISION",
+        "DECISION_ACCEPTED",
+        "RUN_FIXTURE",
+        "FIXTURE_RESULT",
+        "CLOSE_SESSION",
+        "SESSION_CLOSED",
+        "ERROR"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    },
+    "protocol": {
+      "const": "commander-lab.rules-service/1.1.0"
+    },
+    "request_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state_revision": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "protocol",
+    "message_type",
+    "request_id",
+    "payload"
+  ],
+  "title": "Commander Lab Rules Service Protocol 1.1.0",
+  "type": "object"
+}

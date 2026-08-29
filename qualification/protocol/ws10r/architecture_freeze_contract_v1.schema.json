@@ -1,0 +1,86 @@
+{
+  "$id": "https://commander-lab.local/schemas/architecture_freeze_contract_v1_1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "architecture_winner": {
+      "const": false
+    },
+    "candidate": {
+      "type": "string"
+    },
+    "freeze_eligible": {
+      "type": "boolean"
+    },
+    "gate_results": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "gate_id": {
+            "enum": [
+              "AF00",
+              "AF01",
+              "AF02",
+              "AF03",
+              "AF04",
+              "AF05",
+              "AF06",
+              "AF07",
+              "AF08",
+              "AF09",
+              "AF10",
+              "AF11"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "verdict": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN",
+              "NOT_RUN",
+              "PARTIAL",
+              "UNSUPPORTED",
+              "NOT_APPLICABLE"
+            ]
+          }
+        },
+        "required": [
+          "gate_id",
+          "verdict",
+          "evidence_refs"
+        ],
+        "type": "object"
+      },
+      "maxItems": 12,
+      "minItems": 12,
+      "type": "array"
+    },
+    "protocol": {
+      "const": "commander-lab.rules-service/1.1.0"
+    },
+    "schema_version": {
+      "const": "architecture-freeze-result/1.1.0"
+    },
+    "source_lock": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "protocol",
+    "candidate",
+    "source_lock",
+    "gate_results",
+    "freeze_eligible"
+  ],
+  "type": "object"
+}
