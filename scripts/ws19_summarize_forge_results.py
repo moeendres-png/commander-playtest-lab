@@ -80,18 +80,66 @@ def main() -> None:
 
     hs = handshake.get("payload", {})
     af = [
-        {"gate_id": "AF00", "verdict": "PASS", "reason": "Pinned Forge source/tree/version plus generated GPL-side source hashes and compiled provider identity are recorded."},
-        {"gate_id": "AF01", "verdict": "PASS", "reason": "Exact WS-10R 1.1 handshake executed and truthfully reports fixture execution unsupported."},
-        {"gate_id": "AF02", "verdict": "UNSUPPORTED", "reason": "2P/3P/4P/5P common fixtures executed against the strict provider shell and fail closed as unsupported; no Forge game lifecycle route is implemented."},
-        {"gate_id": "AF03", "verdict": "UNSUPPORTED", "reason": "The current probe does not execute Forge game rules for common fixtures, so sole Rules-Core authority is not runtime-qualified."},
-        {"gate_id": "AF04", "verdict": "PARTIAL", "reason": "Every abstract PlayerController callback is mechanically trapped in the generated direct subclass and stock GUI/AI modules are absent from the probe classpath, but no legal-option/DecisionFrame route is implemented."},
-        {"gate_id": "AF05", "verdict": "UNSUPPORTED", "reason": "Actor-scoped observation serialization and honeycard fixtures are not implemented in the Forge provider."},
-        {"gate_id": "AF06", "verdict": "UNSUPPORTED", "reason": "Frozen micro-rules fixtures execute only to typed fail-closed UNSUPPORTED responses; no rules semantics are exercised."},
-        {"gate_id": "AF07", "verdict": "UNSUPPORTED", "reason": "All 29 actual-card fixtures are accounted for but no Forge card semantics are executed by the provider."},
-        {"gate_id": "AF08", "verdict": "UNSUPPORTED", "reason": "Commander/multiplayer fixtures are denominator-complete but rules execution is not implemented."},
-        {"gate_id": "AF09", "verdict": "UNSUPPORTED", "reason": "Rules RNG tape, DecisionTape, EventTape, checkpoints and clean-process semantic replay are not implemented."},
-        {"gate_id": "AF10", "verdict": "PASS", "reason": "All 135 common fixtures receive explicit typed runtime results with no skip, missing fixture, crash, or silent fallback in the qualification route."},
-        {"gate_id": "AF11", "verdict": "PASS", "reason": "Runtime topology is a separate JVM process; proprietary launcher imports no Forge classes; generated GPL-side artifacts remain in the separate Forge checkout and stock GUI/AI classes are excluded from the provider classpath."},
+        {
+            "gate_id": "AF00",
+            "verdict": "PASS",
+            "reason": "Pinned Forge source/tree/version plus generated GPL-side source hashes and compiled provider identity are recorded.",
+        },
+        {
+            "gate_id": "AF01",
+            "verdict": "PASS",
+            "reason": "Exact WS-10R 1.1 handshake executed and truthfully reports fixture execution unsupported.",
+        },
+        {
+            "gate_id": "AF02",
+            "verdict": "UNSUPPORTED",
+            "reason": "2P/3P/4P/5P common fixtures executed against the strict provider shell and fail closed as unsupported; no Forge game lifecycle route is implemented.",
+        },
+        {
+            "gate_id": "AF03",
+            "verdict": "UNSUPPORTED",
+            "reason": "The current probe does not execute Forge game rules for common fixtures, so sole Rules-Core authority is not runtime-qualified.",
+        },
+        {
+            "gate_id": "AF04",
+            "verdict": "PARTIAL",
+            "reason": "Every abstract PlayerController callback is mechanically trapped in the generated direct subclass and stock GUI/AI modules are absent from the probe classpath, but no legal-option/DecisionFrame route is implemented.",
+        },
+        {
+            "gate_id": "AF05",
+            "verdict": "UNSUPPORTED",
+            "reason": "Actor-scoped observation serialization and honeycard fixtures are not implemented in the Forge provider.",
+        },
+        {
+            "gate_id": "AF06",
+            "verdict": "UNSUPPORTED",
+            "reason": "Frozen micro-rules fixtures execute only to typed fail-closed UNSUPPORTED responses; no rules semantics are exercised.",
+        },
+        {
+            "gate_id": "AF07",
+            "verdict": "UNSUPPORTED",
+            "reason": "All 29 actual-card fixtures are accounted for but no Forge card semantics are executed by the provider.",
+        },
+        {
+            "gate_id": "AF08",
+            "verdict": "UNSUPPORTED",
+            "reason": "Commander/multiplayer fixtures are denominator-complete but rules execution is not implemented.",
+        },
+        {
+            "gate_id": "AF09",
+            "verdict": "UNSUPPORTED",
+            "reason": "Rules RNG tape, DecisionTape, EventTape, checkpoints and clean-process semantic replay are not implemented.",
+        },
+        {
+            "gate_id": "AF10",
+            "verdict": "PASS",
+            "reason": "All 135 common fixtures receive explicit typed runtime results with no skip, missing fixture, crash, or silent fallback in the qualification route.",
+        },
+        {
+            "gate_id": "AF11",
+            "verdict": "PASS",
+            "reason": "Runtime topology is a separate JVM process; proprietary launcher imports no Forge classes; generated GPL-side artifacts remain in the separate Forge checkout and stock GUI/AI classes are excluded from the provider classpath.",
+        },
     ]
 
     candidate_fixture_results = []
@@ -105,7 +153,9 @@ def main() -> None:
                 "verdict": raw["verdict"],
                 "evidence_class": raw.get("evidence_class", "RUNTIME_VERIFIED"),
                 "reason": raw.get("reason", ""),
-                "classification": "RUNTIME_PASS" if raw["verdict"] == "PASS" else "REMEDIATION_REQUIRED",
+                "classification": "RUNTIME_PASS"
+                if raw["verdict"] == "PASS"
+                else "REMEDIATION_REQUIRED",
                 "omission_reason_code": "REMEDIATION_REQUIRED",
                 "artifact_hashes": raw.get("artifact_hashes", {}),
             }
@@ -134,7 +184,9 @@ def main() -> None:
         "fixture_count": len(fixtures),
         "verdict_counts": dict(sorted(counts.items())),
         "category_counts": {k: dict(sorted(v.items())) for k, v in sorted(categories.items())},
-        "player_count_counts": {k: dict(sorted(v.items())) for k, v in sorted(player_counts.items())},
+        "player_count_counts": {
+            k: dict(sorted(v.items())) for k, v in sorted(player_counts.items())
+        },
         "card_fixture_count": len(cards),
         "callback_abstract_count": inventory["abstract_method_count"],
         "stock_remote_default_count": len(inventory["stock_remote_default_findings"]),
@@ -169,13 +221,17 @@ def main() -> None:
     lines += ["", "## 29-Card Corpus", ""]
     for row in cards:
         lines.append(f"- `{row['card_identity']}` / `{row['fixture_id']}` — **{row['verdict']}**")
-    (out / "WS19_COMMON_EXECUTION_REPORT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (out / "WS19_COMMON_EXECUTION_REPORT.md").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
 
     hashes = {}
     for path in sorted(out.iterdir()):
         if path.is_file() and path.name != "SHA256SUMS":
             hashes[path.name] = sha256(path)
-    (out / "SHA256SUMS").write_text("".join(f"{digest}  {name}\n" for name, digest in hashes.items()), encoding="utf-8")
+    (out / "SHA256SUMS").write_text(
+        "".join(f"{digest}  {name}\n" for name, digest in hashes.items()), encoding="utf-8"
+    )
 
 
 if __name__ == "__main__":
