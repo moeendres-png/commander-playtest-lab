@@ -4,12 +4,16 @@ package forge.game.player;
 import forge.CardStorageReader;
 import forge.StaticData;
 import forge.util.Localizer;
+import forge.util.MyRandom;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Random;
 
 /** GPL-side headless bootstrap. This class is compiled only into the separate Forge provider JVM. */
 public final class Ws23ForgeBootstrap {
+    public static final long QUALIFICATION_SEED = 230023L;
+
     private Ws23ForgeBootstrap() {}
 
     private static Path forgeRoot(Path languagesDirectory) {
@@ -24,6 +28,7 @@ public final class Ws23ForgeBootstrap {
     }
 
     private static void initializeHeadlessForge(Path languagesDirectory) throws Exception {
+        MyRandom.setRandom(new Random(QUALIFICATION_SEED));
         Localizer.getInstance().initialize("en-US", languagesDirectory.toString());
 
         Path root = forgeRoot(languagesDirectory);
