@@ -11,9 +11,10 @@ import mage.constants.ManaType;
 import mage.constants.Zone;
 import mage.counters.CounterType;
 import mage.game.Game;
+import mage.game.LookedAt;
+import mage.game.Revealed;
 import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
-import mage.players.Library;
 import mage.players.Player;
 
 import java.nio.charset.StandardCharsets;
@@ -31,12 +32,13 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Single authority for actor-entitled identity/visibility in the WS-22 XMage lane.
+ * Single authority for actor-entitled identity and visibility in the WS-22 XMage lane.
  *
- * <p>The ledger never decides Magic legality. XMage remains the Rules Core. The
- * ledger records only information which XMage has exposed to an audience and
- * projects the engine state for a particular viewer/decision subject. Raw XMage
- * UUIDs are deliberately kept internal.</p>
+ * <p>XMage remains the sole Rules Core. This class does not determine legal
+ * actions. It consumes XMage's native public reveal windows, per-player look
+ * windows, ownership/control, zones, face-down state, library order and zone
+ * change counters, then projects only what a specific viewer is entitled to
+ * know. Raw XMage UUIDs never form production observation identity.</p>
  */
 final class XmageKnowledgeLedger {
 
@@ -48,9 +50,9 @@ final class XmageKnowledgeLedger {
     private final Map<UUID, String> physicalCardRefs = new HashMap<>();
     private final Map<UUID, String> dynamicObjectRefs = new LinkedHashMap<>();
     private final Map<UUID, Integer> lastZoneChangeCounter = new HashMap<>();
+    private final Map<UUID, List<UUID>> lastLibraryOrder = new HashMap<>();
     private final Map<UUID, Set<Incarnation>> visibleIncarnations = new HashMap<>();
-    private final Map<UUID, Map<UUID, LinkedHashMap<Integer, Incarnation>>> knownLibraryPositions =
-            new HashMap<>();
+    private final Map<UUID, Map<UUID, LinkedHashMap<Integer, Incarnation>>> knownLibraryPositions = new HashMap<>();
     private final Map<UUID, Map<UUID, List<String>>> rememberedLibraryComposition = new HashMap<>();
     private final Map<UUID, Set<UUID>> zoneFullLookOwners = new HashMap<>();
     private int dynamicObjectSequence;
@@ -59,12 +61,13 @@ final class XmageKnowledgeLedger {
         if (deck == null) {
             throw new IllegalArgumentException("deck is required");
         }
+        String fingerprint = deckFingerprint(deck);
         Map<String, Integer> mainOccurrences = new HashMap<>();
         for (Card card : deck.getCards()) {
             int occurrence = mainOccurrences.merge(card.getName(), 1, Integer::sum);
             physicalCardRefs.put(
                     card.getMainCard().getId(),
-                    stablePhysicalRef(zeroBasedSeat, "main", card.getName(), occurrence)
+                    stablePhysicalRef(zeroBasedSeat, fingerprint, "main", card.getName(), occurrence)
             );
         }
         Map<String, Integer> commandOccurrences = new HashMap<>();
@@ -72,7 +75,7 @@ final class XmageKnowledgeLedger {
             int occurrence = commandOccurrences.merge(card.getName(), 1, Integer::sum);
             physicalCardRefs.put(
                     card.getMainCard().getId(),
-                    stablePhysicalRef(zeroBasedSeat, "command", card.getName(), occurrence)
+                    stablePhysicalRef(zeroBasedSeat, fingerprint, "command", card.getName(), occurrence)
             );
         }
     }
@@ -85,16 +88,22 @@ final class XmageKnowledgeLedger {
         playersBySeat.clear();
         for (int seat = 0; seat < orderedPlayers.size(); seat++) {
             UUID playerId = orderedPlayers.get(seat).getId();
-            seats.put(playerId, seat);
+            if (seats.put(playerId, seat) != null) {
+                throw new IllegalArgumentException("duplicate player identity");
+            }
             playersBySeat.put(seat, playerId);
         }
         verifyLoadedDeckIdentity(game);
-        syncIncarnations(game);
+        synchronize(game);
+    }
+
+    int registeredPlayerCount() {
+        return seats.size();
     }
 
     Player decisionAuthority(Game game, Player decisionSubject) {
         UUID controllerId = decisionSubject.getTurnControlledBy();
-        if (controllerId == null || controllerId.equals(decisionSubject.getId())) {
+        if (controllerId == null || controllerId.equals(decisionSubject.getId()) || seat(controllerId) < 0) {
             return decisionSubject;
         }
         Player controller = game.getPlayer(controllerId);
@@ -102,23 +111,21 @@ final class XmageKnowledgeLedger {
     }
 
     int seat(UUID playerId) {
-        Integer seat = seats.get(playerId);
-        return seat == null ? -1 : seat;
+        Integer value = playerId == null ? null : seats.get(playerId);
+        return value == null ? -1 : value;
     }
 
     String playerRef(UUID playerId) {
-        int seat = seat(playerId);
-        if (seat < 0) {
+        int value = seat(playerId);
+        if (value < 0) {
             throw new IllegalStateException("UNREGISTERED_PLAYER_IDENTITY");
         }
-        return "P" + (seat + 1);
+        return "P" + (value + 1);
     }
 
     void beginZoneFullLook(Player viewer, Player libraryOwner, Game game) {
-        syncIncarnations(game);
-        zoneFullLookOwners
-                .computeIfAbsent(viewer.getId(), ignored -> new HashSet<>())
-                .add(libraryOwner.getId());
+        synchronize(game);
+        zoneFullLookOwners.computeIfAbsent(viewer.getId(), ignored -> new HashSet<>()).add(libraryOwner.getId());
         rememberLibraryComposition(viewer, libraryOwner, game);
     }
 
@@ -133,117 +140,34 @@ final class XmageKnowledgeLedger {
         }
     }
 
-    void revealToAll(Cards cards, Game game) {
-        if (cards == null || cards.isEmpty()) {
-            return;
-        }
-        revealToAll(cards.getCards(game), game);
-    }
-
-    void revealToAll(Collection<? extends Card> cards, Game game) {
-        syncIncarnations(game);
-        for (UUID viewer : seats.keySet()) {
-            grantCurrent(viewer, cards, game);
-        }
-    }
-
-    void look(Player viewer, Card card, Game game) {
-        if (card == null) {
-            return;
-        }
-        look(viewer, List.of(card), game);
-    }
-
-    void look(Player viewer, Cards cards, Game game) {
-        if (cards == null || cards.isEmpty()) {
-            return;
-        }
-        look(viewer, cards.getCards(game), game);
-    }
-
-    void look(Player viewer, Collection<? extends Card> cards, Game game) {
-        syncIncarnations(game);
-        grantCurrent(viewer.getId(), cards, game);
-        recordKnownLibraryPositions(viewer, cards, game);
-    }
-
-    void faceDownLook(Player viewer, Card card, Game game) {
-        if (card == null) {
-            return;
-        }
-        syncIncarnations(game);
-        grantCurrent(viewer.getId(), List.of(card), game);
-    }
-
-    void recordScryOrSurveil(Player viewer, Collection<? extends Card> originallyLooked, Game game) {
-        syncIncarnations(game);
-        grantCurrent(viewer.getId(), originallyLooked, game);
-        recordKnownLibraryPositions(viewer, originallyLooked, game);
-    }
-
     void shuffled(Player libraryOwner, Game game) {
-        syncIncarnations(game);
-        UUID ownerId = libraryOwner.getId();
-        for (Map<UUID, LinkedHashMap<Integer, Incarnation>> byOwner : knownLibraryPositions.values()) {
-            byOwner.remove(ownerId);
-        }
-        Set<UUID> currentLibraryIds = new HashSet<>(libraryOwner.getLibrary().getCardList());
-        for (Set<Incarnation> visible : visibleIncarnations.values()) {
-            visible.removeIf(incarnation -> currentLibraryIds.contains(incarnation.cardId()));
-        }
+        synchronizeZoneChanges(game);
+        invalidateLibraryOrderAndIdentity(libraryOwner);
+        lastLibraryOrder.put(libraryOwner.getId(), List.copyOf(libraryOwner.getLibrary().getCardList()));
+        harvestNativeKnowledge(game);
     }
 
     boolean canSeeCardIdentity(Game game, Player viewer, Card card) {
-        syncIncarnations(game);
-        if (card == null || viewer == null) {
-            return false;
-        }
-        UUID cardId = card.getMainCard().getId();
-        Zone zone = game.getState().getZone(cardId);
-        if (zone == null) {
-            zone = game.getState().getZone(card.getId());
-        }
-        UUID ownerId = card.getOwnerId();
-        if (zone == Zone.HAND) {
-            return ownerId.equals(viewer.getId()) || viewerControls(game, viewer, ownerId);
-        }
-        if (zone == Zone.LIBRARY) {
-            if (zoneFullLookOwners.getOrDefault(viewer.getId(), Set.of()).contains(ownerId)) {
-                return true;
-            }
-            Player owner = game.getPlayer(ownerId);
-            if (owner != null && owner.isTopCardRevealed()
-                    && card.getId().equals(owner.getLibrary().getFromTop(game).getId())) {
-                return true;
-            }
-            return hasCurrentGrant(viewer.getId(), card, game);
-        }
-        if (zone == Zone.BATTLEFIELD || zone == Zone.EXILED || zone == Zone.STACK) {
-            if (!card.isFaceDown(game)) {
-                return true;
-            }
-            UUID controllerId = game.getControllerId(card.getId());
-            if (controllerId != null && controllerId.equals(viewer.getId())) {
-                return true;
-            }
-            return hasCurrentGrant(viewer.getId(), card, game);
-        }
-        if (zone == Zone.GRAVEYARD || zone == Zone.COMMAND) {
-            return true;
-        }
-        return hasCurrentGrant(viewer.getId(), card, game);
+        synchronize(game);
+        return canSeeCardIdentityWithoutSync(game, viewer, card);
     }
 
     Set<String> forbiddenIdentityTokens(Game game, Player viewer) {
-        syncIncarnations(game);
+        synchronize(game);
         Set<String> forbidden = new LinkedHashSet<>();
+        Set<String> authorizedNames = new HashSet<>();
         for (Card card : game.getCards()) {
-            if (card == null || canSeeCardIdentity(game, viewer, card)) {
+            if (card != null && canSeeCardIdentityWithoutSync(game, viewer, card) && card.getName() != null) {
+                authorizedNames.add(card.getName());
+            }
+        }
+        for (Card card : game.getCards()) {
+            if (card == null || canSeeCardIdentityWithoutSync(game, viewer, card)) {
                 continue;
             }
             forbidden.add(card.getId().toString());
             forbidden.add(card.getMainCard().getId().toString());
-            if (card.getName() != null && !card.getName().isBlank()) {
+            if (card.getName() != null && !card.getName().isBlank() && !authorizedNames.contains(card.getName())) {
                 forbidden.add(card.getName());
             }
         }
@@ -251,14 +175,15 @@ final class XmageKnowledgeLedger {
     }
 
     JsonObject snapshot(Game game, Player viewer, Player decisionSubject) {
-        syncIncarnations(game);
+        synchronize(game);
         JsonObject view = new JsonObject();
         view.addProperty("viewer_player_id", playerRef(viewer.getId()));
         view.addProperty("decision_subject_player_id", playerRef(decisionSubject.getId()));
+        view.addProperty("decision_authority_player_id", playerRef(decisionAuthority(game, decisionSubject).getId()));
         view.addProperty("seat", seat(viewer.getId()));
         view.addProperty("decision_subject_seat", seat(decisionSubject.getId()));
         view.addProperty("turn_number", game.getState().getTurnNum());
-        view.addProperty("player_count", seats.size());
+        view.addProperty("player_count", registeredPlayerCount());
         view.addProperty("live_player_count", game.getPlayers().size());
         view.add("live_player_order", livePlayerOrder(game));
         addPlayerRef(view, "active_player_id", game.getActivePlayerId());
@@ -274,8 +199,8 @@ final class XmageKnowledgeLedger {
             view.addProperty("step", game.getTurnStepType().name().toLowerCase());
         }
 
-        JsonArray players = new JsonArray();
-        for (int seatIndex = 0; seatIndex < seats.size(); seatIndex++) {
+        JsonArray playerViews = new JsonArray();
+        for (int seatIndex = 0; seatIndex < registeredPlayerCount(); seatIndex++) {
             UUID playerId = playersBySeat.get(seatIndex);
             Player player = game.getPlayer(playerId);
             if (player == null) {
@@ -294,36 +219,37 @@ final class XmageKnowledgeLedger {
             p.addProperty("has_left", player.hasLeft());
             p.addProperty("is_viewer", playerId.equals(viewer.getId()));
             p.addProperty("is_decision_subject", playerId.equals(decisionSubject.getId()));
-            p.addProperty("turn_controlled_by", playerRef(player.getTurnControlledBy()));
+            UUID turnController = player.getTurnControlledBy();
+            if (turnController == null || seat(turnController) < 0) {
+                p.add("turn_controlled_by", JsonNull.INSTANCE);
+            } else {
+                p.addProperty("turn_controlled_by", playerRef(turnController));
+            }
 
             JsonArray battlefield = new JsonArray();
             for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
-                if (!playerId.equals(permanent.getControllerId())) {
-                    continue;
+                if (playerId.equals(permanent.getControllerId())) {
+                    battlefield.add(permanentView(permanent, viewer, game));
                 }
-                battlefield.add(permanentView(permanent, viewer, game));
             }
             p.add("battlefield", battlefield);
 
             JsonArray graveyard = new JsonArray();
             for (Card card : player.getGraveyard().getCards(game)) {
-                graveyard.add(cardView(card, viewer, game, true));
+                graveyard.add(cardView(card, game, true));
             }
             p.add("graveyard", graveyard);
 
             JsonArray command = new JsonArray();
-            Collection<Card> commanderCards = game.getCommanderCardsFromCommandZone(
-                    player,
-                    CommanderCardType.COMMANDER_OR_OATHBREAKER
-            );
+            Collection<Card> commanderCards = game.getCommanderCardsFromCommandZone(player, CommanderCardType.COMMANDER_OR_OATHBREAKER);
             for (Card card : commanderCards) {
-                command.add(cardView(card, viewer, game, true));
+                command.add(cardView(card, game, true));
             }
             p.add("command", command);
 
             JsonArray exile = new JsonArray();
             for (Card card : game.getExile().getCardsOwned(game, playerId)) {
-                exile.add(cardView(card, viewer, game, canSeeCardIdentity(game, viewer, card)));
+                exile.add(cardView(card, game, canSeeCardIdentityWithoutSync(game, viewer, card)));
             }
             p.add("exile", exile);
             p.addProperty("exile_count", exile.size());
@@ -331,7 +257,7 @@ final class XmageKnowledgeLedger {
             if (playerId.equals(viewer.getId()) || viewerControls(game, viewer, playerId)) {
                 JsonArray hand = new JsonArray();
                 for (Card card : player.getHand().getCards(game)) {
-                    hand.add(cardView(card, viewer, game, true));
+                    hand.add(cardView(card, game, true));
                 }
                 p.add("hand", hand);
             }
@@ -345,25 +271,27 @@ final class XmageKnowledgeLedger {
                 mana.addProperty("green", player.getManaPool().get(ManaType.GREEN));
                 mana.addProperty("colorless", player.getManaPool().get(ManaType.COLORLESS));
                 p.add("mana_pool", mana);
-                p.addProperty(
-                        "land_plays_remaining",
-                        Math.max(0, player.getLandsPerTurn() - player.getLandsPlayed())
-                );
+                p.addProperty("land_plays_remaining", Math.max(0, player.getLandsPerTurn() - player.getLandsPlayed()));
             }
 
             p.add("known_library", knownLibraryView(viewer, player, game));
             p.add("remembered_library_composition", rememberedLibraryView(viewer, player));
-            players.add(p);
+            playerViews.add(p);
         }
-        view.add("players", players);
+        view.add("players", playerViews);
 
         JsonArray stack = new JsonArray();
         for (StackObject stackObject : game.getStack()) {
             JsonObject item = new JsonObject();
             item.addProperty("object_id", dynamicObjectRef(stackObject.getId(), "stack"));
-            item.addProperty("controller_id", playerRef(stackObject.getControllerId()));
+            UUID controllerId = stackObject.getControllerId();
+            if (controllerId == null || seat(controllerId) < 0) {
+                item.add("controller_id", JsonNull.INSTANCE);
+            } else {
+                item.addProperty("controller_id", playerRef(controllerId));
+            }
             Card sourceCard = game.getCard(stackObject.getSourceId());
-            boolean visible = sourceCard == null || canSeeCardIdentity(game, viewer, sourceCard);
+            boolean visible = sourceCard == null || canSeeCardIdentityWithoutSync(game, viewer, sourceCard);
             item.addProperty("face_down", sourceCard != null && sourceCard.isFaceDown(game));
             item.addProperty("name", visible ? stackObject.getName() : "Face-down spell");
             stack.add(item);
@@ -383,9 +311,49 @@ final class XmageKnowledgeLedger {
         return order;
     }
 
+    private boolean canSeeCardIdentityWithoutSync(Game game, Player viewer, Card card) {
+        if (card == null || viewer == null) {
+            return false;
+        }
+        Card main = card.getMainCard();
+        UUID mainId = main.getId();
+        Zone zone = game.getState().getZone(mainId);
+        if (zone == null) {
+            zone = game.getState().getZone(card.getId());
+        }
+        UUID ownerId = card.getOwnerId();
+        if (zone == Zone.HAND) {
+            return ownerId != null && (ownerId.equals(viewer.getId()) || viewerControls(game, viewer, ownerId));
+        }
+        if (zone == Zone.LIBRARY) {
+            if (ownerId != null && zoneFullLookOwners.getOrDefault(viewer.getId(), Set.of()).contains(ownerId)) {
+                return true;
+            }
+            Player owner = ownerId == null ? null : game.getPlayer(ownerId);
+            Card top = owner == null ? null : owner.getLibrary().getFromTop(game);
+            if (owner != null && owner.isTopCardRevealed() && top != null && mainId.equals(top.getMainCard().getId())) {
+                return true;
+            }
+            return hasCurrentGrant(viewer.getId(), card, game);
+        }
+        if (zone == Zone.BATTLEFIELD || zone == Zone.EXILED || zone == Zone.STACK) {
+            if (!card.isFaceDown(game)) {
+                return true;
+            }
+            if (card instanceof Permanent permanent && viewer.getId().equals(permanent.getControllerId())) {
+                return true;
+            }
+            return hasCurrentGrant(viewer.getId(), card, game);
+        }
+        if (zone == Zone.GRAVEYARD || zone == Zone.COMMAND) {
+            return true;
+        }
+        return hasCurrentGrant(viewer.getId(), card, game);
+    }
+
     private JsonObject permanentView(Permanent permanent, Player viewer, Game game) {
-        boolean visible = canSeeCardIdentity(game, viewer, permanent);
-        JsonObject item = cardView(permanent, viewer, game, visible);
+        boolean visible = canSeeCardIdentityWithoutSync(game, viewer, permanent);
+        JsonObject item = cardView(permanent, game, visible);
         item.addProperty("controller_id", playerRef(permanent.getControllerId()));
         item.addProperty("owner_id", playerRef(permanent.getOwnerId()));
         item.addProperty("tapped", permanent.isTapped());
@@ -394,40 +362,35 @@ final class XmageKnowledgeLedger {
         return item;
     }
 
-    private JsonObject cardView(Card card, Player viewer, Game game, boolean revealIdentity) {
+    private JsonObject cardView(Card card, Game game, boolean revealIdentity) {
         JsonObject item = new JsonObject();
         item.addProperty("object_id", incarnationRef(card, game));
         item.addProperty("face_down", card.isFaceDown(game));
-        if (revealIdentity) {
-            item.addProperty("name", card.getName());
-        } else {
-            item.addProperty("name", "Hidden card");
-        }
+        item.addProperty("name", revealIdentity ? card.getName() : "Hidden card");
         return item;
     }
 
-    private JsonArray knownLibraryView(Player viewer, Player libraryOwner, Game game) {
+    private JsonArray knownLibraryView(Player viewer, Player owner, Game game) {
         JsonArray result = new JsonArray();
         Map<UUID, LinkedHashMap<Integer, Incarnation>> byOwner = knownLibraryPositions.get(viewer.getId());
         if (byOwner == null) {
             return result;
         }
-        LinkedHashMap<Integer, Incarnation> known = byOwner.get(libraryOwner.getId());
+        LinkedHashMap<Integer, Incarnation> known = byOwner.get(owner.getId());
         if (known == null) {
             return result;
         }
-        List<UUID> currentOrder = libraryOwner.getLibrary().getCardList();
+        List<UUID> currentOrder = owner.getLibrary().getCardList();
         List<Integer> stale = new ArrayList<>();
         for (Map.Entry<Integer, Incarnation> entry : known.entrySet()) {
             int position = entry.getKey();
-            Incarnation incarnation = entry.getValue();
-            if (position < 0 || position >= currentOrder.size()
-                    || !currentOrder.get(position).equals(incarnation.cardId())) {
+            Incarnation knownIncarnation = entry.getValue();
+            if (position < 0 || position >= currentOrder.size() || !currentOrder.get(position).equals(knownIncarnation.cardId())) {
                 stale.add(position);
                 continue;
             }
-            Card card = game.getCard(incarnation.cardId());
-            if (card == null || card.getZoneChangeCounter(game) != incarnation.zoneChangeCounter()) {
+            Card card = game.getCard(knownIncarnation.cardId());
+            if (card == null || card.getMainCard().getZoneChangeCounter(game) != knownIncarnation.zoneChangeCounter()) {
                 stale.add(position);
                 continue;
             }
@@ -454,25 +417,85 @@ final class XmageKnowledgeLedger {
         return result;
     }
 
-    private void rememberLibraryComposition(Player viewer, Player owner, Game game) {
-        List<String> names = owner.getLibrary().getCards(game).stream()
-                .map(Card::getName)
-                .sorted()
-                .toList();
-        rememberedLibraryComposition
-                .computeIfAbsent(viewer.getId(), ignored -> new HashMap<>())
-                .put(owner.getId(), names);
+    private void synchronize(Game game) {
+        synchronizeZoneChanges(game);
+        detectUnknownLibraryReorders(game);
+        harvestNativeKnowledge(game);
     }
 
-    private void recordKnownLibraryPositions(
-            Player viewer,
-            Collection<? extends Card> cards,
-            Game game
-    ) {
+    private void synchronizeZoneChanges(Game game) {
+        for (Card card : game.getCards()) {
+            if (card == null) {
+                continue;
+            }
+            Card main = card.getMainCard();
+            UUID id = main.getId();
+            int now = main.getZoneChangeCounter(game);
+            Integer before = lastZoneChangeCounter.put(id, now);
+            if (before == null || before == now) {
+                continue;
+            }
+            for (Set<Incarnation> grants : visibleIncarnations.values()) {
+                grants.removeIf(value -> value.cardId().equals(id));
+            }
+            for (Map<UUID, LinkedHashMap<Integer, Incarnation>> byOwner : knownLibraryPositions.values()) {
+                for (LinkedHashMap<Integer, Incarnation> positions : byOwner.values()) {
+                    positions.entrySet().removeIf(entry -> entry.getValue().cardId().equals(id));
+                }
+            }
+        }
+    }
+
+    private void detectUnknownLibraryReorders(Game game) {
+        for (UUID ownerId : seats.keySet()) {
+            Player owner = game.getPlayer(ownerId);
+            if (owner == null) {
+                continue;
+            }
+            List<UUID> current = List.copyOf(owner.getLibrary().getCardList());
+            List<UUID> previous = lastLibraryOrder.put(ownerId, current);
+            if (previous == null || previous.equals(current)) {
+                continue;
+            }
+            for (Map<UUID, LinkedHashMap<Integer, Incarnation>> byOwner : knownLibraryPositions.values()) {
+                byOwner.remove(ownerId);
+            }
+            if (previous.size() == current.size() && new HashSet<>(previous).equals(new HashSet<>(current))) {
+                invalidateLibraryIdentityGrants(owner);
+            }
+        }
+    }
+
+    private void harvestNativeKnowledge(Game game) {
+        Revealed revealed = game.getState().getRevealed();
+        for (Cards cards : revealed.values()) {
+            Collection<Card> publicCards = cards.getCards(game);
+            for (UUID viewerId : seats.keySet()) {
+                grantCurrent(viewerId, publicCards, game);
+            }
+        }
+
+        for (UUID viewerId : seats.keySet()) {
+            Player viewer = game.getPlayer(viewerId);
+            if (viewer == null) {
+                continue;
+            }
+            LookedAt lookedAt = game.getState().getLookedAt(viewerId);
+            for (Cards cards : lookedAt.values()) {
+                Collection<Card> privateCards = cards.getCards(game);
+                grantCurrent(viewerId, privateCards, game);
+                recordKnownLibraryPositions(viewer, privateCards, game);
+            }
+        }
+    }
+
+    private void recordKnownLibraryPositions(Player viewer, Collection<? extends Card> cards, Game game) {
         Set<UUID> lookedIds = new HashSet<>();
         for (Card card : cards) {
-            lookedIds.add(card.getId());
-            lookedIds.add(card.getMainCard().getId());
+            if (card != null) {
+                lookedIds.add(card.getId());
+                lookedIds.add(card.getMainCard().getId());
+            }
         }
         for (UUID ownerId : seats.keySet()) {
             Player owner = game.getPlayer(ownerId);
@@ -500,6 +523,26 @@ final class XmageKnowledgeLedger {
         }
     }
 
+    private void rememberLibraryComposition(Player viewer, Player owner, Game game) {
+        List<String> names = owner.getLibrary().getCards(game).stream().map(Card::getName).sorted().toList();
+        rememberedLibraryComposition.computeIfAbsent(viewer.getId(), ignored -> new HashMap<>()).put(owner.getId(), names);
+    }
+
+    private void invalidateLibraryOrderAndIdentity(Player owner) {
+        UUID ownerId = owner.getId();
+        for (Map<UUID, LinkedHashMap<Integer, Incarnation>> byOwner : knownLibraryPositions.values()) {
+            byOwner.remove(ownerId);
+        }
+        invalidateLibraryIdentityGrants(owner);
+    }
+
+    private void invalidateLibraryIdentityGrants(Player owner) {
+        Set<UUID> currentIds = new HashSet<>(owner.getLibrary().getCardList());
+        for (Set<Incarnation> grants : visibleIncarnations.values()) {
+            grants.removeIf(value -> currentIds.contains(value.cardId()));
+        }
+    }
+
     private boolean viewerControls(Game game, Player viewer, UUID subjectId) {
         Player subject = game.getPlayer(subjectId);
         return subject != null
@@ -514,8 +557,7 @@ final class XmageKnowledgeLedger {
     }
 
     private void grantCurrent(UUID viewerId, Collection<? extends Card> cards, Game game) {
-        Set<Incarnation> grants = visibleIncarnations
-                .computeIfAbsent(viewerId, ignored -> new HashSet<>());
+        Set<Incarnation> grants = visibleIncarnations.computeIfAbsent(viewerId, ignored -> new HashSet<>());
         for (Card card : cards) {
             if (card != null) {
                 grants.add(incarnation(card, game));
@@ -524,17 +566,18 @@ final class XmageKnowledgeLedger {
     }
 
     private Incarnation incarnation(Card card, Game game) {
-        UUID id = card.getMainCard().getId();
-        return new Incarnation(id, card.getMainCard().getZoneChangeCounter(game));
+        Card main = card.getMainCard();
+        return new Incarnation(main.getId(), main.getZoneChangeCounter(game));
     }
 
     private String incarnationRef(Card card, Game game) {
-        UUID mainId = card.getMainCard().getId();
+        Card main = card.getMainCard();
+        UUID mainId = main.getId();
         String physical = physicalCardRefs.get(mainId);
         if (physical == null) {
-            physical = dynamicObjectRef(mainId, card.isToken() ? "token" : "card");
+            physical = dynamicObjectRef(mainId, "card");
         }
-        return physical + "@z" + card.getMainCard().getZoneChangeCounter(game);
+        return physical + "@z" + main.getZoneChangeCounter(game);
     }
 
     private String dynamicObjectRef(UUID rawId, String prefix) {
@@ -549,52 +592,29 @@ final class XmageKnowledgeLedger {
 
     private void verifyLoadedDeckIdentity(Game game) {
         for (UUID id : new ArrayList<>(physicalCardRefs.keySet())) {
-            Card card = game.getCard(id);
-            if (card == null) {
-                throw new IllegalStateException(
-                        "SEMANTIC_CARD_IDENTITY_REGISTRATION_FAILED: deck card id not loaded into XMage game"
-                );
-            }
-        }
-    }
-
-    private void syncIncarnations(Game game) {
-        for (Card card : game.getCards()) {
-            if (card == null) {
-                continue;
-            }
-            UUID id = card.getMainCard().getId();
-            int now = card.getMainCard().getZoneChangeCounter(game);
-            Integer before = lastZoneChangeCounter.put(id, now);
-            if (before == null || before == now) {
-                continue;
-            }
-            for (Set<Incarnation> grants : visibleIncarnations.values()) {
-                grants.removeIf(value -> value.cardId().equals(id));
-            }
-            for (Map<UUID, LinkedHashMap<Integer, Incarnation>> byOwner : knownLibraryPositions.values()) {
-                for (LinkedHashMap<Integer, Incarnation> positions : byOwner.values()) {
-                    positions.entrySet().removeIf(entry -> entry.getValue().cardId().equals(id));
-                }
+            if (game.getCard(id) == null) {
+                throw new IllegalStateException("SEMANTIC_CARD_IDENTITY_REGISTRATION_FAILED: deck card id not loaded into XMage game");
             }
         }
     }
 
     private void addPlayerRef(JsonObject object, String property, UUID value) {
-        if (value == null) {
+        if (value == null || seat(value) < 0) {
             object.add(property, JsonNull.INSTANCE);
         } else {
             object.addProperty(property, playerRef(value));
         }
     }
 
-    private static String stablePhysicalRef(
-            int zeroBasedSeat,
-            String deckZone,
-            String name,
-            int occurrence
-    ) {
-        return "card-P" + (zeroBasedSeat + 1) + "-" + sha256(deckZone + "\u0000" + name + "\u0000" + occurrence).substring(0, 20);
+    private static String stablePhysicalRef(int zeroBasedSeat, String deckFingerprint, String deckZone, String name, int occurrence) {
+        return "card-P" + (zeroBasedSeat + 1) + "-"
+                + sha256(deckFingerprint + "\u0000" + deckZone + "\u0000" + name + "\u0000" + occurrence).substring(0, 20);
+    }
+
+    private static String deckFingerprint(Deck deck) {
+        List<String> main = deck.getCards().stream().map(Card::getName).sorted().toList();
+        List<String> command = deck.getSideboard().stream().map(Card::getName).sorted().toList();
+        return sha256("main=" + String.join("\u0000", main) + "\u0001command=" + String.join("\u0000", command));
     }
 
     private static String sha256(String value) {
