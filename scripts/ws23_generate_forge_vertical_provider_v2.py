@@ -107,9 +107,15 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
         raise RuntimeError("base Match.startGame call changed")
     java = java.replace(old_start, new_start, 1)
 
+    old_budget = "        Broker broker = new Broker(in, out, 16);"
+    if old_budget not in java:
+        raise RuntimeError("base broker construction changed")
+    java = java.replace(old_budget, "        Broker broker = new Broker(in, out, 128);", 1)
+
     mapping["schema_version"] = "ws23-player-controller-mapping/2.0.0"
     mapping["authority_helper"] = "Ws23ForgeAuthority"
     mapping["gate_a_base_preserved"] = True
+    mapping["support_scope"] = "BOUNDED_VERTICAL_SLICE_ONLY"
     return java, mapping
 
 
