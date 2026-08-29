@@ -19,7 +19,9 @@ def _load_script(name: str):
     return module
 
 
-def test_generator_traps_every_abstract_callback_without_absorbing_outer_class(tmp_path: Path) -> None:
+def test_generator_traps_every_abstract_callback_without_absorbing_outer_class(
+    tmp_path: Path,
+) -> None:
     mod = _load_script("ws19_generate_forge_probe.py")
     source = """
 package forge.game.player;
