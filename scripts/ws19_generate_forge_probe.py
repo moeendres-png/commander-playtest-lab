@@ -7,7 +7,15 @@ import json
 import re
 from pathlib import Path
 
-ABSTRACT_METHOD_RE = re.compile(r"\b(public|protected)\s+abstract\s+([^;]+);", re.DOTALL)
+# Match method declarations only. In particular, do not let the outer
+# `public abstract class PlayerController { ...` declaration consume text up
+# to the first semicolon and masquerade as an abstract callback.
+ABSTRACT_METHOD_RE = re.compile(
+    r"\b(public|protected)\s+abstract\s+"
+    r"(?!class\b|interface\b|enum\b|record\b)"
+    r"([^;{}]+?\([^;{}]*\)(?:\s+throws\s+[^;{}]+)?);",
+    re.DOTALL,
+)
 CONCRETE_METHOD_RE = re.compile(
     r"\b(public|protected)\s+(?!abstract\b)(?:final\s+)?(?:<[^>{}]+>\s+)?[^;{}=]+?\b([A-Za-z_$][\w$]*)\s*\([^;{}]*\)\s*\{",
     re.DOTALL,
@@ -26,8 +34,7 @@ def sha256_file(path: Path) -> str:
 
 def strip_comments(text: str) -> str:
     text = re.sub(r"/\*.*?\*/", " ", text, flags=re.DOTALL)
-    text = re.sub(r"//[^\n]*", "", text)
-    return text
+    return re.sub(r"//[^\n]*", "", text)
 
 
 def normalize_space(text: str) -> str:
@@ -47,6 +54,8 @@ def abstract_methods(source: str) -> list[dict[str, str]]:
     seen: set[str] = set()
     for match in ABSTRACT_METHOD_RE.finditer(cleaned):
         signature = normalize_space(f"{match.group(1)} {match.group(2)}")
+        if "{" in signature or "}" in signature or "=" in signature.split("(", 1)[0]:
+            raise ValueError(f"non-method text entered abstract callback inventory: {signature}")
         name = method_name(signature)
         if signature in seen:
             raise ValueError(f"duplicate abstract signature: {signature}")
@@ -99,8 +108,7 @@ def render_strict_controller(source: str, methods: list[dict[str, str]]) -> str:
                 "",
             ]
         )
-    lines.append("}")
-    lines.append("")
+    lines.extend(["}", ""])
     return "\n".join(lines)
 
 
@@ -271,7 +279,8 @@ def main() -> None:
         "stock_remote_path_qualified": False,
         "strict_generated_controller_policy": "EVERY_ABSTRACT_METHOD_THROWS_WS19_UNROUTED_DECISION_UNLESS_FUTURE_ROUTED",
     }
-    (out / "callback_inventory.json").write_text(json.dumps(inventory, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    inventory_path = out / "callback_inventory.json"
+    inventory_path.write_text(json.dumps(inventory, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     manifest = {
         "schema_version": "ws19-forge-generated-gpl-artifacts/1.0.0",
@@ -282,7 +291,7 @@ def main() -> None:
         "artifacts": {
             str(strict_path.relative_to(out)): sha256_file(strict_path),
             str(provider_path.relative_to(out)): sha256_file(provider_path),
-            "callback_inventory.json": sha256_file(out / "callback_inventory.json"),
+            "callback_inventory.json": sha256_file(inventory_path),
         },
         "license_boundary": "Generated Java artifacts are GPL-side qualification artifacts and must not be imported into the proprietary Commander Lab package.",
     }
