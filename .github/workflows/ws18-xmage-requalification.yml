@@ -7,8 +7,7 @@ on:
       - "src/commander_lab/candidates/models.py"
       - "src/commander_lab/engine/rules/full_game.py"
       - "src/commander_lab/engine/rules/full_game_ws18.py"
-      - "qualification/providers/xmage_ws18_provider.py"
-      - "qualification/candidates/xmage/WS18_SOURCE_LOCK.json"
+      - "candidate-qualification/ws18-xmage/**"
       - "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json"
       - "qualification/harness.py"
       - "scripts/ws18_xmage_card_crosswalk.py"
@@ -79,7 +78,7 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          lock = json.loads(Path('qualification/candidates/xmage/WS18_SOURCE_LOCK.json').read_text())
+          lock = json.loads(Path('candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json').read_text())
           assert lock['target_repository']['baseline_commit'] == 'c83e52ae79ff2242578757c0f517badbb1a2621c'
           assert lock['target_repository']['baseline_tree'] == '551c0d55a171508618d2b7d29e0f49b19893f886'
           assert lock['xmage']['commit'] == '77d7646da6958fdf8125ee7c8f4aabd130d21d4c'
@@ -136,9 +135,9 @@ jobs:
           mkdir -p qualification/evidence/ws18-xmage
           python qualification/harness.py run \
             --candidate XMAGE_WS18 \
-            --source-lock qualification/candidates/xmage/WS18_SOURCE_LOCK.json \
+            --source-lock candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json \
             --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
-            --command "python qualification/providers/xmage_ws18_provider.py" \
+            --command "python candidate-qualification/ws18-xmage/xmage_ws18_provider.py" \
             --output qualification/evidence/ws18-xmage/COMMON_RESULTS.json
           python qualification/harness.py aggregate \
             --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
@@ -247,10 +246,10 @@ jobs:
               json.dumps(summary, indent=2, sort_keys=True) + '\n'
           )
 
-          source_lock = json.loads(Path('qualification/candidates/xmage/WS18_SOURCE_LOCK.json').read_text())
+          source_lock = json.loads(Path('candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json').read_text())
           gate_results = [
-              {'gate_id':'AF00','verdict':'PASS','evidence_refs':['qualification/candidates/xmage/WS18_SOURCE_LOCK.json'],'reason':'Exact target baseline and XMage commit/tree/version/license/blob pins are freshly verified before build.'},
-              {'gate_id':'AF01','verdict':'PARTIAL','evidence_refs':['qualification/providers/xmage_ws18_provider.py','qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'RSP 1.1 fixture transport executes exactly, but a complete lossless production Rules Service session surface is not materialized.'},
+              {'gate_id':'AF00','verdict':'PASS','evidence_refs':['candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json'],'reason':'Exact target baseline and XMage commit/tree/version/license/blob pins are freshly verified before build.'},
+              {'gate_id':'AF01','verdict':'PARTIAL','evidence_refs':['candidate-qualification/ws18-xmage/xmage_ws18_provider.py','qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'RSP 1.1 fixture transport executes exactly, but a complete lossless production Rules Service session surface is not materialized.'},
               {'gate_id':'AF02','verdict':'PASS','evidence_refs':['qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Fresh native full-game lifecycle passes at exact 2P, 3P, 4P and 5P through the unchanged common harness.'},
               {'gate_id':'AF03','verdict':'PASS','evidence_refs':['engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java','src/commander_lab/engine/rules/full_game_ws18.py'],'reason':'XMage remains Rules Core authority; external Commander Lab pilots only select from XMage-provided options and unsupported choices fail closed.'},
               {'gate_id':'AF04','verdict':'PARTIAL','evidence_refs':['engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java','qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Candidate decision routing is fail-closed, but complete production legal-action coverage is not proven across the frozen denominator.'},
@@ -260,7 +259,7 @@ jobs:
               {'gate_id':'AF08','verdict':'NOT_RUN','evidence_refs':['qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Exact WS-05 multiplayer/Commander semantic fixtures beyond player cardinality are not natively materialized in this restart.'},
               {'gate_id':'AF09','verdict':'PARTIAL','evidence_refs':['qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Per-fixture semantic/raw runtime hashes are generated under pinned seeds; full required replay/checkpoint/RNG qualification is not established by this workflow.'},
               {'gate_id':'AF10','verdict':'FAIL','evidence_refs':['qualification/evidence/ws18-xmage/CANDIDATE_AGGREGATE.json','qualification/evidence/ws18-xmage/WS18_REQUALIFICATION_SUMMARY.json'],'reason':'Denominator accounting is exact, but only 4/135 common fixtures pass and 131 remain non-PASS, so production evidence is incomplete.'},
-              {'gate_id':'AF11','verdict':'PASS','evidence_refs':['qualification/candidates/xmage/WS18_SOURCE_LOCK.json','src/commander_lab/engine/rules/full_game_ws18.py'],'reason':'Pinned XMage is MIT and executes across the retained isolated external JVM process boundary required by the interoperability contract.'},
+              {'gate_id':'AF11','verdict':'PASS','evidence_refs':['candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json','src/commander_lab/engine/rules/full_game_ws18.py'],'reason':'Pinned XMage is MIT and executes across the retained isolated external JVM process boundary required by the interoperability contract.'},
           ]
           af = {
               'schema_version': 'architecture-freeze-result/1.1.0',
