@@ -26,9 +26,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * One-process/one-game full Commander session for external pilot conformance.
  *
  * <p>XMage 1.4.61 exposes a process-global RNG. This session therefore refuses
- * to host a second game and expects the Python runner to launch a fresh bridge
- * JVM per game. The supplied seed is applied before any game shuffle. JVM UUIDs
- * are deliberately not treated as seeded replay identity.</p>
+ * to host a second game and expects the caller to launch a fresh bridge JVM per
+ * game. The supplied seed is applied before any game shuffle. Raw JVM UUIDs are
+ * not part of the production observation/replay identity.</p>
  */
 final class XmageFullGameSession {
 
@@ -41,6 +41,7 @@ final class XmageFullGameSession {
     private final CommanderFreeForAll game;
     private final List<XmageFullGamePlayer> players;
     private final XmageFullGameDecisionController controller;
+    private final XmageKnowledgeLedger knowledgeLedger;
     private final int startingPlayerSeat;
     private final int configuredPlayerCount;
     private final AtomicReference<Throwable> engineFailure = new AtomicReference<>();
@@ -83,14 +84,16 @@ final class XmageFullGameSession {
         this.startingPlayerSeat = startingPlayerSeat;
         this.configuredPlayerCount = observedPlayers;
         this.controller = new XmageFullGameDecisionController(Duration.ofMinutes(2));
+        this.knowledgeLedger = new XmageKnowledgeLedger();
 
         List<Deck> decks = new ArrayList<>(configuredPlayerCount);
         for (String deckHandle : deckHandles) {
             decks.add(deckImporter.requireDeck(deckHandle));
         }
+        for (int index = 0; index < decks.size(); index++) {
+            knowledgeLedger.registerDeck(index, decks.get(index));
+        }
 
-        // Pinned XMage 1.4.61 uses one static RandomUtil RNG. Per-process game
-        // isolation is therefore a correctness requirement, not an optimization.
         RandomUtil.setSeed(seed);
 
         this.game = new CommanderFreeForAll(
@@ -104,6 +107,7 @@ final class XmageFullGameSession {
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
         game.setGameOptions(options);
+        XmageFullGameStateRedactor.registerKnowledgeLedger(game, knowledgeLedger);
         game.addTableEventListener(event -> {
             if (event.getEventType() != TableEvent.EventType.ERROR) {
                 return;
@@ -125,7 +129,8 @@ final class XmageFullGameSession {
             XmageFullGamePlayer player = new XmageFullGamePlayer(
                     "Full Game Seat " + (index + 1),
                     RangeOfInfluence.ALL,
-                    controller
+                    controller,
+                    knowledgeLedger
             );
             player.init(game);
             game.loadCards(deck.getCards(), player.getId());
@@ -173,6 +178,26 @@ final class XmageFullGameSession {
         JsonObject payload = statusPayload();
         JsonObject pending = controller.pendingDecision();
         payload.add("decision", pending == null ? JsonNull.INSTANCE : pending);
+        return payload;
+    }
+
+    JsonObject observationPayload(int viewerSeat, int decisionSubjectSeat) {
+        ensureStarted();
+        if (viewerSeat < 0 || viewerSeat >= players.size()) {
+            throw new IllegalArgumentException("invalid viewer_seat");
+        }
+        if (decisionSubjectSeat < 0 || decisionSubjectSeat >= players.size()) {
+            throw new IllegalArgumentException("invalid decision_subject_seat");
+        }
+        Player viewer = players.get(viewerSeat);
+        Player subject = players.get(decisionSubjectSeat);
+        JsonObject payload = new JsonObject();
+        payload.addProperty("viewer_player_id", knowledgeLedger.playerRef(viewer.getId()));
+        payload.addProperty("decision_subject_player_id", knowledgeLedger.playerRef(subject.getId()));
+        payload.addProperty("viewer_seat", viewerSeat);
+        payload.addProperty("decision_subject_seat", decisionSubjectSeat);
+        payload.add("observation", knowledgeLedger.snapshot(game, viewer, subject));
+        payload.addProperty("terminal", isEngineTerminal());
         return payload;
     }
 
@@ -267,7 +292,6 @@ final class XmageFullGameSession {
     private JsonObject statusPayload() {
         JsonObject payload = new JsonObject();
         payload.addProperty("game_id", protocolGameId);
-        payload.addProperty("engine_game_id", game.getId().toString());
         payload.addProperty("player_count", configuredPlayerCount);
         payload.addProperty("live_player_count", game.getPlayers().size());
         payload.addProperty("starting_player_seat", startingPlayerSeat);
@@ -303,14 +327,12 @@ final class XmageFullGameSession {
             payload.add("failure", error);
         }
 
-        // Outcomes are emitted in immutable original-seat order. A player that
-        // has left the live XMage player map retains its original external seat.
         JsonArray outcomes = new JsonArray();
         for (int seat = 0; seat < players.size(); seat++) {
             Player player = players.get(seat);
             JsonObject item = new JsonObject();
             item.addProperty("seat", seat);
-            item.addProperty("player_id", player.getId().toString());
+            item.addProperty("player_id", knowledgeLedger.playerRef(player.getId()));
             item.addProperty("life", player.getLife());
             item.addProperty("won", player.hasWon());
             item.addProperty("lost", player.hasLost());
