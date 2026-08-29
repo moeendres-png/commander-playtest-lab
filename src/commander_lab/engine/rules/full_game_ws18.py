@@ -75,8 +75,27 @@ class DynamicExternalPilotDecisionPolicy(ExternalPilotDecisionPolicy):
         )
 
 
-class XmageFullGameRunnerV2(XmageFullGameRunner):
+class XmageFullGameRunnerV2:
     """WS-18 2P-5P runner used by the RSP 1.1 candidate provider."""
+
+    def __init__(
+        self,
+        command: tuple[str, ...] | None = None,
+        *,
+        cwd: str | Path | None = None,
+        request_timeout_seconds: float = 120.0,
+        max_decisions: int = 50_000,
+    ) -> None:
+        self.command = command or XmageFullGameRunner.command_from_environment()
+        self.cwd = cwd
+        self.request_timeout_seconds = request_timeout_seconds
+        self.max_decisions = max_decisions
+        if self.max_decisions < 1:
+            raise ValueError("max_decisions must be positive")
+
+    _deck_payload = staticmethod(XmageFullGameRunner._deck_payload)
+    semantic_transcript = staticmethod(XmageFullGameRunner.semantic_transcript)
+    _sha256 = staticmethod(XmageFullGameRunner._sha256)
 
     def run(
         self,
@@ -272,7 +291,10 @@ class XmageFullGameRunnerV2(XmageFullGameRunner):
             raise FullGameConformanceError(
                 f"full-game supported_player_counts mismatch: {supported!r}"
             )
-        if lane.get("min_players") != MIN_PLAYER_COUNT or lane.get("max_players") != MAX_PLAYER_COUNT:
+        if (
+            lane.get("min_players") != MIN_PLAYER_COUNT
+            or lane.get("max_players") != MAX_PLAYER_COUNT
+        ):
             raise FullGameConformanceError("full-game capability cardinality range mismatch")
         if lane.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
             raise FullGameConformanceError("full-game capability evidence class is unsafe")
@@ -355,13 +377,3 @@ class XmageFullGameRunnerV2(XmageFullGameRunner):
             semantic_transcript_sha256=cls._sha256(semantic),
             raw_result_sha256=cls._sha256(result),
         )
-
-
-__all__ = [
-    "DynamicExternalPilotDecisionPolicy",
-    "FullGamePilotBindingV2",
-    "MAX_PLAYER_COUNT",
-    "MIN_PLAYER_COUNT",
-    "SUPPORTED_PLAYER_COUNTS",
-    "XmageFullGameRunnerV2",
-]
