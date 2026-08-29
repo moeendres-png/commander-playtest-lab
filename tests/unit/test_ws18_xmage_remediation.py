@@ -116,6 +116,36 @@ def test_dynamic_policy_rejects_unsupported_discretionary_class_fail_closed() ->
         )
 
 
+def test_dynamic_policy_builds_valid_five_player_state_for_seat_five() -> None:
+    runtimes = tuple(_runtime(seat) for seat in range(1, 6))
+    policy = DynamicExternalPilotDecisionPolicy(runtimes, scenario_seed=424242)
+    state = {
+        "actor_id": "player-5",
+        "player_count": 5,
+        "turn_number": 1,
+        "players": [
+            {
+                "player_id": f"player-{seat}",
+                "life": 40,
+                "hand_count": 7,
+                "graveyard_count": 0,
+                "battlefield": [],
+                "hand": [] if seat == 5 else None,
+                "mana_pool": {},
+                "command": [],
+            }
+            for seat in range(1, 6)
+        ],
+    }
+
+    view = policy._pilot_state(runtimes[4], state)
+
+    assert view.seat_position == 5
+    assert view.pod_size == 5
+    assert len(view.opponents) == 4
+    assert view.opponents_to_act_before_next_turn == 4
+
+
 def test_four_player_scope_remains_explicitly_supported() -> None:
     assert 4 in SUPPORTED_PLAYER_COUNTS
     scenario = _scenario(4)
