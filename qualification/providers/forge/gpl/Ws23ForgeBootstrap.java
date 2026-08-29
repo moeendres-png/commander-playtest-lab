@@ -3,6 +3,7 @@ package forge.game.player;
 
 import forge.CardStorageReader;
 import forge.StaticData;
+import forge.util.Lang;
 import forge.util.Localizer;
 import forge.util.MyRandom;
 import java.io.PrintStream;
@@ -29,6 +30,7 @@ public final class Ws23ForgeBootstrap {
 
     private static void initializeHeadlessForge(Path languagesDirectory) throws Exception {
         MyRandom.setRandom(new Random(QUALIFICATION_SEED));
+        Lang.createInstance("en-US");
         Localizer.getInstance().initialize("en-US", languagesDirectory.toString());
 
         Path root = forgeRoot(languagesDirectory);
