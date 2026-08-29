@@ -127,11 +127,11 @@ jobs:
           git diff --exit-code
 
       - name: Build Forge-side dependency classpath
-        working-directory: vendor/engine-source/forge/forge-game
+        working-directory: vendor/engine-source/forge
         shell: bash
         run: |
           set -euo pipefail
-          mvn -B -ntp dependency:build-classpath -DincludeScope=compile \
+          mvn -B -ntp -pl forge-game dependency:build-classpath -DincludeScope=compile \
             -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws19/dependency-classpath.txt"
 
       - name: Compile generated GPL-side provider against pinned Forge game classes
