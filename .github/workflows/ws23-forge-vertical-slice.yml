@@ -131,7 +131,7 @@ jobs:
           assert any(x['classification']=='EXTERNALLY_IMPLEMENTED' for x in p['callbacks'])
           assert any(x['classification']=='FAIL_CLOSED_UNSUPPORTED' for x in p['callbacks'])
           PY
-          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi' artifacts/ws23/generated/java
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi' artifacts/ws23/generated/java qualification/providers/forge/gpl
 
       - name: Compile WS-23 provider outside proprietary runtime
         shell: bash
@@ -139,7 +139,9 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/ws23/provider-classes
           cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat artifacts/ws23-dependency-classpath.txt)"
-          javac -cp "$cp" -d artifacts/ws23/provider-classes artifacts/ws23/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
+          javac -cp "$cp" -d artifacts/ws23/provider-classes \
+            artifacts/ws23/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java \
+            qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
           printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/artifacts/ws23/provider-classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" "$(cat artifacts/ws23-dependency-classpath.txt)" > artifacts/ws23/provider.classpath
           ! grep -Eq 'forge-(ai|gui)' artifacts/ws23/provider.classpath
           git -C vendor/engine-source/forge diff --exit-code
@@ -148,7 +150,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws23/provider.classpath) forge.game.player.Ws23ForgeVerticalProvider"
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws23/provider.classpath) forge.game.player.Ws23ForgeBootstrap"
           python scripts/ws23_run_vertical_session.py --output artifacts/ws23/REAL_SESSION_PROOF.json | tee artifacts/ws23/real-session-summary.json
 
       - name: Record process and license boundary evidence
