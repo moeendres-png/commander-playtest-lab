@@ -165,7 +165,10 @@ def v2_method_body(original, name: str) -> list[str]:
             "return;",
         ]
     if name == "chooseSpellAbilityToPlay":
-        return ["return Ws23ForgeAuthority.choosePriority(broker, player, getGame());"]
+        return [
+            "java.util.List<SpellAbility> choices = Ws23ForgeAuthority.choosePriority(broker, player, getGame());",
+            "return choices == null || choices.isEmpty() ? null : choices;",
+        ]
     if name == "playChosenSpellAbility":
         return [
             "return Ws23ForgeAuthority.playChosenSpellAbility(this, broker, player, sa, getGame());"
