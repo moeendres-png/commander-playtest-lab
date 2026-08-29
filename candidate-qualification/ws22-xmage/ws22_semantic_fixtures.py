@@ -33,10 +33,10 @@ def _bridge_command() -> tuple[str, ...]:
     return tuple(shlex.split(raw))
 
 
-def _deck(seat: int, basic_land: str) -> RulesDeckInput:
+def _deck(seat: int) -> RulesDeckInput:
     deck_id = f"ws22-hidden-seat-{seat}"
     commander_names = ("Isamaru, Hound of Konda",)
-    mainboard = tuple(basic_land for _ in range(99))
+    mainboard = tuple("Plains" for _ in range(99))
     material = {
         "deck_id": deck_id,
         "commander_names": commander_names,
@@ -83,12 +83,7 @@ def _fail(reason: str, payload: Any) -> dict[str, Any]:
 
 @lru_cache(maxsize=1)
 def hidden_baseline_results() -> dict[str, dict[str, Any]]:
-    decks = (
-        _deck(1, "Plains"),
-        _deck(2, "Island"),
-        _deck(3, "Swamp"),
-        _deck(4, "Mountain"),
-    )
+    decks = tuple(_deck(seat) for seat in range(1, 5))
     with _RawFullGameClient(
         _bridge_command(),
         cwd=ROOT,
@@ -146,16 +141,17 @@ def hidden_baseline_results() -> dict[str, dict[str, Any]]:
             for player in opponents
         )
     )
-    if hand_ok:
-        hidden_01 = _pass(
+    hidden_01 = (
+        _pass(
             "Real 4P XMage KnowledgeLedger observation exposes the viewer hand, preserves opponent hand counts, and omits opponent hand identities.",
             observation,
         )
-    else:
-        hidden_01 = _fail(
+        if hand_ok
+        else _fail(
             "Real 4P XMage KnowledgeLedger observation leaked opponent hand identities or omitted required hand counts.",
             observation,
         )
+    )
 
     library_ok = all(
         isinstance(player, dict)
@@ -166,16 +162,17 @@ def hidden_baseline_results() -> dict[str, dict[str, Any]]:
         and len(player["known_library"]) == 0
         for player in players
     )
-    if library_ok:
-        hidden_02 = _pass(
+    hidden_02 = (
+        _pass(
             "Real 4P XMage KnowledgeLedger observation preserves library counts while omitting unknown library identities/order for the viewer.",
             observation,
         )
-    else:
-        hidden_02 = _fail(
+        if library_ok
+        else _fail(
             "Real 4P XMage KnowledgeLedger observation exposed unknown library identity/order or omitted the public library count.",
             observation,
         )
+    )
 
     return {"HIDDEN_01": hidden_01, "HIDDEN_02": hidden_02}
 
