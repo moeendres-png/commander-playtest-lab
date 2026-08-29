@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Build post-WS17R WS-20 candidate evidence from newly generated runtime artifacts.
 
-Unlike the pre-WS17R prototype, this script does not let a Changeling unit test
-stand in for an AF gate. AF verdicts are derived conservatively from the exact
-common fixture results plus explicit current-build identity / direct-regression
-facts. Any required domain without direct common runtime PASS stays non-PASS.
+No pre-WS17R result is accepted as gate evidence. A direct Changeling regression
+can prove that one blocker fixed, but cannot stand in for the common denominator.
+All required domains without exact common runtime PASS stay non-PASS.
 """
 from __future__ import annotations
 
@@ -25,13 +24,6 @@ def sha256(path: Path) -> str:
 
 def result_class(verdict: str) -> str:
     return "RUNTIME_PASS" if verdict == "PASS" else "RUNTIME_NOT_RUN"
-
-
-def omission_code(verdict: str) -> str:
-    if verdict == "PASS":
-        # Schema requires a code even for PASS. This field is semantically unused on PASS.
-        return "RUNTIME_UNAVAILABLE"
-    return "RUNTIME_UNAVAILABLE"
 
 
 def af_for_requirements(manifest: dict, common_results: list[dict]) -> dict[str, list[dict]]:
@@ -105,16 +97,14 @@ def main() -> None:
                 "evidence_class": r.get("evidence_class", "NOT_RUN"),
                 "reason": r.get("reason", "No provider reason supplied"),
                 "classification": result_class(verdict),
-                "omission_reason_code": omission_code(verdict),
+                "omission_reason_code": "RUNTIME_UNAVAILABLE",
                 "artifact_hashes": r.get("artifact_hashes", {}),
             }
         )
 
     grouped = af_for_requirements(manifest, raw)
-    af_results = []
+    af_results: list[dict] = []
 
-    # AF00: exact current source, patch, resulting tree, provider and manifest identity
-    # are generated and hash-bound in the same fresh CI run.
     required_identity = [
         identity.get("target_baseline"),
         identity.get("upstream_commit"),
@@ -125,57 +115,100 @@ def main() -> None:
         identity.get("common_manifest_sha256"),
     ]
     af00 = "PASS" if all(required_identity) else "UNKNOWN"
-    af_results.append({"gate_id": "AF00", "verdict": af00, "reason": "Fresh CI build identity is complete and hash-bound." if af00 == "PASS" else "Fresh build identity is incomplete."})
+    af_results.append(
+        {
+            "gate_id": "AF00",
+            "verdict": af00,
+            "reason": "Fresh post-WS17R CI source/build/provider/manifest identity is complete and hash-bound."
+            if af00 == "PASS"
+            else "Fresh build identity is incomplete.",
+        }
+    )
 
-    # AF01 is an explicit protocol capability fact from the fresh handshake.
     af01 = "FAIL" if not handshake.get("production_capable", False) else "PARTIAL"
-    af_results.append({"gate_id": "AF01", "verdict": af01, "reason": "Fresh handshake truthfully reports that the native production RSP session/observation/replay bridge is incomplete."})
+    af_results.append(
+        {
+            "gate_id": "AF01",
+            "verdict": af01,
+            "reason": "Fresh handshake truthfully reports that the native production RSP session/observation/replay bridge is incomplete.",
+        }
+    )
 
     for gate in ["AF02", "AF05", "AF06", "AF07", "AF09"]:
         rows = grouped.get(gate, [])
         verdict = "PASS" if all_pass(rows) else nonpass_verdict(rows)
-        af_results.append({"gate_id": gate, "verdict": verdict, "reason": f"Derived from {len(rows)} exact common fixtures mapped to {gate}; all required fixtures must PASS."})
+        af_results.append(
+            {
+                "gate_id": gate,
+                "verdict": verdict,
+                "reason": f"Derived only from {len(rows)} exact post-WS17R common fixtures mapped to {gate}; every required fixture must PASS.",
+            }
+        )
 
-    # AF03/AF04: engine-native GameAction authority + no adapter fallback is positive
-    # direct evidence, but the production session/decision bridge is incomplete.
     authority_partial = (
         handshake.get("native_action_authority", "").endswith("GameAction")
         and handshake.get("unsupported_policy") == "fail-closed"
         and pilot.get("provider_route_forbidden_reference_count") == 0
     )
-    af_results.append({"gate_id": "AF03", "verdict": "PARTIAL" if authority_partial else "FAIL", "reason": "Rules authority remains phase.rs-native on the implemented route, but full production reachability is not bridged."})
-    af_results.append({"gate_id": "AF04", "verdict": "PARTIAL" if authority_partial else "FAIL", "reason": "Exact native GameAction submission is the intended authority and unsupported operations fail closed; complete RSP decision frames are not implemented."})
+    af_results.append(
+        {
+            "gate_id": "AF03",
+            "verdict": "PARTIAL" if authority_partial else "FAIL",
+            "reason": "The implemented route preserves phase.rs Rules authority, but full production reachability is not bridged.",
+        }
+    )
+    af_results.append(
+        {
+            "gate_id": "AF04",
+            "verdict": "PARTIAL" if authority_partial else "FAIL",
+            "reason": "Native GameAction remains the intended submission authority and unsupported operations fail closed; complete RSP decision frames are not implemented.",
+        }
+    )
 
-    # AF08 cannot be promoted by the Changeling unit regression alone.
     af08_rows = grouped.get("AF08", [])
-    if all_pass(af08_rows):
+    if all_pass(af08_rows) and direct.get("changeling_postpatch") == "PASS":
         af08 = "PASS"
-        af08_reason = "All exact common multiplayer/Commander fixtures PASS, including independently recorded Changeling remediation evidence."
+        af08_reason = "All exact common multiplayer/Commander fixtures PASS and the Changeling remediation is independently runtime-verified."
     elif direct.get("changeling_postpatch") == "PASS":
         af08 = "PARTIAL"
-        af08_reason = "Changeling blocker is freshly runtime-fixed, but required common multiplayer/Commander fixtures remain non-PASS."
+        af08_reason = "The Changeling blocker is freshly runtime-fixed, but required common multiplayer/Commander fixtures remain non-PASS."
     else:
-        af08 = "FAIL" if direct.get("changeling_postpatch") == "FAIL" or any_fail(af08_rows) else nonpass_verdict(af08_rows)
+        af08 = (
+            "FAIL"
+            if direct.get("changeling_postpatch") == "FAIL" or any_fail(af08_rows)
+            else nonpass_verdict(af08_rows)
+        )
         af08_reason = "Changeling regression or required common multiplayer/Commander evidence is non-PASS."
     af_results.append({"gate_id": "AF08", "verdict": af08, "reason": af08_reason})
 
-    # AF10 is denominator accounting, not correctness. Complete accounting can still be
-    # PARTIAL while required semantics are intentionally unsupported/not executed.
     accounted = len(raw) == 135 and set(by) == set(required_ids)
-    af_results.append({"gate_id": "AF10", "verdict": "PARTIAL" if accounted else "FAIL", "reason": "All 135 fixtures are freshly accounted for, but unsupported production paths prevent full runtime-evidence reliability PASS."})
+    af_results.append(
+        {
+            "gate_id": "AF10",
+            "verdict": "PARTIAL" if accounted else "FAIL",
+            "reason": "All 135 fixtures are freshly accounted for, but unsupported production paths prevent AF10 PASS."
+            if accounted
+            else "The common denominator is not completely accounted for.",
+        }
+    )
 
-    # AF11: permissive source + local reproducible patch, no upstream mutation.
     license_ok = source_lock["selected_upstream"].get("license_expression") == "MIT OR Apache-2.0"
-    af_results.append({"gate_id": "AF11", "verdict": "PASS" if license_ok else "UNKNOWN", "reason": "Fresh source lock confirms MIT OR Apache-2.0 and the candidate is built by a reproducible local patch without modifying upstream."})
+    af_results.append(
+        {
+            "gate_id": "AF11",
+            "verdict": "PASS" if license_ok else "UNKNOWN",
+            "reason": "Fresh source lock confirms MIT OR Apache-2.0; candidate remediation is a reproducible local patch and upstream is not modified.",
+        }
+    )
 
     order = {f"AF{i:02d}": i for i in range(12)}
     af_results.sort(key=lambda x: order[x["gate_id"]])
     freeze_eligible = all(x["verdict"] == "PASS" for x in af_results)
 
-    classifications = {"RUNTIME_NOT_RUN"}
+    classifications = {"RUNTIME_NOT_RUN", "PROTOCOL_ADAPTER_MISSING"}
     if direct.get("changeling_postpatch") == "PASS":
         classifications.add("RUNTIME_PASS")
-    if any(x["verdict"] == "FAIL" for x in af_results):
+    if direct.get("changeling_postpatch") == "FAIL" or any_fail(grouped.get("AF06", [])) or any_fail(grouped.get("AF08", [])):
         classifications.add("DIRECT_RULES_FAIL")
 
     verdict_counts = Counter(r["verdict"] for r in raw)
@@ -184,9 +217,7 @@ def main() -> None:
         "candidate": "phase_rs",
         "source_lock": source_lock,
         "classifications": sorted(classifications),
-        "direct_failures": [
-            x["reason"] for x in af_results if x["verdict"] == "FAIL"
-        ],
+        "direct_failures": [x["reason"] for x in af_results if x["verdict"] == "FAIL"],
         "thin_adapter_assessment": "PARTIAL: fail-closed qualification transport preserves phase.rs GameAction authority, but native production session/observation/replay mapping is incomplete.",
         "authority_status": "CURRENT_CANONICAL_CHANGELING_ADJUDICATED; OTHER_COMMON_FIXTURES_USE_COMMITTED_AUTHORITY_LOCK",
         "common_runtime_status": "PASS" if verdict_counts.get("PASS", 0) == 135 else "UNSUPPORTED",
@@ -207,6 +238,7 @@ def main() -> None:
         "by_category": {},
         "af_results": af_results,
         "freeze_eligible": freeze_eligible,
+        "historical_pre_ws17r_evidence_used_for_current_verdicts": False,
         "evidence_files": {
             "common_results_sha256": sha256(args.common_results),
             "manifest_sha256": sha256(args.manifest),
@@ -220,7 +252,10 @@ def main() -> None:
     for category in sorted({f["category"] for f in manifest["fixtures"]}):
         ids = [f["fixture_id"] for f in manifest["fixtures"] if f["category"] == category]
         counts = Counter(by[fid]["verdict"] for fid in ids)
-        matrix["by_category"][category] = {"fixture_count": len(ids), "verdict_counts": dict(sorted(counts.items()))}
+        matrix["by_category"][category] = {
+            "fixture_count": len(ids),
+            "verdict_counts": dict(sorted(counts.items())),
+        }
     args.matrix_output.write_text(json.dumps(matrix, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
