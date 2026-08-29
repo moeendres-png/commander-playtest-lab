@@ -93,9 +93,7 @@ def v2_method_body(original, name: str) -> list[str]:
     if name == "declareBlockers":
         return ["Ws23ForgeAuthority.declareBlockers(broker, player, defender, combat);", "return;"]
     if name == "orderSimultaneousSa":
-        return [
-            "return Ws23ForgeAuthority.orderSimultaneous(broker, player, activePlayerSAs);"
-        ]
+        return ["return Ws23ForgeAuthority.orderSimultaneous(broker, player, activePlayerSAs);"]
     return original(name)
 
 
