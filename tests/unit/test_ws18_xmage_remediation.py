@@ -6,12 +6,8 @@ import pytest
 from pydantic import ValidationError
 
 from commander_lab.candidates.models import FutureXmageScenario
+from commander_lab.engine.rules import full_game_ws18
 from commander_lab.engine.rules.full_game import FullGameProtocolError, _RuntimePilot
-from commander_lab.engine.rules.full_game_ws18 import (
-    SUPPORTED_PLAYER_COUNTS,
-    DynamicExternalPilotDecisionPolicy,
-    FullGamePilotBindingV2,
-)
 from commander_lab.models import PilotConfig
 
 
@@ -37,8 +33,8 @@ def _scenario(player_count: int, *, seat: int = 1) -> FutureXmageScenario:
     )
 
 
-def _binding(seat: int) -> FullGamePilotBindingV2:
-    return FullGamePilotBindingV2(
+def _binding(seat: int) -> full_game_ws18.FullGamePilotBindingV2:
+    return full_game_ws18.FullGamePilotBindingV2(
         seat=seat,
         deck_id=f"deck-{seat}",
         strategy="generic",
@@ -54,7 +50,7 @@ def _runtime(seat: int) -> _RuntimePilot:
     return _RuntimePilot(binding=_binding(seat), pilot=SimpleNamespace())
 
 
-@pytest.mark.parametrize("player_count", SUPPORTED_PLAYER_COUNTS)
+@pytest.mark.parametrize("player_count", full_game_ws18.SUPPORTED_PLAYER_COUNTS)
 def test_future_xmage_scenario_accepts_technical_2p_through_5p(player_count: int) -> None:
     scenario = _scenario(player_count)
     assert scenario.player_count == player_count
@@ -90,9 +86,9 @@ def test_future_xmage_scenario_rejects_seat_outside_dynamic_pod() -> None:
         _scenario(2, seat=3)
 
 
-@pytest.mark.parametrize("player_count", SUPPORTED_PLAYER_COUNTS)
+@pytest.mark.parametrize("player_count", full_game_ws18.SUPPORTED_PLAYER_COUNTS)
 def test_dynamic_policy_requires_exact_contiguous_seat_cover(player_count: int) -> None:
-    policy = DynamicExternalPilotDecisionPolicy(
+    policy = full_game_ws18.DynamicExternalPilotDecisionPolicy(
         tuple(_runtime(seat) for seat in range(1, player_count + 1)),
         scenario_seed=424242,
     )
@@ -101,11 +97,15 @@ def test_dynamic_policy_requires_exact_contiguous_seat_cover(player_count: int) 
 
 def test_dynamic_policy_rejects_missing_seat_instead_of_falling_back() -> None:
     with pytest.raises(ValueError, match="cover seats"):
-        DynamicExternalPilotDecisionPolicy((_runtime(1), _runtime(3)), scenario_seed=1)
+        full_game_ws18.DynamicExternalPilotDecisionPolicy(
+            (_runtime(1), _runtime(3)), scenario_seed=1
+        )
 
 
 def test_dynamic_policy_rejects_unsupported_discretionary_class_fail_closed() -> None:
-    policy = DynamicExternalPilotDecisionPolicy((_runtime(1), _runtime(2)), scenario_seed=1)
+    policy = full_game_ws18.DynamicExternalPilotDecisionPolicy(
+        (_runtime(1), _runtime(2)), scenario_seed=1
+    )
     with pytest.raises(FullGameProtocolError, match="unsupported discretionary decision class"):
         policy.decide(
             {
@@ -118,7 +118,7 @@ def test_dynamic_policy_rejects_unsupported_discretionary_class_fail_closed() ->
 
 def test_dynamic_policy_builds_valid_five_player_state_for_seat_five() -> None:
     runtimes = tuple(_runtime(seat) for seat in range(1, 6))
-    policy = DynamicExternalPilotDecisionPolicy(runtimes, scenario_seed=424242)
+    policy = full_game_ws18.DynamicExternalPilotDecisionPolicy(runtimes, scenario_seed=424242)
     state = {
         "actor_id": "player-5",
         "player_count": 5,
@@ -147,7 +147,7 @@ def test_dynamic_policy_builds_valid_five_player_state_for_seat_five() -> None:
 
 
 def test_four_player_scope_remains_explicitly_supported() -> None:
-    assert 4 in SUPPORTED_PLAYER_COUNTS
+    assert 4 in full_game_ws18.SUPPORTED_PLAYER_COUNTS
     scenario = _scenario(4)
     assert scenario.player_count == 4
     assert len(scenario.opponent_deck_ids) == 3
