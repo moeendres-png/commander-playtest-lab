@@ -129,8 +129,7 @@ final class XmageFullGameSession {
             XmageFullGamePlayer player = new XmageFullGamePlayer(
                     "Full Game Seat " + (index + 1),
                     RangeOfInfluence.ALL,
-                    controller,
-                    knowledgeLedger
+                    controller
             );
             player.init(game);
             game.loadCards(deck.getCards(), player.getId());
