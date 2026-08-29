@@ -1,3 +1,4 @@
+# ruff: noqa: I001 -- Ruff 0.16.5 reports a no-op safe fix for this import block.
 from __future__ import annotations
 
 from types import SimpleNamespace
