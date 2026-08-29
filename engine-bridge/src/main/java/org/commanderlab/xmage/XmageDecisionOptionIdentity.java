@@ -36,7 +36,10 @@ final class XmageDecisionOptionIdentity {
     }
 
     static Binding externalize(Game game, JsonObject actorView, JsonArray nativeOptions) {
-        Map<String, String> nativeToExternal = visibleNativeToSemantic(game, actorView);
+        return externalize(nativeOptions, visibleNativeToSemantic(game, actorView));
+    }
+
+    static Binding externalize(JsonArray nativeOptions, Map<String, String> nativeToExternal) {
         Map<String, String> externalToNative = new LinkedHashMap<>();
         JsonArray externalOptions = new JsonArray();
 
