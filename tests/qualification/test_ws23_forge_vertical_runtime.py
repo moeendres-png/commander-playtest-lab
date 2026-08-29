@@ -40,7 +40,14 @@ def test_real_forge_session_and_external_priority_round_trip(tmp_path: Path) -> 
     forge = tmp_path / "forge"
     forge.mkdir()
     run("git", "init", cwd=forge)
-    run("git", "remote", "add", "origin", "https://github.com/Card-Forge/forge.git", cwd=forge)
+    run(
+        "git",
+        "remote",
+        "add",
+        "origin",
+        "https://github.com/Card-Forge/forge.git",
+        cwd=forge,
+    )
     run("git", "fetch", "--depth=1", "origin", FORGE_COMMIT, cwd=forge)
     run("git", "checkout", "--detach", "FETCH_HEAD", cwd=forge)
     assert run("git", "rev-parse", "HEAD", cwd=forge).strip() == FORGE_COMMIT
@@ -100,18 +107,28 @@ def test_real_forge_session_and_external_priority_round_trip(tmp_path: Path) -> 
     assert "forge-ai" not in classpath
     assert "forge-gui" not in classpath
     java_source = generated / "java/forge/game/player/Ws23ForgeVerticalProvider.java"
-    source_text = java_source.read_text()
+    bootstrap_source = Path("qualification/providers/forge/gpl/Ws23ForgeBootstrap.java")
+    source_text = java_source.read_text() + bootstrap_source.read_text()
     assert "forge.ai" not in source_text
     assert "forge.gui" not in source_text
     assert "RemoteClientGuiGame" not in source_text
     assert "PlayerControllerAi" not in source_text
-    run("javac", "-cp", classpath, "-d", str(classes), str(java_source))
+    run(
+        "javac",
+        "-cp",
+        classpath,
+        "-d",
+        str(classes),
+        str(java_source),
+        str(bootstrap_source),
+    )
 
     provider_cp = f"{classes}:{classpath}"
     evidence = tmp_path / "REAL_SESSION_PROOF.json"
     env = dict(os.environ)
+    env["COMMANDER_LAB_FORGE_LANG_DIR"] = str(forge / "forge-gui/res/languages")
     env["COMMANDER_LAB_FORGE_PROVIDER_CMD"] = (
-        f"java -cp {provider_cp} forge.game.player.Ws23ForgeVerticalProvider"
+        f"java -cp {provider_cp} forge.game.player.Ws23ForgeBootstrap"
     )
     run(
         sys.executable,
