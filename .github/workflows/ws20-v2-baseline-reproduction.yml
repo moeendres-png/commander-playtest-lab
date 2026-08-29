@@ -1,0 +1,118 @@
+name: WS20 v2 Healthy Baseline Reproduction
+
+on:
+  push:
+    branches:
+      - ws20/phase-rs-remediation-requalification-v2
+    paths:
+      - ".github/workflows/ws20-v2-baseline-reproduction.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS20_V2_BASELINE_SHA: c83e52ae79ff2242578757c0f517badbb1a2621c
+  WS20_V2_BASELINE_TREE: 551c0d55a171508618d2b7d29e0f49b19893f886
+  PYTHONHASHSEED: "0"
+
+jobs:
+  reproduce-healthy-common-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout restart branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact restart ancestry and tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse "${WS20_V2_BASELINE_SHA}^{tree}")" = "$WS20_V2_BASELINE_TREE"
+          git merge-base --is-ancestor "$WS20_V2_BASELINE_SHA" HEAD
+          test "$(git show -s --format=%T "$WS20_V2_BASELINE_SHA")" = "$WS20_V2_BASELINE_TREE"
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install committed qualification runtime
+        run: python -m pip install -e '.[dev]'
+
+      - name: Run common qualification regression tests
+        run: |
+          pytest -q \
+            tests/qualification/test_ws17_qualification.py \
+            tests/qualification/test_ws17r_exact_main_runtime.py
+
+      - name: Validate canonical common fixture manifest
+        run: |
+          python qualification/harness.py validate \
+            qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
+          python - <<'PY'
+          import json
+          m=json.load(open('qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json'))
+          assert m['protocol']=='commander-lab.rules-service/1.1.0'
+          assert len(m['fixtures'])==135
+          assert all(x['mandatory'] is True for x in m['fixtures'])
+          ids=[x['fixture_id'] for x in m['fixtures']]
+          assert len(ids)==len(set(ids))==135
+          print('COMMON_MANIFEST=PASS')
+          PY
+
+      - name: Execute provider-absence common harness
+        run: |
+          mkdir -p artifacts/ws20-v2-baseline
+          python qualification/harness.py run \
+            --candidate ws20_v2_provider_absence \
+            --source-lock qualification/WS17_SOURCE_LOCK.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --output artifacts/ws20-v2-baseline/COMMON_RESULTS.json
+
+      - name: Aggregate provider absence and assert fail-closed result
+        run: |
+          python qualification/harness.py aggregate \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --results artifacts/ws20-v2-baseline/COMMON_RESULTS.json \
+            --admitted-main-sha "$WS20_V2_BASELINE_SHA" \
+            --actual-sha "$WS20_V2_BASELINE_SHA" \
+            --output artifacts/ws20-v2-baseline/PRODUCTION_ADMISSION.json \
+            --md-output artifacts/ws20-v2-baseline/PRODUCTION_ADMISSION.md
+          python - <<'PY'
+          import json
+          r=json.load(open('artifacts/ws20-v2-baseline/COMMON_RESULTS.json'))['fixture_results']
+          a=json.load(open('artifacts/ws20-v2-baseline/PRODUCTION_ADMISSION.json'))
+          assert len(r)==135
+          assert all(x['verdict']=='NOT_RUN' for x in r)
+          assert a['production_admission']=='FAIL'
+          assert a['required_fixture_count']==135
+          assert a['pass_count']==0
+          assert len(a['blocking_results'])==135
+          assert all(x['verdict']=='NOT_RUN' for x in a['blocking_results'])
+          print('COMMON_QUALIFICATION_BASELINE=HEALTHY')
+          print('EXACT_MAIN_RUNTIME_REPAIR=PASS')
+          PY
+
+      - name: Prove WS-17R repair remains present
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F "python -m pip install -e '.[dev]'" .github/workflows/production-qualification.yml
+          grep -F 'Verify qualification runtime imports' .github/workflows/production-qualification.yml
+          grep -F "! -path 'qualification/aggregate/runtime/SHA256SUMS'" .github/workflows/production-qualification.yml
+          test -f tests/qualification/test_ws17r_exact_main_runtime.py
+
+      - name: Hash baseline reproduction evidence
+        run: |
+          find artifacts/ws20-v2-baseline -type f ! -name SHA256SUMS -print0 \
+            | sort -z | xargs -0 sha256sum > artifacts/ws20-v2-baseline/SHA256SUMS
+
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws20-v2-baseline-${{ github.sha }}
+          path: artifacts/ws20-v2-baseline/
+          if-no-files-found: error
