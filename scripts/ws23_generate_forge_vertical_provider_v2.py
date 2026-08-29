@@ -19,7 +19,7 @@ EXTRA_EXTERNAL = {
 }
 
 
-BROKER_REF_METHOD = r'''
+BROKER_REF_METHOD = r"""
         String chooseRefs(String kind, Player actor, java.util.List<String> labels, java.util.List<String> publicRefs) {
             if (labels.size() != publicRefs.size()) throw new ControlledStop("WS23_OPTION_METADATA_SIZE_MISMATCH");
             long seq = ++decisionSeq;
@@ -58,7 +58,7 @@ BROKER_REF_METHOD = r'''
             }
         }
 
-'''
+"""
 
 
 def v2_method_body(original, name: str) -> list[str]:
@@ -103,7 +103,9 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
     java = java.replace(marker, BROKER_REF_METHOD + marker, 1)
 
     old_start = "            match.startGame(game);"
-    new_start = "            match.startGame(game, () -> Ws23ForgeAuthority.installScenario(game, broker));"
+    new_start = (
+        "            match.startGame(game, () -> Ws23ForgeAuthority.installScenario(game, broker));"
+    )
     if old_start not in java:
         raise RuntimeError("base Match.startGame call changed")
     java = java.replace(old_start, new_start, 1)
