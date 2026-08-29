@@ -1,0 +1,238 @@
+name: WS-19 Forge Isolated Qualification
+
+on:
+  push:
+    branches:
+      - ws19/forge-isolated-provider-requalification
+    paths:
+      - "scripts/ws19_*.py"
+      - "tests/qualification/test_ws19_forge_isolation.py"
+      - "qualification/evidence/ws19/forge/**"
+      - ".github/workflows/ws19-forge-qualification.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/ws19_*.py"
+      - "tests/qualification/test_ws19_forge_isolation.py"
+      - "qualification/evidence/ws19/forge/**"
+      - ".github/workflows/ws19-forge-qualification.yml"
+
+permissions:
+  contents: read
+
+env:
+  TARGET_BASE_COMMIT: 9665c9d5dc5e720240b99f88300176c7a4a0f4fa
+  TARGET_BASE_TREE: 41c00292fd356779691677f58e9657dcced13efc
+  FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+  FORGE_LICENSE_BLOB: e72bfddabc15be5718a7cc061ac10e47741d8219
+  FORGE_PLAYER_CONTROLLER_BLOB: 192ef8737ecd645b75d50782693d5eab948d43a7
+  FORGE_REMOTE_GUI_BLOB: 768faa260fd3d8049258f38419e48704e257a490
+  WS10R_BUNDLE_SHA256: 2f002a4d020e99e44270239fd3a894e9be6f08eddf9fdd233b81ba8d3f070577
+  COMMON_MANIFEST_SHA256: e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4
+  OBLIGATION_CATALOG_SHA256: df3b354858d5e01cdb899ac24cdbf5f269fb81c0bf495b1bcb4129b1498dd963
+
+jobs:
+  isolated-forge-probe-and-common-denominator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout Commander Lab branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Verify frozen target base and common infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "$TARGET_BASE_COMMIT^{commit}"
+          test "$(git rev-parse "$TARGET_BASE_COMMIT^{tree}")" = "$TARGET_BASE_TREE"
+          test "$(git merge-base HEAD "$TARGET_BASE_COMMIT")" = "$TARGET_BASE_COMMIT"
+          echo "$WS10R_BUNDLE_SHA256  qualification/protocol/ws10r/WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip" | sha256sum -c -
+          echo "$COMMON_MANIFEST_SHA256  qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json" | sha256sum -c -
+          echo "$OBLIGATION_CATALOG_SHA256  qualification/obligations/QUALIFICATION_OBLIGATION_CATALOG_v1.json" | sha256sum -c -
+
+      - name: Checkout exact Forge source into separate workspace
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+
+      - name: Verify Forge source/build/license lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd vendor/engine-source/forge
+          test "$(git rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          test "$(git hash-object LICENSE)" = "$FORGE_LICENSE_BLOB"
+          test "$(git hash-object forge-game/src/main/java/forge/game/player/PlayerController.java)" = "$FORGE_PLAYER_CONTROLLER_BLOB"
+          test "$(git hash-object forge-gui/src/main/java/forge/gamemodes/net/server/RemoteClientGuiGame.java)" = "$FORGE_REMOTE_GUI_BLOB"
+          grep -q "GNU GENERAL PUBLIC LICENSE" LICENSE
+          grep -q "Version 3" LICENSE
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Commander Lab validation runtime
+        run: python -m pip install -e '.[dev]'
+
+      - name: Run target qualification tests
+        run: pytest -q tests/qualification
+
+      - name: Verify Forge Maven version
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(cd vendor/engine-source/forge && mvn -q -DforceStdout help:evaluate -Dexpression=project.version)"
+          test "$actual" = "$FORGE_VERSION"
+
+      - name: Generate GPL-side strict controller and probe in separate Forge workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws19/generated
+          python scripts/ws19_generate_forge_probe.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --remote-client-gui vendor/engine-source/forge/forge-gui/src/main/java/forge/gamemodes/net/server/RemoteClientGuiGame.java \
+            --output-dir artifacts/ws19/generated \
+            --forge-commit "$FORGE_COMMIT" \
+            --forge-tree "$FORGE_TREE" \
+            --forge-version "$FORGE_VERSION" \
+            | tee artifacts/ws19/generator-summary.json
+          test "$(python -c 'import json; print(json.load(open("artifacts/ws19/generated/callback_inventory.json"))["abstract_method_count"])')" -gt 0
+          test "$(python -c 'import json; print(len(json.load(open("artifacts/ws19/generated/callback_inventory.json"))["stock_remote_default_findings"]))')" -gt 0
+          install -D artifacts/ws19/generated/java/forge/game/player/StrictExternalPlayerControllerGenerated.java \
+            vendor/engine-source/forge/forge-game/src/test/java/forge/game/player/StrictExternalPlayerControllerGenerated.java
+          install -D artifacts/ws19/generated/java/forge/game/player/Ws19ForgeProbeProvider.java \
+            vendor/engine-source/forge/forge-game/src/test/java/forge/game/player/Ws19ForgeProbeProvider.java
+
+      - name: Build pinned Forge modules plus generated strict provider artifacts
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -o pipefail
+          mvn -B -ntp -pl forge-game -am -DskipTests install 2>&1 | tee ../../../artifacts/ws19/forge-build.log
+
+      - name: Build Forge-side provider runtime classpath
+        working-directory: vendor/engine-source/forge/forge-game
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp dependency:build-classpath -DincludeScope=test \
+            -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws19/dependency-classpath.txt"
+          printf '%s:%s:%s\n' \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/test-classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$(cat "$GITHUB_WORKSPACE/artifacts/ws19/dependency-classpath.txt")" \
+            > "$GITHUB_WORKSPACE/artifacts/ws19/provider.classpath"
+
+      - name: Record exact Forge-side provider build identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws19
+          sha256sum \
+            artifacts/ws19/generated/java/forge/game/player/StrictExternalPlayerControllerGenerated.java \
+            artifacts/ws19/generated/java/forge/game/player/Ws19ForgeProbeProvider.java \
+            vendor/engine-source/forge/forge-game/target/test-classes/forge/game/player/StrictExternalPlayerControllerGenerated.class \
+            vendor/engine-source/forge/forge-game/target/test-classes/forge/game/player/Ws19ForgeProbeProvider.class \
+            > artifacts/ws19/FORGE_PROVIDER_BUILD_SHA256SUMS
+          java -version 2> artifacts/ws19/java-version.txt
+          {
+            printf 'target_base_commit=%s\n' "$TARGET_BASE_COMMIT"
+            printf 'forge_commit=%s\n' "$FORGE_COMMIT"
+            printf 'forge_tree=%s\n' "$FORGE_TREE"
+            printf 'forge_version=%s\n' "$FORGE_VERSION"
+            printf 'protocol=commander-lab.rules-service/1.1.0\n'
+            printf 'process_boundary=separate_jvm\n'
+            printf 'forge_gui_on_provider_classpath=false_required\n'
+            printf 'forge_ai_on_provider_classpath=false_required\n'
+          } > artifacts/ws19/RUNTIME_IDENTITY.txt
+
+      - name: Execute exact WS-10R handshake through proprietary transport-only launcher
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws19/provider.classpath) forge.game.player.Ws19ForgeProbeProvider"
+          printf '%s\n' '{"protocol":"commander-lab.rules-service/1.1.0","message_type":"HANDSHAKE","request_id":"ws19-handshake","session_id":null,"actor_id":null,"state_revision":null,"payload":{}}' \
+            | python scripts/ws19_run_forge_provider.py \
+            | tee artifacts/ws19/handshake.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws19/handshake.json'))
+          assert p['protocol']=='commander-lab.rules-service/1.1.0'
+          assert p['payload']['verdict']=='PASS'
+          assert p['payload']['forge_commit']=='1e604105f9e279331063824943b9222b6589f5d8'
+          assert p['payload']['strict_controller_direct_superclass'] is True
+          assert p['payload']['stock_remote_gui_present'] is False
+          assert p['payload']['ai_module_present'] is False
+          assert p['payload']['generated_abstract_count']==p['payload']['runtime_abstract_count']
+          assert p['payload']['rules_core_fixture_execution']=='UNSUPPORTED'
+          PY
+
+      - name: Execute all 135 common fixtures through isolated Forge-loaded provider shell
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws19/provider.classpath) forge.game.player.Ws19ForgeProbeProvider"
+          python qualification/harness.py run \
+            --candidate forge \
+            --source-lock qualification/evidence/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --command "python scripts/ws19_run_forge_provider.py" \
+            --output artifacts/ws19/COMMON_RESULTS.json
+
+      - name: Summarize matrices and emit schema-valid candidate evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws19_summarize_forge_results.py \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --results artifacts/ws19/COMMON_RESULTS.json \
+            --handshake artifacts/ws19/handshake.json \
+            --inventory artifacts/ws19/generated/callback_inventory.json \
+            --source-lock qualification/evidence/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json \
+            --output-dir artifacts/ws19/evidence
+          python qualification/harness.py validate \
+            artifacts/ws19/evidence/WS19_CANDIDATE_RESULT.json \
+            qualification/evidence/candidate_result_v1.schema.json
+          python - <<'PY'
+          import json
+          s=json.load(open('artifacts/ws19/evidence/WS19_COMMON_EXECUTION_SUMMARY.json'))
+          assert s['fixture_count']==135
+          assert s['card_fixture_count']==29
+          assert s['verdict_counts']=={'UNSUPPORTED':135}
+          assert s['freeze_eligible'] is False
+          PY
+
+      - name: Hash complete WS-19 evidence bundle
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts/ws19
+          find artifacts/ws19 -type f ! -name SHA256SUMS -print0 \
+            | sort -z | xargs -0 sha256sum > artifacts/ws19/SHA256SUMS || true
+
+      - name: Upload WS-19 evidence bundle
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws19-forge-qualification-${{ github.sha }}
+          path: artifacts/ws19/
+          if-no-files-found: error
+          retention-days: 90
