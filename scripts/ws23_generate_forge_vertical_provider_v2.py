@@ -252,11 +252,26 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
         raise RuntimeError("base broker construction changed")
     java = java.replace(old_budget, "        Broker broker = new Broker(in, out, 128);", 1)
 
+    old_stdout = (
+        "        PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out, "
+        "StandardCharsets.UTF_8), true);"
+    )
+    new_stdout = (
+        "        java.io.PrintStream protocolStdout = System.out;\n"
+        "        System.setOut(System.err);\n"
+        "        PrintWriter out = new PrintWriter(new OutputStreamWriter(protocolStdout, "
+        "StandardCharsets.UTF_8), true);"
+    )
+    if old_stdout not in java:
+        raise RuntimeError("base protocol stdout construction changed")
+    java = java.replace(old_stdout, new_stdout, 1)
+
     mapping["schema_version"] = "ws23-player-controller-mapping/2.0.0"
     mapping["authority_helper"] = "Ws23ForgeAuthority"
     mapping["gate_a_base_preserved"] = True
     mapping["support_scope"] = "BOUNDED_VERTICAL_SLICE_ONLY"
     mapping["cost_decision_policy"] = "MANA_DEFERRED_TO_EXTERNAL_CONTROLLER_OTHER_COSTS_FAIL_CLOSED"
+    mapping["protocol_stdout_exclusive"] = True
     return java, mapping
 
 
