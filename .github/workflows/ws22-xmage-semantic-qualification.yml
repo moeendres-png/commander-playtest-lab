@@ -1,0 +1,144 @@
+name: WS-22 XMage Semantic Qualification
+
+on:
+  pull_request:
+    paths:
+      - "engine-bridge/**"
+      - "candidate-qualification/ws22-xmage/**"
+      - "qualification/**"
+      - "src/commander_lab/engine/rules/**"
+      - "tests/**"
+      - ".github/workflows/ws22-xmage-semantic-qualification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS18_HEAD_SHA: b48c5ff3e54b492f172760d66a669156b85bc037
+  WS18_HEAD_TREE: 079288a2117b58c43bf546531f3baa98d14b8abf
+  XMAGE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  XMAGE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
+  XMAGE_POM_BLOB: 510aa402b6bb7abce96b9a89e5471b016ba4134c
+  XMAGE_LICENSE_BLOB: 3575e469d848ca405ccc8d0ac9d711c94120eb45
+  COMMON_MANIFEST_SHA256: e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4
+  PYTHONHASHSEED: "0"
+  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
+
+jobs:
+  semantic-qualification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout WS-22 candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Verify exact source and denominator locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$WS18_HEAD_SHA" HEAD
+          test "$(git rev-parse "${WS18_HEAD_SHA}^{tree}")" = "$WS18_HEAD_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD:pom.xml)" = "$XMAGE_POM_BLOB"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD:LICENSE.txt)" = "$XMAGE_LICENSE_BLOB"
+          test "$(sha256sum qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json | cut -d' ' -f1)" = "$COMMON_MANIFEST_SHA256"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          lock = json.loads(Path('candidate-qualification/ws22-xmage/WS22_SOURCE_LOCK.json').read_text())
+          assert lock['target_repository']['ws18_head_commit'] == 'b48c5ff3e54b492f172760d66a669156b85bc037'
+          assert lock['target_repository']['ws18_head_tree'] == '079288a2117b58c43bf546531f3baa98d14b8abf'
+          assert lock['xmage']['commit'] == '77d7646da6958fdf8125ee7c8f4aabd130d21d4c'
+          assert lock['xmage']['tree'] == 'f0a028b265f9c008ea0aedc4cec6b8f14500b69f'
+          assert lock['protocol']['id'] == 'commander-lab.rules-service/1.1.0'
+          assert lock['protocol']['denominator_count'] == 135
+          assert lock['protocol']['common_manifest_sha256'] == 'e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4'
+          assert lock['scope']['technical_player_counts'] == [2, 3, 4, 5]
+          assert lock['scope']['production_provider_selected'] is False
+          PY
+
+      - name: Build pinned XMage
+        working-directory: vendor/engine-source/xmage
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+
+      - name: Install lab validation runtime
+        run: python -m pip install -e '.[dev,api]'
+
+      - name: Validate common denominator and Python provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile candidate-qualification/ws22-xmage/xmage_ws22_provider.py
+          python qualification/harness.py validate \
+            qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
+          pytest -q tests/qualification/test_ws17r_exact_main_runtime.py tests/unit/test_ws18_xmage_remediation.py tests/unit/test_xmage_full_game.py
+
+      - name: Build and test XMage bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+
+      - name: Run unchanged common harness without substitute PASSes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/ws22-xmage
+          python qualification/harness.py run \
+            --candidate XMAGE_WS22 \
+            --source-lock candidate-qualification/ws22-xmage/WS22_SOURCE_LOCK.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --command "python candidate-qualification/ws22-xmage/xmage_ws22_provider.py" \
+            --output qualification/evidence/ws22-xmage/COMMON_RESULTS.json
+          python - <<'PY'
+          import collections, json
+          from pathlib import Path
+          data = json.loads(Path('qualification/evidence/ws22-xmage/COMMON_RESULTS.json').read_text())
+          rows = data['fixture_results']
+          assert len(rows) == 135
+          assert len({r['fixture_id'] for r in rows}) == 135
+          counts = collections.Counter(r['verdict'] for r in rows)
+          for fid in ['PLAYER_COUNT_2P','PLAYER_COUNT_3P','PLAYER_COUNT_4P','PLAYER_COUNT_5P']:
+              row = next(r for r in rows if r['fixture_id'] == fid)
+              assert row['verdict'] == 'PASS', row
+              assert row['evidence_class'] == 'RUNTIME_VERIFIED', row
+          # WS-22 may only gain further PASSes once an exact runtime fixture is implemented.
+          assert all(r['verdict'] != 'PASS' or r['evidence_class'] == 'RUNTIME_VERIFIED' for r in rows)
+          print(json.dumps(dict(sorted(counts.items())), sort_keys=True))
+          PY
+
+      - name: Upload WS-22 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws22-xmage-evidence-${{ github.sha }}
+          path: qualification/evidence/ws22-xmage
+          if-no-files-found: warn
