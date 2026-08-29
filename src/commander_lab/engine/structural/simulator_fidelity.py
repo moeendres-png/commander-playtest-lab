@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import hashlib
-import random
 from pathlib import Path
 
 from commander_lab.agents import build_pilot
@@ -22,7 +20,7 @@ from .telemetry import (
     is_structural_reaction_only,
 )
 
-FIDELITY_ENGINE_VERSION = "structural-fidelity-overlay-2026-08-21-v1"
+FIDELITY_ENGINE_VERSION = "structural-fidelity-overlay-2026-08-25-v2"
 _UNSAFE_LEGACY_COUNTERS = frozenset(
     {
         "Silence",
@@ -58,26 +56,26 @@ class StructuralSimulator(LegacyStructuralSimulator):
     def _initialize_players(
         self,
         config: StructuralMatchConfig,
-        rng: random.Random,
+        starting_seat: int,
         recorder: _EventRecorder,
     ) -> list[_Player]:
         players: list[_Player] = []
+        pod_size = len(config.deck_ids)
         for seat, deck_id in enumerate(config.deck_ids):
             deck = self.decks[deck_id]
             commander_names = set(deck.commander_names)
             library = [card for card in deck.cards if card.oracle_name not in commander_names]
-            rng.shuffle(library)
+            relative_position = (seat - starting_seat) % pod_size
+            library_rng = self._deterministic_rng(config.seed, "library", relative_position)
+            library_rng.shuffle(library)
             pilot_config = config.pilot_configs[seat] if config.pilot_configs else PilotConfig()
             pilot = build_pilot(pilot_config, strategy=deck.commander_strategy)
-            pilot_seed_raw = hashlib.sha256(
-                f"{FIDELITY_ENGINE_VERSION}|{config.seed}|pilot|{seat}".encode()
-            ).digest()
             player = _Player(
                 player_id=f"p{seat + 1}",
                 seat=seat,
                 deck=deck,
                 pilot=pilot,
-                pilot_rng=random.Random(int.from_bytes(pilot_seed_raw[:8], "big")),
+                pilot_rng=self._deterministic_rng(config.seed, "pilot", relative_position),
                 library=library,
                 commanders={
                     name: _Commander(
@@ -91,12 +89,12 @@ class StructuralSimulator(LegacyStructuralSimulator):
             )
             if config.opening_hand_overrides and config.opening_hand_overrides[seat] is not None:
                 self._apply_opening_hand_override(
-                    player, config.opening_hand_overrides[seat] or (), rng, recorder
+                    player, config.opening_hand_overrides[seat] or (), library_rng, recorder
                 )
             else:
                 self._london_mulligan(
                     player,
-                    rng,
+                    library_rng,
                     recorder,
                     config.free_multiplayer_mulligan and len(config.deck_ids) >= 3,
                 )
