@@ -15,6 +15,7 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import FullGameProtocolError, _RawFullGameClient
 from commander_lab.engine.rules.full_game_ws18 import FullGamePilotBindingV2, XmageFullGameRunnerV2
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
+from ws22_semantic_fixtures import run_semantic_fixture
 
 PROTOCOL = "commander-lab.rules-service/1.1.0"
 XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
@@ -722,27 +723,40 @@ class Provider:
                 },
             )
         fixture_id = str(fixture.get("fixture_id", ""))
-        if fixture_id not in PLAYER_COUNT_FIXTURES:
-            return _base_response(
-                request,
-                "FIXTURE_RESULT",
-                {
-                    "verdict": "NOT_RUN",
-                    "evidence_class": "NOT_RUN",
-                    "reason": f"WS-22 fixture {fixture_id} has not yet been runtime-materialized; no source-derived PASS is allowed.",
+        if fixture_id in PLAYER_COUNT_FIXTURES:
+            try:
+                result = _run_player_count_fixture(fixture)
+            except Exception as exc:
+                result = {
+                    "verdict": "FAIL",
+                    "evidence_class": "RUNTIME_VERIFIED",
+                    "reason": f"XMage runtime fixture raised {type(exc).__name__}: {exc}",
                     "artifact_hashes": {},
-                },
-            )
+                }
+            return _base_response(request, "FIXTURE_RESULT", result)
+
         try:
-            result = _run_player_count_fixture(fixture)
+            semantic_result = run_semantic_fixture(fixture_id)
         except Exception as exc:
-            result = {
+            semantic_result = {
                 "verdict": "FAIL",
                 "evidence_class": "RUNTIME_VERIFIED",
-                "reason": f"XMage runtime fixture raised {type(exc).__name__}: {exc}",
+                "reason": f"XMage semantic runtime fixture raised {type(exc).__name__}: {exc}",
                 "artifact_hashes": {},
             }
-        return _base_response(request, "FIXTURE_RESULT", result)
+        if semantic_result is not None:
+            return _base_response(request, "FIXTURE_RESULT", semantic_result)
+
+        return _base_response(
+            request,
+            "FIXTURE_RESULT",
+            {
+                "verdict": "NOT_RUN",
+                "evidence_class": "NOT_RUN",
+                "reason": f"WS-22 fixture {fixture_id} has not yet been runtime-materialized; no source-derived PASS is allowed.",
+                "artifact_hashes": {},
+            },
+        )
 
 
 def main() -> int:
