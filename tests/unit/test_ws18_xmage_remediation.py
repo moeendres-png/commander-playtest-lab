@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-import pytest
 from pydantic import ValidationError
+import pytest
 
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import FullGameProtocolError, _RuntimePilot
