@@ -141,7 +141,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game dependency:build-classpath -DincludeScope=compile \
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile \
             -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws19/current/dependency-classpath.txt"
       - name: Compile generated GPL-side provider separately
         shell: bash
