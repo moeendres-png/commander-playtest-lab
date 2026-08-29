@@ -18,7 +18,9 @@ def fail(message: str, code: int) -> int:
 def main() -> int:
     command = os.environ.get("COMMANDER_LAB_FORGE_PROVIDER_CMD", "").strip()
     if not command:
-        return fail("COMMANDER_LAB_FORGE_PROVIDER_CMD is required; Forge provider absence fails closed", 64)
+        return fail(
+            "COMMANDER_LAB_FORGE_PROVIDER_CMD is required; Forge provider absence fails closed", 64
+        )
 
     raw = sys.stdin.read()
     if not raw.strip():
