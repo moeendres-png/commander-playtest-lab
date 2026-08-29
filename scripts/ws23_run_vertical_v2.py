@@ -115,11 +115,7 @@ def choose_option(
             raise AssertionError(
                 f"bounded binary frame must contain exactly two options: {options}"
             )
-        yes_like = [
-            o
-            for o in options
-            if o.get("kind") in {"YES", "TRUE", "PAY"}
-        ]
+        yes_like = [o for o in options if o.get("kind") in {"YES", "TRUE", "PAY"}]
         if len(yes_like) != 1:
             raise AssertionError(f"explicit affirmative option missing: {options}")
         return yes_like[0]["option_id"]
@@ -244,7 +240,9 @@ def main() -> int:
                 chosen = choose_option(msg, scenario, state)
             else:
                 if replay_index >= len(replay_tape):
-                    raise AssertionError("fresh run produced more decisions than recorded DecisionTape")
+                    raise AssertionError(
+                        "fresh run produced more decisions than recorded DecisionTape"
+                    )
                 chosen = replay_choice(msg, replay_tape[replay_index])
                 replay_index += 1
             decision_tape.append(
@@ -320,9 +318,15 @@ def main() -> int:
         )
     ):
         return 3
-    if stack_observation is None or stack_observation.get("public_stack_identity_visible") is not True:
+    if (
+        stack_observation is None
+        or stack_observation.get("public_stack_identity_visible") is not True
+    ):
         return 4
-    if commander_proof is None or commander_proof.get("native_commander_replacement_applied") is not True:
+    if (
+        commander_proof is None
+        or commander_proof.get("native_commander_replacement_applied") is not True
+    ):
         return 5
     if not all(
         state[key]
