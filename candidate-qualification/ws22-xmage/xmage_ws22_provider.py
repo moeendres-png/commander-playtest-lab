@@ -11,11 +11,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from ws22_semantic_fixtures import run_semantic_fixture
+
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import FullGameProtocolError, _RawFullGameClient
 from commander_lab.engine.rules.full_game_ws18 import FullGamePilotBindingV2, XmageFullGameRunnerV2
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
-from ws22_semantic_fixtures import run_semantic_fixture
 
 PROTOCOL = "commander-lab.rules-service/1.1.0"
 XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
