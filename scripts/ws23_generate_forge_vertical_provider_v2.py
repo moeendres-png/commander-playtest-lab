@@ -72,7 +72,8 @@ def v2_method_body(original, name: str) -> list[str]:
         ]
     if name == "playSpellAbilityNoStack":
         return [
-            "Ws23ForgeAuthority.playSpellAbilityNoStack(this, broker, player, effectSA, mayChoseNewTargets);",
+            'broker.recordAutomatic("playSpellAbilityNoStack:FORGE_CORE");',
+            "if (!PlaySpellAbility.playSpellAbilityNoStack(this, player, effectSA, !mayChoseNewTargets)) throw new ControlledStop(\"WS23_FORGE_NO_STACK_EXECUTION_REJECTED\");",
             "return;",
         ]
     if name == "chooseSpellAbilityToPlay":
