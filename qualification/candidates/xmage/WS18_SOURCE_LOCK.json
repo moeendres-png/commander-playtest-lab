@@ -1,9 +1,10 @@
 {
-  "schema_version": "ws18-xmage-source-lock/1.0.0",
+  "schema_version": "ws18-xmage-source-lock/1.1.0",
   "target_repository": {
     "repository": "moeendres-png/commander-playtest-lab",
     "baseline_branch": "main",
     "baseline_commit": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "baseline_tree": "551c0d55a171508618d2b7d29e0f49b19893f886",
     "candidate_branch": "ws18/xmage-remediation-requalification-v2",
     "candidate_runtime_commit_source": "GITHUB_SHA",
     "license": "LicenseRef-Proprietary"
@@ -11,15 +12,19 @@
   "xmage": {
     "repository": "moeendres-png/mage",
     "commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c",
+    "tree": "f0a028b265f9c008ea0aedc4cec6b8f14500b69f",
     "version": "1.4.61",
+    "pom_blob": "510aa402b6bb7abce96b9a89e5471b016ba4134c",
     "license": "MIT",
     "license_file": "LICENSE.txt",
+    "license_blob": "3575e469d848ca405ccc8d0ac9d711c94120eb45",
     "verification": "GITHUB_CONNECTOR_FRESH_2026-08-29"
   },
   "protocol": {
     "id": "commander-lab.rules-service/1.1.0",
     "source": "qualification/protocol/ws10r/RULES_SERVICE_PROTOCOL_V1.md",
     "common_manifest": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json",
+    "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
     "common_harness": "qualification/harness.py",
     "denominator_policy": "UNCHANGED_WS17_COMMON_DENOMINATOR"
   },
@@ -30,5 +35,12 @@
     "production_provider_selected": false,
     "architecture_freeze_authorized": false,
     "merge_authorized": false
-  }
+  },
+  "observation_contract": {
+    "actor_scoped_outbound_gateway": true,
+    "targeted_honeycard_negatives_required": true,
+    "dynamic_knowledge_ledger": false,
+    "observation_completeness": false
+  },
+  "evidence_policy": "All WS-18 runtime and AF evidence is regenerated post-WS17R. Historical WS-13 evidence is provenance only. CODE_DERIVED implementation presence does not establish runtime card semantics."
 }
