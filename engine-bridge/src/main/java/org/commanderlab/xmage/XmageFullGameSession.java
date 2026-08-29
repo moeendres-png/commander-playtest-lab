@@ -211,7 +211,10 @@ final class XmageFullGameSession {
     JsonObject resultPayload() {
         ensureStarted();
         JsonObject payload = statusPayload();
-        payload.add("transcript", controller.transcript());
+        payload.add(
+                "transcript",
+                XmageAuditSurfaceRedactor.redactTranscript(controller.transcript())
+        );
         payload.addProperty("decision_count", controller.decisionCount());
         payload.addProperty("evidence_class", EVIDENCE_CLASS);
         payload.addProperty("consumed_gameplay_evidence", false);
@@ -314,16 +317,16 @@ final class XmageFullGameSession {
         Throwable failure = engineFailure.get();
         if (failure == null && controller.terminalFailure() == null) {
             payload.add("failure", JsonNull.INSTANCE);
+        } else if (failure != null) {
+            payload.add("failure", XmageAuditSurfaceRedactor.redactFailure(failure));
         } else {
-            JsonObject error = new JsonObject();
-            if (failure != null) {
-                error.addProperty("type", failure.getClass().getName());
-                error.addProperty("message", safeMessage(failure));
-            } else {
-                error.addProperty("type", "decision_controller");
-                error.addProperty("message", controller.terminalFailure().getMessage());
-            }
-            payload.add("failure", error);
+            payload.add(
+                    "failure",
+                    XmageAuditSurfaceRedactor.redactFailure(
+                            "decision_controller",
+                            controller.terminalFailure().getMessage()
+                    )
+            );
         }
 
         JsonArray outcomes = new JsonArray();
@@ -346,8 +349,8 @@ final class XmageFullGameSession {
     private JsonArray diagnosticPayload() {
         JsonArray payload = new JsonArray();
         synchronized (engineErrorDiagnostics) {
-            for (String diagnostic : engineErrorDiagnostics) {
-                payload.add(diagnostic);
+            for (int index = 0; index < engineErrorDiagnostics.size(); index++) {
+                payload.add("ENGINE_ERROR");
             }
         }
         return payload;
