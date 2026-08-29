@@ -10,12 +10,14 @@ base = importlib.import_module("ws23_generate_forge_vertical_provider")
 
 
 EXTRA_EXTERNAL = {
+    "getAbilityToPlay",
     "chooseTargetsFor",
     "payManaCost",
     "applyManaToCost",
     "confirmReplacementEffect",
     "declareAttackers",
     "declareBlockers",
+    "orderSimultaneousSa",
 }
 
 
@@ -62,8 +64,16 @@ BROKER_REF_METHOD = r"""
 
 
 def v2_method_body(original, name: str) -> list[str]:
+    if name == "getAbilityToPlay":
+        return [
+            "return Ws23ForgeAuthority.chooseAbilityToPlay(broker, player, hostCard, abilities);"
+        ]
     if name == "chooseSpellAbilityToPlay":
         return ["return Ws23ForgeAuthority.choosePriority(broker, player, getGame());"]
+    if name == "playChosenSpellAbility":
+        return [
+            "return Ws23ForgeAuthority.playChosenSpellAbility(this, broker, player, sa, getGame());"
+        ]
     if name == "chooseTargetsFor":
         return ["return Ws23ForgeAuthority.chooseTargets(broker, player, currentAbility);"]
     if name == "payManaCost":
@@ -82,6 +92,10 @@ def v2_method_body(original, name: str) -> list[str]:
         return ["Ws23ForgeAuthority.declareAttackers(broker, player, attacker, combat);", "return;"]
     if name == "declareBlockers":
         return ["Ws23ForgeAuthority.declareBlockers(broker, player, defender, combat);", "return;"]
+    if name == "orderSimultaneousSa":
+        return [
+            "return Ws23ForgeAuthority.orderSimultaneous(broker, player, activePlayerSAs);"
+        ]
     return original(name)
 
 
@@ -101,6 +115,15 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
     if marker not in java:
         raise RuntimeError("base broker marker changed")
     java = java.replace(marker, BROKER_REF_METHOD + marker, 1)
+
+    old_rules = "        GameRules rules = new GameRules(GameType.Constructed);"
+    new_rules = (
+        "        GameRules rules = new GameRules(GameType.Constructed);\n"
+        "        rules.addAppliedVariant(GameType.Commander);"
+    )
+    if old_rules not in java:
+        raise RuntimeError("base GameRules construction changed")
+    java = java.replace(old_rules, new_rules, 1)
 
     old_start = "            match.startGame(game);"
     new_start = (
