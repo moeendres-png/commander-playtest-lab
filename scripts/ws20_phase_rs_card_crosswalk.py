@@ -20,7 +20,7 @@ def sha256(path: Path) -> str:
 
 def grep_paths(root: Path, literal: str) -> list[str]:
     cp = subprocess.run(
-        ["git", "-C", str(root), "grep", "-F", "-l", "--", literal],
+        ["git", "-C", str(root), "grep", "-F", "-l", "-e", literal, "--"],
         text=True,
         capture_output=True,
     )
