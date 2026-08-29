@@ -48,9 +48,15 @@ def _bridge_command() -> tuple[str, ...]:
     return tuple(shlex.split(raw))
 
 
-def _base_response(request: dict[str, Any], message_type: str, payload: dict[str, Any], *,
-                   session_id: str | None = None, actor_id: str | None = None,
-                   state_revision: int | None = None) -> dict[str, Any]:
+def _base_response(
+    request: dict[str, Any],
+    message_type: str,
+    payload: dict[str, Any],
+    *,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    state_revision: int | None = None,
+) -> dict[str, Any]:
     return {
         "protocol": PROTOCOL,
         "message_type": message_type,
@@ -74,12 +80,7 @@ def _error(
     return _base_response(
         request,
         "ERROR",
-        {
-            "error_code": code,
-            "message": message,
-            "retryable": False,
-            "terminal": terminal,
-        },
+        {"error_code": code, "message": message, "retryable": False, "terminal": terminal},
         session_id=session_id,
         state_revision=state_revision,
     )
@@ -99,6 +100,7 @@ def _metadata() -> dict[str, Any]:
         "one_game_per_rules_process": True,
         "rules_authority": "xmage",
         "decision_authority": "external_rsp_client",
+        "observation_authority": "xmage_knowledge_ledger",
         "typed_fail_closed": True,
         "bit_exact_replay_claimed": False,
     }
@@ -108,11 +110,7 @@ def _deck_for_player_count(seat: int, player_count: int) -> RulesDeckInput:
     deck_id = f"ws22-technical-isamaru-{player_count}p-seat-{seat}"
     commander = ("Isamaru, Hound of Konda",)
     mainboard = tuple("Plains" for _ in range(99))
-    material = {
-        "deck_id": deck_id,
-        "commander_names": commander,
-        "mainboard": mainboard,
-    }
+    material = {"deck_id": deck_id, "commander_names": commander, "mainboard": mainboard}
     return RulesDeckInput(
         deck_id=deck_id,
         name=f"WS-22 technical Isamaru {player_count}P seat {seat}",
@@ -200,7 +198,6 @@ class DecisionBinding:
     state_revision: int
     options_digest: str
     external_to_native: dict[str, str]
-    native_order: list[str]
 
 
 @dataclass
@@ -217,14 +214,16 @@ class Session:
     last_status: dict[str, Any] = field(default_factory=dict)
     terminal: bool = False
 
-    @property
-    def player_count(self) -> int:
-        return len(self.players)
+    def player_id_for_zero_seat(self, seat: int) -> str:
+        if seat < 0 or seat >= len(self.players):
+            raise FullGameProtocolError(f"COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: invalid native seat {seat}")
+        return str(self.players[seat]["player_id"])
 
-    def external_player_id(self, seat_zero_based: int) -> str:
-        if seat_zero_based < 0 or seat_zero_based >= len(self.players):
-            raise ValueError(f"seat outside session: {seat_zero_based}")
-        return str(self.players[seat_zero_based]["player_id"])
+    def zero_seat_for_player_id(self, player_id: str) -> int:
+        for index, player in enumerate(self.players):
+            if str(player["player_id"]) == player_id:
+                return index
+        raise FullGameProtocolError(f"UNKNOWN_ACTOR: {player_id}")
 
     def semantic_id(self, native: str) -> str:
         existing = self.native_to_semantic_id.get(native)
@@ -235,21 +234,21 @@ class Session:
         self.native_to_semantic_id[native] = semantic
         return semantic
 
-    def sanitize(self, value: Any, key: str | None = None) -> Any:
+    def sanitize(self, value: Any) -> Any:
         if isinstance(value, dict):
             result: dict[str, Any] = {}
-            for child_key, child_value in value.items():
-                if child_key == "seat" and isinstance(child_value, int):
-                    result[child_key] = child_value + 1
-                elif child_key == "actor_id" and isinstance(child_value, str) and _UUID_RE.match(child_value):
-                    result[child_key] = self.semantic_id(child_value)
-                elif child_key == "player_id" and isinstance(child_value, str) and _UUID_RE.match(child_value):
-                    result[child_key] = self.semantic_id(child_value)
+            for key, child in value.items():
+                if key == "seat" and isinstance(child, int):
+                    result[key] = child + 1
+                elif key in {"viewer_seat", "decision_subject_seat"} and isinstance(child, int):
+                    result[key] = child + 1
+                elif key.endswith("player_id") and isinstance(child, str) and _UUID_RE.match(child):
+                    result[key] = self.semantic_id(child)
                 else:
-                    result[child_key] = self.sanitize(child_value, child_key)
+                    result[key] = self.sanitize(child)
             return result
         if isinstance(value, list):
-            return [self.sanitize(item, key) for item in value]
+            return [self.sanitize(item) for item in value]
         if isinstance(value, str) and _UUID_RE.match(value):
             return self.semantic_id(value)
         return value
@@ -279,41 +278,40 @@ class Session:
 
         native_decision_id = str(native.get("decision_id", ""))
         native_actor_id = str(native.get("actor_id", ""))
-        if self.pending is not None and self.pending.native_decision_id == native_decision_id:
-            return self._frame_from_binding(native, self.pending)
-
         seat_zero = int(native.get("seat", -1))
-        actor_id = self.external_player_id(seat_zero)
-        self.decision_index += 1
-        external_decision_id = f"decision-{self.decision_index:08d}"
+        actor_id = self.player_id_for_zero_seat(seat_zero)
+        if self.pending is not None and self.pending.native_decision_id == native_decision_id:
+            return self._frame(native, self.pending)
+
         native_options = native.get("legal_options")
         if not isinstance(native_options, list):
             raise FullGameProtocolError("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: legal_options is not an array")
+        self.decision_index += 1
+        external_decision_id = f"decision-{self.decision_index:08d}"
         external_options: list[dict[str, Any]] = []
         external_to_native: dict[str, str] = {}
-        native_order: list[str] = []
         for index, option in enumerate(native_options, start=1):
             if not isinstance(option, dict) or not isinstance(option.get("option_id"), str):
                 raise FullGameProtocolError("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: option lacks provider identity")
-            native_option_id = option["option_id"]
-            external_option_id = f"option-{index:04d}"
-            external_to_native[external_option_id] = native_option_id
-            native_order.append(native_option_id)
-            exported = {
-                "option_id": external_option_id,
-                "option_type": option.get("option_type", "generic"),
-                "label": option.get("label", external_option_id),
-                "metadata": self.sanitize(option.get("metadata") or {}),
+            external_id = f"option-{index:04d}"
+            external_to_native[external_id] = option["option_id"]
+            external_options.append(
+                {
+                    "option_id": external_id,
+                    "option_type": option.get("option_type", "generic"),
+                    "label": option.get("label", external_id),
+                    "metadata": self.sanitize(option.get("metadata") or {}),
+                }
+            )
+        digest = _sha256(
+            {
+                "decision_id": external_decision_id,
+                "state_revision": self.state_revision,
+                "minimum_selections": int(native.get("minimum_selections", 0)),
+                "maximum_selections": int(native.get("maximum_selections", 0)),
+                "options": external_options,
             }
-            external_options.append(exported)
-        digest_material = {
-            "decision_id": external_decision_id,
-            "state_revision": self.state_revision,
-            "minimum_selections": int(native.get("minimum_selections", 0)),
-            "maximum_selections": int(native.get("maximum_selections", 0)),
-            "options": external_options,
-        }
-        digest = _sha256(digest_material)
+        )
         binding = DecisionBinding(
             external_decision_id=external_decision_id,
             native_decision_id=native_decision_id,
@@ -322,42 +320,42 @@ class Session:
             state_revision=self.state_revision,
             options_digest=digest,
             external_to_native=external_to_native,
-            native_order=native_order,
         )
         self.pending = binding
-        return self._frame_from_binding(native, binding, external_options)
+        return self._frame(native, binding, external_options)
 
-    def _frame_from_binding(
+    def _frame(
         self,
         native: dict[str, Any],
         binding: DecisionBinding,
         external_options: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         if external_options is None:
-            external_options = []
-            native_options = native.get("legal_options") if isinstance(native.get("legal_options"), list) else []
             reverse = {native_id: external_id for external_id, native_id in binding.external_to_native.items()}
-            for option in native_options:
+            external_options = []
+            for option in native.get("legal_options") or []:
                 if not isinstance(option, dict):
                     continue
                 native_id = str(option.get("option_id", ""))
                 external_id = reverse.get(native_id)
                 if external_id is None:
                     raise FullGameProtocolError("STALE_DECISION: native option set changed while pending")
-                external_options.append({
-                    "option_id": external_id,
-                    "option_type": option.get("option_type", "generic"),
-                    "label": option.get("label", external_id),
-                    "metadata": self.sanitize(option.get("metadata") or {}),
-                })
-        subject_seat = int(native.get("seat", -1))
-        actor_view = self.sanitize(native.get("pilot_state") or {})
+                external_options.append(
+                    {
+                        "option_id": external_id,
+                        "option_type": option.get("option_type", "generic"),
+                        "label": option.get("label", external_id),
+                        "metadata": self.sanitize(option.get("metadata") or {}),
+                    }
+                )
+        subject_seat_zero = int(native.get("decision_subject_seat", native.get("seat", -1)))
+        subject_id = self.player_id_for_zero_seat(subject_seat_zero)
         return {
             "decision_id": binding.external_decision_id,
             "state_revision": binding.state_revision,
             "options_digest": binding.options_digest,
             "decision_class": native.get("decision_class"),
-            "decision_subject_player_id": self.external_player_id(subject_seat),
+            "decision_subject_player_id": subject_id,
             "decision_authority_player_id": binding.actor_id,
             "viewer_player_id": binding.actor_id,
             "minimum_selections": int(native.get("minimum_selections", 0)),
@@ -366,7 +364,7 @@ class Session:
             "context": self.sanitize(native.get("context") or {}),
             "legal_options": external_options,
             "source_object": self.sanitize(native.get("source_object")),
-            "observation": actor_view,
+            "observation": self.sanitize(native.get("pilot_state") or {}),
         }
 
 
@@ -400,11 +398,12 @@ class Provider:
                 return self._run_fixture(request)
             return _error(request, "UNSUPPORTED_MESSAGE_TYPE", f"unsupported RSP message type {message_type!r}")
         except FullGameProtocolError as exc:
-            code = "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER" if "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER" in str(exc) else "PROVIDER_FAILURE"
+            text = str(exc)
+            code = "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER" if "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER" in text else "PROVIDER_FAILURE"
             return _error(
                 request,
                 code,
-                str(exc),
+                text,
                 terminal=True,
                 session_id=None if self.session is None else self.session.session_id,
                 state_revision=None if self.session is None else self.session.state_revision,
@@ -421,10 +420,9 @@ class Provider:
 
     def _require_session(self, request: dict[str, Any]) -> Session:
         if self.session is None:
-            raise ValueError("SESSION_NOT_OPEN")
-        requested = request.get("session_id")
-        if requested != self.session.session_id:
-            raise ValueError(f"SESSION_ID_MISMATCH: expected {self.session.session_id!r}")
+            raise FullGameProtocolError("SESSION_NOT_OPEN")
+        if request.get("session_id") != self.session.session_id:
+            raise FullGameProtocolError(f"SESSION_ID_MISMATCH: expected {self.session.session_id!r}")
         return self.session
 
     def _open(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -434,27 +432,26 @@ class Provider:
         if not isinstance(payload, dict):
             return _error(request, "INVALID_REQUEST", "OPEN_SESSION payload must be an object")
         session_id = str(request.get("session_id") or payload.get("session_id") or "").strip()
-        if not session_id:
-            return _error(request, "INVALID_REQUEST", "OPEN_SESSION requires session_id")
         players = payload.get("players")
-        if not isinstance(players, list) or len(players) not in {2, 3, 4, 5}:
-            return _error(request, "INVALID_PLAYER_COUNT", "OPEN_SESSION requires exactly 2 through 5 players")
+        if not session_id or not isinstance(players, list) or len(players) not in {2, 3, 4, 5}:
+            return _error(request, "INVALID_REQUEST", "OPEN_SESSION requires session_id and exactly 2 through 5 players")
         normalized: list[dict[str, Any]] = []
-        seen_ids: set[str] = set()
+        seen: set[str] = set()
         for index, player in enumerate(players, start=1):
             if not isinstance(player, dict):
                 return _error(request, "INVALID_REQUEST", f"players[{index - 1}] must be an object")
             player_id = str(player.get("player_id", "")).strip()
             seat = int(player.get("seat", index))
             deck = player.get("deck")
-            if not player_id or player_id in seen_ids or seat != index or not isinstance(deck, dict):
+            if not player_id or player_id in seen or seat != index or not isinstance(deck, dict):
                 return _error(request, "INVALID_REQUEST", "players require unique player_id, contiguous 1-based seat, and deck")
-            seen_ids.add(player_id)
+            seen.add(player_id)
             normalized.append({"player_id": player_id, "seat": seat, "deck": deck})
         seed = int(payload.get("seed", 0))
         starting_seat_one = int(payload.get("starting_player_seat", 1))
         if starting_seat_one < 1 or starting_seat_one > len(normalized):
             return _error(request, "INVALID_REQUEST", "starting_player_seat outside session")
+
         client = _RawFullGameClient(_bridge_command(), cwd=ROOT, request_timeout_seconds=120.0)
         try:
             started = client.request("start_engine")
@@ -465,8 +462,7 @@ class Provider:
                 raise FullGameProtocolError("XMAGE_BUILD_IDENTITY_MISMATCH")
             handles: list[str] = []
             for player in normalized:
-                deck = player["deck"]
-                imported = client.request("import_deck", {"deck": deck})
+                imported = client.request("import_deck", {"deck": player["deck"]})
                 handle = imported.get("deck_handle")
                 if not isinstance(handle, dict) or not isinstance(handle.get("handle_id"), str):
                     raise FullGameProtocolError("IMPORT_DECK returned no stable handle")
@@ -505,28 +501,30 @@ class Provider:
 
     def _observe(self, request: dict[str, Any]) -> dict[str, Any]:
         session = self._require_session(request)
-        actor_id = str(request.get("actor_id") or "").strip()
-        if not actor_id:
+        viewer_id = str(request.get("actor_id") or "").strip()
+        if not viewer_id:
             return _error(request, "INVALID_REQUEST", "OBSERVE requires actor_id", session_id=session.session_id, state_revision=session.state_revision)
-        pending = session.decision_frame()
-        if pending is not None and pending["viewer_player_id"] == actor_id:
-            observation = pending["observation"]
-        else:
-            # The bridge currently exposes actor snapshots on the pending native decision path.
-            # Returning any other viewer by inference would create a second observation authority.
-            return _error(
-                request,
-                "OBSERVATION_VIEWER_UNAVAILABLE",
-                "arbitrary-viewer observation must come from the authoritative XMage observation endpoint",
-                session_id=session.session_id,
-                state_revision=session.state_revision,
-            )
+        payload = request.get("payload")
+        payload = payload if isinstance(payload, dict) else {}
+        subject_id = str(payload.get("decision_subject_player_id") or viewer_id)
+        viewer_zero = session.zero_seat_for_player_id(viewer_id)
+        subject_zero = session.zero_seat_for_player_id(subject_id)
+        native = session.client.request(
+            "get_full_game_observation",
+            {"viewer_seat": viewer_zero, "decision_subject_seat": subject_zero},
+        )
+        observation = session.sanitize(native.get("observation") or {})
         return _base_response(
             request,
             "OBSERVATION",
-            {"viewer_player_id": actor_id, "observation": observation, "terminal": session.terminal},
+            {
+                "viewer_player_id": viewer_id,
+                "decision_subject_player_id": subject_id,
+                "observation": observation,
+                "terminal": bool(native.get("terminal")),
+            },
             session_id=session.session_id,
-            actor_id=actor_id,
+            actor_id=viewer_id,
             state_revision=session.state_revision,
         )
 
@@ -561,10 +559,8 @@ class Provider:
         binding = session.pending
         if payload.get("decision_id") != binding.external_decision_id:
             return _error(request, "STALE_DECISION", "decision_id does not match pending frame", session_id=session.session_id, state_revision=session.state_revision)
-        if int(payload.get("state_revision", -1)) != binding.state_revision:
-            return _error(request, "STALE_DECISION", "state_revision does not match pending frame", session_id=session.session_id, state_revision=session.state_revision)
-        if payload.get("options_digest") != binding.options_digest:
-            return _error(request, "STALE_DECISION", "options_digest does not match pending frame", session_id=session.session_id, state_revision=session.state_revision)
+        if int(payload.get("state_revision", -1)) != binding.state_revision or payload.get("options_digest") != binding.options_digest:
+            return _error(request, "STALE_DECISION", "revision/options digest does not match pending frame", session_id=session.session_id, state_revision=session.state_revision)
         selected_external = payload.get("selected_option_ids") or []
         ordering_external = payload.get("ordering") or []
         if not isinstance(selected_external, list) or not isinstance(ordering_external, list):
@@ -580,7 +576,7 @@ class Provider:
             "selected_option_ids": selected_native,
             "ordering": ordering_native,
         }
-        if "numeric_choice" in payload and payload["numeric_choice"] is not None:
+        if payload.get("numeric_choice") is not None:
             native_response["numeric_choice"] = int(payload["numeric_choice"])
         status = session.client.request("submit_full_game_decision", {"response": native_response})
         session.state_revision += 1
@@ -647,12 +643,7 @@ def main() -> int:
                     "session_id": None,
                     "actor_id": None,
                     "state_revision": None,
-                    "payload": {
-                        "error_code": "INVALID_JSON",
-                        "message": f"{type(exc).__name__}: {exc}",
-                        "retryable": False,
-                        "terminal": False,
-                    },
+                    "payload": {"error_code": "INVALID_JSON", "message": f"{type(exc).__name__}: {exc}", "retryable": False, "terminal": False},
                 }
             print(json.dumps(response, sort_keys=True), flush=True)
     finally:
