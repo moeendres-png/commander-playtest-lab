@@ -201,6 +201,7 @@ jobs:
       - name: Compile WS-26 qualification code
         run: |
           python -m py_compile candidate-qualification/ws26-xmage/run_ws26_gate.py
+          python -m py_compile candidate-qualification/ws26-xmage/run_ws26_gate_canonical.py
           python -m py_compile candidate-qualification/ws26-xmage/census_xmage_rng.py
           cd engine-bridge
           mvn -B -ntp verify
@@ -238,7 +239,7 @@ jobs:
           PY
 
       - name: Run WS-26 scenario and replay gate
-        run: python candidate-qualification/ws26-xmage/run_ws26_gate.py
+        run: python candidate-qualification/ws26-xmage/run_ws26_gate_canonical.py
 
       - name: Upload WS-26 evidence
         if: always()
