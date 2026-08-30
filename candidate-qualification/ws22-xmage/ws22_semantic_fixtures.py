@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shlex
 from functools import lru_cache
 from pathlib import Path
@@ -13,9 +14,51 @@ from commander_lab.models import RulesDeckInput
 
 XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
 ROOT = Path(__file__).resolve().parents[2]
+RUNTIME_SUPPORT_PATH = ROOT / "qualification/evidence/ws22-xmage/RUNTIME_SUPPORT_EVIDENCE.json"
 HIDDEN_BASELINE_FIXTURES = {"HIDDEN_01", "HIDDEN_02"}
-HIDDEN_AUDIT_FIXTURES = {"HIDDEN_18", "HIDDEN_HONEYCARD_SENTINEL"}
+HIDDEN_AUDIT_FIXTURES = {"HIDDEN_18", "HIDDEN_19", "HIDDEN_HONEYCARD_SENTINEL"}
+HIDDEN_SCENARIO_FIXTURES = {f"HIDDEN_{index:02d}" for index in range(3, 18)}
+PILOT_RUNTIME_FIXTURES = {"PILOT_MULLIGAN", "PILOT_PRIORITY"}
+PILOT_ALL_FIXTURES = {
+    "PILOT_PRIORITY",
+    "PILOT_TARGET",
+    "PILOT_CHOOSE_OBJECT",
+    "PILOT_TARGET_AMOUNT",
+    "PILOT_MULLIGAN",
+    "PILOT_CHOOSE_USE",
+    "PILOT_CHOICE",
+    "PILOT_PILE",
+    "PILOT_MANA_PAYMENT",
+    "PILOT_ANNOUNCE_X",
+    "PILOT_MULTI_AMOUNT",
+    "PILOT_REPLACEMENT_EFFECT",
+    "PILOT_TRIGGER_ORDER",
+    "PILOT_CHOOSE_MODE",
+    "PILOT_CHOOSE_ABILITY",
+    "PILOT_DECLARE_ATTACKER",
+    "PILOT_DECLARE_BLOCKER",
+}
+NEGATIVE_FIXTURES = {
+    "NEGATIVE_FIRST_OPTION",
+    "NEGATIVE_RANDOM_OPTION",
+    "NEGATIVE_DEFAULT_YES_NO",
+    "NEGATIVE_INTERNAL_AI",
+    "NEGATIVE_GUI_DEFAULT",
+    "NEGATIVE_SILENT_SKIP",
+    "NEGATIVE_PARENT_CLASS_FALLBACK",
+}
+REPLAY_FIXTURES = {
+    "RNG_RULES_TAPE",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_STATE_HASHES",
+}
 HONEY_SENTINEL = "Snow-Covered Plains"
+_UUID_RE = re.compile(
+    r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-"
+    r"[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\b"
+)
 
 
 def _canonical_json(value: Any) -> bytes:
@@ -81,6 +124,39 @@ def _fail(reason: str, payload: Any) -> dict[str, Any]:
         "reason": reason,
         "artifact_hashes": {"semantic_probe_sha256": _sha256(payload)},
     }
+
+
+def _unsupported(reason: str, payload: Any) -> dict[str, Any]:
+    return {
+        "verdict": "UNSUPPORTED",
+        "evidence_class": "RUNTIME_VERIFIED",
+        "reason": reason,
+        "artifact_hashes": {"runtime_support_sha256": _sha256(payload)},
+    }
+
+
+@lru_cache(maxsize=1)
+def runtime_support_evidence() -> dict[str, Any]:
+    if not RUNTIME_SUPPORT_PATH.is_file():
+        raise RuntimeError("WS22_RUNTIME_SUPPORT_EVIDENCE_MISSING")
+    data = json.loads(RUNTIME_SUPPORT_PATH.read_text(encoding="utf-8"))
+    if data.get("xmage_commit") != XMAGE_COMMIT:
+        raise RuntimeError("XMAGE_BUILD_IDENTITY_MISMATCH")
+    capabilities = data.get("capabilities")
+    lane = data.get("full_game_lane")
+    if not isinstance(capabilities, dict) or not isinstance(lane, dict):
+        raise RuntimeError("WS22_RUNTIME_SUPPORT_EVIDENCE_INVALID")
+    return data
+
+
+def _require_no_scenario_injection() -> dict[str, Any]:
+    evidence = runtime_support_evidence()
+    capabilities = evidence["capabilities"]
+    if capabilities.get("starting_state_injection_supported") is not False:
+        raise RuntimeError("starting-state injection runtime truth changed")
+    if capabilities.get("scenario_injection_supported") is not False:
+        raise RuntimeError("scenario injection runtime truth changed")
+    return evidence
 
 
 def _start_real_four_player_game(
@@ -224,10 +300,7 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
         "detail",
     }
     transcript_keys = {
-        key
-        for event in transcript
-        if isinstance(event, dict)
-        for key in event
+        key for event in transcript if isinstance(event, dict) for key in event
     }
     transcript_ok = forbidden_transcript_keys.isdisjoint(transcript_keys)
     hidden_18_payload = {
@@ -246,25 +319,227 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
         )
     )
 
-    honey_payload = {"observation": observation, "result": result}
-    honey_text = json.dumps(honey_payload, sort_keys=True, ensure_ascii=False)
-    honey_ok = HONEY_SENTINEL not in honey_text
+    api_payload = {"observation": observation, "result": result}
+    api_text = json.dumps(api_payload, sort_keys=True, ensure_ascii=False)
+    forbidden_api_keys = {
+        "raw_game",
+        "raw_engine",
+        "engine_object",
+        "omniscient_state",
+        "native_game",
+        "native_card",
+    }
+    api_keys = {
+        key
+        for root in (observation, result)
+        for key in root
+        if isinstance(root, dict)
+    }
+    hidden_19_ok = not _UUID_RE.search(api_text) and forbidden_api_keys.isdisjoint(api_keys)
+    hidden_19 = (
+        _pass(
+            "Even the lower-level full-game JSON bridge exposes actor-scoped JSON projection only: no raw UUID identity or omniscient/raw engine object field reaches the pilot-facing lane.",
+            api_payload,
+        )
+        if hidden_19_ok
+        else _fail(
+            "Pilot-facing full-game surface exposed a raw UUID or raw/omniscient engine-state field.",
+            api_payload,
+        )
+    )
+
+    honey_ok = HONEY_SENTINEL not in api_text
     honey = (
         _pass(
             "A real 4P run with opponent-only Snow-Covered Plains honeycard identities leaves the viewer observation and durable result/transcript free of the forbidden identity token.",
-            honey_payload,
+            api_payload,
         )
         if honey_ok
         else _fail(
             "Opponent-only honeycard identity leaked into actor-visible observation or durable full-game audit result.",
-            honey_payload,
+            api_payload,
         )
     )
 
     return {
         "HIDDEN_18": hidden_18,
+        "HIDDEN_19": hidden_19,
         "HIDDEN_HONEYCARD_SENTINEL": honey,
     }
+
+
+@lru_cache(maxsize=1)
+def pilot_smoke_results() -> dict[str, dict[str, Any]]:
+    decks = tuple(_deck(seat, label="pilot-smoke") for seat in range(1, 5))
+    with _RawFullGameClient(
+        _bridge_command(),
+        cwd=ROOT,
+        request_timeout_seconds=120.0,
+    ) as client:
+        started = client.request("start_engine")
+        if started.get("lane") != "xmage_full_game_external_pilots":
+            raise RuntimeError("bridge did not enter full-game lane")
+        provider = client.request("get_provider_version")
+        if provider.get("engine_commit") != XMAGE_COMMIT:
+            raise RuntimeError("XMAGE_BUILD_IDENTITY_MISMATCH")
+        handles: list[str] = []
+        for deck in decks:
+            imported = client.request("import_deck", {"deck": _deck_payload(deck)})
+            handle = imported.get("deck_handle")
+            if not isinstance(handle, dict) or not isinstance(handle.get("handle_id"), str):
+                raise RuntimeError("IMPORT_DECK returned no stable handle")
+            handles.append(handle["handle_id"])
+        client.request(
+            "create_full_game",
+            {
+                "game_id": "ws22-pilot-smoke",
+                "deck_handles": handles,
+                "seed": 424242,
+                "starting_player_seat": 0,
+                "starting_life": 40,
+            },
+        )
+        status = client.request("start_full_game")
+        mulligan_frames: list[dict[str, Any]] = []
+        priority_frame: dict[str, Any] | None = None
+        for _ in range(12):
+            decision = status.get("decision")
+            if not isinstance(decision, dict):
+                status = client.request("get_full_game_decision")
+                decision = status.get("decision")
+            if not isinstance(decision, dict):
+                break
+            decision_class = decision.get("decision_class")
+            if decision_class == "priority":
+                priority_frame = decision
+                break
+            if decision_class != "mulligan":
+                raise RuntimeError(f"unexpected setup decision before priority: {decision_class}")
+            options = decision.get("legal_options")
+            if not isinstance(options, list):
+                raise RuntimeError("mulligan legal options unavailable")
+            keep = next(
+                (
+                    option
+                    for option in options
+                    if isinstance(option, dict) and option.get("option_type") == "keep"
+                ),
+                None,
+            )
+            if not isinstance(keep, dict) or not isinstance(keep.get("option_id"), str):
+                raise RuntimeError("mulligan keep option unavailable")
+            mulligan_frames.append(decision)
+            status = client.request(
+                "submit_full_game_decision",
+                {
+                    "response": {
+                        "decision_id": decision["decision_id"],
+                        "actor_id": decision["actor_id"],
+                        "selected_option_ids": [keep["option_id"]],
+                        "ordering": [],
+                    }
+                },
+            )
+
+    mulligan_payload = {"frames": mulligan_frames}
+    mulligan_ok = len(mulligan_frames) == 4 and all(
+        {"keep", "mulligan"}.issubset(
+            {
+                option.get("option_type")
+                for option in frame.get("legal_options", [])
+                if isinstance(option, dict)
+            }
+        )
+        for frame in mulligan_frames
+    )
+    mulligan = (
+        _pass(
+            "Real 4P Commander start routed each opening-hand keep/mulligan decision through the external decision controller with explicit legal options and exact submitted keep IDs.",
+            mulligan_payload,
+        )
+        if mulligan_ok
+        else _fail(
+            "Real 4P Commander start did not expose four explicit external mulligan decisions with keep/mulligan options.",
+            mulligan_payload,
+        )
+    )
+
+    priority_payload = {"priority_frame": priority_frame}
+    priority_ok = isinstance(priority_frame, dict) and any(
+        isinstance(option, dict) and option.get("option_type") == "pass_priority"
+        for option in priority_frame.get("legal_options", [])
+    )
+    priority = (
+        _pass(
+            "After four explicit keeps, real XMage gameplay reached an external priority decision containing XMage-supplied pass-priority legality.",
+            priority_payload,
+        )
+        if priority_ok
+        else _fail(
+            "Real 4P gameplay did not reach the expected external priority decision after opening-hand decisions.",
+            priority_payload,
+        )
+    )
+    return {"PILOT_MULLIGAN": mulligan, "PILOT_PRIORITY": priority}
+
+
+def _parent_fallback_result() -> dict[str, Any]:
+    evidence = runtime_support_evidence()
+    suite = evidence.get("bridge_test_suites", {}).get("XmageFullGamePlayerBoundaryTest")
+    if not isinstance(suite, dict) or suite.get("passed") is not True:
+        return _fail(
+            "Exact-head player-boundary runtime suite did not pass; parent-class fallback remains unqualified.",
+            evidence,
+        )
+    return _pass(
+        "Exact-head compiled player-boundary suite executed the complete discretionary callback reflection gate and confirmed only the two explicitly audited safe parent delegations remain.",
+        {"suite": suite, "evidence_sha256": evidence.get("evidence_sha256")},
+    )
+
+
+def _scenario_injection_unsupported(fixture_id: str) -> dict[str, Any]:
+    evidence = _require_no_scenario_injection()
+    return _unsupported(
+        f"{fixture_id} requires a deterministic semantic starting state or scenario injection to execute its exact rules path. The exact-head full-game runtime reports both starting_state_injection_supported=false and scenario_injection_supported=false; WS-22 therefore closes this fixture as UNSUPPORTED rather than awarding source-derived credit.",
+        {
+            "fixture_id": fixture_id,
+            "capabilities": evidence["capabilities"],
+            "evidence_sha256": evidence.get("evidence_sha256"),
+        },
+    )
+
+
+def _replay_unsupported(fixture_id: str) -> dict[str, Any]:
+    evidence = runtime_support_evidence()
+    capabilities = evidence["capabilities"]
+    lane = evidence["full_game_lane"]
+    if capabilities.get("replay_supported") is not False:
+        raise RuntimeError("replay capability runtime truth changed")
+    if lane.get("bit_exact_replay_validated") is not False:
+        raise RuntimeError("bit-exact replay runtime truth changed")
+    return _unsupported(
+        f"{fixture_id} requires durable replay/RNG-tape evidence. The exact-head runtime reports replay_supported=false and bit_exact_replay_validated=false, so no replay obligation receives substitute PASS credit.",
+        {
+            "fixture_id": fixture_id,
+            "replay_supported": capabilities.get("replay_supported"),
+            "bit_exact_replay_validated": lane.get("bit_exact_replay_validated"),
+            "evidence_sha256": evidence.get("evidence_sha256"),
+        },
+    )
+
+
+def _negative_unsupported(fixture_id: str) -> dict[str, Any]:
+    evidence = runtime_support_evidence()
+    return _unsupported(
+        f"{fixture_id} is a mandatory forbidden-fallback mechanism. The exact-head boundary suite is executed, but the production lane exposes no deterministic negative-mechanism injection hook that independently executes this specific forbidden fallback. WS-22 therefore records UNSUPPORTED instead of inferring PASS from source structure.",
+        {
+            "fixture_id": fixture_id,
+            "boundary_suite": evidence.get("bridge_test_suites", {}).get(
+                "XmageFullGamePlayerBoundaryTest"
+            ),
+            "evidence_sha256": evidence.get("evidence_sha256"),
+        },
+    )
 
 
 def run_semantic_fixture(fixture_id: str) -> dict[str, Any] | None:
@@ -272,4 +547,22 @@ def run_semantic_fixture(fixture_id: str) -> dict[str, Any] | None:
         return hidden_baseline_results()[fixture_id]
     if fixture_id in HIDDEN_AUDIT_FIXTURES:
         return hidden_audit_results()[fixture_id]
+    if fixture_id in PILOT_RUNTIME_FIXTURES:
+        return pilot_smoke_results()[fixture_id]
+    if fixture_id == "NEGATIVE_PARENT_CLASS_FALLBACK":
+        return _parent_fallback_result()
+    if fixture_id in NEGATIVE_FIXTURES:
+        return _negative_unsupported(fixture_id)
+    if fixture_id in REPLAY_FIXTURES:
+        return _replay_unsupported(fixture_id)
+    if fixture_id in HIDDEN_SCENARIO_FIXTURES:
+        return _scenario_injection_unsupported(fixture_id)
+    if fixture_id in PILOT_ALL_FIXTURES:
+        return _scenario_injection_unsupported(fixture_id)
+    if fixture_id.startswith("WS05-"):
+        return _scenario_injection_unsupported(fixture_id)
+    if fixture_id.startswith("MICRO_"):
+        return _scenario_injection_unsupported(fixture_id)
+    if fixture_id.startswith("CARD_"):
+        return _scenario_injection_unsupported(fixture_id)
     return None
