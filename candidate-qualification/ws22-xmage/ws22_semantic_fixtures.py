@@ -299,9 +299,7 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
         "message",
         "detail",
     }
-    transcript_keys = {
-        key for event in transcript if isinstance(event, dict) for key in event
-    }
+    transcript_keys = {key for event in transcript if isinstance(event, dict) for key in event}
     transcript_ok = forbidden_transcript_keys.isdisjoint(transcript_keys)
     hidden_18_payload = {
         "transcript": transcript,
@@ -329,12 +327,7 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
         "native_game",
         "native_card",
     }
-    api_keys = {
-        key
-        for root in (observation, result)
-        for key in root
-        if isinstance(root, dict)
-    }
+    api_keys = {key for root in (observation, result) for key in root if isinstance(root, dict)}
     hidden_19_ok = not _UUID_RE.search(api_text) and forbidden_api_keys.isdisjoint(api_keys)
     hidden_19 = (
         _pass(
