@@ -48,9 +48,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile scripts/ws23_generate_forge_vertical_provider_v2.py scripts/ws23_run_vertical_v2.py
-          ruff check scripts/ws23_generate_forge_vertical_provider_v2.py scripts/ws23_run_vertical_v2.py
-          ruff format --check scripts/ws23_generate_forge_vertical_provider_v2.py scripts/ws23_run_vertical_v2.py
+          python -m py_compile \
+            scripts/ws23_generate_forge_vertical_provider_v2.py \
+            scripts/ws23_run_vertical_v2.py \
+            scripts/ws23_build_bounded_common_matrix.py
+          ruff check \
+            scripts/ws23_generate_forge_vertical_provider_v2.py \
+            scripts/ws23_run_vertical_v2.py \
+            scripts/ws23_build_bounded_common_matrix.py
+          ruff format --check \
+            scripts/ws23_generate_forge_vertical_provider_v2.py \
+            scripts/ws23_run_vertical_v2.py \
+            scripts/ws23_build_bounded_common_matrix.py
 
       - name: Checkout exact Forge source into GPL workspace
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -108,8 +117,14 @@ jobs:
           assert p['abstract_method_count'] == 109
           assert p['support_scope'] == 'BOUNDED_VERTICAL_SLICE_ONLY'
           assert p['gate_a_base_preserved'] is True
+          assert p['protocol_stdout_exclusive'] is True
           allowed={'EXTERNALLY_IMPLEMENTED','RULES_AUTOMATIC_NONDISCRETIONARY','PROVEN_UNREACHABLE','FAIL_CLOSED_UNSUPPORTED'}
           assert {x['classification'] for x in p['callbacks']} <= allowed
+          mapping={x['name']:x['classification'] for x in p['callbacks']}
+          assert mapping['orderSimultaneousSa'] == 'EXTERNALLY_IMPLEMENTED'
+          assert mapping['orderAndPlaySimultaneousSa'] == 'RULES_AUTOMATIC_NONDISCRETIONARY'
+          assert mapping['playTrigger'] == 'FAIL_CLOSED_UNSUPPORTED'
+          assert mapping['chooseCardsToDiscardToMaximumHandSize'] == 'FAIL_CLOSED_UNSUPPORTED'
           PY
 
       - name: Assert prohibited controller dependencies absent
@@ -119,6 +134,7 @@ jobs:
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi' \
             artifacts/ws23-v2/generated/java \
             qualification/providers/forge/gpl/Ws23ForgeAuthority.java \
+            qualification/providers/forge/gpl/Ws23ForgeGateD.java \
             qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
 
       - name: Compile v2 provider and GPL authority helper
@@ -130,6 +146,7 @@ jobs:
           javac -cp "$cp" -d artifacts/ws23-v2/provider-classes \
             artifacts/ws23-v2/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java \
             qualification/providers/forge/gpl/Ws23ForgeAuthority.java \
+            qualification/providers/forge/gpl/Ws23ForgeGateD.java \
             qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
           printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/artifacts/ws23-v2/provider-classes" \
             "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
@@ -138,7 +155,7 @@ jobs:
           ! grep -Eq 'forge-(ai|gui)' artifacts/ws23-v2/provider.classpath
           git -C vendor/engine-source/forge diff --exit-code
 
-      - name: Execute real v2 authority observation and decision slice
+      - name: Execute real Gate-D authority slice
         shell: bash
         run: |
           set -euo pipefail
@@ -146,6 +163,36 @@ jobs:
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws23-v2/provider.classpath) forge.game.player.Ws23ForgeBootstrap"
           python scripts/ws23_run_vertical_v2.py --output artifacts/ws23-v2/RUNTIME_PROOF.json \
             | tee artifacts/ws23-v2/runtime-summary.json
+
+      - name: Replay exact DecisionTape in clean JVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws23-v2/provider.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python scripts/ws23_run_vertical_v2.py \
+            --replay-proof artifacts/ws23-v2/RUNTIME_PROOF.json \
+            --output artifacts/ws23-v2/REPLAY_PROOF.json \
+            | tee artifacts/ws23-v2/replay-summary.json
+
+      - name: Build canonical 14-fixture bounded matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws23_build_bounded_common_matrix.py \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --runtime-proof artifacts/ws23-v2/RUNTIME_PROOF.json \
+            --replay-proof artifacts/ws23-v2/REPLAY_PROOF.json \
+            --output artifacts/ws23-v2/BOUNDED_COMMON_MATRIX.json \
+            | tee artifacts/ws23-v2/bounded-matrix-summary.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws23-v2/BOUNDED_COMMON_MATRIX.json'))
+          assert p['denominator'] == 14
+          assert p['pass_count'] == 14
+          assert p['all_pass'] is True
+          assert p['continue_gate'] == 'CONTINUE'
+          PY
 
       - name: Record GPL process boundary
         shell: bash
@@ -155,7 +202,7 @@ jobs:
           import json, pathlib
           cp=pathlib.Path('artifacts/ws23-v2/provider.classpath').read_text().strip()
           evidence={
-            'schema_version':'ws23-v2-gpl-boundary/1.0.0',
+            'schema_version':'ws23-v2-gpl-boundary/1.1.0',
             'provider_process':'separate java process',
             'forge_commit':'1e604105f9e279331063824943b9222b6589f5d8',
             'forge_tree':'994976e06aaf99b807646b60b1aa2ac9f7703df4',
@@ -163,6 +210,8 @@ jobs:
             'forge_ai_or_gui_on_provider_classpath':('forge-ai' in cp or 'forge-gui' in cp),
             'forge_source_modified':False,
             'rng_seed':230023,
+            'rng_engine_path':'FlipCoinEffect/MyRandom',
+            'bounded_continue_gate':'CONTINUE',
           }
           assert not evidence['forge_ai_or_gui_on_provider_classpath']
           pathlib.Path('artifacts/ws23-v2/GPL_PROCESS_BOUNDARY.json').write_text(json.dumps(evidence,indent=2,sort_keys=True)+'\n')
