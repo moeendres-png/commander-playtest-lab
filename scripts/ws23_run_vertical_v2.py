@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 PROTOCOL = "commander-lab.rules-service/1.1.0"
+EXPECTED_STOP = "WS23_GATE_D_POST_COMBAT_MAIN2"
 
 
 def digest(option_ids: list[str]) -> str:
@@ -23,10 +24,15 @@ def send(proc: subprocess.Popen[str], message: dict[str, Any]) -> None:
     proc.stdin.flush()
 
 
+def action_matches(options: list[dict[str, Any]], card_ref: str) -> list[dict[str, Any]]:
+    prefix = f"action:{card_ref.split(':', 1)[1]}:"
+    return [o for o in options if o.get("public_ref", "").startswith(prefix)]
+
+
 def choose_option(
     frame: dict[str, Any],
     scenario: dict[str, str],
-    state: dict[str, bool],
+    state: dict[str, Any],
 ) -> str:
     payload = frame["payload"]
     kind = payload["decision_kind"]
@@ -36,8 +42,6 @@ def choose_option(
         raise AssertionError(f"options digest mismatch: {payload}")
 
     if kind == "chooseStartingPlayer":
-        # Gate-A startup has already proven this callback. The v2 pilot deliberately
-        # selects an offered seat; this is not an unsupported fallback path.
         if "o0" not in ids:
             raise AssertionError(f"expected offered startup option o0: {options}")
         return "o0"
@@ -48,22 +52,38 @@ def choose_option(
         return keep[0]["option_id"]
     if kind == "priority":
         if scenario and not state["bolt_cast"]:
-            prefix = f"action:{scenario['bolt_ref'].split(':', 1)[1]}:"
-            matches = [o for o in options if o.get("public_ref", "").startswith(prefix)]
+            matches = action_matches(options, scenario["bolt_ref"])
             if len(matches) == 1:
                 state["bolt_cast"] = True
                 return matches[0]["option_id"]
-        passes = [o for o in options if o.get("public_ref") == "pass" or o.get("kind") == "PASS"]
+        if scenario and state["bolt_cast"] and not state["commander_cast"]:
+            matches = action_matches(options, scenario["commander_ref"])
+            if len(matches) == 1:
+                state["commander_cast"] = True
+                return matches[0]["option_id"]
+        if (
+            scenario
+            and state["commander_cast"]
+            and state["trigger_resolved"]
+            and not state["fog_cast"]
+        ):
+            matches = action_matches(options, scenario["fog_ref"])
+            if len(matches) == 1:
+                state["fog_cast"] = True
+                return matches[0]["option_id"]
+        passes = [
+            o
+            for o in options
+            if o.get("public_ref") == "pass" or o.get("kind") == "PASS"
+        ]
         if len(passes) != 1:
             raise AssertionError(f"priority must contain exactly one explicit PASS: {options}")
         return passes[0]["option_id"]
     if kind == "getAbilityToPlay":
-        prefix = f"ability:{scenario['bolt_ref'].split(':', 1)[1]}:"
-        matches = [o for o in options if o.get("public_ref", "").startswith(prefix)]
-        if len(matches) != 1:
-            raise AssertionError(f"expected one public Bolt ability variant: {options}")
-        state["ability_choice"] = True
-        return matches[0]["option_id"]
+        raise AssertionError(
+            "bounded Gate-D cards unexpectedly required an unresolved multi-ability choice: "
+            f"{options}"
+        )
     if kind == "target":
         matches = [o for o in options if o.get("public_ref") == scenario["target_player_ref"]]
         if len(matches) != 1:
@@ -75,7 +95,7 @@ def choose_option(
             raise AssertionError(
                 f"bounded mana probe expected one Forge-filtered mana option: {options}"
             )
-        state["mana"] = True
+        state["mana_payments"] += 1
         return options[0]["option_id"]
     if kind == "declareAttackers":
         wanted = f"attack:{scenario['attacker_ref']}->{scenario['target_player_ref']}"
@@ -123,10 +143,7 @@ def choose_option(
     raise AssertionError(f"unexpected decision kind escaped strict v2 surface: {kind}")
 
 
-def replay_choice(
-    frame: dict[str, Any],
-    expected: dict[str, Any],
-) -> str:
+def replay_choice(frame: dict[str, Any], expected: dict[str, Any]) -> str:
     payload = frame["payload"]
     ids = [x["option_id"] for x in payload["options"]]
     checks = {
@@ -138,12 +155,23 @@ def replay_choice(
     for key, value in checks.items():
         if expected.get(key) != value:
             raise AssertionError(
-                f"DecisionTape replay drift for {key}: expected={expected.get(key)!r} actual={value!r}"
+                f"DecisionTape replay drift for {key}: "
+                f"expected={expected.get(key)!r} actual={value!r}"
             )
     selected = expected.get("selected_option_id")
     if selected not in ids:
         raise AssertionError(f"recorded option not offered during replay: {selected} / {ids}")
     return str(selected)
+
+
+def proof_keys_match(
+    previous: dict[str, Any] | None,
+    current: dict[str, Any] | None,
+    keys: tuple[str, ...],
+) -> bool:
+    return previous is not None and current is not None and all(
+        previous.get(key) == current.get(key) for key in keys
+    )
 
 
 def main() -> int:
@@ -155,6 +183,7 @@ def main() -> int:
     if not command:
         raise SystemExit("COMMANDER_LAB_FORGE_PROVIDER_CMD is required")
 
+    previous: dict[str, Any] | None = None
     replay_tape: list[dict[str, Any]] | None = None
     if args.replay_proof is not None:
         previous = json.loads(args.replay_proof.read_text(encoding="utf-8"))
@@ -182,7 +211,7 @@ def main() -> int:
             "payload": {
                 "player_count": 4,
                 "seat_ids": ["seat-1", "seat-2", "seat-3", "seat-4"],
-                "qualification": "ws23-v2-bounded",
+                "qualification": "ws23-v2-bounded-gate-d",
             },
         },
     )
@@ -193,20 +222,27 @@ def main() -> int:
     observation: dict[str, Any] | None = None
     stack_observation: dict[str, Any] | None = None
     commander_proof: dict[str, Any] | None = None
+    trigger_proof: dict[str, Any] | None = None
+    prevention_proof: dict[str, Any] | None = None
+    rng_proof: dict[str, Any] | None = None
     result: dict[str, Any] | None = None
     replay_index = 0
-    state = {
+    state: dict[str, Any] = {
         "bolt_cast": False,
-        "ability_choice": False,
+        "commander_cast": False,
+        "fog_cast": False,
         "target": False,
-        "mana": False,
+        "mana_payments": 0,
         "attack": False,
         "block": False,
         "replacement_selection": False,
         "replacement": False,
         "trigger_order": False,
+        "trigger_resolved": False,
         "stack": False,
         "commander": False,
+        "prevention": False,
+        "rng": False,
     }
 
     assert proc.stdout is not None
@@ -225,7 +261,25 @@ def main() -> int:
             state["stack"] = stack_observation.get("public_stack_identity_visible") is True
         elif mtype == "COMMANDER_PROOF":
             commander_proof = msg["payload"]
-            state["commander"] = commander_proof.get("native_commander_replacement_applied") is True
+            state["commander"] = commander_proof.get("actual_card_behavior_verified") is True
+        elif mtype == "TRIGGER_PROOF":
+            trigger_proof = msg["payload"]
+            state["trigger_resolved"] = (
+                trigger_proof.get("native_trigger_resolution_verified") is True
+                and trigger_proof.get("life_gain_after_resolution") == 2
+            )
+        elif mtype == "PREVENTION_PROOF":
+            prevention_proof = msg["payload"]
+            state["prevention"] = prevention_proof.get("native_prevention_verified") is True
+        elif mtype == "RNG_PROOF":
+            rng_proof = msg["payload"]
+            state["rng"] = (
+                rng_proof.get("common_fixture_id") == "RNG_RULES_TAPE"
+                and rng_proof.get("engine_path") == "FlipCoinEffect/MyRandom"
+                and rng_proof.get("seed") == 230023
+                and rng_proof.get("flip_count") == 16
+                and len(rng_proof.get("sequence", "")) == 16
+            )
         elif mtype == "DECISION_FRAME":
             if not scenario and msg["payload"]["decision_kind"] not in {
                 "chooseStartingPlayer",
@@ -286,8 +340,26 @@ def main() -> int:
         )
 
     stderr = proc.stderr.read() if proc.stderr is not None else ""
+    previous_rng = None if previous is None else previous.get("rng_proof")
+    previous_snapshot = (
+        None
+        if previous is None
+        else ((previous.get("result") or {}).get("payload", {}).get("snapshot"))
+    )
+    current_snapshot = None if result is None else result.get("payload", {}).get("snapshot")
+    rng_replay_match = (
+        None
+        if previous is None
+        else proof_keys_match(
+            previous_rng,
+            rng_proof,
+            ("common_fixture_id", "engine_path", "seed", "flip_count", "sequence"),
+        )
+    )
+    snapshot_replay_match = None if previous is None else previous_snapshot == current_snapshot
+
     evidence = {
-        "schema_version": "ws23-v2-runtime-proof/1.1.0",
+        "schema_version": "ws23-v2-runtime-proof/1.2.0",
         "transcript": transcript,
         "stderr": stderr,
         "exit_code": proc.returncode,
@@ -295,10 +367,15 @@ def main() -> int:
         "observation": observation,
         "stack_observation": stack_observation,
         "commander_proof": commander_proof,
+        "trigger_proof": trigger_proof,
+        "prevention_proof": prevention_proof,
+        "rng_proof": rng_proof,
         "decision_coverage": state,
         "decision_tape": decision_tape,
         "replay_mode": replay_tape is not None,
         "replay_tape_consumed": replay_index if replay_tape is not None else None,
+        "rng_replay_match": rng_replay_match,
+        "snapshot_replay_match": snapshot_replay_match,
         "result": result,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -318,33 +395,58 @@ def main() -> int:
         )
     ):
         return 3
-    if (
-        stack_observation is None
-        or stack_observation.get("public_stack_identity_visible") is not True
-    ):
+    if stack_observation is None or stack_observation.get("public_stack_identity_visible") is not True:
         return 4
     if (
         commander_proof is None
         or commander_proof.get("native_commander_replacement_applied") is not True
+        or commander_proof.get("cast_from_command_runtime_verified") is not True
+        or commander_proof.get("commander_cast_count") != 1
+        or commander_proof.get("actual_card_behavior_verified") is not True
     ):
         return 5
-    if not all(
-        state[key]
-        for key in (
-            "bolt_cast",
-            "target",
-            "mana",
-            "attack",
-            "block",
-            "replacement",
-            "stack",
-            "commander",
-        )
+    if (
+        trigger_proof is None
+        or trigger_proof.get("ordered_trigger_count") != 2
+        or trigger_proof.get("life_gain_after_resolution") != 2
+        or trigger_proof.get("native_trigger_resolution_verified") is not True
     ):
         return 6
-    stop_reason = result["payload"].get("stop_reason", "")
-    if stop_reason != "WS23_CONTROLLED_AFTER_PRIORITY_128":
+    if (
+        prevention_proof is None
+        or prevention_proof.get("native_prevention_verified") is not True
+        or prevention_proof.get("fog_resolved_to_graveyard") is not True
+        or prevention_proof.get("attacker_damage") != 0
+        or prevention_proof.get("blocker_damage") != 0
+    ):
         return 7
+    if not state["rng"]:
+        return 8
+    required = (
+        "bolt_cast",
+        "commander_cast",
+        "fog_cast",
+        "target",
+        "attack",
+        "block",
+        "replacement_selection",
+        "replacement",
+        "trigger_order",
+        "trigger_resolved",
+        "stack",
+        "commander",
+        "prevention",
+        "rng",
+    )
+    if not all(state[key] for key in required) or state["mana_payments"] < 2:
+        return 9
+    stop_reason = result["payload"].get("stop_reason", "")
+    if stop_reason != EXPECTED_STOP:
+        return 10
+    if result["payload"].get("snapshot", {}).get("phase") != "MAIN2":
+        return 11
+    if previous is not None and (rng_replay_match is not True or snapshot_replay_match is not True):
+        return 12
 
     print(
         json.dumps(
@@ -355,6 +457,8 @@ def main() -> int:
                 "observation_proof": True,
                 "decision_tape_entries": len(decision_tape),
                 "replay_mode": replay_tape is not None,
+                "rng_replay_match": rng_replay_match,
+                "snapshot_replay_match": snapshot_replay_match,
             },
             sort_keys=True,
         )
