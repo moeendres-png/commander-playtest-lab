@@ -18,7 +18,7 @@ RUNTIME_SUPPORT_PATH = ROOT / "qualification/evidence/ws22-xmage/RUNTIME_SUPPORT
 HIDDEN_BASELINE_FIXTURES = {"HIDDEN_01", "HIDDEN_02"}
 HIDDEN_AUDIT_FIXTURES = {"HIDDEN_18", "HIDDEN_19", "HIDDEN_HONEYCARD_SENTINEL"}
 HIDDEN_SCENARIO_FIXTURES = {f"HIDDEN_{index:02d}" for index in range(3, 18)}
-PILOT_RUNTIME_FIXTURES = {"PILOT_MULLIGAN", "PILOT_PRIORITY"}
+PILOT_RUNTIME_FIXTURES = {"PILOT_MULLIGAN", "PILOT_PRIORITY", "PILOT_CHOOSE_OBJECT"}
 PILOT_ALL_FIXTURES = {
     "PILOT_PRIORITY",
     "PILOT_TARGET",
@@ -394,8 +394,9 @@ def pilot_smoke_results() -> dict[str, dict[str, Any]]:
         )
         status = client.request("start_full_game")
         mulligan_frames: list[dict[str, Any]] = []
+        choose_object_frames: list[dict[str, Any]] = []
         priority_frame: dict[str, Any] | None = None
-        for _ in range(12):
+        for _ in range(24):
             decision = status.get("decision")
             if not isinstance(decision, dict):
                 status = client.request("get_full_game_decision")
@@ -406,11 +407,32 @@ def pilot_smoke_results() -> dict[str, dict[str, Any]]:
             if decision_class == "priority":
                 priority_frame = decision
                 break
-            if decision_class != "mulligan":
-                raise RuntimeError(f"unexpected setup decision before priority: {decision_class}")
             options = decision.get("legal_options")
             if not isinstance(options, list):
-                raise RuntimeError("mulligan legal options unavailable")
+                raise RuntimeError(f"{decision_class} legal options unavailable")
+            if decision_class == "choose_object":
+                if len(options) != 1:
+                    raise RuntimeError(
+                        "choose_object setup decision is discretionary; fixture driver refuses a first-option fallback"
+                    )
+                forced = options[0]
+                if not isinstance(forced, dict) or not isinstance(forced.get("option_id"), str):
+                    raise RuntimeError("forced choose_object option unavailable")
+                choose_object_frames.append(decision)
+                status = client.request(
+                    "submit_full_game_decision",
+                    {
+                        "response": {
+                            "decision_id": decision["decision_id"],
+                            "actor_id": decision["actor_id"],
+                            "selected_option_ids": [forced["option_id"]],
+                            "ordering": [],
+                        }
+                    },
+                )
+                continue
+            if decision_class != "mulligan":
+                raise RuntimeError(f"unexpected setup decision before priority: {decision_class}")
             keep = next(
                 (
                     option
@@ -457,6 +479,22 @@ def pilot_smoke_results() -> dict[str, dict[str, Any]]:
         )
     )
 
+    choose_object_payload = {"frames": choose_object_frames}
+    choose_object_ok = bool(choose_object_frames) and all(
+        len(frame.get("legal_options", [])) == 1 for frame in choose_object_frames
+    )
+    choose_object = (
+        _pass(
+            "Real XMage setup exercised choose_object through provider legal options; every observed setup choice was forced to exactly one legal option and the exact option ID was submitted, so no first-option fallback was used.",
+            choose_object_payload,
+        )
+        if choose_object_ok
+        else _fail(
+            "Real XMage setup did not provide a forced choose_object frame suitable for fail-closed qualification.",
+            choose_object_payload,
+        )
+    )
+
     priority_payload = {"priority_frame": priority_frame}
     priority_ok = isinstance(priority_frame, dict) and any(
         isinstance(option, dict) and option.get("option_type") == "pass_priority"
@@ -464,7 +502,7 @@ def pilot_smoke_results() -> dict[str, dict[str, Any]]:
     )
     priority = (
         _pass(
-            "After four explicit keeps, real XMage gameplay reached an external priority decision containing XMage-supplied pass-priority legality.",
+            "After explicit setup decisions, real XMage gameplay reached an external priority decision containing XMage-supplied pass-priority legality.",
             priority_payload,
         )
         if priority_ok
@@ -473,7 +511,11 @@ def pilot_smoke_results() -> dict[str, dict[str, Any]]:
             priority_payload,
         )
     )
-    return {"PILOT_MULLIGAN": mulligan, "PILOT_PRIORITY": priority}
+    return {
+        "PILOT_MULLIGAN": mulligan,
+        "PILOT_CHOOSE_OBJECT": choose_object,
+        "PILOT_PRIORITY": priority,
+    }
 
 
 def _parent_fallback_result() -> dict[str, Any]:
