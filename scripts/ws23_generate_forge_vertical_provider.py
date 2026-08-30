@@ -40,7 +40,7 @@ AUTOMATIC = NONDISCRETIONARY_VOID | {
     "orderAndPlaySimultaneousSa",
 }
 
-JAVA_TEMPLATE = r'''// SPDX-License-Identifier: GPL-3.0-or-later
+JAVA_TEMPLATE = r"""// SPDX-License-Identifier: GPL-3.0-or-later
 // Generated WS-23 GPL-side qualification provider. Never import this class into the proprietary process.
 package __PACKAGE__;
 
@@ -339,14 +339,16 @@ __METHODS__
         runSession(in, out);
     }
 }
-'''
+"""
 
 
 def method_body(name: str) -> list[str]:
     if name in NONDISCRETIONARY_VOID:
         return [f'broker.recordAutomatic("{name}");', "return;"]
     if name == "chooseStartingPlayer":
-        return ['return broker.choosePlayer("chooseStartingPlayer", player, getGame().getPlayers());']
+        return [
+            'return broker.choosePlayer("chooseStartingPlayer", player, getGame().getPlayers());'
+        ]
     if name == "mulliganKeepHand":
         return ['return broker.chooseBoolean("mulliganKeepHand", player, "KEEP", "MULLIGAN");']
     if name == "chooseSaToActivateFromOpeningHand":
@@ -379,9 +381,13 @@ def method_body(name: str) -> list[str]:
             'throw failClosed("chooseModeForAbility:DEPENDENT_MULTI_CHOICE");',
         ]
     if name == "chooseSingleReplacementEffect":
-        return ['return broker.chooseObject("chooseSingleReplacementEffect", player, possibleReplacers, false);']
+        return [
+            'return broker.chooseObject("chooseSingleReplacementEffect", player, possibleReplacers, false);'
+        ]
     if name == "chooseSingleStaticAbility":
-        return ['return broker.chooseObject("chooseSingleStaticAbility", player, possibleReplacers, false);']
+        return [
+            'return broker.chooseObject("chooseSingleStaticAbility", player, possibleReplacers, false);'
+        ]
     if name == "orderSimultaneousSa":
         return [
             "if (activePlayerSAs == null || activePlayerSAs.size() <= 1) {",
