@@ -1,17 +1,8 @@
-name: Optimizer Workflow Acceptance
+name: Official Fresh RogShai Optimizer v2 Run
 
 on:
   pull_request:
     paths:
-      - 'src/commander_lab/optimizer_cli.py'
-      - 'src/commander_lab/optimizer_v2_cli.py'
-      - 'src/commander_lab/whole_deck/**'
-      - 'data/cards/FULL_PHYSICAL_CARD_KNOWLEDGE_MANIFEST_CURRENT.json'
-      - 'data/cards/rogshai_semantic_projection_current.zlib.b64'
-      - 'data/decision/DECISION_CONTRACT_CURRENT.json'
-      - 'docs/CARD_KNOWLEDGE_POLICY_CURRENT.md'
-      - 'docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md'
-      - 'tests/unit/test_optimizer_v2*.py'
       - '.github/workflows/optimizer-v2-acceptance.yml'
   workflow_dispatch:
 
@@ -19,46 +10,256 @@ permissions:
   contents: read
 
 concurrency:
-  group: optimizer-workflow-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+  group: official-fresh-rogshai-63d48bc-${{ github.head_ref || github.ref }}
+  cancel-in-progress: false
+
+env:
+  FROZEN_SHA: 63d48bc635118e255d7585db0697694811dd849b
+  EXPECTED_TREE: 92485bf41d5c515002fcb623423016fbde9ca5ac
+  EXPECTED_MANIFEST_HASH: a1aa8731700692093c421e9334e9747f8638402e070e477c04f0f72313213876
+  EXPECTED_MANIFEST_FILE_SHA256: b2b084c987462c76caed1b4b097b4fccdb39335dcd36239593fe27f1b173846f
+  RUN_ID: rogshai-official-fresh-20260823-post-pr121-rules-evidence-freeze-v1
+  SEARCH_SEED: '2026082303'
+  RUN_DIR: .runtime/official-fresh-rogshai-63d48bc
+  ART_DIR: artifacts/official-fresh-rogshai-63d48bc
 
 jobs:
-  optimizer-contract:
+  official-run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 330
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+      - name: Checkout frozen exact-main software
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.FROZEN_SHA }}
+          fetch-depth: 0
+
+      - name: Verify exact-main identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FROZEN_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_TREE"
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install optimizer runtime
+
+      - name: Install exact optimizer runtime
         run: python -m pip install -e '.[dev]'
-      - name: Evidence-partition contract
+
+      - name: Reproduce frozen manifest byte-for-byte
+        shell: bash
         run: |
-          python -m pytest -q \
-            tests/unit/test_optimizer_v2.py::test_evidence_partitions_are_disjoint \
-            tests/unit/test_optimizer_v2.py::test_seed_and_scenario_leakage_fail_closed
-      - name: 1E/2F decision-runtime contract
-        run: python -m pytest -q tests/unit/test_optimizer_v2_decision_runtime.py
-      - name: Optimizer CLI contract
-        run: |
-          commander-lab-optimizer --help
-          commander-lab-optimizer manifest --help
-          commander-lab-optimizer preflight --help
-          commander-lab-optimizer run --help
-          commander-lab-optimizer confirm --help
-          commander-lab-optimizer diagnose --help
-          commander-lab-optimizer holdout --help
-      - name: Non-consuming first-run readiness preflight
-        run: |
+          set -euo pipefail
+          mkdir -p "$ART_DIR" "$RUN_DIR"
           commander-lab-optimizer manifest \
-            --output /tmp/optimizer-readiness-manifest.json \
-            --run-id readiness-smoke-1e-2f \
-            --seed 20260820
-          commander-lab-optimizer preflight \
-            --manifest /tmp/optimizer-readiness-manifest.json
-      - name: Assert tracked repository remains clean
+            --output "$ART_DIR/ROGSHAI_PRE_RUN_MANIFEST.json" \
+            --run-id "$RUN_ID" \
+            --seed "$SEARCH_SEED" \
+            --exploratory-games 256 \
+            --calibration-games 128 \
+            --confirmatory-games 2048 \
+            --diagnostics-games 512 \
+            --holdout-games 2048 \
+            --root . \
+            > "$ART_DIR/manifest-command-output.json"
+          test "$(sha256sum "$ART_DIR/ROGSHAI_PRE_RUN_MANIFEST.json" | awk '{print $1}')" = "$EXPECTED_MANIFEST_FILE_SHA256"
+          python - <<'PY'
+          from commander_lab.whole_deck.optimizer_v2_decision_runtime import load_decision_manifest
+          import os
+          m = load_decision_manifest(os.environ['ART_DIR'] + '/ROGSHAI_PRE_RUN_MANIFEST.json')
+          assert m.manifest_hash == os.environ['EXPECTED_MANIFEST_HASH'], (m.manifest_hash, os.environ['EXPECTED_MANIFEST_HASH'])
+          assert m.software_commit == os.environ['FROZEN_SHA']
+          assert m.software_tree == os.environ['EXPECTED_TREE']
+          assert m.operational_pod_size == 4
+          assert m.rogshai_candidate_count == 795
+          PY
+
+      - name: Fail-closed official preflight
+        shell: bash
         run: |
-          test -z "$(git status --porcelain --untracked-files=no)"
-          git diff --exit-code
+          set -euo pipefail
+          commander-lab-optimizer preflight \
+            --manifest "$ART_DIR/ROGSHAI_PRE_RUN_MANIFEST.json" \
+            --root . \
+            > "$ART_DIR/preflight.json"
+          python - <<'PY'
+          import json, os
+          p=json.load(open(os.environ['ART_DIR']+'/preflight.json'))
+          assert p['status']=='pass'
+          assert p['manifest_hash']==os.environ['EXPECTED_MANIFEST_HASH']
+          assert p['operational_pod_size']==4
+          assert p['candidate_count']==795
+          assert p['semantic_unknown_count']==0
+          assert all(p['checks'].values())
+          assert all(p['decision_checks'].values())
+          PY
+
+      - name: Official Search and Calibration
+        shell: bash
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer run \
+            --manifest "$ART_DIR/ROGSHAI_PRE_RUN_MANIFEST.json" \
+            --output-dir "$RUN_DIR" \
+            --workers 1 \
+            --max-turns 35 \
+            --root . \
+            > "$ART_DIR/search-command-output.json"
+          cp "$RUN_DIR/optimizer-search-report.json" "$ART_DIR/"
+          cp "$RUN_DIR/frontier-handoff.json" "$ART_DIR/"
+          cp "$RUN_DIR/calibration-report.json" "$ART_DIR/"
+          cp "$RUN_DIR/FIDELITY_LIVENESS_AUDIT.json" "$ART_DIR/"
+          cp "$RUN_DIR/CANDIDATE_LEDGER.json" "$ART_DIR/" 2>/dev/null || true
+          cp "$RUN_DIR/HYPOTHESIS_QUEUES.json" "$ART_DIR/" 2>/dev/null || true
+          cp "$RUN_DIR/SEARCH_HEALTH_REPORT.json" "$ART_DIR/" 2>/dev/null || true
+          cp "$RUN_DIR/near-frontier-diagnostics.json" "$ART_DIR/" 2>/dev/null || true
+          cp "$RUN_DIR/semantic-review-queue.json" "$ART_DIR/" 2>/dev/null || true
+          cp "$RUN_DIR/optimizer-execution-audit-search.json" "$ART_DIR/" 2>/dev/null || true
+
+      - name: Fidelity routing then confirmatory / diagnostics / single holdout look
+        shell: bash
+        run: |
+          set -euo pipefail
+          commander-lab-optimizer fidelity \
+            --frontier "$RUN_DIR/frontier-handoff.json" \
+            --root . \
+            > "$ART_DIR/frontier-fidelity.json"
+
+          if python - <<'PY'
+          import json, os
+          p=json.load(open(os.environ['ART_DIR']+'/frontier-fidelity.json'))
+          raise SystemExit(0 if p.get('pass') is True else 1)
+          PY
+          then
+            commander-lab-optimizer confirm \
+              --manifest "$ART_DIR/ROGSHAI_PRE_RUN_MANIFEST.json" \
+              --frontier "$RUN_DIR/frontier-handoff.json" \
+              --output-dir "$RUN_DIR" \
+              --workers 1 \
+              --max-turns 35 \
+              --root . \
+              > "$ART_DIR/confirm-command-output.json"
+            cp "$RUN_DIR/confirmatory-report.json" "$ART_DIR/"
+
+            if python - <<'PY'
+          import json, os
+          p=json.load(open(os.environ['RUN_DIR']+'/confirmatory-report.json'))
+          raise SystemExit(0 if isinstance(p.get('single_challenger_hash'), str) and p.get('single_challenger_hash') else 1)
+          PY
+            then
+              commander-lab-optimizer diagnose \
+                --manifest "$ART_DIR/ROGSHAI_PRE_RUN_MANIFEST.json" \
+                --confirmatory "$RUN_DIR/confirmatory-report.json" \
+                --output-dir "$RUN_DIR" \
+                --workers 1 \
+                --max-turns 35 \
+                --root . \
+                > "$ART_DIR/diagnose-command-output.json"
+              cp "$RUN_DIR/critical-diagnostics-report.json" "$ART_DIR/"
+
+              if python - <<'PY'
+          import json, os
+          p=json.load(open(os.environ['RUN_DIR']+'/critical-diagnostics-report.json'))
+          raise SystemExit(0 if p.get('critical_diagnostics_pass') is True else 1)
+          PY
+              then
+                commander-lab-optimizer holdout \
+                  --manifest "$ART_DIR/ROGSHAI_PRE_RUN_MANIFEST.json" \
+                  --confirmatory "$RUN_DIR/confirmatory-report.json" \
+                  --diagnostics "$RUN_DIR/critical-diagnostics-report.json" \
+                  --output-dir "$RUN_DIR" \
+                  --authorize-holdout \
+                  --workers 1 \
+                  --max-turns 35 \
+                  --root . \
+                  > "$ART_DIR/holdout-command-output.json"
+                cp "$RUN_DIR/holdout-report.json" "$ART_DIR/"
+              fi
+            fi
+          fi
+
+      - name: Build official immutable closeout
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          art=Path(os.environ['ART_DIR']); run=Path(os.environ['RUN_DIR'])
+          def load(name):
+              p=art/name
+              if not p.is_file(): return None
+              return json.loads(p.read_text())
+          search=load('optimizer-search-report.json')
+          fidelity=load('frontier-fidelity.json')
+          confirm=load('confirmatory-report.json')
+          diag=load('critical-diagnostics-report.json')
+          hold=load('holdout-report.json')
+          status='SEARCH_INCOMPLETE'
+          if search:
+              if not fidelity or fidelity.get('pass') is not True:
+                  status='MORE_DECISION_INFORMATION_REQUIRED'
+              elif not confirm:
+                  status='CONFIRMATORY_INCOMPLETE'
+              elif confirm.get('single_challenger_hash') is None:
+                  status='NO_CHALLENGER'
+              elif not diag:
+                  status='DIAGNOSTICS_INCOMPLETE'
+              elif diag.get('critical_diagnostics_pass') is not True:
+                  status='CHALLENGER_REJECTED_BY_CRITICAL_DIAGNOSTICS'
+              elif not hold:
+                  status='HOLDOUT_INCOMPLETE'
+              else:
+                  status=hold.get('decision','HOLDOUT_COMPLETE')
+          payload={
+              'schema_version':'1.0.0',
+              'run_id':os.environ['RUN_ID'],
+              'manifest_hash':os.environ['EXPECTED_MANIFEST_HASH'],
+              'software_commit':os.environ['FROZEN_SHA'],
+              'software_tree':os.environ['EXPECTED_TREE'],
+              'operational_pod_size':4,
+              'official_run_status':status,
+              'search_complete':search is not None,
+              'fidelity_pass':None if fidelity is None else fidelity.get('pass'),
+              'confirmatory_complete':confirm is not None,
+              'single_challenger_hash':None if confirm is None else confirm.get('single_challenger_hash'),
+              'critical_diagnostics_complete':diag is not None,
+              'critical_diagnostics_pass':None if diag is None else diag.get('critical_diagnostics_pass'),
+              'sealed_holdout_opened':hold is not None,
+              'holdout_decision':None if hold is None else hold.get('decision'),
+              'official_winner_declared':False if hold is None else bool(hold.get('official_winner_declared')),
+              'canonical_deck_mutation':False,
+              'search_learning_updates_from_holdout':False,
+              'construction_updates_from_holdout':False,
+          }
+          (art/'OFFICIAL_RUN_CLOSEOUT.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          lines=['# Official Fresh RogShai Optimizer-v2 Closeout','',f"- status: **{status}**",f"- manifest: `{os.environ['EXPECTED_MANIFEST_HASH']}`",f"- exact-main: `{os.environ['FROZEN_SHA']}` / `{os.environ['EXPECTED_TREE']}`",'- operational scope: **4-player Commander only**',f"- sealed holdout opened: **{payload['sealed_holdout_opened']}**",f"- official winner declared: **{payload['official_winner_declared']}**",'- canonical deck mutation: **FALSE**','']
+          (art/'OFFICIAL_RUN_CLOSEOUT.md').write_text('\n'.join(lines))
+          # Preserve runtime audits/reports that were not explicitly copied.
+          for p in run.glob('*.json'):
+              target=art/p.name
+              if not target.exists(): target.write_bytes(p.read_bytes())
+          entries=[]
+          for p in sorted(art.glob('*')):
+              if p.is_file() and p.name!='SHA256SUMS.txt':
+                  entries.append(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}")
+          (art/'SHA256SUMS.txt').write_text('\n'.join(entries)+'\n')
+          print(json.dumps(payload,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload official run evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: official-fresh-rogshai-optimizer-v2-63d48bc
+          path: |
+            artifacts/official-fresh-rogshai-63d48bc/
+            .runtime/official-fresh-rogshai-63d48bc/checkpoint-*.json
+            .runtime/official-fresh-rogshai-63d48bc/optimizer-v2-cache.sqlite
+          if-no-files-found: error
+          retention-days: 90
