@@ -38,6 +38,7 @@ public final class Ws23ForgeGateD {
     private static boolean commanderChosenFromCommand = false;
     private static boolean fogChosen = false;
     private static boolean fogChosenFromHand = false;
+    private static boolean fogManaInjected = false;
     private static boolean commanderProofEmitted = false;
     private static boolean triggerOrderExecuted = false;
     private static boolean triggerProofEmitted = false;
@@ -157,9 +158,6 @@ public final class Ws23ForgeGateD {
         Card fog = loadActualCard(game, seat1, "Fog", "M10", CardRarity.Common);
         seat1.getZone(ZoneType.Hand).add(fog);
         fogId = fog.getId();
-        Card greenSource = syntheticCard(
-                game, seat1, "WS23_PUBLIC_GREEN_MANA_SOURCE", ZoneType.Battlefield);
-        seat1.getManaPool().addMana(new Mana(MagicColor.GREEN, greenSource, null, seat1));
 
         Card warden1 = loadActualCard(game, seat1, "Soul Warden", "M10", CardRarity.Common);
         seat1.getZone(ZoneType.Battlefield).add(warden1);
@@ -246,6 +244,9 @@ public final class Ws23ForgeGateD {
         if (warden1 == null || warden2 == null) {
             throw new IllegalStateException("WS23_SOUL_WARDEN_TRIGGER_SOURCE_MISSING");
         }
+        if (game.getPhaseHandler().getPhase() != PhaseType.MAIN1) {
+            throw new IllegalStateException("WS23_TRIGGER_PROOF_NOT_IN_PRECOMBAT_MAIN");
+        }
         triggerProofEmitted = true;
         broker.out.println("{\"protocol\":" + q(Ws23ForgeVerticalProvider.PROTOCOL)
                 + ",\"message_type\":\"TRIGGER_PROOF\",\"request_id\":\"ws23-trigger-proof\""
@@ -259,13 +260,22 @@ public final class Ws23ForgeGateD {
 
         seat1.getZone(ZoneType.Battlefield).remove(warden1);
         seat1.getZone(ZoneType.Battlefield).remove(warden2);
+        Card greenSource = syntheticCard(
+                game, seat1, "WS23_PUBLIC_GREEN_MANA_SOURCE", ZoneType.Battlefield);
+        seat1.getManaPool().addMana(new Mana(MagicColor.GREEN, greenSource, null, seat1));
+        fogManaInjected = true;
+        broker.recordAutomatic("fogManaFixture:POST_TRIGGER_MAIN1");
     }
 
     private static void emitPreventionProof(Game game, Ws23ForgeVerticalProvider.Broker broker) {
         if (preventionProofEmitted) {
             return;
         }
-        if (!fogChosen || !fogChosenFromHand || !commanderProofEmitted || !triggerProofEmitted) {
+        if (!fogChosen
+                || !fogChosenFromHand
+                || !fogManaInjected
+                || !commanderProofEmitted
+                || !triggerProofEmitted) {
             throw new IllegalStateException("WS23_POST_COMBAT_REACHED_BEFORE_REQUIRED_GATE_D_ACTIONS");
         }
         Card attacker = findCard(game, attackerId, ZoneType.Battlefield);
