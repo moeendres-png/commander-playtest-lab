@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import mage.cards.Card;
 import mage.game.Game;
 import mage.players.Player;
 
@@ -15,12 +14,11 @@ import java.util.Set;
 /**
  * Single outbound visibility authority for external-pilot decision material.
  *
- * <p>The state redactor defines actor-visible state. This gateway additionally
- * audits every free-form decision channel (prompt, context, option id/label/
- * metadata and source metadata) before the controller is allowed to publish it.
- * A value that is known only from an opponent hand or a library fails closed.
- * The gateway never synthesizes replacement option identifiers or reconstructs
- * legality.</p>
+ * <p>The KnowledgeLedger is the only visibility model. This gateway only audits
+ * free-form outbound channels (prompt, context, option identifiers/labels/
+ * metadata, source metadata and future nested fields) against the ledger's
+ * actor-entitled knowledge. It never reconstructs legality or maintains a
+ * second hidden-information model.</p>
  */
 final class XmageFullGameObservationGateway {
 
@@ -44,8 +42,21 @@ final class XmageFullGameObservationGateway {
             JsonArray legalOptions,
             JsonObject sourceObject
     ) {
-        JsonObject actorView = XmageFullGameStateRedactor.actorView(game, actor);
-        VisibilityIndex index = visibilityIndex(game, actor, actorView);
+        return validate(game, actor, actor, prompt, context, legalOptions, sourceObject);
+    }
+
+    static SafeDecision validate(
+            Game game,
+            Player viewer,
+            Player decisionSubject,
+            String prompt,
+            JsonObject context,
+            JsonArray legalOptions,
+            JsonObject sourceObject
+    ) {
+        XmageKnowledgeLedger ledger = XmageFullGameStateRedactor.knowledgeLedger(game);
+        JsonObject actorView = ledger.snapshot(game, viewer, decisionSubject);
+        VisibilityIndex index = visibilityIndex(ledger, game, viewer, actorView);
 
         String safePrompt = prompt == null ? "" : prompt;
         JsonObject safeContext = context == null ? new JsonObject() : context.deepCopy();
@@ -61,58 +72,50 @@ final class XmageFullGameObservationGateway {
         return new SafeDecision(actorView, safePrompt, safeContext, safeOptions, safeSource);
     }
 
-    private static VisibilityIndex visibilityIndex(Game game, Player actor, JsonObject actorView) {
-        Set<String> visibleObjectIds = new HashSet<>();
-        Set<String> visibleNames = new HashSet<>();
-        collectVisible(actorView, visibleObjectIds, visibleNames);
+    private static VisibilityIndex visibilityIndex(
+            XmageKnowledgeLedger ledger,
+            Game game,
+            Player viewer,
+            JsonObject actorView
+    ) {
+        Set<String> visibleTokens = new HashSet<>();
+        collectVisibleTokens(actorView, visibleTokens);
 
-        Set<String> hiddenObjectIds = new HashSet<>();
-        Set<String> hiddenNames = new HashSet<>();
-        for (Player player : game.getPlayers().values()) {
-            if (!player.getId().equals(actor.getId())) {
-                for (Card card : player.getHand().getCards(game)) {
-                    hiddenObjectIds.add(card.getId().toString());
-                    addName(hiddenNames, card.getName());
+        Set<String> forbidden = new HashSet<>();
+        for (String token : ledger.forbiddenIdentityTokens(game, viewer)) {
+            if (token != null && !token.isBlank()) {
+                String folded = token.toLowerCase(Locale.ROOT);
+                if (!visibleTokens.contains(folded)) {
+                    forbidden.add(folded);
                 }
             }
-            // Library object identity and order are private even for its owner.
-            for (Card card : player.getLibrary().getCards(game)) {
-                hiddenObjectIds.add(card.getId().toString());
-                addName(hiddenNames, card.getName());
-            }
         }
-
-        hiddenObjectIds.removeAll(visibleObjectIds);
-        hiddenNames.removeAll(visibleNames);
-        return new VisibilityIndex(Set.copyOf(hiddenObjectIds), Set.copyOf(hiddenNames));
+        return new VisibilityIndex(Set.copyOf(forbidden));
     }
 
-    private static void collectVisible(
-            JsonElement element,
-            Set<String> visibleObjectIds,
-            Set<String> visibleNames
-    ) {
+    private static void collectVisibleTokens(JsonElement element, Set<String> tokens) {
         if (element == null || element.isJsonNull()) {
+            return;
+        }
+        if (element.isJsonPrimitive()) {
+            JsonPrimitive primitive = element.getAsJsonPrimitive();
+            if (primitive.isString()) {
+                String value = primitive.getAsString();
+                if (!value.isBlank()) {
+                    tokens.add(value.toLowerCase(Locale.ROOT));
+                }
+            }
             return;
         }
         if (element.isJsonArray()) {
             for (JsonElement item : element.getAsJsonArray()) {
-                collectVisible(item, visibleObjectIds, visibleNames);
+                collectVisibleTokens(item, tokens);
             }
             return;
         }
-        if (!element.isJsonObject()) {
-            return;
-        }
         JsonObject object = element.getAsJsonObject();
-        if (object.has("object_id") && object.get("object_id").isJsonPrimitive()) {
-            visibleObjectIds.add(object.get("object_id").getAsString());
-        }
-        if (object.has("name") && object.get("name").isJsonPrimitive()) {
-            addName(visibleNames, object.get("name").getAsString());
-        }
         for (String key : object.keySet()) {
-            collectVisible(object.get(key), visibleObjectIds, visibleNames);
+            collectVisibleTokens(object.get(key), tokens);
         }
     }
 
@@ -144,29 +147,16 @@ final class XmageFullGameObservationGateway {
         if (value == null || value.isEmpty()) {
             return;
         }
-        for (String objectId : index.hiddenObjectIds()) {
-            if (value.contains(objectId)) {
-                throw new IllegalStateException(
-                        "HIDDEN_INFORMATION_LEAK: private object id in " + path
-                );
-            }
-        }
         String folded = value.toLowerCase(Locale.ROOT);
-        for (String name : index.privateOnlyNames()) {
-            if (!name.isBlank() && folded.contains(name)) {
+        for (String forbidden : index.forbiddenIdentityTokens()) {
+            if (!forbidden.isBlank() && folded.contains(forbidden)) {
                 throw new IllegalStateException(
-                        "HIDDEN_INFORMATION_LEAK: private card identity in " + path
+                        "HIDDEN_INFORMATION_LEAK: unauthorized identity token in " + path
                 );
             }
         }
     }
 
-    private static void addName(Set<String> names, String value) {
-        if (value != null && !value.isBlank()) {
-            names.add(value.toLowerCase(Locale.ROOT));
-        }
-    }
-
-    private record VisibilityIndex(Set<String> hiddenObjectIds, Set<String> privateOnlyNames) {
+    private record VisibilityIndex(Set<String> forbiddenIdentityTokens) {
     }
 }

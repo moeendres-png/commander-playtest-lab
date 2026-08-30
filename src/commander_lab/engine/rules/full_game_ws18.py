@@ -11,7 +11,6 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import PilotStateView, RulesDeckInput
 
 from .full_game import (
-    FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     FULL_GAME_LANE,
     ExternalPilotDecisionPolicy,
@@ -27,6 +26,12 @@ from .full_game import (
 MIN_PLAYER_COUNT = 2
 MAX_PLAYER_COUNT = 5
 SUPPORTED_PLAYER_COUNTS = tuple(range(MIN_PLAYER_COUNT, MAX_PLAYER_COUNT + 1))
+
+# WS-22 extends the native decision envelope with explicit decision-subject
+# identity while preserving the existing option/submission fields. The V2
+# runner therefore binds to the exact 1.1 bridge identity rather than silently
+# accepting the legacy 1.0 handshake.
+FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.1.0"
 
 
 class FullGamePilotBindingV2(FullGamePilotBinding):
@@ -55,6 +60,23 @@ class DynamicExternalPilotDecisionPolicy(ExternalPilotDecisionPolicy):
         self._pilots = {item.binding.seat: item for item in runtime_pilots}
         self.scenario_seed = scenario_seed
         self._mulligan_count = {seat: 0 for seat in expected}
+
+    def decide(self, request: dict[str, Any]) -> dict[str, Any]:
+        state = request.get("pilot_state")
+        if isinstance(state, dict) and not str(state.get("actor_id") or "").strip():
+            authority = str(
+                state.get("decision_authority_player_id") or state.get("viewer_player_id") or ""
+            ).strip()
+            if not authority:
+                raise FullGameConformanceError(
+                    "actor-scoped knowledge view exposes neither actor nor decision authority"
+                )
+            # WS-22's KnowledgeLedger is authoritative for viewer/decision-authority
+            # identity.  The inherited WS-07 pilot adapter historically names that
+            # same identity actor_id.  Add only this compatibility alias; do not
+            # infer legality, options, decision subject, or hidden information here.
+            request = {**request, "pilot_state": {**state, "actor_id": authority}}
+        return super().decide(request)
 
     def _pilot_state(self, runtime: _RuntimePilot, state: dict[str, Any]) -> PilotStateView:
         configured = int(state.get("player_count", 0))

@@ -30,8 +30,7 @@ final class XmageFullGameJsonlBridge {
             return error(
                     requestId,
                     "protocol_version_mismatch",
-                    "Expected protocol " + XmageProvider.PROTOCOL_VERSION
-                            + " but received " + protocolVersion,
+                    "Expected protocol " + XmageProvider.PROTOCOL_VERSION + " but received " + protocolVersion,
                     false
             );
         }
@@ -49,6 +48,7 @@ final class XmageFullGameJsonlBridge {
             case "create_full_game" -> createFullGame(requestId, request);
             case "start_full_game" -> startFullGame(requestId);
             case "get_full_game_decision" -> getDecision(requestId);
+            case "get_full_game_observation" -> getObservation(requestId, request);
             case "submit_full_game_decision" -> submitDecision(requestId, request);
             case "get_full_game_result" -> getResult(requestId);
             case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
@@ -121,18 +121,14 @@ final class XmageFullGameJsonlBridge {
                         false
                 );
             }
-            JsonObject payload = requireObjectPayload(
-                    request,
-                    "CREATE_FULL_GAME requires an object payload"
-            );
+            JsonObject payload = requireObjectPayload(request, "CREATE_FULL_GAME requires an object payload");
             String gameId = requiredText(payload, "game_id");
             List<String> deckHandles = requiredStringArray(payload, "deck_handles");
             if (!XmageFullGameSession.supportsPlayerCount(deckHandles.size())) {
                 return error(
                         requestId,
                         "invalid_player_count",
-                        "Full-game conformance requires 2 through 5 players; observed "
-                                + deckHandles.size(),
+                        "Full-game conformance requires 2 through 5 players; observed " + deckHandles.size(),
                         false
                 );
             }
@@ -165,10 +161,7 @@ final class XmageFullGameJsonlBridge {
             responsePayload.addProperty("seed", seed);
             responsePayload.addProperty("seed_controlled", true);
             responsePayload.addProperty("seed_scope", "single_isolated_jvm_process");
-            responsePayload.addProperty(
-                    "decision_protocol_version",
-                    XmageFullGameDecisionController.PROTOCOL_VERSION
-            );
+            responsePayload.addProperty("decision_protocol_version", XmageFullGameDecisionController.PROTOCOL_VERSION);
             responsePayload.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
             responsePayload.addProperty("holdout_consumed", false);
             responsePayload.addProperty("official_campaign_eligible", false);
@@ -191,6 +184,24 @@ final class XmageFullGameJsonlBridge {
             return success(requestId, requireSession().pendingDecisionPayload(), false);
         } catch (Exception exc) {
             return error(requestId, "full_game_decision_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    private Result getObservation(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "GET_FULL_GAME_OBSERVATION requires an object payload"
+            );
+            int viewerSeat = requiredInt(payload, "viewer_seat");
+            int decisionSubjectSeat = optionalInt(payload, "decision_subject_seat", viewerSeat);
+            return success(
+                    requestId,
+                    requireSession().observationPayload(viewerSeat, decisionSubjectSeat),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(requestId, "full_game_observation_failed", exceptionMessage(exc), false);
         }
     }
 
@@ -243,14 +254,14 @@ final class XmageFullGameJsonlBridge {
         capabilities.addProperty("min_players", XmageFullGameSession.MIN_PLAYER_COUNT);
         capabilities.addProperty("max_players", XmageFullGameSession.MAX_PLAYER_COUNT);
         JsonArray supportedPlayerCounts = new JsonArray();
-        for (int count = XmageFullGameSession.MIN_PLAYER_COUNT;
-                count <= XmageFullGameSession.MAX_PLAYER_COUNT; count++) {
+        for (int count = XmageFullGameSession.MIN_PLAYER_COUNT; count <= XmageFullGameSession.MAX_PLAYER_COUNT; count++) {
             supportedPlayerCounts.add(count);
         }
         capabilities.add("supported_player_counts", supportedPlayerCounts);
         capabilities.addProperty("headless_supported", true);
         capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
+        capabilities.addProperty("actor_scoped_observation_supported", true);
 
         // Generic B4-style legal-action flags deliberately remain false. This
         // lane uses blocking typed decision callbacks, not a globally complete
@@ -296,6 +307,7 @@ final class XmageFullGameJsonlBridge {
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
         lane.addProperty("bit_exact_replay_validated", false);
+        lane.addProperty("actor_scoped_observation_supported", true);
 
         JsonObject result = new JsonObject();
         result.add("capabilities", capabilities);
@@ -360,8 +372,7 @@ final class XmageFullGameJsonlBridge {
         JsonArray array = object.getAsJsonArray(property);
         List<String> result = new ArrayList<>(array.size());
         for (int index = 0; index < array.size(); index++) {
-            if (!array.get(index).isJsonPrimitive()
-                    || !array.get(index).getAsJsonPrimitive().isString()) {
+            if (!array.get(index).isJsonPrimitive() || !array.get(index).getAsJsonPrimitive().isString()) {
                 throw new IllegalArgumentException(property + "[" + index + "] must be a string");
             }
             String value = array.get(index).getAsString().trim();
@@ -377,8 +388,7 @@ final class XmageFullGameJsonlBridge {
         if (!object.has(property) || object.get(property).isJsonNull()) {
             throw new IllegalArgumentException(property + " is required");
         }
-        if (!object.get(property).isJsonPrimitive()
-                || !object.get(property).getAsJsonPrimitive().isNumber()) {
+        if (!object.get(property).isJsonPrimitive() || !object.get(property).getAsJsonPrimitive().isNumber()) {
             throw new IllegalArgumentException(property + " must be an integer");
         }
         String raw = object.get(property).getAsString();
@@ -388,15 +398,19 @@ final class XmageFullGameJsonlBridge {
         return Long.parseLong(raw);
     }
 
-    private static int optionalInt(JsonObject object, String property, int defaultValue) {
-        if (!object.has(property) || object.get(property).isJsonNull()) {
-            return defaultValue;
-        }
+    private static int requiredInt(JsonObject object, String property) {
         long value = requiredLong(object, property);
         if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(property + " outside integer range");
         }
         return (int) value;
+    }
+
+    private static int optionalInt(JsonObject object, String property, int defaultValue) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
+            return defaultValue;
+        }
+        return requiredInt(object, property);
     }
 
     private static Result success(String requestId, JsonObject payload, boolean shutdown) {
