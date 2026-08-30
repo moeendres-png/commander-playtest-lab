@@ -181,6 +181,42 @@ def unique_boolean(decision: dict[str, Any], value: bool) -> dict[str, Any]:
     return matches[0]
 
 
+def scenario_starting_player_option(decision: dict[str, Any], scenario: dict[str, Any]) -> str:
+    context = decision.get("context") or {}
+    if (
+        decision.get("decision_class") != "choose_object"
+        or decision.get("prompt") != "Select a starting player"
+        or decision.get("minimum_selections") != 1
+        or decision.get("maximum_selections") != 1
+        or context.get("target_name") != "starting player"
+        or context.get("target_description") != "target starting player"
+        or context.get("required") is not True
+        or context.get("targeted") is not False
+    ):
+        raise RuntimeError(
+            "unexpected choose_object signature in WS26 scenario setup: "
+            + json.dumps(decision, sort_keys=True)
+        )
+    expected_seat = int(scenario["starting_player_seat"])
+    expected_option_id = f"P{expected_seat}"
+    matches = []
+    for option in decision.get("legal_options") or []:
+        metadata = option.get("metadata") or {}
+        if (
+            str(option.get("option_id")) == expected_option_id
+            and option.get("option_type") == "choice"
+            and metadata.get("object_type") == "player"
+            and int(metadata.get("seat", -1)) == expected_seat - 1
+        ):
+            matches.append(option)
+    if len(matches) != 1:
+        raise RuntimeError(
+            f"scenario starting player {expected_option_id} was not offered exactly once: "
+            + json.dumps(decision, sort_keys=True)
+        )
+    return expected_option_id
+
+
 def submit_one(client: _RawFullGameClient, decision: dict[str, Any], selected_ids: list[str], ordering: list[str] | None = None, numeric: int | None = None) -> dict[str, Any]:
     response: dict[str, Any] = {
         "decision_id": decision["decision_id"],
@@ -231,6 +267,8 @@ def capture_replay_run(expected_tape: list[dict[str, Any]] | None = None) -> dic
                 selected = [str(unique_option(decision, option_type="keep")["option_id"])]
             elif decision["decision_class"] == "priority":
                 selected = [str(unique_option(decision, option_type="pass_priority")["option_id"])]
+            elif decision["decision_class"] == "choose_object":
+                selected = [scenario_starting_player_option(decision, scenario)]
             elif decision["decision_class"] == "choose_use":
                 selected = [str(unique_boolean(decision, True)["option_id"])]
             else:
@@ -333,6 +371,9 @@ def run_target_and_hidden_metadata() -> tuple[dict[str, Any], list[dict[str, Any
             if not isinstance(decision, dict):
                 raise RuntimeError(f"target fixture lost pending decision: {status}")
             decision_class = decision["decision_class"]
+            if decision_class == "choose_object":
+                submit_one(client, decision, [scenario_starting_player_option(decision, scenario)])
+                continue
             if decision_class == "mulligan":
                 keep_or_pass(client, decision)
                 continue
@@ -405,6 +446,9 @@ def run_single_decision_family(
             if not isinstance(decision, dict):
                 raise RuntimeError(f"{fixture_id}: no pending decision: {status}")
             decision_class = decision["decision_class"]
+            if decision_class == "choose_object":
+                submit_one(client, decision, [scenario_starting_player_option(decision, scenario)])
+                continue
             if decision_class == "mulligan":
                 keep_or_pass(client, decision)
                 continue
