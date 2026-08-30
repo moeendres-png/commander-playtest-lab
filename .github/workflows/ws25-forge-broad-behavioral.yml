@@ -179,6 +179,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws25/broad.classpath) forge.game.player.Ws23ForgeBootstrap"
           python - <<'PY'
           import json, os, shlex, subprocess
