@@ -84,12 +84,16 @@ public class Ws26RepresentativeRulesTest extends CardTestCommander4Players {
         addCard(Zone.HAND, playerB, "Murder");
         addCard(Zone.BATTLEFIELD, playerB, "Swamp", 3);
 
+        // A casts Rograkh on turn 1. B destroys it later in A's turn, after it
+        // has resolved. A chooses the command-zone SBA. In this 4P harness A's
+        // next turn is turn 5, where the second cast must cost the native {2}
+        // commander tax and therefore tap both Mountains.
         castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Rograkh, Son of Rohgahh", true);
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerB, "Murder", "Rograkh, Son of Rohgahh", true);
+        castSpell(1, PhaseStep.POSTCOMBAT_MAIN, playerB, "Murder", "Rograkh, Son of Rohgahh", true);
         setChoice(playerA, true);
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Rograkh, Son of Rohgahh", true);
+        castSpell(5, PhaseStep.PRECOMBAT_MAIN, playerA, "Rograkh, Son of Rohgahh", true);
 
-        setStopAt(1, PhaseStep.BEGIN_COMBAT);
+        setStopAt(5, PhaseStep.BEGIN_COMBAT);
         execute();
 
         assertPermanentCount(playerA, "Rograkh, Son of Rohgahh", 1);
@@ -112,8 +116,10 @@ public class Ws26RepresentativeRulesTest extends CardTestCommander4Players {
 
     @Test
     public void actualSyphonMindFourPlayers() {
-        removeAllCardsFromLibrary(playerA);
-        addCard(Zone.LIBRARY, playerA, "Island", 3);
+        // Keep the harness deck/library intact so the three required draws
+        // cannot deck PlayerA. The standard Commander test opening hand is 7;
+        // the injected Syphon Mind makes 8, casting it makes 7, and its three
+        // successful draws make 10.
         addCard(Zone.HAND, playerA, "Syphon Mind");
         addCard(Zone.BATTLEFIELD, playerA, "Swamp", 4);
         addCard(Zone.HAND, playerB, "Plains");
@@ -128,7 +134,7 @@ public class Ws26RepresentativeRulesTest extends CardTestCommander4Players {
         assertGraveyardCount(playerB, "Plains", 1);
         assertGraveyardCount(playerC, "Plains", 1);
         assertGraveyardCount(playerD, "Plains", 1);
-        assertHandCount(playerA, 3);
+        assertHandCount(playerA, 10);
     }
 
     @Test
@@ -138,11 +144,13 @@ public class Ws26RepresentativeRulesTest extends CardTestCommander4Players {
         addCard(Zone.HAND, playerA, "Giant Growth");
         addCard(Zone.BATTLEFIELD, playerA, "Forest");
 
+        // Rograkh is cast on turn 1 and attacks on A's next turn (turn 5), so
+        // summoning sickness is resolved by normal XMage turn processing.
         castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Rograkh, Son of Rohgahh", true);
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Giant Growth", "Rograkh, Son of Rohgahh", true);
-        attack(1, playerA, "Rograkh, Son of Rohgahh", playerB);
+        castSpell(5, PhaseStep.PRECOMBAT_MAIN, playerA, "Giant Growth", "Rograkh, Son of Rohgahh", true);
+        attack(5, playerA, "Rograkh, Son of Rohgahh", playerB);
 
-        setStopAt(1, PhaseStep.POSTCOMBAT_MAIN);
+        setStopAt(5, PhaseStep.POSTCOMBAT_MAIN);
         execute();
 
         assertLife(playerA, 20);
