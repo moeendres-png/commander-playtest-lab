@@ -169,9 +169,7 @@ def _require_no_scenario_injection() -> dict[str, Any]:
 def _start_real_four_player_game(
     decks: tuple[RulesDeckInput, ...], *, game_id: str, seed: int
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    with _RawFullGameClient(
-        _bridge_command(), cwd=ROOT, request_timeout_seconds=120.0
-    ) as client:
+    with _RawFullGameClient(_bridge_command(), cwd=ROOT, request_timeout_seconds=120.0) as client:
         started = client.request("start_engine")
         if started.get("lane") != "xmage_full_game_external_pilots":
             raise RuntimeError("bridge did not enter full-game lane")
