@@ -37,6 +37,16 @@ jobs:
           echo "$WS10R_BUNDLE_SHA256  qualification/protocol/ws10r/WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip" | sha256sum -c -
           echo "$COMMON_MANIFEST_SHA256  qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json" | sha256sum -c -
 
+      - name: Record committed GPL helper source hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum \
+            qualification/providers/forge/gpl/Ws23ForgeAuthority.java \
+            qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            qualification/providers/forge/gpl/Ws23ForgeGateD.java \
+            | tee artifacts/ws23-broad/GPL_HELPER_SOURCE_SHA256SUMS
+
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: "3.12"
