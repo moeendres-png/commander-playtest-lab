@@ -71,11 +71,7 @@ def choose_option(
             if len(matches) == 1:
                 state["fog_cast"] = True
                 return matches[0]["option_id"]
-        passes = [
-            o
-            for o in options
-            if o.get("public_ref") == "pass" or o.get("kind") == "PASS"
-        ]
+        passes = [o for o in options if o.get("public_ref") == "pass" or o.get("kind") == "PASS"]
         if len(passes) != 1:
             raise AssertionError(f"priority must contain exactly one explicit PASS: {options}")
         return passes[0]["option_id"]
@@ -164,13 +160,82 @@ def replay_choice(frame: dict[str, Any], expected: dict[str, Any]) -> str:
     return str(selected)
 
 
+def observe_replayed_choice(
+    frame: dict[str, Any],
+    scenario: dict[str, str],
+    state: dict[str, Any],
+    selected: str,
+) -> None:
+    payload = frame["payload"]
+    kind = payload["decision_kind"]
+    matches = [option for option in payload["options"] if option.get("option_id") == selected]
+    if len(matches) != 1:
+        raise AssertionError(f"replayed option must resolve exactly once: {selected}")
+    chosen = matches[0]
+    public_ref = chosen.get("public_ref")
+
+    if kind == "priority":
+        for state_key, scenario_key in (
+            ("bolt_cast", "bolt_ref"),
+            ("commander_cast", "commander_ref"),
+            ("fog_cast", "fog_ref"),
+        ):
+            prefix = f"action:{scenario[scenario_key].split(':', 1)[1]}:"
+            if isinstance(public_ref, str) and public_ref.startswith(prefix):
+                state[state_key] = True
+                return
+        if public_ref == "pass" or chosen.get("kind") == "PASS":
+            return
+        raise AssertionError(f"unexpected replayed priority semantic: {chosen}")
+    if kind == "target":
+        if public_ref != scenario["target_player_ref"]:
+            raise AssertionError(f"replayed target semantic drift: {chosen}")
+        state["target"] = True
+    elif kind == "mana_payment":
+        if chosen.get("kind") != "NATIVE_MANA":
+            raise AssertionError(f"replayed mana semantic drift: {chosen}")
+        state["mana_payments"] += 1
+    elif kind == "declareAttackers":
+        wanted = f"attack:{scenario['attacker_ref']}->{scenario['target_player_ref']}"
+        if public_ref != wanted:
+            raise AssertionError(f"replayed attack semantic drift: {chosen}")
+        state["attack"] = True
+    elif kind == "declareBlockers":
+        wanted = f"block:{scenario['blocker_ref']}->{scenario['attacker_ref']}"
+        if public_ref != wanted:
+            raise AssertionError(f"replayed block semantic drift: {chosen}")
+        state["block"] = True
+    elif kind == "chooseSingleReplacementEffect":
+        state["replacement_selection"] = True
+    elif kind == "confirmReplacementEffect":
+        if chosen.get("kind") != "APPLY":
+            raise AssertionError(f"replayed replacement semantic drift: {chosen}")
+        state["replacement"] = True
+    elif kind == "orderSimultaneousSa":
+        if public_ref != "order:0,1":
+            raise AssertionError(f"replayed trigger-order semantic drift: {chosen}")
+        state["trigger_order"] = True
+    elif kind in {
+        "chooseStartingPlayer",
+        "mulliganKeepHand",
+        "confirmAction",
+        "chooseBinary",
+        "confirmPayment",
+    }:
+        return
+    else:
+        raise AssertionError(f"unexpected replayed decision semantic: {kind}")
+
+
 def proof_keys_match(
     previous: dict[str, Any] | None,
     current: dict[str, Any] | None,
     keys: tuple[str, ...],
 ) -> bool:
-    return previous is not None and current is not None and all(
-        previous.get(key) == current.get(key) for key in keys
+    return (
+        previous is not None
+        and current is not None
+        and all(previous.get(key) == current.get(key) for key in keys)
     )
 
 
@@ -298,6 +363,7 @@ def main() -> int:
                         "fresh run produced more decisions than recorded DecisionTape"
                     )
                 chosen = replay_choice(msg, replay_tape[replay_index])
+                observe_replayed_choice(msg, scenario, state, chosen)
                 replay_index += 1
             decision_tape.append(
                 {
@@ -359,7 +425,7 @@ def main() -> int:
     snapshot_replay_match = None if previous is None else previous_snapshot == current_snapshot
 
     evidence = {
-        "schema_version": "ws23-v2-runtime-proof/1.2.0",
+        "schema_version": "ws23-v2-runtime-proof/1.3.0",
         "transcript": transcript,
         "stderr": stderr,
         "exit_code": proc.returncode,
@@ -395,7 +461,10 @@ def main() -> int:
         )
     ):
         return 3
-    if stack_observation is None or stack_observation.get("public_stack_identity_visible") is not True:
+    if (
+        stack_observation is None
+        or stack_observation.get("public_stack_identity_visible") is not True
+    ):
         return 4
     if (
         commander_proof is None
