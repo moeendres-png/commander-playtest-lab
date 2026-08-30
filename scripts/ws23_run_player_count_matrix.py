@@ -85,6 +85,7 @@ def run_one(command: str, player_count: int) -> dict[str, Any]:
         },
     )
     transcript: list[dict[str, Any]] = []
+    initial_snapshot: dict[str, Any] | None = None
     result: dict[str, Any] | None = None
     assert proc.stdout is not None
     for line in proc.stdout:
@@ -92,7 +93,12 @@ def run_one(command: str, player_count: int) -> dict[str, Any]:
         transcript.append(msg)
         if msg.get("protocol") != PROTOCOL:
             raise AssertionError(f"protocol drift: {msg}")
-        if msg.get("message_type") == "DECISION_FRAME":
+        if msg.get("message_type") == "SESSION_CREATED":
+            snapshot = msg.get("payload", {}).get("snapshot")
+            if not isinstance(snapshot, dict):
+                raise AssertionError(f"SESSION_CREATED missing Forge snapshot: {msg}")
+            initial_snapshot = snapshot
+        elif msg.get("message_type") == "DECISION_FRAME":
             chosen = choose(msg)
             payload = msg["payload"]
             send(
@@ -121,13 +127,17 @@ def run_one(command: str, player_count: int) -> dict[str, Any]:
     stderr = proc.stderr.read() if proc.stderr is not None else ""
     if result is None:
         raise AssertionError(f"{player_count}P produced no SESSION_RESULT: {stderr}")
+    if initial_snapshot is None:
+        raise AssertionError(f"{player_count}P produced no SESSION_CREATED snapshot")
     payload = result["payload"]
-    snapshot = payload.get("snapshot", {})
+    terminal_snapshot = payload.get("snapshot", {})
     stop_reason = payload.get("stop_reason")
     passed = (
         proc.returncode == 0
         and stop_reason == "FORGE_GAME_RETURNED"
-        and snapshot.get("player_count") == player_count
+        and initial_snapshot.get("player_count") == player_count
+        and terminal_snapshot.get("player_count") == 1
+        and len(terminal_snapshot.get("players", [])) == 1
     )
     return {
         "player_count": player_count,
@@ -136,7 +146,8 @@ def run_one(command: str, player_count: int) -> dict[str, Any]:
         "evidence_class": "RUNTIME_VERIFIED",
         "stop_reason": stop_reason,
         "priority_decisions": payload.get("priority_decisions"),
-        "snapshot": snapshot,
+        "initial_snapshot": initial_snapshot,
+        "terminal_snapshot": terminal_snapshot,
         "decision_count": sum(item.get("message_type") == "DECISION_FRAME" for item in transcript),
         "exit_code": proc.returncode,
         "stderr": stderr,
@@ -153,7 +164,7 @@ def main() -> int:
 
     rows = [run_one(command, count) for count in PLAYER_COUNTS]
     output = {
-        "schema_version": "ws23-player-count-matrix/1.0.0",
+        "schema_version": "ws23-player-count-matrix/1.1.0",
         "rows": rows,
         "pass_count": sum(row["status"] == "PASS" for row in rows),
         "denominator": len(rows),
