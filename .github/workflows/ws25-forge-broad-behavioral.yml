@@ -1,0 +1,337 @@
+name: WS-25 Forge Broad Behavioral Qualification
+
+on:
+  push:
+    branches:
+      - ws25/forge-broad-behavioral-qualification
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  WS23_HEAD: a059dd3008ace091fd20965a709d8b0fe245e331
+  WS23_RUNTIME_HEAD: f024ba494b7367a514efcb5b89687ffcefb8a154
+  FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+  WS10R_BUNDLE_SHA256: 2f002a4d020e99e44270239fd3a894e9be6f08eddf9fdd233b81ba8d3f070577
+  COMMON_MANIFEST_SHA256: e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4
+  QUALIFICATION_CATALOG_SHA256: df3b354858d5e01cdb899ac24cdbf5f269fb81c0bf495b1bcb4129b1498dd963
+
+jobs:
+  ws25:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout WS-25 branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact WS-23 ancestry and frozen denominators
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws25
+          test "$(git merge-base HEAD "$WS23_HEAD")" = "$WS23_HEAD"
+          test "$(git rev-parse "$WS23_HEAD^")" = "$WS23_RUNTIME_HEAD"
+          echo "$WS10R_BUNDLE_SHA256  qualification/protocol/ws10r/WS-10R_ENGINE_NEUTRAL_PROTOCOL_BUNDLE.zip" | sha256sum -c -
+          echo "$COMMON_MANIFEST_SHA256  qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json" | sha256sum -c -
+          echo "$QUALIFICATION_CATALOG_SHA256  qualification/obligations/QUALIFICATION_OBLIGATION_CATALOG_v1.json" | sha256sum -c -
+          python - <<'PY'
+          import json
+          p=json.load(open('qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json'))
+          assert p['protocol'] == 'commander-lab.rules-service/1.1.0'
+          assert len(p['fixtures']) == 135
+          assert len({x['fixture_id'] for x in p['fixtures']}) == 135
+          a=json.load(open('qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json'))
+          assert len(a['regression_corpus_29']) == 29
+          PY
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+
+      - name: Check WS-25 Python sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install ruff==0.16.5
+          python -m py_compile \
+            scripts/ws25_generate_forge_broad_provider.py \
+            scripts/ws25_build_decision_surface.py \
+            scripts/ws25_run_exact_gate_d_fixtures.py \
+            scripts/ws25_build_replay_evidence.py \
+            scripts/ws25_build_full_qualification.py
+          ruff check \
+            scripts/ws25_generate_forge_broad_provider.py \
+            scripts/ws25_build_decision_surface.py \
+            scripts/ws25_run_exact_gate_d_fixtures.py \
+            scripts/ws25_build_replay_evidence.py \
+            scripts/ws25_build_full_qualification.py
+
+      - name: Checkout exact Forge source into GPL workspace
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+
+      - name: Verify Forge source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd vendor/engine-source/forge
+          test "$(git rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q "GNU GENERAL PUBLIC LICENSE" LICENSE
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build pinned unmodified Forge game modules
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+          git diff --exit-code
+
+      - name: Resolve isolated Forge classpath
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath \
+            -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws25/dependency-classpath.txt"
+
+      - name: Generate WS-25 broad provider and WS-23 Gate-D regression provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws25/broad-generated artifacts/ws25/gate-d-generated
+          python scripts/ws25_generate_forge_broad_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir artifacts/ws25/broad-generated \
+            --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE" \
+            | tee artifacts/ws25/ws25-broad-generator-summary.json
+          python scripts/ws23_generate_forge_vertical_provider_v2.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir artifacts/ws25/gate-d-generated \
+            --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE" \
+            | tee artifacts/ws25/gate-d-generator-summary.json
+          python - <<'PY'
+          import json
+          b=json.load(open('artifacts/ws25/broad-generated/player_controller_ws25_broad_mapping.json'))
+          assert b['abstract_method_count'] == 109
+          assert b['player_count_range'] == [2,3,4,5]
+          m={x['name']:x['classification'] for x in b['callbacks']}
+          assert m['chooseCardsToDiscardToMaximumHandSize'] == 'EXTERNALLY_IMPLEMENTED'
+          assert m['tuckCardsViaMulligan'] == 'EXTERNALLY_IMPLEMENTED'
+          v=json.load(open('artifacts/ws25/gate-d-generated/player_controller_mapping_v2.json'))
+          assert v['abstract_method_count'] == 109
+          PY
+
+      - name: Assert prohibited Forge AI/GUI dependencies absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi' \
+            artifacts/ws25/broad-generated/java \
+            artifacts/ws25/gate-d-generated/java \
+            qualification/providers/forge/gpl/Ws23ForgeAuthority.java \
+            qualification/providers/forge/gpl/Ws23ForgeGateD.java \
+            qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
+
+      - name: Compile isolated broad and Gate-D provider processes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat artifacts/ws25/dependency-classpath.txt)"
+          mkdir -p artifacts/ws25/broad-classes artifacts/ws25/gate-d-classes
+          javac -cp "$cp" -d artifacts/ws25/broad-classes \
+            artifacts/ws25/broad-generated/java/forge/game/player/Ws23ForgeVerticalProvider.java \
+            qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
+          javac -cp "$cp" -d artifacts/ws25/gate-d-classes \
+            artifacts/ws25/gate-d-generated/java/forge/game/player/Ws23ForgeVerticalProvider.java \
+            qualification/providers/forge/gpl/Ws23ForgeAuthority.java \
+            qualification/providers/forge/gpl/Ws23ForgeGateD.java \
+            qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/artifacts/ws25/broad-classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
+            "$(cat artifacts/ws25/dependency-classpath.txt)" > artifacts/ws25/broad.classpath
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/artifacts/ws25/gate-d-classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
+            "$(cat artifacts/ws25/dependency-classpath.txt)" > artifacts/ws25/gate-d.classpath
+          ! grep -Eq 'forge-(ai|gui)' artifacts/ws25/broad.classpath
+          ! grep -Eq 'forge-(ai|gui)' artifacts/ws25/gate-d.classpath
+          git -C vendor/engine-source/forge diff --exit-code
+
+      - name: Gate A protocol handshake regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws25/broad.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python - <<'PY'
+          import json, os, shlex, subprocess
+          p=subprocess.Popen(shlex.split(os.environ['COMMANDER_LAB_FORGE_PROVIDER_CMD']),stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+          request={'protocol':'commander-lab.rules-service/1.1.0','message_type':'HANDSHAKE','request_id':'ws25-handshake','payload':{}}
+          out,err=p.communicate(json.dumps(request,separators=(',',':'))+'\n',timeout=30)
+          assert p.returncode == 0, err
+          lines=[json.loads(x) for x in out.splitlines() if x.strip()]
+          assert len(lines) == 1
+          msg=lines[0]
+          assert msg['message_type'] == 'HANDSHAKE_RESULT'
+          assert msg['payload']['verdict'] == 'PASS'
+          assert msg['payload']['provider'] == 'forge'
+          assert msg['payload']['forge_commit'] == os.environ['FORGE_COMMIT']
+          open('artifacts/ws25/HANDSHAKE_PROOF.json','w').write(json.dumps(msg,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Preserve 2P-5P full lifecycle regressions with WS-25 broad provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws25/broad.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python scripts/ws23_run_player_count_matrix.py \
+            --output artifacts/ws25/PLAYER_COUNT_MATRIX.json \
+            | tee artifacts/ws25/player-count-summary.json
+
+      - name: Preserve Gate A-D real runtime slice and clean-JVM replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws25/gate-d.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python scripts/ws23_run_vertical_v2.py --output artifacts/ws25/RUNTIME_PROOF.json \
+            | tee artifacts/ws25/runtime-summary.json
+          python scripts/ws23_run_vertical_v2.py \
+            --replay-proof artifacts/ws25/RUNTIME_PROOF.json \
+            --output artifacts/ws25/REPLAY_PROOF.json \
+            | tee artifacts/ws25/replay-summary.json
+          python scripts/ws23_build_bounded_common_matrix.py \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --runtime-proof artifacts/ws25/RUNTIME_PROOF.json \
+            --replay-proof artifacts/ws25/REPLAY_PROOF.json \
+            --output artifacts/ws25/WS23_REGRESSION_14.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws25/WS23_REGRESSION_14.json'))
+          assert p['denominator'] == 14 and p['pass_count'] == 14 and p['continue_gate'] == 'CONTINUE'
+          PY
+
+      - name: Execute exact Gate-D-addressable common fixtures independently
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws25/gate-d.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python scripts/ws25_run_exact_gate_d_fixtures.py \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --output-dir artifacts/ws25/exact-fixtures \
+            --matrix-output artifacts/ws25/EXACT_GATE_D_FIXTURE_MATRIX.json \
+            | tee artifacts/ws25/exact-gate-d-summary.json
+
+      - name: Build five-fixture RNG and semantic replay evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws25_build_replay_evidence.py \
+            --runtime-proof artifacts/ws25/RUNTIME_PROOF.json \
+            --replay-proof artifacts/ws25/REPLAY_PROOF.json \
+            --output artifacts/ws25/REPLAY_EVIDENCE.json \
+            | tee artifacts/ws25/replay-evidence-summary.json
+
+      - name: Build complete PlayerController decision-surface matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws25_build_decision_surface.py \
+            --v2-mapping artifacts/ws25/gate-d-generated/player_controller_mapping_v2.json \
+            --broad-mapping artifacts/ws25/broad-generated/player_controller_ws25_broad_mapping.json \
+            --output artifacts/ws25/PLAYER_CONTROLLER_DECISION_SURFACE.json \
+            | tee artifacts/ws25/decision-surface-summary.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws25/PLAYER_CONTROLLER_DECISION_SURFACE.json'))
+          allowed={'EXTERNALLY_IMPLEMENTED','AUTOMATIC_NONDISCRETIONARY','PROVEN_UNREACHABLE','FAIL_CLOSED_UNSUPPORTED'}
+          assert len(p['callbacks']) == 109
+          assert {x['classification'] for x in p['callbacks']} <= allowed
+          PY
+
+      - name: Record genuine GPL process boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib
+          cps=[pathlib.Path('artifacts/ws25/broad.classpath').read_text(),pathlib.Path('artifacts/ws25/gate-d.classpath').read_text()]
+          evidence={
+            'schema_version':'ws25-gpl-boundary/1.0.0',
+            'provider_process':'separate java process',
+            'forge_commit':'1e604105f9e279331063824943b9222b6589f5d8',
+            'forge_tree':'994976e06aaf99b807646b60b1aa2ac9f7703df4',
+            'forge_version':'2.0.15-SNAPSHOT',
+            'forge_classes_in_proprietary_process':False,
+            'forge_ai_or_gui_on_provider_classpath':any('forge-ai' in cp or 'forge-gui' in cp for cp in cps),
+            'forge_source_modified':False,
+            'ws10r_normative_representation_contains_forge_objects':False,
+          }
+          assert not evidence['forge_ai_or_gui_on_provider_classpath']
+          pathlib.Path('artifacts/ws25/GPL_PROCESS_BOUNDARY.json').write_text(json.dumps(evidence,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Execute final unchanged 135-denominator accounting exactly once each
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws25_build_full_qualification.py \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --actual-card-domain qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json \
+            --exact-matrix artifacts/ws25/EXACT_GATE_D_FIXTURE_MATRIX.json \
+            --player-count-matrix artifacts/ws25/PLAYER_COUNT_MATRIX.json \
+            --replay-evidence artifacts/ws25/REPLAY_EVIDENCE.json \
+            --decision-surface artifacts/ws25/PLAYER_CONTROLLER_DECISION_SURFACE.json \
+            --gpl-boundary artifacts/ws25/GPL_PROCESS_BOUNDARY.json \
+            --output-dir artifacts/ws25/final \
+            | tee artifacts/ws25/final-summary.json
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/ws25/final/DENOMINATOR_ATTEMPT_LEDGER.json'))
+          assert d['denominator'] == 135
+          assert d['missing_ids'] == [] and d['duplicate_ids'] == []
+          assert len(d['attempts']) == 135
+          c=json.load(open('artifacts/ws25/final/COMMON_135_FINAL.json'))
+          assert sum(c['counts'].values()) == 135
+          assert c['counts']['NOT_RUN'] == 0
+          a=json.load(open('artifacts/ws25/final/ACTUAL_CARD_29_FINAL.json'))
+          assert a['denominator'] == 29
+          af=json.load(open('artifacts/ws25/final/AF00_AF11_FINAL.json'))
+          assert af['architecture_winner'] is False
+          assert af['freeze_eligible'] is False
+          PY
+
+      - name: Hash all WS-25 evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts/ws25
+          find artifacts/ws25 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws25/SHA256SUMS || true
+
+      - name: Upload WS-25 evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws25-forge-broad-behavioral-${{ github.sha }}
+          path: artifacts/ws25/
+          if-no-files-found: error
+          retention-days: 90
