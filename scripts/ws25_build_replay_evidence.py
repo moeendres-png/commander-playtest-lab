@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-DYNAMIC_REF = re.compile(r"(?:(?:card|action|ability|entity):)\\d+")
+DYNAMIC_REF = re.compile(r"(?:(?:card|action|ability|entity):)\d+")
 EVENT_TYPES = {
     "OBSERVATION_PROOF",
     "STACK_OBSERVATION_PROOF",
