@@ -2,8 +2,8 @@ package org.mage.test.ws26;
 
 import mage.constants.PhaseStep;
 import mage.constants.Zone;
+import org.junit.Assert;
 import org.junit.Test;
-import org.mage.test.serverside.base.CardTestAPI.GameResult;
 import org.mage.test.serverside.base.CardTestCommander3PlayersFFA;
 
 /** Exact 3-player APNAP discriminator for WS05-MP-TRIG-3. */
@@ -27,6 +27,9 @@ public class Ws26Apnap3PlayerTest extends CardTestCommander3PlayersFFA {
         setStopAt(1, PhaseStep.POSTCOMBAT_MAIN);
         execute();
 
-        assertResult(playerA, GameResult.LOST);
+        // The stopped Mage.Tests harness reports an unfinished match as DRAW,
+        // so assert the engine's player-loss state directly. Runtime logs also
+        // preserve the trigger push/resolve order for evidence materialization.
+        Assert.assertTrue("APNAP top trigger must eliminate active player first", playerA.hasLost());
     }
 }
