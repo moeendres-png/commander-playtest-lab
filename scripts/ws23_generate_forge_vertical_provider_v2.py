@@ -21,7 +21,11 @@ EXTRA_EXTERNAL = {
     "orderSimultaneousSa",
 }
 
-EXTRA_AUTOMATIC = {"assignCombatDamage", "playSpellAbilityNoStack"}
+EXTRA_AUTOMATIC = {
+    "assignCombatDamage",
+    "orderAndPlaySimultaneousSa",
+    "playSpellAbilityNoStack",
+}
 
 COST_VISITOR_TYPES = (
     "CostBehold",
@@ -166,12 +170,12 @@ def v2_method_body(original, name: str) -> list[str]:
         ]
     if name == "chooseSpellAbilityToPlay":
         return [
-            "java.util.List<SpellAbility> choices = Ws23ForgeAuthority.choosePriority(broker, player, getGame());",
+            "java.util.List<SpellAbility> choices = Ws23ForgeGateD.choosePriority(broker, player, getGame());",
             "return choices == null || choices.isEmpty() ? null : choices;",
         ]
     if name == "playChosenSpellAbility":
         return [
-            "return Ws23ForgeAuthority.playChosenSpellAbility(this, broker, player, sa, getGame());"
+            "return Ws23ForgeGateD.playChosenSpellAbility(this, broker, player, sa, getGame());"
         ]
     if name == "chooseTargetsFor":
         return ["return Ws23ForgeAuthority.chooseTargets(broker, player, currentAbility);"]
@@ -200,7 +204,12 @@ def v2_method_body(original, name: str) -> list[str]:
             "return assigned;",
         ]
     if name == "orderSimultaneousSa":
-        return ["return Ws23ForgeAuthority.orderSimultaneous(broker, player, activePlayerSAs);"]
+        return ["return Ws23ForgeGateD.orderSimultaneous(broker, player, activePlayerSAs);"]
+    if name == "orderAndPlaySimultaneousSa":
+        return [
+            "Ws23ForgeGateD.orderAndPlaySimultaneous(this, broker, player, activePlayerSAs);",
+            "return;",
+        ]
     return original(name)
 
 
@@ -240,9 +249,7 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
     java = java.replace(old_rules, new_rules, 1)
 
     old_start = "            match.startGame(game);"
-    new_start = (
-        "            match.startGame(game, () -> Ws23ForgeAuthority.installScenario(game, broker));"
-    )
+    new_start = "            match.startGame(game, () -> Ws23ForgeGateD.installScenario(game, broker));"
     if old_start not in java:
         raise RuntimeError("base Match.startGame call changed")
     java = java.replace(old_start, new_start, 1)
@@ -266,12 +273,15 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
         raise RuntimeError("base protocol stdout construction changed")
     java = java.replace(old_stdout, new_stdout, 1)
 
-    mapping["schema_version"] = "ws23-player-controller-mapping/2.0.0"
-    mapping["authority_helper"] = "Ws23ForgeAuthority"
+    mapping["schema_version"] = "ws23-player-controller-mapping/2.1.0"
+    mapping["authority_helper"] = "Ws23ForgeAuthority+Ws23ForgeGateD"
     mapping["gate_a_base_preserved"] = True
     mapping["support_scope"] = "BOUNDED_VERTICAL_SLICE_ONLY"
     mapping["cost_decision_policy"] = "MANA_DEFERRED_TO_EXTERNAL_CONTROLLER_OTHER_COSTS_FAIL_CLOSED"
     mapping["protocol_stdout_exclusive"] = True
+    mapping["simultaneous_trigger_policy"] = (
+        "EXTERNAL_ORDER_FOR_EXACT_TWO_SOUL_WARDEN_TRIGGERS_FORGE_CORE_STACK_ORCHESTRATION"
+    )
     return java, mapping
 
 
