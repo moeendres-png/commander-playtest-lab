@@ -1,0 +1,163 @@
+name: WS-28 Finalist Differential Evidence
+
+on:
+  push:
+    branches: [ws28/finalist-differential]
+    paths:
+      - "handoffs/ws28/**"
+      - "scripts/ws28_build_finalist_matrix.py"
+      - "tests/qualification/test_ws28_finalist_differential.py"
+      - ".github/workflows/ws28-finalist-differential.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  NEUTRAL_BASE_MAIN: c83e52ae79ff2242578757c0f517badbb1a2621c
+  FORGE_CANDIDATE_HEAD: 09cfad8a24be12a87761e6645c48577387f0521b
+  XMAGE_CANDIDATE_HEAD: a53c2312983384eb0870746132e281bbed2f5a1d
+  FORGE_ENGINE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_ENGINE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  XMAGE_ENGINE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  XMAGE_ENGINE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
+  COMMON_MANIFEST_SHA256: e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4
+  FORGE_RUN_ID: "33305749438"
+  FORGE_JOB_ID: "99302608566"
+  FORGE_ARTIFACT_ID: "9736955576"
+  FORGE_ARTIFACT_SHA256: 1958a9c985033e24c3ed4c8ee8e9e032d6cec7afccd5bce3ce8abcdd9e0a4a31
+  XMAGE_RUN_ID: "33320954360"
+  XMAGE_JOB_ID: "99302619591"
+  XMAGE_ARTIFACT_ID: "9737051836"
+  XMAGE_ARTIFACT_SHA256: efdff404483822a04bd66de3ab03ba6bd38fe1f69d4bc16c1fb18ef3056d7b64
+
+jobs:
+  verify-and-materialize-neutral-differential:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout neutral WS-28 branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Checkout exact Forge candidate separately
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.FORGE_CANDIDATE_HEAD }}
+          path: candidate-checkouts/forge
+          fetch-depth: 1
+
+      - name: Checkout exact XMage candidate separately
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.XMAGE_CANDIDATE_HEAD }}
+          path: candidate-checkouts/xmage
+          fetch-depth: 1
+
+      - name: Checkout exact Forge engine separately
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_ENGINE_COMMIT }}
+          path: engine-checkouts/forge
+          fetch-depth: 1
+
+      - name: Checkout exact XMage engine separately
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_ENGINE_COMMIT }}
+          path: engine-checkouts/xmage
+          fetch-depth: 1
+
+      - name: Verify exact source and common-contract locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C candidate-checkouts/forge rev-parse HEAD)" = "$FORGE_CANDIDATE_HEAD"
+          test "$(git -C candidate-checkouts/xmage rev-parse HEAD)" = "$XMAGE_CANDIDATE_HEAD"
+          test "$(git -C engine-checkouts/forge rev-parse HEAD)" = "$FORGE_ENGINE_COMMIT"
+          test "$(git -C engine-checkouts/forge rev-parse HEAD^{tree})" = "$FORGE_ENGINE_TREE"
+          test "$(git -C engine-checkouts/xmage rev-parse HEAD)" = "$XMAGE_ENGINE_COMMIT"
+          test "$(git -C engine-checkouts/xmage rev-parse HEAD^{tree})" = "$XMAGE_ENGINE_TREE"
+          echo "$COMMON_MANIFEST_SHA256  candidate-checkouts/forge/qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json" | sha256sum -c -
+          echo "$COMMON_MANIFEST_SHA256  candidate-checkouts/xmage/qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json" | sha256sum -c -
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+
+      - name: Download immutable fresh finalist evidence artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p tmp-evidence/forge tmp-evidence/xmage
+          curl --fail --location --silent --show-error \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FORGE_ARTIFACT_ID}/zip" \
+            -o tmp-evidence/forge.zip
+          curl --fail --location --silent --show-error \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${XMAGE_ARTIFACT_ID}/zip" \
+            -o tmp-evidence/xmage.zip
+          echo "$FORGE_ARTIFACT_SHA256  tmp-evidence/forge.zip" | sha256sum -c -
+          echo "$XMAGE_ARTIFACT_SHA256  tmp-evidence/xmage.zip" | sha256sum -c -
+          unzip -q tmp-evidence/forge.zip -d tmp-evidence/forge
+          unzip -q tmp-evidence/xmage.zip -d tmp-evidence/xmage
+
+      - name: Rebuild WS-28 machine evidence from fresh exact-head artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf artifacts/ws28
+          python scripts/ws28_build_finalist_matrix.py \
+            --forge-dir tmp-evidence/forge \
+            --xmage-dir tmp-evidence/xmage \
+            --output-dir artifacts/ws28 \
+            --neutral-base "$NEUTRAL_BASE_MAIN" \
+            --forge-run-id "$FORGE_RUN_ID" \
+            --forge-job-id "$FORGE_JOB_ID" \
+            --forge-artifact-id "$FORGE_ARTIFACT_ID" \
+            --forge-artifact-sha256 "$FORGE_ARTIFACT_SHA256" \
+            --xmage-run-id "$XMAGE_RUN_ID" \
+            --xmage-job-id "$XMAGE_JOB_ID" \
+            --xmage-artifact-id "$XMAGE_ARTIFACT_ID" \
+            --xmage-artifact-sha256 "$XMAGE_ARTIFACT_SHA256"
+          printf '%s  %s\n' \
+            "$(sha256sum handoffs/ws28/WS28_FINAL_HANDOFF.md | awk '{print $1}')" \
+            "../../handoffs/ws28/WS28_FINAL_HANDOFF.md" >> artifacts/ws28/WS28_SHA256SUMS
+          sort -k2 artifacts/ws28/WS28_SHA256SUMS -o artifacts/ws28/WS28_SHA256SUMS
+
+      - name: Validate WS-28 evidence and hard gates
+        run: |
+          python -m pip install pytest==8.4.2
+          python -m py_compile scripts/ws28_build_finalist_matrix.py
+          pytest -q tests/qualification/test_ws28_finalist_differential.py
+          (cd artifacts/ws28 && sha256sum -c WS28_SHA256SUMS)
+
+      - name: Assert no candidate implementation was vendored or merged
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! git diff --name-only origin/main...HEAD | grep -E '^(engine-bridge|candidate-qualification/ws2[56]-|qualification/providers/forge/gpl)/'
+
+      - name: Commit reproducible WS-28 evidence to neutral branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts/ws28
+          if git diff --cached --quiet; then
+            echo "WS-28 evidence already materialized identically"
+          else
+            git commit -m "WS-28 materialize finalist differential evidence [skip ci]"
+            git push origin HEAD:ws28/finalist-differential
+          fi
