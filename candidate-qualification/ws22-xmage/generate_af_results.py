@@ -75,9 +75,7 @@ def _source_lock_gate(
             "ws18_tree": _git("rev-parse", f"{WS18_HEAD}^{{tree}}") == WS18_TREE,
             "xmage_commit": _git("rev-parse", "HEAD", cwd=ROOT / "vendor/engine-source/xmage")
             == XMAGE_COMMIT,
-            "xmage_tree": _git(
-                "rev-parse", "HEAD^{tree}", cwd=ROOT / "vendor/engine-source/xmage"
-            )
+            "xmage_tree": _git("rev-parse", "HEAD^{tree}", cwd=ROOT / "vendor/engine-source/xmage")
             == XMAGE_TREE,
             "xmage_pom_blob": _git(
                 "rev-parse", "HEAD:pom.xml", cwd=ROOT / "vendor/engine-source/xmage"
@@ -93,10 +91,14 @@ def _source_lock_gate(
             "runtime_xmage_commit": runtime.get("xmage_commit") == XMAGE_COMMIT,
         }
     except (OSError, subprocess.SubprocessError):
-        return "FAIL", "Exact source/build lock verification raised an execution error.", [
-            "WS22_SOURCE_LOCK.json",
-            "RUNTIME_SUPPORT_EVIDENCE.json",
-        ]
+        return (
+            "FAIL",
+            "Exact source/build lock verification raised an execution error.",
+            [
+                "WS22_SOURCE_LOCK.json",
+                "RUNTIME_SUPPORT_EVIDENCE.json",
+            ],
+        )
     verdict = "PASS" if checks and all(checks.values()) else "FAIL"
     failed = sorted(name for name, passed in checks.items() if not passed)
     reason = (
@@ -110,7 +112,11 @@ def _source_lock_gate(
 def _protocol_gate(runtime: dict[str, Any]) -> tuple[str, str, list[str]]:
     hello = runtime.get("rsp_hello")
     if not isinstance(hello, dict):
-        return "FAIL", "Exact RSP HELLO runtime evidence is missing.", ["RUNTIME_SUPPORT_EVIDENCE.json"]
+        return (
+            "FAIL",
+            "Exact RSP HELLO runtime evidence is missing.",
+            ["RUNTIME_SUPPORT_EVIDENCE.json"],
+        )
     payload = hello.get("payload")
     metadata = payload.get("metadata") if isinstance(payload, dict) else None
     ok = (
@@ -167,11 +173,11 @@ def _reliability_gate(
         return "FAIL", "Denominator or result rows are missing.", ["COMMON_RESULTS.json"]
     expected_ids = [str(item.get("fixture_id")) for item in fixtures if isinstance(item, dict)]
     result_ids = [str(item.get("fixture_id")) for item in rows if isinstance(item, dict)]
-    verdicts = Counter(str(item.get("verdict", "UNKNOWN")) for item in rows if isinstance(item, dict))
+    verdicts = Counter(
+        str(item.get("verdict", "UNKNOWN")) for item in rows if isinstance(item, dict)
+    )
     evidence_ok = all(
-        isinstance(item, dict)
-        and item.get("evidence_class") == "RUNTIME_VERIFIED"
-        for item in rows
+        isinstance(item, dict) and item.get("evidence_class") == "RUNTIME_VERIFIED" for item in rows
     )
     ok = (
         len(expected_ids) == 135
@@ -190,7 +196,11 @@ def _reliability_gate(
         if ok
         else "The exact 135-fixture runtime evidence set is incomplete, duplicated, non-runtime, or contains unresolved verdicts."
     )
-    return "PASS" if ok else "FAIL", reason, ["COMMON_RESULTS.json", "RUNTIME_SUPPORT_EVIDENCE.json"]
+    return (
+        "PASS" if ok else "FAIL",
+        reason,
+        ["COMMON_RESULTS.json", "RUNTIME_SUPPORT_EVIDENCE.json"],
+    )
 
 
 def _interop_gate(
@@ -201,9 +211,7 @@ def _interop_gate(
     license_path = ROOT / "vendor/engine-source/xmage/LICENSE.txt"
     license_ok = (
         license_path.is_file()
-        and _sha256_file(license_path) == hashlib.sha256(
-            license_path.read_bytes()
-        ).hexdigest()
+        and _sha256_file(license_path) == hashlib.sha256(license_path.read_bytes()).hexdigest()
         and license_path.read_text(encoding="utf-8").startswith("MIT License")
         and _git("rev-parse", "HEAD:LICENSE.txt", cwd=ROOT / "vendor/engine-source/xmage")
         == XMAGE_LICENSE_BLOB
@@ -247,9 +255,7 @@ def main() -> int:
     if not isinstance(rows, list) or not isinstance(fixtures, list):
         raise RuntimeError("COMMON_RESULTS or manifest fixture array missing")
     row_by_id = {
-        str(row["fixture_id"]): row
-        for row in rows
-        if isinstance(row, dict) and "fixture_id" in row
+        str(row["fixture_id"]): row for row in rows if isinstance(row, dict) and "fixture_id" in row
     }
 
     gate_results: list[dict[str, Any]] = []
@@ -271,10 +277,11 @@ def main() -> int:
             mapped_ids = [
                 str(fixture.get("fixture_id"))
                 for fixture in fixtures
-                if isinstance(fixture, dict)
-                and gate_id in fixture.get("requirement_ids", [])
+                if isinstance(fixture, dict) and gate_id in fixture.get("requirement_ids", [])
             ]
-            mapped_rows = [row_by_id[fixture_id] for fixture_id in mapped_ids if fixture_id in row_by_id]
+            mapped_rows = [
+                row_by_id[fixture_id] for fixture_id in mapped_ids if fixture_id in row_by_id
+            ]
             verdict = _mapped_gate_verdict(mapped_rows)
             counts = Counter(str(row.get("verdict", "UNKNOWN")) for row in mapped_rows)
             reason = (
@@ -314,7 +321,7 @@ def main() -> int:
     OUTPUT_PATH.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     lines = [
-        "# WS-22 XMage AF00–AF11",
+        "# WS-22 XMage AF00-AF11",
         "",
         f"Freeze eligible: **{str(output['freeze_eligible']).upper()}**",
         "",
