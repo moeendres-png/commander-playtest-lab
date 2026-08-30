@@ -1,0 +1,45 @@
+{
+  "common_denominator": 135,
+  "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+  "forge": {
+    "commander_lab_branch": "ws25/forge-broad-behavioral-qualification",
+    "commander_lab_head": "09cfad8a24be12a87761e6645c48577387f0521b",
+    "engine_commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "engine_repository": "Card-Forge/forge",
+    "engine_tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+    "fresh_actions_job_id": 99302608566,
+    "fresh_actions_run_id": 33305749438,
+    "fresh_artifact_id": 9736955576,
+    "fresh_artifact_sha256": "1958a9c985033e24c3ed4c8ee8e9e032d6cec7afccd5bce3ce8abcdd9e0a4a31",
+    "internal_evidence_sha256": {
+      "COMMON_135_FINAL.json": "3825e000daca973502a0980aa75dd13e62ad4feceda49843b5a600a3fef47781",
+      "EXACT_GATE_D_FIXTURE_MATRIX.json": "c3c81a9a7a2363e6258daf2a644846aad7b87ce412d7fe00acbbe60cf272ace8",
+      "PLAYER_COUNT_MATRIX.json": "81f8e93a2b96855d93b5085ca095ce66ea8f15bd9bf2ab5cf006ba02cff215a5",
+      "REPLAY_EVIDENCE.json": "364e20a5a6bc6cababe274c86e863ec8a8e9f357913020babcd36dc23b9dd2c5"
+    },
+    "pr": 140
+  },
+  "locked_on": "2026-08-30",
+  "neutral_base_main": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+  "protocol": "commander-lab.rules-service/1.1.0",
+  "schema_version": "ws28-source-lock/1.0.0",
+  "xmage": {
+    "behavioral_head": "a53c2312983384eb0870746132e281bbed2f5a1d",
+    "commander_lab_branch": "ws26/xmage-scenario-replay-viability",
+    "engine_commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c",
+    "engine_repository": "moeendres-png/mage",
+    "engine_tree": "f0a028b265f9c008ea0aedc4cec6b8f14500b69f",
+    "fresh_actions_job_id": 99302619591,
+    "fresh_actions_run_id": 33320954360,
+    "fresh_artifact_id": 9737051836,
+    "fresh_artifact_sha256": "efdff404483822a04bd66de3ab03ba6bd38fe1f69d4bc16c1fb18ef3056d7b64",
+    "internal_evidence_sha256": {
+      "NATIVE_REPRESENTATIVE_RESULTS.json": "ff0f71c6f3a1304f81e9b5bdb2abe54a8de4e9f77882f1e2ec7fab87c21a9761",
+      "REPLAY_CAPTURE_1.json": "69e3fc692eb996f66ba12d52e9df3abf1bff8c58c1940351729f9ccef133f3af",
+      "REPLAY_CAPTURE_2.json": "69e3fc692eb996f66ba12d52e9df3abf1bff8c58c1940351729f9ccef133f3af",
+      "WS22_REGRESSION_RESULTS.json": "9d51c056f053e3d19d7c0b684d7547dd5355858484c30d6d5b98fd02f4f15a4d",
+      "WS26_RUNTIME_GATE.json": "6c542bcc44197661bc0c3dcc7c513e48dcbdbcb3039c946f8d4f9aef10ed70aa"
+    },
+    "pr": 141
+  }
+}

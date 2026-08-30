@@ -1,0 +1,20 @@
+{
+  "architecture_winner_selected": false,
+  "cross_materialization": {
+    "CANDIDATE_UNSUPPORTED": 32
+  },
+  "direct_rules_defects_identified": 0,
+  "engine_semantic_disagreements": 0,
+  "final_differential_verified_semantic_intersection": 0,
+  "final_independent_pass_intersection": 18,
+  "new_cross_materialized_forge_to_xmage": 0,
+  "new_cross_materialized_xmage_to_forge": 0,
+  "primary_blocker": "The frozen 135-row manifest identifies obligations but does not materialize a single provider-neutral semantic initial state/decision transcript for the 50 known-PASS union; existing candidate PASS evidence uses different scenarios.",
+  "production_rules_core": "UNKNOWN",
+  "schema_version": "ws28-summary/1.0.0",
+  "starting_independent_intersection": 18,
+  "strict_shared_verdicts": {
+    "SETUP_NONISOMORPHIC": 18
+  },
+  "workstream_completion": "PASS"
+}
