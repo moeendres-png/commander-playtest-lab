@@ -98,6 +98,8 @@ jobs:
         run: |
           set -euo pipefail
           python -m py_compile candidate-qualification/ws22-xmage/xmage_ws22_provider.py
+          python -m py_compile candidate-qualification/ws22-xmage/ws22_semantic_fixtures.py
+          python -m py_compile candidate-qualification/ws22-xmage/capture_runtime_support.py
           python qualification/harness.py validate \
             qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
             qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
@@ -106,6 +108,14 @@ jobs:
       - name: Build and test XMage bridge
         working-directory: engine-bridge
         run: mvn -B -ntp verify
+
+      - name: Capture exact-head runtime support evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/ws22-xmage
+          python candidate-qualification/ws22-xmage/capture_runtime_support.py
+          test -s qualification/evidence/ws22-xmage/RUNTIME_SUPPORT_EVIDENCE.json
 
       - name: Run unchanged common harness without substitute PASSes
         shell: bash
