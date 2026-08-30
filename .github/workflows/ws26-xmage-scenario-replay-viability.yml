@@ -85,11 +85,21 @@ jobs:
             echo "common_manifest_sha256=$(sha256sum qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json | cut -d' ' -f1)"
             echo "xmage_transformer_blob=$(git hash-object candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py)"
             echo "xmage_transformer_sha256=$(sha256sum candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py | cut -d' ' -f1)"
+            echo "native_rules_test_blob=$(git hash-object candidate-qualification/ws26-xmage/native-tests/Ws26RepresentativeRulesTest.java)"
+            echo "native_apnap_test_blob=$(git hash-object candidate-qualification/ws26-xmage/native-tests/Ws26Apnap3PlayerTest.java)"
             echo "qualification_patch_sha256=$(sha256sum qualification/evidence/ws26-xmage/XMAGE_QUALIFICATION_PATCH.diff | cut -d' ' -f1)"
           } > qualification/evidence/ws26-xmage/SOURCE_LOCK_DIGESTS.txt
 
       - name: Census XMage random sources
         run: python candidate-qualification/ws26-xmage/census_xmage_rng.py vendor/engine-source/xmage
+
+      - name: Install native WS-26 fixture sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p vendor/engine-source/xmage/Mage.Tests/src/test/java/org/mage/test/ws26
+          cp candidate-qualification/ws26-xmage/native-tests/Ws26RepresentativeRulesTest.java vendor/engine-source/xmage/Mage.Tests/src/test/java/org/mage/test/ws26/
+          cp candidate-qualification/ws26-xmage/native-tests/Ws26Apnap3PlayerTest.java vendor/engine-source/xmage/Mage.Tests/src/test/java/org/mage/test/ws26/
 
       - name: Build patched pinned XMage
         working-directory: vendor/engine-source/xmage
@@ -97,6 +107,78 @@ jobs:
         run: |
           set -euo pipefail
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+
+      - name: Run native representative Gate C rules fixtures
+        working-directory: vendor/engine-source/xmage
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then
+            ./mvnw -B -ntp -pl Mage.Tests -Dtest=Ws26RepresentativeRulesTest,Ws26Apnap3PlayerTest test
+          else
+            mvn -B -ntp -pl Mage.Tests -Dtest=Ws26RepresentativeRulesTest,Ws26Apnap3PlayerTest test
+          fi
+
+      - name: Materialize native Gate C evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          report_dir = Path('vendor/engine-source/xmage/Mage.Tests/target/surefire-reports')
+          mapping = {
+              'microStackTargetLifo': ['MICRO_STACK'],
+              'microReplacementRestInPeace': ['MICRO_REPLACEMENT'],
+              'microContinuousGloriousAnthem': ['MICRO_CONTINUOUS_EFFECTS'],
+              'multiplayerMultipleDefenders4P': ['WS05-MP-COMBAT-4'],
+              'commanderTax4P': ['WS05-CMD-TAX-4'],
+              'apnapSimultaneousTriggers3P': ['WS05-MP-TRIG-3'],
+              'actualRograkhCommanderCast': ['CARD_02'],
+              'actualSyphonMindFourPlayers': ['CARD_20'],
+              'actualKedissCommanderDamageFanout': ['CARD_04'],
+          }
+          observed = {}
+          for xml_path in sorted(report_dir.glob('TEST-org.mage.test.ws26.*.xml')):
+              root = ET.parse(xml_path).getroot()
+              for case in root.findall('.//testcase'):
+                  name = case.attrib['name']
+                  if name not in mapping:
+                      continue
+                  bad = any(case.find(tag) is not None for tag in ('failure', 'error', 'skipped'))
+                  observed[name] = {
+                      'passed': not bad,
+                      'class': case.attrib.get('classname'),
+                      'time_seconds': case.attrib.get('time'),
+                      'report': xml_path.name,
+                  }
+          missing = sorted(set(mapping) - set(observed))
+          failed = sorted(name for name, row in observed.items() if not row['passed'])
+          if missing or failed:
+              raise SystemExit(f'native Gate C incomplete: missing={missing} failed={failed}')
+          fixture_results = []
+          for method, fixture_ids in mapping.items():
+              for fixture_id in fixture_ids:
+                  fixture_results.append({
+                      'fixture_id': fixture_id,
+                      'verdict': 'PASS',
+                      'evidence_class': 'RUNTIME_VERIFIED',
+                      'native_test_method': method,
+                      'native_test_class': observed[method]['class'],
+                      'surefire_report': observed[method]['report'],
+                  })
+          out = {
+              'schema_version': 'ws26-native-representative-results/1.0.0',
+              'xmage_commit': '77d7646da6958fdf8125ee7c8f4aabd130d21d4c',
+              'player_rules_authority': 'xmage-native-mage-tests',
+              'fixture_results': fixture_results,
+          }
+          path = Path('qualification/evidence/ws26-xmage/NATIVE_REPRESENTATIVE_RESULTS.json')
+          path.write_text(json.dumps(out, indent=2, sort_keys=True) + '\n')
+          print(json.dumps({'native_fixture_passes': len(fixture_results)}, sort_keys=True))
+          PY
 
       - name: Install lab validation runtime
         run: python -m pip install -e '.[dev,api]'
