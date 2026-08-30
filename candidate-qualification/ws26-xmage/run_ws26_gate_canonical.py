@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""WS-26 clean-process replay entrypoint with canonical legal-option set ordering.
+"""WS-26 qualification entrypoint with deterministic replay comparison.
 
-This wrapper deliberately changes only replay comparison presentation. Legal actions
-remain provider-owned; selected option order and explicit `ordering` values are not
-sorted or otherwise rewritten. Each replay capture is also persisted as qualification
-diagnostic evidence so semantic-state mismatches can be compared fail-closed.
+This wrapper changes only qualification presentation/setup details:
+- legal-option sets used for replay comparison are canonically ordered;
+- each clean-process replay capture is persisted as diagnostic evidence; and
+- PILOT_CHOICE uses City of Brass's native AnyColorManaAbility/ChoiceColor path,
+  avoiding the non-reachable Unclaimed Territory play-land path observed in run #34.
+
+XMage remains the sole rules/legal-action authority. Selected option order and
+explicit decision `ordering` values are never sorted or otherwise rewritten.
 """
 from __future__ import annotations
 
@@ -36,8 +40,28 @@ def diagnostic_capture_replay_run(expected_tape=None):
     return result
 
 
+def city_of_brass_choice_scenario():
+    def configure(players):
+        players[0]["zones"]["battlefield"].append(
+            {
+                "semantic_id": "p1-city-of-brass",
+                "card_name": "City of Brass",
+                "tapped": False,
+                "controller_seat": 1,
+                "face": "main",
+            }
+        )
+
+    return gate.scenario_payload(
+        "WS26-PILOT-CHOICE",
+        [["City of Brass"], [], [], []],
+        configure,
+    )
+
+
 gate.replay_semantic_offer_map = canonical_offer_map
 gate.capture_replay_run = diagnostic_capture_replay_run
+gate.choice_scenario = city_of_brass_choice_scenario
 
 
 if __name__ == "__main__":
