@@ -1,0 +1,67 @@
+--- a/Mage/src/main/java/mage/util/RandomUtil.java
++++ b/Mage/src/main/java/mage/util/RandomUtil.java
+@@ -1,7 +1,9 @@
+ package mage.util;
+ 
+ import java.awt.*;
++import java.util.ArrayList;
+ import java.util.Collection;
++import java.util.List;
+ import java.util.Random;
+ import java.util.Set;
+ import java.util.UUID;
+@@ -11,7 +13,38 @@
+  */
+ public final class RandomUtil {
+ 
+-    private static final Random random = new Random(); // thread safe with seed support
++    /**
++     * WS-26 qualification instrumentation. Recording happens at Random.next(bits)
++     * so callers using getRandom(), Collections.shuffle(..., Random), nextInt,
++     * nextBoolean and nextDouble all traverse the same attributable Rules RNG.
++     */
++    private static final class RecordingRandom extends Random {
++        private final List<String> tape = new ArrayList<>();
++        private boolean recording;
++        private long drawIndex;
++
++        @Override
++        protected synchronized int next(int bits) {
++            int value = super.next(bits);
++            if (recording) {
++                drawIndex++;
++                tape.add(drawIndex + ":next_bits:" + bits + ":" + value);
++            }
++            return value;
++        }
++
++        synchronized void beginTape() {
++            tape.clear();
++            drawIndex = 0L;
++            recording = true;
++        }
++
++        synchronized List<String> snapshotTape() {
++            return List.copyOf(tape);
++        }
++    }
++
++    private static final RecordingRandom random = new RecordingRandom(); // thread safe with seed support
+ 
+     private RandomUtil() {
+     }
+@@ -44,6 +77,14 @@
+         random.setSeed(newSeed);
+     }
+ 
++    public static void beginRulesRngTape() {
++        random.beginTape();
++    }
++
++    public static List<String> getRulesRngTape() {
++        return random.snapshotTape();
++    }
++
+     public static <T> T randomFromCollection(Collection<T> collection) {
+         if (collection.size() < 2) {
+             return collection.stream().findFirst().orElse(null);

@@ -1,0 +1,135 @@
+name: WS-26 XMage Scenario Replay Viability
+
+on:
+  pull_request:
+    paths:
+      - "engine-bridge/**"
+      - "candidate-qualification/ws26-xmage/**"
+      - "candidate-qualification/ws22-xmage/**"
+      - "qualification/**"
+      - "src/commander_lab/engine/rules/**"
+      - "tests/**"
+      - ".github/workflows/ws26-xmage-scenario-replay-viability.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS22_FINAL_HEAD: 99cdc2372a6d87a4a09bba2d4f3c23713f53a444
+  WS22_SEMANTIC_HEAD: 6db86f69f582cde6cf9be6410dd77bc82ce8bd5f
+  XMAGE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  XMAGE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
+  XMAGE_PATCH_SHA256: e04688370976cad7e954df979ee0da9c057914ee0f4d3bec8bc2d06eca1529f8
+  PYTHONHASHSEED: "0"
+  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
+  COMMANDER_LAB_XMAGE_WS26_BRIDGE_CMD: >-
+    java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar org.commanderlab.xmage.XmageWs26QualificationMain full-game
+
+jobs:
+  viability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout WS-26 candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Verify exact locks and reproducible patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$WS22_FINAL_HEAD" HEAD
+          test "$(git rev-parse ${WS22_FINAL_HEAD}^{})" = "$WS22_FINAL_HEAD"
+          test "$(git rev-parse ${WS22_SEMANTIC_HEAD}^{})" = "$WS22_SEMANTIC_HEAD"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
+          test "$(sha256sum candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch | cut -d' ' -f1)" = "$XMAGE_PATCH_SHA256"
+          git -C vendor/engine-source/xmage apply --check "$GITHUB_WORKSPACE/candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch"
+          git -C vendor/engine-source/xmage apply "$GITHUB_WORKSPACE/candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch"
+          git -C vendor/engine-source/xmage diff --check
+
+      - name: Census XMage random sources
+        run: |
+          mkdir -p qualification/evidence/ws26-xmage
+          python candidate-qualification/ws26-xmage/census_xmage_rng.py vendor/engine-source/xmage
+
+      - name: Build patched pinned XMage
+        working-directory: vendor/engine-source/xmage
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+
+      - name: Install lab validation runtime
+        run: python -m pip install -e '.[dev,api]'
+
+      - name: Compile WS-26 qualification code
+        run: |
+          python -m py_compile candidate-qualification/ws26-xmage/run_ws26_gate.py
+          python -m py_compile candidate-qualification/ws26-xmage/census_xmage_rng.py
+          cd engine-bridge
+          mvn -B -ntp verify
+
+      - name: Preserve WS-22 runtime PASS regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/ws26-xmage
+          python qualification/harness.py run \
+            --candidate XMAGE_WS22_REGRESSION \
+            --source-lock candidate-qualification/ws22-xmage/WS22_SOURCE_LOCK.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --command "python candidate-qualification/ws22-xmage/xmage_ws22_provider.py" \
+            --output qualification/evidence/ws26-xmage/WS22_REGRESSION_RESULTS.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          required = {
+              'PLAYER_COUNT_2P','PLAYER_COUNT_3P','PLAYER_COUNT_4P','PLAYER_COUNT_5P',
+              'PILOT_MULLIGAN','PILOT_CHOOSE_OBJECT','PILOT_PRIORITY',
+              'NEGATIVE_PARENT_CLASS_FALLBACK',
+              'HIDDEN_01','HIDDEN_02','HIDDEN_18','HIDDEN_19','HIDDEN_HONEYCARD_SENTINEL',
+          }
+          rows=json.loads(Path('qualification/evidence/ws26-xmage/WS22_REGRESSION_RESULTS.json').read_text())['fixture_results']
+          by={r['fixture_id']:r for r in rows}
+          assert len(rows)==135 and len(by)==135
+          for fid in sorted(required):
+              assert by[fid]['verdict']=='PASS', (fid, by[fid])
+              assert by[fid]['evidence_class']=='RUNTIME_VERIFIED', (fid, by[fid])
+          print('preserved', len(required))
+          PY
+
+      - name: Run WS-26 scenario and replay gate
+        run: python candidate-qualification/ws26-xmage/run_ws26_gate.py
+
+      - name: Upload WS-26 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws26-xmage-evidence-${{ github.sha }}
+          path: qualification/evidence/ws26-xmage
+          if-no-files-found: warn
