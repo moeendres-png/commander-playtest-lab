@@ -168,6 +168,9 @@ final class XmageWs26ReplayRecorder {
                 throw new IllegalStateException("duplicate semantic option id in replay tape: " + semanticId);
             }
             seenSemanticIds.add(semanticId);
+        }
+        seenSemanticIds.sort(String::compareTo);
+        for (String semanticId : seenSemanticIds) {
             offeredIds.add(semanticId);
         }
         tape.add("offered_semantic_option_ids", offeredIds);
