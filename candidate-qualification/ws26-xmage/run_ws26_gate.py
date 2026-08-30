@@ -88,10 +88,10 @@ def scenario_payload(
 
 def replay_scenario() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     return scenario_payload(
-        "WS26-REPLAY-MANA-CRYPT",
-        [["Mana Crypt"], [], [], []],
+        "WS26-REPLAY-GOBLIN-BOMB",
+        [["Goblin Bomb"], [], [], []],
         lambda players: players[0]["zones"]["battlefield"].append(
-            {"semantic_id": "p1-mana-crypt", "card_name": "Mana Crypt", "tapped": False, "controller_seat": 1, "face": "main"}
+            {"semantic_id": "p1-goblin-bomb", "card_name": "Goblin Bomb", "tapped": False, "controller_seat": 1, "face": "main"}
         ),
     )
 
@@ -231,6 +231,8 @@ def capture_replay_run(expected_tape: list[dict[str, Any]] | None = None) -> dic
                 selected = [str(unique_option(decision, option_type="keep")["option_id"])]
             elif decision["decision_class"] == "priority":
                 selected = [str(unique_option(decision, option_type="pass_priority")["option_id"])]
+            elif decision["decision_class"] == "choose_use":
+                selected = [str(unique_boolean(decision, True)["option_id"])]
             else:
                 raise RuntimeError(f"unexpected discretionary class in replay seed fixture: {decision['decision_class']}")
             submit_one(client, decision, selected)
