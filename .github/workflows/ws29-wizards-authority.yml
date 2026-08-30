@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/ws29-wizards-authority.yml'
       - 'scripts/ws29_fetch_wizards_authority.py'
+      - 'scripts/ws29_fetch_gatherer_corpus.py'
 
 permissions:
   contents: read
@@ -15,7 +16,7 @@ permissions:
 jobs:
   direct-wizards-authority:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout exact branch head
         uses: actions/checkout@v4
@@ -29,11 +30,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/ws29/network
-          set +e
           python scripts/ws29_fetch_wizards_authority.py artifacts/ws29/network | tee artifacts/ws29/network/RUN_OUTPUT.json
-          rc=${PIPESTATUS[0]}
-          set -e
-          echo "acquisition_exit_code=$rc" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Acquire 29-card current Oracle corpus from public Gatherer
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws29/gatherer
+          python scripts/ws29_fetch_gatherer_corpus.py artifacts/ws29/gatherer | tee artifacts/ws29/gatherer/RUN_OUTPUT.txt
 
       - name: Validate metadata-only evidence
         run: |
@@ -42,23 +45,34 @@ jobs:
           import json
           from pathlib import Path
 
-          root = Path('artifacts/ws29/network')
-          cr = json.loads((root / 'CR_RAW_ACQUISITION.json').read_text())
-          gatherer = json.loads((root / 'GATHERER_ACCESS.json').read_text())
+          root = Path('artifacts/ws29')
+          cr = json.loads((root / 'network' / 'CR_RAW_ACQUISITION.json').read_text())
+          gatherer = json.loads((root / 'network' / 'GATHERER_ACCESS.json').read_text())
+          corpus = json.loads((root / 'gatherer' / 'GATHERER_29_CARD_ORACLE_LOCK.json').read_text())
           assert cr['official_cr_raw_bytes'] in {'PASS', 'UNKNOWN'}, cr
           for source in cr['sources'].values():
               if source.get('sha256') is not None:
                   assert len(source['sha256']) == 64, source
-          assert gatherer['gatherer_direct_access'] in {'PASS', 'BLOCKED', 'UNKNOWN'}
-          assert all('requested_url' in p and 'http_status' in p for p in gatherer['probes'])
+          assert gatherer['gatherer_direct_access'] == 'PASS', gatherer
+          assert corpus['card_count'] == 29, corpus
+          assert len(corpus['records']) == 29, corpus
+          assert [r['fixture_id'] for r in corpus['records']] == [f'CARD_{i:02d}' for i in range(1, 30)]
+          for r in corpus['records']:
+              assert r['search']['requested_url'].startswith('https://gatherer.wizards.com/')
+              if r['current_oracle_fetch_status'] == 'FULL_CURRENT_ORACLE_LOCK':
+                  assert r['detail']['http_status'] == 200
+                  assert r['detail']['extracted']['expected_name_present'] is True
+                  assert r['detail']['extracted']['rules_text_label_present'] is True
+                  assert len(r['detail']['sha256']) == 64
           print('WS29 terminal metadata validation PASS')
+          print('FULL_CURRENT_ORACLE_LOCK', corpus['full_current_oracle_lock_count'], '/ 29')
           PY
 
-      - name: Prove no raw CR document is retained
+      - name: Prove no raw CR or raw HTML is retained
         run: |
           set -euo pipefail
-          if find artifacts/ws29 -type f \( -iname '*.txt' -o -iname '*.pdf' -o -iname '*.docx' \) | grep -q .; then
-            echo 'Raw CR-like document unexpectedly retained' >&2
+          if find artifacts/ws29 -type f \( -iname '*.pdf' -o -iname '*.html' -o -iname '*.htm' -o -iname '*.docx' \) | grep -q .; then
+            echo 'Raw copyrighted/network document unexpectedly retained' >&2
             find artifacts/ws29 -type f -maxdepth 3 -print >&2
             exit 1
           fi
@@ -66,7 +80,7 @@ jobs:
       - name: Upload metadata-only evidence
         uses: actions/upload-artifact@v4
         with:
-          name: ws29-wizards-authority-network-evidence
-          path: artifacts/ws29/network/
+          name: ws29-wizards-authority-evidence
+          path: artifacts/ws29/
           if-no-files-found: error
           retention-days: 30
