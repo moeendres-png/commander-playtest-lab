@@ -50,6 +50,14 @@ def render_broad(source: str, forge_commit: str, forge_tree: str) -> tuple[str, 
         raise RuntimeError("base broker construction changed")
     java = java.replace(old_budget, "        Broker broker = new Broker(in, out, 100000);", 1)
 
+    # Pinned Forge PhaseHandler treats only a null chooseSpellAbilityToPlay result
+    # as a priority pass. An empty list is a non-null action result and therefore
+    # repeats priority for the same player indefinitely.
+    old_priority_pass = "            if (idx == 0) return java.util.List.of();"
+    if old_priority_pass not in java:
+        raise RuntimeError("base priority-pass implementation changed")
+    java = java.replace(old_priority_pass, "            if (idx == 0) return null;", 1)
+
     old_loop = "        for (int i = 1; i <= 4; i++) {"
     new_loop = (
         '        String requestedPlayerCount = System.getenv("COMMANDER_LAB_FORGE_PLAYER_COUNT");\n'
@@ -64,10 +72,11 @@ def render_broad(source: str, forge_commit: str, forge_tree: str) -> tuple[str, 
         raise RuntimeError("base player-count loop changed")
     java = java.replace(old_loop, new_loop, 1)
 
-    mapping["schema_version"] = "ws23-player-controller-broad-mapping/1.0.0"
+    mapping["schema_version"] = "ws23-player-controller-broad-mapping/1.1.0"
     mapping["support_scope"] = "BROAD_PLAYER_COUNT_LIFECYCLE"
     mapping["player_count_range"] = [2, 3, 4, 5]
     mapping["full_lifecycle_policy"] = "PASS_ONLY_IF_FORGE_GAME_RETURNED"
+    mapping["priority_pass_semantics"] = "FORGE_PHASE_HANDLER_NULL_MEANS_PASS"
     mapping["cleanup_discard_policy"] = (
         "EXTERNAL_SINGLE_CARD_CHOICE_FROM_FORGE_OWN_HAND_OPTIONS_OTHER_COUNTS_FAIL_CLOSED"
     )
