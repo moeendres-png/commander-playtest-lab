@@ -160,7 +160,6 @@ final class XmageWs26ReplayRecorder {
         tape.addProperty("decision_kind", pending.get("decision_class").getAsString());
         JsonArray offered = pending.getAsJsonArray("legal_options");
         JsonArray offeredIds = new JsonArray();
-        JsonArray semanticOffered = new JsonArray();
         List<String> seenSemanticIds = new ArrayList<>();
         for (JsonElement element : offered) {
             JsonObject option = element.getAsJsonObject();
@@ -170,12 +169,9 @@ final class XmageWs26ReplayRecorder {
             }
             seenSemanticIds.add(semanticId);
             offeredIds.add(semanticId);
-            JsonObject semanticOption = option.deepCopy();
-            semanticOption.addProperty("option_id", semanticId);
-            semanticOffered.add(semanticOption);
         }
         tape.add("offered_semantic_option_ids", offeredIds);
-        tape.addProperty("offered_options_sha256", hash(semanticOffered));
+        tape.addProperty("offered_options_sha256", hash(offeredIds));
         tape.add("selected_semantic_option_ids", semanticSubmittedIds(offered, submitted, "selected_option_ids"));
         tape.add("ordering", semanticSubmittedIds(offered, submitted, "ordering"));
         tape.add("numeric_choice",
