@@ -5,7 +5,8 @@ This wrapper changes only qualification presentation/setup details:
 - legal-option sets used for replay comparison are canonically ordered;
 - each clean-process replay capture is persisted as diagnostic evidence; and
 - PILOT_CHOICE uses City of Brass's native AnyColorManaAbility/ChoiceColor path,
-  avoiding the non-reachable Unclaimed Territory play-land path observed in run #34.
+  selecting City of Brass from XMage's priority legal actions and White from
+  the subsequently engine-offered ChoiceColor options.
 
 XMage remains the sole rules/legal-action authority. Selected option order and
 explicit decision `ordering` values are never sorted or otherwise rewritten.
@@ -20,6 +21,7 @@ import run_ws26_gate as gate
 
 _original_offer_map = gate.replay_semantic_offer_map
 _original_capture_replay_run = gate.capture_replay_run
+_original_run_single_decision_family = gate.run_single_decision_family
 _capture_index = 0
 
 
@@ -59,9 +61,38 @@ def city_of_brass_choice_scenario():
     )
 
 
+def qualification_decision_family(
+    *,
+    fixture_id,
+    scenario_builder,
+    priority_label,
+    expected_class,
+    expected_label=None,
+    boolean_value=None,
+):
+    if fixture_id == "PILOT_CHOICE":
+        return _original_run_single_decision_family(
+            fixture_id=fixture_id,
+            scenario_builder=scenario_builder,
+            priority_label="City of Brass",
+            expected_class="choice",
+            expected_label="White",
+            boolean_value=None,
+        )
+    return _original_run_single_decision_family(
+        fixture_id=fixture_id,
+        scenario_builder=scenario_builder,
+        priority_label=priority_label,
+        expected_class=expected_class,
+        expected_label=expected_label,
+        boolean_value=boolean_value,
+    )
+
+
 gate.replay_semantic_offer_map = canonical_offer_map
 gate.capture_replay_run = diagnostic_capture_replay_run
 gate.choice_scenario = city_of_brass_choice_scenario
+gate.run_single_decision_family = qualification_decision_family
 
 
 if __name__ == "__main__":
