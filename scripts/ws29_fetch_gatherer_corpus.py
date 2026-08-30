@@ -63,14 +63,14 @@ def discover_detail(html,face):
     best=ranked[0]; overlap=len(toks & set(slug_norm(best).split())); threshold=max(1,min(2,len(toks)))
     return (urljoin(BASE,best) if slug_norm(best)==target or overlap>=threshold else None),ranked[:10]
 def extract_oracle_section(text,face):
-    low=text.lower(); markers=["printed oracle card name","oracle card name"]
+    low=text.lower(); markers=["printed oracle card name","oracle card name","card name"]
     starts=[low.find(m) for m in markers if low.find(m)>=0]; start=min(starts) if starts else -1
     if start<0:
         n=low.find(face.lower().split(" // ")[0].lower()); excerpt=text[max(0,n-250):n+2500] if n>=0 else text[:2500]
         return {"oracle_section_present":False,"oracle_section":None,"diagnostic_excerpt":excerpt,"expected_name_present":normalize(face) in normalize(text),"rules_text_label_present":"rules text" in low,"rulings_label_present":"rulings" in low}
     ends=[i for i in (low.find("find articles",start),low.find("club support",start)) if i>start]; end=min(ends) if ends else min(len(text),start+14000)
     sec=text[start:end].strip(); seclow=sec.lower()
-    return {"oracle_section_present":True,"oracle_section":sec[:14000],"diagnostic_excerpt":None,"expected_name_present":normalize(face) in normalize(sec),"rules_text_label_present":"rules text" in seclow,"rulings_label_present":"rulings" in seclow,"oracle_label_present":True}
+    return {"oracle_section_present":True,"oracle_section":sec[:14000],"diagnostic_excerpt":None,"expected_name_present":normalize(face) in normalize(sec),"rules_text_label_present":"rules text" in seclow,"rulings_label_present":"rulings" in seclow,"oracle_label_present":True,"oracle_label_observed":next((m for m in markers if m in seclow),None)}
 def search_url(name): return f"{BASE}/search?searchTerm={quote(name,safe='')}"
 def fetch_face(face):
     su=search_url(face); sb,sm=fetch(su); detail,cands=discover_detail(sb,face) if sm.get("http_status")==200 else (None,[])
@@ -94,7 +94,7 @@ def main():
         full=all(fr["status"]=="FULL_CURRENT_ORACLE_LOCK" for fr in face_records)
         rec={"fixture_id":fid,"card_name":name,"faces":face_records,"search":face_records[0]["search"],"detail_candidates":face_records[0]["detail_candidates"],"detail":face_records[0]["detail"],"current_oracle_fetch_status":"FULL_CURRENT_ORACLE_LOCK" if full else "AUTHORITY_BLOCKED","blocker":None if full else "; ".join(f"{fr['face_name']}: {fr['blocker']}" for fr in face_records if fr['status']!="FULL_CURRENT_ORACLE_LOCK")}
         records.append(rec); print(f"{fid}: {rec['current_oracle_fetch_status']} faces={','.join(fr['status'] for fr in face_records)}",flush=True)
-    report={"schema_version":"ws29-gatherer-corpus/1.1.0","retrieved_by":"public Gatherer face-name search -> public Gatherer detail page","authority_statement":"FULL_CURRENT_ORACLE_LOCK requires every relevant card face to return HTTP 200 with a validated current Oracle section from official Gatherer. This is authority only, never runtime evidence.","policy_note":"Ordinary public GET requests only; no authentication, CAPTCHA bypass, private API, reverse-engineered endpoint, or anti-bot circumvention. Raw HTML is hashed then discarded.","card_count":len(records),"full_current_oracle_lock_count":sum(r["current_oracle_fetch_status"]=="FULL_CURRENT_ORACLE_LOCK" for r in records),"records":records}
+    report={"schema_version":"ws29-gatherer-corpus/1.2.0","retrieved_by":"public Gatherer face-name search -> public Gatherer detail page","authority_statement":"FULL_CURRENT_ORACLE_LOCK requires every relevant card face to return HTTP 200 with a validated current Oracle section from official Gatherer. Gatherer currently renders that section under either Printed Oracle Card Name or Card Name. This is authority only, never runtime evidence.","policy_note":"Ordinary public GET requests only; no authentication, CAPTCHA bypass, private API, reverse-engineered endpoint, or anti-bot circumvention. Raw HTML is hashed then discarded.","card_count":len(records),"full_current_oracle_lock_count":sum(r["current_oracle_fetch_status"]=="FULL_CURRENT_ORACLE_LOCK" for r in records),"records":records}
     p=outdir/"GATHERER_29_CARD_ORACLE_LOCK.json"; p.write_text(json.dumps(report,indent=2,sort_keys=True)+"\n",encoding="utf-8"); dig=sha256_bytes(p.read_bytes()); (outdir/"SHA256SUMS").write_text(f"{dig}  {p.name}\n",encoding="utf-8")
     print(json.dumps({"card_count":len(records),"full_current_oracle_lock_count":report["full_current_oracle_lock_count"],"sha256":dig})); return 0
 if __name__=="__main__": raise SystemExit(main())
