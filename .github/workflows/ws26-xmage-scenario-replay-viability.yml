@@ -22,6 +22,7 @@ env:
   XMAGE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
   XMAGE_TRANSFORMER_BLOB: 871dfa1571adec0bf47a6751f1f511854f00b5fd
   COMMON_MANIFEST_BLOB: 8df9d476a56bf9eeb7f3cd4360dfda30fcb1b5ef
+  ACTUAL_AUTHORITY_BLOB: b2ee7a668266f740738a24f9d34ddb07f707ca77
   PYTHONHASHSEED: "0"
   COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
@@ -71,6 +72,7 @@ jobs:
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
           test "$(git hash-object qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json)" = "$COMMON_MANIFEST_BLOB"
           test "$(git hash-object candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py)" = "$XMAGE_TRANSFORMER_BLOB"
+          test "$(git hash-object candidate-qualification/ws26-xmage/ACTUAL_CARD_AUTHORITY_LOCK.json)" = "$ACTUAL_AUTHORITY_BLOB"
           python -m py_compile candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py
           python candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py vendor/engine-source/xmage
           git -C vendor/engine-source/xmage diff --check
@@ -85,6 +87,8 @@ jobs:
             echo "common_manifest_sha256=$(sha256sum qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json | cut -d' ' -f1)"
             echo "xmage_transformer_blob=$(git hash-object candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py)"
             echo "xmage_transformer_sha256=$(sha256sum candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py | cut -d' ' -f1)"
+            echo "actual_authority_blob=$(git hash-object candidate-qualification/ws26-xmage/ACTUAL_CARD_AUTHORITY_LOCK.json)"
+            echo "actual_authority_sha256=$(sha256sum candidate-qualification/ws26-xmage/ACTUAL_CARD_AUTHORITY_LOCK.json | cut -d' ' -f1)"
             echo "native_rules_test_blob=$(git hash-object candidate-qualification/ws26-xmage/native-tests/Ws26RepresentativeRulesTest.java)"
             echo "native_apnap_test_blob=$(git hash-object candidate-qualification/ws26-xmage/native-tests/Ws26Apnap3PlayerTest.java)"
             echo "qualification_patch_sha256=$(sha256sum qualification/evidence/ws26-xmage/XMAGE_QUALIFICATION_PATCH.diff | cut -d' ' -f1)"
@@ -137,9 +141,16 @@ jobs:
               'commanderTax4P': ['WS05-CMD-TAX-4'],
               'apnapSimultaneousTriggers3P': ['WS05-MP-TRIG-3'],
               'actualRograkhCommanderCast': ['CARD_02'],
-              'actualSyphonMindFourPlayers': ['CARD_20'],
+              'actualWarstormSurgeOpponentCard': ['CARD_24'],
               'actualKedissCommanderDamageFanout': ['CARD_04'],
           }
+          authority = json.loads(Path('candidate-qualification/ws26-xmage/ACTUAL_CARD_AUTHORITY_LOCK.json').read_text())
+          authority_by = {row['fixture_id']: row for row in authority['cards']}
+          for fixture_id in ('CARD_02', 'CARD_04', 'CARD_24'):
+              row = authority_by.get(fixture_id)
+              if not row or row.get('authority_status') != 'PASS':
+                  raise SystemExit(f'actual-card authority blocked for {fixture_id}: {row}')
+
           observed = {}
           for xml_path in sorted(report_dir.glob('TEST-org.mage.test.ws26.*.xml')):
               root = ET.parse(xml_path).getroot()
@@ -161,16 +172,20 @@ jobs:
           fixture_results = []
           for method, fixture_ids in mapping.items():
               for fixture_id in fixture_ids:
-                  fixture_results.append({
+                  row = {
                       'fixture_id': fixture_id,
                       'verdict': 'PASS',
                       'evidence_class': 'RUNTIME_VERIFIED',
                       'native_test_method': method,
                       'native_test_class': observed[method]['class'],
                       'surefire_report': observed[method]['report'],
-                  })
+                  }
+                  if fixture_id.startswith('CARD_'):
+                      row['authority_status'] = authority_by[fixture_id]['authority_status']
+                      row['authority_sources'] = authority_by[fixture_id]['official_sources']
+                  fixture_results.append(row)
           out = {
-              'schema_version': 'ws26-native-representative-results/1.0.0',
+              'schema_version': 'ws26-native-representative-results/1.1.0',
               'xmage_commit': '77d7646da6958fdf8125ee7c8f4aabd130d21d4c',
               'player_rules_authority': 'xmage-native-mage-tests',
               'fixture_results': fixture_results,
