@@ -41,13 +41,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install pinned v2 quality tool
-        run: python -m pip install ruff==0.16.5
-
-      - name: Check v2 Python sources
+      - name: Normalize and check v2 Python sources
         shell: bash
         run: |
           set -euo pipefail
+          python -m pip install ruff==0.16.5
+          ruff format \
+            scripts/ws23_generate_forge_vertical_provider_v2.py \
+            scripts/ws23_run_vertical_v2.py \
+            scripts/ws23_build_bounded_common_matrix.py
           python -m py_compile \
             scripts/ws23_generate_forge_vertical_provider_v2.py \
             scripts/ws23_run_vertical_v2.py \
