@@ -26,6 +26,8 @@ import java.util.UUID;
  */
 final class XmageWs26ReplayRecorder {
 
+    private static final String PRIORITY_PASS_SEMANTIC_ID = "priority:pass";
+
     record Checkpoint(long sequence, JsonObject payload) {
     }
 
@@ -158,16 +160,24 @@ final class XmageWs26ReplayRecorder {
         tape.addProperty("decision_kind", pending.get("decision_class").getAsString());
         JsonArray offered = pending.getAsJsonArray("legal_options");
         JsonArray offeredIds = new JsonArray();
+        JsonArray semanticOffered = new JsonArray();
+        List<String> seenSemanticIds = new ArrayList<>();
         for (JsonElement element : offered) {
             JsonObject option = element.getAsJsonObject();
-            offeredIds.add(option.get("option_id").getAsString());
+            String semanticId = semanticOptionId(option);
+            if (seenSemanticIds.contains(semanticId)) {
+                throw new IllegalStateException("duplicate semantic option id in replay tape: " + semanticId);
+            }
+            seenSemanticIds.add(semanticId);
+            offeredIds.add(semanticId);
+            JsonObject semanticOption = option.deepCopy();
+            semanticOption.addProperty("option_id", semanticId);
+            semanticOffered.add(semanticOption);
         }
         tape.add("offered_semantic_option_ids", offeredIds);
-        tape.addProperty("offered_options_sha256", hash(offered));
-        tape.add("selected_semantic_option_ids",
-                submitted.has("selected_option_ids") ? submitted.get("selected_option_ids").deepCopy() : new JsonArray());
-        tape.add("ordering",
-                submitted.has("ordering") ? submitted.get("ordering").deepCopy() : new JsonArray());
+        tape.addProperty("offered_options_sha256", hash(semanticOffered));
+        tape.add("selected_semantic_option_ids", semanticSubmittedIds(offered, submitted, "selected_option_ids"));
+        tape.add("ordering", semanticSubmittedIds(offered, submitted, "ordering"));
         tape.add("numeric_choice",
                 submitted.has("numeric_choice") ? submitted.get("numeric_choice").deepCopy() : JsonNull.INSTANCE);
         tape.addProperty("result", result);
@@ -177,6 +187,59 @@ final class XmageWs26ReplayRecorder {
             tape.addProperty("rejection", rejection);
         }
         return tape;
+    }
+
+    private static JsonArray semanticSubmittedIds(JsonArray offered, JsonObject submitted, String field) {
+        JsonArray result = new JsonArray();
+        if (!submitted.has(field) || submitted.get(field).isJsonNull()) {
+            return result;
+        }
+        if (!submitted.get(field).isJsonArray()) {
+            throw new IllegalStateException("replay submission field is not an array: " + field);
+        }
+        for (JsonElement selected : submitted.getAsJsonArray(field)) {
+            String rawId = selected.getAsString();
+            String semanticId = null;
+            int matches = 0;
+            for (JsonElement element : offered) {
+                JsonObject option = element.getAsJsonObject();
+                if (rawId.equals(option.get("option_id").getAsString())) {
+                    semanticId = semanticOptionId(option);
+                    matches++;
+                }
+            }
+            if (matches != 1 || semanticId == null) {
+                throw new IllegalStateException(
+                        "submitted option id did not resolve exactly once in offered set: " + rawId
+                );
+            }
+            result.add(semanticId);
+        }
+        return result;
+    }
+
+    private static String semanticOptionId(JsonObject option) {
+        if (!option.has("option_id") || !option.get("option_id").isJsonPrimitive()) {
+            throw new IllegalStateException("replay option is missing option_id");
+        }
+        String rawId = option.get("option_id").getAsString();
+        String type = option.has("option_type") && option.get("option_type").isJsonPrimitive()
+                ? option.get("option_type").getAsString() : "";
+        if (!"pass_priority".equals(type)) {
+            return rawId;
+        }
+        String label = option.has("label") && option.get("label").isJsonPrimitive()
+                ? option.get("label").getAsString() : "";
+        JsonElement metadata = option.get("metadata");
+        if (!"Pass priority".equals(label)
+                || metadata == null
+                || !metadata.isJsonObject()
+                || !metadata.getAsJsonObject().entrySet().isEmpty()) {
+            throw new IllegalStateException(
+                    "pass_priority semantic signature changed: " + option
+            );
+        }
+        return PRIORITY_PASS_SEMANTIC_ID;
     }
 
     private JsonObject privilegedState(JsonArray actorViews) {
