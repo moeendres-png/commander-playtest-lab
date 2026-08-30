@@ -20,7 +20,7 @@ env:
   WS22_SEMANTIC_HEAD: 6db86f69f582cde6cf9be6410dd77bc82ce8bd5f
   XMAGE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
   XMAGE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
-  XMAGE_PATCH_BLOB: 6302b332e9296bc82048d9103ad5403812752ace
+  XMAGE_TRANSFORMER_BLOB: 871dfa1571adec0bf47a6751f1f511854f00b5fd
   COMMON_MANIFEST_BLOB: 8df9d476a56bf9eeb7f3cd4360dfda30fcb1b5ef
   PYTHONHASHSEED: "0"
   COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
@@ -59,7 +59,7 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Verify exact locks and reproducible patch
+      - name: Verify exact locks and apply deterministic qualification transform
         shell: bash
         run: |
           set -euo pipefail
@@ -70,17 +70,23 @@ jobs:
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
           test "$(git hash-object qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json)" = "$COMMON_MANIFEST_BLOB"
-          test "$(git hash-object candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch)" = "$XMAGE_PATCH_BLOB"
+          test "$(git hash-object candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py)" = "$XMAGE_TRANSFORMER_BLOB"
+          python -m py_compile candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py
+          python candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py vendor/engine-source/xmage
+          git -C vendor/engine-source/xmage diff --check
+          git -C vendor/engine-source/xmage diff --no-ext-diff > qualification/evidence/ws26-xmage/XMAGE_QUALIFICATION_PATCH.diff
           {
-            echo "ws26_head=$(git rev-parse HEAD)"
+            echo "ws26_checkout_head=$(git rev-parse HEAD)"
+            echo "ws22_final_head=$WS22_FINAL_HEAD"
+            echo "ws22_semantic_head=$WS22_SEMANTIC_HEAD"
+            echo "xmage_commit=$XMAGE_COMMIT"
+            echo "xmage_tree=$XMAGE_TREE"
             echo "common_manifest_blob=$(git hash-object qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json)"
             echo "common_manifest_sha256=$(sha256sum qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json | cut -d' ' -f1)"
-            echo "xmage_patch_blob=$(git hash-object candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch)"
-            echo "xmage_patch_sha256=$(sha256sum candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch | cut -d' ' -f1)"
+            echo "xmage_transformer_blob=$(git hash-object candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py)"
+            echo "xmage_transformer_sha256=$(sha256sum candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py | cut -d' ' -f1)"
+            echo "qualification_patch_sha256=$(sha256sum qualification/evidence/ws26-xmage/XMAGE_QUALIFICATION_PATCH.diff | cut -d' ' -f1)"
           } > qualification/evidence/ws26-xmage/SOURCE_LOCK_DIGESTS.txt
-          git -C vendor/engine-source/xmage apply --check "$GITHUB_WORKSPACE/candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch"
-          git -C vendor/engine-source/xmage apply "$GITHUB_WORKSPACE/candidate-qualification/ws26-xmage/patches/0001-randomutil-rules-rng-tape.patch"
-          git -C vendor/engine-source/xmage diff --check
 
       - name: Census XMage random sources
         run: python candidate-qualification/ws26-xmage/census_xmage_rng.py vendor/engine-source/xmage
