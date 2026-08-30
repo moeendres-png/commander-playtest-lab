@@ -30,6 +30,7 @@ CR_SOURCES = {
 GATHERER_URLS = [
     "https://gatherer.wizards.com/Pages/Default.aspx",
     "https://gatherer.wizards.com/Pages/Search/Default.aspx?name=%2b%5bRograkh%2c%20Son%20of%20Rohgahh%5d",
+    "https://gatherer.wizards.com/CMR/en-us/197/rograkh-son-of-rohgahh",
 ]
 EXPECTED_TXT_PREFIX = "Magic: The Gathering Comprehensive Rules"
 EXPECTED_EFFECTIVE = "effective August 7, 2026"
@@ -64,7 +65,7 @@ def request(url: str, accept: str = "*/*") -> Request:
 
 
 def fetch_raw(url: str) -> tuple[bytes, dict[str, Any]]:
-    opener = build_opener()  # standard redirect handling only
+    opener = build_opener()
     retrieved_at = now_utc()
     with opener.open(request(url), timeout=60) as response:
         data = response.read()
@@ -86,14 +87,14 @@ def bounded_html_diagnostic(body: bytes) -> dict[str, Any]:
         unescape(href)
         for href in hrefs
         if "card" in href.lower() or "rograkh" in href.lower() or "search" in href.lower()
-    ][:30]
+    ][:40]
     visible = re.sub(r"<script\b[^>]*>.*?</script>", " ", text, flags=re.I | re.S)
     visible = re.sub(r"<style\b[^>]*>.*?</style>", " ", visible, flags=re.I | re.S)
     visible = re.sub(r"<[^>]+>", " ", visible)
     visible = " ".join(unescape(visible).split())
     needle = "Rograkh"
     idx = visible.lower().find(needle.lower())
-    excerpt = visible[max(0, idx - 240) : idx + 760] if idx >= 0 else None
+    excerpt = visible[max(0, idx - 240) : idx + 1800] if idx >= 0 else None
     return {
         "relevant_hrefs": relevant_hrefs,
         "contains_rograkh": idx >= 0,
@@ -154,9 +155,8 @@ def probe_url(url: str) -> dict[str, Any]:
 def main() -> int:
     out_dir = Path(sys.argv[1] if len(sys.argv) > 1 else "artifacts/ws29/network")
     out_dir.mkdir(parents=True, exist_ok=True)
-
     cr_report: dict[str, Any] = {
-        "schema_version": "ws29-cr-raw-acquisition/1.1.0",
+        "schema_version": "ws29-cr-raw-acquisition/1.1.1",
         "user_agent": USER_AGENT,
         "sources": {},
         "official_cr_raw_bytes": "UNKNOWN",
@@ -174,10 +174,7 @@ def main() -> int:
                     "expected_effective_date": "2026-08-07",
                     "verification_excerpt": "Magic: The Gathering Comprehensive Rules — effective August 7, 2026",
                 }
-                if (
-                    meta["identity_verification"]["title_prefix_match"]
-                    and meta["identity_verification"]["effective_date_match"]
-                ):
+                if meta["identity_verification"]["title_prefix_match"] and meta["identity_verification"]["effective_date_match"]:
                     cr_report["txt_raw_bytes"] = "PASS"
             if kind == "pdf" and data.startswith(b"%PDF-"):
                 meta["pdf_magic_header_verified"] = True
@@ -197,7 +194,6 @@ def main() -> int:
                 "sha256": None,
                 "transport_error": f"{type(exc).__name__}: {exc}",
             }
-
     if cr_report["txt_raw_bytes"] == "PASS" or cr_report["pdf_raw_bytes"] == "PASS":
         cr_report["official_cr_raw_bytes"] = "PASS"
 
@@ -205,7 +201,7 @@ def main() -> int:
     any_200 = any(item.get("http_status") == 200 for item in gatherer_probes)
     all_403 = bool(gatherer_probes) and all(item.get("http_status") == 403 for item in gatherer_probes)
     gatherer_report = {
-        "schema_version": "ws29-gatherer-access/1.1.0",
+        "schema_version": "ws29-gatherer-access/1.1.1",
         "user_agent": USER_AGENT,
         "probes": gatherer_probes,
         "gatherer_direct_access": "PASS" if any_200 else "BLOCKED" if all_403 else "UNKNOWN",
@@ -214,19 +210,12 @@ def main() -> int:
             "no CAPTCHA bypass, authentication bypass, private API, or anti-bot circumvention was attempted."
         ),
     }
-
     cr_path = out_dir / "CR_RAW_ACQUISITION.json"
     gatherer_path = out_dir / "GATHERER_ACCESS.json"
     cr_path.write_text(json.dumps(cr_report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     gatherer_path.write_text(json.dumps(gatherer_report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    hashes = {
-        cr_path.name: sha256_bytes(cr_path.read_bytes()),
-        gatherer_path.name: sha256_bytes(gatherer_path.read_bytes()),
-    }
-    (out_dir / "SHA256SUMS").write_text(
-        "".join(f"{digest}  {name}\n" for name, digest in sorted(hashes.items())),
-        encoding="utf-8",
-    )
+    hashes = {cr_path.name: sha256_bytes(cr_path.read_bytes()), gatherer_path.name: sha256_bytes(gatherer_path.read_bytes())}
+    (out_dir / "SHA256SUMS").write_text("".join(f"{digest}  {name}\n" for name, digest in sorted(hashes.items())), encoding="utf-8")
     print(json.dumps({"cr": cr_report, "gatherer": gatherer_report}, indent=2, sort_keys=True))
     return 0
 
