@@ -100,6 +100,7 @@ jobs:
           python -m py_compile candidate-qualification/ws22-xmage/xmage_ws22_provider.py
           python -m py_compile candidate-qualification/ws22-xmage/ws22_semantic_fixtures.py
           python -m py_compile candidate-qualification/ws22-xmage/capture_runtime_support.py
+          python -m py_compile candidate-qualification/ws22-xmage/generate_af_results.py
           python qualification/harness.py validate \
             qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
             qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
@@ -140,10 +141,23 @@ jobs:
               row = next(r for r in rows if r['fixture_id'] == fid)
               assert row['verdict'] == 'PASS', row
               assert row['evidence_class'] == 'RUNTIME_VERIFIED', row
-          # WS-22 may only gain further PASSes once an exact runtime fixture is implemented.
           assert all(r['verdict'] != 'PASS' or r['evidence_class'] == 'RUNTIME_VERIFIED' for r in rows)
+          assert counts['NOT_RUN'] == 0, counts
+          assert counts['UNKNOWN'] == 0, counts
+          assert counts['PARTIAL'] == 0, counts
+          assert all(r['evidence_class'] == 'RUNTIME_VERIFIED' for r in rows), counts
           print(json.dumps(dict(sorted(counts.items())), sort_keys=True))
           PY
+
+      - name: Regenerate AF00-AF11 from exact runtime evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws22-xmage/generate_af_results.py
+          python qualification/harness.py validate \
+            qualification/evidence/ws22-xmage/AF_RESULTS.json \
+            qualification/protocol/ws10r/architecture_freeze_contract_v1.schema.json
+          test -s qualification/evidence/ws22-xmage/AF_RESULTS.md
 
       - name: Upload WS-22 evidence
         if: always()
