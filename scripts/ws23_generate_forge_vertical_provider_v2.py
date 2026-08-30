@@ -249,7 +249,9 @@ def render_v2(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dic
     java = java.replace(old_rules, new_rules, 1)
 
     old_start = "            match.startGame(game);"
-    new_start = "            match.startGame(game, () -> Ws23ForgeGateD.installScenario(game, broker));"
+    new_start = (
+        "            match.startGame(game, () -> Ws23ForgeGateD.installScenario(game, broker));"
+    )
     if old_start not in java:
         raise RuntimeError("base Match.startGame call changed")
     java = java.replace(old_start, new_start, 1)
