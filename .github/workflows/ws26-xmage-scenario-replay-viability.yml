@@ -209,6 +209,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p qualification/evidence/ws22-xmage
+          python candidate-qualification/ws22-xmage/capture_runtime_support.py
+          test -s qualification/evidence/ws22-xmage/RUNTIME_SUPPORT_EVIDENCE.json
+          cp qualification/evidence/ws22-xmage/RUNTIME_SUPPORT_EVIDENCE.json qualification/evidence/ws26-xmage/WS22_RUNTIME_SUPPORT_EVIDENCE.json
           python qualification/harness.py run \
             --candidate XMAGE_WS22_REGRESSION \
             --source-lock candidate-qualification/ws22-xmage/WS22_SOURCE_LOCK.json \
