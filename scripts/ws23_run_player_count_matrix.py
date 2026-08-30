@@ -137,9 +137,7 @@ def run_one(command: str, player_count: int) -> dict[str, Any]:
         "stop_reason": stop_reason,
         "priority_decisions": payload.get("priority_decisions"),
         "snapshot": snapshot,
-        "decision_count": sum(
-            item.get("message_type") == "DECISION_FRAME" for item in transcript
-        ),
+        "decision_count": sum(item.get("message_type") == "DECISION_FRAME" for item in transcript),
         "exit_code": proc.returncode,
         "stderr": stderr,
     }

@@ -39,14 +39,8 @@ def main() -> int:
     if player_counts.get("denominator") != 4 or player_counts.get("pass_count") != 4:
         raise AssertionError("broad qualification requires 2P-5P lifecycle 4/4")
 
-    bounded_pass = {
-        row["fixture_id"] for row in bounded["rows"] if row.get("status") == "PASS"
-    }
-    count_pass = {
-        row["fixture_id"]
-        for row in player_counts["rows"]
-        if row.get("status") == "PASS"
-    }
+    bounded_pass = {row["fixture_id"] for row in bounded["rows"] if row.get("status") == "PASS"}
+    count_pass = {row["fixture_id"] for row in player_counts["rows"] if row.get("status") == "PASS"}
     if count_pass != set(PLAYER_COUNT_IDS):
         raise AssertionError(f"player-count proof drift: {sorted(count_pass)}")
 
