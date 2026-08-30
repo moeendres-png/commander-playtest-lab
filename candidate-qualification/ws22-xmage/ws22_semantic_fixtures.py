@@ -9,8 +9,15 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import _RawFullGameClient
-from commander_lab.models import RulesDeckInput
+from commander_lab.engine.rules.full_game_ws18 import FullGamePilotBindingV2, XmageFullGameRunnerV2
+from commander_lab.models import (
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    RulesDeckInput,
+)
 
 XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
 ROOT = Path(__file__).resolve().parents[2]
@@ -160,15 +167,10 @@ def _require_no_scenario_injection() -> dict[str, Any]:
 
 
 def _start_real_four_player_game(
-    decks: tuple[RulesDeckInput, ...],
-    *,
-    game_id: str,
-    seed: int,
+    decks: tuple[RulesDeckInput, ...], *, game_id: str, seed: int
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     with _RawFullGameClient(
-        _bridge_command(),
-        cwd=ROOT,
-        request_timeout_seconds=120.0,
+        _bridge_command(), cwd=ROOT, request_timeout_seconds=120.0
     ) as client:
         started = client.request("start_engine")
         if started.get("lane") != "xmage_full_game_external_pilots":
@@ -176,7 +178,6 @@ def _start_real_four_player_game(
         provider = client.request("get_provider_version")
         if provider.get("engine_commit") != XMAGE_COMMIT:
             raise RuntimeError("XMAGE_BUILD_IDENTITY_MISMATCH")
-
         handles: list[str] = []
         for deck in decks:
             imported = client.request("import_deck", {"deck": _deck_payload(deck)})
@@ -184,7 +185,6 @@ def _start_real_four_player_game(
             if not isinstance(handle, dict) or not isinstance(handle.get("handle_id"), str):
                 raise RuntimeError("IMPORT_DECK returned no stable handle")
             handles.append(handle["handle_id"])
-
         created = client.request(
             "create_full_game",
             {
@@ -215,15 +215,11 @@ def _start_real_four_player_game(
 def hidden_baseline_results() -> dict[str, dict[str, Any]]:
     decks = tuple(_deck(seat) for seat in range(1, 5))
     observation, _ = _start_real_four_player_game(
-        decks,
-        game_id="ws22-hidden-baseline",
-        seed=424242,
+        decks, game_id="ws22-hidden-baseline", seed=424242
     )
-
     players = observation.get("players")
     if not isinstance(players, list) or len(players) != 4:
         raise RuntimeError("actor-scoped observation does not contain four registered players")
-
     own = players[0]
     opponents = players[1:]
     hand_ok = (
@@ -236,18 +232,6 @@ def hidden_baseline_results() -> dict[str, dict[str, Any]]:
             for player in opponents
         )
     )
-    hidden_01 = (
-        _pass(
-            "Real 4P XMage KnowledgeLedger observation exposes the viewer hand, preserves opponent hand counts, and omits opponent hand identities.",
-            observation,
-        )
-        if hand_ok
-        else _fail(
-            "Real 4P XMage KnowledgeLedger observation leaked opponent hand identities or omitted required hand counts.",
-            observation,
-        )
-    )
-
     library_ok = all(
         isinstance(player, dict)
         and isinstance(player.get("library_count"), int)
@@ -257,8 +241,17 @@ def hidden_baseline_results() -> dict[str, dict[str, Any]]:
         and len(player["known_library"]) == 0
         for player in players
     )
-    hidden_02 = (
-        _pass(
+    return {
+        "HIDDEN_01": _pass(
+            "Real 4P XMage KnowledgeLedger observation exposes the viewer hand, preserves opponent hand counts, and omits opponent hand identities.",
+            observation,
+        )
+        if hand_ok
+        else _fail(
+            "Real 4P XMage KnowledgeLedger observation leaked opponent hand identities or omitted required hand counts.",
+            observation,
+        ),
+        "HIDDEN_02": _pass(
             "Real 4P XMage KnowledgeLedger observation preserves library counts while omitting unknown library identities/order for the viewer.",
             observation,
         )
@@ -266,10 +259,8 @@ def hidden_baseline_results() -> dict[str, dict[str, Any]]:
         else _fail(
             "Real 4P XMage KnowledgeLedger observation exposed unknown library identity/order or omitted the public library count.",
             observation,
-        )
-    )
-
-    return {"HIDDEN_01": hidden_01, "HIDDEN_02": hidden_02}
+        ),
+    }
 
 
 @lru_cache(maxsize=1)
@@ -281,14 +272,11 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
         _deck(4, HONEY_SENTINEL, label="honey"),
     )
     observation, result = _start_real_four_player_game(
-        decks,
-        game_id="ws22-hidden-audit",
-        seed=424242,
+        decks, game_id="ws22-hidden-audit", seed=424242
     )
     transcript = result.get("transcript")
     if not isinstance(transcript, list) or not transcript:
         raise RuntimeError("full-game transcript unavailable for audit redaction probe")
-
     forbidden_transcript_keys = {
         "prompt",
         "legal_option_labels",
@@ -316,7 +304,6 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
             hidden_18_payload,
         )
     )
-
     api_payload = {"observation": observation, "result": result}
     api_text = json.dumps(api_payload, sort_keys=True, ensure_ascii=False)
     forbidden_api_keys = {
@@ -340,7 +327,6 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
             api_payload,
         )
     )
-
     honey_ok = HONEY_SENTINEL not in api_text
     honey = (
         _pass(
@@ -353,7 +339,6 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
             api_payload,
         )
     )
-
     return {
         "HIDDEN_18": hidden_18,
         "HIDDEN_19": hidden_19,
@@ -361,160 +346,99 @@ def hidden_audit_results() -> dict[str, dict[str, Any]]:
     }
 
 
+def _pilot_binding(seat: int, deck: RulesDeckInput) -> FullGamePilotBindingV2:
+    return FullGamePilotBindingV2(
+        seat=seat,
+        deck_id=deck.deck_id,
+        strategy="generic",
+        commander_names=deck.commander_names,
+        config=PilotConfig(
+            pilot_name="auto",
+            strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC,
+            mode=PilotDecisionMode.DETERMINISTIC,
+        ),
+        pilot_identity="GenericCommanderPilot",
+        pilot_version="1.0.0",
+        decision_policy_version="xmage-ws22-pilot-smoke-policy-1.0.0",
+    )
+
+
 @lru_cache(maxsize=1)
 def pilot_smoke_results() -> dict[str, dict[str, Any]]:
     decks = tuple(_deck(seat, label="pilot-smoke") for seat in range(1, 5))
-    with _RawFullGameClient(
-        _bridge_command(),
-        cwd=ROOT,
-        request_timeout_seconds=120.0,
-    ) as client:
-        started = client.request("start_engine")
-        if started.get("lane") != "xmage_full_game_external_pilots":
-            raise RuntimeError("bridge did not enter full-game lane")
-        provider = client.request("get_provider_version")
-        if provider.get("engine_commit") != XMAGE_COMMIT:
-            raise RuntimeError("XMAGE_BUILD_IDENTITY_MISMATCH")
-        handles: list[str] = []
-        for deck in decks:
-            imported = client.request("import_deck", {"deck": _deck_payload(deck)})
-            handle = imported.get("deck_handle")
-            if not isinstance(handle, dict) or not isinstance(handle.get("handle_id"), str):
-                raise RuntimeError("IMPORT_DECK returned no stable handle")
-            handles.append(handle["handle_id"])
-        client.request(
-            "create_full_game",
-            {
-                "game_id": "ws22-pilot-smoke",
-                "deck_handles": handles,
-                "seed": 424242,
-                "starting_player_seat": 0,
-                "starting_life": 40,
-            },
+    pilots = tuple(_pilot_binding(seat, decks[seat - 1]) for seat in range(1, 5))
+    own = decks[0]
+    if own.deck_hash is None:
+        raise RuntimeError("pilot-smoke deck hash unavailable")
+    scenario = FutureXmageScenario(
+        candidate_id=own.deck_id,
+        deck_hash=own.deck_hash,
+        opponent_deck_ids=tuple(deck.deck_id for deck in decks[1:]),
+        player_count=4,
+        seat=1,
+        scenario_id="ws22-pilot-smoke",
+        seed=424242,
+        xmage_commit=XMAGE_COMMIT,
+        bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
+        pilot_identity="GenericCommanderPilot",
+        pilot_version="1.0.0",
+        decision_policy_version="xmage-ws22-pilot-smoke-policy-1.0.0",
+    )
+    result = XmageFullGameRunnerV2(
+        cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000
+    ).run(scenario=scenario, decks=decks, pilots=pilots)
+    transcript = result.result_payload.get("transcript")
+    if not result.terminal or not isinstance(transcript, list):
+        raise RuntimeError("pilot-smoke external-pilot run did not reach terminal transcript")
+    requested: dict[str, int] = {}
+    accepted: dict[str, int] = {}
+    for event in transcript:
+        if not isinstance(event, dict):
+            continue
+        decision_class = event.get("decision_class")
+        if not isinstance(decision_class, str):
+            continue
+        if event.get("kind") == "decision_requested":
+            requested[decision_class] = requested.get(decision_class, 0) + 1
+        elif event.get("kind") == "decision_accepted":
+            accepted[decision_class] = accepted.get(decision_class, 0) + 1
+    evidence = {
+        "decision_count": result.decision_count,
+        "requested": requested,
+        "accepted": accepted,
+        "semantic_transcript_sha256": result.semantic_transcript_sha256,
+        "raw_result_sha256": result.raw_result_sha256,
+        "fallback_used": result.fallback_used,
+        "xmage_rules_authority": result.xmage_rules_authority,
+        "commander_lab_pilot_decision_authority": result.commander_lab_pilot_decision_authority,
+    }
+
+    def verdict(decision_class: str, *, minimum: int = 1) -> dict[str, Any]:
+        req = requested.get(decision_class, 0)
+        acc = accepted.get(decision_class, 0)
+        ok = (
+            req >= minimum
+            and acc == req
+            and result.fallback_used is False
+            and result.xmage_rules_authority is True
+            and result.commander_lab_pilot_decision_authority is True
         )
-        status = client.request("start_full_game")
-        mulligan_frames: list[dict[str, Any]] = []
-        choose_object_frames: list[dict[str, Any]] = []
-        priority_frame: dict[str, Any] | None = None
-        for _ in range(24):
-            decision = status.get("decision")
-            if not isinstance(decision, dict):
-                status = client.request("get_full_game_decision")
-                decision = status.get("decision")
-            if not isinstance(decision, dict):
-                break
-            decision_class = decision.get("decision_class")
-            if decision_class == "priority":
-                priority_frame = decision
-                break
-            options = decision.get("legal_options")
-            if not isinstance(options, list):
-                raise RuntimeError(f"{decision_class} legal options unavailable")
-            if decision_class == "choose_object":
-                if len(options) != 1:
-                    raise RuntimeError(
-                        "choose_object setup decision is discretionary; fixture driver refuses a first-option fallback"
-                    )
-                forced = options[0]
-                if not isinstance(forced, dict) or not isinstance(forced.get("option_id"), str):
-                    raise RuntimeError("forced choose_object option unavailable")
-                choose_object_frames.append(decision)
-                status = client.request(
-                    "submit_full_game_decision",
-                    {
-                        "response": {
-                            "decision_id": decision["decision_id"],
-                            "actor_id": decision["actor_id"],
-                            "selected_option_ids": [forced["option_id"]],
-                            "ordering": [],
-                        }
-                    },
-                )
-                continue
-            if decision_class != "mulligan":
-                raise RuntimeError(f"unexpected setup decision before priority: {decision_class}")
-            keep = next(
-                (
-                    option
-                    for option in options
-                    if isinstance(option, dict) and option.get("option_type") == "keep"
-                ),
-                None,
+        return (
+            _pass(
+                f"Real terminal 4P XMage run exercised {decision_class} through the primary external pilot policy with {req} requested/{acc} accepted decisions, exact XMage legal-option submission, no fallback, and XMage retained rules authority.",
+                evidence,
             )
-            if not isinstance(keep, dict) or not isinstance(keep.get("option_id"), str):
-                raise RuntimeError("mulligan keep option unavailable")
-            mulligan_frames.append(decision)
-            status = client.request(
-                "submit_full_game_decision",
-                {
-                    "response": {
-                        "decision_id": decision["decision_id"],
-                        "actor_id": decision["actor_id"],
-                        "selected_option_ids": [keep["option_id"]],
-                        "ordering": [],
-                    }
-                },
+            if ok
+            else _fail(
+                f"Real terminal 4P XMage run did not complete the required external {decision_class} decision roundtrip without fallback.",
+                evidence,
             )
+        )
 
-    mulligan_payload = {"frames": mulligan_frames}
-    mulligan_ok = len(mulligan_frames) == 4 and all(
-        {"keep", "mulligan"}.issubset(
-            {
-                option.get("option_type")
-                for option in frame.get("legal_options", [])
-                if isinstance(option, dict)
-            }
-        )
-        for frame in mulligan_frames
-    )
-    mulligan = (
-        _pass(
-            "Real 4P Commander start routed each opening-hand keep/mulligan decision through the external decision controller with explicit legal options and exact submitted keep IDs.",
-            mulligan_payload,
-        )
-        if mulligan_ok
-        else _fail(
-            "Real 4P Commander start did not expose four explicit external mulligan decisions with keep/mulligan options.",
-            mulligan_payload,
-        )
-    )
-
-    choose_object_payload = {"frames": choose_object_frames}
-    choose_object_ok = bool(choose_object_frames) and all(
-        len(frame.get("legal_options", [])) == 1 for frame in choose_object_frames
-    )
-    choose_object = (
-        _pass(
-            "Real XMage setup exercised choose_object through provider legal options; every observed setup choice was forced to exactly one legal option and the exact option ID was submitted, so no first-option fallback was used.",
-            choose_object_payload,
-        )
-        if choose_object_ok
-        else _fail(
-            "Real XMage setup did not provide a forced choose_object frame suitable for fail-closed qualification.",
-            choose_object_payload,
-        )
-    )
-
-    priority_payload = {"priority_frame": priority_frame}
-    priority_ok = isinstance(priority_frame, dict) and any(
-        isinstance(option, dict) and option.get("option_type") == "pass_priority"
-        for option in priority_frame.get("legal_options", [])
-    )
-    priority = (
-        _pass(
-            "After explicit setup decisions, real XMage gameplay reached an external priority decision containing XMage-supplied pass-priority legality.",
-            priority_payload,
-        )
-        if priority_ok
-        else _fail(
-            "Real 4P gameplay did not reach the expected external priority decision after opening-hand decisions.",
-            priority_payload,
-        )
-    )
     return {
-        "PILOT_MULLIGAN": mulligan,
-        "PILOT_CHOOSE_OBJECT": choose_object,
-        "PILOT_PRIORITY": priority,
+        "PILOT_MULLIGAN": verdict("mulligan", minimum=4),
+        "PILOT_CHOOSE_OBJECT": verdict("choose_object"),
+        "PILOT_PRIORITY": verdict("priority"),
     }
 
 
