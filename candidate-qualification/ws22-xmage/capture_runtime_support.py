@@ -44,7 +44,9 @@ def _bridge_command() -> tuple[str, ...]:
 
 
 def _suite_summary(name: str) -> dict[str, Any]:
-    path = ROOT / "engine-bridge/target/surefire-reports" / f"TEST-org.commanderlab.xmage.{name}.xml"
+    path = (
+        ROOT / "engine-bridge/target/surefire-reports" / f"TEST-org.commanderlab.xmage.{name}.xml"
+    )
     if not path.is_file():
         return {"present": False, "passed": False, "path": str(path.relative_to(ROOT))}
     root = ET.fromstring(path.read_text(encoding="utf-8"))
