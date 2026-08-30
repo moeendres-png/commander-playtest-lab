@@ -1,0 +1,70 @@
+name: WS-29 Wizards Authority Acquisition
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws29/canonical-authority-closure
+    paths:
+      - '.github/workflows/ws29-wizards-authority.yml'
+      - 'scripts/ws29_fetch_wizards_authority.py'
+
+permissions:
+  contents: read
+
+jobs:
+  direct-wizards-authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Acquire raw official CR bytes and probe Gatherer
+        run: |
+          set -euo pipefail
+          python scripts/ws29_fetch_wizards_authority.py artifacts/ws29/network | tee artifacts/ws29/network/RUN_OUTPUT.json
+
+      - name: Validate metadata-only evidence
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('artifacts/ws29/network')
+          cr = json.loads((root / 'CR_RAW_ACQUISITION.json').read_text())
+          gatherer = json.loads((root / 'GATHERER_ACCESS.json').read_text())
+          txt = cr['sources']['txt']
+          assert cr['official_cr_raw_bytes'] == 'PASS', cr
+          assert txt['http_status'] == 200, txt
+          assert txt['raw_byte_count'] > 0, txt
+          assert len(txt['sha256']) == 64, txt
+          assert txt['identity_verification']['title_prefix_match'] is True, txt
+          assert txt['identity_verification']['effective_date_match'] is True, txt
+          assert gatherer['gatherer_direct_access'] in {'PASS', 'BLOCKED', 'UNKNOWN'}
+          assert all('requested_url' in p and 'http_status' in p for p in gatherer['probes'])
+          print('WS29 metadata validation PASS')
+          PY
+
+      - name: Prove no raw CR document is retained
+        run: |
+          set -euo pipefail
+          if find artifacts/ws29 -type f \( -iname '*.txt' -o -iname '*.pdf' -o -iname '*.docx' \) | grep -q .; then
+            echo 'Raw CR-like document unexpectedly retained' >&2
+            find artifacts/ws29 -type f -maxdepth 3 -print >&2
+            exit 1
+          fi
+
+      - name: Upload metadata-only evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws29-wizards-authority-network-evidence
+          path: artifacts/ws29/network/
+          if-no-files-found: error
+          retention-days: 30
