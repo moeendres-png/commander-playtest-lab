@@ -17,6 +17,7 @@ XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
 XMAGE_TREE = "f0a028b265f9c008ea0aedc4cec6b8f14500b69f"
 WS22_HEAD = "99cdc2372a6d87a4a09bba2d4f3c23713f53a444"
 SCHEMA = "xmage-qualification-scenario/1.0.0"
+PRIORITY_PASS_SEMANTIC_ID = "priority:pass"
 
 
 def sha(value: Any) -> str:
@@ -248,6 +249,48 @@ def scenario_starting_player_option(decision: dict[str, Any], scenario: dict[str
     return f"P{expected_seat}"
 
 
+def replay_semantic_option_id(option: dict[str, Any]) -> str:
+    raw_id = str(option.get("option_id") or "")
+    if not raw_id:
+        raise RuntimeError(f"replay option is missing option_id: {option!r}")
+    if option.get("option_type") != "pass_priority":
+        return raw_id
+    if option.get("label") != "Pass priority" or option.get("metadata") != {}:
+        raise RuntimeError(
+            "pass_priority semantic signature changed: " + json.dumps(option, sort_keys=True)
+        )
+    return PRIORITY_PASS_SEMANTIC_ID
+
+
+def replay_semantic_offer_map(decision: dict[str, Any]) -> tuple[list[str], dict[str, str]]:
+    semantic_ids: list[str] = []
+    raw_by_semantic: dict[str, str] = {}
+    for option in decision.get("legal_options") or []:
+        semantic_id = replay_semantic_option_id(option)
+        if semantic_id in raw_by_semantic:
+            raise RuntimeError(
+                "duplicate semantic replay option id: " + json.dumps(decision, sort_keys=True)
+            )
+        semantic_ids.append(semantic_id)
+        raw_by_semantic[semantic_id] = str(option["option_id"])
+    return semantic_ids, raw_by_semantic
+
+
+def replay_priority_pass_option(decision: dict[str, Any]) -> dict[str, Any]:
+    matches = [
+        option for option in decision.get("legal_options") or []
+        if option.get("option_type") == "pass_priority"
+        and option.get("label") == "Pass priority"
+        and option.get("metadata") == {}
+    ]
+    if len(matches) != 1:
+        raise RuntimeError(
+            "expected exactly one strict pass_priority option; got "
+            + json.dumps(matches, sort_keys=True)
+        )
+    return matches[0]
+
+
 def submit_one(client: _RawFullGameClient, decision: dict[str, Any], selected_ids: list[str], ordering: list[str] | None = None, numeric: int | None = None) -> dict[str, Any]:
     response: dict[str, Any] = {
         "decision_id": decision["decision_id"],
@@ -265,7 +308,7 @@ def keep_or_pass(client: _RawFullGameClient, decision: dict[str, Any]) -> None:
     if decision_class == "mulligan":
         option = unique_option(decision, option_type="keep")
     elif decision_class == "priority":
-        option = unique_option(decision, option_type="pass_priority")
+        option = replay_priority_pass_option(decision)
     else:
         raise RuntimeError(f"unexpected decision while waiting: {decision_class}")
     submit_one(client, decision, [str(option["option_id"])])
@@ -286,18 +329,40 @@ def capture_replay_run(expected_tape: list[dict[str, Any]] | None = None) -> dic
             decision = status.get("decision")
             if not isinstance(decision, dict):
                 raise RuntimeError(f"no pending decision before RNG operation: {status}")
-            if expected_tape is not None and steps < len(expected_tape):
+            if expected_tape is not None:
+                if steps >= len(expected_tape):
+                    raise RuntimeError("clean replay produced an extra external decision")
                 recorded = expected_tape[steps]
-                if decision["decision_class"] != recorded["decision_kind"]:
-                    raise RuntimeError("clean replay decision kind mismatch")
-                selected = [str(x) for x in recorded["selected_semantic_option_ids"]]
-                offered = {str(o["option_id"]) for o in decision.get("legal_options") or []}
-                if not set(selected).issubset(offered):
-                    raise RuntimeError(f"clean replay semantic option identity mismatch: selected={selected} offered={offered}")
+                if decision["decision_class"] != recorded.get("decision_kind"):
+                    raise RuntimeError(
+                        f"clean replay decision kind mismatch: current={decision['decision_class']} recorded={recorded.get('decision_kind')}"
+                    )
+                if int(decision.get("seat", -1)) + 1 != int(recorded.get("actor_seat", -1)):
+                    raise RuntimeError("clean replay actor seat mismatch")
+                if recorded.get("result") != "accepted" or int(recorded.get("revision", -1)) != steps + 1:
+                    raise RuntimeError("clean replay recorded decision result/revision mismatch")
+                if recorded.get("ordering") not in ([], None) or recorded.get("numeric_choice") is not None:
+                    raise RuntimeError("replay seed unexpectedly requires ordering or numeric choice")
+
+                current_semantic_ids, raw_by_semantic = replay_semantic_offer_map(decision)
+                recorded_semantic_ids = [str(x) for x in recorded.get("offered_semantic_option_ids") or []]
+                if current_semantic_ids != recorded_semantic_ids:
+                    raise RuntimeError(
+                        f"clean replay offered semantic option mismatch: current={current_semantic_ids} recorded={recorded_semantic_ids}"
+                    )
+                if sha(current_semantic_ids) != str(recorded.get("offered_options_sha256")):
+                    raise RuntimeError("clean replay offered semantic option digest mismatch")
+
+                selected_semantic = [str(x) for x in recorded.get("selected_semantic_option_ids") or []]
+                if not selected_semantic or any(item not in raw_by_semantic for item in selected_semantic):
+                    raise RuntimeError(
+                        f"clean replay selected semantic option identity mismatch: selected={selected_semantic} offered={current_semantic_ids}"
+                    )
+                selected = [raw_by_semantic[item] for item in selected_semantic]
             elif decision["decision_class"] == "mulligan":
                 selected = [str(unique_option(decision, option_type="keep")["option_id"])]
             elif decision["decision_class"] == "priority":
-                selected = [str(unique_option(decision, option_type="pass_priority")["option_id"])]
+                selected = [str(replay_priority_pass_option(decision)["option_id"])]
             elif decision["decision_class"] == "choose_object":
                 selected = [scenario_starting_player_option(decision, scenario)]
             elif decision["decision_class"] == "choose_use":
@@ -311,6 +376,10 @@ def capture_replay_run(expected_tape: list[dict[str, Any]] | None = None) -> dic
             steps += 1
         else:
             raise RuntimeError("Rules RNG tape did not record an operation within 120 decisions")
+        if expected_tape is not None and steps != len(expected_tape):
+            raise RuntimeError(
+                f"clean replay consumed {steps} decisions but tape contains {len(expected_tape)}"
+            )
         final_state = client.request("get_qualification_state")
         result = client.request("get_full_game_result")
         replay = result["replay"]
