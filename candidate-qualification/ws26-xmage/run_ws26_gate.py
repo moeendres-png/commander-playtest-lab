@@ -8,6 +8,7 @@ import shlex
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Callable
+from uuid import UUID
 
 from commander_lab.engine.rules.full_game import _RawFullGameClient, FullGameProtocolError
 
@@ -197,24 +198,54 @@ def scenario_starting_player_option(decision: dict[str, Any], scenario: dict[str
             "unexpected choose_object signature in WS26 scenario setup: "
             + json.dumps(decision, sort_keys=True)
         )
+
     expected_seat = int(scenario["starting_player_seat"])
-    expected_option_id = f"P{expected_seat}"
-    matches = []
-    for option in decision.get("legal_options") or []:
-        metadata = option.get("metadata") or {}
-        if (
-            str(option.get("option_id")) == expected_option_id
-            and option.get("option_type") == "choice"
-            and metadata.get("object_type") == "player"
-            and int(metadata.get("seat", -1)) == expected_seat - 1
-        ):
-            matches.append(option)
-    if len(matches) != 1:
+    if expected_seat not in {1, 2, 3, 4}:
+        raise RuntimeError(f"invalid scenario starting_player_seat: {expected_seat}")
+
+    options = decision.get("legal_options") or []
+    if len(options) != 4:
         raise RuntimeError(
-            f"scenario starting player {expected_option_id} was not offered exactly once: "
+            "starting-player option count changed: " + json.dumps(decision, sort_keys=True)
+        )
+
+    by_id = {str(option.get("option_id")): option for option in options}
+    if set(by_id) != {"P1", "P2", "P3", "P4"} or len(by_id) != 4:
+        raise RuntimeError(
+            "starting-player semantic option set changed: " + json.dumps(decision, sort_keys=True)
+        )
+
+    object_ids: set[str] = set()
+    for seat in range(1, 5):
+        option_id = f"P{seat}"
+        option = by_id[option_id]
+        expected_name = f"WS26 Seat {seat}"
+        metadata = option.get("metadata") or {}
+        object_id = str(metadata.get("object_id") or "")
+        try:
+            UUID(object_id)
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise RuntimeError(
+                f"starting-player {option_id} object_id is not a UUID: {object_id!r}"
+            ) from exc
+        if (
+            option.get("option_type") != "choice"
+            or option.get("label") != expected_name
+            or metadata.get("name") != expected_name
+        ):
+            raise RuntimeError(
+                f"starting-player {option_id} semantic metadata changed: "
+                + json.dumps(option, sort_keys=True)
+            )
+        object_ids.add(object_id)
+
+    if len(object_ids) != 4:
+        raise RuntimeError(
+            "starting-player object identities are not distinct: "
             + json.dumps(decision, sort_keys=True)
         )
-    return expected_option_id
+
+    return f"P{expected_seat}"
 
 
 def submit_one(client: _RawFullGameClient, decision: dict[str, Any], selected_ids: list[str], ordering: list[str] | None = None, numeric: int | None = None) -> dict[str, Any]:
