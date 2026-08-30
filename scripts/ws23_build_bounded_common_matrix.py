@@ -47,9 +47,13 @@ def tapes_equal(first: dict[str, Any], replay: dict[str, Any]) -> bool:
     )
     a = first.get("decision_tape", [])
     b = replay.get("decision_tape", [])
-    return len(a) > 0 and len(a) == len(b) and all(
-        all(left.get(key) == right.get(key) for key in keys)
-        for left, right in zip(a, b, strict=True)
+    return (
+        len(a) > 0
+        and len(a) == len(b)
+        and all(
+            all(left.get(key) == right.get(key) for key in keys)
+            for left, right in zip(a, b, strict=True)
+        )
     )
 
 
