@@ -15,8 +15,10 @@ FIXTURE_IDS = (
     "WS05-MP-BLOCK-4",
     "PILOT_TRIGGER_ORDER",
     "PILOT_REPLACEMENT_EFFECT",
+    "MICRO_PREVENTION",
     "WS05-CMD-ZONE-HAND-YES",
     "HIDDEN_01",
+    "RNG_RULES_TAPE",
     "REPLAY_DECISION_TAPE",
     "CARD_02",
 )
@@ -78,6 +80,9 @@ def main() -> int:
     state = runtime.get("decision_coverage", {})
     observation = runtime.get("observation") or {}
     commander = runtime.get("commander_proof") or {}
+    trigger = runtime.get("trigger_proof") or {}
+    prevention = runtime.get("prevention_proof") or {}
+    rng = runtime.get("rng_proof") or {}
     result_payload = (runtime.get("result") or {}).get("payload", {})
     snapshot = result_payload.get("snapshot") or {}
 
@@ -97,7 +102,17 @@ def main() -> int:
     replay_ok = (
         replay.get("replay_mode") is True
         and replay.get("result") is not None
+        and replay.get("rng_replay_match") is True
+        and replay.get("snapshot_replay_match") is True
         and tapes_equal(runtime, replay)
+    )
+    rng_ok = (
+        rng.get("common_fixture_id") == "RNG_RULES_TAPE"
+        and rng.get("engine_path") == "FlipCoinEffect/MyRandom"
+        and rng.get("seed") == 230023
+        and rng.get("flip_count") == 16
+        and len(rng.get("sequence", "")) == 16
+        and replay.get("rng_replay_match") is True
     )
 
     checks: dict[str, tuple[bool, str]] = {
@@ -114,8 +129,8 @@ def main() -> int:
             "target selected from Forge TargetRestrictions/getAllCandidates + canTarget",
         ),
         "PILOT_MANA_PAYMENT": (
-            state.get("mana") is True,
-            "mana selected from Forge-filtered ManaPool choices and accepted by Forge payment",
+            state.get("mana_payments", 0) >= 2,
+            "Bolt and Fog mana selected from Forge-filtered ManaPool choices and accepted by Forge",
         ),
         "WS05-MP-COMBAT-4": (
             state.get("attack") is True and multi_defender,
@@ -126,30 +141,48 @@ def main() -> int:
             "Forge-valid blocker assignment selected and validateBlocks accepted it",
         ),
         "PILOT_TRIGGER_ORDER": (
-            state.get("trigger_order") is True,
-            "two native simultaneous SpellAbility triggers ordered externally",
+            state.get("trigger_order") is True
+            and trigger.get("ordered_trigger_count") == 2
+            and trigger.get("life_gain_after_resolution") == 2
+            and trigger.get("native_trigger_resolution_verified") is True,
+            "two actual Soul Warden ETB triggers ordered externally and resolved by Forge",
         ),
         "PILOT_REPLACEMENT_EFFECT": (
             state.get("replacement") is True,
             "optional Forge replacement APPLY/DECLINE decision externalized",
         ),
+        "MICRO_PREVENTION": (
+            prevention.get("common_fixture_id") == "MICRO_PREVENTION"
+            and prevention.get("card_identity") == "Fog"
+            and prevention.get("native_prevention_verified") is True
+            and prevention.get("attacker_damage") == 0
+            and prevention.get("blocker_damage") == 0,
+            "actual Fog resolved through Forge and prevented both creatures' combat damage",
+        ),
         "WS05-CMD-ZONE-HAND-YES": (
             commander.get("common_fixture_id") == "WS05-CMD-ZONE-HAND-YES"
             and commander.get("native_commander_replacement_applied") is True,
-            "Forge Commander 903.9b hand replacement moved the commander to command zone",
+            "Forge Commander 903.9b hand replacement moved Rograkh to the command zone",
         ),
         "HIDDEN_01": (
             observation.get("opponent_hand_identity_hidden") is True,
             "opponent hand identities absent while owner/count visibility remains actor-scoped",
         ),
+        "RNG_RULES_TAPE": (
+            rng_ok,
+            "16 real FlipCoinEffect/MyRandom outcomes reproduce under seed 230023 in a fresh JVM",
+        ),
         "REPLAY_DECISION_TAPE": (
             replay_ok,
-            "fresh JVM consumed exact actor/kind/digest/offered-ID/selection DecisionTape",
+            "fresh JVM consumed exact actor/kind/digest/offered-ID/selection DecisionTape and matched snapshot",
         ),
         "CARD_02": (
             commander.get("actual_card_fixture_id") == "CARD_02"
+            and commander.get("card_identity") == "Rograkh, Son of Rohgahh"
+            and commander.get("cast_from_command_runtime_verified") is True
+            and commander.get("commander_cast_count") == 1
             and commander.get("actual_card_behavior_verified") is True,
-            "Rograkh printed/runtime card behavior verified in the real Forge game",
+            "Rograkh was Forge-legally cast from command, counted as commander cast, and resolved to battlefield",
         ),
     }
 
@@ -170,17 +203,27 @@ def main() -> int:
         )
 
     output = {
-        "schema_version": "ws23-bounded-common-matrix/1.0.0",
+        "schema_version": "ws23-bounded-common-matrix/1.1.0",
         "manifest_schema_version": manifest.get("schema_version"),
         "fixture_ids": list(FIXTURE_IDS),
         "pass_count": sum(row["status"] == "PASS" for row in rows),
         "denominator": len(rows),
         "all_pass": all(row["status"] == "PASS" for row in rows),
+        "continue_gate": "CONTINUE" if all(row["status"] == "PASS" for row in rows) else "UNKNOWN",
         "rows": rows,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"pass_count": output["pass_count"], "denominator": len(rows)}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "pass_count": output["pass_count"],
+                "denominator": len(rows),
+                "continue_gate": output["continue_gate"],
+            },
+            sort_keys=True,
+        )
+    )
     return 0 if output["all_pass"] else 1
 
 
