@@ -4,7 +4,6 @@ on:
   push:
     branches: [ws28/finalist-differential]
     paths:
-      - "handoffs/ws28/**"
       - "scripts/ws28_build_finalist_matrix.py"
       - "tests/qualification/test_ws28_finalist_differential.py"
       - ".github/workflows/ws28-finalist-differential.yml"
@@ -130,10 +129,6 @@ jobs:
             --xmage-job-id "$XMAGE_JOB_ID" \
             --xmage-artifact-id "$XMAGE_ARTIFACT_ID" \
             --xmage-artifact-sha256 "$XMAGE_ARTIFACT_SHA256"
-          printf '%s  %s\n' \
-            "$(sha256sum handoffs/ws28/WS28_FINAL_HANDOFF.md | awk '{print $1}')" \
-            "../../handoffs/ws28/WS28_FINAL_HANDOFF.md" >> artifacts/ws28/WS28_SHA256SUMS
-          sort -k2 artifacts/ws28/WS28_SHA256SUMS -o artifacts/ws28/WS28_SHA256SUMS
 
       - name: Validate WS-28 evidence and hard gates
         run: |
