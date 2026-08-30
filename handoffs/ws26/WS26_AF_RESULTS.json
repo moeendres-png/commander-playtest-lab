@@ -1,0 +1,146 @@
+{
+  "architecture_continue": true,
+  "behavioral_head": "a53c2312983384eb0870746132e281bbed2f5a1d",
+  "blocking_gates": [
+    "AF04",
+    "AF05",
+    "AF06",
+    "AF07",
+    "AF08"
+  ],
+  "candidate": "XMAGE_WS26_FINAL_OVERLAY",
+  "freeze_eligible": false,
+  "gate_results": [
+    {
+      "delta": "preserved",
+      "final_verdict": "PASS",
+      "freeze_satisfying": true,
+      "gate_id": "AF00",
+      "name": "SOURCE_AND_BUILD_LOCK",
+      "ws22_verdict": "PASS"
+    },
+    {
+      "delta": "preserved",
+      "final_verdict": "PASS",
+      "freeze_satisfying": true,
+      "gate_id": "AF01",
+      "name": "PROTOCOL_HANDSHAKE",
+      "ws22_verdict": "PASS"
+    },
+    {
+      "delta": "preserved",
+      "denominator": 4,
+      "final_pass": 4,
+      "final_unsupported": 0,
+      "final_verdict": "PASS",
+      "freeze_satisfying": true,
+      "gate_id": "AF02",
+      "name": "PLAYER_CARDINALITY",
+      "ws22_pass": 4,
+      "ws22_verdict": "PASS"
+    },
+    {
+      "delta": "preserved",
+      "final_verdict": "PASS",
+      "freeze_satisfying": true,
+      "gate_id": "AF03",
+      "name": "RULES_AUTHORITY",
+      "ws22_verdict": "PASS"
+    },
+    {
+      "denominator": 24,
+      "final_pass": 7,
+      "final_unsupported": 17,
+      "final_verdict": "UNSUPPORTED",
+      "freeze_satisfying": false,
+      "gate_id": "AF04",
+      "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+      "new_pass": 3,
+      "ws22_pass": 4,
+      "ws22_verdict": "UNSUPPORTED"
+    },
+    {
+      "denominator": 20,
+      "final_pass": 9,
+      "final_unsupported": 11,
+      "final_verdict": "UNSUPPORTED",
+      "freeze_satisfying": false,
+      "gate_id": "AF05",
+      "name": "HIDDEN_INFORMATION",
+      "new_pass": 4,
+      "ws22_pass": 5,
+      "ws22_verdict": "UNSUPPORTED"
+    },
+    {
+      "denominator": 17,
+      "final_pass": 3,
+      "final_unsupported": 14,
+      "final_verdict": "UNSUPPORTED",
+      "freeze_satisfying": false,
+      "gate_id": "AF06",
+      "name": "GENERAL_RULES_CORRECTNESS",
+      "new_pass": 3,
+      "ws22_pass": 0,
+      "ws22_verdict": "UNSUPPORTED"
+    },
+    {
+      "denominator": 29,
+      "final_pass": 3,
+      "final_unsupported": 26,
+      "final_verdict": "UNSUPPORTED",
+      "freeze_satisfying": false,
+      "gate_id": "AF07",
+      "name": "ACTUAL_CARD_BEHAVIOR",
+      "new_pass": 3,
+      "ws22_pass": 0,
+      "ws22_verdict": "UNSUPPORTED"
+    },
+    {
+      "denominator": 36,
+      "final_pass": 3,
+      "final_unsupported": 33,
+      "final_verdict": "UNSUPPORTED",
+      "freeze_satisfying": false,
+      "gate_id": "AF08",
+      "name": "MULTIPLAYER_COMMANDER",
+      "new_pass": 3,
+      "ws22_pass": 0,
+      "ws22_verdict": "UNSUPPORTED"
+    },
+    {
+      "denominator": 5,
+      "final_pass": 5,
+      "final_unsupported": 0,
+      "final_verdict": "PASS",
+      "freeze_satisfying": true,
+      "gate_id": "AF09",
+      "name": "RNG_REPLAY",
+      "new_pass": 5,
+      "ws22_pass": 0,
+      "ws22_verdict": "UNSUPPORTED"
+    },
+    {
+      "delta": "preserved; exact 135-row overlay has no FAIL/UNKNOWN/PARTIAL/NOT_RUN",
+      "final_verdict": "PASS",
+      "freeze_satisfying": true,
+      "gate_id": "AF10",
+      "name": "RUNTIME_EVIDENCE_RELIABILITY",
+      "ws22_verdict": "PASS"
+    },
+    {
+      "delta": "preserved; qualification-only transform does not alter external JVM topology",
+      "final_verdict": "PASS",
+      "freeze_satisfying": true,
+      "gate_id": "AF11",
+      "name": "INTEROP_LICENSE_TOPOLOGY",
+      "ws22_verdict": "PASS"
+    }
+  ],
+  "newly_closed_gate": [
+    "AF09"
+  ],
+  "runtime_artifact_id": 9734939446,
+  "runtime_artifact_sha256": "0a96528cfc840a274aa3e84322932134163627f3e6ec2045f71cd86c6ca80ff1",
+  "runtime_run_id": 33320954360,
+  "schema_version": "ws26-af-results/1.0.0"
+}
