@@ -234,7 +234,10 @@ def capture_replay_run(expected_tape: list[dict[str, Any]] | None = None) -> dic
             elif decision["decision_class"] == "choose_use":
                 selected = [str(unique_boolean(decision, True)["option_id"])]
             else:
-                raise RuntimeError(f"unexpected discretionary class in replay seed fixture: {decision['decision_class']}")
+                raise RuntimeError(
+                    "unexpected discretionary decision in replay seed fixture: "
+                    + json.dumps(decision, sort_keys=True)
+                )
             submit_one(client, decision, selected)
             steps += 1
         else:
