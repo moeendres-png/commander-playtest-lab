@@ -58,6 +58,23 @@ def render_broad(source: str, forge_commit: str, forge_tree: str) -> tuple[str, 
         raise RuntimeError("base priority-pass implementation changed")
     java = java.replace(old_priority_pass, "            if (idx == 0) return null;", 1)
 
+    # Keep stdout protocol-exclusive. Forge core emits operational diagnostics
+    # to System.out during real lifecycle execution, so preserve the original
+    # stream for JSONL before redirecting Forge's global stdout to stderr.
+    old_main_streams = (
+        "        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));\n"
+        "        PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true);"
+    )
+    new_main_streams = (
+        "        java.io.PrintStream protocolStdout = System.out;\n"
+        "        System.setOut(System.err);\n"
+        "        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));\n"
+        "        PrintWriter out = new PrintWriter(new OutputStreamWriter(protocolStdout, StandardCharsets.UTF_8), true);"
+    )
+    if old_main_streams not in java:
+        raise RuntimeError("base protocol stdout construction changed")
+    java = java.replace(old_main_streams, new_main_streams, 1)
+
     old_loop = "        for (int i = 1; i <= 4; i++) {"
     new_loop = (
         '        String requestedPlayerCount = System.getenv("COMMANDER_LAB_FORGE_PLAYER_COUNT");\n'
@@ -72,11 +89,12 @@ def render_broad(source: str, forge_commit: str, forge_tree: str) -> tuple[str, 
         raise RuntimeError("base player-count loop changed")
     java = java.replace(old_loop, new_loop, 1)
 
-    mapping["schema_version"] = "ws23-player-controller-broad-mapping/1.1.0"
+    mapping["schema_version"] = "ws23-player-controller-broad-mapping/1.2.0"
     mapping["support_scope"] = "BROAD_PLAYER_COUNT_LIFECYCLE"
     mapping["player_count_range"] = [2, 3, 4, 5]
     mapping["full_lifecycle_policy"] = "PASS_ONLY_IF_FORGE_GAME_RETURNED"
     mapping["priority_pass_semantics"] = "FORGE_PHASE_HANDLER_NULL_MEANS_PASS"
+    mapping["protocol_stdout_exclusive"] = True
     mapping["cleanup_discard_policy"] = (
         "EXTERNAL_SINGLE_CARD_CHOICE_FROM_FORGE_OWN_HAND_OPTIONS_OTHER_COUNTS_FAIL_CLOSED"
     )
