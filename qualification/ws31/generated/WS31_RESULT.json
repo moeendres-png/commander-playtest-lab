@@ -1,0 +1,31 @@
+{
+  "candidate_engine_changes": 0,
+  "coverage": {
+    "aggregate_domain_digest": "d8337dc0a243fddbede3e9d2cec7b3938a1007970a23dea04855149fbfc55d5e",
+    "authority_fail_closed": 0,
+    "authority_pass": 1385,
+    "authority_unknown": 0,
+    "current_cr_lock": "PASS",
+    "current_kaervek": 77,
+    "current_rogshai": 87,
+    "gatherer_acquisition_failures": 0,
+    "kaervek_pass": 77,
+    "known_actual_identities": 1385,
+    "multiface_count": 13,
+    "multiface_unresolved_count": 0,
+    "overall_authority_status": "PASS",
+    "physical_identities": 1338,
+    "physical_pass": 1338,
+    "rogshai_pass": 87,
+    "rules_path_incidence_unresolved_count": 0,
+    "runtime_functionality_credit": 0,
+    "schema_version": "commander-lab.ws31.coverage/1.0.0",
+    "terminal_acquisition_records": 1385,
+    "workstream_close_gate": "PASS",
+    "ws29_regression": "PASS"
+  },
+  "no_rules_core_selected": true,
+  "schema_version": "commander-lab.ws31.result/1.0.0",
+  "source_lock_commit": "362d9351f749b6f49d67cd1ef4eed298b8922b68",
+  "workstream_status": "PASS_CLOSED"
+}

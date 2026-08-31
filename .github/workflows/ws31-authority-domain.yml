@@ -1,0 +1,174 @@
+name: WS-31 Full Actual-Card Oracle Domain
+on:
+  workflow_dispatch:
+  push:
+    branches: [ws31/full-actual-card-oracle-domain]
+    paths:
+      - 'qualification/ws31/WS31_SOURCE_LOCK.json'
+      - 'qualification/ws31/input/**'
+      - 'scripts/ws31_*.py'
+      - 'tests/qualification/test_ws31_authority_domain.py'
+      - '.github/workflows/ws31-authority-domain.yml'
+permissions:
+  contents: write
+concurrency:
+  group: ws31-authority-domain
+  cancel-in-progress: true
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Build exact 1,385 manifest
+        run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
+      - name: Static fail-closed tests
+        run: python -m unittest tests.qualification.test_ws31_authority_domain.TestWS31Static -v
+      - name: Exact-name, discovery-hint, release-note, legacy-flip, empty-Oracle, and incidence regression tests
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          import ws31_acquire_gatherer_v6 as v6
+          import ws31_materialize_v2 as mv2
+          v5=v6.v5; v4=v5.v4; v=v4.v2
+          assert v6.base.acquire_identity is v6.acquire_identity
+          assert v.match_norm("Dovin's Veto") == v.match_norm('dovins-veto')
+          assert v.match_norm('Agrus Kos, Wojek Veteran') == v.match_norm('agrus-kos-wojek-veteran')
+          assert v.match_norm('Fall') != v.match_norm("Atraxa's Fall")
+          assert 'nalaar' in v4.v3.query_variants('Chandra Nalaar')
+          assert 'theft' in v4.v3.query_variants('Petty Theft')
+          assert v4.DIRECT_DISCOVERY_HINTS['Fall'] == ['https://gatherer.wizards.com/DDH/en-us/73/fall']
+          assert all('atraxas-fall' not in u for xs in v4.DIRECT_DISCOVERY_HINTS.values() for u in xs)
+          sec='Printed Oracle Card Name Runeclaw Bear Type Creature — Bear Rarity Common Artist X P/T 2 / 2 Set M10 Number 203 Language English'
+          f=v.parse_section(sec,'Runeclaw Bear')
+          assert f['parse_complete'] and f['oracle_text']=='' and f['type_line']
+          bb=v5.OFFICIAL_RELEASE_NOTE_FALLBACKS['Brazen Borrower // Petty Theft']
+          bbtxt="Brazen Borrower {1}{U}{U} Creature — Faerie Rogue 3/1 Flash Flying //ADV// Petty Theft {1}{U} Instant — Adventure Return target nonland permanent an opponent controls to its owner's hand. Brazen Borrower is a creature card in every zone except the stack"
+          assert v5._extract_release_note_face(bbtxt,bb)['oracle_text']=="Return target nonland permanent an opponent controls to its owner's hand."
+          sk=v5.OFFICIAL_RELEASE_NOTE_FALLBACKS["Inspired Skypainter // Maestro's Gift"]
+          sktxt="Inspired Skypainter {U}{R} Creature — Lizard Wizard 2/2 Flying //Prep// Maestro's Gift {3}{U}{R} Sorcery Create a token that's a copy of target creature you control. That token gains haste until end of turn. The token created by Maestro's Gift copies exactly what was printed on the original creature"
+          assert v5._extract_release_note_face(sktxt,sk)['oracle_text']=="Create a token that's a copy of target creature you control. That token gains haste until end of turn."
+          flip="Kaiso, Memory of Loyalty Legendary Creature - Spirit 3/4 Flying Remove a ki counter from Kaiso: Prevent all damage that would be dealt to target creature this turn. Artist Mark Zug"
+          parsed,_=v6._extract_legacy_flip_face(flip,'Kaiso, Memory of Loyalty')
+          assert parsed and parsed['type_line']=='Legendary Creature - Spirit' and parsed['power_toughness']=='3/4'
+          assert parsed['oracle_text'].startswith('Flying Remove a ki counter from Kaiso:')
+          sample={'project_card_identity':'Authority Probe','faces':[{'oracle_text':'When this creature dies, draw a card. Put a +1/+1 counter on target creature. Attach target Equipment you control to it. Copy target spell. Target creature gets +2/+2 until end of turn.','type_line':'Creature — Test','mana_cost':'{1}'}]}
+          incidence=mv2.derive_incidence(sample)
+          assert not [x for x in incidence if x['classification']=='HEURISTIC_DISCOVERY_ONLY']
+          paths={x['path'] for x in incidence if x['classification']=='AUTHORITY_DERIVED'}
+          assert {'zone-change semantics','hidden library information','counters','attachments','copies','power/toughness layers'} <= paths
+          print('WS31 static authority/discovery/release-note/legacy-flip/incidence regression tests PASS')
+          PY
+      - name: Live official Wizards shared-card release-note authority probe
+        run: |
+          python - <<'PY'
+          import json,sys
+          sys.path.insert(0,'scripts')
+          import ws31_acquire_gatherer_v6 as v6
+          v5=v6.v5
+          for identity,spec in v5.OFFICIAL_RELEASE_NOTE_FALLBACKS.items():
+              primary={'faces':[{'requested_face_name':spec['primary_face'],'acquisition_status':'PASS','official_gatherer_url':'https://gatherer.wizards.com/PROBE/en-us/1/authority-probe','set_or_printing_used':'PROBE','collector_number':'1','official_rulings':[]}]}
+              result,diag=v5._release_note_face_result(primary,spec)
+              print(json.dumps({'identity':identity,'diagnostic':diag,'result_status':result.get('acquisition_status') if result else None,'oracle_sha256':result.get('authority_evidence_fragment_sha256') if result else None},sort_keys=True))
+              assert result and result['acquisition_status']=='PASS', (identity,diag)
+              assert result['official_release_notes_url'].startswith('https://magic.wizards.com/')
+              assert result['shared_primary_gatherer_representation'] is True
+          print('WS31 live official release-note authority probe PASS')
+          PY
+      - name: Live exact current Gatherer legacy flip-face authority probe
+        run: |
+          python - <<'PY'
+          import json,sys
+          sys.path.insert(0,'scripts')
+          import ws31_acquire_gatherer_v6 as v6
+          spec=v6.LEGACY_FLIP_FALLBACK
+          primary={'faces':[{'requested_face_name':spec['primary_face'],'acquisition_status':'PASS','official_gatherer_url':'https://gatherer.wizards.com/BOK/en-us/3/faithful-squire','set_or_printing_used':'BOK - Betrayers of Kamigawa','collector_number':'3','official_rulings':[]}]}
+          result,diag=v6._legacy_flip_face_result(primary,spec)
+          print(json.dumps({'identity':spec['project_card_identity'],'diagnostic':diag,'result_status':result.get('acquisition_status') if result else None,'type_line':result.get('type_line') if result else None,'power_toughness':result.get('power_toughness') if result else None},sort_keys=True))
+          assert result and result['acquisition_status']=='PASS', (spec['project_card_identity'],diag)
+          assert result['official_gatherer_url'].endswith('/BOK/en-us/3/kaiso-memory-of-loyalty')
+          assert result['current_gatherer_card_name']=='Kaiso, Memory of Loyalty'
+          assert result['oracle_text']
+          print('WS31 live exact current Gatherer legacy flip-face authority probe PASS')
+          PY
+  acquire:
+    needs: static
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: {shard: [0, 1, 2, 3]}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: mkdir -p artifacts/ws31/shards artifacts/ws31/checkpoints
+      - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
+      - name: Acquire official Wizards authority shard
+        run: >-
+          python scripts/ws31_acquire_gatherer_v6.py
+          --manifest artifacts/ws31/IDENTITY_MANIFEST.json
+          --output artifacts/ws31/shards/shard-${{ matrix.shard }}.json
+          --checkpoint artifacts/ws31/checkpoints/checkpoint-${{ matrix.shard }}.json
+          --shard-index ${{ matrix.shard }} --shard-count 4 --delay 0.12
+      - name: Prove no raw pages retained
+        run: |
+          if find artifacts/ws31 -type f \( -iname '*.html' -o -iname '*.htm' -o -iname '*.pdf' \) | grep -q .; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws31-shard-${{ matrix.shard }}
+          path: artifacts/ws31/shards/shard-${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 30
+  materialize:
+    needs: acquire
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: mkdir -p artifacts/ws31/shards artifacts/ws31/network qualification/ws31/generated
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ws31-shard-*
+          path: artifacts/ws31/shards
+          merge-multiple: true
+      - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
+      - name: Reacquire current official CR raw-byte lock
+        run: python scripts/ws29_fetch_wizards_authority.py artifacts/ws31/network
+      - name: Materialize terminal authority domain
+        run: >-
+          python scripts/ws31_materialize_v2.py
+          --manifest artifacts/ws31/IDENTITY_MANIFEST.json
+          --shard-dir artifacts/ws31/shards
+          --cr artifacts/ws31/network/CR_RAW_ACQUISITION.json
+          --taxonomy qualification/ws31/input/WS04_RULES_PATH_TAXONOMY.json
+          --ws29-baseline qualification/ws31/input/WS29_REGRESSION_BASELINE.json.zlib
+          --outdir qualification/ws31/generated
+      - name: Validate generated structure
+        run: python -m unittest tests.qualification.test_ws31_authority_domain -v
+      - name: Prove no bulk copyrighted pages retained
+        run: |
+          if find qualification/ws31 artifacts/ws31 -type f \( -iname '*.html' -o -iname '*.htm' -o -iname '*.pdf' \) | grep -q .; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws31-authority-domain-evidence
+          path: |
+            qualification/ws31/generated/
+            artifacts/ws31/network/CR_RAW_ACQUISITION.json
+            artifacts/ws31/network/GATHERER_ACCESS.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Commit normalized authoritative outputs
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qualification/ws31/generated
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'data(ws31): materialize full actual-card authority domain'
+          git push origin HEAD:ws31/full-actual-card-oracle-domain

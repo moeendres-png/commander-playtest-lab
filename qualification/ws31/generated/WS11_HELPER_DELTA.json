@@ -1,0 +1,10 @@
+{
+  "added_paths": null,
+  "changed_multiface_mappings": null,
+  "note": "WS-11 helper matrix was SOURCE_DERIVED; no added/removed claims are fabricated without the exact prior card-by-card matrix.",
+  "reason": "UNKNOWN_EXACT_PRIOR_WS11_MATRIX_NOT_RECOVERED",
+  "removed_paths": null,
+  "schema_version": "commander-lab.ws31.ws11-delta/1.0.0",
+  "status": "UNKNOWN",
+  "unresolved_mappings": 0
+}

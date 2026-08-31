@@ -1,0 +1,194 @@
+{
+  "discriminator_authority_pass_count": 29,
+  "pass_count": 29,
+  "record_count": 29,
+  "records": [
+    {
+      "card_name": "Ishai, Ojutai Dragonspeaker",
+      "fixture_id": "CARD_01",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Rograkh, Son of Rohgahh",
+      "fixture_id": "CARD_02",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Esior, Wardwing Familiar",
+      "fixture_id": "CARD_03",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Kediss, Emberclaw Familiar",
+      "fixture_id": "CARD_04",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Veyran, Voice of Duality",
+      "fixture_id": "CARD_05",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Harmonic Prodigy",
+      "fixture_id": "CARD_06",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Narset, Parter of Veils",
+      "fixture_id": "CARD_07",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Jeska, Thrice Reborn",
+      "fixture_id": "CARD_08",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Magma Opus",
+      "fixture_id": "CARD_09",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Wash Away",
+      "fixture_id": "CARD_10",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Wear // Tear",
+      "fixture_id": "CARD_11",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Dig Through Time",
+      "fixture_id": "CARD_12",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Flare of Duplication",
+      "fixture_id": "CARD_13",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Vandalblast",
+      "fixture_id": "CARD_14",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Finale of Revelation",
+      "fixture_id": "CARD_15",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Psychosis Crawler",
+      "fixture_id": "CARD_16",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Kaervek the Merciless",
+      "fixture_id": "CARD_17",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Shriekmaw",
+      "fixture_id": "CARD_18",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Butcher of Malakir",
+      "fixture_id": "CARD_19",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Syphon Mind",
+      "fixture_id": "CARD_20",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Gratuitous Violence",
+      "fixture_id": "CARD_21",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Bolt Bend",
+      "fixture_id": "CARD_22",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Makeshift Mannequin",
+      "fixture_id": "CARD_23",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Warstorm Surge",
+      "fixture_id": "CARD_24",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Basilisk Collar",
+      "fixture_id": "CARD_25",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Burn Down the House",
+      "fixture_id": "CARD_26",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Path of Ancestry",
+      "fixture_id": "CARD_27",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Find // Finality",
+      "fixture_id": "CARD_28",
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "card_name": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "fixture_id": "CARD_29",
+      "issues": [],
+      "status": "PASS"
+    }
+  ],
+  "runtime_pass_lock": {
+    "forge": [
+      "CARD_02"
+    ],
+    "xmage": [
+      "CARD_02",
+      "CARD_04",
+      "CARD_24"
+    ]
+  },
+  "runtime_status_note": "Authority regression only. CARD_02/04/24 runtime classifications are frozen from WS-29 and are not promoted or re-adjudicated.",
+  "schema_version": "commander-lab.ws31.ws29-regression/1.0.0",
+  "status": "PASS"
+}
