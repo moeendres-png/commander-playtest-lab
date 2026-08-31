@@ -89,10 +89,8 @@ def compare_pass_rows(fixture_id: str, forge: dict[str, Any], xmage: dict[str, A
     if not required_equal["record_digest"]:
         return "CONTRACT_DEFECT", required_equal
 
-    choice_equal: bool | None = None
     if fixture_id in {"PLAYER_COUNT_2P", "PLAYER_COUNT_3P", "PLAYER_COUNT_4P", "PLAYER_COUNT_5P", "PILOT_MULLIGAN"}:
-        choice_equal = forge_choices(forge) == xmage_choices(xmage)
-        required_equal["semantic_discretionary_selections"] = choice_equal
+        required_equal["semantic_discretionary_selections"] = forge_choices(forge) == xmage_choices(xmage)
 
     if all(required_equal.values()):
         return "DIFFERENTIAL_AGREEMENT_PASS", required_equal
@@ -104,6 +102,10 @@ def main() -> int:
     ap.add_argument("--forge", type=Path, required=True)
     ap.add_argument("--xmage", type=Path, required=True)
     ap.add_argument("--output", type=Path, required=True)
+    ap.add_argument("--xmage-convergence-head", required=True)
+    ap.add_argument("--xmage-workflow-run", required=True)
+    ap.add_argument("--xmage-artifact-id", required=True)
+    ap.add_argument("--xmage-artifact-digest", required=True)
     args = ap.parse_args()
 
     forge_payload = json.loads(args.forge.read_text(encoding="utf-8"))
@@ -158,7 +160,11 @@ def main() -> int:
         "contract_bundle_digest": forge_payload["contract_bundle_digest"],
         "forge_candidate_commit": forge_payload.get("candidate_commit"),
         "forge_engine_commit": forge_payload.get("forge_commit"),
-        "xmage_candidate_commit": xmage_payload.get("candidate_commit"),
+        "xmage_convergence_head": args.xmage_convergence_head,
+        "xmage_workflow_run": int(args.xmage_workflow_run),
+        "xmage_artifact_id": int(args.xmage_artifact_id),
+        "xmage_artifact_digest": args.xmage_artifact_digest,
+        "xmage_behavioral_candidate_commit": xmage_payload.get("candidate_commit"),
         "xmage_engine_commit": xmage_payload.get("xmage_commit"),
         "input_sha256": {"forge": sha256_file(args.forge), "xmage": sha256_file(args.xmage)},
         "counts": counts,
