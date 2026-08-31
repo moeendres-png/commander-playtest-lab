@@ -57,6 +57,10 @@ jobs:
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
           python candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py vendor/engine-source/xmage
           git -C vendor/engine-source/xmage diff --check
+      - name: Apply exact natural-start qualification overlay
+        run: |
+          python candidate-qualification/finalist-convergence-xmage/apply_natural_start_overlay.py
+          git diff --check
       - name: Build pinned XMage and candidate bridge
         run: |
           cd vendor/engine-source/xmage
