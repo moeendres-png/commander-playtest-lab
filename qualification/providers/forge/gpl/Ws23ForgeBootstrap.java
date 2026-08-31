@@ -17,6 +17,18 @@ public final class Ws23ForgeBootstrap {
 
     private Ws23ForgeBootstrap() {}
 
+    private static long configuredRulesSeed() {
+        String raw = System.getenv("COMMANDER_LAB_FORGE_RULES_SEED");
+        if (raw == null || raw.isBlank()) {
+            return QUALIFICATION_SEED;
+        }
+        try {
+            return Long.parseLong(raw);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("COMMANDER_LAB_FORGE_RULES_SEED must be an integer", e);
+        }
+    }
+
     private static Path forgeRoot(Path languagesDirectory) {
         Path absolute = languagesDirectory.toAbsolutePath().normalize();
         Path res = absolute.getParent();
@@ -29,7 +41,7 @@ public final class Ws23ForgeBootstrap {
     }
 
     private static void initializeHeadlessForge(Path languagesDirectory) throws Exception {
-        MyRandom.setRandom(new Random(QUALIFICATION_SEED));
+        MyRandom.setRandom(new Random(configuredRulesSeed()));
         Lang.createInstance("en-US");
         Localizer.getInstance().initialize("en-US", languagesDirectory.toString());
 
@@ -42,9 +54,8 @@ public final class Ws23ForgeBootstrap {
             throw new IllegalStateException("Pinned Forge runtime data directories are missing under " + res);
         }
 
-        // Gate-A uses synthetic FAKE_CARD decks. Build the genuine Forge StaticData singleton lazily,
-        // so normal game initialization has its required invariants without parsing/copying card scripts
-        // into the proprietary process. All resources remain filesystem inputs to this GPL-side JVM.
+        // Keep all Forge card/rules data inside this separate GPL-side process. The default seed preserves
+        // WS-23/25 regressions; finalist convergence supplies the exact neutral record seed by environment.
         Path emptyCustomEditions = Files.createTempDirectory("ws23-forge-custom-editions-");
         CardStorageReader reader = new CardStorageReader(cards.toString(), null, true);
         StaticData data = new StaticData(
