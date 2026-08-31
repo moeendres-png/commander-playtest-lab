@@ -451,8 +451,8 @@ CARD_SPEC = {
             "P2/P3/P4 each control one creature.",
         ],
         [
-            "P1 activates Ashnod’s Altar, sacrificing obj:card19-p1-other as the activation cost.",
-            "Each opponent chooses their creature to sacrifice when Butcher’s trigger resolves.",
+            "P1 activates Ashnod's Altar, sacrificing obj:card19-p1-other as the activation cost.",
+            "Each opponent chooses their creature to sacrifice when Butcher's trigger resolves.",
         ],
         [
             "P1_creature_dies",
@@ -2407,7 +2407,7 @@ def build_card(fid, r):
         "CARD_18": [obj("obj:card18-target", "Grizzly Bears", "P2", "P2", "battlefield")],
         "CARD_19": [
             obj("obj:card19-p1-other", "Grizzly Bears", "P1", "P1", "battlefield"),
-            obj("obj:card19-altar", "Ashnod’s Altar", "P1", "P1", "battlefield"),
+            obj("obj:card19-altar", "Ashnod's Altar", "P1", "P1", "battlefield"),
         ]
         + [
             obj(f"obj:card19-{p}-creature", "Grizzly Bears", p, p, "battlefield")
