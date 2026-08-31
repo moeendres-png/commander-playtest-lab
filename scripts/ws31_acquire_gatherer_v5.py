@@ -55,7 +55,11 @@ def _official_release_notes(url: str | None) -> bool:
     if not url:
         return False
     p = urlparse(url)
-    return p.scheme == "https" and p.hostname == "magic.wizards.com" and "/release-notes" in p.path
+    return (
+        p.scheme == "https"
+        and p.hostname == "magic.wizards.com"
+        and (p.path.endswith("-release-notes") or "/release-notes" in p.path)
+    )
 
 
 def _extract_release_note_face(text: str, spec: dict) -> dict | None:
