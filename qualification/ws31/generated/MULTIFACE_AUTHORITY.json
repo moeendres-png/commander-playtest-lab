@@ -1,5 +1,5 @@
 {
-  "pass_count": 12,
+  "pass_count": 13,
   "record_count": 13,
   "records": [
     {
@@ -57,15 +57,13 @@
         "Faithful Squire",
         "Kaiso, Memory of Loyalty"
       ],
-      "issues": [
-        "IDENTITY_AUTHORITY_NOT_PASS"
-      ],
+      "issues": [],
       "project_card_identity": "Faithful Squire // Kaiso, Memory of Loyalty",
       "semantic_identity": "mtg:oracle-semantic:1fe3a3c70374d3dc70788140886847c1dfb8a354b553e112224060b39bd59c52",
       "special_structure_hints": [
         "MULTIFACE"
       ],
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "face_count": 2,
@@ -209,6 +207,6 @@
     }
   ],
   "schema_version": "commander-lab.ws31.multiface-authority/1.0.0",
-  "status": "UNKNOWN",
-  "unresolved_count": 1
+  "status": "PASS",
+  "unresolved_count": 0
 }

@@ -12766,6 +12766,11 @@
         },
         {
           "classification": "AUTHORITY_DERIVED",
+          "evidence": "explicit Oracle construct matched /\\btarget\\b/",
+          "path": "target legality"
+        },
+        {
+          "classification": "AUTHORITY_DERIVED",
           "evidence": "explicit Oracle construct matched /\\bmay\\b/",
           "path": "optional `may` choices"
         },
@@ -12781,6 +12786,16 @@
         },
         {
           "classification": "AUTHORITY_DERIVED",
+          "evidence": "explicit Oracle construct matched /\\bprevent\\b/",
+          "path": "prevention effects"
+        },
+        {
+          "classification": "AUTHORITY_DERIVED",
+          "evidence": "explicit Oracle construct matched /\\bflying\\b|\\bmenace\\b|\\breach\\b|\\btrample\\b|can't be blocked/",
+          "path": "evasion"
+        },
+        {
+          "classification": "AUTHORITY_DERIVED",
           "evidence": "explicit official Oracle construct; canonical rules-path meaning anchored by the current locked Comprehensive Rules",
           "path": "counters"
         }
@@ -12788,7 +12803,7 @@
       "heuristic_discovery_only": [],
       "project_card_identity": "Faithful Squire // Kaiso, Memory of Loyalty",
       "semantic_identity": "mtg:oracle-semantic:1fe3a3c70374d3dc70788140886847c1dfb8a354b553e112224060b39bd59c52",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "authority_derived": [
@@ -44988,7 +45003,7 @@
     }
   ],
   "schema_version": "commander-lab.ws31.rules-path-incidence/1.0.0",
-  "status": "UNKNOWN",
+  "status": "PASS",
   "taxonomy_path_count": 108,
-  "unresolved_mapping_count": 1
+  "unresolved_mapping_count": 0
 }
