@@ -25,22 +25,30 @@ jobs:
         run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
       - name: Static fail-closed tests
         run: python -m unittest tests.qualification.test_ws31_authority_domain.TestWS31Static -v
-      - name: Exact-name, discovery, and empty-Oracle regression tests
+      - name: Exact-name, discovery-hint, empty-Oracle, and incidence regression tests
         run: |
           python - <<'PY'
           import sys
           sys.path.insert(0, 'scripts')
-          import ws31_acquire_gatherer_v3 as v3
-          v=v3.v2
+          import ws31_acquire_gatherer_v4 as v4
+          import ws31_materialize_v2 as mv2
+          v=v4.v2
           assert v.match_norm("Dovin's Veto") == v.match_norm('dovins-veto')
           assert v.match_norm('Agrus Kos, Wojek Veteran') == v.match_norm('agrus-kos-wojek-veteran')
           assert v.match_norm('Fall') != v.match_norm("Atraxa's Fall")
-          assert 'nalaar' in v3.query_variants('Chandra Nalaar')
-          assert 'theft' in v3.query_variants('Petty Theft')
+          assert 'nalaar' in v4.v3.query_variants('Chandra Nalaar')
+          assert 'theft' in v4.v3.query_variants('Petty Theft')
+          assert v4.DIRECT_DISCOVERY_HINTS['Fall'] == ['https://gatherer.wizards.com/DDH/en-us/73/fall']
+          assert all('atraxas-fall' not in u for xs in v4.DIRECT_DISCOVERY_HINTS.values() for u in xs)
           sec='Printed Oracle Card Name Runeclaw Bear Type Creature — Bear Rarity Common Artist X P/T 2 / 2 Set M10 Number 203 Language English'
           f=v.parse_section(sec,'Runeclaw Bear')
           assert f['parse_complete'] and f['oracle_text']=='' and f['type_line']
-          print('WS31 authority matching/discovery regression tests PASS')
+          sample={'project_card_identity':'Authority Probe','faces':[{'oracle_text':'When this creature dies, draw a card. Put a +1/+1 counter on target creature. Attach target Equipment you control to it. Copy target spell. Target creature gets +2/+2 until end of turn.','type_line':'Creature — Test','mana_cost':'{1}'}]}
+          incidence=mv2.derive_incidence(sample)
+          assert not [x for x in incidence if x['classification']=='HEURISTIC_DISCOVERY_ONLY']
+          paths={x['path'] for x in incidence if x['classification']=='AUTHORITY_DERIVED'}
+          assert {'zone-change semantics','hidden library information','counters','attachments','copies','power/toughness layers'} <= paths
+          print('WS31 authority/discovery/incidence regression tests PASS')
           PY
   acquire:
     needs: static
@@ -58,7 +66,7 @@ jobs:
       - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
       - name: Acquire official Gatherer shard
         run: >-
-          python scripts/ws31_acquire_gatherer_v3.py
+          python scripts/ws31_acquire_gatherer_v4.py
           --manifest artifacts/ws31/IDENTITY_MANIFEST.json
           --output artifacts/ws31/shards/shard-${{ matrix.shard }}.json
           --checkpoint artifacts/ws31/checkpoints/checkpoint-${{ matrix.shard }}.json
@@ -91,7 +99,7 @@ jobs:
         run: python scripts/ws29_fetch_wizards_authority.py artifacts/ws31/network
       - name: Materialize terminal authority domain
         run: >-
-          python scripts/ws31_materialize.py
+          python scripts/ws31_materialize_v2.py
           --manifest artifacts/ws31/IDENTITY_MANIFEST.json
           --shard-dir artifacts/ws31/shards
           --cr artifacts/ws31/network/CR_RAW_ACQUISITION.json
