@@ -1,0 +1,30 @@
+name: Finalist convergence contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "qualification/finalist_convergence/**"
+      - "scripts/finalist_convergence_errata.py"
+      - "scripts/lint_semantic_executability.py"
+      - "tests/qualification/test_finalist_convergence_contract.py"
+
+jobs:
+  semantic-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install jsonschema
+      - name: Rebuild immutable v1.0.1
+        run: |
+          python scripts/finalist_convergence_errata.py
+          python scripts/lint_semantic_executability.py \
+            --materialization qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
+            --schema qualification/finalist_convergence/SEMANTIC_FIXTURE_SCHEMA_v1_0_1.json \
+            --output qualification/finalist_convergence/SEMANTIC_EXECUTABILITY_REPORT.json
+      - run: python -m unittest discover -s tests/qualification -p "test_finalist_convergence_contract.py"
+      - name: Verify generated tree is clean
+        run: git diff --exit-code -- qualification/finalist_convergence

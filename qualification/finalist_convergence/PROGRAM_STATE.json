@@ -1,0 +1,31 @@
+{
+  "schema_version": "commander-lab.finalist-convergence-program-state/1.0.0",
+  "phase": "PHASE_2_3_STARTER_18_IMPLEMENTATION",
+  "source_locks": {
+    "canonical_main": {"commit": "c83e52ae79ff2242578757c0f517badbb1a2621c", "tree": "551c0d55a171508618d2b7d29e0f49b19893f886"},
+    "ws30_semantic": {"commit": "f9b2c92c6781de9e81b13458262dd03ff12ec089"},
+    "ws30_docs": {"commit": "31f4aa2378338f104eeec4659e6379ee9c61b92c", "tree": "40f761984f34e2ba229ba0fbbb2b2ff106484d30"},
+    "ws31_authority": {"commit": "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e", "tree": "6b934837fe79bcfb951245371142d013c6179580", "aggregate_digest": "d8337dc0a243fddbede3e9d2cec7b3938a1007970a23dea04855149fbfc55d5e"},
+    "forge_candidate": {"commit": "09cfad8a24be12a87761e6645c48577387f0521b", "upstream_commit": "1e604105f9e279331063824943b9222b6589f5d8", "upstream_tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4"},
+    "xmage_candidate": {"commit": "a53c2312983384eb0870746132e281bbed2f5a1d", "upstream_commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c", "upstream_tree": "f0a028b265f9c008ea0aedc4cec6b8f14500b69f"}
+  },
+  "preaudit_input": {"status": "UNAVAILABLE_UNDER_STATED_FILENAME", "searched": ["synced project sources", "locked repository refs"], "replacement_basis": "newest user-supplied confirmed findings and implementation map"},
+  "current_contract": {
+    "version": "commander-lab.semantic-fixture-materialization/1.0.1",
+    "bundle_digest": "ad1ec6e4baa83be48c0bc07e0bde66c2f8c003af29e411bad0953558154dcfee",
+    "raw_sha256": "32a41db3db8e8d4462f558af8d810a8a0892793509c8f3fee6e3eb205ab95e89",
+    "record_count": 135,
+    "unique_fixture_ids": 135,
+    "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+    "semantic_executability": {"PASS": 72, "SEMANTIC_EXECUTABILITY_DEFECT": 63},
+    "starter_18": {"PASS": 18, "SEMANTIC_EXECUTABILITY_DEFECT": 0},
+    "hard_gate": "PASS"
+  },
+  "forge_results": {"PASS": 0, "FAIL": 0, "NOT_RUN": 18},
+  "xmage_results": {"PASS": 0, "FAIL": 0, "NOT_RUN": 18},
+  "differential_counts": {"NOT_RUN": 18},
+  "direct_defects": {"forge": [], "xmage": []},
+  "blocking_dependencies": [],
+  "architecture_freeze": "UNFROZEN",
+  "next_automatic_action": "Bind both isolated candidate implementations to the exact v1.0.1 bundle and execute corrected Starter-18 in scoped JVM workflows."
+}
