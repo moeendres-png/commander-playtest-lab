@@ -23,6 +23,7 @@ permissions:
   contents: write
 
 # Push normalization is intentionally idempotent; canonical outputs are committed only after quality gates pass.
+# Final WS-30 verification must be triggered by a user-authored branch update.
 jobs:
   materialize-and-validate:
     runs-on: ubuntu-latest
