@@ -37,10 +37,8 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
         "            deck.getMain().add(PaperCard.FAKE_CARD, 40);",
         '            Deck deck = new Deck("FINALIST-SEAT-" + i);\n'
         '            forge.StaticData cardData = forge.StaticData.instance();\n'
-        '            cardData.attemptToLoadCard("Mountain");\n'
-        '            cardData.attemptToLoadCard("Rograkh, Son of Rohgahh");\n'
-        '            PaperCard mountain = cardData.fetchCard("Mountain");\n'
-        '            PaperCard commander = cardData.fetchCard("Rograkh, Son of Rohgahh");\n'
+        '            PaperCard mountain = cardData.getOrLoadCommonCard("Mountain", "10E", 1, false);\n'
+        '            PaperCard commander = cardData.getOrLoadCommonCard("Rograkh, Son of Rohgahh", "CMR", 1, false);\n'
         '            if (mountain == null || commander == null) throw new ControlledStop("FINALIST_CANONICAL_DECK_CARD_MISSING");\n'
         "            deck.getMain().add(mountain, 99);\n"
         "            deck.getOrCreate(forge.deck.DeckSection.Commander).add(commander, 1);",
@@ -74,7 +72,8 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     mapping["canonical_natural_start_deck"] = {
         "commander": "Rograkh, Son of Rohgahh",
         "mainboard": {"Mountain": 99},
-        "card_loading": "StaticData.attemptToLoadCard then fetchCard in GPL-side JVM",
+        "card_loading": "StaticData.getOrLoadCommonCard with explicit native print sets in GPL-side JVM",
+        "prints": {"Mountain": "10E:1", "Rograkh, Son of Rohgahh": "CMR:1"},
     }
     mapping["semantic_starting_player_labels"] = True
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
