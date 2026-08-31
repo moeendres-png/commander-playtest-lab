@@ -1,0 +1,220 @@
+{
+  "pass_count": 9,
+  "record_count": 13,
+  "records": [
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Boseiju Reaches Skyward",
+        "Branch of Boseiju"
+      ],
+      "issues": [],
+      "project_card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "semantic_identity": "mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b",
+      "special_structure_hints": [
+        "MULTIFACE",
+        "SAGA_TRANSFORM",
+        "TRANSFORM"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Brazen Borrower",
+        "Petty Theft"
+      ],
+      "issues": [
+        "IDENTITY_AUTHORITY_NOT_PASS"
+      ],
+      "project_card_identity": "Brazen Borrower // Petty Theft",
+      "semantic_identity": "mtg:oracle-semantic:4b3d00aae83f6a898267237601d012fc2224ed0e4f622c96ded44734cd933c3e",
+      "special_structure_hints": [
+        "ADVENTURE",
+        "MULTIFACE"
+      ],
+      "status": "UNKNOWN"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Dirgur Focusmage",
+        "Braingeyser"
+      ],
+      "issues": [],
+      "project_card_identity": "Dirgur Focusmage // Braingeyser",
+      "semantic_identity": "mtg:oracle-semantic:3e91e9f9dbd16be47235b5b19c65fad10063645dd93a44281680b99b76992edc",
+      "special_structure_hints": [
+        "MULTIFACE"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Faithful Squire",
+        "Kaiso, Memory of Loyalty"
+      ],
+      "issues": [
+        "IDENTITY_AUTHORITY_NOT_PASS"
+      ],
+      "project_card_identity": "Faithful Squire // Kaiso, Memory of Loyalty",
+      "semantic_identity": "mtg:oracle-semantic:1fe3a3c70374d3dc70788140886847c1dfb8a354b553e112224060b39bd59c52",
+      "special_structure_hints": [
+        "MULTIFACE"
+      ],
+      "status": "UNKNOWN"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Find",
+        "Finality"
+      ],
+      "issues": [],
+      "project_card_identity": "Find // Finality",
+      "semantic_identity": "mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8",
+      "special_structure_hints": [
+        "MULTIFACE"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Grizzled Outcasts",
+        "Krallenhorde Wantons"
+      ],
+      "issues": [],
+      "project_card_identity": "Grizzled Outcasts // Krallenhorde Wantons",
+      "semantic_identity": "mtg:oracle-semantic:3ed65ad54a58e7f907c66f661a6c58c4d40c860c2dd3350c01e0ab3baf3abcdf",
+      "special_structure_hints": [
+        "MULTIFACE",
+        "TRANSFORM"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Inspired Skypainter",
+        "Maestro's Gift"
+      ],
+      "issues": [
+        "IDENTITY_AUTHORITY_NOT_PASS"
+      ],
+      "project_card_identity": "Inspired Skypainter // Maestro's Gift",
+      "semantic_identity": "mtg:oracle-semantic:921acf51435c17a995ccf9d437fd040e3e773a57ebfd434ab9e56e4886b08854",
+      "special_structure_hints": [
+        "MULTIFACE"
+      ],
+      "status": "UNKNOWN"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Rise",
+        "Fall"
+      ],
+      "issues": [
+        "IDENTITY_AUTHORITY_NOT_PASS"
+      ],
+      "project_card_identity": "Rise // Fall",
+      "semantic_identity": "mtg:oracle-semantic:89de96f09862abbb54ae6ec723e6dcd08c0fce1949320f379431842caddaed00",
+      "special_structure_hints": [
+        "MULTIFACE"
+      ],
+      "status": "UNKNOWN"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Soul Seizer",
+        "Ghastly Haunting"
+      ],
+      "issues": [],
+      "project_card_identity": "Soul Seizer // Ghastly Haunting",
+      "semantic_identity": "mtg:oracle-semantic:2e516a9d863ef92d93d3accb08e6e897994e86a432e6ce8c403fa1eeaf6262b8",
+      "special_structure_hints": [
+        "MULTIFACE",
+        "TRANSFORM"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Spite",
+        "Malice"
+      ],
+      "issues": [],
+      "project_card_identity": "Spite // Malice",
+      "semantic_identity": "mtg:oracle-semantic:6d3e3de421103e835987b070b0587f91e8fd466259ec968ab7e7af2a7ab69490",
+      "special_structure_hints": [
+        "MULTIFACE"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Thraben Sentry",
+        "Thraben Militia"
+      ],
+      "issues": [],
+      "project_card_identity": "Thraben Sentry // Thraben Militia",
+      "semantic_identity": "mtg:oracle-semantic:0ec5f131f996037f61f53fee913c1b4255828e4910cf22de74e2087652748978",
+      "special_structure_hints": [
+        "MULTIFACE",
+        "TRANSFORM"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Village Ironsmith",
+        "Ironfang"
+      ],
+      "issues": [],
+      "project_card_identity": "Village Ironsmith // Ironfang",
+      "semantic_identity": "mtg:oracle-semantic:8fad261666404dbc3769b7625d45a83578e4846a1bf05c3569f7071c812721a0",
+      "special_structure_hints": [
+        "MULTIFACE",
+        "TRANSFORM"
+      ],
+      "status": "PASS"
+    },
+    {
+      "face_count": 2,
+      "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+      "faces": [
+        "Wear",
+        "Tear"
+      ],
+      "issues": [],
+      "project_card_identity": "Wear // Tear",
+      "semantic_identity": "mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1",
+      "special_structure_hints": [
+        "FUSE",
+        "MULTIFACE"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "schema_version": "commander-lab.ws31.multiface-authority/1.0.0",
+  "status": "UNKNOWN",
+  "unresolved_count": 4
+}
