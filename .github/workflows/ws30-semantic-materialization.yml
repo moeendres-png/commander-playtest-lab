@@ -43,6 +43,12 @@ jobs:
             scripts/validate_ws30_materialization.py
             tests/qualification/test_ws30_semantic_materialization.py
           )
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/build_ws30_materialization.py')
+          path.write_text(path.read_text(encoding='utf-8').replace('’', "'"), encoding='utf-8')
+          PY
           ruff format "${files[@]}"
           ruff check --fix --unsafe-fixes "${files[@]}" || true
           ruff format "${files[@]}"
