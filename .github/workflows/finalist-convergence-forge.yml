@@ -227,6 +227,7 @@ jobs:
         with:
           artifact-ids: ${{ env.XMAGE_ARTIFACT_ID }}
           path: qualification/evidence/finalist-convergence-forge/xmage-reference
+          merge-multiple: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: moeendres-png/commander-playtest-lab
           run-id: ${{ env.XMAGE_RUN_ID }}
