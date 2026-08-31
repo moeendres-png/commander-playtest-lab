@@ -125,7 +125,10 @@ final class XmageWs26QualificationSession {
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
         options.testMode = true;
-        options.skipInitShuffling = true;
+        String executionEntryMode = scenario.has("execution_entry_mode")
+                ? scenario.get("execution_entry_mode").getAsString()
+                : XmageWs26Scenario.NATIVE_STATE_LOAD;
+        options.skipInitShuffling = !XmageWs26Scenario.NATURAL_GAME_START.equals(executionEntryMode);
         game.setGameOptions(options);
         appliedScenario = XmageWs26Scenario.apply(
                 scenario, game, players, decks, knowledgeLedger, seed, startingPlayerSeat
@@ -136,6 +139,7 @@ final class XmageWs26QualificationSession {
         JsonObject payload = new JsonObject();
         payload.addProperty("scenario_id", appliedScenario.scenarioId());
         payload.addProperty("scenario_sha256", appliedScenario.scenarioSha256());
+        payload.addProperty("execution_entry_mode", appliedScenario.executionEntryMode());
         payload.add("native_validation", appliedScenario.validation().deepCopy());
         payload.addProperty("configured", true);
         return payload;
