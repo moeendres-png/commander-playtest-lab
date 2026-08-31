@@ -22,6 +22,7 @@ on:
 permissions:
   contents: write
 
+# The push normalization is intentionally idempotent; canonical outputs are committed only after quality gates pass.
 jobs:
   materialize-and-validate:
     runs-on: ubuntu-latest
