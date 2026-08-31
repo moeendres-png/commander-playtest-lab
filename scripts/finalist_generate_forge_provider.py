@@ -33,13 +33,25 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
     java = replace_once(
         java,
+        "        for (int i = 1; i <= requestedPlayers; i++) {",
+        '        String finalistLanguagesDirectory = System.getenv("COMMANDER_LAB_FORGE_LANG_DIR");\n'
+        '        if (finalistLanguagesDirectory == null || finalistLanguagesDirectory.isBlank()) throw new ControlledStop("FINALIST_FORGE_LANG_DIR_MISSING");\n'
+        '        java.nio.file.Path finalistLanguages = java.nio.file.Path.of(finalistLanguagesDirectory).toAbsolutePath().normalize();\n'
+        '        java.nio.file.Path finalistRoot = finalistLanguages.getParent().getParent().getParent();\n'
+        '        forge.CardStorageReader finalistReader = new forge.CardStorageReader(finalistRoot.resolve("forge-gui/res/cardsfolder").toString(), null, true);\n'
+        '        forge.card.CardRules finalistMountainRules = finalistReader.attemptToLoadCard("Mountain");\n'
+        '        forge.card.CardRules finalistCommanderRules = finalistReader.attemptToLoadCard("Rograkh, Son of Rohgahh");\n'
+        '        if (finalistMountainRules == null || finalistCommanderRules == null) throw new ControlledStop("FINALIST_CANONICAL_DECK_RULES_MISSING");\n'
+        "        for (int i = 1; i <= requestedPlayers; i++) {",
+        "headless direct card-rules loader",
+    )
+    java = replace_once(
+        java,
         '            Deck deck = new Deck("WS23-SEAT-" + i);\n'
         "            deck.getMain().add(PaperCard.FAKE_CARD, 40);",
         '            Deck deck = new Deck("FINALIST-SEAT-" + i);\n'
-        '            forge.StaticData cardData = forge.StaticData.instance();\n'
-        '            PaperCard mountain = cardData.getOrLoadCommonCard("Mountain", "10E", 1, false);\n'
-        '            PaperCard commander = cardData.getOrLoadCommonCard("Rograkh, Son of Rohgahh", "CMR", 1, false);\n'
-        '            if (mountain == null || commander == null) throw new ControlledStop("FINALIST_CANONICAL_DECK_CARD_MISSING");\n'
+        '            PaperCard mountain = new PaperCard(finalistMountainRules, "10E", forge.card.CardRarity.BasicLand);\n'
+        '            PaperCard commander = new PaperCard(finalistCommanderRules, "CMR", forge.card.CardRarity.Uncommon);\n'
         "            deck.getMain().add(mountain, 99);\n"
         "            deck.getOrCreate(forge.deck.DeckSection.Commander).add(commander, 1);",
         "canonical commander deck construction",
@@ -72,8 +84,8 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     mapping["canonical_natural_start_deck"] = {
         "commander": "Rograkh, Son of Rohgahh",
         "mainboard": {"Mountain": 99},
-        "card_loading": "StaticData.getOrLoadCommonCard with explicit native print sets in GPL-side JVM",
-        "prints": {"Mountain": "10E:1", "Rograkh, Son of Rohgahh": "CMR:1"},
+        "card_loading": "CardStorageReader.attemptToLoadCard -> PaperCard in GPL-side JVM; no image-selection path",
+        "prints": {"Mountain": "10E:BasicLand", "Rograkh, Son of Rohgahh": "CMR:Uncommon"},
     }
     mapping["semantic_starting_player_labels"] = True
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
