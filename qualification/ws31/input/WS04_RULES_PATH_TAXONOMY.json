@@ -1,0 +1,23 @@
+{
+  "categories": [
+    {"category":"Objects / characteristics","category_id":"17.1","paths":["object identity","card faces","ownership","control","new-object semantics","last known information","tokens","counters","attachments","copyable values","copies"]},
+    {"category":"Mana / casting / costs","category_id":"17.2","paths":["mana abilities","colored / colorless mana","mana restrictions","normal costs","alternative costs","additional costs","variable / X costs","cost increases","cost reductions","commander tax"]},
+    {"category":"Priority / stack / legal action","category_id":"17.3","paths":["legal action enumeration","priority passing","stack ordering","spell resolution","ability resolution","spell copies","ability copies"]},
+    {"category":"Targets / choices","category_id":"17.4","paths":["target legality","target recheck on resolution","multiple targets","distributed targets","retargeting","modes","optional `may` choices","simultaneous choices","APNAP choice ordering"]},
+    {"category":"Triggered abilities","category_id":"17.5","paths":["normal triggers","delayed triggers","intervening-if clauses","trigger ordering","APNAP trigger ordering","trigger multiplication / duplication"]},
+    {"category":"Replacement / prevention","category_id":"17.6","paths":["replacement effects","prevention effects","competing replacement ordering","affected-player / object choices"]},
+    {"category":"Continuous effects / layers","category_id":"17.7","paths":["continuous effects","dependency","timestamp","type-changing effects","text-changing effects","power/toughness layers","characteristic interaction"]},
+    {"category":"Zones","category_id":"17.8","paths":["library","hand","battlefield","graveyard","exile","command zone","search","shuffle","mill","reveal","recursion","linked objects","zone-change semantics"]},
+    {"category":"Combat / damage","category_id":"17.9","paths":["declaring attackers","multiple defenders","blockers","evasion","first strike","double strike","combat damage assignment","noncombat damage","deathtouch","lifelink"]},
+    {"category":"State-based actions","category_id":"17.10","paths":["lethal damage","zero / negative toughness","legend rule","illegal attachments","token cleanup where applicable","player loss","commander damage loss"]},
+    {"category":"Commander","category_id":"17.11","paths":["commander designation","Partner","command-zone movement","commander replacement choice","commander tax","commander damage tracked per commander"]},
+    {"category":"Multiplayer","category_id":"17.12","paths":["APNAP","each player / each opponent","multiple opponents","multiple defending players","player-leaves-game cleanup","ownership/control cleanup","free-for-all behavior"]},
+    {"category":"Hidden information","category_id":"17.13","paths":["concealed hand information","hidden library information","reveal boundaries","opponent knowledge boundaries","legal-information exposure"]},
+    {"category":"Rules randomness","category_id":"17.14","paths":["shuffle","random choices","deterministic seeded replay requirements"]},
+    {"category":"Special card structures","category_id":"17.15","paths":["split cards","double-faced / transforming cards","Sagas","planeswalkers / loyalty abilities","other special forms reachable in the actual-card universe"]}
+  ],
+  "category_count":15,
+  "path_count":110,
+  "schema_version":"commander-lab.ws31.ws04-rules-path-taxonomy/1.0.0",
+  "source":"WS-04 exact taxonomy reproduced in WS-11 final handoff"
+}
