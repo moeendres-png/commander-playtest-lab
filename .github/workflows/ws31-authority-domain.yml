@@ -13,7 +13,7 @@ permissions:
   contents: write
 concurrency:
   group: ws31-authority-domain
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   static:
     runs-on: ubuntu-latest
@@ -25,6 +25,20 @@ jobs:
         run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
       - name: Static fail-closed tests
         run: python -m unittest tests.qualification.test_ws31_authority_domain.TestWS31Static -v
+      - name: V2 exact-name and empty-Oracle regression tests
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          import ws31_acquire_gatherer_v2 as v
+          assert v.match_norm("Dovin's Veto") == v.match_norm('dovins-veto')
+          assert v.match_norm('Agrus Kos, Wojek Veteran') == v.match_norm('agrus-kos-wojek-veteran')
+          assert v.match_norm('Fall') != v.match_norm("Atraxa's Fall")
+          sec='Printed Oracle Card Name Runeclaw Bear Type Creature — Bear Rarity Common Artist X P/T 2 / 2 Set M10 Number 203 Language English'
+          f=v.parse_section(sec,'Runeclaw Bear')
+          assert f['parse_complete'] and f['oracle_text']=='' and f['type_line']
+          print('WS31 V2 authority matching regression tests PASS')
+          PY
   acquire:
     needs: static
     strategy:
@@ -41,7 +55,7 @@ jobs:
       - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
       - name: Acquire official Gatherer shard
         run: >-
-          python scripts/ws31_acquire_gatherer.py
+          python scripts/ws31_acquire_gatherer_v2.py
           --manifest artifacts/ws31/IDENTITY_MANIFEST.json
           --output artifacts/ws31/shards/shard-${{ matrix.shard }}.json
           --checkpoint artifacts/ws31/checkpoints/checkpoint-${{ matrix.shard }}.json
