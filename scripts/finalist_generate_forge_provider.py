@@ -58,6 +58,12 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
     java = replace_once(
         java,
+        "            RegisteredPlayer rp = new RegisteredPlayer(deck);",
+        "            RegisteredPlayer rp = RegisteredPlayer.forCommander(deck);",
+        "native Commander registration",
+    )
+    java = replace_once(
+        java,
         "    static String sessionSnapshot(Game game) {",
         "    static String singleCommandName(Player player) {\n"
         "        java.util.List<Card> command = new java.util.ArrayList<>(player.getCardsIn(ZoneType.Command));\n"
@@ -86,6 +92,7 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
         "mainboard": {"Mountain": 99},
         "card_loading": "CardStorageReader.attemptToLoadCard -> PaperCard in GPL-side JVM; no image-selection path",
         "prints": {"Mountain": "10E:BasicLand", "Rograkh, Son of Rohgahh": "CMR:Uncommon"},
+        "registration": "RegisteredPlayer.forCommander",
     }
     mapping["semantic_starting_player_labels"] = True
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
