@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""WS-31 Gatherer acquisition hardening after full-domain diagnostic run.
+"""WS-31 Gatherer acquisition hardening after full-domain diagnostic runs.
 
-This wrapper preserves the WS-31 transport/checkpoint/output contract while
-removing heuristic authority matching. Detail URLs are accepted only when the
-URL slug is an exact card-face name after punctuation/diacritic folding, and
-vanilla/basic-land pages with no Rules Text label are valid empty Oracle text.
+Discovery may use several ordinary public exact/prefix searches plus the legacy
+public exact-name search already proven by WS-29. Authority acceptance remains
+strict: a returned new Gatherer detail URL is accepted only when its slug is an
+exact card-face name after punctuation/diacritic folding. Vanilla/basic-land
+pages with no Rules Text label are valid empty Oracle text.
 """
 from __future__ import annotations
 
 import re
 import time
 import unicodedata
-from urllib.parse import urljoin
+from urllib.parse import quote, urljoin, urlparse
 
 import ws31_acquire_gatherer as base
+
+LEGACY_SEARCH = "https://gatherer.wizards.com/Pages/Search/Default.aspx?name="
 
 
 def match_norm(value: str) -> str:
@@ -32,6 +35,9 @@ def query_variants(face: str) -> list[str]:
         vals.append(face.replace("'", "").replace("’", ""))
     if "-" in face:
         vals.append(face.replace("-", " "))
+    tokens = folded.split()
+    if len(tokens) >= 2:
+        vals.extend([" ".join(tokens[:2]), tokens[0]])
     out = []
     for value in vals:
         value = " ".join(value.split())
@@ -40,13 +46,25 @@ def query_variants(face: str) -> list[str]:
     return out
 
 
+def legacy_search_url(face: str) -> str:
+    return LEGACY_SEARCH + quote("+[" + face + "]", safe="")
+
+
+def detail_url_matches_face(url: str | None, face: str) -> bool:
+    if not url:
+        return False
+    path = urlparse(url).path
+    if not re.search(r"/[A-Za-z0-9_-]+/en-us/\d+/[^/?#]+$", path):
+        return False
+    return match_norm(base.slug_norm(url)) == match_norm(face)
+
+
 def exact_detail_from_search(html: bytes, face: str):
     hrefs = list(dict.fromkeys(
         m.group("href") for m in base.DETAIL_RE.finditer(html.decode("utf-8", errors="replace"))
     ))
-    target = match_norm(face)
-    exact = [href for href in hrefs if match_norm(base.slug_norm(href)) == target]
-    return (urljoin(base.BASE, exact[0]) if exact else None), hrefs[:20]
+    exact = [href for href in hrefs if detail_url_matches_face(urljoin(base.BASE, href), face)]
+    return (urljoin(base.BASE, exact[0]) if exact else None), hrefs[:40]
 
 
 def extract_oracle_section(text: str, face: str):
@@ -115,18 +133,27 @@ def acquire_face(face: str, delay: float):
     candidates = []
     for query in query_variants(face):
         body, meta = base.fetch(base.search_url(query))
-        searches.append({"query": query, "transport": meta})
+        searches.append({"mode": "NEW_SEARCH", "query": query, "transport": meta})
         if meta and meta.get("http_status") == 200:
             detail, found = exact_detail_from_search(body, face)
             candidates.extend(found)
             if detail:
                 break
         time.sleep(delay)
+    if not detail:
+        body, meta = base.fetch(legacy_search_url(face))
+        searches.append({"mode": "LEGACY_EXACT_NAME", "query": face, "transport": meta})
+        if meta and meta.get("http_status") == 200:
+            if detail_url_matches_face(meta.get("final_url"), face):
+                detail = meta.get("final_url")
+            else:
+                detail, found = exact_detail_from_search(body, face)
+                candidates.extend(found)
     out = {
         "requested_face_name": face,
         "search": searches[0]["transport"] if searches else None,
         "search_attempts": searches,
-        "detail_candidates": list(dict.fromkeys(candidates))[:30],
+        "detail_candidates": list(dict.fromkeys(candidates))[:40],
         "official_gatherer_url": detail,
         "acquisition_status": "UNKNOWN",
         "failure_reason": None,
