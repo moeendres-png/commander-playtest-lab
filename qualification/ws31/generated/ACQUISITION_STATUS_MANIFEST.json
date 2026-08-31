@@ -125,7 +125,7 @@
       "failure_reason": null,
       "project_card_identity": "Agrus Kos, Wojek Veteran",
       "semantic_identity": "mtg:oracle-semantic:7f959643bd56505a1e83ecc1f346f4c8839afff091aa5bfa50e6153f7c3378be",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -209,7 +209,7 @@
       "failure_reason": null,
       "project_card_identity": "Angel's Feather",
       "semantic_identity": "mtg:oracle-semantic:f98334af44964d305307947062db3a7507129f5addb980012bbd889dbd850119",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -413,7 +413,7 @@
       "failure_reason": null,
       "project_card_identity": "Avatar of Discord",
       "semantic_identity": "mtg:oracle-semantic:e67b9181d6112cff381df2fada4fec9d0b3ada22ad665c688228fb40ef0a93fe",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -899,7 +899,7 @@
       "failure_reason": null,
       "project_card_identity": "Brazen Borrower // Petty Theft",
       "semantic_identity": "mtg:oracle-semantic:4b3d00aae83f6a898267237601d012fc2224ed0e4f622c96ded44734cd933c3e",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -1163,7 +1163,7 @@
       "failure_reason": null,
       "project_card_identity": "Chandra Nalaar",
       "semantic_identity": "mtg:oracle-semantic:a240cd0c144ffe8609427e6fa236afd26e889629916e6af3e519bbed9b702369",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -1367,7 +1367,7 @@
       "failure_reason": null,
       "project_card_identity": "Consume Spirit",
       "semantic_identity": "mtg:oracle-semantic:817c6d4de1b0a004dd6383170a786a98537081ef684ad33fa202b9103f09b88c",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -1751,7 +1751,7 @@
       "failure_reason": null,
       "project_card_identity": "Demon's Horn",
       "semantic_identity": "mtg:oracle-semantic:4d1eaac40febc132a9c109ce098d47e54743fa7908007d5e6ebb5bf66833822e",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -2117,7 +2117,7 @@
       "failure_reason": null,
       "project_card_identity": "Elspeth, Knight-Errant",
       "semantic_identity": "mtg:oracle-semantic:b07e2a9986f351340ab9802e7be9b24ebe19be8ba3bf7e864fb411a502cb6878",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -2501,7 +2501,7 @@
       "failure_reason": null,
       "project_card_identity": "Firemane Angel",
       "semantic_identity": "mtg:oracle-semantic:4c8aa9d88f274fbb17a75bcdde6980807e4bdafedd4f44ee51cfcaae7e393495",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -3353,7 +3353,7 @@
       "failure_reason": null,
       "project_card_identity": "Healing Salve",
       "semantic_identity": "mtg:oracle-semantic:b060a49d618a53503b00b68f9f763d08d941576834bf4143b47bfdea4646a0bc",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -3659,7 +3659,7 @@
       "failure_reason": null,
       "project_card_identity": "Inspired Skypainter // Maestro's Gift",
       "semantic_identity": "mtg:oracle-semantic:921acf51435c17a995ccf9d437fd040e3e773a57ebfd434ab9e56e4886b08854",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -4895,7 +4895,7 @@
       "failure_reason": null,
       "project_card_identity": "Nicol Bolas, Planeswalker",
       "semantic_identity": "mtg:oracle-semantic:498ebe51cf5e94a3b768b847b63baa3e3199706eadfc9efaec7729e7ad30759a",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -5789,7 +5789,7 @@
       "failure_reason": null,
       "project_card_identity": "Rise // Fall",
       "semantic_identity": "mtg:oracle-semantic:89de96f09862abbb54ae6ec723e6dcd08c0fce1949320f379431842caddaed00",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -6551,7 +6551,7 @@
       "failure_reason": null,
       "project_card_identity": "Sorin Markov",
       "semantic_identity": "mtg:oracle-semantic:b7957f3025c0318815fd2a7133cee897b5b4dbae7a89175670feb8fcb5832914",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -7733,7 +7733,7 @@
       "failure_reason": null,
       "project_card_identity": "Unholy Strength",
       "semantic_identity": "mtg:oracle-semantic:f3974e05784e83f75b9b329ac81671068fb3cd3e6e98a98e77cac53d4b2a1bca",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -7883,7 +7883,7 @@
       "failure_reason": null,
       "project_card_identity": "Venerable Monk",
       "semantic_identity": "mtg:oracle-semantic:06515c7bd0b9ea08a4a9c45a22058d43acc63975300516c98ea1fe3ff82862bf",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -7925,7 +7925,7 @@
       "failure_reason": null,
       "project_card_identity": "Vicious Hunger",
       "semantic_identity": "mtg:oracle-semantic:2eb902306a44f0816e88171608bba8174fb87c555b48c210b6009338d4d0a18e",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,
@@ -7949,7 +7949,7 @@
       "failure_reason": null,
       "project_card_identity": "Vine Trellis",
       "semantic_identity": "mtg:oracle-semantic:a0abad8be7f0c402080537445a4a50b7f1f33ecff8cb7424aade232dabf3ec49",
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "failure_reason": null,

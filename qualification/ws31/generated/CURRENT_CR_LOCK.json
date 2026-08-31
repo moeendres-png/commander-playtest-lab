@@ -2,7 +2,7 @@
   "expected_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
   "observed_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
   "official_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.pdf",
-  "retrieved_at_utc": "2026-08-31T09:28:09.706394Z",
+  "retrieved_at_utc": "2026-08-31T10:51:43.631352Z",
   "schema_version": "commander-lab.ws31.current-cr-lock/1.0.0",
   "status": "PASS"
 }

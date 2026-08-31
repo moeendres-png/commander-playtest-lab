@@ -1,5 +1,5 @@
 {
-  "pass_count": 9,
+  "pass_count": 12,
   "record_count": 13,
   "records": [
     {
@@ -26,16 +26,14 @@
         "Brazen Borrower",
         "Petty Theft"
       ],
-      "issues": [
-        "IDENTITY_AUTHORITY_NOT_PASS"
-      ],
+      "issues": [],
       "project_card_identity": "Brazen Borrower // Petty Theft",
       "semantic_identity": "mtg:oracle-semantic:4b3d00aae83f6a898267237601d012fc2224ed0e4f622c96ded44734cd933c3e",
       "special_structure_hints": [
         "ADVENTURE",
         "MULTIFACE"
       ],
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "face_count": 2,
@@ -107,15 +105,13 @@
         "Inspired Skypainter",
         "Maestro's Gift"
       ],
-      "issues": [
-        "IDENTITY_AUTHORITY_NOT_PASS"
-      ],
+      "issues": [],
       "project_card_identity": "Inspired Skypainter // Maestro's Gift",
       "semantic_identity": "mtg:oracle-semantic:921acf51435c17a995ccf9d437fd040e3e773a57ebfd434ab9e56e4886b08854",
       "special_structure_hints": [
         "MULTIFACE"
       ],
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "face_count": 2,
@@ -124,15 +120,13 @@
         "Rise",
         "Fall"
       ],
-      "issues": [
-        "IDENTITY_AUTHORITY_NOT_PASS"
-      ],
+      "issues": [],
       "project_card_identity": "Rise // Fall",
       "semantic_identity": "mtg:oracle-semantic:89de96f09862abbb54ae6ec723e6dcd08c0fce1949320f379431842caddaed00",
       "special_structure_hints": [
         "MULTIFACE"
       ],
-      "status": "UNKNOWN"
+      "status": "PASS"
     },
     {
       "face_count": 2,
@@ -216,5 +210,5 @@
   ],
   "schema_version": "commander-lab.ws31.multiface-authority/1.0.0",
   "status": "UNKNOWN",
-  "unresolved_count": 4
+  "unresolved_count": 1
 }
