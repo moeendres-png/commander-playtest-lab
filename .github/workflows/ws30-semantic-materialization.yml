@@ -22,7 +22,7 @@ on:
 permissions:
   contents: write
 
-# The push normalization is intentionally idempotent; canonical outputs are committed only after quality gates pass.
+# Push normalization is intentionally idempotent; canonical outputs are committed only after quality gates pass.
 jobs:
   materialize-and-validate:
     runs-on: ubuntu-latest
@@ -88,7 +88,9 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add qualification/materialization scripts/build_ws30_materialization.py
-          git add -A scripts/ws30_bootstrap_chunks
+          if [[ -d scripts/ws30_bootstrap_chunks ]]; then
+            git add -A scripts/ws30_bootstrap_chunks
+          fi
           if git diff --cached --quiet; then
             echo 'Generated machine outputs already match committed bytes.'
           else
