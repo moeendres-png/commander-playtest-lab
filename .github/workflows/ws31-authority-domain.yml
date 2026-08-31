@@ -1,0 +1,106 @@
+name: WS-31 Full Actual-Card Oracle Domain
+on:
+  workflow_dispatch:
+  push:
+    branches: [ws31/full-actual-card-oracle-domain]
+    paths:
+      - 'qualification/ws31/WS31_SOURCE_LOCK.json'
+      - 'qualification/ws31/input/**'
+      - 'scripts/ws31_*.py'
+      - 'tests/qualification/test_ws31_authority_domain.py'
+      - '.github/workflows/ws31-authority-domain.yml'
+permissions:
+  contents: write
+concurrency:
+  group: ws31-authority-domain
+  cancel-in-progress: false
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Build exact 1,385 manifest
+        run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
+      - name: Static fail-closed tests
+        run: python -m unittest tests.qualification.test_ws31_authority_domain.TestWS31Static -v
+  acquire:
+    needs: static
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: {shard: [0, 1, 2, 3]}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: mkdir -p artifacts/ws31/shards artifacts/ws31/checkpoints
+      - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
+      - name: Acquire official Gatherer shard
+        run: >-
+          python scripts/ws31_acquire_gatherer.py
+          --manifest artifacts/ws31/IDENTITY_MANIFEST.json
+          --output artifacts/ws31/shards/shard-${{ matrix.shard }}.json
+          --checkpoint artifacts/ws31/checkpoints/checkpoint-${{ matrix.shard }}.json
+          --shard-index ${{ matrix.shard }} --shard-count 4 --delay 0.12
+      - name: Prove no raw pages retained
+        run: |
+          if find artifacts/ws31 -type f \( -iname '*.html' -o -iname '*.htm' -o -iname '*.pdf' \) | grep -q .; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws31-shard-${{ matrix.shard }}
+          path: artifacts/ws31/shards/shard-${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 30
+  materialize:
+    needs: acquire
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: mkdir -p artifacts/ws31/shards artifacts/ws31/network qualification/ws31/generated
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ws31-shard-*
+          path: artifacts/ws31/shards
+          merge-multiple: true
+      - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
+      - name: Reacquire current official CR raw-byte lock
+        run: python scripts/ws29_fetch_wizards_authority.py artifacts/ws31/network
+      - name: Materialize terminal authority domain
+        run: >-
+          python scripts/ws31_materialize.py
+          --manifest artifacts/ws31/IDENTITY_MANIFEST.json
+          --shard-dir artifacts/ws31/shards
+          --cr artifacts/ws31/network/CR_RAW_ACQUISITION.json
+          --taxonomy qualification/ws31/input/WS04_RULES_PATH_TAXONOMY.json
+          --ws29-baseline qualification/ws31/input/WS29_REGRESSION_BASELINE.json.zlib
+          --outdir qualification/ws31/generated
+      - name: Validate generated structure
+        run: python -m unittest tests.qualification.test_ws31_authority_domain -v
+      - name: Prove no bulk copyrighted pages retained
+        run: |
+          if find qualification/ws31 artifacts/ws31 -type f \( -iname '*.html' -o -iname '*.htm' -o -iname '*.pdf' \) | grep -q .; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws31-authority-domain-evidence
+          path: |
+            qualification/ws31/generated/
+            artifacts/ws31/network/CR_RAW_ACQUISITION.json
+            artifacts/ws31/network/GATHERER_ACCESS.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Commit normalized authoritative outputs
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qualification/ws31/generated
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'data(ws31): materialize full actual-card authority domain'
+          git push origin HEAD:ws31/full-actual-card-oracle-domain
