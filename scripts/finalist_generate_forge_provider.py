@@ -65,23 +65,23 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     java = replace_once(
         java,
         "    static String sessionSnapshot(Game game) {",
-        "    static String singleCommandName(Player player) {\n"
-        "        java.util.List<Card> command = new java.util.ArrayList<>(player.getCardsIn(ZoneType.Command));\n"
-        "        if (command.size() != 1) return null;\n"
-        "        return command.get(0).getName();\n"
+        "    static String singleCommanderName(Player player) {\n"
+        "        java.util.List<Card> commanders = player.getCommanders();\n"
+        "        if (commanders.size() != 1) return null;\n"
+        "        return commanders.get(0).getName();\n"
         "    }\n\n"
         "    static String sessionSnapshot(Game game) {",
-        "command snapshot helper",
+        "commander semantic snapshot helper",
     )
     java = replace_once(
         java,
         '                .append(",\\\"library_count\\\":").append(p.getCardsIn(ZoneType.Library).size())\n'
         '                .append("}");',
         '                .append(",\\\"library_count\\\":").append(p.getCardsIn(ZoneType.Library).size())\n'
-        '                .append(",\\\"command_count\\\":").append(p.getCardsIn(ZoneType.Command).size())\n'
-        '                .append(",\\\"commander\\\":").append(esc(singleCommandName(p)))\n'
+        '                .append(",\\\"command_count\\\":").append(p.getCommanders().size())\n'
+        '                .append(",\\\"commander\\\":").append(esc(singleCommanderName(p)))\n'
         '                .append("}");',
-        "native command-zone snapshot",
+        "native commander semantic snapshot",
     )
 
     mapping = dict(mapping)
@@ -94,6 +94,7 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
         "prints": {"Mountain": "10E:BasicLand", "Rograkh, Son of Rohgahh": "CMR:Uncommon"},
         "registration": "RegisteredPlayer.forCommander",
     }
+    mapping["commander_semantic_projection"] = "Player.getCommanders(); excludes Forge-owned Commander Effect object in ZoneType.Command"
     mapping["semantic_starting_player_labels"] = True
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
     mapping["stop_after_priority_source"] = "COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY"
