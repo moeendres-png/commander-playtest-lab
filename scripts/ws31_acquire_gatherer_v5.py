@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 """WS-31 acquisition v5: official shared-card alternative-face authority.
 
-Gatherer's current site represents some Adventure/prepare cards under one
-primary card URL rather than exposing an independently addressable URL for the
-alternative spell face.  WS-31's source lock explicitly permits official
-Wizards release notes/rulings as authority (older official notes supplemental).
+Current Gatherer represents two observed alternative spell faces on the same
+card page as the primary face rather than through separately addressable face
+URLs.  The frozen WS-31 authority policy permits official Wizards release
+notes/rulings, with older notes supplemental only.
 
-This layer repairs only two observed shared-card representation gaps.  PASS is
-possible only when:
-  * the primary face has already PASSed against current official Gatherer;
-  * an official magic.wizards.com release-notes page is fetched successfully;
-  * that page contains the exact alternative face name, mana cost, type line,
-    and a non-empty Oracle text immediately before a card-specific ruling;
-  * the release-note text belongs to the same named card section.
-
-No secondary-source data and no heuristic/fuzzy card matching is used.
+A fallback can PASS only when the primary face already PASSed current Gatherer
+and the official Wizards release-notes page is fetched and exactly validates
+the alternative face.  Failures retain diagnostic transport/parse evidence and
+remain UNKNOWN.
 """
 from __future__ import annotations
 
@@ -64,15 +59,11 @@ def _official_release_notes(url: str | None) -> bool:
 
 
 def _extract_release_note_face(text: str, spec: dict) -> dict | None:
-    """Extract one exact alternative face from a bounded official card section."""
     flat = " ".join((text or "").split())
     low = _fold(flat)
     section_anchor = _fold(spec["section_anchor"])
     face_anchor = _fold(f'{spec["face"]} {spec["mana_cost"]} {spec["type_line"]}')
     ruling_anchor = _fold(spec["ruling_anchor"])
-
-    # Require the named primary card section first.  Use the first alternative
-    # face occurrence after it whose ruling anchor also follows nearby.
     section_pos = low.find(section_anchor)
     if section_pos < 0:
         return None
@@ -82,14 +73,9 @@ def _extract_release_note_face(text: str, spec: dict) -> dict | None:
     ruling_pos = low.find(ruling_anchor, face_pos)
     if ruling_pos < 0 or ruling_pos - face_pos > 2500:
         return None
-
-    # Recover positions from the original flattened string using normalized
-    # literal searches.  Wizards currently uses the exact punctuation below;
-    # if that changes, fail closed rather than infer.
     literal_header = f'{spec["face"]} {spec["mana_cost"]} {spec["type_line"]}'
     start = flat.find(literal_header)
     if start < 0:
-        # tolerate only straight/curly apostrophe presentation differences
         alt_header = literal_header.replace("'", "’")
         start = flat.find(alt_header)
         if start < 0:
@@ -98,38 +84,62 @@ def _extract_release_note_face(text: str, spec: dict) -> dict | None:
     start += len(literal_header)
     end = flat.find(spec["ruling_anchor"], start)
     if end < 0:
-        alt_ruling = spec["ruling_anchor"].replace("'", "’")
-        end = flat.find(alt_ruling, start)
+        end = flat.find(spec["ruling_anchor"].replace("'", "’"), start)
     if end < 0 or end - start > 2200:
         return None
     oracle = flat[start:end].strip(" :-•")
     if not oracle or spec["face"].casefold() in oracle[:30].casefold():
         return None
-    # Release-note layout must not have run into another card heading.
     if "Card-Specific Notes" in oracle or "CARD-SPECIFIC NOTES" in oracle:
         return None
     return {"oracle_text": oracle}
 
 
-def _release_note_face_result(identity_record: dict, spec: dict) -> dict | None:
+def probe_release_note(spec: dict) -> tuple[dict | None, dict]:
+    body, meta = base.fetch(spec["url"])
+    diag = {
+        "requested_face_name": spec["face"],
+        "requested_url": spec["url"],
+        "transport": meta,
+        "official_release_notes_host_path_valid": False,
+        "exact_face_parse": False,
+        "failure_stage": None,
+    }
+    if not meta or meta.get("http_status") != 200:
+        diag["failure_stage"] = "RELEASE_NOTES_HTTP_FAILURE"
+        return None, diag
+    final_url = meta.get("final_url") or spec["url"]
+    diag["official_release_notes_host_path_valid"] = _official_release_notes(final_url)
+    if not diag["official_release_notes_host_path_valid"]:
+        diag["failure_stage"] = "RELEASE_NOTES_FINAL_URL_NOT_CANONICAL_WIZARDS"
+        return None, diag
+    text = base.visible_text(body)
+    parsed = _extract_release_note_face(text, spec)
+    diag["visible_text_sha256"] = base.sha256_bytes(text.encode("utf-8"))
+    diag["visible_text_byte_count"] = len(text.encode("utf-8"))
+    diag["exact_face_parse"] = bool(parsed)
+    if not parsed:
+        diag["failure_stage"] = "EXACT_RELEASE_NOTE_FACE_PARSE_FAILED"
+        return None, diag
+    return parsed, diag
+
+
+def _release_note_face_result(identity_record: dict, spec: dict) -> tuple[dict | None, dict]:
     primary = next(
         (f for f in identity_record.get("faces", [])
          if f.get("requested_face_name") == spec["primary_face"] and f.get("acquisition_status") == "PASS"),
         None,
     )
     if not primary or not primary.get("official_gatherer_url"):
-        return None
+        return None, {"requested_face_name": spec["face"], "failure_stage": "PRIMARY_CURRENT_GATHERER_PASS_MISSING"}
     if urlparse(primary["official_gatherer_url"]).hostname != "gatherer.wizards.com":
-        return None
+        return None, {"requested_face_name": spec["face"], "failure_stage": "PRIMARY_GATHERER_HOST_INVALID"}
 
-    body, meta = base.fetch(spec["url"])
-    if not meta or meta.get("http_status") != 200 or not _official_release_notes(meta.get("final_url") or spec["url"]):
-        return None
-    parsed = _extract_release_note_face(base.visible_text(body), spec)
+    parsed, diag = probe_release_note(spec)
     if not parsed:
-        return None
-
-    colors = sorted(set(re.findall(r"\{([WUBRG])\}", spec["mana_cost"], flags=re.I)))
+        return None, diag
+    meta = diag["transport"]
+    colors = sorted(set(x.upper() for x in re.findall(r"\{([WUBRG])\}", spec["mana_cost"], flags=re.I)))
     evidence_fragment = " | ".join([
         spec["primary_face"], spec["face"], spec["mana_cost"], spec["type_line"], parsed["oracle_text"]
     ])
@@ -165,7 +175,8 @@ def _release_note_face_result(identity_record: dict, spec: dict) -> dict | None:
         "acquisition_status": "PASS",
         "failure_reason": None,
         "authority_role": spec["authority_role"],
-    }
+        "release_note_probe": diag,
+    }, diag
 
 
 def acquire_identity(rec, delay):
@@ -173,11 +184,10 @@ def acquire_identity(rec, delay):
     spec = OFFICIAL_RELEASE_NOTE_FALLBACKS.get(rec.get("project_card_identity"))
     if not spec or out.get("acquisition_status") == "PASS":
         return out
-
-    replacement = _release_note_face_result(out, spec)
+    replacement, diag = _release_note_face_result(out, spec)
+    out["official_release_note_fallback_attempt"] = diag
     if not replacement:
         return out
-
     faces = list(out.get("faces") or [])
     replaced = False
     for i, face in enumerate(faces):
@@ -186,6 +196,7 @@ def acquire_identity(rec, delay):
             replaced = True
             break
     if not replaced:
+        out["official_release_note_fallback_attempt"]["failure_stage"] = "TARGET_UNKNOWN_FACE_RECORD_NOT_FOUND"
         return out
     out["faces"] = faces
     statuses = [f.get("acquisition_status") for f in faces]
@@ -200,7 +211,6 @@ def acquire_identity(rec, delay):
 
 
 base.acquire_identity = acquire_identity
-
 
 if __name__ == "__main__":
     raise SystemExit(base.main())
