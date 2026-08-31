@@ -19,12 +19,6 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
 
     java = replace_once(
         java,
-        "import forge.deck.Deck;",
-        "import forge.StaticData;\nimport forge.deck.Deck;\nimport forge.deck.DeckSection;",
-        "deck imports",
-    )
-    java = replace_once(
-        java,
         '                labels.add("PLAYER");',
         '                labels.add("PLAYER:" + p.getName());',
         "semantic starting-player labels",
@@ -42,11 +36,11 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
         '            Deck deck = new Deck("WS23-SEAT-" + i);\n'
         "            deck.getMain().add(PaperCard.FAKE_CARD, 40);",
         '            Deck deck = new Deck("FINALIST-SEAT-" + i);\n'
-        '            PaperCard mountain = StaticData.instance().getCommonCards().getCard("Mountain");\n'
-        '            PaperCard commander = StaticData.instance().getCommonCards().getCard("Rograkh, Son of Rohgahh");\n'
+        '            PaperCard mountain = forge.StaticData.instance().getCommonCards().getCard("Mountain");\n'
+        '            PaperCard commander = forge.StaticData.instance().getCommonCards().getCard("Rograkh, Son of Rohgahh");\n'
         '            if (mountain == null || commander == null) throw new ControlledStop("FINALIST_CANONICAL_DECK_CARD_MISSING");\n'
         "            deck.getMain().add(mountain, 99);\n"
-        "            deck.getOrCreate(DeckSection.Commander).add(commander, 1);",
+        "            deck.getOrCreate(forge.deck.DeckSection.Commander).add(commander, 1);",
         "canonical commander deck construction",
     )
     java = replace_once(
