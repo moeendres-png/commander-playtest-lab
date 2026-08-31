@@ -36,8 +36,11 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
         '            Deck deck = new Deck("WS23-SEAT-" + i);\n'
         "            deck.getMain().add(PaperCard.FAKE_CARD, 40);",
         '            Deck deck = new Deck("FINALIST-SEAT-" + i);\n'
-        '            PaperCard mountain = forge.StaticData.instance().getCommonCards().getCard("Mountain");\n'
-        '            PaperCard commander = forge.StaticData.instance().getCommonCards().getCard("Rograkh, Son of Rohgahh");\n'
+        '            forge.StaticData cardData = forge.StaticData.instance();\n'
+        '            cardData.attemptToLoadCard("Mountain");\n'
+        '            cardData.attemptToLoadCard("Rograkh, Son of Rohgahh");\n'
+        '            PaperCard mountain = cardData.fetchCard("Mountain");\n'
+        '            PaperCard commander = cardData.fetchCard("Rograkh, Son of Rohgahh");\n'
         '            if (mountain == null || commander == null) throw new ControlledStop("FINALIST_CANONICAL_DECK_CARD_MISSING");\n'
         "            deck.getMain().add(mountain, 99);\n"
         "            deck.getOrCreate(forge.deck.DeckSection.Commander).add(commander, 1);",
@@ -66,11 +69,12 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
 
     mapping = dict(mapping)
-    mapping["schema_version"] = "finalist-forge-provider-overlay/1.0.0"
+    mapping["schema_version"] = "finalist-forge-provider-overlay/1.0.1"
     mapping["base_schema_version"] = "ws25-player-controller-broad-mapping/1.0.0"
     mapping["canonical_natural_start_deck"] = {
         "commander": "Rograkh, Son of Rohgahh",
         "mainboard": {"Mountain": 99},
+        "card_loading": "StaticData.attemptToLoadCard then fetchCard in GPL-side JVM",
     }
     mapping["semantic_starting_player_labels"] = True
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
