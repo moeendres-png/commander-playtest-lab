@@ -69,7 +69,7 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
 
     mapping = dict(mapping)
-    mapping["schema_version"] = "finalist-forge-provider-overlay/1.0.1"
+    mapping["schema_version"] = "finalist-forge-provider-overlay/1.0.0"
     mapping["base_schema_version"] = "ws25-player-controller-broad-mapping/1.0.0"
     mapping["canonical_natural_start_deck"] = {
         "commander": "Rograkh, Son of Rohgahh",
