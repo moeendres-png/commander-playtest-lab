@@ -1,0 +1,51 @@
+name: WS-31 Final Authority Validation
+on:
+  workflow_dispatch:
+  push:
+    branches: [ws31/full-actual-card-oracle-domain]
+    paths:
+      - 'qualification/ws31/generated/**'
+      - 'qualification/WS31_FINAL_HANDOFF.md'
+      - '.github/workflows/ws31-final-validation.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Verify source ancestry and authorized diff boundary
+        run: |
+          set -euo pipefail
+          BASE=362d9351f749b6f49d67cd1ef4eed298b8922b68
+          git merge-base --is-ancestor "$BASE" HEAD
+          bad=$(git diff --name-only "$BASE"..HEAD | grep -Ev '^((qualification/ws31/|qualification/WS31_FINAL_HANDOFF\.md$|scripts/ws31_[^/]+\.py$|tests/qualification/test_ws31_authority_domain\.py$|\.github/workflows/ws31-[^/]+\.yml$))' || true)
+          if [ -n "$bad" ]; then echo "Unauthorized WS31 diff paths:"; echo "$bad"; exit 1; fi
+          if git diff --name-only "$BASE"..HEAD | grep -Ei '(forge|xmage|phase.?rs|argentum)' ; then echo 'Candidate engine path modified'; exit 1; fi
+      - name: Validate committed authority outputs
+        env: {WS31_REQUIRE_CLOSE: '1'}
+        run: python -m unittest tests.qualification.test_ws31_authority_domain -v
+      - name: Verify SHA256SUMS and emit exact-head evidence
+        run: |
+          set -euo pipefail
+          cd qualification/ws31/generated
+          sha256sum -c SHA256SUMS
+          cd ../../..
+          python - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          cov=json.loads(Path('qualification/ws31/generated/COVERAGE.json').read_text())
+          result=json.loads(Path('qualification/ws31/generated/WS31_RESULT.json').read_text())
+          evidence={'schema_version':'commander-lab.ws31.final-validation/1.0.0','commit':os.environ['GITHUB_SHA'],'tree':subprocess.check_output(['git','show','-s','--format=%T','HEAD'],text=True).strip(),'run_id':os.environ['GITHUB_RUN_ID'],'run_attempt':os.environ['GITHUB_RUN_ATTEMPT'],'event':os.environ['GITHUB_EVENT_NAME'],'workstream_status':result['workstream_status'],'coverage':cov,'authorized_diff_boundary':'PASS','no_rules_core_selected':True}
+          Path('WS31_FINAL_VALIDATION.json').write_text(json.dumps(evidence,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(evidence,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws31-final-validation
+          path: WS31_FINAL_VALIDATION.json
+          if-no-files-found: error
+          retention-days: 30
