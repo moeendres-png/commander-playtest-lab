@@ -45,6 +45,12 @@ jobs:
           mkdir -p qualification/evidence/finalist-convergence-forge
           printf '%s\n' "$(git rev-parse HEAD)" > qualification/evidence/finalist-convergence-forge/CONVERGENCE_HEAD.txt
 
+      - name: Verify historical Forge bootstrap provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code "$FORGE_BASE" -- qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
+
       - name: Mount exact neutral v1.0.1 contract
         uses: actions/checkout@v4
         with:
@@ -113,6 +119,7 @@ jobs:
             scripts/ws23_generate_forge_vertical_provider.py \
             scripts/ws25_generate_forge_broad_provider.py \
             scripts/finalist_generate_forge_provider.py \
+            scripts/finalist_generate_forge_bootstrap.py \
             candidate-qualification/finalist-convergence-forge/run_canonical_starter18.py \
             candidate-qualification/finalist-convergence-forge/compare_same_records.py
 
@@ -133,7 +140,7 @@ jobs:
             -DincludeScope=compile \
             -Dmdep.outputFile="$GITHUB_WORKSPACE/qualification/evidence/finalist-convergence-forge/dependency-classpath.txt"
 
-      - name: Generate WS-25 sidecar with scoped finalist overlay
+      - name: Generate WS-25 sidecar with scoped finalist overlays
         shell: bash
         run: |
           set -euo pipefail
@@ -145,6 +152,9 @@ jobs:
             --forge-commit "$FORGE_COMMIT" \
             --forge-tree "$FORGE_TREE" \
             | tee qualification/evidence/finalist-convergence-forge/generator-summary.json
+          python scripts/finalist_generate_forge_bootstrap.py \
+            --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
           python - <<'PY'
           import json
           p=json.load(open('qualification/evidence/finalist-convergence-forge/generated/finalist_forge_provider_mapping.json'))
@@ -159,8 +169,7 @@ jobs:
         run: |
           set -euo pipefail
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi' \
-            qualification/evidence/finalist-convergence-forge/generated/java \
-            qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
+            qualification/evidence/finalist-convergence-forge/generated/java
           ! grep -Eq 'forge-(ai|gui)' qualification/evidence/finalist-convergence-forge/dependency-classpath.txt
 
       - name: Compile separate GPL-side Forge provider JVM
@@ -172,7 +181,7 @@ jobs:
           mkdir -p "$ev/classes"
           javac -cp "$cp" -d "$ev/classes" \
             "$ev/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java" \
-            qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
+            "$ev/generated/java/forge/game/player/Ws23ForgeBootstrap.java"
           printf '%s:%s:%s:%s\n' \
             "$GITHUB_WORKSPACE/$ev/classes" \
             "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
@@ -293,6 +302,8 @@ jobs:
               'forge_engine':{'commit':os.environ['FORGE_COMMIT'],'tree':os.environ['FORGE_TREE'],'version':os.environ['FORGE_VERSION']},
               'forge_process_boundary':'SEPARATE_GPL_JVM',
               'forge_source_modified':False,
+              'historical_bootstrap_modified':False,
+              'finalist_bootstrap_overlay_generated':True,
               'forge_ai_gui_in_provider':False,
               'xmage_reference':{
                   'convergence_head':os.environ['XMAGE_CONVERGENCE_HEAD'],
