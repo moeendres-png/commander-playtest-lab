@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 import time
 import unicodedata
-from urllib.parse import quote, urljoin
+from urllib.parse import urljoin
 
 import ws31_acquire_gatherer as base
 
@@ -19,7 +19,7 @@ import ws31_acquire_gatherer as base
 def match_norm(value: str) -> str:
     value = unicodedata.normalize("NFKD", value or "")
     value = "".join(ch for ch in value if not unicodedata.combining(ch))
-    value = value.casefold()
+    value = value.casefold().replace("’", "").replace("'", "")
     return " ".join(re.sub(r"[^a-z0-9]+", " ", value).split())
 
 
@@ -158,9 +158,6 @@ def acquire_face(face: str, delay: float):
     return out, db, []
 
 
-# Replace only the authority-sensitive pieces. Explicit project multiface identities
-# already enumerate their relevant faces; heuristic same-printing sibling discovery is
-# disabled because it can create false face associations for short names such as Fall.
 base.extract_oracle_section = extract_oracle_section
 base.parse_section = parse_section
 base.acquire_face = acquire_face
