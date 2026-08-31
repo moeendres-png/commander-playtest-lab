@@ -25,15 +25,15 @@ jobs:
         run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
       - name: Static fail-closed tests
         run: python -m unittest tests.qualification.test_ws31_authority_domain.TestWS31Static -v
-      - name: Exact-name, discovery-hint, release-note, empty-Oracle, and incidence regression tests
+      - name: Exact-name, discovery-hint, release-note, legacy-flip, empty-Oracle, and incidence regression tests
         run: |
           python - <<'PY'
           import sys
           sys.path.insert(0, 'scripts')
-          import ws31_acquire_gatherer_v5 as v5
+          import ws31_acquire_gatherer_v6 as v6
           import ws31_materialize_v2 as mv2
-          v4=v5.v4; v=v4.v2
-          assert v5.base.acquire_identity is v5.acquire_identity
+          v5=v6.v5; v4=v5.v4; v=v4.v2
+          assert v6.base.acquire_identity is v6.acquire_identity
           assert v.match_norm("Dovin's Veto") == v.match_norm('dovins-veto')
           assert v.match_norm('Agrus Kos, Wojek Veteran') == v.match_norm('agrus-kos-wojek-veteran')
           assert v.match_norm('Fall') != v.match_norm("Atraxa's Fall")
@@ -50,19 +50,24 @@ jobs:
           sk=v5.OFFICIAL_RELEASE_NOTE_FALLBACKS["Inspired Skypainter // Maestro's Gift"]
           sktxt="Inspired Skypainter {U}{R} Creature — Lizard Wizard 2/2 Flying //Prep// Maestro's Gift {3}{U}{R} Sorcery Create a token that's a copy of target creature you control. That token gains haste until end of turn. The token created by Maestro's Gift copies exactly what was printed on the original creature"
           assert v5._extract_release_note_face(sktxt,sk)['oracle_text']=="Create a token that's a copy of target creature you control. That token gains haste until end of turn."
+          flip="Kaiso, Memory of Loyalty Legendary Creature - Spirit 3/4 Flying Remove a ki counter from Kaiso: Prevent all damage that would be dealt to target creature this turn. Artist Mark Zug"
+          parsed,_=v6._extract_legacy_flip_face(flip,'Kaiso, Memory of Loyalty')
+          assert parsed and parsed['type_line']=='Legendary Creature - Spirit' and parsed['power_toughness']=='3/4'
+          assert parsed['oracle_text'].startswith('Flying Remove a ki counter from Kaiso:')
           sample={'project_card_identity':'Authority Probe','faces':[{'oracle_text':'When this creature dies, draw a card. Put a +1/+1 counter on target creature. Attach target Equipment you control to it. Copy target spell. Target creature gets +2/+2 until end of turn.','type_line':'Creature — Test','mana_cost':'{1}'}]}
           incidence=mv2.derive_incidence(sample)
           assert not [x for x in incidence if x['classification']=='HEURISTIC_DISCOVERY_ONLY']
           paths={x['path'] for x in incidence if x['classification']=='AUTHORITY_DERIVED'}
           assert {'zone-change semantics','hidden library information','counters','attachments','copies','power/toughness layers'} <= paths
-          print('WS31 static authority/discovery/release-note/incidence regression tests PASS')
+          print('WS31 static authority/discovery/release-note/legacy-flip/incidence regression tests PASS')
           PY
       - name: Live official Wizards shared-card release-note authority probe
         run: |
           python - <<'PY'
           import json,sys
           sys.path.insert(0,'scripts')
-          import ws31_acquire_gatherer_v5 as v5
+          import ws31_acquire_gatherer_v6 as v6
+          v5=v6.v5
           for identity,spec in v5.OFFICIAL_RELEASE_NOTE_FALLBACKS.items():
               primary={'faces':[{'requested_face_name':spec['primary_face'],'acquisition_status':'PASS','official_gatherer_url':'https://gatherer.wizards.com/PROBE/en-us/1/authority-probe','set_or_printing_used':'PROBE','collector_number':'1','official_rulings':[]}]}
               result,diag=v5._release_note_face_result(primary,spec)
@@ -71,6 +76,22 @@ jobs:
               assert result['official_release_notes_url'].startswith('https://magic.wizards.com/')
               assert result['shared_primary_gatherer_representation'] is True
           print('WS31 live official release-note authority probe PASS')
+          PY
+      - name: Live exact current Gatherer legacy flip-face authority probe
+        run: |
+          python - <<'PY'
+          import json,sys
+          sys.path.insert(0,'scripts')
+          import ws31_acquire_gatherer_v6 as v6
+          spec=v6.LEGACY_FLIP_FALLBACK
+          primary={'faces':[{'requested_face_name':spec['primary_face'],'acquisition_status':'PASS','official_gatherer_url':'https://gatherer.wizards.com/BOK/en-us/3/faithful-squire','set_or_printing_used':'BOK - Betrayers of Kamigawa','collector_number':'3','official_rulings':[]}]}
+          result,diag=v6._legacy_flip_face_result(primary,spec)
+          print(json.dumps({'identity':spec['project_card_identity'],'diagnostic':diag,'result_status':result.get('acquisition_status') if result else None,'type_line':result.get('type_line') if result else None,'power_toughness':result.get('power_toughness') if result else None},sort_keys=True))
+          assert result and result['acquisition_status']=='PASS', (spec['project_card_identity'],diag)
+          assert result['official_gatherer_url'].endswith('/BOK/en-us/3/kaiso-memory-of-loyalty')
+          assert result['current_gatherer_card_name']=='Kaiso, Memory of Loyalty'
+          assert result['oracle_text']
+          print('WS31 live exact current Gatherer legacy flip-face authority probe PASS')
           PY
   acquire:
     needs: static
@@ -88,7 +109,7 @@ jobs:
       - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
       - name: Acquire official Wizards authority shard
         run: >-
-          python scripts/ws31_acquire_gatherer_v5.py
+          python scripts/ws31_acquire_gatherer_v6.py
           --manifest artifacts/ws31/IDENTITY_MANIFEST.json
           --output artifacts/ws31/shards/shard-${{ matrix.shard }}.json
           --checkpoint artifacts/ws31/checkpoints/checkpoint-${{ matrix.shard }}.json
