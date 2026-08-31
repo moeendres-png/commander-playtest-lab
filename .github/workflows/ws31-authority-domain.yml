@@ -25,14 +25,14 @@ jobs:
         run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
       - name: Static fail-closed tests
         run: python -m unittest tests.qualification.test_ws31_authority_domain.TestWS31Static -v
-      - name: Exact-name, discovery-hint, empty-Oracle, and incidence regression tests
+      - name: Exact-name, discovery-hint, release-note, empty-Oracle, and incidence regression tests
         run: |
           python - <<'PY'
           import sys
           sys.path.insert(0, 'scripts')
-          import ws31_acquire_gatherer_v4 as v4
+          import ws31_acquire_gatherer_v5 as v5
           import ws31_materialize_v2 as mv2
-          v=v4.v2
+          v4=v5.v4; v=v4.v2
           assert v.match_norm("Dovin's Veto") == v.match_norm('dovins-veto')
           assert v.match_norm('Agrus Kos, Wojek Veteran') == v.match_norm('agrus-kos-wojek-veteran')
           assert v.match_norm('Fall') != v.match_norm("Atraxa's Fall")
@@ -43,12 +43,18 @@ jobs:
           sec='Printed Oracle Card Name Runeclaw Bear Type Creature — Bear Rarity Common Artist X P/T 2 / 2 Set M10 Number 203 Language English'
           f=v.parse_section(sec,'Runeclaw Bear')
           assert f['parse_complete'] and f['oracle_text']=='' and f['type_line']
+          bb=v5.OFFICIAL_RELEASE_NOTE_FALLBACKS['Brazen Borrower // Petty Theft']
+          bbtxt="Brazen Borrower {1}{U}{U} Creature — Faerie Rogue 3/1 Flash Flying //ADV// Petty Theft {1}{U} Instant — Adventure Return target nonland permanent an opponent controls to its owner's hand. Brazen Borrower is a creature card in every zone except the stack"
+          assert v5._extract_release_note_face(bbtxt,bb)['oracle_text']=="Return target nonland permanent an opponent controls to its owner's hand."
+          sk=v5.OFFICIAL_RELEASE_NOTE_FALLBACKS["Inspired Skypainter // Maestro's Gift"]
+          sktxt="Inspired Skypainter {U}{R} Creature — Lizard Wizard 2/2 Flying //Prep// Maestro's Gift {3}{U}{R} Sorcery Create a token that's a copy of target creature you control. That token gains haste until end of turn. The token created by Maestro's Gift copies exactly what was printed on the original creature"
+          assert v5._extract_release_note_face(sktxt,sk)['oracle_text']=="Create a token that's a copy of target creature you control. That token gains haste until end of turn."
           sample={'project_card_identity':'Authority Probe','faces':[{'oracle_text':'When this creature dies, draw a card. Put a +1/+1 counter on target creature. Attach target Equipment you control to it. Copy target spell. Target creature gets +2/+2 until end of turn.','type_line':'Creature — Test','mana_cost':'{1}'}]}
           incidence=mv2.derive_incidence(sample)
           assert not [x for x in incidence if x['classification']=='HEURISTIC_DISCOVERY_ONLY']
           paths={x['path'] for x in incidence if x['classification']=='AUTHORITY_DERIVED'}
           assert {'zone-change semantics','hidden library information','counters','attachments','copies','power/toughness layers'} <= paths
-          print('WS31 authority/discovery/incidence regression tests PASS')
+          print('WS31 authority/discovery/release-note/incidence regression tests PASS')
           PY
   acquire:
     needs: static
@@ -64,9 +70,9 @@ jobs:
         with: {python-version: '3.12'}
       - run: mkdir -p artifacts/ws31/shards artifacts/ws31/checkpoints
       - run: python scripts/ws31_build_identity_manifest.py --output artifacts/ws31/IDENTITY_MANIFEST.json
-      - name: Acquire official Gatherer shard
+      - name: Acquire official Wizards authority shard
         run: >-
-          python scripts/ws31_acquire_gatherer_v4.py
+          python scripts/ws31_acquire_gatherer_v5.py
           --manifest artifacts/ws31/IDENTITY_MANIFEST.json
           --output artifacts/ws31/shards/shard-${{ matrix.shard }}.json
           --checkpoint artifacts/ws31/checkpoints/checkpoint-${{ matrix.shard }}.json
