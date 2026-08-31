@@ -1,0 +1,22 @@
+{
+  "authority_policy": [
+    "current Comprehensive Rules",
+    "current official Gatherer/Oracle",
+    "current official release notes/rulings",
+    "older official release notes only supplemental"
+  ],
+  "base_branch": "ws29/canonical-authority-closure",
+  "base_commit": "362d9351f749b6f49d67cd1ef4eed298b8922b68",
+  "base_tree": "e510af2fd8a05f7db874781e3182a6bf3c062fc4",
+  "current_cr_pdf_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
+  "kaervek_current": {"blob_sha":"beebc3cf50e32b29db5c1e594821f754da69249d","path":"data/decks/opponents/kaervek/current/decklist.txt","unique_identities":77},
+  "known_actual_card_universe": {"count":1385,"name_set_sha256":"8dcc2bd8460f23f42a86b8db9c2b96a880f76219fad6ba194d1f1009acf09bbe"},
+  "physical_inventory": {"drive_file_id":"1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd","identity_count":1338,"local_source_sha256":"3fd25ba2a5616d26862f825ac3182ea59b29bdde97a7e36cd0afadaee2740b26","modified_time":"2026-08-20T08:10:51.737Z","name_set_sha256":"f1f3ca4240a6d3ae1c3294c1c5b4f6d09ce456d463527997a541fa769a2206c4","title":"MTG_Kartensammlung_kanonisch_aktuell.xlsx"},
+  "repository":"moeendres-png/commander-playtest-lab",
+  "rogshai_current":{"blob_sha":"4db4174011e6ea0b07196e68165aa4549cff1971","path":"data/decks/rogshai_current.txt","unique_identities":87},
+  "schema_version":"commander-lab.ws31.source-lock/1.0.0",
+  "secondary_authority_forbidden":["Scryfall","MTGJSON","Forge data","XMage data","local caches"],
+  "unknown_real_opponent_slots":142,
+  "ws11_handoff_sha256":"fbad190d20c64e472d8f41b15d57182f0d526c086069dd12306d374073fc32f7",
+  "ws29_draft_pr":142
+}
