@@ -25,6 +25,12 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
     java = replace_once(
         java,
+        'return broker.chooseBoolean("mulliganKeepHand", player, "KEEP", "MULLIGAN");',
+        'return broker.chooseBoolean("mulliganKeepHand", this.player, "KEEP", "MULLIGAN");',
+        "mulligan decision actor",
+    )
+    java = replace_once(
+        java,
         "        Broker broker = new Broker(in, out, 100000);",
         "        String stopAfter = System.getenv(\"COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY\");\n"
         "        int stopAfterPriority = stopAfter == null ? 100000 : Integer.parseInt(stopAfter);\n"
@@ -96,6 +102,7 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     }
     mapping["commander_semantic_projection"] = "Player.getCommanders(); excludes Forge-owned Commander Effect object in ZoneType.Command"
     mapping["semantic_starting_player_labels"] = True
+    mapping["mulligan_actor_binding"] = "controller-owned this.player; Forge MulliganService passes firstPlayer as the method argument"
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
     mapping["stop_after_priority_source"] = "COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY"
     return java, mapping
