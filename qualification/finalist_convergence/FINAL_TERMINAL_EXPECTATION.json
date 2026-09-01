@@ -1,0 +1,129 @@
+{
+  "schema_version": "commander-lab.finalist-convergence-terminal-expectation/1.0.0",
+  "program_status": "COMPLETE_TERMINAL_CLOSEOUT_NO_ARCHITECTURE_FREEZE",
+  "source_lock": {
+    "main": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "contract": "9a8b8f5f5961466514eae6103be2d227324a27a8",
+    "contract_tree": "a9eee7458b9c39fd473ea54fdf58f5572cb46a1b",
+    "forge_finalist": "8fb95d53d168228a3785f6270f33d5785df989a3",
+    "xmage_finalist": "e5e4ec66d9bbeab4eb2cbd08fdf244e4bea24283",
+    "differential": "fd65c3c6a453774665319ba30f7ef8da3c35020c"
+  },
+  "frozen_contract": {
+    "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.1",
+    "protocol": "commander-lab.rules-service/1.1.0",
+    "bundle_digest": "ad1ec6e4baa83be48c0bc07e0bde66c2f8c003af29e411bad0953558154dcfee",
+    "record_count": 135,
+    "semantic_executable": 72,
+    "semantic_defects": 63,
+    "known_pass_union_count": 50,
+    "expected_union_semantic_executable": 42,
+    "expected_union_semantic_defects": 8,
+    "actual_card_identity_count": 29,
+    "expected_v101_executable_card_records": ["CARD_02", "CARD_21"]
+  },
+  "closed_runtime_evidence": {
+    "micro_replacement": {
+      "record_digest": "310964ff50516220522e906cd742f5c53f3fa722ddce104461ab10162bf50a5b",
+      "forge_run": 33545214509,
+      "forge_artifact": 9815216807,
+      "xmage_run": 33547765180,
+      "xmage_artifact": 9816269361,
+      "status": "BOTH_RUNTIME_PASS"
+    },
+    "ws05_mp_combat_4": {
+      "record_digest": "abfdea2d4ca22db3135349d6fc87c27d450611195f73f0a24ad0451f206a9776",
+      "forge_run": 33545214636,
+      "forge_artifact": 9815222363,
+      "xmage_run": 33560895412,
+      "differential_run": 33562206230,
+      "differential_artifact": 9821681148,
+      "differential_artifact_digest": "sha256:7c9e283106d593df2d96eb2855bb6f034208feb02b798eb1b0ceec457de1e53e",
+      "status": "BOTH_RUNTIME_PASS_AND_DIFFERENTIAL_PASS"
+    }
+  },
+  "required_remaining_gate_terminal_results": {
+    "replay_rng_v101": {
+      "record_ids": ["RNG_RULES_TAPE", "REPLAY_DECISION_TAPE", "REPLAY_EVENT_TAPE", "REPLAY_CLEAN_PROCESS", "REPLAY_STATE_HASHES"],
+      "forge": "NOT_RUN",
+      "xmage": "NOT_RUN",
+      "differential": "NOT_RUN",
+      "classification": ["FORGE_PROVIDER_DEFECT", "XMAGE_PROVIDER_DEFECT"],
+      "reason": "No runtime evidence exists at the current finalist heads for the corrected v1.0.1 Burn Down the House / five Mountains / native shuffle / rules seed 424242 transaction. Historical AF09 evidence is non-isomorphic and receives zero corrected-record credit."
+    },
+    "card_02_v101": {
+      "record_digest": "2bfd5c1c214d8efe18870ef463e1883ca2f1186ff8ab7b5846fcb42ec16d02d3",
+      "forge": "NOT_RUN",
+      "xmage": "NOT_RUN",
+      "differential": "NOT_RUN",
+      "classification": ["FORGE_PROVIDER_DEFECT", "XMAGE_PROVIDER_DEFECT"],
+      "reason": "No current-head runtime evidence exists for the corrected single-incarnation Rograkh command-zone cast transaction. Historical CARD_02 evidence predates the v1.0.1 correction and receives zero corrected-record credit."
+    },
+    "known_pass_union_50": {
+      "status": "BLOCKED",
+      "classification": "CONTRACT_DEFECT",
+      "reason": "The frozen file contains 50 historical-union records, but the frozen semantic-executability report classifies exactly 8 of those 50 as SEMANTIC_EXECUTABILITY_DEFECT; therefore an exact 50/50 execution is not a valid executable denominator. Provider-wide current-head runtime evidence for the remaining 42 is also absent."
+    },
+    "current_semantic_executable_72": {
+      "forge": "NOT_RUN",
+      "xmage": "NOT_RUN",
+      "differential": "NOT_RUN",
+      "classification": ["FORGE_PROVIDER_DEFECT", "XMAGE_PROVIDER_DEFECT"],
+      "reason": "The 72-record denominator is contract-valid, but neither finalist has a denominator-complete current-head runtime run."
+    },
+    "actual_card_29": {
+      "status": "NOT_RUN",
+      "classification": "QUALIFICATION_INFRA_DEFECT",
+      "runtime_credit": 0,
+      "post135_design_only": true,
+      "post135_semantic_obligations": 335,
+      "post135_required_scenarios": 295,
+      "reason": "Authority and qualification design do not constitute runtime functionality. The POST135 qualification artifact is DESIGN_ONLY and no 29-card denominator-complete provider runtime exists."
+    }
+  },
+  "risk_audit": {
+    "status": "COMPLETE_TERMINAL_CLASSIFICATION",
+    "forge": {
+      "rules_rng": "PROCESS_ISOLATION_REQUIRED; corrected v1.0.1 replay not runtime-qualified",
+      "hidden_information": "QUALIFIED_SLICES_ONLY; full AF05 denominator incomplete; native Netplay remains disallowed as pilot boundary",
+      "multiplayer_commander": "WS05-MP-COMBAT-4 now exact runtime/differential PASS; full AF08 denominator incomplete",
+      "pilot_boundary": "strict/fail-closed on qualified paths; production-reachable decision denominator incomplete",
+      "state_loader": "PARTIAL_BROAD_NOT_FULL"
+    },
+    "xmage": {
+      "rules_rng": "PROCESS_ISOLATION_REQUIRED; corrected v1.0.1 replay not runtime-qualified",
+      "hidden_information": "corrected hidden slices and honey-sentinel evidence exist; full AF05 denominator incomplete",
+      "multiplayer_commander": "WS05-MP-COMBAT-4 now exact runtime/differential PASS; full AF08 denominator incomplete",
+      "pilot_boundary": "strict/fail-closed on qualified paths; production-reachable decision denominator incomplete",
+      "state_loader": "PARTIAL_NOT_FULL"
+    }
+  },
+  "architecture_freeze": {
+    "AF00": {"forge": "PASS", "xmage": "PASS"},
+    "AF01": {"forge": "PASS", "xmage": "PASS"},
+    "AF02": {"forge": "PASS", "xmage": "PASS"},
+    "AF03": {"forge": "PASS", "xmage": "PASS"},
+    "AF04": {"forge": "FAIL", "xmage": "FAIL"},
+    "AF05": {"forge": "FAIL", "xmage": "FAIL"},
+    "AF06": {"forge": "FAIL", "xmage": "FAIL"},
+    "AF07": {"forge": "FAIL", "xmage": "FAIL"},
+    "AF08": {"forge": "FAIL", "xmage": "FAIL"},
+    "AF09": {"forge": "FAIL", "xmage": "FAIL"},
+    "AF10": {"forge": "PENDING_FINAL_LOCK", "xmage": "PENDING_FINAL_LOCK"},
+    "AF11": {"forge": "PASS", "xmage": "PASS"}
+  },
+  "terminal_abc": {
+    "definition_status": "CONTRACT_DEFECT",
+    "terminal_a": "UNKNOWN",
+    "terminal_b": "UNKNOWN",
+    "terminal_c": "UNKNOWN",
+    "reason": "No normative Terminal A/B/C definitions were found in the frozen contract tree, current repository, or supplied final convergence handoffs. Exact terminal conditions are not invented."
+  },
+  "final_verdict": {
+    "architecture_freeze": "NO",
+    "final_rules_core_selection": "UNRESOLVED",
+    "production_provider": "NONE_QUALIFIED",
+    "holdout_consumed": false,
+    "project_meaning_of_complete": "All requested convergence questions receive terminal evidence-backed PASS/FAIL/UNKNOWN/NOT_RUN classifications; COMPLETE does not mean production qualification."
+  }
+}
