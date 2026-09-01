@@ -23,7 +23,23 @@ jobs:
         run: |
           python -m py_compile scripts/ws32_lint_semantic_v1_0_2.py scripts/ws32_build_successor.py
       - name: Build successor once
-        run: python scripts/ws32_build_successor.py
+        shell: bash
+        run: |
+          if ! python scripts/ws32_build_successor.py; then
+            echo "--- exact semantic lint failures ---"
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('qualification/ws32/SEMANTIC_EXECUTABILITY_REPORT_v1_0_2.json')
+          if p.exists():
+              r=json.loads(p.read_text())
+              print('GLOBAL', r.get('global_errors'))
+              for row in r.get('records', []):
+                  if row.get('status') != 'PASS':
+                      print(row['fixture_id'], [e['code'] for e in row.get('errors', [])], [e['message'] for e in row.get('errors', [])])
+          PY
+            exit 1
+          fi
       - name: Lint exact successor corpus
         run: |
           python scripts/ws32_lint_semantic_v1_0_2.py \
