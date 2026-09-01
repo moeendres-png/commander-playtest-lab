@@ -84,9 +84,11 @@ jobs:
           python candidate-qualification/finalist-convergence-xmage/apply_micro_replacement_overlay.py
           python candidate-qualification/finalist-convergence-xmage/fix_micro_replacement_overlay.py
           python candidate-qualification/finalist-convergence-xmage/apply_ws05_mp_combat_4_overlay.py
+          python candidate-qualification/finalist-convergence-xmage/fix_micro_replacement_overlay.py --ws05-control-duration
           git -C vendor/engine-source/xmage diff --check
           git diff --check
           grep -q 'DeclareAttackersStep().beginStep' engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26Scenario.java
+          grep -q 'baseline-bears-summoning-sickness' engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26Scenario.java
           grep -q 'adapter_assignment_applied' engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26Scenario.java
       - name: Build pinned XMage and bridge
         run: |
