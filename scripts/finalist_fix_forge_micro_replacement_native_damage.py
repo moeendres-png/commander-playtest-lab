@@ -41,15 +41,19 @@ def main() -> None:
         "replacement method scoped setup snapshot reference",
     )
 
+    # Anchor on the exact post-materialization validation tail. The preceding
+    # overlay now explicitly materializes the contract's empty-blocker state
+    # with Combat.setBlocked(attacker, false); native damage semantics below
+    # remain unchanged.
     java = replace_once(
         java,
-        '''                game.updateCombatForView();
-                if (!combat.isAttacking(attacker, p2)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_COMBAT_MISMATCH");
+        '''                if (!combat.isAttacking(attacker, p2)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_COMBAT_MISMATCH");
+                if (combat.isBlocked(attacker)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_BLOCKED_STATE_MISMATCH");
                 game.getPhaseHandler().setPriority(p1);
             } catch (RuntimeException exc) {
 ''',
-        '''                game.updateCombatForView();
-                if (!combat.isAttacking(attacker, p2)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_COMBAT_MISMATCH");
+        '''                if (!combat.isAttacking(attacker, p2)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_COMBAT_MISMATCH");
+                if (combat.isBlocked(attacker)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_BLOCKED_STATE_MISMATCH");
                 game.getPhaseHandler().setPriority(p1);
 
                 // Preserve the exact requested native setup before damage. Then execute
