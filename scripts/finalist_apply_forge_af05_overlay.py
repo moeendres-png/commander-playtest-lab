@@ -45,8 +45,6 @@ def main() -> None:
         "opaque actor identity helper",
     )
 
-    # Add actor-entitled observation to every external decision frame. It is derived
-    # only from native Forge zone/face-down/may-look state and carries no native ids.
     java = replace_once(
         java,
         '                + ",\\\"options_digest\\\":" + esc(digest(ids))\n'
@@ -57,15 +55,17 @@ def main() -> None:
         "actor observation on decision frame",
     )
 
-    # Stop only after P1 has received and answered the first canonical AF05 priority
-    # decision. This provides runtime actor-output evidence without mutating hidden state.
+    # Primitive-A's current terminal boundary is the native non-fizzled resolution
+    # event. Insert AF05's controlled stop after that current anchor, never before it.
     java = replace_once(
         java,
-        '            if (isPrimitiveAFixture(finalistFixture) && primitiveATerminal(game)) {\n'
+        '            if (isPrimitiveAFixture(finalistFixture)\n'
+        '                    && automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {\n'
         '                throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");\n'
         '            }\n'
         '            priorityDecisions++;',
-        '            if (isPrimitiveAFixture(finalistFixture) && primitiveATerminal(game)) {\n'
+        '            if (isPrimitiveAFixture(finalistFixture)\n'
+        '                    && automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {\n'
         '                throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");\n'
         '            }\n'
         '            if (isAf05Fixture(finalistFixture) && priorityDecisions >= 1) {\n'
@@ -75,7 +75,6 @@ def main() -> None:
         "AF05 terminal stop",
     )
 
-    # Headless registration of exactly the additional canonical hidden-state cards.
     java = replace_once(
         java,
         '        forge.StaticData.instance().getCommonCards().addCard(finalistBearsCard);',
