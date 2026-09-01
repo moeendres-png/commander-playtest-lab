@@ -11,44 +11,21 @@ from typing import Any
 
 VERSION = "commander-lab.semantic-fixture-materialization/1.0.2"
 DIGEST_SPEC = "commander-lab.requested-state-digest/1.0.0"
-
 STATE_KEYS = (
-    "execution_entry_mode",
-    "players",
-    "deck_state",
-    "commander_state",
-    "semantic_objects",
-    "temporal_state",
-    "knowledge_state",
-    "rules_randomness",
-    "combat_state",
-    "stack_state",
-    "continuous_rules_effects",
-    "extra_turn_creation",
-    "elimination_trigger",
-    "zone_move_event",
-    "setup_validation",
+    "execution_entry_mode", "players", "deck_state", "commander_state",
+    "semantic_objects", "temporal_state", "knowledge_state", "rules_randomness",
+    "combat_state", "stack_state", "continuous_rules_effects", "extra_turn_creation",
+    "elimination_trigger", "zone_move_event", "setup_validation",
 )
 OBLIGATION_KEYS = (
-    "fixture_id",
-    "fixture_family",
-    "frozen_contract_binding",
-    "card_authority_binding",
-    "expected_events",
-    "terminal_postconditions",
+    "fixture_id", "fixture_family", "frozen_contract_binding", "card_authority_binding",
+    "expected_events", "terminal_postconditions",
 )
 TARGET_ONE = {
-    "Lightning Bolt",
-    "Doom Blade",
-    "Swords to Plowshares",
-    "Unsummon",
-    "Bant Charm",
-    "Flare of Duplication",
-    "Wash Away",
-    "Bolt Bend",
+    "Lightning Bolt", "Doom Blade", "Swords to Plowshares", "Unsummon",
+    "Bant Charm", "Flare of Duplication", "Wash Away", "Bolt Bend",
     "Makeshift Mannequin",
 }
-CAST_ACTION_PREFIXES = ("cast", "announce_cast")
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -101,16 +78,16 @@ def _is_cast_decision(decision: dict[str, Any]) -> bool:
     if not isinstance(value, dict):
         return False
     action = str(value.get("action", ""))
-    return action.startswith(CAST_ACTION_PREFIXES) or action in {"cast_fused", "cast_split_half", "cast_alt_cost", "cast_commander"}
+    return action.startswith("cast") or action == "announce_cast"
 
 
 def lint_record(record: dict[str, Any], predecessor: dict[str, Any] | None = None) -> list[dict[str, str]]:
     errors: list[dict[str, str]] = []
+    fid = record.get("fixture_id", "<missing>")
 
     def err(code: str, message: str) -> None:
         errors.append({"code": code, "message": message})
 
-    fid = record.get("fixture_id", "<missing>")
     if record.get("materialization_version") != VERSION:
         err("VERSION", f"{fid}: materialization_version is not {VERSION}")
     if record.get("execution_entry_mode") not in {"NATURAL_GAME_START", "NATIVE_STATE_LOAD"}:
@@ -145,13 +122,13 @@ def lint_record(record: dict[str, Any], predecessor: dict[str, Any] | None = Non
         cause = dec.get("causal_step_id")
         if not cause or cause == "UNSPECIFIED_NATIVE_CAUSE" or cause not in step_ids:
             err("NATIVE_DECISION_CAUSALITY", f"{fid}: decision {index} has no valid native causal step")
-        else:
-            step = next((s for s in procedures if s.get("step_id") == cause), {})
-            if not str(step.get("operation", "")).startswith("NATIVE_"):
-                err("NATIVE_DECISION_CAUSALITY", f"{fid}: decision {index} cause {cause} is not native")
-            actor = step.get("details", {}).get("actor")
-            if actor and actor != dec.get("actor"):
-                err("LEGAL_CURRENT_ACTOR", f"{fid}: decision {index} actor {dec.get('actor')} != causal actor {actor}")
+            continue
+        step = next((s for s in procedures if s.get("step_id") == cause), {})
+        if not str(step.get("operation", "")).startswith("NATIVE_"):
+            err("NATIVE_DECISION_CAUSALITY", f"{fid}: decision {index} cause {cause} is not native")
+        actor = step.get("details", {}).get("actor")
+        if actor and actor != dec.get("actor"):
+            err("LEGAL_CURRENT_ACTOR", f"{fid}: decision {index} actor {dec.get('actor')} != causal actor {actor}")
 
     cost_rows = {row.get("decision_index"): row for row in record.get("action_cost_state", [])}
     for index, dec in enumerate(record.get("decision_script", [])):
@@ -188,9 +165,9 @@ def lint_record(record: dict[str, Any], predecessor: dict[str, Any] | None = Non
         for sid in attackers:
             obj = objects.get(sid)
             if not obj or obj.get("controlled_since_turn_began") is not True:
-                err("ATTACK_ELIGIBILITY", f"{fid}: attacker {sid} lacks explicit controlled_since_turn_began=true")
-        first_attacker_index = next(i for i, d in enumerate(record.get("decision_script", [])) if d.get("decision_family") == "declare_attacker")
-        if first_attacker_index == 0 and temporal.get("step") != "declare_attackers":
+                err("ATTACK_ELIGIBILITY", f"{fid}: attacker {sid} lacks controlled_since_turn_began=true")
+        first = next(i for i, d in enumerate(record.get("decision_script", [])) if d.get("decision_family") == "declare_attacker")
+        if first == 0 and temporal.get("step") != "declare_attackers":
             err("TURN_BASED_ACTION_ENTRY", f"{fid}: initial attacker decision does not enter declare_attackers")
 
     blocker_indices = [i for i, d in enumerate(record.get("decision_script", [])) if d.get("decision_family") == "declare_blocker"]
@@ -207,9 +184,6 @@ def lint_record(record: dict[str, Any], predecessor: dict[str, Any] | None = Non
         plan = record.get("pregame_decision_plan", [])
         if not plan or not all(p.get("player_id") and p.get("decision") for p in plan):
             err("STRICT_PREGAME_COMPLETE", f"{fid}: complete external mulligan/keep plan is absent")
-
-    if record.get("fixture_family") == "replay_rng"::
-        pass
 
     if record.get("fixture_family") == "replay_rng":
         rng = record.get("rules_randomness", {})
@@ -230,23 +204,19 @@ def lint_record(record: dict[str, Any], predecessor: dict[str, Any] | None = Non
         err("CONSTRUCTION_VALIDATION", f"{fid}: construction validation is not mandatory under {DIGEST_SPEC}")
     if cv.get("credit_condition") != "REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST":
         err("CONSTRUCTION_VALIDATION", f"{fid}: requested/constructed digest equality is not the credit gate")
-    expected_requested = requested_state_digest(record)
-    if record.get("requested_state_digest") != expected_requested:
+    if record.get("requested_state_digest") != requested_state_digest(record):
         err("REQUESTED_STATE_DIGEST", f"{fid}: requested_state_digest mismatch")
-
-    expected_obligation = obligation_digest(record)
-    if record.get("obligation_digest") != expected_obligation:
+    if record.get("obligation_digest") != obligation_digest(record):
         err("OBLIGATION_DIGEST", f"{fid}: stored obligation digest mismatch")
     if predecessor is not None and obligation_projection(record) != obligation_projection(predecessor):
         err("OBLIGATION_DRIFT", f"{fid}: frozen obligation projection changed from v1.0.1")
-
     return errors
 
 
 def lint_bundle(bundle: dict[str, Any], predecessor_bundle: dict[str, Any] | None = None) -> dict[str, Any]:
     records = bundle.get("records", [])
     predecessor_by_id = {r["fixture_id"]: r for r in (predecessor_bundle or {}).get("records", [])}
-    report_rows = []
+    rows = []
     seen: set[str] = set()
     duplicate_ids: list[str] = []
     for record in records:
@@ -255,7 +225,7 @@ def lint_bundle(bundle: dict[str, Any], predecessor_bundle: dict[str, Any] | Non
             duplicate_ids.append(fid)
         seen.add(fid)
         errors = lint_record(record, predecessor_by_id.get(fid))
-        report_rows.append({"fixture_id": fid, "status": "PASS" if not errors else "CONTRACT_DEFECT", "errors": errors})
+        rows.append({"fixture_id": fid, "status": "PASS" if not errors else "CONTRACT_DEFECT", "errors": errors})
 
     global_errors: list[dict[str, str]] = []
     if bundle.get("schema_version") != VERSION:
@@ -269,18 +239,17 @@ def lint_bundle(bundle: dict[str, Any], predecessor_bundle: dict[str, Any] | Non
         if seen != predecessor_ids:
             global_errors.append({"code": "IMMUTABLE_PROVENANCE", "message": "successor fixture ID set differs from v1.0.1"})
 
-    passed = sum(row["status"] == "PASS" for row in report_rows)
-    defects = len(report_rows) - passed
-    terminal = "PASS" if passed == 135 and not global_errors else "FAIL"
+    passed = sum(row["status"] == "PASS" for row in rows)
+    defects = len(rows) - passed
     return {
         "report_version": "commander-lab.semantic-executability-report/1.0.2",
         "materialization_version": VERSION,
-        "record_count": len(report_rows),
+        "record_count": len(rows),
         "semantic_executable_count": passed,
         "contract_defect_count": defects,
         "global_errors": global_errors,
-        "records": report_rows,
-        "terminal_status": terminal,
+        "records": rows,
+        "terminal_status": "PASS" if passed == 135 and not global_errors else "FAIL",
     }
 
 
