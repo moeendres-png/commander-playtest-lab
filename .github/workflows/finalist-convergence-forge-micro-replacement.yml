@@ -101,7 +101,8 @@ jobs:
             scripts/finalist_apply_forge_micro_stack_overlay.py \
             scripts/finalist_apply_forge_micro_replacement_overlay.py \
             scripts/finalist_fix_forge_micro_replacement_native_damage.py \
-            candidate-qualification/finalist-convergence-forge/run_micro_replacement.py
+            candidate-qualification/finalist-convergence-forge/run_micro_replacement.py \
+            candidate-qualification/finalist-convergence-forge/normalize_micro_replacement_evidence.py
 
       - name: Build pinned unmodified Forge game modules
         working-directory: vendor/engine-source/forge
@@ -171,6 +172,9 @@ jobs:
           python candidate-qualification/finalist-convergence-forge/run_micro_replacement.py \
             --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
             --output "$ev/MICRO_REPLACEMENT_RESULTS.json"
+          python candidate-qualification/finalist-convergence-forge/normalize_micro_replacement_evidence.py \
+            --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
+            --evidence "$ev/MICRO_REPLACEMENT_RESULTS.json"
           python - <<'PY'
           import json, os
           p=json.load(open('qualification/evidence/finalist-convergence-forge/micro-replacement/MICRO_REPLACEMENT_RESULTS.json'))
@@ -178,9 +182,12 @@ jobs:
           assert p['counts'] == {'PASS': 1}
           r=p['rows'][0]
           assert r['record_digest'] == '310964ff50516220522e906cd742f5c53f3fa722ddce104461ab10162bf50a5b'
+          assert r['requested_semantic_state_digest'] == 'b47fbf6b558b95d779f3a9087998556b6a2247bcd5c647903bf407b61038428d'
+          assert r['normalized_native_constructed_state_digest'] == 'b47fbf6b558b95d779f3a9087998556b6a2247bcd5c647903bf407b61038428d'
           assert r['requested_native_state_equal'] is True
           assert r['terminal_postcondition_result'] == 'PASS'
-          assert r['terminal_semantic_state']['P2']['life'] == 34
+          assert r['terminal_semantic_state'] == {'P2': {'life': 34}}
+          assert r['qualification_infra_normalization']['included_contract_dimension'] == 'controlled_since_turn_began'
           PY
 
       - name: Materialize checksums
