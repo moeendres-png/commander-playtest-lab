@@ -23,12 +23,23 @@ def main() -> None:
 
     declare_old = '''        @Override
         public void declareAttackers(Player attacker, Combat combat) {
-            throw failClosed("declareAttackers");
+            String finalistFixture = System.getenv("COMMANDER_LAB_FORGE_FIXTURE_ID");
+            if (isPrimitiveAFixture(finalistFixture)
+                    && broker.automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {
+                throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");
+            }
+            throw failClosed("declareAttackers:events=" + String.join("|", broker.automatic));
         }'''
     declare_new = '''        @Override
         public void declareAttackers(Player attacker, Combat combat) {
             String fixture = System.getenv("COMMANDER_LAB_FORGE_FIXTURE_ID");
-            if (!isWs05MpCombat4Fixture(fixture)) throw failClosed("declareAttackers");
+            if (!isWs05MpCombat4Fixture(fixture)) {
+                if (isPrimitiveAFixture(fixture)
+                        && broker.automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {
+                    throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");
+                }
+                throw failClosed("declareAttackers:events=" + String.join("|", broker.automatic));
+            }
             if (attacker != this.player || attacker != getGame().getPlayers().get(0)) {
                 throw failClosed("declareAttackers:WRONG_ACTOR");
             }
