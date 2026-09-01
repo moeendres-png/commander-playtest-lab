@@ -194,7 +194,7 @@ final class XmageWs26QualificationSession {
         JsonObject payload = new JsonObject();
         payload.addProperty("viewer_seat", viewerSeat + 1);
         payload.addProperty("decision_subject_seat", subjectSeat + 1);
-        payload.add("observation", knowledgeLedger.snapshot(game, viewer, subject));
+        payload.add("observation", XmageFullGameStateRedactor.actorView(game, viewer, subject));
         payload.addProperty("terminal", isEngineTerminal());
         return payload;
     }
