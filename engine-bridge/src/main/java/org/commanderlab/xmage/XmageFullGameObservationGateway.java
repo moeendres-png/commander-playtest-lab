@@ -17,8 +17,9 @@ import java.util.Set;
  * <p>The KnowledgeLedger is the only visibility model. This gateway only audits
  * free-form outbound channels (prompt, context, option identifiers/labels/
  * metadata, source metadata and future nested fields) against the ledger's
- * actor-entitled knowledge. It never reconstructs legality or maintains a
- * second hidden-information model.</p>
+ * actor-entitled knowledge. Already-authorized internal object references are
+ * additionally projected to viewer/session-scoped opaque handles. It never
+ * reconstructs legality or maintains a second hidden-information model.</p>
  */
 final class XmageFullGameObservationGateway {
 
@@ -55,13 +56,28 @@ final class XmageFullGameObservationGateway {
             JsonObject sourceObject
     ) {
         XmageKnowledgeLedger ledger = XmageFullGameStateRedactor.knowledgeLedger(game);
-        JsonObject actorView = ledger.snapshot(game, viewer, decisionSubject);
+        JsonObject privilegedActorView = ledger.snapshot(game, viewer, decisionSubject);
+        JsonObject actorView = XmageActorIdentityProjection.actorView(
+                game, viewer, privilegedActorView
+        );
         VisibilityIndex index = visibilityIndex(ledger, game, viewer, actorView);
 
         String safePrompt = prompt == null ? "" : prompt;
-        JsonObject safeContext = context == null ? new JsonObject() : context.deepCopy();
-        JsonArray safeOptions = legalOptions == null ? new JsonArray() : legalOptions.deepCopy();
-        JsonObject safeSource = sourceObject == null ? null : sourceObject.deepCopy();
+        JsonObject safeContext = context == null
+                ? new JsonObject()
+                : XmageActorIdentityProjection.outbound(
+                        game, viewer, privilegedActorView, context
+                ).getAsJsonObject();
+        JsonArray safeOptions = legalOptions == null
+                ? new JsonArray()
+                : XmageActorIdentityProjection.outbound(
+                        game, viewer, privilegedActorView, legalOptions
+                ).getAsJsonArray();
+        JsonObject safeSource = sourceObject == null
+                ? null
+                : XmageActorIdentityProjection.outbound(
+                        game, viewer, privilegedActorView, sourceObject
+                ).getAsJsonObject();
 
         assertSafeString("prompt", safePrompt, index);
         assertSafeJson("context", safeContext, index);
