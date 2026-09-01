@@ -31,6 +31,43 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
     java = replace_once(
         java,
+        '''        <T> T chooseObject(String kind, Player actor, java.util.List<T> options, boolean optional) {
+            java.util.List<String> labels = new ArrayList<>();
+            if (optional) labels.add("NONE");
+            for (int i = 0; i < options.size(); i++) labels.add("NATIVE_OPTION");
+            String id = choose(kind, actor, labels);
+            int idx = Integer.parseInt(id.substring(1));
+            if (optional) {
+                if (idx == 0) return null;
+                idx--;
+            }
+            return options.get(idx);
+        }
+''',
+        '''        <T> T chooseObject(String kind, Player actor, java.util.List<T> options, boolean optional) {
+            if (!optional) {
+                if (options.isEmpty()) throw new ControlledStop("FINALIST_ZERO_NATIVE_OPTIONS:" + kind);
+                if (options.size() == 1) {
+                    recordAutomatic("SINGLE_NATIVE_OPTION:" + kind);
+                    return options.get(0);
+                }
+            }
+            java.util.List<String> labels = new ArrayList<>();
+            if (optional) labels.add("NONE");
+            for (int i = 0; i < options.size(); i++) labels.add("NATIVE_OPTION");
+            String id = choose(kind, actor, labels);
+            int idx = Integer.parseInt(id.substring(1));
+            if (optional) {
+                if (idx == 0) return null;
+                idx--;
+            }
+            return options.get(idx);
+        }
+''',
+        "mandatory singleton object choice",
+    )
+    java = replace_once(
+        java,
         "        Broker broker = new Broker(in, out, 100000);",
         "        String stopAfter = System.getenv(\"COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY\");\n"
         "        int stopAfterPriority = stopAfter == null ? 100000 : Integer.parseInt(stopAfter);\n"
@@ -103,6 +140,7 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     mapping["commander_semantic_projection"] = "Player.getCommanders(); excludes Forge-owned Commander Effect object in ZoneType.Command"
     mapping["semantic_starting_player_labels"] = True
     mapping["mulligan_actor_binding"] = "controller-owned this.player; Forge MulliganService passes firstPlayer as the method argument"
+    mapping["mandatory_singleton_object_choice"] = "zero native options fail closed; one mandatory native option resolves automatically; multiple options remain external"
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
     mapping["stop_after_priority_source"] = "COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY"
     return java, mapping
