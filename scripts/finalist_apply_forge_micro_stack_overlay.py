@@ -152,8 +152,11 @@ def main() -> None:
     static String microStackSetupSnapshot(Game game, Broker broker) {
         Card target = microTarget(game, broker);
         SpellAbility top = game.getStack().peekAbility();
-        java.util.List<Card> targets = top == null ? java.util.List.of() : top.getTargets().getTargetCards();
-        String stackTarget = targets.size() == 1 ? broker.qualificationSemanticRef(targets.get(0)) : null;
+        String stackTarget = null;
+        if (top != null) {
+            forge.game.card.CardCollectionView targets = top.getTargets().getTargetCards();
+            stackTarget = targets.size() == 1 ? broker.qualificationSemanticRef(targets.get(0)) : null;
+        }
         return "{\"base\":" + sessionSnapshot(game)
             + ",\"stack_size\":" + game.getStack().size()
             + ",\"stack_top_source\":" + esc(microStackTop(game))
@@ -207,7 +210,7 @@ def main() -> None:
                     throw new ControlledStop("FINALIST_MICRO_STACK_INITIAL_STACK_MISMATCH");
                 }
                 SpellAbility bolt = game.getStack().peekAbility();
-                java.util.List<Card> targets = bolt.getTargets().getTargetCards();
+                forge.game.card.CardCollectionView targets = bolt.getTargets().getTargetCards();
                 if (targets.size() != 1 || targets.get(0).getOwner() != game.getPlayers().get(1)
                         || !"Grizzly Bears".equals(targets.get(0).getName())) {
                     throw new ControlledStop("FINALIST_MICRO_STACK_INITIAL_TARGET_MISMATCH");
