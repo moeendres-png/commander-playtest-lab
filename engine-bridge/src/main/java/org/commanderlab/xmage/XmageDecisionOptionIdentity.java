@@ -83,7 +83,7 @@ final class XmageDecisionOptionIdentity {
         return external;
     }
 
-    private static Map<String, String> visibleNativeToSemantic(Game game, JsonObject actorView) {
+    static Map<String, String> visibleNativeToSemantic(Game game, JsonObject actorView) {
         Map<String, String> result = new LinkedHashMap<>();
         JsonArray playerViews = actorView.getAsJsonArray("players");
         if (playerViews == null) {

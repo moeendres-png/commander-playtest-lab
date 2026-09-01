@@ -9,6 +9,8 @@ import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.PutToBattlefieldInfo;
 import mage.game.permanent.Permanent;
+import mage.game.turn.PreCombatMainPhase;
+import mage.game.turn.PreCombatMainStep;
 import mage.players.Player;
 
 import java.nio.charset.StandardCharsets;
@@ -35,7 +37,10 @@ import java.util.UUID;
  */
 final class XmageWs26Scenario {
 
-    static final String SCHEMA_VERSION = "xmage-qualification-scenario/1.0.0";
+    static final String SCHEMA_VERSION = "xmage-qualification-scenario/1.1.0";
+    static final String LEGACY_SCHEMA_VERSION = "xmage-qualification-scenario/1.0.0";
+    static final String NATURAL_GAME_START = "NATURAL_GAME_START";
+    static final String NATIVE_STATE_LOAD = "NATIVE_STATE_LOAD";
 
     static final class ScenarioException extends RuntimeException {
         ScenarioException(String message) { super(message); }
@@ -44,19 +49,27 @@ final class XmageWs26Scenario {
     record Applied(
             String scenarioId,
             String scenarioSha256,
+            String executionEntryMode,
             Map<UUID, String> semanticObjectIds,
             JsonObject validation
     ) {}
 
     private static final Set<String> TOP = Set.of(
-            "schema_version", "scenario_id", "seed", "starting_player_seat", "players"
+            "schema_version", "scenario_id", "seed", "starting_player_seat", "players",
+            "execution_entry_mode", "temporal_state"
     );
-    private static final Set<String> PLAYER = Set.of("seat", "life", "commander_names", "zones");
+    private static final Set<String> PLAYER = Set.of(
+            "seat", "life", "commander_names", "zones",
+            "natural_library_card_name", "natural_library_card_count"
+    );
     private static final Set<String> ZONES = Set.of("hand", "library", "graveyard", "exile", "battlefield");
     private static final Set<String> CARD = Set.of("semantic_id", "card_name", "tapped", "controller_seat", "face");
     private static final Set<String> EXPLICITLY_UNSUPPORTED = Set.of(
             "attached_to", "counters", "face_down", "known_to", "native_object_id",
             "stack", "mana", "priority_holder", "active_player", "turn", "phase", "step"
+    );
+    private static final Set<String> TEMPORAL = Set.of(
+            "turn_number", "active_player", "priority_player", "phase", "step"
     );
 
     private XmageWs26Scenario() {}
@@ -74,10 +87,14 @@ final class XmageWs26Scenario {
             throw fail("INVALID_SCENARIO: scenario/game/players/decks/ledger are required");
         }
         rejectUnknown(scenario, TOP, "scenario");
-        if (!SCHEMA_VERSION.equals(text(scenario, "schema_version"))) {
+        if (!Set.of(SCHEMA_VERSION, LEGACY_SCHEMA_VERSION).contains(text(scenario, "schema_version"))) {
             throw fail("INVALID_SCENARIO_SCHEMA");
         }
         String scenarioId = text(scenario, "scenario_id");
+        String executionEntryMode = optionalText(scenario, "execution_entry_mode", NATIVE_STATE_LOAD);
+        if (!Set.of(NATURAL_GAME_START, NATIVE_STATE_LOAD).contains(executionEntryMode)) {
+            throw fail("INVALID_EXECUTION_ENTRY_MODE");
+        }
         if (number(scenario, "seed") != expectedSeed) throw fail("SCENARIO_SEED_MISMATCH");
         if (integer(scenario, "starting_player_seat") != expectedStartingSeatZero + 1) {
             throw fail("SCENARIO_STARTING_PLAYER_MISMATCH");
@@ -123,6 +140,17 @@ final class XmageWs26Scenario {
         }
         for (int seat = 1; seat <= players.size(); seat++) {
             if (!bySeat.containsKey(seat)) throw fail("INVALID_PLAYER_IDENTITY: missing seat=" + seat);
+        }
+
+        if (NATURAL_GAME_START.equals(executionEntryMode)) {
+            JsonObject validation = validateNaturalStart(decks, bySeat);
+            return new Applied(
+                    scenarioId,
+                    sha256(canonical(scenario)),
+                    executionEntryMode,
+                    Map.of(),
+                    validation
+            );
         }
 
         // Full preflight before any native mutation: malformed input must be retry-safe.
@@ -172,7 +200,95 @@ final class XmageWs26Scenario {
         }
 
         JsonObject validation = validateNative(game, players, bySeat, semanticMap, ledger);
-        return new Applied(scenarioId, sha256(canonical(scenario)), Map.copyOf(semanticMap), validation);
+        return new Applied(
+                scenarioId,
+                sha256(canonical(scenario)),
+                executionEntryMode,
+                Map.copyOf(semanticMap),
+                validation
+        );
+    }
+
+    static JsonObject applyTemporalState(
+            JsonObject scenario,
+            Game game,
+            List<? extends Player> players
+    ) {
+        JsonObject temporal = object(scenario, "temporal_state");
+        rejectUnknown(temporal, TEMPORAL, "temporal_state");
+        int turn = integer(temporal, "turn_number");
+        int activeSeat = playerSeat(temporal, "active_player", players.size());
+        int prioritySeat = playerSeat(temporal, "priority_player", players.size());
+        String phaseName = text(temporal, "phase");
+        String stepName = text(temporal, "step");
+        if (!"precombat_main".equals(phaseName) || !"main".equals(stepName)) {
+            throw fail("UNSUPPORTED_SCENARIO_DIMENSION: temporal phase/step " + phaseName + "/" + stepName);
+        }
+        if (turn < 1) throw fail("INVALID_SCENARIO: turn_number must be positive");
+
+        PreCombatMainPhase phase = new PreCombatMainPhase();
+        phase.setStep(new PreCombatMainStep());
+        game.getState().getTurn().setPhase(phase);
+        game.getState().setTurnNum(turn);
+        game.getState().setActivePlayerId(players.get(activeSeat - 1).getId());
+        game.getState().setPriorityPlayerId(players.get(prioritySeat - 1).getId());
+        game.getState().setPlayerByOrderId(players.get(activeSeat - 1).getId());
+
+        requireNative(game.getState().getTurnNum() == turn, "temporal-turn");
+        requireNative(game.getActivePlayerId().equals(players.get(activeSeat - 1).getId()), "temporal-active-player");
+        requireNative(game.getPriorityPlayerId().equals(players.get(prioritySeat - 1).getId()), "temporal-priority-player");
+        requireNative(game.getTurnPhaseType() != null && "PRECOMBAT_MAIN".equals(game.getTurnPhaseType().name()), "temporal-phase");
+        requireNative(game.getTurnStepType() != null && "PRECOMBAT_MAIN".equals(game.getTurnStepType().name()), "temporal-step");
+
+        JsonObject result = new JsonObject();
+        result.addProperty("validator", "xmage-native-temporal-state/1.0.0");
+        result.addProperty("turn_number", turn);
+        result.addProperty("active_player", "P" + activeSeat);
+        result.addProperty("priority_player", "P" + prioritySeat);
+        result.addProperty("phase", phaseName);
+        result.addProperty("step", stepName);
+        result.addProperty("valid", true);
+        return result;
+    }
+
+    static int requestedPrioritySeat(JsonObject scenario, int playerCount) {
+        return playerSeat(object(scenario, "temporal_state"), "priority_player", playerCount);
+    }
+
+    private static int playerSeat(JsonObject source, String key, int playerCount) {
+        String player = text(source, key);
+        if (!player.matches("P[1-9][0-9]*")) throw fail("INVALID_PLAYER_IDENTITY: " + key + "=" + player);
+        int seat = Integer.parseInt(player.substring(1));
+        if (seat < 1 || seat > playerCount) throw fail("INVALID_PLAYER_IDENTITY: " + key + "=" + player);
+        return seat;
+    }
+
+    private static JsonObject validateNaturalStart(List<Deck> decks, Map<Integer, JsonObject> specs) {
+        JsonArray checks = new JsonArray();
+        for (int zero = 0; zero < decks.size(); zero++) {
+            int seat = zero + 1;
+            JsonObject spec = specs.get(seat);
+            String expectedName = text(spec, "natural_library_card_name");
+            int expectedCount = integer(spec, "natural_library_card_count");
+            Deck deck = decks.get(zero);
+            requireNative(deck.getCards().size() == expectedCount, "natural-deck-count:P" + seat);
+            requireNative(
+                    deck.getCards().stream().allMatch(card -> expectedName.equals(card.getName())),
+                    "natural-deck-identity:P" + seat
+            );
+            JsonObject zones = object(spec, "zones");
+            for (String zone : ZONES) {
+                requireNative(optionalArray(zones, zone).isEmpty(), "natural-start-has-injected-zone:P" + seat);
+            }
+            checks.add("P" + seat + ":commander+natural-library");
+        }
+        JsonObject result = new JsonObject();
+        result.addProperty("validator", "xmage-native-natural-start-preflight/1.0.0");
+        result.addProperty("execution_entry_mode", NATURAL_GAME_START);
+        result.addProperty("fail_closed", true);
+        result.add("checks", checks);
+        result.addProperty("valid", true);
+        return result;
     }
 
     private static void validateCommanders(JsonObject spec, Deck deck, int seat) {

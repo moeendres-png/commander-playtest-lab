@@ -114,6 +114,38 @@ class XmageFullGameObservationGatewayTest {
         assertTrue(sourceLeak.getMessage().contains("HIDDEN_INFORMATION_LEAK"));
     }
 
+    @Test
+    void outboundEnvelopeProjectsVisibleNativeIdentityAliasesToOpaqueHandles() throws Exception {
+        Fixture fixture = fixture();
+        String nativeActorId = fixture.actor().getId().toString();
+        JsonObject metadata = new JsonObject();
+        metadata.addProperty("attacker_id", nativeActorId);
+        JsonArray options = new JsonArray();
+        options.add(XmageFullGameDecisionController.option(
+                "defender-seat-2",
+                "Attack P2",
+                "declare_attacker",
+                metadata
+        ));
+
+        XmageFullGameObservationGateway.SafeDecision safe =
+                XmageFullGameObservationGateway.validate(
+                        fixture.game(),
+                        fixture.actor(),
+                        "Choose defender",
+                        new JsonObject(),
+                        options,
+                        null
+                );
+
+        JsonObject projected = safe.legalOptions().get(0).getAsJsonObject();
+        assertEquals("defender-seat-2", projected.get("option_id").getAsString());
+        String projectedAttacker = projected.getAsJsonObject("metadata")
+                .get("attacker_id").getAsString();
+        assertTrue(projectedAttacker.startsWith("obj-"));
+        assertFalse(projectedAttacker.equals(nativeActorId));
+    }
+
     private static Fixture fixture() throws Exception {
         XmageDeckImporter importer = new XmageDeckImporter();
         List<String> handles = new ArrayList<>();

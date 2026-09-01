@@ -14,9 +14,11 @@ import java.util.WeakHashMap;
  * Compatibility facade for the full-game bridge.
  *
  * <p>WS-22 deliberately removes the former independent redaction authority.
- * Every outbound observation is now produced by the registered
- * {@link XmageKnowledgeLedger}. The facade exists only so existing production
- * call sites do not gain a second visibility implementation.</p>
+ * Every outbound observation is produced by the registered
+ * {@link XmageKnowledgeLedger}; actor-visible object identity is then replaced
+ * by {@link XmageActorIdentityProjection} without changing visibility or
+ * legality. The facade exists only so existing production call sites do not
+ * gain a second visibility implementation.</p>
  */
 final class XmageFullGameStateRedactor {
 
@@ -50,7 +52,8 @@ final class XmageFullGameStateRedactor {
     }
 
     static JsonObject actorView(Game game, Player viewer, Player decisionSubject) {
-        return knowledgeLedger(game).snapshot(game, viewer, decisionSubject);
+        JsonObject privileged = knowledgeLedger(game).snapshot(game, viewer, decisionSubject);
+        return XmageActorIdentityProjection.actorView(game, viewer, privileged);
     }
 
     static JsonArray livePlayerOrder(Game game) {
