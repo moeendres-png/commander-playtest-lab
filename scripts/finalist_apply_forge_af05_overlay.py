@@ -55,8 +55,6 @@ def main() -> None:
         "actor observation on decision frame",
     )
 
-    # Primitive-A's current terminal boundary is the native non-fizzled resolution
-    # event. Insert AF05's controlled stop after that current anchor, never before it.
     java = replace_once(
         java,
         '            if (isPrimitiveAFixture(finalistFixture)\n'
@@ -228,8 +226,28 @@ def main() -> None:
         );
         GameState state = new GameState();
         state.parse(lines);
-        state.applyToGame(game);
-        game.getPhaseHandler().setPriority(game.getPlayers().get(0));
+        java.util.concurrent.CountDownLatch stateApplied = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<RuntimeException> stateFailure =
+            new java.util.concurrent.atomic.AtomicReference<>();
+        game.getAction().invoke(() -> {
+            try {
+                state.applyToGame(game);
+                game.getPhaseHandler().setPriority(game.getPlayers().get(0));
+            } catch (RuntimeException exc) {
+                stateFailure.set(exc);
+            } finally {
+                stateApplied.countDown();
+            }
+        });
+        try {
+            if (!stateApplied.await(30, java.util.concurrent.TimeUnit.SECONDS)) {
+                throw new ControlledStop("FINALIST_AF05_STATE_APPLY_TIMEOUT");
+            }
+        } catch (InterruptedException exc) {
+            Thread.currentThread().interrupt();
+            throw new ControlledStop("FINALIST_AF05_STATE_APPLY_INTERRUPTED");
+        }
+        if (stateFailure.get() != null) throw stateFailure.get();
         broker.out.println("{\"protocol\":" + esc(PROTOCOL)
             + ",\"message_type\":\"QUALIFICATION_STATE\""
             + ",\"request_id\":\"af05-state\""
