@@ -31,20 +31,11 @@ def main() -> None:
         '        requireNative(combat.getGroups().get(0).getBlockers().isEmpty(), "combat-unblocked");\n',
         "combat API validation",
     )
-    text = replace_once(
-        text,
-        '    private static JsonObject findCardSpec(JsonObject scenario, String semantic) {\n',
-        '    private static int playerSeatValue(String player, int playerCount) {\n'
-        '        if (player == null || !player.matches("P[1-9][0-9]*")) {\n'
-        '            throw fail("INVALID_PLAYER_IDENTITY: " + player);\n'
-        '        }\n'
-        '        int seat = Integer.parseInt(player.substring(1));\n'
-        '        if (seat < 1 || seat > playerCount) throw fail("INVALID_PLAYER_IDENTITY: " + player);\n'
-        '        return seat;\n'
-        '    }\n\n'
-        '    private static JsonObject findCardSpec(JsonObject scenario, String semantic) {\n',
-        "player seat parser",
-    )
+    # playerSeatValue(String,int) is already supplied by the MICRO_STACK overlay
+    # applied immediately before this one; reusing it keeps one authority for
+    # canonical Pn parsing and avoids duplicate generated methods.
+    if text.count("private static int playerSeatValue(String player, int playerCount)") != 1:
+        raise RuntimeError("existing player seat parser cardinality changed")
     SCENARIO.write_text(text, encoding="utf-8")
     print("XMAGE_MICRO_REPLACEMENT_API_FIX=PASS")
 
