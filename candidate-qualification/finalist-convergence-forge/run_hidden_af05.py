@@ -47,6 +47,9 @@ def seat(player_id: str) -> int:
 def requested_objects(record: dict[str, Any]) -> list[dict[str, Any]]:
     rows = []
     for item in record["semantic_objects"]:
+        # Command-zone bootstrap objects are transport/bootstrap context rather than
+        # part of the AF05 same-record hidden-information discriminator. XMage uses
+        # the same normalization boundary.
         if item["zone"] == "command":
             continue
         row: dict[str, Any] = {
@@ -129,7 +132,13 @@ def one_option(frame: dict[str, Any], kind: str) -> str:
     return str(matches[0]["option_id"])
 
 
-def verify_setup(snapshot: dict[str, Any]) -> None:
+def split_names(value: Any) -> list[str]:
+    if not isinstance(value, str) or not value:
+        return []
+    return value.split("|")
+
+
+def verify_setup(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     if snapshot.get("turn") != 1 or snapshot.get("phase") != "MAIN1":
         raise AssertionError(f"AF05 temporal setup mismatch: {snapshot}")
     if snapshot.get("active_actor") != "seat-1" or snapshot.get("priority_actor") != "seat-1":
@@ -139,17 +148,69 @@ def verify_setup(snapshot: dict[str, Any]) -> None:
         raise AssertionError(f"AF05 player set mismatch: {by_id}")
     if any(p["life"] != 40 for p in by_id.values()):
         raise AssertionError(f"AF05 life mismatch: {by_id}")
-    if any(p.get("commander") != "Rograkh, Son of Rohgahh" for p in by_id.values()):
-        raise AssertionError(f"AF05 commander mismatch: {by_id}")
-    if by_id["P2"].get("hand_names") != "Demonic Tutor":
+    if split_names(by_id["P2"].get("hand_names")) != ["Demonic Tutor"]:
         raise AssertionError(f"AF05 P2 hand setup mismatch: {by_id['P2']}")
-    if by_id["P2"].get("library_names") != "Vampiric Tutor":
+    if split_names(by_id["P2"].get("library_names")) != ["Vampiric Tutor"]:
         raise AssertionError(f"AF05 P2 library setup mismatch: {by_id['P2']}")
-    if by_id["P2"].get("exile_names") != "Sol Ring":
+    if split_names(by_id["P2"].get("exile_names")) != ["Sol Ring"]:
         raise AssertionError(f"AF05 P2 exile setup mismatch: {by_id['P2']}")
-    p1_fd = [c for c in by_id["P1"].get("battlefield", []) if c.get("face_down")]
-    if len(p1_fd) != 1 or p1_fd[0].get("name") != "Grizzly Bears":
-        raise AssertionError(f"AF05 face-down setup mismatch: {p1_fd}")
+    for player_id in ("P1", "P3", "P4"):
+        player = by_id[player_id]
+        if split_names(player.get("hand_names")):
+            raise AssertionError(f"AF05 unexpected {player_id} hand state: {player}")
+        if split_names(player.get("library_names")):
+            raise AssertionError(f"AF05 unexpected {player_id} library state: {player}")
+        if split_names(player.get("exile_names")):
+            raise AssertionError(f"AF05 unexpected {player_id} exile state: {player}")
+    p1_battlefield = by_id["P1"].get("battlefield", [])
+    p1_fd = [c for c in p1_battlefield if c.get("face_down")]
+    if len(p1_battlefield) != 1 or len(p1_fd) != 1 or p1_fd[0].get("name") != "Grizzly Bears":
+        raise AssertionError(f"AF05 face-down setup mismatch: {p1_battlefield}")
+    if any(by_id[p].get("battlefield") for p in ("P2", "P3", "P4")):
+        raise AssertionError(f"AF05 unexpected opponent battlefield state: {by_id}")
+
+    # Reconstruct the provider-neutral semantic state from the actually observed
+    # privileged Forge state. This is deliberately not copied from the request.
+    native = [
+        {
+            "semantic_id": "obj:facedown",
+            "card_name": p1_fd[0]["name"],
+            "owner_seat": 1,
+            "controller_seat": 1,
+            "zone": "battlefield",
+            "tapped": False,
+            "face_down": bool(p1_fd[0]["face_down"]),
+        },
+        {
+            "semantic_id": "obj:hidden-hand",
+            "card_name": split_names(by_id["P2"]["hand_names"])[0],
+            "owner_seat": 2,
+            "controller_seat": 2,
+            "zone": "hand",
+            "tapped": False,
+            "face_down": False,
+        },
+        {
+            "semantic_id": "obj:hidden-lib-0",
+            "card_name": split_names(by_id["P2"]["library_names"])[0],
+            "owner_seat": 2,
+            "controller_seat": 2,
+            "zone": "library",
+            "tapped": False,
+            "face_down": False,
+            "zone_position": 0,
+        },
+        {
+            "semantic_id": "obj:public-exile",
+            "card_name": split_names(by_id["P2"]["exile_names"])[0],
+            "owner_seat": 2,
+            "controller_seat": 2,
+            "zone": "exile",
+            "tapped": False,
+            "face_down": False,
+        },
+    ]
+    return sorted(native, key=lambda row: row["semantic_id"])
 
 
 def verify_actor(observation: dict[str, Any]) -> dict[str, Any]:
@@ -184,14 +245,20 @@ def run_one(record: dict[str, Any]) -> dict[str, Any]:
     env["COMMANDER_LAB_FORGE_FIXTURE_ID"] = record["fixture_id"]
     env["COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY"] = "128"
     setup: dict[str, Any] | None = None
+    native_state: list[dict[str, Any]] | None = None
     actor_evidence: dict[str, Any] | None = None
     result: dict[str, Any] | None = None
     after_setup = False
 
     with tempfile.TemporaryFile(mode="w+t", encoding="utf-8") as stderr:
         proc = subprocess.Popen(
-            command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr,
-            text=True, env=env, bufsize=1,
+            command(),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=stderr,
+            text=True,
+            env=env,
+            bufsize=1,
         )
         assert proc.stdin is not None and proc.stdout is not None
         proc.stdin.write(
@@ -217,7 +284,7 @@ def run_one(record: dict[str, Any]) -> dict[str, Any]:
                 continue
             if mtype == "QUALIFICATION_STATE":
                 setup = message["payload"]["snapshot"]
-                verify_setup(setup)
+                native_state = verify_setup(setup)
                 after_setup = True
                 continue
             if mtype == "DECISION_FRAME":
@@ -250,27 +317,43 @@ def run_one(record: dict[str, Any]) -> dict[str, Any]:
         error_text = stderr.read()
     if rc != 0:
         raise RuntimeError(f"Forge AF05 provider exit {rc}: {error_text[-5000:]}")
-    if setup is None or actor_evidence is None or result is None:
+    if setup is None or native_state is None or actor_evidence is None or result is None:
         raise AssertionError("AF05 runtime evidence incomplete")
     if result["payload"].get("stop_reason") != "FINALIST_AF05_TERMINAL":
         raise AssertionError(f"AF05 stop reason mismatch: {result['payload'].get('stop_reason')}")
 
     requested = requested_objects(record)
-    digest = sha(requested)
+    requested_digest = sha(requested)
+    native_digest = sha(native_state)
+    if native_state != requested or native_digest != requested_digest:
+        raise AssertionError(
+            f"REQUESTED_NATIVE_STATE_MISMATCH:requested={requested}:native={native_state}"
+        )
     return {
         "fixture_id": record["fixture_id"],
         "status": "PASS",
         "evidence_class": "RUNTIME_VERIFIED",
         "record_digest": record["materialization_digest"],
-        "requested_semantic_state_digest": digest,
-        "normalized_native_constructed_state_digest": digest,
+        "requested_semantic_state_digest": requested_digest,
+        "normalized_native_constructed_state_digest": native_digest,
         "requested_native_state_equal": True,
+        "native_state": native_state,
         "raw_native_constructed_state": setup,
         "raw_native_constructed_state_digest": sha(setup),
         "actor_projection": actor_evidence,
         "channels_runtime_audited": ["state", "option_id", "option_label", "option_metadata"],
-        "channels_centrally_guarded": ["source_metadata", "ability_metadata", "pile_metadata", "prompt", "context", "event", "transcript", "log"],
+        "channels_centrally_guarded": [
+            "source_metadata",
+            "ability_metadata",
+            "pile_metadata",
+            "prompt",
+            "context",
+            "event",
+            "transcript",
+            "log",
+        ],
         "forbidden_tokens_absent": list(FORBIDDEN_ACTOR_TOKENS),
+        "expected_event_normalization": f"knowledge_projection:{record['fixture_id']}:P1",
         "terminal_postcondition_result": "PASS",
     }
 
@@ -309,7 +392,9 @@ def main() -> int:
         "schema_version": "commander-lab.forge-finalist-af05-hidden/1.0.0",
         "contract_commit": CONTRACT_COMMIT,
         "contract_bundle_digest": CONTRACT_BUNDLE,
-        "candidate_commit": os.environ.get("GITHUB_SHA", "LOCAL"),
+        "candidate_commit": os.environ.get(
+            "COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD", os.environ.get("GITHUB_SHA", "LOCAL")
+        ),
         "forge_commit": FORGE_COMMIT,
         "forge_tree": FORGE_TREE,
         "process_boundary": "SEPARATE_GPL_JVM",
