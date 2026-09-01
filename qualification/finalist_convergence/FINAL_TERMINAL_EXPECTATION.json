@@ -1,5 +1,5 @@
 {
-  "schema_version": "commander-lab.finalist-convergence-terminal-expectation/1.0.0",
+  "schema_version": "commander-lab.finalist-convergence-terminal-expectation/1.0.1",
   "program_status": "COMPLETE_TERMINAL_CLOSEOUT_NO_ARCHITECTURE_FREEZE",
   "source_lock": {
     "main": "c83e52ae79ff2242578757c0f517badbb1a2621c",
@@ -112,7 +112,7 @@
     "AF07": {"forge": "FAIL", "xmage": "FAIL"},
     "AF08": {"forge": "FAIL", "xmage": "FAIL"},
     "AF09": {"forge": "FAIL", "xmage": "FAIL"},
-    "AF10": {"forge": "PENDING_FINAL_LOCK", "xmage": "PENDING_FINAL_LOCK"},
+    "AF10": {"forge": "PASS", "xmage": "PASS"},
     "AF11": {"forge": "PASS", "xmage": "PASS"}
   },
   "terminal_abc": {
