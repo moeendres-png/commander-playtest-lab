@@ -1,0 +1,57 @@
+name: WS34 XMage Successor Qualification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws34/xmage-successor-provider-prep
+    paths:
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - '.github/workflows/ws34-xmage-successor.yml'
+  pull_request:
+    paths:
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - '.github/workflows/ws34-xmage-successor.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract-preflight:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout WS34 provider branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Checkout exact WS32 generated freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: 038d0f38635eecee4e331c99af41f148de267a26
+          path: _ws32
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Build exact 107-record WS34 successor ledger
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws34-xmage-successor/build_successor_matrix.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json')
+          x = json.loads(p.read_text())
+          assert x['ws34_denominator'] == 107
+          assert x['entry_mode_counts'] == {'NATIVE_STATE_LOAD': 100, 'NATURAL_GAME_START': 7}
+          assert x['canonical_materialization_digest'] == 'ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23'
+          assert x['ws32_freeze_commit'] == '038d0f38635eecee4e331c99af41f148de267a26'
+          PY
+          sha256sum artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json > artifacts/ws34/SHA256SUMS
+      - name: Upload WS34 pre-runtime ledger
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws34-xmage-successor-preflight-${{ github.sha }}
+          path: artifacts/ws34/
+          if-no-files-found: error
