@@ -260,7 +260,7 @@ def main() -> None:
         java.util.List<String> lines = java.util.List.of(
             "turn=1",
             "activeplayer=p0",
-            "activephase=COMBAT_DECLARE_ATTACKERS",
+            "activephase=MAIN1",
             "p0life=40",
             "p0hand=",
             "p0battlefield=Grizzly Bears|Id:4301;Grizzly Bears|Id:4302;Grizzly Bears|Id:4303",
@@ -298,6 +298,7 @@ def main() -> None:
             try {
                 state.applyToGame(game);
                 Player p1 = game.getPlayers().get(0);
+                game.getPhaseHandler().devModeSet(forge.game.phase.PhaseType.COMBAT_DECLARE_ATTACKERS, p1, 1);
                 Card baseline = cardByNativeId(p1, 4301);
                 Card a0 = cardByNativeId(p1, 4302);
                 Card a1 = cardByNativeId(p1, 4303);
