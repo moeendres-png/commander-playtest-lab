@@ -10,6 +10,7 @@ on:
       - "handoffs/finalist-convergence-forge/**"
 
 permissions:
+  actions: read
   contents: read
 
 env:
@@ -19,6 +20,11 @@ env:
   FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
   FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
   FORGE_VERSION: 2.0.15-SNAPSHOT
+  XMAGE_CONVERGENCE_HEAD: 6dcf2359704e0f303752122bbed13a8687f99fa9
+  XMAGE_RUN_ID: "33487966523"
+  XMAGE_ARTIFACT_ID: "9792644328"
+  XMAGE_ARTIFACT_DIGEST: sha256:c03945c01ecdbbb48bde273bddf68ad42341fc056b10b2269557f1a2e578c24a
+  XMAGE_RESULTS_SHA256: 9faebc53feb505432366c3e3b29bef908cfb179d5d4c88cdd95f5ee2f468ecfd
 
 jobs:
   primitive-a:
@@ -100,7 +106,8 @@ jobs:
             scripts/finalist_generate_forge_bootstrap.py \
             scripts/finalist_apply_forge_primitive_a_overlay.py \
             scripts/finalist_fix_forge_primitive_a_sync.py \
-            candidate-qualification/finalist-convergence-forge/run_primitive_a.py
+            candidate-qualification/finalist-convergence-forge/run_primitive_a.py \
+            candidate-qualification/finalist-convergence-forge/compare_same_records.py
 
       - name: Build pinned unmodified Forge game modules
         working-directory: vendor/engine-source/forge
@@ -198,6 +205,44 @@ jobs:
           assert p['convergence_branch_head'] == os.environ['GITHUB_SHA']
           assert all(r['requested_native_state_equal'] for r in p['rows'])
           assert all(r['terminal_postcondition_result'] == 'PASS' for r in p['rows'])
+          assert all(r['requested_semantic_state_digest'] == 'd744c9a5d51c394bbf15eb90a6eff5a67cba0f0312f5418c6f92ce6e761d1042' for r in p['rows'])
+          assert all(r['normalized_native_constructed_state_digest'] == 'd744c9a5d51c394bbf15eb90a6eff5a67cba0f0312f5418c6f92ce6e761d1042' for r in p['rows'])
+          assert all(r['terminal_native_assertions']['obj:pilot-mountain']['tapped'] is True for r in p['rows'])
+          PY
+
+      - name: Download exact XMage Primitive-A artifact
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ env.XMAGE_ARTIFACT_ID }}
+          path: qualification/evidence/finalist-convergence-forge/xmage-primitive-a-reference
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: moeendres-png/commander-playtest-lab
+          run-id: ${{ env.XMAGE_RUN_ID }}
+
+      - name: Execute exact Primitive-A differential
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          ref="$ev/xmage-primitive-a-reference/PRIMITIVE_A_RESULTS.json"
+          test -f "$ref"
+          echo "$XMAGE_RESULTS_SHA256  $ref" | sha256sum -c -
+          python candidate-qualification/finalist-convergence-forge/compare_same_records.py \
+            --forge "$ev/PRIMITIVE_A_RESULTS.json" \
+            --xmage "$ref" \
+            --output "$ev/PRIMITIVE_A_DIFFERENTIAL.json" \
+            --xmage-convergence-head "$XMAGE_CONVERGENCE_HEAD" \
+            --xmage-workflow-run "$XMAGE_RUN_ID" \
+            --xmage-artifact-id "$XMAGE_ARTIFACT_ID" \
+            --xmage-artifact-digest "$XMAGE_ARTIFACT_DIGEST" \
+            --fixture-id PILOT_PRIORITY \
+            --fixture-id PILOT_TARGET
+          python - <<'PY'
+          import json
+          p=json.load(open('qualification/evidence/finalist-convergence-forge/PRIMITIVE_A_DIFFERENTIAL.json'))
+          assert p['counts'] == {'DIFFERENTIAL_AGREEMENT_PASS': 2}
+          assert p['selected_fixture_ids'] == ['PILOT_PRIORITY', 'PILOT_TARGET']
           PY
 
       - name: Materialize checksums

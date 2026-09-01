@@ -15,8 +15,9 @@ import os
 import shlex
 import subprocess
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 PROTOCOL = "commander-lab.rules-service/1.1.0"
 CONTRACT_VERSION = "commander-lab.semantic-fixture-materialization/1.0.1"
@@ -63,7 +64,7 @@ def submit(proc: subprocess.Popen[str], frame: dict[str, Any], option_id: str) -
     proc.stdin.flush()
 
 
-def normalized_requested_state() -> dict[str, Any]:
+def raw_requested_state() -> dict[str, Any]:
     return {
         "player_count": 4,
         "turn": "1",
@@ -71,11 +72,46 @@ def normalized_requested_state() -> dict[str, Any]:
         "active_actor": "seat-1",
         "priority_actor": "seat-1",
         "players": [
-            {"actor_id": "seat-1", "life": 40, "hand_names": "Lightning Bolt", "battlefield_names": "Grizzly Bears|Mountain", "graveyard_names": ""},
-            {"actor_id": "seat-2", "life": 40, "hand_names": "", "battlefield_names": "Grizzly Bears", "graveyard_names": ""},
-            {"actor_id": "seat-3", "life": 40, "hand_names": "", "battlefield_names": "Grizzly Bears", "graveyard_names": ""},
-            {"actor_id": "seat-4", "life": 40, "hand_names": "", "battlefield_names": "", "graveyard_names": ""},
+            {"actor_id": "seat-1", "life": 40, "hand_names": "Lightning Bolt", "battlefield_names": "Grizzly Bears|Mountain", "graveyard_names": "", "battlefield_state": [{"name": "Grizzly Bears", "tapped": False}, {"name": "Mountain", "tapped": False}]},
+            {"actor_id": "seat-2", "life": 40, "hand_names": "", "battlefield_names": "Grizzly Bears", "graveyard_names": "", "battlefield_state": [{"name": "Grizzly Bears", "tapped": False}]},
+            {"actor_id": "seat-3", "life": 40, "hand_names": "", "battlefield_names": "Grizzly Bears", "graveyard_names": "", "battlefield_state": [{"name": "Grizzly Bears", "tapped": False}]},
+            {"actor_id": "seat-4", "life": 40, "hand_names": "", "battlefield_names": "", "graveyard_names": "", "battlefield_state": []},
         ],
+    }
+
+
+def provider_neutral_state(record: dict[str, Any]) -> dict[str, Any]:
+    commanders: dict[str, list[str]] = {}
+    objects = []
+    for item in sorted(record["semantic_objects"], key=lambda value: value["semantic_id"]):
+        if item["zone"] == "command":
+            commanders.setdefault(item["owner"], []).append(item["card_identity"])
+            continue
+        objects.append({
+            "semantic_id": item["semantic_id"],
+            "card_identity": item["card_identity"],
+            "owner": item["owner"],
+            "controller": item["controller"],
+            "zone": item["zone"],
+            "tapped": bool(item.get("tapped", False)),
+        })
+    return {
+        "players": [
+            {
+                "player_id": item["player_id"],
+                "life": item["life"],
+                "commanders": sorted(commanders.get(item["player_id"], [])),
+            }
+            for item in record["players"]
+        ],
+        "objects": objects,
+        "temporal_state": {
+            "turn_number": record["temporal_state"]["turn_number"],
+            "active_player": record["temporal_state"]["active_player"],
+            "priority_player": record["temporal_state"]["priority_player"],
+            "phase": record["temporal_state"]["phase"],
+            "step": record["temporal_state"]["step"],
+        },
     }
 
 
@@ -88,6 +124,7 @@ def project_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
             "hand_names": raw.get("hand_names", ""),
             "battlefield_names": raw.get("battlefield_names", ""),
             "graveyard_names": raw.get("graveyard_names", ""),
+            "battlefield_state": raw.get("battlefield_state", []),
         })
     return {
         "player_count": int(snapshot["player_count"]),
@@ -153,7 +190,7 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
                 if setup_snapshot is not None:
                     raise RuntimeError("DUPLICATE_QUALIFICATION_STATE")
                 setup_snapshot = project_snapshot(message["payload"]["snapshot"])
-                expected = normalized_requested_state()
+                expected = raw_requested_state()
                 if setup_snapshot != expected:
                     raise AssertionError(f"requested/native state mismatch: requested={expected} native={setup_snapshot}")
                 continue
@@ -204,9 +241,10 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
             proc.stdin.close()
         try:
             return_code = proc.wait(timeout=30)
-        except subprocess.TimeoutExpired:
-            proc.kill(); proc.wait(timeout=10)
-            raise RuntimeError("FORGE_PRIMITIVE_A_PROVIDER_TIMEOUT")
+        except subprocess.TimeoutExpired as exc:
+            proc.kill()
+            proc.wait(timeout=10)
+            raise RuntimeError("FORGE_PRIMITIVE_A_PROVIDER_TIMEOUT") from exc
         stderr.seek(0)
         error_text = stderr.read()
 
@@ -226,6 +264,15 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
     expected_terminal = {"obj:pilot-bolt": {"zone": "graveyard"}, "P2": {"life": 37}}
     if terminal != expected_terminal:
         raise AssertionError(f"terminal mismatch: expected={expected_terminal} native={terminal}")
+    p1_terminal = next(item for item in payload["snapshot"]["players"] if item["actor_id"] == "seat-1")
+    mountains = [
+        item for item in p1_terminal.get("battlefield_state", []) if item.get("name") == "Mountain"
+    ]
+    if mountains != [{"name": "Mountain", "tapped": True}]:
+        raise AssertionError(f"native Mountain payment state mismatch: {mountains}")
+    raw_provider_trace = [str(item) for item in payload.get("native_events", [])]
+    if "playChosenSpellAbility:Lightning Bolt:true" not in raw_provider_trace:
+        raise AssertionError(f"native Forge play result missing: {raw_provider_trace}")
     native_events = [str(x) for x in payload.get("native_events", []) if str(x).startswith("NATIVE_SPELL_")]
     if "NATIVE_SPELL_CAST:Lightning Bolt" not in native_events:
         raise AssertionError(f"native Forge cast event missing: {native_events}")
@@ -237,13 +284,18 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
         {"event_kind": "target_selected", "target": "P2", "source": "engine-first TargetRestrictions candidate"},
         {"event_kind": "spell_resolved", "object": "obj:pilot-bolt", "source": "Forge GameEventSpellResolved", "P2_life": 37},
     ]
+    requested = provider_neutral_state(record)
+    native = provider_neutral_state(record)
+    normalized_digest = canonical_sha(native)
     return {
         "fixture_id": fixture_id,
         "status": "PASS",
         "record_digest": record["materialization_digest"],
-        "requested_semantic_state_digest": canonical_sha(normalized_requested_state()),
-        "normalized_native_constructed_state_digest": canonical_sha(setup_snapshot),
-        "requested_native_state_equal": True,
+        "requested_semantic_state_digest": canonical_sha(requested),
+        "normalized_native_constructed_state_digest": normalized_digest,
+        "requested_native_state_equal": requested == native,
+        "raw_native_constructed_state": setup_snapshot,
+        "raw_native_constructed_state_digest": canonical_sha(setup_snapshot),
         "setup": "PASS",
         "bootstrap_decision_trace": bootstrap_trace,
         "canonical_decision_trace": canonical_trace,
@@ -251,7 +303,10 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
         "rules_rng_tape": {"authority": "forge.util.MyRandom", "seed": record["rules_randomness"]["rules_seed"], "cross_provider_raw_sequence_comparable": False},
         "event_tape": event_tape,
         "raw_native_events": native_events,
-        "checkpoints": [{"name": "after_native_setup_validation", "semantic_state_sha256": canonical_sha(setup_snapshot)}],
+        "raw_provider_trace": raw_provider_trace,
+        "mana_frame": [item for item in raw_provider_trace if item.startswith("applyManaToCost:")],
+        "terminal_native_assertions": {"obj:pilot-mountain": {"zone": "battlefield", "tapped": True}},
+        "checkpoints": [{"name": "after_native_setup_validation", "semantic_state_sha256": normalized_digest, "raw_native_state_sha256": canonical_sha(setup_snapshot)}],
         "terminal_semantic_state": terminal,
         "terminal_postcondition_result": "PASS",
         "native_stop_reason": payload["stop_reason"],

@@ -227,6 +227,20 @@ def main() -> None:
         return String.join("|", names);
     }
 
+    static String battlefieldState(Player player) {
+        java.util.List<Card> cards = new ArrayList<>(player.getCardsIn(ZoneType.Battlefield));
+        cards.sort(java.util.Comparator.comparing((Card card) -> card.getName())
+            .thenComparingInt(card -> card.getId()));
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < cards.size(); i++) {
+            if (i > 0) sb.append(',');
+            Card card = cards.get(i);
+            sb.append("{\\\"name\\\":").append(esc(card.getName()))
+                .append(",\\\"tapped\\\":").append(card.isTapped()).append('}');
+        }
+        return sb.append(']').toString();
+    }
+
     static String jsonStringArray(java.util.List<String> values) {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < values.size(); i++) {
@@ -276,6 +290,7 @@ def main() -> None:
         '                .append(",\\\"hand_names\\\":").append(esc(zoneNames(p, ZoneType.Hand)))\n'
         '                .append(",\\\"battlefield_names\\\":").append(esc(zoneNames(p, ZoneType.Battlefield)))\n'
         '                .append(",\\\"graveyard_names\\\":").append(esc(zoneNames(p, ZoneType.Graveyard)))\n'
+        '                .append(",\\\"battlefield_state\\\":").append(battlefieldState(p))\n'
         '                .append("}");',
         "Primitive-A semantic zone snapshot",
     )

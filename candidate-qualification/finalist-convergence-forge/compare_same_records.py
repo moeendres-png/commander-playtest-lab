@@ -30,11 +30,36 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def rows_by_id(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def rows_by_id(
+    payload: dict[str, Any], fixture_ids: list[str]
+) -> dict[str, dict[str, Any]]:
     rows = {row["fixture_id"]: row for row in payload.get("rows", [])}
-    if set(rows) != set(STARTER_ORDER):
-        raise SystemExit(f"STARTER18_ROW_SET_MISMATCH:{sorted(set(rows) ^ set(STARTER_ORDER))}")
-    return rows
+    missing = set(fixture_ids) - set(rows)
+    if missing:
+        raise SystemExit(f"SELECTED_ROW_SET_MISSING:{sorted(missing)}")
+    return {fixture_id: rows[fixture_id] for fixture_id in fixture_ids}
+
+
+def primitive_choices(row: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        decision
+        for decision in row.get("canonical_decision_trace", [])
+        if decision.get("decision_family") in {"priority", "target"}
+    ]
+
+
+def semantic_events(row: dict[str, Any]) -> list[dict[str, Any]]:
+    normalized = []
+    for event in row.get("event_tape", []):
+        item = {"event_kind": event.get("event_kind")}
+        for key in ("object", "target", "P2_life"):
+            if key in event:
+                item[key] = event[key]
+        observation = event.get("native_observation")
+        if isinstance(observation, dict) and "P2_life" in observation:
+            item["P2_life"] = observation["P2_life"]
+        normalized.append(item)
+    return normalized
 
 
 def forge_choices(row: dict[str, Any]) -> dict[str, Any]:
@@ -91,6 +116,9 @@ def compare_pass_rows(fixture_id: str, forge: dict[str, Any], xmage: dict[str, A
 
     if fixture_id in {"PLAYER_COUNT_2P", "PLAYER_COUNT_3P", "PLAYER_COUNT_4P", "PLAYER_COUNT_5P", "PILOT_MULLIGAN"}:
         required_equal["semantic_discretionary_selections"] = forge_choices(forge) == xmage_choices(xmage)
+    if fixture_id in {"PILOT_PRIORITY", "PILOT_TARGET"}:
+        required_equal["semantic_discretionary_selections"] = primitive_choices(forge) == primitive_choices(xmage)
+        required_equal["semantic_event_tape"] = semantic_events(forge) == semantic_events(xmage)
 
     if all(required_equal.values()):
         return "DIFFERENTIAL_AGREEMENT_PASS", required_equal
@@ -106,7 +134,17 @@ def main() -> int:
     ap.add_argument("--xmage-workflow-run", required=True)
     ap.add_argument("--xmage-artifact-id", required=True)
     ap.add_argument("--xmage-artifact-digest", required=True)
+    ap.add_argument(
+        "--fixture-id",
+        action="append",
+        dest="fixture_ids",
+        help="Fixture ID to compare; repeat for an explicit subset (default: Starter-18).",
+    )
     args = ap.parse_args()
+
+    fixture_ids = args.fixture_ids or list(STARTER_ORDER)
+    if len(fixture_ids) != len(set(fixture_ids)):
+        raise SystemExit("DUPLICATE_SELECTED_FIXTURE_ID")
 
     forge_payload = json.loads(args.forge.read_text(encoding="utf-8"))
     xmage_payload = json.loads(args.xmage.read_text(encoding="utf-8"))
@@ -115,10 +153,10 @@ def main() -> int:
     if forge_payload.get("contract_bundle_digest") != xmage_payload.get("contract_bundle_digest"):
         raise SystemExit("CONTRACT_BUNDLE_MISMATCH")
 
-    forge_rows = rows_by_id(forge_payload)
-    xmage_rows = rows_by_id(xmage_payload)
+    forge_rows = rows_by_id(forge_payload, fixture_ids)
+    xmage_rows = rows_by_id(xmage_payload, fixture_ids)
     output_rows: list[dict[str, Any]] = []
-    for fixture_id in STARTER_ORDER:
+    for fixture_id in fixture_ids:
         forge = forge_rows[fixture_id]
         xmage = xmage_rows[fixture_id]
         if forge.get("record_digest") != xmage.get("record_digest"):
@@ -155,7 +193,8 @@ def main() -> int:
     for row in output_rows:
         counts[row["verdict"]] = counts.get(row["verdict"], 0) + 1
     evidence = {
-        "schema_version": "commander-lab.finalist-same-record-comparison/1.0.0",
+        "schema_version": "commander-lab.finalist-same-record-comparison/1.1.0",
+        "selected_fixture_ids": fixture_ids,
         "contract_commit": forge_payload["contract_commit"],
         "contract_bundle_digest": forge_payload["contract_bundle_digest"],
         "forge_candidate_commit": forge_payload.get("candidate_commit"),

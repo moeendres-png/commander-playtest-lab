@@ -176,10 +176,12 @@ def run_natural(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
             proc.stdin.close()
         try:
             return_code = proc.wait(timeout=30)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as exc:
             proc.kill()
             proc.wait(timeout=10)
-            raise RuntimeError("Forge provider did not terminate after canonical natural-start stop")
+            raise RuntimeError(
+                "Forge provider did not terminate after canonical natural-start stop"
+            ) from exc
         stderr.seek(0)
         error_text = stderr.read()
 

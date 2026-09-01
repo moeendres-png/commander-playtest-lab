@@ -181,6 +181,8 @@ def main() -> None:
                         + colorCanUse + ":" + String.join(";", manaFrame));
                     return false;
                 }
+                broker.recordAutomatic("applyManaToCost:colorCanUse=" + colorCanUse
+                    + ":offered=" + labels.size() + ":" + String.join(";", manaFrame));
                 String selectedId = broker.choose("mana_payment", this.player, labels);
                 int selectedIndex = Integer.parseInt(selectedId.substring(1));
                 if (selectedIndex < 0 || selectedIndex >= nativeMana.size()) throw failClosed("applyManaToCost:STALE_SELECTION");
@@ -195,6 +197,7 @@ def main() -> None:
                 }
                 if (!restrictionsMet) return false;
                 this.player.getManaPool().payManaFromAbility(ability, toPay, chosen);
+                broker.recordAutomatic("applyManaToCost:paid=" + toPay.isPaid());
             }
             return true;
         }''',
