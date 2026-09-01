@@ -7,7 +7,8 @@ source and it never moves Forge code into the proprietary process. The overlay a
 - exact NATIVE_STATE_LOAD materialization through Forge GameState;
 - semantic labels for engine-generated priority actions;
 - engine-first single-target routing from TargetRestrictions.getAllCandidates;
-- engine-native mana-ability activation/payment without Forge AI or GUI defaults.
+- engine-native mana-ability activation/payment without Forge AI or GUI defaults;
+- direct Forge event-bus evidence for cast and resolution.
 
 Every discretionary selection remains external and fail-closed.
 """
@@ -49,6 +50,17 @@ def main() -> None:
         "headless Primitive-A card registration",
     )
 
+    java = replace_once(
+        java,
+        '        java.util.List<SpellAbility> choosePriority(Player actor, Game game) {\n            priorityDecisions++;',
+        '        java.util.List<SpellAbility> choosePriority(Player actor, Game game) {\n'
+        '            String finalistFixture = System.getenv("COMMANDER_LAB_FORGE_FIXTURE_ID");\n'
+        '            if (isPrimitiveAFixture(finalistFixture) && primitiveATerminal(game)) {\n'
+        '                throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");\n'
+        '            }\n'
+        '            priorityDecisions++;',
+        "Primitive-A terminal stop",
+    )
     java = replace_once(
         java,
         '                            labels.add("FORGE_LEGAL_ACTION");',
@@ -150,7 +162,18 @@ def main() -> None:
         return "PILOT_PRIORITY".equals(fixtureId) || "PILOT_TARGET".equals(fixtureId);
     }
 
-    static void applyPrimitiveAState(Game game, String fixtureId) {
+    static boolean primitiveATerminal(Game game) {
+        if (game.getPlayers().size() != 4) return false;
+        Player p1 = game.getPlayers().get(0);
+        Player p2 = game.getPlayers().get(1);
+        boolean boltInGraveyard = false;
+        for (Card card : p1.getCardsIn(ZoneType.Graveyard)) {
+            if ("Lightning Bolt".equals(card.getName())) boltInGraveyard = true;
+        }
+        return boltInGraveyard && p2.getLife() == 37;
+    }
+
+    static void applyPrimitiveAState(Game game, String fixtureId, Broker broker) {
         if (!isPrimitiveAFixture(fixtureId)) return;
         java.util.List<String> lines = java.util.List.of(
             "turn=1",
@@ -189,6 +212,12 @@ def main() -> None:
         state.parse(lines);
         state.applyToGame(game);
         game.getPhaseHandler().setPriority(game.getPlayers().get(0));
+        broker.out.println("{\\\"protocol\\\":" + esc(PROTOCOL)
+            + ",\\\"message_type\\\":\\\"QUALIFICATION_STATE\\\""
+            + ",\\\"request_id\\\":\\\"primitive-a-state\\\""
+            + ",\\\"session_id\\\":" + esc(SESSION_ID)
+            + ",\\\"payload\\\":{\\\"stage\\\":\\\"after_native_setup_validation\\\",\\\"snapshot\\\":" + sessionSnapshot(game) + "}}");
+        broker.out.flush();
     }
 
     static String zoneNames(Player player, ZoneType zone) {
@@ -198,9 +227,47 @@ def main() -> None:
         return String.join("|", names);
     }
 
-    static String singleCommanderName(Player player) {'''
-    java = replace_once(java, helper_anchor, helper, "Primitive-A state helpers")
+    static String jsonStringArray(java.util.List<String> values) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < values.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(esc(values.get(i)));
+        }
+        return sb.append(']').toString();
+    }
 
+    static final class FinalistEvidenceEvents {
+        final Broker broker;
+        FinalistEvidenceEvents(Broker broker) { this.broker = broker; }
+
+        @com.google.common.eventbus.Subscribe
+        public void onSpellCast(forge.game.event.GameEventSpellAbilityCast event) {
+            broker.recordAutomatic("NATIVE_SPELL_CAST:" + event.sa().getHostCard().getName());
+        }
+
+        @com.google.common.eventbus.Subscribe
+        public void onSpellResolved(forge.game.event.GameEventSpellResolved event) {
+            broker.recordAutomatic("NATIVE_SPELL_RESOLVED:" + event.spell().getHostCard().getName() + ":fizzled=" + event.hasFizzled());
+        }
+    }
+
+    static String singleCommanderName(Player player) {'''
+    java = replace_once(java, helper_anchor, helper, "Primitive-A state/evidence helpers")
+
+    java = replace_once(
+        java,
+        '        return "{\\\"player_count\\\":" + game.getPlayers().size()\n'
+        '            + ",\\\"turn\\\":" + esc(turn)\n'
+        '            + ",\\\"phase\\\":" + esc(phase)\n'
+        '            + ",\\\"players\\\":[" + players + "]}";',
+        '        return "{\\\"player_count\\\":" + game.getPlayers().size()\n'
+        '            + ",\\\"turn\\\":" + esc(turn)\n'
+        '            + ",\\\"phase\\\":" + esc(phase)\n'
+        '            + ",\\\"active_actor\\\":" + esc(game.getPhaseHandler().getPlayerTurn() == null ? null : game.getPhaseHandler().getPlayerTurn().getName())\n'
+        '            + ",\\\"priority_actor\\\":" + esc(game.getPhaseHandler().getPriorityPlayer() == null ? null : game.getPhaseHandler().getPriorityPlayer().getName())\n'
+        '            + ",\\\"players\\\":[" + players + "]}";',
+        "active/priority semantic snapshot",
+    )
     java = replace_once(
         java,
         '                .append(",\\\"commander\\\":").append(esc(singleCommanderName(p)))\n'
@@ -215,16 +282,35 @@ def main() -> None:
 
     java = replace_once(
         java,
+        '        Game game = match.createGame();\n        out.println("{\\\"protocol\\\":" + esc(PROTOCOL)',
+        '        Game game = match.createGame();\n'
+        '        game.subscribeToEvents(new FinalistEvidenceEvents(broker));\n'
+        '        out.println("{\\\"protocol\\\":" + esc(PROTOCOL)',
+        "native event subscription",
+    )
+
+    java = replace_once(
+        java,
         '        try {\n            match.startGame(game);\n            stopReason = "FORGE_GAME_RETURNED";',
         '        try {\n'
         '            String finalistFixtureId = System.getenv("COMMANDER_LAB_FORGE_FIXTURE_ID");\n'
         '            if (isPrimitiveAFixture(finalistFixtureId)) {\n'
-        '                match.startGame(game, () -> applyPrimitiveAState(game, finalistFixtureId));\n'
+        '                match.startGame(game, () -> applyPrimitiveAState(game, finalistFixtureId, broker));\n'
         '            } else {\n'
         '                match.startGame(game);\n'
         '            }\n'
         '            stopReason = "FORGE_GAME_RETURNED";',
         "qualification native-state hook",
+    )
+
+    java = replace_once(
+        java,
+        '            + ",\\\"priority_decisions\\\":" + broker.priorityDecisions\n'
+        '            + ",\\\"snapshot\\\":" + sessionSnapshot(game) + "}}");',
+        '            + ",\\\"priority_decisions\\\":" + broker.priorityDecisions\n'
+        '            + ",\\\"native_events\\\":" + jsonStringArray(broker.automatic)\n'
+        '            + ",\\\"snapshot\\\":" + sessionSnapshot(game) + "}}");',
+        "native event evidence in result",
     )
 
     path.write_text(java, encoding="utf-8")
