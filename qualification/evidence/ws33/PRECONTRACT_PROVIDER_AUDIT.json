@@ -1,0 +1,183 @@
+{
+  "workstream": "WS-33",
+  "status": "PRECONTRACT_PROVIDER_AUDIT_COMPLETE",
+  "successor_credit": false,
+  "forge_source": {
+    "commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+    "version": "2.0.15-SNAPSHOT"
+  },
+  "architecture": {
+    "separate_gpl_jvm_process": "PRESERVE",
+    "rules_core_legality_authority": "PRESERVE",
+    "external_discretionary_pilot": "PRESERVE",
+    "forge_ai_delegation": "FORBIDDEN",
+    "gui_default_fallback": "FORBIDDEN",
+    "remote_client_gui_game_as_pilot": "FORBIDDEN",
+    "unsupported_discretionary_path": "FAIL_CLOSED"
+  },
+  "af04_precontract_inventory": [
+    {
+      "decision_class": "ABILITY_TO_PLAY",
+      "current_provider_behavior": "empty fail closed; singleton native option may auto-resolve; multiple native candidates externally selected",
+      "status": "PARTIAL"
+    },
+    {
+      "decision_class": "PRIORITY_ACTION",
+      "current_provider_behavior": "enumerates native canPlay(true) spell abilities plus PASS, externally selects, then revalidates native legality",
+      "status": "PARTIAL"
+    },
+    {
+      "decision_class": "TARGET_SELECTION",
+      "current_provider_behavior": "native target restriction/candidate filtering; exactly one target only; multi-target fails closed",
+      "status": "PARTIAL"
+    },
+    {
+      "decision_class": "MANA_PAYMENT",
+      "current_provider_behavior": "native floating mana options filtered by need/restriction/shard; external choice; native pool payment",
+      "status": "PARTIAL"
+    },
+    {
+      "decision_class": "REPLACEMENT_CONFIRMATION",
+      "current_provider_behavior": "external APPLY/DECLINE selection",
+      "status": "PARTIAL"
+    },
+    {
+      "decision_class": "SIMULTANEOUS_TRIGGER_ORDERING",
+      "current_provider_behavior": "external ordering for at most two; more than two fails closed",
+      "status": "PARTIAL"
+    },
+    {
+      "decision_class": "DECLARE_ATTACKERS",
+      "current_provider_behavior": "native defender enumeration and validation; at most one possible attacker; attack-cost paths fail closed",
+      "status": "PARTIAL"
+    },
+    {
+      "decision_class": "DECLARE_BLOCKERS",
+      "current_provider_behavior": "at most one attacker and one blocker; broader combat decisions fail closed",
+      "status": "PARTIAL"
+    }
+  ],
+  "af05_precontract": {
+    "native_visibility_authority": "CardView.canBeShownTo(viewer) and canFaceDownBeShownTo(viewer)",
+    "own_hand_identity": "VISIBLE_TO_OWNER",
+    "opponent_hand_identity": "REDACTED_IN_CURRENT_PROVIDER_SLICE",
+    "library_identity": "REDACTED_IN_CURRENT_PROVIDER_SLICE",
+    "face_down_identity": "REDACTED_IN_CURRENT_PROVIDER_SLICE",
+    "public_zone_identity": "VISIBLE_WHEN_NATIVE_VIEW_ALLOWS",
+    "stack_projection": "PRESENT_IN_CURRENT_PROVIDER_SLICE",
+    "external_object_reference": "card:<native numeric id>",
+    "opaque_identity_requirement": "FAIL",
+    "classification": "FORGE_PROVIDER_DEFECT",
+    "full_successor_denominator": "UNKNOWN_UNTIL_WS32"
+  },
+  "native_construction_matrix": [
+    {
+      "surface": "NATURAL_GAME_START_COMMANDER",
+      "native_path": "RegisteredPlayer.forCommander(Deck)",
+      "status": "AVAILABLE_SOURCE_DERIVED",
+      "successor_digest_credit": false
+    },
+    {
+      "surface": "NATIVE_STATE_LOAD_GENERAL_MIDGAME",
+      "native_path": "forge.game.GameState",
+      "status": "PARTIAL_BROAD_NOT_FULL",
+      "successor_digest_credit": false
+    },
+    {
+      "surface": "LIFE_NORMAL_ZONES_COMMAND_COUNTERS_TAPPED_SUMMON_SICK_ATTACHMENTS_OWNER_CONTROLLER_FACE_DOWN_MANA_TURN_ACTIVE_PHASE",
+      "native_path": "GameState-supported dimensions",
+      "status": "SOURCE_SUPPORTED_SUBSET",
+      "successor_digest_credit": false
+    },
+    {
+      "surface": "FOUR_PLAYER_MULTI_DEFENDER_COMBAT",
+      "native_path": "Combat + addAttacker + native events + CombatUtil validation; generic GameState combat helper disallowed",
+      "status": "CUSTOM_NATIVE_PROVIDER_PATH_REQUIRED",
+      "successor_digest_credit": false
+    },
+    {
+      "surface": "PRIORITY_HOLDER_VIEWER_KNOWLEDGE_REVEALED_ZONE_FULL_COMMANDER_HISTORY_ARBITRARY_FULLY_CAST_STACK",
+      "native_path": "not proven by generic loader",
+      "status": "GAP_OR_RECORD_SPECIFIC_NATIVE_PATH_REQUIRED",
+      "successor_digest_credit": false
+    },
+    {
+      "surface": "REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_NATIVE_STATE_DIGEST",
+      "native_path": null,
+      "status": "NOT_RUN_BLOCKED_BY_WS32_SCHEMA_AND_RECORD_DIGESTS",
+      "successor_digest_credit": false
+    }
+  ],
+  "af09_precontract": {
+    "native_rng_authority": "forge.util.MyRandom",
+    "scope": "process-global singleton",
+    "production_baseline": "ONE_ACTIVE_SIMULATION_PER_FORGE_JVM_PROCESS",
+    "successor_rules_rng_tape": "NOT_RUN",
+    "successor_clean_process_replay": "NOT_RUN",
+    "full_rules_rng_census": "REQUIRES_SUCCESSOR_RELEVANCE_RECHECK"
+  },
+  "source_refresh": {
+    "historical_pin": "1e604105f9e279331063824943b9222b6589f5d8",
+    "fresh_master": "c817743ecbda4a4983a4246a13375d1a6adf8a4e",
+    "ahead_by": 24,
+    "rules_sensitive_observations": [
+      {
+        "commit": "ac8c59a8442de8c594d7336021072b8531e2cb36",
+        "path": "forge-game/src/main/java/forge/game/cost/CostAdjustment.java",
+        "effect": "real cost-path behavior changed by empty eligible-card guard"
+      },
+      {
+        "commit": "14a2a062f7416d27b02cde6c7f1970c002879616",
+        "path": "forge-game/src/main/java/forge/game/spellability/SpellAbilityProperty.java",
+        "effect": "property comparison changed from ability to root ability"
+      }
+    ],
+    "decision": "RETAIN_HISTORICAL_PIN_FOR_PRECONTRACT; REEVALUATE_AGAINST_EXACT_WS32_RECORDS_BEFORE_SUCCESSOR_RUNTIME"
+  },
+  "historical_test_evidence_provenance_only": {
+    "finalist_head": "8fb95d53d168228a3785f6270f33d5785df989a3",
+    "scoped_success_runs": [
+      33545218854,
+      33545218826,
+      33545218852,
+      33545214636,
+      33545214509,
+      33545214688,
+      33545214476
+    ],
+    "failed_aggregate_run": {
+      "run_id": 33545214605,
+      "job_id": 99980908208,
+      "failure_classification": "QUALIFICATION_INFRA_DEFECT",
+      "failure_point": "Verify historical Forge bootstrap provenance",
+      "runtime_steps_executed": false,
+      "artifact_id": 9815175796,
+      "artifact_zip_sha256": "5a3b2796d2debbfea43641f749493bf97895f3733789d78ed9c21bf004f8e797",
+      "note": "workflow asserted zero diff from WS25 bootstrap although finalist branch intentionally added headless native CardType initialization"
+    }
+  },
+  "defects": [
+    {
+      "id": "WS33-PRE-FORGE-PROVIDER-001",
+      "taxonomy": "FORGE_PROVIDER_DEFECT",
+      "finding": "actor-facing semantic object references currently encode Forge native numeric card ids rather than opaque provider-independent identities"
+    },
+    {
+      "id": "WS33-PRE-FORGE-PROVIDER-002",
+      "taxonomy": "FORGE_PROVIDER_DEFECT",
+      "finding": "current discretionary callback implementation is intentionally partial and fail-closed for multi-target, broader combat, trigger-ordering and other production-reachable classes"
+    },
+    {
+      "id": "WS33-PRE-FORGE-PROVIDER-003",
+      "taxonomy": "FORGE_PROVIDER_DEFECT",
+      "finding": "generic native construction is broad but not complete; exact successor requested/native digest equality is not implemented or executable without WS32"
+    },
+    {
+      "id": "WS33-PRE-INFRA-001",
+      "taxonomy": "QUALIFICATION_INFRA_DEFECT",
+      "finding": "historical aggregate finalist workflow rejects an intentional bootstrap change before runtime because its provenance assertion is stale"
+    }
+  ],
+  "forge_rules_defect": "NONE_ESTABLISHED_IN_PRECONTRACT_AUDIT"
+}
