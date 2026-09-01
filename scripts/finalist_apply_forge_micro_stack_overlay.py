@@ -75,9 +75,11 @@ def main() -> None:
         '        forge.StaticData.instance().getCommonCards().addCard(new PaperCard(finalistSolRingRules, "C21", forge.card.CardRarity.Uncommon));\n'
         '        forge.card.CardRules finalistGrowthRules = finalistReader.attemptToLoadCard("Giant Growth");\n'
         '        forge.card.CardRules finalistForestRules = finalistReader.attemptToLoadCard("Forest");\n'
-        '        if (finalistGrowthRules == null || finalistForestRules == null) throw new ControlledStop("FINALIST_MICRO_STACK_CARD_RULES_MISSING");\n'
+        '        forge.card.CardRules finalistMicroCommanderRules = finalistReader.attemptToLoadCard("Rograkh, Son of Rohgahh");\n'
+        '        if (finalistGrowthRules == null || finalistForestRules == null || finalistMicroCommanderRules == null) throw new ControlledStop("FINALIST_MICRO_STACK_CARD_RULES_MISSING");\n'
         '        forge.StaticData.instance().getCommonCards().addCard(new PaperCard(finalistGrowthRules, "M11", forge.card.CardRarity.Common));\n'
-        '        forge.StaticData.instance().getCommonCards().addCard(new PaperCard(finalistForestRules, "10E", forge.card.CardRarity.BasicLand));',
+        '        forge.StaticData.instance().getCommonCards().addCard(new PaperCard(finalistForestRules, "10E", forge.card.CardRarity.BasicLand));\n'
+        '        forge.StaticData.instance().getCommonCards().addCard(new PaperCard(finalistMicroCommanderRules, "CMR", forge.card.CardRarity.Uncommon));',
         "MICRO_STACK headless card registration",
     )
 
