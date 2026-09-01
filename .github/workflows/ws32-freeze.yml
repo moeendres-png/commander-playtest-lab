@@ -21,11 +21,11 @@ jobs:
           python-version: "3.12"
       - name: Compile WS32 tooling
         run: |
-          python -m py_compile scripts/ws32_lint_semantic_v1_0_2.py scripts/ws32_build_successor.py
+          python -m py_compile scripts/ws32_lint_semantic_v1_0_2.py scripts/ws32_build_successor.py scripts/ws32_build_successor_final.py
       - name: Build successor once
         shell: bash
         run: |
-          if ! python scripts/ws32_build_successor.py; then
+          if ! python scripts/ws32_build_successor_final.py; then
             echo "--- exact semantic lint failures ---"
             python - <<'PY'
           import json
@@ -52,7 +52,7 @@ jobs:
           rm -rf /tmp/ws32-first
           cp -a qualification/ws32 /tmp/ws32-first
           rm -rf qualification/ws32
-          python scripts/ws32_build_successor.py
+          python scripts/ws32_build_successor_final.py
           diff -ru /tmp/ws32-first qualification/ws32
       - name: Verify checksum manifest
         working-directory: qualification/ws32
@@ -90,5 +90,6 @@ jobs:
           path: |
             qualification/ws32
             scripts/ws32_build_successor.py
+            scripts/ws32_build_successor_final.py
             scripts/ws32_lint_semantic_v1_0_2.py
             /tmp/WS32_CI_RUNTIME.json
