@@ -1,6 +1,7 @@
 package org.commanderlab.xmage;
 
 import com.google.gson.JsonObject;
+import mage.cards.Card;
 import mage.game.Game;
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +12,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class XmageActorIdentityProjectionAdversarialTest {
@@ -23,6 +27,11 @@ class XmageActorIdentityProjectionAdversarialTest {
     void knownDeckPrecomputedPrivilegedRefCannotPredictActorFacingHandle() throws Exception {
         Fixture first = fixture("ws34-known-deck-a");
         String privilegedRef = precomputedKnownDeckRef();
+        assertEquals(
+                privilegedRef,
+                privilegedRefForHoney(first),
+                "test must reproduce the actual deterministic privileged ledger reference"
+        );
         JsonObject privilegedView = privilegedView(privilegedRef);
 
         String firstActorHandle = projectedObjectId(first.game(), first.players().get(0), privilegedView);
@@ -36,6 +45,7 @@ class XmageActorIdentityProjectionAdversarialTest {
         assertNotEquals(firstActorHandle, otherViewerHandle, "different viewers must not share an invertible object handle");
 
         Fixture second = fixture("ws34-known-deck-b");
+        assertEquals(privilegedRef, privilegedRefForHoney(second));
         String secondSessionHandle = projectedObjectId(second.game(), second.players().get(0), privilegedView);
         assertNotEquals(firstActorHandle, secondSessionHandle, "independent games must not reuse a deterministic known-deck handle");
     }
@@ -51,6 +61,23 @@ class XmageActorIdentityProjectionAdversarialTest {
         view.addProperty("object_id", privilegedRef);
         view.addProperty("name", "Visible transition sentinel");
         return view;
+    }
+
+    private static String privilegedRefForHoney(Fixture fixture) throws Exception {
+        Card honey = fixture.players().get(1).getLibrary().getCards(fixture.game()).stream()
+                .filter(card -> "Swords to Plowshares".equals(card.getName()))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(honey, "known-deck honey sentinel must be present in P2 library");
+        Map<UUID, String> refs = physicalCardRefs(fixture.knowledgeLedger());
+        return refs.get(honey.getMainCard().getId());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<UUID, String> physicalCardRefs(XmageKnowledgeLedger ledger) throws Exception {
+        Field field = XmageKnowledgeLedger.class.getDeclaredField("physicalCardRefs");
+        field.setAccessible(true);
+        return (Map<UUID, String>) field.get(ledger);
     }
 
     private static String precomputedKnownDeckRef() {
@@ -93,7 +120,8 @@ class XmageActorIdentityProjectionAdversarialTest {
         );
         return new Fixture(
                 field(session, "game", Game.class),
-                players(session)
+                players(session),
+                field(session, "knowledgeLedger", XmageKnowledgeLedger.class)
         );
     }
 
@@ -117,6 +145,10 @@ class XmageActorIdentityProjectionAdversarialTest {
         }
     }
 
-    private record Fixture(Game game, List<XmageFullGamePlayer> players) {
+    private record Fixture(
+            Game game,
+            List<XmageFullGamePlayer> players,
+            XmageKnowledgeLedger knowledgeLedger
+    ) {
     }
 }
