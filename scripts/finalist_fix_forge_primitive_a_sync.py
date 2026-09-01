@@ -2,9 +2,9 @@
 """Close concrete Forge Primitive-A qualification adapter gaps.
 
 Qualification-only post-overlay patch. Pinned Forge source remains unmodified.
-The patch keeps every discretionary choice external/fail-closed and treats native
-resolution only as a transaction-boundary signal; the Python runner independently
-checks the final Bolt zone, P2 life, and native cast/resolution events before PASS.
+Every discretionary choice stays external and fail-closed. Mechanical source tap and
+mana cost parts are delegated to Forge's own CostPart implementations; no adapter
+legality or cost semantics are substituted.
 """
 
 from __future__ import annotations
@@ -78,6 +78,21 @@ def main() -> None:
     text = replace_once(
         text,
         '''        @Override
+        public boolean playChosenSpellAbility(SpellAbility sa) {
+            return PlaySpellAbility.playSpellAbility(this, player, sa);
+        }''',
+        '''        @Override
+        public boolean playChosenSpellAbility(SpellAbility sa) {
+            boolean result = PlaySpellAbility.playSpellAbility(this, player, sa);
+            broker.recordAutomatic("playChosenSpellAbility:" + sa.getHostCard().getName() + ":" + result);
+            return result;
+        }''',
+        "native playChosenSpellAbility result evidence",
+    )
+
+    text = replace_once(
+        text,
+        '''        @Override
         public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
             throw failClosed("getCostDecisionMaker");
         }''',
@@ -113,7 +128,10 @@ def main() -> None:
                 }
                 @Override public PaymentDecision visit(CostPromiseGift cost) { throw failClosed("costDecision:CostPromiseGift"); }
                 @Override public PaymentDecision visit(CostPutCardToLib cost) { throw failClosed("costDecision:CostPutCardToLib"); }
-                @Override public PaymentDecision visit(CostTap cost) { throw failClosed("costDecision:CostTap"); }
+                @Override public PaymentDecision visit(CostTap cost) {
+                    broker.recordAutomatic("costDecision:CostTap:" + ability.getHostCard().getName());
+                    return new PaymentDecision(0);
+                }
                 @Override public PaymentDecision visit(CostSacrifice cost) { throw failClosed("costDecision:CostSacrifice"); }
                 @Override public PaymentDecision visit(CostReturn cost) { throw failClosed("costDecision:CostReturn"); }
                 @Override public PaymentDecision visit(CostReveal cost) { throw failClosed("costDecision:CostReveal"); }
@@ -158,7 +176,7 @@ def main() -> None:
                     && broker.automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {
                 throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");
             }
-            throw failClosed("declareAttackers");
+            throw failClosed("declareAttackers:events=" + String.join("|", broker.automatic));
         }''',
         "Primitive-A post-native-resolution phase-transition boundary",
     )
@@ -213,7 +231,9 @@ def main() -> None:
     path.write_text(text, encoding="utf-8")
     print("FORGE_PRIMITIVE_A_MOUNTAIN_REGISTRATION=PASS")
     print("FORGE_PRIMITIVE_A_GET_ABILITY_TO_PLAY=PASS")
+    print("FORGE_PRIMITIVE_A_PLAY_RESULT_EVIDENCE=PASS")
     print("FORGE_PRIMITIVE_A_COST_DECISION=PASS")
+    print("FORGE_PRIMITIVE_A_MECHANICAL_TAP_COST=PASS")
     print("FORGE_PRIMITIVE_A_NATIVE_RESOLUTION_BOUNDARY=PASS")
     print("FORGE_PRIMITIVE_A_PHASE_TRANSITION_BOUNDARY=PASS")
     print("FORGE_PRIMITIVE_A_SYNC_BARRIER=PASS")
