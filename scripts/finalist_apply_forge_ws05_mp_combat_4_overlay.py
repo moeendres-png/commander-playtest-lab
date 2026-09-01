@@ -178,11 +178,20 @@ def main() -> None:
         return null;
     }
 
-    static Card cardByNativeId(Player player, int id) {
-        for (Card card : player.getCardsIn(ZoneType.Battlefield)) {
-            if (card.getId() == id) return card;
+    static java.util.List<Card> ws05BattlefieldInCanonicalOrder(Player player, int expectedCount) {
+        java.util.List<Card> cards = new ArrayList<>(player.getCardsIn(ZoneType.Battlefield));
+        if (cards.size() != expectedCount) {
+            throw new ControlledStop("FINALIST_WS05_BATTLEFIELD_CARDINALITY_MISMATCH:P"
+                + (player.getGame().getPlayers().indexOf(player) + 1)
+                + ":" + cards.size() + ":" + expectedCount);
         }
-        throw new ControlledStop("FINALIST_WS05_CARD_ID_MISSING:" + id);
+        for (Card card : cards) {
+            if (!"Grizzly Bears".equals(card.getName())) {
+                throw new ControlledStop("FINALIST_WS05_BATTLEFIELD_IDENTITY_MISMATCH:"
+                    + card.getName());
+            }
+        }
+        return cards;
     }
 
     static Card ws05CardBySemantic(Game game, Broker broker, String semantic) {
@@ -263,28 +272,28 @@ def main() -> None:
             "activephase=MAIN1",
             "p0life=40",
             "p0hand=",
-            "p0battlefield=Grizzly Bears|Id:4301;Grizzly Bears|Id:4302;Grizzly Bears|Id:4303",
+            "p0battlefield=Grizzly Bears;Grizzly Bears;Grizzly Bears",
             "p0library=",
             "p0graveyard=",
             "p0exile=",
             "p0command=Rograkh, Son of Rohgahh|IsCommander",
             "p1life=40",
             "p1hand=",
-            "p1battlefield=Grizzly Bears|Id:4311",
+            "p1battlefield=Grizzly Bears",
             "p1library=",
             "p1graveyard=",
             "p1exile=",
             "p1command=Rograkh, Son of Rohgahh|IsCommander",
             "p2life=40",
             "p2hand=",
-            "p2battlefield=Grizzly Bears|Id:4321",
+            "p2battlefield=Grizzly Bears",
             "p2library=",
             "p2graveyard=",
             "p2exile=",
             "p2command=Rograkh, Son of Rohgahh|IsCommander",
             "p3life=40",
             "p3hand=",
-            "p3battlefield=Grizzly Bears|Id:4331",
+            "p3battlefield=Grizzly Bears",
             "p3library=",
             "p3graveyard=",
             "p3exile=",
@@ -299,18 +308,28 @@ def main() -> None:
                 state.applyToGame(game);
                 Player p1 = game.getPlayers().get(0);
                 game.getPhaseHandler().devModeSet(forge.game.phase.PhaseType.COMBAT_DECLARE_ATTACKERS, p1, 1);
-                Card baseline = cardByNativeId(p1, 4301);
-                Card a0 = cardByNativeId(p1, 4302);
-                Card a1 = cardByNativeId(p1, 4303);
+                java.util.List<Card> p1Battlefield = ws05BattlefieldInCanonicalOrder(p1, 3);
+                Card baseline = p1Battlefield.get(0);
+                Card a0 = p1Battlefield.get(1);
+                Card a1 = p1Battlefield.get(2);
                 baseline.setSickness(true);
                 a0.setSickness(false);
                 a1.setSickness(false);
                 broker.bindQualificationSemanticRef(baseline, "obj:P1-bears");
                 broker.bindQualificationSemanticRef(a0, "obj:mp-attacker-0");
                 broker.bindQualificationSemanticRef(a1, "obj:mp-attacker-1");
-                broker.bindQualificationSemanticRef(cardByNativeId(game.getPlayers().get(1), 4311), "obj:P2-bears");
-                broker.bindQualificationSemanticRef(cardByNativeId(game.getPlayers().get(2), 4321), "obj:P3-bears");
-                broker.bindQualificationSemanticRef(cardByNativeId(game.getPlayers().get(3), 4331), "obj:P4-bears");
+                broker.bindQualificationSemanticRef(
+                    ws05BattlefieldInCanonicalOrder(game.getPlayers().get(1), 1).get(0),
+                    "obj:P2-bears"
+                );
+                broker.bindQualificationSemanticRef(
+                    ws05BattlefieldInCanonicalOrder(game.getPlayers().get(2), 1).get(0),
+                    "obj:P3-bears"
+                );
+                broker.bindQualificationSemanticRef(
+                    ws05BattlefieldInCanonicalOrder(game.getPlayers().get(3), 1).get(0),
+                    "obj:P4-bears"
+                );
 
                 java.util.List<Card> eligible = new ArrayList<>(forge.game.combat.CombatUtil.getPossibleAttackers(p1));
                 if (eligible.size() != 2 || !eligible.contains(a0) || !eligible.contains(a1)) {
