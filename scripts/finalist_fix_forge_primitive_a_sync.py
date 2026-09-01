@@ -145,6 +145,7 @@ def main() -> None:
 
                 java.util.List<SpellAbility> nativeMana = new ArrayList<>();
                 java.util.List<String> labels = new ArrayList<>();
+                java.util.List<String> manaFrame = new ArrayList<>();
                 ZoneType[] zones = new ZoneType[] {ZoneType.Battlefield, ZoneType.Hand, ZoneType.Graveyard, ZoneType.Exile, ZoneType.Command};
                 for (ZoneType zone : zones) {
                     for (Card card : this.player.getCardsIn(zone)) {
@@ -153,17 +154,31 @@ def main() -> None:
                             cardMana.add(manaAbility);
                             cardMana.addAll(GameActionUtil.getAlternativeCosts(manaAbility, this.player, false));
                         }
+                        manaFrame.add("card=" + card.getName()
+                            + ",zone=" + zone
+                            + ",controller=" + (card.getController() == null ? "null" : card.getController().getName())
+                            + ",tapped=" + card.isTapped()
+                            + ",type=" + String.valueOf(card.getType())
+                            + ",inPlay=" + card.isInPlay()
+                            + ",removeIntrinsic=" + card.hasRemoveIntrinsic()
+                            + ",manaAbilities=" + cardMana.size());
                         for (SpellAbility manaAbility : cardMana) {
                             manaAbility.setActivatingPlayer(this.player);
-                            if (!manaAbility.canPlay(true)) continue;
-                            if (!manaAbility.isManaAbilityFor(ability, colorCanUse)) continue;
+                            boolean playable = manaAbility.canPlay(true);
+                            boolean useful = playable && manaAbility.isManaAbilityFor(ability, colorCanUse);
+                            manaFrame.add("ability=" + card.getName()
+                                + ",playable=" + playable
+                                + ",useful=" + useful
+                                + ",text=" + String.valueOf(manaAbility));
+                            if (!playable || !useful) continue;
                             nativeMana.add(manaAbility);
                             labels.add("MANA_ABILITY:" + card.getName() + ":" + String.valueOf(manaAbility));
                         }
                     }
                 }
                 if (nativeMana.isEmpty()) {
-                    broker.recordAutomatic("applyManaToCost:NO_USEFUL_NATIVE_MANA");
+                    broker.recordAutomatic("applyManaToCost:NO_USEFUL_NATIVE_MANA:colorCanUse="
+                        + colorCanUse + ":" + String.join(";", manaFrame));
                     return false;
                 }
                 String selectedId = broker.choose("mana_payment", this.player, labels);
