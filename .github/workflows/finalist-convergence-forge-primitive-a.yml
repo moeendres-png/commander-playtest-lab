@@ -99,6 +99,7 @@ jobs:
             scripts/finalist_generate_forge_provider.py \
             scripts/finalist_generate_forge_bootstrap.py \
             scripts/finalist_apply_forge_primitive_a_overlay.py \
+            scripts/finalist_fix_forge_primitive_a_sync.py \
             candidate-qualification/finalist-convergence-forge/run_primitive_a.py
 
       - name: Build pinned unmodified Forge game modules
@@ -136,6 +137,8 @@ jobs:
             --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
           python scripts/finalist_apply_forge_primitive_a_overlay.py \
             --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          python scripts/finalist_fix_forge_primitive_a_sync.py \
+            --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
           python - <<'PY'
           from pathlib import Path
           p=Path('qualification/evidence/finalist-convergence-forge/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java').read_text()
@@ -145,6 +148,8 @@ jobs:
           assert 'payManaFromAbility(ability, toPay, chosen)' in p
           assert 'GameEventSpellAbilityCast' in p and 'GameEventSpellResolved' in p
           assert 'match.startGame(game, () -> applyPrimitiveAState' in p
+          assert 'FINALIST_PRIMITIVE_A_STATE_APPLY_TIMEOUT' in p
+          assert 'applyManaToCost:NO_USEFUL_NATIVE_MANA' in p
           PY
           git diff --check
 
