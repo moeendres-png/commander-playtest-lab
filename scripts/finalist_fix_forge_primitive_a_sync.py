@@ -3,8 +3,9 @@
 
 Qualification-only post-overlay patch. Pinned Forge source remains unmodified.
 Every discretionary choice stays external and fail-closed. Mechanical source tap and
-mana cost parts are delegated to Forge's own CostPart implementations; no adapter
-legality or cost semantics are substituted.
+mana cost parts are delegated to Forge's own CostPart implementations. Mana-source
+enumeration follows Forge Human's native getManaAbilities/alternative-cost/canPlay/
+isManaAbilityFor path without importing GUI or AI code.
 """
 
 from __future__ import annotations
@@ -24,7 +25,6 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--provider", type=Path, required=True)
     args = parser.parse_args()
-
     path = args.provider
     text = path.read_text(encoding="utf-8")
 
@@ -88,6 +88,102 @@ def main() -> None:
             return result;
         }''',
         "native playChosenSpellAbility result evidence",
+    )
+
+    text = replace_once(
+        text,
+        '''        @Override
+        public boolean applyManaToCost(ManaCostBeingPaid toPay, SpellAbility ability, String prompt, ManaConversionMatrix matrix, boolean effect) {
+            int guard = 0;
+            while (!toPay.isPaid()) {
+                if (++guard > 16) throw failClosed("applyManaToCost:GUARD");
+                java.util.List<SpellAbility> nativeMana = new ArrayList<>();
+                java.util.List<String> labels = new ArrayList<>();
+                ZoneType[] zones = new ZoneType[] {ZoneType.Battlefield, ZoneType.Hand, ZoneType.Graveyard, ZoneType.Exile, ZoneType.Command};
+                for (ZoneType zone : zones) {
+                    for (Card card : this.player.getCardsIn(zone)) {
+                        for (SpellAbility manaAbility : card.getAllPossibleAbilities(this.player, true)) {
+                            if (!manaAbility.isManaAbility()) continue;
+                            manaAbility.setActivatingPlayer(this.player);
+                            nativeMana.add(manaAbility);
+                            labels.add("MANA_ABILITY:" + card.getName() + ":" + String.valueOf(manaAbility));
+                        }
+                    }
+                }
+                if (nativeMana.isEmpty()) return false;
+                String selectedId = broker.choose("mana_payment", this.player, labels);
+                int selectedIndex = Integer.parseInt(selectedId.substring(1));
+                if (selectedIndex < 0 || selectedIndex >= nativeMana.size()) throw failClosed("applyManaToCost:STALE_SELECTION");
+                SpellAbility chosen = nativeMana.get(selectedIndex);
+                if (!PlaySpellAbility.playSpellAbility(this, this.player, chosen)) return false;
+                boolean restrictionsMet = true;
+                for (AbilityManaPart manaPart : chosen.getAllManaParts()) {
+                    if (!manaPart.meetsManaRestrictions(ability)) {
+                        restrictionsMet = false;
+                        break;
+                    }
+                }
+                if (!restrictionsMet) return false;
+                this.player.getManaPool().payManaFromAbility(ability, toPay, chosen);
+            }
+            return true;
+        }''',
+        '''        @Override
+        public boolean applyManaToCost(ManaCostBeingPaid toPay, SpellAbility ability, String prompt, ManaConversionMatrix matrix, boolean effect) {
+            int guard = 0;
+            while (!toPay.isPaid()) {
+                if (++guard > 16) throw failClosed("applyManaToCost:GUARD");
+
+                byte colorCanUse = 0;
+                for (byte color : forge.card.mana.ManaAtom.MANATYPES) {
+                    if (toPay.isAnyPartPayableWith(color, this.player.getManaPool())) colorCanUse |= color;
+                }
+                if (toPay.isAnyPartPayableWith((byte) forge.card.mana.ManaAtom.GENERIC, this.player.getManaPool())) {
+                    colorCanUse |= forge.card.mana.ManaAtom.GENERIC;
+                }
+                if (colorCanUse == 0) return false;
+
+                java.util.List<SpellAbility> nativeMana = new ArrayList<>();
+                java.util.List<String> labels = new ArrayList<>();
+                ZoneType[] zones = new ZoneType[] {ZoneType.Battlefield, ZoneType.Hand, ZoneType.Graveyard, ZoneType.Exile, ZoneType.Command};
+                for (ZoneType zone : zones) {
+                    for (Card card : this.player.getCardsIn(zone)) {
+                        java.util.List<SpellAbility> cardMana = new ArrayList<>();
+                        for (SpellAbility manaAbility : card.getManaAbilities()) {
+                            cardMana.add(manaAbility);
+                            cardMana.addAll(GameActionUtil.getAlternativeCosts(manaAbility, this.player, false));
+                        }
+                        for (SpellAbility manaAbility : cardMana) {
+                            manaAbility.setActivatingPlayer(this.player);
+                            if (!manaAbility.canPlay(true)) continue;
+                            if (!manaAbility.isManaAbilityFor(ability, colorCanUse)) continue;
+                            nativeMana.add(manaAbility);
+                            labels.add("MANA_ABILITY:" + card.getName() + ":" + String.valueOf(manaAbility));
+                        }
+                    }
+                }
+                if (nativeMana.isEmpty()) {
+                    broker.recordAutomatic("applyManaToCost:NO_USEFUL_NATIVE_MANA");
+                    return false;
+                }
+                String selectedId = broker.choose("mana_payment", this.player, labels);
+                int selectedIndex = Integer.parseInt(selectedId.substring(1));
+                if (selectedIndex < 0 || selectedIndex >= nativeMana.size()) throw failClosed("applyManaToCost:STALE_SELECTION");
+                SpellAbility chosen = nativeMana.get(selectedIndex);
+                if (!PlaySpellAbility.playSpellAbility(this, this.player, chosen)) return false;
+                boolean restrictionsMet = true;
+                for (AbilityManaPart manaPart : chosen.getAllManaParts()) {
+                    if (!manaPart.meetsManaRestrictions(ability)) {
+                        restrictionsMet = false;
+                        break;
+                    }
+                }
+                if (!restrictionsMet) return false;
+                this.player.getManaPool().payManaFromAbility(ability, toPay, chosen);
+            }
+            return true;
+        }''',
+        "Forge-native useful mana ability enumeration",
     )
 
     text = replace_once(
@@ -232,6 +328,7 @@ def main() -> None:
     print("FORGE_PRIMITIVE_A_MOUNTAIN_REGISTRATION=PASS")
     print("FORGE_PRIMITIVE_A_GET_ABILITY_TO_PLAY=PASS")
     print("FORGE_PRIMITIVE_A_PLAY_RESULT_EVIDENCE=PASS")
+    print("FORGE_PRIMITIVE_A_NATIVE_MANA_ENUMERATION=PASS")
     print("FORGE_PRIMITIVE_A_COST_DECISION=PASS")
     print("FORGE_PRIMITIVE_A_MECHANICAL_TAP_COST=PASS")
     print("FORGE_PRIMITIVE_A_NATIVE_RESOLUTION_BOUNDARY=PASS")
