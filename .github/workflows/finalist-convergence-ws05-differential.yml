@@ -37,7 +37,7 @@ jobs:
           set -euo pipefail
           mkdir -p qualification/evidence/finalist-convergence-differential/ws05-mp-combat-4
           python - <<'PY'
-          import hashlib, json
+          import json
           from pathlib import Path
 
           fixture='WS05-MP-COMBAT-4'
@@ -59,16 +59,38 @@ jobs:
               if len(rows)!=1 or rows[0].get('fixture_id') != fixture:
                   raise SystemExit(f'provider record cardinality mismatch:{root}')
               return payload, rows[0]
+          def normalize_terminal(row):
+              terminal=row.get('terminal_semantic_state')
+              if not isinstance(terminal,dict):
+                  raise SystemExit('QUALIFICATION_INFRA_DEFECT:terminal_semantic_state missing')
+              attackers=terminal.get('combat_state',{}).get('attackers',{})
+              if set(attackers)!={'obj:mp-attacker-0','obj:mp-attacker-1'}:
+                  raise SystemExit('DIFFERENTIAL_MISMATCH:attacker identity set')
+              normalized={}
+              for attacker, defender in attackers.items():
+                  if isinstance(defender,int):
+                      defender=f'P{defender}'
+                  if not isinstance(defender,str) or not defender.startswith('P'):
+                      raise SystemExit(f'DIFFERENTIAL_MISMATCH:defender representation:{defender!r}')
+                  normalized[attacker]=defender
+              return {'combat_state':{'attackers':normalized}}
 
           fp, f=load('evidence/forge')
           xp, x=load('evidence/xmage')
+          forge_terminal=normalize_terminal(f)
+          xmage_terminal=normalize_terminal(x)
           checks={
               'same_fixture': f['fixture_id']==x['fixture_id']==fixture,
               'same_record_digest': f['record_digest']==x['record_digest']==record,
               'same_requested_state_digest': f['requested_semantic_state_digest']==x['requested_semantic_state_digest']==state,
               'forge_native_state_equal': f['normalized_native_constructed_state_digest']==state and f['requested_native_state_equal'] is True,
               'xmage_native_state_equal': x['normalized_native_constructed_state_digest']==state and x['requested_native_state_equal'] is True,
-              'same_terminal_semantics': f['terminal_semantic_state']==x['terminal_semantic_state']==expected,
+              'same_terminal_semantics': forge_terminal==xmage_terminal==expected,
+              'same_semantic_event_tape': f.get('event_tape')==x.get('event_tape')==[
+                  {'event_kind':'attacker_declared','attacker':'obj:mp-attacker-0','defender':'P2'},
+                  {'event_kind':'attacker_declared','attacker':'obj:mp-attacker-1','defender':'P3'},
+              ],
+              'same_canonical_decision_trace': f.get('canonical_decision_trace')==x.get('canonical_decision_trace'),
               'forge_terminal_pass': f['terminal_postcondition_result']=='PASS',
               'xmage_terminal_pass': x['terminal_postcondition_result']=='PASS',
               'xmage_native_assignment': x['native_declare_attackers_execution']=={
@@ -77,24 +99,21 @@ jobs:
                   'adapter_assignment_applied':False,'valid':True,
               },
           }
-          # Forge evidence is produced by the native CombatUtil/declare-attacker provider path;
-          # require its event/decision surfaces to encode the same two assignments rather than
-          # accepting terminal-state equality alone.
           blob=json.dumps(f,sort_keys=True)
           checks['forge_native_assignment_evidence']=(
-              'obj:mp-attacker-0' in blob and 'obj:mp-attacker-1' in blob and 'P2' in blob and 'P3' in blob
+              'NATIVE_ATTACKER_DECLARED:obj:mp-attacker-0->P2' in blob
+              and 'NATIVE_ATTACKER_DECLARED:obj:mp-attacker-1->P3' in blob
           )
           if not all(checks.values()):
               raise SystemExit('DIFFERENTIAL_MISMATCH:'+json.dumps({k:v for k,v in checks.items() if not v},sort_keys=True))
           result={
-              'schema_version':'finalist-convergence-ws05-differential/1.0.0',
+              'schema_version':'finalist-convergence-ws05-differential/1.0.1',
               'status':'PASS','fixture_id':fixture,'record_digest':record,
               'provider_neutral_state_digest':state,
               'forge':{'candidate_commit':fp['candidate_commit'],'run_id':33545214636,'artifact_id':9815222363,'artifact_sha256':'83f34924ec3b7ed677e5ea665e8ab577b96490e5bcab2294f570841c984cde08'},
               'xmage':{'candidate_commit':xp['candidate_commit'],'run_id':33561486530,'artifact_id':9821540000,'artifact_sha256':'826b78cd47c3d957e073f86367fcc11cc15b349a0c2ff124a6b80a777ed6c886'},
-              'checks':checks,
-              'terminal_semantic_state':expected,
-              'disagreement':None,
+              'normalization':{'defender_seat_integer_to_player_ref':'P<n>'},
+              'checks':checks,'terminal_semantic_state':expected,'disagreement':None,
           }
           out=Path('qualification/evidence/finalist-convergence-differential/ws05-mp-combat-4/WS05_DIFFERENTIAL_RESULTS.json')
           out.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
