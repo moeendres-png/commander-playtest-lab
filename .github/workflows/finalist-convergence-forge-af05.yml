@@ -2,6 +2,7 @@ name: Finalist convergence Forge AF05
 
 on:
   workflow_dispatch:
+  pull_request:
   push:
     branches:
       - program/finalist-convergence-forge
