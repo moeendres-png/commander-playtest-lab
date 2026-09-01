@@ -44,6 +44,14 @@ def main() -> None:
                 throw failClosed("declareAttackers:WRONG_ACTOR");
             }
 
+            broker.out.println("{\"protocol\":" + esc(PROTOCOL)
+                + ",\"message_type\":\"QUALIFICATION_STATE\""
+                + ",\"request_id\":\"ws05-mp-combat-4-state\""
+                + ",\"session_id\":" + esc(SESSION_ID)
+                + ",\"payload\":{\"stage\":\"after_native_setup_validation\",\"snapshot\":"
+                + ws05SetupSnapshot(getGame(), broker) + "}}");
+            broker.out.flush();
+
             java.util.List<Card> nativeAttackers = new ArrayList<>(forge.game.combat.CombatUtil.getPossibleAttackers(attacker));
             nativeAttackers.sort(java.util.Comparator.comparing(card -> {
                 String semantic = broker.qualificationSemanticRef(card);
@@ -307,7 +315,6 @@ def main() -> None:
             try {
                 state.applyToGame(game);
                 Player p1 = game.getPlayers().get(0);
-                game.getPhaseHandler().devModeSet(forge.game.phase.PhaseType.COMBAT_DECLARE_ATTACKERS, p1, 1);
                 java.util.List<Card> p1Battlefield = ws05BattlefieldInCanonicalOrder(p1, 3);
                 Card baseline = p1Battlefield.get(0);
                 Card a0 = p1Battlefield.get(1);
@@ -335,13 +342,10 @@ def main() -> None:
                 if (eligible.size() != 2 || !eligible.contains(a0) || !eligible.contains(a1)) {
                     throw new ControlledStop("FINALIST_WS05_NATIVE_ELIGIBLE_SET_MISMATCH");
                 }
-                Combat combat = new Combat(p1);
-                if (!combat.getAttackers().isEmpty()) {
-                    throw new ControlledStop("FINALIST_WS05_INITIAL_COMBAT_NOT_EMPTY");
+                if (!game.getPhaseHandler().devAdvanceToPhase(
+                        forge.game.phase.PhaseType.COMBAT_DECLARE_ATTACKERS)) {
+                    throw new ControlledStop("FINALIST_WS05_NATIVE_PHASE_ENTRY_FAILED");
                 }
-                game.getPhaseHandler().setCombat(combat);
-                game.updateCombatForView();
-                game.getPhaseHandler().setPriority(p1);
             } catch (RuntimeException exc) {
                 stateFailure.set(exc);
             } finally {
@@ -357,13 +361,6 @@ def main() -> None:
             throw new ControlledStop("FINALIST_WS05_STATE_APPLY_INTERRUPTED");
         }
         if (stateFailure.get() != null) throw stateFailure.get();
-        broker.out.println("{\"protocol\":" + esc(PROTOCOL)
-            + ",\"message_type\":\"QUALIFICATION_STATE\""
-            + ",\"request_id\":\"ws05-mp-combat-4-state\""
-            + ",\"session_id\":" + esc(SESSION_ID)
-            + ",\"payload\":{\"stage\":\"after_native_setup_validation\",\"snapshot\":"
-            + ws05SetupSnapshot(game, broker) + "}}");
-        broker.out.flush();
     }
 
     static boolean isMicroReplacementFixture(String fixtureId) {'''
