@@ -136,6 +136,8 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
     setup_snapshot = None
     result_message = None
     canonical_trace: list[dict[str, Any]] = []
+    observed_message_types: list[str] = []
+    observed_decision_kinds: list[str] = []
 
     with tempfile.TemporaryFile(mode="w+t", encoding="utf-8") as stderr:
         proc = subprocess.Popen(
@@ -171,6 +173,7 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
                 break
             message = json.loads(line)
             mtype = message.get("message_type")
+            observed_message_types.append(str(mtype))
             if mtype == "SESSION_CREATED":
                 continue
             if mtype == "QUALIFICATION_STATE":
@@ -181,6 +184,7 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
                 continue
             if mtype == "DECISION_FRAME":
                 kind = message["payload"]["decision_kind"]
+                observed_decision_kinds.append(str(kind))
                 options = message["payload"].get("options", [])
                 if setup_snapshot is None:
                     if kind == "chooseStartingPlayer":
@@ -236,7 +240,21 @@ def run_one(record: dict[str, Any], command: list[str]) -> dict[str, Any]:
     if rc != 0:
         raise RuntimeError(f"Forge provider exit {rc}:{error_text[-5000:]}")
     if setup_snapshot is None or result_message is None:
-        raise RuntimeError("REQUIRED_RUNTIME_EVIDENCE_MISSING")
+        diagnostic = {
+            "setup_present": setup_snapshot is not None,
+            "result_present": result_message is not None,
+            "result_payload": (
+                None if result_message is None else result_message.get("payload")
+            ),
+            "rc": rc,
+            "stderr_tail": error_text[-5000:],
+            "observed_message_types": observed_message_types,
+            "observed_decision_kinds": observed_decision_kinds,
+        }
+        raise RuntimeError(
+            "REQUIRED_RUNTIME_EVIDENCE_MISSING:"
+            + json.dumps(diagnostic, ensure_ascii=False, sort_keys=True)
+        )
     if len(canonical_trace) != 1:
         raise AssertionError(f"canonical decision trace mismatch:{canonical_trace}")
 
