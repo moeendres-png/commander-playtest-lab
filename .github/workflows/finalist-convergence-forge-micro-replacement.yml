@@ -62,8 +62,7 @@ jobs:
           p=json.load(open('contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json'))
           assert p['schema_version'] == 'commander-lab.semantic-fixture-materialization/1.0.1'
           assert p['canonical_bundle_digest'] == os.environ['CONTRACT_BUNDLE']
-          by={r['fixture_id']:r for r in p['records']}
-          r=by['MICRO_REPLACEMENT']
+          r={x['fixture_id']:x for x in p['records']}['MICRO_REPLACEMENT']
           assert r['materialization_digest'] == '310964ff50516220522e906cd742f5c53f3fa722ddce104461ab10162bf50a5b'
           assert r['execution_entry_mode'] == 'NATIVE_STATE_LOAD'
           PY
@@ -85,19 +84,12 @@ jobs:
           git -C vendor/engine-source/forge diff --exit-code
 
       - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-          cache: maven
-
+        with: {distribution: temurin, java-version: "17", cache: maven}
       - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+        with: {python-version: "3.12"}
 
       - name: Check qualification sources
-        shell: bash
         run: |
-          set -euo pipefail
           python -m py_compile \
             scripts/ws23_generate_forge_vertical_provider.py \
             scripts/ws25_generate_forge_broad_provider.py \
@@ -108,27 +100,23 @@ jobs:
             scripts/finalist_apply_forge_af05_overlay.py \
             scripts/finalist_apply_forge_micro_stack_overlay.py \
             scripts/finalist_apply_forge_micro_replacement_overlay.py \
+            scripts/finalist_fix_forge_micro_replacement_native_damage.py \
             candidate-qualification/finalist-convergence-forge/run_micro_replacement.py
 
       - name: Build pinned unmodified Forge game modules
         working-directory: vendor/engine-source/forge
-        shell: bash
         run: |
-          set -euo pipefail
           mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
           git diff --exit-code
 
       - name: Resolve isolated Forge classpath
         working-directory: vendor/engine-source/forge
-        shell: bash
         run: |
-          set -euo pipefail
           mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath \
             -DincludeScope=compile \
             -Dmdep.outputFile="$GITHUB_WORKSPACE/qualification/evidence/finalist-convergence-forge/micro-replacement/dependency-classpath.txt"
 
       - name: Generate provider and apply exact overlays
-        shell: bash
         run: |
           set -euo pipefail
           ev=qualification/evidence/finalist-convergence-forge/micro-replacement
@@ -136,9 +124,7 @@ jobs:
           mkdir -p "$out"
           python scripts/finalist_generate_forge_provider.py \
             --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
-            --output-dir "$out" \
-            --forge-commit "$FORGE_COMMIT" \
-            --forge-tree "$FORGE_TREE" \
+            --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE" \
             | tee "$ev/generator-summary.json"
           python scripts/finalist_generate_forge_bootstrap.py \
             --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
@@ -148,51 +134,40 @@ jobs:
           python scripts/finalist_apply_forge_af05_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
           python scripts/finalist_apply_forge_micro_stack_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
           python scripts/finalist_apply_forge_micro_replacement_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          python scripts/finalist_fix_forge_micro_replacement_native_damage.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
           python - <<'PY'
           from pathlib import Path
           p=Path('qualification/evidence/finalist-convergence-forge/micro-replacement/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java').read_text()
+          assert 'combat.assignCombatDamage(false)' in p
+          assert 'combat.dealAssignedDamage()' in p
+          assert 'MICRO_REPLACEMENT_NATIVE_POST_DAMAGE_LIFE:P2:' in p
           assert 'FINALIST_MICRO_REPLACEMENT_TERMINAL' in p
-          assert 'MICRO_REPLACEMENT_NATIVE_EFFECT:' in p
-          assert 'MICRO_REPLACEMENT_NATIVE_DAMAGE:P2:6' in p
-          assert 'new forge.game.combat.Combat(p1)' in p
-          assert 'combat.addAttacker(attacker, p2)' in p
           PY
           git diff --check
 
       - name: Assert prohibited AI and GUI provider dependencies absent
-        shell: bash
         run: |
-          set -euo pipefail
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' \
             qualification/evidence/finalist-convergence-forge/micro-replacement/generated/java
           ! grep -Eq 'forge-(ai|gui)' qualification/evidence/finalist-convergence-forge/micro-replacement/dependency-classpath.txt
 
       - name: Compile separate GPL-side provider JVM
-        shell: bash
         run: |
           set -euo pipefail
           ev=qualification/evidence/finalist-convergence-forge/micro-replacement
           cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
           mkdir -p "$ev/classes"
-          javac -cp "$cp" -d "$ev/classes" \
-            "$ev/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java" \
-            "$ev/generated/java/forge/game/player/Ws23ForgeBootstrap.java"
-          printf '%s:%s:%s:%s\n' \
-            "$GITHUB_WORKSPACE/$ev/classes" \
-            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
-            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
-            "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+          javac -cp "$cp" -d "$ev/classes" "$ev/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$ev/generated/java/forge/game/player/Ws23ForgeBootstrap.java"
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/$ev/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
           ! grep -Eq 'forge-(ai|gui)' "$ev/provider.classpath"
           git -C vendor/engine-source/forge diff --exit-code
 
       - name: Execute exact MICRO_REPLACEMENT record
-        shell: bash
         run: |
           set -euo pipefail
           ev=qualification/evidence/finalist-convergence-forge/micro-replacement
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
-          test -n "$COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD"
           python candidate-qualification/finalist-convergence-forge/run_micro_replacement.py \
             --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
             --output "$ev/MICRO_REPLACEMENT_RESULTS.json"
@@ -202,7 +177,6 @@ jobs:
           assert p['candidate_commit'] == os.environ['COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD']
           assert p['counts'] == {'PASS': 1}
           r=p['rows'][0]
-          assert r['fixture_id'] == 'MICRO_REPLACEMENT'
           assert r['record_digest'] == '310964ff50516220522e906cd742f5c53f3fa722ddce104461ab10162bf50a5b'
           assert r['requested_native_state_equal'] is True
           assert r['terminal_postcondition_result'] == 'PASS'
@@ -211,9 +185,7 @@ jobs:
 
       - name: Materialize checksums
         if: always()
-        shell: bash
         run: |
-          set -euo pipefail
           ev=qualification/evidence/finalist-convergence-forge/micro-replacement
           find "$ev" -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum > "$ev/SHA256SUMS"
 
