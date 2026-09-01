@@ -44,13 +44,7 @@ def main() -> None:
                 throw failClosed("declareAttackers:WRONG_ACTOR");
             }
 
-            broker.out.println("{\"protocol\":" + esc(PROTOCOL)
-                + ",\"message_type\":\"QUALIFICATION_STATE\""
-                + ",\"request_id\":\"ws05-mp-combat-4-state\""
-                + ",\"session_id\":" + esc(SESSION_ID)
-                + ",\"payload\":{\"stage\":\"after_native_setup_validation\",\"snapshot\":"
-                + ws05SetupSnapshot(getGame(), broker) + "}}");
-            broker.out.flush();
+            ws05EmitSetupState(getGame(), broker);
 
             java.util.List<Card> nativeAttackers = new ArrayList<>(forge.game.combat.CombatUtil.getPossibleAttackers(attacker));
             nativeAttackers.sort(java.util.Comparator.comparing(card -> {
@@ -271,6 +265,16 @@ def main() -> None:
             + ",\"native_defenders\":" + jsonStringArray(defenders)
             + ",\"current_attackers\":[]"
             + "}";
+    }
+
+    static void ws05EmitSetupState(Game game, Broker broker) {
+        broker.out.println("{\"protocol\":" + esc(PROTOCOL)
+            + ",\"message_type\":\"QUALIFICATION_STATE\""
+            + ",\"request_id\":\"ws05-mp-combat-4-state\""
+            + ",\"session_id\":" + esc(SESSION_ID)
+            + ",\"payload\":{\"stage\":\"after_native_setup_validation\",\"snapshot\":"
+            + ws05SetupSnapshot(game, broker) + "}}");
+        broker.out.flush();
     }
 
     static void applyWs05MpCombat4State(Game game, Broker broker) {
