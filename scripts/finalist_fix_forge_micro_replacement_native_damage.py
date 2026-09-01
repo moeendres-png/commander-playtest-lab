@@ -27,18 +27,18 @@ def main() -> None:
     path = args.provider
     java = path.read_text(encoding="utf-8")
 
+    # Scope the first anchor to applyMicroReplacementState. The same latch
+    # shape exists in MICRO_STACK and must not be touched here.
     java = replace_once(
         java,
-        '''        java.util.concurrent.CountDownLatch stateApplied = new java.util.concurrent.CountDownLatch(1);
-        java.util.concurrent.atomic.AtomicReference<RuntimeException> stateFailure = new java.util.concurrent.atomic.AtomicReference<>();
-        game.getAction().invoke(() -> {
+        '''    static void applyMicroReplacementState(Game game, Broker broker) {
+        java.util.List<String> lines = java.util.List.of(
 ''',
-        '''        java.util.concurrent.CountDownLatch stateApplied = new java.util.concurrent.CountDownLatch(1);
-        java.util.concurrent.atomic.AtomicReference<RuntimeException> stateFailure = new java.util.concurrent.atomic.AtomicReference<>();
+        '''    static void applyMicroReplacementState(Game game, Broker broker) {
         java.util.concurrent.atomic.AtomicReference<String> replacementSetupSnapshot = new java.util.concurrent.atomic.AtomicReference<>();
-        game.getAction().invoke(() -> {
+        java.util.List<String> lines = java.util.List.of(
 ''',
-        "replacement setup snapshot reference",
+        "replacement method scoped setup snapshot reference",
     )
 
     java = replace_once(
