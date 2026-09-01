@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Close the two concrete Forge Primitive-A native-state loader gaps.
+"""Close the concrete Forge Primitive-A qualification adapter gaps.
 
 Forge GameState.applyToGame delegates through GameAction.invoke. From the Match start
 hook that invocation may be asynchronous, so evidence sampled immediately afterward
 can still observe the ordinary opening-hand/UNTAP state. In addition, GameState
 materializes named zone cards through StaticData.commonCards; the existing finalist
 bootstrap constructed Mountain PaperCards for Commander decks but did not register
-Mountain in that headless card database.
+Mountain in that headless card database. Finally, after SESSION_RESULT Forge's game
+thread pool can keep this one-session qualification JVM alive even though the protocol
+transaction is complete.
 
 This qualification-only post-overlay patch therefore:
 1. registers the already loaded Mountain rules as a real PaperCard in commonCards;
-2. executes applyToGame from Forge's game thread and blocks the hook until completion.
+2. executes applyToGame from Forge's game thread and blocks the hook until completion;
+3. exits the one-session provider JVM with status 0 only after runSession has emitted
+   and flushed its terminal SESSION_RESULT.
 
 Pinned Forge source remains unmodified.
 """
@@ -87,9 +91,25 @@ def main() -> None:
         "Primitive-A synchronous GameState application",
     )
 
+    text = replace_once(
+        text,
+        '''        runSession(in, out);
+    }
+}''',
+        '''        runSession(in, out);
+        // This qualification provider is intentionally one session per JVM.
+        // runSession flushes SESSION_RESULT before returning; explicit exit prevents
+        // Forge's non-daemon game executors from keeping a completed transaction alive.
+        System.exit(0);
+    }
+}''',
+        "one-session Forge provider lifecycle",
+    )
+
     path.write_text(text, encoding="utf-8")
     print("FORGE_PRIMITIVE_A_MOUNTAIN_REGISTRATION=PASS")
     print("FORGE_PRIMITIVE_A_SYNC_BARRIER=PASS")
+    print("FORGE_PRIMITIVE_A_ONE_SESSION_EXIT=PASS")
 
 
 if __name__ == "__main__":
