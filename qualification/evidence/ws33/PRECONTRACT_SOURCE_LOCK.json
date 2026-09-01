@@ -1,0 +1,73 @@
+{
+  "workstream": "WS-33",
+  "status": "READY_FOR_WS32_CONTRACT",
+  "observed_at": "2026-09-02",
+  "canonical_successor_credit": false,
+  "dependency": {
+    "ws32": "ABSENT_NOT_FOUND",
+    "successor_contract_version": null,
+    "contract_commit": null,
+    "contract_tree": null,
+    "bundle_digest": null,
+    "successor_schema": null,
+    "executable_manifests": null,
+    "replay_rng_record_digests": null,
+    "card_02_digest": null,
+    "terminal_gate_disposition": null,
+    "search_evidence": [
+      "no branch matching ws32",
+      "no branch matching successor",
+      "no commit matching WS-32",
+      "no PR matching WS-32 successor semantic executability"
+    ]
+  },
+  "commander_lab": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "main_commit": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "finalist_forge_branch": "program/finalist-convergence-forge",
+    "finalist_forge_commit": "8fb95d53d168228a3785f6270f33d5785df989a3",
+    "finalist_forge_tree": "b643f82071e5e1823aad78ae51ceeefbf793b568",
+    "final_convergence_branch": "program/finalist-convergence-final",
+    "final_convergence_commit": "36b8e8f241c92fe9baea2ea718f910fd31f5cf23",
+    "final_convergence_tree": "9cfd8333b82a34882826b25a3e7af0b9927b9ff7",
+    "ws33_branch": "ws33/forge-successor-provider-qualification"
+  },
+  "forge": {
+    "selected_precontract_commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "selected_precontract_tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+    "selected_precontract_version": "2.0.15-SNAPSHOT",
+    "pin_decision": "RETAIN_FOR_PRECONTRACT",
+    "fresh_master_commit": "c817743ecbda4a4983a4246a13375d1a6adf8a4e",
+    "fresh_master_tree": "d0ff27956e44ffb76baa11be1645675e1b013a3a",
+    "fresh_master_ahead_by": 24,
+    "fresh_master_behind_by": 0,
+    "rules_sensitive_delta_commits": [
+      "ac8c59a8442de8c594d7336021072b8531e2cb36",
+      "14a2a062f7416d27b02cde6c7f1970c002879616"
+    ],
+    "upgrade_decision": "DEFER_UNTIL_EXACT_WS32_RECORD_SCOPE_IS_AVAILABLE"
+  },
+  "historical_contract_provenance_only": {
+    "contract_commit": "9a8b8f5f5961466514eae6103be2d227324a27a8",
+    "bundle_digest": "ad1ec6e4baa83be48c0bc07e0bde66c2f8c003af29e411bad0953558154dcfee",
+    "authority": "NOT_SUCCESSOR_AUTHORITY"
+  },
+  "precontract_findings": {
+    "opaque_identity": "FORGE_PROVIDER_DEFECT",
+    "decision_surface": "PARTIAL_FAIL_CLOSED",
+    "native_state_construction": "PARTIAL_BROAD_NOT_FULL",
+    "four_player_combat": "CUSTOM_NATIVE_COMBAT_PATH_REQUIRED",
+    "rules_rng": "ONE_ACTIVE_SIMULATION_PER_FORGE_JVM_REQUIRED_UNTIL_PER_GAME_AUTHORITY_PROVEN",
+    "forge_rules_defects_found": 0
+  },
+  "runtime": {
+    "successor_records_executed": 0,
+    "successor_credit": "NOT_RUN",
+    "card_02_successor": "NOT_RUN",
+    "af04_successor": "NOT_RUN",
+    "af05_successor": "NOT_RUN",
+    "af06_successor": "NOT_RUN",
+    "af08_successor": "NOT_RUN",
+    "af09_successor": "NOT_RUN"
+  }
+}
