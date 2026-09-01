@@ -1,26 +1,10 @@
 #!/usr/bin/env python3
 """Close concrete Forge Primitive-A qualification adapter gaps.
 
-This qualification-only post-overlay patch keeps pinned Forge source unmodified and:
-1. registers Mountain in StaticData.commonCards so GameState can materialize it;
-2. executes GameState.applyToGame synchronously on Forge's game thread;
-3. routes getAbilityToPlay strictly over Forge-supplied native SpellAbility options;
-4. provides a fail-closed native CostDecisionMaker for Primitive-A mana only;
-5. closes the canonical transaction only after Forge reports non-fizzled native Bolt resolution;
-6. exits the one-session provider JVM only after the flushed SESSION_RESULT.
-
-A singleton getAbilityToPlay list is non-discretionary and is recorded as automatic.
-A genuine multi-option list is exposed to the external controller and must be selected
-from exactly the options Forge supplied; no first/default/random/AI fallback is used.
-For cost decisions, every CostPart except CostPartMana fails closed. CostPartMana only
-returns the neutral PaymentDecision token Forge expects before CostPartMana itself
-calls the controller's externally-routed payManaCost path.
-
-Forge emits GameEventSpellResolved before MagicStack.finishResolving removes an instant
-or sorcery from the stack. The event is therefore only a boundary marker: the provider
-waits until the *next* engine priority callback, after finishResolving/onStackResolved,
-then stops the qualification transaction. The runner still independently requires the
-Bolt in P1's graveyard, P2 at 37 life, and the native cast/resolution events before PASS.
+Qualification-only post-overlay patch. Pinned Forge source remains unmodified.
+The patch keeps every discretionary choice external/fail-closed and treats native
+resolution only as a transaction-boundary signal; the Python runner independently
+checks the final Bolt zone, P2 life, and native cast/resolution events before PASS.
 """
 
 from __future__ import annotations
@@ -158,7 +142,25 @@ def main() -> None:
                     && automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {
                 throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");
             }''',
-        "Primitive-A post-native-resolution boundary",
+        "Primitive-A post-native-resolution priority boundary",
+    )
+
+    text = replace_once(
+        text,
+        '''        @Override
+        public void declareAttackers(Player attacker, Combat combat) {
+            throw failClosed("declareAttackers");
+        }''',
+        '''        @Override
+        public void declareAttackers(Player attacker, Combat combat) {
+            String finalistFixture = System.getenv("COMMANDER_LAB_FORGE_FIXTURE_ID");
+            if (isPrimitiveAFixture(finalistFixture)
+                    && broker.automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {
+                throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");
+            }
+            throw failClosed("declareAttackers");
+        }''',
+        "Primitive-A post-native-resolution phase-transition boundary",
     )
 
     text = replace_once(
@@ -213,6 +215,7 @@ def main() -> None:
     print("FORGE_PRIMITIVE_A_GET_ABILITY_TO_PLAY=PASS")
     print("FORGE_PRIMITIVE_A_COST_DECISION=PASS")
     print("FORGE_PRIMITIVE_A_NATIVE_RESOLUTION_BOUNDARY=PASS")
+    print("FORGE_PRIMITIVE_A_PHASE_TRANSITION_BOUNDARY=PASS")
     print("FORGE_PRIMITIVE_A_SYNC_BARRIER=PASS")
     print("FORGE_PRIMITIVE_A_ONE_SESSION_EXIT=PASS")
 
