@@ -1,4 +1,4 @@
-"""Apply the qualification-only Primitive-A native-state materialization overlay."""
+"""Apply qualification-only native-state materialization overlays."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCENARIO = ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26Scenario.java"
+REPLAY = ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26ReplayRecorder.java"
 CANONICAL = ROOT / "candidate-qualification/finalist-convergence-xmage/canonical_v101.py"
 RUNNER = ROOT / "candidate-qualification/finalist-convergence-xmage/run_canonical_starter18.py"
 
@@ -95,6 +96,97 @@ def main() -> None:
 '''
     replace_exact(SCENARIO, old_preflight, new_preflight)
 
+    # AF05 canonical records contain a real face-down battlefield object. Enable only
+    # that native-state dimension and apply it through XMage's Permanent API.
+    replace_exact(
+        SCENARIO,
+        '    private static final Set<String> CARD = Set.of("semantic_id", "card_name", "tapped", "controller_seat", "face");\n',
+        '    private static final Set<String> CARD = Set.of("semantic_id", "card_name", "tapped", "controller_seat", "face", "face_down");\n',
+    )
+    replace_exact(
+        SCENARIO,
+        '            "attached_to", "counters", "face_down", "known_to", "native_object_id",\n',
+        '            "attached_to", "counters", "known_to", "native_object_id",\n',
+    )
+    replace_exact(
+        SCENARIO,
+        '''                    if (!"battlefield".equals(zone) && booleanValue(card, "tapped", false)) {
+                        throw fail("INVALID_SCENARIO: tapped only applies to battlefield");
+                    }
+''',
+        '''                    if (!"battlefield".equals(zone) && booleanValue(card, "tapped", false)) {
+                        throw fail("INVALID_SCENARIO: tapped only applies to battlefield");
+                    }
+                    if (!"battlefield".equals(zone) && booleanValue(card, "face_down", false)) {
+                        throw fail("INVALID_SCENARIO: face_down only applies to battlefield");
+                    }
+''',
+    )
+    replace_exact(
+        SCENARIO,
+        '''            game.cheat(player.getId(), insertion, hand, battlefield, grave, List.of(), exile);
+        }
+
+        JsonObject validation = validateNative(game, players, bySeat, semanticMap, ledger);
+''',
+        '''            game.cheat(player.getId(), insertion, hand, battlefield, grave, List.of(), exile);
+            for (JsonElement element : optionalArray(zones, "battlefield")) {
+                JsonObject cardSpec = element.getAsJsonObject();
+                Permanent permanent = game.getPermanent(nativeId(semanticMap, text(cardSpec, "semantic_id")));
+                if (permanent == null) {
+                    throw fail("NATIVE_VALIDATION_FAILED: missing battlefield object " + text(cardSpec, "semantic_id"));
+                }
+                permanent.setFaceDown(booleanValue(cardSpec, "face_down", false), game);
+            }
+        }
+
+        JsonObject validation = validateNative(game, players, bySeat, semanticMap, ledger);
+''',
+    )
+    replace_exact(
+        SCENARIO,
+        '''            requireNative(permanent.isTapped() == booleanValue(spec, "tapped", false), "battlefield-tapped:" + semantic);
+''',
+        '''            requireNative(permanent.isTapped() == booleanValue(spec, "tapped", false), "battlefield-tapped:" + semantic);
+            requireNative(permanent.isFaceDown(game) == booleanValue(spec, "face_down", false), "battlefield-face-down:" + semantic);
+''',
+    )
+
+    # Privileged qualification/replay state, never actor output: retain the two
+    # hidden-state construction facts required for exact setup equality.
+    replace_exact(
+        REPLAY,
+        '''            Permanent permanent = game.getPermanent(nativeId);
+            if (permanent != null) {
+                item.addProperty("controller_seat", seat(permanent.getControllerId()));
+                item.addProperty("tapped", permanent.isTapped());
+''',
+        '''            Permanent permanent = game.getPermanent(nativeId);
+            if (permanent != null) {
+                item.addProperty("controller_seat", seat(permanent.getControllerId()));
+                item.addProperty("tapped", permanent.isTapped());
+                item.addProperty("face_down", permanent.isFaceDown(game));
+''',
+    )
+    replace_exact(
+        REPLAY,
+        '''            objects.add(item);
+        }
+        state.add("scenario_objects", objects);
+''',
+        '''            if (zone == Zone.LIBRARY && card != null) {
+                Player owner = game.getPlayer(card.getOwnerId());
+                if (owner != null) {
+                    int position = owner.getLibrary().getCardList().indexOf(nativeId);
+                    if (position >= 0) item.addProperty("zone_position", position);
+                }
+            }
+            objects.add(item);
+        }
+        state.add("scenario_objects", objects);
+''',
+    )
+
     # XMage's native payment transaction can expose either of two legitimate stages:
     # 1. activate the Mountain mana ability;
     # 2. commit the resulting red mana already present in the native mana pool.
@@ -123,7 +215,7 @@ def main() -> None:
 ''',
     )
 
-    print("XMAGE_PRIMITIVE_A_NATIVE_STATE_OVERLAY=PASS")
+    print("XMAGE_NATIVE_STATE_OVERLAY=PASS")
 
 
 if __name__ == "__main__":
