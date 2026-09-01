@@ -1,12 +1,4 @@
-"""Apply the qualification-only Primitive-A native-state materialization overlay.
-
-The canonical NATIVE_STATE_LOAD fixtures intentionally describe only the semantic
-objects present in the requested state; they are not Commander decklists. XMage's
-normal import path must still receive a legal 100-card Commander deck. This overlay
-therefore keeps import/bootstrap state separate from canonical semantic state and
-materializes any requested non-commander cards as real XMage Card instances before
-the existing native zone/state loader binds and validates them.
-"""
+"""Apply the qualification-only Primitive-A native-state materialization overlay."""
 
 from __future__ import annotations
 
@@ -45,15 +37,92 @@ def main() -> None:
         "import mage.cards.repository.CardRepository;\n",
     )
 
-    old_preflight = '''        // Full preflight before any native mutation: malformed input must be retry-safe.\n        for (int zero = 0; zero < players.size(); zero++) {\n            Map<String, Integer> requested = new HashMap<>();\n            JsonObject zones = bySeat.get(zero + 1).getAsJsonObject("zones");\n            for (String zone : ZONES) {\n                for (JsonElement element : optionalArray(zones, zone)) {\n                    requested.merge(text(element.getAsJsonObject(), "card_name"), 1, Integer::sum);\n                }\n            }\n            Map<String, List<Card>> available = available(game, players.get(zero).getId());\n            for (Map.Entry<String, Integer> entry : requested.entrySet()) {\n                if (available.getOrDefault(entry.getKey(), List.of()).size() < entry.getValue()) {\n                    throw fail("STALE_OBJECT_OR_CARD_REFERENCE: " + entry.getKey());\n                }\n            }\n        }\n\n'''
-    new_preflight = '''        // Full preflight before any native game mutation: malformed input must be retry-safe.\n        // The imported Commander deck is only a legal bootstrap. Canonical NATIVE_STATE_LOAD\n        // records are semantic states, not decklists, so requested objects that are absent from\n        // that bootstrap are instantiated as real XMage cards and then loaded through Game.loadCards.\n        Map<UUID, List<Card>> nativeMaterialization = new LinkedHashMap<>();\n        for (int zero = 0; zero < players.size(); zero++) {\n            Map<String, Integer> requested = new HashMap<>();\n            JsonObject zones = bySeat.get(zero + 1).getAsJsonObject("zones");\n            for (String zone : ZONES) {\n                for (JsonElement element : optionalArray(zones, zone)) {\n                    requested.merge(text(element.getAsJsonObject(), "card_name"), 1, Integer::sum);\n                }\n            }\n            UUID ownerId = players.get(zero).getId();\n            Map<String, List<Card>> nativeAvailable = available(game, ownerId);\n            List<Card> additions = new ArrayList<>();\n            for (Map.Entry<String, Integer> entry : requested.entrySet()) {\n                int missing = entry.getValue() - nativeAvailable.getOrDefault(entry.getKey(), List.of()).size();\n                if (missing <= 0) continue;\n                List<CardInfo> infos = CardRepository.instance.findCards(entry.getKey(), 1);\n                if (infos.size() != 1 || !entry.getKey().equals(infos.get(0).getName())) {\n                    throw fail("STALE_OBJECT_OR_CARD_REFERENCE: " + entry.getKey());\n                }\n                for (int index = 0; index < missing; index++) {\n                    Card card = infos.get(0).createCard();\n                    if (card == null) throw fail("STALE_OBJECT_OR_CARD_REFERENCE: " + entry.getKey());\n                    additions.add(card);\n                }\n            }\n            nativeMaterialization.put(ownerId, additions);\n        }\n        for (Map.Entry<UUID, List<Card>> entry : nativeMaterialization.entrySet()) {\n            if (!entry.getValue().isEmpty()) {\n                game.loadCards(new LinkedHashSet<>(entry.getValue()), entry.getKey());\n            }\n        }\n\n'''
+    old_preflight = '''        // Full preflight before any native mutation: malformed input must be retry-safe.
+        for (int zero = 0; zero < players.size(); zero++) {
+            Map<String, Integer> requested = new HashMap<>();
+            JsonObject zones = bySeat.get(zero + 1).getAsJsonObject("zones");
+            for (String zone : ZONES) {
+                for (JsonElement element : optionalArray(zones, zone)) {
+                    requested.merge(text(element.getAsJsonObject(), "card_name"), 1, Integer::sum);
+                }
+            }
+            Map<String, List<Card>> available = available(game, players.get(zero).getId());
+            for (Map.Entry<String, Integer> entry : requested.entrySet()) {
+                if (available.getOrDefault(entry.getKey(), List.of()).size() < entry.getValue()) {
+                    throw fail("STALE_OBJECT_OR_CARD_REFERENCE: " + entry.getKey());
+                }
+            }
+        }
+
+'''
+    new_preflight = '''        // Full preflight before any native game mutation: malformed input must be retry-safe.
+        // The imported Commander deck is only a legal bootstrap. Canonical NATIVE_STATE_LOAD
+        // records are semantic states, not decklists, so requested objects that are absent from
+        // that bootstrap are instantiated as real XMage cards and then loaded through Game.loadCards.
+        Map<UUID, List<Card>> nativeMaterialization = new LinkedHashMap<>();
+        for (int zero = 0; zero < players.size(); zero++) {
+            Map<String, Integer> requested = new HashMap<>();
+            JsonObject zones = bySeat.get(zero + 1).getAsJsonObject("zones");
+            for (String zone : ZONES) {
+                for (JsonElement element : optionalArray(zones, zone)) {
+                    requested.merge(text(element.getAsJsonObject(), "card_name"), 1, Integer::sum);
+                }
+            }
+            UUID ownerId = players.get(zero).getId();
+            Map<String, List<Card>> nativeAvailable = available(game, ownerId);
+            List<Card> additions = new ArrayList<>();
+            for (Map.Entry<String, Integer> entry : requested.entrySet()) {
+                int missing = entry.getValue() - nativeAvailable.getOrDefault(entry.getKey(), List.of()).size();
+                if (missing <= 0) continue;
+                List<CardInfo> infos = CardRepository.instance.findCards(entry.getKey(), 1);
+                if (infos.size() != 1 || !entry.getKey().equals(infos.get(0).getName())) {
+                    throw fail("STALE_OBJECT_OR_CARD_REFERENCE: " + entry.getKey());
+                }
+                for (int index = 0; index < missing; index++) {
+                    Card card = infos.get(0).createCard();
+                    if (card == null) throw fail("STALE_OBJECT_OR_CARD_REFERENCE: " + entry.getKey());
+                    additions.add(card);
+                }
+            }
+            nativeMaterialization.put(ownerId, additions);
+        }
+        for (Map.Entry<UUID, List<Card>> entry : nativeMaterialization.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                game.loadCards(new LinkedHashSet<>(entry.getValue()), entry.getKey());
+            }
+        }
+
+'''
     replace_exact(SCENARIO, old_preflight, new_preflight)
 
-    # XMage's native payment transaction can expose either of two legitimate stages:\n    # (1) activate the Mountain mana ability, then (2) commit the resulting red pool mana.\n    # Depending on native transaction timing a request may observe either stage first.\n    # Each request must still have exactly one semantic match. If both or neither appear,\n    # unique_option fails closed; no index/default/random selection is ever used.\n    replace_exact(
+    # XMage's native payment transaction can expose either of two legitimate stages:
+    # 1. activate the Mountain mana ability;
+    # 2. commit the resulting red mana already present in the native mana pool.
+    # The matcher still requires exactly one semantic match on every decision frame.
+    replace_exact(
         RUNNER,
-        '''                option = unique_option(\n                    pending,\n                    lambda item: item.get("option_type") == "mana_ability"\n                    and _metadata(item).get("source_name") == "Mountain",\n                    "mana:obj:pilot-mountain",\n                )\n''',
-        '''                option = unique_option(\n                    pending,\n                    lambda item: (\n                        item.get("option_type") == "mana_ability"\n                        and _metadata(item).get("source_name") == "Mountain"\n                    ) or (\n                        item.get("option_type") == "mana_pool"\n                        and str(_metadata(item).get("mana_type", "")).casefold() == "red"\n                        and int(_metadata(item).get("mana_available", 0)) > 0\n                    ),\n                    "mana:native-red-payment-stage",\n                )\n''',
+        '''                option = unique_option(
+                    pending,
+                    lambda item: item.get("option_type") == "mana_ability"
+                    and _metadata(item).get("source_name") == "Mountain",
+                    "mana:obj:pilot-mountain",
+                )
+''',
+        '''                option = unique_option(
+                    pending,
+                    lambda item: (
+                        item.get("option_type") == "mana_ability"
+                        and _metadata(item).get("source_name") == "Mountain"
+                    ) or (
+                        item.get("option_type") == "mana_pool"
+                        and str(_metadata(item).get("mana_type", "")).casefold() == "red"
+                        and int(_metadata(item).get("mana_available", 0)) > 0
+                    ),
+                    "mana:native-red-payment-stage",
+                )
+''',
     )
+
     print("XMAGE_PRIMITIVE_A_NATIVE_STATE_OVERLAY=PASS")
 
 
