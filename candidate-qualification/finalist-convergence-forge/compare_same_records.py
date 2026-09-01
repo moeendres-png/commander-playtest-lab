@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Neutral same-record comparator for finalist Starter-18 evidence.
+"""Neutral same-record comparator for finalist convergence evidence.
 
 The comparator deliberately ignores provider UUIDs, raw action IDs, raw PRNG sequences,
-process IDs, and provider callback order. It requires the exact v1.0.1 record digest,
-identical normalized requested/native state for PASS/PASS rows, the same canonical semantic
-choices, and identical terminal semantic state/postcondition.
+process IDs, provider callback order, and opaque actor-handle values. It requires the
+exact v1.0.1 record digest, identical normalized requested/native state for PASS/PASS
+rows, and fixture-family-specific provider-neutral semantic evidence.
 """
 
 from __future__ import annotations
@@ -16,14 +16,28 @@ from pathlib import Path
 from typing import Any
 
 STARTER_ORDER = [
-    "PLAYER_COUNT_2P", "PLAYER_COUNT_3P", "PLAYER_COUNT_4P", "PLAYER_COUNT_5P",
-    "PILOT_MULLIGAN", "PILOT_PRIORITY", "PILOT_TARGET", "HIDDEN_01", "HIDDEN_02",
-    "MICRO_STACK", "MICRO_REPLACEMENT", "WS05-MP-COMBAT-4", "RNG_RULES_TAPE",
-    "REPLAY_DECISION_TAPE", "REPLAY_EVENT_TAPE", "REPLAY_CLEAN_PROCESS",
-    "REPLAY_STATE_HASHES", "CARD_02",
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_4P",
+    "PLAYER_COUNT_5P",
+    "PILOT_MULLIGAN",
+    "PILOT_PRIORITY",
+    "PILOT_TARGET",
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "MICRO_STACK",
+    "MICRO_REPLACEMENT",
+    "WS05-MP-COMBAT-4",
+    "RNG_RULES_TAPE",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_STATE_HASHES",
+    "CARD_02",
 ]
 PASS = "PASS"
 UNSUPPORTED = "CANONICAL_SETUP_UNSUPPORTED"
+HIDDEN_IDS = {"HIDDEN_01", "HIDDEN_02"}
 
 
 def sha256_file(path: Path) -> str:
@@ -70,7 +84,9 @@ def forge_choices(row: dict[str, Any]) -> dict[str, Any]:
     mulligans: dict[str, list[str]] = {}
     for decision in decisions:
         if decision.get("decision_kind") == "mulliganKeepHand":
-            mulligans.setdefault(str(decision["actor"]), []).append(str(decision["selected_semantic_option"]))
+            mulligans.setdefault(str(decision["actor"]), []).append(
+                str(decision["selected_semantic_option"])
+            )
     return {"starting_player": "P1", "mulligans": mulligans}
 
 
@@ -91,9 +107,12 @@ def xmage_choices(row: dict[str, Any]) -> dict[str, Any]:
             raise ValueError(f"XMage mulligan selection not singular: {decision}")
         by_actor.setdefault(actor, []).append(str(selected[0]))
 
-    # Derive the semantic KEEP identity from every non-P1 participant. This avoids
-    # comparing or assigning meaning to an opaque provider option ID by position.
-    non_p1 = [choice for actor, choices in by_actor.items() if actor != "P1" for choice in choices]
+    non_p1 = [
+        choice
+        for actor, choices in by_actor.items()
+        if actor != "P1"
+        for choice in choices
+    ]
     if not non_p1 or len(set(non_p1)) != 1:
         raise ValueError(f"XMage non-P1 keep identity is not stable: {by_actor}")
     keep_id = non_p1[0]
@@ -103,22 +122,82 @@ def xmage_choices(row: dict[str, Any]) -> dict[str, Any]:
     return {"starting_player": "P1", "mulligans": normalized}
 
 
-def compare_pass_rows(fixture_id: str, forge: dict[str, Any], xmage: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+def hidden_projection(row: dict[str, Any]) -> dict[str, Any]:
+    projection = row.get("actor_projection")
+    if not isinstance(projection, dict):
+        raise ValueError("AF05 actor_projection missing")
+    required = {
+        "P2_hand_count": projection.get("P2_hand_count"),
+        "P2_library_count": projection.get("P2_library_count"),
+        "public_exile": projection.get("public_exile"),
+        "controller_face_down_visible": projection.get("controller_face_down_visible"),
+        "actor_object_ids_opaque": projection.get("actor_object_ids_opaque"),
+    }
+    if required != {
+        "P2_hand_count": 1,
+        "P2_library_count": 1,
+        "public_exile": ["Sol Ring"],
+        "controller_face_down_visible": ["Grizzly Bears"],
+        "actor_object_ids_opaque": True,
+    }:
+        raise ValueError(f"AF05 semantic projection mismatch: {required}")
+    return required
+
+
+def compare_pass_rows(
+    fixture_id: str, forge: dict[str, Any], xmage: dict[str, Any]
+) -> tuple[str, dict[str, Any]]:
     required_equal = {
         "record_digest": forge.get("record_digest") == xmage.get("record_digest"),
-        "requested_semantic_state_digest": forge.get("requested_semantic_state_digest") == xmage.get("requested_semantic_state_digest"),
-        "normalized_native_constructed_state_digest": forge.get("normalized_native_constructed_state_digest") == xmage.get("normalized_native_constructed_state_digest"),
-        "terminal_semantic_state": forge.get("terminal_semantic_state") == xmage.get("terminal_semantic_state"),
-        "terminal_postcondition_result": forge.get("terminal_postcondition_result") == xmage.get("terminal_postcondition_result") == "PASS",
+        "requested_semantic_state_digest": forge.get("requested_semantic_state_digest")
+        == xmage.get("requested_semantic_state_digest"),
+        "normalized_native_constructed_state_digest": forge.get(
+            "normalized_native_constructed_state_digest"
+        )
+        == xmage.get("normalized_native_constructed_state_digest"),
+        "requested_native_state_equal": forge.get("requested_native_state_equal") is True
+        and xmage.get("requested_native_state_equal") is True,
+        "terminal_postcondition_result": forge.get("terminal_postcondition_result")
+        == xmage.get("terminal_postcondition_result")
+        == "PASS",
     }
     if not required_equal["record_digest"]:
         return "CONTRACT_DEFECT", required_equal
 
-    if fixture_id in {"PLAYER_COUNT_2P", "PLAYER_COUNT_3P", "PLAYER_COUNT_4P", "PLAYER_COUNT_5P", "PILOT_MULLIGAN"}:
-        required_equal["semantic_discretionary_selections"] = forge_choices(forge) == xmage_choices(xmage)
-    if fixture_id in {"PILOT_PRIORITY", "PILOT_TARGET"}:
-        required_equal["semantic_discretionary_selections"] = primitive_choices(forge) == primitive_choices(xmage)
+    if fixture_id in {
+        "PLAYER_COUNT_2P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_5P",
+        "PILOT_MULLIGAN",
+    }:
+        required_equal["terminal_semantic_state"] = (
+            forge.get("terminal_semantic_state") == xmage.get("terminal_semantic_state")
+        )
+        required_equal["semantic_discretionary_selections"] = forge_choices(
+            forge
+        ) == xmage_choices(xmage)
+    elif fixture_id in {"PILOT_PRIORITY", "PILOT_TARGET"}:
+        required_equal["terminal_semantic_state"] = (
+            forge.get("terminal_semantic_state") == xmage.get("terminal_semantic_state")
+        )
+        required_equal["semantic_discretionary_selections"] = primitive_choices(
+            forge
+        ) == primitive_choices(xmage)
         required_equal["semantic_event_tape"] = semantic_events(forge) == semantic_events(xmage)
+    elif fixture_id in HIDDEN_IDS:
+        required_equal["native_semantic_state"] = forge.get("native_state") == xmage.get(
+            "native_state"
+        )
+        required_equal["actor_projection"] = hidden_projection(forge) == hidden_projection(xmage)
+        required_equal["opaque_identity_policy"] = (
+            forge["actor_projection"].get("actor_object_ids_opaque") is True
+            and xmage["actor_projection"].get("actor_object_ids_opaque") is True
+        )
+    else:
+        required_equal["terminal_semantic_state"] = (
+            forge.get("terminal_semantic_state") == xmage.get("terminal_semantic_state")
+        )
 
     if all(required_equal.values()):
         return "DIFFERENTIAL_AGREEMENT_PASS", required_equal
@@ -150,7 +229,9 @@ def main() -> int:
     xmage_payload = json.loads(args.xmage.read_text(encoding="utf-8"))
     if forge_payload.get("contract_commit") != xmage_payload.get("contract_commit"):
         raise SystemExit("CONTRACT_COMMIT_MISMATCH")
-    if forge_payload.get("contract_bundle_digest") != xmage_payload.get("contract_bundle_digest"):
+    if forge_payload.get("contract_bundle_digest") != xmage_payload.get(
+        "contract_bundle_digest"
+    ):
         raise SystemExit("CONTRACT_BUNDLE_MISMATCH")
 
     forge_rows = rows_by_id(forge_payload, fixture_ids)
@@ -165,7 +246,9 @@ def main() -> int:
             try:
                 verdict, detail = compare_pass_rows(fixture_id, forge, xmage)
             except Exception as exc:
-                verdict, detail = "CONTRACT_DEFECT", {"normalization_error": f"{type(exc).__name__}:{exc}"}
+                verdict, detail = "CONTRACT_DEFECT", {
+                    "normalization_error": f"{type(exc).__name__}:{exc}"
+                }
         elif forge.get("status") == UNSUPPORTED and xmage.get("status") == UNSUPPORTED:
             verdict, detail = "CANONICAL_SETUP_UNSUPPORTED_BOTH", {}
         elif forge.get("status") == UNSUPPORTED:
@@ -179,21 +262,25 @@ def main() -> int:
         elif xmage.get("status") == "FAIL":
             verdict, detail = "PROVIDER_DEFECT_XMAGE", {}
         else:
-            verdict, detail = "CONTRACT_DEFECT", {"unexpected_status_pair": [forge.get("status"), xmage.get("status")]}
-        output_rows.append({
-            "fixture_id": fixture_id,
-            "record_digest": forge.get("record_digest"),
-            "forge_status": forge.get("status"),
-            "xmage_status": xmage.get("status"),
-            "verdict": verdict,
-            "comparison": detail,
-        })
+            verdict, detail = "CONTRACT_DEFECT", {
+                "unexpected_status_pair": [forge.get("status"), xmage.get("status")]
+            }
+        output_rows.append(
+            {
+                "fixture_id": fixture_id,
+                "record_digest": forge.get("record_digest"),
+                "forge_status": forge.get("status"),
+                "xmage_status": xmage.get("status"),
+                "verdict": verdict,
+                "comparison": detail,
+            }
+        )
 
     counts: dict[str, int] = {}
     for row in output_rows:
         counts[row["verdict"]] = counts.get(row["verdict"], 0) + 1
     evidence = {
-        "schema_version": "commander-lab.finalist-same-record-comparison/1.1.0",
+        "schema_version": "commander-lab.finalist-same-record-comparison/1.2.0",
         "selected_fixture_ids": fixture_ids,
         "contract_commit": forge_payload["contract_commit"],
         "contract_bundle_digest": forge_payload["contract_bundle_digest"],
@@ -205,20 +292,36 @@ def main() -> int:
         "xmage_artifact_digest": args.xmage_artifact_digest,
         "xmage_behavioral_candidate_commit": xmage_payload.get("candidate_commit"),
         "xmage_engine_commit": xmage_payload.get("xmage_commit"),
-        "input_sha256": {"forge": sha256_file(args.forge), "xmage": sha256_file(args.xmage)},
+        "input_sha256": {
+            "forge": sha256_file(args.forge),
+            "xmage": sha256_file(args.xmage),
+        },
         "counts": counts,
         "rows": output_rows,
         "ignored_identity_dimensions": [
-            "provider UUIDs", "raw action IDs", "process IDs", "raw cross-engine PRNG sequence", "provider callback order"
+            "provider UUIDs",
+            "opaque actor-handle values",
+            "raw action IDs",
+            "process IDs",
+            "raw cross-engine PRNG sequence",
+            "provider callback order",
         ],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.output.write_text(
+        json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(json.dumps({"counts": counts, "output": str(args.output)}, sort_keys=True))
-    bad = sum(counts.get(key, 0) for key in [
-        "ENGINE_SEMANTIC_DISAGREEMENT", "PROVIDER_DEFECT_FORGE", "PROVIDER_DEFECT_XMAGE",
-        "PROVIDER_DEFECT_BOTH", "CONTRACT_DEFECT",
-    ])
+    bad = sum(
+        counts.get(key, 0)
+        for key in [
+            "ENGINE_SEMANTIC_DISAGREEMENT",
+            "PROVIDER_DEFECT_FORGE",
+            "PROVIDER_DEFECT_XMAGE",
+            "PROVIDER_DEFECT_BOTH",
+            "CONTRACT_DEFECT",
+        ]
+    )
     return 0 if bad == 0 else 1
 
 
