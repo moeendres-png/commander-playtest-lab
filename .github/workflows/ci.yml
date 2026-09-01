@@ -186,7 +186,7 @@ jobs:
       - name: Validate qualification Python
         shell: bash
         run: |
-          python -m py_compile scripts/finalist_apply_forge_primitive_a_overlay.py candidate-qualification/finalist-convergence-forge/run_primitive_a.py
+          python -m py_compile scripts/finalist_apply_forge_primitive_a_overlay.py scripts/finalist_fix_forge_primitive_a_sync.py candidate-qualification/finalist-convergence-forge/run_primitive_a.py
       - name: Build pinned unmodified Forge game modules
         working-directory: vendor/engine-source/forge
         shell: bash
@@ -211,6 +211,7 @@ jobs:
           python scripts/finalist_generate_forge_provider.py --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE" | tee "$ev/generator-summary.json"
           python scripts/finalist_generate_forge_bootstrap.py --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
           python scripts/finalist_apply_forge_primitive_a_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          python scripts/finalist_fix_forge_primitive_a_sync.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
           git diff --check
       - name: Assert prohibited AI and GUI dependencies absent
         shell: bash
