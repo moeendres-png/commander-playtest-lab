@@ -131,7 +131,16 @@ def main() -> None:
                     .map(Permanent::getId).collect(java.util.stream.Collectors.toSet());
             Set<UUID> expected = new java.util.LinkedHashSet<>();
             for (JsonElement item : eligible) expected.add(nativeId(semanticMap, item.getAsString()));
-            requireNative(available.equals(expected), "eligible-attacker-set");
+            if (!available.equals(expected)) {
+                Set<String> availableSemantic = available.stream()
+                        .map(id -> semanticMap.getOrDefault(id, "UNMAPPED:" + id))
+                        .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
+                Set<String> expectedSemantic = expected.stream()
+                        .map(id -> semanticMap.getOrDefault(id, "UNMAPPED:" + id))
+                        .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
+                throw fail("NATIVE_VALIDATION_FAILED: eligible-attacker-set expected="
+                        + expectedSemantic + " available=" + availableSemantic);
+            }
 
             JsonObject result = new JsonObject();
             result.addProperty("validator", "xmage-native-declare-attackers-state/1.0.0");
