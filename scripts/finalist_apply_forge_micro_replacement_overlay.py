@@ -91,6 +91,7 @@ def main() -> None:
             + ",\"attacker\":" + esc(attacker == null ? null : broker.qualificationSemanticRef(attacker))
             + ",\"attacker_power\":" + (attacker == null ? -1 : attacker.getNetPower())
             + ",\"defender\":" + esc(defender == game.getPlayers().get(1) ? "P2" : null)
+            + ",\"blocked\":" + (attacker != null && combat != null && combat.isBlocked(attacker))
             + ",\"combat_phase\":" + esc(String.valueOf(game.getPhaseHandler().getPhase()))
             + "}";
     }
@@ -147,9 +148,14 @@ def main() -> None:
                 if (attacker.getNetPower() != 3) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_POWER_MISMATCH");
                 forge.game.combat.Combat combat = new forge.game.combat.Combat(p1);
                 combat.addAttacker(attacker, p2);
+                // NATIVE_STATE_LOAD resumes at combat damage, after blockers are known.
+                // Materialize the contract's exact empty-blocker state through Forge's
+                // own combat API so damage assignment sees an explicit unblocked band.
+                combat.setBlocked(attacker, false);
                 game.getPhaseHandler().setCombat(combat);
                 game.updateCombatForView();
                 if (!combat.isAttacking(attacker, p2)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_COMBAT_MISMATCH");
+                if (combat.isBlocked(attacker)) throw new ControlledStop("FINALIST_MICRO_REPLACEMENT_BLOCKED_STATE_MISMATCH");
                 game.getPhaseHandler().setPriority(p1);
             } catch (RuntimeException exc) {
                 stateFailure.set(exc);
