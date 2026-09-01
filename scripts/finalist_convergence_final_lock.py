@@ -79,6 +79,7 @@ def verify_run(run_id: int, expected_head: str, expected_conclusion: str = "succ
     return {
         "run_id": run_id,
         "name": payload.get("name"),
+        "path": payload.get("path"),
         "head_sha": payload.get("head_sha"),
         "status": payload.get("status"),
         "conclusion": payload.get("conclusion"),
@@ -88,10 +89,53 @@ def verify_run(run_id: int, expected_head: str, expected_conclusion: str = "succ
     }
 
 
-def exact_head_run_names(head_sha: str) -> list[str]:
+def exact_head_run_inventory(head_sha: str) -> list[dict]:
     payload = api_json(f"/repos/{REPO}/actions/runs?head_sha={head_sha}&per_page=100")
-    names = [str(item.get("name", "")) for item in payload.get("workflow_runs", [])]
-    return sorted(set(names))
+    rows = []
+    for item in payload.get("workflow_runs", []):
+        rows.append(
+            {
+                "run_id": int(item.get("id")),
+                "name": str(item.get("name", "")),
+                "path": str(item.get("path", "")),
+                "status": item.get("status"),
+                "conclusion": item.get("conclusion"),
+                "event": item.get("event"),
+            }
+        )
+    return sorted(rows, key=lambda row: row["run_id"])
+
+
+def corrected_runtime_candidates(inventory: list[dict]) -> list[dict]:
+    """Return only successful, convergence-specific runs that could plausibly claim corrected v1.0.1 broad-gate credit.
+
+    Historical WS25/WS26 replay workflows are intentionally excluded: their workflow name/path is not proof of the
+    corrected v1.0.1 Burn Down the House transaction. Positive corrected-record credit requires an explicit
+    finalist-convergence workflow plus exact record/digest evidence in its artifact; this lock never infers such
+    credit from a legacy workflow name.
+    """
+    markers = (
+        "replay",
+        "rng",
+        "card_02",
+        "card02",
+        "union-50",
+        "union_50",
+        "current-72",
+        "current_72",
+        "actual-card",
+        "actual_card",
+    )
+    candidates = []
+    for row in inventory:
+        haystack = f"{row['name']} {row['path']}".lower()
+        if row.get("conclusion") != "success":
+            continue
+        if "finalist-convergence" not in haystack:
+            continue
+        if any(marker in haystack for marker in markers):
+            candidates.append(row)
+    return candidates
 
 
 def main() -> int:
@@ -167,12 +211,25 @@ def main() -> int:
         "ws05_differential": verify_run(closed["ws05_mp_combat_4"]["differential_run"], lock["differential"]),
     }
 
-    forge_head_run_names = exact_head_run_names(lock["forge_finalist"])
-    xmage_head_run_names = exact_head_run_names(lock["xmage_finalist"])
-    forbidden_runtime_markers = ("replay", "rng", "card_02", "card02", "union-50", "union 50", "current-72", "actual-card", "actual card")
-    for provider, names in (("forge", forge_head_run_names), ("xmage", xmage_head_run_names)):
-        matching = [name for name in names if any(marker in name.lower() for marker in forbidden_runtime_markers)]
-        require(not matching, f"Expectation says corrected remaining gates are NOT_RUN, but current-head workflow names suggest otherwise for {provider}: {matching}")
+    forge_inventory = exact_head_run_inventory(lock["forge_finalist"])
+    xmage_inventory = exact_head_run_inventory(lock["xmage_finalist"])
+    corrected_candidates = {
+        "forge": corrected_runtime_candidates(forge_inventory),
+        "xmage": corrected_runtime_candidates(xmage_inventory),
+    }
+    for provider, candidates in corrected_candidates.items():
+        require(
+            not candidates,
+            "Expectation says corrected broad gates are NOT_RUN, but a successful dedicated finalist-convergence "
+            f"workflow could contain contradictory corrected-record evidence for {provider}: {candidates}",
+        )
+
+    # Lock the known legacy XMage replay workflow explicitly as non-credit evidence at the current head.
+    legacy_xmage_replay = [
+        row for row in xmage_inventory if row["path"] == ".github/workflows/ws26-xmage-scenario-replay-viability.yml"
+    ]
+    require(len(legacy_xmage_replay) == 1, "expected exactly one current-head legacy XMage replay workflow run")
+    require(legacy_xmage_replay[0]["conclusion"] == "failure", "legacy XMage replay run unexpectedly changed conclusion")
 
     af = expectation["architecture_freeze"]
     for gate in ("AF00", "AF01", "AF02", "AF03", "AF11"):
@@ -184,7 +241,7 @@ def main() -> int:
     require(expectation["final_verdict"]["production_provider"] == "NONE_QUALIFIED", "production provider must remain none")
 
     result = {
-        "schema_version": "commander-lab.finalist-convergence-final-lock/1.0.0",
+        "schema_version": "commander-lab.finalist-convergence-final-lock/1.0.1",
         "lock_status": "PASS",
         "meaning": "Evidence accounting and terminal classifications are internally consistent. This is not a production-qualification PASS.",
         "program_status": expectation["program_status"],
@@ -213,9 +270,14 @@ def main() -> int:
             "v101_actual_card_semantic_defects": len(card_defects),
         },
         "verified_runtime_runs": verified_runs,
-        "current_head_workflow_names": {
-            "forge": forge_head_run_names,
-            "xmage": xmage_head_run_names,
+        "current_head_run_inventory": {
+            "forge": forge_inventory,
+            "xmage": xmage_inventory,
+        },
+        "corrected_broad_runtime_candidates": corrected_candidates,
+        "legacy_noncredit_evidence": {
+            "xmage_ws26_replay_current_head": legacy_xmage_replay[0],
+            "credit": "ZERO_FOR_CORRECTED_V1_0_1_REPLAY_TRANSACTION",
         },
         "remaining_gates": expectation["required_remaining_gate_terminal_results"],
         "risk_audit": expectation["risk_audit"],
