@@ -1,22 +1,15 @@
 #!/usr/bin/env python3
-"""Close the concrete Forge Primitive-A qualification adapter gaps.
+"""Close concrete Forge Primitive-A qualification adapter gaps.
 
-Forge GameState.applyToGame delegates through GameAction.invoke. From the Match start
-hook that invocation may be asynchronous, so evidence sampled immediately afterward
-can still observe the ordinary opening-hand/UNTAP state. In addition, GameState
-materializes named zone cards through StaticData.commonCards; the existing finalist
-bootstrap constructed Mountain PaperCards for Commander decks but did not register
-Mountain in that headless card database. Finally, after SESSION_RESULT Forge's game
-thread pool can keep this one-session qualification JVM alive even though the protocol
-transaction is complete.
+This qualification-only post-overlay patch keeps pinned Forge source unmodified and:
+1. registers Mountain in StaticData.commonCards so GameState can materialize it;
+2. executes GameState.applyToGame synchronously on Forge's game thread;
+3. routes getAbilityToPlay strictly over Forge-supplied native SpellAbility options;
+4. exits the one-session provider JVM only after the flushed SESSION_RESULT.
 
-This qualification-only post-overlay patch therefore:
-1. registers the already loaded Mountain rules as a real PaperCard in commonCards;
-2. executes applyToGame from Forge's game thread and blocks the hook until completion;
-3. exits the one-session provider JVM with status 0 only after runSession has emitted
-   and flushed its terminal SESSION_RESULT.
-
-Pinned Forge source remains unmodified.
+A singleton getAbilityToPlay list is non-discretionary and is recorded as automatic.
+A genuine multi-option list is exposed to the external controller and must be selected
+from exactly the options Forge supplied; no first/default/random/AI fallback is used.
 """
 
 from __future__ import annotations
@@ -53,6 +46,38 @@ def main() -> None:
         forge.StaticData.instance().getCommonCards().addCard(finalistBoltCard);
         forge.StaticData.instance().getCommonCards().addCard(finalistBearsCard);''',
         "Primitive-A Mountain common-card registration",
+    )
+
+    text = replace_once(
+        text,
+        '''        @Override
+        public SpellAbility getAbilityToPlay(Card hostCard, List<SpellAbility> abilities, ITriggerEvent triggerEvent) {
+            throw failClosed("getAbilityToPlay");
+        }''',
+        '''        @Override
+        public SpellAbility getAbilityToPlay(Card hostCard, List<SpellAbility> abilities, ITriggerEvent triggerEvent) {
+            if (abilities == null || abilities.isEmpty()) {
+                broker.recordAutomatic("getAbilityToPlay:NO_NATIVE_OPTIONS:" + hostCard.getName());
+                return null;
+            }
+            if (abilities.size() == 1) {
+                broker.recordAutomatic("getAbilityToPlay:SINGLE_NATIVE_OPTION:" + hostCard.getName());
+                return abilities.get(0);
+            }
+            java.util.List<String> labels = new ArrayList<>();
+            for (SpellAbility ability : abilities) {
+                labels.add("ABILITY_TO_PLAY:" + hostCard.getName()
+                    + ":basic=" + ability.isBasicSpell()
+                    + ":" + String.valueOf(ability));
+            }
+            String selectedId = broker.choose("ability_to_play", this.player, labels);
+            int selectedIndex = Integer.parseInt(selectedId.substring(1));
+            if (selectedIndex < 0 || selectedIndex >= abilities.size()) {
+                throw failClosed("getAbilityToPlay:STALE_SELECTION");
+            }
+            return abilities.get(selectedIndex);
+        }''',
+        "engine-supplied getAbilityToPlay routing",
     )
 
     text = replace_once(
@@ -97,9 +122,7 @@ def main() -> None:
     }
 }''',
         '''        runSession(in, out);
-        // This qualification provider is intentionally one session per JVM.
-        // runSession flushes SESSION_RESULT before returning; explicit exit prevents
-        // Forge's non-daemon game executors from keeping a completed transaction alive.
+        // One qualification session per JVM. runSession flushes SESSION_RESULT first.
         System.exit(0);
     }
 }''',
@@ -108,6 +131,7 @@ def main() -> None:
 
     path.write_text(text, encoding="utf-8")
     print("FORGE_PRIMITIVE_A_MOUNTAIN_REGISTRATION=PASS")
+    print("FORGE_PRIMITIVE_A_GET_ABILITY_TO_PLAY=PASS")
     print("FORGE_PRIMITIVE_A_SYNC_BARRIER=PASS")
     print("FORGE_PRIMITIVE_A_ONE_SESSION_EXIT=PASS")
 
