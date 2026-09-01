@@ -3,6 +3,8 @@ package forge.game.player;
 
 import forge.CardStorageReader;
 import forge.StaticData;
+import forge.card.CardType;
+import forge.util.FileSection;
 import forge.util.Lang;
 import forge.util.Localizer;
 import forge.util.MyRandom;
@@ -38,8 +40,22 @@ public final class Ws23ForgeBootstrap {
         Path cards = res.resolve("cardsfolder");
         Path editions = res.resolve("editions");
         Path blockData = res.resolve("blockdata");
-        if (!Files.isDirectory(cards) || !Files.isDirectory(editions) || !Files.isDirectory(blockData)) {
+        Path typeLists = res.resolve("lists/TypeLists.txt");
+        if (!Files.isDirectory(cards)
+                || !Files.isDirectory(editions)
+                || !Files.isDirectory(blockData)
+                || !Files.isRegularFile(typeLists)) {
             throw new IllegalStateException("Pinned Forge runtime data directories are missing under " + res);
+        }
+
+        // The normal Forge client loads dynamic card types through FModel before parsing card scripts.
+        // This isolated headless process cannot depend on forge-gui, so perform the same forge-core
+        // initialization directly from the pinned native type list.
+        if (!CardType.Constant.LOADED.isSet()) {
+            for (var section : FileSection.parseSections(Files.readAllLines(typeLists)).entrySet()) {
+                CardType.Helper.parseTypes(section.getKey(), section.getValue());
+            }
+            CardType.Constant.LOADED.set();
         }
 
         // Gate-A uses synthetic FAKE_CARD decks. Build the genuine Forge StaticData singleton lazily,
