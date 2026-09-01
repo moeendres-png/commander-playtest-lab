@@ -27,20 +27,23 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     steps:
-      - name: Checkout exact convergence branch head
+      - name: Checkout convergence PR and refs
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Verify convergence ancestry and source head
+      - name: Verify convergence ancestry and exact branch head
         shell: bash
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git merge-base HEAD "$FORGE_BASE")" = "$FORGE_BASE"
-          git merge-base --is-ancestor "$FORGE_BASE" HEAD
+          branch_head="$(git rev-parse origin/program/finalist-convergence-forge)"
+          test "$(git merge-base "$branch_head" "$FORGE_BASE")" = "$FORGE_BASE"
+          git merge-base --is-ancestor "$FORGE_BASE" "$branch_head"
+          echo "COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD=$branch_head" >> "$GITHUB_ENV"
           mkdir -p qualification/evidence/finalist-convergence-forge
-          printf '%s\n' "$GITHUB_SHA" > qualification/evidence/finalist-convergence-forge/AF05_CONVERGENCE_HEAD.txt
+          printf '%s\n' "$branch_head" > qualification/evidence/finalist-convergence-forge/AF05_CONVERGENCE_HEAD.txt
+          printf '%s\n' "$GITHUB_SHA" > qualification/evidence/finalist-convergence-forge/AF05_PR_MERGE_HEAD.txt
 
       - name: Mount exact neutral v1.0.1 contract
         uses: actions/checkout@v4
@@ -154,6 +157,7 @@ jobs:
           assert 'actorOpaqueRefs' in p
           assert 'FINALIST_AF05_TERMINAL' in p
           assert 'Grizzly Bears|FaceDown' in p
+          assert 'FINALIST_AF05_STATE_APPLY_TIMEOUT' in p
           PY
           git diff --check
 
@@ -190,13 +194,14 @@ jobs:
           ev=qualification/evidence/finalist-convergence-forge
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
-          export COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD="$GITHUB_SHA"
+          test -n "$COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD"
           python candidate-qualification/finalist-convergence-forge/run_hidden_af05.py \
             --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
             --output "$ev/AF05_HIDDEN_RESULTS.json"
           python - <<'PY'
-          import json
+          import json, os
           p=json.load(open('qualification/evidence/finalist-convergence-forge/AF05_HIDDEN_RESULTS.json'))
+          assert p['candidate_commit'] == os.environ['COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD']
           assert p['counts'] == {'PASS': 2}
           assert [r['fixture_id'] for r in p['rows']] == ['HIDDEN_01','HIDDEN_02']
           assert all(r['requested_native_state_equal'] for r in p['rows'])
