@@ -55,6 +55,9 @@ final class XmageActorIdentityProjection {
         SessionState session = SESSIONS.computeIfAbsent(game, ignored -> new SessionState());
         ViewerState state = session.viewer(viewer.getId());
         registerObjectIds(privilegedActorView, state);
+        state.registerNativeAliases(
+                XmageDecisionOptionIdentity.visibleNativeToSemantic(game, privilegedActorView)
+        );
         JsonElement projected = value.deepCopy();
         replaceKnownRefs(projected, state);
         return projected;
@@ -128,6 +131,7 @@ final class XmageActorIdentityProjection {
 
     private static final class ViewerState {
         private final Map<String, String> opaqueByPrivileged = new HashMap<>();
+        private final Map<String, String> opaqueByNativeAlias = new HashMap<>();
 
         synchronized String opaque(String privilegedRef) {
             if (privilegedRef == null || privilegedRef.isBlank()) {
@@ -140,7 +144,20 @@ final class XmageActorIdentityProjection {
         }
 
         synchronized String lookup(String privilegedRef) {
-            return opaqueByPrivileged.get(privilegedRef);
+            String direct = opaqueByPrivileged.get(privilegedRef);
+            return direct == null ? opaqueByNativeAlias.get(privilegedRef) : direct;
+        }
+
+        synchronized void registerNativeAliases(Map<String, String> nativeToPrivileged) {
+            for (Map.Entry<String, String> entry : nativeToPrivileged.entrySet()) {
+                String opaqueReference = opaque(entry.getValue());
+                String prior = opaqueByNativeAlias.putIfAbsent(
+                        entry.getKey(), opaqueReference
+                );
+                if (prior != null && !prior.equals(opaqueReference)) {
+                    throw new IllegalStateException("ACTOR_IDENTITY_PROJECTION_ALIAS_COLLISION");
+                }
+            }
         }
     }
 }
