@@ -170,6 +170,7 @@ final class XmageWs26QualificationSession {
         engineThread = factory.newThread(() -> runEngine(startingPlayer.getId()));
         engineThread.start();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
+        failIfEngineFailed();
         if (replayRecorder == null) throw new IllegalStateException("NATIVE_STATE_LOAD_RECORDER_NOT_INITIALIZED");
         replayRecorder.checkpoint("game_started_or_first_decision");
         return statusPayload();
