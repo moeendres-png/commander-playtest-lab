@@ -144,7 +144,9 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           p=Path('qualification/evidence/finalist-convergence-forge/ws05-mp-combat-4/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java').read_text()
-          assert 'ATTACK_ASSIGNMENT:obj:mp-attacker-0' in p
+          assert 'StringBuilder("ATTACK_ASSIGNMENT:")' in p
+          assert 'obj:mp-attacker-0' in p
+          assert 'obj:mp-attacker-1' in p
           assert 'CombatUtil.getPossibleAttackers' in p
           assert 'CombatUtil.getAllPossibleDefenders' in p
           assert 'CombatUtil.validateAttackers' in p
