@@ -24,8 +24,20 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout convergence PR and refs
+        uses: actions/checkout@v4
         with: {fetch-depth: 0}
+      - name: Resolve exact convergence branch head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          branch_head="$(git rev-parse origin/program/finalist-convergence-xmage)"
+          test -n "$branch_head"
+          echo "CONVERGENCE_BRANCH_HEAD=$branch_head" >> "$GITHUB_ENV"
+          mkdir -p qualification/evidence/finalist-convergence-xmage
+          printf '%s\n' "$branch_head" > qualification/evidence/finalist-convergence-xmage/CONVERGENCE_BRANCH_HEAD.txt
+          printf '%s\n' "$GITHUB_SHA" > qualification/evidence/finalist-convergence-xmage/PR_MERGE_HEAD.txt
       - name: Mount exact neutral contract
         uses: actions/checkout@v4
         with:
@@ -78,16 +90,24 @@ jobs:
       - name: Execute exact v1.0.1 Primitive A records
         run: |
           python -m pip install -e '.[dev,api]'
-          python candidate-qualification/finalist-convergence-xmage/run_canonical_starter18.py \
+          test -n "$CONVERGENCE_BRANCH_HEAD"
+          GITHUB_SHA="$CONVERGENCE_BRANCH_HEAD" python candidate-qualification/finalist-convergence-xmage/run_canonical_starter18.py \
             --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
             --fixture-id PILOT_PRIORITY \
             --fixture-id PILOT_TARGET \
             --output qualification/evidence/finalist-convergence-xmage/PRIMITIVE_A_RESULTS.json
       - name: Execute exact v1.0.1 AF05 hidden records
         run: |
-          python candidate-qualification/finalist-convergence-xmage/run_hidden_af05.py \
+          test -n "$CONVERGENCE_BRANCH_HEAD"
+          GITHUB_SHA="$CONVERGENCE_BRANCH_HEAD" python candidate-qualification/finalist-convergence-xmage/run_hidden_af05.py \
             --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
             --output qualification/evidence/finalist-convergence-xmage/AF05_HIDDEN_RESULTS.json
+          python - <<'PY'
+          import json, os
+          for name in ('PRIMITIVE_A_RESULTS.json','AF05_HIDDEN_RESULTS.json'):
+              p=json.load(open('qualification/evidence/finalist-convergence-xmage/'+name))
+              assert p['candidate_commit'] == os.environ['CONVERGENCE_BRANCH_HEAD']
+          PY
       - if: always()
         uses: actions/upload-artifact@v4
         with:
