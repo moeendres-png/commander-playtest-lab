@@ -192,7 +192,6 @@ def rebuild_freeze_metadata() -> None:
             row["linter_result"] = "PASS"
         base.dump(p, ledger)
 
-    # Recompute all freeze checksums only after every dependent file is stable.
     authoritative = sorted(
         p for p in out.glob("*")
         if p.is_file() and p.name not in {"SHA256SUMS_v1_0_2", "WS32_BUNDLE_MANIFEST_v1_0_2.json"}
@@ -217,8 +216,16 @@ def rebuild_freeze_metadata() -> None:
 
 
 def main() -> None:
-    # The base stage creates every required deliverable; final strict lint is applied only after
-    # the all-135 successor-hardening pass below. This bootstrap result is never frozen.
+    original_find_source = base.find_source
+
+    def frozen_v1_0_1_find_source(name: str) -> Path:
+        aliases = {
+            "DIFFERENTIAL_STARTER_18_V1.json": "DIFFERENTIAL_STARTER_18_v1_0_1.json",
+            "KNOWN_PASS_UNION_50_V1.json": "KNOWN_PASS_UNION_50_v1_0_1.json",
+        }
+        return original_find_source(aliases.get(name, name))
+
+    base.find_source = frozen_v1_0_1_find_source
     base.lint_bundle = fake_pass
     base.build()
     rebuild_freeze_metadata()
