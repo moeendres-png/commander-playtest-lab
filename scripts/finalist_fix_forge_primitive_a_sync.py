@@ -1,17 +1,31 @@
 #!/usr/bin/env python3
-"""Make Forge GameState materialization synchronous for finalist Primitive-A qualification.
+"""Close the two concrete Forge Primitive-A native-state loader gaps.
 
 Forge GameState.applyToGame delegates through GameAction.invoke. From the Match start
 hook that invocation may be asynchronous, so evidence sampled immediately afterward
-can still observe the ordinary opening-hand/UNTAP state. This qualification-only
-post-overlay patch executes applyToGame from Forge's game thread and blocks the hook
-until completion. Pinned Forge source remains unmodified.
+can still observe the ordinary opening-hand/UNTAP state. In addition, GameState
+materializes named zone cards through StaticData.commonCards; the existing finalist
+bootstrap constructed Mountain PaperCards for Commander decks but did not register
+Mountain in that headless card database.
+
+This qualification-only post-overlay patch therefore:
+1. registers the already loaded Mountain rules as a real PaperCard in commonCards;
+2. executes applyToGame from Forge's game thread and blocks the hook until completion.
+
+Pinned Forge source remains unmodified.
 """
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
+
+
+def replace_once(text: str, old: str, new: str, label: str) -> str:
+    count = text.count(old)
+    if count != 1:
+        raise RuntimeError(f"{label} anchor mismatch: expected 1, observed {count}")
+    return text.replace(old, new, 1)
 
 
 def main() -> None:
@@ -21,12 +35,30 @@ def main() -> None:
 
     path = args.provider
     text = path.read_text(encoding="utf-8")
-    old = '''        GameState state = new GameState();
+
+    text = replace_once(
+        text,
+        '''        PaperCard finalistBoltCard = new PaperCard(finalistBoltRules, "M11", forge.card.CardRarity.Common);
+        PaperCard finalistBearsCard = new PaperCard(finalistBearsRules, "10E", forge.card.CardRarity.Common);
+        forge.StaticData.instance().getCommonCards().addCard(finalistBoltCard);
+        forge.StaticData.instance().getCommonCards().addCard(finalistBearsCard);''',
+        '''        PaperCard finalistMountainCard = new PaperCard(finalistMountainRules, "10E", forge.card.CardRarity.BasicLand);
+        PaperCard finalistBoltCard = new PaperCard(finalistBoltRules, "M11", forge.card.CardRarity.Common);
+        PaperCard finalistBearsCard = new PaperCard(finalistBearsRules, "10E", forge.card.CardRarity.Common);
+        forge.StaticData.instance().getCommonCards().addCard(finalistMountainCard);
+        forge.StaticData.instance().getCommonCards().addCard(finalistBoltCard);
+        forge.StaticData.instance().getCommonCards().addCard(finalistBearsCard);''',
+        "Primitive-A Mountain common-card registration",
+    )
+
+    text = replace_once(
+        text,
+        '''        GameState state = new GameState();
         state.parse(lines);
         state.applyToGame(game);
         game.getPhaseHandler().setPriority(game.getPlayers().get(0));
-        broker.out.println("{\\\"protocol\\\":" + esc(PROTOCOL)'''
-    new = '''        GameState state = new GameState();
+        broker.out.println("{\\\"protocol\\\":" + esc(PROTOCOL)''',
+        '''        GameState state = new GameState();
         state.parse(lines);
         java.util.concurrent.CountDownLatch stateApplied = new java.util.concurrent.CountDownLatch(1);
         java.util.concurrent.atomic.AtomicReference<RuntimeException> stateFailure =
@@ -51,11 +83,12 @@ def main() -> None:
             throw new ControlledStop("FINALIST_PRIMITIVE_A_STATE_APPLY_INTERRUPTED");
         }
         if (stateFailure.get() != null) throw stateFailure.get();
-        broker.out.println("{\\\"protocol\\\":" + esc(PROTOCOL)'''
-    count = text.count(old)
-    if count != 1:
-        raise RuntimeError(f"Primitive-A sync anchor mismatch: expected 1, observed {count}")
-    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        broker.out.println("{\\\"protocol\\\":" + esc(PROTOCOL)''',
+        "Primitive-A synchronous GameState application",
+    )
+
+    path.write_text(text, encoding="utf-8")
+    print("FORGE_PRIMITIVE_A_MOUNTAIN_REGISTRATION=PASS")
     print("FORGE_PRIMITIVE_A_SYNC_BARRIER=PASS")
 
 
