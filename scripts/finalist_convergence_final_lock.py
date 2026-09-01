@@ -62,7 +62,17 @@ def api_json(path: str) -> dict:
 
 
 def verify_run(run_id: int, expected_head: str, expected_conclusion: str = "success") -> dict:
-    payload = api_json(f"/repos/{REPO}/actions/runs/{run_id}")
+    evidence_route = "single_run_endpoint"
+    try:
+        payload = api_json(f"/repos/{REPO}/actions/runs/{run_id}")
+    except AssertionError as exc:
+        if "404" not in str(exc):
+            raise
+        collection = api_json(f"/repos/{REPO}/actions/runs?head_sha={expected_head}&per_page=100")
+        matches = [item for item in collection.get("workflow_runs", []) if int(item.get("id", -1)) == run_id]
+        require(len(matches) == 1, f"run {run_id} unavailable individually and not uniquely present in exact-head collection")
+        payload = matches[0]
+        evidence_route = "exact_head_collection_fallback"
     require(payload.get("head_sha") == expected_head, f"run {run_id} head mismatch")
     require(payload.get("status") == "completed", f"run {run_id} not completed")
     require(payload.get("conclusion") == expected_conclusion, f"run {run_id} conclusion mismatch")
@@ -74,6 +84,7 @@ def verify_run(run_id: int, expected_head: str, expected_conclusion: str = "succ
         "conclusion": payload.get("conclusion"),
         "created_at": payload.get("created_at"),
         "updated_at": payload.get("updated_at"),
+        "evidence_route": evidence_route,
     }
 
 
