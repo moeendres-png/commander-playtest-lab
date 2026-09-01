@@ -76,6 +76,21 @@ def semantic_events(row: dict[str, Any]) -> list[dict[str, Any]]:
     return normalized
 
 
+def replacement_events(row: dict[str, Any]) -> list[dict[str, Any]]:
+    """Normalize MICRO_REPLACEMENT event schema without weakening semantics."""
+    normalized: list[dict[str, Any]] = []
+    for event in row.get("event_tape", []):
+        item: dict[str, Any] = {"event_kind": event.get("event_kind")}
+        recipient = event.get("recipient", event.get("target"))
+        if recipient is not None:
+            item["recipient"] = recipient
+        for key in ("amount", "effect", "source"):
+            if key in event:
+                item[key] = event[key]
+        normalized.append(item)
+    return normalized
+
+
 def forge_choices(row: dict[str, Any]) -> dict[str, Any]:
     decisions = row.get("semantic_decisions", [])
     starting = [d for d in decisions if d.get("decision_kind") == "chooseStartingPlayer"]
@@ -193,6 +208,26 @@ def compare_pass_rows(
         required_equal["opaque_identity_policy"] = (
             forge["actor_projection"].get("actor_object_ids_opaque") is True
             and xmage["actor_projection"].get("actor_object_ids_opaque") is True
+        )
+    elif fixture_id == "MICRO_REPLACEMENT":
+        required_equal["terminal_semantic_state"] = (
+            forge.get("terminal_semantic_state") == xmage.get("terminal_semantic_state")
+        )
+        required_equal["semantic_discretionary_selections"] = (
+            forge.get("canonical_decision_trace", []) == []
+            and xmage.get("canonical_decision_trace", []) == []
+        )
+        expected_events = [
+            {"event_kind": "damage_would_be", "recipient": "P2", "amount": 3},
+            {
+                "event_kind": "replacement_effect",
+                "effect": "double",
+                "source": "obj:micro-violence",
+            },
+            {"event_kind": "damage", "recipient": "P2", "amount": 6},
+        ]
+        required_equal["semantic_event_tape"] = (
+            replacement_events(forge) == replacement_events(xmage) == expected_events
         )
     else:
         required_equal["terminal_semantic_state"] = (
