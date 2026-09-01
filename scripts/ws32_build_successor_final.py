@@ -182,14 +182,31 @@ def rebuild_freeze_metadata() -> None:
     replay["records"] = [copy.deepcopy(by_id[fid]) for fid in sorted(base.REPLAY_IDS)]
     base.dump(replay_path, replay)
 
+    predecessor_report = base.load(base.OLD_REPORT)
+    predecessor_defects = {
+        row["fixture_id"]: copy.deepcopy(row.get("defects", []))
+        for row in predecessor_report.get("records", [])
+    }
     for name in ("PER_RECORD_CHANGE_LEDGER_v1_0_2.json", "DEFECT_63_CLOSURE_LEDGER_v1_0_2.json"):
         p = out / name
         ledger = base.load(p)
         for row in ledger.get("rows", []):
             fid = row["fixture_id"]
+            defects = predecessor_defects.get(fid, [])
             row["new_digest"] = by_id[fid]["materialization_digest"]
             row["new_obligation_digest"] = by_id[fid]["obligation_digest"]
+            row["defect_codes"] = [d["code"] for d in defects if d.get("code")]
             row["linter_result"] = "PASS"
+            if name == "DEFECT_63_CLOSURE_LEDGER_v1_0_2.json":
+                row["predecessor_defects"] = defects
+                if not row["defect_codes"]:
+                    raise RuntimeError(f"{fid}: predecessor semantic defect has no preserved defect code")
+        if name == "DEFECT_63_CLOSURE_LEDGER_v1_0_2.json":
+            rows = ledger.get("rows", [])
+            if len(rows) != 63:
+                raise RuntimeError(f"closure ledger must contain exactly 63 rows, got {len(rows)}")
+            if any(not row.get("defect_codes") for row in rows):
+                raise RuntimeError("closure ledger contains empty defect_codes")
         base.dump(p, ledger)
 
     authoritative = sorted(
