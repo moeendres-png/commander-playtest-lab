@@ -6,7 +6,8 @@ This qualification-only post-overlay patch keeps pinned Forge source unmodified 
 2. executes GameState.applyToGame synchronously on Forge's game thread;
 3. routes getAbilityToPlay strictly over Forge-supplied native SpellAbility options;
 4. provides a fail-closed native CostDecisionMaker for Primitive-A mana only;
-5. exits the one-session provider JVM only after the flushed SESSION_RESULT.
+5. closes the canonical transaction only after Forge reports non-fizzled native Bolt resolution;
+6. exits the one-session provider JVM only after the flushed SESSION_RESULT.
 
 A singleton getAbilityToPlay list is non-discretionary and is recorded as automatic.
 A genuine multi-option list is exposed to the external controller and must be selected
@@ -14,6 +15,12 @@ from exactly the options Forge supplied; no first/default/random/AI fallback is 
 For cost decisions, every CostPart except CostPartMana fails closed. CostPartMana only
 returns the neutral PaymentDecision token Forge expects before CostPartMana itself
 calls the controller's externally-routed payManaCost path.
+
+Forge emits GameEventSpellResolved before MagicStack.finishResolving removes an instant
+or sorcery from the stack. The event is therefore only a boundary marker: the provider
+waits until the *next* engine priority callback, after finishResolving/onStackResolved,
+then stops the qualification transaction. The runner still independently requires the
+Bolt in P1's graveyard, P2 at 37 life, and the native cast/resolution events before PASS.
 """
 
 from __future__ import annotations
@@ -144,6 +151,18 @@ def main() -> None:
 
     text = replace_once(
         text,
+        '''            if (isPrimitiveAFixture(finalistFixture) && primitiveATerminal(game)) {
+                throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");
+            }''',
+        '''            if (isPrimitiveAFixture(finalistFixture)
+                    && automatic.contains("NATIVE_SPELL_RESOLVED:Lightning Bolt:fizzled=false")) {
+                throw new ControlledStop("FINALIST_PRIMITIVE_A_TERMINAL");
+            }''',
+        "Primitive-A post-native-resolution boundary",
+    )
+
+    text = replace_once(
+        text,
         '''        GameState state = new GameState();
         state.parse(lines);
         state.applyToGame(game);
@@ -193,6 +212,7 @@ def main() -> None:
     print("FORGE_PRIMITIVE_A_MOUNTAIN_REGISTRATION=PASS")
     print("FORGE_PRIMITIVE_A_GET_ABILITY_TO_PLAY=PASS")
     print("FORGE_PRIMITIVE_A_COST_DECISION=PASS")
+    print("FORGE_PRIMITIVE_A_NATIVE_RESOLUTION_BOUNDARY=PASS")
     print("FORGE_PRIMITIVE_A_SYNC_BARRIER=PASS")
     print("FORGE_PRIMITIVE_A_ONE_SESSION_EXIT=PASS")
 
