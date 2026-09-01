@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import mage.cards.decks.Deck;
 import mage.constants.MultiplayerAttackOption;
 import mage.constants.RangeOfInfluence;
-import mage.game.CommanderFreeForAll;
 import mage.game.GameOptions;
 import mage.game.events.TableEvent;
 import mage.game.mulligan.MulliganType;
@@ -28,7 +27,7 @@ final class XmageWs26QualificationSession {
 
     private final String protocolGameId;
     private final long seed;
-    private final CommanderFreeForAll game;
+    private final XmageQualificationCommanderGame game;
     private final List<XmageFullGamePlayer> players;
     private final List<Deck> decks;
     private final XmageFullGameDecisionController controller;
@@ -39,8 +38,10 @@ final class XmageWs26QualificationSession {
 
     private Thread engineThread;
     private boolean started;
-    private XmageWs26Scenario.Applied appliedScenario;
-    private XmageWs26ReplayRecorder replayRecorder;
+    private volatile XmageWs26Scenario.Applied appliedScenario;
+    private volatile XmageWs26ReplayRecorder replayRecorder;
+    private JsonObject configuredScenario;
+    private String executionEntryMode;
 
     XmageWs26QualificationSession(
             String protocolGameId,
@@ -81,7 +82,7 @@ final class XmageWs26QualificationSession {
         RandomUtil.setSeed(seed);
         XmageWs26RulesRngTape.begin();
 
-        this.game = new CommanderFreeForAll(
+        this.game = new XmageQualificationCommanderGame(
                 MultiplayerAttackOption.MULTIPLE,
                 RangeOfInfluence.ALL,
                 MulliganType.LONDON.getMulligan(1),
@@ -121,33 +122,44 @@ final class XmageWs26QualificationSession {
 
     synchronized JsonObject configureScenario(JsonObject scenario) {
         if (started) throw new IllegalStateException("SCENARIO_AFTER_GAME_START");
-        if (appliedScenario != null) throw new IllegalStateException("SCENARIO_ALREADY_CONFIGURED");
+        if (configuredScenario != null) throw new IllegalStateException("SCENARIO_ALREADY_CONFIGURED");
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
-        options.testMode = true;
         String executionEntryMode = scenario.has("execution_entry_mode")
                 ? scenario.get("execution_entry_mode").getAsString()
                 : XmageWs26Scenario.NATIVE_STATE_LOAD;
+        options.testMode = !XmageWs26Scenario.NATURAL_GAME_START.equals(executionEntryMode);
         options.skipInitShuffling = !XmageWs26Scenario.NATURAL_GAME_START.equals(executionEntryMode);
         game.setGameOptions(options);
-        appliedScenario = XmageWs26Scenario.apply(
-                scenario, game, players, decks, knowledgeLedger, seed, startingPlayerSeat
-        );
-        replayRecorder = new XmageWs26ReplayRecorder(
-                game, players, knowledgeLedger, appliedScenario.semanticObjectIds()
-        );
+        this.executionEntryMode = executionEntryMode;
+        this.configuredScenario = scenario.deepCopy();
+        if (XmageWs26Scenario.NATURAL_GAME_START.equals(executionEntryMode)) {
+            appliedScenario = XmageWs26Scenario.apply(
+                    scenario, game, players, decks, knowledgeLedger, seed, startingPlayerSeat
+            );
+            replayRecorder = new XmageWs26ReplayRecorder(
+                    game, players, knowledgeLedger, appliedScenario.semanticObjectIds()
+            );
+        }
         JsonObject payload = new JsonObject();
-        payload.addProperty("scenario_id", appliedScenario.scenarioId());
-        payload.addProperty("scenario_sha256", appliedScenario.scenarioSha256());
-        payload.addProperty("execution_entry_mode", appliedScenario.executionEntryMode());
-        payload.add("native_validation", appliedScenario.validation().deepCopy());
+        payload.addProperty("scenario_id", scenario.get("scenario_id").getAsString());
+        payload.addProperty("execution_entry_mode", executionEntryMode);
+        if (appliedScenario == null) {
+            JsonObject deferred = new JsonObject();
+            deferred.addProperty("status", "DEFERRED_UNTIL_NATIVE_ENGINE_INITIALIZATION");
+            deferred.addProperty("fail_closed", true);
+            payload.add("native_validation", deferred);
+        } else {
+            payload.addProperty("scenario_sha256", appliedScenario.scenarioSha256());
+            payload.add("native_validation", appliedScenario.validation().deepCopy());
+        }
         payload.addProperty("configured", true);
         return payload;
     }
 
     synchronized JsonObject start() {
         if (started) throw new IllegalStateException("FULL_GAME_ALREADY_STARTED");
-        if (appliedScenario == null || replayRecorder == null) {
+        if (configuredScenario == null || executionEntryMode == null) {
             throw new IllegalStateException("QUALIFICATION_SCENARIO_REQUIRED");
         }
         started = true;
@@ -158,6 +170,7 @@ final class XmageWs26QualificationSession {
         engineThread = factory.newThread(() -> runEngine(startingPlayer.getId()));
         engineThread.start();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
+        if (replayRecorder == null) throw new IllegalStateException("NATIVE_STATE_LOAD_RECORDER_NOT_INITIALIZED");
         replayRecorder.checkpoint("game_started_or_first_decision");
         return statusPayload();
     }
@@ -256,7 +269,22 @@ final class XmageWs26QualificationSession {
 
     private void runEngine(java.util.UUID startingPlayerId) {
         try {
-            game.start(startingPlayerId);
+            if (XmageWs26Scenario.NATIVE_STATE_LOAD.equals(executionEntryMode)) {
+                game.initializeForNativeStateLoad(startingPlayerId);
+                appliedScenario = XmageWs26Scenario.apply(
+                        configuredScenario, game, players, decks, knowledgeLedger, seed, startingPlayerSeat
+                );
+                JsonObject temporal = XmageWs26Scenario.applyTemporalState(configuredScenario, game, players);
+                appliedScenario.validation().add("temporal_state", temporal);
+                replayRecorder = new XmageWs26ReplayRecorder(
+                        game, players, knowledgeLedger, appliedScenario.semanticObjectIds()
+                );
+                replayRecorder.checkpoint("after_native_setup_validation");
+                int prioritySeat = XmageWs26Scenario.requestedPrioritySeat(configuredScenario, players.size());
+                game.resumeNativePriority(players.get(prioritySeat - 1).getId());
+            } else {
+                game.start(startingPlayerId);
+            }
         } catch (Throwable throwable) {
             engineFailure.compareAndSet(null, throwable);
             controller.failClosed("XMAGE_FULL_GAME_ENGINE_FAILURE", safeMessage(throwable));

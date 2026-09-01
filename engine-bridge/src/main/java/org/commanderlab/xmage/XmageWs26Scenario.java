@@ -9,6 +9,8 @@ import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.PutToBattlefieldInfo;
 import mage.game.permanent.Permanent;
+import mage.game.turn.PreCombatMainPhase;
+import mage.game.turn.PreCombatMainStep;
 import mage.players.Player;
 
 import java.nio.charset.StandardCharsets;
@@ -54,7 +56,7 @@ final class XmageWs26Scenario {
 
     private static final Set<String> TOP = Set.of(
             "schema_version", "scenario_id", "seed", "starting_player_seat", "players",
-            "execution_entry_mode"
+            "execution_entry_mode", "temporal_state"
     );
     private static final Set<String> PLAYER = Set.of(
             "seat", "life", "commander_names", "zones",
@@ -65,6 +67,9 @@ final class XmageWs26Scenario {
     private static final Set<String> EXPLICITLY_UNSUPPORTED = Set.of(
             "attached_to", "counters", "face_down", "known_to", "native_object_id",
             "stack", "mana", "priority_holder", "active_player", "turn", "phase", "step"
+    );
+    private static final Set<String> TEMPORAL = Set.of(
+            "turn_number", "active_player", "priority_player", "phase", "step"
     );
 
     private XmageWs26Scenario() {}
@@ -202,6 +207,60 @@ final class XmageWs26Scenario {
                 Map.copyOf(semanticMap),
                 validation
         );
+    }
+
+    static JsonObject applyTemporalState(
+            JsonObject scenario,
+            Game game,
+            List<? extends Player> players
+    ) {
+        JsonObject temporal = object(scenario, "temporal_state");
+        rejectUnknown(temporal, TEMPORAL, "temporal_state");
+        int turn = integer(temporal, "turn_number");
+        int activeSeat = playerSeat(temporal, "active_player", players.size());
+        int prioritySeat = playerSeat(temporal, "priority_player", players.size());
+        String phaseName = text(temporal, "phase");
+        String stepName = text(temporal, "step");
+        if (!"precombat_main".equals(phaseName) || !"main".equals(stepName)) {
+            throw fail("UNSUPPORTED_SCENARIO_DIMENSION: temporal phase/step " + phaseName + "/" + stepName);
+        }
+        if (turn < 1) throw fail("INVALID_SCENARIO: turn_number must be positive");
+
+        PreCombatMainPhase phase = new PreCombatMainPhase();
+        phase.setStep(new PreCombatMainStep());
+        game.getState().getTurn().setPhase(phase);
+        game.getState().setTurnNum(turn);
+        game.getState().setActivePlayerId(players.get(activeSeat - 1).getId());
+        game.getState().setPriorityPlayerId(players.get(prioritySeat - 1).getId());
+        game.getState().setPlayerByOrderId(players.get(activeSeat - 1).getId());
+
+        requireNative(game.getState().getTurnNum() == turn, "temporal-turn");
+        requireNative(game.getActivePlayerId().equals(players.get(activeSeat - 1).getId()), "temporal-active-player");
+        requireNative(game.getPriorityPlayerId().equals(players.get(prioritySeat - 1).getId()), "temporal-priority-player");
+        requireNative(game.getTurnPhaseType() != null && "PRECOMBAT_MAIN".equals(game.getTurnPhaseType().name()), "temporal-phase");
+        requireNative(game.getTurnStepType() != null && "PRECOMBAT_MAIN".equals(game.getTurnStepType().name()), "temporal-step");
+
+        JsonObject result = new JsonObject();
+        result.addProperty("validator", "xmage-native-temporal-state/1.0.0");
+        result.addProperty("turn_number", turn);
+        result.addProperty("active_player", "P" + activeSeat);
+        result.addProperty("priority_player", "P" + prioritySeat);
+        result.addProperty("phase", phaseName);
+        result.addProperty("step", stepName);
+        result.addProperty("valid", true);
+        return result;
+    }
+
+    static int requestedPrioritySeat(JsonObject scenario, int playerCount) {
+        return playerSeat(object(scenario, "temporal_state"), "priority_player", playerCount);
+    }
+
+    private static int playerSeat(JsonObject source, String key, int playerCount) {
+        String player = text(source, key);
+        if (!player.matches("P[1-9][0-9]*")) throw fail("INVALID_PLAYER_IDENTITY: " + key + "=" + player);
+        int seat = Integer.parseInt(player.substring(1));
+        if (seat < 1 || seat > playerCount) throw fail("INVALID_PLAYER_IDENTITY: " + key + "=" + player);
+        return seat;
     }
 
     private static JsonObject validateNaturalStart(List<Deck> decks, Map<Integer, JsonObject> specs) {

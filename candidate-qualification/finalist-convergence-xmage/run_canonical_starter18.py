@@ -10,8 +10,8 @@ Commander lifecycle/mulligan path before extending the state loader.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -20,21 +20,25 @@ HERE = Path(__file__).resolve().parent
 WS26 = HERE.parents[0] / "ws26-xmage"
 sys.path.insert(0, str(WS26))
 import run_ws26_gate as gate  # noqa: E402
+from canonical_v101 import (  # noqa: E402
+    canonical_sha,
+    deck_and_scenario,
+    native_projection,
+    requested_projection,
+    unique_option,
+)
 
 
 CONTRACT_VERSION = "commander-lab.semantic-fixture-materialization/1.0.1"
 CONTRACT_BUNDLE = "ad1ec6e4baa83be48c0bc07e0bde66c2f8c003af29e411bad0953558154dcfee"
 CONTRACT_COMMIT = "9a8b8f5f5961466514eae6103be2d227324a27a8"
+BEHAVIORAL_BASE_COMMIT = "a53c2312983384eb0870746132e281bbed2f5a1d"
 SCHEMA = "xmage-qualification-scenario/1.1.0"
 NATURAL_IDS = {
     "PLAYER_COUNT_2P", "PLAYER_COUNT_3P", "PLAYER_COUNT_4P", "PLAYER_COUNT_5P",
     "PILOT_MULLIGAN",
 }
-
-
-def canonical_sha(value: Any) -> str:
-    payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(payload.encode()).hexdigest()
+PRIMITIVE_A_IDS = {"PILOT_PRIORITY", "PILOT_TARGET"}
 
 
 def deck_payload(deck_id: str) -> dict[str, Any]:
@@ -173,6 +177,157 @@ def run_natural(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _metadata(option: dict[str, Any]) -> dict[str, Any]:
+    value = option.get("metadata")
+    return value if isinstance(value, dict) else {}
+
+
+def _observation(client: gate._RawFullGameClient) -> dict[str, Any]:
+    return client.request(
+        "get_full_game_observation", {"viewer_seat": 0, "decision_subject_seat": 0}
+    )["observation"]
+
+
+def _terminal_bolt_state(state: dict[str, Any], observation: dict[str, Any]) -> bool:
+    objects = {item["semantic_id"]: item for item in state["semantic_state"]["scenario_objects"]}
+    players = {item["player_id"]: item for item in observation["players"]}
+    return objects.get("obj:pilot-bolt", {}).get("zone") == "graveyard" and players["P2"]["life"] == 37
+
+
+def run_primitive_a(record: dict[str, Any]) -> dict[str, Any]:
+    decks, payload = deck_and_scenario(record, SCHEMA)
+    canonical_trace: list[dict[str, Any]] = []
+    normalized_events: list[dict[str, Any]] = []
+    stack_observed = False
+    cast_selected = False
+    target_selected = False
+    with gate._RawFullGameClient(gate.command(), request_timeout_seconds=240.0) as client:
+        client.request("start_engine")
+        handles = gate.import_decks(client, decks)
+        client.request("create_full_game", {
+            "game_id": payload["scenario_id"], "deck_handles": handles,
+            "starting_player_seat": 0, "starting_life": 40,
+            "seed": record["rules_randomness"]["rules_seed"],
+        })
+        configured = client.request("configure_qualification_scenario", {"scenario": payload})
+        if configured.get("execution_entry_mode") != "NATIVE_STATE_LOAD":
+            raise AssertionError(f"native execution entry mismatch: {configured}")
+        client.request("start_full_game")
+
+        status = client.request("get_full_game_decision")
+        pending = status.get("decision")
+        if not isinstance(pending, dict) or pending.get("decision_class") != "priority":
+            raise RuntimeError(f"native loaded state did not enter P1 priority: {status}")
+        observation = _observation(client)
+        setup_state = client.request("get_qualification_state")
+        requested = requested_projection(record)
+        native = native_projection(observation, setup_state["semantic_state"], status)
+        if requested != native:
+            raise AssertionError(f"requested/native state mismatch: requested={requested} native={native}")
+
+        for _ in range(80):
+            state = client.request("get_qualification_state")
+            observation = _observation(client)
+            if cast_selected:
+                bolt = next(
+                    item for item in state["semantic_state"]["scenario_objects"]
+                    if item["semantic_id"] == "obj:pilot-bolt"
+                )
+                if bolt["zone"] == "stack" and not stack_observed:
+                    stack_observed = True
+                    normalized_events.append({
+                        "event_kind": "spell_cast", "object": "obj:pilot-bolt",
+                        "native_observation": "zone:stack",
+                    })
+            if _terminal_bolt_state(state, observation):
+                normalized_events.append({
+                    "event_kind": "spell_resolved", "object": "obj:pilot-bolt",
+                    "native_observation": {"zone": "graveyard", "P2_life": 37},
+                })
+                break
+            status = client.request("get_full_game_decision")
+            pending = status.get("decision")
+            if not isinstance(pending, dict):
+                raise RuntimeError(f"native cast transaction reached no decision: {status}")
+            kind = pending["decision_class"]
+            if kind == "priority" and not cast_selected:
+                option = unique_option(
+                    pending,
+                    lambda item: item.get("option_type") == "activated_ability"
+                    and _metadata(item).get("source_name") == "Lightning Bolt",
+                    "cast:obj:pilot-bolt",
+                )
+                cast_selected = True
+                canonical_trace.append({
+                    "actor": "P1", "decision_family": "priority",
+                    "selection": {"action": "cast", "object": "obj:pilot-bolt"},
+                })
+            elif kind == "target" and not target_selected:
+                option = unique_option(
+                    pending,
+                    lambda item: item.get("option_type") == "target"
+                    and str(item.get("label", "")).casefold() == "ws26 seat 2",
+                    "target:P2",
+                )
+                target_selected = True
+                canonical_trace.append({
+                    "actor": "P1", "decision_family": "target", "selection": "P2",
+                })
+                normalized_events.append({"event_kind": "target_selected", "target": "P2"})
+            elif kind == "mana_payment":
+                option = unique_option(
+                    pending,
+                    lambda item: item.get("option_type") == "mana_ability"
+                    and _metadata(item).get("source_name") == "Mountain",
+                    "mana:obj:pilot-mountain",
+                )
+            elif kind == "choice":
+                option = unique_option(
+                    pending,
+                    lambda item: item.get("option_type") == "cast_ability"
+                    and _metadata(item).get("card_name") == "Lightning Bolt",
+                    "cast-ability:obj:pilot-bolt",
+                )
+            elif kind == "priority" and cast_selected:
+                option = unique_option(
+                    pending,
+                    lambda item: item.get("option_type") == "pass_priority",
+                    "pass_priority",
+                )
+            else:
+                raise RuntimeError(f"DECISION_SELECTOR_UNSUPPORTED:{kind}")
+            gate.submit_one(client, pending, [str(option["option_id"])])
+        else:
+            raise RuntimeError("native Bolt transaction did not reach canonical terminal state")
+
+        if not cast_selected or not target_selected or not stack_observed:
+            raise AssertionError(
+                f"native cast evidence incomplete: cast={cast_selected} target={target_selected} stack={stack_observed}"
+            )
+        terminal_state = client.request("get_qualification_state")
+        result = client.request("get_full_game_result")
+
+    return {
+        "fixture_id": record["fixture_id"], "status": "PASS",
+        "materialization_version": CONTRACT_VERSION,
+        "record_digest": record["materialization_digest"],
+        "requested_semantic_state_digest": canonical_sha(requested),
+        "normalized_native_constructed_state_digest": canonical_sha(native),
+        "requested_native_state_equal": True,
+        "setup": "PASS", "canonical_decision_trace": canonical_trace,
+        "decision_tape": result["replay"]["decision_tape"],
+        "rules_rng_tape": result["replay"]["rules_rng_tape"],
+        "event_tape": normalized_events,
+        "raw_event_tape": result["replay"]["event_tape"],
+        "checkpoints": result["replay"]["checkpoints"],
+        "terminal_semantic_state": {
+            "obj:pilot-bolt": {"zone": "graveyard"}, "P2": {"life": 37},
+        },
+        "terminal_native_state_sha256": terminal_state["semantic_state"]["sha256"],
+        "terminal_postcondition_result": "PASS",
+    }
+
+
 def unsupported(record: dict[str, Any]) -> dict[str, Any]:
     dimensions = sorted({
         step["operation"] for step in record.get("native_procedure", [])
@@ -195,17 +350,24 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--fixture-id", action="append", choices=gate_order())
     args = parser.parse_args()
     contract = json.loads(args.contract.read_text(encoding="utf-8"))
     if contract.get("schema_version") != CONTRACT_VERSION or contract.get("canonical_bundle_digest") != CONTRACT_BUNDLE:
         raise SystemExit("CONTRACT_LOCK_MISMATCH")
     starter = [record for record in contract["records"] if record["fixture_id"] in gate_order()]
     by_id = {record["fixture_id"]: record for record in starter}
+    selected_ids = args.fixture_id or gate_order()
     rows = []
-    for fixture_id in gate_order():
+    for fixture_id in selected_ids:
         record = by_id[fixture_id]
         try:
-            rows.append(run_natural(record) if fixture_id in NATURAL_IDS else unsupported(record))
+            if fixture_id in NATURAL_IDS:
+                rows.append(run_natural(record))
+            elif fixture_id in PRIMITIVE_A_IDS:
+                rows.append(run_primitive_a(record))
+            else:
+                rows.append(unsupported(record))
         except Exception as exc:  # terminal evidence, never silent fallback
             rows.append({
                 **unsupported(record), "status": "FAIL", "setup": "FAIL",
@@ -214,11 +376,14 @@ def main() -> int:
     counts: dict[str, int] = {}
     for row in rows: counts[row["status"]] = counts.get(row["status"], 0) + 1
     evidence = {
-        "schema_version": "commander-lab.xmage-finalist-starter18/1.0.0",
+        "schema_version": "commander-lab.xmage-finalist-canonical-results/1.1.0",
         "contract_commit": CONTRACT_COMMIT, "contract_bundle_digest": CONTRACT_BUNDLE,
-        "candidate_commit": "a53c2312983384eb0870746132e281bbed2f5a1d",
+        "candidate_commit": os.environ.get("GITHUB_SHA", "LOCAL"),
+        "provider_implementation_commit": os.environ.get("GITHUB_SHA", "LOCAL"),
+        "behavioral_base_commit": BEHAVIORAL_BASE_COMMIT,
         "xmage_commit": gate.XMAGE_COMMIT, "xmage_tree": gate.XMAGE_TREE,
         "provider": "strict external WS26 qualification controller", "counts": counts,
+        "selected_fixture_ids": selected_ids,
         "rows": rows,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

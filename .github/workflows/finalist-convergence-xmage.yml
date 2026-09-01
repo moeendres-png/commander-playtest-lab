@@ -20,7 +20,7 @@ env:
     java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar org.commanderlab.xmage.XmageWs26QualificationMain full-game
 
 jobs:
-  canonical-starter18:
+  canonical-primitive-a:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -57,22 +57,20 @@ jobs:
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
           python candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py vendor/engine-source/xmage
           git -C vendor/engine-source/xmage diff --check
-      - name: Apply exact natural-start qualification overlay
-        run: |
-          python candidate-qualification/finalist-convergence-xmage/apply_natural_start_overlay.py
-          git diff --check
       - name: Build pinned XMage and candidate bridge
         run: |
           cd vendor/engine-source/xmage
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
           cd "$GITHUB_WORKSPACE/engine-bridge"
           mvn -B -ntp -DskipTests package
-      - name: Execute exact v1.0.1 Starter-18 accounting
+      - name: Execute exact v1.0.1 Primitive A records
         run: |
           python -m pip install -e '.[dev,api]'
           python candidate-qualification/finalist-convergence-xmage/run_canonical_starter18.py \
             --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
-            --output qualification/evidence/finalist-convergence-xmage/STARTER_18_RESULTS.json
+            --fixture-id PILOT_PRIORITY \
+            --fixture-id PILOT_TARGET \
+            --output qualification/evidence/finalist-convergence-xmage/PRIMITIVE_A_RESULTS.json
       - if: always()
         uses: actions/upload-artifact@v4
         with:
