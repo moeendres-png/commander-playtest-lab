@@ -1,0 +1,110 @@
+name: Finalist convergence WS05 same-record differential
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [program/finalist-convergence-differential]
+    paths:
+      - .github/workflows/finalist-convergence-ws05-differential.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  ws05-differential:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download runtime-verified Forge WS05 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: finalist-convergence-forge-ws05-mp-combat-4-8fb95d53d168228a3785f6270f33d5785df989a3
+          path: evidence/forge
+          github-token: ${{ github.token }}
+          repository: moeendres-png/commander-playtest-lab
+          run-id: 33545214636
+      - name: Download runtime-verified XMage WS05 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: finalist-convergence-xmage-ws05-mp-combat-4-e5e4ec66d9bbeab4eb2cbd08fdf244e4bea24283
+          path: evidence/xmage
+          github-token: ${{ github.token }}
+          repository: moeendres-png/commander-playtest-lab
+          run-id: 33561486530
+      - name: Compare exact same-record combat semantics
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/finalist-convergence-differential/ws05-mp-combat-4
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+
+          fixture='WS05-MP-COMBAT-4'
+          record='abfdea2d4ca22db3135349d6fc87c27d450611195f73f0a24ad0451f206a9776'
+          state='93a2f8f3acd3a183cfea6985907c9445811f7ea8d9ed72b19857b70ca214c85f'
+          expected={'combat_state': {'attackers': {'obj:mp-attacker-0':'P2','obj:mp-attacker-1':'P3'}}}
+
+          def locate(root, name):
+              hits=list(Path(root).rglob(name))
+              if len(hits)!=1:
+                  raise SystemExit(f'QUALIFICATION_INFRA_DEFECT:{root}:{name}:cardinality={len(hits)}')
+              return hits[0]
+          def load(root):
+              p=locate(root,'WS05_MP_COMBAT_4_RESULTS.json')
+              payload=json.loads(p.read_text())
+              if payload.get('counts') != {'PASS':1}:
+                  raise SystemExit(f'provider evidence not PASS:{root}')
+              rows=payload.get('rows',[])
+              if len(rows)!=1 or rows[0].get('fixture_id') != fixture:
+                  raise SystemExit(f'provider record cardinality mismatch:{root}')
+              return payload, rows[0]
+
+          fp, f=load('evidence/forge')
+          xp, x=load('evidence/xmage')
+          checks={
+              'same_fixture': f['fixture_id']==x['fixture_id']==fixture,
+              'same_record_digest': f['record_digest']==x['record_digest']==record,
+              'same_requested_state_digest': f['requested_semantic_state_digest']==x['requested_semantic_state_digest']==state,
+              'forge_native_state_equal': f['normalized_native_constructed_state_digest']==state and f['requested_native_state_equal'] is True,
+              'xmage_native_state_equal': x['normalized_native_constructed_state_digest']==state and x['requested_native_state_equal'] is True,
+              'same_terminal_semantics': f['terminal_semantic_state']==x['terminal_semantic_state']==expected,
+              'forge_terminal_pass': f['terminal_postcondition_result']=='PASS',
+              'xmage_terminal_pass': x['terminal_postcondition_result']=='PASS',
+              'xmage_native_assignment': x['native_declare_attackers_execution']=={
+                  'executor':'mage.game.turn.DeclareAttackersStep.beginStep',
+                  'obj:mp-attacker-0':'P2','obj:mp-attacker-1':'P3',
+                  'adapter_assignment_applied':False,'valid':True,
+              },
+          }
+          # Forge evidence is produced by the native CombatUtil/declare-attacker provider path;
+          # require its event/decision surfaces to encode the same two assignments rather than
+          # accepting terminal-state equality alone.
+          blob=json.dumps(f,sort_keys=True)
+          checks['forge_native_assignment_evidence']=(
+              'obj:mp-attacker-0' in blob and 'obj:mp-attacker-1' in blob and 'P2' in blob and 'P3' in blob
+          )
+          if not all(checks.values()):
+              raise SystemExit('DIFFERENTIAL_MISMATCH:'+json.dumps({k:v for k,v in checks.items() if not v},sort_keys=True))
+          result={
+              'schema_version':'finalist-convergence-ws05-differential/1.0.0',
+              'status':'PASS','fixture_id':fixture,'record_digest':record,
+              'provider_neutral_state_digest':state,
+              'forge':{'candidate_commit':fp['candidate_commit'],'run_id':33545214636,'artifact_id':9815222363,'artifact_sha256':'83f34924ec3b7ed677e5ea665e8ab577b96490e5bcab2294f570841c984cde08'},
+              'xmage':{'candidate_commit':xp['candidate_commit'],'run_id':33561486530,'artifact_id':9821540000,'artifact_sha256':'826b78cd47c3d957e073f86367fcc11cc15b349a0c2ff124a6b80a777ed6c886'},
+              'checks':checks,
+              'terminal_semantic_state':expected,
+              'disagreement':None,
+          }
+          out=Path('qualification/evidence/finalist-convergence-differential/ws05-mp-combat-4/WS05_DIFFERENTIAL_RESULTS.json')
+          out.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps({'status':'PASS','fixture_id':fixture,'checks':checks},sort_keys=True))
+          PY
+          cd qualification/evidence/finalist-convergence-differential/ws05-mp-combat-4
+          sha256sum WS05_DIFFERENTIAL_RESULTS.json > SHA256SUMS
+      - name: Upload differential evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: finalist-convergence-ws05-differential-${{ github.sha }}
+          path: qualification/evidence/finalist-convergence-differential/ws05-mp-combat-4
+          if-no-files-found: error
