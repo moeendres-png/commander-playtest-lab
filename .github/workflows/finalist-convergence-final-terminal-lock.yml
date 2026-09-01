@@ -1,0 +1,41 @@
+name: Finalist Convergence — Final Terminal Lock
+
+on:
+  push:
+    branches:
+      - program/finalist-convergence-final
+    paths-ignore:
+      - FINALIST_CONVERGENCE_FINAL_HANDOFF.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  terminal-lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact final branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify frozen contract, live refs, denominators, runtime locks, and terminal verdicts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/finalist_convergence_final_lock.py
+
+      - name: Upload immutable terminal lock evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: finalist-convergence-final-terminal-lock
+          path: qualification/finalist_convergence/final-lock-runtime/FINAL_TERMINAL_LOCK.json
+          if-no-files-found: error
+          retention-days: 90
