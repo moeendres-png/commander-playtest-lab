@@ -21,6 +21,11 @@ env:
   FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
   FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
   FORGE_VERSION: 2.0.15-SNAPSHOT
+  XMAGE_AF05_HEAD: 080b9250fc03ffaced32cc039b11eb0b989098c8
+  XMAGE_AF05_RUN: "33502508896"
+  XMAGE_AF05_ARTIFACT_ID: "9798427520"
+  XMAGE_AF05_ARTIFACT_NAME: finalist-convergence-xmage-0eacaa0654c6097cbfdc718fb05695b495f2038c
+  XMAGE_AF05_ARTIFACT_DIGEST: sha256:2c21de71caa51d08430e77b8fffe1330a58aed47303f9ae621467453abd74e96
 
 jobs:
   af05-hidden:
@@ -209,6 +214,38 @@ jobs:
           assert all(r['actor_projection']['P2_hand_count'] == 1 for r in p['rows'])
           assert all(r['actor_projection']['P2_library_count'] == 1 for r in p['rows'])
           assert all(r['actor_projection']['actor_object_ids_opaque'] for r in p['rows'])
+          PY
+
+      - name: Download exact XMage AF05 evidence and compare same records
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          rm -rf "$ev/xmage-af05-input"
+          mkdir -p "$ev/xmage-af05-input"
+          gh run download "$XMAGE_AF05_RUN" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$XMAGE_AF05_ARTIFACT_NAME" \
+            --dir "$ev/xmage-af05-input"
+          test -f "$ev/xmage-af05-input/AF05_HIDDEN_RESULTS.json"
+          python candidate-qualification/finalist-convergence-forge/compare_same_records.py \
+            --forge "$ev/AF05_HIDDEN_RESULTS.json" \
+            --xmage "$ev/xmage-af05-input/AF05_HIDDEN_RESULTS.json" \
+            --output "$ev/AF05_SAME_RECORD_DIFFERENTIAL.json" \
+            --xmage-convergence-head "$XMAGE_AF05_HEAD" \
+            --xmage-workflow-run "$XMAGE_AF05_RUN" \
+            --xmage-artifact-id "$XMAGE_AF05_ARTIFACT_ID" \
+            --xmage-artifact-digest "$XMAGE_AF05_ARTIFACT_DIGEST" \
+            --fixture-id HIDDEN_01 \
+            --fixture-id HIDDEN_02
+          python - <<'PY'
+          import json
+          p=json.load(open('qualification/evidence/finalist-convergence-forge/AF05_SAME_RECORD_DIFFERENTIAL.json'))
+          assert p['selected_fixture_ids'] == ['HIDDEN_01','HIDDEN_02']
+          assert p['counts'] == {'DIFFERENTIAL_AGREEMENT_PASS': 2}
+          assert all(r['verdict'] == 'DIFFERENTIAL_AGREEMENT_PASS' for r in p['rows'])
           PY
 
       - name: Materialize checksums
