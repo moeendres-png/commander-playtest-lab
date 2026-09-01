@@ -68,6 +68,18 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
     java = replace_once(
         java,
+        '''        @Override
+        public void playSpellAbilityNoStack(SpellAbility effectSA, boolean mayChoseNewTargets) {
+            throw failClosed("playSpellAbilityNoStack");
+        }''',
+        '''        @Override
+        public void playSpellAbilityNoStack(SpellAbility effectSA, boolean mayChoseNewTargets) {
+            PlaySpellAbility.playSpellAbilityNoStack(this, player, effectSA, !mayChoseNewTargets);
+        }''',
+        "native no-stack ability execution",
+    )
+    java = replace_once(
+        java,
         "        Broker broker = new Broker(in, out, 100000);",
         "        String stopAfter = System.getenv(\"COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY\");\n"
         "        int stopAfterPriority = stopAfter == null ? 100000 : Integer.parseInt(stopAfter);\n"
@@ -128,6 +140,13 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     )
 
     mapping = dict(mapping)
+    callbacks = []
+    for callback in mapping.get("callbacks", []):
+        callback = dict(callback)
+        if callback.get("name") == "playSpellAbilityNoStack":
+            callback["classification"] = "RULES_AUTOMATIC_NONDISCRETIONARY"
+        callbacks.append(callback)
+    mapping["callbacks"] = callbacks
     mapping["schema_version"] = "finalist-forge-provider-overlay/1.0.0"
     mapping["base_schema_version"] = "ws25-player-controller-broad-mapping/1.0.0"
     mapping["canonical_natural_start_deck"] = {
@@ -141,6 +160,7 @@ def render(source: str, forge_commit: str, forge_tree: str) -> tuple[str, dict]:
     mapping["semantic_starting_player_labels"] = True
     mapping["mulligan_actor_binding"] = "controller-owned this.player; Forge MulliganService passes firstPlayer as the method argument"
     mapping["mandatory_singleton_object_choice"] = "zero native options fail closed; one mandatory native option resolves automatically; multiple options remain external"
+    mapping["no_stack_execution"] = "PlaySpellAbility.playSpellAbilityNoStack; nested discretionary choices remain controller-mediated"
     mapping["rules_seed_source"] = "COMMANDER_LAB_FORGE_RULES_SEED via Ws23ForgeBootstrap"
     mapping["stop_after_priority_source"] = "COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY"
     return java, mapping
