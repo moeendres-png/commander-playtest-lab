@@ -51,6 +51,13 @@ jobs:
         with: {distribution: temurin, java-version: "17", cache: maven}
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
+      - name: Validate convergence Python
+        run: |
+          python -m py_compile \
+            candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py \
+            candidate-qualification/finalist-convergence-xmage/canonical_v101.py \
+            candidate-qualification/finalist-convergence-xmage/run_canonical_starter18.py \
+            candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py
       - name: Verify and instrument pinned XMage
         run: |
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
