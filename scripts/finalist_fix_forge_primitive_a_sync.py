@@ -5,11 +5,15 @@ This qualification-only post-overlay patch keeps pinned Forge source unmodified 
 1. registers Mountain in StaticData.commonCards so GameState can materialize it;
 2. executes GameState.applyToGame synchronously on Forge's game thread;
 3. routes getAbilityToPlay strictly over Forge-supplied native SpellAbility options;
-4. exits the one-session provider JVM only after the flushed SESSION_RESULT.
+4. provides a fail-closed native CostDecisionMaker for Primitive-A mana only;
+5. exits the one-session provider JVM only after the flushed SESSION_RESULT.
 
 A singleton getAbilityToPlay list is non-discretionary and is recorded as automatic.
 A genuine multi-option list is exposed to the external controller and must be selected
 from exactly the options Forge supplied; no first/default/random/AI fallback is used.
+For cost decisions, every CostPart except CostPartMana fails closed. CostPartMana only
+returns the neutral PaymentDecision token Forge expects before CostPartMana itself
+calls the controller's externally-routed payManaCost path.
 """
 
 from __future__ import annotations
@@ -82,6 +86,64 @@ def main() -> None:
 
     text = replace_once(
         text,
+        '''        @Override
+        public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
+            throw failClosed("getCostDecisionMaker");
+        }''',
+        '''        @Override
+        public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
+            return new CostDecisionMakerBase(player, effect, ability, ability.getHostCard()) {
+                @Override public boolean paysRightAfterDecision() { return true; }
+                @Override public PaymentDecision visit(CostBehold cost) { throw failClosed("costDecision:CostBehold"); }
+                @Override public PaymentDecision visit(CostBeholdExile cost) { throw failClosed("costDecision:CostBeholdExile"); }
+                @Override public PaymentDecision visit(CostGainControl cost) { throw failClosed("costDecision:CostGainControl"); }
+                @Override public PaymentDecision visit(CostChooseColor cost) { throw failClosed("costDecision:CostChooseColor"); }
+                @Override public PaymentDecision visit(CostChooseCreatureType cost) { throw failClosed("costDecision:CostChooseCreatureType"); }
+                @Override public PaymentDecision visit(CostCollectEvidence cost) { throw failClosed("costDecision:CostCollectEvidence"); }
+                @Override public PaymentDecision visit(CostDiscard cost) { throw failClosed("costDecision:CostDiscard"); }
+                @Override public PaymentDecision visit(CostDamage cost) { throw failClosed("costDecision:CostDamage"); }
+                @Override public PaymentDecision visit(CostDraw cost) { throw failClosed("costDecision:CostDraw"); }
+                @Override public PaymentDecision visit(CostExile cost) { throw failClosed("costDecision:CostExile"); }
+                @Override public PaymentDecision visit(CostExileFromStack cost) { throw failClosed("costDecision:CostExileFromStack"); }
+                @Override public PaymentDecision visit(CostExiledMoveToGrave cost) { throw failClosed("costDecision:CostExiledMoveToGrave"); }
+                @Override public PaymentDecision visit(CostExert cost) { throw failClosed("costDecision:CostExert"); }
+                @Override public PaymentDecision visit(CostEnlist cost) { throw failClosed("costDecision:CostEnlist"); }
+                @Override public PaymentDecision visit(CostFlipCoin cost) { throw failClosed("costDecision:CostFlipCoin"); }
+                @Override public PaymentDecision visit(CostForage cost) { throw failClosed("costDecision:CostForage"); }
+                @Override public PaymentDecision visit(CostRollDice cost) { throw failClosed("costDecision:CostRollDice"); }
+                @Override public PaymentDecision visit(CostMill cost) { throw failClosed("costDecision:CostMill"); }
+                @Override public PaymentDecision visit(CostAddMana cost) { throw failClosed("costDecision:CostAddMana"); }
+                @Override public PaymentDecision visit(CostPayLife cost) { throw failClosed("costDecision:CostPayLife"); }
+                @Override public PaymentDecision visit(CostPayEnergy cost) { throw failClosed("costDecision:CostPayEnergy"); }
+                @Override public PaymentDecision visit(CostGainLife cost) { throw failClosed("costDecision:CostGainLife"); }
+                @Override public PaymentDecision visit(CostPartMana cost) {
+                    broker.recordAutomatic("costDecision:CostPartMana:" + cost.toString());
+                    return new PaymentDecision(0);
+                }
+                @Override public PaymentDecision visit(CostPromiseGift cost) { throw failClosed("costDecision:CostPromiseGift"); }
+                @Override public PaymentDecision visit(CostPutCardToLib cost) { throw failClosed("costDecision:CostPutCardToLib"); }
+                @Override public PaymentDecision visit(CostTap cost) { throw failClosed("costDecision:CostTap"); }
+                @Override public PaymentDecision visit(CostSacrifice cost) { throw failClosed("costDecision:CostSacrifice"); }
+                @Override public PaymentDecision visit(CostReturn cost) { throw failClosed("costDecision:CostReturn"); }
+                @Override public PaymentDecision visit(CostReveal cost) { throw failClosed("costDecision:CostReveal"); }
+                @Override public PaymentDecision visit(CostRevealChosen cost) { throw failClosed("costDecision:CostRevealChosen"); }
+                @Override public PaymentDecision visit(CostRemoveAnyCounter cost) { throw failClosed("costDecision:CostRemoveAnyCounter"); }
+                @Override public PaymentDecision visit(CostRemoveCounter cost) { throw failClosed("costDecision:CostRemoveCounter"); }
+                @Override public PaymentDecision visit(CostPutCounter cost) { throw failClosed("costDecision:CostPutCounter"); }
+                @Override public PaymentDecision visit(CostPutCounterYou cost) { throw failClosed("costDecision:CostPutCounterYou"); }
+                @Override public PaymentDecision visit(CostUntapType cost) { throw failClosed("costDecision:CostUntapType"); }
+                @Override public PaymentDecision visit(CostUntap cost) { throw failClosed("costDecision:CostUntap"); }
+                @Override public PaymentDecision visit(CostUnattach cost) { throw failClosed("costDecision:CostUnattach"); }
+                @Override public PaymentDecision visit(CostTapType cost) { throw failClosed("costDecision:CostTapType"); }
+                @Override public PaymentDecision visit(CostPayShards cost) { throw failClosed("costDecision:CostPayShards"); }
+                @Override public PaymentDecision visit(CostBlight cost) { throw failClosed("costDecision:CostBlight"); }
+            };
+        }''',
+        "Primitive-A fail-closed cost decision maker",
+    )
+
+    text = replace_once(
+        text,
         '''        GameState state = new GameState();
         state.parse(lines);
         state.applyToGame(game);
@@ -94,7 +156,6 @@ def main() -> None:
             new java.util.concurrent.atomic.AtomicReference<>();
         game.getAction().invoke(() -> {
             try {
-                // Running on Forge's game thread makes GameState.applyToGame synchronous.
                 state.applyToGame(game);
                 game.getPhaseHandler().setPriority(game.getPlayers().get(0));
             } catch (RuntimeException exc) {
@@ -122,7 +183,6 @@ def main() -> None:
     }
 }''',
         '''        runSession(in, out);
-        // One qualification session per JVM. runSession flushes SESSION_RESULT first.
         System.exit(0);
     }
 }''',
@@ -132,6 +192,7 @@ def main() -> None:
     path.write_text(text, encoding="utf-8")
     print("FORGE_PRIMITIVE_A_MOUNTAIN_REGISTRATION=PASS")
     print("FORGE_PRIMITIVE_A_GET_ABILITY_TO_PLAY=PASS")
+    print("FORGE_PRIMITIVE_A_COST_DECISION=PASS")
     print("FORGE_PRIMITIVE_A_SYNC_BARRIER=PASS")
     print("FORGE_PRIMITIVE_A_ONE_SESSION_EXIT=PASS")
 
