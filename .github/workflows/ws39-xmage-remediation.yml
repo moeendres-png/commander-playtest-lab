@@ -9,6 +9,11 @@ on:
       - 'engine-bridge/**'
       - 'candidate-qualification/ws39-xmage-successor/**'
       - '.github/workflows/ws39-xmage-remediation.yml'
+  pull_request:
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws39-xmage-successor/**'
+      - '.github/workflows/ws39-xmage-remediation.yml'
 
 permissions:
   contents: read
