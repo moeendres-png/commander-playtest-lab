@@ -19,12 +19,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Initialize evidence directory
+        run: mkdir -p artifacts/ws40-provider
       - uses: actions/checkout@v4
         with:
           repository: moeendres-png/forge
           ref: foundry/ws40-af04-core-remediation
           path: vendor/engine-source/forge
-          fetch-depth: 1
+          fetch-depth: 0
       - name: Lock Forge branch identity
         shell: bash
         run: |
@@ -34,7 +36,10 @@ jobs:
           echo "FORGE_COMMIT=$FORGE_COMMIT" >> "$GITHUB_ENV"
           echo "FORGE_TREE=$FORGE_TREE" >> "$GITHUB_ENV"
           git -C vendor/engine-source/forge merge-base --is-ancestor ef4c834dbbca21a099ae751fb52b2326abdf1e02 HEAD
+          test "$(git -C vendor/engine-source/forge rev-parse ef4c834dbbca21a099ae751fb52b2326abdf1e02^{tree})" = "abd80b8e9ba1178bcd8e8fb3147ed6df292b4597"
           grep -q "GNU GENERAL PUBLIC LICENSE" vendor/engine-source/forge/LICENSE
+          printf '%s\n' "$FORGE_COMMIT" > artifacts/ws40-provider/FORGE_COMMIT.txt
+          printf '%s\n' "$FORGE_TREE" > artifacts/ws40-provider/FORGE_TREE.txt
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -56,7 +61,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p artifacts/ws40-provider
           python scripts/ws40_generate_forge_provider.py \
             --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
             --output-dir artifacts/ws40-provider/generated \
@@ -64,7 +68,7 @@ jobs:
           python scripts/finalist_generate_forge_bootstrap.py \
             --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
             --output artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeBootstrap.java
-          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' artifacts/ws40-provider/generated/java
+          if grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' artifacts/ws40-provider/generated/java; then exit 1; fi
           grep -q 'chooseCombatDamage' artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
           grep -q 'chooseAmountDistribution' artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
       - name: Compile provider without Forge AI/GUI
