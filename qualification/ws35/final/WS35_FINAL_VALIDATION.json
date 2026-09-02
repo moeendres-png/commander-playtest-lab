@@ -1,0 +1,28 @@
+{
+  "checks": {
+    "adjudication_rows": 295,
+    "af07_freeze_satisfying": false,
+    "architecture_freeze_granted": false,
+    "canonical_bundle_digest_unchanged": true,
+    "card_semantic_failure_inferred_from_provider_failure": false,
+    "differential_pass": 0,
+    "differential_rows": 295,
+    "forge_exact_ws35_runtime_pass": 0,
+    "forge_rows": 295,
+    "historical_credit_imported": false,
+    "identities_exact": 29,
+    "obligations_exact": 335,
+    "pending_provider_dependencies": 0,
+    "per_card_rows": 29,
+    "per_obligation_rows": 335,
+    "scenarios_exact": 295,
+    "workstream_status_complete": true,
+    "ws33_terminal": true,
+    "ws34_terminal": true,
+    "xmage_exact_ws35_runtime_pass": 0,
+    "xmage_rows": 295
+  },
+  "generated_at": "2026-09-02T11:15:00+02:00",
+  "schema_version": "commander-foundry.ws35.final-validation/1.0.0",
+  "status": "PASS"
+}
