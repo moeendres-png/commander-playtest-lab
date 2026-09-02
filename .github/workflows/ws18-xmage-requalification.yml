@@ -1,0 +1,294 @@
+name: WS-18 XMage Requalification
+
+on:
+  pull_request:
+    paths:
+      - "engine-bridge/**"
+      - "src/commander_lab/candidates/models.py"
+      - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/engine/rules/full_game_ws18.py"
+      - "candidate-qualification/ws18-xmage/**"
+      - "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json"
+      - "qualification/harness.py"
+      - "scripts/ws18_xmage_card_crosswalk.py"
+      - "tests/unit/test_ws18_xmage_remediation.py"
+      - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameObservationGatewayTest.java"
+      - ".github/workflows/ws18-xmage-requalification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS18_BASELINE_SHA: c83e52ae79ff2242578757c0f517badbb1a2621c
+  WS18_BASELINE_TREE: 551c0d55a171508618d2b7d29e0f49b19893f886
+  XMAGE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  XMAGE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
+  XMAGE_POM_BLOB: 510aa402b6bb7abce96b9a89e5471b016ba4134c
+  XMAGE_LICENSE_BLOB: 3575e469d848ca405ccc8d0ac9d711c94120eb45
+  COMMON_MANIFEST_SHA256: e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4
+  PYTHONHASHSEED: "0"
+  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
+
+jobs:
+  candidate-requalification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Verify immutable source and denominator locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$WS18_BASELINE_SHA" HEAD
+          test "$(git rev-parse "${WS18_BASELINE_SHA}^{tree}")" = "$WS18_BASELINE_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD:pom.xml)" = "$XMAGE_POM_BLOB"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD:LICENSE.txt)" = "$XMAGE_LICENSE_BLOB"
+          test "$(sha256sum qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json | cut -d' ' -f1)" = "$COMMON_MANIFEST_SHA256"
+          grep -F '<version>1.4.61</version>' vendor/engine-source/xmage/pom.xml
+          grep -F 'MIT License' vendor/engine-source/xmage/LICENSE.txt
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          lock = json.loads(Path('candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json').read_text())
+          assert lock['target_repository']['baseline_commit'] == 'c83e52ae79ff2242578757c0f517badbb1a2621c'
+          assert lock['target_repository']['baseline_tree'] == '551c0d55a171508618d2b7d29e0f49b19893f886'
+          assert lock['xmage']['commit'] == '77d7646da6958fdf8125ee7c8f4aabd130d21d4c'
+          assert lock['xmage']['tree'] == 'f0a028b265f9c008ea0aedc4cec6b8f14500b69f'
+          assert lock['xmage']['pom_blob'] == '510aa402b6bb7abce96b9a89e5471b016ba4134c'
+          assert lock['xmage']['license_blob'] == '3575e469d848ca405ccc8d0ac9d711c94120eb45'
+          assert lock['protocol']['id'] == 'commander-lab.rules-service/1.1.0'
+          assert lock['protocol']['common_manifest_sha256'] == 'e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4'
+          assert lock['scope']['technical_player_counts'] == [2, 3, 4, 5]
+          assert lock['scope']['production_provider_selected'] is False
+          assert lock['observation_contract']['dynamic_knowledge_ledger'] is False
+          assert lock['observation_contract']['observation_completeness'] is False
+          PY
+
+      - name: Build pinned XMage
+        working-directory: vendor/engine-source/xmage
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+
+      - name: Install lab validation runtime
+        run: python -m pip install -e '.[dev,api]'
+
+      - name: Run WS-17R/common infrastructure invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          pytest -q tests/qualification/test_ws17r_exact_main_runtime.py
+          python qualification/harness.py validate \
+            qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
+
+      - name: Run WS-18 Python contracts
+        run: pytest -q tests/unit/test_ws18_xmage_remediation.py tests/unit/test_xmage_full_game.py
+
+      - name: Build and test XMage bridge including actor-safety honeycards
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+
+      - name: Regenerate exact 29-card XMage source crosswalk
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/ws18-xmage
+          python scripts/ws18_xmage_card_crosswalk.py \
+            --xmage-root vendor/engine-source/xmage \
+            --output qualification/evidence/ws18-xmage/XMAGE_29_CARD_CROSSWALK.json
+
+      - name: Run unchanged WS-17 common harness through XMage RSP 1.1 adapter
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/ws18-xmage
+          python qualification/harness.py run \
+            --candidate XMAGE_WS18 \
+            --source-lock candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --command "python candidate-qualification/ws18-xmage/xmage_ws18_provider.py" \
+            --output qualification/evidence/ws18-xmage/COMMON_RESULTS.json
+          python qualification/harness.py aggregate \
+            --manifest qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json \
+            --results qualification/evidence/ws18-xmage/COMMON_RESULTS.json \
+            --admitted-main-sha "$GITHUB_SHA" \
+            --actual-sha "$GITHUB_SHA" \
+            --output qualification/evidence/ws18-xmage/CANDIDATE_AGGREGATE.json \
+            --md-output qualification/evidence/ws18-xmage/CANDIDATE_AGGREGATE.md
+
+      - name: Materialize observation and AF00-AF11 disposition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import collections
+          import json
+          import os
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          root = Path('qualification/evidence/ws18-xmage')
+          results = json.loads((root / 'COMMON_RESULTS.json').read_text())['fixture_results']
+          by_id = {item['fixture_id']: item for item in results}
+          expected = ['PLAYER_COUNT_2P', 'PLAYER_COUNT_3P', 'PLAYER_COUNT_4P', 'PLAYER_COUNT_5P']
+          assert len(results) == 135
+          assert len(by_id) == 135
+          for fixture_id in expected:
+              result = by_id[fixture_id]
+              assert result['verdict'] == 'PASS', result
+              assert result['evidence_class'] == 'RUNTIME_VERIFIED', result
+              assert result['artifact_hashes'].get('semantic_transcript_sha256'), result
+              assert result['artifact_hashes'].get('raw_result_sha256'), result
+          unmaterialized = [item for item in results if item['fixture_id'] not in expected]
+          assert len(unmaterialized) == 131
+          assert all(item['verdict'] != 'PASS' for item in unmaterialized)
+
+          aggregate = json.loads((root / 'CANDIDATE_AGGREGATE.json').read_text())
+          assert aggregate['production_admission'] == 'FAIL', aggregate
+          assert aggregate['required_fixture_count'] == 135, aggregate
+          assert aggregate['pass_count'] == 4, aggregate
+
+          crosswalk = json.loads((root / 'XMAGE_29_CARD_CROSSWALK.json').read_text())
+          assert crosswalk['denominator_count'] == 29
+          assert crosswalk['implementation_present_count'] == 29
+          assert crosswalk['static_crosswalk_verdict'] == 'PASS'
+          assert crosswalk['static_crosswalk_evidence_class'] == 'CODE_DERIVED'
+          assert crosswalk['runtime_semantics_verdict'] == 'NOT_RUN'
+
+          observation = {
+              'schema_version': 'ws18-xmage-observation-qualification/1.0.0',
+              'targeted_leakage_safety': {
+                  'verdict': 'PASS',
+                  'evidence_class': 'RUNTIME_VERIFIED',
+                  'basis': [
+                      'actor view hides opponent hands',
+                      'actor view exports library counts but no library identities/order',
+                      'hidden opponent-library object-id honeycard is rejected',
+                      'private-only opponent-library card name in option metadata is rejected',
+                      'private-only opponent-library card name in source metadata is rejected',
+                  ],
+              },
+              'observation_completeness': {
+                  'verdict': 'FAIL',
+                  'evidence_class': 'CODE_DERIVED',
+                  'dynamic_knowledge_ledger_present': False,
+                  'reason': 'WS-06 dynamic legally-known information semantics are not implemented by the current actor-scoped gateway.',
+                  'missing_required_semantics': [
+                      'zone-full look/search audience knowledge',
+                      'known library positions/ranges/order',
+                      'scry/surveil/reveal knowledge persistence',
+                      'shuffle and zone-change knowledge invalidation',
+                      'face-down look/control permissions',
+                      'controlled-player private view semantics',
+                  ],
+              },
+              'overall_hidden_information_gate': 'FAIL',
+          }
+          (root / 'OBSERVATION_QUALIFICATION.json').write_text(
+              json.dumps(observation, indent=2, sort_keys=True) + '\n'
+          )
+
+          counts = collections.Counter(item['verdict'] for item in results)
+          summary = {
+              'schema_version': 'ws18-xmage-requalification-summary/1.1.0',
+              'candidate': 'XMAGE_WS18',
+              'lab_commit': os.environ['GITHUB_SHA'],
+              'target_baseline_commit': 'c83e52ae79ff2242578757c0f517badbb1a2621c',
+              'xmage_commit': os.environ['XMAGE_COMMIT'],
+              'player_count_gate': {'verdict': 'PASS', 'counts': [2, 3, 4, 5], 'evidence_class': 'RUNTIME_VERIFIED'},
+              'targeted_leakage_safety': observation['targeted_leakage_safety'],
+              'observation_completeness': observation['observation_completeness'],
+              'actual_card_static_crosswalk': {'verdict': 'PASS', 'count': 29, 'evidence_class': 'CODE_DERIVED'},
+              'actual_card_runtime_semantics': {'verdict': 'NOT_RUN', 'pass_count': 0, 'required_count': 29},
+              'common_required_fixture_count': 135,
+              'common_fixture_verdict_counts': dict(sorted(counts.items())),
+              'common_pass_count': 4,
+              'candidate_common_admission': 'FAIL',
+              'qualification_result': 'FAIL_NOT_PRODUCTION_QUALIFIED',
+              'denominators_modified': False,
+              'production_provider_selected': False,
+              'architecture_winner': False,
+              'freeze_eligible': False,
+              'merge_authorized': False,
+          }
+          (root / 'WS18_REQUALIFICATION_SUMMARY.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n'
+          )
+
+          source_lock = json.loads(Path('candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json').read_text())
+          gate_results = [
+              {'gate_id':'AF00','verdict':'PASS','evidence_refs':['candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json'],'reason':'Exact target baseline and XMage commit/tree/version/license/blob pins are freshly verified before build.'},
+              {'gate_id':'AF01','verdict':'PARTIAL','evidence_refs':['candidate-qualification/ws18-xmage/xmage_ws18_provider.py','qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'RSP 1.1 fixture transport executes exactly, but a complete lossless production Rules Service session surface is not materialized.'},
+              {'gate_id':'AF02','verdict':'PASS','evidence_refs':['qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Fresh native full-game lifecycle passes at exact 2P, 3P, 4P and 5P through the unchanged common harness.'},
+              {'gate_id':'AF03','verdict':'PASS','evidence_refs':['engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java','src/commander_lab/engine/rules/full_game_ws18.py'],'reason':'XMage remains Rules Core authority; external Commander Lab pilots only select from XMage-provided options and unsupported choices fail closed.'},
+              {'gate_id':'AF04','verdict':'PARTIAL','evidence_refs':['engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java','qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Candidate decision routing is fail-closed, but complete production legal-action coverage is not proven across the frozen denominator.'},
+              {'gate_id':'AF05','verdict':'FAIL','evidence_refs':['qualification/evidence/ws18-xmage/OBSERVATION_QUALIFICATION.json'],'reason':'Targeted no-leak honeycards pass, but WS-06 dynamic actor-entitled knowledge and invalidation semantics remain incomplete.'},
+              {'gate_id':'AF06','verdict':'NOT_RUN','evidence_refs':['qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'The exact common micro-rules/layers/replacement/copy/SBA/stateful fixtures are not natively materialized in this candidate restart.'},
+              {'gate_id':'AF07','verdict':'NOT_RUN','evidence_refs':['qualification/evidence/ws18-xmage/XMAGE_29_CARD_CROSSWALK.json'],'reason':'Fresh 29/29 implementation presence is CODE_DERIVED; exact 29-card behavioral runtime semantics remain 0/29 NOT_RUN.'},
+              {'gate_id':'AF08','verdict':'NOT_RUN','evidence_refs':['qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Exact WS-05 multiplayer/Commander semantic fixtures beyond player cardinality are not natively materialized in this restart.'},
+              {'gate_id':'AF09','verdict':'PARTIAL','evidence_refs':['qualification/evidence/ws18-xmage/COMMON_RESULTS.json'],'reason':'Per-fixture semantic/raw runtime hashes are generated under pinned seeds; full required replay/checkpoint/RNG qualification is not established by this workflow.'},
+              {'gate_id':'AF10','verdict':'FAIL','evidence_refs':['qualification/evidence/ws18-xmage/CANDIDATE_AGGREGATE.json','qualification/evidence/ws18-xmage/WS18_REQUALIFICATION_SUMMARY.json'],'reason':'Denominator accounting is exact, but only 4/135 common fixtures pass and 131 remain non-PASS, so production evidence is incomplete.'},
+              {'gate_id':'AF11','verdict':'PASS','evidence_refs':['candidate-qualification/ws18-xmage/WS18_SOURCE_LOCK.json','src/commander_lab/engine/rules/full_game_ws18.py'],'reason':'Pinned XMage is MIT and executes across the retained isolated external JVM process boundary required by the interoperability contract.'},
+          ]
+          af = {
+              'schema_version': 'architecture-freeze-result/1.1.0',
+              'protocol': 'commander-lab.rules-service/1.1.0',
+              'candidate': 'XMage',
+              'source_lock': source_lock,
+              'gate_results': gate_results,
+              'freeze_eligible': False,
+              'architecture_winner': False,
+          }
+          schema = json.loads(Path('qualification/protocol/ws10r/architecture_freeze_contract_v1.schema.json').read_text())
+          Draft202012Validator(schema).validate(af)
+          (root / 'ARCHITECTURE_FREEZE_RESULT.json').write_text(
+              json.dumps(af, indent=2, sort_keys=True) + '\n'
+          )
+          PY
+
+      - name: Hash WS-18 evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p qualification/evidence/ws18-xmage
+          find qualification/evidence/ws18-xmage -type f ! -name SHA256SUMS -print0 \
+            | sort -z | xargs -0 sha256sum > qualification/evidence/ws18-xmage/SHA256SUMS || true
+
+      - name: Upload WS-18 qualification evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws18-xmage-requalification-${{ github.sha }}
+          path: qualification/evidence/ws18-xmage/
+          if-no-files-found: error
