@@ -104,29 +104,46 @@ final class XmageFullGameDecisionController {
         XmageFullGameObservationGateway.SafeDecision safeDecision;
         XmageDecisionOptionIdentity.Binding optionBinding;
         try {
-            XmageFullGameObservationGateway.SafeDecision nativeSafeDecision =
-                    XmageFullGameObservationGateway.validate(
-                            game,
-                            decisionAuthority,
-                            decisionSubject,
-                            prompt,
-                            context,
-                            legalOptions,
-                            sourceObject
-                    );
-            optionBinding = XmageDecisionOptionIdentity.externalize(
+            /*
+             * Keep native XMage option UUIDs in the privileged domain until the
+             * exact current actor-visible object projection is known. WS-34
+             * projected the options first and then attempted to externalize the
+             * already-opaque ids, producing opaque->opaque bindings which were
+             * later parsed as native UUIDs by XmageFullGamePlayer.
+             *
+             * The ordering below is intentionally one-way:
+             *   native XMage option -> actor-visible opaque option -> pilot
+             * while optionBinding retains the exact opaque -> native relation
+             * only for this pending DecisionFrame.
+             */
+            JsonObject privilegedActorView = ledger.snapshot(
                     game,
-                    nativeSafeDecision.actorView(),
-                    nativeSafeDecision.legalOptions()
+                    decisionAuthority,
+                    decisionSubject
+            );
+            JsonObject actorIdentityView = XmageActorIdentityProjection.actorView(
+                    game,
+                    decisionAuthority,
+                    privilegedActorView
+            );
+            JsonArray nativeOptions = legalOptions == null
+                    ? new JsonArray()
+                    : legalOptions.deepCopy();
+            optionBinding = XmageDecisionOptionIdentity.externalize(
+                    nativeOptions,
+                    XmageDecisionOptionIdentity.visibleNativeToSemantic(
+                            game,
+                            actorIdentityView
+                    )
             );
             safeDecision = XmageFullGameObservationGateway.validate(
                     game,
                     decisionAuthority,
                     decisionSubject,
-                    nativeSafeDecision.prompt(),
-                    nativeSafeDecision.context(),
+                    prompt,
+                    context,
                     optionBinding.externalOptions(),
-                    nativeSafeDecision.sourceObject()
+                    sourceObject
             );
         } catch (IllegalStateException exc) {
             DecisionException failure = new DecisionException(exc.getMessage(), exc);
