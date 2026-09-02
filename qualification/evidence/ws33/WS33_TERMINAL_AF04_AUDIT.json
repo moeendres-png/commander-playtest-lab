@@ -1,0 +1,83 @@
+{
+  "architecture_freeze_declared": false,
+  "baseline_evidence": {
+    "artifact_id": 9825831255,
+    "artifact_sha256": "c8b191bad743ee0e8847671cda89a3da50c9b88accb0b92ba23a6ec4b39009f8",
+    "job_id": 100072542091,
+    "run_id": 33573571385
+  },
+  "defect": {
+    "current_provider_behavior": "FAIL_CLOSED_UNSUPPORTED",
+    "defect_id": "WS33-FORGE-PROVIDER-AF04-001",
+    "failure_signature": "COMBAT_DAMAGE_LEGALITY_LIVES_IN_CONTROLLER_GUI_NOT_RULES_CORE_LEGAL_OPTION_API",
+    "forbidden_remediations": [
+      "forge_gui_default",
+      "forge_ai",
+      "provider_legality_reconstruction",
+      "pilot_legality_reconstruction",
+      "silent_default",
+      "random_distribution"
+    ],
+    "fresh_master_same_boundary": true,
+    "gate": "AF04",
+    "gui_legality_dimensions": [
+      "attackerHasDeathtouch",
+      "attackerHasInfect",
+      "attackerHasTrample",
+      "overrideCombatantOrder",
+      "getDamageToKill",
+      "canAssignTo",
+      "checkDamageQueue"
+    ],
+    "pinned_core_callsite": "Combat -> assigningPlayer.getController().assignCombatDamage(...) ",
+    "pinned_human_path": "PlayerControllerHuman -> getGui().assignCombatDamage(...) ",
+    "production_reachable": true,
+    "severity": "TERMINAL_STOP",
+    "taxonomy": "FORGE_PROVIDER_DEFECT",
+    "why_terminal": "WS-33 requires the Forge Rules Core to be sole legality authority and the provider to expose complete engine-legal options. Pinned Forge delegates discretionary combat-damage construction to PlayerController and the human implementation contains legality-sensitive damage-assignment logic in GUI code. The isolated GPL provider intentionally excludes Forge GUI/AI and currently hard-fails this callback. Recreating lethal/order/deathtouch/trample/infect assignment legality in the provider would create a second rules engine; using GUI/AI is explicitly forbidden. Closing this boundary therefore requires a Forge-core legal-option/validation API or upstream/core refactor, which is outside WS-33 authorization."
+  },
+  "gate_results": {
+    "AF04": "FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+    "AF05": "NOT_RUN_AFTER_AF04_STOP_CONDITION",
+    "AF06": "NOT_RUN_AFTER_AF04_STOP_CONDITION",
+    "AF08": "NOT_RUN_AFTER_AF04_STOP_CONDITION",
+    "AF09": "NOT_RUN_AFTER_AF04_STOP_CONDITION",
+    "CARD_02": "NOT_RUN_AFTER_AF04_STOP_CONDITION",
+    "REPLAY_RNG": "NOT_RUN_AFTER_AF04_STOP_CONDITION"
+  },
+  "provider_callback_counts": {
+    "EXTERNALLY_IMPLEMENTED": 14,
+    "FAIL_CLOSED_UNSUPPORTED": 82,
+    "RULES_AUTOMATIC_NONDISCRETIONARY": 13
+  },
+  "schema_version": "commander-lab.ws33-terminal-af04-audit/1.0.0",
+  "source_lock": {
+    "forge_fresh_master": {
+      "commit": "c817743ecbda4a4983a4246a13375d1a6adf8a4e",
+      "same_af04_boundary": true,
+      "tree": "d0ff27956e44ffb76baa11be1645675e1b013a3a"
+    },
+    "forge_selected": {
+      "commit": "1e604105f9e279331063824943b9222b6589f5d8",
+      "tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+      "version": "2.0.15-SNAPSHOT"
+    },
+    "ws32": {
+      "bundle_digest": "61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b",
+      "commit": "038d0f38635eecee4e331c99af41f148de267a26",
+      "contract_version": "commander-lab.semantic-fixture-materialization/1.0.2",
+      "owned_denominator": 107,
+      "tree": "0d160128119f2bad30b220a17c43419b50b7edbe"
+    }
+  },
+  "stop_condition": "PRODUCTION_DECISION_PATH_CANNOT_BE_EXTERNALIZED_SAFELY_WITH_RULES_CORE_AS_SOLE_LEGALITY_AUTHORITY",
+  "successor_corpus": {
+    "BASELINE_RUNTIME_NO_SUCCESSOR_CREDIT": 1,
+    "NOT_RUN_AFTER_AF04_STOP_CONDITION": 106,
+    "PASS": 0,
+    "denominator": 107,
+    "successor_runtime_credit": 0
+  },
+  "terminal_status": "STOPPED_FAIL_CLOSED",
+  "workstream_terminal": true
+}
