@@ -8,6 +8,11 @@ on:
       - '.github/workflows/ws40-forge-provider-smoke.yml'
   workflow_dispatch:
 
+env:
+  FORGE_COMMIT: 3f53c7c4e93c011e781680ae2a0c195dd71414c0
+  FORGE_TREE: 481d3ee3b4798b78b4f00a93cc8e2cb54d05391f
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
 permissions:
   contents: read
 
@@ -24,20 +29,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: moeendres-png/forge
-          ref: foundry/ws40-af04-core-remediation
+          ref: ${{ env.FORGE_COMMIT }}
           path: vendor/engine-source/forge
           fetch-depth: 0
-      - name: Lock Forge branch identity
+      - name: Lock exact repaired Forge identity
         shell: bash
         run: |
           set -euo pipefail
-          FORGE_COMMIT=$(git -C vendor/engine-source/forge rev-parse HEAD)
-          FORGE_TREE=$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})
-          echo "FORGE_COMMIT=$FORGE_COMMIT" >> "$GITHUB_ENV"
-          echo "FORGE_TREE=$FORGE_TREE" >> "$GITHUB_ENV"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
           git -C vendor/engine-source/forge merge-base --is-ancestor ef4c834dbbca21a099ae751fb52b2326abdf1e02 HEAD
           test "$(git -C vendor/engine-source/forge rev-parse ef4c834dbbca21a099ae751fb52b2326abdf1e02^{tree})" = "abd80b8e9ba1178bcd8e8fb3147ed6df292b4597"
           grep -q "GNU GENERAL PUBLIC LICENSE" vendor/engine-source/forge/LICENSE
+          grep -q '<versionCode>2.0.15</versionCode>' vendor/engine-source/forge/pom.xml
           printf '%s\n' "$FORGE_COMMIT" > artifacts/ws40-provider/FORGE_COMMIT.txt
           printf '%s\n' "$FORGE_TREE" > artifacts/ws40-provider/FORGE_TREE.txt
       - uses: actions/setup-python@v5
@@ -50,13 +54,13 @@ jobs:
           cache: maven
       - name: Build exact Forge core/game
         working-directory: vendor/engine-source/forge
-        run: mvn -B -ntp -pl forge-game -am -DskipTests install
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
       - name: Resolve Forge compile classpath
         working-directory: vendor/engine-source/forge
         shell: bash
         run: |
           set -euo pipefail
-          mvn -B -ntp -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws40-provider/dependency-classpath.txt"
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws40-provider/dependency-classpath.txt"
       - name: Generate WS40 isolated GPL provider
         shell: bash
         run: |
@@ -108,7 +112,7 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           import json, os
-          v={'status':'PASS','forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'separate_gpl_jvm':True,'forge_ai_gui_classpath':False,'combat_damage_core_options_only':True,'noncombat_distribution_core_options_only':True}
+          v={'status':'PASS','forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'forge_version':os.environ['FORGE_VERSION'],'separate_gpl_jvm':True,'forge_ai_gui_classpath':False,'combat_damage_core_options_only':True,'noncombat_distribution_core_options_only':True}
           open('artifacts/ws40-provider/WS40_PROVIDER_SMOKE.json','w').write(json.dumps(v,indent=2,sort_keys=True)+'\n')
           PY
           find artifacts/ws40-provider -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws40-provider/SHA256SUMS
