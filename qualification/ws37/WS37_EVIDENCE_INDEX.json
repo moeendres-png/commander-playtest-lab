@@ -1,0 +1,29 @@
+{
+  "canonical_materialization_digest": "084e662d427063eaae7008999ee6b44c0545f26d5be1c80e725eb30bef2af132",
+  "counts": {
+    "final_obligations": 326,
+    "heuristic_parents": 110,
+    "identities": 29,
+    "successor_scenarios": 283
+  },
+  "files": {
+    "WS37_AUTHORITY_DEFECT_LEDGER.json": "eb89ffc4b09ab2103732f2b8f60c4508c6c3fddf45fae34397f7d09675cb10df",
+    "WS37_CURATED_OBLIGATION_MANIFEST.json": "3a2f4c9c28f6cd0d1be5a2bd7f56a34d875953e8f79e28cdc3ee713ea03437a0",
+    "WS37_CURRENT_AUTHORITY_LOCK.json": "8ddf69dde7ef37e098e5edf361db0bfa1aa07084cdc0944d0ffec6067c8b2c27",
+    "WS37_HEURISTIC_110_ADJUDICATION_LEDGER.json": "d5e82bbbf845ee48cf681ece53a634287dda582d24fecbef2adba7ea955faf8e",
+    "WS37_HEURISTIC_110_INPUT_MANIFEST.json": "f94a90f8c4473c0e158354650d0c128125bfd4ec2c74af3a656e2b36c97aa941",
+    "WS37_OBLIGATION_LINEAGE.json": "a3c201bbba17c1ad37025258199ac9fea494e2539b05ec21bb989b64094bf4cc",
+    "WS37_OBLIGATION_SCENARIO_COVERAGE.json": "08bbc6fe8eaa77ee68802fec42fc941f4a05c5d968706d83400540563ca304ea",
+    "WS37_SCENARIO_IMPACT_REPORT.json": "ce174c7cc18983c8f4ae022b6d584b42625658cf25e39088b841815105b319af",
+    "WS37_SEMANTIC_EXECUTABILITY_REPORT.json": "618082d7e087df6ec8469b3eaffee3a9bd41775c2e17708981020c8e2818dc4d",
+    "WS37_SOURCE_LOCK.json": "8f7c8b07c2f68aea64f0453f8afb5b459a007b57c44ced7f79e084b9d9bd918d",
+    "WS37_SUCCESSOR_SCENARIO_MANIFEST.json": "4ce77d2ef03efc95011e1f0834bb37fa3e477acb704cae0786976d4eb19079c5",
+    "WS37_VALIDATION.json": "3ed15151e06882c5dc52e83b8e1d954383ce1f95e510b16d317c7221aebb9139"
+  },
+  "runtime_credit": 0,
+  "schema_version": "commander-lab.ws37.evidence-index/1.0.0",
+  "source_authority": {
+    "current_cr_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+    "current_gatherer_pass_count": 29
+  }
+}

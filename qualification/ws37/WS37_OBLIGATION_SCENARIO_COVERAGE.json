@@ -1,0 +1,2290 @@
+{
+  "covered_obligation_count": 326,
+  "obligation_count": 326,
+  "records": [
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:PARTNER",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-001"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:COUNTERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-002"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:EVASION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-003"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:INTERVENING_IF_CLAUSES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-004"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:MULTIPLE_OPPONENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-005"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-006"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-007"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-008"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:TRIGGER:INTERVENING_IF_TRUE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-009"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:TRIGGER:INTERVENING_IF_FALSE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-009"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-6e9f02fe4505ec73f0585281",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-010"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-f8af828137f83d3d35cf3b8d",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-011"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-8d48892d93e110b0f3897d3e",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-012"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-9a9a361a6ab08459dd3d0163",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-012"
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-754ee077d7dbe4f51d93b224",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-013"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:PARTNER",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-014"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:EVASION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-015"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:FIRST_STRIKE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-016"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-017"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-018"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-0b53b9e879434c58189ee1d1",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-019"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-97a30f0f43826cf7c1fbee72",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-020"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-802268a068d1e8c0d2b5ee26",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-020"
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-bd76cecb667b073cf1f7dbd0",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-021"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:PARTNER",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-022"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:COST_INCREASES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-023"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:EVASION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-024"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:MULTIPLE_OPPONENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-025"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-026"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-027"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-028"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-bee56e509eb2d88f5112bcf6",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-029"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-8d294a281c0a8a18aaf186c6",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-029"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a8eb995c5f59b7f1e30cefb9",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-030"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-0985bbfcad4b9b5ea1de7072",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-031"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-3f1d545d2d480d97e07c941c",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-032"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-f5573698f0335ca8663dd737",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-032"
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-0fabe420a580cdbbd0fec35b",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-033"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:PARTNER",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-034"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:COMBAT_DAMAGE_ASSIGNMENT",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-035"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:COMMANDER_DESIGNATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-036"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:INTERVENING_IF_CLAUSES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-037"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:MULTIPLE_OPPONENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-038"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NONCOMBAT_DAMAGE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-039"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-040"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-041"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-042"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:TRIGGER:INTERVENING_IF_TRUE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-043"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:TRIGGER:INTERVENING_IF_FALSE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-043"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-0ae758607ba4923c0eda4474",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-045"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-f9b6f49f1d5cf2a386af230c",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-046"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-1acccccc331dbfc07ee1e62d",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-046"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-8b528fb395e04c490acfa084",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-047"
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-de80dd615632422bc042daf0",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-048"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:INTERVENING_IF_CLAUSES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-049"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-050"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-051"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-052"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:POWER_TOUGHNESS_LAYERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-053"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:TRIGGER_MULTIPLICATION_DUPLICATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-054"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:TRIGGER:INTERVENING_IF_TRUE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-055"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:TRIGGER:INTERVENING_IF_FALSE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-055"
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-ec8e5a013e76957e25f3e0c9",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-056"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:INTERVENING_IF_CLAUSES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-058"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-059"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-060"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-061"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:POWER_TOUGHNESS_LAYERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-062"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:TRIGGER_MULTIPLICATION_DUPLICATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-063"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:TRIGGER:INTERVENING_IF_TRUE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-064"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:TRIGGER:INTERVENING_IF_FALSE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-064"
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-f5ad051aef63d7027f34f6cd",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-065"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:EACH_PLAYER_EACH_OPPONENT",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-067"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-068"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-069"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:LIBRARY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-070"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:MULTIPLE_OPPONENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-071"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-072"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-073"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-074"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:PLANESWALKERS_LOYALTY_ABILITIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-075"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:RANDOM_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-076"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:REVEAL",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-077"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:REVEAL_BOUNDARIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-078"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-87f20d0ea16c8812cb3da073",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-079"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a551144842fb2a872b7026be",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-079"
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-902257544ce22108d6c54856",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-080"
+    },
+    {
+      "card_identity": "Jeska, Thrice Reborn",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-081"
+    },
+    {
+      "card_identity": "Jeska, Thrice Reborn",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-082"
+    },
+    {
+      "card_identity": "Jeska, Thrice Reborn",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:PLANESWALKERS_LOYALTY_ABILITIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-083"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:DISTRIBUTED_TARGETS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-084"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-085"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:MULTIPLE_TARGETS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-086"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:NONCOMBAT_DAMAGE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-087"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-088"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-089"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-090"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-d00c0632f95829635143bac7",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-091"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-caa7d8e32349b236be40d323",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-091"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-443b95a4ad28efb6a1b68066",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-092"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-46484e1cfc298b402b64f5f1",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-092"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-38376e4cec72ce187a10a929",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-093"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-7e4e18dfefb1e25ae0e4476e",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-093"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-82ed656a2299ed563c3ae044",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-093"
+    },
+    {
+      "card_identity": "Magma Opus",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-1544ba47680ab7bdffce981f",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-093"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-094"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-095"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-096"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-097"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-e8d2ce36df7b03277594fd58",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-098"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-c4219a02adccc97b8ff1570e",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-098"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-e64c87628710775475858e31",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-099"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-f1e26bdfd06f4d297ff32737",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-099"
+    },
+    {
+      "card_identity": "Wash Away",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-04c718dc317ab8ce5814bb19",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-100"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:CARD_FACES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-101"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-102"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-103"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-104"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-105"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OTHER_SPECIAL_FORMS_REACHABLE_IN_THE_ACTUAL_CARD_UNIVERSE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-106"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-107"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-5e8ed2eb18604e89370eb806",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-109"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-c4897bc4183bda115f2ffde0",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-109"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-b338a527d7269dc89d4168f5",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-110"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-f4e79ec9d2bb4fec37e856f2",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-110"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:STRUCTURE:FUSE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-111"
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:STRUCTURE:MULTIFACE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-112"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:EXILE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-113"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:GRAVEYARD",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-114"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-115"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:LIBRARY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-116"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-117"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-118"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:REVEAL_BOUNDARIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-119"
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a5a458713e735fdaa13016ab",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-120"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:ALTERNATIVE_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-121"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:COPIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-122"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:MULTIPLE_TARGETS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-123"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-124"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-125"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-126"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:RETARGETING",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-127"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-128"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-7a490702df9de6a5c30e365b",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-130"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-382d8608df27860e22def6b9",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-130"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-de6697fc70a6e9c16e67ad97",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-131"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:NORMAL_COST",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-132"
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:ALT_COST",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-132"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-133"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-134"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-135"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-9aa88eef7bb0592a971eae98",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-136"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-aa4775a24d110f6f2e679634",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-136"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-79bf70403d0065fc88639749",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-137"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-1e1c699ec91035a5f6f62f53",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-137"
+    },
+    {
+      "card_identity": "Vandalblast",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-e0100e769e4782ac225ec47f",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-138"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:EXILE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-139"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:GRAVEYARD",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-140"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-141"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-142"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:LIBRARY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-143"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-144"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-145"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:REPLACEMENT_EFFECTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-146"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:SHUFFLE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-147"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:VARIABLE_X_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-148"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-9ecc46d9d2a14f5ef5a315b0",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-149"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-5db62dd232feb178be17664b",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-149"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-19a0eb13e2b13d052676d21a",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-149"
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:REPLACEMENT:APPLIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-150"
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:EACH_PLAYER_EACH_OPPONENT",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-151"
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-152"
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-153"
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:MULTIPLE_OPPONENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-154"
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-155"
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-156"
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-157"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:MULTIPLE_OPPONENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-159"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-160"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-161"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-162"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-163"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-f0801b2b8998f06ff2474dcc",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-164"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-aa454acb2113307bbeb2a512",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-164"
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-d29ff9da4512cfbfe3dddc34",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-165"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:BLOCKERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-166"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:EVASION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-167"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:INTERVENING_IF_CLAUSES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-168"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-169"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-170"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-171"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-172"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-173"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-33bffe4ade81d44da8690c49",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-174"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-c9f7f6dacc6bd6e4fb2e9c2c",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-174"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-832f707fb5f3033c703a8652",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-175"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a46023fbf7a3d4cb852150df",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-175"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-b50dd862a99a16cc82947dab",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-176"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TRIGGER:INTERVENING_IF_TRUE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-177"
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TRIGGER:INTERVENING_IF_FALSE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-177"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:EACH_PLAYER_EACH_OPPONENT",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-179"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:EVASION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-180"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:MULTIPLE_OPPONENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-181"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-182"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-183"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-184"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:ZONE_CHANGE_SEMANTICS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-185"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-5ecf743f7d4300ddb98e3f5a",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-186"
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-236acaa21d5d273bdd5432ea",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-187"
+    },
+    {
+      "card_identity": "Syphon Mind",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-188"
+    },
+    {
+      "card_identity": "Syphon Mind",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-189"
+    },
+    {
+      "card_identity": "Syphon Mind",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-190"
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:NONCOMBAT_DAMAGE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-191"
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-192"
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-193"
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:REPLACEMENT_EFFECTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-194"
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:REPLACEMENT:APPLIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-195"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:COST_REDUCTIONS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-196"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-197"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-198"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:RETARGETING",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-199"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-200"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-1f60bdc52d1cdee62d8aa7ae",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-201"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a031b7f5ed6eeb44ae3841b4",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-201"
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a352c6f87d5daffbc58ac81f",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-202"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:BATTLEFIELD",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-203"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:COUNTERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-204"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:GRAVEYARD",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-205"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-206"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-207"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-208"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:RECURSION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-209"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-210"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-6c861461faee4cc95d969066",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-211"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-9ceb899dfab2496b950a2d00",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-211"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-7ebcdd094156549498368787",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-212"
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-746697d5484539217753bd87",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-212"
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-214"
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-215"
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-216"
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-217"
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-91641a95a24e33e20c585019",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-218"
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-3f878088821851e599e8b890",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-218"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:ATTACHMENTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-220"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:DEATHTOUCH",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-221"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:LIFELINK",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-222"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:NONCOMBAT_DAMAGE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-223"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-224"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-225"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-226"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-896a05f3a917b1d5853ac2a3",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-227"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-ba579866a06e07b12cd996e1",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-227"
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-3d059d5f2cc0831799052b00",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-228"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:MODES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-229"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NONCOMBAT_DAMAGE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-230"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-231"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-232"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-233"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-234"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:ZONE_CHANGE_SEMANTICS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-235"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a3281871058e8149cee8c6fe",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-236"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a0a3ec698f1ba6c98b347ef4",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-236"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-ff4d3cc17d0c0ba5cdff2736",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-237"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-0ddb916cb184571a6d430b41",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-237"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-ad87788bfc6afe5db2e51e60",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-238"
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-bb3c9e21ccc33020e18da588",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-239"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:COMMANDER_DESIGNATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-240"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:LIBRARY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-241"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:MANA_ABILITIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-242"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:NORMAL_TRIGGERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-243"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-244"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-245"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:REVEAL_BOUNDARIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-246"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-68d3b50bf775115a6b8eb0d8",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-247"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a5ebcc647cb292652d77fd4c",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-247"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-6764dbdfb9833efe1184aa7d",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-248"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-eb161a8532778ac9babf95fe",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-251"
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-2dc5359677a9e5d62262c81f",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-252"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:CARD_FACES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-253"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:COUNTERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-254"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:GRAVEYARD",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-255"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-256"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:MULTIPLE_TARGETS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-257"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-258"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-259"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:OPTIONAL_MAY_CHOICES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-260"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:POWER_TOUGHNESS_LAYERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-261"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:RECURSION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-262"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-263"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-bdb0edca8e095af449c9a3f7",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-264"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-216a20163136cf7cf565e1ee",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-264"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-9cef406540b858b0b1f03e8a",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-265"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-6cf7360a47a6bcfcd960b279",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-265"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-a471665edafd3acf186c0718",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-266"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-d781832e448a78a4057d3804",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-267"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-ea4e05861ddf8f57c957f4e1",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-267"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-fb68181da2cc33ae4be3b9e8",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-267"
+    },
+    {
+      "card_identity": "Find // Finality",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:STRUCTURE:MULTIFACE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-268"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SAGAS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-270"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:BATTLEFIELD",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-271"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:CARD_FACES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-272"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:DOUBLE_FACED_TRANSFORMING_CARDS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-273"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:EVASION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-274"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:EXILE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-275"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:GRAVEYARD",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-276"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:HAND",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-277"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-278"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:LIBRARY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-279"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:LINKED_OBJECTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-280"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:NORMAL_COSTS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-281"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:OBJECT_IDENTITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-282"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:POWER_TOUGHNESS_LAYERS",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-283"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:REVEAL",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-284"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:REVEAL_BOUNDARIES",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-285"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SEARCH",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-286"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SHUFFLE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-287"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:TARGET_LEGALITY",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-288"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-ca28722776c8210baed0625f",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-289"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-0184b94e7ff569cff643bea6",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-289"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-db4f8d1a52908a9c01c2229d",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-290"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-8303dd9af26e2e5cd33d5331",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-291"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "WS37-OBL-0722ce20de35824d6aada7be",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-291"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:LINKED_OBJECT:DEPENDENCE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-292"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:MULTIFACE",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-293"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:SAGA_TRANSFORM",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-294"
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "execution_variant_count": 1,
+      "obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:TRANSFORM",
+      "semantically_executable": true,
+      "successor_scenario_id": "WS37-SC-295"
+    }
+  ],
+  "schema_version": "commander-lab.ws37.obligation-scenario-coverage/1.0.0",
+  "uncovered_obligation_count": 0
+}
