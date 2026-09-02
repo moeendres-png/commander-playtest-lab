@@ -1,0 +1,14 @@
+{
+  "af07": "UNKNOWN",
+  "architecture_freeze_granted": false,
+  "canonical_bundle_digest_unchanged": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0",
+  "differential_disposition_rows": 295,
+  "differential_pass": 0,
+  "forge_disposition_rows": 295,
+  "forge_runtime_pass": 0,
+  "scenario_count": 295,
+  "schema_version": "commander-foundry.ws35.post-ws33-validation/1.0.0",
+  "status": "PASS",
+  "xmage_disposition_rows": 295,
+  "xmage_runtime_pass": 0
+}
