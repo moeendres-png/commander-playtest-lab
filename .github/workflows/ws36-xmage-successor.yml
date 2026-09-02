@@ -41,7 +41,9 @@ jobs:
           python -m py_compile \
             candidate-qualification/ws36-xmage-successor/successor_runtime.py \
             candidate-qualification/ws36-xmage-successor/run_terminal_attempts.py \
-            candidate-qualification/ws36-xmage-successor/contract_census.py
+            candidate-qualification/ws36-xmage-successor/contract_census.py \
+            candidate-qualification/ws36-xmage-successor/audit_commander_history_capability.py \
+            candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py
           python candidate-qualification/ws36-xmage-successor/contract_census.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
             --output artifacts/ws36-probe/WS36_CONTRACT_CENSUS_107.json
@@ -68,6 +70,50 @@ jobs:
         with:
           name: ws36-contract-probe-${{ github.sha }}
           path: artifacts/ws36-probe/
+          if-no-files-found: error
+
+  terminal-capability-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout WS36
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Checkout exact WS32 freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_FREEZE_COMMIT }}
+          path: _ws32
+      - name: Checkout exact pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Verify pins and prove commander-history capability blocker
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws32 rev-parse HEAD)" = "$WS32_FREEZE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
+          mkdir -p artifacts/ws36-capability
+          python candidate-qualification/ws36-xmage-successor/contract_census.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws36-capability/WS36_CONTRACT_CENSUS_107.json
+          python candidate-qualification/ws36-xmage-successor/audit_commander_history_capability.py \
+            --census artifacts/ws36-capability/WS36_CONTRACT_CENSUS_107.json \
+            --xmage-root vendor/engine-source/xmage \
+            --output artifacts/ws36-capability/WS36_COMMANDER_HISTORY_CAPABILITY.json
+          sha256sum artifacts/ws36-capability/*.json > artifacts/ws36-capability/SHA256SUMS
+      - name: Upload terminal capability evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws36-terminal-capability-${{ github.sha }}
+          path: artifacts/ws36-capability/
           if-no-files-found: error
 
   identity-regression:
