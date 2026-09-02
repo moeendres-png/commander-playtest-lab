@@ -64,15 +64,17 @@ All machine-readable evidence is SHA-256 sealed in `WS36_SHA256SUMS` and indepen
 
 Final GitHub Actions evidence:
 
-- workflow run: `33656641279`;
+- workflow run: `33656641279` — all four jobs SUCCESS;
 - contract-probe job: `100336725400` — SUCCESS;
 - terminal-capability-audit job: `100336725571` — SUCCESS;
+- identity-regression job: `100336725867` — SUCCESS, including exact pinned XMage build;
 - terminal-evidence job: `100336869999` — SUCCESS;
 - final complete artifact: `9856999272`;
 - artifact name: `ws36-final-complete-accda3a0641d4f425117ff1224411bf40dcde965`;
 - artifact SHA-256: `50cfde91118c0703bc88a615689e19f7e8f1f3918ad15bdc2f27064d32b85d04`;
 - capability artifact: `9856982823`, SHA-256 `8c2556a12ca5572c080d1df29374dee09fd400351e02acd93c5974e332a25ad6`;
-- contract-probe artifact: `9856974643`, SHA-256 `d7b7bb38c35d43db2ffc63a0110541235d4290b4e92e3572444606aae8aa9ed0`.
+- contract-probe artifact: `9856974643`, SHA-256 `d7b7bb38c35d43db2ffc63a0110541235d4290b4e92e3572444606aae8aa9ed0`;
+- Draft PR: `#151`, `WS-36: XMage successor remediation — terminal fail-closed`, intentionally unmerged.
 
 ## PASS / FAIL / UNKNOWN
 
