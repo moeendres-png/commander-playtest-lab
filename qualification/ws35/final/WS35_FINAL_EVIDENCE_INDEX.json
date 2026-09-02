@@ -6,9 +6,11 @@
     "obligations": 335,
     "scenarios": 295
   },
-  "deliverable_evidence_zip": {
-    "filename": "WS35_FINAL_COMPLETE_EVIDENCE.zip",
-    "sha256": "616720e9fcee49c28ea59af96c24cb16886546f070900dc2814e6504e974b56f"
+  "delivery": {
+    "evidence_zip": "WS35_FINAL_COMPLETE_EVIDENCE.zip",
+    "evidence_zip_sha256": "00f6f004d3d29c4b1461dfb3f2397abcfc81eeda7bf7533ee2ad5abd077a361e",
+    "handoff_sha256": "87bd5a55800306bcd50c1c4a0b5745a80eee191fa19b6c5d84d37c4701c0224c",
+    "sha256sums_sha256": "3ab4bcd7a9540f04ba22e212fc1b6dc9cd775aed606dd8d395d2f777e75d5c3c"
   },
   "provider_dependencies": {
     "forge": {
@@ -28,7 +30,7 @@
       "successor_pass": 0
     }
   },
-  "schema_version": "commander-foundry.ws35.final-evidence-index/1.0.0",
+  "schema_version": "commander-foundry.ws35.final-evidence-index/2.0.0",
   "terminal_validation": {
     "artifact_id": 9840162124,
     "artifact_name": "ws35-final-terminal-evidence-9b1de39a3266b354c7902daf956cd20d790c3dce",

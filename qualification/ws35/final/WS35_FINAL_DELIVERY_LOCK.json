@@ -1,0 +1,26 @@
+{
+  "evidence_zip": {
+    "path": "WS35_FINAL_COMPLETE_EVIDENCE.zip",
+    "sha256": "00f6f004d3d29c4b1461dfb3f2397abcfc81eeda7bf7533ee2ad5abd077a361e",
+    "size": 135305
+  },
+  "handoff": {
+    "path": "ws35_final/WS35_FINAL_HANDOFF_COMPLETE.md",
+    "sha256": "87bd5a55800306bcd50c1c4a0b5745a80eee191fa19b6c5d84d37c4701c0224c"
+  },
+  "schema_version": "commander-foundry.ws35.final-delivery-lock/1.0.0",
+  "sha256sums": {
+    "path": "ws35_final/WS35_FINAL_SHA256SUMS",
+    "sha256": "3ab4bcd7a9540f04ba22e212fc1b6dc9cd775aed606dd8d395d2f777e75d5c3c"
+  },
+  "terminal_classification": "FAIL_TERMINAL_NO_QUALIFIED_PROVIDER",
+  "validated_terminal_ci": {
+    "artifact": 9840162124,
+    "artifact_sha256": "cd7eb28a499dc00ce61471d2ebcddb47ee0b2787445914702ddac7a1f967df69",
+    "commit": "9b1de39a3266b354c7902daf956cd20d790c3dce",
+    "job": 100195682486,
+    "run": 33614047487,
+    "tree": "8a4508b1dc81cd2bd5de4b3cabae304396991cf6"
+  },
+  "workstream_status": "COMPLETE"
+}
