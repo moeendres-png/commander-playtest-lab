@@ -20,6 +20,51 @@ env:
   XMAGE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
 
 jobs:
+  contract-probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout WS36
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Checkout exact WS32 freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_FREEZE_COMMIT }}
+          path: _ws32
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Validate WS36 runtime adapter and extract targeted contract records
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            candidate-qualification/ws36-xmage-successor/successor_runtime.py \
+            candidate-qualification/ws36-xmage-successor/run_terminal_attempts.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('_ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json')
+          c=json.loads(p.read_text())
+          assert c['materialization_version']=='commander-lab.semantic-fixture-materialization/1.0.2'
+          records=c['records']
+          ids=[r['fixture_id'] for r in records]
+          assert len(ids)==135 and len(set(ids))==135
+          wanted={'PILOT_CHOOSE_USE','CARD_02','RNG_RULES_TAPE'}
+          out={r['fixture_id']:r for r in records if r['fixture_id'] in wanted}
+          assert set(out)==wanted
+          Path('artifacts/ws36-probe').mkdir(parents=True,exist_ok=True)
+          Path('artifacts/ws36-probe/TARGET_RECORDS.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          for k,v in out.items():
+              print('WS36_TARGET_RECORD',k,json.dumps(v,sort_keys=True,separators=(',',':')))
+          PY
+      - name: Upload contract probe
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws36-contract-probe-${{ github.sha }}
+          path: artifacts/ws36-probe/
+          if-no-files-found: error
+
   identity-regression:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
