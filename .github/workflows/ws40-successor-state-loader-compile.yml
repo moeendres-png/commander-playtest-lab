@@ -6,6 +6,7 @@ on:
     paths:
       - 'qualification/providers/forge/gpl/Ws40SuccessorState.java'
       - 'scripts/ws40_apply_successor_state_overlay.py'
+      - 'scripts/ws40_fix_successor_state_java.py'
       - '.github/workflows/ws40-successor-state-loader-compile.yml'
   workflow_dispatch:
 
@@ -56,6 +57,7 @@ jobs:
           python scripts/ws40_apply_successor_state_overlay.py \
             --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
           cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
           cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat dependency-classpath.txt)"
           mkdir -p artifacts/ws40-state-loader/classes
