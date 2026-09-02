@@ -21,6 +21,13 @@ def canonical_sha(value: Any) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+def requested_state_projection(record: dict[str, Any]) -> dict[str, Any]:
+    # Exact copy of scripts/ws32_lint_semantic_v1_0_2.py at
+    # 038d0f38635eecee4e331c99af41f148de267a26: omit absent keys rather than
+    # normalizing them to JSON null.
+    return {key: record[key] for key in PROJECTION_KEYS if key in record}
+
+
 def shape(value: Any) -> Any:
     if isinstance(value, dict):
         return {k: shape(value[k]) for k in sorted(value)}
@@ -66,12 +73,13 @@ def main() -> int:
     per_record = []
 
     for r in rows:
-        requested = {k: r.get(k) for k in PROJECTION_KEYS}
+        requested = requested_state_projection(r)
         digest = canonical_sha(requested)
         if digest != r["requested_state_digest"]:
             digest_mismatches.append({"fixture_id": r["fixture_id"], "expected": r["requested_state_digest"], "computed": digest})
         for k in PROJECTION_KEYS:
-            s = json.dumps(shape(r.get(k)), sort_keys=True, separators=(",", ":"))
+            marker = r[k] if k in r else {"__ABSENT__": True}
+            s = json.dumps(shape(marker), sort_keys=True, separators=(",", ":"))
             field_shapes[k][s].append(r["fixture_id"])
         for step in r.get("native_procedure", []):
             native_ops[str(step.get("operation", "<missing>"))] += 1
@@ -91,6 +99,7 @@ def main() -> int:
             "fixture_family": r["fixture_family"],
             "entry_mode": r["execution_entry_mode"],
             "requested_state_digest": r["requested_state_digest"],
+            "projection_keys_present": [k for k in PROJECTION_KEYS if k in r],
             "player_count": len(r["players"]),
             "object_count": len(r.get("semantic_objects", [])),
             "stack_count": len(r.get("stack_state") or []),
@@ -100,9 +109,12 @@ def main() -> int:
         })
 
     payload = {
-        "schema_version": "ws40-native-construction-requirements/1.0.0",
+        "schema_version": "ws40-native-construction-requirements/1.0.1",
         "contract_version": bundle["schema_version"],
         "contract_bundle_digest": bundle["canonical_bundle_digest"],
+        "digest_spec": "commander-lab.requested-state-digest/1.0.0",
+        "digest_source_commit": "038d0f38635eecee4e331c99af41f148de267a26",
+        "digest_projection_absent_key_policy": "OMIT",
         "denominator": len(rows),
         "requested_digest_recomputed": len(rows) - len(digest_mismatches),
         "requested_digest_mismatches": digest_mismatches,
@@ -125,6 +137,7 @@ def main() -> int:
     args.output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({
         "denominator": len(rows),
+        "requested_digest_recomputed": payload["requested_digest_recomputed"],
         "digest_ok": not digest_mismatches,
         "entry_modes": payload["entry_modes"],
         "unique_card_identity_count": len(card_identities),
