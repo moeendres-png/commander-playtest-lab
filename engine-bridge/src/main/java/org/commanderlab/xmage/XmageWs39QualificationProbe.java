@@ -20,10 +20,11 @@ import java.util.UUID;
 /**
  * WS-39 qualification-only readback/probe surface.
  *
- * <p>This class never changes the native game state. Commander-cost probing is
- * performed on a copied SpellAbility and delegates the cost modification to
- * the XMage Card implementation. The bridge neither calculates Commander tax
- * nor fabricates historical events.</p>
+ * <p>This class never changes native game state. Commander-cost probing uses
+ * a copied SpellAbility, reconstructs its payable mana cost from XMage's own
+ * immutable base mana-cost objects, and delegates Commander modification to
+ * the native Card implementation. The bridge never calculates Commander tax
+ * and never fabricates historical cast events.</p>
  */
 final class XmageWs39QualificationProbe {
 
@@ -83,8 +84,9 @@ final class XmageWs39QualificationProbe {
             }
             SpellAbility probe = original.copy();
             probe.setControllerId(player.getId());
-            probe.resetCosts();
-            Mana base = probe.getManaCosts().getMana();
+            probe.clearManaCostsToPay();
+            probe.getManaCosts().forEach(cost -> probe.addManaCostsToPay(cost.copy()));
+            Mana base = probe.getManaCostsToPay().getMana();
             boolean accepted = commander.commanderCost(game, probe, probe);
             if (!accepted) {
                 throw new IllegalStateException("WS39_COMMANDER_COST_PROBE_REJECTED:" + semanticId);
@@ -122,7 +124,7 @@ final class XmageWs39QualificationProbe {
         }
 
         JsonObject result = new JsonObject();
-        result.addProperty("schema_version", "xmage-ws39-commander-probe/1.0.0");
+        result.addProperty("schema_version", "xmage-ws39-commander-probe/1.0.1");
         result.addProperty("rules_core_authoritative", true);
         result.addProperty("read_only_game_state", true);
         result.addProperty("synthetic_historical_events", false);
