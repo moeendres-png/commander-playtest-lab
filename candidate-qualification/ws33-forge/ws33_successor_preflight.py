@@ -21,6 +21,7 @@ CONTRACT_VERSION = "commander-lab.semantic-fixture-materialization/1.0.2"
 CONTRACT_COMMIT = "038d0f38635eecee4e331c99af41f148de267a26"
 CONTRACT_TREE = "0d160128119f2bad30b220a17c43419b50b7edbe"
 CONTRACT_BUNDLE = "61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b"
+MATERIALIZATION_CANONICAL_DIGEST = "ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23"
 FORGE_COMMIT = "1e604105f9e279331063824943b9222b6589f5d8"
 FORGE_TREE = "994976e06aaf99b807646b60b1aa2ac9f7703df4"
 FORGE_VERSION = "2.0.15-SNAPSHOT"
@@ -150,7 +151,7 @@ def main() -> int:
     materialization = json.loads(args.materialization.read_text(encoding="utf-8"))
     spec = json.loads(args.digest_spec.read_text(encoding="utf-8"))
     assert materialization["schema_version"] == CONTRACT_VERSION
-    assert materialization["canonical_bundle_digest"] == CONTRACT_BUNDLE
+    assert materialization["canonical_bundle_digest"] == MATERIALIZATION_CANONICAL_DIGEST
     assert spec["spec_version"] == "commander-lab.requested-state-digest/1.0.0"
     by_id = {r["fixture_id"]: r for r in materialization["records"]}
     assert len(by_id) == 135
@@ -171,7 +172,9 @@ def main() -> int:
         "schema_version": "commander-lab.ws33-baseline-preflight/1.0.0",
         "status": "BASELINE_PROVIDER_GAP_CONFIRMED",
         "contract": {"version": CONTRACT_VERSION, "commit": CONTRACT_COMMIT, "tree": CONTRACT_TREE,
-                     "bundle_digest": CONTRACT_BUNDLE, "record_count": 135, "ws33_owned_denominator": 107},
+                     "bundle_digest": CONTRACT_BUNDLE,
+                     "materialization_canonical_digest": MATERIALIZATION_CANONICAL_DIGEST,
+                     "record_count": 135, "ws33_owned_denominator": 107},
         "forge": {"commit": FORGE_COMMIT, "tree": FORGE_TREE, "version": FORGE_VERSION},
         "first_record_result": first,
         "successor_behavioral_credit": 0,
