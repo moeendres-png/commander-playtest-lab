@@ -154,15 +154,16 @@ jobs:
             --output artifacts/ws34-final/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json
       - name: Execute successor core 9 fail-closed
         run: |
+          set +e
           set -uo pipefail
           GITHUB_SHA="$WS34_PROVIDER_COMMIT" \
           python candidate-qualification/ws34-xmage-successor/run_successor_core_v2.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
             --output artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json
           rc=$?
+          set -e
           printf '%s\n' "$rc" > artifacts/ws34-final/CORE9_EXIT_CODE.txt
           test -s artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json
-          exit 0
       - name: Execute remaining 23 runtime-ready records
         run: |
           set -euo pipefail
