@@ -22,6 +22,13 @@ import java.util.WeakHashMap;
  * from deck/card semantics. This class replaces only already-authorized object
  * references with opaque, non-semantic handles. It does not reveal cards,
  * determine legality, or alter Rules RNG.</p>
+ *
+ * <p>Privileged semantic identities are session-stable for one viewer. Native
+ * XMage UUID aliases are deliberately <em>not</em> session-stable: a physical
+ * XMage object may retain its UUID across a zone transition while the semantic
+ * model advances to a new current incarnation. Native aliases are therefore
+ * rebuilt from the current privileged snapshot for every outbound projection.
+ * A collision inside one current snapshot still fails closed.</p>
  */
 final class XmageActorIdentityProjection {
 
@@ -39,7 +46,7 @@ final class XmageActorIdentityProjection {
         ViewerState state = session.viewer(viewer.getId());
         JsonObject projected = privilegedView.deepCopy();
         registerObjectIds(projected, state);
-        replaceKnownRefs(projected, state);
+        replaceKnownRefs(projected, state, Map.of());
         return projected;
     }
 
@@ -55,11 +62,11 @@ final class XmageActorIdentityProjection {
         SessionState session = SESSIONS.computeIfAbsent(game, ignored -> new SessionState());
         ViewerState state = session.viewer(viewer.getId());
         registerObjectIds(privilegedActorView, state);
-        state.registerNativeAliases(
+        Map<String, String> currentNativeAliases = state.currentNativeAliases(
                 XmageDecisionOptionIdentity.visibleNativeToSemantic(game, privilegedActorView)
         );
         JsonElement projected = value.deepCopy();
-        replaceKnownRefs(projected, state);
+        replaceKnownRefs(projected, state, currentNativeAliases);
         return projected;
     }
 
@@ -84,7 +91,11 @@ final class XmageActorIdentityProjection {
         }
     }
 
-    private static void replaceKnownRefs(JsonElement element, ViewerState state) {
+    private static void replaceKnownRefs(
+            JsonElement element,
+            ViewerState state,
+            Map<String, String> currentNativeAliases
+    ) {
         if (element == null || element.isJsonNull()) {
             return;
         }
@@ -93,12 +104,12 @@ final class XmageActorIdentityProjection {
             for (int index = 0; index < array.size(); index++) {
                 JsonElement child = array.get(index);
                 if (child.isJsonPrimitive() && child.getAsJsonPrimitive().isString()) {
-                    String replacement = state.lookup(child.getAsString());
+                    String replacement = state.lookup(child.getAsString(), currentNativeAliases);
                     if (replacement != null) {
                         array.set(index, new JsonPrimitive(replacement));
                     }
                 } else {
-                    replaceKnownRefs(child, state);
+                    replaceKnownRefs(child, state, currentNativeAliases);
                 }
             }
             return;
@@ -111,12 +122,12 @@ final class XmageActorIdentityProjection {
             JsonElement child = object.get(key);
             if (child != null && child.isJsonPrimitive()
                     && child.getAsJsonPrimitive().isString()) {
-                String replacement = state.lookup(child.getAsString());
+                String replacement = state.lookup(child.getAsString(), currentNativeAliases);
                 if (replacement != null) {
                     object.addProperty(key, replacement);
                 }
             } else {
-                replaceKnownRefs(child, state);
+                replaceKnownRefs(child, state, currentNativeAliases);
             }
         }
     }
@@ -131,7 +142,6 @@ final class XmageActorIdentityProjection {
 
     private static final class ViewerState {
         private final Map<String, String> opaqueByPrivileged = new HashMap<>();
-        private final Map<String, String> opaqueByNativeAlias = new HashMap<>();
 
         synchronized String opaque(String privilegedRef) {
             if (privilegedRef == null || privilegedRef.isBlank()) {
@@ -143,21 +153,26 @@ final class XmageActorIdentityProjection {
             );
         }
 
-        synchronized String lookup(String privilegedRef) {
+        synchronized String lookup(
+                String privilegedRef,
+                Map<String, String> currentNativeAliases
+        ) {
             String direct = opaqueByPrivileged.get(privilegedRef);
-            return direct == null ? opaqueByNativeAlias.get(privilegedRef) : direct;
+            return direct == null ? currentNativeAliases.get(privilegedRef) : direct;
         }
 
-        synchronized void registerNativeAliases(Map<String, String> nativeToPrivileged) {
+        synchronized Map<String, String> currentNativeAliases(
+                Map<String, String> nativeToPrivileged
+        ) {
+            Map<String, String> aliases = new HashMap<>();
             for (Map.Entry<String, String> entry : nativeToPrivileged.entrySet()) {
                 String opaqueReference = opaque(entry.getValue());
-                String prior = opaqueByNativeAlias.putIfAbsent(
-                        entry.getKey(), opaqueReference
-                );
+                String prior = aliases.putIfAbsent(entry.getKey(), opaqueReference);
                 if (prior != null && !prior.equals(opaqueReference)) {
                     throw new IllegalStateException("ACTOR_IDENTITY_PROJECTION_ALIAS_COLLISION");
                 }
             }
+            return Map.copyOf(aliases);
         }
     }
 }
