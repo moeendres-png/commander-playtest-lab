@@ -35,12 +35,16 @@ jobs:
         uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
-      - name: Validate WS36 runtime adapter and extract targeted contract records
+      - name: Validate WS36 runtime adapter and exact 107 contract census
         run: |
           set -euo pipefail
           python -m py_compile \
             candidate-qualification/ws36-xmage-successor/successor_runtime.py \
-            candidate-qualification/ws36-xmage-successor/run_terminal_attempts.py
+            candidate-qualification/ws36-xmage-successor/run_terminal_attempts.py \
+            candidate-qualification/ws36-xmage-successor/contract_census.py
+          python candidate-qualification/ws36-xmage-successor/contract_census.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws36-probe/WS36_CONTRACT_CENSUS_107.json
           python - <<'PY'
           import json, sys
           from pathlib import Path
@@ -57,9 +61,8 @@ jobs:
           assert set(out)==wanted
           Path('artifacts/ws36-probe').mkdir(parents=True,exist_ok=True)
           Path('artifacts/ws36-probe/TARGET_RECORDS.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
-          for k,v in out.items():
-              print('WS36_TARGET_RECORD',k,json.dumps(v,sort_keys=True,separators=(',',':')))
           PY
+          sha256sum artifacts/ws36-probe/*.json > artifacts/ws36-probe/SHA256SUMS
       - name: Upload contract probe
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
