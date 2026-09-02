@@ -115,6 +115,7 @@ jobs:
             candidate-qualification/ws34-xmage-successor/build_successor_matrix.py \
             candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py \
             candidate-qualification/ws34-xmage-successor/run_successor_core.py \
+            candidate-qualification/ws34-xmage-successor/run_successor_core_v2.py \
             candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py \
             candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py
       - name: Instrument native Rules RNG
@@ -145,7 +146,7 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/ws34-runtime
           GITHUB_SHA="$WS34_PROVIDER_COMMIT" \
-          python candidate-qualification/ws34-xmage-successor/run_successor_core.py \
+          python candidate-qualification/ws34-xmage-successor/run_successor_core_v2.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
             --output artifacts/ws34-runtime/WS34_SUCCESSOR_CORE_RESULTS.json
           python - <<'PY'
@@ -159,6 +160,8 @@ jobs:
           for row in p['records']:
               assert row['requested_native_state_equal'] is True
               assert row['requested_semantic_state_digest'] == row['normalized_native_constructed_state_digest']
+              assert row['construction_proof']['provider_emitted_full_state_projection'] is True
+              assert row['construction_proof']['harness_requested_state_echo_prohibited'] is True
           PY
           sha256sum artifacts/ws34-runtime/WS34_SUCCESSOR_CORE_RESULTS.json > artifacts/ws34-runtime/SHA256SUMS
           printf '%s\n' "$WS34_PROVIDER_COMMIT" > artifacts/ws34-runtime/PROVIDER_COMMIT.txt
