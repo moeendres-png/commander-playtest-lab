@@ -1,0 +1,51 @@
+{
+  "forge_commit": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+  "options": [
+    {
+      "architecture": "Core enumerates every complete legal damage allocation and controller selects one opaque option.",
+      "complexity": "Moderate implementation, potentially extreme runtime/memory.",
+      "correctness": "Potentially correct if exhaustive and validated.",
+      "id": "O1_FULL_ENUMERATION",
+      "integration_impact": "Simple provider surface but large payloads.",
+      "maintenance_cost": "Moderate-high.",
+      "performance": "Poor in high power / many recipient cases; complete integer allocation space is combinatorial.",
+      "upstreamability": "Low-moderate because of performance/payload cost.",
+      "verdict": "REJECT_AS_PRIMARY"
+    },
+    {
+      "architecture": "Controller proposes arbitrary map; core only validates final map.",
+      "complexity": "Low.",
+      "correctness": "Better than current but external pilot/provider still has to invent candidate allocations and therefore risks reconstructing Magic legality to find a valid proposal.",
+      "id": "O2_CORE_VALIDATOR_ONLY",
+      "integration_impact": "Small.",
+      "maintenance_cost": "Low.",
+      "performance": "Good.",
+      "upstreamability": "High.",
+      "verdict": "INSUFFICIENT_FOR_COMMANDER_LAB_BOUNDARY"
+    },
+    {
+      "architecture": "Core creates an immutable/transactional damage-assignment decision for one assigning player in one damage step, exposes only core-derived next recipients/allowed integer ranges or legal amount candidates, and independently validates the complete transaction before commit.",
+      "complexity": "Bounded but nontrivial: new combat-core decision/validator classes plus migration of human GUI/AI/controller callback.",
+      "correctness": "Strong; handles CR 510.1e total-assignment legality and CR 702.19 same-step cross-source lethal accounting without pilot rules.",
+      "id": "O3_INCREMENTAL_CORE_CONSTRAINED_TRANSACTION",
+      "integration_impact": "Headless-friendly; GUI, AI and external provider consume same rules surface.",
+      "maintenance_cost": "Moderate.",
+      "performance": "Good; no complete allocation materialization.",
+      "upstreamability": "Moderate-high because it removes duplicated GUI/AI legality and gives tests a single authority.",
+      "verdict": "RECOMMENDED"
+    },
+    {
+      "architecture": "Commander Lab/provider computes legal allocations from Forge state.",
+      "complexity": "External duplication.",
+      "correctness": "Violates mandatory architecture; creates second rules engine.",
+      "id": "O4_PROVIDER_SIDE_LEGALITY",
+      "integration_impact": "Forbidden.",
+      "maintenance_cost": "High.",
+      "performance": "Irrelevant.",
+      "upstreamability": "N/A.",
+      "verdict": "FORBIDDEN"
+    }
+  ],
+  "schema": "commander-lab.ws38.remediation-options/1.0.0",
+  "selected": "O3_INCREMENTAL_CORE_CONSTRAINED_TRANSACTION"
+}

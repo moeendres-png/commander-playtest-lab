@@ -1,0 +1,31 @@
+{
+  "findings": [
+    {
+      "af04_blocker": false,
+      "id": "WS38-FORGE-RELATED-001",
+      "impact": "A new combat-specific API should not silently break or inherit this noncombat reuse. If this path is production-reachable, it needs its own rules-core constrained amount-distribution validator/API.",
+      "path": "forge-game/src/main/java/forge/game/ability/effects/DamageDealEffect.java",
+      "pattern": "divideOnResolution reuses PlayerController.assignCombatDamage for noncombat amount division and directly writes returned amounts to a damage map.",
+      "taxonomy": "FORGE_CONTROLLER_BOUNDARY_DEFECT"
+    },
+    {
+      "af04_blocker": true,
+      "id": "WS38-FORGE-RELATED-002",
+      "impact": "Current CR makes Damage Assignment Order obsolete. If Forge retains the legacy rules option, the core must expose/validate any required permutation as a legal decision rather than trusting a controller-provided ordering.",
+      "path": "forge-game/src/main/java/forge/game/combat/Combat.java",
+      "pattern": "legacy orderBlockers/orderAttackers callbacks are controller-owned when GameRules.orderCombatants is enabled.",
+      "taxonomy": "FORGE_CONTROLLER_BOUNDARY_DEFECT"
+    },
+    {
+      "af04_blocker": false,
+      "id": "WS38-FORGE-RELATED-003",
+      "impact": "Positive architectural precedent: Forge already centralizes validation for neighboring combat decisions, supporting a bounded remediation rather than a new external rules engine.",
+      "pattern": "Attacker and blocker declarations use CombatUtil.validateAttackers / validateBlocks.",
+      "taxonomy": "NONE"
+    }
+  ],
+  "forge_commit": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+  "not_claimed": "No FORGE_RULES_DEFECT is claimed; source topology/validation ownership is defective, not proven MTG runtime semantics at a correctly constructed state.",
+  "schema": "commander-lab.ws38.related-controller-boundary-risks/1.0.0",
+  "scope_note": "Only controller-boundary findings directly adjacent to the AF04 pattern were inspected; this is not a full Forge decision-surface audit."
+}
