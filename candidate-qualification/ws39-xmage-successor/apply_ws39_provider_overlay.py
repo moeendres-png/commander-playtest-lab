@@ -2,9 +2,10 @@
 """WS-39 qualification-only provider overlay for native commander-history restore.
 
 This overlay applies after the existing WS-34/WS-36 overlays. It only translates
-canonical state into the narrow XMage Rules-Core state-load API added by WS-39.
-It does not calculate commander tax, fabricate historical cast events, or choose
-any player action.
+canonical state into the narrow XMage Rules-Core state-load API added by WS-39
+and adds read-only qualification evidence around native legal options and
+Commander history/cost state. It does not calculate commander tax, fabricate
+historical cast events, or choose any player action.
 """
 from __future__ import annotations
 
@@ -12,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCENARIO = ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26Scenario.java"
+SESSION = ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26QualificationSession.java"
+PLAYER = ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
 
 
 def replace_once(text: str, old: str, new: str, label: str) -> str:
@@ -80,7 +83,7 @@ def main() -> int:
             int priorCount = integer(spec, "prior_command_zone_cast_count");
             if (priorCount < 0) throw fail("NEGATIVE_COMMANDER_HISTORY_COUNT");
 
-            Player player = players.get(seat - 1);
+            Player player = currentPlayer(game, players.get(seat - 1));
             List<UUID> matches = new ArrayList<>();
             for (UUID commanderId : game.getCommandersIds(player, CommanderCardType.ANY, false)) {
                 Card card = game.getCard(commanderId);
@@ -110,7 +113,7 @@ def main() -> int:
             String semanticCommanderId = text(spec, "commander_id");
             String cardName = text(spec, "card_name");
             int expected = integer(spec, "prior_command_zone_cast_count");
-            Player player = players.get(seat - 1);
+            Player player = currentPlayer(game, players.get(seat - 1));
             UUID nativeId = null;
             for (UUID candidate : game.getCommandersIds(player, CommanderCardType.ANY, false)) {
                 Card card = game.getCard(candidate);
@@ -130,7 +133,7 @@ def main() -> int:
             readback.add(row);
         }
         for (int zero = 0; zero < players.size(); zero++) {
-            Player player = players.get(zero);
+            Player player = currentPlayer(game, players.get(zero));
             int expected = expectedPlayers.getOrDefault(player.getId(), 0);
             requireNative(watcher.getPlayerCount(player.getId()) == expected, "commander-history-player:P" + (zero + 1));
         }
@@ -145,10 +148,30 @@ def main() -> int:
         return result;
     }
 
+    private static Player currentPlayer(Game game, Player sessionPlayer) {
+        Player player = game.getPlayer(sessionPlayer.getId());
+        if (player == null) throw fail("COMMANDER_HISTORY_CURRENT_PLAYER_MISSING:" + sessionPlayer.getId());
+        return player;
+    }
+
 '''
     text = replace_once(text, method_anchor, method + method_anchor, "restore-method")
-
     SCENARIO.write_text(text, encoding="utf-8")
+
+    session_text = SESSION.read_text(encoding="utf-8")
+    session_old = '''        payload.add("rules_rng_tape", XmageWs26RulesRngTape.snapshot(seed));\n        addSuccessorConstructionProof(payload);\n        return payload;\n'''
+    session_new = '''        payload.add("rules_rng_tape", XmageWs26RulesRngTape.snapshot(seed));\n        addSuccessorConstructionProof(payload);\n        if (configuredScenario != null && configuredScenario.has("commander_history")) {\n            payload.add("ws39_commander_probe",\n                    XmageWs39QualificationProbe.snapshot(configuredScenario, game, players));\n        }\n        return payload;\n'''
+    session_text = replace_once(
+        session_text, session_old, session_new, "qualification-state-probe"
+    )
+    SESSION.write_text(session_text, encoding="utf-8")
+
+    player_text = PLAYER.read_text(encoding="utf-8")
+    player_old = '''    private JsonObject abilityMetadata(Ability ability, Game game) {\n        JsonObject metadata = new JsonObject();\n        metadata.addProperty("ability_original_id", ability.getOriginalId().toString());\n        metadata.addProperty("ability_type", ability.getAbilityType().name().toLowerCase());\n        if (ability.getSourceId() != null) {\n            metadata.addProperty("source_object_id", ability.getSourceId().toString());\n            metadata.addProperty("source_name", objectLabel(ability.getSourceId(), game));\n        }\n        metadata.addProperty("mana_ability", ability.isManaAbility());\n        return metadata;\n    }\n'''
+    player_new = '''    private JsonObject abilityMetadata(Ability ability, Game game) {\n        JsonObject metadata = new JsonObject();\n        metadata.addProperty("ability_original_id", ability.getOriginalId().toString());\n        metadata.addProperty("ability_type", ability.getAbilityType().name().toLowerCase());\n        if (ability.getSourceId() != null) {\n            metadata.addProperty("source_object_id", ability.getSourceId().toString());\n            metadata.addProperty("source_name", objectLabel(ability.getSourceId(), game));\n            String semanticSource = XmageDecisionOptionIdentity.visibleNativeToSemantic(\n                    game, XmageFullGameStateRedactor.actorView(game, this)\n            ).get(ability.getSourceId());\n            if (semanticSource != null) {\n                metadata.addProperty("semantic_source_object_id", semanticSource);\n            }\n        }\n        metadata.addProperty("mana_ability", ability.isManaAbility());\n        metadata.addProperty("native_mana_base", ability.getManaCosts().getMana().toString());\n        metadata.addProperty("native_mana_base_count", ability.getManaCosts().getMana().count());\n        metadata.addProperty("native_mana_to_pay", ability.getManaCostsToPay().getMana().toString());\n        metadata.addProperty("native_mana_to_pay_count", ability.getManaCostsToPay().getMana().count());\n        return metadata;\n    }\n'''
+    player_text = replace_once(player_text, player_old, player_new, "ability-metadata-probe")
+    PLAYER.write_text(player_text, encoding="utf-8")
+
     print("WS39_PROVIDER_OVERLAY=PASS")
     return 0
 
