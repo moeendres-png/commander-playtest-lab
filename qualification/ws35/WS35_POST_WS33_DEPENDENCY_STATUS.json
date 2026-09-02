@@ -1,0 +1,63 @@
+{
+  "canonical_bundle_changed": false,
+  "forge_dependency": {
+    "architecture_freeze": "NOT_DECLARED",
+    "baseline_artifact_id": 9825831255,
+    "baseline_artifact_sha256": "c8b191bad743ee0e8847671cda89a3da50c9b88accb0b92ba23a6ec4b39009f8",
+    "baseline_job_id": 100072542091,
+    "baseline_run_id": 33573571385,
+    "branch": "ws33/forge-successor-provider-qualification-final",
+    "card_02": "NOT_RUN_AFTER_AF04_STOP_CONDITION",
+    "defect_id": "WS33-FORGE-PROVIDER-AF04-001",
+    "defect_signature": "COMBAT_DAMAGE_LEGALITY_LIVES_IN_CONTROLLER_GUI_NOT_RULES_CORE_LEGAL_OPTION_API",
+    "defect_taxonomy": "FORGE_PROVIDER_DEFECT",
+    "forge_build": "2.0.15-SNAPSHOT",
+    "head": "2c19f7e401aa5eb9b2f2313086424c1bf903b3bd",
+    "qualification_outcome": "FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+    "selected_forge_commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "selected_forge_tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+    "state": "COMPLETE",
+    "successor_ledger_sha256": "3f1cc6e9e45cb856f4feb571353c1bfc19cdcdffbf5e59f8a474daf95ee4af02",
+    "successor_runtime_credit": "0/107",
+    "terminal_artifact_id": 9826227461,
+    "terminal_artifact_sha256": "37b6ac2671107fe01f4a638b75ea6e55a6814936a5aee105ef13cb0c36f5f1c0",
+    "terminal_job_id": 100076263804,
+    "terminal_run_id": 33574790005,
+    "terminal_stop_condition": "PRODUCTION_DECISION_PATH_CANNOT_BE_EXTERNALIZED_SAFELY_WITH_RULES_CORE_AS_SOLE_LEGALITY_AUTHORITY",
+    "tree": "248fb1d284a75bf01ae0e5681a595fefd2951013",
+    "workstream": "WS-33"
+  },
+  "runtime_policy": {
+    "do_not_reinterpret_historical_forge_passes": true,
+    "do_not_waive_same_record_gate": true,
+    "forge": "TERMINAL_UNAVAILABLE_UNDER_CURRENT_ARCHITECTURE",
+    "same_record_differential": "BLOCKED_NO_VALID_PROVIDER_PAIR",
+    "xmage": "BLOCKED_PENDING_TERMINAL_WS34_HANDOFF"
+  },
+  "schema_version": "commander-foundry.ws35.dependency-status/1.1.0",
+  "ws32": {
+    "bundle_digest": "61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b",
+    "contract_version": "commander-lab.semantic-fixture-materialization/1.0.2",
+    "freeze_commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "freeze_tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "state": "COMPLETE_FROZEN"
+  },
+  "ws35_canonical_bundle_digest": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0",
+  "xmage_dependency": {
+    "branch": "ws34/xmage-successor-provider-prep",
+    "head": "09a75e93594b04a4a20d03a13f3e8eec156f5924",
+    "latest_commit_message": "feat(ws34): execute successor core with exact construction gates",
+    "pr": 149,
+    "state": "IN_PROGRESS_NOT_TERMINAL",
+    "successor_core_runtime_observation": {
+      "check_id": 100072572826,
+      "conclusion": "failure",
+      "run_id": 33573581139,
+      "status": "completed"
+    },
+    "terminal_handoff_available": false,
+    "tree": "441deb110cfdb101ebd3607bb859694cc21e0dc0",
+    "workstream": "WS-34",
+    "ws35_runtime_credit_available": false
+  }
+}
