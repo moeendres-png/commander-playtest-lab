@@ -43,7 +43,8 @@ jobs:
             candidate-qualification/ws36-xmage-successor/run_terminal_attempts.py \
             candidate-qualification/ws36-xmage-successor/contract_census.py \
             candidate-qualification/ws36-xmage-successor/audit_commander_history_capability.py \
-            candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py
+            candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py \
+            candidate-qualification/ws36-xmage-successor/finalize_terminal_fail.py
           python candidate-qualification/ws36-xmage-successor/contract_census.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
             --output artifacts/ws36-probe/WS36_CONTRACT_CENSUS_107.json
@@ -114,6 +115,79 @@ jobs:
         with:
           name: ws36-terminal-capability-${{ github.sha }}
           path: artifacts/ws36-capability/
+          if-no-files-found: error
+
+  terminal-evidence:
+    runs-on: ubuntu-24.04
+    needs: terminal-capability-audit
+    steps:
+      - name: Checkout WS36
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Checkout exact WS32 freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_FREEZE_COMMIT }}
+          path: _ws32
+      - name: Checkout exact pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Generate exact terminal 107-accounting evidence
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws32 rev-parse HEAD)" = "$WS32_FREEZE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
+          mkdir -p artifacts/ws36-final/_inputs
+          python candidate-qualification/ws36-xmage-successor/contract_census.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws36-final/_inputs/WS36_CONTRACT_CENSUS_107.json
+          python candidate-qualification/ws36-xmage-successor/audit_commander_history_capability.py \
+            --census artifacts/ws36-final/_inputs/WS36_CONTRACT_CENSUS_107.json \
+            --xmage-root vendor/engine-source/xmage \
+            --output artifacts/ws36-final/_inputs/WS36_COMMANDER_HISTORY_CAPABILITY.json
+          python candidate-qualification/ws36-xmage-successor/finalize_terminal_fail.py \
+            --census artifacts/ws36-final/_inputs/WS36_CONTRACT_CENSUS_107.json \
+            --capability artifacts/ws36-final/_inputs/WS36_COMMANDER_HISTORY_CAPABILITY.json \
+            --output-dir artifacts/ws36-final
+          rm -rf artifacts/ws36-final/_inputs
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/ws36-final')
+          r=json.loads((p/'WS36_SUCCESSOR_RESULTS_107.json').read_text())
+          assert r['workstream_status']=='COMPLETE'
+          assert r['candidate_qualification']=='FAIL_NOT_QUALIFIED'
+          assert r['denominator']==107 and r['unique_fixture_ids']==107
+          assert r['successor_runtime_credit']=={'PASS':0,'NO_CREDIT':107,'historical_pass_imported':False}
+          assert len(r['records'])==107 and len({x['fixture_id'] for x in r['records']})==107
+          af=json.loads((p/'WS36_AF_RESULTS.json').read_text())['architecture_freeze']
+          assert {x['gate_id']:x['denominator'] for x in af}=={'AF04':24,'AF05':20,'AF06':17,'AF08':36,'AF09':5}
+          v=json.loads((p/'WS36_VALIDATION.json').read_text())
+          assert v['workstream_complete'] is True and v['architecture_freeze_granted'] is False
+          required={
+            'WS36_SOURCE_LOCK.json','WS36_XMAGE_UPSTREAM_DELTA_AUDIT.json','WS36_WS34_DEFECT_REMEDIATION_LEDGER.json',
+            'WS36_NATIVE_CONSTRUCTION_MATRIX_107.json','WS36_REQUESTED_CONSTRUCTED_DIGEST_RESULTS_107.json',
+            'WS36_DECISION_IDENTITY_MAPPING_AUDIT.json','WS36_TRANSACTION_COVERAGE_107.json',
+            'WS36_HIDDEN_INFORMATION_RESULTS.json','WS36_RNG_REPLAY_RESULTS.json','WS36_CARD02_RESULT.json',
+            'WS36_SUCCESSOR_RESULTS_107.json','WS36_AF_RESULTS.json','WS36_EVIDENCE_INDEX.json','WS36_VALIDATION.json',
+            'WS36_SHA256SUMS','WS36_FINAL_HANDOFF.md'
+          }
+          assert required <= {x.name for x in p.iterdir()}
+          PY
+      - name: Upload complete terminal WS36 evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws36-final-complete-${{ github.sha }}
+          path: artifacts/ws36-final/
           if-no-files-found: error
 
   identity-regression:
