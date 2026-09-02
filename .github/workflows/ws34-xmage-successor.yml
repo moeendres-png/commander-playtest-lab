@@ -52,13 +52,15 @@ jobs:
             --output artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json
           python - <<'PY'
           import json
-          from pathlib import Path
-          p = Path('artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json')
-          x = json.loads(p.read_text())
-          assert x['ws34_denominator'] == 107
-          assert x['entry_mode_counts'] == {'NATIVE_STATE_LOAD': 100, 'NATURAL_GAME_START': 7}
-          assert x['canonical_materialization_digest'] == 'ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23'
-          assert x['ws32_freeze_commit'] == '038d0f38635eecee4e331c99af41f148de267a26'
+          p=json.load(open('artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json'))
+          assert p['ws34_denominator'] == 107
+          assert p['entry_mode_counts'] == {'NATIVE_STATE_LOAD': 100, 'NATURAL_GAME_START': 7}
+          assert p['pre_runtime_counts'] == {
+              'CANONICAL_SETUP_UNSUPPORTED_XMAGE': 75,
+              'READY_FOR_EXACT_RUNTIME_QUALIFICATION': 32,
+          }
+          assert p['canonical_materialization_digest'] == 'ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23'
+          assert p['ws32_freeze_commit'] == '038d0f38635eecee4e331c99af41f148de267a26'
           PY
           sha256sum artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json > artifacts/ws34/SHA256SUMS
       - name: Upload WS34 pre-runtime ledger
@@ -68,7 +70,7 @@ jobs:
           path: artifacts/ws34/
           if-no-files-found: error
 
-  successor-core-runtime:
+  successor-terminal-runtime:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -104,7 +106,7 @@ jobs:
         uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
-      - name: Verify exact locks and Python
+      - name: Verify exact locks and qualification code
         run: |
           set -euo pipefail
           test "$(git -C _ws32 rev-parse HEAD)" = "$WS32_FREEZE_COMMIT"
@@ -116,6 +118,8 @@ jobs:
             candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py \
             candidate-qualification/ws34-xmage-successor/run_successor_core.py \
             candidate-qualification/ws34-xmage-successor/run_successor_core_v2.py \
+            candidate-qualification/ws34-xmage-successor/run_terminal_attempts.py \
+            candidate-qualification/ws34-xmage-successor/consolidate_ws34_final.py \
             candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py \
             candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py
       - name: Instrument native Rules RNG
@@ -141,37 +145,88 @@ jobs:
           mvn -B -ntp verify
       - name: Install Commander Lab
         run: python -m pip install -e '.[dev,api]'
-      - name: Execute successor core 9
+      - name: Build local exact preflight
         run: |
           set -euo pipefail
-          mkdir -p artifacts/ws34-runtime
+          mkdir -p artifacts/ws34-final
+          python candidate-qualification/ws34-xmage-successor/build_successor_matrix.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws34-final/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json
+      - name: Execute successor core 9 fail-closed
+        run: |
+          set -uo pipefail
           GITHUB_SHA="$WS34_PROVIDER_COMMIT" \
           python candidate-qualification/ws34-xmage-successor/run_successor_core_v2.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
-            --output artifacts/ws34-runtime/WS34_SUCCESSOR_CORE_RESULTS.json
+            --output artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json
+          rc=$?
+          printf '%s\n' "$rc" > artifacts/ws34-final/CORE9_EXIT_CODE.txt
+          test -s artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json
+          exit 0
+      - name: Execute remaining 23 runtime-ready records
+        run: |
+          set -euo pipefail
+          GITHUB_SHA="$WS34_PROVIDER_COMMIT" \
+          python candidate-qualification/ws34-xmage-successor/run_terminal_attempts.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws34-final/WS34_TERMINAL_23_RESULTS.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws34-final/WS34_TERMINAL_23_RESULTS.json'))
+          assert p['record_count'] == 23
+          assert len({r['fixture_id'] for r in p['records']}) == 23
+          card=next(r for r in p['records'] if r['fixture_id']=='CARD_02')
+          assert card.get('card02_cast_attempted') is True, card
+          PY
+      - name: Consolidate exact terminal 107 and AF04/05/06/08/09
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws34-xmage-successor/consolidate_ws34_final.py \
+            --preflight artifacts/ws34-final/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json \
+            --core artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json \
+            --attempts artifacts/ws34-final/WS34_TERMINAL_23_RESULTS.json \
+            --output artifacts/ws34-final/WS34_FINAL_RESULTS.json
           python - <<'PY'
           import json, os
-          p=json.load(open('artifacts/ws34-runtime/WS34_SUCCESSOR_CORE_RESULTS.json'))
-          assert p['candidate_commit'] == os.environ['WS34_PROVIDER_COMMIT']
-          assert p['contract_commit'] == os.environ['WS32_FREEZE_COMMIT']
-          assert p['contract_bundle_digest'] == os.environ['WS32_CANONICAL_MATERIALIZATION_DIGEST']
-          assert p['xmage_commit'] == os.environ['XMAGE_COMMIT']
-          assert p['counts'].get('PASS') == 9, p['counts']
-          for row in p['records']:
-              assert row['requested_native_state_equal'] is True
-              assert row['requested_semantic_state_digest'] == row['normalized_native_constructed_state_digest']
-              assert row['construction_proof']['provider_emitted_full_state_projection'] is True
-              assert row['construction_proof']['harness_requested_state_echo_prohibited'] is True
+          p=json.load(open('artifacts/ws34-final/WS34_FINAL_RESULTS.json'))
+          assert p['workstream_status'] == 'COMPLETE'
+          assert p['candidate_qualification'] == 'FAIL_NOT_QUALIFIED'
+          assert p['denominator'] == {'count':107,'unique':107,'runtime_ready':32,'pre_runtime_blocked':75}
+          assert p['runtime_execution']['attempted'] == 32
+          assert p['successor_runtime_credit'] == {'PASS':0,'NO_CREDIT':107,'historical_pass_imported':False}
+          assert len(p['records']) == 107
+          assert len({r['fixture_id'] for r in p['records']}) == 107
+          assert all(r['successor_runtime_credit']=='NO' for r in p['records'])
+          assert p['card_02']['cast_attempted'] is True
+          gates={g['gate_id']:g for g in p['architecture_freeze']}
+          assert set(gates)=={'AF04','AF05','AF06','AF08','AF09'}
+          assert {k:gates[k]['denominator'] for k in gates} == {'AF04':24,'AF05':20,'AF06':17,'AF08':36,'AF09':5}
+          assert all(g['final_verdict']=='UNSUPPORTED' and not g['freeze_satisfying'] for g in gates.values())
+          assert p['source_lock']['provider_runtime_commit'] == os.environ['WS34_PROVIDER_COMMIT']
+          assert p['source_lock']['provider_runtime_tree'] == os.environ['WS34_PROVIDER_TREE']
+          assert p['source_lock']['ws32_freeze_commit'] == os.environ['WS32_FREEZE_COMMIT']
+          assert p['source_lock']['canonical_materialization_digest'] == os.environ['WS32_CANONICAL_MATERIALIZATION_DIGEST']
+          assert p['source_lock']['xmage_commit'] == os.environ['XMAGE_COMMIT']
+          assert p['source_lock']['xmage_tree'] == os.environ['XMAGE_TREE']
           PY
-          sha256sum artifacts/ws34-runtime/WS34_SUCCESSOR_CORE_RESULTS.json > artifacts/ws34-runtime/SHA256SUMS
-          printf '%s\n' "$WS34_PROVIDER_COMMIT" > artifacts/ws34-runtime/PROVIDER_COMMIT.txt
-          printf '%s\n' "$WS34_PROVIDER_TREE" > artifacts/ws34-runtime/PROVIDER_TREE.txt
-          printf '%s\n' "$XMAGE_COMMIT" > artifacts/ws34-runtime/XMAGE_COMMIT.txt
-          printf '%s\n' "$XMAGE_TREE" > artifacts/ws34-runtime/XMAGE_TREE.txt
-      - name: Upload successor core runtime evidence
+      - name: Seal final evidence
+        run: |
+          set -euo pipefail
+          cd artifacts/ws34-final
+          sha256sum \
+            WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json \
+            WS34_SUCCESSOR_CORE_RESULTS.json \
+            WS34_TERMINAL_23_RESULTS.json \
+            WS34_FINAL_RESULTS.json > SHA256SUMS
+          printf '%s\n' "$WS34_PROVIDER_COMMIT" > PROVIDER_COMMIT.txt
+          printf '%s\n' "$WS34_PROVIDER_TREE" > PROVIDER_TREE.txt
+          printf '%s\n' "$XMAGE_COMMIT" > XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_TREE" > XMAGE_TREE.txt
+          printf '%s\n' "$GITHUB_RUN_ID" > WORKFLOW_RUN_ID.txt
+      - name: Upload terminal WS34 evidence
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: ws34-xmage-successor-core-${{ github.sha }}
-          path: artifacts/ws34-runtime/
-          if-no-files-found: warn
+          name: ws34-xmage-successor-final-${{ github.sha }}
+          path: artifacts/ws34-final/
+          if-no-files-found: error
