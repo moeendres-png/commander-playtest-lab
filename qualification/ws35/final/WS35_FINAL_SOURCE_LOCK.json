@@ -1,0 +1,72 @@
+{
+  "base_branch": "program/finalist-convergence-final",
+  "base_commit": "36b8e8f241c92fe9baea2ea718f910fd31f5cf23",
+  "generated_at": "2026-09-02T11:15:00+02:00",
+  "provided_files": {
+    "WS34_FINAL_HANDOFF_COMPLETE.md_sha256": "3c9e8f4a841323fc3df52b7030a8d288e65778395170378447102222ba4e0216",
+    "WS34_FINAL_HANDOFF_COMPLETE.zip_sha256": "0c0dbf7a502da4d31d0f4c6e0dcc64a991233222f0cf4d9ebdcb4bc020dadfd4",
+    "WS34_FINAL_RUNTIME_EVIDENCE.zip_sha256": "eb983fc2a70fd42102817ac79ea8ebe241fffede19035f2d54e461b1ba2aeaa5"
+  },
+  "repository": "moeendres-png/commander-playtest-lab",
+  "schema_version": "commander-foundry.ws35.final-source-lock/1.0.0",
+  "ws31": {
+    "aggregate_authority_digest": "d8337dc0a243fddbede3e9d2cec7b3938a1007970a23dea04855149fbfc55d5e",
+    "cr_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
+    "head": "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e",
+    "tree": "6b934837fe79bcfb951245371142d013c6179580"
+  },
+  "ws32": {
+    "aggregate_bundle_digest": "61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b",
+    "canonical_materialization_digest": "ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23",
+    "freeze_commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "freeze_tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "materialization_file_sha256": "0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261",
+    "validation_marker_commit": "62d7bd4fdeca8ecc2435d29f35f4abf095021e55",
+    "version": "commander-lab.semantic-fixture-materialization/1.0.2"
+  },
+  "ws33": {
+    "artifact_id": 9826227461,
+    "artifact_sha256": "37b6ac2671107fe01f4a638b75ea6e55a6814936a5aee105ef13cb0c36f5f1c0",
+    "branch": "ws33/forge-successor-provider-qualification-final",
+    "controlling_defect": "WS33-FORGE-PROVIDER-AF04-001",
+    "final_head": "2c19f7e401aa5eb9b2f2313086424c1bf903b3bd",
+    "final_tree": "248fb1d284a75bf01ae0e5681a595fefd2951013",
+    "forge_commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "forge_tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+    "qualification": "FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+    "state": "COMPLETE",
+    "successor_pass": 0,
+    "terminal_job": 100076263804,
+    "terminal_run": 33574790005
+  },
+  "ws34": {
+    "artifact_id": 9828355438,
+    "artifact_sha256": "eb983fc2a70fd42102817ac79ea8ebe241fffede19035f2d54e461b1ba2aeaa5",
+    "branch": "ws34/xmage-successor-provider-prep",
+    "card_02_status": "FAIL_CLOSED_RUNTIME / NO CREDIT",
+    "final_results_sha256": "83970cfaf28f98dd1682340f5acbecb474c76853e98c8615fd26158de054c0c6",
+    "final_runtime_head": "b370c044e6410504eb92547a35ea55cdfa2b291b",
+    "final_runtime_tree": "c4f65c1b3fcf843cbf34242da36131475d6bbce4",
+    "pre_runtime_blocked": 75,
+    "qualification": "FAIL_NOT_QUALIFIED",
+    "run_id": 33580331547,
+    "runtime_attempted": 32,
+    "runtime_ready": 32,
+    "state": "COMPLETE",
+    "successor_pass": 0,
+    "xmage_commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c",
+    "xmage_tree": "f0a028b265f9c008ea0aedc4cec6b8f14500b69f"
+  },
+  "ws35_authoritative_file_hashes": {
+    "WS35_ACTUAL_CARD_29_IDENTITY_MANIFEST.json": "5a0b54698c1ebaed2b9c22192e0725f3e3ad30e75a34edc349b4c64f841832c1",
+    "WS35_OBLIGATION_MANIFEST_335.json": "ce9f84f1f589a3c3495e609632482e7d68fe15a5cf0a74b6efa43c07ebec5759",
+    "WS35_OBLIGATION_SCENARIO_COVERAGE.json": "a7ce907649fb00895a7a9b2319355393a7f22dfaa6852a1782e3774935c6b7be",
+    "WS35_SCENARIO_MANIFEST_295.json": "20fb7c85088b45802cf3da73de7c8da2577098210607dcfba1df0e31efd2873b",
+    "WS35_SEMANTIC_EXECUTABILITY_REPORT.json": "b96061b9ed2d3d97ff12763613a4cef4ee839c88a4220cb56ccb6453495e31b0",
+    "WS35_SUCCESSOR_BINDING_REPORT.json": "60ff3eeb5e0744292ea06832a581786f0872ca3216c99944af668e213234fc07"
+  },
+  "ws35_branch": "ws35/actual-card-29-runtime-qualification",
+  "ws35_canonical_bundle_digest": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0",
+  "ws35_pre_final_integration_head": "f1aa91ac81aaf7be914b6e14ee22a6a5bcff229b",
+  "ws35_pre_final_integration_tree": "01038d447f66507e6adb7f641d92a7bf5dda5f39"
+}
