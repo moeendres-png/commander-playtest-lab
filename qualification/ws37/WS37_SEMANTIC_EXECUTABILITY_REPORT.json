@@ -1,0 +1,17 @@
+{
+  "direct_ws37_curated_executable_variants": 101,
+  "final_obligation_count": 326,
+  "inherited_ws35_executable_contracts": 225,
+  "notes": [
+    "The 225 inherited authority-backed obligations retain their immutable WS35 provider-neutral semantic executable specification by exact scenario-manifest and executability hashes.",
+    "Each of the 101 curated heuristic children has an explicit initial-state predicate, native Rules transaction, external decision family, semantic events, checkpoints and postconditions."
+  ],
+  "pilot_legality_computation_required": false,
+  "provider_neutral": true,
+  "runtime_executed": false,
+  "runtime_pass": 0,
+  "schema_version": "commander-lab.ws37.semantic-executability/1.0.0",
+  "semantically_executable": 326,
+  "status": "PASS",
+  "unstated_heuristics_required": false
+}
