@@ -29,8 +29,8 @@
       "canAssignTo",
       "checkDamageQueue"
     ],
-    "pinned_core_callsite": "Combat -> assigningPlayer.getController().assignCombatDamage(...) ",
-    "pinned_human_path": "PlayerControllerHuman -> getGui().assignCombatDamage(...) ",
+    "pinned_core_callsite": "Combat -> assigningPlayer.getController().assignCombatDamage(...)",
+    "pinned_human_path": "PlayerControllerHuman -> getGui().assignCombatDamage(...)",
     "production_reachable": true,
     "severity": "TERMINAL_STOP",
     "taxonomy": "FORGE_PROVIDER_DEFECT",
