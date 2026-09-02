@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """WS-39 qualification-only provider overlay for native commander-history restore.
 
-This overlay only translates canonical state into the narrow XMage Rules-Core
-state-load API added by WS-39.  It does not calculate commander tax, fabricate
-historical cast events, or choose any player action.
+This overlay applies after the existing WS-34/WS-36 overlays. It only translates
+canonical state into the narrow XMage Rules-Core state-load API added by WS-39.
+It does not calculate commander tax, fabricate historical cast events, or choose
+any player action.
 """
 from __future__ import annotations
 
@@ -40,9 +41,10 @@ def main() -> int:
     )
     text = replace_once(
         text,
-        '            "execution_entry_mode", "temporal_state"\n',
-        '            "execution_entry_mode", "temporal_state", "commander_history"\n',
-        "top-key",
+        '            "successor_requested_state", "successor_requested_state_digest"\n    );',
+        '            "successor_requested_state", "successor_requested_state_digest",\n'
+        '            "commander_history"\n    );',
+        "top-key-after-ws34",
     )
 
     anchor = '''        JsonObject validation = validateNative(game, players, bySeat, semanticMap, ledger);\n        return new Applied(\n'''
@@ -59,7 +61,6 @@ def main() -> int:
         Set<String> semanticCommanderIds = new HashSet<>();
         Set<UUID> nativeCommanderIds = new HashSet<>();
         List<CommanderPlaysCountState.Count> counts = new ArrayList<>();
-        Map<UUID, Integer> expectedNative = new LinkedHashMap<>();
         Map<UUID, Integer> expectedPlayers = new LinkedHashMap<>();
         JsonArray readback = new JsonArray();
 
@@ -96,7 +97,6 @@ def main() -> int:
                 throw fail("COMMANDER_HISTORY_NATIVE_ID_DUPLICATE:" + semanticCommanderId);
             }
             counts.add(new CommanderPlaysCountState.Count(nativeId, priorCount));
-            expectedNative.put(nativeId, priorCount);
             expectedPlayers.merge(player.getId(), priorCount, Math::addExact);
         }
 
