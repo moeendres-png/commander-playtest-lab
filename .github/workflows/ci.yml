@@ -131,3 +131,108 @@ jobs:
           name: security-evidence
           path: artifacts/security/
           if-no-files-found: warn
+
+  ws39-exact-engine-contract:
+    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'ws39/xmage-engine-remediation-requalification' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      WS32_FREEZE_COMMIT: 038d0f38635eecee4e331c99af41f148de267a26
+      WS32_FREEZE_TREE: 0d160128119f2bad30b220a17c43419b50b7edbe
+      XMAGE_WS39_COMMIT: 0b1c5d842b8791d90b856467fc20034bde68d259
+      XMAGE_WS39_TREE: 59fa61f15280027f81d44f10b5df6eeb88d5d5cc
+    steps:
+      - name: Checkout exact WS39 PR head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Record exact provider identity
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws39-ci
+          git rev-parse HEAD | tee artifacts/ws39-ci/PROVIDER_COMMIT.txt
+          git rev-parse HEAD^{tree} | tee artifacts/ws39-ci/PROVIDER_TREE.txt
+      - name: Checkout exact WS32 freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_FREEZE_COMMIT }}
+          path: _ws32
+      - name: Checkout exact WS39 XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_WS39_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Verify immutable locks and probe exact Tax-3 structures
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws32 rev-parse HEAD)" = "$WS32_FREEZE_COMMIT"
+          test "$(git -C _ws32 rev-parse HEAD^{tree})" = "$WS32_FREEZE_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_WS39_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_WS39_TREE"
+          python -m py_compile \
+            candidate-qualification/ws39-xmage-successor/contract_probe.py \
+            candidate-qualification/ws39-xmage-successor/canonical_v102.py \
+            candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/contract_probe.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws39-ci/WS39_CONTRACT_PROBE.json
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          p=Path('_ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json')
+          assert hashlib.sha256(p.read_bytes()).hexdigest() == '0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261'
+          q=json.loads(Path('artifacts/ws39-ci/WS39_CONTRACT_PROBE.json').read_text())
+          assert q['denominator']==107 and q['unique_fixture_ids']==107
+          PY
+      - name: Run exact-head native history tests
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          mvn test -B -ntp \
+            -Dtest=CommanderPlaysCountStateRestoreTest \
+            -Dsurefire.failIfNoSpecifiedTests=false \
+            -Dxmage.dataCollectors.printGameLogs=false \
+            -Dlog4j.configuration=file:${PWD}/.travis/log4j.properties
+      - name: Apply all WS39 qualification-only bridge overlays
+        run: |
+          set -euo pipefail
+          python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
+          python candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py
+          python candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py
+          git diff --check
+          git diff -- engine-bridge > artifacts/ws39-ci/QUALIFICATION_BRIDGE_OVERLAY.patch
+      - name: Build exact WS39 XMage
+        working-directory: vendor/engine-source/xmage
+        run: mvn -B -ntp -DskipTests install
+      - name: Verify qualification bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+      - name: Seal WS39 exact-source evidence
+        if: always()
+        run: |
+          mkdir -p artifacts/ws39-ci/surefire
+          find vendor/engine-source/xmage -path '*/target/surefire-reports/*CommanderPlaysCountStateRestoreTest*' -type f -exec cp {} artifacts/ws39-ci/surefire/ \; || true
+          printf '%s\n' "$XMAGE_WS39_COMMIT" > artifacts/ws39-ci/XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_WS39_TREE" > artifacts/ws39-ci/XMAGE_TREE.txt
+          find artifacts/ws39-ci -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws39-ci/SHA256SUMS || true
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: ws39-exact-engine-contract-${{ github.event.pull_request.head.sha }}
+          path: artifacts/ws39-ci/
+          if-no-files-found: error
