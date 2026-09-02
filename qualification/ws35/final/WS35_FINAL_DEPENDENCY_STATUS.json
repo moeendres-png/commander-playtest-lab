@@ -1,0 +1,29 @@
+{
+  "canonical_bundle_changed": false,
+  "completion_classification": "FAIL_TERMINAL_NO_QUALIFIED_PROVIDER",
+  "forge_dependency": {
+    "qualification": "FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+    "state": "COMPLETE",
+    "terminal": true,
+    "workstream": "WS-33",
+    "ws35_exact_scenarios_executed": 0,
+    "ws35_runnable": false
+  },
+  "remaining_pending_provider_dependencies": 0,
+  "runtime_policy": {
+    "historical_credit_imported": false,
+    "provider_failures_not_reclassified_as_card_semantic_failures": true,
+    "same_record_gate_waived": false
+  },
+  "schema_version": "commander-foundry.ws35.final-dependency-status/1.0.0",
+  "workstream_status": "COMPLETE",
+  "ws35_canonical_bundle_digest": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0",
+  "xmage_dependency": {
+    "qualification": "FAIL_NOT_QUALIFIED",
+    "state": "COMPLETE",
+    "terminal": true,
+    "workstream": "WS-34",
+    "ws35_exact_scenarios_executed": 0,
+    "ws35_runnable": false
+  }
+}

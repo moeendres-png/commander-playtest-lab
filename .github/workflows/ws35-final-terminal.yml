@@ -1,0 +1,72 @@
+name: WS35 Final Terminal Integration
+
+on:
+  push:
+    branches:
+      - ws35/actual-card-29-runtime-qualification
+    paths:
+      - 'qualification/ws35/final/**'
+      - '.github/workflows/ws35-final-terminal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-terminal-evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact WS35 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Validate terminal WS35 accounting
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('qualification/ws35/final')
+          load=lambda n: json.loads((p/n).read_text())
+          dep=load('WS35_FINAL_DEPENDENCY_STATUS.json')
+          af=load('WS35_AF07_VERDICT_FINAL.json')
+          val=load('WS35_FINAL_VALIDATION.json')
+          src=load('WS35_FINAL_SOURCE_LOCK.json')
+          assert dep['workstream_status']=='COMPLETE'
+          assert dep['completion_classification']=='FAIL_TERMINAL_NO_QUALIFIED_PROVIDER'
+          assert dep['remaining_pending_provider_dependencies']==0
+          assert dep['canonical_bundle_changed'] is False
+          assert dep['ws35_canonical_bundle_digest']=='65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0'
+          assert af['workstream_status']=='COMPLETE'
+          assert af['verdict']=='UNSUPPORTED_NOT_SATISFIED'
+          assert af['semantic_truth_status']=='UNKNOWN_NOT_EXECUTED'
+          assert af['architecture_freeze_granted'] is False
+          assert af['runtime']['forge_exact_ws35_executed']==0
+          assert af['runtime']['xmage_exact_ws35_executed']==0
+          assert af['runtime']['same_record_pairs_executed']==0
+          assert af['runtime']['semantic_pass_obligations']==0
+          assert val['status']=='PASS'
+          assert val['checks']['identities_exact']==29
+          assert val['checks']['obligations_exact']==335
+          assert val['checks']['scenarios_exact']==295
+          assert val['checks']['pending_provider_dependencies']==0
+          assert val['checks']['historical_credit_imported'] is False
+          assert src['ws33']['state']=='COMPLETE' and src['ws33']['successor_pass']==0
+          assert src['ws34']['state']=='COMPLETE'
+          assert src['ws34']['qualification']=='FAIL_NOT_QUALIFIED'
+          assert src['ws34']['successor_pass']==0
+          assert src['ws34']['artifact_sha256']=='eb983fc2a70fd42102817ac79ea8ebe241fffede19035f2d54e461b1ba2aeaa5'
+          print('WS35 terminal integration validation PASS')
+          PY
+      - name: Seal terminal evidence
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws35-final
+          cp qualification/ws35/final/*.json artifacts/ws35-final/
+          git rev-parse HEAD > artifacts/ws35-final/WS35_VALIDATION_COMMIT.txt
+          git rev-parse HEAD^{tree} > artifacts/ws35-final/WS35_VALIDATION_TREE.txt
+          (cd artifacts/ws35-final && sha256sum * > SHA256SUMS)
+      - name: Upload terminal WS35 evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws35-final-terminal-evidence-${{ github.sha }}
+          path: artifacts/ws35-final/
+          if-no-files-found: error

@@ -1,0 +1,52 @@
+{
+  "canonical": {
+    "bundle_digest": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0",
+    "execution_variants": 335,
+    "identities": 29,
+    "obligations": 335,
+    "scenarios": 295
+  },
+  "delivery": {
+    "evidence_zip": "WS35_FINAL_COMPLETE_EVIDENCE.zip",
+    "evidence_zip_sha256": "00f6f004d3d29c4b1461dfb3f2397abcfc81eeda7bf7533ee2ad5abd077a361e",
+    "handoff_sha256": "87bd5a55800306bcd50c1c4a0b5745a80eee191fa19b6c5d84d37c4701c0224c",
+    "sha256sums_sha256": "3ab4bcd7a9540f04ba22e212fc1b6dc9cd775aed606dd8d395d2f777e75d5c3c"
+  },
+  "provider_dependencies": {
+    "forge": {
+      "artifact_id": 9826227461,
+      "artifact_sha256": "37b6ac2671107fe01f4a638b75ea6e55a6814936a5aee105ef13cb0c36f5f1c0",
+      "qualification": "FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+      "run_id": 33574790005,
+      "state": "COMPLETE",
+      "successor_pass": 0
+    },
+    "xmage": {
+      "artifact_id": 9828355438,
+      "artifact_sha256": "eb983fc2a70fd42102817ac79ea8ebe241fffede19035f2d54e461b1ba2aeaa5",
+      "qualification": "FAIL_NOT_QUALIFIED",
+      "run_id": 33580331547,
+      "state": "COMPLETE",
+      "successor_pass": 0
+    }
+  },
+  "schema_version": "commander-foundry.ws35.final-evidence-index/2.0.0",
+  "terminal_validation": {
+    "artifact_id": 9840162124,
+    "artifact_name": "ws35-final-terminal-evidence-9b1de39a3266b354c7902daf956cd20d790c3dce",
+    "artifact_sha256": "cd7eb28a499dc00ce61471d2ebcddb47ee0b2787445914702ddac7a1f967df69",
+    "job_id": 100195682486,
+    "run_id": 33614047487,
+    "validated_commit": "9b1de39a3266b354c7902daf956cd20d790c3dce",
+    "validated_tree": "8a4508b1dc81cd2bd5de4b3cabae304396991cf6",
+    "workflow": "WS35 Final Terminal Integration",
+    "workflow_conclusion": "success"
+  },
+  "terminal_verdict": {
+    "af07": "UNSUPPORTED_NOT_SATISFIED",
+    "architecture_freeze": false,
+    "card_semantic_truth": "UNKNOWN_NOT_EXECUTED",
+    "classification": "FAIL_TERMINAL_NO_QUALIFIED_PROVIDER",
+    "workstream_status": "COMPLETE"
+  }
+}

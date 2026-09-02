@@ -1,0 +1,40 @@
+{
+  "architecture_freeze_granted": false,
+  "freeze_satisfying": false,
+  "gate": "AF07_ACTUAL_CARD_BEHAVIOR",
+  "gates": {
+    "G35-01": "PASS_29_OF_29_ACCOUNTED",
+    "G35-02": "PASS_335_OF_335_ACCOUNTED",
+    "G35-03": "PASS_295_OF_295_ACCOUNTED_AND_WS32_BOUND",
+    "G35-04": "PASS_NO_BEHAVIORAL_PASS_WITHOUT_NATIVE_EXECUTION",
+    "G35-05": "FAIL_CLOSED_TERMINAL_NO_QUALIFIED_PROVIDER_FOR_EXACT_WS35_CONSTRUCTION_AND_RUNTIME",
+    "G35-06": "FAIL_CLOSED_NO_QUALIFIED_SAME_RECORD_PROVIDER_PAIR_GATE_NOT_WAIVED",
+    "G35-07": "PASS_HARNESS_CONTAINS_NO_RULES_LEGALITY_ENGINE",
+    "G35-08": "PASS_AUTHORITY_BINDING_DISCIPLINE_110_HEURISTIC_OBLIGATIONS_REMAIN_NON_PASS_PENDING_CURATION",
+    "G35-09": "PASS_EVIDENCE_STAGES_DISTINGUISHED"
+  },
+  "materialization": {
+    "canonical_bundle_digest": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0",
+    "execution_variants": 335,
+    "identities": 29,
+    "obligations": 335,
+    "scenarios": 295,
+    "ws32_contract_binding_defects": 0
+  },
+  "reason": "Both successor provider dependencies are terminally not qualified before exact WS35 runtime. Therefore AF07 has zero qualifying runtime evidence and is not satisfied. This does not prove any of the 29 cards semantically wrong.",
+  "runtime": {
+    "differential_pass": 0,
+    "forge_exact_ws35_executed": 0,
+    "forge_pass": 0,
+    "same_record_pairs_executed": 0,
+    "semantic_pass_obligations": 0,
+    "xmage_exact_ws35_executed": 0,
+    "xmage_pass": 0
+  },
+  "schema_version": "commander-foundry.ws35.af07-terminal-verdict/1.0.0",
+  "semantic_truth_status": "UNKNOWN_NOT_EXECUTED",
+  "verdict": "UNSUPPORTED_NOT_SATISFIED",
+  "workstream_completion": "PASS_COMPLETE",
+  "workstream_status": "COMPLETE",
+  "workstream_terminal_classification": "FAIL_TERMINAL_NO_QUALIFIED_PROVIDER"
+}

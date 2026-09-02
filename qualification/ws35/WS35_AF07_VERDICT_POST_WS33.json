@@ -1,0 +1,49 @@
+{
+  "architecture_freeze_granted": false,
+  "dependency_classification": {
+    "forge_requalification_requires_new_authorized_rules_core_remediation_scope": true,
+    "ws33": "COMPLETE_FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+    "ws33_defect": "WS33-FORGE-PROVIDER-AF04-001",
+    "ws34": "IN_PROGRESS_NOT_TERMINAL"
+  },
+  "gate": "AF07_ACTUAL_CARD_BEHAVIOR",
+  "gates": {
+    "G35-01": "PASS_29_OF_29_ACCOUNTED",
+    "G35-02": "PASS_335_OF_335_ACCOUNTED",
+    "G35-03": "PASS_295_OF_295_ACCOUNTED_AND_WS32_BOUND",
+    "G35-04": "PASS_NO_BEHAVIORAL_PASS_WITHOUT_NATIVE_EXECUTION",
+    "G35-05": "NOT_RUN_FORGE_TERMINAL_PROVIDER_STOP_AND_XMAGE_PENDING_WS34_TERMINAL",
+    "G35-06": "NOT_RUN_NO_VALID_SAME_RECORD_PROVIDER_PAIR; FORGE_LANE_TERMINAL",
+    "G35-07": "PASS_HARNESS_CONTAINS_NO_RULES_LEGALITY_ENGINE",
+    "G35-08": "PASS_CURRENT_AUTHORITY_AND_WS32_BOUND; 110_HEURISTIC_OBLIGATIONS_PRESERVED_PENDING_CURATION",
+    "G35-09": "PASS_EVIDENCE_STAGES_DISTINGUISHED"
+  },
+  "materialization": {
+    "execution_variants": 335,
+    "heuristic_obligations_pending_curation": 110,
+    "identities": 29,
+    "obligations": 335,
+    "scenarios": 295,
+    "ws32_contract_binding_defects": 0
+  },
+  "reason": "WS32 binding is complete. WS33 is terminal COMPLETE/FAIL due FORGE_PROVIDER_DEFECT WS33-FORGE-PROVIDER-AF04-001, so Forge cannot earn WS35 runtime credit under the current architecture. WS34 is not terminal and no final XMage WS35 runtime exists. Same-record differential remains unwaived and cannot execute.",
+  "runtime": {
+    "forge_executed": 0,
+    "forge_terminal_not_run": 295,
+    "same_record_differential": 0,
+    "semantic_pass_obligations": 0,
+    "xmage_executed": 0,
+    "xmage_pending_not_run": 295
+  },
+  "schema_version": "commander-foundry.ws35.af07-verdict/1.1.0",
+  "successor_contract_binding": {
+    "bundle_digest": "61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b",
+    "contract_version": "commander-lab.semantic-fixture-materialization/1.0.2",
+    "freeze_commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "freeze_tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "requested_state_digest_spec": "commander-lab.requested-state-digest/1.0.0",
+    "terminal_abc_disposition": "FORMALLY_DEPRECATED"
+  },
+  "verdict": "UNKNOWN",
+  "ws35_canonical_bundle_digest": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0"
+}
