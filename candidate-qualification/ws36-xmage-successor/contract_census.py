@@ -7,6 +7,7 @@ reinterpret the immutable WS-32 materialization.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import sys
 from collections import Counter, defaultdict
@@ -19,6 +20,17 @@ sys.path.insert(0, str(WS34))
 
 import build_successor_matrix as ws34_matrix  # noqa: E402
 import successor_contract as contractlib  # noqa: E402
+
+CRITICAL_DETAIL_IDS = {
+    "WS05-CMD-PARTNER-TAX", "WS05-CMD-TAX-2", "WS05-CMD-TAX-4",
+    "WS05-CMD-DMG-CONTROL", "WS05-CMD-DMG-SAME-21", "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4", "WS05-CMD-PARTNER-DMG",
+}
+CRITICAL_FIELDS = (
+    "fixture_id", "fixture_family", "materialization_digest", "requested_state_digest",
+    "commander_state", "semantic_objects", "temporal_state", "combat_state", "stack_state",
+    "native_procedure", "decision_script", "terminal_postconditions", "expected_events",
+)
 
 
 def main() -> int:
@@ -38,6 +50,7 @@ def main() -> int:
     entry = Counter()
     family = Counter()
     rows: list[dict[str, Any]] = []
+    critical: dict[str, dict[str, Any]] = {}
 
     for record in records:
         classified = ws34_matrix.classify(record)
@@ -72,9 +85,16 @@ def main() -> int:
             "decision_families": decisions,
             "native_operations": operations,
         })
+        if fixture_id in CRITICAL_DETAIL_IDS:
+            critical[fixture_id] = {
+                key: copy.deepcopy(record[key]) for key in CRITICAL_FIELDS if key in record
+            }
+
+    if set(critical) != CRITICAL_DETAIL_IDS:
+        raise SystemExit("WS36_CRITICAL_RECORD_EXTRACTION_FAILURE")
 
     result = {
-        "schema_version": "commander-lab.ws36-contract-census/1.0.0",
+        "schema_version": "commander-lab.ws36-contract-census/1.0.1",
         "contract_version": contractlib.CONTRACT_VERSION,
         "canonical_materialization_digest": contractlib.CANONICAL_MATERIALIZATION_DIGEST,
         "ws32_freeze_commit": contractlib.FREEZE_COMMIT,
@@ -85,24 +105,13 @@ def main() -> int:
         "unique_fixture_ids": 107,
         "entry_mode_counts": dict(sorted(entry.items())),
         "family_counts": dict(sorted(family.items())),
-        "ws34_blocker_counts": {
-            k: len(v) for k, v in sorted(blocker_to_ids.items())
-        },
-        "ws34_blocker_fixture_ids": {
-            k: sorted(v) for k, v in sorted(blocker_to_ids.items())
-        },
-        "decision_family_counts": {
-            k: len(v) for k, v in sorted(decision_to_ids.items())
-        },
-        "decision_family_fixture_ids": {
-            k: sorted(v) for k, v in sorted(decision_to_ids.items())
-        },
-        "native_operation_counts": {
-            k: len(v) for k, v in sorted(operation_to_ids.items())
-        },
-        "native_operation_fixture_ids": {
-            k: sorted(v) for k, v in sorted(operation_to_ids.items())
-        },
+        "ws34_blocker_counts": {k: len(v) for k, v in sorted(blocker_to_ids.items())},
+        "ws34_blocker_fixture_ids": {k: sorted(v) for k, v in sorted(blocker_to_ids.items())},
+        "decision_family_counts": {k: len(v) for k, v in sorted(decision_to_ids.items())},
+        "decision_family_fixture_ids": {k: sorted(v) for k, v in sorted(decision_to_ids.items())},
+        "native_operation_counts": {k: len(v) for k, v in sorted(operation_to_ids.items())},
+        "native_operation_fixture_ids": {k: sorted(v) for k, v in sorted(operation_to_ids.items())},
+        "critical_frozen_records": dict(sorted(critical.items())),
         "records": rows,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
