@@ -82,6 +82,14 @@ def main() -> None:
         '        List<String[]> ws40StackRows = rows("COMMANDER_LAB_WS40_STACK_SPECS_B64");\n        java.util.Collections.reverse(ws40StackRows);\n        for (String[] p : ws40StackRows) {',
         'stack construction order')
 
+    # Stack/combat construction may update Forge's current priority as a consequence of the
+    # native operation. The frozen requested state owns the final priority holder. Re-assert it
+    # through PhaseHandler's native public priority API only after those native extensions finish.
+    s = once(s,
+        '        applyStack(game);\n        applyCombat(game);\n        emitNativeSnapshot(game, broker, false);',
+        '        applyStack(game);\n        applyCombat(game);\n        String finalPriority = env("COMMANDER_LAB_WS40_PRIORITY_SEAT");\n        if (!finalPriority.isEmpty()) {\n            game.getPhaseHandler().setPriority(player(game, Integer.parseInt(finalPriority)));\n        }\n        emitNativeSnapshot(game, broker, false);',
+        'final native priority restoration')
+
     s = once(s,
         '        for (var e : c.getCounters().entrySet()) entries.add(Map.entry(e.getKey(), e.getValue()));',
         '        for (var e : c.getCounters().entrySet()) entries.add(Map.entry(e.getElement(), e.getCount()));',
