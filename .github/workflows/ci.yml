@@ -142,7 +142,7 @@ jobs:
       XMAGE_WS39_COMMIT: 7bde812727817723616c575759f39bfc4cda4607
       XMAGE_WS39_TREE: a44f32e9d34109ac3f272494f0e8eb9ea3e6280c
       COMMANDER_LAB_XMAGE_WS26_BRIDGE_CMD: >-
-        java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar org.commanderlab.xmage.XmageWs26QualificationMain full-game
+        java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar:${{ github.workspace }}/engine-bridge/target/dependency/* org.commanderlab.xmage.XmageWs26QualificationMain full-game
     steps:
       - name: Checkout exact WS39 PR head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -227,6 +227,14 @@ jobs:
       - name: Verify qualification bridge
         working-directory: engine-bridge
         run: mvn -B -ntp verify
+      - name: Materialize qualification bridge runtime classpath
+        working-directory: engine-bridge
+        run: |
+          set -euo pipefail
+          mvn -B -ntp dependency:copy-dependencies \
+            -DincludeScope=runtime \
+            -DoutputDirectory=target/dependency
+          test -n "$(find target/dependency -maxdepth 1 -name '*.jar' -print -quit)"
       - name: Execute mandatory Tax-3 runtime gate
         run: |
           set -euo pipefail
