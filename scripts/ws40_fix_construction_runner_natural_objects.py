@@ -4,6 +4,17 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+FINAL_FORGE_COMMIT = "49ea6df753fa6c749138296a1fe9421467136dda"
+FINAL_FORGE_TREE = "37ef36359cef74273ca40a2c1c676b8ede84a431"
+OLD_FORGE_COMMIT = "3f53c7c4e93c011e781680ae2a0c195dd71414c0"
+OLD_FORGE_TREE = "481d3ee3b4798b78b4f00a93cc8e2cb54d05391f"
+
+
+def replace_function(s: str, name: str, next_name: str, replacement: str) -> str:
+    start = s.index(f"def {name}(")
+    end = s.index(f"\n\ndef {next_name}", start)
+    return s[:start] + replacement.rstrip() + s[end:]
+
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -11,14 +22,20 @@ def main() -> None:
     args = ap.parse_args()
     p = args.runner
     s = p.read_text(encoding='utf-8')
-    start = s.index('def _objects_from_native(raw: dict[str, Any], b: dict[str, Any]) -> list[dict[str, Any]]:')
-    end = s.index('\n\ndef _commander_from_native', start)
-    replacement = r'''def _objects_from_native(raw: dict[str, Any], b: dict[str, Any]) -> list[dict[str, Any]]:
-    # NATURAL_GAME_START has RegisteredPlayer/Deck commander registration but no live Card object yet.
-    # Reconstruct only the frozen pregame commander object projection after validating that native
-    # registration contains the exact commander identity for the mapped owner. This is identity mapping,
-    # not a fabricated rules state: Commander rules are enabled and the actual runtime later creates the
-    # command-zone Card through Forge's normal game-start path.
+
+    # The checked-in runner is a template; bind the generated executable runner to the
+    # reproducibility-qualified final Forge source lock.
+    if OLD_FORGE_COMMIT in s:
+        s = s.replace(OLD_FORGE_COMMIT, FINAL_FORGE_COMMIT)
+    if OLD_FORGE_TREE in s:
+        s = s.replace(OLD_FORGE_TREE, FINAL_FORGE_TREE)
+    if f'FORGE_COMMIT = "{FINAL_FORGE_COMMIT}"' not in s or f'FORGE_TREE = "{FINAL_FORGE_TREE}"' not in s:
+        raise RuntimeError('generated runner Forge source lock not migrated')
+
+    # NATURAL_GAME_START has RegisteredPlayer/Deck commander registration but no live
+    # commander Card object yet. Reconstruct only provider-neutral identity metadata after
+    # proving the exact native registration. This is not Magic legality or Rules-state echo.
+    replacement_objects = r'''def _objects_from_native(raw: dict[str, Any], b: dict[str, Any]) -> list[dict[str, Any]]:
     if b["execution_entry_mode"] == "NATURAL_GAME_START":
         decks = {x["player_id"]: x for x in raw.get("decks") or []}
         commander_meta = {x["commander_id"]: x for x in b.get("commander_identity_metadata") or []}
@@ -85,36 +102,85 @@ def main() -> None:
             row["controlled_since_turn_began"] = True
         out.append(row)
     return out'''
-    s = s[:start] + replacement + s[end:]
+    s = replace_function(s, '_objects_from_native', '_commander_from_native', replacement_objects)
 
-    # Fail closed: a provider-side digest proves integrity of request-bound configuration, not
-    # independent native observation of Rules state. The v2 normalizer still carries request-bound
-    # stack semantics (cast_complete/costs_paid/modes/targets) and portions of combat semantics into
-    # the normalized projection. Those fields are not eligible for no-request-echo credit until they
-    # are independently observed/derived from Forge-native state or reclassified by contract authority
-    # as non-Rules configuration. Do not allow a 107/107 digest equality to mask this provenance gap.
+    # Remove request Rules-state VALUES from provider-bound configuration. Only semantic
+    # identity and requested field SHAPE remain; those are control-plane metadata used to
+    # decide which native fields must be proven, never to populate their values.
+    old_binding = '''        "stack_semantics": [\n            {k: st[k] for k in ("source_semantic_id", "cast_complete", "costs_paid", "modes", "targets") if k in st}\n            for st in record.get("stack_state") or []\n        ],\n        "combat_semantics": record.get("combat_state"),'''
+    new_binding = '''        "stack_source_ids": [st["source_semantic_id"] for st in record.get("stack_state") or []],\n        "combat_fields": sorted((record.get("combat_state") or {}).keys()),'''
+    if s.count(old_binding) != 1:
+        raise RuntimeError('expected exactly one request-bound stack/combat binding block')
+    s = s.replace(old_binding, new_binding, 1)
+
+    replacement_combat = r'''def _combat_from_native(raw: dict[str, Any], b: dict[str, Any]) -> Any:
+    fields = set(b.get("combat_fields") or [])
+    if not fields:
+        return None
+    unsupported = sorted(fields.intersection({"eligible_attackers", "eligible_blockers"}))
+    if unsupported:
+        raise AssertionError(
+            "CANONICAL_SETUP_UNSUPPORTED_PROVIDER:COMBAT_LEGAL_SURFACE_NATIVE_OBSERVATION_UNAVAILABLE:"
+            + ",".join(unsupported)
+        )
+    got = raw.get("combat") or {"attackers": {}, "blockers": {}}
+    attackers = dict(got.get("attackers") or {})
+    blockers = dict(got.get("blockers") or {})
+    out: dict[str, Any] = {}
+    if "attackers" in fields:
+        out["attackers"] = attackers
+    if "blockers" in fields:
+        out["blockers"] = blockers
+    blocked = set(blockers.values())
+    unblocked = [sid for sid in attackers if sid not in blocked]
+    if "unblocked" in fields:
+        out["unblocked"] = unblocked
+    if "unblocked_attackers" in fields:
+        out["unblocked_attackers"] = unblocked
+    unknown = fields.difference({"attackers", "blockers", "unblocked", "unblocked_attackers"})
+    if unknown:
+        raise AssertionError("CANONICAL_SETUP_UNSUPPORTED_PROVIDER:COMBAT_FIELD_NATIVE_OBSERVATION_UNAVAILABLE:" + ",".join(sorted(unknown)))
+    return out'''
+    s = replace_function(s, '_combat_from_native', '_stack_from_native', replacement_combat)
+
+    replacement_stack = r'''def _stack_from_native(raw: dict[str, Any], b: dict[str, Any]) -> list[dict[str, Any]]:
+    source_ids = list(b.get("stack_source_ids") or [])
+    if not source_ids:
+        return []
+    native = {s["source_semantic_id"]: s for s in raw.get("stack") or []}
+    for sid in source_ids:
+        got = native.get(sid)
+        if got is None or not got.get("native_stack_present"):
+            raise AssertionError(f"native stack object missing {sid}")
+    # The qualification loader can prove current native stack presence/controller, but it
+    # directly materializes the stack and therefore cannot independently prove the frozen
+    # historical facts cast_complete/costs_paid or selected Charm modes. Emitting those
+    # request values would be request echo. Fail closed instead of manufacturing credit.
+    raise AssertionError("CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE")'''
+    s = replace_function(s, '_stack_from_native', '_validate_natural_v2', replacement_stack)
+
+    # Keep the no-request-echo claim source-true. The runner may still fail construction on
+    # unsupported native proof surfaces; that is a construction-support failure, not request echo.
     if s.count('        "no_request_echo": True,') != 1:
-        raise RuntimeError('expected exactly one optimistic no_request_echo claim')
-    s = s.replace('        "no_request_echo": True,', '        "no_request_echo": False,', 1)
+        raise RuntimeError('expected exactly one no_request_echo claim')
     if s.count('            "request_values_used_by_normalizer": False,') != 1:
         raise RuntimeError('expected exactly one request-values proof flag')
     s = s.replace(
         '            "request_values_used_by_normalizer": False,',
-        '            "request_values_used_by_normalizer": True,\n'
-        '            "status": "NOT_GRANTED",\n'
-        '            "rules_state_gaps": [\n'
-        '                "stack_state.cast_complete",\n'
-        '                "stack_state.costs_paid",\n'
-        '                "stack_state.modes",\n'
-        '                "stack_state.targets",\n'
-        '                "combat_state request-bound subfields not overwritten by native Combat observation",\n'
+        '            "request_values_used_by_normalizer": False,\n'
+        '            "status": "PASS_FAIL_CLOSED",\n'
+        '            "rules_state_request_values_in_bound_config": False,\n'
+        '            "fail_closed_native_proof_gaps": [\n'
+        '                "stack_state historical cast/payment/mode facts",\n'
+        '                "combat_state eligible_attackers/eligible_blockers legal-surface facts",\n'
         '            ],',
         1,
     )
 
     p.write_text(s, encoding='utf-8')
     print('WS40_NATURAL_COMMANDER_OBJECT_PROJECTION_FIX=PASS')
-    print('WS40_NO_REQUEST_ECHO_FAIL_CLOSED=PASS')
+    print('WS40_ACTIVE_FORGE_PIN_MIGRATION=PASS')
+    print('WS40_NO_REQUEST_ECHO_SOURCE_HARDENED=PASS')
 
 
 if __name__ == '__main__':
