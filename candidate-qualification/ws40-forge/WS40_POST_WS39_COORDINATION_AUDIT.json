@@ -1,8 +1,9 @@
 {
-  "schema_version": "commander-lab.ws40-post-ws39-coordination-audit/1.0.0",
+  "schema_version": "commander-lab.ws40-post-ws39-coordination-audit/1.0.1",
   "workstream": "WS-40",
   "audit_result": "PASS_CURRENT_PHASE_MAXIMUM_TECHNICALLY_JUSTIFIED_STATE",
   "pre_audit_commander_lab_head": "efca623dde4d895d4164d2ea6c69c8fe8546968e",
+  "latest_dependency_recheck_commander_lab_head": "130b2d95db1fcddb89af2c9b585089440262dbed",
   "tested_provider_implementation_lock": {
     "commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
     "tree": "da9ad40a8db9b65310f2590a72e9a6af8922f5b6"
@@ -10,24 +11,37 @@
   "forge_engine_lock": {
     "commit": "49ea6df753fa6c749138296a1fe9421467136dda",
     "tree": "37ef36359cef74273ca40a2c1c676b8ede84a431",
-    "engine_remediation_complete": true
+    "engine_remediation_complete": true,
+    "fresh_recheck_2026_09_04": "PASS_UNCHANGED"
   },
   "post_test_change_audit": {
     "base": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
-    "head": "efca623dde4d895d4164d2ea6c69c8fe8546968e",
-    "ahead_by": 8,
-    "changed_files": [
-      "PROJECT_STATE.md",
-      "WS40_CONTINUATION_HANDOFF_POST_WS39.md",
-      "WS40_FINAL_HANDOFF.md",
-      "candidate-qualification/ws40-forge/WS40_FINAL_AUDIT.json",
-      "candidate-qualification/ws40-forge/WS40_FINAL_EVIDENCE_MANIFEST.json",
-      "candidate-qualification/ws40-forge/WS40_NO_REQUEST_ECHO_AUDIT.json",
-      "candidate-qualification/ws40-forge/WS40_POST_WS39_COORDINATION.json"
-    ],
+    "head_before_dependency_recheck": "130b2d95db1fcddb89af2c9b585089440262dbed",
     "new_engine_or_provider_implementation_change_after_tested_lock": false,
     "new_workflow_change_after_tested_lock": false,
     "unexpected_change": false
+  },
+  "successor_dependency_recheck": {
+    "branch": "ws41/successor-contract-v1.0.3-freeze",
+    "head": "0b41a8ca1705c6b81ebc17c59eabd04b42550c71",
+    "tree": "2c4822d276314a710511e4bb9d88bd33a65d4a2b",
+    "head_message": "ws41: discover current Wizards CR TXT from rules page",
+    "qualification_ws41_directory_present": false,
+    "freeze_workflow": "WS41 successor v1.0.3 freeze",
+    "freeze_run_id": 33819655115,
+    "freeze_run_number": 2,
+    "freeze_run_conclusion": "failure",
+    "freeze_job_id": 100859351583,
+    "failure_step": "Reverify current official Wizards Comprehensive Rules lock",
+    "runtime_discovered_official_cr_url_unescaped": "https://media.wizards.com/2026/downloads/MagicCompRules 20260819.txt",
+    "runtime_failure": "curl: (3) URL rejected: Malformed input to a URL function",
+    "materialization_step_executed": false,
+    "semantic_lint_executed": false,
+    "ws32_immutability_check_executed": false,
+    "freeze_persist_commit_created": false,
+    "complete_freeze_evidence_uploaded": false,
+    "immutable_successor_contract_available_to_ws40": false,
+    "classification": "EXTERNAL_DEPENDENCY_NOT_YET_FROZEN"
   },
   "checks": {
     "writable_forge_repository_blocker_cleared": "PASS",
@@ -46,7 +60,9 @@
     "continuation_handoff_present": "PASS",
     "machine_readable_coordination_checkpoint_present": "PASS",
     "forge_pr_open_draft_unmerged": "PASS",
-    "commander_lab_pr_open_draft_unmerged": "PASS"
+    "commander_lab_pr_open_draft_unmerged": "PASS",
+    "ws41_branch_exists": "PASS",
+    "ws41_immutable_freeze_complete": "FAIL"
   },
   "pull_requests": {
     "forge": {
@@ -58,7 +74,7 @@
     },
     "commander_lab": {
       "number": 154,
-      "head_before_audit_commit": "efca623dde4d895d4164d2ea6c69c8fe8546968e",
+      "head_before_dependency_recheck_commit": "130b2d95db1fcddb89af2c9b585089440262dbed",
       "state": "open",
       "draft": true,
       "merged": false
@@ -72,7 +88,7 @@
     "FORGE_SUCCESSOR_PROVIDER_QUALIFIED": false,
     "ARCHITECTURE_FREEZE": false
   },
-  "current_external_dependency": "NEW_IMMUTABLE_PROVIDER_NEUTRAL_SUCCESSOR_CONTRACT_NOT_YET_FROZEN",
-  "stop_condition_for_current_phase": "SATISFIED: all blocker-independent Forge engine-remediation work is complete; broad successor runtime is prohibited until the replacement immutable contract is frozen.",
-  "exact_next_action": "When the replacement successor contract is frozen, freshly lock its exact authority, reconstruct the complete denominator, re-audit semantic executability and no-request-echo requirements, execute complete native construction from record 1 with zero historical successor credit, and only after complete construction passes execute the complete fresh runtime denominator."
+  "current_external_dependency": "WS41_SUCCESSOR_V1_0_3_FREEZE_RUN_FAILED_BEFORE_MATERIALIZATION",
+  "stop_condition_for_current_phase": "SATISFIED: all blocker-independent Forge engine-remediation work is complete; broad successor runtime is prohibited until the replacement immutable contract is actually frozen. The currently visible WS41 branch does not satisfy that gate because its latest freeze run failed before materialization.",
+  "exact_next_action": "When WS41 or another provider-neutral successor workstream produces a successful immutable freeze, freshly lock its exact commit/tree/schema/digests, reconstruct the complete denominator, re-audit semantic executability and no-request-echo requirements, execute complete native construction from record 1 with zero historical successor credit, and only after complete construction passes execute the complete fresh runtime denominator."
 }
