@@ -10,17 +10,15 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 
 ## LAST_CONFIRMED_CHECKPOINT
 
-`WS39-CHECKPOINT-2026-09-03-F`
+`WS39-CHECKPOINT-2026-09-03-G`
 
 ## Source Lock
 
 - XMage repo/branch: `moeendres-png/mage` / `foundry/ws39-commander-history-state-restore`
-- XMage exact WS-39 head: `7bde812727817723616c575759f39bfc4cda4607`
-- XMage exact tree: `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
+- XMage exact WS-39 head/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
 - XMage retained base: `77d7646da6958fdf8125ee7c8f4aabd130d21d4c` / tree `f0a028b265f9c008ea0aedc4cec6b8f14500b69f`
 - Commander Lab repo/branch: `moeendres-png/commander-playtest-lab` / `ws39/xmage-engine-remediation-requalification`
-- Latest runtime-evidenced Commander Lab head: `7e4a5c2f72817a4c2bd7d03d889dbeb89b3d1160`
-- Latest runtime-evidenced Commander Lab tree: `fb502358391448ab44893c65f95f6447e8b367d8`
+- Latest runtime-evidenced Commander Lab head/tree: `a9a52e4c7ee7150bb2cfe747b75cef9b2a273a52` / `71d4ea3a1a2802da25139125186d0075bea657aa`
 - Draft PR: `#153`
 - WS32 contract: `commander-lab.semantic-fixture-materialization/1.0.2`
 - WS32 freeze commit/tree: `038d0f38635eecee4e331c99af41f148de267a26` / `0d160128119f2bad30b220a17c43419b50b7edbe`
@@ -30,92 +28,84 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 
 ## Work Completed / Verified
 
-1. **Native XMage Commander-history restoration is implemented and repeatedly runtime-verified.**
-   - Native state object/API: `CommanderPlaysCountState` + `CommanderPlaysCountWatcher.restoreStateForGameLoad(...)`.
-   - Focused `CommanderPlaysCountStateRestoreTest` is green at exact WS-39 XMage head.
-   - No synthetic historical cast events are used.
+1. **Native XMage Commander-history restoration — COMPLETE / VERIFIED.**
+   - `CommanderPlaysCountState` + `CommanderPlaysCountWatcher.restoreStateForGameLoad(...)`.
+   - Focused `CommanderPlaysCountStateRestoreTest` repeatedly PASS at exact WS-39 XMage head.
+   - No synthetic historical cast events.
 
-2. **Commander Lab exact runtime prerequisites are closed.**
-   - Python repository import path repaired.
-   - Declared Commander Lab dependencies installed in exact CI (`pip install -e .`).
-   - Qualification bridge runtime classpath materializes Maven runtime dependencies.
-   - Tax-3 stdout/stderr/exit are persisted on failure.
-   - Tax-3 result binds the actual checked-out provider commit/tree rather than PR merge-ref SHA.
+2. **Exact runtime infrastructure through Rules-RNG — COMPLETE / VERIFIED.**
+   - Python project install, source locks, legal Wastes-only Commander bootstrap, Maven runtime classpath and fail-safe Tax-3 diagnostics are all closed.
+   - Exact-head WS-39 Rules-RNG instrumentation is implemented and bound into both the PR-CI and dedicated push runtime build.
+   - The transform is exact-locked to XMage `7bde8127...`, carries the seven attributable WS-26 RandomUtil/shuffle transforms, fails closed on source-anchor drift, and emits a machine-readable transform report plus patch.
+   - Dedicated push run `33769541156`, job `100695932914`: source locks PASS, native history test PASS, runtime overlays PASS, instrumented XMage build PASS, bridge build PASS, runtime classpath PASS.
+   - Therefore prior blocker `XMAGE_RULES_RNG_TAPE_UNAVAILABLE` is CLOSED.
 
-3. **Qualification bootstrap deck is now separated from frozen semantic state.**
-   - Commit `7e4a5c2f72817a4c2bd7d03d889dbeb89b3d1160` uses a legal inert `Wastes`-only bootstrap mainboard sized to `100 - commander_count`.
-   - Frozen semantic objects are not placed into the import deck.
-   - They remain materialized as real XMage cards by the qualification state-loader (`CardRepository` + `Game.loadCards`) and validated against the frozen requested state.
-   - This closed both earlier bootstrap failures: undersized decks and Commander color-identity rejection.
+3. **Latest Tax-3 evidence — 1/3 fresh PASS, 2/3 fail closed after correct native construction/tax enumeration.**
+   - Run: `33769541156`
+   - Job: `100695932914`
+   - Artifact: `ws39-engine-runtime-a9a52e4c7ee7150bb2cfe747b75cef9b2a273a52`
+   - Artifact id: `9899195792`
+   - Artifact digest: `sha256:6eca90ff64ec186b388aacbb59fb3fcdd7b12c90be29e23554fef6ed805a3a21`
+   - `historical_pass_imported = false`.
+   - Exact result SHA256: `fa11111624cbd3d0d6372191d2fe8cff1a7b4aef3f9ea494b70b76a1d50685f9`.
+   - RNG transform report SHA256: `769789a6034d31288632e82cc90497ddebdea52ae6c71a4c421e6265125fe8f8`.
+   - RNG patch SHA256: `9e3f913e3a57cdbda7717ec332eb3a0a96b56f56ad5133cbb0cc63adb2dff2f7`.
 
-4. **Latest exact build chain is fresh green up to Tax-3.**
-   - CI run `33767708301`, exact job `100690078341`.
-   - PASS: exact checkouts/source locks, dependency install, contract probe, native history test, all current WS-39 overlays, exact XMage build, bridge verify, runtime classpath materialization, evidence sealing/upload.
-   - Security job `100690078356`: SUCCESS.
-   - Quality job: Mypy/pytest/compile/secret scan/wheel green except inherited repository-wide Ruff lint/format debt.
+4. **Tax-3 semantic findings from the latest fresh runtime.**
+   - `WS05-CMD-PARTNER-TAX`: **PASS / FRESH_WS39_RUNTIME_PASS**.
+     - P1 Rograkh restored cast history = 2.
+     - Native base mana = 0; native Commander-adjusted mana = `{4}` via `Card.commanderCost`.
+     - P1 Kediss restored cast history = 0.
+     - Kediss native adjusted cost equals native base cost `{1}{R}`.
+   - `WS05-CMD-TAX-2`: native requested-state construction PASS and exact digest equality PASS; restored P1 Rograkh history = 2; native tax enumeration base 0 → adjusted `{4}` PASS; transaction then fails closed at exact payment-source evidence selection: `SEMANTIC_MATCH_NOT_UNIQUE:MANA_SOURCE:obj:tax-mountain-0:matches=0`.
+   - `WS05-CMD-TAX-4`: same result and same payment-source evidence blocker.
+   - Thus Commander-history restoration and Commander-tax calculation are positively runtime-verified for all mandatory scenarios. The remaining blocker is not a Magic Rules failure.
 
-5. **Latest Tax-3 artifact is complete and exact.**
-   - Artifact name: `ws39-exact-engine-contract-7e4a5c2f72817a4c2bd7d03d889dbeb89b3d1160`
-   - Artifact id: `9898574242`
-   - Artifact digest: `sha256:c528f4ed34ae19ed258825e99d1ec48c7df631b4cbe5eb1e4d8a08625b37d49d`
-   - Contains provider/XMage commit+tree, contract probe, overlay patch, focused surefire report, Tax-3 stdout/stderr/exit/results and SHA256SUMS.
+## Current Blocker — Qualification Semantic Source-ID Evidence
 
-## New Finding — Current Tax-3 Blocker
+`run_tax3.py` requires each of the four contract-declared Mountain payment sources to be selected from the current XMage-offered `mana_payment` legal options by exact frozen WS-32 `semantic_id`.
 
-Mandatory Tax-3 remains **0/3 credited**, but all three records now pass deck import and fail at the next common pre-state-load infrastructure boundary:
+The current WS-39 overlay populates `metadata.semantic_source_object_id` via:
 
-`create_full_game failed: full_game_creation_failed: IllegalStateException: XMAGE_RULES_RNG_TAPE_UNAVAILABLE`
+`XmageDecisionOptionIdentity.visibleNativeToSemantic(game, actorView)`.
 
-Affected exact records:
-- `WS05-CMD-TAX-2` — digest `cdbc7107328befdd3189b70704e33f9aa6851b116b4bef0c345e470140bc5ebf`
-- `WS05-CMD-TAX-4` — digest `9dab6dfef8e3c03b35a70196ec1f457697a1ddfd75f6d07de6e82f4cb833ed01`
-- `WS05-CMD-PARTNER-TAX` — digest `95b16c730b203d945892fbed3cb23105627f6afa62156a50b625573dc2f55d4c`
+That method intentionally maps native XMage object IDs to **actor-visible Knowledge-Ledger object IDs / incarnation references**, not to frozen WS-32 scenario `semantic_id`s. The metadata field is therefore misnamed and cannot match `obj:tax-mountain-0` etc.
 
-`historical_pass_imported = false`.
+The correct frozen semantic mapping already exists natively in `XmageWs26Scenario.Applied.semanticObjectIds()`, created during the exact native state load. This mapping must be exposed only as qualification evidence metadata while preserving the ordinary actor-visible opaque option identity and all privacy behavior.
 
-### Root-cause classification
-
-- `XmageWs26QualificationSession` calls `RandomUtil.setSeed(seed)` then `XmageWs26RulesRngTape.begin()` during `create_full_game`.
-- `XmageWs26RulesRngTape.begin()` reflectively requires `RandomUtil.beginRulesRngTape()` and later `getRulesRngTape()`.
-- Those methods come from the qualification-only WS-26 XMage RNG instrumentation transform.
-- The current WS-39 exact workflow does **not** apply that transform before building exact WS-39 XMage.
-- The historical transform is hard-locked to retained base commit `77d7646d...`, so it cannot simply be invoked against exact WS-39 XMage head `7bde8127...`.
-- Exact WS-39 `RandomUtil.java` still matches the uninstrumented source shape, confirming the missing instrumentation rather than a semantic RNG disagreement.
-
-Classification: **qualification instrumentation omission / pre-runtime infrastructure defect**. No Commander-tax, history-restoration, or Magic Rules defect is established by this failure.
+Classification: **qualification evidence-identity projection defect**, not legality, Commander-tax, history-restoration, hidden-information, or RNG defect.
 
 ## Important Decisions
 
-- Rules RNG remains XMage-owned. The Python harness must never generate or substitute Rules randomness.
-- The correct remediation is an exact-head WS-39 qualification-only source transform that instruments XMage `RandomUtil` and the previously identified `Collections.shuffle` call sites, with strict source-lock and anchor checks.
-- No fallback RNG, first/random/default decision selection, synthetic history, or requested-state echo may receive runtime credit.
+- Do not weaken `run_tax3.py` to match Mountains by first occurrence, name-only ordering, UUID ordering, or random/default choice.
+- Do not replace actor-visible option IDs with frozen semantic IDs in the normal protocol surface.
+- Add the frozen `semantic_id` only as qualification-only evidence metadata sourced from the already-applied native scenario map.
+- Rules RNG remains XMage-owned; no Python/harness RNG substitution.
 - Tax-3 must reach 3/3 fresh PASS before full 107 runtime credit is unlocked.
-- No AF07 or Architecture Freeze claim may be made.
-- No merge is authorized.
+- No AF07 or Architecture Freeze claim. No merge.
 
 ## 107-Requalification Preparation
 
 - Frozen denominator families: player_count 4; pilot_boundary 17; pilot_boundary_negative 7; hidden_information 20; replay_rng 5; micro_rules 17; CARD_02 1; multiplayer_commander 36.
-- Historical WS-36 stopped after the mandatory history blocker; its remaining rows cannot be imported as PASS.
-- Frozen native procedures reduce the future implementation surface to 63 reusable operation names across 47 recurring operation sets.
+- Historical WS-36 remaining rows are `NOT_RUN_AFTER_STOP_CONDITION`, not setup/runtime PASS, and cannot be imported.
+- Frozen native procedures reduce the later implementation surface to 63 reusable operation names across 47 recurring operation sets.
 - Decision surface is 17 families, dominated by priority, target, choose_mode and mulligan.
-- Existing specialized v1.0.1 XMage executors/overlays (natural start, hidden HIDDEN_01/02, MICRO_STACK, MICRO_REPLACEMENT, WS05-MP-COMBAT-4) are implementation provenance only and must be freshly rebound/executed for v1.0.2.
+- Existing v1.0.1 XMage executors/overlays remain implementation provenance only; every v1.0.2 row requires fresh native execution.
 - Commander-outside-command-zone fixtures require preservation of native commander identity; the old v1.0.1 builder is insufficient for that family.
 
 ## Quality
 
-- WS-39-local Ruff lint previously had zero findings.
-- Five WS-39 Python files were still Ruff-format dirty at the last complete local-slice audit; terminal closure must format/check all WS-39-modified Python files using the unchanged project Ruff configuration.
-- Repository-wide historical qualification debt is not to be hidden by weakening configuration.
+- Security and core Python tests/mypy/compile remain green on the latest fully observed PR-CI predecessor.
+- Repository-wide Ruff lint/format contains inherited historical qualification debt.
+- WS-39-local formatting must be explicitly clean under unchanged configuration before terminal closure.
 
 ## Exact Next Action
 
-1. Add `candidate-qualification/ws39-xmage-successor/apply_ws39_rng_instrumentation.py`, exact-locked to XMage head `7bde812727817723616c575759f39bfc4cda4607`, carrying forward the WS-26 RandomUtil recording and attributable-shuffle transforms with fail-closed anchors.
-2. Apply it in the exact WS-39 CI overlay/build sequence before the XMage build; persist its transform report in WS-39 evidence.
-3. Re-run exact Tax-3 and inspect the three fresh rows.
-4. Repeat bounded remediation until Tax-3 = 3/3 fresh PASS; checkpoint immediately.
-5. Then execute the exact fresh 107-record v1.0.2 successor requalification with native operation-family executors and no historical PASS import.
-6. Close WS-39-local formatting, seal final evidence/checksums, write `WS39_FINAL_HANDOFF.md`, and terminally update this file.
+1. Repair the WS-39 qualification-only ability metadata path so `semantic_source_object_id` comes from the exact applied scenario native-UUID→frozen-semantic-ID map, while actor-visible opaque identity remains separate and unchanged.
+2. Re-run the dedicated exact push workflow and inspect Tax-2/Tax-4 transaction evidence.
+3. Repeat bounded remediation until Tax-3 = 3/3 fresh PASS; checkpoint immediately.
+4. Then implement/execute the exact fresh 107-record v1.0.2 requalification with native operation-family executors and zero historical PASS import.
+5. Close WS-39-local quality, seal final evidence/checksums, write `WS39_FINAL_HANDOFF.md`, and terminally update this state.
 
 ## Completion status
 
@@ -123,4 +113,4 @@ Classification: **qualification instrumentation omission / pre-runtime infrastru
 `WS39_STATUS = PARTIAL`
 `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
 
-Reason: mandatory Tax-3 is 0/3 due the verified missing exact-head Rules-RNG instrumentation; fresh 107/107 has not yet been executed.
+Reason: mandatory Tax-3 is 1/3 fresh PASS; the remaining two records are blocked only by qualification semantic payment-source ID projection. Fresh 107/107 has not yet been executed.
