@@ -115,8 +115,8 @@ jobs:
           set -euo pipefail
           mvn -B -ntp dependency:copy-dependencies \
             -DincludeScope=runtime \
-            -DoutputDirectory=target/dependency
-          test -n "$(find target/dependency -maxdepth 1 -name '*.jar' -print -quit)"
+            -DoutputDirectory="${{ github.workspace }}/engine-bridge/target/dependency"
+          test -n "$(find "${{ github.workspace }}/engine-bridge/target/dependency" -maxdepth 1 -name '*.jar' -print -quit)"
       - name: Execute fail-closed full107 native construction probe
         run: |
           set -euo pipefail
