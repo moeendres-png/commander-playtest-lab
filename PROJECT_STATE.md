@@ -10,7 +10,7 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
 
 ## LAST_CONFIRMED_CHECKPOINT
 
-`WS39-CHECKPOINT-2026-09-03-B`
+`WS39-CHECKPOINT-2026-09-03-C`
 
 ### COMPLETE / VERIFIED work packages
 
@@ -25,8 +25,8 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
 
 2. **Exact WS-39 Commander Lab engine/bridge build — COMPLETE / VERIFIED.**
    - Exact WS-32 source lock and materialization SHA are checked.
-   - Exact native history test, qualification overlays, XMage build and bridge build have passed in CI.
-   - XMage runtime dependency materialization is now explicit in `.github/workflows/ci.yml` via Maven `dependency:copy-dependencies` and was observed green at Commander Lab commit `abf79e26af773abedf4fb9deac62d76d4975cf19`.
+   - Exact native history test, qualification overlays, XMage build and bridge build pass at Commander Lab head `0605d7d94d77a7e65180f40d236063cfbadc8c85` in CI run `33760615072`.
+   - XMage runtime dependency materialization via Maven `dependency:copy-dependencies` also passes in that run.
 
 3. **WS-32 contract-shape / denominator probe — COMPLETE / VERIFIED.**
    - Contract: `commander-lab.semantic-fixture-materialization/1.0.2`
@@ -39,35 +39,42 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
 
 4. **Tax-3 runner repository import-path remediation — COMPLETE / VERIFIED.**
    - Commander Lab commit `40da35e859cd5615dfa2170230b6c4ca6c9058e6` repairs repository `src` imports and the local Ruff B023 issue in `run_tax3.py`.
-   - Exact-head CI progressed beyond the previous Python import failure.
 
-5. **Qualification bridge runtime classpath materialization — COMPLETE / VERIFIED as an infrastructure step.**
-   - Commander Lab commit `abf79e26af773abedf4fb9deac62d76d4975cf19`, tree `8f40de7f81cdfd9b7ba343752569ab7d0bb7b994`.
-   - Runtime classpath includes the bridge JAR plus `engine-bridge/target/dependency/*`.
-   - The dependency-materialization step passed in CI run `33747687690`.
-   - This closes the previously observed thin-JAR `NoClassDefFoundError: mage/game/Game` setup defect as the known checkpoint blocker; it does **not** itself grant Tax-3 semantic credit.
+5. **Qualification bridge runtime classpath materialization — COMPLETE / VERIFIED as infrastructure.**
+   - Commander Lab commit `abf79e26af773abedf4fb9deac62d76d4975cf19` adds the bridge JAR plus `engine-bridge/target/dependency/*` runtime classpath and materializes runtime dependencies.
+   - The dependency step is fresh PASS again in CI run `33760615072`.
+
+6. **Fail-safe Tax-3 observability — COMPLETE / VERIFIED.**
+   - Commander Lab commit `0605d7d94d77a7e65180f40d236063cfbadc8c85`, tree `40f9d4b4ee7177231e7090db2af53ff69ffde219`.
+   - CI run `33760615072`, exact job `100666009961` persisted `WS39_TAX3_STDOUT.log`, `WS39_TAX3_STDERR.log` and `WS39_TAX3_EXIT_CODE.txt` even though the gate failed.
+   - Artifact: `ws39-exact-engine-contract-0605d7d94d77a7e65180f40d236063cfbadc8c85`, artifact id `9895489020`, artifact digest `sha256:4248359a2b385bb02b53f0013e12f706963d41ebbd9d327201943339826f6eb2`.
+
+7. **Concrete current Tax-3 pre-result blocker identified — COMPLETE / VERIFIED diagnosis.**
+   - Exit code: `1`.
+   - Exact stderr terminates during Python import with `ModuleNotFoundError: No module named 'pydantic'`.
+   - Import chain: `run_tax3.py` -> `run_ws26_gate.py` -> `commander_lab.engine.rules.full_game` -> `commander_lab.models.cards` -> `pydantic`.
+   - `pyproject.toml` declares `pydantic>=2.10,<3` as a base project dependency.
+   - Therefore the current blocker is a missing Commander-Lab package/dependency installation in the dedicated WS-39 CI job. It is **not** evidence of incorrect Commander-tax or XMage Rules semantics.
+
+8. **WS-39 security job — fresh PASS at diagnostic head.**
+   - CI run `33760615072`, security job `100666011444` completed SUCCESS including dependency audit, SBOM and license report.
 
 ### PARTIAL / FAILED / OPEN work packages
 
-6. **Mandatory Tax-3 runtime — PARTIAL / PRE-RESULT FAILURE.**
-   - Latest exact-head Commander Lab commit examined: `abf79e26af773abedf4fb9deac62d76d4975cf19`.
-   - Latest investigated CI run: `33747687690`.
-   - Exact WS-39 job reached: native history PASS, overlays PASS, XMage build PASS, bridge verify PASS, runtime dependency materialization PASS.
-   - `Execute mandatory Tax-3 runtime gate` still exits non-zero.
-   - No `WS39_TAX3_RESULTS.json` is produced, so no record-level semantic PASS/FAIL is established.
-   - Current classification: **runner/runtime pre-result failure after classpath materialization**, not an established Magic Rules defect.
-   - Tax-3 remains 0/3 credited until all three records produce fresh PASS results.
+9. **Mandatory Tax-3 runtime — PARTIAL / PRE-RESULT FAILURE.**
+   - No `WS39_TAX3_RESULTS.json` exists at diagnostic head because Python cannot import a declared project dependency.
+   - Tax-3 remains 0/3 credited until all three exact records produce fresh PASS results.
 
-7. **Repository quality — PARTIAL.**
-   - Mypy, compile/tests and security checks observed green in the investigated quality run.
-   - `run_tax3.py` B023 was repaired at `40da35e8…`.
-   - Generic repository Ruff lint/format still contains inherited historical qualification-file debt; final WS-39 quality credit requires exact verification that all WS-39-modified files are clean without weakening project-wide quality configuration.
+10. **Repository quality — PARTIAL.**
+   - Fresh Mypy PASS in run `33760615072`.
+   - Generic repository-wide Ruff lint and format remain failing due inherited historical qualification-file debt. Final WS-39 credit requires unchanged-config verification that all WS-39-modified Python files are clean; configuration must not be weakened.
 
-8. **Fresh complete 107-record successor requalification — OPEN / NOT_RUN.**
+11. **Fresh complete 107-record successor requalification — OPEN / NOT_RUN.**
    - Gated by mandatory Tax-3 3/3 PASS.
    - Historical WS-34/WS-36 PASS results must not be imported.
+   - Capability audit confirms historic WS-34 only had 32 runtime-ready records and 75 setup-blocked records; a complete WS-39 run therefore requires additional provider-native setup/transaction executors rather than replaying old terminal reports.
 
-9. **Terminal WS-39 handoff and provider qualification — OPEN.**
+12. **Terminal WS-39 handoff and provider qualification — OPEN.**
    - `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`.
    - `WS39_FINAL_HANDOFF.md` does not yet exist as a terminal validated handoff.
 
@@ -84,7 +91,7 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
 ## Source locks
 
 - XMage exact green head/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`.
-- Commander Lab latest verified pre-checkpoint head/tree: `abf79e26af773abedf4fb9deac62d76d4975cf19` / `8f40de7f81cdfd9b7ba343752569ab7d0bb7b994`.
+- Commander Lab latest diagnostic head/tree: `0605d7d94d77a7e65180f40d236063cfbadc8c85` / `40f9d4b4ee7177231e7090db2af53ff69ffde219`.
 - Commander Lab branch: `ws39/xmage-engine-remediation-requalification`.
 - Draft Commander Lab PR: `#153`.
 
@@ -94,22 +101,24 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
 - Exact Commander Lab WS-39 contract-shape probe: **PASS**.
 - Exact XMage + bridge build with overlays: **PASS**.
 - Runtime dependency materialization: **PASS**.
-- Mandatory Tax-3: **NOT PASS / PRE-RESULT FAILURE**; no result JSON yet.
+- Security: **PASS**.
+- Mypy: **PASS**.
+- Mandatory Tax-3: **NOT PASS / PRE-RESULT IMPORT FAILURE** (`pydantic` not installed in dedicated job).
 - Fresh 107/107: **NOT_RUN**.
 
 ## Known errors
 
-1. Tax-3 exits after all setup/build/classpath steps pass but before `WS39_TAX3_RESULTS.json` is written; exact stderr is not yet persisted by the workflow artifact.
+1. Dedicated WS-39 exact job does not install the Commander-Lab package before executing `run_tax3.py`; declared dependency `pydantic` is therefore absent.
 2. Repository-wide Ruff has inherited historical debt; WS-39-local cleanliness must be proven separately without weakening configuration.
+3. Full 107 requires native setup/transaction coverage beyond the historical WS-34 core9/terminal23 paths.
 
 ## Exact next action
 
-1. Make the Tax-3 CI step fail-safe observable by persisting stdout, stderr and exit code under `artifacts/ws39-ci/` even when the runner exits before result creation.
-2. Execute exact-head CI and inspect the newly persistent failure evidence.
-3. Repair the concrete in-scope runner/provider/setup defect; repeat until mandatory Tax-3 = 3/3 fresh PASS.
-4. Immediately checkpoint Tax-3 PASS.
-5. Execute the exact fresh 107-record successor requalification and remediate bounded provider/setup defects until 107/107 fresh PASS or an objective non-remediable blocker is proven.
-6. Seal final checksums/evidence, verify WS-39-local quality, write `WS39_FINAL_HANDOFF.md`, and update this file terminally.
+1. Add a minimal `python -m pip install -e .` step to the dedicated WS-39 exact job after Python setup; this installs the declared base dependencies without changing Rules behavior.
+2. Execute exact-head CI, inspect `WS39_TAX3_RESULTS.json` and persistent logs, and remediate the next concrete defect if any.
+3. Repeat until mandatory Tax-3 = 3/3 fresh PASS, then checkpoint immediately.
+4. Execute the exact fresh 107-record successor requalification; implement only provider-native setup/transaction adapters required by frozen records, failing closed on unsupported semantics.
+5. Seal final checksums/evidence, verify WS-39-local quality, write `WS39_FINAL_HANDOFF.md`, and update this file terminally.
 
 ## Completion status
 
