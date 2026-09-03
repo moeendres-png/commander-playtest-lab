@@ -10,7 +10,7 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 
 ## LAST_CONFIRMED_CHECKPOINT
 
-`WS39-CHECKPOINT-2026-09-03-M-OPTIONAL-CONTROLLED-SINCE-FIX-VERIFIED`
+`WS39-CHECKPOINT-2026-09-03-N-STACK-WIRING-BUILD-GREEN-CLASSPATH-PATH-BLOCKED`
 
 ## Source Lock
 
@@ -21,6 +21,7 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 - First exact Full-107 construction runtime head/tree: `e10ec2b0e6e9bd0068da73b93c512a9f52c1e672` / `e42f1514fdb6b1ba2de5d4ec596ba289f45793f2`
 - Checkpoint-L regression head/tree: `c8018dda81c7cdefaabd65a855924584b4211cd9` / `c922acadbddca96244b2b27fbb78cbaba1789b4d`
 - Checkpoint-M verified correction head/tree: `173718f5e7b91d69a1180a41b3ebe6e3356a2bf6` / `4ae0cd5c90c827dd09aaab38f6b55190486e83c7`
+- Checkpoint-N stack-wiring staging head/tree: `54d75a5fcd501255cd1222d318f4ab5671e8cef9` / `d4302dba28f7c39ec33efc7b91813063b1f2370a`
 - Draft PR: `#153`; no merge authorized.
 - WS32 contract: `commander-lab.semantic-fixture-materialization/1.0.2`
 - WS32 freeze commit/tree: `038d0f38635eecee4e331c99af41f148de267a26` / `0d160128119f2bad30b220a17c43419b50b7edbe`
@@ -35,8 +36,8 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
    - Focused `CommanderPlaysCountStateRestoreTest` repeatedly PASS at exact WS-39 XMage head.
    - No synthetic historical cast events.
 
-2. **Exact runtime infrastructure and Rules-RNG — COMPLETE / VERIFIED.**
-   - Exact source locks, legal bootstrap, project/runtime dependency install, Maven classpath, fail-safe diagnostics and exact-head qualification-only Rules-RNG instrumentation are closed.
+2. **Exact runtime infrastructure and Rules-RNG baseline — COMPLETE / VERIFIED.**
+   - Exact source locks, legal bootstrap, project/runtime dependency install, fail-safe diagnostics and exact-head qualification-only Rules-RNG instrumentation are closed for the verified predecessor executions.
    - Rules randomness remains XMage-owned.
 
 3. **Mandatory Tax-3 — COMPLETE / 3-of-3 fresh PASS.**
@@ -70,46 +71,51 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
    - `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256 `2a1e5d587bd3a96a9aeb5884e261b88db9ded498a76b0d5156e2a798546ace70`; all ten entries in artifact `SHA256SUMS` independently verified with zero mismatch.
    - Fresh exact result: **39 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`; 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`; 61 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`; 0 `FAIL_CLOSED_NATIVE_CONSTRUCTION`**.
    - `historical_pass_imported=false`; `runtime_credit_granted=false`.
-   - This closes the Checkpoint-L regression and proves `zone_position`, explicit `controlled_since_turn_began`, face-down and commander-history construction surfaces currently accepted by the probe without granting behavior credit.
 
-## Current construction state after Checkpoint M
+8. **Checkpoint-N bounded stack-wiring staging — BUILD GREEN / INFRASTRUCTURE BLOCKED BEFORE PROBE.**
+   - Stack implementation commits preceding staging: `5b15ba502774013b50e4726d1b9bb1ade41d5697` (new v1.0.2 stack overlay), `062c3371a4d402450fcc86909ac30dcc93e41b71` (canonical v1.0.2 stack transport), and staging head/tree `54d75a5fcd501255cd1222d318f4ab5671e8cef9` / `d4302dba28f7c39ec33efc7b91813063b1f2370a` (workflow wiring).
+   - `run_full107_construction_probe.py` intentionally still does **not** declare `stack_state` or `zone:stack` supported. Therefore the new stack code cannot gain construction credit until a dedicated fresh staging run proves the bridge path and a later atomic enablement is executed.
+   - Workflow run `33787971776`, job `100757275170`, exact head `54d75a5fcd501255cd1222d318f4ab5671e8cef9`: overall FAILURE.
+   - Fresh step status: checkout/provider identity/WS32 lock/XMage lock/JDK/Python/project install/source-lock verification/native `CommanderPlaysCountStateRestoreTest`/qualification overlays/XMage build/qualification bridge build all PASS. Step `Materialize runtime classpath` FAIL. Full-107 construction probe was SKIPPED. Evidence sealing and artifact upload PASS.
+   - Exact classpath failure is infrastructure-only: Maven `dependency:copy-dependencies` reports BUILD SUCCESS and dependencies already present in destination, but the following assertion fails with `find: ‘target/dependency’: No such file or directory`. Logs show dependency output below a nested `engine-bridge/engine-bridge/target/dependency` path while the assertion checks `engine-bridge/target/dependency` from the declared working directory.
+   - No successor record was executed in this run. No stack semantic failure was observed. No new construction or behavior credit is granted.
+   - Artifact `ws39-full107-construction-54d75a5fcd501255cd1222d318f4ab5671e8cef9`, id `9906583541`.
+   - Fresh GitHub artifact digest and independently re-downloaded ZIP SHA256 both `f0347ec21a9de4fede7553dbbfc9295bbfcfbee5a3c765658888b027d2456e4f`.
+   - Artifact source locks: provider commit/tree `54d75a5fcd501255cd1222d318f4ab5671e8cef9` / `d4302dba28f7c39ec33efc7b91813063b1f2370a`; XMage commit/tree `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`.
+   - Artifact contains provider/XMage locks, qualification bridge patch, exact Rules-RNG instrumentation evidence and native Commander-history surefire evidence; it correctly contains no `WS39_FULL107_CONSTRUCTION_PROBE.json` because the run failed before that step.
+   - Every entry in artifact `SHA256SUMS` was independently reverified after normalizing the archived path prefix, with zero mismatch.
+   - Classification: **WS39 qualification-workflow classpath output-path defect**, not Rules-Core, not stack semantics, not dependency resolution, and not a provider capability result.
+   - `historical_pass_imported=false` remains authoritative; this run grants zero runtime credit.
+
+## Current construction state after Checkpoint N
+
+Last successfully executed fresh construction census remains Checkpoint M:
 
 - 39 loaded-state records pass exact native construction/readback, with zero behavior runtime credit.
 - 7 natural-start records are intentionally delegated to fresh natural executors.
-- 61 records fail closed only because at least one requested native setup dimension is not yet implemented.
-- 0 records currently fail native construction among the surfaces declared supported.
+- 61 records fail closed because at least one requested native setup dimension remains unsupported by the currently enabled probe.
+- 0 records fail native construction among the currently enabled surfaces.
 
-Fresh remaining unsupported dimension families from the exact 107 denominator include:
+The bounded stack overlay now compiles and the exact XMage + qualification bridge build succeeds, but **stack support is intentionally still disabled in the construction capability declaration** until the classpath workflow path is repaired and a fresh staging run completes through the probe.
 
-- `stack_state` / `zone:stack`: 24 records;
-- `combat_state`: 12;
-- `knowledge_grants`: 11;
-- `zone_move_event`: 8;
-- `elimination_trigger` / nonpositive-life setup: 6-class surface;
-- `commander_damage_matrix`: 5;
-- owner/controller split: 3;
-- counters: 2;
-- attachments: 2;
-- extra-turn creation: 2;
-- revealed zone: 1;
-- additional temporal entry points including declare attackers/blockers, combat damage, upkeep/draw and postcombat main.
+Fresh remaining unsupported dimension families include `stack_state` / `zone:stack`, combat/temporal combat, knowledge grants, zone-move events, elimination/nonpositive-life setup, commander-damage matrices, owner/controller split, counters, attachments, extra turns, revealed zone and additional temporal entry points. Counts must be recomputed only from the next successful exact probe because dimensions overlap.
 
-Counts must be recomputed after every bounded implementation; overlapping dimensions mean these family counts do not sum to 61.
-
-## Stack-state audit prepared after Checkpoint M
+## Stack-state audit / implementation notes
 
 - Exactly 24 denominator records require `stack_state` and `zone:stack`; six additional stack-bearing records in the frozen 135 bundle are out-of-scope Actual-Card records and receive no WS-39 credit.
-- Historical v1.0.1 `apply_micro_stack_overlay.py` is provenance only. It uses genuine XMage `Spell`, `SpellAbility`, native target validation and `GameState.setZone(..., Zone.STACK)`, but its schema is incompatible with v1.0.2 (`source_object` vs `source_semantic_id`) and it receives zero historical credit.
-- Current v1.0.2 stack records use player and semantic-object targets; target resolution must therefore map `P#` to native player UUIDs and semantic IDs to native object UUIDs and validate each through XMage target legality.
-- `MICRO_COPY` contains two ordered stack objects, so stack cardinality/order must be natively read back.
-- Two denominator records (`WS05-CMD-ZONE-LIB-YES/NO`) require Bant Charm mode `put_creature_on_bottom_of_owners_library`. XMage `BantCharm` represents this as a real second `Mode` with `PutOnLibraryTargetEffect(false)` and `TargetCreaturePermanent`; a string echo is insufficient. Native mode selection/readback is required.
-- All frozen denominator stack entries currently assert `cast_complete=true` and `costs_paid=true`; unsupported values must remain fail closed.
+- Historical v1.0.1 `apply_micro_stack_overlay.py` is provenance only and receives zero historical credit.
+- Current v1.0.2 stack overlay constructs genuine XMage `Spell` objects, binds provider-neutral semantic source identities, validates targets through XMage target legality, preserves stack order/cardinality, and performs native readback.
+- Frozen target identities can be players (`P#`) or semantic objects; the loader resolves each to the corresponding native UUID and rejects non-unique/unavailable mappings.
+- `MICRO_COPY` requires ordered two-object stack readback.
+- `WS05-CMD-ZONE-LIB-YES/NO` requires Bant Charm's genuine native second mode (`PutOnLibraryTargetEffect(false)` / `TargetCreaturePermanent`). The overlay selects by normalized native mode semantics with exactly-one-match enforcement; it does not select a first/default mode.
+- All denominator stack entries currently require `cast_complete=true` and `costs_paid=true`; unsupported values fail closed.
 
 ## Important Decisions
 
 - Construction equality is necessary but not sufficient for successor runtime PASS.
 - Provider-request echo without native validation receives no credit.
 - Optional frozen-state fields constrain native readback only when explicitly present.
+- Staged implementation does not become a declared capability merely because it compiles. Capability is enabled only after the exact staging path reaches a fresh native probe.
 - Every eventual 107/107 PASS needs native construction plus transaction/postcondition evidence for its frozen procedure.
 - No historical same-ID PASS may be imported.
 - Unsupported production-reachable decisions fail closed; no first/random/default/AI/GUI/parent fallback.
@@ -122,13 +128,15 @@ Counts must be recomputed after every bounded implementation; overlapping dimens
 
 ## Exact Next Action
 
-1. Implement the bounded v1.0.2 `stack_state + zone:stack` native construction surface using XMage stack primitives, semantic source mapping, native player/object target validation, stack order/cardinality readback, and explicit native Bant Charm mode selection for the two library-mode records.
-2. Keep `zone_move_event` and every other not-yet-implemented dimension fail closed even when stack construction becomes available.
-3. Re-run the exact Full-107 construction workflow; seal, inspect and persist new counts before any subsequent setup-family remediation.
-4. Continue bounded setup groups until all 107 records are construction-ready or naturally delegated with exact executor evidence.
-5. Materialize fresh behavior executors for all 50 ordered native-operation sets; execute all 107 frozen v1.0.2 records with zero historical PASS import.
-6. Remediate genuine runtime failures fail closed until 107/107 PASS and all required AF/category summaries are exact.
-7. Close WS-39-local quality, seal final evidence/checksums, write `WS39_FINAL_HANDOFF.md`, and terminally update this file.
+1. Inspect `engine-bridge/pom.xml` and repair only the WS39 construction-workflow runtime-classpath output/assertion path so the copied dependency directory is unambiguous and anchored to the repository workspace.
+2. Re-run the stack-wiring staging workflow with stack capability declaration still disabled. Require exact source locks, native Commander-history regression, XMage build, bridge build, classpath materialization, full 107 construction census, evidence seal and checksums to complete.
+3. Persist the fresh staging result before changing `CURRENT_NATIVE_DIMENSIONS`.
+4. Only after staging is green, atomically enable `stack_state` and `zone:stack` in the construction probe and execute a fresh exact 107 construction run.
+5. Remediate concrete stack construction failures one at a time, persisting each bounded result.
+6. Continue bounded setup groups until all 107 records are construction-ready or naturally delegated with exact executor evidence.
+7. Materialize fresh behavior executors for all 50 ordered native-operation sets; execute all 107 frozen v1.0.2 records with zero historical PASS import.
+8. Remediate genuine runtime failures fail closed until 107/107 PASS and all required AF/category summaries are exact.
+9. Close WS-39-local quality, seal final evidence/checksums, write `WS39_FINAL_HANDOFF.md`, and terminally update this file.
 
 ## Completion status
 
@@ -136,4 +144,4 @@ Counts must be recomputed after every bounded implementation; overlapping dimens
 `WS39_STATUS = PARTIAL`
 `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
 
-Reason: Tax-3 is complete 3/3 fresh PASS and Checkpoint M establishes 39 exact loaded-state construction PASS + 7 natural-start delegations with zero construction failure. Sixty-one records still require unsupported setup surfaces, and full 107/107 fresh behavior runtime remains open.
+Reason: Tax-3 is complete 3/3 fresh PASS. Checkpoint M remains the last successful exact Full-107 construction census at 39 native setup PASS + 7 natural-start delegations + 61 unsupported + 0 construction failures. Checkpoint N proves the bounded stack overlay compiles and both exact XMage and bridge builds pass, but a qualification-workflow classpath output-path defect prevents the staging run from reaching the 107er probe; stack support therefore remains deliberately disabled and receives no credit.
