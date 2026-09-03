@@ -19,7 +19,7 @@ import canonical_v101 as legacy  # noqa: E402
 from successor_contract import requested_state_digest, requested_state_projection  # noqa: E402
 
 SCHEMA = "xmage-qualification-scenario/1.1.0"
-ZONE_KEYS = {"hand", "library", "graveyard", "exile", "battlefield"}
+ZONE_KEYS = {"hand", "library", "graveyard", "exile", "battlefield", "stack"}
 COMMANDER_DECK_SIZE = 100
 QUALIFICATION_FILLER = "Wastes"
 
@@ -168,6 +168,7 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
         )
 
     temporal = record["temporal_state"]
+    stack_state = deepcopy(record.get("stack_state") or [])
     scenario = {
         "schema_version": SCHEMA,
         "scenario_id": f"WS39-{record['fixture_id']}",
@@ -182,6 +183,7 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
             "step": temporal["step"],
         },
         "players": players,
+        "stack_state": stack_state,
         "commander_history": commanders,
         "successor_requested_state": requested_state_projection(record),
         "successor_requested_state_digest": requested_state_digest(record),
