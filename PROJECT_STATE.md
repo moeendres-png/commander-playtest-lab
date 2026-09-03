@@ -10,7 +10,7 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 
 ## LAST_CONFIRMED_CHECKPOINT
 
-`WS39-CHECKPOINT-2026-09-03-J-FULL107-CONSTRUCTION-WORKFLOW-MATERIALIZED`
+`WS39-CHECKPOINT-2026-09-03-K-FIRST-FULL107-CONSTRUCTION-RUNTIME`
 
 ## Source Lock
 
@@ -18,10 +18,7 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 - XMage exact WS-39 head/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
 - Commander Lab repo/branch: `moeendres-png/commander-playtest-lab` / `ws39/xmage-engine-remediation-requalification`
 - Exact Tax-3 runtime head/tree: `c4b35c4c2a0017f3d3c57bc518a018c8049c456b` / `1ff6a5def7e2aa3751666002d56e585a6c937353`
-- Full-107 census generator commit: `1aa3e5c5cc3808dd9400a61b32bf70614e0a8516`
-- Census workflow binding commit: `c2ff6276bcc330831a00ebf3a7f74a7d84d86764`
-- Full-107 construction probe commit: `2bd548d001138f082ab10f7eea707a9b6ceb5ef8`
-- Dedicated full-107 construction workflow commit: `e10ec2b0e6e9bd0068da73b93c512a9f52c1e672`
+- First exact Full-107 construction runtime head/tree: `e10ec2b0e6e9bd0068da73b93c512a9f52c1e672` / `e42f1514fdb6b1ba2de5d4ec596ba289f45793f2`
 - Draft PR: `#153`; no merge authorized.
 - WS32 contract: `commander-lab.semantic-fixture-materialization/1.0.2`
 - WS32 freeze commit/tree: `038d0f38635eecee4e331c99af41f148de267a26` / `0d160128119f2bad30b220a17c43419b50b7edbe`
@@ -42,36 +39,54 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 
 3. **Mandatory Tax-3 — COMPLETE / 3-of-3 fresh PASS.**
    - Run `33772428630`, job `100705752538`, workflow/job SUCCESS.
-   - Artifact `ws39-engine-runtime-c4b35c4c2a0017f3d3c57bc518a018c8049c456b`, id `9900377069`.
-   - Artifact digest `sha256:5b76015f49bcbabd8482b9f978003d24057e1648fa2c755f1d2269d6ef733ad1`.
+   - Artifact `ws39-engine-runtime-c4b35c4c2a0017f3d3c57bc518a018c8049c456b`, id `9900377069`, digest `sha256:5b76015f49bcbabd8482b9f978003d24057e1648fa2c755f1d2269d6ef733ad1`.
    - `WS39_TAX3_RESULTS.json` SHA256 `b3b89d32952402471a8800d80dfba8d5d9aa8f43db1db56d0926482c8b8d6a4b`.
-   - Exit code 0; historical PASS imported = false.
-   - Tax-2, Tax-4 and Partner-Tax all `FRESH_WS39_RUNTIME_PASS`.
+   - Tax-2, Tax-4 and Partner-Tax all `FRESH_WS39_RUNTIME_PASS`; `historical_pass_imported=false`.
 
-4. **Full-107 immutable census — MATERIALIZED / ZERO RUNTIME CREDIT.**
-   - Exact denominator 107.
-   - 63 unique native operation names.
-   - 50 unique ordered native-operation sets.
-   - Census explicitly sets `historical_pass_imported=false` and `runtime_credit_granted=false`.
-   - It is bound into the exact WS-39 contract-shape evidence workflow.
+4. **Full-107 immutable census — VERIFIED / ZERO RUNTIME CREDIT.**
+   - Exact denominator 107; 63 unique native operation names; 50 unique ordered native-operation sets.
+   - Census is bound into WS-39 evidence and explicitly grants no runtime credit.
 
-5. **Full-107 native-construction probe — MATERIALIZED / NOT YET CREDIT-BEARING.**
-   - `run_full107_construction_probe.py` classifies every frozen record by required starting-state dimensions.
-   - Records with unsupported current native dimensions are fail-closed without execution.
-   - Candidate records are actually started against XMage and must pass provider-emitted native validation plus exact requested-state digest equality.
-   - Every row and the top-level artifact explicitly use `runtime_credit=NONE`, `runtime_credit_granted=false`, `historical_pass_imported=false`.
-   - A dedicated exact-source workflow `.github/workflows/ws39-full107-construction.yml` now builds the same locked XMage head with the same WS-39 overlays and executes this 107-record construction probe independently of the already frozen Tax-3 workflow.
+5. **First exact Full-107 native-construction runtime probe — COMPLETE / VERIFIED.**
+   - Workflow `WS39 Full107 Native Construction Probe`, run `33775617820`, job `100716451124`: SUCCESS.
+   - Exact runtime head `e10ec2b0e6e9bd0068da73b93c512a9f52c1e672`.
+   - Artifact `ws39-full107-construction-e10ec2b0e6e9bd0068da73b93c512a9f52c1e672`, id `9901713320`, artifact digest `sha256:5ccd849a7235d7007bb2c437c29ff9dbfd1888562d26becc0f4e85fdf330a106`.
+   - `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256 `926205f89a9c11555a77959a0f03f7889dac59f3b192395821c9a2ca0d606fa8`.
+   - Exact result: 15 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`; 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`; 85 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`; 0 unexpected native construction failures.
+   - Total `native_setup_ready=true` rows = 22 (15 actual loaded-state construction + 7 delegated natural-start rows).
+   - `historical_pass_imported=false`, `runtime_credit_granted=false`.
 
-## Current Full-107 Construction Model
+## Exact unsupported native-dimension census from runtime artifact
 
-Conservative pre-runtime analysis of the current loader yields:
-- 7 records delegated to the fresh `NATURAL_GAME_START` executor path;
-- approximately 15 `NATIVE_STATE_LOAD` records whose complete starting-state dimensions appear within the presently supported loader surface and therefore are eligible for a real native-construction attempt;
-- approximately 85 records fail closed before runtime because they require at least one additional native snapshot dimension.
+- `zone_position`: 28
+- `stack_state`: 24
+- `zone:stack`: 24
+- `controlled_since_turn_began`: 23
+- `combat_state`: 12
+- `knowledge_grants`: 11
+- `zone_move_event`: 8
+- `elimination_trigger`: 6
+- `nonpositive_life`: 6
+- `temporal:combat/declare_attackers`: 5
+- `commander_damage_matrix`: 5
+- `owner_controller_split`: 3
+- `counters`: 2
+- `temporal:combat/declare_blockers`: 2
+- `attachments`: 2
+- `extra_turn_creation`: 2
+- `temporal:postcombat_main/main`: 2
+- `temporal:beginning/draw`: 2
+- `zone:revealed`: 1
+- `temporal:beginning/upkeep`: 1
+- `temporal:combat/combat_damage`: 1
 
-These counts are provisional until the dedicated construction workflow produces the machine-readable runtime artifact. No successor runtime PASS is granted by this classification.
+## Current remediation ordering
 
-Known additional snapshot families include exact zone/library position, controlled-since-turn-began, owner/controller split, counters, attachments, stack state, combat state, non-default temporal state, extra-turn creation, elimination trigger state, zone-move event state, commander damage matrix, commander identity outside command zone and explicit knowledge grants.
+The next bounded native setup group is `zone_position + controlled_since_turn_began` because both can be represented/read back using existing XMage state primitives without reimplementing Magic rules:
+- library position is native library order and already observable through `Player.getLibrary().getCardList()` / privileged replay state;
+- controlled-since-turn-began is native `Permanent.wasControlledFromStartOfControllerTurn()` state; true can be established through XMage's native permanent state method used to remove summoning sickness, while false is the native ETB default.
+
+The provider translation must begin carrying `face_down`, `zone_position` and `controlled_since_turn_began` explicitly. The loader must validate library positions and controlled-since state natively before those dimensions are promoted to construction-ready.
 
 ## Important Decisions
 
@@ -89,12 +104,13 @@ Known additional snapshot families include exact zone/library position, controll
 
 ## Exact Next Action
 
-1. Execute the new exact `WS39 Full107 Native Construction Probe` workflow at current branch head and seal/download its artifact.
-2. Persist the exact runtime construction counts and every unsupported-dimension family in this file.
-3. Remediate missing starting-state dimensions in bounded XMage-native reusable groups, with native readback validation, rerunning the construction probe after each group until all 107 are construction-ready.
-4. Materialize fresh behavior executors for the 50 ordered native-operation sets; execute all 107 frozen v1.0.2 records with zero historical PASS import.
-5. Remediate genuine runtime failures fail-closed until 107/107 PASS and required AF/category summaries are all exact.
-6. Close WS-39-local quality, seal final evidence/checksums, write `WS39_FINAL_HANDOFF.md`, and terminally update this file.
+1. Implement qualification-only native construction/readback for `zone_position` and `controlled_since_turn_began`, and make `canonical_v102.py` carry the already-supported `face_down` field explicitly.
+2. Promote only those dimensions that receive actual native readback validation in `run_full107_construction_probe.py`.
+3. Re-run the exact Full-107 construction workflow and checkpoint the new exact counts.
+4. Continue bounded setup groups until all 107 records are construction-ready.
+5. Materialize fresh behavior executors for the 50 ordered native-operation sets; execute all 107 frozen v1.0.2 records with zero historical PASS import.
+6. Remediate genuine runtime failures fail-closed until 107/107 PASS and required AF/category summaries are exact.
+7. Close WS-39-local quality, seal final evidence/checksums, write `WS39_FINAL_HANDOFF.md`, and terminally update this file.
 
 ## Completion status
 
@@ -102,4 +118,4 @@ Known additional snapshot families include exact zone/library position, controll
 `WS39_STATUS = PARTIAL`
 `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
 
-Reason: Tax-3 is complete 3/3 fresh PASS; the complete fresh 107/107 successor runtime remains open. The dedicated full-107 construction workflow is materialized and is the current execution gate.
+Reason: Tax-3 is complete 3/3 fresh PASS. Full-107 construction has first exact runtime evidence at 15 loaded-state PASS + 7 delegated natural-start + 85 unsupported; full 107/107 behavior runtime remains open.
