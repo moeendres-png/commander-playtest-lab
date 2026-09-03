@@ -10,7 +10,7 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 
 ## LAST_CONFIRMED_CHECKPOINT
 
-`WS39-CHECKPOINT-2026-09-03-K-FIRST-FULL107-CONSTRUCTION-RUNTIME`
+`WS39-CHECKPOINT-2026-09-03-L-CONTROLLED-SINCE-VALIDATOR-REGRESSION`
 
 ## Source Lock
 
@@ -19,6 +19,7 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 - Commander Lab repo/branch: `moeendres-png/commander-playtest-lab` / `ws39/xmage-engine-remediation-requalification`
 - Exact Tax-3 runtime head/tree: `c4b35c4c2a0017f3d3c57bc518a018c8049c456b` / `1ff6a5def7e2aa3751666002d56e585a6c937353`
 - First exact Full-107 construction runtime head/tree: `e10ec2b0e6e9bd0068da73b93c512a9f52c1e672` / `e42f1514fdb6b1ba2de5d4ec596ba289f45793f2`
+- Checkpoint-L construction runtime head/tree: `c8018dda81c7cdefaabd65a855924584b4211cd9` / `c922acadbddca96244b2b27fbb78cbaba1789b4d`
 - Draft PR: `#153`; no merge authorized.
 - WS32 contract: `commander-lab.semantic-fixture-materialization/1.0.2`
 - WS32 freeze commit/tree: `038d0f38635eecee4e331c99af41f148de267a26` / `0d160128119f2bad30b220a17c43419b50b7edbe`
@@ -45,54 +46,45 @@ WS-39 is COMPLETE only when the exact WS-32 v1.0.2 XMage denominator is freshly 
 
 4. **Full-107 immutable census — VERIFIED / ZERO RUNTIME CREDIT.**
    - Exact denominator 107; 63 unique native operation names; 50 unique ordered native-operation sets.
-   - Census is bound into WS-39 evidence and explicitly grants no runtime credit.
+   - Census grants no runtime credit.
 
 5. **First exact Full-107 native-construction runtime probe — COMPLETE / VERIFIED.**
    - Workflow `WS39 Full107 Native Construction Probe`, run `33775617820`, job `100716451124`: SUCCESS.
    - Exact runtime head `e10ec2b0e6e9bd0068da73b93c512a9f52c1e672`.
-   - Artifact `ws39-full107-construction-e10ec2b0e6e9bd0068da73b93c512a9f52c1e672`, id `9901713320`, artifact digest `sha256:5ccd849a7235d7007bb2c437c29ff9dbfd1888562d26becc0f4e85fdf330a106`.
-   - `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256 `926205f89a9c11555a77959a0f03f7889dac59f3b192395821c9a2ca0d606fa8`.
-   - Exact result: 15 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`; 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`; 85 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`; 0 unexpected native construction failures.
-   - Total `native_setup_ready=true` rows = 22 (15 actual loaded-state construction + 7 delegated natural-start rows).
+   - Artifact id `9901713320`, digest `sha256:5ccd849a7235d7007bb2c437c29ff9dbfd1888562d26becc0f4e85fdf330a106`.
+   - Exact result: 15 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`; 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`; 85 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`; 0 native construction failures.
    - `historical_pass_imported=false`, `runtime_credit_granted=false`.
 
-## Exact unsupported native-dimension census from runtime artifact
+6. **Checkpoint-L `zone_position + controlled_since_turn_began` probe — COMPLETE / VERIFIED, REGRESSION CLASSIFIED.**
+   - Atomic implementation commit `c8018dda81c7cdefaabd65a855924584b4211cd9`, tree `c922acadbddca96244b2b27fbb78cbaba1789b4d`.
+   - Workflow `WS39 Full107 Native Construction Probe`, run `33777054968`, job `100721273753`: SUCCESS.
+   - Artifact `ws39-full107-construction-c8018dda81c7cdefaabd65a855924584b4211cd9`, id `9902427299`.
+   - GitHub artifact digest and downloaded ZIP SHA256 both `7401f465c8740d1bfd378640b50144b4b642acb5d62fa6d7dad865576b2a4eeb`.
+   - Artifact source locks: provider commit/tree `c8018dda81c7cdefaabd65a855924584b4211cd9` / `c922acadbddca96244b2b27fbb78cbaba1789b4d`; XMage commit/tree `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`.
+   - `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256 `34d7c234e9de7f310f7f7d2622e418ca6a3c13c7ec598d0ce4674363f8a9b798`.
+   - Exact result: 6 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`; 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`; 61 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`; 33 `FAIL_CLOSED_NATIVE_CONSTRUCTION`.
+   - All 33 construction failures share `NATIVE_VALIDATION_FAILED: battlefield-controlled-since-turn-began:<semantic-id>`.
+   - Regression root cause is **qualification-overlay validator overconstraint**, not a new XMage Rules-Core defect: the readback compares `Permanent.wasControlledFromStartOfControllerTurn()` against `booleanValue(spec, "controlled_since_turn_began", false)` for every battlefield object, even when the frozen object omits that optional field. Example `PILOT_PRIORITY` has three Grizzly Bears without the field and one Mountain with explicit `true`; failure occurs first on `obj:p1-bears`. By contrast, all Replay-5 records whose battlefield objects explicitly carry `controlled_since_turn_began=true` pass native setup, proving the native `PermanentImpl.removeSummoningSickness()` load/readback path is functional for the explicit true state.
+   - Therefore absent `controlled_since_turn_began` must mean **unconstrained by that dimension**, not frozen false. The validator must perform this readback only when `spec.has("controlled_since_turn_began")`.
+   - This probe grants zero runtime qualification credit and imports no historical PASS.
 
-- `zone_position`: 28
-- `stack_state`: 24
-- `zone:stack`: 24
-- `controlled_since_turn_began`: 23
-- `combat_state`: 12
-- `knowledge_grants`: 11
-- `zone_move_event`: 8
-- `elimination_trigger`: 6
-- `nonpositive_life`: 6
-- `temporal:combat/declare_attackers`: 5
-- `commander_damage_matrix`: 5
-- `owner_controller_split`: 3
-- `counters`: 2
-- `temporal:combat/declare_blockers`: 2
-- `attachments`: 2
-- `extra_turn_creation`: 2
-- `temporal:postcombat_main/main`: 2
-- `temporal:beginning/draw`: 2
-- `zone:revealed`: 1
-- `temporal:beginning/upkeep`: 1
-- `temporal:combat/combat_damage`: 1
+## Current unsupported / blocked construction state after Checkpoint L
 
-## Current remediation ordering
+Fresh exact counts:
 
-The next bounded native setup group is `zone_position + controlled_since_turn_began` because both can be represented/read back using existing XMage state primitives without reimplementing Magic rules:
-- library position is native library order and already observable through `Player.getLibrary().getCardList()` / privileged replay state;
-- controlled-since-turn-began is native `Permanent.wasControlledFromStartOfControllerTurn()` state; true can be established through XMage's native permanent state method used to remove summoning sickness, while false is the native ETB default.
+- 6 native loaded-state PASS, no runtime credit.
+- 7 natural-start records intentionally delegated to fresh natural executors.
+- 33 native construction failures caused by the now-classified optional-field validator defect.
+- 61 records still fail closed on genuinely unsupported native setup dimensions.
 
-The provider translation must begin carrying `face_down`, `zone_position` and `controlled_since_turn_began` explicitly. The loader must validate library positions and controlled-since state natively before those dimensions are promoted to construction-ready.
+Remaining unsupported dimension families include stack state / stack zone, combat and temporal combat state, hidden-information knowledge grants, zone-move events, elimination/nonpositive-life setup, commander-damage matrices, owner/controller split, counters, attachments, extra turns, revealed zone and additional temporal entry points. Counts must be recomputed from the next fresh probe after the validator correction; no historical census is promoted over fresh runtime evidence.
 
 ## Important Decisions
 
 - Construction equality is necessary but not sufficient for successor runtime PASS.
 - Provider-request echo without native validation receives no credit.
-- Every eventual 107/107 PASS needs native construction and transaction/postcondition evidence for its frozen procedure.
+- Optional frozen-state fields constrain native readback only when the field is actually present; omission must not be silently converted into a false semantic obligation.
+- Every eventual 107/107 PASS needs native construction plus transaction/postcondition evidence for its frozen procedure.
 - No historical same-ID PASS may be imported.
 - Unsupported production-reachable decisions fail closed; no first/random/default/AI/GUI/parent fallback.
 - No AF07 or Architecture Freeze claim. No merge.
@@ -104,10 +96,10 @@ The provider translation must begin carrying `face_down`, `zone_position` and `c
 
 ## Exact Next Action
 
-1. Implement qualification-only native construction/readback for `zone_position` and `controlled_since_turn_began`, and make `canonical_v102.py` carry the already-supported `face_down` field explicitly.
-2. Promote only those dimensions that receive actual native readback validation in `run_full107_construction_probe.py`.
-3. Re-run the exact Full-107 construction workflow and checkpoint the new exact counts.
-4. Continue bounded setup groups until all 107 records are construction-ready.
+1. Correct `apply_ws39_state_surface_overlay.py` so `battlefield-controlled-since-turn-began` is natively read back **only when the frozen card spec contains `controlled_since_turn_began`**; do not default an omitted dimension to false.
+2. Keep native state loading for explicit `true` through XMage `PermanentImpl.removeSummoningSickness()` and retain exact native readback through `Permanent.wasControlledFromStartOfControllerTurn()`.
+3. Re-run the exact Full-107 construction workflow and persist the new counts before any next setup-family remediation.
+4. Continue bounded setup groups until all 107 records are construction-ready or naturally delegated with exact executor evidence.
 5. Materialize fresh behavior executors for the 50 ordered native-operation sets; execute all 107 frozen v1.0.2 records with zero historical PASS import.
 6. Remediate genuine runtime failures fail-closed until 107/107 PASS and required AF/category summaries are exact.
 7. Close WS-39-local quality, seal final evidence/checksums, write `WS39_FINAL_HANDOFF.md`, and terminally update this file.
@@ -118,4 +110,4 @@ The provider translation must begin carrying `face_down`, `zone_position` and `c
 `WS39_STATUS = PARTIAL`
 `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
 
-Reason: Tax-3 is complete 3/3 fresh PASS. Full-107 construction has first exact runtime evidence at 15 loaded-state PASS + 7 delegated natural-start + 85 unsupported; full 107/107 behavior runtime remains open.
+Reason: Tax-3 is complete 3/3 fresh PASS. Checkpoint L proves the first `zone_position + controlled_since_turn_began` attempt introduced a qualification-validator overconstraint; 6 loaded-state records currently pass, 7 natural-start records are delegated, 33 are blocked by that validator defect, and 61 remain unsupported. Full 107/107 fresh behavior runtime remains open.
