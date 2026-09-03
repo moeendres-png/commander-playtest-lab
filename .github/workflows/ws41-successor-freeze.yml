@@ -1,0 +1,90 @@
+name: WS41 successor v1.0.3 freeze
+on:
+  push:
+    branches:
+      - ws41/successor-contract-v1.0.3-freeze
+    paths:
+      - scripts/ws41_*.py
+      - .github/workflows/ws41-successor-freeze.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - scripts/ws41_*.py
+      - qualification/ws41/**
+      - .github/workflows/ws41-successor-freeze.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reverify current official Wizards Comprehensive Rules lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL 'https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt' -o /tmp/MagicCompRules-20260807.txt
+          actual="$(sha256sum /tmp/MagicCompRules-20260807.txt | awk '{print $1}')"
+          echo "official_cr_sha256=$actual"
+          test "$actual" = '4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f'
+          grep -q '303.4a An Aura spell requires a target' /tmp/MagicCompRules-20260807.txt
+          grep -q '115.1b Aura spells are always targeted' /tmp/MagicCompRules-20260807.txt
+          grep -q '601.2c' /tmp/MagicCompRules-20260807.txt
+      - name: Compile WS41 implementation
+        run: python -m py_compile scripts/ws41_lint_semantic_v1_0_3.py scripts/ws41_build_successor.py scripts/ws41_validate_freeze.py
+      - name: Deterministic double materialization
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ws41-a /tmp/ws41-b
+          python scripts/ws41_build_successor.py --out /tmp/ws41-a
+          python scripts/ws41_build_successor.py --out /tmp/ws41-b
+          diff -ruN /tmp/ws41-a /tmp/ws41-b
+          python scripts/ws41_validate_freeze.py /tmp/ws41-a
+      - name: Verify checked-in freeze or stage first freeze
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d qualification/ws41 ]; then
+            diff -ruN /tmp/ws41-a qualification/ws41
+          else
+            cp -a /tmp/ws41-a qualification/ws41
+          fi
+          python scripts/ws41_validate_freeze.py qualification/ws41
+          python scripts/ws41_lint_semantic_v1_0_3.py qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json --predecessor qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json --report /tmp/ws41-lint-independent.json
+          cmp /tmp/ws41-lint-independent.json qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json
+      - name: Prove immutable WS32 namespace untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code 038d0f38635eecee4e331c99af41f148de267a26 -- qualification/ws32
+      - name: Persist generated freeze on branch
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git status --porcelain -- qualification/ws41 | grep -q .; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add qualification/ws41
+            git commit -m 'ws41: freeze semantic fixture materialization v1.0.3'
+            git push origin HEAD:ws41/successor-contract-v1.0.3-freeze
+          else
+            echo 'freeze already persisted'
+          fi
+      - name: Upload complete WS41 freeze evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws41-v1.0.3-freeze-evidence
+          path: |
+            qualification/ws41
+            /tmp/ws41-lint-independent.json
+          if-no-files-found: error
+          retention-days: 90
