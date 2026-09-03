@@ -30,13 +30,28 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL 'https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt' -o /tmp/MagicCompRules-20260807.txt
-          actual="$(sha256sum /tmp/MagicCompRules-20260807.txt | awk '{print $1}')"
+          curl -fsSL -A 'Mozilla/5.0' 'https://magic.wizards.com/en/rules' -o /tmp/rules-page.html
+          txt_url="$(python - <<'PY'
+          import html,re
+          text=open('/tmp/rules-page.html',encoding='utf-8').read()
+          urls=re.findall(r'https://media\.wizards\.com/[^\"\'<> ]+\.txt', text, flags=re.I)
+          if not urls:
+              hrefs=re.findall(r'href=[\"\']([^\"\']+\.txt)[\"\']', text, flags=re.I)
+              urls=hrefs
+          if not urls:
+              raise SystemExit('official TXT link not found on Wizards rules page')
+          print(html.unescape(urls[-1]))
+          PY
+          )"
+          echo "official_cr_url=$txt_url"
+          curl -fsSL -A 'Mozilla/5.0' "$txt_url" -o /tmp/MagicCompRules-current.txt
+          actual="$(sha256sum /tmp/MagicCompRules-current.txt | awk '{print $1}')"
           echo "official_cr_sha256=$actual"
           test "$actual" = '4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f'
-          grep -q '303.4a An Aura spell requires a target' /tmp/MagicCompRules-20260807.txt
-          grep -q '115.1b Aura spells are always targeted' /tmp/MagicCompRules-20260807.txt
-          grep -q '601.2c' /tmp/MagicCompRules-20260807.txt
+          grep -q 'These rules are effective as of August 7, 2026' /tmp/MagicCompRules-current.txt
+          grep -q '303.4a An Aura spell requires a target' /tmp/MagicCompRules-current.txt
+          grep -q '115.1b Aura spells are always targeted' /tmp/MagicCompRules-current.txt
+          grep -q '601.2c' /tmp/MagicCompRules-current.txt
       - name: Compile WS41 implementation
         run: python -m py_compile scripts/ws41_lint_semantic_v1_0_3.py scripts/ws41_build_successor.py scripts/ws41_validate_freeze.py
       - name: Deterministic double materialization
