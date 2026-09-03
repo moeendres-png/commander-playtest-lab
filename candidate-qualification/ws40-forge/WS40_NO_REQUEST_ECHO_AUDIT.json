@@ -1,15 +1,18 @@
 {
-  "schema_version": "ws40-no-request-echo-audit/1.0.0",
-  "status": "FAIL_NOT_GRANTED",
+  "schema_version": "ws40-no-request-echo-audit/1.1.0",
+  "status": "SOURCE_HARDENED_FAIL_CLOSED_BUT_COMPLETE_GATE_NOT_GRANTED",
   "failure_class": "FORGE_PROVIDER_DEFECT",
-  "credit_effect": "NO_CONSTRUCTION_CREDIT_EVEN_IF_DIGEST_EQUALITY_IS_LATER_ACHIEVED_UNTIL_REMEDIATED",
+  "credit_effect": "NO_COMPLETE_CONSTRUCTION_OR_RUNTIME_CREDIT; SOURCE_REQUEST_ECHO_REMOVED_BUT_NATIVE_STACK_HISTORY_PROOF_IS_UNAVAILABLE",
   "source_lock": {
-    "commander_lab_commit_before_audit": "98a4cf15b86058d08d7758aafdaf6ada9c0d52e1",
-    "commander_lab_tree_before_audit": "5f4b6c6880935f7d80eb30d620d1eac91c23de19",
+    "commander_lab_implementation_commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "commander_lab_implementation_tree": "da9ad40a8db9b65310f2590a72e9a6af8922f5b6",
     "ws32_commit": "038d0f38635eecee4e331c99af41f148de267a26",
     "ws32_tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
-    "forge_runtime_accepted_commit": "3f53c7c4e93c011e781680ae2a0c195dd71414c0",
-    "forge_runtime_accepted_tree": "481d3ee3b4798b78b4f00a93cc8e2cb54d05391f"
+    "ws32_schema": "commander-lab.semantic-fixture-materialization/1.0.2",
+    "ws32_bundle_digest": "ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23",
+    "ws32_materialization_sha256": "0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431"
   },
   "audited_sources": [
     "candidate-qualification/ws40-forge/WS40_CONSTRUCTION_COVERAGE_PLAN.json",
@@ -26,115 +29,137 @@
     "rules_state_requires_native_observation_or_native_semantic_derivation": true,
     "request_echo_allowed": false
   },
+  "source_hardening": {
+    "rules_state_request_values_in_bound_config": false,
+    "stack_rules_state_is_not_reconstructed_from_request": true,
+    "combat_rules_state_is_not_reconstructed_from_request": true,
+    "workflow_markers": [
+      "WS40_ACTIVE_FORGE_PIN_MIGRATION=PASS",
+      "WS40_NO_REQUEST_ECHO_SOURCE_HARDENED=PASS"
+    ],
+    "status": "PASS_FAIL_CLOSED"
+  },
+  "final_construction_evidence": {
+    "workflow": "WS40 Native Construction 107",
+    "run_id": 33778130830,
+    "job_id": 100724863434,
+    "commander_lab_commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431",
+    "result": "FAIL_CLOSED",
+    "sequential_pass_count": 6,
+    "sequential_pass_records": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET"
+    ],
+    "first_failure": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE",
+    "artifact_id": 9902469599,
+    "artifact_name": "ws40-native-construction-107-d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "artifact_size_bytes": 72655,
+    "artifact_sha256": "409ac38fa3a0c0836cec52eeed9e8385306737a22d39390dc3b914c2b76e0755"
+  },
   "field_findings": [
     {
       "field": "execution_entry_mode",
       "status": "PASS_CONFIG_BINDING",
-      "authority": "NATIVE_CONFIG_BINDING",
-      "reason": "provider entry path is selected, executed, emitted and cross-checked against the provider-bound configuration"
+      "authority": "NATIVE_CONFIG_BINDING"
     },
     {
       "field": "players",
       "status": "PASS_WITH_IDENTITY_MAPPING",
-      "authority": "GAMESTATE_NATIVE",
-      "reason": "life, poison, lost/in-game are read from native Forge Player state; player_id/seat/start metadata are identity/config mapping"
+      "authority": "GAMESTATE_NATIVE"
     },
     {
       "field": "deck_state",
       "status": "PARTIAL",
-      "authority": "NATIVE_CONFIG_BINDING_PLUS_NATIVE_REGISTRATION_VALIDATION",
-      "reason": "normalizer returns bound deck_state; natural registration independently validates only the currently implemented deck/commander registration invariants, not arbitrary requested deck_state fields"
+      "authority": "NATIVE_CONFIG_BINDING_PLUS_NATIVE_REGISTRATION_VALIDATION"
     },
     {
       "field": "commander_state",
       "status": "PARTIAL",
-      "authority": "DIRECT_NATIVE_EXTENSION_PLUS_IDENTITY_MAPPING",
-      "reason": "commander identity/owner/zone/cast count and positive damage entries are natively observed; multiple_commander_relations is returned from bound configuration"
+      "authority": "DIRECT_NATIVE_EXTENSION_PLUS_IDENTITY_MAPPING"
     },
     {
       "field": "semantic_objects",
       "status": "PASS_WITH_BOUNDED_METADATA_MAPPING",
-      "authority": "GAMESTATE_NATIVE_PLUS_PROVIDER_IDENTITY_MAPPING",
-      "reason": "card identity, owner, controller, zone, tapped, face-down, nonzero counters, attachment and library position are native; semantic/card-lineage IDs and field-presence metadata are mapping data"
+      "authority": "GAMESTATE_NATIVE_PLUS_PROVIDER_IDENTITY_MAPPING"
     },
     {
       "field": "temporal_state",
       "status": "PARTIAL",
-      "authority": "GAMESTATE_NATIVE_OR_NATIVE_CONFIG_BINDING",
-      "reason": "NATIVE_STATE_LOAD reads turn/phase/active/priority from Forge PhaseHandler; NATURAL_GAME_START returns the bound pregame temporal descriptor because live phase state does not yet exist"
+      "authority": "GAMESTATE_NATIVE_OR_NATIVE_CONFIG_BINDING"
     },
     {
       "field": "knowledge_state",
       "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
-      "authority": "NATIVE_CONFIG_BINDING",
-      "reason": "construction binds viewer policy only; AF05 runtime remains responsible for proving actor-safe Forge observation and non-leakage"
+      "authority": "NATIVE_CONFIG_BINDING"
     },
     {
       "field": "rules_randomness",
       "status": "PARTIAL",
-      "authority": "NATIVE_CONFIG_BINDING_PLUS_FORGE_SEED_CHECK",
-      "reason": "rules_seed is cross-checked against the actual configured Forge bootstrap seed; any additional rules_randomness metadata is returned from bound configuration and requires AF09 runtime proof"
+      "authority": "NATIVE_CONFIG_BINDING_PLUS_FORGE_SEED_CHECK"
     },
     {
       "field": "combat_state",
-      "status": "FAIL_REQUEST_ECHO_RISK",
-      "authority": "DIRECT_NATIVE_EXTENSION_INCOMPLETE_OBSERVATION",
-      "reason": "normalizer begins from provider-bound combat_semantics and overwrites only attackers/blockers plus derives selected unblocked lists; request-bound subfields that are not natively reconstructed survive into normalized state"
+      "status": "FAIL_CLOSED_WHEN_NATIVE_LEGAL_SURFACE_UNAVAILABLE",
+      "authority": "DIRECT_NATIVE_EXTENSION_WITHOUT_REQUEST_ECHO"
     },
     {
       "field": "stack_state",
-      "status": "FAIL_REQUEST_ECHO",
-      "authority": "DIRECT_NATIVE_EXTENSION_INCOMPLETE_OBSERVATION",
-      "reason": "Java observer currently emits only source_semantic_id/native_stack_present/controller, while normalizer copies cast_complete, costs_paid, modes and targets from provider-bound stack_semantics"
+      "status": "FAIL_CLOSED_STACK_HISTORY_UNAVAILABLE",
+      "authority": "DIRECT_NATIVE_EXTENSION_WITHOUT_REQUEST_ECHO",
+      "unavailable_native_history": [
+        "cast_complete",
+        "costs_paid",
+        "selected_modes_or_equivalent_cast_history"
+      ]
     },
     {
       "field": "continuous_rules_effects",
       "status": "NOT_APPLICABLE_CURRENT_107",
-      "authority": "NONE",
-      "reason": "coverage plan states this field is absent from the frozen 107 denominator"
+      "authority": "NONE"
     },
     {
       "field": "extra_turn_creation",
       "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
-      "authority": "NATIVE_CONFIG_BINDING",
-      "reason": "transaction descriptor is bound for later native execution; runtime must prove actual Forge extra-turn semantics"
+      "authority": "NATIVE_CONFIG_BINDING"
     },
     {
       "field": "elimination_trigger",
       "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
-      "authority": "NATIVE_CONFIG_BINDING",
-      "reason": "transaction descriptor is bound for later native execution; runtime must prove actual Forge elimination semantics"
+      "authority": "NATIVE_CONFIG_BINDING"
     },
     {
       "field": "zone_move_event",
       "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
-      "authority": "NATIVE_CONFIG_BINDING",
-      "reason": "transaction descriptor is bound for later native execution; runtime must prove actual Forge zone/replacement/SBA semantics"
+      "authority": "NATIVE_CONFIG_BINDING"
     },
     {
       "field": "setup_validation",
       "status": "PASS_CONTROL_PLANE_BINDING",
-      "authority": "NATIVE_CONFIG_BINDING",
-      "reason": "qualification control-plane configuration rather than Magic Rules state"
+      "authority": "NATIVE_CONFIG_BINDING"
     }
   ],
-  "hard_fail_gaps": [
-    "stack_state.cast_complete",
-    "stack_state.costs_paid",
-    "stack_state.modes",
-    "stack_state.targets",
-    "combat_state request-bound subfields not independently reconstructed from native Forge state"
-  ],
-  "remediation_requirement": [
-    "extend the Forge-side qualification observer to emit every rules-state stack/combat value used in requested-state normalization, or derive it solely from Forge-native state with source-proven semantics",
-    "change the normalizer to build stack/combat projection from emitted native state rather than provider-bound request values",
-    "retain provider-bound data only for explicit identity mapping and true non-Rules configuration",
-    "rerun complete construction/no-request-echo gate after the successor contract blocker is superseded"
-  ],
-  "current_runner_hardening": {
-    "commit": "98a4cf15b86058d08d7758aafdaf6ada9c0d52e1",
-    "no_request_echo_forced_false": true,
-    "request_values_used_by_normalizer_forced_true": true,
-    "status_emitted": "NOT_GRANTED"
+  "provider_proof_blocker": {
+    "classification": "FORGE_PROVIDER_DEFECT",
+    "description": "The qualification state-loader can materialize stack state but cannot independently prove historical cast/payment/mode facts for an already-materialized stack object without request echo. The hardened proof path therefore fails closed.",
+    "remediation_if_reopened": "Construct and observe the relevant stack history through Forge-native execution/event history or another source-proven native API; never infer it from the requested state."
+  },
+  "independent_downstream_contract_blocker": {
+    "classification": "CONTRACT_DEFECT",
+    "record": "PILOT_CHOICE",
+    "evidence": "candidate-qualification/ws40-forge/WS40_CONTRACT_DEFECT_PILOT_CHOICE.json",
+    "description": "Immutable v1.0.2 requests a completed targetless Utopia Sprawl Aura spell on the stack, which is not a legal Magic state. This remains blocking even if the provider proof limitation is later repaired."
+  },
+  "gate_result": {
+    "source_request_echo_removed": true,
+    "complete_no_request_echo_gate": "NOT_GRANTED",
+    "construction_equality_107": "NOT_ACHIEVED",
+    "fresh_runtime_107": "NOT_RUN_BLOCKED_BY_CONSTRUCTION_GATE",
+    "forge_successor_provider_qualified": false
   }
 }
