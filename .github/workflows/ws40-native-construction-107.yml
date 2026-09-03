@@ -8,6 +8,7 @@ on:
       - 'scripts/ws40_apply_successor_state_overlay.py'
       - 'scripts/ws40_fix_successor_state_java.py'
       - 'scripts/ws40_fix_construction_runner.py'
+      - 'scripts/ws40_fix_construction_runner_natural_objects.py'
       - 'candidate-qualification/ws40-forge/run_native_construction_107.py'
       - '.github/workflows/ws40-native-construction-107.yml'
   workflow_dispatch:
@@ -106,6 +107,7 @@ jobs:
           ev=artifacts/ws40-construction
           cp candidate-qualification/ws40-forge/run_native_construction_107.py "$ev/run_native_construction_107.py"
           python scripts/ws40_fix_construction_runner.py --runner "$ev/run_native_construction_107.py"
+          python scripts/ws40_fix_construction_runner_natural_objects.py --runner "$ev/run_native_construction_107.py"
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
           python "$ev/run_native_construction_107.py" \
@@ -117,6 +119,8 @@ jobs:
           assert p['status']=='PASS'
           assert p['denominator']==107 and p['pass_count']==107
           assert p['no_request_echo'] is True
+          assert p['no_request_echo_proof']['provider_side_config_digest'] is True
+          assert p['no_request_echo_proof']['request_values_used_by_normalizer'] is False
           assert all(r['construction_status']=='PASS' and r['requested_native_state_equal'] for r in p['rows'])
           assert p['family_counts']=={
             'actual_card':1,'hidden_information':20,'micro_rules':17,'multiplayer_commander':36,
