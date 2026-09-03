@@ -8,6 +8,7 @@ and adjusted costs emitted by the read-only native XMage probe and verifies the
 contract against those values. Tax-2/Tax-4 additionally perform the real cast
 and pay from the exact four contract-declared Mountain objects.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -18,10 +19,11 @@ from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
 FC = HERE.parents[0] / "finalist-convergence-xmage"
 WS26 = HERE.parents[0] / "ws26-xmage"
 WS34 = HERE.parents[0] / "ws34-xmage-successor"
-sys.path[:0] = [str(HERE), str(WS34), str(FC), str(WS26)]
+sys.path[:0] = [str(ROOT / "src"), str(HERE), str(WS34), str(FC), str(WS26)]
 
 import canonical_v102  # noqa: E402
 import run_ws26_gate as gate  # noqa: E402
@@ -49,7 +51,9 @@ def probe_row(probe: dict[str, Any], section: str, commander_id: str) -> dict[st
     rows = probe.get(section)
     if not isinstance(rows, list):
         raise RuntimeError(f"WS39_PROBE_SECTION_MISSING:{section}")
-    return unique(rows, lambda row: row.get("commander_id") == commander_id, f"{section}:{commander_id}")
+    return unique(
+        rows, lambda row: row.get("commander_id") == commander_id, f"{section}:{commander_id}"
+    )
 
 
 def assert_construction(record: dict[str, Any], state: dict[str, Any]) -> dict[str, Any]:
@@ -85,7 +89,10 @@ def assert_initial_probe(record: dict[str, Any], state: dict[str, Any]) -> dict[
     probe = state.get("ws39_commander_probe")
     if not isinstance(probe, dict):
         raise RuntimeError("WS39_COMMANDER_PROBE_MISSING")
-    if probe.get("rules_core_authoritative") is not True or probe.get("read_only_game_state") is not True:
+    if (
+        probe.get("rules_core_authoritative") is not True
+        or probe.get("read_only_game_state") is not True
+    ):
         raise RuntimeError("WS39_COMMANDER_PROBE_AUTHORITY_INVALID")
     if probe.get("synthetic_historical_events") is not False:
         raise RuntimeError("WS39_SYNTHETIC_HISTORY_NOT_FALSE")
@@ -119,7 +126,9 @@ def assert_initial_probe(record: dict[str, Any], state: dict[str, Any]) -> dict[
         kediss = probe_row(probe, "commander_costs", "cmd:P1-B")
         if kediss.get("card_name") != KEDISS:
             raise RuntimeError("P1_B_NOT_KEDISS")
-        if int(kediss["native_commander_adjusted_mana_count"]) != int(kediss["native_base_mana_count"]):
+        if int(kediss["native_commander_adjusted_mana_count"]) != int(
+            kediss["native_base_mana_count"]
+        ):
             raise RuntimeError("KEDISS_ZERO_TAX_NOT_NATIVE_EQUAL")
         result["p1_kediss"] = kediss
     return result
@@ -158,8 +167,10 @@ def unique_cast_option(decision: dict[str, Any]) -> dict[str, Any]:
         raise RuntimeError("TAX_EXPECTED_P1_PRIORITY")
     return unique(
         decision.get("legal_options") or [],
-        lambda option: option.get("option_type") == "activated_ability"
-        and (option.get("metadata") or {}).get("source_name") == ROGRAKH,
+        lambda option: (
+            option.get("option_type") == "activated_ability"
+            and (option.get("metadata") or {}).get("source_name") == ROGRAKH
+        ),
         "P1_ROGRAKH_CAST",
     )
 
@@ -180,8 +191,11 @@ def pay_exact_sources(
             raise RuntimeError(f"EXPECTED_MANA_PAYMENT_FOR:{semantic_source}")
         option = unique(
             decision.get("legal_options") or [],
-            lambda item: item.get("option_type") == "mana_ability"
-            and (item.get("metadata") or {}).get("semantic_source_object_id") == semantic_source,
+            lambda item, semantic_source=semantic_source: (
+                item.get("option_type") == "mana_ability"
+                and (item.get("metadata") or {}).get("semantic_source_object_id")
+                == semantic_source
+            ),
             f"MANA_SOURCE:{semantic_source}",
         )
         metadata = option.get("metadata") or {}
@@ -225,7 +239,11 @@ def execute_tax_cast(record: dict[str, Any], client: gate._RawFullGameClient) ->
     by_id = {item.get("semantic_id"): item for item in objects if isinstance(item, dict)}
     for semantic_source in payment_sources:
         obj = by_id.get(semantic_source)
-        if not isinstance(obj, dict) or obj.get("card_name") != "Mountain" or obj.get("tapped") is not True:
+        if (
+            not isinstance(obj, dict)
+            or obj.get("card_name") != "Mountain"
+            or obj.get("tapped") is not True
+        ):
             raise RuntimeError(f"PAYMENT_SOURCE_NOT_NATIVE_TAPPED:{semantic_source}")
 
     return {
@@ -300,8 +318,14 @@ def main() -> int:
         "gate": "PASS" if passed == 3 else "FAIL",
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"tax3_pass": passed, "tax3_denominator": 3, "gate": output["gate"]}, sort_keys=True))
+    args.output.write_text(
+        json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    print(
+        json.dumps(
+            {"tax3_pass": passed, "tax3_denominator": 3, "gate": output["gate"]}, sort_keys=True
+        )
+    )
     return 0 if passed == 3 else 1
 
 
