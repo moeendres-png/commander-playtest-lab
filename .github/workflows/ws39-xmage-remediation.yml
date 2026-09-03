@@ -27,7 +27,7 @@ env:
   XMAGE_WS39_COMMIT: 7bde812727817723616c575759f39bfc4cda4607
   XMAGE_WS39_TREE: a44f32e9d34109ac3f272494f0e8eb9ea3e6280c
   COMMANDER_LAB_XMAGE_WS26_BRIDGE_CMD: >-
-    java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar org.commanderlab.xmage.XmageWs26QualificationMain full-game
+    java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar:${{ github.workspace }}/engine-bridge/target/dependency/* org.commanderlab.xmage.XmageWs26QualificationMain full-game
 
 jobs:
   contract-shape:
@@ -55,7 +55,10 @@ jobs:
           python -m py_compile \
             candidate-qualification/ws39-xmage-successor/contract_probe.py \
             candidate-qualification/ws39-xmage-successor/canonical_v102.py \
-            candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py
+            candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py \
+            candidate-qualification/ws39-xmage-successor/apply_ws39_rng_instrumentation.py \
+            candidate-qualification/ws39-xmage-successor/apply_ws39_runtime_evidence_overlay.py \
+            candidate-qualification/ws39-xmage-successor/run_tax3.py
           mkdir -p artifacts/ws39-probe
           python candidate-qualification/ws39-xmage-successor/contract_probe.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
@@ -88,8 +91,11 @@ jobs:
       - name: Record Commander Lab identity
         run: |
           set -euo pipefail
+          mkdir -p artifacts/ws39-build artifacts/ws39-ci
           echo "WS39_PROVIDER_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "WS39_PROVIDER_TREE=$(git rev-parse HEAD^{tree})" >> "$GITHUB_ENV"
+          git rev-parse HEAD | tee artifacts/ws39-build/PROVIDER_COMMIT.txt
+          git rev-parse HEAD^{tree} | tee artifacts/ws39-build/PROVIDER_TREE.txt
       - name: Checkout exact WS32 freeze
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -113,6 +119,8 @@ jobs:
         uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
+      - name: Install Commander Lab runtime dependencies
+        run: python -m pip install -e .
       - name: Verify exact source locks
         run: |
           set -euo pipefail
@@ -120,50 +128,71 @@ jobs:
           test "$(git -C _ws32 rev-parse HEAD^{tree})" = "$WS32_FREEZE_TREE"
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_WS39_COMMIT"
           test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_WS39_TREE"
-          mkdir -p artifacts/ws39-build
-          printf '%s\n' "$WS39_PROVIDER_COMMIT" > artifacts/ws39-build/PROVIDER_COMMIT.txt
-          printf '%s\n' "$WS39_PROVIDER_TREE" > artifacts/ws39-build/PROVIDER_TREE.txt
           printf '%s\n' "$XMAGE_WS39_COMMIT" > artifacts/ws39-build/XMAGE_COMMIT.txt
           printf '%s\n' "$XMAGE_WS39_TREE" > artifacts/ws39-build/XMAGE_TREE.txt
           git -C vendor/engine-source/xmage status --porcelain=v1 > artifacts/ws39-build/XMAGE_PREBUILD_STATUS.txt
       - name: Run exact-head native commander-history tests
+        working-directory: vendor/engine-source/xmage
         run: |
           set -euo pipefail
-          cd vendor/engine-source/xmage
           mvn test -B -ntp \
             -Dtest=CommanderPlaysCountStateRestoreTest \
             -Dsurefire.failIfNoSpecifiedTests=false \
             -Dxmage.dataCollectors.printGameLogs=false \
             -Dlog4j.configuration=file:${PWD}/.travis/log4j.properties
-      - name: Apply qualification-only bridge overlays
+      - name: Apply qualification-only runtime overlays
         run: |
           set -euo pipefail
           python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
           python candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py
           python candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py
           python candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_runtime_evidence_overlay.py
           git diff --check
+          git -C vendor/engine-source/xmage diff --check
           git diff -- engine-bridge > artifacts/ws39-build/QUALIFICATION_BRIDGE_OVERLAY.patch
+          git -C vendor/engine-source/xmage diff > artifacts/ws39-build/XMAGE_RNG_INSTRUMENTATION.patch
+          cp artifacts/ws39-ci/WS39_XMAGE_RNG_SOURCE_TRANSFORM.json artifacts/ws39-build/
       - name: Build exact WS39 XMage
-        run: |
-          set -euo pipefail
-          cd vendor/engine-source/xmage
-          mvn -B -ntp -DskipTests install
+        working-directory: vendor/engine-source/xmage
+        run: mvn -B -ntp -DskipTests install
       - name: Build qualification bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+      - name: Materialize qualification bridge runtime classpath
+        working-directory: engine-bridge
         run: |
           set -euo pipefail
-          cd engine-bridge
-          mvn -B -ntp verify
-      - name: Seal build evidence
+          mvn -B -ntp dependency:copy-dependencies \
+            -DincludeScope=runtime \
+            -DoutputDirectory=target/dependency
+          test -n "$(find target/dependency -maxdepth 1 -name '*.jar' -print -quit)"
+      - name: Execute mandatory Tax-3 runtime gate
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          python candidate-qualification/ws39-xmage-successor/run_tax3.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws39-build/WS39_TAX3_RESULTS.json \
+            > artifacts/ws39-build/WS39_TAX3_STDOUT.log \
+            2> artifacts/ws39-build/WS39_TAX3_STDERR.log
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > artifacts/ws39-build/WS39_TAX3_EXIT_CODE.txt
+          cat artifacts/ws39-build/WS39_TAX3_STDOUT.log
+          cat artifacts/ws39-build/WS39_TAX3_STDERR.log >&2
+          exit "$rc"
+      - name: Seal build/runtime evidence
         if: always()
         run: |
-          set -euo pipefail
-          find vendor/engine-source/xmage -path '*/target/surefire-reports/*CommanderPlaysCountStateRestoreTest*' -type f -exec cp {} artifacts/ws39-build/ \; || true
-          (cd artifacts/ws39-build && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
-      - name: Upload exact engine/build evidence
+          mkdir -p artifacts/ws39-build/surefire
+          find vendor/engine-source/xmage -path '*/target/surefire-reports/*CommanderPlaysCountStateRestoreTest*' -type f -exec cp {} artifacts/ws39-build/surefire/ \; || true
+          find artifacts/ws39-build -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws39-build/SHA256SUMS || true
+      - name: Upload exact engine/runtime evidence
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: ws39-engine-build-${{ github.sha }}
+          name: ws39-engine-runtime-${{ github.sha }}
           path: artifacts/ws39-build/
           if-no-files-found: error
