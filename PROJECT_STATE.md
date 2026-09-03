@@ -6,7 +6,7 @@ WS-39 — XMage native Commander-history state restoration + complete WS-32 v1.0
 
 ## Terminal state
 
-`LAST_CONFIRMED_CHECKPOINT = WS39-TERMINAL-BLOCKED-IMMUTABLE-WS32-PILOT-CHOICE`
+`LAST_CONFIRMED_CHECKPOINT = WS39-CHECKPOINT-R-TERMINAL-BLOCKER-REVERIFIED`
 
 `TASK_COMPLETE = NO`
 
@@ -16,7 +16,13 @@ WS-39 — XMage native Commander-history state restoration + complete WS-32 v1.0
 
 `TERMINAL_BLOCKER = BLOCKED_BY_IMMUTABLE_WS32_CONTRACT_DEFECT`
 
-This is a terminal fail-closed stop condition for WS-39, not an XMage Rules-Core qualification failure. Exact fresh runtime plus current Wizards Rules authority proves that one mandatory record in the immutable WS-32 v1.0.2 107-record denominator cannot simultaneously satisfy Magic Rules correctness and the frozen requested-state equality/digest gate. WS-39 is explicitly prohibited from modifying WS-32.
+This is a terminal fail-closed stop condition for WS-39, not an XMage Rules-Core qualification failure. Exact fresh runtime, the immutable WS-32 record, current Wizards Rules authority, exact XMage card semantics, and an independent requested-state digest reproduction all prove that one mandatory record cannot simultaneously satisfy Magic Rules correctness and the frozen requested-state equality/digest gate. WS-39 is explicitly prohibited from modifying WS-32.
+
+Independent terminal re-verification is persisted at:
+
+`candidate-qualification/ws39-xmage-successor/WS39_CHECKPOINT_R_TERMINAL_BLOCKER_REVERIFIED.md`
+
+Checkpoint-R commit: `b952e1c84b0b17a0a19fb221610b91c3d33703b6`.
 
 AF07 is not granted. Architecture Freeze is not granted. No merge is authorized.
 
@@ -36,6 +42,7 @@ AF07 is not granted. Architecture Freeze is not granted. No merge is authorized.
 - exact final construction runtime head/tree: `f326efc841c8ad81d1c5c60aefc3913cb3f33651` / `ee130a07efc3982b731347d1b77700328cd9f25d`
 - persistent construction Checkpoint Q: `f3f24ab48e5297b677dd01d6d5d84d72d54a434b`
 - refreshed terminal blocker evidence commit: `3266aaaf4aa4f0b0a5645d8cd51d179ba12191fb`
+- independent terminal re-verification commit: `b952e1c84b0b17a0a19fb221610b91c3d33703b6`
 - draft PR: `#153`.
 
 ### Immutable WS-32
@@ -71,9 +78,7 @@ AF07 is not granted. Architecture Freeze is not granted. No merge is authorized.
 
 Tax-2 and Tax-4 each proved native Commander history 2→3, native Rograkh adjusted cost `{4}`, exact four contract Mountain activations, exact native red mana-pool commits, and all contract payment sources tapped. Partner-Tax independently PASS.
 
-### 3. Full-107 construction qualification — advanced through stack capability
-
-Final exact construction execution after bounded semantic-id/lineage normalization:
+### 3. Full-107 construction qualification — final exact post-alias execution
 
 - workflow: `WS39 Full107 Native Construction Probe`
 - run: `33798418779`
@@ -89,7 +94,7 @@ Final exact construction execution after bounded semantic-id/lineage normalizati
 - artifact digest / independently downloaded ZIP SHA256: `3ca60c2b796da66b5839cda49f5ae4b9c6af1214bd533b3a318db889f0e0c572`
 - `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256: `560087d5cffc2c7d903d293c545d929bb621fd4d5087872f2125af220dcb329e`
 - `SHA256SUMS` SHA256: `88e3ca96c5b2c844246ef39d5c941069ca5319ee44064aec5e9d9127dcc1b9ae`
-- all 10 sealed files independently rehashed: PASS
+- all 10 sealed artifact files independently rehashed: PASS
 - `historical_pass_imported=false`
 - `runtime_credit_granted=false`.
 
@@ -115,39 +120,46 @@ No record-specific card-name fallback, seat heuristic, target choice, or legalit
 
 Canonical detailed evidence: `WS39_TERMINAL_BLOCKER_EVIDENCE.md` at commit `3266aaaf4aa4f0b0a5645d8cd51d179ba12191fb`.
 
+Independent re-verification: `candidate-qualification/ws39-xmage-successor/WS39_CHECKPOINT_R_TERMINAL_BLOCKER_REVERIFIED.md` at commit `b952e1c84b0b17a0a19fb221610b91c3d33703b6`.
+
 ### Frozen requested state
 
 - materialization digest: `f255fb5e8aaa115c659442bd60d617a8ba5128b2df945e3b013c5c6c3a2f90ba`
 - requested-state digest: `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`
-- Utopia Sprawl semantic id: `obj:utopia`
-- zone: stack
+- `obj:utopia` is Utopia Sprawl in zone `stack`
 - `cast_complete=true`
 - `costs_paid=true`
 - `targets=[]`
-- frozen native resolution procedure: attach `obj:utopia` to `obj:forest`.
+- frozen native resolution procedure later attaches it to `obj:forest`.
 
-### Current rules / engine authority
+### Current Rules authority independently rechecked
 
-Current Wizards Comprehensive Rules PDF from the official Rules page is effective August 7, 2026. CR 303.4a and 115.1b require an Aura spell to have a target selected during casting; CR 601.2c requires announcement of each required target.
+Official Wizards Comprehensive Rules TXT checked on 2026-09-03:
 
-Exact XMage `UtopiaSprawl.java` at the locked engine commit adds a `TargetPermanent` restricted to Forest to its spell ability and the matching `EnchantAbility`.
+`https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt`
+
+The document is effective August 7, 2026. CR 303.4a requires an Aura spell to have a target; CR 115.1b states Aura spells are always targeted and choose the target while casting; CR 601.2c requires announcement of each required target.
+
+### Exact XMage semantics independently rechecked
+
+At locked XMage commit `7bde812727817723616c575759f39bfc4cda4607`, `Mage.Sets/src/mage/cards/u/UtopiaSprawl.java` constructs a Forest-filtered `TargetPermanent`, adds it to `getSpellAbility()`, and installs the matching `EnchantAbility`.
 
 ### Fresh failure
 
-Exact post-alias construction runtime leaves this as the only native construction failure:
+The exact post-alias final construction artifact leaves this as the only native construction failure:
 
 `NATIVE_VALIDATION_FAILED: stack target group cardinality obj:utopia`
 
 `behavior_runtime_executed=false`, `runtime_credit=NONE`.
 
-### Digest contradiction
+### Digest contradiction independently reproduced
 
-Exact frozen digest algorithm reproduction:
+Using the exact frozen `requested_state_projection` and canonical serialization from `scripts/ws32_lint_semantic_v1_0_2.py`:
 
-- frozen `targets=[]` -> `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044` (exact frozen digest);
+- frozen `targets=[]` -> `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`;
 - changing only the stack target to the required legal `["obj:forest"]` -> `ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108`.
 
-Thus the minimum Rules-correct construction changes the immutable requested state/digest.
+Thus the minimum Rules-correct construction necessarily changes the immutable requested state/digest.
 
 ### Terminal verdict
 
@@ -157,7 +169,7 @@ A provider cannot:
 
 - construct the frozen zero-target fully-cast Aura state without violating current Magic rules; or
 - construct the required legal Forest target without violating the frozen requested-state equality/digest gate; or
-- hide that legal native target without falsifying the construction evidence / performing forbidden silent setup correction.
+- hide that legal native target without falsifying construction evidence / performing a forbidden silent setup correction.
 
 WS-39 may not alter WS-32. Exact 107/107 is therefore unreachable under this source lock.
 
@@ -165,7 +177,7 @@ WS-39 may not alter WS-32. Exact 107/107 is therefore unreachable under this sou
 
 ## Gates not granted
 
-Because one mandatory denominator record is proven unsatisfiable, WS-39 intentionally does not convert remaining construction/transaction work into PASS and does not continue work that cannot reach its terminal success criterion.
+Because one mandatory denominator record is proven unsatisfiable, WS-39 does not convert remaining construction/transaction work into PASS.
 
 Not granted / not complete:
 
@@ -195,7 +207,7 @@ WS-39 therefore terminates fail-closed as `BLOCKED_BY_IMMUTABLE_WS32_CONTRACT_DE
 
 Create a new provider-neutral successor-contract/freeze workstream outside WS-39. At minimum it must:
 
-1. repair `PILOT_CHOICE.stack_state[0].targets` to include the legal Forest target `["obj:forest"]` (or an equivalent Rules-legal representation preserving the intended obligation);
+1. repair `PILOT_CHOICE.stack_state[0].targets` to include the legal Forest target `["obj:forest"]` or an equivalent Rules-legal representation preserving the intended obligation;
 2. recompute requested-state, record materialization, bundle, and dependent evidence digests;
 3. add semantic lint coverage preventing fully cast Aura spells with zero required targets;
 4. freeze a new immutable successor version;
