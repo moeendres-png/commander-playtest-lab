@@ -1,4 +1,4 @@
-# WS-39 FINAL HANDOFF — TERMINAL BLOCKED
+# WS-39 FINAL HANDOFF — TERMINAL BLOCKED BY IMMUTABLE WS-32 CONTRACT
 
 ## Source Lock
 
@@ -7,15 +7,16 @@
 - repository: `moeendres-png/commander-playtest-lab`
 - branch: `ws39/xmage-engine-remediation-requalification`
 - draft PR: `#153`
-- last exact stack-capability runtime head/tree: `2a25528a0c2cf640991e28a02692fda4a217500d` / `aeac38e589c949fbf720371aa5a89030de12acca`
-- terminal blocker evidence commit/tree: `bc57651d60df74d2046350e989a261d233217283` / `48fd3799911912e8c6fb943b362970840b973726`
-- terminal `PROJECT_STATE.md` update commit: `6ee392413bd547c53167a7a864258e68a65c129f`
+- exact final construction-runtime head/tree: `f326efc841c8ad81d1c5c60aefc3913cb3f33651` / `ee130a07efc3982b731347d1b77700328cd9f25d`
+- persistent construction Checkpoint Q: `f3f24ab48e5297b677dd01d6d5d84d72d54a434b`
+- refreshed terminal blocker evidence commit: `3266aaaf4aa4f0b0a5645d8cd51d179ba12191fb`
+- terminal Root-State commit: `c2f5d0f4e0ffaf4a3a11824208885f5f1e51ab9b`.
 
 ### XMage
 
 - repository: `moeendres-png/mage`
 - branch: `foundry/ws39-commander-history-state-restore`
-- exact engine commit/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
+- exact engine commit/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`.
 
 ### Immutable WS-32 authority
 
@@ -23,10 +24,11 @@
 - freeze commit/tree: `038d0f38635eecee4e331c99af41f148de267a26` / `0d160128119f2bad30b220a17c43419b50b7edbe`
 - canonical bundle digest: `ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23`
 - materialization file SHA256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
-- exact WS-39 XMage denominator: 107 unique records
-- frozen full bundle: 135 records; WS-39 excludes 28 Actual-Card records and retains only `CARD_02` from that family.
+- frozen Comprehensive Rules effective date: `2026-08-07`
+- frozen CR PDF SHA256: `9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c`
+- exact WS-39 XMage denominator: 107 unique records.
 
-The supplied `WS32_FINAL_FREEZE_EVIDENCE.zip` was independently unpacked during blocker adjudication. The extracted `SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json` rehashed exactly to the frozen SHA256 above.
+WS-32 remains immutable and was not modified by WS-39.
 
 ---
 
@@ -39,11 +41,13 @@ The supplied `WS32_FINAL_FREEZE_EVIDENCE.zip` was independently unpacked during 
 Implemented in the isolated XMage WS-39 fork:
 
 - engine-native Commander prior-command-zone-cast-count state carrier;
-- `CommanderPlaysCountWatcher` game-load restoration path;
-- native validation and focused `CommanderPlaysCountStateRestoreTest`;
-- no fabricated historical casts or synthetic cast events.
+- `CommanderPlaysCountWatcher.getStateForGameLoad()`;
+- `CommanderPlaysCountWatcher.restoreStateForGameLoad(...)`;
+- validation of restored commander/count mappings;
+- focused `CommanderPlaysCountStateRestoreTest`;
+- no fabricated historical casts and no synthetic cast events.
 
-Exact engine head remains `7bde812727817723616c575759f39bfc4cda4607`.
+Exact engine head: `7bde812727817723616c575759f39bfc4cda4607`.
 
 ### B. Mandatory Tax-3
 
@@ -51,7 +55,6 @@ Exact engine head remains `7bde812727817723616c575759f39bfc4cda4607`.
 
 - workflow run: `33772428630`
 - job: `100705752538`
-- artifact id: `9900377069`
 - artifact digest: `sha256:5b76015f49bcbabd8482b9f978003d24057e1648fa2c755f1d2269d6ef733ad1`
 - `WS39_TAX3_RESULTS.json` SHA256: `b3b89d32952402471a8800d80dfba8d5d9aa8f43db1db56d0926482c8b8d6a4b`
 - `WS05-CMD-TAX-2`: PASS
@@ -59,164 +62,133 @@ Exact engine head remains `7bde812727817723616c575759f39bfc4cda4607`.
 - `WS05-CMD-PARTNER-TAX`: PASS
 - `historical_pass_imported=false`.
 
-### C. Full-107 construction program
+Tax-2 and Tax-4 each proved native Commander-history 2→3, native Rograkh adjusted cost `{4}`, exact four frozen Mountain mana-source activations, exact native red mana-pool commits, and all four contract payment sources tapped. Partner-Tax independently proved the partner-specific cost state.
 
-**EXECUTED THROUGH STACK-CAPABILITY ACTIVATION; NO BEHAVIOR CREDIT CLAIMED**
+### C. Full-107 construction qualification
 
-Material progress was persisted through checkpoints and exact workflow artifacts. Major stages included:
+WS-39 built and ran a fail-closed native construction program against the exact 107-record denominator. Construction probes explicitly grant **zero behavior-runtime credit**.
 
-- first exact construction probe;
-- `zone_position` / `controlled_since_turn_began` loader work;
-- optional-field overconstraint regression classification and correction;
-- bounded v1.0.2 stack-state overlay;
-- classpath-staging defect classification and repair;
-- atomic activation of `stack_state` and `zone:stack` only after staging succeeded.
+Material progress included:
 
-Latest exact construction run:
+- exact v1.0.2 canonical transport and source locking;
+- Wastes-only legal qualification import bootstrap separated from frozen semantic state;
+- native Rules-RNG instrumentation required by the full-game session;
+- exact semantic mana-source evidence mapping;
+- exact native mana-pool commit handling for Tax-3;
+- conservative full-107 capability census;
+- `zone_position` native construction/readback;
+- `controlled_since_turn_began` native construction/readback;
+- optional-field readback correction after a fresh overconstraint regression;
+- staged `stack_state` / `zone:stack` native construction/readback;
+- runtime classpath materialization repair;
+- fail-closed semantic target identity normalization by exact id, unique case-insensitive id, then unique frozen `card_lineage_id` alias.
+
+No card-name fallback, seat heuristic, target-selection heuristic, or alternate Rules Core was introduced.
+
+### D. Final exact construction rerun after alias remediation
 
 - workflow: `WS39 Full107 Native Construction Probe`
-- run: `33794109615`
-- job: `100777526648`
-- exact provider head/tree: `2a25528a0c2cf640991e28a02692fda4a217500d` / `aeac38e589c949fbf720371aa5a89030de12acca`
-- job: SUCCESS
+- run: `33798418779`
+- job: `100791627620`
+- provider runtime head/tree: `f326efc841c8ad81d1c5c60aefc3913cb3f33651` / `ee130a07efc3982b731347d1b77700328cd9f25d`
+- conclusion: SUCCESS
 - native Commander-history regression: PASS
-- XMage build: PASS
+- exact XMage build: PASS
 - qualification bridge build: PASS
 - runtime classpath: PASS
-- full-107 construction census step: PASS
+- construction probe: PASS as an evidence-producing fail-closed census
 - seal/upload: PASS
-- artifact id: `9908948532`
-- artifact name: `ws39-full107-construction-2a25528a0c2cf640991e28a02692fda4a217500d`
-- GitHub artifact digest and independently downloaded ZIP SHA256: `c9c52c7120ed7447eda95ea52f63d7c1dd608e2a9533bf3bff1e86cf8ca53e7b`
-- `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256: `fef78df6af00454a8490dbee8635a80c8cf11048649aff11e565ec6d4e220d91`
-- all ten artifact `SHA256SUMS` entries independently reverified with zero mismatch
+- artifact id: `9910486727`
+- artifact name: `ws39-full107-construction-f326efc841c8ad81d1c5c60aefc3913cb3f33651`
+- GitHub artifact digest / independently downloaded ZIP SHA256: `3ca60c2b796da66b5839cda49f5ae4b9c6af1214bd533b3a318db889f0e0c572`
+- `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256: `560087d5cffc2c7d903d293c545d929bb621fd4d5087872f2125af220dcb329e`
+- `SHA256SUMS` SHA256: `88e3ca96c5b2c844246ef39d5c941069ca5319ee44064aec5e9d9127dcc1b9ae`
+- all 10 artifact files independently rehashed against the seal: PASS
 - `historical_pass_imported=false`
 - `runtime_credit_granted=false`.
 
-Fresh exact construction counts:
+Final construction census:
 
-- 49 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`
+- 52 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`
 - 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`
 - 47 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`
-- 4 `FAIL_CLOSED_NATIVE_CONSTRUCTION`
+- 1 `FAIL_CLOSED_NATIVE_CONSTRUCTION`
 - total = 107.
 
-Enabled native construction dimensions at that exact run:
+The bounded alias requalification proves the earlier technical failures closed:
 
-- `commander_history`
-- `controlled_since_turn_began`
-- `face_down`
-- `stack_state`
-- `zone:stack`
-- `zone_position`.
+- `PILOT_REPLACEMENT_EFFECT`: native setup PASS through unique frozen lineage alias;
+- `MICRO_PRIORITY`: native setup PASS through unique case-insensitive semantic-id alias;
+- `MICRO_STACK`: native setup PASS through unique case-insensitive semantic-id alias.
+
+A prior WS-39 terminal draft that treated `MICRO_PRIORITY` and `MICRO_STACK` as immutable contract defects is superseded and must not be used as Source Truth.
 
 ---
 
 ## New Findings
 
-Fresh stack-capability execution exposed four exact construction failures. Audit against the immutable WS-32 freeze proved that three are upstream contract defects rather than remediable XMage/provider defects.
-
-### 1. `PILOT_CHOICE` — immutable targetless fully-cast Aura contradiction
+### Sole terminal blocker: `PILOT_CHOICE`
 
 Frozen identity:
 
+- fixture family: `pilot_boundary`
 - materialization digest: `f255fb5e8aaa115c659442bd60d617a8ba5128b2df945e3b013c5c6c3a2f90ba`
-- requested-state digest: `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`.
+- requested-state digest: `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`
+- execution entry: `NATIVE_STATE_LOAD`.
 
-Frozen state puts `Utopia Sprawl` on the stack with:
+Frozen state requires semantic object `obj:utopia` (`Utopia Sprawl`) to be a fully cast and fully paid spell on the stack with:
 
 - `cast_complete=true`
 - `costs_paid=true`
-- `targets=[]`.
+- `targets=[]`
+- `modes=[]`.
 
-The same record's native procedure resolves it attached to `obj:forest` and expects the as-enters color choice.
+The same record contains `obj:forest` as a Forest on P1's battlefield and later requires `NATIVE_RESOLVE_TOP_OF_STACK` with `attached_to=obj:forest`.
 
-Current locked Magic authority makes this initial state impossible: CR 303.4a and 115.1b require an Aura spell to have a target chosen while casting; CR 601.2c governs that choice. Exact XMage `UtopiaSprawl.java` at the locked engine commit adds a Forest `TargetPermanent` directly to the spell ability.
-
-Fresh provider failure:
+Fresh exact construction failure after every bounded stack-identity remediation:
 
 `NATIVE_VALIDATION_FAILED: stack target group cardinality obj:utopia`
 
-A provider-side added Forest target would differ from the requested state. Omitting it from normalized readback would falsify evidence. Both violate the frozen construction contract.
+This is now the **only** native construction failure in the exact 107-record probe.
 
-**Classification:** `IMMUTABLE_CONTRACT_UNSATISFIABLE`.
+### Current primary rules authority
 
-### 2. `MICRO_PRIORITY` — internal frozen semantic-target contradiction
+Wizards' current Comprehensive Rules PDF from the official Rules page is effective August 7, 2026, matching WS-32's authority effective date.
 
-Frozen identity:
+Relevant rules:
 
-- materialization digest: `6ea3fff3fbf3cde65b87662bb2612c8a22264fd36060213a9622ed3a9d262ee3`
-- requested-state digest: `a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae`.
+- CR 303.4a: an Aura spell requires a target defined by its enchant ability.
+- CR 115.1b: Aura spells are always targeted; the target is chosen as the spell is cast.
+- CR 601.2c: each required target must be announced during casting.
 
-Frozen `stack_state` says the already-cast Lightning Bolt targets `obj:P2-bears`.
+Exact locked XMage `UtopiaSprawl.java` adds a native Forest-filtered `TargetPermanent` to the spell ability plus the matching `EnchantAbility`.
 
-But the same current requested state contains no semantic object with that exact ID. It contains two separate relevant objects:
+### Exact digest proof
 
-- `obj:p2-bears`
-- `obj:micro-target`.
+Using the exact frozen `commander-lab.requested-state-digest/1.0.0` projection and canonical serialization from `scripts/ws32_lint_semantic_v1_0_2.py`:
 
-The same frozen record's `NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL` procedure explicitly identifies the Bolt target as `obj:micro-target`.
+- frozen `targets=[]` reproduces exactly
+  `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`;
+- changing only the Utopia Sprawl target to the required legal `["obj:forest"]` gives
+  `ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108`.
 
-Fresh provider failure:
+The minimum Rules-correct repair therefore necessarily changes the frozen requested state and its digest.
 
-`NATIVE_VALIDATION_FAILED: stale semantic id obj:P2-bears`
+### Terminal classification
 
-Case folding cannot resolve the contradiction: it would select `obj:p2-bears`, while the frozen native procedure names the separate `obj:micro-target` object.
+`IMMUTABLE_CONTRACT_UNSATISFIABLE`
 
-**Classification:** `IMMUTABLE_CONTRACT_INTERNAL_TARGET_IDENTITY_CONTRADICTION`.
+An in-scope provider has no correct path:
 
-### 3. `MICRO_STACK` — same internal target contradiction
+1. preserving the exact frozen zero-target stack spell violates current Magic Aura targeting rules and the exact XMage card semantics;
+2. adding the required Forest target violates immutable requested-state equality/digest;
+3. constructing the target but hiding it from normalized evidence falsifies construction equality and is a forbidden silent setup correction.
 
-Frozen identity:
+Because WS-39 is prohibited from modifying WS-32, exact fresh 107/107 is unreachable under this source lock.
 
-- materialization digest: `00fc1c6c04b498cce5f8aacb976276648d91f69ff1c0fe7d764bf90d99889fec`
-- requested-state digest: `a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae`.
+Canonical detailed evidence:
 
-It carries the same contradictory initial Bolt target:
-
-- `stack_state.targets = ["obj:P2-bears"]`
-- frozen native resume procedure target = `obj:micro-target`
-- `obj:p2-bears` and `obj:micro-target` are separate current semantic objects.
-
-Fresh provider failure:
-
-`NATIVE_VALIDATION_FAILED: stale semantic id obj:P2-bears`
-
-**Classification:** `IMMUTABLE_CONTRACT_INTERNAL_TARGET_IDENTITY_CONTRADICTION`.
-
-### 4. `PILOT_REPLACEMENT_EFFECT` — bounded provider mapping candidate, not terminal blocker
-
-Fresh failure:
-
-`NATIVE_VALIDATION_FAILED: stale semantic id obj:P1-commander`
-
-The current battlefield object `obj:p1-commander-bf` has `card_lineage_id = line:obj:P1-commander`, so a provider-neutral lineage-resolution implementation is plausibly available. This record was deliberately **not** used as the WS-39 stop condition.
-
----
-
-## WS-32 Linter Finding
-
-The frozen `SEMANTIC_EXECUTABILITY_REPORT_v1_0_2.json` nevertheless reports:
-
-- terminal status PASS
-- record count 135
-- semantic executable count 135
-- contract defect count 0
-- PASS for all three terminal blocker records.
-
-Exact frozen file hashes used in this audit:
-
-- `SEMANTIC_EXECUTABILITY_REPORT_v1_0_2.json`: `35b61c23a6640abb2f7abb741f6a5040993e3d71cc29a68b7054a6fee70e5b07`
-- `ws32_build_successor_final.py`: `7a47dec62fa1c2ba5710d9dbe5f101482a46468d51efc372c220ab0a92ce6832`
-- `ws32_lint_semantic_v1_0_2.py`: `53b6622e59849d675775f074abf77e607977a3a4fb95a8a75702b9a9e27620a1`.
-
-The linter gap is concrete:
-
-1. its target-cardinality set covers identities such as Lightning Bolt and Unsummon, but does not enforce Aura target requirements such as Utopia Sprawl;
-2. stack target values are not required to resolve to an existing semantic object or formally defined lineage reference;
-3. stack target identities are not cross-checked against target identities declared by the same record's native procedure.
-
-Therefore the static 135/135 semantic-executable report is a false negative for these runtime-discovered defects.
+`WS39_TERMINAL_BLOCKER_EVIDENCE.md` at commit `3266aaaf4aa4f0b0a5645d8cd51d179ba12191fb`.
 
 ---
 
@@ -224,29 +196,26 @@ Therefore the static 135/135 semantic-executable report is a false negative for 
 
 ### XMage
 
-- Added minimum native Commander cast-history state restoration capability required by the original WS-39 blocker.
-- Kept rules legality inside XMage.
-- Did not fabricate casts/events.
+- minimum native Commander cast-history state restoration implemented and validated;
+- no synthetic history/event reconstruction;
+- no unrelated engine rewrite.
 
 ### Commander Lab qualification lane
 
-Added/changed bounded WS-39 qualification infrastructure for:
+Bounded WS-39 qualification infrastructure added for:
 
-- exact v1.0.2 canonical transport;
-- exact source locking;
-- Tax-3 execution and evidence;
-- native construction census;
-- zone position / controlled-since-turn-began native validation;
-- v1.0.2 stack state construction/readback;
-- runtime classpath materialization fix;
-- staged capability enablement;
-- persistent checkpoints and terminal blocker evidence.
+- exact source locking and immutable v1.0.2 binding;
+- Tax-3 execution/evidence;
+- native RNG instrumentation;
+- full-107 native construction census;
+- requested-state/native-state equality checking;
+- native zone ordering and controlled-since-turn-began restoration/readback;
+- native stack construction/readback;
+- fail-closed semantic target alias resolution;
+- exact artifacts/checksum sealing;
+- persistent recovery checkpoints.
 
-No WS-32 file was modified. No merge was performed.
-
-Persistent terminal blocker artifact:
-
-`WS39_TERMINAL_BLOCKER_EVIDENCE.md`
+No WS-32 source was modified. No merge was performed.
 
 ---
 
@@ -254,41 +223,38 @@ Persistent terminal blocker artifact:
 
 ### PASS
 
-- XMage focused native Commander-history regression — PASS
-- exact XMage WS-39 build in the relevant construction run — PASS
-- qualification bridge build — PASS
-- runtime classpath materialization — PASS
-- mandatory Tax-3 — **3/3 fresh PASS**
-- construction evidence sealing/checksums — PASS
-- 49 currently reachable loaded-state records — native construction/readback PASS, **zero behavior credit**
-- 7 natural-start records — construction entry mode correctly delegated, behavior not run for successor credit.
+- XMage native Commander-history restoration regression: PASS
+- exact XMage build in final construction run: PASS
+- qualification bridge build: PASS
+- runtime classpath materialization: PASS
+- Mandatory Tax-3: **3/3 fresh PASS**
+- final construction evidence seal/checksums: PASS
+- 52 loaded-state denominator records: native construction/readback PASS, **zero behavior credit**
+- three bounded stack target aliases: freshly remediated and native setup PASS.
 
-### FAIL
+### FAIL / BLOCKED
 
-Fresh exact construction failures:
-
-- `PILOT_CHOICE` — immutable contract unsatisfiable
-- `MICRO_PRIORITY` — immutable internal target identity contradiction
-- `MICRO_STACK` — immutable internal target identity contradiction
-- `PILOT_REPLACEMENT_EFFECT` — bounded unresolved lineage mapping candidate.
+- `PILOT_CHOICE` native construction: FAIL CLOSED
+- immutable v1.0.2 exact-107 terminal satisfiability: BLOCKED by one contract defect
+- exact 107/107 behavior qualification: unreachable under current immutable source lock.
 
 ### UNKNOWN / NOT RUN
 
-Because exact 107/107 is impossible under the immutable source lock, WS-39 did not falsely continue to claim terminal provider qualification for:
+The following are not converted to PASS because the immutable denominator is already proven unsatisfiable:
 
-- complete behavior execution of all 107 records;
+- complete 107-record behavior execution;
 - AF04 24/24;
 - AF05 20/20;
 - AF06 17/17;
 - AF08 36/36;
 - AF09 5/5;
-- CARD_02 successor runtime PASS;
-- final hidden/privacy aggregation;
-- final RNG/replay aggregation;
-- unsupported production-reachable decision path zero gate;
+- CARD_02 successor behavior-runtime PASS;
+- terminal hidden/privacy aggregation;
+- terminal RNG/replay aggregation;
+- unsupported production-reachable decision-path zero gate;
 - terminal WS39-local quality gate.
 
-`UNKNOWN`, `NOT_RUN`, construction-only, and historical evidence remain non-PASS.
+`UNKNOWN`, `NOT_RUN`, and construction-only evidence remain non-PASS.
 
 ---
 
@@ -298,9 +264,9 @@ Because exact 107/107 is impossible under the immutable source lock, WS-39 did n
 |---|---|
 | Native XMage Commander-history restoration | **PASS** |
 | Mandatory Tax-3 | **PASS — 3/3 fresh** |
-| Latest 107-record native construction census | **PARTIAL — 49 pass / 7 delegated / 47 unsupported / 4 fail** |
-| Immutable WS-32 v1.0.2 denominator internally executable | **FAIL — 3 terminal contract defects proven** |
-| 107/107 successor behavior qualification | **NOT RUN / UNREACHABLE under current source lock** |
+| Latest exact 107-record construction census | **PARTIAL — 52 pass / 7 delegated / 47 unsupported / 1 fail** |
+| `PILOT_CHOICE` immutable construction satisfiability | **FAIL / BLOCKED** |
+| 107/107 successor behavior qualification | **UNREACHABLE under current source lock** |
 | AF04 | **UNKNOWN / NOT COMPLETE** |
 | AF05 | **UNKNOWN / NOT COMPLETE** |
 | AF06 | **UNKNOWN / NOT COMPLETE** |
@@ -317,57 +283,55 @@ Because exact 107/107 is impossible under the immutable source lock, WS-39 did n
 
 ### Terminal upstream blocker
 
-WS-39 is explicitly prohibited from editing WS-32. At least three required denominator records cannot be honestly constructed against the exact frozen requested-state equality gate.
+`PILOT_CHOICE` in immutable WS-32 v1.0.2 freezes an impossible targetless fully-cast Aura stack state while exact construction equality is mandatory. WS-39 cannot repair this without changing the immutable contract or violating Rules correctness/evidence integrity.
 
-This is an objective stop condition: further unrelated provider work cannot produce 107/107 until the source contract changes.
-
-### Non-terminal provider item preserved for successor work
-
-After a repaired successor contract exists, re-evaluate `PILOT_REPLACEMENT_EFFECT` lineage-aware target resolution (`obj:P1-commander` -> current object carrying `line:obj:P1-commander`) against the new exact contract. Do not assume the old result remains authoritative after successor repair.
+No further XMage-side remediation can make exact 107/107 reachable under the current source lock.
 
 ---
 
 ## Outputs
 
-Persistent repository outputs include:
+Persistent repository outputs:
 
 - `PROJECT_STATE.md` — terminal BLOCKED state
-- `WS39_TERMINAL_BLOCKER_EVIDENCE.md` — self-contained blocker evidence
-- `WS39_CHECKPOINT_P_STACK_ACTIVATION_RESULT.md` — latest pre-blocker construction checkpoint
-- `WS39_FINAL_HANDOFF.md` — this handoff
+- `WS39_TERMINAL_BLOCKER_EVIDENCE.md` — refreshed sole-blocker evidence
+- `WS39_FINAL_HANDOFF.md` — this final handoff
+- `candidate-qualification/ws39-xmage-successor/WS39_CHECKPOINT_P_STACK_CONSTRUCTION_ACTIVATION.md`
+- `candidate-qualification/ws39-xmage-successor/WS39_CHECKPOINT_Q_STACK_IDENTITY_REQUALIFICATION.md`
 - WS-39 qualification implementation under `candidate-qualification/ws39-xmage-successor/`
-- exact workflow evidence in GitHub Actions artifacts, including run `33794109615` / artifact `9908948532`.
+- GitHub Actions exact artifacts for Tax-3 and full-107 construction.
 
-No provider PASS or Architecture Freeze is encoded into these outputs.
+No AF07 or Architecture Freeze claim is encoded into these outputs.
 
 ---
 
 ## Dependencies Unblocked
 
-This handoff unblocks a **new successor-contract repair/freeze workstream**. It provides exact runtime evidence for the three defects that the WS-32 static linter missed and the minimum validation requirements a repaired successor must add.
+This handoff establishes that:
 
-It does **not** unblock production use of XMage as a qualified successor provider.
+1. the XMage-native Commander-history deficiency that originally blocked WS-39 is repaired;
+2. mandatory Tax-3 is genuinely 3/3 fresh PASS;
+3. stack identity aliases previously suspected to be contract defects are provider-remediable and freshly closed;
+4. a single immutable upstream contract defect, `PILOT_CHOICE`, prevents exact 107/107 completion;
+5. a new successor-contract freeze is required before additional XMage successor qualification can produce terminal provider credit.
 
 ---
 
 ## Exact Next Action
 
-Outside WS-39, create and freeze a new provider-neutral successor version that:
+Create a **new provider-neutral successor-contract correction/freeze workstream outside WS-39**. It must:
 
-1. repairs `PILOT_CHOICE` so the fully cast Utopia Sprawl stack state carries its required legal Forest target;
-2. repairs `MICRO_PRIORITY` so initial stack target identity and native-procedure target identity reference the same existing semantic object;
-3. repairs `MICRO_STACK` identically;
-4. strengthens semantic linting with:
-   - Aura target/cardinality validation;
-   - stack-target current-object/defined-lineage reference validation;
-   - stack-state vs native-procedure target consistency;
-5. recomputes requested-state, record, bundle, and associated freeze digests;
-6. freezes the new successor immutably without rewriting WS-32 v1.0.2;
-7. then resumes XMage qualification from that new exact source lock, revalidating all affected assumptions rather than importing old PASS.
+1. repair `PILOT_CHOICE.stack_state[0].targets` from `[]` to the legal Forest semantic target `["obj:forest"]`, or represent an equivalent Rules-legal fully-cast Aura state while preserving the intended obligation;
+2. recompute the requested-state digest, record materialization digest, canonical bundle digest, and all dependent hashes/evidence;
+3. add semantic lint coverage ensuring fully cast Aura spells cannot freeze a targetless stack state;
+4. freeze a new immutable successor version;
+5. then re-run XMage successor qualification against that new exact source lock, revalidating all inherited WS-39 overlays rather than importing PASS.
+
+Do **not** retroactively modify WS-32 v1.0.2 inside WS-39.
 
 ---
 
-## Terminal Workstream Result
+## Terminal result
 
 `TASK_COMPLETE = NO`
 
@@ -375,4 +339,6 @@ Outside WS-39, create and freeze a new provider-neutral successor version that:
 
 `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
 
-Reason: the original XMage Commander-history blocker is successfully remediated and Tax-3 is 3/3 fresh PASS, but fresh exact stack construction exposed three unsatisfiable/internally contradictory records in the immutable WS-32 v1.0.2 denominator. WS-39 cannot modify the blocking source contract and therefore cannot honestly reach the required 107/107 terminal provider qualification under this source lock.
+`TERMINAL_BLOCKER = BLOCKED_BY_IMMUTABLE_WS32_CONTRACT_DEFECT`
+
+No AF07. No Architecture Freeze. No merge.
