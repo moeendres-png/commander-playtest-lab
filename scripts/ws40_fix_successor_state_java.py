@@ -24,6 +24,14 @@ def main() -> None:
         '            if (candidates.isEmpty()) {\n                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BIND_MISSING:" + s.semanticId);\n            }\n            // Equal physical cards are intentionally indistinguishable to Forge. Semantic identity is a\n            // provider-neutral mapping layer only; choose the first still-unbound card in native zone order.\n            Card c = candidates.get(0);',
         'duplicate physical card binding')
 
+    # GameState.applyToGame can trigger native command-zone effect maintenance while we bind
+    # semantic identities. Iterate a stable copy of each native zone to avoid observing a live
+    # ArrayList while Forge performs that native housekeeping.
+    s = once(s,
+        '            for (Card c : player(game, s.controller).getCardsIn(zoneType(s.zone), false)) {',
+        '            for (Card c : new ArrayList<>(player(game, s.controller).getCardsIn(zoneType(s.zone), false))) {',
+        'stable native zone binding iteration')
+
     s = once(s,
         '        for (String[] p : rows("COMMANDER_LAB_WS40_STACK_SPECS_B64")) {',
         '        List<String[]> ws40StackRows = rows("COMMANDER_LAB_WS40_STACK_SPECS_B64");\n        java.util.Collections.reverse(ws40StackRows);\n        for (String[] p : ws40StackRows) {',
