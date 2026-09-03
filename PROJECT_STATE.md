@@ -2,7 +2,7 @@
 
 ## Current assignment
 
-Complete **WS-39 — XMage native Commander-history state restoration + complete WS-32 v1.0.2 successor requalification** for `moeendres-png/commander-playtest-lab` and the isolated `moeendres-png/mage` WS-39 fork. Work must remain fail-closed and preserve the Rules-Core / pilot boundary.
+Complete **WS-39 — XMage native Commander-history state restoration + complete WS-32 v1.0.2 successor requalification** for `moeendres-png/commander-playtest-lab` and the isolated `moeendres-png/mage` WS-39 fork. Work remains fail-closed and preserves the Rules-Core / pilot boundary.
 
 ## Target state
 
@@ -10,7 +10,7 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
 
 ## LAST_CONFIRMED_CHECKPOINT
 
-`WS39-CHECKPOINT-2026-09-03-A`
+`WS39-CHECKPOINT-2026-09-03-B`
 
 ### COMPLETE / VERIFIED work packages
 
@@ -24,9 +24,9 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
    - Native watcher state is restored directly; no synthetic historical casts are emitted.
 
 2. **Exact WS-39 Commander Lab engine/bridge build — COMPLETE / VERIFIED.**
-   - Dedicated WS-39 workflow is pinned to the exact green XMage head/tree above.
    - Exact WS-32 source lock and materialization SHA are checked.
    - Exact native history test, qualification overlays, XMage build and bridge build have passed in CI.
+   - XMage runtime dependency materialization is now explicit in `.github/workflows/ci.yml` via Maven `dependency:copy-dependencies` and was observed green at Commander Lab commit `abf79e26af773abedf4fb9deac62d76d4975cf19`.
 
 3. **WS-32 contract-shape / denominator probe — COMPLETE / VERIFIED.**
    - Contract: `commander-lab.semantic-fixture-materialization/1.0.2`
@@ -37,26 +37,38 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
    - Exact XMage denominator: 107 unique fixture IDs.
    - Mandatory IDs are present: `WS05-CMD-TAX-2`, `WS05-CMD-TAX-4`, `WS05-CMD-PARTNER-TAX`.
 
+4. **Tax-3 runner repository import-path remediation — COMPLETE / VERIFIED.**
+   - Commander Lab commit `40da35e859cd5615dfa2170230b6c4ca6c9058e6` repairs repository `src` imports and the local Ruff B023 issue in `run_tax3.py`.
+   - Exact-head CI progressed beyond the previous Python import failure.
+
+5. **Qualification bridge runtime classpath materialization — COMPLETE / VERIFIED as an infrastructure step.**
+   - Commander Lab commit `abf79e26af773abedf4fb9deac62d76d4975cf19`, tree `8f40de7f81cdfd9b7ba343752569ab7d0bb7b994`.
+   - Runtime classpath includes the bridge JAR plus `engine-bridge/target/dependency/*`.
+   - The dependency-materialization step passed in CI run `33747687690`.
+   - This closes the previously observed thin-JAR `NoClassDefFoundError: mage/game/Game` setup defect as the known checkpoint blocker; it does **not** itself grant Tax-3 semantic credit.
+
 ### PARTIAL / FAILED / OPEN work packages
 
-4. **Mandatory Tax-3 runtime — PARTIAL / FAILED (infrastructure, not established Rules defect).**
-   - Latest investigated CI run: `33693783091`.
-   - Latest investigated Tax-3 job: `100458157751`.
-   - Earlier Python repository import-path failure was repaired by Commander Lab commit `f6c1db32ba57dd4584e51fa8a378a70193a064d0` (`WS39: ensure tax-3 runner imports repository modules`).
-   - The next failure moved to Java runtime startup: `NoClassDefFoundError: mage/game/Game` while launching `org.commanderlab.xmage.XmageWs26QualificationMain` with only the bridge JAR on `-cp`.
-   - Current diagnosis: qualification workflow runtime classpath is incomplete; this is not evidence of incorrect Commander-tax semantics.
-   - Tax-3 status remains **NOT PASS** until 3/3 fresh runtime records pass.
+6. **Mandatory Tax-3 runtime — PARTIAL / PRE-RESULT FAILURE.**
+   - Latest exact-head Commander Lab commit examined: `abf79e26af773abedf4fb9deac62d76d4975cf19`.
+   - Latest investigated CI run: `33747687690`.
+   - Exact WS-39 job reached: native history PASS, overlays PASS, XMage build PASS, bridge verify PASS, runtime dependency materialization PASS.
+   - `Execute mandatory Tax-3 runtime gate` still exits non-zero.
+   - No `WS39_TAX3_RESULTS.json` is produced, so no record-level semantic PASS/FAIL is established.
+   - Current classification: **runner/runtime pre-result failure after classpath materialization**, not an established Magic Rules defect.
+   - Tax-3 remains 0/3 credited until all three records produce fresh PASS results.
 
-5. **Repository quality / Ruff — UNKNOWN at this checkpoint.**
-   - A prior run reported Ruff lint/format failures in new WS-39 Python files.
-   - The latest quality job for the current branch head has not yet been re-read after the import-path fix. No PASS credit is granted.
+7. **Repository quality — PARTIAL.**
+   - Mypy, compile/tests and security checks observed green in the investigated quality run.
+   - `run_tax3.py` B023 was repaired at `40da35e8…`.
+   - Generic repository Ruff lint/format still contains inherited historical qualification-file debt; final WS-39 quality credit requires exact verification that all WS-39-modified files are clean without weakening project-wide quality configuration.
 
-6. **Fresh complete 107-record successor requalification — OPEN / NOT_RUN.**
-   - It is gated by Tax-3 3/3 PASS.
+8. **Fresh complete 107-record successor requalification — OPEN / NOT_RUN.**
+   - Gated by mandatory Tax-3 3/3 PASS.
    - Historical WS-34/WS-36 PASS results must not be imported.
 
-7. **Terminal WS-39 handoff and provider qualification — OPEN.**
-   - `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED` is not set.
+9. **Terminal WS-39 handoff and provider qualification — OPEN.**
+   - `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`.
    - `WS39_FINAL_HANDOFF.md` does not yet exist as a terminal validated handoff.
 
 ## Important decisions
@@ -65,51 +77,44 @@ WS-39 is COMPLETE only when all of the following are freshly runtime-verified fo
 - The provider/pilot must never calculate Commander tax. Tax evidence must come from XMage-native cost/legal-option/readback behavior.
 - No fabricated historical events are permitted for restoration.
 - Tax-3 must pass before the 107-record run is unlocked.
+- No unsupported production-reachable discretionary-decision fallback is acceptable.
 - No AF07 or Architecture Freeze claim may be made in WS-39.
 - Draft PRs may remain open; no merges are authorized.
 
-## Relevant evidence
+## Source locks
 
 - XMage exact green head/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`.
-- Commander Lab branch before this checkpoint commit: `f6c1db32ba57dd4584e51fa8a378a70193a064d0`, tree `a3ef7950b5b464ce0a716e1016f175634871d00a`.
+- Commander Lab latest verified pre-checkpoint head/tree: `abf79e26af773abedf4fb9deac62d76d4975cf19` / `8f40de7f81cdfd9b7ba343752569ab7d0bb7b994`.
 - Commander Lab branch: `ws39/xmage-engine-remediation-requalification`.
 - Draft Commander Lab PR: `#153`.
-- Latest investigated failing runtime: run `33693783091`, job `100458157751`, Java `NoClassDefFoundError: mage/game/Game`.
-
-## Changed files known in WS-39
-
-- `.github/workflows/ws39-xmage-remediation.yml`
-- `.github/workflows/ci.yml`
-- `candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py`
-- `candidate-qualification/ws39-xmage-successor/canonical_v102.py`
-- `candidate-qualification/ws39-xmage-successor/contract_probe.py`
-- WS-39 Tax-3 qualification files under `candidate-qualification/ws39-xmage-successor/` (exact current listing must be read before editing).
-- XMage production/test/workflow files in the isolated WS-39 branch.
 
 ## Tests already executed
 
 - XMage retained-base focused native Commander-history tests: **PASS**.
 - Exact Commander Lab WS-39 contract-shape probe: **PASS**.
 - Exact XMage + bridge build with overlays: **PASS**.
-- Mandatory Tax-3: **FAILED / PARTIAL**, currently stopped at bridge Java runtime classpath startup.
+- Runtime dependency materialization: **PASS**.
+- Mandatory Tax-3: **NOT PASS / PRE-RESULT FAILURE**; no result JSON yet.
 - Fresh 107/107: **NOT_RUN**.
 
 ## Known errors
 
-1. Tax-3 Java runtime command does not include the XMage dependency graph; current observed failure is `NoClassDefFoundError: mage/game/Game`.
-2. Latest Ruff quality status is not yet verified for current head.
+1. Tax-3 exits after all setup/build/classpath steps pass but before `WS39_TAX3_RESULTS.json` is written; exact stderr is not yet persisted by the workflow artifact.
+2. Repository-wide Ruff has inherited historical debt; WS-39-local cleanliness must be proven separately without weakening configuration.
 
 ## Exact next action
 
-1. Read the current WS-39 qualification directory, current CI workflow and latest `quality` diagnostics.
-2. Locate an already-working project-native XMage bridge runtime classpath pattern (or derive it from `engine-bridge/pom.xml` without changing rules semantics).
-3. Repair only the qualification/runtime invocation and any exact Ruff diagnostics.
-4. Run/observe fresh CI; require mandatory Tax-3 = 3/3 PASS before proceeding.
-5. On Tax-3 PASS, execute the exact fresh 107-record successor requalification and remediate bounded provider/setup defects until the terminal contract is either fully PASS or an objective non-remediable blocker is proven.
-6. Persist a checkpoint after each completed package.
+1. Make the Tax-3 CI step fail-safe observable by persisting stdout, stderr and exit code under `artifacts/ws39-ci/` even when the runner exits before result creation.
+2. Execute exact-head CI and inspect the newly persistent failure evidence.
+3. Repair the concrete in-scope runner/provider/setup defect; repeat until mandatory Tax-3 = 3/3 fresh PASS.
+4. Immediately checkpoint Tax-3 PASS.
+5. Execute the exact fresh 107-record successor requalification and remediate bounded provider/setup defects until 107/107 fresh PASS or an objective non-remediable blocker is proven.
+6. Seal final checksums/evidence, verify WS-39-local quality, write `WS39_FINAL_HANDOFF.md`, and update this file terminally.
 
 ## Completion status
 
 `TASK_COMPLETE = NO`
+`WS39_STATUS = PARTIAL`
+`XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
 
 Reason: mandatory Tax-3 is not yet 3/3 PASS and fresh 107/107 has not yet been executed.
