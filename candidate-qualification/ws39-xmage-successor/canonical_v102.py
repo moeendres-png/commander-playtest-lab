@@ -21,7 +21,7 @@ from successor_contract import requested_state_digest, requested_state_projectio
 SCHEMA = "xmage-qualification-scenario/1.1.0"
 ZONE_KEYS = {"hand", "library", "graveyard", "exile", "battlefield"}
 COMMANDER_DECK_SIZE = 100
-QUALIFICATION_FILLER = "Mountain"
+QUALIFICATION_FILLER = "Wastes"
 
 
 def _seat(player_id: str) -> int:
@@ -67,17 +67,20 @@ def _commander_entries(record: dict[str, Any]) -> list[dict[str, Any]]:
     return result
 
 
-def _legal_import_mainboard(
-    frozen_mainboard: list[str], commander_names: list[str], player_id: str
-) -> list[str]:
-    """Pad the native import bootstrap without changing the frozen semantic state."""
+def _legal_import_mainboard(commander_names: list[str], player_id: str) -> list[str]:
+    """Build a legal inert import bootstrap, independent of frozen semantic objects."""
     required_mainboard = COMMANDER_DECK_SIZE - len(commander_names)
-    if required_mainboard < 0 or len(frozen_mainboard) > required_mainboard:
+    if required_mainboard < 0:
         raise ValueError(
-            "QUALIFICATION_DECK_MAINBOARD_OVERFLOW:"
-            f"{player_id}:semantic={len(frozen_mainboard)}:capacity={required_mainboard}"
+            "QUALIFICATION_DECK_COMMANDER_OVERFLOW:"
+            f"{player_id}:commanders={len(commander_names)}"
         )
-    return frozen_mainboard + [QUALIFICATION_FILLER] * (required_mainboard - len(frozen_mainboard))
+    # The imported deck only bootstraps a native Commander game. Frozen semantic
+    # objects are materialized separately as real XMage cards by the qualification
+    # state loader (CardRepository + Game.loadCards) and validated there. Wastes is
+    # a colorless Basic Land, so this bootstrap does not constrain commander color
+    # identity and does not add semantic state to the frozen scenario.
+    return [QUALIFICATION_FILLER] * required_mainboard
 
 
 def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -94,9 +97,6 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     for number in range(1, player_count + 1):
         player_id = f"P{number}"
         owned = [item for item in objects if item["owner"] == player_id]
-        frozen_mainboard = [
-            item["card_identity"] for item in owned if item["zone"] != "command"
-        ]
         commander_names = sorted(commanders_by_seat.get(number, []))
         if not commander_names:
             commander_names = sorted(
@@ -104,7 +104,7 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
             )
         if not commander_names:
             raise ValueError(f"COMMANDER_IDENTITY_MISSING:{player_id}")
-        mainboard = _legal_import_mainboard(frozen_mainboard, commander_names, player_id)
+        mainboard = _legal_import_mainboard(commander_names, player_id)
         deck = {
             "deck_id": f"ws39-{record['fixture_id'].lower()}-p{number}",
             "mainboard": mainboard,
