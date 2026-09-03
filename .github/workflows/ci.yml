@@ -236,11 +236,22 @@ jobs:
             -DoutputDirectory=target/dependency
           test -n "$(find target/dependency -maxdepth 1 -name '*.jar' -print -quit)"
       - name: Execute mandatory Tax-3 runtime gate
+        shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          mkdir -p artifacts/ws39-ci
+          set +e
           python candidate-qualification/ws39-xmage-successor/run_tax3.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
-            --output artifacts/ws39-ci/WS39_TAX3_RESULTS.json
+            --output artifacts/ws39-ci/WS39_TAX3_RESULTS.json \
+            > artifacts/ws39-ci/WS39_TAX3_STDOUT.log \
+            2> artifacts/ws39-ci/WS39_TAX3_STDERR.log
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > artifacts/ws39-ci/WS39_TAX3_EXIT_CODE.txt
+          cat artifacts/ws39-ci/WS39_TAX3_STDOUT.log
+          cat artifacts/ws39-ci/WS39_TAX3_STDERR.log >&2
+          exit "$rc"
       - name: Seal WS39 exact-source evidence
         if: always()
         run: |
