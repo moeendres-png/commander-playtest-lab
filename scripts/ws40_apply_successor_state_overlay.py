@@ -35,6 +35,22 @@ def main() -> None:
             stopReason = "FORGE_GAME_RETURNED";'''
     java = replace_once(java, old, new, "match.startGame hook")
 
+    # Forge's real game/action executor may leave a non-daemon worker alive after a
+    # qualification-only NATIVE_STATE_LOAD hook has deliberately stopped the game.
+    # At that point runSession has already emitted both the native snapshot and the
+    # SESSION_RESULT carrying WS40_CONSTRUCTION_COMPLETE. Explicit process exit is
+    # therefore lifecycle cleanup only; it does not bypass construction or validation.
+    old_main = '''        runSession(in, out);
+    }
+}'''
+    new_main = '''        runSession(in, out);
+        if ("1".equals(System.getenv("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {
+            System.exit(0);
+        }
+    }
+}'''
+    java = replace_once(java, old_main, new_main, "construction-only process cleanup")
+
     path.write_text(java, encoding="utf-8")
     print("WS40_SUCCESSOR_STATE_OVERLAY=PASS")
 
