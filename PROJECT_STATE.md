@@ -51,8 +51,9 @@ WS-40 is COMPLETE only when all of the following are runtime/evidence verified a
 ### Current WS-40 Commander-Lab branch
 
 - branch: `ws40/forge-core-remediation-requalification`
-- last confirmed checkpoint head before this state file: `8ba2529ef51a88099ea6dc094551666fe2b4a4a3`
-- tree: `318b5b5522d26376697fe7a67bd16327e8b9774e`
+- implementation head validated by latest construction run: `42288dad011473ddbea5d150e4687ec2af1c3e75`
+- implementation tree: `e256f1e1fd437be27e48095704c3b894cf7b3200`
+- this PROJECT_STATE update is a documentation-only successor commit and does not itself invalidate runtime evidence.
 
 ## Completed Work Packages
 
@@ -88,41 +89,64 @@ Status: **VERIFIED**
 - semantic card identity binding supports indistinguishable duplicate physical cards through provider identity mapping rather than Rules duplication.
 - stack construction order, counter observation and natural Commander configuration binding fixes applied.
 
-### WP-04 — Construction no-request-echo hardening
+### WP-04A — Exact native priority-holder restoration
 
-Status: **PARTIAL / VERIFIED THROUGH FIRST FAILING RECORD**
+Status: **VERIFIED**
+
+Prior failure `PILOT_CHOOSE_OBJECT` required active player P2 with priority P1, while the provider snapshot showed priority P2. Exact Forge source proves `PhaseHandler` exposes native public priority state through `setPriority(Player)` / `getPriorityPlayer()`.
+
+Root cause: WS40 set requested native priority before stack/combat construction; later native construction could change it.
+
+Fix at implementation commit `42288dad011473ddbea5d150e4687ec2af1c3e75`:
+
+- run native `applyStack(game)`;
+- run native `applyCombat(game)`;
+- reassert final requested holder through `game.getPhaseHandler().setPriority(nativePlayer)`;
+- only then emit the native snapshot.
+
+Classification: **FORGE_PROVIDER_DEFECT — FIXED**.
+
+Validation: construction run `33742627946` passes `PILOT_CHOOSE_OBJECT` and continues beyond it.
+
+### WP-04B — Construction no-request-echo hardening
+
+Status: **PARTIAL / VERIFIED THROUGH FIRST CURRENT FAILING RECORD**
 
 Current workflow: `WS40 Native Construction 107`.
 
-Most recent run at checkpoint head `8ba2529e...`:
+Latest run on implementation head `42288dad011473ddbea5d150e4687ec2af1c3e75`:
 
-- run: `33734935926`
-- job: `100583176323`
-- result: FAILURE at exact construction equality gate.
-- Build exact Forge game: PASS.
-- isolated provider compilation: PASS.
-- immutable WS-32 verification: PASS.
-- construction records 1-6: PASS:
-  - `PLAYER_COUNT_2P`
-  - `PLAYER_COUNT_3P`
-  - `PLAYER_COUNT_4P`
-  - `PLAYER_COUNT_5P`
-  - `PILOT_PRIORITY`
-  - `PILOT_TARGET`
-- first failing record: `PILOT_CHOOSE_OBJECT`.
+- run: `33742627946`
+- job: `100607801377`
+- immutable WS-32 verification: PASS
+- exact repaired Forge lock verification: PASS
+- Forge game build: PASS
+- isolated WS40 provider compile: PASS
+- sequential construction records 1-10: PASS:
+  1. `PLAYER_COUNT_2P`
+  2. `PLAYER_COUNT_3P`
+  3. `PLAYER_COUNT_4P`
+  4. `PLAYER_COUNT_5P`
+  5. `PILOT_PRIORITY`
+  6. `PILOT_TARGET`
+  7. `PILOT_CHOOSE_OBJECT`
+  8. `PILOT_MULLIGAN`
+  9. `PILOT_MANA_PAYMENT`
+  10. `PILOT_REPLACEMENT_EFFECT`
+- first current failing record: `PILOT_CHOICE`.
 
-The failure is a construction-state mismatch only:
+Current mismatch:
 
-- requested `temporal_state.priority_player = P1`;
-- native observed `temporal_state.priority_player = P2`;
-- all other shown requested/normalized fields for this record match.
+- requested stack contains `obj:pilot-sprawl` / `Utopia Sprawl` / controller P1 / chosen target `obj:pilot-forest`;
+- provider performed native stack construction, but observer reports `native_stack_present=false` for the semantic stack record;
+- construction equality therefore fails closed.
 
-Classification: **FORGE_HEADLESS_API_DEFECT or FORGE_PROVIDER_DEFECT pending exact source proof**. It is not currently a Rules defect and must not be patched by request echo.
+Current classification: **OPEN — likely FORGE_PROVIDER_DEFECT, pending exact native stack-instance identity/callgraph proof**. It is not a Rules defect.
 
-Failure artifact:
+Failure evidence:
 
-- artifact ID: `9885383182`
-- artifact ZIP SHA256: `701c4a6a4dbddf518b81bf756a402815b3ba5f8d613d05bd384f48055507e488`
+- artifact ID: `9897106220`
+- artifact ZIP SHA256: `fc33149fb9444b091260accfefe19866c65fe0030d18798bb703cdefcd97f2dd`
 
 ## Important Decisions
 
@@ -132,6 +156,7 @@ Failure artifact:
 4. Rules legality stays exclusively in Forge Core. Commander-Lab Python may parse/bind/normalize state but must not calculate Magic legality.
 5. Historical WS-33 PASS credit is not imported into the 107 successor denominator.
 6. `UNKNOWN`, `PARTIAL`, `NOT_RUN`, and `CODE_DERIVED` are never promoted to PASS.
+7. Provider identity mappings may retain opaque semantic/native identity bindings; they may not manufacture Rules legality or echo requested state as constructed-state proof.
 
 ## Relevant Evidence
 
@@ -139,7 +164,8 @@ Failure artifact:
 - WS40 provider smoke exact pin run: `33686910851` — PASS.
 - WS40 contract audit run: `33685671398` — PASS, denominator 107.
 - requested-digest reconstruction run: `33688583497` — PASS, 107/107.
-- native construction run `33734935926` — PARTIAL, first six records PASS, first mismatch at `PILOT_CHOOSE_OBJECT` priority holder.
+- native construction run `33734935926` — PARTIAL, first six records PASS before priority-provider mismatch.
+- native construction run `33742627946` — PARTIAL, priority fix VERIFIED; first ten records PASS; first current mismatch `PILOT_CHOICE` stack observation.
 
 ## Changed Files on WS-40 Commander-Lab Branch
 
@@ -158,6 +184,7 @@ Material WS-40 files include:
 - `scripts/ws40_fix_construction_runner.py`
 - `scripts/ws40_fix_construction_runner_natural_objects.py`
 - `scripts/ws40_generate_forge_provider.py`
+- `PROJECT_STATE.md`
 
 ## Tests Already Executed
 
@@ -170,7 +197,8 @@ Material WS-40 files include:
 | isolated provider smoke | VERIFIED PASS |
 | WS-32 contract denominator audit | VERIFIED 107 records |
 | requested digest reconstruction | VERIFIED 107/107 PASS |
-| native construction equality | PARTIAL: 6/107 sequential records PASS before first mismatch |
+| native priority-holder restoration | VERIFIED by run `33742627946` |
+| native construction equality | PARTIAL: 10/107 sequential records PASS before first current mismatch |
 | fresh native runtime 107 | NOT_RUN |
 | final evidence freeze | OPEN |
 | Draft PRs | OPEN |
@@ -178,15 +206,17 @@ Material WS-40 files include:
 
 ## Known Errors / Open Defects
 
-### OPEN-01 — exact native priority-holder restoration
+### OPEN-01 — exact native stack-instance observation for `PILOT_CHOICE`
 
-`PILOT_CHOOSE_OBJECT` requires active player P2 with priority P1. Current native construction leaves priority with P2. Need locate a native Forge API or native procedure that establishes P1 priority without request echo or external legality emulation.
+`PILOT_CHOICE` constructs a native `Utopia Sprawl` SpellAbility with target `obj:pilot-forest` using `game.getStack().addAndUnfreeze(sa)`, but the later observer attempts `getInstanceMatchingSpellAbilityID(c.getFirstSpellAbility().getId())` and reports no native stack instance.
 
-Required classification after source inspection:
+Need inspect exact Forge `SpellAbilityStack` / stack instance behavior to determine whether:
 
-- `FORGE_HEADLESS_API_DEFECT`, if Forge has no usable headless native setter/path;
-- `FORGE_PROVIDER_DEFECT`, if a native Forge API exists and the provider is not using it correctly;
-- never `FORGE_RULES_DEFECT` unless an exact native transaction contradicts current Magic authority.
+- `addAndUnfreeze` creates/copies an ability with a different ID;
+- repeated `c.getFirstSpellAbility()` does not return the same native ability instance;
+- the observer should instead bind to the actual native stack instance created during construction or enumerate the native stack by host-card identity.
+
+Any fix must remain a provider identity/observation fix and must not echo requested stack state.
 
 ### OPEN-02 — complete construction denominator
 
@@ -202,15 +232,16 @@ Historical duplicate `tools/ws40_apply_core_remediation.py` and canonical `.gith
 
 ## Exact Next Action
 
-1. Inspect exact Forge lock for native priority-holder ownership APIs/callgraph (`Game`, `PhaseHandler`, priority loop/controller callbacks).
-2. Implement the minimum provider-side native priority restoration path in `Ws40SuccessorState` only if it uses Forge-native state/turn machinery and does not compute Magic legality.
-3. Run the focused state-loader compile workflow.
-4. Run full `WS40 Native Construction 107` again.
-5. Persist the new first-failure or 107/107 PASS result here before proceeding.
+1. Inspect exact Forge lock `forge-game/src/main/java/forge/game/spellability/SpellAbilityStack.java` and relevant `SpellAbilityStackInstance` APIs.
+2. Prove the identity semantics of `addAndUnfreeze`, stack instance lookup and host-card binding.
+3. Implement the minimum native stack observation fix in `Ws40SuccessorState` if source-proven.
+4. Run focused state-loader compile workflow.
+5. Run full `WS40 Native Construction 107` again.
+6. Persist the new first-failure or 107/107 PASS result here before proceeding.
 
 ## Completion Status
 
-- `LAST_CONFIRMED_CHECKPOINT = WS40-WP04-RUN-33734935926-FIRST-MISMATCH-PILOT_CHOOSE_OBJECT`
+- `LAST_CONFIRMED_CHECKPOINT = WS40-WP04-RUN-33742627946-FIRST-MISMATCH-PILOT_CHOICE`
 - `TASK_COMPLETE = NO`
 - `WS40_STATUS = PARTIAL`
 - `FORGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
