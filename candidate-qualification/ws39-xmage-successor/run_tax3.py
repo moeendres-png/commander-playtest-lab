@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -38,6 +39,18 @@ from successor_contract import (  # noqa: E402
 MANDATORY = ("WS05-CMD-TAX-2", "WS05-CMD-TAX-4", "WS05-CMD-PARTNER-TAX")
 ROGRAKH = "Rograkh, Son of Rohgahh"
 KEDISS = "Kediss, Emberclaw Familiar"
+
+
+def exact_provider_identity() -> tuple[str, str]:
+    commit = subprocess.check_output(
+        ["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True
+    ).strip()
+    tree = subprocess.check_output(
+        ["git", "-C", str(ROOT), "rev-parse", "HEAD^{tree}"], text=True
+    ).strip()
+    if len(commit) != 40 or len(tree) != 40:
+        raise RuntimeError("WS39_PROVIDER_GIT_IDENTITY_INVALID")
+    return commit, tree
 
 
 def unique(items: list[dict[str, Any]], predicate, label: str) -> dict[str, Any]:
@@ -304,11 +317,14 @@ def main() -> int:
     if any(fixture_id not in selected for fixture_id in MANDATORY):
         raise SystemExit("WS39_TAX3_CONTRACT_ID_MISSING")
 
+    provider_commit, provider_tree = exact_provider_identity()
     rows = [execute_one(selected[fixture_id]) for fixture_id in MANDATORY]
     passed = sum(row["status"] == "PASS" for row in rows)
     output = {
         "schema_version": "commander-lab.ws39-tax3-runtime/1.0.0",
-        "candidate_commit": os.environ.get("GITHUB_SHA", "LOCAL"),
+        "candidate_commit": provider_commit,
+        "candidate_tree": provider_tree,
+        "github_workflow_sha": os.environ.get("GITHUB_SHA", "LOCAL"),
         "engine_commit": os.environ.get("XMAGE_WS39_COMMIT", "UNKNOWN"),
         "denominator": 3,
         "pass_count": passed,
