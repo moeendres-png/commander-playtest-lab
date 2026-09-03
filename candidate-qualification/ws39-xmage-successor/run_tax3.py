@@ -192,9 +192,9 @@ def pay_exact_sources(
     client: gate._RawFullGameClient,
     first_payload: dict[str, Any],
     payment_sources: list[str],
-) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     payload = first_payload
-    evidence: list[dict[str, Any]] = []
+    source_evidence: list[dict[str, Any]] = []
     for semantic_source in payment_sources:
         decision = payload.get("decision")
         if not isinstance(decision, dict):
@@ -212,16 +212,57 @@ def pay_exact_sources(
             f"MANA_SOURCE:{semantic_source}",
         )
         metadata = option.get("metadata") or {}
-        evidence.append(
+        source_evidence.append(
             {
                 "semantic_source_object_id": semantic_source,
+                "visible_source_object_id": metadata.get("visible_source_object_id"),
                 "offered_option_id": option.get("option_id"),
                 "source_name": metadata.get("source_name"),
                 "unpaid_mana_before": (decision.get("context") or {}).get("unpaid_mana"),
             }
         )
         payload = gate.submit_one(client, decision, [str(option["option_id"])])
-    return evidence, payload
+
+    pool_evidence: list[dict[str, Any]] = []
+    for pool_step in range(len(payment_sources) + 1):
+        decision = payload.get("decision")
+        if not isinstance(decision, dict):
+            payload = client.request("get_full_game_decision")
+            decision = payload.get("decision")
+        if not isinstance(decision, dict):
+            break
+        if decision.get("decision_class") != "mana_payment":
+            break
+        option = unique(
+            decision.get("legal_options") or [],
+            lambda item: (
+                item.get("option_type") == "mana_pool"
+                and str((item.get("metadata") or {}).get("mana_type", "")).casefold() == "red"
+                and int((item.get("metadata") or {}).get("mana_available", 0)) > 0
+            ),
+            f"MANA_POOL_RED_COMMIT:{pool_step}",
+        )
+        metadata = option.get("metadata") or {}
+        pool_evidence.append(
+            {
+                "offered_option_id": option.get("option_id"),
+                "mana_type": metadata.get("mana_type"),
+                "mana_available_before": metadata.get("mana_available"),
+                "unpaid_mana_before": (decision.get("context") or {}).get("unpaid_mana"),
+            }
+        )
+        payload = gate.submit_one(client, decision, [str(option["option_id"])])
+    else:
+        raise RuntimeError("MANA_POOL_COMMIT_DID_NOT_TERMINATE")
+
+    if len(pool_evidence) != len(payment_sources):
+        raise RuntimeError(
+            f"MANA_POOL_RED_COMMIT_COUNT_MISMATCH:{len(pool_evidence)}/{len(payment_sources)}"
+        )
+    final_decision = payload.get("decision")
+    if isinstance(final_decision, dict) and final_decision.get("decision_class") == "mana_payment":
+        raise RuntimeError("MANA_PAYMENT_STILL_PENDING_AFTER_EXACT_COMMIT")
+    return source_evidence, pool_evidence, payload
 
 
 def execute_tax_cast(record: dict[str, Any], client: gate._RawFullGameClient) -> dict[str, Any]:
@@ -238,7 +279,9 @@ def execute_tax_cast(record: dict[str, Any], client: gate._RawFullGameClient) ->
         raise RuntimeError("TAX_PRIORITY_DECISION_MISSING")
     cast_option = unique_cast_option(decision)
     after_cast_selection = gate.submit_one(client, decision, [str(cast_option["option_id"])])
-    mana_evidence, _ = pay_exact_sources(client, after_cast_selection, payment_sources)
+    source_evidence, pool_evidence, _ = pay_exact_sources(
+        client, after_cast_selection, payment_sources
+    )
 
     after = client.request("get_qualification_state")
     probe = after.get("ws39_commander_probe")
@@ -267,7 +310,8 @@ def execute_tax_cast(record: dict[str, Any], client: gate._RawFullGameClient) ->
             "unique_match": True,
         },
         "payment_sources_contract": payment_sources,
-        "mana_payment_decisions": mana_evidence,
+        "mana_source_activation_decisions": source_evidence,
+        "mana_pool_commit_decisions": pool_evidence,
         "post_cast_history": history,
         "all_contract_payment_sources_native_tapped": True,
         "native_cast_event_inferred_from_watcher_increment": True,
