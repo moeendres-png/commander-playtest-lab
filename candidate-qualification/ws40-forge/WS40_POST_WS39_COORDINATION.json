@@ -1,0 +1,112 @@
+{
+  "schema_version": "commander-lab.ws40-post-ws39-coordination/1.0.0",
+  "workstream": "WS-40",
+  "coordinator_supersession_date": "2026-09-04",
+  "status": {
+    "WS40_WORKSTREAM_TERMINAL": false,
+    "TASK_COMPLETE": false,
+    "completion_status": "WAITING_FOR_NEW_IMMUTABLE_SUCCESSOR_CONTRACT",
+    "ENGINE_REMEDIATION_COMPLETE": true,
+    "FORGE_SUCCESSOR_PROVIDER_QUALIFIED": false,
+    "ARCHITECTURE_FREEZE": false
+  },
+  "infrastructure_gate": {
+    "former_blocker": "BLOCKED_NO_WRITABLE_GPL_FORGE_REMEDIATION_REPOSITORY",
+    "current_status": "CLEARED",
+    "repository": "moeendres-png/forge",
+    "permissions_verified": {
+      "push": true,
+      "admin": true,
+      "maintain": true
+    },
+    "archived": false
+  },
+  "forge_engine_lock": {
+    "repository": "moeendres-png/forge",
+    "branch": "foundry/ws40-af04-core-remediation",
+    "commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "tree": "37ef36359cef74273ca40a2c1c676b8ede84a431",
+    "draft_pr": 1,
+    "pr_open": true,
+    "pr_draft": true,
+    "pr_merged": false
+  },
+  "engine_acceptance": {
+    "core_owned_combat_damage_decision_boundary": "PASS",
+    "core_validation_and_mutation_revalidation": "PASS",
+    "gui_ai_consumer_migration": "PASS",
+    "noncombat_amount_distribution_separation": "PASS",
+    "malformed_allocation_rejection": "PASS",
+    "headless_legal_choice_operation": "PASS",
+    "raw_combat_damage_legality_bypass_count": 0,
+    "native_ws40_matrix": "15/15 PASS",
+    "patch_reproducibility": "PASS"
+  },
+  "patch_reproducibility": {
+    "run_id": 33776615398,
+    "baseline_commit": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+    "baseline_tree": "abd80b8e9ba1178bcd8e8fb3147ed6df292b4597",
+    "artifact_id": 9901943490,
+    "artifact_sha256": "8c62d3c9c66f89b1818c021ccd001ca270ad68effd1fae1a029dc005065ace20"
+  },
+  "commander_lab": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "ws40/forge-core-remediation-requalification",
+    "coordination_state_commit": "ebbe63e23e8eee906668cf3314fa5dbb76f8c163",
+    "continuation_handoff_commit": "73bf2fbf009a21bb4a8e354d9cf1ba08afcba4a5",
+    "last_v1_0_2_tested_implementation_commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "last_v1_0_2_tested_implementation_tree": "da9ad40a8db9b65310f2590a72e9a6af8922f5b6",
+    "draft_pr": 154,
+    "pr_open": true,
+    "pr_draft": true,
+    "pr_merged": false
+  },
+  "preserved_provider_infrastructure": {
+    "provider_smoke_run": 33777908775,
+    "provider_smoke": "PASS",
+    "state_loader_compile_run": 33777941124,
+    "state_loader_compile": "PASS",
+    "no_request_echo_hardening": "PRESERVED_FAIL_CLOSED"
+  },
+  "ws32_v1_0_2": {
+    "status_for_ws40": "SUPERSEDED_DIAGNOSTIC_ONLY",
+    "commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.2",
+    "bundle_digest": "ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23",
+    "materialization_sha256": "0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261",
+    "historical_denominator": 107,
+    "known_contract_defect": "PILOT_CHOICE targetless completed Utopia Sprawl Aura spell",
+    "terminal_successor_credit_allowed": false
+  },
+  "diagnostic_only_runs": [
+    {
+      "run_id": 33778130830,
+      "job_id": 100724863434,
+      "sequential_passes": 6,
+      "first_failure": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE",
+      "artifact_id": 9902469599,
+      "artifact_sha256": "409ac38fa3a0c0836cec52eeed9e8385306737a22d39390dc3b914c2b76e0755",
+      "successor_credit": "NONE"
+    },
+    {
+      "run_id": 33742627946,
+      "purpose": "historical contract-defect evidence",
+      "successor_credit": "NONE"
+    }
+  ],
+  "forbidden_credit_imports": [
+    "WS-33 PASS",
+    "any WS-32 v1.0.2 runtime PASS",
+    "historical partial construction results"
+  ],
+  "out_of_scope": [
+    "AF07",
+    "Architecture Freeze",
+    "broad terminal runtime against WS-32 v1.0.2",
+    "weakening Forge legality to satisfy PILOT_CHOICE",
+    "moving Magic legality into Commander Lab, pilot, GUI, or AI"
+  ],
+  "current_dependency": "NEW_IMMUTABLE_PROVIDER_NEUTRAL_SUCCESSOR_CONTRACT_NOT_YET_FROZEN",
+  "resume_rule": "When the replacement successor contract is frozen, freshly lock its exact authority, reconstruct its denominator, rerun complete construction from record 1 with zero historical successor credit, and only after complete construction passes run the complete fresh successor runtime denominator."
+}
