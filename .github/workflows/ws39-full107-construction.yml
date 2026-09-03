@@ -78,7 +78,8 @@ jobs:
             candidate-qualification/ws39-xmage-successor/run_tax3.py \
             candidate-qualification/ws39-xmage-successor/canonical_v102.py \
             candidate-qualification/ws39-xmage-successor/apply_ws39_state_surface_overlay.py \
-            candidate-qualification/ws39-xmage-successor/apply_ws39_stack_state_overlay.py
+            candidate-qualification/ws39-xmage-successor/apply_ws39_stack_state_overlay.py \
+            candidate-qualification/ws39-xmage-successor/apply_ws39_stack_identity_overlay.py
       - name: Run native commander-history regression
         working-directory: vendor/engine-source/xmage
         run: |
@@ -98,6 +99,7 @@ jobs:
           python candidate-qualification/ws39-xmage-successor/apply_ws39_runtime_evidence_overlay.py
           python candidate-qualification/ws39-xmage-successor/apply_ws39_state_surface_overlay.py
           python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_state_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_identity_overlay.py
           git diff --check
           git -C vendor/engine-source/xmage diff --check
           git diff -- engine-bridge > artifacts/ws39-full107-construction/QUALIFICATION_BRIDGE_OVERLAY.patch
