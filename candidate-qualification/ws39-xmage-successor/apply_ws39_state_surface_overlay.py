@@ -116,11 +116,13 @@ def main() -> int:
 
     battlefield_old = '''            requireNative(permanent.isFaceDown(game) == booleanValue(spec, "face_down", false), "battlefield-face-down:" + semantic);
 '''
-    battlefield_new = battlefield_old + '''            requireNative(
-                    permanent.wasControlledFromStartOfControllerTurn()
-                            == booleanValue(spec, "controlled_since_turn_began", false),
-                    "battlefield-controlled-since-turn-began:" + semantic
-            );
+    battlefield_new = battlefield_old + '''            if (spec.has("controlled_since_turn_began")) {
+                requireNative(
+                        permanent.wasControlledFromStartOfControllerTurn()
+                                == booleanValue(spec, "controlled_since_turn_began", false),
+                        "battlefield-controlled-since-turn-began:" + semantic
+                );
+            }
 '''
     text = replace_once(
         text,
