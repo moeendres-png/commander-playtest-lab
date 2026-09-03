@@ -20,29 +20,25 @@ def main() -> None:
     s = p.read_text(encoding='utf-8')
 
     s = once(s,
+        '    private Ws40SuccessorState() {}\n',
+        '    private Ws40SuccessorState() {}\n\n'
+        '    /** Qualification-only synchronous entry into Forge GameState on the game thread. */\n'
+        '    private static final class Ws40GameState extends GameState {\n'
+        '        void applySynchronously(Game game) {\n'
+        '            applyGameOnThread(game);\n'
+        '        }\n'
+        '    }\n',
+        'synchronous native GameState adapter')
+
+    s = once(s,
         '            if (candidates.size() != 1) {\n                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BIND_NONUNIQUE:" + s.semanticId + ":" + candidates.size());\n            }\n            Card c = candidates.get(0);',
         '            if (candidates.isEmpty()) {\n                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BIND_MISSING:" + s.semanticId);\n            }\n            // Equal physical cards are intentionally indistinguishable to Forge. Semantic identity is a\n            // provider-neutral mapping layer only; choose the first still-unbound card in native zone order.\n            Card c = candidates.get(0);',
         'duplicate physical card binding')
 
-    # GameState.applyToGame schedules its native mutation through GameAction.invoke.
-    # The first-turn hook must not inspect the game until that native mutation has completed.
-    # Queue a sentinel on the same executor and wait for it; FIFO completion establishes the
-    # required happens-before edge without bypassing Forge's own state loader.
     s = once(s,
-        '        state.applyToGame(game);\n\n        int active = Integer.parseInt(env("COMMANDER_LAB_WS40_ACTIVE_SEAT"));',
-        '        state.applyToGame(game);\n'
-        '        java.util.concurrent.CountDownLatch ws40StateApplied = new java.util.concurrent.CountDownLatch(1);\n'
-        '        game.getAction().invoke(ws40StateApplied::countDown);\n'
-        '        try {\n'
-        '            if (!ws40StateApplied.await(30, java.util.concurrent.TimeUnit.SECONDS)) {\n'
-        '                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_APPLY_TIMEOUT");\n'
-        '            }\n'
-        '        } catch (InterruptedException e) {\n'
-        '            Thread.currentThread().interrupt();\n'
-        '            throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_APPLY_INTERRUPTED");\n'
-        '        }\n\n'
-        '        int active = Integer.parseInt(env("COMMANDER_LAB_WS40_ACTIVE_SEAT"));',
-        'native state apply completion barrier')
+        '        GameState state = new GameState();\n        state.parse(buildGameStateLines(game));\n        state.applyToGame(game);',
+        '        Ws40GameState state = new Ws40GameState();\n        state.parse(buildGameStateLines(game));\n        // This hook already executes during Forge game initialization. Calling the protected native\n        // implementation synchronously avoids racing GameAction.invoke while preserving GameState semantics.\n        state.applySynchronously(game);',
+        'synchronous native state application')
 
     # Native command-zone effect maintenance may mutate backing zone lists during binding.
     # Iterate a stable copy; semantic identity is still selected from the native zone contents.
