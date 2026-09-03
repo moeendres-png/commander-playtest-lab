@@ -25,7 +25,12 @@ import run_tax3  # noqa: E402
 from successor_contract import load_contract, ws34_records  # noqa: E402
 
 BASE_ZONES = {"command", "hand", "library", "graveyard", "exile", "battlefield"}
-CURRENT_NATIVE_DIMENSIONS = {"face_down", "commander_history"}
+CURRENT_NATIVE_DIMENSIONS = {
+    "face_down",
+    "commander_history",
+    "zone_position",
+    "controlled_since_turn_began",
+}
 
 
 def nonempty(value: Any) -> bool:

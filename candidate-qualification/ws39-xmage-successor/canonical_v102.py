@@ -75,12 +75,47 @@ def _legal_import_mainboard(commander_names: list[str], player_id: str) -> list[
             "QUALIFICATION_DECK_COMMANDER_OVERFLOW:"
             f"{player_id}:commanders={len(commander_names)}"
         )
-    # The imported deck only bootstraps a native Commander game. Frozen semantic
-    # objects are materialized separately as real XMage cards by the qualification
-    # state loader (CardRepository + Game.loadCards) and validated there. Wastes is
-    # a colorless Basic Land, so this bootstrap does not constrain commander color
-    # identity and does not add semantic state to the frozen scenario.
     return [QUALIFICATION_FILLER] * required_mainboard
+
+
+def _zone_entry(item: dict[str, Any]) -> dict[str, Any]:
+    entry: dict[str, Any] = {
+        "semantic_id": item["semantic_id"],
+        "card_name": item["card_identity"],
+        "tapped": bool(item.get("tapped", False)),
+        "controller_seat": _seat(item["controller"]),
+        "face": "main",
+        "face_down": bool(item.get("face_down", False)),
+    }
+    if "zone_position" in item:
+        position = item["zone_position"]
+        if not isinstance(position, int) or isinstance(position, bool) or position < 0:
+            raise ValueError(f"ZONE_POSITION_INVALID:{item['semantic_id']}:{position}")
+        entry["zone_position"] = position
+    if "controlled_since_turn_began" in item:
+        value = item["controlled_since_turn_began"]
+        if not isinstance(value, bool):
+            raise ValueError(
+                f"CONTROLLED_SINCE_TURN_BEGAN_INVALID:{item['semantic_id']}:{value}"
+            )
+        entry["controlled_since_turn_began"] = value
+    return entry
+
+
+def _sort_zone_entries(zones: dict[str, list[dict[str, Any]]], player_id: str) -> None:
+    library = zones["library"]
+    positioned = ["zone_position" in item for item in library]
+    if any(positioned) and not all(positioned):
+        raise ValueError(f"MIXED_LIBRARY_POSITION_SPECIFICATION:{player_id}")
+    if library and all(positioned):
+        positions = [int(item["zone_position"]) for item in library]
+        if len(set(positions)) != len(positions):
+            raise ValueError(f"DUPLICATE_LIBRARY_POSITION:{player_id}:{positions}")
+        library.sort(key=lambda item: int(item["zone_position"]))
+    else:
+        library.sort(key=lambda item: str(item["semantic_id"]))
+    for zone in ZONE_KEYS - {"library"}:
+        zones[zone].sort(key=lambda item: str(item["semantic_id"]))
 
 
 def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -120,15 +155,8 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
                 continue
             if zone not in zones:
                 raise ValueError(f"UNSUPPORTED_WS39_NATIVE_ZONE:{zone}")
-            zones[zone].append(
-                {
-                    "semantic_id": item["semantic_id"],
-                    "card_name": item["card_identity"],
-                    "tapped": bool(item.get("tapped", False)),
-                    "controller_seat": _seat(item["controller"]),
-                    "face": "main",
-                }
-            )
+            zones[zone].append(_zone_entry(item))
+        _sort_zone_entries(zones, player_id)
         life = next(p["life"] for p in record["players"] if p["player_id"] == player_id)
         players.append(
             {
