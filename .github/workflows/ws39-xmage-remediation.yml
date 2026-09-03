@@ -47,13 +47,14 @@ jobs:
         uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
-      - name: Verify immutable WS32 and probe mandatory Tax-3
+      - name: Verify immutable WS32, Tax-3 structures and full-107 census
         run: |
           set -euo pipefail
           test "$(git -C _ws32 rev-parse HEAD)" = "$WS32_FREEZE_COMMIT"
           test "$(git -C _ws32 rev-parse HEAD^{tree})" = "$WS32_FREEZE_TREE"
           python -m py_compile \
             candidate-qualification/ws39-xmage-successor/contract_probe.py \
+            candidate-qualification/ws39-xmage-successor/full107_census.py \
             candidate-qualification/ws39-xmage-successor/canonical_v102.py \
             candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py \
             candidate-qualification/ws39-xmage-successor/apply_ws39_rng_instrumentation.py \
@@ -63,6 +64,9 @@ jobs:
           python candidate-qualification/ws39-xmage-successor/contract_probe.py \
             --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
             --output artifacts/ws39-probe/WS39_CONTRACT_PROBE.json
+          python candidate-qualification/ws39-xmage-successor/full107_census.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws39-probe/WS39_FULL107_CENSUS.json
           python - <<'PY'
           import hashlib, json
           from pathlib import Path
@@ -71,9 +75,15 @@ jobs:
           q=json.loads(Path('artifacts/ws39-probe/WS39_CONTRACT_PROBE.json').read_text())
           assert q['denominator']==107 and q['unique_fixture_ids']==107
           assert set(q['mandatory_ids'])=={'WS05-CMD-TAX-2','WS05-CMD-TAX-4','WS05-CMD-PARTNER-TAX'}
+          c=json.loads(Path('artifacts/ws39-probe/WS39_FULL107_CENSUS.json').read_text())
+          assert c['denominator']==107 and c['unique_fixture_ids']==107
+          assert c['unique_native_operation_names']==63
+          assert c['unique_ordered_operation_sets']==50
+          assert c['historical_pass_imported'] is False
+          assert c['runtime_credit_granted'] is False
           PY
           sha256sum artifacts/ws39-probe/*.json > artifacts/ws39-probe/SHA256SUMS
-      - name: Upload WS39 contract probe
+      - name: Upload WS39 contract and full-107 census probe
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: ws39-contract-probe-${{ github.sha }}
