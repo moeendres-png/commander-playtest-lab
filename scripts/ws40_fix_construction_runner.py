@@ -19,6 +19,10 @@ def main() -> None:
     p = args.runner
     s = p.read_text(encoding='utf-8')
     s = once(s,
+        'def projection(record: dict[str, Any]) -> dict[str, Any]:\n    return {k: record.get(k) for k in PROJECTION_KEYS}\n',
+        'def projection(record: dict[str, Any]) -> dict[str, Any]:\n    # WS32 requested-state canonicalization omits keys that are absent from the record.\n    # It must not materialize absent fields as JSON null, or the frozen digest changes.\n    return {k: record[k] for k in PROJECTION_KEYS if k in record}\n',
+        'WS32 absent-key canonicalization')
+    s = once(s,
         'def normalize_counters(raw: dict[str, int]) -> dict[str, int]:\n    return {str(k).lower(): int(v) for k, v in raw.items() if int(v) != 0}\n',
         'def normalize_counters(raw: dict[str, int], requested: dict[str, int]) -> dict[str, int]:\n    result = {str(k).lower(): int(v) for k, v in raw.items() if int(v) != 0}\n    # Forge Multiset does not retain zero-count entries. Preserve an explicitly requested zero\n    # only after native observation proves there is no nonzero counter of that type.\n    for key, value in requested.items():\n        key = str(key).lower()\n        if int(value) == 0 and key not in result:\n            result[key] = 0\n    return result\n',
         'zero counter normalization')
