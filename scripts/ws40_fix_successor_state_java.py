@@ -24,9 +24,28 @@ def main() -> None:
         '            if (candidates.isEmpty()) {\n                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BIND_MISSING:" + s.semanticId);\n            }\n            // Equal physical cards are intentionally indistinguishable to Forge. Semantic identity is a\n            // provider-neutral mapping layer only; choose the first still-unbound card in native zone order.\n            Card c = candidates.get(0);',
         'duplicate physical card binding')
 
-    # GameState.applyToGame can trigger native command-zone effect maintenance while we bind
-    # semantic identities. Iterate a stable copy of each native zone to avoid observing a live
-    # ArrayList while Forge performs that native housekeeping.
+    # GameState.applyToGame schedules its native mutation through GameAction.invoke.
+    # The first-turn hook must not inspect the game until that native mutation has completed.
+    # Queue a sentinel on the same executor and wait for it; FIFO completion establishes the
+    # required happens-before edge without bypassing Forge's own state loader.
+    s = once(s,
+        '        state.applyToGame(game);\n\n        int active = Integer.parseInt(env("COMMANDER_LAB_WS40_ACTIVE_SEAT"));',
+        '        state.applyToGame(game);\n'
+        '        java.util.concurrent.CountDownLatch ws40StateApplied = new java.util.concurrent.CountDownLatch(1);\n'
+        '        game.getAction().invoke(ws40StateApplied::countDown);\n'
+        '        try {\n'
+        '            if (!ws40StateApplied.await(30, java.util.concurrent.TimeUnit.SECONDS)) {\n'
+        '                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_APPLY_TIMEOUT");\n'
+        '            }\n'
+        '        } catch (InterruptedException e) {\n'
+        '            Thread.currentThread().interrupt();\n'
+        '            throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_APPLY_INTERRUPTED");\n'
+        '        }\n\n'
+        '        int active = Integer.parseInt(env("COMMANDER_LAB_WS40_ACTIVE_SEAT"));',
+        'native state apply completion barrier')
+
+    # Native command-zone effect maintenance may mutate backing zone lists during binding.
+    # Iterate a stable copy; semantic identity is still selected from the native zone contents.
     s = once(s,
         '            for (Card c : player(game, s.controller).getCardsIn(zoneType(s.zone), false)) {',
         '            for (Card c : new ArrayList<>(player(game, s.controller).getCardsIn(zoneType(s.zone), false))) {',
