@@ -30,6 +30,8 @@ CURRENT_NATIVE_DIMENSIONS = {
     "commander_history",
     "zone_position",
     "controlled_since_turn_began",
+    "stack_state",
+    "zone:stack",
 }
 
 
