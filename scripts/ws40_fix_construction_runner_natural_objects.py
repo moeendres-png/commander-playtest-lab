@@ -86,8 +86,35 @@ def main() -> None:
         out.append(row)
     return out'''
     s = s[:start] + replacement + s[end:]
+
+    # Fail closed: a provider-side digest proves integrity of request-bound configuration, not
+    # independent native observation of Rules state. The v2 normalizer still carries request-bound
+    # stack semantics (cast_complete/costs_paid/modes/targets) and portions of combat semantics into
+    # the normalized projection. Those fields are not eligible for no-request-echo credit until they
+    # are independently observed/derived from Forge-native state or reclassified by contract authority
+    # as non-Rules configuration. Do not allow a 107/107 digest equality to mask this provenance gap.
+    if s.count('        "no_request_echo": True,') != 1:
+        raise RuntimeError('expected exactly one optimistic no_request_echo claim')
+    s = s.replace('        "no_request_echo": True,', '        "no_request_echo": False,', 1)
+    if s.count('            "request_values_used_by_normalizer": False,') != 1:
+        raise RuntimeError('expected exactly one request-values proof flag')
+    s = s.replace(
+        '            "request_values_used_by_normalizer": False,',
+        '            "request_values_used_by_normalizer": True,\n'
+        '            "status": "NOT_GRANTED",\n'
+        '            "rules_state_gaps": [\n'
+        '                "stack_state.cast_complete",\n'
+        '                "stack_state.costs_paid",\n'
+        '                "stack_state.modes",\n'
+        '                "stack_state.targets",\n'
+        '                "combat_state request-bound subfields not overwritten by native Combat observation",\n'
+        '            ],',
+        1,
+    )
+
     p.write_text(s, encoding='utf-8')
     print('WS40_NATURAL_COMMANDER_OBJECT_PROJECTION_FIX=PASS')
+    print('WS40_NO_REQUEST_ECHO_FAIL_CLOSED=PASS')
 
 
 if __name__ == '__main__':
