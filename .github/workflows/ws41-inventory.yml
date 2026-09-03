@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - ws41/successor-contract-v1.0.3-freeze
+    paths:
+      - scripts/ws41_inventory_stack.py
+      - .github/workflows/ws41-inventory.yml
   workflow_dispatch:
 permissions:
   contents: read
