@@ -1,225 +1,185 @@
-# WS-39 TERMINAL BLOCKER EVIDENCE
+# WS-39 TERMINAL BLOCKER EVIDENCE — REFRESHED AFTER STACK IDENTITY REQUALIFICATION
 
 ## Classification
 
-`WS39-TERMINAL-BLOCKER-WS32-IMMUTABLE-CONTRACT`
+`WS39-TERMINAL-BLOCKER-IMMUTABLE-WS32-PILOT-CHOICE-AURA-TARGET`
 
-This file is the fail-closed stop-condition evidence for WS-39. It does **not** grant provider PASS, AF credit, AF07, or Architecture Freeze.
+This is the terminal fail-closed stop-condition evidence for WS-39. It does **not** grant XMage successor-provider PASS, AF credit, AF07, or Architecture Freeze.
 
-WS-39 is prohibited from modifying WS-32. The exact frozen WS-32 v1.0.2 contract contains at least three execution-blocking requested-state contradictions inside the 107-record XMage denominator. A provider-side workaround would require silent state correction or false normalized readback and therefore would violate the frozen construction gate.
+A prior revision of this file listed three immutable stack-contract blockers. That prior classification is superseded. Fresh bounded alias remediation and exact rerun proved `PILOT_REPLACEMENT_EFFECT`, `MICRO_PRIORITY`, and `MICRO_STACK` natively constructible. The sole remaining terminal blocker is `PILOT_CHOICE`.
+
+WS-39 is explicitly prohibited from modifying WS-32. Exact runtime plus current primary rules authority proves that the immutable WS-32 v1.0.2 requested state for `PILOT_CHOICE` cannot simultaneously satisfy Magic Rules correctness and the frozen requested-state equality/digest gate.
+
+---
 
 ## Source Lock
 
-### WS-32 immutable contract
+### Immutable WS-32
 
 - schema: `commander-lab.semantic-fixture-materialization/1.0.2`
 - freeze commit: `038d0f38635eecee4e331c99af41f148de267a26`
 - freeze tree: `0d160128119f2bad30b220a17c43419b50b7edbe`
 - canonical bundle digest: `ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23`
-- exact `SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json` SHA256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
-- exact `SEMANTIC_EXECUTABILITY_REPORT_v1_0_2.json` SHA256: `35b61c23a6640abb2f7abb741f6a5040993e3d71cc29a68b7054a6fee70e5b07`
-- exact `ws32_build_successor_final.py` SHA256: `7a47dec62fa1c2ba5710d9dbe5f101482a46468d51efc372c220ab0a92ce6832`
-- exact `ws32_lint_semantic_v1_0_2.py` SHA256: `53b6622e59849d675775f074abf77e607977a3a4fb95a8a75702b9a9e27620a1`
-- exact WS-39 denominator: 107 records.
-
-The attached project freeze evidence `WS32_FINAL_FREEZE_EVIDENCE.zip` was independently unpacked and the materialization file rehashed to the exact frozen SHA256 above before the records below were inspected.
+- materialization SHA256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
+- authority lock Comprehensive Rules effective date: `2026-08-07`
+- authority lock CR PDF SHA256: `9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c`
+- exact XMage denominator: 107 records.
 
 ### XMage
 
 - repo/branch: `moeendres-png/mage` / `foundry/ws39-commander-history-state-restore`
-- exact WS-39 engine commit/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
-- exact `UtopiaSprawl.java` at that commit adds a native `TargetPermanent` constrained to Forest to the spell ability and adds the matching `EnchantAbility`.
+- exact engine commit: `7bde812727817723616c575759f39bfc4cda4607`
+- exact engine tree: `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
+- exact card source: `Mage.Sets/src/mage/cards/u/UtopiaSprawl.java`
+- that source adds one `TargetPermanent` filtered to Forest to Utopia Sprawl's spell ability, an `AttachEffect`, and the corresponding `EnchantAbility`.
 
-### Current Magic rules authority
+### Current primary Magic authority
 
-WS-32 itself locks the Comprehensive Rules effective **2026-08-07**. Relevant rules in that same current authority:
+The current Wizards Rules page resolves its Comprehensive Rules PDF to:
+
+`https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.pdf`
+
+The PDF states it is effective August 7, 2026. Relevant rules:
 
 - CR 303.4a: an Aura spell requires a target defined by its enchant ability.
-- CR 115.1b: Aura spells are always targeted; the target is chosen as the spell is cast.
-- CR 601.2c: the player announces an appropriate object/player for each target the spell requires while casting it.
+- CR 115.1b: Aura spells are always targeted, and the target is chosen as the spell is cast.
+- CR 601.2c: the caster announces an appropriate object/player for each target the spell requires.
 
-## Frozen Construction Gate
-
-The affected records all carry the v1.0.2 construction contract:
-
-- `construction_validation.required = true`
-- `credit_condition = REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST`
-- `provider_must_emit_normalized_constructed_state = true`
-- setup requires requested-vs-normalized-native-constructed-state equality
-- `silent_setup_correction` is explicitly forbidden
-- normalization retains `semantic_object_id` and states that stack identity is normalized by semantic source/controller/targets/modes/order, never provider object id.
-
-Therefore WS-39 may not legally make a different native state and then echo the frozen requested state as though equality held.
+This is the same effective-date authority domain frozen by WS-32.
 
 ---
 
-## Terminal Blocker 1 — `PILOT_CHOICE`
+## Fresh exact construction evidence after bounded alias remediation
+
+### Runtime identity
+
+- provider runtime head: `f326efc841c8ad81d1c5c60aefc3913cb3f33651`
+- provider runtime tree: `ee130a07efc3982b731347d1b77700328cd9f25d`
+- workflow: `WS39 Full107 Native Construction Probe`
+- run: `33798418779`
+- job: `100791627620`
+- job conclusion: `SUCCESS`
+- artifact id: `9910486727`
+- artifact name: `ws39-full107-construction-f326efc841c8ad81d1c5c60aefc3913cb3f33651`
+- artifact digest / independently downloaded ZIP SHA256: `3ca60c2b796da66b5839cda49f5ae4b9c6af1214bd533b3a318db889f0e0c572`
+- `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256: `560087d5cffc2c7d903d293c545d929bb621fd4d5087872f2125af220dcb329e`
+- `SHA256SUMS` SHA256: `88e3ca96c5b2c844246ef39d5c941069ca5319ee44064aec5e9d9127dcc1b9ae`
+- all 10 internally sealed files independently rehashed: PASS.
+
+### Fresh census
+
+- 52 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`
+- 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`
+- 47 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`
+- 1 `FAIL_CLOSED_NATIVE_CONSTRUCTION`
+- total 107
+- `historical_pass_imported=false`
+- `runtime_credit_granted=false`.
+
+The three previously ambiguous identity failures are now closed:
+
+- `PILOT_REPLACEMENT_EFFECT`: native setup PASS via unique frozen `card_lineage_id` alias.
+- `MICRO_PRIORITY`: native setup PASS via unique case-insensitive semantic-id alias.
+- `MICRO_STACK`: native setup PASS via unique case-insensitive semantic-id alias.
+
+Those records are **not** terminal blockers.
+
+---
+
+## Sole terminal blocker — `PILOT_CHOICE`
 
 ### Frozen identity
 
 - fixture family: `pilot_boundary`
 - materialization digest: `f255fb5e8aaa115c659442bd60d617a8ba5128b2df945e3b013c5c6c3a2f90ba`
 - requested-state digest: `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`
-- execution entry: `NATIVE_STATE_LOAD`
+- execution entry: `NATIVE_STATE_LOAD`.
 
 ### Frozen requested stack state
 
-The semantic object `obj:utopia` is `Utopia Sprawl` in zone `stack`.
-
-Its sole frozen `stack_state` row requires:
+The semantic object `obj:utopia` is `Utopia Sprawl` in zone `stack`. Its sole frozen `stack_state` row requires:
 
 - `source_semantic_id = obj:utopia`
 - `controller = P1`
 - `cast_complete = true`
 - `costs_paid = true`
 - `targets = []`
-- `modes = []`
+- `modes = []`.
 
-The frozen native procedure then requires `NATIVE_RESOLVE_TOP_OF_STACK` for `obj:utopia`, with `attached_to = obj:forest`, and the decision script expects the native as-enters color choice.
+The same frozen record contains `obj:forest` as a Forest permanent on P1's battlefield. Its frozen native procedure requires `NATIVE_RESOLVE_TOP_OF_STACK` for `obj:utopia` with `attached_to = obj:forest`.
 
-### Contradiction
+### Frozen construction gate
 
-A fully cast Utopia Sprawl Aura spell cannot legally exist on the stack with zero targets:
+The same record requires:
 
-1. CR 303.4a / 115.1b require an Aura spell target as part of casting.
-2. Exact XMage `UtopiaSprawl` implements this with one native Forest `TargetPermanent` on its `SpellAbility`.
-3. Frozen normalization retains stack targets and frozen construction requires exact requested/native equality.
+- `construction_validation.required = true`
+- `credit_condition = REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST`
+- `provider_must_emit_normalized_constructed_state = true`
+- requested-vs-normalized-native-constructed-state equality
+- `silent_setup_correction` forbidden.
 
-Observed fresh WS-39 result after stack capability activation:
+Its normalization explicitly retains stack source/controller/targets/modes/order as semantic identity. Provider-local object IDs may be normalized away; semantic targets may not.
+
+### Fresh runtime failure
+
+The exact post-alias rerun leaves only this record as native construction failure:
 
 `NATIVE_VALIDATION_FAILED: stack target group cardinality obj:utopia`
 
-This is the correct fail-closed provider behavior. Adding `obj:forest` to the native target set would make the Magic/XMage state legal but would no longer equal the immutable requested state `targets=[]`. Hiding that target from normalized readback would be false evidence. Both are prohibited.
+- `behavior_runtime_executed=false`
+- `runtime_credit=NONE`.
+
+This is not a generic stack implementation failure: 52 denominator records now pass native setup construction, including the three remediated stack identity records.
+
+### Digest proof
+
+Using the exact frozen `commander-lab.requested-state-digest/1.0.0` projection and canonical JSON algorithm from `scripts/ws32_lint_semantic_v1_0_2.py`:
+
+- frozen record with `targets=[]` reproduces exact requested-state digest
+  `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`;
+- changing only `PILOT_CHOICE.stack_state[0].targets` to the required legal Forest target `["obj:forest"]` produces
+  `ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108`.
+
+Therefore the minimum Rules-correct correction necessarily changes the frozen requested-state digest.
+
+### Unsatisfiability proof
+
+No in-scope provider implementation can satisfy both sides:
+
+1. **Preserve frozen state exactly:** create a fully cast, fully paid Utopia Sprawl Aura spell on the stack with zero targets. This violates CR 303.4a / 115.1b / 601.2c and disagrees with the exact XMage card implementation's required Forest target.
+2. **Construct the Rules-correct native spell:** choose `obj:forest` as Utopia Sprawl's target. This changes the requested state and its digest from `4c1c8ab4...` to `ef1df9ac...`, violating the immutable WS-32 construction equality gate.
+3. **Construct the legal target but hide it from normalized readback:** this falsifies requested-vs-native construction evidence and is equivalent to the explicitly forbidden silent setup correction.
+
+There is no fourth provider-side path that preserves both Rules correctness and exact frozen semantic-state equality.
 
 **Verdict:** `IMMUTABLE_CONTRACT_UNSATISFIABLE`.
 
 ---
 
-## Terminal Blocker 2 — `MICRO_PRIORITY`
+## Stop condition
 
-### Frozen identity
+WS-39's required terminal success criterion is a fresh exact 107/107 successor-provider result on the immutable WS-32 v1.0.2 denominator. One mandatory denominator record is now proven unsatisfiable under that immutable source lock.
 
-- fixture family: `micro_rules`
-- materialization digest: `6ea3fff3fbf3cde65b87662bb2612c8a22264fd36060213a9622ed3a9d262ee3`
-- requested-state digest: `a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae`
-- execution entry: `NATIVE_STATE_LOAD`
+WS-39 is explicitly prohibited from modifying WS-32. Continuing unrelated native setup or transaction implementation cannot make 107/107 reachable and would consume work against a source lock that must be superseded.
 
-### Frozen requested stack state
+Therefore the correct WS-39 terminal outcome is:
 
-`obj:micro-bolt` is Lightning Bolt on the stack and the frozen stack row requires target:
+- `TASK_COMPLETE = NO`
+- `WS39_STATUS = BLOCKED`
+- `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`.
 
-`obj:P2-bears`
+This is an upstream immutable-contract blocker, not an XMage Rules-Core qualification failure.
 
-However the same record's `semantic_objects` contains **no exact semantic object with id `obj:P2-bears`**. It separately contains:
+No AF07 claim. No Architecture Freeze claim. No merge.
 
-- `obj:p2-bears` — one Grizzly Bears object; and
-- `obj:micro-target` — another Grizzly Bears object.
+## Required upstream repair outside WS-39
 
-The same frozen record's native procedure `NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL` explicitly specifies the resumed Lightning Bolt target as:
+Create and freeze a new provider-neutral successor contract version that:
 
-`obj:micro-target`
+1. changes `PILOT_CHOICE.stack_state[0].targets` from `[]` to the legal Forest semantic target `["obj:forest"]` (or otherwise represents an equivalent Rules-legal cast state without changing the underlying obligation);
+2. recomputes `requested_state_digest`, record materialization digest, bundle digest, and all dependent frozen checksums;
+3. strengthens semantic linting so fully cast Aura spells cannot freeze a zero-target stack state;
+4. freezes a new immutable source lock;
+5. resumes XMage successor qualification against that new source lock, reusing WS-39's engine remediation and bounded qualification overlays only after revalidation.
 
-These are distinct semantic identities in the same requested state.
-
-### Contradiction
-
-The frozen stack identity and the frozen native procedure disagree about the already-cast Lightning Bolt target. The mismatch cannot be repaired by a case-folding alias:
-
-- case-folding `obj:P2-bears` would select `obj:p2-bears`, not `obj:micro-target`;
-- `obj:p2-bears` and `obj:micro-target` are separate current objects;
-- the frozen normalization retains semantic object and stack target identity.
-
-Fresh WS-39 therefore correctly failed closed with:
-
-`NATIVE_VALIDATION_FAILED: stale semantic id obj:P2-bears`
-
-Mapping `obj:P2-bears` to `obj:micro-target` would be a record-specific semantic rewrite not present in the frozen requested state and would violate requested/constructed equality.
-
-**Verdict:** `IMMUTABLE_CONTRACT_INTERNAL_TARGET_IDENTITY_CONTRADICTION`.
-
----
-
-## Terminal Blocker 3 — `MICRO_STACK`
-
-### Frozen identity
-
-- fixture family: `micro_rules`
-- materialization digest: `00fc1c6c04b498cce5f8aacb976276648d91f69ff1c0fe7d764bf90d99889fec`
-- requested-state digest: `a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae`
-- execution entry: `NATIVE_STATE_LOAD`
-
-### Frozen contradiction
-
-The requested state is the same relevant initial Bolt state as `MICRO_PRIORITY`:
-
-- frozen `stack_state` target = `obj:P2-bears`
-- no exact current semantic object has that id
-- both `obj:p2-bears` and `obj:micro-target` exist separately
-- frozen `NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL` procedure explicitly names target `obj:micro-target`.
-
-The later procedure casts Giant Growth targeting `obj:micro-target` and expects Giant Growth to resolve before Lightning Bolt. The record cannot preserve exact stack target identity while simultaneously executing the frozen native procedure through a different semantic target.
-
-Fresh WS-39 correctly failed closed with:
-
-`NATIVE_VALIDATION_FAILED: stale semantic id obj:P2-bears`
-
-**Verdict:** `IMMUTABLE_CONTRACT_INTERNAL_TARGET_IDENTITY_CONTRADICTION`.
-
----
-
-## Non-terminal fourth construction failure — `PILOT_REPLACEMENT_EFFECT`
-
-This record is deliberately **not** used as a terminal blocker.
-
-Fresh failure:
-
-`NATIVE_VALIDATION_FAILED: stale semantic id obj:P1-commander`
-
-The record contains a current battlefield semantic object `obj:p1-commander-bf` whose `card_lineage_id` is exactly `line:obj:P1-commander`. That provides a plausible provider-neutral lineage-resolution path. This is a bounded WS-39 loader mapping candidate and would be remediable if the three immutable upstream blockers did not already make the required 107/107 denominator impossible.
-
-## Why WS-39 Must Stop Here
-
-WS-39 is explicitly prohibited from modifying WS-32. The required terminal target is exact fresh **107/107** successor qualification of the immutable v1.0.2 denominator. At least three denominator records cannot satisfy the frozen native construction equality gate without changing WS-32 or falsifying provider evidence.
-
-Continuing to implement unrelated remaining setup dimensions cannot make 107/107 reachable. Treating these records as PASS would violate Source Truth, `UNKNOWN != PASS`, the Rules-Core authority boundary, and the no-silent-fallback/no-silent-setup-correction rules.
-
-The appropriate stop condition is therefore a terminal upstream-contract blocker, not a provider remediation failure.
-
-## WS-32 Linter Gap
-
-The frozen `SEMANTIC_EXECUTABILITY_REPORT_v1_0_2.json` nevertheless reports:
-
-- `terminal_status = PASS`
-- `record_count = 135`
-- `semantic_executable_count = 135`
-- `contract_defect_count = 0`
-- `PILOT_CHOICE = PASS`
-- `MICRO_PRIORITY = PASS`
-- `MICRO_STACK = PASS`
-
-The exact frozen linter explains the false negative:
-
-- its one-target allowlist checks specific identities such as Lightning Bolt and Unsummon but does not model Aura target requirements such as Utopia Sprawl;
-- it does not require every object-valued stack target to resolve to a current semantic identity/defined lineage reference;
-- it does not cross-check `stack_state.targets` against target identities declared by the same record's `native_procedure`.
-
-This evidence reclassifies the three records from nominal `SEMANTIC_EXECUTABLE` to execution-blocking immutable contract defects for purposes of honest provider qualification. WS-39 does not rewrite the freeze.
-
-## Required Upstream Repair Path
-
-A successor-contract repair outside WS-39 must, at minimum:
-
-1. repair `PILOT_CHOICE` so its fully cast Utopia Sprawl initial stack state contains the legal Forest Aura target and recompute the requested-state/materialization digests;
-2. repair `MICRO_PRIORITY` so initial `stack_state.targets` and `native_procedure` reference the same existing semantic target;
-3. repair `MICRO_STACK` identically;
-4. strengthen the semantic linter with Aura target legality/cardinality and target-reference/cross-procedure consistency checks;
-5. freeze a new immutable successor version with new exact digests;
-6. only then resume provider requalification from the new source lock.
-
-No merge is authorized by WS-39.
-
-`TASK_COMPLETE = NO`
-
-`WS39_STATUS = BLOCKED`
-
-`XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
+Do not retroactively edit WS-32 v1.0.2 inside WS-39.
