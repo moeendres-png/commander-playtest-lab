@@ -1,0 +1,18 @@
+name: WS41 stack inventory
+on:
+  push:
+    branches:
+      - ws41/successor-contract-v1.0.3-freeze
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inventory frozen v1.0.2 stack state
+        run: python scripts/ws41_inventory_stack.py
