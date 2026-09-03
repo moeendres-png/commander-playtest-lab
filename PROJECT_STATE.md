@@ -6,13 +6,15 @@ Complete WS-40 Forge AF04 Rules-Core remediation successor requalification from 
 
 `IMPLEMENT_NATIVE_FORGE_STATE_CONSTRUCTOR_OBSERVER -> CONSTRUCTION_EQUALITY_107/107 -> FRESH_NATIVE_RUNTIME_107/107 -> FINAL_EVIDENCE_FREEZE -> DRAFT_PRS -> WS40_FINAL_HANDOFF`
 
-Do not work on XMage. Do not modify WS-32/WS-33/WS-38. Do not execute the WS-37 Actual-Card 283-scenario corpus. Draft PRs only; no merges.
+Do not work on XMage. Do not modify WS-32/WS-33/WS-37/WS-38 except to read immutable evidence/provenance. Do not execute the WS-37 Actual-Card 283-scenario corpus. Draft PRs only; no merges.
 
 ## Target State
 
 WS-40 is COMPLETE only when all of the following are runtime/evidence verified at the final locks:
 
+- final Forge remediation source frozen, build/tests/raw bypass/patch reproducibility PASS;
 - native Forge construction equality: 107/107;
+- no-request-echo audit: PASS;
 - fresh native successor runtime: 107/107;
 - AF04: 24/24;
 - AF05: 20/20;
@@ -46,16 +48,29 @@ WS-40 is COMPLETE only when all of the following are runtime/evidence verified a
 - tree: `0d160128119f2bad30b220a17c43419b50b7edbe`
 - schema: `commander-lab.semantic-fixture-materialization/1.0.2`
 - canonical bundle digest: `ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23`
+- raw materialization SHA256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
 - Forge denominator: 107
 
 ### Current WS-40 Commander-Lab branch
 
 - branch: `ws40/forge-core-remediation-requalification`
+- branch head before this recovery checkpoint: `67070bcd174f3d68455987b6cd81c03b77f97fe0`
+- branch tree before this recovery checkpoint: `eaacc342c0dbe3a98ba44de4f3ecffa126287660`
 - implementation head validated by latest construction run: `42288dad011473ddbea5d150e4687ec2af1c3e75`
 - implementation tree: `e256f1e1fd437be27e48095704c3b894cf7b3200`
-- this PROJECT_STATE update is a documentation-only successor commit and does not itself invalidate runtime evidence.
+- the checkpoint-only commits after `42288dad...` do not change executable qualification code and therefore do not invalidate that runtime evidence.
+- no WS-40 Draft PR was found in Commander Lab at this recovery checkpoint.
+- no WS-40 Draft PR was found in the Forge fork at this recovery checkpoint.
 
 ## Completed Work Packages
+
+### WP-00 — Continuation recovery / persistent authority reconstruction
+
+Status: **VERIFIED**
+
+Fresh recovery on 2026-09-03 established the live branch heads, canonical checkpoint, latest WS-40 workflow and exact job log rather than relying on chat history. The latest construction workflow remains run `33742627946`; no later construction run exists at this checkpoint.
+
+The prior PROJECT_STATE contained two evidence transcription errors for run `33742627946`. The authoritative job log proves the exact first-ten PASS order and the artifact identity recorded under WP-04B below. Those values supersede the prior transcription.
 
 ### WP-01 — Forge AF04 Core remediation
 
@@ -130,23 +145,34 @@ Latest run on implementation head `42288dad011473ddbea5d150e4687ec2af1c3e75`:
   5. `PILOT_PRIORITY`
   6. `PILOT_TARGET`
   7. `PILOT_CHOOSE_OBJECT`
-  8. `PILOT_MULLIGAN`
-  9. `PILOT_MANA_PAYMENT`
-  10. `PILOT_REPLACEMENT_EFFECT`
+  8. `PILOT_TARGET_AMOUNT`
+  9. `PILOT_MULLIGAN`
+  10. `PILOT_CHOOSE_USE`
 - first current failing record: `PILOT_CHOICE`.
 
-Current mismatch:
+Exact failure from the job log:
 
-- requested stack contains `obj:pilot-sprawl` / `Utopia Sprawl` / controller P1 / chosen target `obj:pilot-forest`;
-- provider performed native stack construction, but observer reports `native_stack_present=false` for the semantic stack record;
-- construction equality therefore fails closed.
+`AssertionError: native stack object missing obj:utopia`
 
-Current classification: **OPEN — likely FORGE_PROVIDER_DEFECT, pending exact native stack-instance identity/callgraph proof**. It is not a Rules defect.
+The constructor created the requested Utopia Sprawl stack SpellAbility and the observer fail-closed because no matching native stack instance remained discoverable.
 
-Failure evidence:
+Fresh Forge source audit at the exact engine lock establishes:
 
-- artifact ID: `9897106220`
-- artifact ZIP SHA256: `fc33149fb9444b091260accfefe19866c65fe0030d18798bb703cdefcd97f2dd`
+- stack implementation is `forge.game.zone.MagicStack`;
+- `addAndUnfreeze(sa)` calls `add(sa)` after moving an ordinary spell host to the native stack zone;
+- ordinary spells are not copied by the activated-ability fresh-instance path;
+- `getInstanceMatchingSpellAbilityID(sa)` compares `sa.getId()` against the native stack instance SpellAbility ID;
+- `MagicStack.add` can reject a non-copied SpellAbility before `push(...)` when `hasLegalTargeting(sp)` is false.
+
+Therefore the previous hypothesis that ordinary spell copying alone changed the ID is not supported. The current open investigation is whether `PILOT_CHOICE` is being rejected by native target validation or otherwise removed before snapshot.
+
+Current classification: **OPEN — FORGE_PROVIDER_DEFECT vs FORGE_HEADLESS_API_DEFECT pending focused native target/stack proof**. It is not a Forge Rules defect on current evidence.
+
+Failure evidence, corrected from the authoritative job log:
+
+- artifact ID: `9888376535`
+- artifact ZIP SHA256: `be42770259f33bdf86a604647ab8a8878dc9d03af16e3b73510109a5f23b6a0c`
+- artifact size: `72339` bytes
 
 ## Important Decisions
 
@@ -154,9 +180,10 @@ Failure evidence:
 2. Unsupported construction fields fail closed; they are not synthesized as Rules state in Python.
 3. Generic Forge `GameState` combat restoration is not used for canonical multi-defender Commander combat because its helper is 1v1-only.
 4. Rules legality stays exclusively in Forge Core. Commander-Lab Python may parse/bind/normalize state but must not calculate Magic legality.
-5. Historical WS-33 PASS credit is not imported into the 107 successor denominator.
+5. Historical WS-25/WS-33 PASS credit is not imported into the 107 successor denominator.
 6. `UNKNOWN`, `PARTIAL`, `NOT_RUN`, and `CODE_DERIVED` are never promoted to PASS.
 7. Provider identity mappings may retain opaque semantic/native identity bindings; they may not manufacture Rules legality or echo requested state as constructed-state proof.
+8. Source presence or constructor code presence does not earn construction/runtime credit; exact native equality and fresh runtime are mandatory.
 
 ## Relevant Evidence
 
@@ -165,7 +192,7 @@ Failure evidence:
 - WS40 contract audit run: `33685671398` — PASS, denominator 107.
 - requested-digest reconstruction run: `33688583497` — PASS, 107/107.
 - native construction run `33734935926` — PARTIAL, first six records PASS before priority-provider mismatch.
-- native construction run `33742627946` — PARTIAL, priority fix VERIFIED; first ten records PASS; first current mismatch `PILOT_CHOICE` stack observation.
+- native construction run `33742627946` — PARTIAL, priority fix VERIFIED; exact first ten records above PASS; first current mismatch `PILOT_CHOICE` stack observation.
 
 ## Changed Files on WS-40 Commander-Lab Branch
 
@@ -197,26 +224,24 @@ Material WS-40 files include:
 | isolated provider smoke | VERIFIED PASS |
 | WS-32 contract denominator audit | VERIFIED 107 records |
 | requested digest reconstruction | VERIFIED 107/107 PASS |
+| absent-key canonicalization | VERIFIED PASS |
 | native priority-holder restoration | VERIFIED by run `33742627946` |
 | native construction equality | PARTIAL: 10/107 sequential records PASS before first current mismatch |
 | fresh native runtime 107 | NOT_RUN |
+| Forge patch reproducibility final gate | OPEN |
 | final evidence freeze | OPEN |
 | Draft PRs | OPEN |
 | final handoff | OPEN |
 
 ## Known Errors / Open Defects
 
-### OPEN-01 — exact native stack-instance observation for `PILOT_CHOICE`
+### OPEN-01 — native stack construction/observation for `PILOT_CHOICE`
 
-`PILOT_CHOICE` constructs a native `Utopia Sprawl` SpellAbility with target `obj:pilot-forest` using `game.getStack().addAndUnfreeze(sa)`, but the later observer attempts `getInstanceMatchingSpellAbilityID(c.getFirstSpellAbility().getId())` and reports no native stack instance.
+`PILOT_CHOICE` fails because the observer cannot find the native `obj:utopia` SpellAbility stack instance after `game.getStack().addAndUnfreeze(sa)`.
 
-Need inspect exact Forge `SpellAbilityStack` / stack instance behavior to determine whether:
+Source audit rules out the earlier unsupported assumption that an ordinary spell is necessarily copied to a different SpellAbility ID by `MagicStack.add`. The next proof must determine whether native target validation rejects the constructed Aura spell or another native operation removes it before the snapshot.
 
-- `addAndUnfreeze` creates/copies an ability with a different ID;
-- repeated `c.getFirstSpellAbility()` does not return the same native ability instance;
-- the observer should instead bind to the actual native stack instance created during construction or enumerate the native stack by host-card identity.
-
-Any fix must remain a provider identity/observation fix and must not echo requested stack state.
+Any repair must use Forge-native state/stack APIs and independent observation. Request echo is forbidden.
 
 ### OPEN-02 — complete construction denominator
 
@@ -230,19 +255,24 @@ No successor runtime credit until construction equality is 107/107. Then impleme
 
 Historical duplicate `tools/ws40_apply_core_remediation.py` and canonical `.github/ws40/apply_ws40_core_patch.py` must be reconciled. If engine source identity changes, rerun full native Core acceptance and update the provider pin before final qualification.
 
+### OPEN-05 — final evidence / Draft PRs / terminal handoff
+
+Final evidence checksums, both required Draft PRs and `WS40_FINAL_HANDOFF.md` remain open and receive no completion credit yet.
+
 ## Exact Next Action
 
-1. Inspect exact Forge lock `forge-game/src/main/java/forge/game/spellability/SpellAbilityStack.java` and relevant `SpellAbilityStackInstance` APIs.
-2. Prove the identity semantics of `addAndUnfreeze`, stack instance lookup and host-card binding.
-3. Implement the minimum native stack observation fix in `Ws40SuccessorState` if source-proven.
-4. Run focused state-loader compile workflow.
+1. Read immutable `PILOT_CHOICE` state and current constructor serialization to verify its target/stack binding.
+2. Inspect exact Forge `MagicStack.hasLegalTargeting`, `SpellAbilityStackInstance`, Aura spell target semantics and the native stack/card-zone state after `addAndUnfreeze`.
+3. Implement the minimum source-proven provider-side native stack fix or fail-closed diagnostic if required; do not compute Magic legality externally.
+4. Run the focused state-loader compile workflow.
 5. Run full `WS40 Native Construction 107` again.
 6. Persist the new first-failure or 107/107 PASS result here before proceeding.
 
 ## Completion Status
 
-- `LAST_CONFIRMED_CHECKPOINT = WS40-WP04-RUN-33742627946-FIRST-MISMATCH-PILOT_CHOICE`
+- `LAST_CONFIRMED_CHECKPOINT = WS40-WP00-RECOVERED-RUN-33742627946-FIRST-MISMATCH-PILOT_CHOICE-CORRECTED-EVIDENCE`
 - `TASK_COMPLETE = NO`
 - `WS40_STATUS = PARTIAL`
+- `Completion Status = PARTIAL`
 - `FORGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
 - `ARCHITECTURE_FREEZE = NO`
