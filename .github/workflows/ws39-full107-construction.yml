@@ -1,0 +1,144 @@
+name: WS39 Full107 Native Construction Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws39/xmage-engine-remediation-requalification
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws39-xmage-successor/**'
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - 'candidate-qualification/ws36-xmage-successor/**'
+      - 'candidate-qualification/finalist-convergence-xmage/**'
+      - '.github/workflows/ws39-full107-construction.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS32_FREEZE_COMMIT: 038d0f38635eecee4e331c99af41f148de267a26
+  WS32_FREEZE_TREE: 0d160128119f2bad30b220a17c43419b50b7edbe
+  XMAGE_WS39_COMMIT: 7bde812727817723616c575759f39bfc4cda4607
+  XMAGE_WS39_TREE: a44f32e9d34109ac3f272494f0e8eb9ea3e6280c
+  COMMANDER_LAB_XMAGE_WS26_BRIDGE_CMD: >-
+    java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar:${{ github.workspace }}/engine-bridge/target/dependency/* org.commanderlab.xmage.XmageWs26QualificationMain full-game
+
+jobs:
+  full107-native-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact WS39 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+      - name: Record provider identity
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws39-full107-construction artifacts/ws39-ci
+          git rev-parse HEAD | tee artifacts/ws39-full107-construction/PROVIDER_COMMIT.txt
+          git rev-parse HEAD^{tree} | tee artifacts/ws39-full107-construction/PROVIDER_TREE.txt
+      - name: Checkout exact WS32 freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_FREEZE_COMMIT }}
+          path: _ws32
+      - name: Checkout exact WS39 XMage head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_WS39_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install Commander Lab runtime dependencies
+        run: python -m pip install -e .
+      - name: Verify immutable source locks
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws32 rev-parse HEAD)" = "$WS32_FREEZE_COMMIT"
+          test "$(git -C _ws32 rev-parse HEAD^{tree})" = "$WS32_FREEZE_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_WS39_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_WS39_TREE"
+          printf '%s\n' "$XMAGE_WS39_COMMIT" > artifacts/ws39-full107-construction/XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_WS39_TREE" > artifacts/ws39-full107-construction/XMAGE_TREE.txt
+          python -m py_compile \
+            candidate-qualification/ws39-xmage-successor/run_full107_construction_probe.py \
+            candidate-qualification/ws39-xmage-successor/run_tax3.py \
+            candidate-qualification/ws39-xmage-successor/canonical_v102.py
+      - name: Run native commander-history regression
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          mvn test -B -ntp \
+            -Dtest=CommanderPlaysCountStateRestoreTest \
+            -Dsurefire.failIfNoSpecifiedTests=false \
+            -Dxmage.dataCollectors.printGameLogs=false \
+            -Dlog4j.configuration=file:${PWD}/.travis/log4j.properties
+      - name: Apply exact qualification overlays
+        run: |
+          set -euo pipefail
+          python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
+          python candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py
+          python candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_runtime_evidence_overlay.py
+          git diff --check
+          git -C vendor/engine-source/xmage diff --check
+          git diff -- engine-bridge > artifacts/ws39-full107-construction/QUALIFICATION_BRIDGE_OVERLAY.patch
+          git -C vendor/engine-source/xmage diff > artifacts/ws39-full107-construction/XMAGE_RNG_INSTRUMENTATION.patch
+          cp artifacts/ws39-ci/WS39_XMAGE_RNG_SOURCE_TRANSFORM.json artifacts/ws39-full107-construction/
+      - name: Build exact WS39 XMage
+        working-directory: vendor/engine-source/xmage
+        run: mvn -B -ntp -DskipTests install
+      - name: Build qualification bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp verify
+      - name: Materialize runtime classpath
+        working-directory: engine-bridge
+        run: |
+          set -euo pipefail
+          mvn -B -ntp dependency:copy-dependencies \
+            -DincludeScope=runtime \
+            -DoutputDirectory=target/dependency
+          test -n "$(find target/dependency -maxdepth 1 -name '*.jar' -print -quit)"
+      - name: Execute fail-closed full107 native construction probe
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws39-xmage-successor/run_full107_construction_probe.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws39-full107-construction/WS39_FULL107_CONSTRUCTION_PROBE.json \
+            | tee artifacts/ws39-full107-construction/WS39_FULL107_CONSTRUCTION_STDOUT.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('artifacts/ws39-full107-construction/WS39_FULL107_CONSTRUCTION_PROBE.json').read_text())
+          assert p['denominator'] == 107 and p['record_count'] == 107
+          assert p['historical_pass_imported'] is False
+          assert p['runtime_credit_granted'] is False
+          assert sum(p['counts'].values()) == 107
+          PY
+      - name: Seal construction evidence
+        if: always()
+        run: |
+          mkdir -p artifacts/ws39-full107-construction/surefire
+          find vendor/engine-source/xmage -path '*/target/surefire-reports/*CommanderPlaysCountStateRestoreTest*' -type f -exec cp {} artifacts/ws39-full107-construction/surefire/ \; || true
+          find artifacts/ws39-full107-construction -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws39-full107-construction/SHA256SUMS || true
+      - name: Upload full107 construction evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws39-full107-construction-${{ github.sha }}
+          path: artifacts/ws39-full107-construction/
+          if-no-files-found: error
