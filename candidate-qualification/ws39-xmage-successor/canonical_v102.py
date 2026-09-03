@@ -20,6 +20,8 @@ from successor_contract import requested_state_digest, requested_state_projectio
 
 SCHEMA = "xmage-qualification-scenario/1.1.0"
 ZONE_KEYS = {"hand", "library", "graveyard", "exile", "battlefield"}
+COMMANDER_DECK_SIZE = 100
+QUALIFICATION_FILLER = "Mountain"
 
 
 def _seat(player_id: str) -> int:
@@ -44,19 +46,38 @@ def _commander_entries(record: dict[str, Any]) -> list[dict[str, Any]]:
         object_id = entry.get("object_id")
         obj = by_object.get(object_id) if object_id else None
         owner = entry.get("owner") or (obj or {}).get("owner")
-        card_name = entry.get("card_identity") or entry.get("card_name") or (obj or {}).get("card_identity")
+        card_name = (
+            entry.get("card_identity")
+            or entry.get("card_name")
+            or (obj or {}).get("card_identity")
+        )
         count = entry.get("prior_command_zone_cast_count", 0)
         if not isinstance(count, int) or isinstance(count, bool) or count < 0:
             raise ValueError(f"COMMANDER_HISTORY_COUNT_INVALID:{commander_id}:{count}")
         if not isinstance(owner, str) or not isinstance(card_name, str) or not card_name:
             raise ValueError(f"COMMANDER_STATE_MAPPING_INCOMPLETE:{commander_id}")
-        result.append({
-            "seat": _seat(owner),
-            "commander_id": commander_id,
-            "card_name": card_name,
-            "prior_command_zone_cast_count": count,
-        })
+        result.append(
+            {
+                "seat": _seat(owner),
+                "commander_id": commander_id,
+                "card_name": card_name,
+                "prior_command_zone_cast_count": count,
+            }
+        )
     return result
+
+
+def _legal_import_mainboard(
+    frozen_mainboard: list[str], commander_names: list[str], player_id: str
+) -> list[str]:
+    """Pad the native import bootstrap without changing the frozen semantic state."""
+    required_mainboard = COMMANDER_DECK_SIZE - len(commander_names)
+    if required_mainboard < 0 or len(frozen_mainboard) > required_mainboard:
+        raise ValueError(
+            "QUALIFICATION_DECK_MAINBOARD_OVERFLOW:"
+            f"{player_id}:semantic={len(frozen_mainboard)}:capacity={required_mainboard}"
+        )
+    return frozen_mainboard + [QUALIFICATION_FILLER] * (required_mainboard - len(frozen_mainboard))
 
 
 def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -73,12 +94,17 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     for number in range(1, player_count + 1):
         player_id = f"P{number}"
         owned = [item for item in objects if item["owner"] == player_id]
-        mainboard = [item["card_identity"] for item in owned if item["zone"] != "command"]
+        frozen_mainboard = [
+            item["card_identity"] for item in owned if item["zone"] != "command"
+        ]
         commander_names = sorted(commanders_by_seat.get(number, []))
         if not commander_names:
-            commander_names = sorted(item["card_identity"] for item in owned if item["zone"] == "command")
+            commander_names = sorted(
+                item["card_identity"] for item in owned if item["zone"] == "command"
+            )
         if not commander_names:
             raise ValueError(f"COMMANDER_IDENTITY_MISSING:{player_id}")
+        mainboard = _legal_import_mainboard(frozen_mainboard, commander_names, player_id)
         deck = {
             "deck_id": f"ws39-{record['fixture_id'].lower()}-p{number}",
             "mainboard": mainboard,
@@ -94,20 +120,24 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
                 continue
             if zone not in zones:
                 raise ValueError(f"UNSUPPORTED_WS39_NATIVE_ZONE:{zone}")
-            zones[zone].append({
-                "semantic_id": item["semantic_id"],
-                "card_name": item["card_identity"],
-                "tapped": bool(item.get("tapped", False)),
-                "controller_seat": _seat(item["controller"]),
-                "face": "main",
-            })
+            zones[zone].append(
+                {
+                    "semantic_id": item["semantic_id"],
+                    "card_name": item["card_identity"],
+                    "tapped": bool(item.get("tapped", False)),
+                    "controller_seat": _seat(item["controller"]),
+                    "face": "main",
+                }
+            )
         life = next(p["life"] for p in record["players"] if p["player_id"] == player_id)
-        players.append({
-            "seat": number,
-            "life": life,
-            "commander_names": commander_names,
-            "zones": zones,
-        })
+        players.append(
+            {
+                "seat": number,
+                "life": life,
+                "commander_names": commander_names,
+                "zones": zones,
+            }
+        )
 
     temporal = record["temporal_state"]
     scenario = {
@@ -135,5 +165,7 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
 
 def with_v101_seed(record: dict[str, Any]) -> dict[str, Any]:
     copied = deepcopy(record)
-    copied.setdefault("rules_randomness", {})["rules_seed"] = int(record["materialization_digest"][:16], 16) & 0x7FFF_FFFF_FFFF_FFFF
+    copied.setdefault("rules_randomness", {})["rules_seed"] = (
+        int(record["materialization_digest"][:16], 16) & 0x7FFF_FFFF_FFFF_FFFF
+    )
     return copied
