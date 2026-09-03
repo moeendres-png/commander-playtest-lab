@@ -31,6 +31,38 @@ def main() -> None:
         'synchronous native GameState adapter')
 
     s = once(s,
+        '    private static String decodeB64Env(String name) {\n'
+        '        String value = env(name);\n'
+        '        if (value.isEmpty()) return "";\n'
+        '        return new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8);\n'
+        '    }\n',
+        '    private static String decodeB64Env(String name) {\n'
+        '        String value = env(name);\n'
+        '        if (value.isEmpty()) return "";\n'
+        '        return new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8);\n'
+        '    }\n\n'
+        '    private static String sha256(String value) {\n'
+        '        try {\n'
+        '            byte[] digest = java.security.MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));\n'
+        '            return java.util.HexFormat.of().formatHex(digest);\n'
+        '        } catch (java.security.NoSuchAlgorithmException e) {\n'
+        '            throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_SHA256_UNAVAILABLE");\n'
+        '        }\n'
+        '    }\n\n'
+        '    private static String boundConfigJson() {\n'
+        '        String json = decodeB64Env("COMMANDER_LAB_WS40_BOUND_CONFIG_B64");\n'
+        '        if (json.isEmpty()) {\n'
+        '            throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BOUND_CONFIG_MISSING");\n'
+        '        }\n'
+        '        String digest = sha256(json);\n'
+        '        if (!digest.equals(env("COMMANDER_LAB_WS40_CONFIG_BINDING_DIGEST"))) {\n'
+        '            throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BOUND_CONFIG_DIGEST_MISMATCH");\n'
+        '        }\n'
+        '        return json;\n'
+        '    }\n',
+        'provider-bound configuration state')
+
+    s = once(s,
         '            if (candidates.size() != 1) {\n                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BIND_NONUNIQUE:" + s.semanticId + ":" + candidates.size());\n            }\n            Card c = candidates.get(0);',
         '            if (candidates.isEmpty()) {\n                throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_BIND_MISSING:" + s.semanticId);\n            }\n            // Equal physical cards are intentionally indistinguishable to Forge. Semantic identity is a\n            // provider-neutral mapping layer only; choose the first still-unbound card in native zone order.\n            Card c = candidates.get(0);',
         'duplicate physical card binding')
@@ -40,8 +72,6 @@ def main() -> None:
         '        Ws40GameState state = new Ws40GameState();\n        state.parse(buildGameStateLines(game));\n        // This hook already executes during Forge game initialization. Calling the protected native\n        // implementation synchronously avoids racing GameAction.invoke while preserving GameState semantics.\n        state.applySynchronously(game);',
         'synchronous native state application')
 
-    # Native command-zone effect maintenance may mutate backing zone lists during binding.
-    # Iterate a stable copy; semantic identity is still selected from the native zone contents.
     s = once(s,
         '            for (Card c : player(game, s.controller).getCardsIn(zoneType(s.zone), false)) {',
         '            for (Card c : new ArrayList<>(player(game, s.controller).getCardsIn(zoneType(s.zone), false))) {',
@@ -59,11 +89,39 @@ def main() -> None:
 
     s = s.replace('c.isSick()', 'c.hasSickness()')
 
-    # Natural construction evidence is bound to the same provider configuration digest as native-state-load records.
+    # Natural registration is a real provider construction surface. Emit native players/decks and the
+    # provider-bound non-rules configuration, with the digest recomputed inside the isolated GPL JVM.
     s = once(s,
+        '        String raw = "{\\\"natural_registration\\\":true,\\\"player_count\\\":" + game.getPlayers().size()\n'
         '            + ",\\\"decks\\\":" + decks + ",\\\"rules_commander\\\":" + game.getRules().hasAppliedVariant(forge.game.GameType.Commander) + "}";',
-        '            + ",\\\"decks\\\":" + decks + ",\\\"rules_commander\\\":" + game.getRules().hasAppliedVariant(forge.game.GameType.Commander)\n            + ",\\\"config_binding_digest\\\":" + Ws23ForgeVerticalProvider.esc(env("COMMANDER_LAB_WS40_CONFIG_BINDING_DIGEST")) + "}";',
-        'natural config binding')
+        '        String ws40BoundConfig = boundConfigJson();\n'
+        '        String raw = "{\\\"natural_registration\\\":true,\\\"provider_entry_mode\\\":\\\"NATURAL_GAME_START\\\",\\\"player_count\\\":" + game.getPlayers().size()\n'
+        '            + ",\\\"players\\\":" + playersJson(game)\n'
+        '            + ",\\\"decks\\\":" + decks + ",\\\"rules_commander\\\":" + game.getRules().hasAppliedVariant(forge.game.GameType.Commander)\n'
+        '            + ",\\\"rules_seed_configured\\\":" + Ws23ForgeVerticalProvider.esc(env("COMMANDER_LAB_FORGE_RULES_SEED"))\n'
+        '            + ",\\\"bound_config\\\":" + ws40BoundConfig\n'
+        '            + ",\\\"config_binding_digest\\\":" + Ws23ForgeVerticalProvider.esc(sha256(ws40BoundConfig)) + "}";',
+        'natural provider-bound configuration')
+
+    # Native-state-load snapshots likewise carry the configuration as state owned by the isolated provider;
+    # Python normalization consumes this emitted state instead of copying values from the requested record.
+    s = once(s,
+        '        String raw = "{\\\"natural_registration\\\":" + natural\n'
+        '            + ",\\\"player_count\\\":" + game.getPlayers().size()',
+        '        String ws40BoundConfig = boundConfigJson();\n'
+        '        String raw = "{\\\"natural_registration\\\":" + natural\n'
+        '            + ",\\\"provider_entry_mode\\\":\\\"NATIVE_STATE_LOAD\\\""\n'
+        '            + ",\\\"player_count\\\":" + game.getPlayers().size()',
+        'native entry-mode evidence')
+
+    s = once(s,
+        '            + ",\\\"rules_commander\\\":" + game.getRules().hasAppliedVariant(forge.game.GameType.Commander)\n'
+        '            + ",\\\"config_binding_digest\\\":" + Ws23ForgeVerticalProvider.esc(env("COMMANDER_LAB_WS40_CONFIG_BINDING_DIGEST")) + "}";',
+        '            + ",\\\"rules_commander\\\":" + game.getRules().hasAppliedVariant(forge.game.GameType.Commander)\n'
+        '            + ",\\\"rules_seed_configured\\\":" + Ws23ForgeVerticalProvider.esc(env("COMMANDER_LAB_FORGE_RULES_SEED"))\n'
+        '            + ",\\\"bound_config\\\":" + ws40BoundConfig\n'
+        '            + ",\\\"config_binding_digest\\\":" + Ws23ForgeVerticalProvider.esc(sha256(ws40BoundConfig)) + "}";',
+        'native provider-bound configuration')
 
     p.write_text(s, encoding='utf-8')
     print('WS40_SUCCESSOR_STATE_JAVA_FIX=PASS')
