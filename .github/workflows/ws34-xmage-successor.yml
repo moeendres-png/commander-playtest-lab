@@ -1,0 +1,233 @@
+name: WS34 XMage Successor Qualification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws34/xmage-successor-provider-prep
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - '.github/workflows/ws34-xmage-successor.yml'
+  pull_request:
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - '.github/workflows/ws34-xmage-successor.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS32_FREEZE_COMMIT: 038d0f38635eecee4e331c99af41f148de267a26
+  WS32_CANONICAL_MATERIALIZATION_DIGEST: ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23
+  XMAGE_COMMIT: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  XMAGE_TREE: f0a028b265f9c008ea0aedc4cec6b8f14500b69f
+  COMMANDER_LAB_XMAGE_WS26_BRIDGE_CMD: >-
+    java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar org.commanderlab.xmage.XmageWs26QualificationMain full-game
+
+jobs:
+  contract-preflight:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact WS34 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Checkout exact WS32 generated freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_FREEZE_COMMIT }}
+          path: _ws32
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Build exact 107-record WS34 successor ledger
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws34-xmage-successor/build_successor_matrix.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json'))
+          assert p['ws34_denominator'] == 107
+          assert p['entry_mode_counts'] == {'NATIVE_STATE_LOAD': 100, 'NATURAL_GAME_START': 7}
+          assert p['pre_runtime_counts'] == {
+              'CANONICAL_SETUP_UNSUPPORTED_XMAGE': 75,
+              'READY_FOR_EXACT_RUNTIME_QUALIFICATION': 32,
+          }
+          assert p['canonical_materialization_digest'] == 'ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23'
+          assert p['ws32_freeze_commit'] == '038d0f38635eecee4e331c99af41f148de267a26'
+          PY
+          sha256sum artifacts/ws34/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json > artifacts/ws34/SHA256SUMS
+      - name: Upload WS34 pre-runtime ledger
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws34-xmage-successor-preflight-${{ github.sha }}
+          path: artifacts/ws34/
+          if-no-files-found: error
+
+  successor-terminal-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact WS34 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Record provider identity
+        run: |
+          set -euo pipefail
+          echo "WS34_PROVIDER_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "WS34_PROVIDER_TREE=$(git rev-parse HEAD^{tree})" >> "$GITHUB_ENV"
+      - name: Checkout exact WS32 generated freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_FREEZE_COMMIT }}
+          path: _ws32
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Verify exact locks and qualification code
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws32 rev-parse HEAD)" = "$WS32_FREEZE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
+          python -m py_compile \
+            candidate-qualification/ws34-xmage-successor/successor_contract.py \
+            candidate-qualification/ws34-xmage-successor/build_successor_matrix.py \
+            candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py \
+            candidate-qualification/ws34-xmage-successor/run_successor_core.py \
+            candidate-qualification/ws34-xmage-successor/run_successor_core_v2.py \
+            candidate-qualification/ws34-xmage-successor/run_terminal_attempts.py \
+            candidate-qualification/ws34-xmage-successor/consolidate_ws34_final.py \
+            candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py \
+            candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py
+      - name: Instrument native Rules RNG
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws26-xmage/apply_ws26_xmage_instrumentation.py vendor/engine-source/xmage
+          git -C vendor/engine-source/xmage diff --check
+      - name: Apply qualification-only native-state overlays
+        run: |
+          set -euo pipefail
+          python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
+          python candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py
+          git diff --check
+      - name: Build pinned XMage
+        run: |
+          set -euo pipefail
+          cd vendor/engine-source/xmage
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+      - name: Build qualification bridge
+        run: |
+          set -euo pipefail
+          cd engine-bridge
+          mvn -B -ntp verify
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev,api]'
+      - name: Build local exact preflight
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws34-final
+          python candidate-qualification/ws34-xmage-successor/build_successor_matrix.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws34-final/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json
+      - name: Execute successor core 9 fail-closed
+        run: |
+          set +e
+          set -uo pipefail
+          GITHUB_SHA="$WS34_PROVIDER_COMMIT" \
+          python candidate-qualification/ws34-xmage-successor/run_successor_core_v2.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > artifacts/ws34-final/CORE9_EXIT_CODE.txt
+          test -s artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json
+      - name: Execute remaining 23 runtime-ready records
+        run: |
+          set -euo pipefail
+          GITHUB_SHA="$WS34_PROVIDER_COMMIT" \
+          python candidate-qualification/ws34-xmage-successor/run_terminal_attempts.py \
+            --contract _ws32/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws34-final/WS34_TERMINAL_23_RESULTS.json
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws34-final/WS34_TERMINAL_23_RESULTS.json'))
+          assert p['record_count'] == 23
+          assert len({r['fixture_id'] for r in p['records']}) == 23
+          card=next(r for r in p['records'] if r['fixture_id']=='CARD_02')
+          assert card.get('card02_cast_attempted') is True, card
+          PY
+      - name: Consolidate exact terminal 107 and AF04/05/06/08/09
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws34-xmage-successor/consolidate_ws34_final.py \
+            --preflight artifacts/ws34-final/WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json \
+            --core artifacts/ws34-final/WS34_SUCCESSOR_CORE_RESULTS.json \
+            --attempts artifacts/ws34-final/WS34_TERMINAL_23_RESULTS.json \
+            --output artifacts/ws34-final/WS34_FINAL_RESULTS.json
+          python - <<'PY'
+          import json, os
+          p=json.load(open('artifacts/ws34-final/WS34_FINAL_RESULTS.json'))
+          assert p['workstream_status'] == 'COMPLETE'
+          assert p['candidate_qualification'] == 'FAIL_NOT_QUALIFIED'
+          assert p['denominator'] == {'count':107,'unique':107,'runtime_ready':32,'pre_runtime_blocked':75}
+          assert p['runtime_execution']['attempted'] == 32
+          assert p['successor_runtime_credit'] == {'PASS':0,'NO_CREDIT':107,'historical_pass_imported':False}
+          assert len(p['records']) == 107
+          assert len({r['fixture_id'] for r in p['records']}) == 107
+          assert all(r['successor_runtime_credit']=='NO' for r in p['records'])
+          assert p['card_02']['cast_attempted'] is True
+          gates={g['gate_id']:g for g in p['architecture_freeze']}
+          assert set(gates)=={'AF04','AF05','AF06','AF08','AF09'}
+          assert {k:gates[k]['denominator'] for k in gates} == {'AF04':24,'AF05':20,'AF06':17,'AF08':36,'AF09':5}
+          assert all(g['final_verdict']=='UNSUPPORTED' and not g['freeze_satisfying'] for g in gates.values())
+          assert p['source_lock']['provider_runtime_commit'] == os.environ['WS34_PROVIDER_COMMIT']
+          assert p['source_lock']['provider_runtime_tree'] == os.environ['WS34_PROVIDER_TREE']
+          assert p['source_lock']['ws32_freeze_commit'] == os.environ['WS32_FREEZE_COMMIT']
+          assert p['source_lock']['canonical_materialization_digest'] == os.environ['WS32_CANONICAL_MATERIALIZATION_DIGEST']
+          assert p['source_lock']['xmage_commit'] == os.environ['XMAGE_COMMIT']
+          assert p['source_lock']['xmage_tree'] == os.environ['XMAGE_TREE']
+          PY
+      - name: Seal final evidence
+        run: |
+          set -euo pipefail
+          cd artifacts/ws34-final
+          sha256sum \
+            WS34_SUCCESSOR_PRE_RUNTIME_LEDGER.json \
+            WS34_SUCCESSOR_CORE_RESULTS.json \
+            WS34_TERMINAL_23_RESULTS.json \
+            WS34_FINAL_RESULTS.json > SHA256SUMS
+          printf '%s\n' "$WS34_PROVIDER_COMMIT" > PROVIDER_COMMIT.txt
+          printf '%s\n' "$WS34_PROVIDER_TREE" > PROVIDER_TREE.txt
+          printf '%s\n' "$XMAGE_COMMIT" > XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_TREE" > XMAGE_TREE.txt
+          printf '%s\n' "$GITHUB_RUN_ID" > WORKFLOW_RUN_ID.txt
+      - name: Upload terminal WS34 evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws34-xmage-successor-final-${{ github.sha }}
+          path: artifacts/ws34-final/
+          if-no-files-found: error
