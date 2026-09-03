@@ -30,6 +30,10 @@ def main() -> None:
         '        row["counters"] = normalize_counters(got.get("counters") or {})',
         '        row["counters"] = normalize_counters(got.get("counters") or {}, req.get("counters") or {})',
         'counter normalization call')
+    s = once(s,
+        '        raise RuntimeError(f"provider construction failed {record[\'fixture_id\']} rc={rc} raw={raw is not None} result={result is not None}\\n{stderr[-8000:]}")',
+        '        raise RuntimeError(f"provider construction failed {record[\'fixture_id\']} rc={rc} raw={raw is not None} result={result!r}\\n{stderr[-8000:]}")',
+        'construction failure diagnostics')
     p.write_text(s, encoding='utf-8')
     print('WS40_CONSTRUCTION_RUNNER_FIX=PASS')
 
