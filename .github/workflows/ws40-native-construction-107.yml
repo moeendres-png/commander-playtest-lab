@@ -10,6 +10,7 @@ on:
       - 'scripts/ws40_fix_construction_runner.py'
       - 'scripts/ws40_fix_construction_runner_natural_objects.py'
       - 'scripts/ws40_v103_native_stack_history.py'
+      - 'scripts/ws40_v103_native_revealed_state.py'
       - 'scripts/ws40_v103_fix_combat_target_type.py'
       - 'scripts/ws40_verify_v103_contract_lock.py'
       - 'candidate-qualification/ws40-forge/run_native_construction_107.py'
@@ -98,7 +99,7 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/artifacts/ws40-construction"
           mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws40-construction/dependency-classpath.txt"
-      - name: Build isolated WS40 provider with v1.0.3 native stack history
+      - name: Build isolated WS40 provider with v1.0.3 native stack and revealed state
         shell: bash
         run: |
           set -euo pipefail
@@ -116,6 +117,7 @@ jobs:
           cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_v103_native_stack_history.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_revealed_state.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
           ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
@@ -137,6 +139,7 @@ jobs:
           python scripts/ws40_fix_construction_runner.py --runner "$ev/run_native_construction_107.py"
           python scripts/ws40_fix_construction_runner_natural_objects.py --runner "$ev/run_native_construction_107.py"
           python scripts/ws40_v103_native_stack_history.py --runner "$ev/run_native_construction_107.py"
+          python scripts/ws40_v103_native_revealed_state.py --runner "$ev/run_native_construction_107.py"
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
           python "$ev/run_native_construction_107.py" \
