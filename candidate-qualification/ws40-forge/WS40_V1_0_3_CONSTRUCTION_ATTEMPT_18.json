@@ -1,0 +1,43 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 18,
+  "status": "REMEDIABLE_PROVIDER_COMPILE_FAILURE",
+  "workflow": "WS40 Native Construction 107",
+  "run_id": 33906834454,
+  "job_id": 101133627782,
+  "commander_lab_commit": "0cf9308139ba97e483ced8b9ce1de2b89c0ab895",
+  "commander_lab_tree": "71aba67b1521c5d42ea4c8583702b7e96f68905c",
+  "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+  "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+  "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+  "contract_lock_gate": {
+    "status": "PASS",
+    "provider_denominator": 107,
+    "independent_requested_state_digest_pass_count": 107,
+    "historical_successor_credit_imported": 0
+  },
+  "forge_checkout_build": "PASS",
+  "provider_patchers": "PASS",
+  "provider_compile": "FAIL",
+  "construction": {
+    "status": "NOT_RUN",
+    "successor_runtime_credit": "0/107"
+  },
+  "failure": {
+    "stage": "Build isolated WS40 provider with v1.0.3 native stack and revealed state",
+    "source": "generated Ws40SuccessorState.java",
+    "message": "cannot find symbol: source.getRemembered().isEmpty(); getRemembered() returns Iterable<Object>",
+    "classification": "JAVA_API_TYPE_MISMATCH",
+    "rules_semantics_affected": false,
+    "forge_source_change_required": false,
+    "remediable_in_scope": true
+  },
+  "artifact": {
+    "artifact_id": 9949826401,
+    "name": "ws40-v1.0.3-native-construction-107-0cf9308139ba97e483ced8b9ce1de2b89c0ab895",
+    "zip_sha256": "dc75b233609f1d81261b76d3734efacacf87508a8668d4fbd00cb1942a06aae4",
+    "size_bytes": 55552
+  },
+  "next_action": "Replace the invalid Iterable.isEmpty() prepopulation check with iterator().hasNext(), then rerun the complete immutable v1.0.3 construction denominator from record 1."
+}
