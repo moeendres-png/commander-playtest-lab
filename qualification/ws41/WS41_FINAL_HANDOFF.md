@@ -17,7 +17,7 @@
 ## New Findings
 - `PILOT_CHOICE` was the only requested-state defect in this defect class across the frozen 135-record audit.
 - `Fact or Fiction` correctly has no target under current Oracle wording.
-- `CARD_13` and `CARD_22` later `target` decisions are rules-procedure choices after complete cast actions, not deferred cast-time targets; the linter distinguishes these shapes causally rather than allowing a generic fallback.
+- the two historical post-PILOT linter findings were `CARD_13` and `CARD_22`; both are `LINTER_FALSE_POSITIVE`, not materialization or obligation defects.
 - the currently linked Wizards CR filename is `MagicCompRules 20260819.txt`; its verified bytes remain effective August 7, 2026 with SHA256 `4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f`.
 
 ## WS-39 Contradiction Reproduction
@@ -52,6 +52,18 @@ Only `PILOT_CHOICE` requested-state digest changes: `4c1c8ab42c351281cd9f0d34a77
 
 ## Changes
 Provider-neutral contract/linter/evidence only. No Forge implementation, XMage implementation, provider runtime, WS-37 rewrite, or main merge.
+
+## Remaining Defects 2 Adjudication
+- Runtime diagnostic `33851407144` / `100954816503` identified exactly `CARD_13` and `CARD_22`, both under `NO_CAST_TIME_DECISION_AFTER_CAST_COMPLETE`, with no global linter errors.
+- Causality diagnostic `33851517930` / `100955167145` proves `CARD_13` already casts Flare of Duplication with `obj:card13-bolt` selected and the later `P3` decision is the new target for the created copy.
+- The same diagnostic proves `CARD_22` already casts Bolt Bend targeting `obj:card22-bolt` and the later `P3` decision is the new target chosen during resolution.
+- Both findings are `LINTER_FALSE_POSITIVE`; no record representation, fixture identity, obligation projection, requested-state state, or denominator entry was changed to close them.
+- Machine-readable evidence: `WS41_REMAINING_DEFECTS_2.json`.
+
+## WS-32 Content Integrity
+- The entire `qualification/ws32` path set and every file byte were compared against freeze commit `038d0f38635eecee4e331c99af41f148de267a26` / tree `0d160128119f2bad30b220a17c43419b50b7edbe`.
+- Exact file count compared: 16; path set identical: true; every file byte-identical: true; every Git blob identity identical: true; namespace `git diff --exit-code`: 0.
+- Machine-readable evidence: `WS41_WS32_CONTENT_INTEGRITY_COMPARISON.json`.
 
 ## Tests / Evidence
 The `WS41 successor v1.0.3 freeze` workflow verifies current official CR SHA, builds twice from the frozen predecessor and requires byte-for-byte equality, runs the linter/validation tests, verifies SHA256SUMS, and uploads complete evidence.
