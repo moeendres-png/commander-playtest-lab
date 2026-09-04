@@ -32,14 +32,36 @@ def _find_zone_entry(scenario: dict[str, Any], semantic_id: str) -> tuple[dict[s
     return matches[0]
 
 
-def _immutable_rules_seed(record: dict[str, Any]) -> int:
+def _bind_execution_seed(record: dict[str, Any], scenario: dict[str, Any]) -> tuple[int, str]:
+    """Apply the exact immutable Rules-RNG seed semantics.
+
+    WS-41 has two distinct forms:
+    * fixed ``rules_seed``: the provider execution seed must equal that integer;
+    * ``seed_binding == SCENARIO_SEED``: the contract intentionally does not
+      prescribe a numeric seed. The already deterministic provider scenario seed
+      is retained and Rules RNG is bound to that value.
+
+    This function changes provider execution metadata only. It never changes the
+    immutable ``rules_randomness`` object embedded in the requested state.
+    """
     randomness = record.get("rules_randomness")
     if not isinstance(randomness, dict):
         raise ValueError(f"WS42_RULES_RANDOMNESS_MISSING:{record.get('fixture_id')}")
-    seed = randomness.get("rules_seed")
-    if not isinstance(seed, int) or isinstance(seed, bool):
-        raise ValueError(f"WS42_RULES_SEED_INVALID:{record.get('fixture_id')}:{seed!r}")
-    return seed
+
+    fixed = randomness.get("rules_seed")
+    if isinstance(fixed, int) and not isinstance(fixed, bool):
+        scenario["seed"] = fixed
+        return fixed, "CONTRACT_FIXED_RULES_SEED"
+
+    if fixed is not None:
+        raise ValueError(f"WS42_RULES_SEED_INVALID:{record.get('fixture_id')}:{fixed!r}")
+    if randomness.get("seed_binding") != "SCENARIO_SEED":
+        raise ValueError(f"WS42_RULES_SEED_BINDING_MISSING:{record.get('fixture_id')}")
+
+    seed = scenario.get("seed")
+    if not isinstance(seed, int) or isinstance(seed, bool) or seed < 0:
+        raise ValueError(f"WS42_PROVIDER_SCENARIO_SEED_INVALID:{record.get('fixture_id')}:{seed!r}")
+    return seed, "CONTRACT_SCENARIO_SEED_BINDING"
 
 
 def _has_knowledge_grants(record: dict[str, Any]) -> bool:
@@ -97,10 +119,11 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     decks, scenario = base.deck_and_scenario(bootstrap)
     scenario["scenario_id"] = f"WS42-{record['fixture_id']}"
 
-    # Both the qualification-session constructor and XmageWs26Scenario.apply
-    # consume this top-level seed. It must be the immutable contract Rules seed,
-    # never the legacy v1.0.2 digest-derived bootstrap seed.
-    scenario["seed"] = _immutable_rules_seed(record)
+    # Fixed Rules seeds are copied exactly. SCENARIO_SEED-bound records retain
+    # the deterministic provider scenario seed created by the bootstrap layer.
+    execution_seed, seed_source = _bind_execution_seed(record, scenario)
+    scenario["ws42_seed_binding_source"] = seed_source
+    scenario["ws42_execution_seed"] = execution_seed
 
     # Restore the exact immutable v1.0.3 request immediately after staging.
     # WS-42 construction proof explicitly ignores the inherited whole-object
