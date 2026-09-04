@@ -60,7 +60,22 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf /tmp/ws41-a /tmp/ws41-b
-          python scripts/ws41_build_successor_final.py --out /tmp/ws41-a
+          if ! python scripts/ws41_build_successor_final.py --out /tmp/ws41-a; then
+            if [ -f /tmp/ws41-a/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json ]; then
+              python - <<'PY'
+          import json
+          p='/tmp/ws41-a/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json'
+          r=json.load(open(p,encoding='utf-8'))
+          print('WS41_LINTER_DIAGNOSTIC_BEGIN')
+          for row in r.get('records',[]):
+              if row.get('status') != 'PASS':
+                  print(json.dumps(row,sort_keys=True,separators=(',',':')))
+          print('WS41_GLOBAL_ERRORS='+json.dumps(r.get('global_errors',[]),sort_keys=True,separators=(',',':')))
+          print('WS41_LINTER_DIAGNOSTIC_END')
+          PY
+            fi
+            exit 1
+          fi
           python scripts/ws41_build_successor_final.py --out /tmp/ws41-b
           diff -ruN /tmp/ws41-a /tmp/ws41-b
           python scripts/ws41_validate_freeze.py /tmp/ws41-a
