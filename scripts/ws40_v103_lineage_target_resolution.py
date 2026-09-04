@@ -2,10 +2,10 @@
 """Apply the WS40 v1.0.3 adjudicated target-identity remediation.
 
 Only provider-neutral card_lineage_id is added to the state-loader transport.
-Target lookup remains exact first, then permits one case-sensitive lineage-base
-match (card_lineage_id == 'line:' + requested target id). Zero matches remain
-unbound; multiple distinct matches fail closed. No card-name/case-fold/owner
-heuristics are permitted.
+Existing exact player/stack-object/semantic-object lookup remains authoritative;
+a single case-sensitive lineage-base match is permitted only after those exact
+lookups fail. Zero matches remain unbound; multiple distinct matches fail closed.
+No card-name/case-fold/owner heuristics are permitted.
 """
 from __future__ import annotations
 
@@ -46,16 +46,23 @@ def patch_state_java(path: Path) -> None:
         "            if (p.length != 14) throw new Ws23ForgeVerticalProvider.ControlledStop(\"WS40_STATE_OBJECT_SPEC_ARITY:\" + p.length);",
         "object spec arity",
     )
-    old_target = '''    private static GameEntity target(Game game, String key) {
+
+    # This is intentionally the post-ws40_v103_native_stack_history / post-combat-target-type
+    # generated form. Preserve its exact stack-object lookup before adding lineage fallback.
+    old_target = '''    private static GameObject target(Game game, String key) {
         if (key.matches("P[1-5]")) return player(game, Integer.parseInt(key.substring(1)));
+        SpellAbility stackTarget = stackAbilities.get(key);
+        if (stackTarget != null) return stackTarget;
         Card c = semanticCards.get(key);
         if (c == null) throw new Ws23ForgeVerticalProvider.ControlledStop("WS40_STATE_TARGET_UNBOUND:" + key);
         return c;
     }'''
-    new_target = '''    // WS40_V103_LINEAGE_TARGET_RESOLUTION: exact semantic identity first;
-    // one frozen provider-neutral lineage-base alias is permitted, fail closed otherwise.
-    private static GameEntity target(Game game, String key) {
+    new_target = '''    // WS40_V103_LINEAGE_TARGET_RESOLUTION: retain exact player, stack-object and
+    // semantic-object lookup, then permit one frozen provider-neutral lineage-base alias.
+    private static GameObject target(Game game, String key) {
         if (key.matches("P[1-5]")) return player(game, Integer.parseInt(key.substring(1)));
+        SpellAbility stackTarget = stackAbilities.get(key);
+        if (stackTarget != null) return stackTarget;
         Card exact = semanticCards.get(key);
         if (exact != null) return exact;
 
