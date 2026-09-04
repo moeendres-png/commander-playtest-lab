@@ -169,7 +169,9 @@ jobs:
 
       - name: Build qualification bridge
         working-directory: engine-bridge
-        run: mvn -B -ntp verify
+        run: |
+          set -o pipefail
+          mvn -B -ntp verify 2>&1 | tee ../artifacts/ws42-v103-construction/BRIDGE_BUILD.log
 
       - name: Materialize runtime classpath
         working-directory: engine-bridge
