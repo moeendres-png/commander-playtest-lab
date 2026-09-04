@@ -2,6 +2,17 @@ name: WS42 XMage v1.0.3 Census and Construction
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws42-xmage-v1.0.3/**'
+      - 'candidate-qualification/ws39-xmage-successor/**'
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - 'candidate-qualification/ws36-xmage-successor/**'
+      - 'candidate-qualification/finalist-convergence-xmage/**'
+      - '.github/workflows/ws42-xmage-v103-construction.yml'
   push:
     branches:
       - ws42/xmage-v1.0.3-successor-qualification
