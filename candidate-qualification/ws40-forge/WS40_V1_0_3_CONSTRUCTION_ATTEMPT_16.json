@@ -1,0 +1,54 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 16,
+  "status": "REMEDIABLE_PROVIDER_STATE_MODEL_FAILURE",
+  "workflow": "WS40 Native Construction 107",
+  "run_id": 33889587314,
+  "job_id": 101077711514,
+  "commander_lab_commit": "71bfc5db0bda5ee193da3247b8fdcce40f5e9d7f",
+  "commander_lab_tree": "2e6b4436cb3ea448c329574e4ef329c456acf753",
+  "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+  "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+  "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+  "contract_lock_gate": {
+    "status": "PASS",
+    "provider_denominator": 107,
+    "independent_requested_state_digest_pass_count": 107,
+    "historical_successor_credit_imported": 0
+  },
+  "forge_checkout_build": "PASS",
+  "provider_compile": "PASS",
+  "construction": {
+    "sequential_pass_count": 11,
+    "sequential_pass_records": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET",
+      "PILOT_CHOOSE_OBJECT",
+      "PILOT_TARGET_AMOUNT",
+      "PILOT_MULLIGAN",
+      "PILOT_CHOOSE_USE",
+      "PILOT_CHOICE"
+    ],
+    "pilot_choice_requested_state_digest": "ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108",
+    "first_failure_index": 12,
+    "first_failure_fixture_id": "PILOT_PILE",
+    "failure": "WS40_STATE_BAD_ZONE:revealed",
+    "classification": "PROVIDER_STATE_MODEL_ZONE_MAPPING_GAP",
+    "stack_history_remediation_regressed": false,
+    "rules_semantics_affected": "UNKNOWN_PENDING_RECORD_ADJUDICATION",
+    "remediable_in_scope": true
+  },
+  "successor_runtime_credit": "0/107",
+  "artifact": {
+    "artifact_id": 9943313258,
+    "name": "ws40-v1.0.3-native-construction-107-71bfc5db0bda5ee193da3247b8fdcce40f5e9d7f",
+    "zip_sha256": "98aee7217bd2fd9f59a66549a799372238d8301ea684b5fe906b1049a8da26da",
+    "size_bytes": 81088
+  },
+  "next_action": "Audit PILOT_PILE canonical semantic_objects/knowledge_state/native_procedure to determine whether revealed is a real Forge zone, a provider-neutral transient information state, or another construction surface; implement only the source-proven native representation and rerun from record 1."
+}
