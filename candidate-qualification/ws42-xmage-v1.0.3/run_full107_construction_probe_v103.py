@@ -11,6 +11,7 @@ normalization.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import sys
@@ -36,6 +37,7 @@ CURRENT_NATIVE_DIMENSIONS = {
     "stack_state",
     "zone:stack",
 }
+DEFAULT_MAX_WORKERS = 4
 
 
 def nonempty(value: Any) -> bool:
@@ -199,8 +201,6 @@ def capture_non_echo_readback(record: dict[str, Any], scenario: dict[str, Any], 
     if int(readback.get("rules_seed", -1)) != int(seed_evidence["scenario_execution_seed"]):
         raise RuntimeError("WS42_NATIVE_READBACK_EXECUTION_SEED_MISMATCH")
 
-    # Explicitly assert the inherited echo is absent from the WS42 proof path.
-    # Its continued presence as an uncalled legacy helper would not be evidence.
     return {
         "evidence_class": "LOWER_LEVEL_NATIVE_READBACK_AWAITING_INDEPENDENT_NORMALIZATION",
         "ws42_readback_schema": readback["schema_version"],
@@ -272,11 +272,15 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--max-workers", type=int, default=DEFAULT_MAX_WORKERS)
     args = parser.parse_args()
+    if args.max_workers < 1 or args.max_workers > 8:
+        raise SystemExit("WS42_MAX_WORKERS_OUT_OF_RANGE")
 
     contract = load_contract(args.contract)
     records = provider_records(contract)
-    rows = [probe_record(record) for record in records]
+    with ThreadPoolExecutor(max_workers=args.max_workers) as pool:
+        rows = list(pool.map(probe_record, records))
     counts: dict[str, int] = {}
     unsupported_dimension_counts: dict[str, int] = {}
     for row in rows:
@@ -286,7 +290,7 @@ def main() -> int:
             unsupported_dimension_counts[dimension] = unsupported_dimension_counts.get(dimension, 0) + 1
 
     output = {
-        "schema_version": "commander-lab.ws42-full107-construction-probe/1.2.0",
+        "schema_version": "commander-lab.ws42-full107-construction-probe/1.3.0",
         "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.3",
         "candidate_commit": run_tax3.exact_provider_identity()[0],
         "engine_commit": os.environ.get("XMAGE_WS42_COMMIT", "UNKNOWN"),
@@ -296,6 +300,8 @@ def main() -> int:
         "unsupported_dimension_counts": dict(sorted(unsupported_dimension_counts.items())),
         "current_native_dimensions": sorted(CURRENT_NATIVE_DIMENSIONS),
         "translator": "candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py",
+        "max_workers": args.max_workers,
+        "record_order_preserved": [row["fixture_id"] for row in rows] == [record["fixture_id"] for record in records],
         "legacy_request_echo_accepted_as_proof": False,
         "independent_normalized_construction_gate_closed": False,
         "historical_pass_imported": False,
@@ -305,7 +311,7 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"counts": counts, "unsupported_dimension_counts": output["unsupported_dimension_counts"]}, sort_keys=True))
-    if len(rows) != 107:
+    if len(rows) != 107 or not output["record_order_preserved"]:
         return 2
     return 0
 
