@@ -121,9 +121,9 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
 
     # Fixed Rules seeds are copied exactly. SCENARIO_SEED-bound records retain
     # the deterministic provider scenario seed created by the bootstrap layer.
-    execution_seed, seed_source = _bind_execution_seed(record, scenario)
-    scenario["ws42_seed_binding_source"] = seed_source
-    scenario["ws42_execution_seed"] = execution_seed
+    # No WS42-only audit field is inserted into the native scenario because its
+    # parser deliberately rejects unknown keys.
+    _bind_execution_seed(record, scenario)
 
     # Restore the exact immutable v1.0.3 request immediately after staging.
     # WS-42 construction proof explicitly ignores the inherited whole-object
