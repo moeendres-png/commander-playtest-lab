@@ -89,6 +89,8 @@ def build(out: Path) -> None:
     finalize_self_contained_handoff(out)
 
 
+# Byte-neutral owner-authored terminal CI trigger: the generated freeze outputs
+# must remain identical, while the PR synchronize event is no longer bot-authored.
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=impl.ROOT / "qualification" / "ws41")
