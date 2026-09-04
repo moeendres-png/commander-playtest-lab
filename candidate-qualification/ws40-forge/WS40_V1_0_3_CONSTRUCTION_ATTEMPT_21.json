@@ -1,0 +1,71 @@
+{
+  "schema_version": "ws40-v1.0.3-construction-attempt-evidence/1.0.0",
+  "attempt": 21,
+  "status": "FAIL",
+  "stage": "NATIVE_CONSTRUCTION_107",
+  "immutable_source_lock": {
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "contract": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "canonical_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "denominator": 107,
+    "requested_state_digest_pass_count": 107,
+    "historical_successor_credit_imported": 0
+  },
+  "forge_source_lock": {
+    "repository": "moeendres-png/forge",
+    "commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+    "version": "2.0.15-SNAPSHOT",
+    "process_boundary": "SEPARATE_GPL_JVM"
+  },
+  "commander_lab_head_executed": "d107438aca923d7caf6008f780a6b40f4023d150",
+  "workflow": {
+    "name": "WS40 Native Construction 107",
+    "run_id": 33917963630,
+    "job_id": 101169432719,
+    "artifact_id": 9953925121,
+    "artifact_name": "ws40-v1.0.3-native-construction-107-d107438aca923d7caf6008f780a6b40f4023d150",
+    "artifact_zip_sha256": "6eb1cbc69b18d138386d58b8e0fcc8df0a30da59b3aff0e0c207f37bdda40694",
+    "artifact_size_bytes": 83681
+  },
+  "gates": {
+    "immutable_contract_and_denominator": "PASS",
+    "forge_source_lock": "PASS",
+    "forge_build": "PASS",
+    "isolated_provider_compile": "PASS",
+    "construction_from_record_1": "FAIL"
+  },
+  "construction": {
+    "sequential_pass_count": 11,
+    "first_failure_index": 12,
+    "first_failure_fixture_id": "PILOT_PILE",
+    "failure": "REQUESTED_NATIVE_STATE_MISMATCH",
+    "pilot_choice_record": "PASS"
+  },
+  "diagnostic_finding": {
+    "classification": "PROVIDER_NORMALIZER_PATCH_TARGET_ORDER_DEFECT",
+    "forge_native_reveal_state": "PASS",
+    "raw_java_readback": "PASS",
+    "raw_revealed_object_count": 5,
+    "raw_revealed_objects_all_native_revealed_true": true,
+    "raw_revealed_objects_physical_zone": "library",
+    "requested_provider_neutral_zone": "revealed",
+    "active_normalizer_output_zone": "library",
+    "evidence": [
+      "Raw Forge snapshot for obj:fof-0 through obj:fof-4 reports native_revealed=true.",
+      "Those five cards remain physically in Forge Library at zone_position 0..4, matching native Fact-or-Fiction reveal semantics.",
+      "The generated runner contains an earlier patched normalized_objects() and a later WS40-v2 normalize() path; the later _objects_from_native() copies got['zone'] and ignores native_revealed.",
+      "Therefore the mismatch is downstream of Forge native observation and does not justify additional Forge Rules-Core or state-loader semantic changes."
+    ],
+    "required_remediation": "Patch the actually active WS40-v2 _objects_from_native() normalizer so zone is derived solely from raw provider evidence: 'revealed' iff got.native_revealed is true, otherwise got.zone. Do not read requested-state zone values."
+  },
+  "credit": {
+    "construction_credit": "0/107 COMPLETE-CORPUS CREDIT; 11 sequential diagnostic PASS only",
+    "behavior_runtime_credit": "0/107",
+    "historical_pass_imported": 0,
+    "provider_qualified": false
+  },
+  "next_action": "Patch only the active v2 normalizer from native_revealed evidence, then rerun the complete immutable 107-record Construction gate from record 1."
+}
