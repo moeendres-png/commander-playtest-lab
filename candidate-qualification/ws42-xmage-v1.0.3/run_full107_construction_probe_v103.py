@@ -6,12 +6,16 @@ imports no historical successor PASS. In particular, it deliberately ignores
 the inherited WS-34 ``normalized_constructed_state`` request echo and records
 only lower-level native readback/validation for subsequent independent
 normalization.
+
+XMage card-repository initialization is process-global/on-disk enough that
+parallel bridge JVM initialization on the same CI runner is not a qualified
+execution topology. WS42 therefore serializes each one-game process until a
+separately qualified isolation mechanism exists.
 """
 
 from __future__ import annotations
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import sys
@@ -37,7 +41,6 @@ CURRENT_NATIVE_DIMENSIONS = {
     "stack_state",
     "zone:stack",
 }
-DEFAULT_MAX_WORKERS = 4
 
 
 def nonempty(value: Any) -> bool:
@@ -272,15 +275,19 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--max-workers", type=int, default=DEFAULT_MAX_WORKERS)
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=1,
+        help="Must remain 1 until XMage card-repository initialization has a separately qualified isolated topology.",
+    )
     args = parser.parse_args()
-    if args.max_workers < 1 or args.max_workers > 8:
-        raise SystemExit("WS42_MAX_WORKERS_OUT_OF_RANGE")
+    if args.max_workers != 1:
+        raise SystemExit("WS42_UNQUALIFIED_PARALLEL_XMAGE_PROBE_FORBIDDEN")
 
     contract = load_contract(args.contract)
     records = provider_records(contract)
-    with ThreadPoolExecutor(max_workers=args.max_workers) as pool:
-        rows = list(pool.map(probe_record, records))
+    rows = [probe_record(record) for record in records]
     counts: dict[str, int] = {}
     unsupported_dimension_counts: dict[str, int] = {}
     for row in rows:
@@ -290,7 +297,7 @@ def main() -> int:
             unsupported_dimension_counts[dimension] = unsupported_dimension_counts.get(dimension, 0) + 1
 
     output = {
-        "schema_version": "commander-lab.ws42-full107-construction-probe/1.3.0",
+        "schema_version": "commander-lab.ws42-full107-construction-probe/1.3.1",
         "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.3",
         "candidate_commit": run_tax3.exact_provider_identity()[0],
         "engine_commit": os.environ.get("XMAGE_WS42_COMMIT", "UNKNOWN"),
@@ -300,7 +307,8 @@ def main() -> int:
         "unsupported_dimension_counts": dict(sorted(unsupported_dimension_counts.items())),
         "current_native_dimensions": sorted(CURRENT_NATIVE_DIMENSIONS),
         "translator": "candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py",
-        "max_workers": args.max_workers,
+        "max_workers": 1,
+        "parallel_probe_qualified": False,
         "record_order_preserved": [row["fixture_id"] for row in rows] == [record["fixture_id"] for record in records],
         "legacy_request_echo_accepted_as_proof": False,
         "independent_normalized_construction_gate_closed": False,
