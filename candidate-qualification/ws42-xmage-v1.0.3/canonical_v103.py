@@ -63,19 +63,37 @@ def _put_nonempty(scenario: dict[str, Any], key: str, value: Any) -> None:
         scenario[key] = copy.deepcopy(value)
 
 
-def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Translate one v1.0.3 record into native-load inputs without rules shortcuts."""
-    bootstrap = copy.deepcopy(record)
+def _bootstrap_record(record: dict[str, Any]) -> tuple[dict[str, Any], set[str]]:
+    """Return provider-staging input for the legacy WS39 translator only.
 
-    # XMage models a reveal as visibility state over a card still physically in
-    # another native zone. Bootstrap only that record through library binding;
-    # the WS-42 native overlay later registers the card in XMage Revealed state.
+    The returned digest is never WS41 authority. It exists solely because the
+    inherited translator self-checks any staging mutation before producing deck
+    and scenario objects. The immutable v1.0.3 request is restored afterwards.
+    """
+    bootstrap = copy.deepcopy(record)
     revealed_ids: set[str] = set()
     for obj in bootstrap.get("semantic_objects") or []:
         if obj.get("zone") == "revealed":
             revealed_ids.add(str(obj["semantic_id"]))
             obj["zone"] = "library"
+    bootstrap["requested_state_digest"] = base.requested_state_digest(bootstrap)
+    return bootstrap, revealed_ids
 
+
+def bootstrap_digest_for_translation(record: dict[str, Any]) -> str:
+    """Expose the non-authoritative staging digest for audit evidence only."""
+    bootstrap, _ = _bootstrap_record(record)
+    return str(bootstrap["requested_state_digest"])
+
+
+def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Translate one v1.0.3 record into native-load inputs without rules shortcuts."""
+    bootstrap, revealed_ids = _bootstrap_record(record)
+
+    # XMage represents public reveal state through a native visibility registry,
+    # not a physical `revealed` Zone enum. The only semantic staging mutation is
+    # therefore revealed -> library for native card binding. Its recalculated
+    # digest above is translator-internal and is never compared as WS41 proof.
     decks, scenario = base.deck_and_scenario(bootstrap)
     scenario["scenario_id"] = f"WS42-{record['fixture_id']}"
 
@@ -84,9 +102,9 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     # never the legacy v1.0.2 digest-derived bootstrap seed.
     scenario["seed"] = _immutable_rules_seed(record)
 
-    # Preserve the exact request only as the comparison target required by the
-    # inherited interface. WS-42 construction proof explicitly ignores the
-    # inherited whole-object echo and uses lower-level native readback instead.
+    # Restore the exact immutable v1.0.3 request immediately after staging.
+    # WS-42 construction proof explicitly ignores the inherited whole-object
+    # echo and uses lower-level native readback instead.
     scenario["successor_requested_state"] = requested_state_projection(record)
     scenario["successor_requested_state_digest"] = requested_state_digest(record)
     if scenario["successor_requested_state_digest"] != record["requested_state_digest"]:
