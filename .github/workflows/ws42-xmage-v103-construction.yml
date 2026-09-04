@@ -88,8 +88,10 @@ jobs:
           printf '%s\n' "$XMAGE_WS42_TREE" > artifacts/ws42-v103-construction/XMAGE_TREE.txt
           python -m py_compile \
             candidate-qualification/ws42-xmage-v1.0.3/successor_contract_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py \
             candidate-qualification/ws42-xmage-v1.0.3/build_denominator_v103.py \
             candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py \
             candidate-qualification/ws39-xmage-successor/run_tax3.py \
             candidate-qualification/ws39-xmage-successor/canonical_v102.py
 
@@ -132,7 +134,7 @@ jobs:
             -Dxmage.dataCollectors.printGameLogs=false \
             -Dlog4j.configuration=file:${PWD}/.travis/log4j.properties
 
-      - name: Apply exact inherited qualification overlays
+      - name: Apply qualification overlays including WS42 readback
         run: |
           set -euo pipefail
           python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
@@ -143,6 +145,7 @@ jobs:
           python candidate-qualification/ws39-xmage-successor/apply_ws39_state_surface_overlay.py
           python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_state_overlay.py
           python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_identity_overlay.py
+          python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py
           git diff --check
           git -C vendor/engine-source/xmage diff --check
           git diff -- engine-bridge > artifacts/ws42-v103-construction/QUALIFICATION_BRIDGE_OVERLAY.patch
@@ -180,6 +183,8 @@ jobs:
           assert p['denominator'] == 107 and p['record_count'] == 107
           assert p['historical_pass_imported'] is False
           assert p['runtime_credit_granted'] is False
+          assert p['legacy_request_echo_accepted_as_proof'] is False
+          assert p['independent_normalized_construction_gate_closed'] is False
           assert sum(p['counts'].values()) == 107
           PY
 
