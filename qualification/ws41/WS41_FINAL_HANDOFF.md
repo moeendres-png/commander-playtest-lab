@@ -6,6 +6,18 @@
 - current official CR: effective `2026-08-07`, SHA256 `4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f`
 - WS-39 terminal verification: `b952e1c84b0b17a0a19fb221610b91c3d33703b6`
 
+## Successor Contract Source Lock
+- repository: `moeendres-png/commander-playtest-lab`
+- branch: `ws41/successor-contract-v1.0.3-freeze`
+- immutable downstream source-lock commit: `24152acf36b5a560c23ccacfed3f31d3039537eb`
+- source-lock tree: `428bbe58b2ea7b869200521092a8768108029b47`
+- namespace: `qualification/ws41`
+- contract: `commander-lab.semantic-fixture-materialization/1.0.3`
+- canonical materialization bundle digest: `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
+- materialization SHA256: `8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5`
+- provider successor denominator: `107`
+- WS-40 and the fresh XMage successor qualification must consume this exact commit/tree. Later WS-41 terminal-attestation commits are evidence-only and must reproduce identical canonical semantic materialization bytes.
+
 ## Work Completed
 - reproduced the immutable v1.0.2 `PILOT_CHOICE` contradiction;
 - superseded it provider-neutrally in v1.0.3 without editing v1.0.2;
