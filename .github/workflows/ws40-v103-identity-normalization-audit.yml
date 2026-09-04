@@ -1,0 +1,76 @@
+name: WS40 v1.0.3 Identity Normalization Audit
+
+on:
+  push:
+    branches: [ws40/forge-core-remediation-requalification]
+    paths:
+      - '.github/workflows/ws40-v103-identity-normalization-audit.yml'
+      - 'candidate-qualification/ws40-forge/audit_v103_identity_normalization_projection.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ws40/forge-core-remediation-requalification
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: 24152acf36b5a560c23ccacfed3f31d3039537eb
+          path: ws41-lock
+          sparse-checkout: qualification/ws41
+          fetch-depth: 1
+      - name: Verify immutable WS41 source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C ws41-lock rev-parse HEAD)" = '24152acf36b5a560c23ccacfed3f31d3039537eb'
+          test "$(git -C ws41-lock rev-parse HEAD^{tree})" = '428bbe58b2ea7b869200521092a8768108029b47'
+          echo '8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5  ws41-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json' | sha256sum -c -
+          test "$(git -C ws41-lock hash-object qualification/ws41/WS41_PROVIDER_DENOMINATOR_107.json)" = '8318f897a37d9f98a95dd786a93a5564bd5b6fc1'
+      - name: Audit observer identity projection across exact 107 denominator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 candidate-qualification/ws40-forge/audit_v103_identity_normalization_projection.py \
+            ws41-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            ws41-lock/qualification/ws41/WS41_PROVIDER_DENOMINATOR_107.json \
+            --out candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_AUDIT.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_AUDIT.json'))
+          assert p['record_count']==107
+          assert p['historical_runtime_credit_imported']==0
+          assert p['source_lock']['commit']=='24152acf36b5a560c23ccacfed3f31d3039537eb'
+          assert p['source_lock']['tree']=='428bbe58b2ea7b869200521092a8768108029b47'
+          assert p['source_lock']['materialization_sha256']=='8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5'
+          PY
+      - name: Persist audit report if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf ws41-lock
+          report='candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_AUDIT.json'
+          if git diff --quiet -- "$report" && git ls-files --error-unmatch "$report" >/dev/null 2>&1; then
+            echo 'Identity normalization audit already persisted.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$report"
+          git commit -m 'ws40: persist v1.0.3 identity normalization audit'
+          git push origin HEAD:ws40/forge-core-remediation-requalification
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws40-v103-identity-normalization-audit
+          path: candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_AUDIT.json
+          if-no-files-found: error
+          retention-days: 90
