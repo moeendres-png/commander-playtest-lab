@@ -1,0 +1,95 @@
+name: WS32 successor freeze
+
+on:
+  push:
+    branches:
+      - ws32/successor-semantic-executability-freeze
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile WS32 tooling
+        run: |
+          python -m py_compile scripts/ws32_lint_semantic_v1_0_2.py scripts/ws32_build_successor.py scripts/ws32_build_successor_final.py
+      - name: Build successor once
+        shell: bash
+        run: |
+          if ! python scripts/ws32_build_successor_final.py; then
+            echo "--- exact semantic lint failures ---"
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('qualification/ws32/SEMANTIC_EXECUTABILITY_REPORT_v1_0_2.json')
+          if p.exists():
+              r=json.loads(p.read_text())
+              print('GLOBAL', r.get('global_errors'))
+              for row in r.get('records', []):
+                  if row.get('status') != 'PASS':
+                      print(row['fixture_id'], [e['code'] for e in row.get('errors', [])], [e['message'] for e in row.get('errors', [])])
+          PY
+            exit 1
+          fi
+      - name: Lint exact successor corpus
+        run: |
+          python scripts/ws32_lint_semantic_v1_0_2.py \
+            qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --predecessor qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
+            --report /tmp/ws32-lint.json
+          cmp /tmp/ws32-lint.json qualification/ws32/SEMANTIC_EXECUTABILITY_REPORT_v1_0_2.json
+      - name: Deterministic rebuild byte comparison
+        run: |
+          rm -rf /tmp/ws32-first
+          cp -a qualification/ws32 /tmp/ws32-first
+          rm -rf qualification/ws32
+          python scripts/ws32_build_successor_final.py
+          diff -ru /tmp/ws32-first qualification/ws32
+      - name: Verify checksum manifest
+        working-directory: qualification/ws32
+        run: sha256sum -c SHA256SUMS_v1_0_2
+      - name: Commit deterministic freeze outputs if needed
+        id: commit
+        shell: bash
+        run: |
+          if [ -n "$(git status --porcelain -- qualification/ws32)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add qualification/ws32
+            git commit -m "ws32: freeze semantic materialization v1.0.2"
+            git push origin HEAD:ws32/successor-semantic-executability-freeze
+            echo "committed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Stop after generated-output commit
+        if: steps.commit.outputs.committed == 'true'
+        run: echo "Generated outputs committed; exact freeze validation runs on the pushed freeze commit."
+      - name: Emit CI runtime evidence
+        if: steps.commit.outputs.committed == 'false'
+        run: |
+          cat > /tmp/WS32_CI_RUNTIME.json <<EOF
+          {"repository":"${GITHUB_REPOSITORY}","commit":"${GITHUB_SHA}","run_id":${GITHUB_RUN_ID},"run_number":${GITHUB_RUN_NUMBER},"run_attempt":${GITHUB_RUN_ATTEMPT},"job":"freeze","workflow":"WS32 successor freeze"}
+          EOF
+      - name: Upload freeze evidence
+        if: steps.commit.outputs.committed == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: WS32_FREEZE_EVIDENCE
+          if-no-files-found: error
+          compression-level: 9
+          path: |
+            qualification/ws32
+            scripts/ws32_build_successor.py
+            scripts/ws32_build_successor_final.py
+            scripts/ws32_lint_semantic_v1_0_2.py
+            /tmp/WS32_CI_RUNTIME.json
