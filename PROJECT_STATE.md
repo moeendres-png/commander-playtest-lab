@@ -11,6 +11,8 @@
 
 The 2026-09-04 Coordinator input supersedes the earlier interpretation that WS-40 was terminal under immutable WS-32 v1.0.2. WS-40 remains open. The bounded Forge Rules-Core remediation is complete and reproducibly qualified. Successor-provider runtime qualification remains paused until a separate provider-neutral workstream produces a genuinely frozen immutable replacement contract.
 
+Latest fresh dependency recheck: `2026-09-04T09:56:00+02:00`. No qualifying external change was found: WS-41 remains on the same failed pre-materialization freeze state, Forge remains on the same frozen engine tree, and both WS-40 Draft PRs remain open / draft / unmerged. Therefore no new successor construction/runtime operation is authorized.
+
 Historical `WS40_FINAL_HANDOFF.md`, `WS40_FINAL_EVIDENCE_MANIFEST.json`, and `WS40_FINAL_AUDIT.json` remain provenance for the v1.0.2 diagnostic/adjudication phase only.
 
 ## Infrastructure / Forge Engine Gate
@@ -55,6 +57,8 @@ No broad Forge rerun is justified while this exact tree remains unchanged unless
 Repository: `moeendres-png/commander-playtest-lab`
 
 - branch: `ws40/forge-core-remediation-requalification`
+- pre-recheck branch HEAD: `a85959f156b3bc44ebd94a5c27a244b192478268`
+- pre-recheck tree: `841568fd8d8bac966625404742e22f4250ef0b57`
 - Draft PR `#154`: open / draft / unmerged
 - last runtime-tested provider implementation:
   - commit `d5ff5e920c424d3a157e121f50a1704bbcd069f3`
@@ -101,6 +105,8 @@ This stack-history observation gap grants no successor credit. If a replacement 
 
 ## Replacement Successor Dependency — Latest Fresh Recheck
 
+Rechecked at `2026-09-04T09:56:00+02:00`.
+
 Candidate workstream:
 
 - branch `ws41/successor-contract-v1.0.3-freeze`
@@ -109,7 +115,7 @@ Candidate workstream:
 - message `ws41: bind builder to live current CR URL`
 - checked-in `qualification/ws41`: absent (`404`)
 
-Latest freeze attempt:
+Latest freeze attempt remains unchanged:
 
 - workflow `WS41 successor v1.0.3 freeze`
 - run `33819823431` / run number `3`
@@ -119,7 +125,7 @@ Latest freeze attempt:
 - runtime-discovered TXT URL: `https://media.wizards.com/2026/downloads/MagicCompRules 20260819.txt`
 - failure: `curl: (3) URL rejected: Malformed input to a URL function`
 
-All downstream freeze gates were skipped:
+All downstream freeze gates remain unexecuted:
 
 - compile WS41 implementation: NOT_RUN
 - deterministic double materialization: NOT_RUN
@@ -173,7 +179,7 @@ Machine-readable dependency authority:
 
 ## Current Stop Condition / Exact Resume Trigger
 
-All blocker-independent WS-40 Forge work is complete. The next authorized operation requires a genuinely frozen provider-neutral replacement contract. The latest visible WS-41 state still fails before materialization, so this is an external dependency wait rather than terminal WS-40 completion.
+All blocker-independent WS-40 Forge work is complete. The next authorized operation requires a genuinely frozen provider-neutral replacement contract. The 09:56 CEST fresh recheck found the same WS-41 pre-materialization failure and no implementation drift, so this remains an external dependency wait rather than terminal WS-40 completion.
 
 Do not modify Forge legality for v1.0.2. Do not run broad v1.0.2 qualification. Do not merge Draft PR #1 or #154.
 
