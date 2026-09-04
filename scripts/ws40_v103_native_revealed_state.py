@@ -61,10 +61,12 @@ def patch_state_java(path: Path) -> None:
         "native revealed observation computation",
     )
 
+    # Anchor only to zone_position. A separate historical WS40 patch may spell the following
+    # summoning-sickness observation as either isSick() or hasSickness(); neither is relevant here.
     s = once(
         s,
-        '            + ",\\\"zone_position\\\":" + (zonePosition == null ? "null" : zonePosition)\n            + ",\\\"sick\\\":" + c.isSick() + "}";\n',
-        '            + ",\\\"zone_position\\\":" + (zonePosition == null ? "null" : zonePosition)\n            + ",\\\"native_revealed\\\":" + nativeRevealed\n            + ",\\\"sick\\\":" + c.isSick() + "}";\n',
+        '            + ",\\\"zone_position\\\":" + (zonePosition == null ? "null" : zonePosition)\n',
+        '            + ",\\\"zone_position\\\":" + (zonePosition == null ? "null" : zonePosition)\n            + ",\\\"native_revealed\\\":" + nativeRevealed\n',
         "native revealed observation field",
     )
 
