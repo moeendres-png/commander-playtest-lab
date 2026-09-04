@@ -96,6 +96,53 @@ def _cast_source_by_cause(record: dict[str, Any]) -> dict[str, str]:
     return result
 
 
+def _cast_action_semantically_complete(record: dict[str, Any], value: Any) -> bool:
+    """Return True only when a scripted cast action already fixes its cast-time choices.
+
+    This distinguishes a later rules-procedure target choice (for example, a
+    new target for a Flare copy or Bolt Bend retarget) from an illegally
+    deferred cast-time target. Unknown card identities fail closed.
+    """
+    if not isinstance(value, dict):
+        return False
+    action = str(value.get("action", ""))
+    if not (action.startswith("cast") or action == "announce_cast"):
+        return False
+    sid = value.get("object")
+    obj = _objects(record).get(sid)
+    if not obj:
+        return False
+    card = str(obj.get("card_identity"))
+    req = STACK_REQUIREMENTS.get(card)
+    if req is None:
+        return False
+    if req.get("targets", 0) > 0:
+        target_keys = ("target", "target_spell", "targets", "target_object", "target_player")
+        if not any(k in value and value.get(k) not in (None, [], "") for k in target_keys):
+            return False
+    if req.get("modes", 0) > 0:
+        mode_value = value.get("modes", value.get("mode"))
+        if mode_value in (None, [], ""):
+            return False
+    if card in X_ANNOUNCEMENT_REQUIRED and value.get("announced_x", value.get("x")) is None:
+        return False
+    if action == "cast_alt_cost":
+        alt_keys = ("sacrifice", "alternative_cost", "alt_cost_choice", "cost_choice")
+        if not any(k in value and value.get(k) not in (None, [], "") for k in alt_keys):
+            return False
+    return True
+
+
+def _has_prior_complete_cast(record: dict[str, Any], decision_index: int) -> bool:
+    for prior in record.get("decision_script", [])[:decision_index]:
+        if prior.get("decision_family") != "priority":
+            continue
+        value = prior.get("selection", {}).get("semantic_value")
+        if _cast_action_semantically_complete(record, value):
+            return True
+    return False
+
+
 def _ws32_core_errors(record: dict[str, Any], predecessor: dict[str, Any] | None) -> list[dict[str, Any]]:
     # Reuse all predecessor hardening while intentionally shimming only the
     # version discriminator. Requested-state and obligation projections exclude
@@ -161,11 +208,25 @@ def lint_record(record: dict[str, Any], predecessor: dict[str, Any] | None = Non
             op = str(step.get("operation", ""))
             # A cast-time decision may still be legal when the native procedure
             # explicitly begins/continues a cast rather than using a preceding
-            # priority selection. Otherwise a stable completed stack state may
-            # not be reopened to request that cast-time choice.
-            if not any(token in op for token in ("BEGIN_CAST", "CONTINUE_CAST", "CAST_TO_", "BEGIN_OR_CONTINUE_CAST")):
-                if completed_sids:
-                    err("NO_CAST_TIME_DECISION_AFTER_CAST_COMPLETE", f"Decision {i} ({family}) is not tied to a native in-progress cast but completed stack state exists; cast-time choices cannot be deferred.", authority=["CR601.2b", "CR601.2c", "CR601.2h"])
+            # priority selection.
+            if any(token in op for token in ("BEGIN_CAST", "CONTINUE_CAST", "CAST_TO_", "BEGIN_OR_CONTINUE_CAST")):
+                continue
+            # "target" is also used by the frozen contract for later
+            # rules-generated targeting decisions. Accept that shape only when
+            # a prior cast action has already fixed every authority-classified
+            # cast-time choice for the spell, and the current causal step is the
+            # provider-neutral rules-procedure target-decision boundary. This
+            # is the exact CARD_13 (Flare copy new target) / CARD_22 (Bolt Bend
+            # retarget) shape proven by WS41 causality diagnostics; it does not
+            # permit a missing cast target to be deferred.
+            if (
+                family == "target"
+                and "RULES_PROCEDURE_TO_TARGET_DECISION" in op
+                and _has_prior_complete_cast(record, i)
+            ):
+                continue
+            if completed_sids:
+                err("NO_CAST_TIME_DECISION_AFTER_CAST_COMPLETE", f"Decision {i} ({family}) is not tied to a native in-progress cast and is not a proven later rules-procedure choice; cast-time choices cannot be deferred.", authority=["CR601.2b", "CR601.2c", "CR601.2h"])
 
     if fid == "PILOT_CHOICE":
         choices = [d for d in record.get("decision_script", []) if d.get("decision_family") == "choice"]
