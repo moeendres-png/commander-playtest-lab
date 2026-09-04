@@ -9,15 +9,20 @@ on:
       - 'scripts/ws40_fix_successor_state_java.py'
       - 'scripts/ws40_fix_construction_runner.py'
       - 'scripts/ws40_fix_construction_runner_natural_objects.py'
+      - 'scripts/ws40_v103_native_stack_history.py'
+      - 'scripts/ws40_verify_v103_contract_lock.py'
       - 'candidate-qualification/ws40-forge/run_native_construction_107.py'
       - '.github/workflows/ws40-native-construction-107.yml'
   workflow_dispatch:
 
 env:
-  WS32_COMMIT: 038d0f38635eecee4e331c99af41f148de267a26
-  WS32_TREE: 0d160128119f2bad30b220a17c43419b50b7edbe
-  FORGE_COMMIT: 49ea6df753fa6c749138296a1fe9421467136dda
-  FORGE_TREE: 37ef36359cef74273ca40a2c1c676b8ede84a431
+  WS41_COMMIT: 24152acf36b5a560c23ccacfed3f31d3039537eb
+  WS41_TREE: 428bbe58b2ea7b869200521092a8768108029b47
+  WS41_SCHEMA: commander-lab.semantic-fixture-materialization/1.0.3
+  WS41_BUNDLE: 545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b
+  WS41_MATERIALIZATION_SHA256: 8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5
+  FORGE_COMMIT: f83b77aa75e4f90852bef9243f3c5b32c37dc7e0
+  FORGE_TREE: e2f124f30d55e43f838615a969af4e09e7009471
   FORGE_VERSION: 2.0.15-SNAPSHOT
 
 permissions:
@@ -34,17 +39,37 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: moeendres-png/commander-playtest-lab
-          ref: ${{ env.WS32_COMMIT }}
+          ref: ${{ env.WS41_COMMIT }}
           path: contract-lock
-          sparse-checkout: qualification/ws32
+          sparse-checkout: qualification/ws41
           fetch-depth: 1
-      - name: Verify immutable WS32 v1.0.2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable WS41 v1.0.3 and exact 107 digest denominator
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C contract-lock rev-parse HEAD)" = "$WS32_COMMIT"
-          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS32_TREE"
-          (cd contract-lock/qualification/ws32 && sha256sum -c SHA256SUMS_v1_0_2)
+          mkdir -p artifacts/ws40-construction
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS41_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS41_TREE"
+          test "$(sha256sum contract-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json | awk '{print $1}')" = "$WS41_MATERIALIZATION_SHA256"
+          python scripts/ws40_verify_v103_contract_lock.py \
+            --materialization contract-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --denominator contract-lock/qualification/ws41/WS41_PROVIDER_DENOMINATOR_107.json \
+            --lineage contract-lock/qualification/ws41/WS41_DIGEST_LINEAGE.json \
+            --output artifacts/ws40-construction/WS40_V103_CONTRACT_LOCK_VERIFICATION.json
+          python - <<'PY'
+          import json, os
+          p=json.load(open('artifacts/ws40-construction/WS40_V103_CONTRACT_LOCK_VERIFICATION.json'))
+          assert p['status']=='PASS'
+          assert p['immutable_source_lock']['contract']==os.environ['WS41_SCHEMA']
+          assert p['immutable_source_lock']['canonical_bundle_digest']==os.environ['WS41_BUNDLE']
+          assert p['denominator']['count']==107
+          assert p['denominator']['historical_runtime_credit']==0
+          assert p['requested_state_digest_verification']['pass_count']==107
+          assert p['requested_state_digest_verification']['all_pass'] is True
+          PY
       - uses: actions/checkout@v4
         with:
           repository: moeendres-png/forge
@@ -58,21 +83,21 @@ jobs:
           test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
           test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
           grep -q "GNU GENERAL PUBLIC LICENSE" vendor/engine-source/forge/LICENSE
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/zone/RestoredSpellCastHistory.java
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
       - name: Build exact Forge game
         working-directory: vendor/engine-source/forge
         run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
       - name: Resolve isolated classpath
         working-directory: vendor/engine-source/forge
-        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws40-construction/dependency-classpath.txt"
-      - name: Build isolated WS40 provider with native state loader
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/ws40-construction"
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws40-construction/dependency-classpath.txt"
+      - name: Build isolated WS40 provider with v1.0.3 native stack history
         shell: bash
         run: |
           set -euo pipefail
@@ -89,6 +114,7 @@ jobs:
             --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
           cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_stack_history.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
           ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
           cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
@@ -100,7 +126,7 @@ jobs:
             "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
             "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
             "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
-      - name: Execute exact immutable 107 native construction gate
+      - name: Execute exact immutable v1.0.3 107 native construction gate from record 1
         shell: bash
         run: |
           set -euo pipefail
@@ -108,24 +134,30 @@ jobs:
           cp candidate-qualification/ws40-forge/run_native_construction_107.py "$ev/run_native_construction_107.py"
           python scripts/ws40_fix_construction_runner.py --runner "$ev/run_native_construction_107.py"
           python scripts/ws40_fix_construction_runner_natural_objects.py --runner "$ev/run_native_construction_107.py"
+          python scripts/ws40_v103_native_stack_history.py --runner "$ev/run_native_construction_107.py"
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
           python "$ev/run_native_construction_107.py" \
-            --materialization contract-lock/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
-            --output "$ev/WS40_NATIVE_CONSTRUCTION_107.json"
+            --materialization contract-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --denominator contract-lock/qualification/ws41/WS41_PROVIDER_DENOMINATOR_107.json \
+            --output "$ev/WS40_NATIVE_CONSTRUCTION_V103_107.json"
           python - <<'PY'
           import json
-          p=json.load(open('artifacts/ws40-construction/WS40_NATIVE_CONSTRUCTION_107.json'))
+          p=json.load(open('artifacts/ws40-construction/WS40_NATIVE_CONSTRUCTION_V103_107.json'))
           assert p['status']=='PASS'
           assert p['denominator']==107 and p['pass_count']==107
+          assert p['historical_successor_credit_imported']==0
           assert p['no_request_echo'] is True
           assert p['no_request_echo_proof']['provider_side_config_digest'] is True
           assert p['no_request_echo_proof']['request_values_used_by_normalizer'] is False
+          assert p['no_request_echo_proof']['rules_state_request_values_in_bound_config'] is False
           assert all(r['construction_status']=='PASS' and r['requested_native_state_equal'] for r in p['rows'])
           assert p['family_counts']=={
             'actual_card':1,'hidden_information':20,'micro_rules':17,'multiplayer_commander':36,
             'pilot_boundary':17,'pilot_boundary_negative':7,'player_count':4,'replay_rng':5,
           }
+          assert p['rows'][0]['fixture_id']=='PLAYER_COUNT_2P'
+          assert p['rows'][10]['fixture_id']=='PILOT_CHOICE'
           PY
       - name: Materialize source lock and evidence checksums
         if: always()
@@ -136,10 +168,13 @@ jobs:
           python - <<'PY'
           import json, os, subprocess
           lock={
-            'schema_version':'ws40-native-construction-source-lock/1.0.0',
+            'schema_version':'ws40-v1.0.3-native-construction-source-lock/1.0.0',
             'commander_lab_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
-            'ws32_commit':os.environ['WS32_COMMIT'],'ws32_tree':os.environ['WS32_TREE'],
+            'ws41_commit':os.environ['WS41_COMMIT'],'ws41_tree':os.environ['WS41_TREE'],
+            'ws41_schema':os.environ['WS41_SCHEMA'],'ws41_bundle_digest':os.environ['WS41_BUNDLE'],
+            'ws41_materialization_sha256':os.environ['WS41_MATERIALIZATION_SHA256'],
             'forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],
+            'historical_successor_credit_imported':0,
             'process_boundary':'SEPARATE_GPL_JVM',
           }
           open('artifacts/ws40-construction/SOURCE_LOCK.json','w').write(json.dumps(lock,indent=2,sort_keys=True)+'\n')
@@ -148,7 +183,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ws40-native-construction-107-${{ github.sha }}
+          name: ws40-v1.0.3-native-construction-107-${{ github.sha }}
           path: artifacts/ws40-construction/
           if-no-files-found: error
           retention-days: 90
