@@ -54,7 +54,7 @@ jobs:
           grep -q '^115\.1b Aura spells are always targeted' /tmp/MagicCompRules-current.txt
           grep -q '^601\.2c ' /tmp/MagicCompRules-current.txt
       - name: Compile WS41 implementation
-        run: python -m py_compile scripts/ws41_lint_semantic_v1_0_3.py scripts/ws41_build_successor.py scripts/ws41_build_successor_final.py scripts/ws41_validate_freeze.py
+        run: python -m py_compile scripts/ws41_lint_semantic_v1_0_3.py scripts/ws41_build_successor.py scripts/ws41_build_successor_final.py scripts/ws41_build_successor_terminal.py scripts/ws41_validate_freeze.py
       - name: Deterministic double materialization
         shell: bash
         run: |
@@ -64,7 +64,7 @@ jobs:
             cp -a qualification/ws41 /tmp/ws41-checked-in
           fi
           rm -rf qualification/ws41
-          if ! python scripts/ws41_build_successor_final.py --out qualification/ws41; then
+          if ! python scripts/ws41_build_successor_terminal.py --out qualification/ws41; then
             if [ -f qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json ]; then
               python - <<'PY'
           import json
@@ -82,7 +82,7 @@ jobs:
           fi
           cp -a qualification/ws41 /tmp/ws41-a
           rm -rf qualification/ws41
-          python scripts/ws41_build_successor_final.py --out qualification/ws41
+          python scripts/ws41_build_successor_terminal.py --out qualification/ws41
           cp -a qualification/ws41 /tmp/ws41-b
           diff -ruN /tmp/ws41-a /tmp/ws41-b
           python scripts/ws41_validate_freeze.py qualification/ws41

@@ -11,6 +11,10 @@ PILOT_NEW="ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108"
 PILOT_OBLIGATION="4c6ab40eb9b2ffc2e47d1ba3858d136cf76bddb356558d6a87b1d0601e9a2baa"
 WS32_COMMIT="038d0f38635eecee4e331c99af41f148de267a26"
 WS32_TREE="0d160128119f2bad30b220a17c43419b50b7edbe"
+SOURCE_LOCK_COMMIT="24152acf36b5a560c23ccacfed3f31d3039537eb"
+SOURCE_LOCK_TREE="428bbe58b2ea7b869200521092a8768108029b47"
+MATERIALIZATION_SHA="8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5"
+CANONICAL_BUNDLE="545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b"
 REQUIRED={
 "WS41_SOURCE_LOCK.json","WS41_WS39_CONTRADICTION_REPRODUCTION.json","WS41_PILOT_CHOICE_SUPERSESSION_PROOF.json",
 "WS41_TARGETED_STACK_STATE_AUDIT_135.json","WS41_SEMANTIC_LINTER_RULES.json","SEMANTIC_FIXTURE_SCHEMA_v1_0_3.json",
@@ -33,6 +37,7 @@ def main()->int:
  mat=load(d/"SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json")
  if mat.get("schema_version")!=VERSION or mat.get("record_count")!=135 or len(mat.get("records",[]))!=135:raise SystemExit("materialization accounting/version failure")
  if len({r["fixture_id"] for r in mat["records"]})!=135:raise SystemExit("duplicate fixture ID")
+ if mat.get("canonical_bundle_digest")!=CANONICAL_BUNDLE or sha(d/"SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json")!=MATERIALIZATION_SHA:raise SystemExit("canonical materialization identity failure")
  pilot=next(r for r in mat["records"] if r["fixture_id"]=="PILOT_CHOICE")
  if pilot["requested_state_digest"]!=PILOT_NEW or pilot["obligation_digest"]!=PILOT_OBLIGATION:raise SystemExit("PILOT_CHOICE digest failure")
  objects={o["semantic_id"]:o for o in pilot["semantic_objects"]}
@@ -62,6 +67,8 @@ def main()->int:
  if val.get("classification")!="COMPLETE / PASS_SUCCESSOR_CONTRACT_V1_0_3_FREEZE" or val.get("successor_contract_frozen") is not True or val.get("architecture_freeze") is not False:raise SystemExit("freeze classification failure")
  if val.get("provider_runtime_executed") is not False or val.get("provider_pass_imported") is not False or val.get("af07_granted") is not False:raise SystemExit("out-of-scope credit imported")
  if val.get("historical_remaining_linter_defect_count")!=2 or val.get("historical_remaining_linter_defects_adjudicated")!=2 or val.get("linter_false_positive_count")!=2 or val.get("obligation_contradiction_count")!=0 or val.get("authority_unresolved_count")!=0 or val.get("post_fix_contract_defect_count")!=0 or val.get("post_fix_global_errors")!=[] or val.get("ws32_content_integrity_comparison")!="PASS":raise SystemExit("continuation validation fields failure")
+ lock=val.get("successor_contract_source_lock",{})
+ if lock.get("repository")!="moeendres-png/commander-playtest-lab" or lock.get("commit")!=SOURCE_LOCK_COMMIT or lock.get("tree")!=SOURCE_LOCK_TREE or lock.get("namespace")!="qualification/ws41" or lock.get("contract_version")!=VERSION or lock.get("canonical_materialization_bundle_digest")!=CANONICAL_BUNDLE or lock.get("materialization_sha256")!=MATERIALIZATION_SHA or lock.get("provider_denominator")!=107:raise SystemExit("downstream successor source-lock failure")
  gates=val.get("gates",{})
  if set(gates)!={f"G41-{i:02d}" for i in range(1,15)} or any(v!="PASS" for v in gates.values()):raise SystemExit("hard gate failure")
  source=load(d/"WS41_SOURCE_LOCK.json")
@@ -70,6 +77,9 @@ def main()->int:
  if not sup.get("immutable_predecessor_verified_byte_for_byte") or not sup.get("frozen_obligation_projection_preserved_135_of_135"):raise SystemExit("supersession proof failure")
  index=load(d/"WS41_EVIDENCE_INDEX.json")
  if set(index.get("required_in_repo_outputs",[]))!=REQUIRED:raise SystemExit("evidence-index required-output coverage failure")
- print(json.dumps({"status":"PASS","required_outputs":len(REQUIRED),"checksum_rows":len(checks),"records":135,"provider_denominator":107,"historical_linter_defects":2,"post_fix_contract_defects":0,"ws32_integrity_files":integrity["file_count"],"pilot_choice_requested_state_digest":PILOT_NEW},sort_keys=True))
+ if "scripts/ws41_build_successor_terminal.py" not in index.get("implementation",[]):raise SystemExit("terminal builder missing from evidence index")
+ handoff=(d/"WS41_FINAL_HANDOFF.md").read_text(encoding="utf-8")
+ if "## Successor Contract Source Lock\n" not in handoff or SOURCE_LOCK_COMMIT not in handoff or SOURCE_LOCK_TREE not in handoff:raise SystemExit("final handoff missing exact downstream source lock")
+ print(json.dumps({"status":"PASS","required_outputs":len(REQUIRED),"checksum_rows":len(checks),"records":135,"provider_denominator":107,"historical_linter_defects":2,"post_fix_contract_defects":0,"ws32_integrity_files":integrity["file_count"],"source_lock_commit":SOURCE_LOCK_COMMIT,"source_lock_tree":SOURCE_LOCK_TREE,"pilot_choice_requested_state_digest":PILOT_NEW},sort_keys=True))
  return 0
 if __name__=="__main__":raise SystemExit(main())
