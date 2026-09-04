@@ -1,0 +1,30 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-target-identity-audit-attempt/1.0.0",
+  "status": "FAIL_DIAGNOSTIC_HARNESS",
+  "qualification_credit": 0,
+  "provider_code_changed": false,
+  "source_lock": {
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "source_lock_step": "PASS"
+  },
+  "audit_input_commit": "992770c1f99799f778b355bc02cf96a0edd3c03c",
+  "audit_script_parent_commit": "5dc82b5a42cd49d72bd22cba65d2a4a025bc801a",
+  "workflow_run": {
+    "run_id": 33920108844,
+    "job_id": 101176248927,
+    "conclusion": "failure",
+    "failed_step": "Audit all target identities"
+  },
+  "failure": {
+    "message": "expected exactly 107 materialization records, got 0",
+    "classification": "DIAGNOSTIC_RECORD_ENUMERATOR_SHAPE_DEFECT",
+    "cause": "The audit enumerator searched recursively for objects containing both fixture_id and game_state. The immutable v1.0.3 materialization stores qualification records directly in top-level doc.records and the record fields themselves are the requested game-state projection; there is no game_state wrapper.",
+    "semantic_provider_finding": false,
+    "forge_semantics_implicated": false,
+    "artifact_uploaded": false
+  },
+  "authoritative_denominator_rule": "doc.records excluding fixture_family=actual_card except CARD_02, exactly 107 records",
+  "next_action": "Repair only the diagnostic record enumerator and field access to consume the immutable top-level records directly; rerun the corpus-wide audit before any provider remediation."
+}
