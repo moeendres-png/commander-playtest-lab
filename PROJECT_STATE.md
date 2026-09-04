@@ -1,216 +1,132 @@
-# PROJECT_STATE — WS-39
+# COMMANDER SIMULATION FOUNDRY — WS-42 CURRENT PROJECT STATE
 
-## Current assignment
+## Current Assignment
 
-WS-39 — XMage native Commander-history state restoration + complete WS-32 v1.0.2 successor requalification.
+WS-42 — fresh XMage successor-provider qualification against immutable WS-41 v1.0.3.
 
-## Terminal state
+This is a NEW successor qualification workstream derived from the terminal WS-39 implementation state. WS-39 remains immutable historical provenance and is not reopened.
 
-`LAST_CONFIRMED_CHECKPOINT = WS39-CHECKPOINT-R-TERMINAL-BLOCKER-REVERIFIED`
+## Current Status
 
-`TASK_COMPLETE = NO`
+- `WS42_WORKSTREAM_TERMINAL = NO`
+- `TASK_COMPLETE = NO`
+- `Completion Status = READY_FOR_V1_0_3_REQUALIFICATION`
+- `XMAGE_ENGINE_REMEDIATION_BASELINE_READY = YES`
+- `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
+- `HISTORICAL_SUCCESSOR_PASS_IMPORTED = FALSE`
+- `AF07_GRANTED = FALSE`
+- `ARCHITECTURE_FREEZE = NO`
 
-`WS39_STATUS = BLOCKED`
+## Source Lock — XMage
 
-`XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
+Repository / branch:
 
-`TERMINAL_BLOCKER = BLOCKED_BY_IMMUTABLE_WS32_CONTRACT_DEFECT`
+- `moeendres-png/mage`
+- `foundry/ws39-commander-history-state-restore`
 
-This is a terminal fail-closed stop condition for WS-39, not an XMage Rules-Core qualification failure. Exact fresh runtime, the immutable WS-32 record, current Wizards Rules authority, exact XMage card semantics, and an independent requested-state digest reproduction all prove that one mandatory record cannot simultaneously satisfy Magic Rules correctness and the frozen requested-state equality/digest gate. WS-39 is explicitly prohibited from modifying WS-32.
+Exact repaired engine source lock:
 
-Independent terminal re-verification is persisted at:
+- commit `7bde812727817723616c575759f39bfc4cda4607`
+- tree `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
 
-`candidate-qualification/ws39-xmage-successor/WS39_CHECKPOINT_R_TERMINAL_BLOCKER_REVERIFIED.md`
+This source already contains the WS-39 native Commander-history restoration capability. That capability and its native regression evidence may be reused as implementation provenance, but no v1.0.3 provider runtime PASS is inherited.
 
-Checkpoint-R commit: `b952e1c84b0b17a0a19fb221610b91c3d33703b6`.
+## Source Lock — Commander Lab Baseline
 
-AF07 is not granted. Architecture Freeze is not granted. No merge is authorized.
+WS-42 branch:
 
----
+- `ws42/xmage-v1.0.3-successor-qualification`
 
-## Source Lock
+Branch was created from the fully restored terminal WS-39 content head:
 
-### XMage
+- base commit `c1e30d18c3312c4a8c77d15572ac6f0d2b4c3f51`
 
-- repo/branch: `moeendres-png/mage` / `foundry/ws39-commander-history-state-restore`
-- exact engine commit/tree: `7bde812727817723616c575759f39bfc4cda4607` / `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
-- native Commander-history restoration is complete and repeatedly runtime-verified by `CommanderPlaysCountStateRestoreTest`.
+The WS-39 runtime/evidence authority remains historical provenance only:
 
-### Commander Lab / WS-39
+- final construction runtime head `f326efc841c8ad81d1c5c60aefc3913cb3f33651`
+- terminal blocker evidence proved v1.0.2 unsatisfiable
+- no WS-39 behavior PASS is imported into WS-42.
 
-- repo/branch: `moeendres-png/commander-playtest-lab` / `ws39/xmage-engine-remediation-requalification`
-- exact final construction runtime head/tree: `f326efc841c8ad81d1c5c60aefc3913cb3f33651` / `ee130a07efc3982b731347d1b77700328cd9f25d`
-- persistent construction Checkpoint Q: `f3f24ab48e5297b677dd01d6d5d84d72d54a434b`
-- refreshed terminal blocker evidence commit: `3266aaaf4aa4f0b0a5645d8cd51d179ba12191fb`
-- independent terminal re-verification commit: `b952e1c84b0b17a0a19fb221610b91c3d33703b6`
-- draft PR: `#153`.
+## Binding Successor Contract — WS-41 v1.0.3
 
-### Immutable WS-32
+WS-42 MUST consume exactly:
 
-- schema: `commander-lab.semantic-fixture-materialization/1.0.2`
-- freeze commit/tree: `038d0f38635eecee4e331c99af41f148de267a26` / `0d160128119f2bad30b220a17c43419b50b7edbe`
-- canonical bundle digest: `ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23`
-- materialization SHA256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
-- frozen Comprehensive Rules effective date: `2026-08-07`
-- frozen CR PDF SHA256: `9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c`
-- exact XMage denominator: 107 records.
+- repository: `moeendres-png/commander-playtest-lab`
+- branch: `ws41/successor-contract-v1.0.3-freeze`
+- immutable downstream commit: `24152acf36b5a560c23ccacfed3f31d3039537eb`
+- tree: `428bbe58b2ea7b869200521092a8768108029b47`
+- namespace: `qualification/ws41`
+- contract: `commander-lab.semantic-fixture-materialization/1.0.3`
+- canonical materialization bundle digest: `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
+- materialization SHA-256: `8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5`
+- provider denominator: `107`
 
----
+WS-41 validation at that lock:
 
-## Work completed
+- `COMPLETE / PASS_SUCCESSOR_CONTRACT_V1_0_3_FREEZE`
+- G41-01..G41-14 PASS
+- `135/135` semantic executable
+- exact provider denominator `107`
+- current contract defects `0`
+- global errors `[]`
+- provider runtime executed `false`
+- provider PASS imported `false`
+- AF07 `false`
+- Architecture Freeze `false`
 
-### 1. XMage native Commander-history state restoration — COMPLETE / VERIFIED
+Later WS-41 evidence head `de478cf084529067776866aefb04d5c92efafeea` / tree `39642b1fce2056a2b43d38f1ad2910bf94001b65` is terminal attestation only and is not the downstream contract source lock.
 
-- engine-native `CommanderPlaysCountState` carrier added;
-- `CommanderPlaysCountWatcher.getStateForGameLoad()` and `restoreStateForGameLoad(...)` implemented;
-- restoration validates commander/count mappings;
-- no synthetic historical casts or fake game events;
-- native `CommanderPlaysCountStateRestoreTest` repeatedly PASS.
+## Qualification Rules
 
-### 2. Mandatory Tax-3 — COMPLETE / 3-of-3 fresh PASS
+- Fresh runtime credit starts at `0/107`.
+- Do not import WS-34, WS-36 or WS-39 successor PASS.
+- Do not mutate WS-41 v1.0.3.
+- Do not synthesize Magic legality in Commander Lab or pilot code.
+- Rules Core owns legal actions, costs, mana, stack, priority, targets, combat, triggers, replacement/prevention/continuous effects, layers, SBAs, zones, copy/control, Commander, multiplayer and Rules RNG.
+- Pilots choose only among legal options exposed by the Rules Core.
+- No first-option/random/default-yes-no/internal-AI/GUI-default/silent-skip/parent fallback.
+- Unsupported production-reachable paths fail closed.
+- Requested semantic state digest must equal independently normalized constructed native state digest before behavior credit.
+- Construction-only success is not behavior PASS.
 
-- run: `33772428630`
-- job: `100705752538`
-- artifact digest: `sha256:5b76015f49bcbabd8482b9f978003d24057e1648fa2c755f1d2269d6ef733ad1`
-- `WS39_TAX3_RESULTS.json` SHA256: `b3b89d32952402471a8800d80dfba8d5d9aa8f43db1db56d0926482c8b8d6a4b`
-- exact result: 3 PASS / 0 FAIL
-- `historical_pass_imported=false`.
+## Required Execution Sequence
 
-Tax-2 and Tax-4 each proved native Commander history 2→3, native Rograkh adjusted cost `{4}`, exact four contract Mountain activations, exact native red mana-pool commits, and all contract payment sources tapped. Partner-Tax independently PASS.
+1. verify the exact WS-41 commit/tree/schema/materialization/bundle digests;
+2. independently reconstruct the exact 107-record denominator and per-record requested-state digests;
+3. compare v1.0.3 against v1.0.2 and prove the material contract change is exactly the WS-41-authorized successor semantics, especially corrected `PILOT_CHOICE`;
+4. adapt WS-39 construction/runtime tooling to consume v1.0.3 without record-specific legality shortcuts;
+5. execute complete native construction from record 1 with zero historical successor credit;
+6. require complete 107-record accounting and fail closed on every unsupported dimension;
+7. remediate newly exposed XMage provider or native engine gaps only when technically correct and in scope;
+8. execute complete fresh behavior runtime after the construction gate is satisfied;
+9. require fresh AF04 `24/24`, AF05 `20/20`, AF06 `17/17`, AF08 `36/36`, AF09 `5/5`, and `CARD_02` PASS for provider qualification;
+10. preserve hidden-information safety and deterministic replay under the exact source/build identity;
+11. persist machine-readable results, run/job/artifact/checksum identities and a self-contained terminal handoff;
+12. create/update a Draft PR; do not merge without explicit user authorization.
 
-### 3. Full-107 construction qualification — final exact post-alias execution
+## Success Condition
 
-- workflow: `WS39 Full107 Native Construction Probe`
-- run: `33798418779`
-- job: `100791627620`
-- provider runtime head/tree: `f326efc841c8ad81d1c5c60aefc3913cb3f33651` / `ee130a07efc3982b731347d1b77700328cd9f25d`
-- job conclusion: SUCCESS
-- native history regression: PASS
-- XMage build: PASS
-- qualification bridge build: PASS
-- runtime classpath: PASS
-- probe/seal/upload: PASS
-- artifact id: `9910486727`
-- artifact digest / independently downloaded ZIP SHA256: `3ca60c2b796da66b5839cda49f5ae4b9c6af1214bd533b3a318db889f0e0c572`
-- `WS39_FULL107_CONSTRUCTION_PROBE.json` SHA256: `560087d5cffc2c7d903d293c545d929bb621fd4d5087872f2125af220dcb329e`
-- `SHA256SUMS` SHA256: `88e3ca96c5b2c844246ef39d5c941069ca5319ee44064aec5e9d9127dcc1b9ae`
-- all 10 sealed artifact files independently rehashed: PASS
-- `historical_pass_imported=false`
-- `runtime_credit_granted=false`.
+Only if every mandatory fresh v1.0.3 gate passes:
 
-Final construction census:
+- `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = YES`
+- exact successor runtime `107/107 PASS`
 
-- 52 `NATIVE_SETUP_PASS_NO_RUNTIME_CREDIT`
-- 7 `DEFERRED_TO_FRESH_NATURAL_EXECUTOR`
-- 47 `FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION`
-- 1 `FAIL_CLOSED_NATIVE_CONSTRUCTION`
-- total = 107.
+This does not grant AF07 or Architecture Freeze.
 
-Bounded stack identity remediation is proven effective:
+## Failure / Stop Conditions
 
-- `PILOT_REPLACEMENT_EFFECT`: native setup PASS through unique frozen lineage alias;
-- `MICRO_PRIORITY`: native setup PASS through unique case-insensitive semantic-id alias;
-- `MICRO_STACK`: native setup PASS through unique case-insensitive semantic-id alias.
+Fail closed with an exact classification if any mandatory record exposes:
 
-No record-specific card-name fallback, seat heuristic, target choice, or legality logic was introduced.
+- `XMAGE_PROVIDER_DEFECT`
+- `XMAGE_RULES_DEFECT`
+- `CONTRACT_DEFECT`
+- `AUTHORITY_DEFECT`
+- `CANONICAL_SETUP_UNSUPPORTED_XMAGE`
+- deterministic replay or hidden-information failure
+- unsupported production-reachable decision path.
 
----
+Do not classify UNKNOWN/PARTIAL/NOT_RUN as PASS.
 
-## Sole terminal blocker — `PILOT_CHOICE`
+## Exact Next Action
 
-Canonical detailed evidence: `WS39_TERMINAL_BLOCKER_EVIDENCE.md` at commit `3266aaaf4aa4f0b0a5645d8cd51d179ba12191fb`.
-
-Independent re-verification: `candidate-qualification/ws39-xmage-successor/WS39_CHECKPOINT_R_TERMINAL_BLOCKER_REVERIFIED.md` at commit `b952e1c84b0b17a0a19fb221610b91c3d33703b6`.
-
-### Frozen requested state
-
-- materialization digest: `f255fb5e8aaa115c659442bd60d617a8ba5128b2df945e3b013c5c6c3a2f90ba`
-- requested-state digest: `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`
-- `obj:utopia` is Utopia Sprawl in zone `stack`
-- `cast_complete=true`
-- `costs_paid=true`
-- `targets=[]`
-- frozen native resolution procedure later attaches it to `obj:forest`.
-
-### Current Rules authority independently rechecked
-
-Official Wizards Comprehensive Rules TXT checked on 2026-09-03:
-
-`https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt`
-
-The document is effective August 7, 2026. CR 303.4a requires an Aura spell to have a target; CR 115.1b states Aura spells are always targeted and choose the target while casting; CR 601.2c requires announcement of each required target.
-
-### Exact XMage semantics independently rechecked
-
-At locked XMage commit `7bde812727817723616c575759f39bfc4cda4607`, `Mage.Sets/src/mage/cards/u/UtopiaSprawl.java` constructs a Forest-filtered `TargetPermanent`, adds it to `getSpellAbility()`, and installs the matching `EnchantAbility`.
-
-### Fresh failure
-
-The exact post-alias final construction artifact leaves this as the only native construction failure:
-
-`NATIVE_VALIDATION_FAILED: stack target group cardinality obj:utopia`
-
-`behavior_runtime_executed=false`, `runtime_credit=NONE`.
-
-### Digest contradiction independently reproduced
-
-Using the exact frozen `requested_state_projection` and canonical serialization from `scripts/ws32_lint_semantic_v1_0_2.py`:
-
-- frozen `targets=[]` -> `4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044`;
-- changing only the stack target to the required legal `["obj:forest"]` -> `ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108`.
-
-Thus the minimum Rules-correct construction necessarily changes the immutable requested state/digest.
-
-### Terminal verdict
-
-`IMMUTABLE_CONTRACT_UNSATISFIABLE`
-
-A provider cannot:
-
-- construct the frozen zero-target fully-cast Aura state without violating current Magic rules; or
-- construct the required legal Forest target without violating the frozen requested-state equality/digest gate; or
-- hide that legal native target without falsifying construction evidence / performing a forbidden silent setup correction.
-
-WS-39 may not alter WS-32. Exact 107/107 is therefore unreachable under this source lock.
-
----
-
-## Gates not granted
-
-Because one mandatory denominator record is proven unsatisfiable, WS-39 does not convert remaining construction/transaction work into PASS.
-
-Not granted / not complete:
-
-- 107/107 behavior-runtime PASS;
-- AF04 24/24;
-- AF05 20/20;
-- AF06 17/17;
-- AF08 36/36;
-- AF09 5/5;
-- CARD_02 behavior-runtime PASS;
-- terminal hidden/privacy aggregation;
-- terminal RNG/replay aggregation;
-- unsupported production decision paths = 0;
-- terminal WS39-local quality gate.
-
-`UNKNOWN`, `PARTIAL`, `NOT_RUN`, and construction-only evidence remain non-PASS.
-
----
-
-## Stop condition
-
-The next required change belongs to an upstream immutable artifact outside WS-39. Continuing XMage setup or transaction remediation cannot make the exact v1.0.2 denominator satisfiable and would create work against a source lock that must be superseded.
-
-WS-39 therefore terminates fail-closed as `BLOCKED_BY_IMMUTABLE_WS32_CONTRACT_DEFECT`.
-
-## Exact next action
-
-Create a new provider-neutral successor-contract/freeze workstream outside WS-39. At minimum it must:
-
-1. repair `PILOT_CHOICE.stack_state[0].targets` to include the legal Forest target `["obj:forest"]` or an equivalent Rules-legal representation preserving the intended obligation;
-2. recompute requested-state, record materialization, bundle, and dependent evidence digests;
-3. add semantic lint coverage preventing fully cast Aura spells with zero required targets;
-4. freeze a new immutable successor version;
-5. then resume XMage successor qualification against that new exact source lock.
-
-Do not retroactively edit WS-32 v1.0.2 inside WS-39.
+Begin fresh WS-42 v1.0.3 qualification by verifying the immutable WS-41 lock and reconstructing the exact 107-record denominator. Then execute complete native construction from record 1 and continue automatically through every technically remediable blocker until terminal qualification or a genuinely non-remediable stop condition is proven.
