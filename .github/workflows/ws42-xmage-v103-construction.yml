@@ -45,12 +45,18 @@ jobs:
       - name: Checkout exact WS42 head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Record provider identity
         run: |
           set -euo pipefail
           mkdir -p artifacts/ws42-v103-construction artifacts/ws39-ci
+          EXPECTED_PROVIDER_COMMIT='${{ github.event.pull_request.head.sha || github.sha }}'
+          ACTUAL_PROVIDER_COMMIT="$(git rev-parse HEAD)"
+          test "$ACTUAL_PROVIDER_COMMIT" = "$EXPECTED_PROVIDER_COMMIT"
+          printf '%s\n' "$EXPECTED_PROVIDER_COMMIT" > artifacts/ws42-v103-construction/EXPECTED_PROVIDER_COMMIT.txt
+          printf '%s\n' '${{ github.sha }}' > artifacts/ws42-v103-construction/TRIGGER_GITHUB_SHA.txt
+          printf '%s\n' '${{ github.event_name }}' > artifacts/ws42-v103-construction/TRIGGER_EVENT_NAME.txt
           git rev-parse HEAD | tee artifacts/ws42-v103-construction/PROVIDER_COMMIT.txt
           git rev-parse HEAD^{tree} | tee artifacts/ws42-v103-construction/PROVIDER_TREE.txt
 
@@ -199,6 +205,7 @@ jobs:
           assert p['legacy_request_echo_accepted_as_proof'] is False
           assert p['independent_normalized_construction_gate_closed'] is False
           assert sum(p['counts'].values()) == 107
+          assert p['candidate_commit'] == Path('artifacts/ws42-v103-construction/PROVIDER_COMMIT.txt').read_text().strip()
           PY
 
       - name: Seal construction evidence
@@ -212,6 +219,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: ws42-v103-construction-${{ github.sha }}
+          name: ws42-v103-construction-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/ws42-v103-construction/
           if-no-files-found: error
