@@ -1,0 +1,58 @@
+{
+  "artifact_version": "commander-lab.ws42-checkpoint-a/1.0.0",
+  "status": "PASS_SOURCE_LOCK_AND_CONTRACT_DIFF",
+  "historical_successor_pass_imported": false,
+  "fresh_successor_runtime_credit": 0,
+  "commander_lab": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "ws42/xmage-v1.0.3-successor-qualification",
+    "verified_pre_checkpoint_head": "d1cf4e8644741d51ffcfc935e7940a7d05ecdeac",
+    "ws39_terminal_content_base": "c1e30d18c3312c4a8c77d15572ac6f0d2b4c3f51",
+    "base_compare_status": "ahead_by_2",
+    "pre_checkpoint_changes_from_ws39_base": [
+      "PROJECT_STATE.md",
+      "candidate-qualification/ws42-xmage-v1.0.3/WS42_WORKSTREAM_CONTRACT.md"
+    ]
+  },
+  "immutable_contract": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "namespace": "qualification/ws41",
+    "contract_version": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "canonical_materialization_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "record_count": 135,
+    "provider_denominator_derivation": "all 135 records minus actual_card CARD_01..CARD_29 except retained CARD_02",
+    "expected_provider_denominator": 107
+  },
+  "xmage": {
+    "repository": "moeendres-png/mage",
+    "branch": "foundry/ws39-commander-history-state-restore",
+    "commit": "7bde812727817723616c575759f39bfc4cda4607",
+    "tree": "a44f32e9d34109ac3f272494f0e8eb9ea3e6280c"
+  },
+  "v103_vs_v102": {
+    "obligation_changed_count": 0,
+    "requested_state_changed_count": 1,
+    "requested_state_changed_fixture_ids": ["PILOT_CHOICE"],
+    "pilot_choice": {
+      "old_requested_state_digest": "4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044",
+      "new_requested_state_digest": "ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108",
+      "obligation_digest": "4c6ab40eb9b2ffc2e47d1ba3858d136cf76bddb356558d6a87b1d0601e9a2baa",
+      "old_stack_targets": [],
+      "new_stack_targets": ["obj:forest"],
+      "cast_complete": true,
+      "costs_paid": true,
+      "external_discretionary_choice_preserved": "RED",
+      "target_choice_transferred_to_external_pilot": false
+    }
+  },
+  "non_grants": {
+    "provider_runtime_executed": false,
+    "af07": false,
+    "architecture_freeze": false,
+    "xmage_successor_provider_qualified": false
+  },
+  "next_gate": "independently reconstruct and digest-verify the exact 107-record denominator, then execute fresh native construction"
+}
