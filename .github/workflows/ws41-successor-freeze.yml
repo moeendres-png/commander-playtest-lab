@@ -59,12 +59,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/ws41-a /tmp/ws41-b
-          if ! python scripts/ws41_build_successor_final.py --out /tmp/ws41-a; then
-            if [ -f /tmp/ws41-a/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json ]; then
+          rm -rf /tmp/ws41-a /tmp/ws41-b /tmp/ws41-checked-in
+          if [ -d qualification/ws41 ]; then
+            cp -a qualification/ws41 /tmp/ws41-checked-in
+          fi
+          rm -rf qualification/ws41
+          if ! python scripts/ws41_build_successor_final.py --out qualification/ws41; then
+            if [ -f qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json ]; then
               python - <<'PY'
           import json
-          p='/tmp/ws41-a/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json'
+          p='qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json'
           r=json.load(open(p,encoding='utf-8'))
           print('WS41_LINTER_DIAGNOSTIC_BEGIN')
           for row in r.get('records',[]):
@@ -76,18 +80,19 @@ jobs:
             fi
             exit 1
           fi
-          python scripts/ws41_build_successor_final.py --out /tmp/ws41-b
+          cp -a qualification/ws41 /tmp/ws41-a
+          rm -rf qualification/ws41
+          python scripts/ws41_build_successor_final.py --out qualification/ws41
+          cp -a qualification/ws41 /tmp/ws41-b
           diff -ruN /tmp/ws41-a /tmp/ws41-b
-          python scripts/ws41_validate_freeze.py /tmp/ws41-a
-      - name: Verify checked-in freeze or stage first freeze
+          python scripts/ws41_validate_freeze.py qualification/ws41
+          if [ -d /tmp/ws41-checked-in ]; then
+            diff -ruN /tmp/ws41-checked-in qualification/ws41
+          fi
+      - name: Verify generated freeze independently
         shell: bash
         run: |
           set -euo pipefail
-          if [ -d qualification/ws41 ]; then
-            diff -ruN /tmp/ws41-a qualification/ws41
-          else
-            cp -a /tmp/ws41-a qualification/ws41
-          fi
           python scripts/ws41_validate_freeze.py qualification/ws41
           python scripts/ws41_lint_semantic_v1_0_3.py qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json --predecessor qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json --report /tmp/ws41-lint-independent.json
           cmp /tmp/ws41-lint-independent.json qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json
