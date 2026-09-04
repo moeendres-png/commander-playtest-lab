@@ -60,7 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf /tmp/ws41-a /tmp/ws41-b /tmp/ws41-checked-in
-          if [ -d qualification/ws41 ]; then
+          if [ "${{ github.event_name }}" != "push" ] && [ -d qualification/ws41 ]; then
             cp -a qualification/ws41 /tmp/ws41-checked-in
           fi
           rm -rf qualification/ws41
