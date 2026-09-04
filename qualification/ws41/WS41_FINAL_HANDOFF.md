@@ -6,6 +6,20 @@
 - current official CR: effective `2026-08-07`, SHA256 `4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f`
 - WS-39 terminal verification: `b952e1c84b0b17a0a19fb221610b91c3d33703b6`
 
+## Work Completed
+- reproduced the immutable v1.0.2 `PILOT_CHOICE` contradiction;
+- superseded it provider-neutrally in v1.0.3 without editing v1.0.2;
+- audited all 135 records and all 31 completed stack rows;
+- extended fail-closed semantic linting and revalidated 135/135;
+- preserved the exact 107-record provider denominator and all 135 obligation projections;
+- recomputed successor record, requested-state, materialization, bundle, manifest and checksum identities.
+
+## New Findings
+- `PILOT_CHOICE` was the only requested-state defect in this defect class across the frozen 135-record audit.
+- `Fact or Fiction` correctly has no target under current Oracle wording.
+- `CARD_13` and `CARD_22` later `target` decisions are rules-procedure choices after complete cast actions, not deferred cast-time targets; the linter distinguishes these shapes causally rather than allowing a generic fallback.
+- the currently linked Wizards CR filename is `MagicCompRules 20260819.txt`; its verified bytes remain effective August 7, 2026 with SHA256 `4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f`.
+
 ## WS-39 Contradiction Reproduction
 `PILOT_CHOICE` reproduced from immutable v1.0.2 as a fully cast/paid Utopia Sprawl with `targets=[]`. Classification: `IMMUTABLE_CONTRACT_UNSATISFIABLE`. This is a contract defect, not an XMage Rules failure.
 
