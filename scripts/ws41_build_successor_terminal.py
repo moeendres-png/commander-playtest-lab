@@ -11,6 +11,7 @@ import ws41_build_successor_final as final
 impl = final.impl
 SUCCESSOR_SOURCE_LOCK_COMMIT = "24152acf36b5a560c23ccacfed3f31d3039537eb"
 SUCCESSOR_SOURCE_LOCK_TREE = "428bbe58b2ea7b869200521092a8768108029b47"
+# Terminal owner-authored CI trigger: source-only comment; generated freeze bytes must not change.
 
 
 def finalize_source_lock(out: Path) -> None:
