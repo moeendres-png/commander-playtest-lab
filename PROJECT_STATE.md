@@ -95,16 +95,66 @@ Native binding itself is correct:
 - native target card is `obj:p1-commander-bf`
 - native target card lineage is `line:obj:P1-commander`
 
-The mismatch is currently:
+The mismatch is:
 
 - requested normalized stack target: `obj:P1-commander`
 - observer normalized stack target: `obj:p1-commander-bf`
 
-Classification at this checkpoint:
+Classification:
 
 `NORMALIZED_IDENTITY_PROJECTION_MISMATCH_AFTER_CORRECT_NATIVE_LINEAGE_BIND`
 
-This is not yet adjudicated as a provider defect or a WS41 contract defect. No observer change is permitted until a corpus-wide semantic-id / card-lineage normalization audit establishes a request-echo-free canonical projection.
+## Identity-Normalization Projection Audit and Adjudication
+
+A broad corpus-wide projection audit first proved that global `card_lineage_id` suffix projection is unsafe: eight already-correct WS05 stack targets use semantic id `obj:cmd-zone-test` while their lineage suffix is only `cmd-zone-test`. Therefore global `semanticOf` replacement or global lineage projection is forbidden.
+
+A refined provider-neutral projection was then separately adjudicated against every stack target in the exact WS41 107-record denominator:
+
+- player identities: preserve
+- Card identities: preserve current semantic id by default
+- lineage override: only when the frozen `card_lineage_id` suffix itself is a complete object-domain identity beginning with `obj:`
+- runtime requested-target dependency: none
+- case folding: prohibited
+- card-name matching: prohibited
+- owner/controller guessing: prohibited
+- unresolved-target inference: prohibited
+- authorized scope: `STACK_CARD_TARGET_NORMALIZATION_ONLY`
+- attachment/combat/global `semanticOf` changes: not authorized
+
+Persistent adjudication evidence:
+
+- report: `candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_ADJUDICATION.json`
+- persisted report commit: `d9f3a9847c65d561cc03e7afd0435943ec4cc128`
+- persisted report tree: `877ca3815d9ca23f497396b1e1327dbc18b2af42`
+- workflow run: `33928239753`
+- job: `101201304912`
+- artifact: `9957582538`
+- artifact ZIP SHA-256: `296c06279b975156a85996a5bc60c08570de2b536a9461266ef79983a8b1939c`
+
+Adjudication result:
+
+- stack target references checked: `21`
+- resolved or player targets checked: `19`
+- projection breaks: `0`
+- ambiguous targets: `0`
+- duplicate lineage-suffix groups: `0`
+- unresolved targets retained fail-closed: `2`
+- changed projection rows: `1`
+- `safe_for_observer_stack_card_identity_projection = true`
+- qualification credit granted by audit: `false`
+
+The sole changed row is denominator record 16 `PILOT_REPLACEMENT_EFFECT`:
+
+- current native semantic id: `obj:p1-commander-bf`
+- frozen lineage suffix: `obj:P1-commander`
+- refined normalized stack target: `obj:P1-commander`
+
+The two unresolved records remain exactly:
+
+- record 56 `MICRO_PRIORITY` — `obj:P2-bears`
+- record 57 `MICRO_STACK` — `obj:P2-bears`
+
+This audit authorizes only the narrow stack-observer projection above. It does not grant construction PASS or runtime PASS.
 
 ## Gate Matrix
 
@@ -119,7 +169,8 @@ This is not yet adjudicated as a provider defect or a WS41 contract defect. No o
 | Target-identity corpus audit | PASS / COMPLETE |
 | Lineage target resolver | IMPLEMENTED / RUNTIME REACHED |
 | Construction records 1–15 | PASS |
-| Construction record 16 | FAIL CLOSED — normalized identity projection mismatch |
+| Construction record 16 | FAIL CLOSED in Attempt #24 — observer normalization only |
+| Refined stack observer identity adjudication | PASS / REMEDIATION AUTHORIZED |
 | Complete construction 107/107 | NOT_GRANTED |
 | Fresh behavior runtime 0→107 | NOT_RUN |
 | Forge successor provider qualified | NO |
@@ -131,12 +182,12 @@ This is not yet adjudicated as a provider defect or a WS41 contract defect. No o
 ## Exact Resume Sequence
 
 1. Freshly verify this branch HEAD.
-2. Audit the entire WS41 v1.0.3 denominator for every `semantic_id` / `card_lineage_id` relationship and every stack target.
-3. Determine whether normalized semantic target identity can be derived solely from frozen provider-neutral lineage/object metadata, without retaining or replaying requested target values.
-4. Persist that audit and adjudication before changing the observer.
-5. If a unique general canonicalization exists, implement only that rule and rerun construction from record 1.
-6. If no such rule exists, fail closed and classify the immutable contract/provider boundary precisely; never echo requested targets.
-7. Continue remediation record-by-record only where technically sound and in scope.
+2. Inspect the effective generated `Ws40SuccessorState` stack observer after the current patch sequence.
+3. Implement only the adjudicated stack-card target normalization rule: preserve current semantic id except when the uniquely bound ObjSpec has a frozen `card_lineage_id` suffix beginning with `obj:`, in which case emit that suffix.
+4. Do not change attachment, combat, global `semanticOf`, target binding, legality, or requested-state normalization.
+5. Add the patcher to the Construction workflow and rerun the exact immutable 107-record construction gate from record 1 with zero historical credit.
+6. Persist the complete next attempt including run/job/artifact/checksum and first fail or full pass.
+7. If record 56/57 fails on unresolved `obj:P2-bears`, do not alias or guess; adjudicate against frozen predecessor/authority evidence.
 8. Require exact `107/107` construction PASS before any behavior runtime credit.
 9. Only then execute the complete fresh v1.0.3 behavior denominator from record 1.
 10. Freeze source/build/run/job/artifact/checksum identities and update Draft PR metadata without merging.
