@@ -1,0 +1,58 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 19,
+  "status": "REMEDIABLE_NATIVE_REVEALED_OBSERVATION_FAILURE",
+  "workflow": "WS40 Native Construction 107",
+  "run_id": 33907152121,
+  "job_id": 101134665861,
+  "commander_lab_execution_commit": "e3b04548a541f6ef2531aa7780c4a13a5331c8e9",
+  "commander_lab_execution_tree": "a17b7f4cd4ce144b157ecfd1a90fb3bce558e6dc",
+  "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+  "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+  "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+  "contract_lock_gate": {
+    "status": "PASS",
+    "provider_denominator": 107,
+    "independent_requested_state_digest_pass_count": 107,
+    "historical_successor_credit_imported": 0
+  },
+  "forge_checkout_build": "PASS",
+  "provider_patchers": "PASS",
+  "provider_compile": "PASS",
+  "construction": {
+    "sequential_pass_count": 11,
+    "sequential_pass_records": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET",
+      "PILOT_CHOOSE_OBJECT",
+      "PILOT_TARGET_AMOUNT",
+      "PILOT_MULLIGAN",
+      "PILOT_CHOOSE_USE",
+      "PILOT_CHOICE"
+    ],
+    "first_failure_index": 12,
+    "first_failure_fixture_id": "PILOT_PILE",
+    "requested_state_digest": "47cd6fcd2502c159379a4a8df6ea3deeaa6229fe1521b164931efcfbc93ab3f4",
+    "failure": "REQUESTED_NATIVE_STATE_MISMATCH:PILOT_PILE",
+    "mismatch_summary": "The five obj:fof-0..4 cards are requested as semantic zone=revealed but the later normalized native snapshot emits zone=library. Stack state and all other shown requested/native fields match.",
+    "classification": "NATIVE_REVEALED_OBSERVATION_LIFECYCLE_GAP",
+    "immediate_apply_reveal_verification": "PASS_IN_PROVIDER_SETUP",
+    "later_snapshot_reveal_observation": "FALSE",
+    "rules_semantics_affected": false,
+    "forge_source_change_required": "UNKNOWN_PENDING_GAME_STACK_OBSERVATION_AUDIT",
+    "remediable_in_scope": true
+  },
+  "successor_behavior_runtime_credit": "0/107",
+  "artifact": {
+    "artifact_id": 9949956104,
+    "name": "ws40-v1.0.3-native-construction-107-e3b04548a541f6ef2531aa7780c4a13a5331c8e9",
+    "zip_sha256": "74ded0ba3c71d676f56cc18fc1b77cb2272d09569866e4af5cb61562b3f3039d",
+    "size_bytes": 83337
+  },
+  "next_action": "Audit setup/snapshot lifecycle and Forge MagicStack iteration. Replace transient static stackAbilities-dependent reveal observation with direct game-native stack/source Remembered observation if supported, then rerun the complete immutable v1.0.3 construction denominator from record 1."
+}
