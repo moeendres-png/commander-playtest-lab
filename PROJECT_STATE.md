@@ -4,16 +4,14 @@
 
 - `WS40_WORKSTREAM_TERMINAL = NO`
 - `TASK_COMPLETE = NO`
-- `Completion Status = WAITING_FOR_NEW_IMMUTABLE_SUCCESSOR_CONTRACT`
+- `Completion Status = READY_FOR_V1_0_3_SUCCESSOR_QUALIFICATION`
 - `ENGINE_REMEDIATION_COMPLETE = YES`
 - `FORGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
 - `ARCHITECTURE_FREEZE = NO`
 
-The 2026-09-04 Coordinator input supersedes the earlier interpretation that WS-40 was terminal under immutable WS-32 v1.0.2. WS-40 remains open. The bounded Forge Rules-Core remediation is complete and reproducibly qualified. Successor-provider runtime qualification remains paused until a separate provider-neutral workstream produces a genuinely frozen immutable replacement contract.
+The external successor-contract dependency is now CLEARED. WS-41 is terminally complete and has persisted an immutable provider-neutral v1.0.3 freeze. WS-40 is authorized to resume successor qualification from record 1 with zero historical successor-runtime credit.
 
-Latest fresh dependency recheck: `2026-09-04T09:56:00+02:00`. No qualifying external change was found: WS-41 remains on the same failed pre-materialization freeze state, Forge remains on the same frozen engine tree, and both WS-40 Draft PRs remain open / draft / unmerged. Therefore no new successor construction/runtime operation is authorized.
-
-Historical `WS40_FINAL_HANDOFF.md`, `WS40_FINAL_EVIDENCE_MANIFEST.json`, and `WS40_FINAL_AUDIT.json` remain provenance for the v1.0.2 diagnostic/adjudication phase only.
+Historical `WS40_FINAL_HANDOFF.md`, `WS40_FINAL_EVIDENCE_MANIFEST.json`, and `WS40_FINAL_AUDIT.json` remain provenance for the v1.0.2 diagnostic/adjudication phase only. They do not grant v1.0.3 runtime credit.
 
 ## Infrastructure / Forge Engine Gate
 
@@ -21,7 +19,7 @@ Expected remediation repository: `moeendres-png/forge`.
 
 `BLOCKED_NO_WRITABLE_GPL_FORGE_REMEDIATION_REPOSITORY = CLEARED`
 
-Fresh 2026-09-04 source recheck:
+Frozen repaired Forge Rules-Core source lock:
 
 - branch: `foundry/ws40-af04-core-remediation`
 - commit: `49ea6df753fa6c749138296a1fe9421467136dda`
@@ -30,7 +28,7 @@ Fresh 2026-09-04 source recheck:
 
 `ENGINE_REMEDIATION_COMPLETE = YES`
 
-Verified engine-side acceptance remains valid because the Forge tree is unchanged:
+Verified engine-side acceptance remains valid while this exact tree is unchanged:
 
 - Core-owned combat-damage decision / selection / validation boundary: PASS
 - mutation-boundary revalidation: PASS
@@ -50,15 +48,13 @@ Reproducibility evidence:
 - artifact `9901943490`
 - SHA-256 `8c62d3c9c66f89b1818c021ccd001ca270ad68effd1fae1a029dc005065ace20`
 
-No broad Forge rerun is justified while this exact tree remains unchanged unless the replacement contract introduces an uncovered engine requirement.
+No broad Forge engine rerun is required unless v1.0.3 exposes an uncovered engine requirement or the Forge source lock changes.
 
 ## Preserved Commander-Lab Provider Integration
 
 Repository: `moeendres-png/commander-playtest-lab`
 
 - branch: `ws40/forge-core-remediation-requalification`
-- pre-recheck branch HEAD: `a85959f156b3bc44ebd94a5c27a244b192478268`
-- pre-recheck tree: `841568fd8d8bac966625404742e22f4250ef0b57`
 - Draft PR `#154`: open / draft / unmerged
 - last runtime-tested provider implementation:
   - commit `d5ff5e920c424d3a157e121f50a1704bbcd069f3`
@@ -69,7 +65,7 @@ Preserved infrastructure:
 - Provider Smoke run `33777908775`: PASS
 - Successor State Loader Compile run `33777941124`: PASS
 
-Prepared integration receives no historical successor-runtime credit.
+Prepared integration receives no historical v1.0.3 successor-runtime credit.
 
 ## WS-32 v1.0.2 — Immutable Historical / Diagnostic Only
 
@@ -80,74 +76,36 @@ Prepared integration receives no historical successor-runtime credit.
 - materialization SHA-256 `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
 - historical denominator `107`
 
-WS-39/WS-40 established `PILOT_CHOICE` as a provider-neutral `CONTRACT_DEFECT`: it requests a completed Utopia Sprawl Aura spell on the stack without its required casting target.
+v1.0.2 is superseded for qualification. No WS-33 PASS import and no v1.0.2 runtime PASS import are permitted.
 
-Consequences:
+## Binding Successor Contract — WS-41 v1.0.3
 
-- v1.0.2 is diagnostic-only for WS-40;
-- inability to PASS `PILOT_CHOICE` is not a Forge defect;
-- no `107/107` qualification against v1.0.2;
-- no synthetic or concealed Aura-target legality in Commander Lab/provider;
-- no WS-33 PASS import;
-- no v1.0.2 PASS import;
-- AF07 out of scope;
-- Architecture Freeze remains NO.
+Downstream qualification MUST consume this exact immutable source lock:
 
-Historical construction diagnostic:
+- repository: `moeendres-png/commander-playtest-lab`
+- branch: `ws41/successor-contract-v1.0.3-freeze`
+- commit: `24152acf36b5a560c23ccacfed3f31d3039537eb`
+- tree: `428bbe58b2ea7b869200521092a8768108029b47`
+- namespace: `qualification/ws41`
+- contract: `commander-lab.semantic-fixture-materialization/1.0.3`
+- canonical materialization bundle digest: `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
+- materialization SHA-256: `8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5`
+- provider denominator: `107`
 
-- run `33778130830`
-- job `100724863434`
-- fail-closed after six diagnostic records: `CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE`
-- artifact `9902469599`
-- SHA-256 `409ac38fa3a0c0836cec52eeed9e8385306737a22d39390dc3b914c2b76e0755`
+WS-41 validation at this lock:
 
-This stack-history observation gap grants no successor credit. If a replacement contract still requires cast/payment/mode history, proof must come from Forge-native casting/events/history APIs, never request echo.
+- classification: `COMPLETE / PASS_SUCCESSOR_CONTRACT_V1_0_3_FREEZE`
+- G41-01 through G41-14: PASS
+- semantic executable: `135/135`
+- provider denominator: `107`
+- post-fix contract defects: `0`
+- global errors: `[]`
+- provider runtime executed: `false`
+- provider PASS imported: `false`
+- AF07: `false`
+- Architecture Freeze: `false`
 
-## Replacement Successor Dependency — Latest Fresh Recheck
-
-Rechecked at `2026-09-04T09:56:00+02:00`.
-
-Candidate workstream:
-
-- branch `ws41/successor-contract-v1.0.3-freeze`
-- latest checked HEAD `8cb81b0c8cc08826a09bff35312def4007217a7a`
-- tree `d6534ebdc6ece22869c2a29289603ef4302001e4`
-- message `ws41: bind builder to live current CR URL`
-- checked-in `qualification/ws41`: absent (`404`)
-
-Latest freeze attempt remains unchanged:
-
-- workflow `WS41 successor v1.0.3 freeze`
-- run `33819823431` / run number `3`
-- job `100859866413`
-- conclusion `failure`
-- failing step `Reverify current official Wizards Comprehensive Rules lock`
-- runtime-discovered TXT URL: `https://media.wizards.com/2026/downloads/MagicCompRules 20260819.txt`
-- failure: `curl: (3) URL rejected: Malformed input to a URL function`
-
-All downstream freeze gates remain unexecuted:
-
-- compile WS41 implementation: NOT_RUN
-- deterministic double materialization: NOT_RUN
-- checked-in freeze verification/staging: NOT_RUN
-- independent semantic lint/drift audit: NOT_RUN
-- WS32 immutability proof: NOT_RUN
-- persisted freeze commit: NOT_CREATED
-- complete freeze artifact upload: NOT_RUN
-
-Prior run `33819655115` / job `100859351583` failed at the same pre-materialization URL condition.
-
-Therefore:
-
-- `NEW_IMMUTABLE_SUCCESSOR_CONTRACT = NOT_YET_FROZEN`
-- the WS-41 branch name is not immutable authority;
-- WS-40 successor construction/runtime remains prohibited.
-
-The separate successor-contract workstream owns its CR-lock/freeze repair. WS-40 does not modify that workstream merely to bypass its gate.
-
-Machine-readable dependency authority:
-
-- `candidate-qualification/ws40-forge/WS40_POST_WS39_COORDINATION_AUDIT.json`
+Later WS-41 evidence head `de478cf084529067776866aefb04d5c92efafeea` / tree `39642b1fce2056a2b43d38f1ad2910bf94001b65` is terminal attestation only. Do not substitute it for the downstream immutable contract lock.
 
 ## Gate Matrix
 
@@ -165,39 +123,37 @@ Machine-readable dependency authority:
 | Provider integration preservation | PASS |
 | Provider smoke on frozen Forge lock | PASS |
 | State-loader compile on frozen Forge lock | PASS |
-| WS-32 v1.0.2 terminal qualification | SUPERSEDED / DIAGNOSTIC ONLY |
-| WS-41 candidate branch | EXISTS |
-| WS-41 immutable freeze | FAIL / NOT YET FROZEN |
-| New-contract denominator lock | NOT_RUN |
-| New-contract construction from record 1 / zero historical credit | NOT_RUN |
-| New-contract complete runtime qualification | NOT_RUN |
+| WS-32 v1.0.2 qualification | SUPERSEDED / DIAGNOSTIC ONLY |
+| WS-41 immutable v1.0.3 freeze | PASS / CLEARED |
+| v1.0.3 denominator lock | AUTHORIZED / MUST VERIFY FRESH |
+| v1.0.3 construction from record 1 | NOT_RUN |
+| v1.0.3 complete runtime qualification | NOT_RUN |
 | Forge successor provider qualified | NO |
 | AF07 | OUT_OF_SCOPE |
 | Architecture Freeze | NO |
 
 `UNKNOWN`, `PARTIAL`, `NOT_RUN`, historical results, and diagnostic v1.0.2 results are not PASS.
 
-## Current Stop Condition / Exact Resume Trigger
+## Exact Resume Sequence
 
-All blocker-independent WS-40 Forge work is complete. The next authorized operation requires a genuinely frozen provider-neutral replacement contract. The 09:56 CEST fresh recheck found the same WS-41 pre-materialization failure and no implementation drift, so this remains an external dependency wait rather than terminal WS-40 completion.
+Resume WS-40 immediately from zero historical successor-runtime credit:
 
-Do not modify Forge legality for v1.0.2. Do not run broad v1.0.2 qualification. Do not merge Draft PR #1 or #154.
-
-On the next continuation, first freshly recheck WS-41. If a successful immutable freeze now exists, then from **zero historical successor-runtime credit**:
-
-1. lock exact successor commit/tree/schema/digests/materialization;
-2. reconstruct and independently verify the exact denominator and requested-state digests;
-3. re-audit semantic executability, construction coverage, and no-request-echo requirements;
-4. determine whether historical stack cast/payment/mode state is still required;
-5. adapt provider integration only where required, preserving Forge-Core legality;
+1. fetch and hash-verify the exact WS-41 v1.0.3 source lock above;
+2. independently reconstruct the exact 107-record provider denominator and requested-state digests;
+3. prove semantic-executability and denominator identity against checked-in WS-41 outputs;
+4. re-audit construction/no-request-echo requirements, especially stack cast/payment/mode history;
+5. adapt provider integration only where v1.0.3 requires it, preserving Forge-Core legality;
 6. execute complete native construction from record 1;
-7. require exact denominator equality before runtime credit;
-8. execute complete fresh runtime only after construction passes;
-9. remediate only genuine in-scope Forge defects;
-10. freeze exact run/job/artifact/checksum evidence and update Draft PR metadata;
-11. grant `FORGE_SUCCESSOR_PROVIDER_QUALIFIED = YES` only if every mandatory fresh gate passes.
+7. require exact `107/107` construction accounting before behavior credit;
+8. execute complete fresh behavior runtime only after construction gate passes;
+9. remediate only genuine in-scope Forge provider or Rules-Core defects; do not alter the frozen contract;
+10. produce AF04/05/06/08/09 and `CARD_02` fresh v1.0.3 evidence;
+11. freeze exact source/build/run/job/artifact/checksum identities and update Draft PR #154;
+12. grant `FORGE_SUCCESSOR_PROVIDER_QUALIFIED = YES` only if every mandatory fresh gate passes.
 
-Until then:
+Do not merge Draft PR #1 or #154 without explicit user authorization.
+
+Current lifecycle:
 
 - `TASK_COMPLETE = NO`
-- `Completion Status = WAITING_FOR_NEW_IMMUTABLE_SUCCESSOR_CONTRACT`
+- `Completion Status = READY_FOR_V1_0_3_SUCCESSOR_QUALIFICATION`
