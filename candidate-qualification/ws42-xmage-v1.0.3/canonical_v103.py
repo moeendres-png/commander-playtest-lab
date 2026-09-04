@@ -1,9 +1,9 @@
 """WS-42 provider translation for immutable WS-41 v1.0.3 records.
 
 This layer reuses the proven WS-39 bootstrap/deck construction but extends only
-provider-facing state-load metadata needed by the v1.0.3 denominator. It does
-not calculate Magic legality, commander tax, replacement outcomes, or player
-choices.
+provider-facing state-load metadata actually required by each v1.0.3 record.
+It does not calculate Magic legality, commander tax, replacement outcomes, or
+player choices.
 """
 from __future__ import annotations
 
@@ -42,14 +42,34 @@ def _immutable_rules_seed(record: dict[str, Any]) -> int:
     return seed
 
 
+def _has_knowledge_grants(record: dict[str, Any]) -> bool:
+    for viewer in (record.get("knowledge_state") or {}).get("viewer_states") or []:
+        if any(
+            viewer.get(key) not in (None, {}, [], "", False)
+            for key in (
+                "face_down_look_permissions",
+                "known_library_ranges",
+                "known_object_identities",
+                "temporary_permissions",
+                "invalidation_conditions",
+            )
+        ):
+            return True
+    return False
+
+
+def _put_nonempty(scenario: dict[str, Any], key: str, value: Any) -> None:
+    if value not in (None, {}, [], "", False):
+        scenario[key] = copy.deepcopy(value)
+
+
 def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Translate one v1.0.3 record into native-load inputs without rules shortcuts."""
     bootstrap = copy.deepcopy(record)
 
     # XMage models a reveal as visibility state over a card still physically in
-    # its native zone. WS-39 did not admit the semantic pseudo-zone `revealed`.
-    # Bootstrap that card through library binding, then the WS-42 overlay moves
-    # it into the native Revealed registry and normalizes it back to `revealed`.
+    # another native zone. Bootstrap only that record through library binding;
+    # the WS-42 native overlay later registers the card in XMage Revealed state.
     revealed_ids: set[str] = set()
     for obj in bootstrap.get("semantic_objects") or []:
         if obj.get("zone") == "revealed":
@@ -59,16 +79,14 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     decks, scenario = base.deck_and_scenario(bootstrap)
     scenario["scenario_id"] = f"WS42-{record['fixture_id']}"
 
-    # The qualification-session constructor and XmageWs26Scenario.apply both
-    # consume the top-level scenario seed. It is Rules RNG execution metadata,
-    # so v1.0.3 must use the immutable contract seed exactly rather than the
-    # legacy digest-derived seed used by the v1.0.2 translator.
+    # Both the qualification-session constructor and XmageWs26Scenario.apply
+    # consume this top-level seed. It must be the immutable contract Rules seed,
+    # never the legacy v1.0.2 digest-derived bootstrap seed.
     scenario["seed"] = _immutable_rules_seed(record)
 
-    # Always restore the exact immutable v1.0.3 request after the WS-39 bootstrap
-    # translation. The bootstrap may alter provider-only staging (for example a
-    # revealed pseudo-zone), but it must never alter the semantic request used
-    # for construction comparison.
+    # Preserve the exact request only as the comparison target required by the
+    # inherited interface. WS-42 construction proof explicitly ignores the
+    # inherited whole-object echo and uses lower-level native readback instead.
     scenario["successor_requested_state"] = requested_state_projection(record)
     scenario["successor_requested_state_digest"] = requested_state_digest(record)
     if scenario["successor_requested_state_digest"] != record["requested_state_digest"]:
@@ -76,49 +94,46 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     if scenario["successor_requested_state"].get("rules_randomness") != record.get("rules_randomness"):
         raise ValueError(f"WS42_REQUESTED_RANDOMNESS_MUTATED:{record.get('fixture_id')}")
 
-    # Preserve player-state load instructions that were intentionally absent
-    # from the narrower WS-39 translator.
-    by_player = {p["player_id"]: p for p in record["players"]}
-    for scenario_player in scenario["players"]:
-        pid = f"P{scenario_player['seat']}"
-        source = by_player[pid]
-        scenario_player["starting_life"] = int(source["starting_life"])
-        scenario_player["poison"] = int(source["poison"])
-        scenario_player["lost"] = bool(source["lost"])
-        scenario_player["eliminated"] = bool(source["eliminated"])
-        scenario_player["zones"].setdefault("revealed", [])
-
     source_by_id = {o["semantic_id"]: o for o in record.get("semantic_objects") or []}
     for semantic_id, source in source_by_id.items():
         if source.get("zone") == "command":
             continue
         entry, current_zone = _find_zone_entry(scenario, semantic_id)
-        if "counters" in source:
-            entry["counters"] = copy.deepcopy(source.get("counters") or {})
+        # Empty counters are the semantic default and must not widen the native
+        # scenario schema. Only material counters require the WS-42 extension.
+        if source.get("counters"):
+            entry["counters"] = copy.deepcopy(source["counters"])
         if source.get("attached_to") is not None:
             entry["attached_to"] = source["attached_to"]
         if semantic_id in revealed_ids:
             if current_zone != "library":
                 raise ValueError(f"WS42_REVEALED_BOOTSTRAP_ZONE_MISMATCH:{semantic_id}:{current_zone}")
+            moved = False
             for player in scenario["players"]:
                 library = player["zones"].get("library") or []
                 found = [item for item in library if item.get("semantic_id") == semantic_id]
-                if found:
-                    if len(found) != 1:
-                        raise ValueError(f"WS42_REVEALED_BOOTSTRAP_DUPLICATE:{semantic_id}")
-                    library.remove(found[0])
-                    player["zones"]["revealed"].append(found[0])
-                    break
+                if not found:
+                    continue
+                if len(found) != 1 or moved:
+                    raise ValueError(f"WS42_REVEALED_BOOTSTRAP_DUPLICATE:{semantic_id}")
+                library.remove(found[0])
+                player["zones"].setdefault("revealed", []).append(found[0])
+                moved = True
+            if not moved:
+                raise ValueError(f"WS42_REVEALED_BOOTSTRAP_NOT_FOUND:{semantic_id}")
 
-    # The following are execution-state load instructions. The Java overlay
-    # must construct and independently read each through XMage-native state;
-    # these objects are never accepted as construction proof by themselves.
-    scenario["ws42_combat_state"] = copy.deepcopy(record.get("combat_state") or {})
-    scenario["ws42_extra_turn_creation"] = copy.deepcopy(record.get("extra_turn_creation") or [])
-    scenario["ws42_elimination_trigger"] = copy.deepcopy(record.get("elimination_trigger") or {})
-    scenario["ws42_zone_move_event"] = copy.deepcopy(record.get("zone_move_event") or {})
-    scenario["ws42_knowledge_state"] = copy.deepcopy(record.get("knowledge_state") or {})
-    scenario["ws42_commander_damage_matrix"] = copy.deepcopy(
-        (record.get("commander_state") or {}).get("commander_damage_matrix") or []
+    # Provider-extension keys are emitted only when the immutable record really
+    # requires the dimension. This preserves the native parser's rejectUnknown
+    # boundary and prevents empty WS-42 metadata from silently widening it.
+    _put_nonempty(scenario, "ws42_combat_state", record.get("combat_state"))
+    _put_nonempty(scenario, "ws42_extra_turn_creation", record.get("extra_turn_creation"))
+    _put_nonempty(scenario, "ws42_elimination_trigger", record.get("elimination_trigger"))
+    _put_nonempty(scenario, "ws42_zone_move_event", record.get("zone_move_event"))
+    if _has_knowledge_grants(record):
+        scenario["ws42_knowledge_state"] = copy.deepcopy(record["knowledge_state"])
+    _put_nonempty(
+        scenario,
+        "ws42_commander_damage_matrix",
+        (record.get("commander_state") or {}).get("commander_damage_matrix"),
     )
     return decks, scenario
