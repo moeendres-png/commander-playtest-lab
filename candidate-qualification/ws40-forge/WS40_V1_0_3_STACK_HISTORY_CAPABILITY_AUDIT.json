@@ -1,0 +1,48 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-stack-history-capability-audit/1.0.0",
+  "status": "REMEDIATION_REQUIRED",
+  "source_lock": {
+    "commander_lab_branch": "ws40/forge-core-remediation-requalification",
+    "commander_lab_commit": "8bbe9e3c3fdbb36643f8494aeca85dc751cfd740",
+    "commander_lab_tree": "10ad67cf16c3f3362eb437039911c810ce8c43a1",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "contract": "commander-lab.semantic-fixture-materialization/1.0.3"
+  },
+  "contract_findings": {
+    "provider_denominator": 107,
+    "historical_runtime_credit": 0,
+    "requested_state_drift_from_v1_0_2": ["PILOT_CHOICE"],
+    "pilot_choice_target_repair": ["obj:forest"],
+    "stack_mode_requirement": "NO_NONEMPTY_SELECTED_MODE_STATE_FOUND_IN_WS41_TARGETED_STACK_STATE_AUDIT_135",
+    "stack_history_required": ["cast_complete", "costs_paid", "targets", "controller"]
+  },
+  "forge_source_findings": {
+    "magic_stack_add_validates_targeting_before_push": true,
+    "magic_stack_regular_cast_path_records_this_turn_cast_and_fires_cast_triggers": true,
+    "spell_ability_stack_instance_owns_native_target_choices": true,
+    "current_ws40_state_loader_uses_direct_addAndUnfreeze": true,
+    "current_ws40_state_loader_executes_regular_cast_payment_path": false,
+    "current_ws40_snapshot_observes_stack_presence": true,
+    "current_ws40_snapshot_observes_stack_controller": true,
+    "current_ws40_snapshot_observes_stack_targets": false,
+    "current_ws40_snapshot_observes_cast_complete": false,
+    "current_ws40_snapshot_observes_costs_paid": false
+  },
+  "adjudication": {
+    "existing_provider_sufficient_for_v1_0_3": false,
+    "classification": "FORGE_PROVIDER_CAPABILITY_DEFECT_REMEDIABLE_IN_SCOPE",
+    "reason": "Direct MagicStack.addAndUnfreeze materialization proves native stack presence and target legality but does not prove that casting completed or costs were paid. Request-bound booleans cannot receive rules-state credit.",
+    "minimum_allowed_remediation": "Forge-native stack-state restoration API whose successful operation owns and exposes restored completed-cast/payment history, validates requested target state through Forge Core, and lets Commander-Lab normalize only native observations. Requested cast_complete/costs_paid booleans must not be inputs to the native observation result.",
+    "forbidden": [
+      "copy requested cast_complete/costs_paid into normalized state",
+      "calculate target legality in Python",
+      "hide target additions from normalized state",
+      "weaken MagicStack targeting validation",
+      "use GUI/AI/default/fallback decision paths"
+    ]
+  },
+  "next_action": "Implement the minimal Forge-native stack-state restoration/history API on the GPL Forge branch, add native observation of targets and restored cast/payment history, rerun affected Forge engine gates, then retarget WS40 construction to immutable v1.0.3 and execute from record 1."
+}
