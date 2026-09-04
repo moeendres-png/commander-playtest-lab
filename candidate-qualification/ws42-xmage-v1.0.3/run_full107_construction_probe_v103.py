@@ -145,36 +145,69 @@ def start_fixture_v103(record: dict[str, Any]):
         raise
 
 
-def capture_non_echo_readback(record: dict[str, Any], scenario: dict[str, Any], state: dict[str, Any]) -> dict[str, Any]:
-    """Capture only independent lower-level provider/native evidence.
+def seed_binding_evidence(record: dict[str, Any], scenario: dict[str, Any]) -> dict[str, Any]:
+    randomness = record.get("rules_randomness")
+    if not isinstance(randomness, dict):
+        raise RuntimeError("WS42_RULES_RANDOMNESS_MISSING")
+    scenario_seed = scenario.get("seed")
+    if not isinstance(scenario_seed, int) or isinstance(scenario_seed, bool) or scenario_seed < 0:
+        raise RuntimeError("WS42_SCENARIO_SEED_INVALID")
 
-    The inherited top-level normalized_constructed_state and declared digest are
-    intentionally not consumed. Native validation is accepted here only as a
-    diagnostic lower-level query result; this function does not grant the exact
-    requested-vs-normalized construction gate.
-    """
-    semantic_state = state.get("semantic_state")
+    fixed = randomness.get("rules_seed")
+    if isinstance(fixed, int) and not isinstance(fixed, bool):
+        if scenario_seed != fixed:
+            raise RuntimeError("WS42_SCENARIO_FIXED_RULES_SEED_MISMATCH")
+        return {
+            "binding_mode": "CONTRACT_FIXED_RULES_SEED",
+            "contract_rules_seed": fixed,
+            "scenario_execution_seed": scenario_seed,
+            "exact": True,
+        }
+    if fixed is not None or randomness.get("seed_binding") != "SCENARIO_SEED":
+        raise RuntimeError("WS42_SCENARIO_RULES_SEED_BINDING_INVALID")
+    return {
+        "binding_mode": "CONTRACT_SCENARIO_SEED_BINDING",
+        "contract_rules_seed": None,
+        "scenario_execution_seed": scenario_seed,
+        "exact": True,
+    }
+
+
+def capture_non_echo_readback(record: dict[str, Any], scenario: dict[str, Any], state: dict[str, Any]) -> dict[str, Any]:
+    """Capture only the explicit WS42 request-independent provider readback."""
+    readback = state.get("ws42_native_construction_readback")
+    if not isinstance(readback, dict):
+        raise RuntimeError("WS42_NATIVE_CONSTRUCTION_READBACK_MISSING")
+    if readback.get("schema_version") != "xmage-ws42-native-construction-readback/1.0.0":
+        raise RuntimeError("WS42_NATIVE_CONSTRUCTION_READBACK_SCHEMA_MISMATCH")
+    if readback.get("request_object_copied_as_proof") is not False:
+        raise RuntimeError("WS42_NATIVE_READBACK_REQUEST_ECHO_NOT_FALSE")
+    if readback.get("snapshot_boundary") != "AFTER_NATIVE_SETUP_VALIDATION_BEFORE_PRIORITY_RESUME":
+        raise RuntimeError("WS42_NATIVE_CONSTRUCTION_SNAPSHOT_BOUNDARY_INVALID")
+
+    semantic_state = readback.get("semantic_state")
     if not isinstance(semantic_state, dict):
         raise RuntimeError("WS42_NATIVE_SEMANTIC_STATE_MISSING")
-    validation = state.get("normalized_constructed_state_native_validation")
+    validation = readback.get("native_validation")
     if not isinstance(validation, dict) or validation.get("valid") is not True:
         raise RuntimeError("WS42_LOWER_LEVEL_NATIVE_VALIDATION_NOT_PASS")
-    rng_tape = state.get("rules_rng_tape")
+    rng_tape = readback.get("rules_rng_tape")
     if not isinstance(rng_tape, dict):
         raise RuntimeError("WS42_RULES_RNG_TAPE_MISSING")
-    if int(scenario["seed"]) != int(record["rules_randomness"]["rules_seed"]):
-        raise RuntimeError("WS42_SCENARIO_RULES_SEED_NOT_IMMUTABLE_CONTRACT_SEED")
 
+    seed_evidence = seed_binding_evidence(record, scenario)
+    if int(readback.get("rules_seed", -1)) != int(seed_evidence["scenario_execution_seed"]):
+        raise RuntimeError("WS42_NATIVE_READBACK_EXECUTION_SEED_MISMATCH")
+
+    # Explicitly assert the inherited echo is absent from the WS42 proof path.
+    # Its continued presence as an uncalled legacy helper would not be evidence.
     return {
         "evidence_class": "LOWER_LEVEL_NATIVE_READBACK_AWAITING_INDEPENDENT_NORMALIZATION",
-        "legacy_normalized_constructed_state_present_but_ignored": isinstance(
-            state.get("normalized_constructed_state"), dict
-        ),
-        "legacy_declared_digest_present_but_ignored": isinstance(
-            state.get("normalized_constructed_state_declared_digest"), str
-        ),
-        "scenario_execution_seed": int(scenario["seed"]),
-        "contract_rules_seed": int(record["rules_randomness"]["rules_seed"]),
+        "ws42_readback_schema": readback["schema_version"],
+        "request_object_copied_as_proof": False,
+        "legacy_normalized_constructed_state_consumed": False,
+        "legacy_declared_digest_consumed": False,
+        "seed_binding": seed_evidence,
         "semantic_state": semantic_state,
         "native_validation": validation,
         "rules_rng_tape": rng_tape,
@@ -253,7 +286,7 @@ def main() -> int:
             unsupported_dimension_counts[dimension] = unsupported_dimension_counts.get(dimension, 0) + 1
 
     output = {
-        "schema_version": "commander-lab.ws42-full107-construction-probe/1.1.0",
+        "schema_version": "commander-lab.ws42-full107-construction-probe/1.2.0",
         "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.3",
         "candidate_commit": run_tax3.exact_provider_identity()[0],
         "engine_commit": os.environ.get("XMAGE_WS42_COMMIT", "UNKNOWN"),
