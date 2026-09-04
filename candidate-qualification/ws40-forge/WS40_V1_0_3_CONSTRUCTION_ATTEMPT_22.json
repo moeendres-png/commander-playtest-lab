@@ -1,0 +1,67 @@
+{
+  "schema_version": "ws40-v1.0.3-construction-attempt-evidence/1.0.0",
+  "attempt": 22,
+  "status": "FAIL",
+  "stage": "NATIVE_CONSTRUCTION_107",
+  "immutable_source_lock": {
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "contract": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "canonical_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "denominator": 107,
+    "requested_state_digest_pass_count": 107,
+    "historical_successor_credit_imported": 0
+  },
+  "forge_source_lock": {
+    "repository": "moeendres-png/forge",
+    "commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+    "version": "2.0.15-SNAPSHOT",
+    "process_boundary": "SEPARATE_GPL_JVM"
+  },
+  "commander_lab_head_executed": "5fd365c00af6643bfded992e1c149149f76e621f",
+  "workflow": {
+    "name": "WS40 Native Construction 107",
+    "run_id": 33918247071,
+    "job_id": 101170322593,
+    "artifact_id": 9954143107,
+    "artifact_name": "ws40-v1.0.3-native-construction-107-5fd365c00af6643bfded992e1c149149f76e621f",
+    "artifact_zip_sha256": "db9de0460ae64a8f2cab8efcd4b9113324e078ae0e053a24fdb2d265d6c8fa69",
+    "artifact_size_bytes": 83680
+  },
+  "gates": {
+    "immutable_contract_and_denominator": "PASS",
+    "forge_source_lock": "PASS",
+    "forge_build": "PASS",
+    "isolated_provider_compile": "PASS",
+    "construction_from_record_1": "FAIL"
+  },
+  "construction": {
+    "sequential_pass_count": 15,
+    "first_failure_index": 16,
+    "first_failure_fixture_id": "PILOT_REPLACEMENT_EFFECT",
+    "failure_class": "CONTROLLED_STOP_DURING_NATIVE_STATE_LOAD",
+    "stop_reason": "WS40_STATE_TARGET_UNBOUND:obj:P1-commander",
+    "pilot_choice_record": "PASS",
+    "pilot_pile_record": "PASS",
+    "records_1_through_15": "PASS"
+  },
+  "finding": {
+    "previous_pilot_pile_blocker_closed": true,
+    "description": "The active-v2 native_revealed normalizer remediation is runtime-verified by PILOT_PILE construction PASS. The next independent construction blocker is target binding for obj:P1-commander while constructing PILOT_REPLACEMENT_EFFECT.",
+    "classification": "UNADJUDICATED_PROVIDER_STATE_LOADER_TARGET_BINDING_GAP",
+    "do_not_assume": [
+      "Do not assume the command-zone commander is an ordinary spell target.",
+      "Do not assume the immutable replacement-effect record is defective.",
+      "Do not broaden target lookup heuristically or bypass Forge legality before inspecting the exact record and native semantics."
+    ]
+  },
+  "credit": {
+    "construction_credit": "0/107 COMPLETE-CORPUS CREDIT; 15 sequential diagnostic PASS only",
+    "behavior_runtime_credit": "0/107",
+    "historical_pass_imported": 0,
+    "provider_qualified": false
+  },
+  "next_action": "Extract the exact immutable v1.0.3 PILOT_REPLACEMENT_EFFECT record, inspect WS40_STATE_TARGET_UNBOUND binding code and exact Forge replacement/target semantics, classify the gap, persist the adjudication, apply only the minimum source-proven remediation, then rerun construction from record 1."
+}
