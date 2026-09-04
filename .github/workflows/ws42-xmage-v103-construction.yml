@@ -108,6 +108,8 @@ jobs:
             candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py \
             candidate-qualification/ws42-xmage-v1.0.3/build_denominator_v103.py \
             candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103_enriched.py \
+            candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103.py \
             candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py \
             candidate-qualification/ws39-xmage-successor/run_tax3.py \
             candidate-qualification/ws39-xmage-successor/canonical_v102.py
@@ -191,7 +193,7 @@ jobs:
       - name: Execute fresh fail-closed v1.0.3 full107 native construction probe
         run: |
           set -euo pipefail
-          python candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103.py \
+          python candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103_enriched.py \
             --contract _ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
             --output artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json \
             | tee artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_STDOUT.log
@@ -204,8 +206,36 @@ jobs:
           assert p['runtime_credit_granted'] is False
           assert p['legacy_request_echo_accepted_as_proof'] is False
           assert p['independent_normalized_construction_gate_closed'] is False
+          assert p['max_workers'] == 1
+          assert p['parallel_probe_qualified'] is False
           assert sum(p['counts'].values()) == 107
           assert p['candidate_commit'] == Path('artifacts/ws42-v103-construction/PROVIDER_COMMIT.txt').read_text().strip()
+          PY
+
+      - name: Independently normalize native constructed state
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103.py \
+            --contract _ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --probe artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json \
+            --output artifacts/ws42-v103-construction/WS42_INDEPENDENT_CONSTRUCTION_NORMALIZATION.json \
+            | tee artifacts/ws42-v103-construction/WS42_INDEPENDENT_CONSTRUCTION_NORMALIZATION_STDOUT.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          n = json.loads(Path('artifacts/ws42-v103-construction/WS42_INDEPENDENT_CONSTRUCTION_NORMALIZATION.json').read_text())
+          p = json.loads(Path('artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json').read_text())
+          provider = Path('artifacts/ws42-v103-construction/PROVIDER_COMMIT.txt').read_text().strip()
+          admitted = p['counts'].get('NATIVE_SETUP_PASS_AWAITING_INDEPENDENT_NORMALIZATION', 0)
+          assert n['denominator'] == 107 and n['record_count'] == 107
+          assert n['construction_credit_count'] == admitted
+          assert n['source_probe_native_setup_pass'] == admitted
+          assert n['candidate_commit'] == provider
+          assert n['historical_pass_imported'] is False
+          assert n['legacy_request_echo_consumed'] is False
+          assert n['whole_requested_state_object_copied'] is False
+          assert n['behavior_runtime_credit_granted'] is False
+          assert n['counts'].get('PASS_INDEPENDENT_NORMALIZATION', 0) == admitted
           PY
 
       - name: Seal construction evidence
