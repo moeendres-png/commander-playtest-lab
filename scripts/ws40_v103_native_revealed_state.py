@@ -73,15 +73,23 @@ def patch_state_java(path: Path) -> None:
 
 def patch_runner(path: Path) -> None:
     s = path.read_text(encoding="utf-8")
+    # Historical normalized_objects() path. Keep it correct for provenance, although the later
+    # WS40-v2 normalizer below is the execution-active implementation.
     s = once(
         s,
         '        for k in ("card_identity", "owner", "controller", "zone", "tapped", "face_down"):\n            row[k] = got[k]\n',
         '        for k in ("card_identity", "owner", "controller", "tapped", "face_down"):\n            row[k] = got[k]\n        # "revealed" is provider-neutral transient state. Forge proves it as a Library card\n        # remembered by the actual native RememberRevealed stack source; never echo the requested zone.\n        row["zone"] = "revealed" if got.get("native_revealed") is True else got["zone"]\n',
         "native revealed normalization",
     )
-    # Diagnostic only. The generated runner has a later WS40-v2 normalizer that supersedes the
-    # earlier normalized_objects() function above. On mismatch, expose the raw Forge card rows so
-    # the next remediation is based on native observation rather than inference.
+    # Execution-active WS40-v2 object normalizer. Derive the provider-neutral transient zone only
+    # from the raw Forge observation. Never inspect requested-state zone values.
+    s = once(
+        s,
+        '        row.update({\n            "card_identity": got["card_identity"],\n            "owner": got["owner"],\n            "controller": got["controller"],\n            "zone": got["zone"],\n            "tapped": bool(got["tapped"]),\n            "face_down": bool(got["face_down"]),\n        })\n',
+        '        row.update({\n            "card_identity": got["card_identity"],\n            "owner": got["owner"],\n            "controller": got["controller"],\n            "zone": "revealed" if got.get("native_revealed") is True else got["zone"],\n            "tapped": bool(got["tapped"]),\n            "face_down": bool(got["face_down"]),\n        })\n',
+        "active v2 native revealed normalization",
+    )
+    # Diagnostic remains fail-closed and exposes raw native rows on any future equality mismatch.
     s = once(
         s,
         '        if normalized != requested or nd != rd:\n            raise AssertionError(f"REQUESTED_NATIVE_STATE_MISMATCH:{record[\'fixture_id\']}:requested={canonical(requested)}:normalized={canonical(normalized)}")\n',
