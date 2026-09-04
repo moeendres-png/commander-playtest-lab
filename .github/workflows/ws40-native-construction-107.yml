@@ -13,6 +13,7 @@ on:
       - 'scripts/ws40_v103_native_revealed_state.py'
       - 'scripts/ws40_v103_fix_combat_target_type.py'
       - 'scripts/ws40_v103_lineage_target_resolution.py'
+      - 'scripts/ws40_v103_stack_observer_identity_projection.py'
       - 'scripts/ws40_verify_v103_contract_lock.py'
       - 'candidate-qualification/ws40-forge/run_native_construction_107.py'
       - '.github/workflows/ws40-native-construction-107.yml'
@@ -121,6 +122,7 @@ jobs:
           python scripts/ws40_v103_native_revealed_state.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
           ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
           cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
