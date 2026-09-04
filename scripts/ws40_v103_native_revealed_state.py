@@ -79,6 +79,15 @@ def patch_runner(path: Path) -> None:
         '        for k in ("card_identity", "owner", "controller", "tapped", "face_down"):\n            row[k] = got[k]\n        # "revealed" is provider-neutral transient state. Forge proves it as a Library card\n        # remembered by the actual native RememberRevealed stack source; never echo the requested zone.\n        row["zone"] = "revealed" if got.get("native_revealed") is True else got["zone"]\n',
         "native revealed normalization",
     )
+    # Diagnostic only. The generated runner has a later WS40-v2 normalizer that supersedes the
+    # earlier normalized_objects() function above. On mismatch, expose the raw Forge card rows so
+    # the next remediation is based on native observation rather than inference.
+    s = once(
+        s,
+        '        if normalized != requested or nd != rd:\n            raise AssertionError(f"REQUESTED_NATIVE_STATE_MISMATCH:{record[\'fixture_id\']}:requested={canonical(requested)}:normalized={canonical(normalized)}")\n',
+        '        if normalized != requested or nd != rd:\n            raw_cards = native.get("cards") or []\n            raise AssertionError(\n                f"REQUESTED_NATIVE_STATE_MISMATCH:{record[\'fixture_id\']}:"\n                f"requested={canonical(requested)}:normalized={canonical(normalized)}:"\n                f"raw_native_cards={canonical(raw_cards)}"\n            )\n',
+        "raw native revealed mismatch diagnostic",
+    )
     path.write_text(s, encoding="utf-8")
 
 
