@@ -1,244 +1,189 @@
-# WS-40 FINAL HANDOFF — TERMINAL BLOCKED
+# WS-40 FINAL HANDOFF — TERMINAL v1.0.3 FORGE SUCCESSOR REQUALIFICATION
 
-## Terminal Status
-
-- `WS40_WORKSTREAM_TERMINAL = YES`
-- `TASK_COMPLETE = NO`
-- `Completion Status = TERMINAL_BLOCKED`
-- `FORGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
-- `ARCHITECTURE_FREEZE = NO`
-
-WS-40 has reached its technically justified terminal state under the immutable WS-32 v1.0.2 successor contract. The bounded Forge Rules-Core remediation itself is reproducible and the final-lock provider compile/smoke gates pass, but mandatory successor construction and runtime qualification cannot be completed without violating fail-closed correctness constraints.
+**Workstream:** WS-40 — Forge AF04 Rules-Core implementation + complete successor requalification  
+**Terminal classification:** `TERMINAL_FAIL_IMMUTABLE_CONTRACT_DEFECT`  
+**Completion semantics:** `COMPLETE` means the WS-40 terminal adjudication is complete; Forge did **not** qualify against immutable v1.0.3.
 
 ## Source Lock
 
 ### Immutable successor contract
 
-- repository: `moeendres-png/commander-playtest-lab`
-- commit: `038d0f38635eecee4e331c99af41f148de267a26`
-- tree: `0d160128119f2bad30b220a17c43419b50b7edbe`
-- schema: `commander-lab.semantic-fixture-materialization/1.0.2`
-- canonical bundle digest: `ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23`
-- materialization SHA-256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
-- materialization blob: `926e9f9769f91137b1e6d26f1d83ba42ce3b2719`
-- exact denominator: 107 records
-  - Player Count: 4
-  - AF04: 24
-  - AF05: 20
-  - AF06: 17
-  - AF08: 36
-  - AF09: 5
-  - CARD_02: 1
+- Repository: `moeendres-png/commander-playtest-lab`
+- WS41 commit: `24152acf36b5a560c23ccacfed3f31d3039537eb`
+- WS41 tree: `428bbe58b2ea7b869200521092a8768108029b47`
+- Schema: `commander-lab.semantic-fixture-materialization/1.0.3`
+- Bundle digest: `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
+- Materialization SHA-256: `8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5`
+- Provider denominator: exactly `107`
+- WS41 supersession records only `PILOT_CHOICE` as requested-state changed from v1.0.2; `MICRO_PRIORITY` and `MICRO_STACK` are therefore unchanged.
 
-### Final Forge remediation
+### Exact predecessor record source
 
-- repository: `moeendres-png/forge`
-- branch: `foundry/ws40-af04-core-remediation`
-- commit: `49ea6df753fa6c749138296a1fe9421467136dda`
-- tree: `37ef36359cef74273ca40a2c1c676b8ede84a431`
-- Draft PR: `moeendres-png/forge#1`
+- WS32 commit: `038d0f38635eecee4e331c99af41f148de267a26`
+- WS32 tree: `0d160128119f2bad30b220a17c43419b50b7edbe`
+- v1.0.2 materialization SHA-256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
+- The frozen local evidence copy was re-hashed to that exact live WS41 predecessor SHA-256 before extracting the MICRO records.
 
-### Commander-Lab implementation actually exercised by final construction
+### Forge
 
-- repository: `moeendres-png/commander-playtest-lab`
-- branch: `ws40/forge-core-remediation-requalification`
-- implementation commit: `d5ff5e920c424d3a157e121f50a1704bbcd069f3`
-- implementation tree: `da9ad40a8db9b65310f2590a72e9a6af8922f5b6`
-- terminal evidence manifest commit: `73c619ed9f783bc18739d47be5a0f2243435e400`
-- Draft PR: `moeendres-png/commander-playtest-lab#154`
+- Repository: `moeendres-png/forge`
+- Branch: `foundry/ws40-af04-core-remediation`
+- Commit: `f83b77aa75e4f90852bef9243f3c5b32c37dc7e0`
+- Tree: `e2f124f30d55e43f838615a969af4e09e7009471`
+- Version: `2.0.15-SNAPSHOT`
+- Integration boundary: separate GPL JVM
+- Engine remediation: COMPLETE
 
 ## Work Completed
 
-1. Implemented the bounded Forge AF04 Rules-Core decision/validation boundary for combat-damage assignment and noncombat amount distribution.
-2. Kept legality in Forge Core; provider/controller receives only legal decision surfaces and Core revalidates selections before mutation.
-3. Migrated relevant consumers off the raw bypass surface and verified the raw-bypass audit.
-4. Added/verified staged same-step combat validation, including trample/deathtouch and legacy-order isolation behavior.
-5. Materialized an isolated GPL-side Forge successor state-loader/provider path without Forge AI/GUI fallback.
-6. Reconstructed and locked the exact immutable WS-32 v1.0.2 107-record denominator and requested-state digest procedure.
-7. Repaired provider defects encountered during construction work, including exact native priority restoration.
-8. Built a canonical reproducible Forge patch bundle from the bound baseline and removed the obsolete duplicate patch authority.
-9. Migrated active WS-40 Commander-Lab workflows to the final reproducible Forge lock.
-10. Hardened the construction proof so Rules-state values are no longer accepted from provider-bound request data when independent native observation is required.
-11. Executed final-lock provider smoke, state-loader compile and native construction workflows.
-12. Source-adjudicated the immutable `PILOT_CHOICE` contradiction as `CONTRACT_DEFECT` rather than weakening Forge or synthesizing a target.
-13. Froze machine-readable no-request-echo and terminal evidence artifacts.
-14. Created and retained both required Draft PRs; no merge was performed.
+WS-40 implemented and runtime-verified the bounded Forge Rules-Core combat/legal-surface remediation needed for the successor provider. The later `PILOT_DECLARE_ATTACKER` blocker was remediated through a Forge-native observer using `CombatUtil.getPossibleAttackers`, and Attempt #26 passed that mandatory record.
+
+Fresh v1.0.3 construction Attempt #26 then executed from record 1 and reached current-harness equality through record 55 before failing closed at mandatory record 56 `MICRO_PRIORITY`.
+
+The failure was not papered over. The target identity was adjudicated against the immutable successor lineage, the exact byte-verified v1.0.2 predecessor, and the v1.0.3 supersession record. A separate strict no-request-echo reaudit also invalidated historical construction credit for request-derived Rules-state fields.
 
 ## New Findings
 
-### 1. Native stack-history proof limitation
+### Terminal immutable contract defect
 
-Classification: `FORGE_PROVIDER_DEFECT`.
+Both `MICRO_PRIORITY` and `MICRO_STACK` request an existing stack item whose target is:
 
-The hardened qualification state-loader can materialize relevant native stack state but cannot independently prove historical casting facts required by the frozen requested-state projection for an already-materialized stack object, specifically facts such as:
+`obj:P2-bears`
 
-- `cast_complete`;
-- `costs_paid`;
-- selected mode / equivalent cast-history facts.
+That exact semantic identifier does not exist in either record. Instead each record contains two distinct P2-controlled `Grizzly Bears` objects:
 
-Using the requested values as proof would be request echo. The final implementation therefore fails closed with:
+- `obj:p2-bears` with lineage `line:obj:p2-bears`
+- `obj:micro-target` with lineage `line:obj:micro-target`
 
-`CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE`
+The frozen native procedure explicitly resumes the Lightning Bolt with target:
 
-This is preferable to false construction credit, but means complete no-request-echo construction qualification is not available on the current provider path.
+`obj:micro-target`
 
-### 2. Immutable `PILOT_CHOICE` contradiction
+This is not a harmless casing difference. Case-folding `obj:P2-bears` would select the other `Grizzly Bears` object, not the object named by the native procedure. Name/controller matching is also ambiguous. There is no record-local explicit alias or identity map authorizing a bridge.
 
-Classification: `CONTRACT_DEFECT`.
+Attempt #26 therefore correctly failed closed with:
 
-The frozen v1.0.2 record requests a completed Utopia Sprawl Aura spell on the stack with an empty target list, while only a later procedure says it will be attached to `obj:forest`. Current Aura casting semantics require choosing what the Aura spell will enchant as its target when casting. Forge's Utopia Sprawl definition is an Aura with `Enchant Forest`, and Forge correctly rejects a targetless SpellAbility before pushing a native stack instance.
+`WS40_STATE_TARGET_UNBOUND:obj:P2-bears`
 
-WS-40 cannot lawfully repair this by:
+Because record 56 is mandatory in the exact 107-record denominator, no provider-side remediation can achieve lawful 107/107 construction without guessing/fabricating identity, echoing the request, or mutating the immutable contract.
 
-- manufacturing `obj:forest` as an unrequested hidden target;
-- calculating target legality outside Forge Core;
-- adding a native target and concealing it from the normalized state;
-- weakening Forge to accept targetless Aura spells;
-- modifying immutable WS-32 v1.0.2.
+### Independent no-request-echo defect
 
-Even if the provider history-proof limitation were repaired, this independent immutable contract contradiction still prevents legal 107/107 construction under v1.0.2.
+The current generated construction path still derives at least `knowledge_state`, `rules_randomness`, `extra_turn_creation`, `elimination_trigger`, and `zone_move_event` from request-bound configuration. Transport hashing does not make these independent Forge observations.
+
+Accordingly:
+
+`NO_REQUEST_ECHO_GATE = FAIL_REMEDIATION_REQUIRED`
+
+This defect independently blocks full construction credit, but it is not the terminal root cause because the immutable MICRO target defect already makes the denominator impossible.
 
 ## Changes
 
-Material changes include:
-
-### Forge branch
-
-- Core-owned combat-damage decision/view/selection interfaces.
-- Core-owned combat assignment validation/revalidation.
-- Core-owned amount-distribution decision/view/selection interfaces.
-- migrated consumers and qualification tests.
-- canonical `.github/ws40/apply_ws40_core_patch.py` patch authority and reproducibility workflow/bundle.
-- obsolete historical duplicate patch tool removed.
-
-### Commander-Lab branch
-
-- isolated Forge provider/state-loader qualification path.
-- native construction harness and workflow.
-- final Forge pin migration for construction, provider smoke and state-loader compile.
-- source-hardening against Rules-state request echo.
-- `candidate-qualification/ws40-forge/WS40_CONTRACT_DEFECT_PILOT_CHOICE.json`.
-- `candidate-qualification/ws40-forge/WS40_NO_REQUEST_ECHO_AUDIT.json`.
-- `candidate-qualification/ws40-forge/WS40_FINAL_EVIDENCE_MANIFEST.json`.
-- this final handoff and terminal root project state.
+- Forge engine remediation remains locked at `f83b77aa…` / `e2f124f…`; no additional Forge source change was justified for the immutable MICRO defect.
+- Persisted the v1.0.3 MICRO target identity adjudication.
+- Persisted the terminal WS-40 adjudication.
+- Updated root `PROJECT_STATE.md` to terminal completion semantics.
+- Created this final handoff.
+- No immutable WS41 artifact was modified.
+- No PR was merged.
 
 ## Tests / Evidence
 
-### Forge Core acceptance
+### Attempt #26
 
-- stable native Core run: `33686520297` — PASS.
-- native WS-40 combat/amount-distribution matrix: 15/15 PASS.
-- raw-bypass audit: PASS.
+- Workflow: `WS40 Native Construction 107`
+- Run: `33935065462`
+- Run number: `26`
+- Job: `101221261106`
+- Artifact ID: `9959955219`
+- Artifact ZIP SHA-256: `32704c208c54455902091aec043a9bb6a5a49017694102661c893a993d3ca104`
+- Immutable WS41 lock: PASS
+- Exact denominator: PASS — 107
+- Requested-state digests: PASS — 107/107
+- Forge source lock: PASS
+- Forge build: PASS
+- Isolated provider compile: PASS
+- `PILOT_DECLARE_ATTACKER`: PASS / runtime verified
+- Records 1–55: current-harness equality diagnostics
+- Record 56 `MICRO_PRIORITY`: FAIL CLOSED — `WS40_STATE_TARGET_UNBOUND:obj:P2-bears`
 
-### Patch reproducibility
+The 55 earlier equalities are not elevated to full construction credit because the strict no-request-echo gate remains failed.
 
-- run: `33776615398` — PASS.
-- final Forge lock: `49ea6df753fa6c749138296a1fe9421467136dda` / `37ef36359cef74273ca40a2c1c676b8ede84a431`.
-- artifact ID: `9901943490`.
-- artifact size: 1870 bytes.
-- artifact SHA-256: `8c62d3c9c66f89b1818c021ccd001ca270ad68effd1fae1a029dc005065ace20`.
+### Referential-integrity evidence
 
-### Final-lock provider infrastructure
-
-- provider smoke run `33777908775` — PASS.
-- state-loader compile run `33777941124` — PASS.
-
-### Contract and digest preparation
-
-- immutable denominator audit: 107 records — PASS.
-- requested-state digest reconstruction: 107/107 — PASS.
-- absent-key canonicalization — PASS.
-
-### Final native construction attempt
-
-- workflow: `WS40 Native Construction 107`.
-- run: `33778130830`.
-- job: `100724863434`.
-- Commander-Lab implementation: `d5ff5e920c424d3a157e121f50a1704bbcd069f3`.
-- final Forge pin: `49ea6df753fa6c749138296a1fe9421467136dda` / `37ef36359cef74273ca40a2c1c676b8ede84a431`.
-- result: FAIL_CLOSED.
-- first six sequential records PASS:
-  1. `PLAYER_COUNT_2P`
-  2. `PLAYER_COUNT_3P`
-  3. `PLAYER_COUNT_4P`
-  4. `PLAYER_COUNT_5P`
-  5. `PILOT_PRIORITY`
-  6. `PILOT_TARGET`
-- first failure: `CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE`.
-- artifact ID: `9902469599`.
-- artifact size: 72655 bytes.
-- artifact SHA-256: `409ac38fa3a0c0836cec52eeed9e8385306737a22d39390dc3b914c2b76e0755`.
-
-Historical pre-hardening construction run `33742627946` reached 10 sequential PASS records and failed at `PILOT_CHOICE`; that run is retained solely as evidence supporting the immutable contract adjudication and receives no final successor credit.
+- WS41 predecessor SHA-256: `0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261`
+- Re-hashed frozen v1.0.2 materialization: exact SHA-256 match
+- `MICRO_PRIORITY` requested stack target: `obj:P2-bears`
+- `MICRO_STACK` requested stack target: `obj:P2-bears`
+- exact target semantic object: absent
+- distinct alternatives: `obj:p2-bears`, `obj:micro-target`
+- native-procedure target: `obj:micro-target`
+- explicit alias/identity bridge: absent
+- WS41 requested-state changed fixtures: only `PILOT_CHOICE`
 
 ## PASS / FAIL / UNKNOWN
 
-| Gate | Result |
+| Item | Result |
 |---|---|
-| Forge bounded Core remediation | PASS |
-| Forge Core compile / relevant tests | PASS |
-| WS40 native Core matrix | PASS — 15/15 |
-| Raw bypass audit | PASS |
-| Forge patch reproducibility | PASS |
-| Final-lock provider smoke | PASS |
-| Final-lock state-loader compile | PASS |
-| Immutable WS-32 denominator | PASS — 107 records |
-| Requested digest reconstruction | PASS — 107/107 |
-| Rules-state request-echo source hardening | PASS_FAIL_CLOSED |
-| Complete no-request-echo qualification | FAIL / NOT_GRANTED |
-| Native construction equality | FAIL — 6/107 sequential PASS on final-lock run |
-| `PILOT_CHOICE` contract adjudication | FAIL — `CONTRACT_DEFECT` |
-| Fresh native successor runtime 107/107 | NOT_RUN — blocked by construction gate |
-| Fresh AF04 successor runtime | NOT_RUN |
-| Fresh AF05 successor runtime | NOT_RUN |
-| Fresh AF06 successor runtime | NOT_RUN |
-| Fresh AF08 successor runtime | NOT_RUN |
-| Fresh AF09 successor runtime | NOT_RUN |
-| Fresh CARD_02 successor runtime | NOT_RUN |
+| WS41 immutable source lock | PASS |
+| Exact 107 provider denominator | PASS |
+| Forge source/build lock | PASS |
+| Forge engine remediation | PASS |
+| Native eligible-attacker remediation | PASS / RUNTIME VERIFIED |
+| `MICRO_PRIORITY` target referential integrity | FAIL — IMMUTABLE CONTRACT DEFECT |
+| Strict no-request-echo | FAIL_REMEDIATION_REQUIRED |
+| Construction 107/107 | FAIL / NOT_GRANTED |
+| Fresh behavior 107/107 | NOT_RUN |
+| AF04 24/24 | NOT_RUN / NOT_GRANTED |
+| AF05 20/20 | NOT_RUN / NOT_GRANTED |
+| AF06 17/17 | NOT_RUN / NOT_GRANTED |
+| AF08 36/36 | NOT_RUN / NOT_GRANTED |
+| AF09 5/5 | NOT_RUN / NOT_GRANTED |
+| CARD_02 | NOT_RUN / NOT_GRANTED |
 | Forge successor provider qualified | FAIL / NO |
-| Architecture Freeze | NO |
+| AF07 | OUT_OF_SCOPE / NOT_RUN |
+| Architecture Freeze | NOT_GRANTED |
+| WS-40 terminal adjudication | PASS / COMPLETE |
 
-`NOT_RUN`, `PARTIAL`, `UNKNOWN`, and historical results have not been promoted to PASS.
+No `UNKNOWN`, `PARTIAL`, source-only result, construction diagnostic, or `NOT_RUN` item has been converted into runtime PASS.
 
 ## Remaining Blockers
 
-1. **`FORGE_PROVIDER_DEFECT` — native stack cast/payment/mode history proof.**
-   If a future explicitly authorized engineering workstream reopens this path, it must obtain those facts from Forge-native execution, event history, or another source-proven native interface. It must not infer them from the requested-state document.
+No further in-scope Forge provider or engine remediation can lawfully repair immutable v1.0.3 record 56.
 
-2. **`CONTRACT_DEFECT` — immutable WS-32 v1.0.2 `PILOT_CHOICE`.**
-   This is outside WS-40's authorized remediation scope. Successor-contract authority must repair and refreeze a consistent record before a legal successor qualification can complete.
+Two upstream requirements remain before a successor Forge qualification can begin:
 
-The second blocker remains terminal even if the first is eventually repaired.
+1. issue a **new immutable materialization version** repairing `MICRO_PRIORITY` and `MICRO_STACK` target identity, without modifying v1.0.3 in place; and
+2. add referential-integrity linting requiring every semantic target identifier to resolve exactly within its authorized target namespace.
+
+The successor qualification must also retain and close the independent strict no-request-echo defect.
 
 ## Outputs
 
-- `candidate-qualification/ws40-forge/WS40_FINAL_EVIDENCE_MANIFEST.json`
-- `candidate-qualification/ws40-forge/WS40_NO_REQUEST_ECHO_AUDIT.json`
-- `candidate-qualification/ws40-forge/WS40_CONTRACT_DEFECT_PILOT_CHOICE.json`
+- `candidate-qualification/ws40-forge/WS40_V1_0_3_CONSTRUCTION_ATTEMPT_26.json`
+- `candidate-qualification/ws40-forge/WS40_V1_0_3_MICRO_TARGET_IDENTITY_ADJUDICATION.json`
+- `candidate-qualification/ws40-forge/WS40_V1_0_3_TERMINAL_ADJUDICATION.json`
+- `PROJECT_STATE.md`
 - `WS40_FINAL_HANDOFF.md`
-- root `PROJECT_STATE.md`
-- Forge Draft PR `#1`
-- Commander-Lab Draft PR `#154`
 
-### Process provenance
-
-During terminal evidence work, one accidental single-file commit temporarily replaced `PROJECT_STATE.md` with a literal placeholder. It was detected immediately and the WS-40 branch was reset exactly to the verified parent `d5ff5e920c424d3a157e121f50a1704bbcd069f3` before any subsequent evidence work. No legitimate WS-40 implementation or evidence was lost, and the accidental commit is not part of the branch history used by this handoff.
+PR policy at handoff: Commander Lab PR #154 and Forge PR #1 must remain open, Draft, and unmerged.
 
 ## Dependencies Unblocked
 
-- The Forge bounded AF04 Core remediation is available as a reproducible Draft PR for later integration decisions.
-- A successor-contract workstream now has a precise machine-readable `PILOT_CHOICE` contradiction to repair/refreeze.
-- A future provider-proof engineering workstream has an exact fail-closed native stack-history gap rather than an ambiguous request-echo risk.
-- Coordinator/integration work can treat WS-40 as terminally adjudicated, but **must not** treat Forge as successor-provider qualified.
+- WS-40 no longer needs further v1.0.3 runtime attempts.
+- The exact reason Forge cannot receive v1.0.3 successor qualification is isolated to a frozen contract defect rather than an unresolved Forge engine blocker.
+- Upstream successor-contract repair can proceed with a concrete referential-integrity regression case.
+- The existing Forge engine remediation remains reusable for the next correctly frozen successor contract.
+
+No AF07 work and no Architecture Freeze are unblocked or granted by this result.
 
 ## Exact Next Action
 
-External successor-contract authority must repair and refreeze the contradictory `PILOT_CHOICE` record into a new immutable successor contract. The next qualification workstream must then:
+Create a new provider-neutral successor materialization that:
 
-1. freshly lock the new contract commit, tree, schema, bundle/materialization digests and exact denominator;
-2. re-audit semantic executability and requested-state canonicalization;
-3. rerun Forge native construction from record 1 under the no-request-echo rule;
-4. import **no historical successor PASS credit** from WS-40;
-5. only after 107/107-equivalent construction succeeds, execute fresh runtime qualification for the entire new denominator.
+1. repairs the requested target identity in `MICRO_PRIORITY` and `MICRO_STACK` to one exact semantic referent consistent with the native procedure;
+2. adds linter coverage for dangling and ambiguous target references across the complete materialization;
+3. freezes that materialization under a new immutable version/source lock; and
+4. starts a fresh Forge successor-provider qualification from zero historical runtime credit, including a hardened no-request-echo construction path.
 
-If provider-proof engineering is separately and explicitly reopened before that contract repair, its first technical task is to implement Forge-native construction/observation of stack cast/payment/mode history without request echo. That work alone cannot qualify the current immutable v1.0.2 contract because the independent `PILOT_CHOICE` `CONTRACT_DEFECT` remains.
+Do not mutate v1.0.3. Keep PR #154 and Forge PR #1 Draft/open/unmerged until their respective follow-up disposition is explicitly authorized.
