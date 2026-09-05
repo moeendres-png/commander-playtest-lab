@@ -3,6 +3,8 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import mage.cards.Card;
+import mage.constants.CommanderCardType;
 import mage.counters.Counter;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
@@ -19,6 +21,7 @@ import mage.game.turn.PreCombatMainPhase;
 import mage.game.turn.PreCombatMainStep;
 import mage.game.turn.UpkeepStep;
 import mage.players.Player;
+import mage.watchers.common.CommanderInfoWatcher;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -119,6 +122,7 @@ final class XmageWs42NativeStateExtension {
             }
         }
 
+        restoreCommanderDamage(scenario, game, sessionPlayers);
         return validateSnapshotDimensions(scenario, game, sessionPlayers, semanticMap);
     }
 
@@ -183,16 +187,146 @@ final class XmageWs42NativeStateExtension {
             checks.add("P" + seat + ":life-native");
         }
 
+        JsonArray commanderDamageReadback = validateCommanderDamage(scenario, game, sessionPlayers);
         JsonObject result = new JsonObject();
-        result.addProperty("validator", "xmage-ws42-native-state-extension/1.0.0");
+        result.addProperty("validator", "xmage-ws42-native-state-extension/1.1.0");
         result.addProperty("rules_core_authoritative", true);
         result.addProperty("snapshot_restore_only", true);
         result.addProperty("rules_behavior_credit_granted", false);
         result.add("players", playersReadback);
         result.add("battlefield_objects", objectsReadback);
+        result.add("commander_damage_matrix", commanderDamageReadback);
         result.add("checks", checks);
         result.addProperty("valid", true);
         return result;
+    }
+
+    private static void restoreCommanderDamage(
+            JsonObject scenario,
+            Game game,
+            List<? extends Player> sessionPlayers
+    ) {
+        JsonArray specs = optionalArray(scenario, "ws42_commander_damage_matrix");
+        Map<String, Boolean> seen = new LinkedHashMap<>();
+        for (JsonElement element : specs) {
+            JsonObject spec = requireObject(element, "ws42-commander-damage");
+            String semanticCommanderId = requireString(spec, "source_commander_id");
+            int ownerSeat = requireInt(spec, "source_owner_seat");
+            String cardIdentity = requireString(spec, "source_card_identity");
+            int damagedSeat = playerSeat(requireString(spec, "damaged_player"), sessionPlayers.size());
+            int amount = requireInt(spec, "combat_damage");
+            if (amount < 0) {
+                throw fail("WS42_COMMANDER_DAMAGE_NEGATIVE:" + semanticCommanderId);
+            }
+            String key = semanticCommanderId + ":P" + damagedSeat;
+            if (seen.put(key, Boolean.TRUE) != null) {
+                throw fail("WS42_COMMANDER_DAMAGE_DUPLICATE:" + key);
+            }
+
+            Card commander = requireCommander(game, sessionPlayers, ownerSeat, cardIdentity, semanticCommanderId);
+            UUID watcherSource = commander.getMainCard().getId();
+            CommanderInfoWatcher watcher = game.getState().getWatcher(CommanderInfoWatcher.class, watcherSource);
+            if (watcher == null) {
+                throw fail("WS42_COMMANDER_DAMAGE_WATCHER_MISSING:" + semanticCommanderId);
+            }
+            Player damagedPlayer = currentPlayer(game, sessionPlayers, damagedSeat);
+            Integer previous = watcher.getDamageToPlayer().put(damagedPlayer.getId(), amount);
+            if (previous != null) {
+                throw fail("WS42_COMMANDER_DAMAGE_NATIVE_ENTRY_PREEXISTED:" + semanticCommanderId + ":P" + damagedSeat);
+            }
+        }
+    }
+
+    private static JsonArray validateCommanderDamage(
+            JsonObject scenario,
+            Game game,
+            List<? extends Player> sessionPlayers
+    ) {
+        JsonArray specs = optionalArray(scenario, "ws42_commander_damage_matrix");
+        Map<String, Integer> expectedByNativePair = new LinkedHashMap<>();
+        Map<String, String> semanticByNativePair = new LinkedHashMap<>();
+        JsonArray result = new JsonArray();
+
+        for (JsonElement element : specs) {
+            JsonObject spec = requireObject(element, "ws42-commander-damage");
+            String semanticCommanderId = requireString(spec, "source_commander_id");
+            int ownerSeat = requireInt(spec, "source_owner_seat");
+            String cardIdentity = requireString(spec, "source_card_identity");
+            int damagedSeat = playerSeat(requireString(spec, "damaged_player"), sessionPlayers.size());
+            int expected = requireInt(spec, "combat_damage");
+            Card commander = requireCommander(game, sessionPlayers, ownerSeat, cardIdentity, semanticCommanderId);
+            UUID watcherSource = commander.getMainCard().getId();
+            Player damagedPlayer = currentPlayer(game, sessionPlayers, damagedSeat);
+            CommanderInfoWatcher watcher = game.getState().getWatcher(CommanderInfoWatcher.class, watcherSource);
+            if (watcher == null) {
+                throw fail("WS42_COMMANDER_DAMAGE_READBACK_WATCHER_MISSING:" + semanticCommanderId);
+            }
+            int actual = watcher.getDamageToPlayer().getOrDefault(damagedPlayer.getId(), 0);
+            requireNative(actual == expected, "commander-damage:" + semanticCommanderId + ":P" + damagedSeat);
+
+            String nativePair = watcherSource + ":" + damagedPlayer.getId();
+            if (expectedByNativePair.put(nativePair, expected) != null) {
+                throw fail("WS42_COMMANDER_DAMAGE_NATIVE_PAIR_DUPLICATE:" + semanticCommanderId + ":P" + damagedSeat);
+            }
+            semanticByNativePair.put(nativePair, semanticCommanderId + ":P" + damagedSeat);
+
+            JsonObject row = new JsonObject();
+            row.addProperty("source_commander_id", semanticCommanderId);
+            row.addProperty("damaged_player", "P" + damagedSeat);
+            row.addProperty("combat_damage", actual);
+            result.add(row);
+        }
+
+        // Complete native-matrix check: no CommanderInfoWatcher may contain an
+        // unrequested damage entry in this freshly initialized qualification game.
+        for (int seat = 1; seat <= sessionPlayers.size(); seat++) {
+            Player owner = currentPlayer(game, sessionPlayers, seat);
+            for (UUID commanderId : game.getCommandersIds(owner, CommanderCardType.ANY, false)) {
+                Card card = game.getCard(commanderId);
+                if (card == null) {
+                    throw fail("WS42_COMMANDER_DAMAGE_ENUMERATION_CARD_MISSING:" + commanderId);
+                }
+                UUID watcherSource = card.getMainCard().getId();
+                CommanderInfoWatcher watcher = game.getState().getWatcher(CommanderInfoWatcher.class, watcherSource);
+                if (watcher == null) {
+                    throw fail("WS42_COMMANDER_DAMAGE_ENUMERATION_WATCHER_MISSING:" + card.getName());
+                }
+                for (Map.Entry<UUID, Integer> damage : watcher.getDamageToPlayer().entrySet()) {
+                    String nativePair = watcherSource + ":" + damage.getKey();
+                    Integer expected = expectedByNativePair.get(nativePair);
+                    if (expected == null) {
+                        throw fail("WS42_COMMANDER_DAMAGE_UNEXPECTED_NATIVE_ENTRY:" + card.getName() + ":" + damage.getKey());
+                    }
+                    requireNative(
+                            damage.getValue().equals(expected),
+                            "commander-damage-complete-matrix:" + semanticByNativePair.get(nativePair)
+                    );
+                }
+            }
+        }
+        return result;
+    }
+
+    private static Card requireCommander(
+            Game game,
+            List<? extends Player> sessionPlayers,
+            int ownerSeat,
+            String cardIdentity,
+            String semanticCommanderId
+    ) {
+        Player owner = currentPlayer(game, sessionPlayers, ownerSeat);
+        List<Card> matches = new ArrayList<>();
+        for (UUID commanderId : game.getCommandersIds(owner, CommanderCardType.ANY, false)) {
+            Card card = game.getCard(commanderId);
+            if (card != null && cardIdentity.equals(card.getName())) {
+                matches.add(card);
+            }
+        }
+        if (matches.size() != 1) {
+            throw fail("WS42_COMMANDER_DAMAGE_NATIVE_MAPPING_NOT_UNIQUE:"
+                    + semanticCommanderId + ":matches=" + matches.size());
+        }
+        return matches.get(0);
     }
 
     static JsonObject applyTemporalState(
