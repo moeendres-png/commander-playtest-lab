@@ -111,6 +111,7 @@ jobs:
             candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103_enriched.py \
             candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103.py \
             candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py \
+            candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py \
             candidate-qualification/ws39-xmage-successor/run_tax3.py \
             candidate-qualification/ws39-xmage-successor/canonical_v102.py
 
@@ -153,7 +154,7 @@ jobs:
             -Dxmage.dataCollectors.printGameLogs=false \
             -Dlog4j.configuration=file:${PWD}/.travis/log4j.properties
 
-      - name: Apply qualification overlays including WS42 readback
+      - name: Apply qualification overlays including WS42 native-state extension and readback
         run: |
           set -euo pipefail
           python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
@@ -165,6 +166,7 @@ jobs:
           python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_state_overlay.py
           python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_identity_overlay.py
           python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py
+          python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py
           git diff --check
           git -C vendor/engine-source/xmage diff --check
           git diff -- engine-bridge > artifacts/ws42-v103-construction/QUALIFICATION_BRIDGE_OVERLAY.patch
