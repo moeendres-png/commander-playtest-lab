@@ -3,11 +3,14 @@
 
 The extension restores only explicit requested snapshot fields through XMage
 native APIs and performs independent readback validation. It does not implement
-Magic legality or choose actions.
+Magic legality or choose actions. The same source-bound overlay also installs
+WS42 hidden-identity hardening before the bridge is built and tested.
 """
 from __future__ import annotations
 
 from pathlib import Path
+
+import apply_ws42_hidden_identity_overlay as hidden_identity
 
 ROOT = Path(__file__).resolve().parents[2]
 SCENARIO = ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs26Scenario.java"
@@ -128,6 +131,7 @@ def patch_session() -> None:
 def main() -> int:
     patch_scenario()
     patch_session()
+    hidden_identity.main()
     print("WS42_NATIVE_STATE_EXTENSION_OVERLAY=PASS")
     return 0
 
