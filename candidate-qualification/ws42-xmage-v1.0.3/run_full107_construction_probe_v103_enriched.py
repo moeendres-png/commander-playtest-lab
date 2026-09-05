@@ -29,6 +29,7 @@ _ORIGINAL_CAPTURE = base.capture_non_echo_readback
 # it; admission requires native restoration plus request-independent readback.
 WS42_IMPLEMENTED_NATIVE_DIMENSIONS = {
     "attachments",
+    "commander_damage_matrix",
     "counters",
     "nonpositive_life",
     "owner_controller_split",
