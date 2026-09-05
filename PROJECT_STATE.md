@@ -89,7 +89,33 @@ Current classification:
 
 `PROVIDER_NATIVE_COMBAT_LEGAL_SURFACE_OBSERVATION_GAP`
 
-This is not a contract defect. It is not permission to compute attacker legality in Python or the pilot. The next gate is a source-proven native Forge combat legal-surface audit and exact record-20 contract extraction.
+This is not a contract defect. It is not permission to compute attacker legality in Python or the pilot.
+
+## Native Combat Legal-Surface Capability Audit
+
+Persistent evidence:
+
+- file: `candidate-qualification/ws40-forge/WS40_V1_0_3_NATIVE_COMBAT_LEGAL_SURFACE_AUDIT.json`
+- Commander Lab audited base: `8b92849f8142e616fc738c944770a11c353439f8` / tree `29df2763726b28bebab70d1bab6735b2c0cc7a50`
+- Forge audited source: `f83b77aa75e4f90852bef9243f3c5b32c37dc7e0` / tree `e2f124f30d55e43f838615a969af4e09e7009471`
+- exact record: `PILOT_DECLARE_ATTACKER`
+- requested-state digest: `836a2232c59d0594b34cd326b72c3870449604cf4271143b184136ccc679f896`
+
+Source adjudication:
+
+- `CombatUtil.getPossibleAttackers(Player)` is a Forge-native Rules-Core observer for the broad eligible-attacker card surface.
+- It delegates to Forge `canAttack` legality, including creature status, tapped/phased state, summoning sickness/control history, timing/defender legality, goad and static cant-attack restrictions.
+- Forge `validateAttackers(Combat)` remains the authority for complete declaration legality; the observer bridge does not replace it.
+- Record 20 has one requested eligible attacker, `obj:p1-bears`, an untapped P1 Grizzly Bears with explicit continuous-control eligibility, and no attack-tax/must-attack complication.
+- The Attempt-25 failure is therefore a technically remediable provider observation gap, not a Forge Rules defect and not a contract defect.
+- No Forge-core source change is required for this exact construction gate.
+- Authorized remediation: the GPL-side provider may emit `eligible_attackers` only from `CombatUtil` native observation and project the resulting native Card through the existing semantic binding. The Python normalizer may consume that raw native field but may not calculate attacker legality or use requested eligible-attacker values.
+
+Status:
+
+`NATIVE_COMBAT_ELIGIBLE_ATTACKER_AUDIT = PASS_REMEDIATION_AUTHORIZED`
+
+Implementation/runtime verification is still pending at this checkpoint.
 
 ## Gate Matrix
 
@@ -102,8 +128,9 @@ This is not a contract defect. It is not permission to compute attacker legality
 | Forge source/build | PASS |
 | Isolated provider compile | PASS |
 | Identity target audit/adjudication | PASS / COMPLETE |
+| Native eligible-attacker source/callgraph audit | PASS / REMEDIATION AUTHORIZED |
 | Construction records 1–19 | PASS |
-| Construction record 20 `PILOT_DECLARE_ATTACKER` | FAIL CLOSED — native combat legal surface unavailable |
+| Construction record 20 `PILOT_DECLARE_ATTACKER` | FAIL CLOSED — observer implementation pending |
 | Complete construction 107/107 | NOT_GRANTED |
 | Fresh behavior runtime 0→107 | NOT_RUN |
 | Forge successor provider qualified | NO |
@@ -114,13 +141,11 @@ This is not a contract defect. It is not permission to compute attacker legality
 
 ## Exact Resume Sequence
 
-1. Freshly verify this branch HEAD.
-2. Extract the exact immutable WS41 `PILOT_DECLARE_ATTACKER` record and required `combat_state` legality surface.
-3. Inspect the exact Attempt-25 generated provider/runner and Forge source lock for native attacker-legality/action APIs.
-4. Persist a source/callgraph adjudication before modifying provider or runner.
-5. If Forge exposes a valid native Rules-Core legality surface, add only an observer bridge to that native surface; do not implement combat legality externally.
-6. Rerun exact construction from record 1 with zero historical credit and persist the next attempt.
-7. Continue record-by-record through all technically remediable provider-native blockers.
-8. If records 56/57 later fail on unresolved `obj:P2-bears`, do not alias/guess; adjudicate against frozen predecessor/authority evidence.
-9. Require exact `107/107` construction PASS before any fresh behavior-runtime credit.
-10. Only after construction PASS execute the complete v1.0.3 behavior denominator from record 1, then final audits/evidence/PR metadata/handoff without merging.
+1. Freshly verify this branch HEAD and the unchanged Forge source lock.
+2. Implement the narrow GPL-side native `eligible_attackers` observer bridge using `CombatUtil.getPossibleAttackers(Player)`; do not compute legality in Python or pilot code.
+3. Patch the construction normalizer to consume only the raw native `eligible_attackers` field and retain fail-closed handling for unsupported combat legal-surface dimensions.
+4. Rerun exact v1.0.3 construction from record 1 with zero historical credit and persist the next attempt.
+5. Continue record-by-record through all technically remediable provider-native blockers.
+6. If records 56/57 later fail on unresolved `obj:P2-bears`, do not alias/guess; adjudicate against frozen predecessor/authority evidence.
+7. Require exact `107/107` construction PASS before any fresh behavior-runtime credit.
+8. Only after construction PASS execute the complete v1.0.3 behavior denominator from record 1, then final audits/evidence/PR metadata/handoff without merging.
