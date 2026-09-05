@@ -9,9 +9,11 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
-    FullGamePilotBinding,
     FullGameReplayGate,
-    XmageFullGameRunner,
+)
+from commander_lab.engine.rules.full_game_ws18 import (
+    FullGamePilotBindingV2,
+    XmageFullGameRunnerV2,
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
@@ -42,8 +44,8 @@ def _deck(seat: int) -> RulesDeckInput:
     )
 
 
-def _binding(seat: int, deck: RulesDeckInput) -> FullGamePilotBinding:
-    return FullGamePilotBinding(
+def _binding(seat: int, deck: RulesDeckInput) -> FullGamePilotBindingV2:
+    return FullGamePilotBindingV2(
         seat=seat,
         deck_id=deck.deck_id,
         strategy="generic",
@@ -90,7 +92,7 @@ def main() -> None:
         decision_policy_version="xmage-full-game-policy-1.0.0",
     )
 
-    runner = XmageFullGameRunner(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
+    runner = XmageFullGameRunnerV2(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
     first = runner.run(scenario=scenario, decks=decks, pilots=pilots)
     second = runner.run(scenario=scenario, decks=decks, pilots=pilots)
 

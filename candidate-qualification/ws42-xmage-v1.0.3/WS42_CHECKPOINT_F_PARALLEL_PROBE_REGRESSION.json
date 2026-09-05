@@ -1,0 +1,65 @@
+{
+  "artifact_version": "commander-lab.ws42-checkpoint-f-parallel-probe-regression/1.0.0",
+  "status": "RUNTIME_VERIFIED_HARNESS_REGRESSION",
+  "provider_head": "4e42544256667987c84a62ab215294cb177ef909",
+  "provider_tree": "98f90c013b0a5254adf70c43edb611138ab5f108",
+  "workflow_run_id": 33908120889,
+  "artifact_id": 9952082495,
+  "artifact_name": "ws42-v103-construction-4e42544256667987c84a62ab215294cb177ef909",
+  "artifact_zip_sha256": "4504edb937b91f53ac6f62fb3bbe33d04d4640ff199503c867c2a2707c4a9808",
+  "probe_sha256": "b1aa7de1ff36932efca3a1fb594d2db1368dc94e761060e7b59df5289556be2d",
+  "source_lock": {
+    "expected_provider_commit": "4e42544256667987c84a62ab215294cb177ef909",
+    "observed_provider_commit": "4e42544256667987c84a62ab215294cb177ef909",
+    "trigger_event": "pull_request",
+    "trigger_github_sha": "3347d9e2e046741f0abf64f4c6f768dcf2bafd32",
+    "provider_head_binding_valid": true,
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "xmage_commit": "7bde812727817723616c575759f39bfc4cda4607",
+    "xmage_tree": "a44f32e9d34109ac3f272494f0e8eb9ea3e6280c"
+  },
+  "sha256_manifest_audit": {
+    "entries": 18,
+    "all_match": true
+  },
+  "probe": {
+    "schema_version": "commander-lab.ws42-full107-construction-probe/1.3.0",
+    "max_workers": 4,
+    "record_count": 107,
+    "counts": {
+      "DEFERRED_TO_FRESH_NATURAL_EXECUTOR": 7,
+      "FAIL_CLOSED_NATIVE_CONSTRUCTION": 26,
+      "FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION": 47,
+      "NATIVE_SETUP_PASS_AWAITING_INDEPENDENT_NORMALIZATION": 27
+    },
+    "non_echo_native_readback_records": 27,
+    "runtime_credit_granted": false,
+    "independent_normalized_construction_gate_closed": false
+  },
+  "defect": {
+    "id": "WS42-HARNESS-PARALLEL-CARD-REPOSITORY-001",
+    "classification": "QUALIFICATION_HARNESS_CONCURRENCY",
+    "symptoms": [
+      "full-game bridge timeout for import_deck",
+      "XMAGE_CARD_REPOSITORY_INIT_FAILED"
+    ],
+    "affected_records": 26,
+    "rules_semantics_implicated": false,
+    "remediation": "Serialize construction probe processes; parallel JVM card-repository initialization is not sufficiently isolated on the CI runner."
+  },
+  "credit": {
+    "construction_runtime_verified": "0/107",
+    "behavior_runtime_verified": "0/107",
+    "af04": "0/24",
+    "af05": "0/20",
+    "af06": "0/17",
+    "af08": "0/36",
+    "af09": "0/5",
+    "card_02": "NOT_RUN",
+    "xmage_successor_provider_qualified": false,
+    "af07_granted": false,
+    "architecture_freeze": false
+  },
+  "next_action": "Restore serialized per-record construction execution, rerun against an exact branch-head checkout, then independently normalize native readback before granting any construction credit."
+}

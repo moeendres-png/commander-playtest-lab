@@ -1,0 +1,58 @@
+{
+  "schema_version": "ws22-xmage-source-lock/1.0.0",
+  "target_repository": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "ws18_pr": 137,
+    "ws18_branch": "ws18/xmage-remediation-requalification-v2",
+    "ws18_head_commit": "b48c5ff3e54b492f172760d66a669156b85bc037",
+    "ws18_head_tree": "079288a2117b58c43bf546531f3baa98d14b8abf",
+    "historical_common_baseline": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "candidate_branch": "ws22/xmage-semantic-qualification-closure",
+    "candidate_parent_commit": "b48c5ff3e54b492f172760d66a669156b85bc037",
+    "license": "LicenseRef-Proprietary"
+  },
+  "xmage": {
+    "repository": "moeendres-png/mage",
+    "commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c",
+    "tree": "f0a028b265f9c008ea0aedc4cec6b8f14500b69f",
+    "version": "1.4.61",
+    "license": "MIT",
+    "license_file": "LICENSE.txt",
+    "license_blob": "3575e469d848ca405ccc8d0ac9d711c94120eb45"
+  },
+  "protocol": {
+    "id": "commander-lab.rules-service/1.1.0",
+    "source": "qualification/protocol/ws10r/RULES_SERVICE_PROTOCOL_V1.md",
+    "common_manifest": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json",
+    "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+    "denominator_count": 135,
+    "denominator_policy": "UNCHANGED_WS17_COMMON_DENOMINATOR"
+  },
+  "scope": {
+    "technical_player_counts": [2, 3, 4, 5],
+    "official_default_commander_decision_scope": 4,
+    "candidate_only": true,
+    "production_provider_selected": false,
+    "architecture_freeze_authorized": false,
+    "merge_authorized": false,
+    "holdout_consumption_authorized": false
+  },
+  "source_lock_verification": {
+    "verified_at_utc": "2026-08-29T21:11:00Z",
+    "pr_137_open": true,
+    "pr_137_draft": true,
+    "pr_137_merged": false,
+    "pr_137_head_moved": false,
+    "ws18_tree_matches": true,
+    "xmage_tree_matches": true,
+    "verification_method": "fresh GitHub connector reads before first WS22 write"
+  },
+  "evidence_policy": [
+    "UNKNOWN != PASS",
+    "PARTIAL != PASS",
+    "NOT_RUN != PASS",
+    "UNSUPPORTED != PASS",
+    "CODE_DERIVED != RUNTIME_VERIFIED",
+    "candidate-only tests may supplement but never replace the 135 common fixtures"
+  ]
+}

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Set;
  */
 final class XmageFullGameDecisionController {
 
-    static final String PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0";
+    static final String PROTOCOL_VERSION = "xmage-external-decision-protocol-1.1.0";
 
     record DecisionResponse(
             String decisionId,
@@ -51,6 +52,7 @@ final class XmageFullGameDecisionController {
     private final long timeoutMillis;
     private long decisionOffset;
     private JsonObject pendingRequest;
+    private Map<String, String> pendingExternalToNative = Map.of();
     private DecisionResponse response;
     private DecisionException terminalFailure;
     private boolean terminal;
@@ -69,7 +71,7 @@ final class XmageFullGameDecisionController {
 
     synchronized DecisionResponse request(
             Game game,
-            Player actor,
+            Player decisionSubject,
             String decisionClass,
             String prompt,
             int minimumSelections,
@@ -87,8 +89,8 @@ final class XmageFullGameDecisionController {
         if (pendingRequest != null) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: concurrent pending decision");
         }
-        if (game == null || actor == null) {
-            throw new DecisionException("BRIDGE_PROTOCOL_ERROR: game/actor unavailable");
+        if (game == null || decisionSubject == null) {
+            throw new DecisionException("BRIDGE_PROTOCOL_ERROR: game/decision subject unavailable");
         }
         if (decisionClass == null || decisionClass.isBlank()) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: decision_class is blank");
@@ -97,17 +99,74 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
+        XmageKnowledgeLedger ledger = XmageFullGameStateRedactor.knowledgeLedger(game);
+        Player decisionAuthority = ledger.decisionAuthority(game, decisionSubject);
+        XmageFullGameObservationGateway.SafeDecision safeDecision;
+        XmageDecisionOptionIdentity.Binding optionBinding;
+        try {
+            /*
+             * Keep native XMage option UUIDs in the privileged domain until the
+             * exact current actor-visible object projection is known. WS-34
+             * projected the options first and then attempted to externalize the
+             * already-opaque ids, producing opaque->opaque bindings which were
+             * later parsed as native UUIDs by XmageFullGamePlayer.
+             *
+             * The ordering below is intentionally one-way:
+             *   native XMage option -> actor-visible opaque option -> pilot
+             * while optionBinding retains the exact opaque -> native relation
+             * only for this pending DecisionFrame.
+             */
+            JsonObject privilegedActorView = ledger.snapshot(
+                    game,
+                    decisionAuthority,
+                    decisionSubject
+            );
+            JsonObject actorIdentityView = XmageActorIdentityProjection.actorView(
+                    game,
+                    decisionAuthority,
+                    privilegedActorView
+            );
+            JsonArray nativeOptions = legalOptions == null
+                    ? new JsonArray()
+                    : legalOptions.deepCopy();
+            optionBinding = XmageDecisionOptionIdentity.externalize(
+                    nativeOptions,
+                    XmageDecisionOptionIdentity.visibleNativeToSemantic(
+                            game,
+                            actorIdentityView
+                    )
+            );
+            safeDecision = XmageFullGameObservationGateway.validate(
+                    game,
+                    decisionAuthority,
+                    decisionSubject,
+                    prompt,
+                    context,
+                    optionBinding.externalOptions(),
+                    sourceObject
+            );
+        } catch (IllegalStateException exc) {
+            DecisionException failure = new DecisionException(exc.getMessage(), exc);
+            terminalFailure = failure;
+            recordFailure(failure.getMessage());
+            pendingExternalToNative = Map.of();
+            notifyAll();
+            throw failure;
+        }
+
         decisionOffset++;
-        String actorId = actor.getId().toString();
+        String actorId = decisionAuthority.getId().toString();
+        String subjectId = decisionSubject.getId().toString();
         String gameId = game.getId().toString();
         String decisionId = stableId(
                 gameId,
                 Long.toString(decisionOffset),
                 actorId,
+                subjectId,
                 decisionClass
         );
 
-        JsonObject actorView = XmageFullGameStateRedactor.actorView(game, actor);
+        JsonObject actorView = safeDecision.actorView();
         String actorViewHash = XmageAuditEventLog.stateHash(actorView);
 
         JsonObject request = new JsonObject();
@@ -116,22 +175,28 @@ final class XmageFullGameDecisionController {
         request.addProperty("decision_id", decisionId);
         request.addProperty("decision_offset", decisionOffset);
         request.addProperty("actor_id", actorId);
-        request.addProperty("seat", XmageFullGameStateRedactor.seat(game, actor.getId()));
+        request.addProperty("seat", XmageFullGameStateRedactor.seat(game, decisionAuthority.getId()));
+        request.addProperty("decision_subject_id", subjectId);
+        request.addProperty("decision_subject_seat", XmageFullGameStateRedactor.seat(game, decisionSubject.getId()));
         request.addProperty("decision_class", decisionClass);
-        request.addProperty("prompt", prompt == null ? "" : prompt);
-        request.add("context", context == null ? new JsonObject() : context.deepCopy());
+        request.addProperty("prompt", safeDecision.prompt());
+        request.add("context", safeDecision.context());
         request.addProperty("minimum_selections", minimumSelections);
         request.addProperty("maximum_selections", maximumSelections);
-        request.add("legal_options", legalOptions == null ? new JsonArray() : legalOptions.deepCopy());
+        request.add("legal_options", safeDecision.legalOptions());
         request.addProperty("public_state_reference", "actor-view:" + actorViewHash);
         request.addProperty("private_actor_state_reference", "actor-view:" + actorViewHash);
         request.addProperty("timeout_millis", timeoutMillis);
-        request.add("source_object", sourceObject == null ? JsonNull.INSTANCE : sourceObject.deepCopy());
+        request.add(
+                "source_object",
+                safeDecision.sourceObject() == null ? JsonNull.INSTANCE : safeDecision.sourceObject()
+        );
         request.addProperty("xmage_identity", game.getClass().getName());
         request.addProperty("protocol_identity", PROTOCOL_VERSION);
         request.add("pilot_state", actorView);
 
         pendingRequest = request;
+        pendingExternalToNative = optionBinding.externalToNative();
         response = null;
         recordDecisionRequested(request);
         notifyAll();
@@ -146,6 +211,7 @@ final class XmageFullGameDecisionController {
                 terminalFailure = failure;
                 recordFailure(failure.getMessage());
                 pendingRequest = null;
+                pendingExternalToNative = Map.of();
                 notifyAll();
                 throw failure;
             }
@@ -161,6 +227,7 @@ final class XmageFullGameDecisionController {
                 terminalFailure = failure;
                 recordFailure(failure.getMessage());
                 pendingRequest = null;
+                pendingExternalToNative = Map.of();
                 notifyAll();
                 throw failure;
             }
@@ -175,6 +242,7 @@ final class XmageFullGameDecisionController {
         DecisionResponse result = response;
         response = null;
         pendingRequest = null;
+        pendingExternalToNative = Map.of();
         notifyAll();
         return result;
     }
@@ -219,19 +287,19 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("PILOT_RESPONSE_INVALID: wrong actor");
         }
 
-        List<String> selected = stringArray(submitted, "selected_option_ids");
-        List<String> ordering = stringArray(submitted, "ordering");
+        List<String> selectedExternal = stringArray(submitted, "selected_option_ids");
+        List<String> orderingExternal = stringArray(submitted, "ordering");
         Integer numeric = optionalInteger(submitted, "numeric_choice");
 
         int min = pendingRequest.get("minimum_selections").getAsInt();
         int max = pendingRequest.get("maximum_selections").getAsInt();
-        if (selected.size() < min || selected.size() > max) {
+        if (selectedExternal.size() < min || selectedExternal.size() > max) {
             throw new DecisionException(
-                    "PILOT_RESPONSE_INVALID: selected " + selected.size()
+                    "PILOT_RESPONSE_INVALID: selected " + selectedExternal.size()
                             + " options, expected " + min + ".." + max
             );
         }
-        if (new HashSet<>(selected).size() != selected.size()) {
+        if (new HashSet<>(selectedExternal).size() != selectedExternal.size()) {
             throw new DecisionException("PILOT_RESPONSE_INVALID: duplicate option id");
         }
 
@@ -242,12 +310,12 @@ final class XmageFullGameDecisionController {
                 allowed.add(option.get("option_id").getAsString());
             }
         }
-        for (String optionId : selected) {
+        for (String optionId : selectedExternal) {
             if (!allowed.contains(optionId)) {
                 throw new DecisionException("ILLEGAL_ACTION: option not offered by XMage: " + optionId);
             }
         }
-        for (String optionId : ordering) {
+        for (String optionId : orderingExternal) {
             if (!allowed.contains(optionId)) {
                 throw new DecisionException("PILOT_RESPONSE_INVALID: ordering contains unknown option");
             }
@@ -262,14 +330,16 @@ final class XmageFullGameDecisionController {
             }
         }
 
+        List<String> selectedNative = nativeOptionIds(selectedExternal);
+        List<String> orderingNative = nativeOptionIds(orderingExternal);
         response = new DecisionResponse(
                 decisionId,
                 actorId,
-                List.copyOf(selected),
-                List.copyOf(ordering),
+                selectedNative,
+                orderingNative,
                 numeric
         );
-        recordDecisionAccepted(pendingRequest, selected, numeric);
+        recordDecisionAccepted(pendingRequest, selectedExternal, numeric);
         notifyAll();
     }
 
@@ -279,12 +349,14 @@ final class XmageFullGameDecisionController {
                 : failureCode.trim();
         String message = code + (detail == null || detail.isBlank() ? "" : ": " + detail.trim());
         terminalFailure = new DecisionException(message);
+        pendingExternalToNative = Map.of();
         recordFailure(message);
         notifyAll();
     }
 
     synchronized void markTerminal() {
         terminal = true;
+        pendingExternalToNative = Map.of();
         notifyAll();
     }
 
@@ -300,21 +372,31 @@ final class XmageFullGameDecisionController {
         return decisionOffset;
     }
 
+    private List<String> nativeOptionIds(List<String> externalIds) {
+        List<String> nativeIds = new ArrayList<>(externalIds.size());
+        for (String externalId : externalIds) {
+            String nativeId = pendingExternalToNative.get(externalId);
+            if (nativeId == null) {
+                throw new DecisionException(
+                        "COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER: missing native binding for "
+                                + externalId
+                );
+            }
+            nativeIds.add(nativeId);
+        }
+        return List.copyOf(nativeIds);
+    }
+
     private void recordDecisionRequested(JsonObject request) {
         JsonObject event = new JsonObject();
         event.addProperty("sequence", transcript.size() + 1L);
         event.addProperty("kind", "decision_requested");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        event.addProperty("decision_subject_seat", request.get("decision_subject_seat").getAsInt());
         event.addProperty("prompt", request.get("prompt").getAsString());
-        event.addProperty(
-                "public_state_reference",
-                request.get("public_state_reference").getAsString()
-        );
-        event.addProperty(
-                "private_actor_state_reference",
-                request.get("private_actor_state_reference").getAsString()
-        );
+        event.addProperty("public_state_reference", request.get("public_state_reference").getAsString());
+        event.addProperty("private_actor_state_reference", request.get("private_actor_state_reference").getAsString());
         JsonArray types = new JsonArray();
         JsonArray labels = new JsonArray();
         for (JsonElement element : request.getAsJsonArray("legal_options")) {
@@ -327,24 +409,20 @@ final class XmageFullGameDecisionController {
         transcript.add(event);
     }
 
-    private void recordDecisionAccepted(
-            JsonObject request,
-            List<String> selected,
-            Integer numeric
-    ) {
+    private void recordDecisionAccepted(JsonObject request, List<String> selected, Integer numeric) {
         JsonObject event = new JsonObject();
         event.addProperty("sequence", transcript.size() + 1L);
         event.addProperty("kind", "decision_accepted");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        event.addProperty("decision_subject_seat", request.get("decision_subject_seat").getAsInt());
         event.addProperty("prompt", request.get("prompt").getAsString());
         JsonArray selectedTypes = new JsonArray();
         JsonArray selectedLabels = new JsonArray();
         for (String selectedId : selected) {
             for (JsonElement element : request.getAsJsonArray("legal_options")) {
                 JsonObject option = element.getAsJsonObject();
-                if (option.has("option_id")
-                        && selectedId.equals(option.get("option_id").getAsString())) {
+                if (option.has("option_id") && selectedId.equals(option.get("option_id").getAsString())) {
                     selectedTypes.add(
                             option.has("option_type")
                                     ? option.get("option_type").getAsString()
@@ -439,7 +517,10 @@ final class XmageFullGameDecisionController {
         try {
             return object.get(property).getAsInt();
         } catch (RuntimeException exc) {
-            throw new DecisionException("PILOT_RESPONSE_INVALID: " + property + " must be integer", exc);
+            throw new DecisionException(
+                    "PILOT_RESPONSE_INVALID: " + property + " must be integer",
+                    exc
+            );
         }
     }
 }
