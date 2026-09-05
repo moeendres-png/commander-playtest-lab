@@ -96,7 +96,8 @@ This is not a contract defect. It is not permission to compute attacker legality
 Persistent evidence:
 
 - file: `candidate-qualification/ws40-forge/WS40_V1_0_3_NATIVE_COMBAT_LEGAL_SURFACE_AUDIT.json`
-- Commander Lab audited base: `8b92849f8142e616fc738c944770a11c353439f8` / tree `29df2763726b28bebab70d1bab6735b2c0cc7a50`
+- audit checkpoint commit: `7f70cbbd1d75cb6cefb91d0ba267532269daba32`
+- audit checkpoint tree: `2b846cb922ef0257d497b933cff555ff02086d5c`
 - Forge audited source: `f83b77aa75e4f90852bef9243f3c5b32c37dc7e0` / tree `e2f124f30d55e43f838615a969af4e09e7009471`
 - exact record: `PILOT_DECLARE_ATTACKER`
 - requested-state digest: `836a2232c59d0594b34cd326b72c3870449604cf4271143b184136ccc679f896`
@@ -115,7 +116,30 @@ Status:
 
 `NATIVE_COMBAT_ELIGIBLE_ATTACKER_AUDIT = PASS_REMEDIATION_AUTHORIZED`
 
-Implementation/runtime verification is still pending at this checkpoint.
+## Native Eligible-Attacker Observer Implementation
+
+Persistent implementation evidence:
+
+- file: `candidate-qualification/ws40-forge/WS40_V1_0_3_NATIVE_COMBAT_ELIGIBLE_ATTACKER_IMPLEMENTATION.json`
+- patch script: `scripts/ws40_v103_native_combat_legal_surface.py`
+- patch-script commit: `6db71aa795850d858c82f27d76e29e20bbee8d63`
+- patch-script SHA-256: `477aae5254e5b45e7fafc1d56e12bf64619c504528b95acd6fcd84e926871efe`
+- workflow implementation commit: `44885f77f80c1ae58bca4796223d3540ea2f3c0f`
+- workflow implementation tree: `8d647523e6bb2a2665930fd642b8ec39932a1726`
+- construction workflow run: `33935065462` / run number `26`
+- status at this checkpoint: `queued`
+
+Implementation boundary:
+
+- Java observes eligible attackers only via Forge `CombatUtil.getPossibleAttackers(activePlayer)`.
+- Native cards are projected through existing provider semantic binding and unbound identities fail closed.
+- The Python normalizer consumes only `raw_native.combat.eligible_attackers`, validates a duplicate-free string list, and performs no Magic legality calculation.
+- `eligible_blockers` remains deliberately fail-closed pending its own source-proven native observer audit if/when reached.
+- Forge source tree is unchanged, so the previously re-established Forge build/remediation lock remains the active Rules-Core lock; Attempt #26 still performs the fresh Forge build required by the construction workflow.
+
+Status:
+
+`NATIVE_COMBAT_ELIGIBLE_ATTACKER_IMPLEMENTATION = IMPLEMENTED_AWAITING_RUNTIME_VERIFICATION`
 
 ## Gate Matrix
 
@@ -129,8 +153,9 @@ Implementation/runtime verification is still pending at this checkpoint.
 | Isolated provider compile | PASS |
 | Identity target audit/adjudication | PASS / COMPLETE |
 | Native eligible-attacker source/callgraph audit | PASS / REMEDIATION AUTHORIZED |
+| Native eligible-attacker implementation | IMPLEMENTED / RUNTIME PENDING |
 | Construction records 1–19 | PASS |
-| Construction record 20 `PILOT_DECLARE_ATTACKER` | FAIL CLOSED — observer implementation pending |
+| Construction record 20 `PILOT_DECLARE_ATTACKER` | FAIL CLOSED historically; Attempt #26 pending |
 | Complete construction 107/107 | NOT_GRANTED |
 | Fresh behavior runtime 0→107 | NOT_RUN |
 | Forge successor provider qualified | NO |
@@ -141,11 +166,10 @@ Implementation/runtime verification is still pending at this checkpoint.
 
 ## Exact Resume Sequence
 
-1. Freshly verify this branch HEAD and the unchanged Forge source lock.
-2. Implement the narrow GPL-side native `eligible_attackers` observer bridge using `CombatUtil.getPossibleAttackers(Player)`; do not compute legality in Python or pilot code.
-3. Patch the construction normalizer to consume only the raw native `eligible_attackers` field and retain fail-closed handling for unsupported combat legal-surface dimensions.
-4. Rerun exact v1.0.3 construction from record 1 with zero historical credit and persist the next attempt.
-5. Continue record-by-record through all technically remediable provider-native blockers.
-6. If records 56/57 later fail on unresolved `obj:P2-bears`, do not alias/guess; adjudicate against frozen predecessor/authority evidence.
-7. Require exact `107/107` construction PASS before any fresh behavior-runtime credit.
-8. Only after construction PASS execute the complete v1.0.3 behavior denominator from record 1, then final audits/evidence/PR metadata/handoff without merging.
+1. Freshly verify this branch HEAD and unchanged Forge source lock.
+2. Observe Attempt #26 run `33935065462`; persist exact run/job/artifact/checksum and last passed record.
+3. If the eligible-attacker observer fails, classify the native root cause and remediate in scope without request echo or pilot legality.
+4. If it passes record 20 but a later record fails, continue record-by-record through all technically remediable provider-native blockers and persist each material adjudication.
+5. If records 56/57 later fail on unresolved `obj:P2-bears`, do not alias/guess; adjudicate against frozen predecessor/authority evidence.
+6. Require exact `107/107` construction PASS before any fresh behavior-runtime credit.
+7. Only after construction PASS execute the complete v1.0.3 behavior denominator from record 1, then final audits/evidence/PR metadata/handoff without merging.
