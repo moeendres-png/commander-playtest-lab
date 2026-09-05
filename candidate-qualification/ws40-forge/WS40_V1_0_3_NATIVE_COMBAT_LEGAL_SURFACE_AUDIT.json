@@ -1,0 +1,112 @@
+{
+  "adjudication": {
+    "chosen_strategy": "COMMANDER_LAB_GPL_PROVIDER_OBSERVER_BRIDGE_TO_FORGE_COMBATUTIL",
+    "contract_defect": false,
+    "forge_core_change_required_for_record_20": false,
+    "forge_rules_defect": false,
+    "pilot_legality_added": false,
+    "provider_defect": true,
+    "remediable_in_ws40": true,
+    "request_echo_allowed": false,
+    "root_cause": "The provider native snapshot omitted the requested combat legal surface. The construction normalizer correctly failed closed rather than echoing requested eligible_attackers.",
+    "rules_authority_preserved": true
+  },
+  "artifact_version": "commander-lab.ws40-native-combat-legal-surface-audit/1.0.0",
+  "audited_native_callgraph": [
+    {
+      "class": "forge.game.combat.CombatUtil",
+      "method": "getPossibleAttackers(Player)",
+      "role": "Enumerates controller creatures for which Forge native canAttack is true."
+    },
+    {
+      "class": "forge.game.combat.CombatUtil",
+      "method": "canAttack(Card)",
+      "role": "Checks whether the card can attack at least one Forge-native possible defender."
+    },
+    {
+      "class": "forge.game.combat.CombatUtil",
+      "method": "canAttack(Card, GameEntity)",
+      "role": "Native Rules legality checks include creature status, tapped state, phasing, summoning sickness, declare-attackers timing, defender legality, goad and static cant-attack restrictions."
+    },
+    {
+      "class": "forge.game.combat.CombatUtil",
+      "method": "validateAttackers(Combat)",
+      "role": "Native complete declaration validation remains the authority for full attack declarations; this audit does not replace it with broad eligible-card enumeration."
+    }
+  ],
+  "implementation_requirements": [
+    "Emit eligible_attackers only from Forge CombatUtil native observation in the GPL-side provider.",
+    "Project native Card identities through the existing semantic binding; do not use requested eligible_attackers values.",
+    "Emit deterministic sorted semantic IDs.",
+    "Fail closed if a Forge-native eligible attacker cannot be bound to a semantic object ID.",
+    "The Python construction normalizer may consume raw_native.combat.eligible_attackers but may not calculate attacker legality.",
+    "Do not claim this broad eligible-attacker observer is a replacement for Forge native complete attack-declaration validation.",
+    "Rerun exact v1.0.3 construction from record 1 with zero historical successor credit."
+  ],
+  "native_state_available": [
+    "active player",
+    "battlefield creature set",
+    "controller",
+    "tapped state",
+    "native summoning-sickness/control-history state",
+    "possible defenders",
+    "static attack restrictions"
+  ],
+  "native_state_unavailable_or_not_needed_for_record_20": [
+    "No requested eligible_attackers value is needed by the native observer.",
+    "Record 20 contains no attack tax, must-attack constraint or other effect requiring a broader legal-declaration enumeration for its requested eligible_attackers field."
+  ],
+  "next_action": "Implement the narrow GPL-side native eligible_attackers observer bridge and rerun the exact 107-record construction from record 1.",
+  "record_20": {
+    "fixture_id": "PILOT_DECLARE_ATTACKER",
+    "materialization_digest": "477466bec13e7955b4336bb6d02834394133fb88a619826ead51f84fad065d68",
+    "native_relevant_object": {
+      "card_identity": "Grizzly Bears",
+      "controlled_since_turn_began": true,
+      "controller": "P1",
+      "semantic_id": "obj:p1-bears",
+      "tapped": false,
+      "zone": "battlefield"
+    },
+    "obligation_digest": "1f2ea47296e2c98471c30647e4f7ff5d8563f0efa12fe124aa19cefab2c4bd82",
+    "requested_combat_state": {
+      "attackers": {},
+      "eligible_attackers": [
+        "obj:p1-bears"
+      ]
+    },
+    "requested_state_changed_from_v1_0_2": false,
+    "requested_state_digest": "836a2232c59d0594b34cd326b72c3870449604cf4271143b184136ccc679f896",
+    "temporal_state_relevant": {
+      "active_player": "P1",
+      "phase": "combat",
+      "priority_player": "P1",
+      "step": "declare_attackers"
+    }
+  },
+  "resume_failure": {
+    "artifact_id": 9957798178,
+    "artifact_zip_sha256": "4f4e181e94b64dc9286cbd82eed8b18e928de93cf308685a830984d51352bfe0",
+    "attempt": 25,
+    "error": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER:COMBAT_LEGAL_SURFACE_NATIVE_OBSERVATION_UNAVAILABLE:eligible_attackers",
+    "job_id": 101202788507,
+    "last_passed_record": 19,
+    "run_id": 33928737307,
+    "workflow_head": "31a9924de95932a0756de7299375cc04df90e5f3"
+  },
+  "scope": "RECORD_20_BROAD_ELIGIBLE_ATTACKER_CONSTRUCTION_SURFACE",
+  "source_lock": {
+    "commander_lab_head_before_audit_checkpoint": "8b92849f8142e616fc738c944770a11c353439f8",
+    "commander_lab_tree_before_audit_checkpoint": "29df2763726b28bebab70d1bab6735b2c0cc7a50",
+    "denominator": 107,
+    "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+    "historical_successor_runtime_credit_imported": 0,
+    "ws41_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "ws41_schema": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47"
+  },
+  "status": "PASS_REMEDIATION_AUTHORIZED"
+}

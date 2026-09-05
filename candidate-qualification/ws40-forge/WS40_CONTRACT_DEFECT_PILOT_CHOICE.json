@@ -1,0 +1,100 @@
+{
+  "schema_version": "ws40-contract-defect-evidence/1.0.0",
+  "status": "FAIL",
+  "classification": "CONTRACT_DEFECT",
+  "fixture_id": "PILOT_CHOICE",
+  "finding_id": "WS40-CONTRACT-PILOT-CHOICE-AURA-TARGET-001",
+  "source_lock": {
+    "commander_lab_resume_commit": "c9ccf6a667b1cedfe4fa2846548a23dc4852666f",
+    "commander_lab_resume_tree": "41cec9b326debbd5e64fc15dee47bedb8d68a8ca",
+    "forge_commit": "3f53c7c4e93c011e781680ae2a0c195dd71414c0",
+    "forge_tree": "481d3ee3b4798b78b4f00a93cc8e2cb54d05391f",
+    "ws32_commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "ws32_tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "ws32_materialization_path": "qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json",
+    "ws32_materialization_git_blob": "926e9f9769f91137b1e6d26f1d83ba42ce3b2719",
+    "ws32_materialization_sha256": "0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261"
+  },
+  "runtime_evidence": {
+    "construction_run": 33742627946,
+    "construction_job": 100607801377,
+    "artifact_id": 9888376535,
+    "artifact_zip_sha256": "be42770259f33bdf86a604647ab8a8878dc9d03af16e3b73510109a5f23b6a0c",
+    "sequential_pass_before_failure": 10,
+    "first_failure": "AssertionError: native stack object missing obj:utopia"
+  },
+  "frozen_record": {
+    "materialization_digest": "f255fb5e8aaa115c659442bd60d617a8ba5128b2df945e3b013c5c6c3a2f90ba",
+    "requested_state_digest": "4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044",
+    "execution_entry_mode": "NATIVE_STATE_LOAD",
+    "source_object": {
+      "semantic_id": "obj:utopia",
+      "card_identity": "Utopia Sprawl",
+      "zone": "stack",
+      "owner": "P1",
+      "controller": "P1"
+    },
+    "stack_state": {
+      "source_semantic_id": "obj:utopia",
+      "controller": "P1",
+      "cast_complete": true,
+      "costs_paid": true,
+      "modes": [],
+      "targets": []
+    },
+    "native_procedure": {
+      "step_id": "resolve-utopia",
+      "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+      "source_object": "obj:utopia",
+      "details": {
+        "attached_to": "obj:forest"
+      }
+    },
+    "normalization_stack_identity": "normalize by semantic source/controller/targets/modes/order, never provider object id",
+    "setup_native_structural_validation_required": true
+  },
+  "ws32_builder_evidence": {
+    "complete_stack_sets_cast_complete_true": true,
+    "complete_stack_sets_costs_paid_true": true,
+    "complete_stack_uses_stack_state_targets": true,
+    "pilot_choice_has_stack_target_override": false,
+    "construction_precedes_native_transaction": true,
+    "construction_operation": "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE"
+  },
+  "canonical_rules_authority": {
+    "checked_on": "2026-09-03",
+    "source": "Wizards of the Coast Magic keyword glossary",
+    "url": "https://magic.wizards.com/en/keyword-glossary",
+    "rule_fact": "Casting an Aura spell requires choosing the object or player it will enchant as that spell's target."
+  },
+  "forge_evidence": {
+    "utopia_sprawl_card_path": "forge-gui/res/cardsfolder/u/utopia_sprawl.txt",
+    "utopia_sprawl_card_blob": "b1a0b4e41d8dd732a566c8236b85fa7cacabad4f",
+    "utopia_sprawl_native_definition": [
+      "Types:Enchantment Aura",
+      "K:Enchant:Forest"
+    ],
+    "magic_stack_path": "forge-game/src/main/java/forge/game/zone/MagicStack.java",
+    "magic_stack_blob": "af8a8ccc5e21755cfaca63b87dd96e2c9787a8ca",
+    "stack_behavior": "MagicStack.add returns without push for a non-copied SpellAbility when hasLegalTargeting(sp) is false."
+  },
+  "analysis": {
+    "contradiction": "The immutable requested state asserts a completed Utopia Sprawl Aura spell on the stack with no targets. Current Magic rules require an Aura spell to have an appropriate target when cast. The later native_procedure attached_to field cannot retroactively satisfy the requested construction state because the contract requires native construction/validation before the transaction, and the normalization explicitly retains stack targets.",
+    "why_not_provider_patch": "Adding obj:forest as a hidden construction target would alter the requested semantic stack state and would either fail requested-state digest equality or require the normalizer to conceal native target state. Both violate the frozen construction and no-request-echo contracts.",
+    "why_not_forge_patch": "Permitting an Aura spell with no required target onto the native stack would weaken Forge rules correctness and contradict current Magic rules.",
+    "why_not_headless_api_defect": "The headless API is rejecting an impossible requested rules state rather than failing to represent a legal state.",
+    "classification": "CONTRACT_DEFECT"
+  },
+  "credit_effect": {
+    "pilot_choice_construction_credit": "NO_RUNTIME_CREDIT",
+    "construction_107": "BLOCKED",
+    "fresh_runtime_107": "BLOCKED_BY_CONSTRUCTION_GATE",
+    "forge_successor_provider_qualified": false,
+    "architecture_freeze": false
+  },
+  "required_resolution": {
+    "owner": "successor-contract authority, not WS-40 Forge remediation",
+    "minimum_semantic_repair": "Issue a new successor contract version whose PILOT_CHOICE requested stack state contains the legal Utopia Sprawl target obj:forest (or otherwise redesigns the scenario to a rules-legal native starting state), then regenerate requested-state/materialization/bundle digests and requalify providers against that new immutable version.",
+    "ws40_must_not_modify_ws32": true
+  }
+}

@@ -1,0 +1,99 @@
+name: WS40 v1.0.3 Surface Audit
+
+on:
+  push:
+    branches: [ws40/forge-core-remediation-requalification]
+    paths:
+      - '.github/workflows/ws40-v103-surface-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  WS41_COMMIT: 24152acf36b5a560c23ccacfed3f31d3039537eb
+  WS41_TREE: 428bbe58b2ea7b869200521092a8768108029b47
+  WS41_MATERIALIZATION_SHA256: 8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS41_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws41
+          fetch-depth: 1
+      - name: Verify immutable lock and derive exact 107 surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS41_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS41_TREE"
+          m=contract-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json
+          test "$(sha256sum "$m" | awk '{print $1}')" = "$WS41_MATERIALIZATION_SHA256"
+          python - <<'PY'
+          import collections, json, os
+          from pathlib import Path
+          q=Path('contract-lock/qualification/ws41')
+          b=json.load(open(q/'SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json'))
+          d=json.load(open(q/'WS41_PROVIDER_DENOMINATOR_107.json'))
+          ids=d['fixture_ids']; by={r['fixture_id']:r for r in b['records']}
+          assert len(ids)==107 and len(set(ids))==107
+          rows=[]; zones=collections.Counter(); ops=collections.Counter(); families=collections.Counter(); decisions=collections.Counter()
+          stack_rows=[]; rng_rows=[]; knowledge_rows=[]
+          for i,fid in enumerate(ids,1):
+            r=by[fid]; families[r['fixture_family']]+=1
+            rz=collections.Counter(x.get('zone') for x in r.get('semantic_objects',[]) if x.get('zone'))
+            zones.update(rz)
+            rops=[x.get('operation') for x in r.get('native_procedure',[]) if x.get('operation')]
+            ops.update(rops)
+            dfs=[x.get('decision_family') for x in r.get('decision_script',[]) if x.get('decision_family')]
+            decisions.update(dfs)
+            st=r.get('stack_state') or []
+            if st: stack_rows.append({'fixture_id':fid,'entries':st})
+            rr=r.get('rules_randomness') or {}
+            if rr.get('channels') or rr.get('predetermined_semantic_draws'): rng_rows.append({'fixture_id':fid,'rules_randomness':rr})
+            ks=r.get('knowledge_state') or {}
+            if any(v.get('known_object_identities') or v.get('known_library_ranges') or v.get('temporary_permissions') or v.get('face_down_look_permissions') for v in ks.get('viewer_states',[])):
+              knowledge_rows.append({'fixture_id':fid,'knowledge_state':ks})
+            rows.append({
+              'index':i,'fixture_id':fid,'fixture_family':r['fixture_family'],
+              'requested_state_digest':r['requested_state_digest'],
+              'zones':dict(sorted(rz.items())),'native_operations':rops,'decision_families':dfs,
+              'required_events':(r.get('expected_events') or {}).get('required_events',[]),
+              'forbidden_events':(r.get('expected_events') or {}).get('forbidden_events',[]),
+              'terminal_postconditions':r.get('terminal_postconditions',[]),
+            })
+          out={
+            'schema_version':'commander-lab.ws40-v1.0.3-surface-audit/1.0.0',
+            'status':'PASS','source_commit':os.environ['WS41_COMMIT'],'source_tree':os.environ['WS41_TREE'],
+            'denominator':107,'historical_runtime_credit_imported':0,
+            'family_counts':dict(sorted(families.items())),'zone_counts':dict(sorted(zones.items())),
+            'native_operation_counts':dict(sorted(ops.items())),'decision_family_counts':dict(sorted(decisions.items())),
+            'stack_state_record_count':len(stack_rows),'stack_state_records':stack_rows,
+            'rules_randomness_record_count':len(rng_rows),'rules_randomness_records':rng_rows,
+            'nonempty_knowledge_record_count':len(knowledge_rows),'nonempty_knowledge_records':knowledge_rows,
+            'rows':rows,
+          }
+          p=Path('candidate-qualification/ws40-forge/WS40_V1_0_3_SURFACE_AUDIT_107.json')
+          p.write_text(json.dumps(out,sort_keys=True,indent=2)+'\n')
+          print('WS40_V103_SURFACE_AUDIT=PASS')
+          print('UNIQUE_NATIVE_OPERATIONS',len(ops))
+          print('UNIQUE_ZONES',len(zones))
+          PY
+      - name: Persist audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add candidate-qualification/ws40-forge/WS40_V1_0_3_SURFACE_AUDIT_107.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'ws40: persist immutable v1.0.3 surface audit'
+          git push origin HEAD:ws40/forge-core-remediation-requalification

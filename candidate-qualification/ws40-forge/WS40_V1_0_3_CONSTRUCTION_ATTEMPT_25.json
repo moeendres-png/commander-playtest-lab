@@ -1,0 +1,89 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 25,
+  "status": "FAIL_PROVIDER_NATIVE_OBSERVATION_UNAVAILABLE",
+  "qualification_credit": 0,
+  "provider_semantics_reached": true,
+  "source_lock": {
+    "commander_lab_head": "31a9924de95932a0756de7299375cc04df90e5f3",
+    "commander_lab_tree": "1509497da25430431dba8cfe793954b75de60e83",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_schema": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "ws41_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471"
+  },
+  "verified_steps": {
+    "immutable_contract_lock": "PASS",
+    "requested_state_digests": "107/107 PASS",
+    "forge_source_lock": "PASS",
+    "forge_build": "PASS",
+    "provider_compile": "PASS",
+    "lineage_resolver_patch": "PASS",
+    "stack_observer_identity_projection_patch": "PASS",
+    "construction_records_completed_before_failure": 19,
+    "construction_records_passed_before_failure": 19,
+    "construction_failure_record_index": 20,
+    "construction_failure_fixture_id": "PILOT_DECLARE_ATTACKER"
+  },
+  "passed_fixture_ids": [
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_4P",
+    "PLAYER_COUNT_5P",
+    "PILOT_PRIORITY",
+    "PILOT_TARGET",
+    "PILOT_CHOOSE_OBJECT",
+    "PILOT_TARGET_AMOUNT",
+    "PILOT_MULLIGAN",
+    "PILOT_CHOOSE_USE",
+    "PILOT_CHOICE",
+    "PILOT_PILE",
+    "PILOT_MANA_PAYMENT",
+    "PILOT_ANNOUNCE_X",
+    "PILOT_MULTI_AMOUNT",
+    "PILOT_REPLACEMENT_EFFECT",
+    "PILOT_TRIGGER_ORDER",
+    "PILOT_CHOOSE_MODE",
+    "PILOT_CHOOSE_ABILITY"
+  ],
+  "workflow": {
+    "run_id": 33928737307,
+    "job_id": 101202788507,
+    "conclusion": "failure",
+    "failed_step": "Execute exact immutable v1.0.3 107 native construction gate from record 1"
+  },
+  "artifact": {
+    "artifact_id": 9957798178,
+    "name": "ws40-v1.0.3-native-construction-107-31a9924de95932a0756de7299375cc04df90e5f3",
+    "zip_sha256": "4f4e181e94b64dc9286cbd82eed8b18e928de93cf308685a830984d51352bfe0",
+    "size_bytes": 84756
+  },
+  "failure": {
+    "fixture_id": "PILOT_DECLARE_ATTACKER",
+    "record_index": 20,
+    "exception": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER:COMBAT_LEGAL_SURFACE_NATIVE_OBSERVATION_UNAVAILABLE:eligible_attackers",
+    "failure_stage": "NORMALIZE_NATIVE_CONSTRUCTION_STATE",
+    "requested_vs_native_equality_not_reached": true,
+    "classification": "PROVIDER_NATIVE_COMBAT_LEGAL_SURFACE_OBSERVATION_GAP",
+    "contract_defect_not_granted": true,
+    "rules_legality_in_pilot_forbidden": true
+  },
+  "progression": {
+    "attempt_24_first_fail_record": 16,
+    "attempt_25_first_fail_record": 20,
+    "pilot_replacement_effect_now_passes": true,
+    "micro_priority_not_reached": true,
+    "micro_stack_not_reached": true
+  },
+  "hardening": {
+    "historical_successor_credit_imported": 0,
+    "request_echo_forbidden": true,
+    "python_combat_legality_forbidden": true,
+    "pilot_combat_legality_forbidden": true,
+    "next_change_requires_native_forge_combat_legal_surface_source_audit": true
+  },
+  "next_action": "Inspect the exact PILOT_DECLARE_ATTACKER v1.0.3 record and the current construction runner/provider combat projection. Audit Forge native combat legality/action APIs for a source-proven eligible-attacker observation surface. Persist adjudication before any provider or runner modification."
+}

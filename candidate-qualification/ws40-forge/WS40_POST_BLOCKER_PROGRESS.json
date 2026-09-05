@@ -1,0 +1,63 @@
+{
+  "schema_version": "ws40-post-blocker-progress/1.0.0",
+  "authority": "NON_CANONICAL_PROGRESS_EVIDENCE",
+  "canonical_state_file": "PROJECT_STATE.md",
+  "ws40_status": "BLOCKED_CONTRACT_DEFECT",
+  "task_complete": false,
+  "forge_successor_provider_qualified": false,
+  "immutable_contract_blocker": "WS40-CONTRACT-PILOT-CHOICE-AURA-TARGET-001",
+  "forge_previous_runtime_accepted_lock": {
+    "commit": "3f53c7c4e93c011e781680ae2a0c195dd71414c0",
+    "tree": "481d3ee3b4798b78b4f00a93cc8e2cb54d05391f"
+  },
+  "forge_repro_candidate_lock": {
+    "commit": "86c8a8cb14d06948613796557439c244aaa3573d",
+    "tree": "1beac73f6c23e466a2c513222c809b72959c72fa",
+    "engine_test_delta_from_previous_lock": "NONE",
+    "administrative_delta": [
+      "removed tools/ws40_apply_core_remediation.py",
+      "added .github/workflows/ws40-patch-repro.yml"
+    ]
+  },
+  "patch_repro": {
+    "workflow_run": 33773380494,
+    "job": 100708958056,
+    "status_at_checkpoint": "QUEUED",
+    "baseline_commit": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+    "baseline_tree": "abd80b8e9ba1178bcd8e8fb3147ed6df292b4597",
+    "expected_materialized_engine_test_files": 15,
+    "requires": [
+      "exact source reproduction",
+      "patcher idempotence",
+      "raw bypass audit",
+      "compile",
+      "forge-game tests",
+      "WS40 native combat matrix",
+      "checksummed artifact"
+    ]
+  },
+  "draft_prs": {
+    "forge": {
+      "number": 1,
+      "draft": true,
+      "merged": false,
+      "base": "master",
+      "head": "foundry/ws40-af04-core-remediation"
+    },
+    "commander_lab": {
+      "number": 154,
+      "draft": true,
+      "merged": false,
+      "base": "main",
+      "head": "ws40/forge-core-remediation-requalification"
+    }
+  },
+  "stale_execution_pin_inventory": [
+    ".github/workflows/ws40-forge-provider-smoke.yml",
+    ".github/workflows/ws40-native-construction-107.yml",
+    ".github/workflows/ws40-successor-state-loader-compile.yml",
+    "candidate-qualification/ws40-forge/run_native_construction_107.py"
+  ],
+  "pin_migration_rule": "Do not rewrite historical evidence locks. Migrate only execution pins after patch reproducibility PASS at the final Forge lock.",
+  "exact_next_action": "Resolve run 33773380494. On PASS, migrate the four execution pins to 86c8a8cb14d06948613796557439c244aaa3573d / 1beac73f6c23e466a2c513222c809b72959c72fa and rerun provider smoke/state-loader compile. Construction remains blocked by immutable WS-32 v1.0.2 CONTRACT_DEFECT."
+}

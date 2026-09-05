@@ -1,0 +1,61 @@
+name: WS40 v1.0.3 Identity Normalization Adjudication
+
+on:
+  push:
+    branches: [ws40/forge-core-remediation-requalification]
+    paths:
+      - '.github/workflows/ws40-v103-identity-normalization-adjudication.yml'
+      - 'candidate-qualification/ws40-forge/adjudicate_v103_identity_normalization_projection.py'
+      - 'candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_AUDIT.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  adjudicate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ws40/forge-core-remediation-requalification
+          fetch-depth: 0
+      - name: Adjudicate narrow observer identity projection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 candidate-qualification/ws40-forge/adjudicate_v103_identity_normalization_projection.py \
+            candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_AUDIT.json \
+            --out candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_ADJUDICATION.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_ADJUDICATION.json'))
+          assert p['historical_runtime_credit_imported']==0
+          assert p['projection_break_count']==0
+          assert p['ambiguous_target_count']==0
+          assert p['duplicate_lineage_suffix_group_count']==0
+          assert p['safe_for_observer_stack_card_identity_projection'] is True
+          assert p['qualification_credit_granted'] is False
+          assert p['unresolved_target_count']==2
+          PY
+      - name: Persist adjudication
+        shell: bash
+        run: |
+          set -euo pipefail
+          report='candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_ADJUDICATION.json'
+          if git diff --quiet -- "$report" && git ls-files --error-unmatch "$report" >/dev/null 2>&1; then
+            echo 'Adjudication already persisted.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$report"
+          git commit -m 'ws40: persist refined identity normalization adjudication'
+          git push origin HEAD:ws40/forge-core-remediation-requalification
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws40-v103-identity-normalization-adjudication
+          path: candidate-qualification/ws40-forge/WS40_V1_0_3_IDENTITY_NORMALIZATION_ADJUDICATION.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,75 @@
+name: WS40 Successor State Loader Compile
+
+on:
+  push:
+    branches: [ws40/forge-core-remediation-requalification]
+    paths:
+      - 'qualification/providers/forge/gpl/Ws40SuccessorState.java'
+      - 'scripts/ws40_apply_successor_state_overlay.py'
+      - 'scripts/ws40_fix_successor_state_java.py'
+      - '.github/workflows/ws40-successor-state-loader-compile.yml'
+  workflow_dispatch:
+
+env:
+  FORGE_COMMIT: 49ea6df753fa6c749138296a1fe9421467136dda
+  FORGE_TREE: 37ef36359cef74273ca40a2c1c676b8ede84a431
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build exact Forge game
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+      - name: Resolve classpath
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/dependency-classpath.txt"
+      - name: Generate and compile state-loader provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          out=artifacts/ws40-state-loader/generated
+          python scripts/ws40_generate_forge_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py \
+            --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python scripts/ws40_apply_successor_state_overlay.py \
+            --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat dependency-classpath.txt)"
+          mkdir -p artifacts/ws40-state-loader/classes
+          javac -cp "$cp" -d artifacts/ws40-state-loader/classes \
+            "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" \
+            "$out/java/forge/game/player/Ws23ForgeBootstrap.java" \
+            "$out/java/forge/game/player/Ws40SuccessorState.java"
+          echo PASS > artifacts/ws40-state-loader/COMPILE_PASS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws40-successor-state-loader-compile-${{ github.sha }}
+          path: artifacts/ws40-state-loader/
+          if-no-files-found: error
+          retention-days: 90

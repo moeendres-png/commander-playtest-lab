@@ -1,0 +1,31 @@
+{
+  "mandatory_statements": [
+    "SOURCE PATCH != PROVIDER QUALIFIED",
+    "UNIT TEST PASS != SUCCESSOR RUNTIME PASS"
+  ],
+  "must_rerun": {
+    "af04": "all AF04 denominator records",
+    "af05": true,
+    "af06": true,
+    "af08": true,
+    "af09": true,
+    "card_02": "required",
+    "full_denominator": 107,
+    "hidden_information": "required",
+    "inherit_ws33_runtime_credit": false,
+    "pilot_boundary": "strict fail-closed; no GUI/AI/default/random fallback",
+    "requested_constructed_state_gates": "required",
+    "rng_replay": "required",
+    "successor_contract": "exact WS-32 v1.0.2"
+  },
+  "out_of_scope_for_ws38": "No 107-record execution is performed here.",
+  "pre_successor_engine_gates": [
+    "combat-damage validator negative suite",
+    "headless decision consumer test",
+    "GUI and AI parity against same core decision surface",
+    "no production-reachable raw-map bypass",
+    "source/callgraph re-census after patch"
+  ],
+  "schema": "commander-lab.ws38.future-requalification-plan/1.0.0",
+  "trigger": "Only after a new patched Forge source identity exists and its engine-level validator tests pass."
+}

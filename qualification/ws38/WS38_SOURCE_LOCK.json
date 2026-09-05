@@ -1,0 +1,68 @@
+{
+  "as_of_date": "2026-09-02",
+  "commander_lab": {
+    "default_branch": "main",
+    "fresh_main_commit": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "fresh_main_tree": "551c0d55a171508618d2b7d29e0f49b19893f886",
+    "repository": "moeendres-png/commander-playtest-lab",
+    "ws38_branch": "ws38/forge-af04-remediation-feasibility",
+    "ws38_branch_base": {
+      "branch": "ws33/forge-successor-provider-qualification-final",
+      "commit": "2c19f7e401aa5eb9b2f2313086424c1bf903b3bd",
+      "reason": "WS-38 directly inherits the terminal WS-33 provider defect; using the WS-33 terminal branch preserves exact predecessor evidence while main is older.",
+      "tree": "248fb1d284a75bf01ae0e5681a595fefd2951013"
+    }
+  },
+  "forge": {
+    "fresh_default_branch_commit": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+    "fresh_default_branch_tree": "abd80b8e9ba1178bcd8e8fb3147ed6df292b4597",
+    "license": "GPL-3.0",
+    "license_file": "LICENSE",
+    "recommended_remediation_base": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+    "recommended_remediation_base_reason": "Current default-branch head is 25 commits ahead of the WS-33 pin while the AF04 combat/controller boundary files are unchanged; patching current head avoids starting a remediation from stale upstream.",
+    "repository": "Card-Forge/forge",
+    "version": "2.0.15-SNAPSHOT",
+    "ws33_pin": {
+      "commit": "1e604105f9e279331063824943b9222b6589f5d8",
+      "tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+      "version": "2.0.15-SNAPSHOT"
+    }
+  },
+  "rules_authority": {
+    "authority": "Magic: The Gathering Comprehensive Rules",
+    "effective_date": "2026-08-07",
+    "important_current_rule_change": "Damage Assignment Order is obsolete in normal current rules; CR 510.1c-d permit free division among multiple blockers/attackers. Forge's orderCombatants switch is a legacy configurable rules mode and must not leak into normal current Commander legality.",
+    "material_rules": [
+      "510.1-510.4",
+      "702.2c",
+      "702.19a-g",
+      "702.22j-k",
+      "733.1-733.2"
+    ],
+    "url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt"
+  },
+  "schema": "commander-lab.ws38.source-lock/1.0.0",
+  "source_urls": [
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-game/src/main/java/forge/game/combat/Combat.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-game/src/main/java/forge/game/combat/CombatUtil.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-game/src/main/java/forge/game/player/PlayerController.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-gui/src/main/java/forge/player/PlayerControllerHuman.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-gui-desktop/src/main/java/forge/screens/match/VAssignCombatDamage.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-ai/src/main/java/forge/ai/PlayerControllerAi.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-ai/src/main/java/forge/ai/ComputerUtilCombat.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-game/src/main/java/forge/game/card/Card.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-game/src/main/java/forge/game/phase/PhaseHandler.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-game/src/main/java/forge/game/ability/effects/DamageDealEffect.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/forge-game/src/main/java/forge/game/GameRules.java",
+    "https://github.com/Card-Forge/forge/blob/ef4c834dbbca21a099ae751fb52b2326abdf1e02/LICENSE"
+  ],
+  "workstream": "WS-38",
+  "ws33_terminal_truth": {
+    "card_02": "NOT_RUN_AFTER_AF04_STOP_CONDITION",
+    "defect_id": "WS33-FORGE-PROVIDER-AF04-001",
+    "qualification": "FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+    "signature": "COMBAT_DAMAGE_LEGALITY_LIVES_IN_CONTROLLER_GUI_NOT_RULES_CORE_LEGAL_OPTION_API",
+    "status": "COMPLETE",
+    "successor_pass": "0/107"
+  }
+}

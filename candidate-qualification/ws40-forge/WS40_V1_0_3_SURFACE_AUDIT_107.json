@@ -1,0 +1,4184 @@
+{
+  "decision_family_counts": {
+    "announce_x": 1,
+    "choice": 5,
+    "choose_ability": 1,
+    "choose_mode": 9,
+    "choose_object": 1,
+    "choose_use": 2,
+    "declare_attacker": 4,
+    "declare_blocker": 2,
+    "mana_payment": 3,
+    "mulligan": 21,
+    "multi_amount": 1,
+    "pile": 1,
+    "priority": 23,
+    "replacement_effect": 5,
+    "target": 11,
+    "target_amount": 1,
+    "trigger_order": 1
+  },
+  "denominator": 107,
+  "family_counts": {
+    "actual_card": 1,
+    "hidden_information": 20,
+    "micro_rules": 17,
+    "multiplayer_commander": 36,
+    "pilot_boundary": 17,
+    "pilot_boundary_negative": 7,
+    "player_count": 4,
+    "replay_rng": 5
+  },
+  "historical_runtime_credit_imported": 0,
+  "native_operation_counts": {
+    "CREATE_COMMANDER_GAME": 5,
+    "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE": 6,
+    "EXTERNAL_SUBMIT_EXPLICIT_MULLIGAN_KEEP_RESPONSES": 2,
+    "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE": 24,
+    "NATIVE_ADVANCE_COMBAT_AND_CREATE_COMBAT_DAMAGE_EVENT": 1,
+    "NATIVE_APPLY_LAYER_SYSTEM_TO_CURRENT_CONTINUOUS_EFFECTS": 1,
+    "NATIVE_APPLY_REPLACEMENT_EFFECT": 1,
+    "NATIVE_BEGIN_OR_CONTINUE_CAST_TO_MODE_DECISION": 3,
+    "NATIVE_BEGIN_OR_CONTINUE_RULES_PROCEDURE_TO_TARGET_DECISION": 2,
+    "NATIVE_BEGIN_PAYABLE_MAGMA_OPUS_CAST": 2,
+    "NATIVE_CAPTURE_SEMANTIC_REPLAY_CHECKPOINT": 5,
+    "NATIVE_CAST_AND_RESOLVE_ENTERING_GRIZZLY_BEARS": 1,
+    "NATIVE_CAST_BURN_DOWN_THE_HOUSE_AND_REQUEST_MODE": 5,
+    "NATIVE_CAST_COMMANDER": 1,
+    "NATIVE_CAST_SPELL": 15,
+    "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP": 6,
+    "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTION": 2,
+    "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTIONS": 2,
+    "NATIVE_CHECK_STATE_BASED_ACTIONS": 1,
+    "NATIVE_CHECK_STATE_BASED_ACTIONS_CAUSING_P2_TO_LOSE_AND_LEAVE": 1,
+    "NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER": 2,
+    "NATIVE_COMPLETE_LONDON_MULLIGAN_BOTTOMING": 2,
+    "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE": 76,
+    "NATIVE_CONTINUE_CAST_TO_DAMAGE_DISTRIBUTION_DECISION": 2,
+    "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION": 19,
+    "NATIVE_CREATE_COMBAT_DAMAGE_EVENT": 1,
+    "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS": 2,
+    "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS_AND_VERIFY_START_STATE": 2,
+    "NATIVE_CREATE_SIMULTANEOUS_SOUL_WARDEN_TRIGGERS_AND_PLACE_APNAP": 1,
+    "NATIVE_CREATE_TRIGGER": 2,
+    "NATIVE_DECLARE_ATTACKERS": 2,
+    "NATIVE_DECLARE_BLOCKERS": 1,
+    "NATIVE_DRAW_OPENING_HANDS": 2,
+    "NATIVE_ENTER_COMBAT_DAMAGE_STEP": 2,
+    "NATIVE_ENTER_DECLARE_ATTACKERS_AND_REQUEST_DECLARATION": 2,
+    "NATIVE_ENTER_DECLARE_ATTACKERS_STEP": 2,
+    "NATIVE_ENTER_DECLARE_BLOCKERS_AND_REQUEST_DECLARATION": 1,
+    "NATIVE_ENTER_DECLARE_BLOCKERS_STEP": 1,
+    "NATIVE_ENUMERATE_COMMANDER_CAST_COSTS_FOR_BOTH_PARTNERS": 1,
+    "NATIVE_ENUMERATE_LEGAL_ACTIVATED_ABILITIES_AND_REQUEST_SELECTION": 1,
+    "NATIVE_EXECUTE_MULLIGAN_ROUND_AND_REQUEST_DECISION": 4,
+    "NATIVE_EXECUTE_PARTNER_COMMANDER_ZONE_CHANGE_WITH_INDEPENDENT_IDENTITIES": 1,
+    "NATIVE_GENERATE_OR_REVEAL_ORDERABLE_OBJECTS_AND_REQUEST_ORDER": 1,
+    "NATIVE_KNOWLEDGE_PROJECTION": 2,
+    "NATIVE_MULLIGAN_PROMPT": 19,
+    "NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION": 2,
+    "NATIVE_OPENING_HAND_DRAW": 5,
+    "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE": 18,
+    "NATIVE_REEVALUATE_CONTINUOUS_EFFECTS_FROM_CURRENT_STATE": 1,
+    "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES": 5,
+    "NATIVE_RESOLVE_CONTROL_EFFECT_AND_UPDATE_CONTROLLER": 1,
+    "NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OBJECT_DECISION": 1,
+    "NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OPTIONAL_DECISION": 1,
+    "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT": 28,
+    "NATIVE_RESOLVE_TOP_OF_STACK": 16,
+    "NATIVE_RESOLVE_TOP_STACK_OBJECT_TO_PILE_DECISION": 1,
+    "NATIVE_RESOLVE_TRIGGER": 1,
+    "NATIVE_RESOLVE_UTOPIA_SPRAW_AND_REQUEST_AS_ENTERS_COLOR_CHOICE": 1,
+    "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE": 8,
+    "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL": 5,
+    "NATIVE_RULES_RNG_INITIAL_LIBRARY_SHUFFLE_ALL_PLAYERS": 2,
+    "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY": 5,
+    "NATIVE_SEEDED_INITIAL_SHUFFLE": 5,
+    "NATIVE_START_FIRST_TURN": 4
+  },
+  "nonempty_knowledge_record_count": 11,
+  "nonempty_knowledge_records": [
+    {
+      "fixture_id": "HIDDEN_03",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [
+              "obj:public-exile"
+            ],
+            "obligation": "face-up exile identities public",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [
+              "face-up exile identity",
+              "owner",
+              "zone"
+            ],
+            "prohibited_metadata": [],
+            "temporary_permissions": [],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_04",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [
+              {
+                "object": "obj:facedown",
+                "scope": "identity",
+                "viewer": "P1"
+              }
+            ],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "obligation": "face-down permanent controller sees identity while opponents do not",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [
+              "obj:facedown identity to P2/P3/P4"
+            ],
+            "temporary_permissions": [],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_05",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "obligation": "face-down exile actor-specific permission persists",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [],
+            "temporary_permissions": [
+              {
+                "object": "obj:hidden-hand",
+                "permission": "look_at_face_down_exile",
+                "persists_while_in_same_exile_object": true,
+                "viewer": "P1"
+              }
+            ],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_06",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [
+              "object changes zone or becomes a new object"
+            ],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "obligation": "face-down exile knowledge invalidates correctly",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [],
+            "temporary_permissions": [
+              {
+                "object": "obj:hidden-hand",
+                "permission": "look_at_face_down_exile",
+                "viewer": "P1"
+              }
+            ],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_07",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [
+              "obj:hidden-hand"
+            ],
+            "obligation": "reveal reaches exactly legal audience",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [],
+            "temporary_permissions": [
+              {
+                "object": "obj:hidden-hand",
+                "permission": "reveal",
+                "viewer": "ALL_PLAYERS"
+              }
+            ],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_08",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [
+              "obj:hidden-lib-0"
+            ],
+            "obligation": "look reaches only specified audience",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [
+              "identity to P2/P3/P4"
+            ],
+            "temporary_permissions": [
+              {
+                "object": "obj:hidden-lib-0",
+                "permission": "look",
+                "viewer": "P1"
+              }
+            ],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_09",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "obligation": "hidden-zone search inspection does not leak",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [
+              "searched identities to P1",
+              "search option metadata exposing nonpublic cards"
+            ],
+            "temporary_permissions": [
+              {
+                "permission": "search",
+                "viewer": "P2",
+                "zone": "P2.library"
+              }
+            ],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_10",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [
+              {
+                "count": 2,
+                "ordered": true,
+                "player": "P1",
+                "start": 0,
+                "viewer": "P1"
+              }
+            ],
+            "known_object_identities": [],
+            "obligation": "scry/surveil top-N actor knowledge",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [
+              "top-N identities to P2/P3/P4"
+            ],
+            "temporary_permissions": [],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_11",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [
+              "P2 library shuffled"
+            ],
+            "known_library_ranges": [
+              {
+                "before_event": "shuffle",
+                "count": 2,
+                "ordered": true,
+                "player": "P2",
+                "start": 0,
+                "viewer": "P1"
+              }
+            ],
+            "known_object_identities": [],
+            "obligation": "shuffle invalidates order knowledge",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [
+              "pre-shuffle order retained after shuffle"
+            ],
+            "temporary_permissions": [],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_12",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "obligation": "controlled-player authority receives legally visible information",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [
+              "omniscient P2 hidden information not legally visible to decision authority"
+            ],
+            "temporary_permissions": [
+              {
+                "controlled_player": "P2",
+                "controller": "P1",
+                "permission": "only information P1 is entitled to while making P2 decisions under rules"
+              }
+            ],
+            "viewer": "P1"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "HIDDEN_18",
+      "knowledge_state": {
+        "channel_policy": "All pilot-visible fields are filtered by the same viewer/knowledge model; raw engine omniscience is outside pilot surface.",
+        "viewer_states": [
+          {
+            "channels_under_test": [
+              "prompt",
+              "context",
+              "option_id",
+              "option_label",
+              "option_metadata",
+              "source_metadata",
+              "ability_metadata",
+              "pile_metadata",
+              "state",
+              "event",
+              "transcript",
+              "log"
+            ],
+            "face_down_look_permissions": [],
+            "honey_sentinels": [
+              "WS30_HONEY_P2_PRIVATE_7F3A"
+            ],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [
+              "obj:hidden-lib-0"
+            ],
+            "obligation": "transcripts omit actor-private state",
+            "ordered_known_information": [],
+            "permitted_public_metadata": [],
+            "prohibited_metadata": [
+              "actor-private hand/library identities in EventTape/transcript/log"
+            ],
+            "temporary_permissions": [],
+            "viewer": "P1"
+          }
+        ]
+      }
+    }
+  ],
+  "rows": [
+    {
+      "decision_families": [
+        "mulligan",
+        "mulligan"
+      ],
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_2P",
+      "forbidden_events": [
+        "technical_20_life_start"
+      ],
+      "index": 1,
+      "native_operations": [
+        "CREATE_COMMANDER_GAME",
+        "NATIVE_SEEDED_INITIAL_SHUFFLE",
+        "NATIVE_OPENING_HAND_DRAW",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_START_FIRST_TURN"
+      ],
+      "requested_state_digest": "23ee64e37ad73903eca82fbcb867ee7d30e933c36b35b2146e41875b8a5de158",
+      "required_events": [
+        "game_created",
+        "commander_zones_initialized",
+        "libraries_shuffled",
+        "opening_hands_drawn",
+        "first_turn_started"
+      ],
+      "terminal_postconditions": [
+        "exactly 2 live real players exist",
+        "each player started at 40 life",
+        "each commander began in command zone",
+        "each library was derived from exactly 99 Mountains",
+        "opening hand size is seven after scripted keeps",
+        "turn/priority ring contains exactly the live players"
+      ],
+      "zones": {
+        "command": 2
+      }
+    },
+    {
+      "decision_families": [
+        "mulligan",
+        "mulligan",
+        "mulligan"
+      ],
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_3P",
+      "forbidden_events": [
+        "technical_20_life_start"
+      ],
+      "index": 2,
+      "native_operations": [
+        "CREATE_COMMANDER_GAME",
+        "NATIVE_SEEDED_INITIAL_SHUFFLE",
+        "NATIVE_OPENING_HAND_DRAW",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_START_FIRST_TURN"
+      ],
+      "requested_state_digest": "2eb3e4b230510ad64f16f73f9b993fad9fd3fbafd766f01ed969c9e3cc8a9339",
+      "required_events": [
+        "game_created",
+        "commander_zones_initialized",
+        "libraries_shuffled",
+        "opening_hands_drawn",
+        "first_turn_started"
+      ],
+      "terminal_postconditions": [
+        "exactly 3 live real players exist",
+        "each player started at 40 life",
+        "each commander began in command zone",
+        "each library was derived from exactly 99 Mountains",
+        "opening hand size is seven after scripted keeps",
+        "turn/priority ring contains exactly the live players"
+      ],
+      "zones": {
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [
+        "mulligan",
+        "mulligan",
+        "mulligan",
+        "mulligan"
+      ],
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_4P",
+      "forbidden_events": [
+        "technical_20_life_start"
+      ],
+      "index": 3,
+      "native_operations": [
+        "CREATE_COMMANDER_GAME",
+        "NATIVE_SEEDED_INITIAL_SHUFFLE",
+        "NATIVE_OPENING_HAND_DRAW",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_START_FIRST_TURN"
+      ],
+      "requested_state_digest": "163602583f37ccf0300cd6a49507760bdfce06791c514f771425b204e6dac30a",
+      "required_events": [
+        "game_created",
+        "commander_zones_initialized",
+        "libraries_shuffled",
+        "opening_hands_drawn",
+        "first_turn_started"
+      ],
+      "terminal_postconditions": [
+        "exactly 4 live real players exist",
+        "each player started at 40 life",
+        "each commander began in command zone",
+        "each library was derived from exactly 99 Mountains",
+        "opening hand size is seven after scripted keeps",
+        "turn/priority ring contains exactly the live players"
+      ],
+      "zones": {
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "mulligan",
+        "mulligan",
+        "mulligan",
+        "mulligan",
+        "mulligan"
+      ],
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_5P",
+      "forbidden_events": [
+        "technical_20_life_start"
+      ],
+      "index": 4,
+      "native_operations": [
+        "CREATE_COMMANDER_GAME",
+        "NATIVE_SEEDED_INITIAL_SHUFFLE",
+        "NATIVE_OPENING_HAND_DRAW",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_START_FIRST_TURN"
+      ],
+      "requested_state_digest": "6d11ea88eac2d578d086b97b1246bab4b083caa32360f0cf64511da54384e41c",
+      "required_events": [
+        "game_created",
+        "commander_zones_initialized",
+        "libraries_shuffled",
+        "opening_hands_drawn",
+        "first_turn_started"
+      ],
+      "terminal_postconditions": [
+        "exactly 5 live real players exist",
+        "each player started at 40 life",
+        "each commander began in command zone",
+        "each library was derived from exactly 99 Mountains",
+        "opening hand size is seven after scripted keeps",
+        "turn/priority ring contains exactly the live players"
+      ],
+      "zones": {
+        "command": 5
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PRIORITY",
+      "forbidden_events": [
+        "adapter_synthesized_action"
+      ],
+      "index": 5,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "6cde35b1ecea77ed5e4eef8447eb064173b88a95754224b0223720f364995f8d",
+      "required_events": [
+        "priority_decision_frame:P1",
+        "spell_cast:obj:pilot-bolt"
+      ],
+      "terminal_postconditions": [
+        "Selected cast action was among provider-offered legal options and no adapter legality was invented."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET",
+      "forbidden_events": [],
+      "index": 6,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "6cde35b1ecea77ed5e4eef8447eb064173b88a95754224b0223720f364995f8d",
+      "required_events": [
+        "target_decision_frame:P1",
+        "target_selected:P2"
+      ],
+      "terminal_postconditions": [
+        "P2 is the target selected from the provider legal target set."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choose_object"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "forbidden_events": [],
+      "index": 7,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OBJECT_DECISION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "e64a1660250af8479e8c6a633da0bb737fd0d5608ea7fe2348b88b3bfa68f44d",
+      "required_events": [
+        "choose_object_frame:P1",
+        "object_selected:obj:p1-hand-a"
+      ],
+      "terminal_postconditions": [
+        "Only provider-offered selectable objects were eligible; obj:p1-hand-a was selected."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4,
+        "hand": 2,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "target_amount"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET_AMOUNT",
+      "forbidden_events": [],
+      "index": 8,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_BEGIN_PAYABLE_MAGMA_OPUS_CAST",
+        "NATIVE_CONTINUE_CAST_TO_DAMAGE_DISTRIBUTION_DECISION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "ad1a4eafe5052dd937de7e76406f3007f6abcf110b4eb8c7c50d05974828389b",
+      "required_events": [
+        "target_amount_frame:P1",
+        "amount_assignment:2+2"
+      ],
+      "terminal_postconditions": [
+        "Assignment totals exactly 4 and each selected damage target receives at least 1."
+      ],
+      "zones": {
+        "battlefield": 12,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "mulligan",
+        "mulligan",
+        "mulligan",
+        "mulligan",
+        "mulligan"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULLIGAN",
+      "forbidden_events": [],
+      "index": 9,
+      "native_operations": [
+        "CREATE_COMMANDER_GAME",
+        "NATIVE_SEEDED_INITIAL_SHUFFLE",
+        "NATIVE_OPENING_HAND_DRAW",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT"
+      ],
+      "requested_state_digest": "66415c7efbc9094d2f63e5bd1137e4b8c47deb9b8fd8049ecaa57a7fa52d8990",
+      "required_events": [
+        "mulligan:P1:round1",
+        "keep:P2:round1",
+        "keep:P3:round1",
+        "keep:P4:round1",
+        "keep:P1:round2",
+        "bottom_count:P1:0"
+      ],
+      "terminal_postconditions": [
+        "In this 4P Commander fixture the first mulligan is the multiplayer free mulligan, so it does not increase the bottom-card count.",
+        "P1 keeps a legal seven-card opening hand after exactly one free mulligan and bottoms zero cards."
+      ],
+      "zones": {
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "mana_payment",
+        "choose_use"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_USE",
+      "forbidden_events": [],
+      "index": 10,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK",
+        "NATIVE_RESOLVE_TRIGGER"
+      ],
+      "requested_state_digest": "9bc02f7e461bd2010f8f1433bf0c18d419b192b80b7f85df2089bb163f7ed0f6",
+      "required_events": [
+        "choose_use_frame:P1",
+        "scry_choice:keep_top"
+      ],
+      "terminal_postconditions": [
+        "Known top card remains on top after the provider-offered scry choice."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choice"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOICE",
+      "forbidden_events": [],
+      "index": 11,
+      "native_operations": [
+        "NATIVE_RESOLVE_UTOPIA_SPRAW_AND_REQUEST_AS_ENTERS_COLOR_CHOICE"
+      ],
+      "requested_state_digest": "ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108",
+      "required_events": [
+        "choice_frame:P1",
+        "choice:RED"
+      ],
+      "terminal_postconditions": [
+        "RED was selected from provider-offered color choices."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "pile"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PILE",
+      "forbidden_events": [],
+      "index": 12,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_TOP_STACK_OBJECT_TO_PILE_DECISION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "47cd6fcd2502c159379a4a8df6ea3deeaa6229fe1521b164931efcfbc93ab3f4",
+      "required_events": [
+        "pile_frame:P2",
+        "partition_created:2/3"
+      ],
+      "terminal_postconditions": [
+        "Every revealed object appears in exactly one pile; no hidden identity is added to pile metadata."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4,
+        "revealed": 5,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target",
+        "mana_payment"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "forbidden_events": [],
+      "index": 13,
+      "native_operations": [
+        "NATIVE_CAST_SPELL"
+      ],
+      "requested_state_digest": "9e69dbcdb9ef748ac126cb1af7e45cfd8fdf05145a3a3035f0469f4d208272ed",
+      "required_events": [
+        "mana_payment_frame:P1",
+        "mana_paid:UU"
+      ],
+      "terminal_postconditions": [
+        "Exactly the selected provider-legal mana payment is consumed."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "announce_x"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_ANNOUNCE_X",
+      "forbidden_events": [],
+      "index": 14,
+      "native_operations": [
+        "NATIVE_CAST_SPELL"
+      ],
+      "requested_state_digest": "7e1d2c81f0f6a1a57e2b4e5c86922cd442342fc20847b7b007d71444e7535047",
+      "required_events": [
+        "announce_x_frame:P1",
+        "x_announced:3"
+      ],
+      "terminal_postconditions": [
+        "X=3 is bound into the announced spell and cost calculation by the Rules Core."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "multi_amount"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULTI_AMOUNT",
+      "forbidden_events": [],
+      "index": 15,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_BEGIN_PAYABLE_MAGMA_OPUS_CAST",
+        "NATIVE_CONTINUE_CAST_TO_DAMAGE_DISTRIBUTION_DECISION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "8d8d91ab33660f80a7c3a94e07a16673c3bf21296ce76e2ddd512a983b6f30bb",
+      "required_events": [
+        "multi_amount_frame:P1",
+        "amount_assignment:2+2"
+      ],
+      "terminal_postconditions": [
+        "Assignment totals exactly 4 and each selected damage target receives at least 1."
+      ],
+      "zones": {
+        "battlefield": 12,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "replacement_effect"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "forbidden_events": [],
+      "index": 16,
+      "native_operations": [
+        "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "415d143b6caf8725211c75001cee234bc1871af98e50abd840db5bb1aa411ed3",
+      "required_events": [
+        "replacement_effect_frame:P1",
+        "commander_replacement_chosen:command"
+      ],
+      "terminal_postconditions": [
+        "Commander is in command zone rather than hand; provider performed replacement legality."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "trigger_order"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TRIGGER_ORDER",
+      "forbidden_events": [],
+      "index": 17,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_GENERATE_OR_REVEAL_ORDERABLE_OBJECTS_AND_REQUEST_ORDER",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "fa36e45437c78b7e1b7e84a2f6348d896e3a81c37128439c032b19beb2b1e4cc",
+      "required_events": [
+        "simultaneous_triggers:P1:2",
+        "trigger_order_frame:P1"
+      ],
+      "terminal_postconditions": [
+        "Both triggers are on stack in the selected relative order; trigger creation itself remains simultaneous."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "choose_mode"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_MODE",
+      "forbidden_events": [],
+      "index": 18,
+      "native_operations": [
+        "NATIVE_CAST_SPELL"
+      ],
+      "requested_state_digest": "b69ca248fe4c40789032888edeb01b8b90556ec9aecd2406935917a89fc74c26",
+      "required_events": [
+        "choose_mode_frame:P1",
+        "mode_selected:create_devils"
+      ],
+      "terminal_postconditions": [
+        "Selected mode is the provider-offered Devil-token mode."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choose_ability"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_ABILITY",
+      "forbidden_events": [],
+      "index": 19,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_ENUMERATE_LEGAL_ACTIVATED_ABILITIES_AND_REQUEST_SELECTION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "7d40a30c03b0e24ec55538512dcf9e9901701f027bb9e1a8d0ed63e3e4a390f9",
+      "required_events": [
+        "choose_ability_frame:P1",
+        "ability_selected:loyalty_0_triple_damage"
+      ],
+      "terminal_postconditions": [
+        "The provider-selected legal activated ability is Jeska 0 ability."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "declare_attacker"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_ATTACKER",
+      "forbidden_events": [],
+      "index": 20,
+      "native_operations": [
+        "NATIVE_ENTER_DECLARE_ATTACKERS_STEP",
+        "NATIVE_DECLARE_ATTACKERS"
+      ],
+      "requested_state_digest": "836a2232c59d0594b34cd326b72c3870449604cf4271143b184136ccc679f896",
+      "required_events": [
+        "declare_attacker_frame:P1",
+        "attacker_declared:obj:p1-bears->P2"
+      ],
+      "terminal_postconditions": [
+        "obj:p1-bears is attacking P2 and is tapped if required by rules."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "declare_blocker"
+      ],
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_BLOCKER",
+      "forbidden_events": [],
+      "index": 21,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_ENTER_DECLARE_BLOCKERS_AND_REQUEST_DECLARATION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "429351a35cc17c28090c4e29e2e02cd7276a1b09ace8a33a655abcc580f57015",
+      "required_events": [
+        "declare_blocker_frame:P2",
+        "blocker_declared:obj:p2-bears->obj:p1-bears"
+      ],
+      "terminal_postconditions": [
+        "Block assignment exists only between the defending player P2 blocker and attacker attacking P2."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "choose_mode"
+      ],
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_FIRST_OPTION",
+      "forbidden_events": [
+        "fallback_used:first_option",
+        "game_continued_after_unsupported_decision"
+      ],
+      "index": 22,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_BEGIN_OR_CONTINUE_CAST_TO_MODE_DECISION",
+        "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE"
+      ],
+      "requested_state_digest": "2a113a9a791b12c7fd7242cde589c2904ec44080c5675ce82c32defa3782ed7d",
+      "required_events": [
+        "decision_frame:choose_mode",
+        "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+      ],
+      "terminal_postconditions": [
+        "No first_option behavior selected an option.",
+        "Session/fixture terminates with typed unsupported discretionary-decision failure."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "target"
+      ],
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_RANDOM_OPTION",
+      "forbidden_events": [
+        "fallback_used:random_option",
+        "game_continued_after_unsupported_decision"
+      ],
+      "index": 23,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_BEGIN_OR_CONTINUE_RULES_PROCEDURE_TO_TARGET_DECISION",
+        "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE"
+      ],
+      "requested_state_digest": "27e48a2a3629e8028cf6d0bd4b1d938dc2804bc59a405a9099bef2088737f6d5",
+      "required_events": [
+        "decision_frame:target",
+        "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+      ],
+      "terminal_postconditions": [
+        "No random_option behavior selected an option.",
+        "Session/fixture terminates with typed unsupported discretionary-decision failure."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choose_use"
+      ],
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+      "forbidden_events": [
+        "fallback_used:default_yes_no",
+        "game_continued_after_unsupported_decision"
+      ],
+      "index": 24,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OPTIONAL_DECISION",
+        "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE"
+      ],
+      "requested_state_digest": "191e46e266e97f949f0c711db6baa2a8a531203acf0b2ea6fbf865802cf72274",
+      "required_events": [
+        "decision_frame:choose_use",
+        "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+      ],
+      "terminal_postconditions": [
+        "No default_yes_no behavior selected an option.",
+        "Session/fixture terminates with typed unsupported discretionary-decision failure."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4,
+        "library": 1,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "declare_attacker"
+      ],
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_INTERNAL_AI",
+      "forbidden_events": [
+        "fallback_used:internal_ai",
+        "game_continued_after_unsupported_decision"
+      ],
+      "index": 25,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_ENTER_DECLARE_ATTACKERS_AND_REQUEST_DECLARATION",
+        "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE"
+      ],
+      "requested_state_digest": "f1c446d994f15345260a3a7506f12bd4f02460e29f798e66c1b35248bf9a66a3",
+      "required_events": [
+        "decision_frame:declare_attacker",
+        "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+      ],
+      "terminal_postconditions": [
+        "No internal_ai behavior selected an option.",
+        "Session/fixture terminates with typed unsupported discretionary-decision failure."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "choose_mode"
+      ],
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_GUI_DEFAULT",
+      "forbidden_events": [
+        "fallback_used:gui_default",
+        "game_continued_after_unsupported_decision"
+      ],
+      "index": 26,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_BEGIN_OR_CONTINUE_CAST_TO_MODE_DECISION",
+        "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE"
+      ],
+      "requested_state_digest": "8fb40cf8fcd2e8cfbd38c5d452af3de4af072df3c8cdb13bab74c2414d44c667",
+      "required_events": [
+        "decision_frame:choose_mode",
+        "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+      ],
+      "terminal_postconditions": [
+        "No gui_default behavior selected an option.",
+        "Session/fixture terminates with typed unsupported discretionary-decision failure."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "target"
+      ],
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_SILENT_SKIP",
+      "forbidden_events": [
+        "fallback_used:silent_skip",
+        "game_continued_after_unsupported_decision"
+      ],
+      "index": 27,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_BEGIN_OR_CONTINUE_RULES_PROCEDURE_TO_TARGET_DECISION",
+        "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE"
+      ],
+      "requested_state_digest": "dfdcea34210edb28510f4075fce51db9f378406abbbe0c65aac655559562221a",
+      "required_events": [
+        "decision_frame:target",
+        "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+      ],
+      "terminal_postconditions": [
+        "No silent_skip behavior selected an option.",
+        "Session/fixture terminates with typed unsupported discretionary-decision failure."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "forbidden_events": [
+        "fallback_used:parent_class_fallback",
+        "game_continued_after_unsupported_decision"
+      ],
+      "index": 28,
+      "native_operations": [
+        "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "ab71d3a7b9b9a6cb31e3fd193114c1d718e4c8f390cb1fe9b4957ce5c7c0e0f2",
+      "required_events": [
+        "decision_frame:choose_object",
+        "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+      ],
+      "terminal_postconditions": [
+        "No parent_class_fallback behavior selected an option.",
+        "Session/fixture terminates with typed unsupported discretionary-decision failure."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4,
+        "hand": 2,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_01",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 29,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_KNOWLEDGE_PROJECTION"
+      ],
+      "requested_state_digest": "c0960492e7fc89b8476cf9f7e3b288f844a9e572a881eb0dabe83c0f4bd31c53",
+      "required_events": [
+        "knowledge_projection:HIDDEN_01:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_02",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 30,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_KNOWLEDGE_PROJECTION"
+      ],
+      "requested_state_digest": "3ee2b2bb14452bc31b69a713ab8247c2db331182b36355959723ffb02b18caf4",
+      "required_events": [
+        "knowledge_projection:HIDDEN_02:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_03",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 31,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "20a781e65cc3e71ed5fc0820abf3e2e5f9d005b6fb15a47ee216aa40ef555595",
+      "required_events": [
+        "knowledge_projection:HIDDEN_03:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_04",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 32,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "e05a98354ca56beb7ad8f4d661918a9784ffdd4bb2f8a4a679611080d044c086",
+      "required_events": [
+        "knowledge_projection:HIDDEN_04:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_05",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 33,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "0af69c7277a050457cf703c357a9092aa9b286ed712d6df2cba5722876fd8a3b",
+      "required_events": [
+        "knowledge_projection:HIDDEN_05:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 2,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_06",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 34,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "5dbc36acd8b137e3dbe38f0e8f1e7aac969b8fa5b0a8544e4c70132744eea340",
+      "required_events": [
+        "knowledge_projection:HIDDEN_06:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 2,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_07",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 35,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "bbf19eb4b5e8f7607e87979d5b8a184c70e05a2b0bdec08997e2254bf7eb9c50",
+      "required_events": [
+        "knowledge_projection:HIDDEN_07:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_08",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 36,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "24871f046c9a58cca24c4f99b7e3ceabd86926e25c4cfc34fd86f1a57d7c72f8",
+      "required_events": [
+        "knowledge_projection:HIDDEN_08:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_09",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 37,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "3a39083f8a9e9bead761e02e1d830a94de0a4f94734376d5ccf16cc0c648a273",
+      "required_events": [
+        "knowledge_projection:HIDDEN_09:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_10",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 38,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "70c0be2eb077a50709aeafa1bf31bd72fa63ad81df08e3687752879ce2887c5e",
+      "required_events": [
+        "knowledge_projection:HIDDEN_10:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_11",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 39,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "0cc9a4716a60deb9bab0a4612b31c46050ddcec399bc26c3182980fcea8a68df",
+      "required_events": [
+        "knowledge_projection:HIDDEN_11:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_12",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 40,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "e3f5a7db644bbe43f6b9661fe96e15eb0fc43d42c390580d29f5509e1efa9439",
+      "required_events": [
+        "knowledge_projection:HIDDEN_12:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_13",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 41,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "941e38d73fec68cf0fcf30f8353a82b843833d651fe784228eae9e7c24b8a00a",
+      "required_events": [
+        "knowledge_projection:HIDDEN_13:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_14",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 42,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "ff1de1c50580347304938bc6aabe650412b020aa354c805cfeb4eb4ad6f6d016",
+      "required_events": [
+        "knowledge_projection:HIDDEN_14:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_15",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 43,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "b2170706282646d23c6904e3075b9124e6254a0e4ca60a960297d2a95b9cf857",
+      "required_events": [
+        "knowledge_projection:HIDDEN_15:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_16",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 44,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "9ac0d58627d0e9996dda8add52be6d327bf1d8c312c3addf904d7de81705b2b5",
+      "required_events": [
+        "knowledge_projection:HIDDEN_16:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_17",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 45,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "0e43532da77df99824c91adc2bfd8475f0b486d40e30b377915a9b6701afb5e5",
+      "required_events": [
+        "knowledge_projection:HIDDEN_17:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_18",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 46,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "79feb8050e40e633ac961c5e1034b5031bf7f392f21dd4a47d8c0d68538ae097",
+      "required_events": [
+        "knowledge_projection:HIDDEN_18:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_19",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 47,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "502052b3b5038e466e968334806cd4b74c12e10c4913bc922a6400eadcba0382",
+      "required_events": [
+        "knowledge_projection:HIDDEN_19:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "forbidden_events": [
+        "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "index": 48,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+      ],
+      "requested_state_digest": "903bca9e743df5b158121936e992362618d588ca4a835c49ae1dcaaacc907d7c",
+      "required_events": [
+        "knowledge_projection:HIDDEN_HONEYCARD_SENTINEL:P1"
+      ],
+      "terminal_postconditions": [
+        "P1 observation exactly respects declared viewer state.",
+        "No prohibited metadata appears in any tested channel.",
+        "Knowledge invalidation/permission persistence follows the declared conditions."
+      ],
+      "zones": {
+        "battlefield": 1,
+        "command": 4,
+        "exile": 1,
+        "hand": 1,
+        "library": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "choose_mode"
+      ],
+      "fixture_family": "replay_rng",
+      "fixture_id": "RNG_RULES_TAPE",
+      "forbidden_events": [],
+      "index": 49,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAST_BURN_DOWN_THE_HOUSE_AND_REQUEST_MODE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES",
+        "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY",
+        "NATIVE_CAPTURE_SEMANTIC_REPLAY_CHECKPOINT"
+      ],
+      "requested_state_digest": "b81d5a9e84246e581c06aaf346c72222b27e885247a76c39484c42b79de01b35",
+      "required_events": [
+        "rules_rng:library_shuffle:P1",
+        "decision:choose_mode:create_devils",
+        "create_Devil_token:3"
+      ],
+      "terminal_postconditions": [
+        "Three Devil tokens exist under P1 after resolution.",
+        "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+        "RulesRngTape records semantic random operations and results separate from pilot decisions."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "library": 7
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "choose_mode"
+      ],
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "forbidden_events": [],
+      "index": 50,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAST_BURN_DOWN_THE_HOUSE_AND_REQUEST_MODE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES",
+        "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY",
+        "NATIVE_CAPTURE_SEMANTIC_REPLAY_CHECKPOINT"
+      ],
+      "requested_state_digest": "b81d5a9e84246e581c06aaf346c72222b27e885247a76c39484c42b79de01b35",
+      "required_events": [
+        "rules_rng:library_shuffle:P1",
+        "decision:choose_mode:create_devils",
+        "create_Devil_token:3"
+      ],
+      "terminal_postconditions": [
+        "Three Devil tokens exist under P1 after resolution.",
+        "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+        "DecisionTape records exact discretionary semantic selections."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "library": 7
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "choose_mode"
+      ],
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "forbidden_events": [],
+      "index": 51,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAST_BURN_DOWN_THE_HOUSE_AND_REQUEST_MODE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES",
+        "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY",
+        "NATIVE_CAPTURE_SEMANTIC_REPLAY_CHECKPOINT"
+      ],
+      "requested_state_digest": "b81d5a9e84246e581c06aaf346c72222b27e885247a76c39484c42b79de01b35",
+      "required_events": [
+        "rules_rng:library_shuffle:P1",
+        "decision:choose_mode:create_devils",
+        "create_Devil_token:3"
+      ],
+      "terminal_postconditions": [
+        "Three Devil tokens exist under P1 after resolution.",
+        "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+        "EventTape records normalized meaningful semantic events."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "library": 7
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "choose_mode"
+      ],
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "forbidden_events": [],
+      "index": 52,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAST_BURN_DOWN_THE_HOUSE_AND_REQUEST_MODE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES",
+        "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY",
+        "NATIVE_CAPTURE_SEMANTIC_REPLAY_CHECKPOINT"
+      ],
+      "requested_state_digest": "b81d5a9e84246e581c06aaf346c72222b27e885247a76c39484c42b79de01b35",
+      "required_events": [
+        "rules_rng:library_shuffle:P1",
+        "decision:choose_mode:create_devils",
+        "create_Devil_token:3"
+      ],
+      "terminal_postconditions": [
+        "Three Devil tokens exist under P1 after resolution.",
+        "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+        "A fresh process reproduces the semantic checkpoints from tapes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "library": 7
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "choose_mode"
+      ],
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "forbidden_events": [],
+      "index": 53,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAST_BURN_DOWN_THE_HOUSE_AND_REQUEST_MODE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES",
+        "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY",
+        "NATIVE_CAPTURE_SEMANTIC_REPLAY_CHECKPOINT"
+      ],
+      "requested_state_digest": "b81d5a9e84246e581c06aaf346c72222b27e885247a76c39484c42b79de01b35",
+      "required_events": [
+        "rules_rng:library_shuffle:P1",
+        "decision:choose_mode:create_devils",
+        "create_Devil_token:3"
+      ],
+      "terminal_postconditions": [
+        "Three Devil tokens exist under P1 after resolution.",
+        "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+        "Privileged/public/actor-scoped hashes exclude process-local identity."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "library": 7
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COSTS",
+      "forbidden_events": [],
+      "index": 54,
+      "native_operations": [
+        "NATIVE_CAST_SPELL"
+      ],
+      "requested_state_digest": "d90d525a43d4c1c09a5b81d327ad8cd50d9f3f85f5ee366bfbc08b8a1f3844aa",
+      "required_events": [
+        "cost_determined:base_plus_3_generic"
+      ],
+      "terminal_postconditions": [
+        "Targeting two P1 commanders while Esior is controlled adds exactly {3} total, once."
+      ],
+      "zones": {
+        "battlefield": 16,
+        "command": 3,
+        "hand": 2
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target",
+        "mana_payment"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "forbidden_events": [],
+      "index": 55,
+      "native_operations": [
+        "NATIVE_CAST_SPELL"
+      ],
+      "requested_state_digest": "8c9c0dfdb8c515fd480b60a6526fdd79502774f671ab7eb52b7b737958a13d22",
+      "required_events": [
+        "mana_abilities_activated:2",
+        "mana_paid:UU",
+        "Counterspell_cast"
+      ],
+      "terminal_postconditions": [
+        "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PRIORITY",
+      "forbidden_events": [],
+      "index": 56,
+      "native_operations": [
+        "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae",
+      "required_events": [
+        "priority:P2",
+        "spell_cast:Giant_Growth",
+        "stack_push:Giant_Growth",
+        "resolve:Giant_Growth",
+        "resolve:Lightning_Bolt"
+      ],
+      "terminal_postconditions": [
+        "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.",
+        "Stack is empty after both spells resolve."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STACK",
+      "forbidden_events": [],
+      "index": 57,
+      "native_operations": [
+        "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae",
+      "required_events": [
+        "priority:P2",
+        "spell_cast:Giant_Growth",
+        "stack_push:Giant_Growth",
+        "resolve:Giant_Growth",
+        "resolve:Lightning_Bolt"
+      ],
+      "terminal_postconditions": [
+        "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.",
+        "Stack is empty after both spells resolve."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TARGETS",
+      "forbidden_events": [],
+      "index": 58,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "a23542bc32a8dacfcf554a4edaff992f5075a62dc5f4b90c4eab8005a1d2e73e",
+      "required_events": [
+        "legal_targets_exposed",
+        "target_selected:P2"
+      ],
+      "terminal_postconditions": [
+        "Only Rules-Core legal targets were offered and P2 was selected."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choose_mode"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MODES",
+      "forbidden_events": [],
+      "index": 59,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_BEGIN_OR_CONTINUE_CAST_TO_MODE_DECISION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "3fbfd0829ef12616664d8aa796d8ae94a18439d2f54294beb38ccc10fdf40b9a",
+      "required_events": [
+        "mode_selected:create_devils",
+        "create_Devil_token:3"
+      ],
+      "terminal_postconditions": [
+        "Exactly the selected mode resolves; damage mode does not also occur."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority",
+        "target"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TRIGGERS",
+      "forbidden_events": [],
+      "index": 60,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK",
+        "NATIVE_CREATE_TRIGGER"
+      ],
+      "requested_state_digest": "f6415aa0cdb04add614d9c6329d96d253fd4cbc2a1fbf1277f02cb941dec0f57",
+      "required_events": [
+        "creature_enters:obj:micro-enter",
+        "trigger:Warstorm_Surge",
+        "damage:P2:2"
+      ],
+      "terminal_postconditions": [
+        "Warstorm Surge triggers exactly once and entering creature deals 2 to P2 on resolution."
+      ],
+      "zones": {
+        "battlefield": 6,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_REPLACEMENT",
+      "forbidden_events": [],
+      "index": 61,
+      "native_operations": [
+        "NATIVE_ENTER_COMBAT_DAMAGE_STEP",
+        "NATIVE_CREATE_COMBAT_DAMAGE_EVENT",
+        "NATIVE_APPLY_REPLACEMENT_EFFECT"
+      ],
+      "requested_state_digest": "95233e6cd90af66b138d56f5c2e92c291e5b35893be1131824041c87200ce43e",
+      "required_events": [
+        "damage_would_be:P2:3",
+        "replacement_effect:double",
+        "damage:P2:6"
+      ],
+      "terminal_postconditions": [
+        "Single applicable replacement changes 3 damage to 6 before the damage event occurs."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "priority"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PREVENTION",
+      "forbidden_events": [],
+      "index": 62,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK",
+        "NATIVE_ENTER_COMBAT_DAMAGE_STEP"
+      ],
+      "requested_state_digest": "e6b2f3f876c4a1360ccdf007df1c2a7ad1ec508b754df47eaef63b5122083801",
+      "required_events": [
+        "combat_damage_would_be:P2:2",
+        "prevention_applied",
+        "combat_damage_prevented:P2:2"
+      ],
+      "terminal_postconditions": [
+        "P2 loses 0 life from the prevented combat damage."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+      "forbidden_events": [],
+      "index": 63,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_REEVALUATE_CONTINUOUS_EFFECTS_FROM_CURRENT_STATE"
+      ],
+      "requested_state_digest": "c5528a9fa89e37d90f571a39867c14ff0e99930140da8390dac3c6df699ed6a6",
+      "required_events": [
+        "continuous_pt_evaluated:5/5"
+      ],
+      "terminal_postconditions": [
+        "Psychosis Crawler power/toughness are 5/5 from current P1 hand size without a trigger."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "hand": 5
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_LAYERS",
+      "forbidden_events": [],
+      "index": 64,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_APPLY_LAYER_SYSTEM_TO_CURRENT_CONTINUOUS_EFFECTS"
+      ],
+      "requested_state_digest": "ef6c4515a7e3a2c0a71ba85463c92c8c8a9acd5cd858a20f9e2ab58a56551cd2",
+      "required_events": [
+        "layer6_remove_abilities",
+        "layer7b_set_pt:1/1",
+        "layer7c_modify_pt:+1/+1"
+      ],
+      "terminal_postconditions": [
+        "Grizzly Bears has no abilities and is 2/2 after Humility then Glorious Anthem are applied in layers."
+      ],
+      "zones": {
+        "battlefield": 6,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "priority"
+      ],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+      "forbidden_events": [],
+      "index": 65,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK",
+        "NATIVE_CHECK_STATE_BASED_ACTIONS"
+      ],
+      "requested_state_digest": "2f39abbccc4f0b704573ef22d5a685342016e68a4c32a77d040e33b9cc1f7e7c",
+      "required_events": [
+        "continuous_pt:obj:micro-zero:0/0",
+        "state_based_actions",
+        "move_to_graveyard:obj:micro-zero"
+      ],
+      "terminal_postconditions": [
+        "The 0/0 creature is in its owner graveyard before any player receives priority."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "forbidden_events": [],
+      "index": 66,
+      "native_operations": [
+        "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "358d1908752e5dc47a5ed27a2a13601596fa892a35d66d171266aab294f8b79a",
+      "required_events": [
+        "resolve:obj:micro-bolt-stack",
+        "zone_change:stack->graveyard",
+        "new_object_incarnation:line:micro-bolt"
+      ],
+      "terminal_postconditions": [
+        "The physical/card lineage is continuous but the graveyard object is a new object incarnation; provider-local UUID is ignored."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COPY",
+      "forbidden_events": [
+        "cast_event_for_copy"
+      ],
+      "index": 67,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "a3546f0ca825b7f612e6af93d144c0ce439cacff182cf7a2a86397e65cedc060",
+      "required_events": [
+        "copy_spell:Lightning_Bolt",
+        "copy_created_on_stack"
+      ],
+      "terminal_postconditions": [
+        "Spell copy is not cast and exists as a distinct semantic stack object with copied characteristics."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4,
+        "stack": 2
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTROL",
+      "forbidden_events": [],
+      "index": 68,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_CONTROL_EFFECT_AND_UPDATE_CONTROLLER"
+      ],
+      "requested_state_digest": "4a80bb8e9f857c1e8a2294be6ce296ed53d13647c27f024b17ff798f2702315c",
+      "required_events": [
+        "control_effect_applied:P2->P1"
+      ],
+      "terminal_postconditions": [
+        "Grizzly Bears owner remains P2 while controller is P1; if Control Magic leaves, control reverts according to rules."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COMBAT",
+      "forbidden_events": [],
+      "index": 69,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_ADVANCE_COMBAT_AND_CREATE_COMBAT_DAMAGE_EVENT"
+      ],
+      "requested_state_digest": "31e22b2213cf61a055ee3c0c05e43fe1f9dfdb21e57adae5014d91de41f590d6",
+      "required_events": [
+        "combat_damage:attacker_to_blocker:2",
+        "combat_damage:blocker_to_attacker:2",
+        "state_based_actions",
+        "both_creatures_die"
+      ],
+      "terminal_postconditions": [
+        "Both 2/2 creatures are in their owners graveyards after simultaneous combat damage and SBA."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "forbidden_events": [],
+      "index": 70,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "1c67c9c4d7cae38651c697088ce4f82781c4c4ec018184fdba7b0be442dc31be",
+      "required_events": [
+        "rules_rng:coin_flip:HEADS",
+        "extra_turn_created:P1"
+      ],
+      "terminal_postconditions": [
+        "Rules randomness came only from RulesRng channel and the predetermined semantic HEADS result created an extra turn."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 4,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority"
+      ],
+      "fixture_family": "actual_card",
+      "fixture_id": "CARD_02",
+      "forbidden_events": [],
+      "index": 71,
+      "native_operations": [
+        "NATIVE_CAST_COMMANDER",
+        "NATIVE_RESOLVE_TOP_OF_STACK"
+      ],
+      "requested_state_digest": "8553b0408730f93d6358706ab04cf4aa61666b32063767c9e3e37e7ee51cce56",
+      "required_events": [
+        "commander_cast",
+        "spell_resolved",
+        "creature_entered"
+      ],
+      "terminal_postconditions": [
+        "Rograkh is on P1 battlefield.",
+        "commander cast count cmd:P1-A = 1.",
+        "No commander-tax increment was charged."
+      ],
+      "zones": {
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-3",
+      "forbidden_events": [],
+      "index": 72,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "0cfcfffcdc6551d5e70e146b2a094e83e1d4837c26bd1703c7cefaa3b6bd602e",
+      "required_events": [
+        "priority_ring_live_order",
+        "priority_action_resets_pass_count",
+        "response_on_stack"
+      ],
+      "terminal_postconditions": [
+        "Priority traverses exactly P1..P3 live ring and resets after P3 acts; eliminated/nonexistent seats are absent."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 3,
+        "hand": 1,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-5",
+      "forbidden_events": [],
+      "index": 73,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "7f37d85378c585791500a81e88ec78316dcf72b8c340aef2b923553cfbf2001a",
+      "required_events": [
+        "priority_ring_live_order",
+        "priority_action_resets_pass_count",
+        "response_on_stack"
+      ],
+      "terminal_postconditions": [
+        "Priority traverses exactly P1..P5 live ring and resets after P5 acts; eliminated/nonexistent seats are absent."
+      ],
+      "zones": {
+        "battlefield": 6,
+        "command": 5,
+        "hand": 1,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "priority"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-3",
+      "forbidden_events": [],
+      "index": 74,
+      "native_operations": [
+        "NATIVE_CAST_SPELL",
+        "NATIVE_RESOLVE_TOP_OF_STACK",
+        "NATIVE_CREATE_TRIGGER"
+      ],
+      "requested_state_digest": "3c3f9bbccd536ab934f90a37d9b7bf14d90fe71fb667dbef1130113b8c83792a",
+      "required_events": [
+        "simultaneous_trigger_event",
+        "APNAP_stack_order"
+      ],
+      "terminal_postconditions": [
+        "Trigger generation is simultaneous; stack placement follows APNAP without fabricating a generation order."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 3,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-5",
+      "forbidden_events": [],
+      "index": 75,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAST_AND_RESOLVE_ENTERING_GRIZZLY_BEARS",
+        "NATIVE_CREATE_SIMULTANEOUS_SOUL_WARDEN_TRIGGERS_AND_PLACE_APNAP",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "d41cf15eefa1e34a8ce7e9fb2ab70a1a1d32289e4b6c5424e879c16cd0e86ad1",
+      "required_events": [
+        "simultaneous_trigger_event",
+        "APNAP_stack_order"
+      ],
+      "terminal_postconditions": [
+        "Trigger generation is simultaneous; stack placement follows APNAP without fabricating a generation order."
+      ],
+      "zones": {
+        "battlefield": 12,
+        "command": 5,
+        "hand": 1
+      }
+    },
+    {
+      "decision_families": [
+        "declare_attacker"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "forbidden_events": [],
+      "index": 76,
+      "native_operations": [
+        "NATIVE_ENTER_DECLARE_ATTACKERS_STEP",
+        "NATIVE_DECLARE_ATTACKERS"
+      ],
+      "requested_state_digest": "8496df0e4d29b868872b947e095e890d8f61e17bd6ea82317238660334e85f64",
+      "required_events": [
+        "attacker_declared:obj:mp-attacker-0->P2",
+        "attacker_declared:obj:mp-attacker-1->P3"
+      ],
+      "terminal_postconditions": [
+        "A single declare-attackers action may assign different attackers to different defending players; each assignment retains defender identity."
+      ],
+      "zones": {
+        "battlefield": 6,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "declare_attacker"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "forbidden_events": [],
+      "index": 77,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_ENTER_DECLARE_ATTACKERS_AND_REQUEST_DECLARATION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "bf9c92cec4d52acae75dc30e7d86bbb1d202955f8f43fb24be14693fd4ceae99",
+      "required_events": [
+        "attacker_declared:obj:mp-attacker-0->P2",
+        "attacker_declared:obj:mp-attacker-1->P3",
+        "attacker_declared:obj:mp-attacker-2->P4"
+      ],
+      "terminal_postconditions": [
+        "A single declare-attackers action may assign different attackers to different defending players; each assignment retains defender identity."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 5
+      }
+    },
+    {
+      "decision_families": [
+        "declare_blocker"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "forbidden_events": [
+        "option:P2_blocks_attacker_to_P3"
+      ],
+      "index": 78,
+      "native_operations": [
+        "NATIVE_ENTER_DECLARE_BLOCKERS_STEP",
+        "NATIVE_DECLARE_BLOCKERS"
+      ],
+      "requested_state_digest": "6e318f6f119581a982c45c4914ec77807613ed1f9239debc9ce9597a8414cbef",
+      "required_events": [
+        "legal_blocker_partition:P2",
+        "blocker_declared:obj:mp-p2-blocker->obj:mp-a2"
+      ],
+      "terminal_postconditions": [
+        "P2 blocker options contain only attackers for which P2 is defending player."
+      ],
+      "zones": {
+        "battlefield": 7,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-3",
+      "forbidden_events": [],
+      "index": 79,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER"
+      ],
+      "requested_state_digest": "7a7af4a16e29545a8d5e82b827ec964cd61ac6049552d58b1dbd01c1bac63e04",
+      "required_events": [
+        "extra_turn_created:P2",
+        "extra_turn_created:P3",
+        "next_turn:P3",
+        "next_turn:P2"
+      ],
+      "terminal_postconditions": [
+        "Most recently created extra turn is taken first: P3 extra, then P2 extra, then normal turn order resumes."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 3,
+        "graveyard": 2
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-5",
+      "forbidden_events": [],
+      "index": 80,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER"
+      ],
+      "requested_state_digest": "de5106b375d674374d6abb07958ac7f88cbb234be5962b5ac3af58bc75d5acbc",
+      "required_events": [
+        "extra_turn_created:P2",
+        "extra_turn_created:P3",
+        "next_turn:P3",
+        "next_turn:P2"
+      ],
+      "terminal_postconditions": [
+        "Most recently created extra turn is taken first: P3 extra, then P2 extra, then normal turn order resumes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 5,
+        "graveyard": 2
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "forbidden_events": [],
+      "index": 81,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP"
+      ],
+      "requested_state_digest": "3a61678e0529798ec3755c1c434be9ac8bccdc0d546b6eb020f25eddf2648c19",
+      "required_events": [
+        "player_leaves:P2",
+        "multiplayer_cleanup:CR800.4"
+      ],
+      "terminal_postconditions": [
+        "All objects owned by P2 leave the game, including obj:leave-owned."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "forbidden_events": [],
+      "index": 82,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP"
+      ],
+      "requested_state_digest": "872425410b60ae9db08a065c013efa345cf5ce7ec2df3b0b2aa6bc3954741043",
+      "required_events": [
+        "player_leaves:P2",
+        "multiplayer_cleanup:CR800.4"
+      ],
+      "terminal_postconditions": [
+        "P2-owned Control Magic leaves; P1-owned Grizzly Bears remains and control reverts according to remaining effects/default controller."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "forbidden_events": [],
+      "index": 83,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CHECK_STATE_BASED_ACTIONS_CAUSING_P2_TO_LOSE_AND_LEAVE",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "a475350db6a191398a35f1641a824f8deb81a07546447030c1d455be320b8bca",
+      "required_events": [
+        "player_leaves:P2",
+        "multiplayer_cleanup:CR800.4"
+      ],
+      "terminal_postconditions": [
+        "P2-owned spell on stack leaves the game and does not resolve."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "forbidden_events": [],
+      "index": 84,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP"
+      ],
+      "requested_state_digest": "d16603d115f0d2b396fb317bf4b415764be5be7574269958635b3defbf0493b0",
+      "required_events": [
+        "player_leaves:P2",
+        "multiplayer_cleanup:CR800.4"
+      ],
+      "terminal_postconditions": [
+        "After P2 leaves, priority ring excludes P2 and next eligible live player is selected."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "forbidden_events": [],
+      "index": 85,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP"
+      ],
+      "requested_state_digest": "129f7039e99c07edcba4e7cefb2d3ccf21cd9e10a756f4ef74a43217432bb2ee",
+      "required_events": [
+        "player_leaves:P2",
+        "multiplayer_cleanup:CR800.4"
+      ],
+      "terminal_postconditions": [
+        "The current turn continues without the departed active player as required; after it ends the next live player becomes active."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-5",
+      "forbidden_events": [],
+      "index": 86,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP"
+      ],
+      "requested_state_digest": "449e94c9a743f592e80e5b7bc4e9b7fed4e2196f6fcf4f15b4aebced32e74887",
+      "required_events": [
+        "player_leaves:P3",
+        "multiplayer_cleanup:CR800.4"
+      ],
+      "terminal_postconditions": [
+        "Live-player ring recomputes from P1,P2,P4,P5; eliminated P3 is absent from turn, priority, opponent and APNAP sets."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 5
+      }
+    },
+    {
+      "decision_families": [
+        "priority"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-2",
+      "forbidden_events": [],
+      "index": 87,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "4ba590759abb4894e5b5d99d1df856c941c578d30c3748e94980c611bf41762a",
+      "required_events": [
+        "commander_cast_from_command",
+        "commander_tax:+4_generic",
+        "mana_paid:4"
+      ],
+      "terminal_postconditions": [
+        "Rograkh printed mana cost 0 plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes 3."
+      ],
+      "zones": {
+        "battlefield": 6,
+        "command": 2
+      }
+    },
+    {
+      "decision_families": [
+        "priority"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-4",
+      "forbidden_events": [],
+      "index": 88,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "674b4b12b3f439edd7d024d99f797c87c04370190f21dce39a38309981264eab",
+      "required_events": [
+        "commander_cast_from_command",
+        "commander_tax:+4_generic",
+        "mana_paid:4"
+      ],
+      "terminal_postconditions": [
+        "Rograkh printed mana cost 0 plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes 3."
+      ],
+      "zones": {
+        "battlefield": 8,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [
+        "choice"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "forbidden_events": [],
+      "index": 89,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "6d902194fb8eeabc9768d3581fbdbc80d26163c27b25d4c0ff7d1fca7b882100",
+      "required_events": [
+        "commander_zone_event:graveyard",
+        "commander_choice:command"
+      ],
+      "terminal_postconditions": [
+        "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choice"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "forbidden_events": [],
+      "index": 90,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "6d902194fb8eeabc9768d3581fbdbc80d26163c27b25d4c0ff7d1fca7b882100",
+      "required_events": [
+        "commander_zone_event:graveyard",
+        "commander_choice:graveyard"
+      ],
+      "terminal_postconditions": [
+        "Commander is in graveyard after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choice"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "forbidden_events": [],
+      "index": 91,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "e9ed2b5fb703d236aaf6a96886ac442f0cf46b5911a325ea7286664adabc14fe",
+      "required_events": [
+        "commander_zone_event:exile",
+        "commander_choice:command"
+      ],
+      "terminal_postconditions": [
+        "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "choice"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "forbidden_events": [],
+      "index": 92,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "e9ed2b5fb703d236aaf6a96886ac442f0cf46b5911a325ea7286664adabc14fe",
+      "required_events": [
+        "commander_zone_event:exile",
+        "commander_choice:exile"
+      ],
+      "terminal_postconditions": [
+        "Commander is in exile after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "replacement_effect"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "forbidden_events": [],
+      "index": 93,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "4ef0d4b710d1471168799afc1c4f4b72ae5b615aae4912bfddd323bbee5c3441",
+      "required_events": [
+        "commander_zone_event:hand",
+        "commander_choice:command"
+      ],
+      "terminal_postconditions": [
+        "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "replacement_effect"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "forbidden_events": [],
+      "index": 94,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "4ef0d4b710d1471168799afc1c4f4b72ae5b615aae4912bfddd323bbee5c3441",
+      "required_events": [
+        "commander_zone_event:hand",
+        "commander_choice:hand"
+      ],
+      "terminal_postconditions": [
+        "Commander is in hand after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "replacement_effect"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "forbidden_events": [],
+      "index": 95,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "534ff135bf2b5c828cdf3451e84add05bd56c1db5b0118852fc18e7d5e869045",
+      "required_events": [
+        "commander_zone_event:library",
+        "commander_choice:command"
+      ],
+      "terminal_postconditions": [
+        "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [
+        "replacement_effect"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "forbidden_events": [],
+      "index": 96,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE",
+        "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "534ff135bf2b5c828cdf3451e84add05bd56c1db5b0118852fc18e7d5e869045",
+      "required_events": [
+        "commander_zone_event:library",
+        "commander_choice:library"
+      ],
+      "terminal_postconditions": [
+        "Commander is in library after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3,
+        "stack": 1
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SAME-21",
+      "forbidden_events": [],
+      "index": 97,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTIONS"
+      ],
+      "requested_state_digest": "3b2c69da6ec81a0192add468e6f5cc681ea871ecd3946706704de59b02b8fc33",
+      "required_events": [
+        "commander_combat_damage:P2:2",
+        "commander_damage_total:P2:21",
+        "player_loses:P2"
+      ],
+      "terminal_postconditions": [
+        "P2 loses as SBA for 21 combat damage from the same commander."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "forbidden_events": [],
+      "index": 98,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "e2dc3ae318347404fed0c82c8e2376c2c3c5f8c70c92c86a3e8eb0deeeb0fbc4",
+      "required_events": [
+        "commander_damage_checked_per_commander"
+      ],
+      "terminal_postconditions": [
+        "P2 has 21 aggregate commander damage but no single commander has dealt 21; P2 does not lose for commander damage."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "forbidden_events": [],
+      "index": 99,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTIONS"
+      ],
+      "requested_state_digest": "ff4239417bb8172c14d6efc5091b08602006c590cf680599831278b1067d8832",
+      "required_events": [
+        "commander_combat_damage:P2:2:cmd:P1-A",
+        "player_loses:P2"
+      ],
+      "terminal_postconditions": [
+        "Commander identity remains cmd:P1-A despite controller P3; P2 reaches 21 from that same commander and loses."
+      ],
+      "zones": {
+        "battlefield": 5,
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-TAX",
+      "forbidden_events": [],
+      "index": 100,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_ENUMERATE_COMMANDER_CAST_COSTS_FOR_BOTH_PARTNERS",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "4478c62dd3156b7fb3c3db0e73cf31635c6f444b69f9114939f31a8cd5025b18",
+      "required_events": [
+        "tax:cmd:P1-A:+4",
+        "tax:cmd:P1-B:+0"
+      ],
+      "terminal_postconditions": [
+        "Partner commanders track command-zone cast counts/tax independently."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-DMG",
+      "forbidden_events": [],
+      "index": 101,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTION",
+        "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+      ],
+      "requested_state_digest": "79c514bca20aff91afc6099f1a6c63b605d74bc1e1e7032a5fdfd7fe0d5143d1",
+      "required_events": [],
+      "terminal_postconditions": [
+        "12 + 9 combat damage from different partner commanders does not pool to cause a 21-damage loss."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 4
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "forbidden_events": [],
+      "index": 102,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_EXECUTE_PARTNER_COMMANDER_ZONE_CHANGE_WITH_INDEPENDENT_IDENTITIES"
+      ],
+      "requested_state_digest": "d13cf57e931370ea78f14b5cc8008d0204ed1bc03a6d83986b5974b0d57b9a05",
+      "required_events": [
+        "game_start_command_zone:cmd:P1-A",
+        "game_start_command_zone:cmd:P1-B"
+      ],
+      "terminal_postconditions": [
+        "Both partner commanders begin in command zone as separate commander identities."
+      ],
+      "zones": {
+        "battlefield": 4,
+        "command": 5
+      }
+    },
+    {
+      "decision_families": [
+        "mulligan"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-2",
+      "forbidden_events": [],
+      "index": 103,
+      "native_operations": [
+        "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS",
+        "NATIVE_RULES_RNG_INITIAL_LIBRARY_SHUFFLE_ALL_PLAYERS",
+        "NATIVE_DRAW_OPENING_HANDS",
+        "NATIVE_EXECUTE_MULLIGAN_ROUND_AND_REQUEST_DECISION",
+        "EXTERNAL_SUBMIT_EXPLICIT_MULLIGAN_KEEP_RESPONSES",
+        "NATIVE_EXECUTE_MULLIGAN_ROUND_AND_REQUEST_DECISION",
+        "NATIVE_COMPLETE_LONDON_MULLIGAN_BOTTOMING"
+      ],
+      "requested_state_digest": "e86d970bb8cfa73527fad801182413cbfe6d6b0f51c21342e5baed00a68b9720",
+      "required_events": [
+        "mulligan_once:P1",
+        "free_mulligan:false"
+      ],
+      "terminal_postconditions": [
+        "In 2P Commander the first mulligan is not the multiplayer free mulligan; after exactly one mulligan and keep, P1 bottoms one card under the London mulligan."
+      ],
+      "zones": {}
+    },
+    {
+      "decision_families": [
+        "mulligan"
+      ],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-4",
+      "forbidden_events": [],
+      "index": 104,
+      "native_operations": [
+        "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS",
+        "NATIVE_RULES_RNG_INITIAL_LIBRARY_SHUFFLE_ALL_PLAYERS",
+        "NATIVE_DRAW_OPENING_HANDS",
+        "NATIVE_EXECUTE_MULLIGAN_ROUND_AND_REQUEST_DECISION",
+        "EXTERNAL_SUBMIT_EXPLICIT_MULLIGAN_KEEP_RESPONSES",
+        "NATIVE_EXECUTE_MULLIGAN_ROUND_AND_REQUEST_DECISION",
+        "NATIVE_COMPLETE_LONDON_MULLIGAN_BOTTOMING"
+      ],
+      "requested_state_digest": "6e9231e977fb912464add704afbc08cb538deb1029934d8b0c5364b79f67be62",
+      "required_events": [
+        "mulligan_once:P1",
+        "free_mulligan:true"
+      ],
+      "terminal_postconditions": [
+        "In 4P multiplayer Commander the first mulligan is free and a kept hand after exactly one mulligan bottoms zero cards."
+      ],
+      "zones": {}
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-2",
+      "forbidden_events": [],
+      "index": 105,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS_AND_VERIFY_START_STATE"
+      ],
+      "requested_state_digest": "2a40e275af77f173c62bb63fbd059cd17197ddffc2d9b338258b836ca1f83312",
+      "required_events": [
+        "starting_player:P1",
+        "first_turn_draw:false"
+      ],
+      "terminal_postconditions": [
+        "In 2P, starting player P1 skips the draw step draw on first turn."
+      ],
+      "zones": {
+        "battlefield": 2,
+        "command": 2
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-3",
+      "forbidden_events": [],
+      "index": 106,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS_AND_VERIFY_START_STATE"
+      ],
+      "requested_state_digest": "aab65291849db6a9fa905b0705681ccdd22c96d3dae77c4e2e50ecd5e34108aa",
+      "required_events": [
+        "starting_player:P1",
+        "first_turn_draw:true"
+      ],
+      "terminal_postconditions": [
+        "In 3P multiplayer, starting player P1 draws on first turn."
+      ],
+      "zones": {
+        "battlefield": 3,
+        "command": 3
+      }
+    },
+    {
+      "decision_families": [],
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "forbidden_events": [],
+      "index": 107,
+      "native_operations": [
+        "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP"
+      ],
+      "requested_state_digest": "177b07d677057c94d157d968525500eb002743f65ae3ff6d42af137544cef708",
+      "required_events": [
+        "commander_damage_total:P2:21",
+        "player_loses:P2",
+        "multiplayer_cleanup:CR800.4",
+        "object_leaves_game:obj:p2-owned"
+      ],
+      "terminal_postconditions": [
+        "Commander-damage loss and multiplayer leave-game cleanup are integrated in one stable state before priority."
+      ],
+      "zones": {
+        "battlefield": 6,
+        "command": 3
+      }
+    }
+  ],
+  "rules_randomness_record_count": 13,
+  "rules_randomness_records": [
+    {
+      "fixture_id": "PLAYER_COUNT_2P",
+      "rules_randomness": {
+        "channels": [
+          "library_shuffle:P1",
+          "library_shuffle:P2"
+        ],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242
+      }
+    },
+    {
+      "fixture_id": "PLAYER_COUNT_3P",
+      "rules_randomness": {
+        "channels": [
+          "library_shuffle:P1",
+          "library_shuffle:P2",
+          "library_shuffle:P3"
+        ],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242
+      }
+    },
+    {
+      "fixture_id": "PLAYER_COUNT_4P",
+      "rules_randomness": {
+        "channels": [
+          "library_shuffle:P1",
+          "library_shuffle:P2",
+          "library_shuffle:P3",
+          "library_shuffle:P4"
+        ],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242
+      }
+    },
+    {
+      "fixture_id": "PLAYER_COUNT_5P",
+      "rules_randomness": {
+        "channels": [
+          "library_shuffle:P1",
+          "library_shuffle:P2",
+          "library_shuffle:P3",
+          "library_shuffle:P4",
+          "library_shuffle:P5"
+        ],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242
+      }
+    },
+    {
+      "fixture_id": "PILOT_MULLIGAN",
+      "rules_randomness": {
+        "channels": [
+          "library_shuffle:P1",
+          "library_shuffle:P2",
+          "library_shuffle:P3",
+          "library_shuffle:P4"
+        ],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242
+      }
+    },
+    {
+      "fixture_id": "RNG_RULES_TAPE",
+      "rules_randomness": {
+        "channels": [
+          "NATIVE_LIBRARY_SHUFFLE"
+        ],
+        "pilot_randomness_prohibited": true,
+        "provider_native_rng_calls_recorded": true,
+        "seed_binding": "SCENARIO_SEED"
+      }
+    },
+    {
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "rules_randomness": {
+        "channels": [
+          "NATIVE_LIBRARY_SHUFFLE"
+        ],
+        "pilot_randomness_prohibited": true,
+        "provider_native_rng_calls_recorded": true,
+        "seed_binding": "SCENARIO_SEED"
+      }
+    },
+    {
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "rules_randomness": {
+        "channels": [
+          "NATIVE_LIBRARY_SHUFFLE"
+        ],
+        "pilot_randomness_prohibited": true,
+        "provider_native_rng_calls_recorded": true,
+        "seed_binding": "SCENARIO_SEED"
+      }
+    },
+    {
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "rules_randomness": {
+        "channels": [
+          "NATIVE_LIBRARY_SHUFFLE"
+        ],
+        "pilot_randomness_prohibited": true,
+        "provider_native_rng_calls_recorded": true,
+        "seed_binding": "SCENARIO_SEED"
+      }
+    },
+    {
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "rules_randomness": {
+        "channels": [
+          "NATIVE_LIBRARY_SHUFFLE"
+        ],
+        "pilot_randomness_prohibited": true,
+        "provider_native_rng_calls_recorded": true,
+        "seed_binding": "SCENARIO_SEED"
+      }
+    },
+    {
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "rules_randomness": {
+        "channels": [
+          "coin_flip:obj:micro-stitch"
+        ],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [
+          {
+            "channel": "coin_flip:obj:micro-stitch",
+            "operation": "coin_flip",
+            "result": "HEADS"
+          }
+        ],
+        "rules_seed": 424242
+      }
+    },
+    {
+      "fixture_id": "WS05-CMD-MULL-2",
+      "rules_randomness": {
+        "channels": [
+          "INITIAL_LIBRARY_SHUFFLE"
+        ],
+        "pilot_randomness_prohibited": true,
+        "seed_binding": "SCENARIO_SEED"
+      }
+    },
+    {
+      "fixture_id": "WS05-CMD-MULL-4",
+      "rules_randomness": {
+        "channels": [
+          "INITIAL_LIBRARY_SHUFFLE"
+        ],
+        "pilot_randomness_prohibited": true,
+        "seed_binding": "SCENARIO_SEED"
+      }
+    }
+  ],
+  "schema_version": "commander-lab.ws40-v1.0.3-surface-audit/1.0.0",
+  "source_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "source_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+  "stack_state_record_count": 24,
+  "stack_state_records": [
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:syphon",
+          "targets": [
+            "P1"
+          ]
+        }
+      ],
+      "fixture_id": "PILOT_CHOOSE_OBJECT"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:utopia",
+          "targets": [
+            "obj:forest"
+          ]
+        }
+      ],
+      "fixture_id": "PILOT_CHOICE"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:fof",
+          "targets": []
+        }
+      ],
+      "fixture_id": "PILOT_PILE"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:opp-bolt",
+          "targets": [
+            "P1"
+          ]
+        }
+      ],
+      "fixture_id": "PILOT_MANA_PAYMENT"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:pilot-unsummon",
+          "targets": [
+            "obj:P1-commander"
+          ]
+        }
+      ],
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:neg-opt",
+          "targets": []
+        }
+      ],
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:negative-syphon",
+          "targets": []
+        }
+      ],
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "P2"
+          ]
+        }
+      ],
+      "fixture_id": "MICRO_MANA_PAYMENT"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "obj:P2-bears"
+          ]
+        }
+      ],
+      "fixture_id": "MICRO_PRIORITY"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "obj:P2-bears"
+          ]
+        }
+      ],
+      "fixture_id": "MICRO_STACK"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt-stack",
+          "targets": [
+            "P2"
+          ]
+        }
+      ],
+      "fixture_id": "MICRO_ZONE_CHANGES"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-flare",
+          "targets": [
+            "obj:micro-bolt"
+          ]
+        },
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "P2"
+          ]
+        }
+      ],
+      "fixture_id": "MICRO_COPY"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-stitch",
+          "targets": []
+        }
+      ],
+      "fixture_id": "MICRO_RULES_RANDOMNESS"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:mp-bolt",
+          "targets": [
+            "obj:P3-bears"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-MP-PRIO-3"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:mp-bolt",
+          "targets": [
+            "obj:P5-bears"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-MP-PRIO-5"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:leave-bolt",
+          "targets": [
+            "P1"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-MP-ELIM-STACK-3"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-GY-YES"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-GY-NO"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [
+            "put_creature_on_bottom_of_owners_library"
+          ],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES"
+    },
+    {
+      "entries": [
+        {
+          "cast_complete": true,
+          "controller": "P2",
+          "costs_paid": true,
+          "modes": [
+            "put_creature_on_bottom_of_owners_library"
+          ],
+          "source_semantic_id": "obj:cmd-zone-source",
+          "targets": [
+            "obj:cmd-zone-test"
+          ]
+        }
+      ],
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO"
+    }
+  ],
+  "status": "PASS",
+  "zone_counts": {
+    "battlefield": 432,
+    "command": 398,
+    "exile": 22,
+    "graveyard": 4,
+    "hand": 58,
+    "library": 57,
+    "revealed": 5,
+    "stack": 25
+  }
+}

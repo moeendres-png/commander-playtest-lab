@@ -1,0 +1,125 @@
+name: WS40 Forge Provider Smoke
+
+on:
+  push:
+    branches: [ws40/forge-core-remediation-requalification]
+    paths:
+      - 'scripts/ws40_generate_forge_provider.py'
+      - '.github/workflows/ws40-forge-provider-smoke.yml'
+  workflow_dispatch:
+
+env:
+  FORGE_COMMIT: 49ea6df753fa6c749138296a1fe9421467136dda
+  FORGE_TREE: 37ef36359cef74273ca40a2c1c676b8ede84a431
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+permissions:
+  contents: read
+
+jobs:
+  provider-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Initialize evidence directory
+        run: mkdir -p artifacts/ws40-provider
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 0
+      - name: Lock exact repaired Forge identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          git -C vendor/engine-source/forge merge-base --is-ancestor ef4c834dbbca21a099ae751fb52b2326abdf1e02 HEAD
+          test "$(git -C vendor/engine-source/forge rev-parse ef4c834dbbca21a099ae751fb52b2326abdf1e02^{tree})" = "abd80b8e9ba1178bcd8e8fb3147ed6df292b4597"
+          grep -q "GNU GENERAL PUBLIC LICENSE" vendor/engine-source/forge/LICENSE
+          grep -q '<versionCode>2.0.15</versionCode>' vendor/engine-source/forge/pom.xml
+          printf '%s\n' "$FORGE_COMMIT" > artifacts/ws40-provider/FORGE_COMMIT.txt
+          printf '%s\n' "$FORGE_TREE" > artifacts/ws40-provider/FORGE_TREE.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build exact Forge core/game
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+      - name: Resolve Forge compile classpath
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws40-provider/dependency-classpath.txt"
+      - name: Generate WS40 isolated GPL provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws40_generate_forge_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir artifacts/ws40-provider/generated \
+            --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py \
+            --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            --output artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeBootstrap.java
+          if grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' artifacts/ws40-provider/generated/java; then exit 1; fi
+          grep -q 'chooseCombatDamage' artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
+          grep -q 'chooseAmountDistribution' artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
+      - name: Compile provider without Forge AI/GUI
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat artifacts/ws40-provider/dependency-classpath.txt)"
+          mkdir -p artifacts/ws40-provider/classes
+          javac -cp "$cp" -d artifacts/ws40-provider/classes \
+            artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java \
+            artifacts/ws40-provider/generated/java/forge/game/player/Ws23ForgeBootstrap.java
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/artifacts/ws40-provider/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
+            "$(cat artifacts/ws40-provider/dependency-classpath.txt)" > artifacts/ws40-provider/provider.classpath
+          if grep -Eq 'forge-(ai|gui)' artifacts/ws40-provider/provider.classpath; then exit 1; fi
+      - name: Handshake exact repaired engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws40-provider/provider.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python - <<'PY'
+          import json, os, shlex, subprocess
+          p=subprocess.Popen(shlex.split(os.environ['COMMANDER_LAB_FORGE_PROVIDER_CMD']),stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+          q={'protocol':'commander-lab.rules-service/1.1.0','message_type':'HANDSHAKE','request_id':'ws40-smoke','payload':{}}
+          out,err=p.communicate(json.dumps(q,separators=(',',':'))+'\n',timeout=90)
+          assert p.returncode==0,err
+          m=json.loads(out.strip())
+          assert m['payload']['verdict']=='PASS'
+          assert m['payload']['forge_commit']==os.environ['FORGE_COMMIT']
+          open('artifacts/ws40-provider/HANDSHAKE.json','w').write(json.dumps(m,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Evidence summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          v={'status':'PASS','forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'forge_version':os.environ['FORGE_VERSION'],'separate_gpl_jvm':True,'forge_ai_gui_classpath':False,'combat_damage_core_options_only':True,'noncombat_distribution_core_options_only':True}
+          open('artifacts/ws40-provider/WS40_PROVIDER_SMOKE.json','w').write(json.dumps(v,indent=2,sort_keys=True)+'\n')
+          PY
+          find artifacts/ws40-provider -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws40-provider/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws40-forge-provider-smoke-${{ github.sha }}
+          path: artifacts/ws40-provider/
+          if-no-files-found: error
+          retention-days: 90

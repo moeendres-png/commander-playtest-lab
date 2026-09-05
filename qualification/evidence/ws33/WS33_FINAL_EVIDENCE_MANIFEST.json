@@ -1,0 +1,39 @@
+{
+  "architecture_freeze_declared": false,
+  "artifact_files_sha256": {
+    "WS33_RUN_HEAD.txt": "7b5c0da406c43d4e9a00e30a72838a7a1d2251c10b11a9a1b31b19d0bb95a891",
+    "WS33_SUCCESSOR_RESULT_LEDGER.json": "3f1cc6e9e45cb856f4feb571353c1bfc19cdcdffbf5e59f8a474daf95ee4af02",
+    "WS33_TERMINAL_AF04_AUDIT.json": "a430dc2bec8217f236b17ec950b665903a2f549d409d27aafbbd0682b70bc769",
+    "WS33_TERMINAL_SOURCE_LOCK.json": "6749ded27296b0cd0bff70a4a86f862a71f2ec58a0a1c4e175237cd1b4c2fb22",
+    "generated/finalist_forge_provider_mapping.json": "ebf4a6daa8e4110885c616bd01ae5fff0747be980f175066465032c00d1e9bdc",
+    "generated/java/forge/game/player/Ws23ForgeVerticalProvider.java": "ed0ea87de15761ef420f50b084b2d7d395dc3b97152bfd85ae59b6399f8f4041",
+    "summary.json": "05bef52f4123e58868c69bcc4b9af38c102e84d69630a6a56f2cbdf252bdf0c9"
+  },
+  "baseline_runtime": {
+    "artifact_id": 9825831255,
+    "artifact_sha256": "c8b191bad743ee0e8847671cda89a3da50c9b88accb0b92ba23a6ec4b39009f8",
+    "job_id": 100072542091,
+    "run_id": 33573571385
+  },
+  "corpus": {
+    "BASELINE_RUNTIME_NO_SUCCESSOR_CREDIT": 1,
+    "NOT_RUN_AFTER_AF04_STOP_CONDITION": 106,
+    "PASS": 0,
+    "denominator": 107,
+    "successor_runtime_credit": 0
+  },
+  "defect_id": "WS33-FORGE-PROVIDER-AF04-001",
+  "defect_taxonomy": "FORGE_PROVIDER_DEFECT",
+  "schema_version": "commander-lab.ws33-final-evidence-manifest/1.0.0",
+  "stop_condition": "PRODUCTION_DECISION_PATH_CANNOT_BE_EXTERNALIZED_SAFELY_WITH_RULES_CORE_AS_SOLE_LEGALITY_AUTHORITY",
+  "terminal_outcome": "COMPLETE_FAIL_TERMINAL_FORGE_PROVIDER_DEFECT",
+  "terminal_qualification": {
+    "artifact_id": 9826227461,
+    "artifact_name": "ws33-forge-terminal-af04-f40227d7fe0491b2d5d8d1ef0d7f1d79af143e7e",
+    "artifact_sha256": "37b6ac2671107fe01f4a638b75ea6e55a6814936a5aee105ef13cb0c36f5f1c0",
+    "job_id": 100076263804,
+    "run_head": "f40227d7fe0491b2d5d8d1ef0d7f1d79af143e7e",
+    "run_id": 33574790005
+  },
+  "workstream": "WS-33"
+}

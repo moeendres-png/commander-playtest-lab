@@ -1,0 +1,85 @@
+{
+  "audited_at": "2026-09-06T00:32:00+02:00",
+  "completion_semantics": "COMPLETE_TERMINAL_ADJUDICATION_NOT_PROVIDER_QUALIFICATION",
+  "consistency_checks": [
+    "terminal evidence files are readable at terminal evidence commit",
+    "PROJECT_STATE terminal semantics match terminal adjudication",
+    "final handoff terminal semantics match terminal adjudication",
+    "Commander Lab PR #154 is open, Draft, unmerged, and terminal metadata is current",
+    "Forge PR #1 is open, Draft, unmerged",
+    "Forge branch remains at locked engine-remediation commit/tree",
+    "no AF07 or Architecture Freeze credit is granted"
+  ],
+  "exact_next_action": "Issue a new immutable successor materialization repairing MICRO_PRIORITY/MICRO_STACK target referential integrity and adding referential-integrity linting, then start fresh Forge qualification from zero historical runtime credit with strict no-request-echo hardening.",
+  "gate_assertions": {
+    "AF07": "OUT_OF_SCOPE_NOT_RUN",
+    "architecture_freeze": "NOT_GRANTED",
+    "behavior_107": "NOT_RUN",
+    "completion_status": "TERMINAL_FAIL_IMMUTABLE_CONTRACT_DEFECT",
+    "construction_107_of_107": "FAIL_NOT_GRANTED",
+    "engine_remediation_complete": true,
+    "forge_successor_provider_qualified": false,
+    "no_request_echo": "FAIL_REMEDIATION_REQUIRED",
+    "task_complete": true,
+    "ws40_workstream_terminal": true
+  },
+  "pull_requests": {
+    "commander_lab_154": {
+      "draft": true,
+      "head": "fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7",
+      "merged": false,
+      "state": "open",
+      "terminal_metadata_updated": true,
+      "title": "WS-40: TERMINAL — Forge v1.0.3 blocked by immutable MICRO target defect"
+    },
+    "forge_1": {
+      "draft": true,
+      "head": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+      "merged": false,
+      "metadata_modified_in_terminalization": false,
+      "state": "open"
+    }
+  },
+  "result": "PASS_TERMINAL_HANDOFF_CONSISTENT",
+  "schema": "commander-lab.ws40.final-consistency-audit/1.0.0",
+  "source_locks": {
+    "forge": {
+      "commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+      "tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+      "unchanged": true
+    },
+    "ws41": {
+      "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+      "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+      "tree": "428bbe58b2ea7b869200521092a8768108029b47"
+    }
+  },
+  "terminal_evidence_persistence": {
+    "commit": "fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7",
+    "parent": "89df69bc7b621d553032b81f203f3a202dc4f922",
+    "tree": "0697ea0c6821f4590290823b86a1f62b52947379"
+  },
+  "verified_files": [
+    {
+      "blob_sha": "e5d32e4a64e0c6eda3c2dd0f3acf9d20b382493f",
+      "path": "candidate-qualification/ws40-forge/WS40_V1_0_3_MICRO_TARGET_IDENTITY_ADJUDICATION.json",
+      "verified_at_commit": "fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7"
+    },
+    {
+      "blob_sha": "6bf98305165778448e8a2102b5f9df64fd5cb651",
+      "path": "candidate-qualification/ws40-forge/WS40_V1_0_3_TERMINAL_ADJUDICATION.json",
+      "verified_at_commit": "fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7"
+    },
+    {
+      "blob_sha": "d5a7009b774903e7ab8c27a90d724acecd87dda9",
+      "path": "PROJECT_STATE.md",
+      "verified_at_commit": "fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7"
+    },
+    {
+      "blob_sha": "2d340d8326f744dddcd857064c7b0e715ca30453",
+      "path": "WS40_FINAL_HANDOFF.md",
+      "verified_at_commit": "fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7"
+    }
+  ],
+  "workstream": "WS-40"
+}
