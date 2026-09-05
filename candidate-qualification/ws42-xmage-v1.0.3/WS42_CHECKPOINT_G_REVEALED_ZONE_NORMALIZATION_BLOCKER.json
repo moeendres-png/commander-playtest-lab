@@ -1,0 +1,55 @@
+{
+  "schema_version": "commander-lab.ws42-checkpoint/1.0.0",
+  "workstream": "WS-42",
+  "checkpoint": "G_REVEALED_ZONE_NORMALIZATION_BLOCKER",
+  "recorded_date": "2026-09-05",
+  "source_lock": {
+    "provider_repository": "moeendres-png/commander-playtest-lab",
+    "provider_branch": "ws42/xmage-v1.0.3-successor-qualification",
+    "provider_commit": "c6ad30a2134fac29602a3bdd9394de9cdc0dbdea",
+    "ws41_freeze_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_freeze_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "xmage_commit": "7bde812727817723616c575759f39bfc4cda4607",
+    "xmage_tree": "a44f32e9d34109ac3f272494f0e8eb9ea3e6280c"
+  },
+  "fresh_run": {
+    "workflow_run_id": 33919745872,
+    "job_id": 101175095656,
+    "conclusion": "failure",
+    "artifact_id": 9955091697,
+    "artifact_name": "ws42-v103-construction-c6ad30a2134fac29602a3bdd9394de9cdc0dbdea",
+    "artifact_digest": "sha256:3aeeeff668e8edabc1e84508616ecb8b662cdabd8c20bf5e6914dd91dfc62196"
+  },
+  "verified_progress": {
+    "provider_denominator": 107,
+    "bounded_native_admission_status": "PASS",
+    "bounded_native_admitted": 100,
+    "natural_start_deferred": 7,
+    "admission_total": 107,
+    "independent_construction_normalization_status": "FAIL"
+  },
+  "exact_blocker": {
+    "fixture_id": "PILOT_PILE",
+    "semantic_id": "obj:opt-a",
+    "field": "zone",
+    "requested": "revealed",
+    "native_readback": "library",
+    "exception_prefix": "WS42_NORMALIZE_NATIVE_READBACK_MISMATCH",
+    "classification": "SEMANTIC_REVEALED_STATE_NOT_INDEPENDENTLY_READ_BACK"
+  },
+  "diagnosis": {
+    "translator_staging": "The v1.0.3 translator binds revealed cards through an XMage library staging path because XMage has no ordinary physical Zone.REVEALED enum in the legacy state loader.",
+    "proof_gap": "The current setup-boundary scenario-object readback therefore reports the physical native zone as library. No request-independent native semantic reveal-state readback is yet bound into the independent normalizer.",
+    "forbidden_remediation": "Do not repair by copying the requested zone value into normalized construction proof.",
+    "required_remediation": "Represent and independently read back the provider-native reveal/visibility state associated with the bound native object, then normalize semantic zone=revealed only from that native evidence."
+  },
+  "credit": {
+    "compliant_construction_credit": 0,
+    "fresh_behavior_runtime_credit": 0,
+    "af07_granted": false,
+    "architecture_freeze_granted": false,
+    "xmage_successor_provider_qualified": false
+  },
+  "stop_condition": "NOT_MET_REMEDIABLE_PROVIDER_PROOF_GAP"
+}
