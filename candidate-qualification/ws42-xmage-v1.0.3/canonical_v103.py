@@ -108,6 +108,59 @@ def bootstrap_digest_for_translation(record: dict[str, Any]) -> str:
     return str(bootstrap["requested_state_digest"])
 
 
+def _player_seat(player_id: str, fixture_id: str) -> int:
+    if not isinstance(player_id, str) or not player_id.startswith("P") or not player_id[1:].isdigit():
+        raise ValueError(f"WS42_PLAYER_ID_INVALID:{fixture_id}:{player_id!r}")
+    seat = int(player_id[1:])
+    if seat < 1:
+        raise ValueError(f"WS42_PLAYER_SEAT_INVALID:{fixture_id}:{player_id}")
+    return seat
+
+
+def _commander_damage_specs(record: dict[str, Any]) -> list[dict[str, Any]]:
+    """Bind semantic damage rows to native commander lookup metadata.
+
+    ``combat_damage`` remains the requested snapshot value to restore.  The
+    additional owner-seat/card-identity fields are identity metadata used only
+    to locate XMage's native CommanderInfoWatcher.  They are not construction
+    proof; proof is the request-independent watcher readback emitted later by
+    XmageWs42NativeStateExtension.
+    """
+    fixture_id = str(record.get("fixture_id"))
+    matrix = (record.get("commander_state") or {}).get("commander_damage_matrix") or []
+    if not matrix:
+        return []
+    commanders = {
+        str(item["commander_id"]): item
+        for item in (record.get("commander_state") or {}).get("commanders") or []
+    }
+    result: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for row in matrix:
+        source_id = str(row.get("source_commander_id"))
+        damaged_player = str(row.get("damaged_player"))
+        key = (source_id, damaged_player)
+        if key in seen:
+            raise ValueError(f"WS42_COMMANDER_DAMAGE_DUPLICATE:{fixture_id}:{source_id}:{damaged_player}")
+        seen.add(key)
+        commander = commanders.get(source_id)
+        if commander is None:
+            raise ValueError(f"WS42_COMMANDER_DAMAGE_SOURCE_MISSING:{fixture_id}:{source_id}")
+        amount = row.get("combat_damage")
+        if not isinstance(amount, int) or isinstance(amount, bool) or amount < 0:
+            raise ValueError(f"WS42_COMMANDER_DAMAGE_INVALID:{fixture_id}:{source_id}:{amount!r}")
+        result.append(
+            {
+                "source_commander_id": source_id,
+                "source_owner_seat": _player_seat(str(commander.get("owner")), fixture_id),
+                "source_card_identity": str(commander.get("card_identity")),
+                "damaged_player": damaged_player,
+                "combat_damage": amount,
+            }
+        )
+    return result
+
+
 def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Translate one v1.0.3 record into native-load inputs without rules shortcuts."""
     bootstrap, revealed_ids = _bootstrap_record(record)
@@ -172,9 +225,5 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     _put_nonempty(scenario, "ws42_zone_move_event", record.get("zone_move_event"))
     if _has_knowledge_grants(record):
         scenario["ws42_knowledge_state"] = copy.deepcopy(record["knowledge_state"])
-    _put_nonempty(
-        scenario,
-        "ws42_commander_damage_matrix",
-        (record.get("commander_state") or {}).get("commander_damage_matrix"),
-    )
+    _put_nonempty(scenario, "ws42_commander_damage_matrix", _commander_damage_specs(record))
     return decks, scenario
