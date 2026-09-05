@@ -6,9 +6,9 @@ object. This wrapper preserves the provider-emitted configuration fields needed
 for independent normalization without ever exposing or consuming the inherited
 WS34 whole-request echo.
 
-Only dimensions implemented and independently validated by
-XmageWs42NativeStateExtension are admitted here. Other WS41 dimensions remain
-fail-closed until their native implementation and readback proof exist.
+Only dimensions implemented and independently validated by WS42 native state
+extensions are admitted here. Other WS41 dimensions remain fail-closed until
+their native implementation and readback proof exist.
 """
 from __future__ import annotations
 
@@ -23,10 +23,10 @@ import run_full107_construction_probe_v103 as base  # noqa: E402
 
 _ORIGINAL_CAPTURE = base.capture_non_echo_readback
 
-# These dimensions are restored through XMage native APIs by
-# XmageWs42NativeStateExtension and validated before the setup-boundary snapshot.
-# Do not add a dimension here merely because the contract translator can encode
-# it; admission requires native restoration plus request-independent readback.
+# These dimensions are restored through XMage native APIs and validated before
+# the setup-boundary snapshot. Do not add a dimension merely because the
+# translator can encode it; admission requires native restoration plus
+# request-independent readback.
 WS42_IMPLEMENTED_NATIVE_DIMENSIONS = {
     "attachments",
     "commander_damage_matrix",
@@ -39,6 +39,7 @@ WS42_IMPLEMENTED_NATIVE_DIMENSIONS = {
     "temporal:combat/declare_attackers",
     "temporal:combat/declare_blockers",
     "temporal:postcombat_main/main",
+    "zone:revealed",
 }
 
 
