@@ -165,17 +165,16 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
     """Translate one v1.0.3 record into native-load inputs without rules shortcuts."""
     bootstrap, revealed_ids = _bootstrap_record(record)
 
-    # XMage represents public reveal state through a native visibility registry,
-    # not a physical `revealed` Zone enum. The only semantic staging mutation is
-    # therefore revealed -> library for native card binding. Its recalculated
-    # digest above is translator-internal and is never compared as WS41 proof.
+    # XMage represents public reveal state through GameState.getRevealed(), not
+    # a physical Zone.REVEALED. The inherited bootstrap therefore stages each
+    # such object in library solely to bind a native Card identity. The exact
+    # WS41 requested state is restored below, and native reveal membership is
+    # applied/read back independently by XmageWs42RevealedState.
     decks, scenario = base.deck_and_scenario(bootstrap)
     scenario["scenario_id"] = f"WS42-{record['fixture_id']}"
 
     # Fixed Rules seeds are copied exactly. SCENARIO_SEED-bound records retain
     # the deterministic provider scenario seed created by the bootstrap layer.
-    # No WS42-only audit field is inserted into the native scenario because its
-    # parser deliberately rejects unknown keys.
     _bind_execution_seed(record, scenario)
 
     # Restore the exact immutable v1.0.3 request immediately after staging.
@@ -199,22 +198,13 @@ def deck_and_scenario(record: dict[str, Any]) -> tuple[list[dict[str, Any]], dic
             entry["counters"] = copy.deepcopy(source["counters"])
         if source.get("attached_to") is not None:
             entry["attached_to"] = source["attached_to"]
-        if semantic_id in revealed_ids:
-            if current_zone != "library":
-                raise ValueError(f"WS42_REVEALED_BOOTSTRAP_ZONE_MISMATCH:{semantic_id}:{current_zone}")
-            moved = False
-            for player in scenario["players"]:
-                library = player["zones"].get("library") or []
-                found = [item for item in library if item.get("semantic_id") == semantic_id]
-                if not found:
-                    continue
-                if len(found) != 1 or moved:
-                    raise ValueError(f"WS42_REVEALED_BOOTSTRAP_DUPLICATE:{semantic_id}")
-                library.remove(found[0])
-                player["zones"].setdefault("revealed", []).append(found[0])
-                moved = True
-            if not moved:
-                raise ValueError(f"WS42_REVEALED_BOOTSTRAP_NOT_FOUND:{semantic_id}")
+        if semantic_id in revealed_ids and current_zone != "library":
+            raise ValueError(f"WS42_REVEALED_BOOTSTRAP_ZONE_MISMATCH:{semantic_id}:{current_zone}")
+
+    if revealed_ids:
+        scenario["ws42_revealed_state"] = [
+            {"semantic_id": semantic_id} for semantic_id in sorted(revealed_ids)
+        ]
 
     # Provider-extension keys are emitted only when the immutable record really
     # requires the dimension. This preserves the native parser's rejectUnknown
