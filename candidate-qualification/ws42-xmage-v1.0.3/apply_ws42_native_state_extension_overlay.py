@@ -91,9 +91,13 @@ def patch_scenario() -> None:
         '        JsonObject ws42NativeExtensionValidation = XmageWs42NativeStateExtension.applySnapshotDimensions(\n'
         '                scenario, game, players, semanticMap\n'
         '        );\n'
+        '        JsonObject ws42RevealedValidation = XmageWs42RevealedState.applyAndValidate(\n'
+        '                scenario, game, semanticMap\n'
+        '        );\n'
         '        applyStackState(scenario, game, players, semanticMap);\n'
         '        JsonObject validation = validateNative(game, players, bySeat, semanticMap, ledger);\n'
-        '        validation.add("ws42_native_state_extension", ws42NativeExtensionValidation);\n',
+        '        validation.add("ws42_native_state_extension", ws42NativeExtensionValidation);\n'
+        '        validation.add("ws42_revealed_state", ws42RevealedValidation);\n',
         "apply-native-extension",
     )
 
