@@ -110,6 +110,7 @@ jobs:
             candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103.py \
             candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103_enriched.py \
             candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103_enriched.py \
             candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py \
             candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py \
             candidate-qualification/ws39-xmage-successor/run_tax3.py \
@@ -217,7 +218,7 @@ jobs:
       - name: Independently normalize native constructed state
         run: |
           set -euo pipefail
-          python candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103.py \
+          python candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103_enriched.py \
             --contract _ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
             --probe artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json \
             --output artifacts/ws42-v103-construction/WS42_INDEPENDENT_CONSTRUCTION_NORMALIZATION.json \
