@@ -5,6 +5,10 @@ The base probe intentionally consumes only the explicit WS42 native-readback
 object. This wrapper preserves the provider-emitted configuration fields needed
 for independent normalization without ever exposing or consuming the inherited
 WS34 whole-request echo.
+
+Only dimensions implemented and independently validated by
+XmageWs42NativeStateExtension are admitted here. Other WS41 dimensions remain
+fail-closed until their native implementation and readback proof exist.
 """
 from __future__ import annotations
 
@@ -18,6 +22,23 @@ sys.path.insert(0, str(HERE))
 import run_full107_construction_probe_v103 as base  # noqa: E402
 
 _ORIGINAL_CAPTURE = base.capture_non_echo_readback
+
+# These dimensions are restored through XMage native APIs by
+# XmageWs42NativeStateExtension and validated before the setup-boundary snapshot.
+# Do not add a dimension here merely because the contract translator can encode
+# it; admission requires native restoration plus request-independent readback.
+WS42_IMPLEMENTED_NATIVE_DIMENSIONS = {
+    "attachments",
+    "counters",
+    "nonpositive_life",
+    "owner_controller_split",
+    "temporal:beginning/draw",
+    "temporal:beginning/upkeep",
+    "temporal:combat/combat_damage",
+    "temporal:combat/declare_attackers",
+    "temporal:combat/declare_blockers",
+    "temporal:postcombat_main/main",
+}
 
 
 def capture_non_echo_readback(
@@ -55,6 +76,7 @@ def capture_non_echo_readback(
 
 
 def main() -> int:
+    base.CURRENT_NATIVE_DIMENSIONS.update(WS42_IMPLEMENTED_NATIVE_DIMENSIONS)
     base.capture_non_echo_readback = capture_non_echo_readback
     return base.main()
 
