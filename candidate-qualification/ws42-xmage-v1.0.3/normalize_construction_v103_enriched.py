@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""WS42 independent construction normalization with native attachment proof.
+"""WS42 independent construction normalization for extended native state.
 
-This wrapper extends the base field-by-field normalizer for the attachment
-surface implemented by XmageWs42NativeStateExtension.  The immutable contract
-is used only to identify which semantic object is expected to have an
-attachment relation and to compare the expected semantic target.  The value
-emitted into normalized constructed state is taken from the provider-native
-setup-boundary readback field ``attached_to_semantic_id``.
+This wrapper extends the base field-by-field normalizer only for state surfaces
+that XmageWs42NativeStateExtension restores through XMage-native APIs and reads
+back independently before priority/state-based-action continuation.
 
-No inherited whole-request echo or requested-state digest is consumed as proof.
+The immutable contract supplies semantic labels and comparison expectations.
+Dynamic values emitted into normalized constructed state are taken from native
+readback. No inherited whole-request echo or requested-state digest is consumed
+as construction proof.
 """
 from __future__ import annotations
 
@@ -23,6 +23,7 @@ sys.path.insert(0, str(HERE))
 import normalize_construction_v103 as base  # noqa: E402
 
 _ORIGINAL_NORMALIZE_SEMANTIC_OBJECTS = base.normalize_semantic_objects
+_ORIGINAL_NORMALIZE_COMMANDER_STATE = base.normalize_commander_state
 
 
 def normalize_semantic_objects(
@@ -73,8 +74,92 @@ def normalize_semantic_objects(
     return rows
 
 
+def _native_commander_damage(
+    readback: dict[str, Any], fixture_id: str
+) -> list[dict[str, Any]]:
+    validation = readback.get("native_validation")
+    extension = validation.get("ws42_native_state_extension") if isinstance(validation, dict) else None
+    if not isinstance(extension, dict) or extension.get("valid") is not True:
+        base.fail("WS42_NORMALIZE_NATIVE_EXTENSION_VALIDATION_MISSING", fixture_id)
+    matrix = extension.get("commander_damage_matrix")
+    if not isinstance(matrix, list):
+        base.fail("WS42_NORMALIZE_COMMANDER_DAMAGE_READBACK_MISSING", fixture_id)
+    result: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in matrix:
+        if not isinstance(item, dict):
+            base.fail("WS42_NORMALIZE_COMMANDER_DAMAGE_ROW_INVALID", fixture_id, item)
+        source = item.get("source_commander_id")
+        damaged = item.get("damaged_player")
+        amount = item.get("combat_damage")
+        if not isinstance(source, str) or not isinstance(damaged, str) or not isinstance(amount, int) or isinstance(amount, bool):
+            base.fail("WS42_NORMALIZE_COMMANDER_DAMAGE_ROW_INVALID", fixture_id, item)
+        key = (source, damaged)
+        if key in seen:
+            base.fail("WS42_NORMALIZE_COMMANDER_DAMAGE_DUPLICATE_NATIVE_ROW", fixture_id, key)
+        seen.add(key)
+        result.append(
+            {
+                "source_commander_id": source,
+                "damaged_player": damaged,
+                "combat_damage": amount,
+            }
+        )
+    return result
+
+
+def normalize_commander_state(record: dict[str, Any], readback: dict[str, Any]) -> dict[str, Any]:
+    fixture_id = record["fixture_id"]
+    requested_matrix = record["commander_state"].get("commander_damage_matrix") or []
+
+    # The base normalizer remains authoritative for commander identity, zone,
+    # owner, partner relationship and native command-zone cast history. Remove
+    # only the non-empty damage matrix from its comparison copy because the base
+    # implementation intentionally fail-closes that previously unsupported field.
+    comparison_record = copy.deepcopy(record)
+    comparison_record["commander_state"]["commander_damage_matrix"] = []
+    normalized = _ORIGINAL_NORMALIZE_COMMANDER_STATE(comparison_record, readback)
+    if not requested_matrix:
+        return normalized
+
+    native_matrix = _native_commander_damage(readback, fixture_id)
+    native_by_key = {
+        (row["source_commander_id"], row["damaged_player"]): row
+        for row in native_matrix
+    }
+    if len(native_by_key) != len(native_matrix):
+        base.fail("WS42_NORMALIZE_COMMANDER_DAMAGE_NATIVE_KEY_COLLISION", fixture_id)
+    if len(native_matrix) != len(requested_matrix):
+        base.fail(
+            "WS42_NORMALIZE_COMMANDER_DAMAGE_MATRIX_SIZE_MISMATCH",
+            fixture_id,
+            {"native": len(native_matrix), "requested": len(requested_matrix)},
+        )
+
+    rows: list[dict[str, Any]] = []
+    for expected in requested_matrix:
+        key = (expected.get("source_commander_id"), expected.get("damaged_player"))
+        native = native_by_key.get(key)
+        if native is None:
+            base.fail("WS42_NORMALIZE_COMMANDER_DAMAGE_NATIVE_ROW_MISSING", fixture_id, key)
+        if int(native["combat_damage"]) != int(expected.get("combat_damage", -1)):
+            base.fail(
+                "WS42_NORMALIZE_COMMANDER_DAMAGE_VALUE_MISMATCH",
+                fixture_id,
+                {"key": key, "native": native["combat_damage"], "requested": expected.get("combat_damage")},
+            )
+        # Emit the request-independent native readback row.  The semantic IDs in
+        # it are mapping labels validated by the native extension; the damage
+        # amount itself comes from CommanderInfoWatcher.getDamageToPlayer().
+        rows.append(copy.deepcopy(native))
+
+    normalized["commander_damage_matrix"] = rows
+    return normalized
+
+
 def main() -> int:
     base.normalize_semantic_objects = normalize_semantic_objects
+    base.normalize_commander_state = normalize_commander_state
     return base.main()
 
 
