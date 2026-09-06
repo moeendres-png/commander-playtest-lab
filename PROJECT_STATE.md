@@ -1,126 +1,133 @@
-# COMMANDER SIMULATION FOUNDRY — WS-44 CURRENT PROJECT STATE
+# COMMANDER SIMULATION FOUNDRY — WS-44 TERMINAL PROJECT STATE
 
 ## Current Assignment
 
-WS-44 — reconcile the WS-43 predecessor-integrity gate with the actual WS-41 source-lock/attestation model, then complete the provider-neutral v1.0.4 referential-integrity repair and immutable freeze.
+WS-44 — predecessor authority reconciliation plus complete provider-neutral v1.0.4 referential-integrity repair and immutable successor-contract freeze.
 
-## Current Status
+## Terminal Status
 
-- `WS44_WORKSTREAM_TERMINAL = NO`
-- `TASK_COMPLETE = NO`
-- `Completion Status = READY_FOR_AUTHORITY_RECONCILIATION_AND_V1_0_4_FREEZE`
-- `SUCCESSOR_CONTRACT_FROZEN = NO`
+- `WS44_WORKSTREAM_TERMINAL = YES`
+- `TASK_COMPLETE = YES`
+- `Completion Status = COMPLETE / PASS_SUCCESSOR_CONTRACT_V1_0_4_FREEZE`
+- `SUCCESSOR_CONTRACT_FROZEN = TRUE`
 - `PROVIDER_RUNTIME_EXECUTED = FALSE`
 - `PROVIDER_PASS_IMPORTED = FALSE`
 - `AF07_GRANTED = FALSE`
 - `ARCHITECTURE_FREEZE = NO`
 
-## Coordinator Authority Decision
+All hard gates `G44-01` through `G44-15` are PASS.
 
-Binding file:
+## Binding Predecessor Authority
 
-`candidate-qualification/ws44-v1.0.4-authority/WS44_COORDINATOR_AUTHORITY_DECISION.md`
+Coordinator authority remains:
 
-Selected authority path: **Option 2**, with strict detached-source semantics.
+`OPTION_2 / DETACHED_IMMUTABLE_PREDECESSOR_WITH_STRICT_ATTESTATION_SCOPE`
 
-The immutable predecessor authority remains exactly:
+Exact immutable WS-41 predecessor:
 
 - commit `24152acf36b5a560c23ccacfed3f31d3039537eb`
 - tree `428bbe58b2ea7b869200521092a8768108029b47`
-- namespace tree `af8a26e7e74a859d5f4a983b69e4ff108e7123f4`
+- `qualification/ws41` namespace tree `af8a26e7e74a859d5f4a983b69e4ff108e7123f4`
 - contract `commander-lab.semantic-fixture-materialization/1.0.3`
-- canonical materialization bundle digest `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
 - materialization SHA-256 `8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5`
+- canonical bundle digest `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
 - provider denominator `107`
 
-No later WS-41 commit is promoted to predecessor authority.
+No later WS-41 commit is promoted to predecessor authority. WS-43 remains historically terminal under its own earlier gate definition and is not reopened.
 
-All v1.0.4 derivation must read predecessor bytes directly from the exact pinned Git commit, not from a descendant working-tree copy of `qualification/ws41`.
+## Completed WS-44 Repair
 
-## WS-43 Reconciliation
+WS-44 repaired the provider-neutral v1.0.3 referential-integrity defect class without changing frozen semantic obligations.
 
-WS-43 remains terminal and is not reopened:
+Final successor contract:
 
-- terminal commit `a96f0db9a4d2cb8ef646281ab5bf0ee351d0a52e`
-- tree `cafdbcd9e08bbd1da64a8ef4dcd50f1e63e44f2e`
-- classification `COMPLETE / TERMINAL_FAIL_DIGEST_INTEGRITY_DEFECT`
-- `SUCCESSOR_CONTRACT_FROZEN = FALSE`
+`commander-lab.semantic-fixture-materialization/1.0.4`
 
-Its `G43-01 = FAIL` remains historically correct under its binding gate definition, which required the descendant working-tree `qualification/ws41` namespace itself to remain 18/18 byte-identical.
+Canonical namespace:
 
-WS-44 supersedes that gate definition only. It does not rewrite WS-43 history.
+`qualification/ws44`
 
-## Exact Attestation Drift Classification
+Final qualification facts:
 
-WS-43 proved the descendant namespace had the same 18-path set but only 13 matching blobs.
+- records: `135`
+- typed references audited: `8557`
+- referential-integrity defects: `0`
+- semantic executability: `135/135 PASS`
+- provider denominator: `107`
+- repair count: `11`
+- changed fixture count: `9`
+- obligation changed count: `0`
+- predecessor denominator identity set equal: `true`
 
-The five differing paths are explicitly classified as later terminal-attestation/evidence packaging:
+Inherited WS-41 semantic protections including `PILOT_CHOICE`, `CARD_13`, and `CARD_22` remain PASS.
 
-1. `WS41_BUNDLE_MANIFEST_v1_0_3.json`
-2. `WS41_EVIDENCE_INDEX.json`
-3. `WS41_FINAL_HANDOFF.md`
-4. `WS41_SHA256SUMS`
-5. `WS41_VALIDATION.json`
+## Immutable v1.0.4 Freeze
 
-The other 13 WS-41 semantic/support files must remain byte-identical whenever later attestation state is compared.
+Schema-valid persistent freeze:
 
-The canonical materialization remained byte-identical:
+- freeze commit `12940248497a8795991cbbd2eedef72945528cfe`
+- freeze tree `cd83c973b269711106d08ab5be2d7672f05bcb7c`
+- canonical `qualification/ws44` namespace tree `6579e119605b90248426a3121a47c487b2bb13cd`
+- materialization SHA-256 `9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35`
+- canonical bundle digest `77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54`
 
-- blob `a05106d42ff3e51fe68acf45bb03aa356784142c`
-- SHA-256 `8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5`
-- canonical materialization bundle digest `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
+Deterministic freeze workflow:
 
-The later evidence-bundle digest `706e8e387b92ad3e1fd0133cbad8df3c1e00a7b3b7dfec31dda392ece5cd3f1a` is evidence packaging, not a replacement predecessor semantic source lock.
+- run `34049759592`
+- artifact `9994178470`
+- artifact digest `sha256:1d9a13f725e056261d4fb84c55e0558ca7da462167bee2084d73a3c27e6e6abd`
 
-## WS-41 Self-Consistency Evidence
+Independent later post-freeze verification:
 
-Later WS-41 `WS41_VALIDATION.json` itself records a `successor_contract_source_lock` pointing downstream back to exact commit `24152acf...` / tree `428bbe58...` and states that later terminal attestation commits may not alter canonical semantic materialization bytes.
+- run `34049851939`
+- verification input commit `1e6d063498fa1ac7a5d5268700b13ed4e0dda112`
+- terminal attestation commit `30a7c9f9fdb55dc7dee591531d7607a93407b344`
+- artifact `9994203749`
+- artifact digest `sha256:9bb8c69c0b02b493e231d2c620cba705ca7a1050e50c12ffa1a77eb4c6585ea8`
 
-This supports the detached-source interpretation now made binding by the Coordinator.
+The independent run regenerated from the detached predecessor authority and passed checked-in byte equality, sealed SHA-256 verification, Draft 2020-12 schema validation, referential-integrity regressions, and complete terminal-gate assertions.
 
-## Terminal Provider-Neutral Contract Defect Inputs
+## Terminal Evidence
 
-### WS-40
+Self-contained handoff:
 
-- terminal head `87b0a571cb3f9d18378150e3546fbe8fac4b6366`
-- atomic evidence `fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7`
-- classification `TERMINAL_IMMUTABLE_CONTRACT_DEFECT`
-- first failure `WS40_STATE_TARGET_UNBOUND:obj:P2-bears`
-- affected mandatory records `MICRO_PRIORITY`, `MICRO_STACK`
+`candidate-qualification/ws44-v1.0.4-authority/WS44_FINAL_HANDOFF.md`
 
-### WS-42
+Machine-readable terminal records:
 
-- terminal commit `a455f596389fde2d61703a0e6918415db2fd18c2`
-- tree `af62bcea93c5416289264492fbc066a1dbd5b2d0`
-- classification `COMPLETE / BLOCKED_BY_IMMUTABLE_V1_0_3_CONTRACT_DEFECT`
-- `XMAGE_RULES_CORE_FAILURE = FALSE`
+- `candidate-qualification/ws44-v1.0.4-authority/WS44_POSTFREEZE_ATTESTATION.json`
+- `candidate-qualification/ws44-v1.0.4-authority/WS44_TERMINAL_GATE_RESULT.json`
 
-Both prove that provider-side identity guessing is not an acceptable solution.
+Canonical freeze evidence resides under:
 
-## Required Execution
+`qualification/ws44`
 
-Follow:
+## No-Credit Boundary
 
-`candidate-qualification/ws44-v1.0.4-authority/WS44_WORKSTREAM_CONTRACT.md`
+WS-44 grants no provider/runtime credit:
 
-Core sequence:
+- no Forge runtime PASS;
+- no XMage runtime PASS;
+- no historical successor-runtime credit may be imported into the next qualification cycle;
+- no AF07 grant;
+- no Architecture Freeze.
 
-1. verify detached predecessor commit/tree/namespace bytes;
-2. verify the 13 immutable payload files and exact five-file attestation allowlist;
-3. reproduce the MICRO dangling references from pinned v1.0.3 bytes;
-4. prove intended referent provider-neutrally;
-5. preserve both obligations;
-6. repair v1.0.4 representation;
-7. inventory and lint all reference-bearing fields across all 135 records;
-8. reach 0 referential-integrity defects and 135/135 semantic executability;
-9. reconstruct provider denominator, expected 107;
-10. recompute digest lineage;
-11. deterministic double materialization;
-12. persist immutable v1.0.4 freeze;
-13. independently regenerate and byte-compare checked-in outputs;
-14. seal complete evidence and self-contained handoff;
-15. keep Draft PR unmerged.
+`WS-37 Actual-Card runtime` remains unexecuted until at least one provider fully qualifies against immutable v1.0.4.
+
+## Dependencies Unblocked
+
+WS-44 unblocks fresh successor-provider qualification against the immutable v1.0.4 contract for:
+
+1. Forge;
+2. XMage.
+
+Both must start from zero historical successor-runtime credit. Prior implementation work may be reused only as provenance and must be freshly verified against v1.0.4.
 
 ## Exact Next Action
 
-Begin WS-44 from the live branch and execute the authority-verification gates first. Once they PASS, continue automatically through the full v1.0.4 MICRO repair, global referential-integrity audit, deterministic materialization and persistent freeze until COMPLETE or a genuinely terminal obligation/determinism defect is proven.
+Coordinator should launch two separate successor-provider workstreams against the immutable v1.0.4 lock:
+
+- Forge: fresh v1.0.4 qualification from zero historical successor-runtime credit, including the unresolved no-request-echo hardening gate.
+- XMage: fresh v1.0.4 qualification from zero historical successor-runtime credit; reuse implementation provenance only where freshly verified, never qualification credit.
+
+Keep Draft PR #158 unmerged as the WS-44 review surface.
