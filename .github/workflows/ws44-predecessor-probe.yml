@@ -7,6 +7,7 @@ on:
     paths:
       - scripts/ws44_probe_predecessor.py
       - scripts/ws44_extract_dangling_context.py
+      - scripts/ws44_inventory_reference_namespaces.py
       - .github/workflows/ws44-predecessor-probe.yml
   workflow_dispatch:
 
@@ -27,12 +28,15 @@ jobs:
             --output candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json
           python scripts/ws44_extract_dangling_context.py \
             --output candidate-qualification/ws44-v1.0.4-authority/WS44_V103_DANGLING_CONTEXTS.json
+          python scripts/ws44_inventory_reference_namespaces.py \
+            --output candidate-qualification/ws44-v1.0.4-authority/WS44_V103_REFERENCE_NAMESPACE_INVENTORY.json
       - name: Persist probe evidence
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json \
-                  candidate-qualification/ws44-v1.0.4-authority/WS44_V103_DANGLING_CONTEXTS.json
+                  candidate-qualification/ws44-v1.0.4-authority/WS44_V103_DANGLING_CONTEXTS.json \
+                  candidate-qualification/ws44-v1.0.4-authority/WS44_V103_REFERENCE_NAMESPACE_INVENTORY.json
           if git diff --cached --quiet; then
             echo "Probe evidence already current"
             exit 0
@@ -46,4 +50,5 @@ jobs:
           path: |
             candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json
             candidate-qualification/ws44-v1.0.4-authority/WS44_V103_DANGLING_CONTEXTS.json
+            candidate-qualification/ws44-v1.0.4-authority/WS44_V103_REFERENCE_NAMESPACE_INVENTORY.json
           if-no-files-found: error
