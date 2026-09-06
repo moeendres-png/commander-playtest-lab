@@ -1,0 +1,42 @@
+{
+  "schema": "commander-lab.ws45.forge-native-history-build-pass/1.0.0",
+  "workstream": "WS-45",
+  "status": "PASS",
+  "qualification_credit_effect": "NO_RUNTIME_OR_CONSTRUCTION_CREDIT_YET",
+  "forge_branch": "foundry/ws45-v104-observation-remediation",
+  "forge_baseline_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+  "forge_tested_commit": "d468ed84c7781e41d5aed71cd9ea24bd5aa45ad5",
+  "forge_tested_tree": "cf59cb41d2284ba33c5bd0710d1d6059141136a1",
+  "engine_change": {
+    "file": "forge-game/src/main/java/forge/game/qualification/RestoredQualificationHistory.java",
+    "role": "qualification-only native snapshot/history state",
+    "rules_legality_consumers": 0,
+    "magic_legality_changed": false,
+    "architecture_pattern": "same bounded qualification-history pattern as RestoredSpellCastHistory"
+  },
+  "dedicated_build": {
+    "workflow": "WS45 observation remediation",
+    "run_id": 34058169806,
+    "job_id": 101553796560,
+    "conclusion": "success",
+    "source_lock_step": "success",
+    "compile_step": "success",
+    "artifact_id": 9996638023,
+    "artifact_digest": "sha256:1f2199e03bac6ba447c2ea7dbd0d3e42861709a385511566a7f75e55ecc9a891"
+  },
+  "independent_repository_build": {
+    "workflow": "Test build",
+    "run_id": 34058169742,
+    "conclusion": "success"
+  },
+  "gates": {
+    "forge_native_history_source_compiles": "PASS",
+    "forge_baseline_ancestry_verified": "PASS",
+    "strict_no_request_echo": "NOT_YET_GRANTED",
+    "construction_107": "NOT_RUN",
+    "behavior_107": "NOT_RUN",
+    "forge_successor_provider_qualified": false,
+    "architecture_freeze": false
+  },
+  "exact_next_action": "Replace Commander-Lab request-derived Rules-state serialization/normalization with typed Forge-side observation and exact native-card-id binding, then run static and adversarial no-request-echo gates before any construction credit."
+}
