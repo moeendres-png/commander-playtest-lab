@@ -14,10 +14,11 @@ jobs:
   independent-postfreeze-verification:
     runs-on: ubuntu-latest
     env:
-      WS44_FREEZE_COMMIT: 117ff5eb9195cd6428861c666c2281e8ecaf28af
-      WS44_FREEZE_RUN_ID: '34049251543'
-      WS44_FREEZE_ARTIFACT_ID: '9994037253'
-      WS44_FREEZE_ARTIFACT_DIGEST: sha256:873cfaded79c892a954f312cb08ab2813c706ecf0dd850ff39ee6d4da7f8ab9e
+      WS44_FREEZE_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+      WS44_FREEZE_NAMESPACE_TREE_EXPECTED: 6579e119605b90248426a3121a47c487b2bb13cd
+      WS44_FREEZE_RUN_ID: '34049759592'
+      WS44_FREEZE_ARTIFACT_ID: '9994178470'
+      WS44_FREEZE_ARTIFACT_DIGEST: sha256:1d9a13f725e056261d4fb84c55e0558ca7da462167bee2084d73a3c27e6e6abd
     steps:
       - name: Checkout complete history after persistent freeze
         uses: actions/checkout@v4
@@ -31,6 +32,7 @@ jobs:
           freeze_tree="$(git show -s --format=%T "$WS44_FREEZE_COMMIT")"
           freeze_ns="$(git rev-parse "$WS44_FREEZE_COMMIT:qualification/ws44")"
           current_ns="$(git rev-parse "HEAD:qualification/ws44")"
+          test "$freeze_ns" = "$WS44_FREEZE_NAMESPACE_TREE_EXPECTED"
           test "$freeze_ns" = "$current_ns"
           echo "WS44_FREEZE_TREE=$freeze_tree" >> "$GITHUB_ENV"
           echo "WS44_FREEZE_NAMESPACE_TREE=$freeze_ns" >> "$GITHUB_ENV"
@@ -41,14 +43,14 @@ jobs:
 
       - name: Compile independent regeneration implementation
         run: |
-          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_build_successor_v2.py scripts/ws44_test_referential_integrity.py
+          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_build_successor_v2.py scripts/ws44_build_successor_v3.py scripts/ws44_build_successor_v4.py scripts/ws44_test_referential_integrity.py
 
       - name: Independently regenerate from detached predecessor authority
         run: |
           set -euo pipefail
           rm -rf /tmp/ws44-postfreeze
           mkdir -p /tmp/ws44-postfreeze
-          python scripts/ws44_build_successor_v2.py --output /tmp/ws44-postfreeze
+          python scripts/ws44_build_successor_v4.py --output /tmp/ws44-postfreeze
 
       - name: Byte-compare checked-in freeze against independent regeneration
         run: |
@@ -88,20 +90,25 @@ jobs:
         run: |
           python scripts/ws44_test_referential_integrity.py /tmp/ws44-postfreeze/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
 
-      - name: Assert complete terminal gate facts
+      - name: Assert complete terminal gate facts and preserved WS41 semantic repairs
         run: |
           python - <<'PY'
-          import hashlib, json, os
+          import hashlib, json
           from pathlib import Path
           root = Path('qualification/ws44')
           ref = json.loads((root/'WS44_REFERENTIAL_INTEGRITY_AUDIT_135.json').read_text())
           sem = json.loads((root/'WS44_SEMANTIC_EXECUTABILITY_REPORT_135.json').read_text())
+          inherited = json.loads((root/'WS44_INHERITED_WS41_LINT_REPORT_135.json').read_text())
           den = json.loads((root/'WS44_PROVIDER_DENOMINATOR_107.json').read_text())
           lin = json.loads((root/'WS44_DIGEST_LINEAGE.json').read_text())
           val = json.loads((root/'WS44_VALIDATION.json').read_text())
-          mat = json.loads((root/'SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json').read_text())
+          mat_path = root/'SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json'
+          mat = json.loads(mat_path.read_text())
+          by = {r['fixture_id']: r for r in mat['records']}
+
           assert ref['terminal_status'] == 'PASS' and ref['record_count'] == 135 and ref['defect_count'] == 0
           assert sem['terminal_status'] == 'PASS' and sem['semantic_executable_count'] == 135 and sem['contract_defect_count'] == 0
+          assert inherited['terminal_status'] == 'PASS' and inherited['semantic_executable_count'] == 135 and inherited['contract_defect_count'] == 0
           assert den['provider_denominator_count'] == 107 and den['predecessor_identity_set_equal'] is True
           assert lin['obligation_changed_count'] == 0
           assert val['provider_runtime_executed'] is False
@@ -109,10 +116,35 @@ jobs:
           assert val['AF07_GRANTED'] is False
           assert val['ARCHITECTURE_FREEZE'] is False
           assert all(v == 'PASS' for v in val['static_gates'].values())
-          mat_sha = hashlib.sha256((root/'SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json').read_bytes()).hexdigest()
+          mat_sha = hashlib.sha256(mat_path.read_bytes()).hexdigest()
           assert lin['successor']['materialization_sha256'] == mat_sha
           assert lin['successor']['canonical_bundle_digest'] == mat['canonical_bundle_digest']
-          print('WS44 complete terminal gate facts PASS')
+
+          pilot = by['PILOT_CHOICE']
+          assert pilot['stack_state'][0]['source_semantic_id'] == 'obj:utopia'
+          assert pilot['stack_state'][0]['cast_complete'] is True and pilot['stack_state'][0]['costs_paid'] is True
+          assert pilot['stack_state'][0]['targets'] == ['obj:forest']
+          assert pilot['decision_script'][0]['decision_family'] == 'choice'
+          assert pilot['decision_script'][0]['selection']['semantic_value'] == 'RED'
+          assert pilot['native_procedure'][0]['details']['target_already_selected_during_casting'] is True
+
+          c13 = by['CARD_13']
+          assert c13['decision_script'][0]['decision_family'] == 'priority'
+          assert c13['decision_script'][0]['selection']['semantic_value']['action'] == 'cast_alt_cost'
+          assert c13['decision_script'][1]['decision_family'] == 'target'
+          assert c13['decision_script'][1]['selection']['semantic_value'] == 'P3'
+          c13_step = next(s for s in c13['native_procedure'] if s['step_id'] == c13['decision_script'][1]['causal_step_id'])
+          assert c13_step['operation'] == 'NATIVE_BEGIN_OR_CONTINUE_RULES_PROCEDURE_TO_TARGET_DECISION'
+
+          c22 = by['CARD_22']
+          assert c22['decision_script'][0]['decision_family'] == 'priority'
+          assert c22['decision_script'][0]['selection']['semantic_value']['action'] == 'cast'
+          assert c22['decision_script'][1]['decision_family'] == 'target'
+          assert c22['decision_script'][1]['selection']['semantic_value'] == 'P3'
+          c22_step = next(s for s in c22['native_procedure'] if s['step_id'] == c22['decision_script'][1]['causal_step_id'])
+          assert c22_step['operation'] == 'NATIVE_BEGIN_OR_CONTINUE_RULES_PROCEDURE_TO_TARGET_DECISION'
+
+          print('WS44 complete terminal gate facts + preserved WS41 fixes PASS')
           PY
 
       - name: Persist post-freeze attestation and terminal gate result
@@ -128,7 +160,7 @@ jobs:
           mat = json.loads(mat_path.read_text())
           lin = json.loads((root/'WS44_DIGEST_LINEAGE.json').read_text())
           att = {
-              'artifact_version': 'commander-lab.ws44-postfreeze-attestation/1.0.0',
+              'artifact_version': 'commander-lab.ws44-postfreeze-attestation/1.0.1',
               'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
               'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
               'verification_input_commit': os.environ['WS44_VERIFICATION_COMMIT'],
@@ -147,6 +179,7 @@ jobs:
               'sealed_sha256_manifest': 'PASS',
               'draft_2020_12_schema_validation': 'PASS',
               'referential_integrity_regressions': 'PASS',
+              'preserved_ws41_semantic_repairs': 'PASS',
               'materialization_sha256': hashlib.sha256(mat_path.read_bytes()).hexdigest(),
               'canonical_bundle_digest': mat['canonical_bundle_digest'],
               'obligation_changed_count': lin['obligation_changed_count'],
