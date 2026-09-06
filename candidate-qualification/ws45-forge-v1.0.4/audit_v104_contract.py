@@ -73,7 +73,7 @@ def main() -> int:
         r["fixture_id"] for r in records4
         if r["fixture_family"] != "actual_card" or r["fixture_id"] == "CARD_02"
     ]
-    manifest_ids = denom["provider_record_ids"]
+    manifest_ids = denom["fixture_ids"]
     if reconstructed != manifest_ids:
         raise AssertionError("independently reconstructed provider denominator differs from WS44 manifest")
     if len(reconstructed) != 107:
