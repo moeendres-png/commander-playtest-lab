@@ -123,6 +123,12 @@ WS-44 unblocks fresh successor-provider qualification against the immutable v1.0
 
 Both must start from zero historical successor-runtime credit. Prior implementation work may be reused only as provenance and must be freshly verified against v1.0.4.
 
+## Administrative Closeout
+
+- Terminal `PROJECT_STATE.md` first persisted in commit `32dd74a7b2e56c8a9cea5c6a4a15c8c4b7711529`.
+- Draft PR #158 is the WS-44 review surface and remains required to stay unmerged.
+- Closeout-only commits must not mutate `qualification/ws44`; its required immutable namespace tree is `6579e119605b90248426a3121a47c487b2bb13cd`.
+
 ## Exact Next Action
 
 Coordinator should launch two separate successor-provider workstreams against the immutable v1.0.4 lock:
