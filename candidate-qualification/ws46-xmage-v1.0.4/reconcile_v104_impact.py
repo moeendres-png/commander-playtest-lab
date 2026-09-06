@@ -247,5 +247,13 @@ def main() -> int:
     print(json.dumps({"gate": "PASS", "changed_fixture_count": len(changed), "changed_provider_fixture_count": len(changed_provider), "changed_provider_ids": [r["fixture_id"] for r in changed_provider]}, sort_keys=True))
     return 0
 
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        result = main()
+    except SystemExit as exc:
+        diagnostic = Path("artifacts/ws46-v104-reconciliation/reconciler_exit.txt")
+        diagnostic.parent.mkdir(parents=True, exist_ok=True)
+        diagnostic.write_text(f"{exc}\n", encoding="utf-8")
+        raise
+    raise SystemExit(result)
