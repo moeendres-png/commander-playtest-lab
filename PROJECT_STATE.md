@@ -97,6 +97,7 @@ Machine-readable terminal records:
 
 - `candidate-qualification/ws44-v1.0.4-authority/WS44_POSTFREEZE_ATTESTATION.json`
 - `candidate-qualification/ws44-v1.0.4-authority/WS44_TERMINAL_GATE_RESULT.json`
+- `candidate-qualification/ws44-v1.0.4-authority/WS44_LONG_RUN_COMPLETION_REVALIDATION_2026-09-07.json`
 
 Canonical freeze evidence resides under:
 
@@ -129,11 +130,32 @@ Both must start from zero historical successor-runtime credit. Prior implementat
 - Draft PR #158 is the WS-44 review surface and remains required to stay unmerged.
 - Closeout-only commits must not mutate `qualification/ws44`; its required immutable namespace tree is `6579e119605b90248426a3121a47c487b2bb13cd`.
 
+## Long-Run Completion Revalidation — 2026-09-07
+
+The normal-chat long-run repository protocol was applied to the already-terminal WS-44 state.
+
+Fresh live-state checks established:
+
+- `AGENTS.md` is absent on the WS-44 branch; no conflicting repository instruction file exists there.
+- pre-revalidation branch head was `2f4cc17368e78d2a4bb14ece38f4e92a32ec0afe`, tree `2be0be7d5c507cec24b43660a0bac2ecfb5c03c8`;
+- deterministic freeze run `34049759592` remains `success`; artifact `9994178470` is unexpired and its digest remains `sha256:1d9a13f725e056261d4fb84c55e0558ca7da462167bee2084d73a3c27e6e6abd`;
+- independent post-freeze run `34049851939` remains `success`; artifact `9994203749` is unexpired and its digest remains `sha256:9bb8c69c0b02b493e231d2c620cba705ca7a1050e50c12ffa1a77eb4c6585ea8`;
+- freeze-to-closeout comparison contains only administrative/workflow/evidence paths and zero changes under `qualification/ws44`;
+- PR #158 remains open, Draft, and unmerged;
+- terminal machine-readable gates still report `G44-01..G44-15 = PASS`, `SUCCESSOR_CONTRACT_FROZEN = true`, no provider runtime credit, no AF07, and no Architecture Freeze.
+
+Adjudication:
+
+`PASS_ALREADY_COMPLETE_NO_REOPEN_REQUIRED`
+
+`TURN_STATUS = COMPLETE`
+
+`TASK_COMPLETE = YES`
+
+No previously validated WS-44 work was repeated and no immutable contract byte was modified.
+
 ## Exact Next Action
 
-Coordinator should launch two separate successor-provider workstreams against the immutable v1.0.4 lock:
-
-- Forge: fresh v1.0.4 qualification from zero historical successor-runtime credit, including the unresolved no-request-echo hardening gate.
-- XMage: fresh v1.0.4 qualification from zero historical successor-runtime credit; reuse implementation provenance only where freshly verified, never qualification credit.
+Do not reopen WS-44. Downstream successor-provider workstreams must consume the exact immutable v1.0.4 lock with zero historical successor-runtime credit.
 
 Keep Draft PR #158 unmerged as the WS-44 review surface.
