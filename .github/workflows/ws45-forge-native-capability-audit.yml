@@ -32,38 +32,77 @@ jobs:
           set -euo pipefail
           test "$(git -C forge-source rev-parse HEAD)" = "$FORGE_COMMIT"
           test "$(git -C forge-source rev-parse HEAD^{tree})" = "$FORGE_TREE"
-      - name: Extract native capability evidence
+      - name: Extract native capability evidence fail-closed
         shell: bash
         run: |
           set -euo pipefail
-          out=artifacts/ws45-native-capability
-          mkdir -p "$out/snippets"
-          cd forge-source
-          rg -n -i --glob='*.java' 'extra.?turn|extraTurn|extra turns|extra turns' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/extra_turn.txt" || true
-          rg -n -i --glob='*.java' 'random|rng|shuffle|MyRandom|Random' forge-game/src/main/java forge-core/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/rng.txt" || true
-          rg -n -i --glob='*.java' 'can.?see|visibility|visible|reveal|look at|face.?down|known|hidden|knowledge' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/visibility.txt" || true
-          rg -n -i --glob='*.java' 'loseGame|hasLost|lost|eliminat|life.?0|life.?zero|state.?based' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/elimination.txt" || true
-          rg -n -i --glob='*.java' 'zone.?change|zone.?move|moveTo|commander.*zone|command.*zone|replacement.*commander|state.?based.*commander' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/zone_move.txt" || true
-          rg -n -i --glob='*.java' 'partner|Partner' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/partner.txt" || true
-          rg -n -i --glob='*.java' 'mulligan|opening.?hand|starting.?hand|startGame|chooseStartingPlayer' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/natural_lifecycle.txt" || true
-          rg -n -i --glob='*.java' 'getId\(\)|getCard\(|card.*id|GameState|devModeSet' forge-game/src/main/java/forge/game forge-game/src/main/java/forge/gamemodes > "$GITHUB_WORKSPACE/$out/snippets/native_identity_state.txt" || true
-          cd "$GITHUB_WORKSPACE"
           python - <<'PY'
-          import json, os
+          import json, os, re, hashlib
           from pathlib import Path
-          root=Path('artifacts/ws45-native-capability/snippets')
-          counts={p.stem:sum(1 for _ in p.open(errors='replace')) for p in root.glob('*.txt')}
-          obj={
-            'schema':'commander-lab.ws45-forge-native-capability-audit/1.0.0',
-            'forge_commit':os.environ['FORGE_COMMIT'],
-            'forge_tree':os.environ['FORGE_TREE'],
-            'grep_line_counts':counts,
-            'qualification_credit':'NONE_SOURCE_AUDIT_ONLY'
+
+          repo = Path('forge-source')
+          out = Path('artifacts/ws45-native-capability')
+          snippets = out / 'snippets'
+          snippets.mkdir(parents=True, exist_ok=True)
+
+          roots = [repo/'forge-game/src/main/java', repo/'forge-core/src/main/java']
+          for root in roots:
+              if not root.is_dir():
+                  raise SystemExit(f'MISSING_SOURCE_ROOT:{root}')
+
+          patterns = {
+              'extra_turn': re.compile(r'extra.?turn|extraTurn|extra turns', re.I),
+              'rng': re.compile(r'random|rng|shuffle|MyRandom|Random', re.I),
+              'visibility': re.compile(r'can.?see|visibility|visible|reveal|look at|face.?down|known|hidden|knowledge', re.I),
+              'elimination': re.compile(r'loseGame|hasLost|lost|eliminat|life.?0|life.?zero|state.?based', re.I),
+              'zone_move': re.compile(r'zone.?change|zone.?move|moveTo|commander.*zone|command.*zone|replacement.*commander|state.?based.*commander', re.I),
+              'partner': re.compile(r'partner', re.I),
+              'natural_lifecycle': re.compile(r'mulligan|opening.?hand|starting.?hand|startGame|chooseStartingPlayer', re.I),
+              'native_identity_state': re.compile(r'getId\(\)|getCard\(|card.*id|GameState|devModeSet', re.I),
           }
-          Path('artifacts/ws45-native-capability/SUMMARY.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+
+          files = sorted({p for root in roots for p in root.rglob('*.java')})
+          if len(files) < 100:
+              raise SystemExit(f'INSUFFICIENT_JAVA_SOURCE_COUNT:{len(files)}')
+
+          counts = {}
+          for name, pat in patterns.items():
+              lines = []
+              for p in files:
+                  rel = p.relative_to(repo)
+                  try:
+                      text = p.read_text(errors='replace').splitlines()
+                  except Exception as exc:
+                      raise SystemExit(f'READ_FAILURE:{rel}:{exc}')
+                  for lineno, line in enumerate(text, 1):
+                      if pat.search(line):
+                          lines.append(f'{rel}:{lineno}:{line}')
+              (snippets/f'{name}.txt').write_text('\n'.join(lines) + ('\n' if lines else ''))
+              counts[name] = len(lines)
+
+          obj = {
+              'schema':'commander-lab.ws45-forge-native-capability-audit/1.0.1',
+              'forge_commit':os.environ['FORGE_COMMIT'],
+              'forge_tree':os.environ['FORGE_TREE'],
+              'java_source_file_count':len(files),
+              'grep_line_counts':counts,
+              'scanner':'python_re_fail_closed',
+              'qualification_credit':'NONE_SOURCE_AUDIT_ONLY'
+          }
+          (out/'SUMMARY.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+
+          entries=[]
+          for p in sorted(out.rglob('*')):
+              if p.is_file() and p.name != 'SHA256SUMS':
+                  digest=hashlib.sha256(p.read_bytes()).hexdigest()
+                  entries.append(f'{digest}  {p.as_posix()}')
+          (out/'SHA256SUMS').write_text('\n'.join(entries)+'\n')
+
+          if not any(counts.values()):
+              raise SystemExit('SOURCE_AUDIT_ZERO_MATCHES')
           PY
-          find "$out" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$out/SHA256SUMS"
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ws45-forge-native-capability-${{ github.sha }}
           path: artifacts/ws45-native-capability/
