@@ -7,6 +7,7 @@ on:
     paths:
       - scripts/ws44_build_successor.py
       - scripts/ws44_build_successor_v2.py
+      - scripts/ws44_build_successor_v3.py
       - scripts/ws44_test_referential_integrity.py
       - scripts/ws44_diagnose_reference_failures.py
       - .github/workflows/ws44-v104-freeze.yml
@@ -25,13 +26,13 @@ jobs:
           fetch-depth: 0
       - name: Compile WS44 implementation
         run: |
-          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_build_successor_v2.py scripts/ws44_test_referential_integrity.py scripts/ws44_diagnose_reference_failures.py
+          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_build_successor_v2.py scripts/ws44_build_successor_v3.py scripts/ws44_test_referential_integrity.py scripts/ws44_diagnose_reference_failures.py
       - name: Deterministic materialization A and B
         run: |
           rm -rf /tmp/ws44-a /tmp/ws44-b
           mkdir -p /tmp/ws44-a /tmp/ws44-b
-          python scripts/ws44_build_successor_v2.py --output /tmp/ws44-a
-          python scripts/ws44_build_successor_v2.py --output /tmp/ws44-b
+          python scripts/ws44_build_successor_v3.py --output /tmp/ws44-a
+          python scripts/ws44_build_successor_v3.py --output /tmp/ws44-b
           diff -ru /tmp/ws44-a /tmp/ws44-b
       - name: Print fail-closed referential diagnostics
         if: failure()
@@ -61,6 +62,24 @@ jobs:
       - name: Referential-integrity regression tests
         run: |
           python scripts/ws44_test_referential_integrity.py /tmp/ws44-a/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
+      - name: Validate generated schema against generated materialization
+        run: |
+          python -m pip install --disable-pip-version-check 'jsonschema==4.25.1'
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import jsonschema
+          p=Path('/tmp/ws44-a')
+          schema=json.loads((p/'SEMANTIC_FIXTURE_SCHEMA_v1_0_4.json').read_text())
+          mat=json.loads((p/'SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json').read_text())
+          jsonschema.Draft202012Validator.check_schema(schema)
+          errors=list(jsonschema.Draft202012Validator(schema).iter_errors(mat))
+          if errors:
+              for e in errors[:50]:
+                  print(f"schema error at {list(e.absolute_path)}: {e.message}")
+              raise SystemExit(f"generated schema validation failed with {len(errors)} errors")
+          print('Generated v1.0.4 schema/materialization validation PASS')
+          PY
       - name: Assert terminal static gates
         run: |
           python - <<'PY'
@@ -112,13 +131,14 @@ jobs:
           for f in sorted(x for x in p.iterdir() if x.is_file()):
               files.append({'path':f'qualification/ws44/{f.name}','sha256':hashlib.sha256(f.read_bytes()).hexdigest()})
           att={
-            'artifact_version':'commander-lab.ws44-freeze-run-attestation/1.0.0',
+            'artifact_version':'commander-lab.ws44-freeze-run-attestation/1.0.1',
             'workflow_run_id':os.environ['GITHUB_RUN_ID'],
             'workflow_run_attempt':os.environ['GITHUB_RUN_ATTEMPT'],
             'input_sha':os.environ['GITHUB_SHA'],
             'freeze_sha':'${{ steps.freeze.outputs.freeze_sha }}',
             'freeze_tree':'${{ steps.freeze.outputs.freeze_tree }}',
             'deterministic_double_materialization':'PASS',
+            'generated_schema_validation':'PASS',
             'regression_tests':'PASS',
             'files':files,
           }
