@@ -25,7 +25,7 @@ Consume WS-41 v1.0.3 exactly from:
 
 The WS-41 terminal evidence head `de478cf084529067776866aefb04d5c92efafeea` is branch ancestry/tooling provenance only. v1.0.3 must not be edited in place.
 
-## New Terminal Input — WS-40
+## Terminal Input — WS-40
 WS-40 is COMPLETE as terminal adjudication, not provider qualification.
 
 Terminal branch head/tree:
@@ -51,14 +51,42 @@ Exact first failure:
 
 `MICRO_PRIORITY` and `MICRO_STACK` request `obj:P2-bears`, which has no exact record-local semantic referent. Two distinct P2 Grizzly Bears exist (`obj:p2-bears`, `obj:micro-target`), while the frozen native procedure explicitly names `obj:micro-target`. Provider-side case folding/name/controller guessing is forbidden.
 
-## Consequence for WS-42
-WS-42 currently targets the now-defective v1.0.3 contract. No further v1.0.3 provider qualification can earn terminal successor credit. WS-42 should be stopped fail-closed after independently binding this upstream contract defect and preserving any implementation-only remediation as provenance. Do not discard useful XMage implementation work, but do not claim v1.0.3 qualification.
+## Terminal Input — WS-42
+WS-42 is now also terminally COMPLETE and independently agrees that v1.0.3 is unsatisfiable provider-neutrally for the same MICRO target-identity defect.
+
+Terminal classification:
+- `WS42 = COMPLETE / BLOCKED_BY_IMMUTABLE_V1_0_3_CONTRACT_DEFECT`
+- `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = FALSE`
+- `XMAGE_RULES_CORE_FAILURE = FALSE`
+- `historical_successor_pass_imported = false`
+- `AF07_GRANTED = false`
+- `ARCHITECTURE_FREEZE_GRANTED = false`
+
+Terminal source lock:
+- branch `ws42/xmage-v1.0.3-successor-qualification`
+- commit `a455f596389fde2d61703a0e6918415db2fd18c2`
+- tree `af62bcea93c5416289264492fbc066a1dbd5b2d0`
+- final handoff `candidate-qualification/ws42-xmage-v1.0.3/WS42_FINAL_HANDOFF.md`
+
+WS-42 executed no additional broad v1.0.3 runtime after the Coordinator supersession and implemented no provider-side identity workaround.
+
+Reusable XMage work is implementation provenance only:
+- native non-echo construction/readback boundary;
+- native `zone:revealed` semantics via XMage `GameState.getRevealed()` / `mage.game.Revealed`;
+- opaque identity-independent hidden-card references;
+- replay alias canonicalization;
+- WS-39 Commander-history baseline.
+
+None of this grants successor-runtime PASS, construction credit, AF05 credit, or provider qualification. A future XMage successor qualification starts from zero imported runtime credit.
+
+Canonical Coordinator binding:
+`candidate-qualification/ws43-successor-v1.0.4/WS43_COORDINATOR_INPUT_WS42_TERMINAL.md`
 
 ## Required Execution
 Follow `candidate-qualification/ws43-successor-v1.0.4/WS43_WORKSTREAM_CONTRACT.md`.
 
 Core sequence:
-1. independently reproduce the WS-40 defect from immutable v1.0.3 bytes;
+1. independently reproduce the WS-40/WS-42 agreed defect from immutable v1.0.3 bytes;
 2. prove the intended MICRO referent provider-neutrally;
 3. repair representation only if obligation-preserving;
 4. add complete case-sensitive referential-integrity linting over all 135 records;
@@ -71,4 +99,4 @@ Core sequence:
 11. Draft PR only; no merge.
 
 ## Exact Next Action
-Begin WS-43 from the live branch, verify all source locks, reproduce the two MICRO dangling target references, and continue automatically through every remediable contract/linter/materialization issue until a genuine immutable v1.0.4 freeze exists or a terminal obligation contradiction is proven.
+Begin WS-43 from the live branch, verify all source locks including terminal WS-40 and WS-42, reproduce the two MICRO dangling target references, and continue automatically through every remediable contract/linter/materialization issue until a genuine immutable v1.0.4 freeze exists or a terminal obligation contradiction is proven.
