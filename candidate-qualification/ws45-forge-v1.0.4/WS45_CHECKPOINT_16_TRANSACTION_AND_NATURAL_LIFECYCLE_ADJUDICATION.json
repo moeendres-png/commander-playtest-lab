@@ -1,0 +1,54 @@
+{
+  "schema_version": "commander-lab.ws45-transaction-natural-lifecycle-adjudication/1.0.0",
+  "workstream": "WS-45",
+  "status": "SOURCE_ADJUDICATION_COMPLETE_NO_RUNTIME_CREDIT",
+  "source_lock": {
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "forge_commit": "6d570a5e17e4fcbf77c98359a8bdb85287d207e0"
+  },
+  "extra_turn_creation": {
+    "fixture_ids": ["WS05-MP-TURN-3", "WS05-MP-TURN-5"],
+    "requested_initial_temporal_state": {
+      "active_player": "P1",
+      "turn_number": 1,
+      "phase": "postcombat_main",
+      "step": "main",
+      "extra_turn_queue": []
+    },
+    "native_procedure_after_load": "NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER",
+    "required_events": ["extra_turn_created:P2", "extra_turn_created:P3", "next_turn:P3", "next_turn:P2"],
+    "terminal_postcondition": "Most recently created extra turn is taken first: P3 extra, then P2 extra, then normal turn order resumes.",
+    "adjudication": "BEHAVIOR_TRANSACTION_EVENT_NOT_PRELOADED_CONSTRUCTION_STATE",
+    "consequence": "Construction normalization MUST NOT copy extra_turn_creation from the request. Qualification credit for extra_turn_creation is available only after native rules execution actually creates and consumes the relevant extra turns and the event trace observes that execution."
+  },
+  "forge_natural_start_callgraph": {
+    "match": "Match.startGame(Game,Runnable) calls prepareAllZones(game), then GameAction.startGame(lastOutcome,startGameHook).",
+    "game_action": [
+      "GameAction.startGame performs native first-player determination and native mulligan processing through MulliganService before starting the first turn.",
+      "After mulligans it sets GameStage.Play, runs the NewGame trigger, sets the starting player, then calls PhaseHandler.startFirstTurn(first,startGameHook)."
+    ],
+    "phase_handler": [
+      "PhaseHandler.setupFirstTurn rejects an already-started turn sequence, sets the first player, advances from phase=null to the first phase, executes that phase's turn-based action, then runs startGameHook before entering mainGameLoop.",
+      "The hook therefore occurs after native mulligan processing and after first-turn setup, not at registration time."
+    ]
+  },
+  "natural_start_adjudication": {
+    "registration_time_snapshot": "FORBIDDEN_AS_CREDIT",
+    "start_game_hook": "VALID_NATIVE_LIFECYCLE_LOCATION_BUT_NOT_SUFFICIENT_FOR_ALL_SEVEN_RECORDS",
+    "reason": [
+      "PLAYER_COUNT_* records can use a post-mulligan/pre-main-loop lifecycle snapshot with provider-neutral normalization of Forge's internal first-turn phase state, provided deck/opening-hand/RNG facts are reconstructed from native state.",
+      "PILOT_MULLIGAN and WS05-CMD-MULL-2/4 require evidence from the actual MulliganService/controller callback sequence; a snapshot only after setupFirstTurn is too late to prove the declared mulligan checkpoint and decision sequence.",
+      "Natural-start RNG must be installed before Match.prepareAllZones/native library shuffles, not inside the later startGameHook."
+    ],
+    "required_remediation": "Install the tracing rules RNG before Match.startGame, observe mulligan callbacks/events during MulliganService, and emit the natural lifecycle snapshot from the appropriate native checkpoint instead of Ws40SuccessorState.emitNaturalRegistration before match.startGame."
+  },
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0,
+    "forge_successor_provider_qualified": false
+  },
+  "next_action": "Implement the WS45 generated overlay with construction-only native observations separated from behavior-event fields, then add native mulligan lifecycle tracing and pre-Match RNG installation for the seven NATURAL_GAME_START records."
+}
