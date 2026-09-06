@@ -24,7 +24,17 @@ from successor_contract_v104 import (
 V103_VERSION = "commander-lab.semantic-fixture-materialization/1.0.3"
 V103_BUNDLE = "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b"
 V103_SHA256 = "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5"
-DERIVED_RECORD_FIELDS = {"materialization_digest", "requested_state_digest"}
+# These fields are successor/proof bookkeeping, not provider-relevant semantic
+# representation. WS-44's builder changes materialization_version and
+# repair_provenance on every record, then recomputes the two digests.  They are
+# verified independently by the immutable bundle/record/state digest gates and
+# must not inflate the v1.0.3 -> v1.0.4 provider-impact set.
+DERIVED_RECORD_FIELDS = {
+    "materialization_digest",
+    "requested_state_digest",
+    "materialization_version",
+    "repair_provenance",
+}
 
 
 def load_v103(path: Path) -> dict[str, Any]:
@@ -203,7 +213,7 @@ def main() -> int:
         target_checks.append({"fixture_id": fid, "exact_target": exact, "provider_heuristic_required": False})
 
     output = {
-        "artifact_version": "commander-lab.ws46-v104-impact-reconciliation/1.0.0",
+        "artifact_version": "commander-lab.ws46-v104-impact-reconciliation/1.0.1",
         "historical_successor_runtime_credit_imported": 0,
         "v103": {"version": V103_VERSION, "sha256": V103_SHA256, "canonical_bundle_digest": V103_BUNDLE},
         "v104": {"version": CONTRACT_VERSION, "sha256": MATERIALIZATION_FILE_SHA256, "canonical_bundle_digest": CANONICAL_MATERIALIZATION_DIGEST},
@@ -211,6 +221,7 @@ def main() -> int:
         "record_count": 135,
         "provider_denominator": 107,
         "all_v104_requested_state_digests_independently_recomputed_equal": True,
+        "provider_impact_projection_excluded_fields": sorted(DERIVED_RECORD_FIELDS),
         "changed_fixture_count": len(changed),
         "changed_fixtures": changed,
         "changed_provider_fixture_count": len(changed_provider),
