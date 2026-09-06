@@ -1,0 +1,53 @@
+name: WS45 materialize generated v1.0.3 baseline
+
+on:
+  push:
+    branches: [ws45/forge-v1.0.4-successor-qualification]
+    paths:
+      - '.github/workflows/ws45-materialize-generated-baseline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Materialize exact generated WS40 v1.0.3 state and runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          out=artifacts/ws45-generated-baseline
+          mkdir -p "$out"
+          cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_stack_history.py --state-java "$out/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_revealed_state.py --state-java "$out/Ws40SuccessorState.java"
+          python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/Ws40SuccessorState.java"
+          python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/Ws40SuccessorState.java"
+          python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_combat_legal_surface.py --state-java "$out/Ws40SuccessorState.java"
+
+          cp candidate-qualification/ws40-forge/run_native_construction_107.py "$out/run_native_construction_107.py"
+          python scripts/ws40_fix_construction_runner.py --runner "$out/run_native_construction_107.py"
+          python scripts/ws40_fix_construction_runner_natural_objects.py --runner "$out/run_native_construction_107.py"
+          python scripts/ws40_v103_native_stack_history.py --runner "$out/run_native_construction_107.py"
+          python scripts/ws40_v103_native_revealed_state.py --runner "$out/run_native_construction_107.py"
+          python scripts/ws40_v103_lineage_target_resolution.py --runner "$out/run_native_construction_107.py"
+          python scripts/ws40_v103_native_combat_legal_surface.py --runner "$out/run_native_construction_107.py"
+
+          python -m py_compile "$out/run_native_construction_107.py"
+          sha256sum "$out/Ws40SuccessorState.java" "$out/run_native_construction_107.py" > "$out/SHA256SUMS"
+          printf '{"commander_lab_head":"%s","purpose":"inspection-only generated baseline; no qualification credit"}\n' "$(git rev-parse HEAD)" > "$out/SOURCE_LOCK.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws45-generated-baseline-${{ github.sha }}
+          path: artifacts/ws45-generated-baseline/
+          if-no-files-found: error
+          retention-days: 90
