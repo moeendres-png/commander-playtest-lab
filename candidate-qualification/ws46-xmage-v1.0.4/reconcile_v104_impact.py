@@ -122,6 +122,33 @@ def recursive_contains(value: Any, needle: Any) -> bool:
     return False
 
 
+def record_local_identity_representation_bound(value: Any, semantic_id: Any, path: str) -> bool:
+    """Bind a WS-44 record-local identity rename without conflating ID namespaces.
+
+    The immutable repair matrix names semantic object IDs (``obj:*``), while a
+    declared ``card_lineage_id`` representation uses the separate lineage-ID
+    namespace for the same record-local identity token.  Literal ``obj:*``
+    containment is therefore correct for semantic-ID references but is too
+    representation-specific for the explicitly declared lineage path.
+
+    This exception is deliberately limited to ``card_lineage_id`` paths in a
+    ``RECORD_LOCAL_IDENTITY_RENAME`` row and still requires the exact identity
+    token following the namespace delimiter.  No field is excluded from the
+    delta and no undeclared path receives credit.
+    """
+    if recursive_contains(value, semantic_id):
+        return True
+    if not path.endswith(".card_lineage_id"):
+        return False
+    if not isinstance(value, str) or not isinstance(semantic_id, str):
+        return False
+    namespace, sep, identity_token = semantic_id.partition(":")
+    if sep != ":" or namespace != "obj" or not identity_token:
+        return False
+    value_namespace, value_sep, value_token = value.partition(":")
+    return value_sep == ":" and value_namespace == "lineage" and value_token == identity_token
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--v103", type=Path, required=True)
@@ -181,9 +208,15 @@ def main() -> int:
                 ov, nv = get_path(before, path), get_path(after, path)
                 if ov == nv:
                     raise SystemExit(f"WS46_REPAIR_DECLARED_PATH_NOT_CHANGED:{fid}:{path}")
-                if not (recursive_contains(ov, row["old"]) or ov == row["old"]):
+                if row.get("repair_kind") == "RECORD_LOCAL_IDENTITY_RENAME":
+                    old_bound = record_local_identity_representation_bound(ov, row["old"], path)
+                    new_bound = record_local_identity_representation_bound(nv, row["new"], path)
+                else:
+                    old_bound = recursive_contains(ov, row["old"]) or ov == row["old"]
+                    new_bound = recursive_contains(nv, row["new"]) or nv == row["new"]
+                if not old_bound:
                     raise SystemExit(f"WS46_REPAIR_OLD_NOT_BOUND:{fid}:{path}")
-                if not (recursive_contains(nv, row["new"]) or nv == row["new"]):
+                if not new_bound:
                     raise SystemExit(f"WS46_REPAIR_NEW_NOT_BOUND:{fid}:{path}")
         verified_repairs.append({"fixture_id": fid, "repair_kind": row["repair_kind"], "verified_paths": verified_paths})
 
