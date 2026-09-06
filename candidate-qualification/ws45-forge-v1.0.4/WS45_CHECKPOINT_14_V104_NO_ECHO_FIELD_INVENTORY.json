@@ -1,0 +1,82 @@
+{
+  "schema_version": "commander-lab.ws45-v104-no-echo-field-inventory/1.0.0",
+  "workstream": "WS-45",
+  "status": "NO_ECHO_REMEDIATION_SCOPE_FROZEN_NO_RUNTIME_CREDIT",
+  "source": {
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "exact_records_artifact_id": 9996574989,
+    "exact_records_artifact_digest": "sha256:07dd81033c1eb63e5dcce9bfa06709f1ff968ddfddfcdd792ce9c8a722929fb0",
+    "exact_records_json_sha256": "6d0848cfec6733f9aeeed70ffa0ea4bfa4f6183e51ddf8635cf3e91445591e2e",
+    "provider_denominator": 107
+  },
+  "entry_modes": {
+    "NATIVE_STATE_LOAD": 100,
+    "NATURAL_GAME_START": 7,
+    "natural_game_start_fixture_ids": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_MULLIGAN",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4"
+    ]
+  },
+  "rules_state_bearing_inventory": {
+    "knowledge_state": {"present_records": 107, "unique_values": 24, "native_projection_required": true},
+    "rules_randomness": {"present_records": 107, "unique_values": 8, "native_projection_required": true},
+    "setup_validation": {"present_records": 107, "unique_values": 1, "derive_from_executed_native_checks": true},
+    "temporal_state": {"present_records": 107, "unique_values": 12, "natural_start_must_be_lifecycle_observed": true},
+    "deck_state": {"present_records": 7, "unique_values": 6, "all_records_are_natural_game_start": true},
+    "combat_state": {"present_records": 12, "unique_values": 11, "must_be_native_observed_where_present": true},
+    "commander_state.multiple_commander_relations": {
+      "present_parent_records": 107,
+      "nonempty_records": 4,
+      "unique_values_including_empty": 2,
+      "fixture_ids": ["WS05-CMD-DMG-SPLIT", "WS05-CMD-PARTNER-TAX", "WS05-CMD-PARTNER-DMG", "WS05-CMD-PARTNER-ZONE"],
+      "must_use_native_card_rules": true
+    },
+    "extra_turn_creation": {
+      "present_records": 2,
+      "unique_values": 1,
+      "fixture_ids": ["WS05-MP-TURN-3", "WS05-MP-TURN-5"],
+      "must_be_native_execution_observed": true
+    },
+    "elimination_trigger": {
+      "present_records": 6,
+      "unique_values": 2,
+      "fixture_ids": ["WS05-MP-ELIM-OWNED-3", "WS05-MP-ELIM-CONTROL-3", "WS05-MP-ELIM-STACK-3", "WS05-MP-ELIM-PRIO-3", "WS05-MP-ELIM-TURN-3", "WS05-MP-ELIM-5"],
+      "must_be_native_loss_state_observed": true
+    },
+    "zone_move_event": {
+      "present_records": 8,
+      "unique_values": 4,
+      "fixture_ids": ["WS05-CMD-ZONE-GY-YES", "WS05-CMD-ZONE-GY-NO", "WS05-CMD-ZONE-EXILE-YES", "WS05-CMD-ZONE-EXILE-NO", "WS05-CMD-ZONE-HAND-YES", "WS05-CMD-ZONE-HAND-NO", "WS05-CMD-ZONE-LIB-YES", "WS05-CMD-ZONE-LIB-NO"],
+      "must_derive_timing_from_native_commander_rule_path": true
+    },
+    "continuous_rules_effects": {"present_records": 0}
+  },
+  "rng_variants": {
+    "count": 8,
+    "fixed_seed_424242_common": true,
+    "scenario_seed_binding_variants_present": true,
+    "predetermined_coin_flip_variant_present": true,
+    "provider_native_rng_calls_recorded_variant_present": true
+  },
+  "adjudication": [
+    "The minimum WS45 no-request-echo remediation scope is larger than the five fields named in the workstream contract because the exact v1.0.4 denominator also contains rules-state-bearing temporal, combat, natural deck, setup-validation and multiple-Commander relation state.",
+    "Declarative request material may construct native state, but qualification evidence must be reconstructed from typed/native Forge state or actual native execution/lifecycle observations, never from bound_config/canonical request JSON.",
+    "The seven NATURAL_GAME_START records require independent lifecycle observation of deck/commander/temporal/RNG state; registration-time request projection is not admissible evidence.",
+    "No construction or behavior credit is granted by this inventory."
+  ],
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0,
+    "forge_successor_provider_qualified": false
+  },
+  "next_action": "Implement the reproducible WS45 v1.0.4 provider/state/runner overlay against Forge d1a65fd4a376365bf2562b2247104abcada3d120 so every inventoried rules-state-bearing output is native-observed or fails closed, then execute fixed-native-state/request-perturbation runtime before any construction credit."
+}
