@@ -1,0 +1,37 @@
+{
+  "schema_version": "commander-lab.ws45-native-observer-build-remediation/1.0.0",
+  "workstream": "WS-45",
+  "status": "FIRST_NATIVE_OBSERVER_BUILD_FAILURE_REMEDIATED_PENDING_REBUILD",
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "failed_forge_commit": "867207a92eacbbc49f232e49098d3cf3e95e8f3a",
+  "failed_forge_tree": "a6926ce8661ca734af52681a1b10047d2ef0e004",
+  "dedicated_workflow": {
+    "run_id": 34062398510,
+    "job_id": 101565114604,
+    "conclusion": "failure",
+    "artifact_id": 9997899925,
+    "artifact_digest": "sha256:ac0bda2b7edf6e3371a659973a5742ecfd66911e9a04ee77c980804639484e70"
+  },
+  "compiler_failure": {
+    "file": "forge-game/src/main/java/forge/game/qualification/NativeQualificationObservation.java",
+    "line": 202,
+    "message": "CardRules.canBePartnerCommanders required one CardRules argument but the first implementation invoked it statically with two arguments.",
+    "scope": "single Java API invocation mismatch"
+  },
+  "fresh_source_verification": {
+    "actual_signature": "public boolean canBePartnerCommanders(CardRules b)",
+    "correct_invocation": "a.canBePartnerCommanders(b)"
+  },
+  "repair": {
+    "forge_commit": "d1a65fd4a376365bf2562b2247104abcada3d120",
+    "file_blob": "0253d2bfe8fe9d1e494546b9b3c2bb1d80fb807c",
+    "change": "replace CardRules.canBePartnerCommanders(a, b) with a.canBePartnerCommanders(b)"
+  },
+  "source_truth_effect": "The failed commit receives no build or runtime credit. The defect is technically remediable and has been repaired; rebuild evidence is required before proceeding.",
+  "next_action": "Require fresh successful Forge compilation for d1a65fd4a376365bf2562b2247104abcada3d120 before binding Commander-Lab provider code to NativeQualificationObservation."
+}
