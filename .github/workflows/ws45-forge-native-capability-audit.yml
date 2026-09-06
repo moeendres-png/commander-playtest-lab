@@ -1,0 +1,71 @@
+name: WS45 Forge native capability audit
+
+on:
+  push:
+    branches: [ws45/forge-v1.0.4-successor-qualification]
+    paths:
+      - '.github/workflows/ws45-forge-native-capability-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORGE_COMMIT: 140075525379a0fa4bccaed34d1e3801fc3e9dc3
+  FORGE_TREE: fc9d03543807136f6c96271ff268979ed63239d7
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: forge-source
+          fetch-depth: 1
+      - name: Verify source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C forge-source rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C forge-source rev-parse HEAD^{tree})" = "$FORGE_TREE"
+      - name: Extract native capability evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          out=artifacts/ws45-native-capability
+          mkdir -p "$out/snippets"
+          cd forge-source
+          rg -n -i --glob='*.java' 'extra.?turn|extraTurn|extra turns|extra turns' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/extra_turn.txt" || true
+          rg -n -i --glob='*.java' 'random|rng|shuffle|MyRandom|Random' forge-game/src/main/java forge-core/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/rng.txt" || true
+          rg -n -i --glob='*.java' 'can.?see|visibility|visible|reveal|look at|face.?down|known|hidden|knowledge' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/visibility.txt" || true
+          rg -n -i --glob='*.java' 'loseGame|hasLost|lost|eliminat|life.?0|life.?zero|state.?based' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/elimination.txt" || true
+          rg -n -i --glob='*.java' 'zone.?change|zone.?move|moveTo|commander.*zone|command.*zone|replacement.*commander|state.?based.*commander' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/zone_move.txt" || true
+          rg -n -i --glob='*.java' 'partner|Partner' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/partner.txt" || true
+          rg -n -i --glob='*.java' 'mulligan|opening.?hand|starting.?hand|startGame|chooseStartingPlayer' forge-game/src/main/java > "$GITHUB_WORKSPACE/$out/snippets/natural_lifecycle.txt" || true
+          rg -n -i --glob='*.java' 'getId\(\)|getCard\(|card.*id|GameState|devModeSet' forge-game/src/main/java/forge/game forge-game/src/main/java/forge/gamemodes > "$GITHUB_WORKSPACE/$out/snippets/native_identity_state.txt" || true
+          cd "$GITHUB_WORKSPACE"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path('artifacts/ws45-native-capability/snippets')
+          counts={p.stem:sum(1 for _ in p.open(errors='replace')) for p in root.glob('*.txt')}
+          obj={
+            'schema':'commander-lab.ws45-forge-native-capability-audit/1.0.0',
+            'forge_commit':os.environ['FORGE_COMMIT'],
+            'forge_tree':os.environ['FORGE_TREE'],
+            'grep_line_counts':counts,
+            'qualification_credit':'NONE_SOURCE_AUDIT_ONLY'
+          }
+          Path('artifacts/ws45-native-capability/SUMMARY.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+          PY
+          find "$out" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$out/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws45-forge-native-capability-${{ github.sha }}
+          path: artifacts/ws45-native-capability/
+          if-no-files-found: error
+          retention-days: 90
