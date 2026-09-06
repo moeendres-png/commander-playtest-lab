@@ -57,7 +57,7 @@ jobs:
           mkdir -p artifacts/ws46-v104-reconciliation
           test "$(git -C _ws44 rev-parse HEAD)" = "$WS44_FREEZE_COMMIT"
           test "$(git -C _ws44 rev-parse HEAD^{tree})" = "$WS44_FREEZE_TREE"
-          test "$(git -C _ws44 rev-parse qualification/ws44^{tree})" = "$WS44_NAMESPACE_TREE"
+          test "$(git -C _ws44 rev-parse HEAD:qualification/ws44)" = "$WS44_NAMESPACE_TREE"
           test "$(git -C _ws41 rev-parse HEAD)" = "$WS41_FREEZE_COMMIT"
           test "$(git -C _ws41 rev-parse HEAD^{tree})" = "$WS41_FREEZE_TREE"
           MATERIALIZATION=_ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
