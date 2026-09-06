@@ -24,11 +24,6 @@ from successor_contract_v104 import (
 V103_VERSION = "commander-lab.semantic-fixture-materialization/1.0.3"
 V103_BUNDLE = "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b"
 V103_SHA256 = "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5"
-# These fields are successor/proof bookkeeping, not provider-relevant semantic
-# representation. WS-44's builder changes materialization_version and
-# repair_provenance on every record, then recomputes the two digests.  They are
-# verified independently by the immutable bundle/record/state digest gates and
-# must not inflate the v1.0.3 -> v1.0.4 provider-impact set.
 DERIVED_RECORD_FIELDS = {
     "materialization_digest",
     "requested_state_digest",
@@ -104,9 +99,34 @@ def get_path(value: Any, path: str) -> Any:
     return cur
 
 
+def _relative_dotted_value(actual: dict[str, Any], key: str) -> tuple[bool, Any]:
+    """Resolve a frozen repair-matrix dotted relative key exactly.
+
+    Literal dictionary keys take precedence.  Otherwise every dotted segment
+    must exist as a nested mapping key; no fuzzy, case-folded, alias or provider
+    lookup is performed.
+    """
+    if key in actual:
+        return True, actual[key]
+    if "." not in key:
+        return False, None
+    cur: Any = actual
+    for segment in key.split("."):
+        if not isinstance(cur, dict) or segment not in cur:
+            return False, None
+        cur = cur[segment]
+    return True, cur
+
+
 def contains_subset(actual: Any, expected: Any) -> bool:
     if isinstance(expected, dict):
-        return isinstance(actual, dict) and all(k in actual and contains_subset(actual[k], v) for k, v in expected.items())
+        if not isinstance(actual, dict):
+            return False
+        for key, expected_value in expected.items():
+            found, actual_value = _relative_dotted_value(actual, key)
+            if not found or not contains_subset(actual_value, expected_value):
+                return False
+        return True
     if isinstance(expected, list):
         return actual == expected
     return actual == expected
@@ -123,13 +143,7 @@ def recursive_contains(value: Any, needle: Any) -> bool:
 
 
 def record_local_identity_representation_bound(value: Any, semantic_id: Any, path: str) -> bool:
-    """Bind exactly the immutable WS-44 record-local identity rewrite forms.
-
-    WS-44's frozen ``rename_semantic_identity`` builder rewrites either the
-    semantic object identifier itself or, for the lineage declaration, the exact
-    typed form ``line:{semantic_id}``.  No provider/native alias or heuristic
-    identity mapping is accepted here.
-    """
+    """Bind exactly the immutable WS-44 record-local identity rewrite forms."""
     if recursive_contains(value, semantic_id):
         return True
     if not path.endswith(".card_lineage_id"):
