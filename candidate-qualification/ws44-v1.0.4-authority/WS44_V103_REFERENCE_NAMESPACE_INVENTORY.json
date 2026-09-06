@@ -1,0 +1,4046 @@
+{
+  "artifact_version": "commander-lab.ws44-reference-namespace-inventory/1.0.0",
+  "player_id_path_shapes": [
+    {
+      "count": 1304,
+      "path": "$.semantic_objects[].controller"
+    },
+    {
+      "count": 1304,
+      "path": "$.semantic_objects[].owner"
+    },
+    {
+      "count": 535,
+      "path": "$.commander_state.commanders[].owner"
+    },
+    {
+      "count": 528,
+      "path": "$.players[].player_id"
+    },
+    {
+      "count": 468,
+      "path": "$.knowledge_state.viewer_states[].viewer"
+    },
+    {
+      "count": 143,
+      "path": "$.decision_script[].actor"
+    },
+    {
+      "count": 135,
+      "path": "$.temporal_state.active_player"
+    },
+    {
+      "count": 135,
+      "path": "$.temporal_state.priority_player"
+    },
+    {
+      "count": 89,
+      "path": "$.native_procedure[].details.actor"
+    },
+    {
+      "count": 48,
+      "path": "$.native_procedure[].actor"
+    },
+    {
+      "count": 43,
+      "path": "$.action_cost_state[].actor"
+    },
+    {
+      "count": 31,
+      "path": "$.stack_state[].controller"
+    },
+    {
+      "count": 27,
+      "path": "$.pregame_decision_plan[].player_id"
+    },
+    {
+      "count": 24,
+      "path": "$.deck_state[].player_id"
+    },
+    {
+      "count": 8,
+      "path": "$.decision_script[].selection.semantic_value"
+    },
+    {
+      "count": 8,
+      "path": "$.stack_state[].targets[]"
+    },
+    {
+      "count": 8,
+      "path": "$.expected_events.partial_order_constraints[].before_player_groups[]"
+    },
+    {
+      "count": 8,
+      "path": "$.native_procedure[].details.plan[].player_id"
+    },
+    {
+      "count": 7,
+      "path": "$.commander_state.commander_damage_matrix[].damaged_player"
+    },
+    {
+      "count": 6,
+      "path": "$.priority_script[].holder"
+    },
+    {
+      "count": 6,
+      "path": "$.elimination_trigger.player"
+    },
+    {
+      "count": 4,
+      "path": "$.knowledge_state.viewer_states[].temporary_permissions[].viewer"
+    },
+    {
+      "count": 4,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value"
+    },
+    {
+      "count": 4,
+      "path": "$.extra_turn_creation[].player"
+    },
+    {
+      "count": 3,
+      "path": "$.decision_script[].selection.semantic_value.<key:P2>"
+    },
+    {
+      "count": 3,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:P2>"
+    },
+    {
+      "count": 2,
+      "path": "$.knowledge_state.viewer_states[].known_library_ranges[].player"
+    },
+    {
+      "count": 2,
+      "path": "$.knowledge_state.viewer_states[].known_library_ranges[].viewer"
+    },
+    {
+      "count": 2,
+      "path": "$.combat_state.attackers.obj:micro-attacker"
+    },
+    {
+      "count": 2,
+      "path": "$.decision_script[].selection.semantic_value.obj:mp-attacker-0"
+    },
+    {
+      "count": 2,
+      "path": "$.decision_script[].selection.semantic_value.obj:mp-attacker-1"
+    },
+    {
+      "count": 1,
+      "path": "$.decision_script[].selection.semantic_value.obj:p1-bears"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.assignments.obj:p1-bears"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:p1-bears"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.expected_decision_actor"
+    },
+    {
+      "count": 1,
+      "path": "$.knowledge_state.viewer_states[].face_down_look_permissions[].viewer"
+    },
+    {
+      "count": 1,
+      "path": "$.knowledge_state.viewer_states[].temporary_permissions[].controlled_player"
+    },
+    {
+      "count": 1,
+      "path": "$.knowledge_state.viewer_states[].temporary_permissions[].controller"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:micro-3power"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.recipient"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.targets[]"
+    },
+    {
+      "count": 1,
+      "path": "$.decision_script[].selection.semantic_value.obj:card04-attacker"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:card04-attacker"
+    },
+    {
+      "count": 1,
+      "path": "$.decision_script[].selection.semantic_value.obj:card08-attacker"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:card08-attacker"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:card21-creature"
+    },
+    {
+      "count": 1,
+      "path": "$.decision_script[].selection.semantic_value.obj:card25-attacker"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:card25-attacker"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.assignments.obj:mp-attacker-0"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.assignments.obj:mp-attacker-1"
+    },
+    {
+      "count": 1,
+      "path": "$.decision_script[].selection.semantic_value.obj:mp-attacker-2"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:mp-attacker-0"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:mp-attacker-1"
+    },
+    {
+      "count": 1,
+      "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:mp-attacker-2"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:mp-a2"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:mp-a3"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:isamaru"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:isamaru-controlled"
+    },
+    {
+      "count": 1,
+      "path": "$.combat_state.attackers.obj:elim-isamaru"
+    }
+  ],
+  "prefixes": [
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_08",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "Jeska_enters_loyalty:2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "Jeska_enters_loyalty"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_COSTS",
+          "kind": "value",
+          "path": "$.scenario_notes[1]",
+          "value": "OBLIGATION_PRESERVED: Hex has six legal creature targets and Esior increases the spell once by {3} although two commanders are targeted."
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.scenario_notes[]"
+        }
+      ],
+      "prefix": "OBLIGATION_PRESERVED"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_ABILITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "ability_selected:loyalty_0_triple_damage"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "ability_selected"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_TARGET_AMOUNT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "amount_assignment:2+2"
+        },
+        {
+          "fixture_id": "PILOT_MULTI_AMOUNT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "amount_assignment:2+2"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "amount_assignment"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_ANNOUNCE_X",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "announce_x_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "announce_x_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_DECLARE_ATTACKER",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "attacker_declared:obj:p1-bears->P2"
+        },
+        {
+          "fixture_id": "WS05-MP-COMBAT-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "attacker_declared:obj:mp-attacker-0->P2"
+        },
+        {
+          "fixture_id": "WS05-MP-COMBAT-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "attacker_declared:obj:mp-attacker-1->P3"
+        },
+        {
+          "fixture_id": "WS05-MP-COMBAT-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "attacker_declared:obj:mp-attacker-0->P2"
+        },
+        {
+          "fixture_id": "WS05-MP-COMBAT-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "attacker_declared:obj:mp-attacker-1->P3"
+        },
+        {
+          "fixture_id": "WS05-MP-COMBAT-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "attacker_declared:obj:mp-attacker-2->P4"
+        }
+      ],
+      "occurrence_count": 6,
+      "path_shapes": [
+        {
+          "count": 6,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "attacker_declared"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_DECLARE_BLOCKER",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "blocker_declared:obj:p2-bears->obj:p1-bears"
+        },
+        {
+          "fixture_id": "WS05-MP-BLOCK-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "blocker_declared:obj:mp-p2-blocker->obj:mp-a2"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "blocker_declared"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_MULLIGAN",
+          "kind": "value",
+          "path": "$.expected_events.required_events[5]",
+          "value": "bottom_count:P1:0"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "bottom_count"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_28",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "cast_split_half:Finality"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "cast_split_half"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOICE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "choice:RED"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "choice"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOICE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "choice_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "choice_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_ABILITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "choose_ability_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "choose_ability_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_MODE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "choose_mode_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "choose_mode_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_OBJECT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "choose_object_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "choose_object_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_USE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "choose_use_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "choose_use_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.commander_state.commanders[0].commander_id",
+          "value": "cmd:P1-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.commander_state.commanders[1].commander_id",
+          "value": "cmd:P2-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.deck_state[0].commander_ids[0]",
+          "value": "cmd:P1-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.deck_state[1].commander_ids[0]",
+          "value": "cmd:P2-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].commander_id",
+          "value": "cmd:P1-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].commander_id",
+          "value": "cmd:P2-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.commander_state.commanders[0].commander_id",
+          "value": "cmd:P1-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.commander_state.commanders[1].commander_id",
+          "value": "cmd:P2-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.commander_state.commanders[2].commander_id",
+          "value": "cmd:P3-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.deck_state[0].commander_ids[0]",
+          "value": "cmd:P1-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.deck_state[1].commander_ids[0]",
+          "value": "cmd:P2-A"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.deck_state[2].commander_ids[0]",
+          "value": "cmd:P3-A"
+        }
+      ],
+      "occurrence_count": 1117,
+      "path_shapes": [
+        {
+          "count": 535,
+          "path": "$.commander_state.commanders[].commander_id"
+        },
+        {
+          "count": 526,
+          "path": "$.semantic_objects[].commander_id"
+        },
+        {
+          "count": 18,
+          "path": "$.deck_state[].commander_ids[]"
+        },
+        {
+          "count": 12,
+          "path": "$.commander_state.multiple_commander_relations[].commander_ids[]"
+        },
+        {
+          "count": 8,
+          "path": "$.zone_move_event.commander_id"
+        },
+        {
+          "count": 7,
+          "path": "$.commander_state.commander_damage_matrix[].source_commander_id"
+        },
+        {
+          "count": 6,
+          "path": "$.commander_state.commanders[].partner_with"
+        },
+        {
+          "count": 3,
+          "path": "$.decision_script[].selection.semantic_value.commander_id"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.commander_id"
+        }
+      ],
+      "prefix": "cmd"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_RULES_RANDOMNESS",
+          "kind": "value",
+          "path": "$.rules_randomness.channels[0]",
+          "value": "coin_flip:obj:micro-stitch"
+        },
+        {
+          "fixture_id": "MICRO_RULES_RANDOMNESS",
+          "kind": "value",
+          "path": "$.rules_randomness.predetermined_semantic_draws[0].channel",
+          "value": "coin_flip:obj:micro-stitch"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.rules_randomness.channels[]"
+        },
+        {
+          "count": 1,
+          "path": "$.rules_randomness.predetermined_semantic_draws[].channel"
+        }
+      ],
+      "prefix": "coin_flip"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_COMBAT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "combat_damage:attacker_to_blocker:2"
+        },
+        {
+          "fixture_id": "MICRO_COMBAT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "combat_damage:blocker_to_attacker:2"
+        },
+        {
+          "fixture_id": "CARD_25",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "combat_damage:1_to_blocker"
+        },
+        {
+          "fixture_id": "CARD_25",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "combat_damage:5_to_attacker"
+        }
+      ],
+      "occurrence_count": 4,
+      "path_shapes": [
+        {
+          "count": 4,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "combat_damage"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_PREVENTION",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "combat_damage_prevented:P2:2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "combat_damage_prevented"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_08",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "combat_damage_replaced:2->6"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "combat_damage_replaced"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_PREVENTION",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "combat_damage_would_be:P2:2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "combat_damage_would_be"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-ZONE-GY-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:command"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-GY-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:graveyard"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:command"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:exile"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:command"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:hand"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:command"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_choice:library"
+        }
+      ],
+      "occurrence_count": 8,
+      "path_shapes": [
+        {
+          "count": 8,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "commander_choice"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_04",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_combat_damage:P2:3"
+        },
+        {
+          "fixture_id": "WS05-CMD-DMG-SAME-21",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_combat_damage:P2:2"
+        },
+        {
+          "fixture_id": "WS05-CMD-DMG-CONTROL",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_combat_damage:P2:2:cmd:P1-A"
+        }
+      ],
+      "occurrence_count": 3,
+      "path_shapes": [
+        {
+          "count": 3,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "commander_combat_damage"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-DMG-SAME-21",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_damage_total:P2:21"
+        },
+        {
+          "fixture_id": "WS05-CMD-ELIM-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_damage_total:P2:21"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "commander_damage_total"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_replacement_chosen:command"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "commander_replacement_chosen"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-TAX-2",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_tax:+4_generic"
+        },
+        {
+          "fixture_id": "WS05-CMD-TAX-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "commander_tax:+4_generic"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "commander_tax"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-ZONE-GY-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:graveyard"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-GY-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:graveyard"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:exile"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:exile"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:hand"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:hand"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:library"
+        },
+        {
+          "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "commander_zone_event:library"
+        }
+      ],
+      "occurrence_count": 8,
+      "path_shapes": [
+        {
+          "count": 8,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "commander_zone_event"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "continuous_pt:obj:micro-zero:0/0"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "continuous_pt"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "continuous_pt_evaluated:5/5"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "continuous_pt_evaluated"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_CONTROL",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "control_effect_applied:P2->P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "control_effect_applied"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_COPY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "copy_spell:Lightning_Bolt"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "copy_spell"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_COSTS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "cost_determined:base_plus_3_generic"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "cost_determined"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_22",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "cost_reduction:3"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "cost_reduction"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_01",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "counter_change:+1/+1:+1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "counter_change"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "RNG_RULES_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "create_Devil_token:3"
+        },
+        {
+          "fixture_id": "REPLAY_DECISION_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "create_Devil_token:3"
+        },
+        {
+          "fixture_id": "REPLAY_EVENT_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "create_Devil_token:3"
+        },
+        {
+          "fixture_id": "REPLAY_CLEAN_PROCESS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "create_Devil_token:3"
+        },
+        {
+          "fixture_id": "REPLAY_STATE_HASHES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "create_Devil_token:3"
+        },
+        {
+          "fixture_id": "MICRO_MODES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "create_Devil_token:3"
+        },
+        {
+          "fixture_id": "CARD_26",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "create_Devil_token:3"
+        }
+      ],
+      "occurrence_count": 7,
+      "path_shapes": [
+        {
+          "count": 7,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "create_Devil_token"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_TRIGGERS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "creature_enters:obj:micro-enter"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "creature_enters"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_TRIGGERS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "damage:P2:2"
+        },
+        {
+          "fixture_id": "MICRO_REPLACEMENT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "damage:P2:6"
+        },
+        {
+          "fixture_id": "CARD_09",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "damage:P2:2"
+        },
+        {
+          "fixture_id": "CARD_09",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "damage:obj:card09-p3-creature:2"
+        },
+        {
+          "fixture_id": "CARD_17",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "damage:P2:4"
+        },
+        {
+          "fixture_id": "CARD_21",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "damage:P2:6"
+        }
+      ],
+      "occurrence_count": 6,
+      "path_shapes": [
+        {
+          "count": 6,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "damage"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_REPLACEMENT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "damage_would_be:P2:3"
+        },
+        {
+          "fixture_id": "CARD_21",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "damage_would_be:3"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "damage_would_be"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "RNG_RULES_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "decision:choose_mode:create_devils"
+        },
+        {
+          "fixture_id": "REPLAY_DECISION_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "decision:choose_mode:create_devils"
+        },
+        {
+          "fixture_id": "REPLAY_EVENT_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "decision:choose_mode:create_devils"
+        },
+        {
+          "fixture_id": "REPLAY_CLEAN_PROCESS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "decision:choose_mode:create_devils"
+        },
+        {
+          "fixture_id": "REPLAY_STATE_HASHES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "decision:choose_mode:create_devils"
+        }
+      ],
+      "occurrence_count": 5,
+      "path_shapes": [
+        {
+          "count": 5,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "decision"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "NEGATIVE_FIRST_OPTION",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "decision_frame:choose_mode"
+        },
+        {
+          "fixture_id": "NEGATIVE_RANDOM_OPTION",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "decision_frame:target"
+        },
+        {
+          "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "decision_frame:choose_use"
+        },
+        {
+          "fixture_id": "NEGATIVE_INTERNAL_AI",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "decision_frame:declare_attacker"
+        },
+        {
+          "fixture_id": "NEGATIVE_GUI_DEFAULT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "decision_frame:choose_mode"
+        },
+        {
+          "fixture_id": "NEGATIVE_SILENT_SKIP",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "decision_frame:target"
+        },
+        {
+          "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "decision_frame:choose_object"
+        }
+      ],
+      "occurrence_count": 7,
+      "path_shapes": [
+        {
+          "count": 7,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "decision_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_DECLARE_ATTACKER",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "declare_attacker_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "declare_attacker_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_DECLARE_BLOCKER",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "declare_blocker_frame:P2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "declare_blocker_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_12",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "delve_exile:6"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "delve_exile"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_20",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "discard:P2:1"
+        },
+        {
+          "fixture_id": "CARD_20",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "discard:P3:1"
+        },
+        {
+          "fixture_id": "CARD_20",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "discard:P4:1"
+        }
+      ],
+      "occurrence_count": 3,
+      "path_shapes": [
+        {
+          "count": 3,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "discard"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_09",
+          "kind": "value",
+          "path": "$.expected_events.required_events[5]",
+          "value": "draw:P1:2"
+        },
+        {
+          "fixture_id": "CARD_15",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "draw:10"
+        },
+        {
+          "fixture_id": "CARD_20",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "draw:P1:3"
+        }
+      ],
+      "occurrence_count": 3,
+      "path_shapes": [
+        {
+          "count": 3,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "draw"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_07",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "draw_attempt:1"
+        },
+        {
+          "fixture_id": "CARD_07",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "draw_attempt:2"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "draw_attempt"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_24",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "entering_creature_damage:P2:2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "entering_creature_damage"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_RULES_RANDOMNESS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "extra_turn_created:P1"
+        },
+        {
+          "fixture_id": "WS05-MP-TURN-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "extra_turn_created:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-TURN-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "extra_turn_created:P3"
+        },
+        {
+          "fixture_id": "WS05-MP-TURN-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "extra_turn_created:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-TURN-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "extra_turn_created:P3"
+        }
+      ],
+      "occurrence_count": 5,
+      "path_shapes": [
+        {
+          "count": 5,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "extra_turn_created"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "NEGATIVE_FIRST_OPTION",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+        },
+        {
+          "fixture_id": "NEGATIVE_RANDOM_OPTION",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+        },
+        {
+          "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+        },
+        {
+          "fixture_id": "NEGATIVE_INTERNAL_AI",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+        },
+        {
+          "fixture_id": "NEGATIVE_GUI_DEFAULT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+        },
+        {
+          "fixture_id": "NEGATIVE_SILENT_SKIP",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+        },
+        {
+          "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+        }
+      ],
+      "occurrence_count": 7,
+      "path_shapes": [
+        {
+          "count": 7,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "fail_closed"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "NEGATIVE_FIRST_OPTION",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "fallback_used:first_option"
+        },
+        {
+          "fixture_id": "NEGATIVE_RANDOM_OPTION",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "fallback_used:random_option"
+        },
+        {
+          "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "fallback_used:default_yes_no"
+        },
+        {
+          "fixture_id": "NEGATIVE_INTERNAL_AI",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "fallback_used:internal_ai"
+        },
+        {
+          "fixture_id": "NEGATIVE_GUI_DEFAULT",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "fallback_used:gui_default"
+        },
+        {
+          "fixture_id": "NEGATIVE_SILENT_SKIP",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "fallback_used:silent_skip"
+        },
+        {
+          "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "fallback_used:parent_class_fallback"
+        }
+      ],
+      "occurrence_count": 7,
+      "path_shapes": [
+        {
+          "count": 7,
+          "path": "$.expected_events.forbidden_events[]"
+        }
+      ],
+      "prefix": "fallback_used"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-START-2",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "first_turn_draw:false"
+        },
+        {
+          "fixture_id": "WS05-CMD-START-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "first_turn_draw:true"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "first_turn_draw"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-MULL-2",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "free_mulligan:false"
+        },
+        {
+          "fixture_id": "WS05-CMD-MULL-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "free_mulligan:true"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "free_mulligan"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-PARTNER-ZONE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "game_start_command_zone:cmd:P1-A"
+        },
+        {
+          "fixture_id": "WS05-CMD-PARTNER-ZONE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "game_start_command_zone:cmd:P1-B"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "game_start_command_zone"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "HIDDEN_01",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_02",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_03",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_04",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_05",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_06",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_07",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_08",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_09",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_10",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_11",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_12",
+          "kind": "value",
+          "path": "$.semantic_objects[4].construction_notes[0]",
+          "value": "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+        }
+      ],
+      "occurrence_count": 20,
+      "path_shapes": [
+        {
+          "count": 20,
+          "path": "$.semantic_objects[].construction_notes[]"
+        }
+      ],
+      "prefix": "honey_sentinel"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_MULLIGAN",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "keep:P2:round1"
+        },
+        {
+          "fixture_id": "PILOT_MULLIGAN",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "keep:P3:round1"
+        },
+        {
+          "fixture_id": "PILOT_MULLIGAN",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "keep:P4:round1"
+        },
+        {
+          "fixture_id": "PILOT_MULLIGAN",
+          "kind": "value",
+          "path": "$.expected_events.required_events[4]",
+          "value": "keep:P1:round2"
+        }
+      ],
+      "occurrence_count": 4,
+      "path_shapes": [
+        {
+          "count": 4,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "keep"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "HIDDEN_01",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_01:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_02",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_02:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_03",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_03:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_04",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_04:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_05",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_05:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_06",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_06:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_07",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_07:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_08",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_08:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_09",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_09:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_10",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_10:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_11",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_11:P1"
+        },
+        {
+          "fixture_id": "HIDDEN_12",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "knowledge_projection:HIDDEN_12:P1"
+        }
+      ],
+      "occurrence_count": 20,
+      "path_shapes": [
+        {
+          "count": 20,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "knowledge_projection"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_LAYERS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "layer7b_set_pt:1/1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "layer7b_set_pt"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_LAYERS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "layer7c_modify_pt:+1/+1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "layer7c_modify_pt"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "HIDDEN_01",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_02",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_03",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_04",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_05",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_06",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_07",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_08",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_09",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_10",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_11",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        },
+        {
+          "fixture_id": "HIDDEN_12",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+        }
+      ],
+      "occurrence_count": 20,
+      "path_shapes": [
+        {
+          "count": 20,
+          "path": "$.expected_events.forbidden_events[]"
+        }
+      ],
+      "prefix": "leak"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-MP-BLOCK-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "legal_blocker_partition:P2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "legal_blocker_partition"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.deck_state[0].shuffle_channel",
+          "value": "library_shuffle:P1"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.deck_state[1].shuffle_channel",
+          "value": "library_shuffle:P2"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.native_procedure[1].details.channels[0]",
+          "value": "library_shuffle:P1"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.native_procedure[1].details.channels[1]",
+          "value": "library_shuffle:P2"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.rules_randomness.channels[0]",
+          "value": "library_shuffle:P1"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.rules_randomness.channels[1]",
+          "value": "library_shuffle:P2"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.deck_state[0].shuffle_channel",
+          "value": "library_shuffle:P1"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.deck_state[1].shuffle_channel",
+          "value": "library_shuffle:P2"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.deck_state[2].shuffle_channel",
+          "value": "library_shuffle:P3"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.native_procedure[1].details.channels[0]",
+          "value": "library_shuffle:P1"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.native_procedure[1].details.channels[1]",
+          "value": "library_shuffle:P2"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.native_procedure[1].details.channels[2]",
+          "value": "library_shuffle:P3"
+        }
+      ],
+      "occurrence_count": 54,
+      "path_shapes": [
+        {
+          "count": 18,
+          "path": "$.deck_state[].shuffle_channel"
+        },
+        {
+          "count": 18,
+          "path": "$.native_procedure[].details.channels[]"
+        },
+        {
+          "count": 18,
+          "path": "$.rules_randomness.channels[]"
+        }
+      ],
+      "prefix": "library_shuffle"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_25",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "lifelink_gain:P1:1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "lifelink_gain"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].card_lineage_id",
+          "value": "line:obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].card_lineage_id",
+          "value": "line:obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].card_lineage_id",
+          "value": "line:obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].card_lineage_id",
+          "value": "line:obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.semantic_objects[2].card_lineage_id",
+          "value": "line:obj:P3-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].card_lineage_id",
+          "value": "line:obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].card_lineage_id",
+          "value": "line:obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[2].card_lineage_id",
+          "value": "line:obj:P3-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[3].card_lineage_id",
+          "value": "line:obj:P4-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_5P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].card_lineage_id",
+          "value": "line:obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_5P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].card_lineage_id",
+          "value": "line:obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_5P",
+          "kind": "value",
+          "path": "$.semantic_objects[2].card_lineage_id",
+          "value": "line:obj:P3-commander"
+        }
+      ],
+      "occurrence_count": 1304,
+      "path_shapes": [
+        {
+          "count": 1304,
+          "path": "$.semantic_objects[].card_lineage_id"
+        }
+      ],
+      "prefix": "line"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_12",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "look_top:7"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "look_top"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_08",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "loyalty_ability:0"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "loyalty_ability"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_MANA_PAYMENT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "mana_abilities_activated:2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "mana_abilities_activated"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_27",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "mana_ability:red"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "mana_ability"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_MANA_PAYMENT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "mana_paid:UU"
+        },
+        {
+          "fixture_id": "MICRO_MANA_PAYMENT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "mana_paid:UU"
+        },
+        {
+          "fixture_id": "CARD_12",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "mana_paid:UU"
+        },
+        {
+          "fixture_id": "WS05-CMD-TAX-2",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "mana_paid:4"
+        },
+        {
+          "fixture_id": "WS05-CMD-TAX-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "mana_paid:4"
+        }
+      ],
+      "occurrence_count": 5,
+      "path_shapes": [
+        {
+          "count": 5,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "mana_paid"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_MANA_PAYMENT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "mana_payment_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "mana_payment_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_26",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "modal_choice:devils"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "modal_choice"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_MODE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "mode_selected:create_devils"
+        },
+        {
+          "fixture_id": "MICRO_MODES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "mode_selected:create_devils"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "mode_selected"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "move_to_graveyard:obj:micro-zero"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "move_to_graveyard"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_MULLIGAN",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "mulligan:P1:round1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "mulligan"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-MULL-2",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "mulligan_once:P1"
+        },
+        {
+          "fixture_id": "WS05-CMD-MULL-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "mulligan_once:P1"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "mulligan_once"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_MULTI_AMOUNT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "multi_amount_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "multi_amount_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-MP-ELIM-OWNED-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "multiplayer_cleanup:CR800.4"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "multiplayer_cleanup:CR800.4"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-STACK-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "multiplayer_cleanup:CR800.4"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-PRIO-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "multiplayer_cleanup:CR800.4"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-TURN-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "multiplayer_cleanup:CR800.4"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "multiplayer_cleanup:CR800.4"
+        },
+        {
+          "fixture_id": "WS05-CMD-ELIM-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "multiplayer_cleanup:CR800.4"
+        }
+      ],
+      "occurrence_count": 7,
+      "path_shapes": [
+        {
+          "count": 7,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "multiplayer_cleanup"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_ZONE_CHANGES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "new_object_incarnation:line:micro-bolt"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "new_object_incarnation"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-MP-TURN-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "next_turn:P3"
+        },
+        {
+          "fixture_id": "WS05-MP-TURN-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "next_turn:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-TURN-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "next_turn:P3"
+        },
+        {
+          "fixture_id": "WS05-MP-TURN-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "next_turn:P2"
+        }
+      ],
+      "occurrence_count": 4,
+      "path_shapes": [
+        {
+          "count": 4,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "next_turn"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_04",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "noncombat_damage:P3:3"
+        },
+        {
+          "fixture_id": "CARD_04",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "noncombat_damage:P4:3"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "noncombat_damage"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].semantic_id",
+          "value": "obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_2P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].semantic_id",
+          "value": "obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].semantic_id",
+          "value": "obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].semantic_id",
+          "value": "obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_3P",
+          "kind": "value",
+          "path": "$.semantic_objects[2].semantic_id",
+          "value": "obj:P3-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].semantic_id",
+          "value": "obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].semantic_id",
+          "value": "obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[2].semantic_id",
+          "value": "obj:P3-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_4P",
+          "kind": "value",
+          "path": "$.semantic_objects[3].semantic_id",
+          "value": "obj:P4-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_5P",
+          "kind": "value",
+          "path": "$.semantic_objects[0].semantic_id",
+          "value": "obj:P1-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_5P",
+          "kind": "value",
+          "path": "$.semantic_objects[1].semantic_id",
+          "value": "obj:P2-commander"
+        },
+        {
+          "fixture_id": "PLAYER_COUNT_5P",
+          "kind": "value",
+          "path": "$.semantic_objects[2].semantic_id",
+          "value": "obj:P3-commander"
+        }
+      ],
+      "occurrence_count": 1851,
+      "path_shapes": [
+        {
+          "count": 1304,
+          "path": "$.semantic_objects[].semantic_id"
+        },
+        {
+          "count": 144,
+          "path": "$.action_cost_state[].explicit_payment_sources[]"
+        },
+        {
+          "count": 43,
+          "path": "$.native_procedure[].source_object"
+        },
+        {
+          "count": 40,
+          "path": "$.action_cost_state[].source_semantic_id"
+        },
+        {
+          "count": 40,
+          "path": "$.decision_script[].selection.semantic_value.object"
+        },
+        {
+          "count": 31,
+          "path": "$.stack_state[].source_semantic_id"
+        },
+        {
+          "count": 22,
+          "path": "$.decision_script[].selection.semantic_value[]"
+        },
+        {
+          "count": 20,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.object"
+        },
+        {
+          "count": 16,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value[]"
+        },
+        {
+          "count": 15,
+          "path": "$.stack_state[].targets[]"
+        },
+        {
+          "count": 12,
+          "path": "$.decision_script[].selection.semantic_value"
+        },
+        {
+          "count": 10,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value"
+        },
+        {
+          "count": 9,
+          "path": "$.native_procedure[].details.targets[]"
+        },
+        {
+          "count": 6,
+          "path": "$.decision_script[].selection.semantic_value.delve_objects[]"
+        },
+        {
+          "count": 6,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.delve_objects[]"
+        },
+        {
+          "count": 5,
+          "path": "$.decision_script[].selection.semantic_value.target"
+        },
+        {
+          "count": 5,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.target"
+        },
+        {
+          "count": 4,
+          "path": "$.knowledge_state.viewer_states[].known_object_identities[]"
+        },
+        {
+          "count": 4,
+          "path": "$.knowledge_state.viewer_states[].temporary_permissions[].object"
+        },
+        {
+          "count": 4,
+          "path": "$.combat_state.unblocked[]"
+        },
+        {
+          "count": 4,
+          "path": "$.extra_turn_creation[].source"
+        },
+        {
+          "count": 3,
+          "path": "$.decision_script[].selection.semantic_value.pile_b[]"
+        },
+        {
+          "count": 3,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.pile_b[]"
+        },
+        {
+          "count": 3,
+          "path": "$.combat_state.eligible_attackers[]"
+        },
+        {
+          "count": 3,
+          "path": "$.knowledge_state.viewer_states[].prohibited_metadata[]"
+        },
+        {
+          "count": 3,
+          "path": "$.semantic_objects[].attached_to"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:pilot-p3-target>"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:pilot-p3-target>"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.sources[]"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.pile_a[]"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.pile_a[]"
+        },
+        {
+          "count": 2,
+          "path": "$.terminal_postconditions[]"
+        },
+        {
+          "count": 2,
+          "path": "$.combat_state.unblocked_attackers[]"
+        },
+        {
+          "count": 2,
+          "path": "$.combat_state.attackers.<key:obj:micro-attacker>"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.damage_targets[]"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.tap_targets[]"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.damage_targets[]"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.tap_targets[]"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.source_semantic_id"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.mana_payment[]"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.mana_payment[]"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.source"
+        },
+        {
+          "count": 2,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.source"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:mp-attacker-0>"
+        },
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:mp-attacker-1>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.attached_to"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.enchanted_semantic_id"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:p1-bears>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.assignments.<key:obj:p1-bears>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:p1-bears>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:p2-bears>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.obj:p2-bears"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:p2-bears>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:p2-bears"
+        },
+        {
+          "count": 1,
+          "path": "$.knowledge_state.viewer_states[].face_down_look_permissions[].object"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:micro-3power>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.blockers.<key:obj:micro-blocker>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.blockers.obj:micro-blocker"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:card04-attacker>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:card04-attacker>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:card08-attacker>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:card08-attacker>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:card09-p3-creature>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:card09-p3-creature>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.targets.Tear"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.targets.Wear"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.targets.Tear"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.targets.Wear"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.sacrifice"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.target_spell"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.sacrifice"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.target_spell"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.sacrifice_cost"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.sacrifice_cost"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:card21-creature>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:card25-attacker>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:card25-blocker>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.obj:card25-blocker"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:card25-attacker>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:card25-blocker>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.obj:card25-blocker"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.required_mana_source"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.required_mana_source"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.assignments.<key:obj:mp-attacker-0>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.assignments.<key:obj:mp-attacker-1>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:mp-attacker-2>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:mp-attacker-0>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:mp-attacker-1>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value.<key:obj:mp-attacker-2>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:mp-a2>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:mp-a3>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.eligible_blockers[]"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.<key:obj:mp-p2-blocker>"
+        },
+        {
+          "count": 1,
+          "path": "$.decision_script[].selection.semantic_value.obj:mp-p2-blocker"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.assignments.<key:obj:mp-p2-blocker>"
+        },
+        {
+          "count": 1,
+          "path": "$.native_procedure[].details.assignments.obj:mp-p2-blocker"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:isamaru>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:isamaru-controlled>"
+        },
+        {
+          "count": 1,
+          "path": "$.combat_state.attackers.<key:obj:elim-isamaru>"
+        }
+      ],
+      "prefix": "obj"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-ELIM-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "object_leaves_game:obj:p2-owned"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "object_leaves_game"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_OBJECT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "object_selected:obj:p1-hand-a"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "object_selected"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-MP-BLOCK-4",
+          "kind": "value",
+          "path": "$.expected_events.forbidden_events[0]",
+          "value": "option:P2_blocks_attacker_to_P3"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.forbidden_events[]"
+        }
+      ],
+      "prefix": "option"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_PILE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "partition_created:2/3"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "partition_created"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_PILE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "pile_frame:P2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "pile_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-MP-ELIM-OWNED-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "player_leaves:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "player_leaves:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-STACK-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "player_leaves:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-PRIO-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "player_leaves:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-TURN-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "player_leaves:P2"
+        },
+        {
+          "fixture_id": "WS05-MP-ELIM-5",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "player_leaves:P3"
+        }
+      ],
+      "occurrence_count": 6,
+      "path_shapes": [
+        {
+          "count": 6,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "player_leaves"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-DMG-SAME-21",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "player_loses:P2"
+        },
+        {
+          "fixture_id": "WS05-CMD-DMG-CONTROL",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "player_loses:P2"
+        },
+        {
+          "fixture_id": "WS05-CMD-ELIM-4",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "player_loses:P2"
+        }
+      ],
+      "occurrence_count": 3,
+      "path_shapes": [
+        {
+          "count": 3,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "player_loses"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "priority:P2"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "priority:P2"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "priority"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "priority_decision_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "priority_decision_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_12",
+          "kind": "value",
+          "path": "$.expected_events.required_events[4]",
+          "value": "put_bottom:5"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "put_bottom"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_12",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "put_hand:2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "put_hand"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_REPLACEMENT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "replacement_effect:double"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "replacement_effect"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "replacement_effect_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "replacement_effect_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[0][1]",
+          "value": "resolve:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[1][0]",
+          "value": "resolve:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[1][1]",
+          "value": "resolve:Lightning_Bolt"
+        },
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "resolve:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[4]",
+          "value": "resolve:Lightning_Bolt"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[0][1]",
+          "value": "resolve:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[1][0]",
+          "value": "resolve:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[1][1]",
+          "value": "resolve:Lightning_Bolt"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "resolve:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.required_events[4]",
+          "value": "resolve:Lightning_Bolt"
+        },
+        {
+          "fixture_id": "MICRO_ZONE_CHANGES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "resolve:obj:micro-bolt-stack"
+        }
+      ],
+      "occurrence_count": 11,
+      "path_shapes": [
+        {
+          "count": 6,
+          "path": "$.expected_events.ordering_constraints[][]"
+        },
+        {
+          "count": 5,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "resolve"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_29",
+          "kind": "value",
+          "path": "$.expected_events.required_events[4]",
+          "value": "return_transformed:Branch_of_Boseiju"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "return_transformed"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "RNG_RULES_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "rules_rng:library_shuffle:P1"
+        },
+        {
+          "fixture_id": "REPLAY_DECISION_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "rules_rng:library_shuffle:P1"
+        },
+        {
+          "fixture_id": "REPLAY_EVENT_TAPE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "rules_rng:library_shuffle:P1"
+        },
+        {
+          "fixture_id": "REPLAY_CLEAN_PROCESS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "rules_rng:library_shuffle:P1"
+        },
+        {
+          "fixture_id": "REPLAY_STATE_HASHES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "rules_rng:library_shuffle:P1"
+        },
+        {
+          "fixture_id": "MICRO_RULES_RANDOMNESS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "rules_rng:coin_flip:HEADS"
+        }
+      ],
+      "occurrence_count": 6,
+      "path_shapes": [
+        {
+          "count": 6,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "rules_rng"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_27",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "scry:1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "scry"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_CHOOSE_USE",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "scry_choice:keep_top"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "scry_choice"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_TRIGGER_ORDER",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "simultaneous_triggers:P1:2"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "simultaneous_triggers"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "spell_cast:obj:pilot-bolt"
+        },
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[0][0]",
+          "value": "spell_cast:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "spell_cast:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.ordering_constraints[0][0]",
+          "value": "spell_cast:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "spell_cast:Giant_Growth"
+        },
+        {
+          "fixture_id": "CARD_01",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "spell_cast:P2"
+        }
+      ],
+      "occurrence_count": 6,
+      "path_shapes": [
+        {
+          "count": 4,
+          "path": "$.expected_events.required_events[]"
+        },
+        {
+          "count": 2,
+          "path": "$.expected_events.ordering_constraints[][]"
+        }
+      ],
+      "prefix": "spell_cast"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_MANA_PAYMENT",
+          "kind": "value",
+          "path": "$.decision_script[1].selection.semantic_value",
+          "value": "stack:1"
+        },
+        {
+          "fixture_id": "MICRO_MANA_PAYMENT",
+          "kind": "value",
+          "path": "$.decision_script[1].selection.semantic_value",
+          "value": "stack:1"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.decision_script[].selection.semantic_value"
+        }
+      ],
+      "prefix": "stack"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_PRIORITY",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "stack_push:Giant_Growth"
+        },
+        {
+          "fixture_id": "MICRO_STACK",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "stack_push:Giant_Growth"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "stack_push"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-START-2",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "starting_player:P1"
+        },
+        {
+          "fixture_id": "WS05-CMD-START-3",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "starting_player:P1"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "starting_player"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_09",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "tap:obj:card09-p4-a"
+        },
+        {
+          "fixture_id": "CARD_09",
+          "kind": "value",
+          "path": "$.expected_events.required_events[3]",
+          "value": "tap:obj:card09-p4-b"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "tap"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_TARGET_AMOUNT",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "target_amount_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "target_amount_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_TARGET",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "target_decision_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "target_decision_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_TARGET",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "target_selected:P2"
+        },
+        {
+          "fixture_id": "MICRO_TARGETS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "target_selected:P2"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "target_selected"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "WS05-CMD-PARTNER-TAX",
+          "kind": "value",
+          "path": "$.expected_events.required_events[0]",
+          "value": "tax:cmd:P1-A:+4"
+        },
+        {
+          "fixture_id": "WS05-CMD-PARTNER-TAX",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "tax:cmd:P1-B:+0"
+        }
+      ],
+      "occurrence_count": 2,
+      "path_shapes": [
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "tax"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_09",
+          "kind": "value",
+          "path": "$.expected_events.required_events[4]",
+          "value": "token_created:4/4_Elemental"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "token_created"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_TRIGGER_ORDER",
+          "kind": "value",
+          "path": "$.decision_script[0].selection.semantic_value[0]",
+          "value": "trigger:Phyrexian_Arena"
+        },
+        {
+          "fixture_id": "PILOT_TRIGGER_ORDER",
+          "kind": "value",
+          "path": "$.decision_script[0].selection.semantic_value[1]",
+          "value": "trigger:Mystic_Remora"
+        },
+        {
+          "fixture_id": "PILOT_TRIGGER_ORDER",
+          "kind": "value",
+          "path": "$.native_procedure[1].details.semantic_selection_contract.semantic_value[0]",
+          "value": "trigger:Phyrexian_Arena"
+        },
+        {
+          "fixture_id": "PILOT_TRIGGER_ORDER",
+          "kind": "value",
+          "path": "$.native_procedure[1].details.semantic_selection_contract.semantic_value[1]",
+          "value": "trigger:Mystic_Remora"
+        },
+        {
+          "fixture_id": "MICRO_TRIGGERS",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "trigger:Warstorm_Surge"
+        },
+        {
+          "fixture_id": "CARD_01",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "trigger:Ishai"
+        },
+        {
+          "fixture_id": "CARD_18",
+          "kind": "value",
+          "path": "$.decision_script[2].selection.semantic_value[0]",
+          "value": "trigger:destroy_target"
+        },
+        {
+          "fixture_id": "CARD_18",
+          "kind": "value",
+          "path": "$.decision_script[2].selection.semantic_value[1]",
+          "value": "trigger:evoke_sacrifice"
+        },
+        {
+          "fixture_id": "CARD_18",
+          "kind": "value",
+          "path": "$.native_procedure[7].details.semantic_selection_contract.semantic_value[0]",
+          "value": "trigger:destroy_target"
+        },
+        {
+          "fixture_id": "CARD_18",
+          "kind": "value",
+          "path": "$.native_procedure[7].details.semantic_selection_contract.semantic_value[1]",
+          "value": "trigger:evoke_sacrifice"
+        }
+      ],
+      "occurrence_count": 10,
+      "path_shapes": [
+        {
+          "count": 4,
+          "path": "$.decision_script[].selection.semantic_value[]"
+        },
+        {
+          "count": 4,
+          "path": "$.native_procedure[].details.semantic_selection_contract.semantic_value[]"
+        },
+        {
+          "count": 2,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "trigger"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_TRIGGER_ORDER",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "trigger_order_frame:P1"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "trigger_order_frame"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "CARD_15",
+          "kind": "value",
+          "path": "$.expected_events.required_events[2]",
+          "value": "untap_lands:5"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "untap_lands"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "PILOT_ANNOUNCE_X",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "x_announced:3"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "x_announced"
+    },
+    {
+      "examples": [
+        {
+          "fixture_id": "MICRO_ZONE_CHANGES",
+          "kind": "value",
+          "path": "$.expected_events.required_events[1]",
+          "value": "zone_change:stack->graveyard"
+        }
+      ],
+      "occurrence_count": 1,
+      "path_shapes": [
+        {
+          "count": 1,
+          "path": "$.expected_events.required_events[]"
+        }
+      ],
+      "prefix": "zone_change"
+    }
+  ],
+  "record_count": 135,
+  "source_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "special_field_counts": {
+    "active_player": 135,
+    "actor": 323,
+    "attached_to": 4,
+    "causal_step_id": 143,
+    "commander_id": 1074,
+    "controller": 1336,
+    "owner": 1839,
+    "semantic_id": 1304,
+    "source_object": 44,
+    "source_semantic_id": 73,
+    "step_id": 558
+  }
+}
