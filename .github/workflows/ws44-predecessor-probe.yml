@@ -1,0 +1,44 @@
+name: WS44 detached predecessor semantic probe
+
+on:
+  push:
+    branches:
+      - ws44/v1.0.4-authority-reconciliation-freeze
+    paths:
+      - scripts/ws44_probe_predecessor.py
+      - .github/workflows/ws44-predecessor-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run detached predecessor semantic probe
+        run: |
+          python scripts/ws44_probe_predecessor.py \
+            --output candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json
+      - name: Persist probe evidence
+        run: |
+          if git diff --quiet -- candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json && \
+             git ls-files --error-unmatch candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json >/dev/null 2>&1; then
+            echo "Probe evidence already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json
+          git commit -m "ws44: persist detached v1.0.3 semantic reference probe"
+          git push origin HEAD:ws44/v1.0.4-authority-reconciliation-freeze
+      - name: Upload probe evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws44-v103-semantic-reference-probe
+          path: candidate-qualification/ws44-v1.0.4-authority/WS44_V103_SEMANTIC_REFERENCE_PROBE.json
+          if-no-files-found: error
