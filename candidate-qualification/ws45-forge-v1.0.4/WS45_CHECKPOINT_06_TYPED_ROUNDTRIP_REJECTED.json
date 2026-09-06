@@ -1,0 +1,39 @@
+{
+  "schema": "commander-lab.ws45.typed-roundtrip-rejected/1.0.0",
+  "workstream": "WS-45",
+  "status": "PASS_AUDIT_FINDING",
+  "qualification_credit_effect": "NO_CONSTRUCTION_OR_RUNTIME_CREDIT",
+  "finding": {
+    "typed_request_to_forge_history_to_serializer_is_sufficient": false,
+    "reason": "The WS-45 contract requires Rules-state-bearing fields to be independently observed or derived from Forge/native execution. Merely replacing a canonical request JSON blob with typed records and then returning those records would still be request echo if the records are not validated by, or used as, actual native engine state/behavior.",
+    "binding_contract_fields": [
+      "knowledge_state",
+      "rules_randomness",
+      "extra_turn_creation",
+      "elimination_trigger",
+      "zone_move_event"
+    ],
+    "additional_rules_state_fields_found": [
+      "commander_state.multiple_commander_relations",
+      "commander_state.commanders[*].partner_with",
+      "NATURAL_GAME_START temporal lifecycle state",
+      "NATURAL_GAME_START deck/opening-hand/shuffle state",
+      "semantic_objects physical duplicate identity binding"
+    ]
+  },
+  "accepted_proof_rule": {
+    "state_loader_input_may_describe_requested_snapshot": true,
+    "evidence_serializer_may_read_request_values": false,
+    "native_state_must_materially_store_or_execute_the_semantic_fact": true,
+    "native_observer_must_reconstruct_evidence_from_that_state_or_execution": true,
+    "adversarial_fixed_native_state_mutated_expected_projection_required": true,
+    "transport_hashing_alone_is_sufficient": false
+  },
+  "current_forge_remediation_head": {
+    "commit": "140075525379a0fa4bccaed34d1e3801fc3e9dc3",
+    "tree": "fc9d03543807136f6c96271ff268979ed63239d7",
+    "dedicated_compile_run": 34059098765,
+    "dedicated_compile_conclusion": "success"
+  },
+  "exact_next_action": "Audit Forge source for native visibility, RNG, extra-turn, player-elimination, zone-move/history and Commander-relation surfaces; bind each WS-44 field to a real engine state or operation, adding bounded Forge-native capability where missing. Do not grant strict no-request-echo until adversarial runtime proves independence."
+}
