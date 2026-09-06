@@ -10,21 +10,34 @@ on:
 permissions:
   contents: read
 
+env:
+  FORGE_COMMIT: d468ed84c7781e41d5aed71cd9ea24bd5aa45ad5
+  FORGE_TREE: cf59cb41d2284ba33c5bd0710d1d6059141136a1
+
 jobs:
   materialize:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: forge-source
+          fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Materialize exact generated WS40 v1.0.3 state and runner
+      - name: Materialize exact generated WS40 v1.0.3 state, runner and provider
         shell: bash
         run: |
           set -euo pipefail
+          test "$(git -C forge-source rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C forge-source rev-parse HEAD^{tree})" = "$FORGE_TREE"
           out=artifacts/ws45-generated-baseline
-          mkdir -p "$out"
+          mkdir -p "$out" "$out/provider"
+
           cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/Ws40SuccessorState.java"
           python scripts/ws40_fix_successor_state_java.py --state-java "$out/Ws40SuccessorState.java"
           python scripts/ws40_v103_native_stack_history.py --state-java "$out/Ws40SuccessorState.java"
@@ -42,9 +55,16 @@ jobs:
           python scripts/ws40_v103_lineage_target_resolution.py --runner "$out/run_native_construction_107.py"
           python scripts/ws40_v103_native_combat_legal_surface.py --runner "$out/run_native_construction_107.py"
 
+          python scripts/ws40_generate_forge_provider.py \
+            --player-controller forge-source/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir "$out/provider" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/ws40_apply_successor_state_overlay.py \
+            --provider "$out/provider/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          cp "$out/provider/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$out/Ws23ForgeVerticalProvider.java"
+
           python -m py_compile "$out/run_native_construction_107.py"
-          sha256sum "$out/Ws40SuccessorState.java" "$out/run_native_construction_107.py" > "$out/SHA256SUMS"
-          printf '{"commander_lab_head":"%s","purpose":"inspection-only generated baseline; no qualification credit"}\n' "$(git rev-parse HEAD)" > "$out/SOURCE_LOCK.json"
+          sha256sum "$out/Ws40SuccessorState.java" "$out/run_native_construction_107.py" "$out/Ws23ForgeVerticalProvider.java" > "$out/SHA256SUMS"
+          printf '{"commander_lab_head":"%s","forge_commit":"%s","forge_tree":"%s","purpose":"inspection-only generated baseline; no qualification credit"}\n' "$(git rev-parse HEAD)" "$FORGE_COMMIT" "$FORGE_TREE" > "$out/SOURCE_LOCK.json"
       - uses: actions/upload-artifact@v4
         with:
           name: ws45-generated-baseline-${{ github.sha }}
