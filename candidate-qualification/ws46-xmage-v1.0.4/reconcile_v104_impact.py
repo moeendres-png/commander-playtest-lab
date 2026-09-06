@@ -123,30 +123,18 @@ def recursive_contains(value: Any, needle: Any) -> bool:
 
 
 def record_local_identity_representation_bound(value: Any, semantic_id: Any, path: str) -> bool:
-    """Bind a WS-44 record-local identity rename without conflating ID namespaces.
+    """Bind exactly the immutable WS-44 record-local identity rewrite forms.
 
-    The immutable repair matrix names semantic object IDs (``obj:*``), while a
-    declared ``card_lineage_id`` representation uses the separate lineage-ID
-    namespace for the same record-local identity token.  Literal ``obj:*``
-    containment is therefore correct for semantic-ID references but is too
-    representation-specific for the explicitly declared lineage path.
-
-    This exception is deliberately limited to ``card_lineage_id`` paths in a
-    ``RECORD_LOCAL_IDENTITY_RENAME`` row and still requires the exact identity
-    token following the namespace delimiter.  No field is excluded from the
-    delta and no undeclared path receives credit.
+    WS-44's frozen ``rename_semantic_identity`` builder rewrites either the
+    semantic object identifier itself or, for the lineage declaration, the exact
+    typed form ``line:{semantic_id}``.  No provider/native alias or heuristic
+    identity mapping is accepted here.
     """
     if recursive_contains(value, semantic_id):
         return True
     if not path.endswith(".card_lineage_id"):
         return False
-    if not isinstance(value, str) or not isinstance(semantic_id, str):
-        return False
-    namespace, sep, identity_token = semantic_id.partition(":")
-    if sep != ":" or namespace != "obj" or not identity_token:
-        return False
-    value_namespace, value_sep, value_token = value.partition(":")
-    return value_sep == ":" and value_namespace == "lineage" and value_token == identity_token
+    return isinstance(value, str) and isinstance(semantic_id, str) and value == f"line:{semantic_id}"
 
 
 def main() -> int:
