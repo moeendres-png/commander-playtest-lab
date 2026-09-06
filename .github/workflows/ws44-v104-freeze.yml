@@ -7,6 +7,7 @@ on:
     paths:
       - scripts/ws44_build_successor.py
       - scripts/ws44_test_referential_integrity.py
+      - scripts/ws44_diagnose_reference_failures.py
       - .github/workflows/ws44-v104-freeze.yml
   workflow_dispatch:
 
@@ -23,7 +24,7 @@ jobs:
           fetch-depth: 0
       - name: Compile WS44 implementation
         run: |
-          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_test_referential_integrity.py
+          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_test_referential_integrity.py scripts/ws44_diagnose_reference_failures.py
       - name: Deterministic materialization A and B
         run: |
           rm -rf /tmp/ws44-a /tmp/ws44-b
@@ -44,6 +45,11 @@ jobs:
           else:
               print('No referential audit emitted before failure')
           PY
+      - name: Capture detached reference-failure context
+        if: failure()
+        run: |
+          mkdir -p /tmp/ws44-a
+          python scripts/ws44_diagnose_reference_failures.py --output /tmp/ws44-a/WS44_REFERENCE_FAILURE_CONTEXT.json
       - name: Upload fail-closed diagnostics
         if: always()
         uses: actions/upload-artifact@v4
