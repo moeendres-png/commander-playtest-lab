@@ -1,0 +1,39 @@
+{
+  "schema_version": "commander-lab.ws45-native-capability-audit-repair/1.0.0",
+  "workstream": "WS-45",
+  "status": "FALSE_GREEN_IDENTIFIED_AND_AUDIT_REPAIRED",
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "invalidated_audit": {
+    "run_id": 34059640303,
+    "artifact_id": 9997056829,
+    "artifact_digest": "sha256:83e805b2b61d9cbecefdda889f599e10a9ea154ccf3e518e17bb1bad1ce1fce5",
+    "forge_commit": "140075525379a0fa4bccaed34d1e3801fc3e9dc3",
+    "forge_tree": "fc9d03543807136f6c96271ff268979ed63239d7",
+    "reason": "The workflow invoked ripgrep (`rg`) eight times on ubuntu-24.04, but rg was not installed. Every `rg: command not found` was masked by `|| true`, producing eight empty snippet files and a successful workflow conclusion.",
+    "artifact_summary_reported_zero_matches": true,
+    "qualification_credit_from_invalidated_run": "NONE"
+  },
+  "repair": {
+    "commit": "5a459276400ee97076bd38a3d8f3c9a4bec38fab",
+    "workflow": ".github/workflows/ws45-forge-native-capability-audit.yml",
+    "scanner": "python_re_fail_closed",
+    "properties": [
+      "verifies exact Forge commit/tree",
+      "requires both Forge Java source roots to exist",
+      "requires at least 100 Java source files",
+      "raises on source read failure",
+      "does not mask scanner/tool failures",
+      "fails if every capability family has zero matches",
+      "uploads evidence even on failure",
+      "produces per-file SHA-256 manifest"
+    ]
+  },
+  "source_truth_effect": "Run 34059640303 is retained only as evidence of the audit-harness defect. It proves no Forge capability presence or absence.",
+  "terminal_blocker": null,
+  "next_action": "Adjudicate the corrected audit artifact field-by-field; then implement or bind only genuinely native Forge surfaces before strict adversarial no-request-echo testing."
+}
