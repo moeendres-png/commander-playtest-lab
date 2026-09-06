@@ -37,12 +37,13 @@
   },
   "v1_0_4_impact": {
     "representation_repairs": 11,
-    "unique_changed_fixture_ids_overall": 10,
-    "provider_relevant_changed_fixture_ids": 9,
+    "unique_changed_fixture_ids_overall": 9,
+    "provider_relevant_changed_fixture_ids": 8,
     "provider_excluded_changed_fixture_ids": ["CARD_01"],
     "obligation_change": false,
     "scope_change": false,
-    "authority_change": false
+    "authority_change": false,
+    "correction_basis": "fresh WS45 reconstruction from immutable WS44 SUPERSEDES_v1_0_3.json and v1.0.3-to-v1.0.4 stable-payload comparison"
   },
   "no_request_echo_gate": {
     "status": "FAIL_REMEDIATION_REQUIRED",

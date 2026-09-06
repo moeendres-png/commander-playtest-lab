@@ -79,11 +79,12 @@ jobs:
           assert {k:v['count'] for k,v in p['af_membership'].items()} == {'AF04':24,'AF05':20,'AF06':17,'AF08':36,'AF09':5}
           assert p['card_02']=={'included':True,'count':1}
           assert p['supersedes_repairs']['repair_row_count']==11
-          assert p['supersedes_repairs']['unique_fixture_count_overall']==10
-          assert p['supersedes_repairs']['provider_relevant_fixture_count']==9
+          assert p['supersedes_repairs']['unique_fixture_count_overall']==9
+          assert p['supersedes_repairs']['provider_relevant_fixture_count']==8
           assert p['supersedes_repairs']['provider_excluded_fixture_ids']==['CARD_01']
           assert p['supersedes_repairs']['all_provider_semantics_used_false'] is True
           assert p['supersedes_repairs']['all_obligation_changed_false'] is True
+          assert p['v103_v104_comparison']['stable_payload_changed_count']==9
           PY
       - name: Persist run source lock and checksums
         if: always()
