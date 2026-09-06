@@ -1,132 +1,110 @@
-# COMMANDER SIMULATION FOUNDRY — WS-42 CURRENT PROJECT STATE
+# COMMANDER SIMULATION FOUNDRY — WS-46 CURRENT PROJECT STATE
 
 ## Current Assignment
 
-WS-42 — fresh XMage successor-provider qualification against immutable WS-41 v1.0.3.
+WS-46 — fresh XMage successor-provider qualification against immutable WS-44 v1.0.4 using the newest technically valid WS-42/WS-39 implementation provenance and zero imported successor-runtime PASS.
 
-This is a NEW successor qualification workstream derived from the terminal WS-39 implementation state. WS-39 remains immutable historical provenance and is not reopened.
+This is a NEW workstream. WS-42 remains closed and is not reopened.
 
 ## Current Status
 
-- `WS42_WORKSTREAM_TERMINAL = NO`
+- `WS46_WORKSTREAM_TERMINAL = NO`
 - `TASK_COMPLETE = NO`
-- `Completion Status = READY_FOR_V1_0_3_REQUALIFICATION`
-- `XMAGE_ENGINE_REMEDIATION_BASELINE_READY = YES`
+- `Completion Status = READY_FOR_V1_0_4_XMAGE_REQUALIFICATION`
+- `XMAGE_ENGINE_BASELINE_READY = YES`
+- `XMAGE_IMPLEMENTATION_PROVENANCE_READY = YES`
 - `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
-- `HISTORICAL_SUCCESSOR_PASS_IMPORTED = FALSE`
+- `HISTORICAL_SUCCESSOR_RUNTIME_CREDIT_IMPORTED = 0`
 - `AF07_GRANTED = FALSE`
 - `ARCHITECTURE_FREEZE = NO`
 
-## Source Lock — XMage
+## Binding Successor Contract — WS-44 v1.0.4
 
-Repository / branch:
-
-- `moeendres-png/mage`
-- `foundry/ws39-commander-history-state-restore`
-
-Exact repaired engine source lock:
-
-- commit `7bde812727817723616c575759f39bfc4cda4607`
-- tree `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
-
-This source already contains the WS-39 native Commander-history restoration capability. That capability and its native regression evidence may be reused as implementation provenance, but no v1.0.3 provider runtime PASS is inherited.
-
-## Source Lock — Commander Lab Baseline
-
-WS-42 branch:
-
-- `ws42/xmage-v1.0.3-successor-qualification`
-
-Branch was created from the fully restored terminal WS-39 content head:
-
-- base commit `c1e30d18c3312c4a8c77d15572ac6f0d2b4c3f51`
-
-The WS-39 runtime/evidence authority remains historical provenance only:
-
-- final construction runtime head `f326efc841c8ad81d1c5c60aefc3913cb3f33651`
-- terminal blocker evidence proved v1.0.2 unsatisfiable
-- no WS-39 behavior PASS is imported into WS-42.
-
-## Binding Successor Contract — WS-41 v1.0.3
-
-WS-42 MUST consume exactly:
+Consume exactly:
 
 - repository: `moeendres-png/commander-playtest-lab`
-- branch: `ws41/successor-contract-v1.0.3-freeze`
-- immutable downstream commit: `24152acf36b5a560c23ccacfed3f31d3039537eb`
-- tree: `428bbe58b2ea7b869200521092a8768108029b47`
-- namespace: `qualification/ws41`
-- contract: `commander-lab.semantic-fixture-materialization/1.0.3`
-- canonical materialization bundle digest: `545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b`
-- materialization SHA-256: `8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5`
+- freeze commit: `12940248497a8795991cbbd2eedef72945528cfe`
+- freeze tree: `cd83c973b269711106d08ab5be2d7672f05bcb7c`
+- namespace: `qualification/ws44`
+- namespace tree: `6579e119605b90248426a3121a47c487b2bb13cd`
+- contract: `commander-lab.semantic-fixture-materialization/1.0.4`
+- canonical bundle digest: `77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54`
+- materialization SHA-256: `9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35`
 - provider denominator: `107`
 
-WS-41 validation at that lock:
+WS-44 terminal administrative head `2f4cc17368e78d2a4bb14ece38f4e92a32ec0afe` is provenance only; provider qualification binds the immutable freeze above.
 
-- `COMPLETE / PASS_SUCCESSOR_CONTRACT_V1_0_3_FREEZE`
-- G41-01..G41-14 PASS
-- `135/135` semantic executable
-- exact provider denominator `107`
-- current contract defects `0`
-- global errors `[]`
-- provider runtime executed `false`
-- provider PASS imported `false`
-- AF07 `false`
-- Architecture Freeze `false`
+## XMage Rules-Core Baseline
 
-Later WS-41 evidence head `de478cf084529067776866aefb04d5c92efafeea` / tree `39642b1fce2056a2b43d38f1ad2910bf94001b65` is terminal attestation only and is not the downstream contract source lock.
+- repository: `moeendres-png/mage`
+- branch: `foundry/ws39-commander-history-state-restore`
+- commit: `7bde812727817723616c575759f39bfc4cda4607`
+- tree: `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
+
+Native Commander-history restoration is implementation provenance and must be freshly revalidated where used.
+
+## Newest Substantive WS-42 Provider Baseline
+
+- Commander-Lab commit: `0087dd4b7b11ed9c54249363bf5c751e3063befb`
+- tree: `63039ba3ef9f3d25cc18761e324fae8a00eaf31e`
+
+The current WS-46 branch descends from the later terminal WS-42 closeout, so this implementation is present together with terminal provenance.
+
+Candidate reusable implementation areas:
+
+- native non-echo construction/readback boundary;
+- native semantic `zone:revealed` via XMage reveal registry;
+- opaque identity-independent hidden-card physical references;
+- deterministic replay alias canonicalization;
+- native Commander-history restoration.
+
+All require fresh v1.0.4 verification. Historical construction/AF05/behavior/provider credit remains zero.
 
 ## Qualification Rules
 
-- Fresh runtime credit starts at `0/107`.
-- Do not import WS-34, WS-36 or WS-39 successor PASS.
-- Do not mutate WS-41 v1.0.3.
-- Do not synthesize Magic legality in Commander Lab or pilot code.
-- Rules Core owns legal actions, costs, mana, stack, priority, targets, combat, triggers, replacement/prevention/continuous effects, layers, SBAs, zones, copy/control, Commander, multiplayer and Rules RNG.
-- Pilots choose only among legal options exposed by the Rules Core.
-- No first-option/random/default-yes-no/internal-AI/GUI-default/silent-skip/parent fallback.
-- Unsupported production-reachable paths fail closed.
-- Requested semantic state digest must equal independently normalized constructed native state digest before behavior credit.
-- Construction-only success is not behavior PASS.
+- fresh successor runtime credit starts at `0/107`;
+- independently reconstruct exact 107-record denominator from v1.0.4;
+- compare v1.0.4 against v1.0.3 before adapting tooling;
+- no request echo as construction proof;
+- no provider-specific identity heuristic;
+- no synthetic historical Commander casts/events;
+- complete native construction from record 1;
+- construction-only evidence is not behavior PASS;
+- complete fresh behavior runtime after construction gate;
+- Rules Core owns Magic legality;
+- pilots/controllers choose only among Rules-Core-provided legal options;
+- no first-option/random/default yes-no/internal AI/GUI default/silent skip/parent fallback;
+- unsupported production-reachable paths fail closed;
+- preserve actor-entitled hidden information;
+- opaque hidden handles must not encode hidden card identity;
+- preserve deterministic Rules RNG/replay.
 
-## Required Execution Sequence
+## Required Terminal Targets
 
-1. verify the exact WS-41 commit/tree/schema/materialization/bundle digests;
-2. independently reconstruct the exact 107-record denominator and per-record requested-state digests;
-3. compare v1.0.3 against v1.0.2 and prove the material contract change is exactly the WS-41-authorized successor semantics, especially corrected `PILOT_CHOICE`;
-4. adapt WS-39 construction/runtime tooling to consume v1.0.3 without record-specific legality shortcuts;
-5. execute complete native construction from record 1 with zero historical successor credit;
-6. require complete 107-record accounting and fail closed on every unsupported dimension;
-7. remediate newly exposed XMage provider or native engine gaps only when technically correct and in scope;
-8. execute complete fresh behavior runtime after the construction gate is satisfied;
-9. require fresh AF04 `24/24`, AF05 `20/20`, AF06 `17/17`, AF08 `36/36`, AF09 `5/5`, and `CARD_02` PASS for provider qualification;
-10. preserve hidden-information safety and deterministic replay under the exact source/build identity;
-11. persist machine-readable results, run/job/artifact/checksum identities and a self-contained terminal handoff;
-12. create/update a Draft PR; do not merge without explicit user authorization.
+If technically justified:
 
-## Success Condition
+- construction `107/107 PASS`;
+- behavior runtime `107/107 PASS`;
+- AF04 expected `24/24` after fresh membership reconstruction;
+- AF05 expected `20/20`;
+- AF06 expected `17/17`;
+- AF08 expected `36/36`;
+- AF09 expected `5/5`;
+- `CARD_02 PASS`;
+- hidden-information / hidden-identity adversarial gate `PASS`;
+- unsupported production decision paths `0`.
 
-Only if every mandatory fresh v1.0.3 gate passes:
+Only then:
 
-- `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = YES`
-- exact successor runtime `107/107 PASS`
+`XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = TRUE`.
 
-This does not grant AF07 or Architecture Freeze.
+No AF07. No Architecture Freeze.
 
-## Failure / Stop Conditions
+## Binding Files
 
-Fail closed with an exact classification if any mandatory record exposes:
-
-- `XMAGE_PROVIDER_DEFECT`
-- `XMAGE_RULES_DEFECT`
-- `CONTRACT_DEFECT`
-- `AUTHORITY_DEFECT`
-- `CANONICAL_SETUP_UNSUPPORTED_XMAGE`
-- deterministic replay or hidden-information failure
-- unsupported production-reachable decision path.
-
-Do not classify UNKNOWN/PARTIAL/NOT_RUN as PASS.
+- `candidate-qualification/ws46-xmage-v1.0.4/WS46_COORDINATOR_INPUT_WS44.md`
+- `candidate-qualification/ws46-xmage-v1.0.4/WS46_WORKSTREAM_CONTRACT.md`
 
 ## Exact Next Action
 
-Begin fresh WS-42 v1.0.3 qualification by verifying the immutable WS-41 lock and reconstructing the exact 107-record denominator. Then execute complete native construction from record 1 and continue automatically through every technically remediable blocker until terminal qualification or a genuinely non-remediable stop condition is proven.
+Freshly verify the live WS-46 branch, exact WS-44 immutable freeze, exact XMage engine tree and substantive WS-42 implementation baseline. Reconstruct the v1.0.4 denominator and provider-impact diff, then freshly validate the non-echo/readback, revealed-state, hidden-identity and replay-alias remediations before running complete 107-record native construction. Continue automatically through every technically remediable blocker into full fresh behavior qualification until terminal PASS or a genuinely non-remediable blocker is proven.
