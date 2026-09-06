@@ -1,0 +1,107 @@
+name: WS44 v1.0.4 deterministic freeze
+
+on:
+  push:
+    branches:
+      - ws44/v1.0.4-authority-reconciliation-freeze
+    paths:
+      - scripts/ws44_build_successor.py
+      - scripts/ws44_test_referential_integrity.py
+      - .github/workflows/ws44-v104-freeze.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compile WS44 implementation
+        run: |
+          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_test_referential_integrity.py
+      - name: Deterministic materialization A and B
+        run: |
+          rm -rf /tmp/ws44-a /tmp/ws44-b
+          mkdir -p /tmp/ws44-a /tmp/ws44-b
+          python scripts/ws44_build_successor.py --output /tmp/ws44-a
+          python scripts/ws44_build_successor.py --output /tmp/ws44-b
+          diff -ru /tmp/ws44-a /tmp/ws44-b
+      - name: Referential-integrity regression tests
+        run: |
+          python scripts/ws44_test_referential_integrity.py /tmp/ws44-a/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
+      - name: Assert terminal static gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/ws44-a')
+          ref=json.loads((p/'WS44_REFERENTIAL_INTEGRITY_AUDIT_135.json').read_text())
+          sem=json.loads((p/'WS44_SEMANTIC_EXECUTABILITY_REPORT_135.json').read_text())
+          den=json.loads((p/'WS44_PROVIDER_DENOMINATOR_107.json').read_text())
+          lin=json.loads((p/'WS44_DIGEST_LINEAGE.json').read_text())
+          val=json.loads((p/'WS44_VALIDATION.json').read_text())
+          assert ref['terminal_status']=='PASS' and ref['defect_count']==0 and ref['record_count']==135
+          assert sem['terminal_status']=='PASS' and sem['semantic_executable_count']==135 and sem['contract_defect_count']==0
+          assert den['provider_denominator_count']==107
+          assert lin['obligation_changed_count']==0
+          assert val['provider_runtime_executed'] is False
+          assert val['provider_pass_imported'] is False
+          assert val['AF07_GRANTED'] is False
+          assert val['ARCHITECTURE_FREEZE'] is False
+          print('WS44 static gates PASS')
+          PY
+      - name: Install canonical qualification/ws44 bytes
+        run: |
+          rm -rf qualification/ws44
+          mkdir -p qualification/ws44
+          cp -a /tmp/ws44-a/. qualification/ws44/
+          diff -ru /tmp/ws44-a qualification/ws44
+      - name: Persist immutable v1.0.4 freeze
+        id: freeze
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qualification/ws44
+          if git diff --cached --quiet; then
+            echo "Canonical qualification/ws44 already equals deterministic output"
+          else
+            git commit -m "ws44: freeze canonical semantic materialization v1.0.4"
+            git push origin HEAD:ws44/v1.0.4-authority-reconciliation-freeze
+          fi
+          echo "freeze_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "freeze_tree=$(git rev-parse HEAD^{tree})" >> "$GITHUB_OUTPUT"
+      - name: Emit freeze-run attestation
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          p=Path('qualification/ws44')
+          files=[]
+          for f in sorted(x for x in p.iterdir() if x.is_file()):
+              files.append({'path':f'qualification/ws44/{f.name}','sha256':hashlib.sha256(f.read_bytes()).hexdigest()})
+          att={
+            'artifact_version':'commander-lab.ws44-freeze-run-attestation/1.0.0',
+            'workflow_run_id':os.environ['GITHUB_RUN_ID'],
+            'workflow_run_attempt':os.environ['GITHUB_RUN_ATTEMPT'],
+            'input_sha':os.environ['GITHUB_SHA'],
+            'freeze_sha':'${{ steps.freeze.outputs.freeze_sha }}',
+            'freeze_tree':'${{ steps.freeze.outputs.freeze_tree }}',
+            'deterministic_double_materialization':'PASS',
+            'regression_tests':'PASS',
+            'files':files,
+          }
+          Path('/tmp/WS44_FREEZE_RUN_ATTESTATION.json').write_text(json.dumps(att,sort_keys=True,separators=(',',':'))+'\n')
+          PY
+      - name: Upload complete freeze artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws44-v104-freeze-${{ steps.freeze.outputs.freeze_sha }}
+          path: |
+            qualification/ws44
+            /tmp/WS44_FREEZE_RUN_ATTESTATION.json
+          if-no-files-found: error
