@@ -31,6 +31,26 @@ jobs:
           python scripts/ws44_build_successor.py --output /tmp/ws44-a
           python scripts/ws44_build_successor.py --output /tmp/ws44-b
           diff -ru /tmp/ws44-a /tmp/ws44-b
+      - name: Print fail-closed referential diagnostics
+        if: failure()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/ws44-a/WS44_REFERENTIAL_INTEGRITY_AUDIT_135.json')
+          if p.exists():
+              a=json.loads(p.read_text())
+              print(json.dumps({'defect_count':a['defect_count'],'failed_records':[r for r in a['records'] if r['status']!='PASS']},indent=2,sort_keys=True))
+          else:
+              print('No referential audit emitted before failure')
+          PY
+      - name: Upload fail-closed diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws44-v104-build-diagnostics-${{ github.run_id }}
+          path: /tmp/ws44-a
+          if-no-files-found: warn
       - name: Referential-integrity regression tests
         run: |
           python scripts/ws44_test_referential_integrity.py /tmp/ws44-a/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
