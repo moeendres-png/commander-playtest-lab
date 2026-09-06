@@ -4,13 +4,18 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
 PROJECTION_KEYS = [
     "execution_entry_mode", "players", "deck_state", "commander_state", "semantic_objects",
     "temporal_state", "knowledge_state", "rules_randomness", "combat_state", "stack_state",
+    "continuous_rules_effects", "extra_turn_creation", "elimination_trigger", "zone_move_event",
+    "setup_validation",
+]
+SENSITIVE_VALUE_KEYS = [
+    "execution_entry_mode", "deck_state", "knowledge_state", "rules_randomness",
     "continuous_rules_effects", "extra_turn_creation", "elimination_trigger", "zone_move_event",
     "setup_validation",
 ]
@@ -112,9 +117,28 @@ def main() -> int:
         matching = [rid for rid in reconstructed if key in by4[rid] and meaningful(by4[rid][key])]
         populated_projection_fields[key] = {"count": len(matching), "fixture_ids": matching}
 
+    sensitive_unique_values: dict[str, list[dict[str, Any]]] = {}
+    for key in SENSITIVE_VALUE_KEYS:
+        groups: dict[str, list[str]] = defaultdict(list)
+        values: dict[str, Any] = {}
+        for rid in reconstructed:
+            value = by4[rid].get(key)
+            enc = canonical(value)
+            groups[enc].append(rid)
+            values[enc] = value
+        sensitive_unique_values[key] = [
+            {
+                "count": len(groups[enc]),
+                "fixture_ids": groups[enc],
+                "value_sha256": hashlib.sha256(enc.encode("utf-8")).hexdigest(),
+                "value": values[enc],
+            }
+            for enc in sorted(groups, key=lambda item: (-len(groups[item]), item))
+        ]
+
     family_counts = Counter(by4[rid]["fixture_family"] for rid in reconstructed)
     result = {
-        "schema": "commander-lab.ws45-v104-impact-reconciliation/1.0.0",
+        "schema": "commander-lab.ws45-v104-impact-reconciliation/1.0.1",
         "status": "PASS",
         "materialization_contract": v104["schema_version"],
         "canonical_bundle_digest": v104["canonical_bundle_digest"],
@@ -150,6 +174,7 @@ def main() -> int:
             "all_obligation_changed_false": all(row.get("obligation_changed") is False for row in repairs),
         },
         "provider_projection_field_population": populated_projection_fields,
+        "request_sensitive_unique_values": sensitive_unique_values,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
