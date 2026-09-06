@@ -1,0 +1,114 @@
+name: WS45 v1.0.4 impact reconciliation
+
+on:
+  push:
+    branches: [ws45/forge-v1.0.4-successor-qualification]
+    paths:
+      - 'candidate-qualification/ws45-forge-v1.0.4/audit_v104_contract.py'
+      - '.github/workflows/ws45-v104-impact-reconciliation.yml'
+  workflow_dispatch:
+
+env:
+  WS44_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  WS44_TREE: cd83c973b269711106d08ab5be2d7672f05bcb7c
+  WS44_NAMESPACE_TREE: 6579e119605b90248426a3121a47c487b2bb13cd
+  WS44_SCHEMA: commander-lab.semantic-fixture-materialization/1.0.4
+  WS44_BUNDLE: 77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54
+  WS44_MATERIALIZATION_SHA256: 9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35
+  WS41_COMMIT: 24152acf36b5a560c23ccacfed3f31d3039537eb
+  WS41_TREE: 428bbe58b2ea7b869200521092a8768108029b47
+  WS41_MATERIALIZATION_SHA256: 8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5
+
+permissions:
+  contents: read
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_COMMIT }}
+          path: contract-v104
+          sparse-checkout: qualification/ws44
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS41_COMMIT }}
+          path: contract-v103
+          sparse-checkout: qualification/ws41
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable source locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-v104 rev-parse HEAD)" = "$WS44_COMMIT"
+          test "$(git -C contract-v104 rev-parse HEAD^{tree})" = "$WS44_TREE"
+          test "$(git -C contract-v104 rev-parse HEAD:qualification/ws44)" = "$WS44_NAMESPACE_TREE"
+          test "$(sha256sum contract-v104/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json | awk '{print $1}')" = "$WS44_MATERIALIZATION_SHA256"
+          test "$(git -C contract-v103 rev-parse HEAD)" = "$WS41_COMMIT"
+          test "$(git -C contract-v103 rev-parse HEAD^{tree})" = "$WS41_TREE"
+          test "$(sha256sum contract-v103/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json | awk '{print $1}')" = "$WS41_MATERIALIZATION_SHA256"
+      - name: Independently reconstruct denominator, digests, AF membership and v1.0.4 impact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws45-impact
+          python candidate-qualification/ws45-forge-v1.0.4/audit_v104_contract.py \
+            --v103 contract-v103/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --v104 contract-v104/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json \
+            --denominator contract-v104/qualification/ws44/WS44_PROVIDER_DENOMINATOR_107.json \
+            --supersedes contract-v104/qualification/ws44/SUPERSEDES_v1_0_3.json \
+            --output artifacts/ws45-impact/WS45_V104_IMPACT_RECONCILIATION.json
+          python - <<'PY'
+          import json, os
+          p=json.load(open('artifacts/ws45-impact/WS45_V104_IMPACT_RECONCILIATION.json'))
+          assert p['status']=='PASS'
+          assert p['materialization_contract']==os.environ['WS44_SCHEMA']
+          assert p['canonical_bundle_digest']==os.environ['WS44_BUNDLE']
+          assert p['zero_historical_successor_runtime_credit'] is True
+          assert p['denominator']['count']==107 and p['denominator']['manifest_exact_match'] is True
+          assert p['requested_state_digest_verification']=={'pass_count':107,'fail_count':0,'all_pass':True}
+          assert {k:v['count'] for k,v in p['af_membership'].items()} == {'AF04':24,'AF05':20,'AF06':17,'AF08':36,'AF09':5}
+          assert p['card_02']=={'included':True,'count':1}
+          assert p['supersedes_repairs']['repair_row_count']==11
+          assert p['supersedes_repairs']['unique_fixture_count_overall']==10
+          assert p['supersedes_repairs']['provider_relevant_fixture_count']==9
+          assert p['supersedes_repairs']['provider_excluded_fixture_ids']==['CARD_01']
+          assert p['supersedes_repairs']['all_provider_semantics_used_false'] is True
+          assert p['supersedes_repairs']['all_obligation_changed_false'] is True
+          PY
+      - name: Persist run source lock and checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws45-impact
+          python - <<'PY'
+          import json, os, subprocess
+          lock={
+            'schema':'commander-lab.ws45-impact-source-lock/1.0.0',
+            'commander_lab_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            'ws44_commit':os.environ['WS44_COMMIT'],'ws44_tree':os.environ['WS44_TREE'],
+            'ws44_namespace_tree':os.environ['WS44_NAMESPACE_TREE'],'ws44_schema':os.environ['WS44_SCHEMA'],
+            'ws44_bundle':os.environ['WS44_BUNDLE'],'ws44_materialization_sha256':os.environ['WS44_MATERIALIZATION_SHA256'],
+            'ws41_commit':os.environ['WS41_COMMIT'],'ws41_tree':os.environ['WS41_TREE'],
+            'historical_successor_runtime_credit_imported':0,
+          }
+          open('artifacts/ws45-impact/SOURCE_LOCK.json','w').write(json.dumps(lock,indent=2,sort_keys=True)+'\n')
+          PY
+          find artifacts/ws45-impact -maxdepth 1 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws45-impact/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws45-v104-impact-${{ github.sha }}
+          path: artifacts/ws45-impact/
+          if-no-files-found: error
+          retention-days: 90
