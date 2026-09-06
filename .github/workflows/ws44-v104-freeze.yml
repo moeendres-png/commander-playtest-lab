@@ -6,6 +6,7 @@ on:
       - ws44/v1.0.4-authority-reconciliation-freeze
     paths:
       - scripts/ws44_build_successor.py
+      - scripts/ws44_build_successor_v2.py
       - scripts/ws44_test_referential_integrity.py
       - scripts/ws44_diagnose_reference_failures.py
       - .github/workflows/ws44-v104-freeze.yml
@@ -24,13 +25,13 @@ jobs:
           fetch-depth: 0
       - name: Compile WS44 implementation
         run: |
-          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_test_referential_integrity.py scripts/ws44_diagnose_reference_failures.py
+          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_build_successor_v2.py scripts/ws44_test_referential_integrity.py scripts/ws44_diagnose_reference_failures.py
       - name: Deterministic materialization A and B
         run: |
           rm -rf /tmp/ws44-a /tmp/ws44-b
           mkdir -p /tmp/ws44-a /tmp/ws44-b
-          python scripts/ws44_build_successor.py --output /tmp/ws44-a
-          python scripts/ws44_build_successor.py --output /tmp/ws44-b
+          python scripts/ws44_build_successor_v2.py --output /tmp/ws44-a
+          python scripts/ws44_build_successor_v2.py --output /tmp/ws44-b
           diff -ru /tmp/ws44-a /tmp/ws44-b
       - name: Print fail-closed referential diagnostics
         if: failure()
