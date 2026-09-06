@@ -1,0 +1,71 @@
+{
+  "artifact_version": "commander-lab.ws43-validation/1.0.0",
+  "workstream": "WS-43",
+  "classification": "COMPLETE / TERMINAL_FAIL_DIGEST_INTEGRITY_DEFECT",
+  "successor_contract_frozen": false,
+  "successor_contract_version_emitted": false,
+  "terminal_stop_condition": "predecessor immutability cannot be proven",
+  "terminal_defect_classification": "DIGEST_INTEGRITY_DEFECT",
+  "gates": {
+    "G43-01": "FAIL",
+    "G43-02": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-03": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-04": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-05": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-06": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-07": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-08": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-09": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-10": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-11": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-12": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-13": "NOT_RUN_DUE_TERMINAL_G43_01",
+    "G43-14": "PASS",
+    "G43-15": "NOT_RUN_DUE_TERMINAL_G43_01"
+  },
+  "predecessor_lock": {
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "namespace_tree": "af8a26e7e74a859d5f4a983b69e4ff108e7123f4",
+    "namespace_file_count": 18
+  },
+  "observed_ws43_start_state": {
+    "head": "6dae51bf6554f34466552f1c331e4347641a1a11",
+    "tree": "c619e65ff6c5f6153c9601d9a5e9c9189e39718e",
+    "namespace_tree": "cf40fe6157d4681dda31c1fe2b2aacb9cecbb374",
+    "namespace_file_count": 18
+  },
+  "predecessor_namespace_integrity": {
+    "path_set_equal": true,
+    "matching_blobs": 13,
+    "mismatching_blobs": 5,
+    "canonical_materialization_blob_equal": true,
+    "canonical_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "mismatching_paths": [
+      "qualification/ws41/WS41_BUNDLE_MANIFEST_v1_0_3.json",
+      "qualification/ws41/WS41_EVIDENCE_INDEX.json",
+      "qualification/ws41/WS41_FINAL_HANDOFF.md",
+      "qualification/ws41/WS41_SHA256SUMS",
+      "qualification/ws41/WS41_VALIDATION.json"
+    ]
+  },
+  "post_lock_history": {
+    "attestation_commit": "a5f6d4bdfa47634e16f1f8b8aa6647e9ffe6c1d3",
+    "regeneration_commit": "e83e6998aa16cdb4cb422ceecab6c517043ab742",
+    "note": "Those commits explicitly describe themselves as downstream source-lock/terminal-attestation work and preserve the canonical semantic materialization bytes, but the current WS-43 contract requires complete namespace byte identity against the earlier pinned commit/tree."
+  },
+  "scope_resolution": {
+    "restoring_ws41_files_attempted": false,
+    "reason": "WS-43 explicitly forbids editing WS-41 v1.0.3 in place.",
+    "later_attestation_promoted_to_predecessor": false,
+    "reason_2": "The current WS-43 contract directly pins 24152acf36b5a560c23ccacfed3f31d3039537eb and source-truth rules prohibit silently replacing it with a later repository state."
+  },
+  "provider_runtime_executed": false,
+  "provider_pass_imported": false,
+  "af07_granted": false,
+  "architecture_freeze": false,
+  "micro_contract_repair_executed": false,
+  "referential_integrity_linter_executed": false,
+  "semantic_executability_135_executed": false,
+  "deterministic_v1_0_4_materialization_executed": false
+}
