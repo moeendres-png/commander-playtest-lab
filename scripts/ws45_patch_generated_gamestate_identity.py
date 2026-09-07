@@ -77,12 +77,8 @@ LIFE_NEW = '''            String life = env("COMMANDER_LAB_WS40_LIFE_P" + seat);
             // pre-SBA state instead of eliminating/reindexing multiplayer seats during loading.
             lines.add(prefix + "life=" + (requestedLife <= 0 ? "1" : Integer.toString(requestedLife)));'''
 
-APPLY_OLD = '''        state.parse(buildGameStateLines(game));
-        state.applySynchronously(game);
-
-        int active = Integer.parseInt(env("COMMANDER_LAB_WS40_ACTIVE_SEAT"));'''
-APPLY_NEW = '''        state.parse(buildGameStateLines(game));
-        state.applySynchronously(game);
+APPLY_MARKER = '        state.applySynchronously(game);'
+APPLY_INSERT = '''
         // Complete non-positive life materialization only after Forge's GameState-internal SBA pass.
         // Use registered-player identity so multiplayer seat identity cannot shift if Forge changes
         // active-player membership. No observation is emitted from the request value; snapshots read
@@ -98,9 +94,7 @@ APPLY_NEW = '''        state.parse(buildGameStateLines(game));
                 }
                 registered.setLife(requestedLife, null);
             }
-        }
-
-        int active = Integer.parseInt(env("COMMANDER_LAB_WS40_ACTIVE_SEAT"));'''
+        }'''
 
 
 def replace_exact(text: str, old: str, new: str, label: str) -> str:
@@ -112,6 +106,15 @@ def replace_exact(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new, 1)
 
 
+def insert_after_exact(text: str, marker: str, insertion: str, sentinel: str, label: str) -> str:
+    if sentinel in text:
+        return text
+    count = text.count(marker)
+    if count != 1:
+        raise SystemExit(f'WS45 expected one {label}, got {count}')
+    return text.replace(marker, marker + insertion, 1)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--state-java', type=Path, required=True)
@@ -120,7 +123,7 @@ def main() -> int:
     text = replace_exact(text, OLD, NEW, 'obsolete native-id binding block')
     text = replace_exact(text, CALL_OLD, CALL_NEW, 'obsolete bind call')
     text = replace_exact(text, LIFE_OLD, LIFE_NEW, 'multiplayer non-positive life loader block')
-    text = replace_exact(text, APPLY_OLD, APPLY_NEW, 'post-GameState native life completion block')
+    text = insert_after_exact(text, APPLY_MARKER, APPLY_INSERT, 'WS45_STATE_LOAD_PREMATURE_ELIMINATION', 'synchronous GameState apply marker')
     if 'game.findById(expectedNativeId)' in text or 'candidates.get(0)' in text:
         raise SystemExit('WS45 forbidden identity fallback remains')
     if 'WS45_STATE_LOAD_PREMATURE_ELIMINATION' not in text:
