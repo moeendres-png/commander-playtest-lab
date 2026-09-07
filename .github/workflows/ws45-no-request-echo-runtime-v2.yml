@@ -5,6 +5,7 @@ on:
     branches: [ws45/forge-v1.0.4-successor-qualification]
     paths:
       - 'scripts/ws45_patch_generated_gamestate_identity.py'
+      - 'scripts/ws45_patch_noecho_runner_forge_lock.py'
       - '.github/workflows/ws45-no-request-echo-runtime-v2.yml'
   workflow_dispatch:
 
@@ -114,15 +115,18 @@ jobs:
           ev=artifacts/ws45-noecho-v2
           cp candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py "$ev/run_strict_no_echo_gate.py"
           python scripts/ws45_patch_noecho_runner_lineage.py --runner "$ev/run_strict_no_echo_gate.py"
+          python scripts/ws45_patch_noecho_runner_forge_lock.py --runner "$ev/run_strict_no_echo_gate.py"
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
           python "$ev/run_strict_no_echo_gate.py" --materialization contract-lock/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json --output "$ev/WS45_STRICT_NO_REQUEST_ECHO_RUNTIME.json"
           python - <<'PY'
-          import json
+          import json, os
           p=json.load(open('artifacts/ws45-noecho-v2/WS45_STRICT_NO_REQUEST_ECHO_RUNTIME.json'))
           assert p['status']=='PASS' and p['strict_no_request_echo']=='PASS'
           assert p['historical_successor_credit_imported']==0
           assert p['construction_credit']=='0/107' and p['behavior_credit']=='0/107'
+          assert p['forge']['commit']==os.environ['FORGE_COMMIT']
+          assert p['forge']['tree']==os.environ['FORGE_TREE']
           assert all(t['status']=='PASS' for t in p['tests'])
           assert p['proof']['comparison_canaries_do_not_influence_native_observation'] is True
           assert p['proof']['invalid_native_operations_fail_closed'] is True
