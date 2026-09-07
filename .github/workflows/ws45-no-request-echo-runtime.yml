@@ -7,6 +7,7 @@ on:
       - 'candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py'
       - 'qualification/providers/forge/gpl/Ws45StrictObservation.java'
       - 'scripts/ws45_apply_generated_overlay.py'
+      - 'scripts/ws45_patch_noecho_runner_lineage.py'
       - '.github/workflows/ws45-no-request-echo-runtime.yml'
   workflow_dispatch:
 
@@ -112,9 +113,11 @@ jobs:
         run: |
           set -euo pipefail
           ev=artifacts/ws45-noecho
+          cp candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py "$ev/run_strict_no_echo_gate.py"
+          python scripts/ws45_patch_noecho_runner_lineage.py --runner "$ev/run_strict_no_echo_gate.py"
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
-          python candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py --materialization contract-lock/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json --output "$ev/WS45_STRICT_NO_REQUEST_ECHO_RUNTIME.json"
+          python "$ev/run_strict_no_echo_gate.py" --materialization contract-lock/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json --output "$ev/WS45_STRICT_NO_REQUEST_ECHO_RUNTIME.json"
           python - <<'PY'
           import json
           p=json.load(open('artifacts/ws45-noecho/WS45_STRICT_NO_REQUEST_ECHO_RUNTIME.json'))
