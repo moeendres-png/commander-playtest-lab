@@ -10,13 +10,21 @@ This is a NEW workstream. WS-42 remains closed and is not reopened.
 
 - `WS46_WORKSTREAM_TERMINAL = NO`
 - `TASK_COMPLETE = NO`
-- `Completion Status = READY_FOR_V1_0_4_XMAGE_REQUALIFICATION`
+- `Completion Status = RECONCILIATION_PASS_READY_FOR_FRESH_XMAGE_BUILD`
+- `WS46_RECONCILIATION_GATE = PASS`
 - `XMAGE_ENGINE_BASELINE_READY = YES`
 - `XMAGE_IMPLEMENTATION_PROVENANCE_READY = YES`
+- `XMAGE_EXACT_BUILD_SOURCE_LOCK = NOT_RUN`
+- `XMAGE_NATIVE_CONSTRUCTION = 0/107`
+- `XMAGE_FRESH_BEHAVIOR_RUNTIME = 0/107`
 - `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
 - `HISTORICAL_SUCCESSOR_RUNTIME_CREDIT_IMPORTED = 0`
 - `AF07_GRANTED = FALSE`
 - `ARCHITECTURE_FREEZE = NO`
+
+## Repository Instruction Discovery
+
+The repository root contains no `AGENTS.md` at the current WS-46 branch, and repository code search found no `AGENTS.md`. No repository-local AGENTS instructions are therefore available. This `PROJECT_STATE.md`, the binding WS-46 workstream contract and live repository/CI state remain the persistent execution state.
 
 ## Binding Successor Contract — WS-44 v1.0.4
 
@@ -30,59 +38,91 @@ Consume exactly:
 - contract: `commander-lab.semantic-fixture-materialization/1.0.4`
 - canonical bundle digest: `77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54`
 - materialization SHA-256: `9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35`
-- provider denominator: `107`
+- exact provider denominator: `107`
 
-WS-44 terminal administrative head `2f4cc17368e78d2a4bb14ece38f4e92a32ec0afe` is provenance only; provider qualification binds the immutable freeze above.
+WS-44 terminal administrative head is provenance only; provider qualification binds the immutable freeze above. WS-44 remains unmodified.
 
-## XMage Rules-Core Baseline
+## Closed Gate — v1.0.4 Reconciliation
+
+Exact tested Commander-Lab source:
+
+- commit: `792b1bd78f4c3f1fef96cd0ef7f61cea29e815a4`
+- tree: `d7dabad3df53033bcfd3a7836ea2173f739ba812`
+
+Exact Actions evidence:
+
+- workflow: `WS46 XMage v1.0.4 Contract Reconciliation`
+- run: `34069232685`
+- job: `101583387934`
+- conclusion: `success`
+- artifact: `9999907632`
+- artifact name: `ws46-v104-reconciliation-792b1bd78f4c3f1fef96cd0ef7f61cea29e815a4`
+- artifact digest: `sha256:be181654ffdd1a46d68bbdb06e276a093181efb5e7cbcb241de7b0eecce6e6aa`
+
+Validated results:
+
+- immutable WS-44 locks PASS;
+- independent provider denominator `107/107` identities reconstructed;
+- all requested-state digests independently recomputed equal;
+- family counts: player_count 4, pilot_boundary 17, pilot_boundary_negative 7, hidden_information 20, replay_rng 5, micro_rules 17, actual_card 1, multiplayer_commander 36;
+- repair matrix: 11 repairs / 9 changed fixtures;
+- provider-relevant changed fixtures: 8;
+- `obligation_changed = false`;
+- `provider_semantics_used = false`;
+- MICRO target ambiguity repaired by immutable adjudication with `provider_heuristic_required = false`;
+- historical successor runtime credit imported: `0`.
+
+Persistent evidence:
+
+- `candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_02_V104_RECONCILIATION.md`
+
+## Fresh XMage Implementation Provenance To Qualify
+
+Fresh live verification identifies the current in-scope XMage branch head as:
 
 - repository: `moeendres-png/mage`
 - branch: `foundry/ws39-commander-history-state-restore`
-- commit: `7bde812727817723616c575759f39bfc4cda4607`
-- tree: `a44f32e9d34109ac3f272494f0e8eb9ea3e6280c`
+- commit: `0c1f455ea8c8fa48ab9d638ad5068ec242800428`
+- tree: `fdb8bf56a8bd8199a4ef372e468d93d6550b0649`
+- parent: `7bde812727817723616c575759f39bfc4cda4607`
+- commit purpose: `WS42 add native commander-damage state restore API`
 
-Native Commander-history restoration is implementation provenance and must be freshly revalidated where used.
+The earlier parent baseline remains provenance, but the later intentional in-scope remediation lock above is authoritative for fresh WS-46 qualification unless fresh evidence changes it.
 
-## Newest Substantive WS-42 Provider Baseline
-
-- Commander-Lab commit: `0087dd4b7b11ed9c54249363bf5c751e3063befb`
-- tree: `63039ba3ef9f3d25cc18761e324fae8a00eaf31e`
-
-The current WS-46 branch descends from the later terminal WS-42 closeout, so this implementation is present together with terminal provenance.
-
-Candidate reusable implementation areas:
+Candidate reusable implementation areas requiring fresh proof:
 
 - native non-echo construction/readback boundary;
 - native semantic `zone:revealed` via XMage reveal registry;
 - opaque identity-independent hidden-card physical references;
 - deterministic replay alias canonicalization;
-- native Commander-history restoration.
+- native Commander cast-history restoration;
+- native Commander-damage state restoration.
 
-All require fresh v1.0.4 verification. Historical construction/AF05/behavior/provider credit remains zero.
+All historical construction/AF05/behavior/provider credit remains zero.
 
 ## Qualification Rules
 
 - fresh successor runtime credit starts at `0/107`;
-- independently reconstruct exact 107-record denominator from v1.0.4;
-- compare v1.0.4 against v1.0.3 before adapting tooling;
 - no request echo as construction proof;
 - no provider-specific identity heuristic;
 - no synthetic historical Commander casts/events;
 - complete native construction from record 1;
 - construction-only evidence is not behavior PASS;
-- complete fresh behavior runtime after construction gate;
+- complete fresh behavior runtime only after construction gate;
 - Rules Core owns Magic legality;
 - pilots/controllers choose only among Rules-Core-provided legal options;
 - no first-option/random/default yes-no/internal AI/GUI default/silent skip/parent fallback;
 - unsupported production-reachable paths fail closed;
 - preserve actor-entitled hidden information;
-- opaque hidden handles must not encode hidden card identity;
+- opaque hidden handles must not encode hidden card identity, deck fingerprint, seat, zone, occurrence, native UUID or Rules RNG;
 - preserve deterministic Rules RNG/replay.
 
 ## Required Terminal Targets
 
 If technically justified:
 
+- exact XMage build/source lock PASS;
+- request-independent native construction/readback PASS;
 - construction `107/107 PASS`;
 - behavior runtime `107/107 PASS`;
 - AF04 expected `24/24` after fresh membership reconstruction;
@@ -92,7 +132,9 @@ If technically justified:
 - AF09 expected `5/5`;
 - `CARD_02 PASS`;
 - hidden-information / hidden-identity adversarial gate `PASS`;
-- unsupported production decision paths `0`.
+- deterministic replay/RNG gate `PASS`;
+- unsupported production decision paths `0`;
+- forbidden fallback paths `0`.
 
 Only then:
 
@@ -104,7 +146,12 @@ No AF07. No Architecture Freeze.
 
 - `candidate-qualification/ws46-xmage-v1.0.4/WS46_COORDINATOR_INPUT_WS44.md`
 - `candidate-qualification/ws46-xmage-v1.0.4/WS46_WORKSTREAM_CONTRACT.md`
+- `candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_02_V104_RECONCILIATION.md`
+
+## Pull Request State
+
+PR `#160` is open, Draft and unmerged. Do not merge without explicit authorization.
 
 ## Exact Next Action
 
-Freshly verify the live WS-46 branch, exact WS-44 immutable freeze, exact XMage engine tree and substantive WS-42 implementation baseline. Reconstruct the v1.0.4 denominator and provider-impact diff, then freshly validate the non-echo/readback, revealed-state, hidden-identity and replay-alias remediations before running complete 107-record native construction. Continue automatically through every technically remediable blocker into full fresh behavior qualification until terminal PASS or a genuinely non-remediable blocker is proven.
+Execute a fresh exact XMage source/build qualification against `moeendres-png/mage@0c1f455ea8c8fa48ab9d638ad5068ec242800428` / tree `fdb8bf56a8bd8199a4ef372e468d93d6550b0649`. Revalidate the native Commander cast-history and Commander-damage restoration APIs without synthetic historical events, persist exact build/test run/job/artifact/checksum evidence, then continue directly into complete fresh v1.0.4 native construction from record 1.
