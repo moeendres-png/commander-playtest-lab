@@ -45,7 +45,14 @@ NEW = '''    private static void bindNonStackObjects(Game game, GameState state)
             }
             Set<Card> noneUsed = java.util.Collections.emptySet();
             if (!sameCard(c, s, noneUsed)) {
-                throw new Ws23ForgeVerticalProvider.ControlledStop("WS45_STATE_BIND_STATE_ID_STATE_MISMATCH:" + s.semanticId + ":" + expectedStateId);
+                String actualName = c.getPaperCard() == null ? c.getName() : c.getPaperCard().getName();
+                String actualZone = c.getZone() == null ? "null" : String.valueOf(c.getZone().getZoneType());
+                throw new Ws23ForgeVerticalProvider.ControlledStop(
+                        "WS45_STATE_BIND_STATE_ID_STATE_MISMATCH:" + s.semanticId + ":" + expectedStateId
+                        + ":actual_name=" + actualName + ":expected_name=" + s.name
+                        + ":actual_owner=" + playerIndex(c.getOwner()) + ":expected_owner=" + s.owner
+                        + ":actual_controller=" + playerIndex(c.getController()) + ":expected_controller=" + s.controller
+                        + ":actual_zone=" + actualZone + ":expected_zone=" + s.zone);
             }
             if (s.zonePosition != null && ("library".equals(s.zone) || "revealed".equals(s.zone))) {
                 Card at = player(game, s.controller).getCardsIn(ZoneType.Library, false).get(s.zonePosition);
