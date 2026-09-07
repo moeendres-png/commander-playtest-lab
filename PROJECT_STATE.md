@@ -11,8 +11,8 @@ WS-40 remains closed; only its implementation provenance is reused. Historical s
 - `WS45_WORKSTREAM_TERMINAL = NO`
 - `TASK_COMPLETE = NO`
 - `TURN_STATUS = IN_PROGRESS`
-- `Completion Status = CHECKPOINT_18_STRICT_OVERLAY_COMPILE_PASS_ADVERSARIAL_RUNTIME_GATE_OPEN`
-- `NO_REQUEST_ECHO_GATE = NOT_GRANTED_BY_COMPILE_ONLY`
+- `Completion Status = CHECKPOINT_19_STRICT_NO_REQUEST_ECHO_RUNTIME_PASS_CONSTRUCTION_OPEN`
+- `NO_REQUEST_ECHO_GATE = PASS`
 - `CONSTRUCTION = 0/107`
 - `BEHAVIOR = 0/107`
 - `FORGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
@@ -37,51 +37,43 @@ Fresh WS-45 reconciliation established 100 `NATIVE_STATE_LOAD` + 7 `NATURAL_GAME
 
 - repository: `moeendres-png/forge`
 - branch: `foundry/ws45-v104-observation-remediation`
-- commit: `a248bf22ca9ce00908ee06fb26bfd5ea0fc6803d`
-- tree: `2a8e15cda48e7f26fb806c7c99d7c51bdf797bfb`
+- baseline commit: `f83b77aa75e4f90852bef9243f3c5b32c37dc7e0`
+- current qualification commit: `66caae16015bd403bc0a52fa6689afb5508f74d0`
+- current qualification tree: `40fc8f29ce4de31a964972461db2b48b4221e07f`
 - version: `2.0.15-SNAPSHOT`
 - boundary: isolated GPL JVM
 
-This lock includes typed/native observation state, actor-view knowledge policy, Forge `MyRandom` installation, native Partner validation, pending life-based elimination observation, Commander move classification, and `Ws45ValidatedExtraTurnHistory`. Forge CI runs `34069922172` and `34069922203` both passed.
+This lock includes typed/native observation state, actor-view knowledge policy, Forge `MyRandom` installation, native Partner validation, pending life-based elimination observation, Commander move classification, validated extra-turn history, and deterministic read-only `GameState` State-ID-to-Card identity access.
 
-## Checkpoint 18 — Strict Overlay Compile PASS
+## Checkpoint 19 — Strict No-Request-Echo Runtime PASS
 
 Persistent evidence:
 
-`candidate-qualification/ws45-forge-v1.0.4/WS45_CHECKPOINT_18_STRICT_OVERLAY_COMPILE_PASS.json`
+`candidate-qualification/ws45-forge-v1.0.4/WS45_CHECKPOINT_19_STRICT_NO_REQUEST_ECHO_PASS.json`
 
-The exact generated inherited provider plus WS-45 overlay compiled successfully at Commander-Lab compile head `460659ead8ae3fecd3819113c36a21b507cd9685`:
+Clean evidence run:
 
-- workflow: `WS45 strict observation overlay compile`
-- run: `34074253302`
-- job: `101597204514`
-- artifact: `10001520995`
-- artifact digest: `sha256:5ea7e016ff2f0a35fbe7222f47eba81e19d7fceb365e013eb2240f40cc4c21a2`
+- Commander-Lab gate head: `72c480ed0f01914002169050aaf2951557df05be`
+- workflow: `WS45 strict no-request-echo runtime v2`
+- run: `34097049258`
+- job: `101662901685`
+- conclusion: `success`
+- artifact: `10009049738`
+- artifact name: `ws45-strict-no-request-echo-v2-72c480ed0f01914002169050aaf2951557df05be`
+- artifact digest: `sha256:81772a11d90081391c9b771222765727774c21db339aa47e4eb07e77b56f47d1`
+- runtime report SHA-256: `ca24874794a3764e03096f568142d843ca9fe8ad61147c1553eab37576501c4c`
 
-Verified in that run:
+The runtime report and source lock both bind exactly to Forge commit `66caae16015bd403bc0a52fa6689afb5508f74d0` / tree `40fc8f29ce4de31a964972461db2b48b4221e07f` and immutable WS-44.
 
-- exact Forge lock;
-- generated provider + strict bridge compile;
-- deterministic native Card-ID binding replaces first-candidate identity selection;
-- active overlay contains no `RestoredQualificationHistory`;
-- active overlay contains no canonical knowledge JSON passthrough;
-- Rules-state-bearing `bound_config` output removed;
-- legal blocker surface comes from Forge `CombatUtil.canBlock`;
-- Rules RNG is installed before `Match.startGame`;
-- seven natural records use the real natural lifecycle hook;
-- no compile result grants runtime no-request-echo or construction credit.
+The gate executed 19 adversarial checks across Knowledge, Rules RNG, extra turns, elimination, Commander zone moves, Partner relation, deterministic object identity, and setup-validation. Comparison canaries did not alter native observation; invalid operation inputs failed closed; life perturbation changed the elimination observation according to native state. Historical credit imported remained zero.
 
-## Binding No-Request-Echo Gate
-
-Still open. `NO_REQUEST_ECHO_GATE` may be set to PASS only after runtime evidence proves that perturbing request/comparison material cannot cause purported native output to follow the perturbed request. Invalid native operation inputs must fail closed. At minimum this must exercise Knowledge, Rules RNG, extra-turn history, elimination, Commander zone move, setup-validation/architecture output, deterministic card identity binding, and natural lifecycle behavior.
-
-No construction credit may be granted before this gate passes.
+`NO_REQUEST_ECHO_GATE = PASS` grants permission to begin fresh construction only. It does not itself grant any construction or behavior record credit.
 
 ## Required Terminal Targets
 
-- strict no-request-echo PASS;
-- construction `107/107 PASS` from record 1;
-- behavior `107/107 PASS` fresh v1.0.4;
+- strict no-request-echo `PASS` — **CLOSED**;
+- construction `107/107 PASS` from record 1 — **OPEN**;
+- behavior `107/107 PASS` fresh v1.0.4 — **OPEN**;
 - AF04 `24/24`;
 - AF05 `20/20`;
 - AF06 `17/17`;
@@ -101,4 +93,4 @@ Do not modify immutable WS-44; do not work on XMage; do not execute WS-37 Actual
 
 ## Exact Next Action
 
-Execute the strict adversarial no-request-echo runtime gate against the exact Checkpoint-18 generated provider/Forge lock. Separate immutable native setup operations from the comparison/request projection, perturb the projection and representative operation inputs independently, require native output invariance or fail-closed rejection as appropriate, and persist exact CI run/job/artifact/checksum evidence. If and only if this gate passes, begin fresh v1.0.4 construction at record 1 and continue automatically through 107/107 construction, 107/107 behavior and all terminal aggregate gates.
+Execute fresh v1.0.4 construction from record 1 through the exact 107-record WS-44 denominator. Normalize state only from native Forge state plus the Checkpoint-19 strict observation surfaces; request material may supply immutable provider-neutral identity labels/shape but must not supply Rules-state outcomes. Require exact equality of the independently normalized constructed projection digest to each frozen `requested_state_digest`. Persist failures and remediations fail-closed; after 107/107 construction PASS continue automatically into fresh 107/107 behavior and terminal AF/CARD_02 aggregation.
