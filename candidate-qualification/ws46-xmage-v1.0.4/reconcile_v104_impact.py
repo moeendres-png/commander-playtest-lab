@@ -233,6 +233,7 @@ def main() -> int:
         fid = row["fixture_id"]
         record = new_by[fid]
         exact = row["intended_target"]
+        dangling = row["dangling_requested_target"]
         stack_target = get_path(record, "stack_state[0].targets[0]")
         if stack_target != exact:
             raise SystemExit(f"WS46_MICRO_TARGET_STACK_MISMATCH:{fid}:{stack_target}:{exact}")
@@ -241,11 +242,24 @@ def main() -> int:
         if not recursive_contains(record.get("native_procedure"), row["native_procedure_exact_target"]):
             raise SystemExit(f"WS46_MICRO_TARGET_PROCEDURE_NOT_EXACT:{fid}")
         semantic_ids = {o.get("semantic_id") for o in (record.get("semantic_objects") or [])}
-        if exact not in semantic_ids or row["dangling_requested_target"] not in semantic_ids:
+        plausible_ids = {ref.get("semantic_id") for ref in (row.get("plausible_referents") or [])}
+        if exact not in semantic_ids or exact not in plausible_ids or not plausible_ids.issubset(semantic_ids):
             raise SystemExit(f"WS46_MICRO_TARGET_REFERENT_SET_INCOMPLETE:{fid}")
-        if exact == row["dangling_requested_target"]:
+        if dangling in semantic_ids:
+            raise SystemExit(f"WS46_MICRO_TARGET_DANGLING_ID_STILL_BOUND:{fid}")
+        if exact == dangling:
             raise SystemExit(f"WS46_MICRO_TARGET_AMBIGUITY_NOT_RESOLVED:{fid}")
-        target_checks.append({"fixture_id": fid, "exact_target": exact, "provider_heuristic_required": False})
+        target_checks.append(
+            {
+                "fixture_id": fid,
+                "exact_target": exact,
+                "dangling_requested_target": dangling,
+                "plausible_referent_semantic_ids": sorted(plausible_ids),
+                "all_plausible_referents_record_local": True,
+                "dangling_requested_target_absent_from_semantic_ids": True,
+                "provider_heuristic_required": False,
+            }
+        )
 
     output = {
         "artifact_version": "commander-lab.ws46-v104-impact-reconciliation/1.0.1",
