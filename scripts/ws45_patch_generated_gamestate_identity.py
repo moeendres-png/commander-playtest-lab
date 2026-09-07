@@ -50,8 +50,8 @@ NEW = '''    private static void bindNonStackObjects(Game game, GameState state)
                 throw new Ws23ForgeVerticalProvider.ControlledStop(
                         "WS45_STATE_BIND_STATE_ID_STATE_MISMATCH:" + s.semanticId + ":" + expectedStateId
                         + ":actual_name=" + actualName + ":expected_name=" + s.name
-                        + ":actual_owner=" + playerIndex(c.getOwner()) + ":expected_owner=" + s.owner
-                        + ":actual_controller=" + playerIndex(c.getController()) + ":expected_controller=" + s.controller
+                        + ":actual_owner=" + playerId(game, c.getOwner()) + ":expected_owner=P" + s.owner
+                        + ":actual_controller=" + playerId(game, c.getController()) + ":expected_controller=P" + s.controller
                         + ":actual_zone=" + actualZone + ":expected_zone=" + s.zone);
             }
             if (s.zonePosition != null && ("library".equals(s.zone) || "revealed".equals(s.zone))) {
