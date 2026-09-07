@@ -1,0 +1,137 @@
+name: WS45 strict observation overlay compile
+
+on:
+  push:
+    branches: [ws45/forge-v1.0.4-successor-qualification]
+    paths:
+      - 'qualification/providers/forge/gpl/Ws45StrictObservation.java'
+      - 'scripts/ws45_apply_generated_overlay.py'
+      - '.github/workflows/ws45-strict-overlay-compile.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORGE_COMMIT: a248bf22ca9ce00908ee06fb26bfd5ea0fc6803d
+  FORGE_TREE: 2a8e15cda48e7f26fb806c7c99d7c51bdf797bfb
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+      - name: Verify exact Forge observation remediation lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/NativeQualificationObservation.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45ObservationPolicy.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45ValidatedExtraTurnHistory.java
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build exact Forge game
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+      - name: Resolve isolated classpath
+        working-directory: vendor/engine-source/forge
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/ws45-overlay"
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws45-overlay/dependency-classpath.txt"
+      - name: Generate exact inherited provider then apply WS45 strict overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws45-overlay
+          out="$ev/generated"
+          mkdir -p "$out" "$ev/classes"
+          python scripts/ws40_generate_forge_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py \
+            --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python scripts/ws40_apply_successor_state_overlay.py \
+            --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_stack_history.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_revealed_state.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_combat_legal_surface.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_apply_generated_overlay.py \
+            --generated-dir "$out/java/forge/game/player" \
+            --strict-source qualification/providers/forge/gpl/Ws45StrictObservation.java
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
+          ! grep -REn 'RestoredQualificationHistory|COMMANDER_LAB_WS45_KNOWLEDGE_CANONICAL_B64|candidates\.get\(0\)|\\"bound_config\\"' \
+            "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" \
+            "$out/java/forge/game/player/Ws40SuccessorState.java" \
+            "$out/java/forge/game/player/Ws45StrictObservation.java"
+          grep -q 'CombatUtil.canBlock(attacker, blocker, combat)' "$out/java/forge/game/player/Ws40SuccessorState.java"
+          grep -q 'installRulesRandomnessBeforeGameStart' "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          grep -q 'emitNaturalLifecycle' "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+      - name: Compile generated provider and strict observation bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws45-overlay
+          out="$ev/generated"
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
+          javac -cp "$cp" -d "$ev/classes" \
+            "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" \
+            "$out/java/forge/game/player/Ws23ForgeBootstrap.java" \
+            "$out/java/forge/game/player/Ws40SuccessorState.java" \
+            "$out/java/forge/game/player/Ws45StrictObservation.java"
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/$ev/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
+            "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+      - name: Materialize exact source lock and checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws45-overlay
+          python - <<'PY'
+          import json, os, subprocess
+          lock={
+            'schema_version':'commander-lab.ws45-strict-overlay-compile-source-lock/1.0.0',
+            'commander_lab_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            'forge_commit':os.environ['FORGE_COMMIT'],
+            'forge_tree':os.environ['FORGE_TREE'],
+            'process_boundary':'SEPARATE_GPL_JVM',
+            'historical_successor_credit_imported':0,
+            'no_request_echo_credit':'NOT_GRANTED_BY_COMPILE',
+            'construction_credit':'0/107',
+            'behavior_credit':'0/107',
+          }
+          open('artifacts/ws45-overlay/SOURCE_LOCK.json','w').write(json.dumps(lock,indent=2,sort_keys=True)+'\n')
+          PY
+          find "$ev" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$ev/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws45-strict-overlay-compile-${{ github.sha }}
+          path: artifacts/ws45-overlay/
+          if-no-files-found: error
+          retention-days: 90
