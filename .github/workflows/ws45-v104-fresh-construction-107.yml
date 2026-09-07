@@ -1,0 +1,152 @@
+name: WS45 v1.0.4 fresh construction 107
+
+on:
+  push:
+    branches: [ws45/forge-v1.0.4-successor-qualification]
+    paths:
+      - 'candidate-qualification/ws45-forge-v1.0.4/run_fresh_construction_107.py'
+      - 'scripts/ws45_extend_natural_observation.py'
+      - '.github/workflows/ws45-v104-fresh-construction-107.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS44_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  WS44_TREE: cd83c973b269711106d08ab5be2d7672f05bcb7c
+  WS44_SCHEMA: commander-lab.semantic-fixture-materialization/1.0.4
+  WS44_BUNDLE: 77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54
+  WS44_MATERIALIZATION_SHA256: 9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35
+  FORGE_COMMIT: 66caae16015bd403bc0a52fa6689afb5508f74d0
+  FORGE_TREE: 40fc8f29ce4de31a964972461db2b48b4221e07f
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+jobs:
+  construction-107:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws44
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable WS44 contract and denominator
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws45-construction
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS44_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS44_TREE"
+          test "$(sha256sum contract-lock/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json | awk '{print $1}')" = "$WS44_MATERIALIZATION_SHA256"
+          python - <<'PY'
+          import hashlib,json,os
+          m='contract-lock/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json'
+          d='contract-lock/qualification/ws44/WS44_PROVIDER_DENOMINATOR_107.json'
+          p=json.load(open(m)); q=json.load(open(d))
+          assert p['schema_version']==os.environ['WS44_SCHEMA'] and p['canonical_bundle_digest']==os.environ['WS44_BUNDLE']
+          assert len(q['fixture_ids'])==107 and len(set(q['fixture_ids']))==107
+          by={r['fixture_id']:r for r in p['records']}
+          assert all(x in by for x in q['fixture_ids'])
+          assert sum(1 for x in q['fixture_ids'] if by[x]['execution_entry_mode']=='NATIVE_STATE_LOAD')==100
+          assert sum(1 for x in q['fixture_ids'] if by[x]['execution_entry_mode']=='NATURAL_GAME_START')==7
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+      - name: Verify exact qualified Forge lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q 'GNU GENERAL PUBLIC LICENSE' vendor/engine-source/forge/LICENSE
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/NativeQualificationObservation.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45ObservationPolicy.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45ValidatedExtraTurnHistory.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45GameStateIdentityAccess.java
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build exact Forge game
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+      - name: Resolve isolated classpath
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws45-construction/dependency-classpath.txt"
+      - name: Build exact WS45 provider with natural readback extension
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws45-construction
+          out="$ev/generated"
+          mkdir -p "$out" "$ev/classes"
+          python scripts/ws40_generate_forge_provider.py --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python scripts/ws40_apply_successor_state_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_stack_history.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_revealed_state.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_combat_legal_surface.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_apply_generated_overlay.py --generated-dir "$out/java/forge/game/player" --strict-source qualification/providers/forge/gpl/Ws45StrictObservation.java
+          python scripts/ws45_patch_generated_gamestate_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_extend_natural_observation.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana|RestoredQualificationHistory|candidates\.get\(0\)|game\.findById\(expectedNativeId\)|\\"bound_config\\"' "$out/java"
+          ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
+          javac -cp "$cp" -d "$ev/classes" "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$out/java/forge/game/player/Ws23ForgeBootstrap.java" "$out/java/forge/game/player/Ws40SuccessorState.java" "$out/java/forge/game/player/Ws45StrictObservation.java"
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/$ev/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+      - name: Execute fresh 107-record construction from record 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws45-construction
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          python candidate-qualification/ws45-forge-v1.0.4/run_fresh_construction_107.py --materialization contract-lock/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json --denominator contract-lock/qualification/ws44/WS44_PROVIDER_DENOMINATOR_107.json --output "$ev/WS45_FRESH_CONSTRUCTION_107.json"
+          python - <<'PY'
+          import json
+          p=json.load(open('artifacts/ws45-construction/WS45_FRESH_CONSTRUCTION_107.json'))
+          assert p['status']=='PASS' and p['hard_gate']=='PASS'
+          assert p['denominator']==107 and p['pass_count']==107 and p['construction_credit']=='107/107'
+          assert p['behavior_credit']=='0/107' and p['historical_successor_credit_imported']==0
+          assert all(r['construction_status']=='PASS' and r['requested_native_state_equal'] for r in p['rows'])
+          assert p['family_counts']=={'actual_card':1,'hidden_information':20,'micro_rules':17,'multiplayer_commander':36,'pilot_boundary':17,'pilot_boundary_negative':7,'player_count':4,'replay_rng':5}
+          PY
+      - name: Materialize source lock and checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws45-construction
+          python - <<'PY'
+          import json,os,subprocess
+          lock={'schema_version':'commander-lab.ws45-fresh-construction-source-lock/1.0.0','commander_lab_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'ws44_commit':os.environ['WS44_COMMIT'],'ws44_tree':os.environ['WS44_TREE'],'ws44_schema':os.environ['WS44_SCHEMA'],'ws44_bundle_digest':os.environ['WS44_BUNDLE'],'ws44_materialization_sha256':os.environ['WS44_MATERIALIZATION_SHA256'],'forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'historical_successor_credit_imported':0,'process_boundary':'SEPARATE_GPL_JVM','no_request_echo_authority':['WS45_CHECKPOINT_19','WS45_NATURAL_LIFECYCLE_EXTENSION']}
+          open('artifacts/ws45-construction/SOURCE_LOCK.json','w').write(json.dumps(lock,indent=2,sort_keys=True)+'\n')
+          PY
+          find "$ev" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$ev/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws45-v104-fresh-construction-107-${{ github.sha }}
+          path: artifacts/ws45-construction/
+          if-no-files-found: error
+          retention-days: 90
