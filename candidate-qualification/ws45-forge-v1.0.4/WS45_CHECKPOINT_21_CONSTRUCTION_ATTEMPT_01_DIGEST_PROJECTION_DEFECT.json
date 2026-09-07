@@ -1,0 +1,58 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint-21-construction-attempt-01/1.0.0",
+  "workstream": "WS-45",
+  "status": "FAIL_REMEDIATION_REQUIRED",
+  "gate": "FRESH_V1_0_4_CONSTRUCTION_107",
+  "attempt": 1,
+  "credit": {
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "source_lock": {
+    "commander_lab_head": "42977d424fb7d720b7b2203f1c43290fd74b1abd",
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "ws44_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "ws44_materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+  },
+  "workflow": {
+    "name": "WS45 v1.0.4 fresh construction 107",
+    "run_id": 34165682914,
+    "job_id": 101876135544,
+    "conclusion": "failure",
+    "artifact_id": 10034075839,
+    "artifact_name": "ws45-v104-fresh-construction-107-42977d424fb7d720b7b2203f1c43290fd74b1abd",
+    "artifact_digest": "sha256:074d29de5efe00f5c2d794dc067edb37125d98be61394e78bd8a35407e7d4619",
+    "runtime_report_sha256": "46941cc203c4bed6003401c71b509cf434df853343ea6d06b2d3f80840577274"
+  },
+  "failure": {
+    "index": 1,
+    "fixture_id": "PLAYER_COUNT_2P",
+    "failure_stage": "HARNESS_PRE_NATIVE_DIGEST_RECONSTRUCTION",
+    "provider_invoked": false,
+    "computed_digest_with_absent_fields_materialized_as_null": "58768187ba47da1c50ddb7fc1db20c6d3e0609afeef01a726001d73509e2555f",
+    "frozen_requested_state_digest": "23ee64e37ad73903eca82fbcb867ee7d30e933c36b35b2146e41875b8a5de158"
+  },
+  "root_cause": {
+    "class": "QUALIFICATION_HARNESS_DIGEST_PROJECTION_DEFECT",
+    "description": "The first WS45 construction runner incorrectly materialized every potential projection key and inserted JSON null for keys absent from a record. WS44 canonical requested_state_digest hashes only state projection keys actually present on that record.",
+    "fresh_reconstruction": {
+      "fixture_id": "PLAYER_COUNT_2P",
+      "presence_only_projection_digest": "23ee64e37ad73903eca82fbcb867ee7d30e933c36b35b2146e41875b8a5de158",
+      "matches_frozen_digest": true
+    },
+    "provider_defect": false,
+    "contract_defect": false,
+    "forge_defect": false
+  },
+  "adjudication": [
+    "No construction record receives PASS credit because the attempt failed before native execution of record 1.",
+    "Checkpoint 19 strict no-request-echo and Checkpoint 20 natural-lifecycle extension remain valid and are not reopened.",
+    "The runner must use WS44 presence semantics both when reconstructing the requested projection and when filtering the independently normalized native projection before equality/digest comparison."
+  ],
+  "next_action": "Patch the construction runner to hash only state keys present in each frozen WS44 record and filter the independently normalized native state to the same present-key set; rerun fresh construction from record 1."
+}
