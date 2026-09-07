@@ -45,6 +45,8 @@ Fresh WS-45 reconciliation established 100 `NATIVE_STATE_LOAD` + 7 `NATURAL_GAME
 
 This lock includes typed/native observation state, actor-view knowledge policy, Forge `MyRandom` installation, native Partner validation, pending life-based elimination observation, Commander move classification, validated extra-turn history, and deterministic read-only `GameState` State-ID-to-Card identity access.
 
+A later experimental Forge descendant created during continuation (`aa1831299324217b61a01881ebd2931e7e57e831`) has **no WS-45 qualification credit and is not part of the source lock**. Checkpoint 19 remains authoritative at exact Forge commit `66caae16015bd403bc0a52fa6689afb5508f74d0` / tree `40fc8f29ce4de31a964972461db2b48b4221e07f`; no already-passed gate is reopened by that discarded experiment.
+
 ## Checkpoint 19 — Strict No-Request-Echo Runtime PASS
 
 Persistent evidence:
@@ -93,4 +95,4 @@ Do not modify immutable WS-44; do not work on XMage; do not execute WS-37 Actual
 
 ## Exact Next Action
 
-Execute fresh v1.0.4 construction from record 1 through the exact 107-record WS-44 denominator. Normalize state only from native Forge state plus the Checkpoint-19 strict observation surfaces; request material may supply immutable provider-neutral identity labels/shape but must not supply Rules-state outcomes. Require exact equality of the independently normalized constructed projection digest to each frozen `requested_state_digest`. Persist failures and remediations fail-closed; after 107/107 construction PASS continue automatically into fresh 107/107 behavior and terminal AF/CARD_02 aggregation.
+Execute fresh v1.0.4 construction from record 1 through the exact 107-record WS-44 denominator using the exact Checkpoint-19 Forge source lock `66caae16015bd403bc0a52fa6689afb5508f74d0`. Normalize state only from native Forge state plus the Checkpoint-19 strict observation surfaces; request material may supply immutable provider-neutral identity labels/shape but must not supply Rules-state outcomes. Require exact equality of the independently normalized constructed projection digest to each frozen `requested_state_digest`. Persist failures and remediations fail-closed; after 107/107 construction PASS continue automatically into fresh 107/107 behavior and terminal AF/CARD_02 aggregation.
