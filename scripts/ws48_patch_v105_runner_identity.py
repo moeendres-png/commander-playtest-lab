@@ -53,23 +53,27 @@ def patch_construction(path: Path) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def assert_no_stale_v104(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    for forbidden in (
+        "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+        "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+        "commander-lab.semantic-fixture-materialization/1.0.4",
+    ):
+        if forbidden in text:
+            raise SystemExit(f"WS48_STALE_V104_IDENTITY_REMAINS:{path}:{forbidden}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--noecho-runner", type=Path, required=True)
-    ap.add_argument("--construction-runner", type=Path, required=True)
+    ap.add_argument("--construction-runner", type=Path)
     args = ap.parse_args()
     patch_noecho(args.noecho_runner)
-    patch_construction(args.construction_runner)
-    # Strict postconditions: no old contract identity may remain in executable constants/output labels.
-    for p in (args.noecho_runner, args.construction_runner):
-        t = p.read_text(encoding="utf-8")
-        for forbidden in (
-            "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
-            "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
-            "commander-lab.semantic-fixture-materialization/1.0.4",
-        ):
-            if forbidden in t:
-                raise SystemExit(f"WS48_STALE_V104_IDENTITY_REMAINS:{p}:{forbidden}")
+    assert_no_stale_v104(args.noecho_runner)
+    if args.construction_runner is not None:
+        patch_construction(args.construction_runner)
+        assert_no_stale_v104(args.construction_runner)
     print("WS48_V105_RUNNER_IDENTITY_REBIND=PASS")
     return 0
 
