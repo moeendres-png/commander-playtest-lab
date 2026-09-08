@@ -46,6 +46,12 @@
 
     { "action": "glob", "resource": "*", "effect": "allow" },
     { "action": "grep", "resource": "*", "effect": "allow" },
+    { "action": "websearch", "resource": "*", "effect": "allow" },
+    { "action": "webfetch", "resource": "*", "effect": "allow" },
+
+    { "action": "subagent", "resource": "*", "effect": "ask" },
+    { "action": "subagent", "resource": "explore", "effect": "allow" },
+    { "action": "subagent", "resource": "foundry-reviewer", "effect": "allow" },
 
     { "action": "edit", "resource": "*", "effect": "allow" },
     { "action": "edit", "resource": "*.env", "effect": "deny" },
