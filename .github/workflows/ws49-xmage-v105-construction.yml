@@ -104,7 +104,8 @@ jobs:
             candidate-qualification/ws49-xmage-v1.0.5/build_denominator_v105.py \
             candidate-qualification/ws49-xmage-v1.0.5/run_full107_construction_probe_v105.py \
             candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_native_remediation.py \
-            candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_compile_guard.py
+            candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_compile_guard.py \
+            candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_readback_evidence_overlay.py
 
       - name: Independently reconstruct exact v1.0.5 denominator
         run: |
@@ -139,6 +140,7 @@ jobs:
           python candidate-qualification/ws46-xmage-v1.0.4/apply_ws46_v104_construction_overlay.py
           python candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_native_remediation.py
           python candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_compile_guard.py
+          python candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_readback_evidence_overlay.py
           git diff --check
           git -C vendor/engine-source/xmage diff --check
           git diff -- engine-bridge > artifacts/ws49-v105-construction/QUALIFICATION_BRIDGE_OVERLAY.patch
