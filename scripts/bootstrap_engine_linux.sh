@@ -10,6 +10,11 @@ case "$PROVIDER" in
   xmage)
     REPO="${COMMANDER_LAB_XMAGE_REPOSITORY:-https://github.com/moeendres-png/mage.git}"
     COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-77d7646da6958fdf8125ee7c8f4aabd130d21d4c}"
+    # Optional fail-closed tree pin. When set (e.g. WS-49 XMage tree
+    # fdb8bf56a8bd8199a4ef372e468d93d6550b0649 via COMMANDER_LAB_XMAGE_TREE),
+    # the checked-out source tree must match exactly or bootstrap aborts.
+    # Unset by default so historical callers are unaffected.
+    EXPECTED_TREE="${COMMANDER_LAB_XMAGE_TREE:-}"
     REQUIRED_JAVA_MIN=8
     ;;
   forge)
@@ -27,6 +32,16 @@ JAVA_MAJOR="$(java -version 2>&1 | sed -n '1s/.*version "\([0-9]*\).*/\1/p')"
   echo "ERROR: $PROVIDER requires Java >= $REQUIRED_JAVA_MIN; observed ${JAVA_MAJOR:-unknown}" >&2; exit 3;
 }
 mkdir -p "$(dirname "$SOURCE_ROOT")" "$BINARY_ROOT" "$ROOT/.tools"
+
+verify_source_tree() {
+  [[ -z "${EXPECTED_TREE:-}" ]] && return 0
+  local observed_tree
+  observed_tree="$(git -C "$SOURCE_ROOT" rev-parse 'HEAD^{tree}')"
+  [[ "$observed_tree" == "$EXPECTED_TREE" ]] || {
+    echo "ERROR: source tree mismatch: observed $observed_tree, expected $EXPECTED_TREE" >&2
+    exit 4
+  }
+}
 
 if [[ -f "$BINARY_ROOT/installation-identity.json" && -n "${ENGINE_START_COMMAND:-}" ]]; then
   echo "Existing offline binary identity found at $BINARY_ROOT."
@@ -46,6 +61,7 @@ if [[ -d "$SOURCE_ROOT/.git" ]]; then
   git -C "$SOURCE_ROOT" checkout --detach "$COMMIT"
   OBSERVED="$(git -C "$SOURCE_ROOT" rev-parse HEAD)"
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: commit mismatch: $OBSERVED" >&2; exit 4; }
+  verify_source_tree
 elif [[ -d "$SOURCE_ROOT" && -f "$SOURCE_ROOT/.commander-lab-engine-source.json" ]]; then
   OBSERVED="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$SOURCE_ROOT/.commander-lab-engine-source.json")"
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: offline source identity mismatch: $OBSERVED" >&2; exit 4; }
@@ -59,6 +75,7 @@ else
   git -C "$SOURCE_ROOT" checkout --detach "$COMMIT"
   OBSERVED="$(git -C "$SOURCE_ROOT" rev-parse HEAD)"
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: commit mismatch: $OBSERVED" >&2; exit 4; }
+  verify_source_tree
 fi
 
 if [[ -x "$SOURCE_ROOT/mvnw" ]]; then
