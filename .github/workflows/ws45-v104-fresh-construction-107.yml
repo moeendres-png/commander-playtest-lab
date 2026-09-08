@@ -6,6 +6,7 @@ on:
     paths:
       - 'candidate-qualification/ws45-forge-v1.0.4/run_fresh_construction_107.py'
       - 'scripts/ws45_extend_natural_observation.py'
+      - 'scripts/ws45_patch_construction_presence_semantics.py'
       - '.github/workflows/ws45-v104-fresh-construction-107.yml'
   workflow_dispatch:
 
