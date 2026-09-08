@@ -1,0 +1,92 @@
+{
+  "artifact_version": "commander-lab.ws47-checkpoint/1.0.0",
+  "workstream": "WS-47",
+  "checkpoint": 2,
+  "title": "Independent authority closure for WS05-MP-BLOCK-4",
+  "predecessor": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "schema_version": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54"
+  },
+  "exact_target_extraction": {
+    "workflow_run_id": 34230220407,
+    "head_sha": "354814bf1b1e2216e036febee8a67ad40a0b8e4f",
+    "artifact_id": 10057561581,
+    "artifact_name": "ws47-exact-ws44-ws05-mp-block-4-354814bf1b1e2216e036febee8a67ad40a0b8e4f",
+    "artifact_sha256": "2189bad14dd33eb66600fcca06c0deabd4f51c5b63fe61c30b904e86ef3f43cd",
+    "fixture_id": "WS05-MP-BLOCK-4",
+    "stored_materialization_digest": "f370e233ecd94a6b93bc713ff222918fadfee0170c3b3bb5d91cead961f02d08",
+    "recomputed_materialization_digest": "f370e233ecd94a6b93bc713ff222918fadfee0170c3b3bb5d91cead961f02d08",
+    "requested_state_digest": "6752ba04006885bb18b4a3fc55913607dac9c9bbfc2311070423e795a0f3fbd2",
+    "obligation_digest": "66ec06a25c6e3c151607879a033a3e11e42bcf982615d659eafd389c83792b56",
+    "eligible_blockers": ["obj:mp-p2-blocker"],
+    "continuous_rules_effects": null,
+    "semantic_objects": {
+      "obj:P2-bears": {
+        "card_identity": "Grizzly Bears",
+        "owner": "P2",
+        "controller": "P2",
+        "zone": "battlefield",
+        "tapped": false,
+        "face_down": false,
+        "counters": {}
+      },
+      "obj:mp-p2-blocker": {
+        "card_identity": "Runeclaw Bear",
+        "owner": "P2",
+        "controller": "P2",
+        "zone": "battlefield",
+        "tapped": false,
+        "face_down": false,
+        "counters": {}
+      }
+    },
+    "expected_required_events": [
+      "legal_blocker_partition:P2",
+      "blocker_declared:obj:mp-p2-blocker->obj:mp-a2"
+    ],
+    "expected_forbidden_events": ["option:P2_blocks_attacker_to_P3"],
+    "terminal_postcondition": "P2 blocker options contain only attackers for which P2 is defending player."
+  },
+  "current_primary_authority": {
+    "verified_on": "2026-09-08",
+    "rules_page": "https://magic.wizards.com/en/rules",
+    "comprehensive_rules": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+    "effective_date": "2026-08-07",
+    "rules": ["302.6", "509.1a", "509.1b", "802.4a", "802.4b"],
+    "provider_behavior_used_as_authority": false
+  },
+  "adjudication": {
+    "predecessor_surface": ["obj:mp-p2-blocker"],
+    "required_successor_surface": ["obj:P2-bears", "obj:mp-p2-blocker"],
+    "p3_objects_must_not_be_in_p2_surface": true,
+    "frozen_obligation_changed": false,
+    "reason": "Both explicitly represented Bears are untapped, P2-controlled battlefield creatures and the record represents no blocking restriction. Current CR 509.1a/509.1b and multiplayer CR 802.4a/802.4b therefore require both to be in P2's represented blocker candidate surface while excluding other defenders' creatures."
+  },
+  "ws45_provenance": {
+    "import_file": "candidate-qualification/ws47-successor-v1.0.5/WS47_WS45_DEFECT_IMPORT.json",
+    "role": "DEFECT_DISCOVERY_PROVENANCE_ONLY",
+    "runtime_credit_imported": 0
+  },
+  "gates": {
+    "G47-01_predecessor_identity": "PASS",
+    "G47-02_no_in_place_predecessor_mutation": "PASS_AT_CHECKPOINT",
+    "G47-03_authority_closure": "PASS",
+    "G47-04_obligation_preservation": "PENDING_SUCCESSOR_135_RECORD_VALIDATION",
+    "G47-05_exact_change_accounting": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-06_complete_denominator": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-07_referential_integrity": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-08_semantic_executability": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-09_blocker_surface_regression": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-10_pilot_boundary_preservation": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-11_hidden_information_preservation": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-12_rng_replay_preservation": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-13_actual_card_preservation": "PENDING_SUCCESSOR_MATERIALIZATION",
+    "G47-14_deterministic_materialization": "PENDING_FRESH_A_B_CI",
+    "G47-15_freeze_integrity": "PENDING_POSTFREEZE_REGENERATION"
+  },
+  "terminal_status": "PASS_CHECKPOINT",
+  "exact_next_action": "Execute a fresh deterministic v1.0.5 A/B materialization from the latest live WS47 source head, fail closed on any builder/validator/linter defect, persist the generated qualification/ws47 namespace only after byte-identical A/B plus independent validation, then execute postfreeze regeneration."
+}
