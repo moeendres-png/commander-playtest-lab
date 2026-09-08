@@ -1,6 +1,6 @@
 # Commander Simulation Foundry — Dual-Lane Task Packet
 
-> Copy/adapt this template for a material engineering unit that may move between ChatGPT Work/Codex and OpenCode/Muse. Keep it concise. Stable project rules stay in `AGENTS.md`.
+> Copy/adapt this template for a material engineering unit that may move between ChatGPT Work/Terra/Sol and OpenCode/Muse. Keep it concise. Stable project rules stay in `AGENTS.md`.
 
 ## Identity
 
@@ -8,7 +8,7 @@
 - Repository: `moeendres-png/commander-playtest-lab`
 - Branch: `[branch]`
 - Starting head: `[sha | VERIFY_LIVE]`
-- Execution profile: `[WORK_HIGH_CAPABILITY | MUSE_IMPLEMENTATION | PROVIDER_NEUTRAL]`
+- Execution profile: `[TERRA_INTEGRATION | SOL_AUTHORITY | MUSE_IMPLEMENTATION | PROVIDER_NEUTRAL]`
 
 ## Terminal Objective
 
@@ -28,9 +28,8 @@
 ## Known Verified Facts
 
 - `[fact + evidence/source]`
-- `[fact + evidence/source]`
 
-Do not repeat background that is already in `AGENTS.md`.
+Do not repeat background already in `AGENTS.md`.
 
 ## In Scope
 
@@ -53,10 +52,12 @@ Read in this order unless fresh evidence invalidates it:
 1. `AGENTS.md`
 2. `[active Workstream Contract]`
 3. `.foundry/WORKSTREAM_STATE.md` if present
-4. `[file/test]`
-5. `[file/test]`
+4. `[file/test/evidence]`
+5. `[file/test/evidence]`
 
 Broaden repository search only to answer a specific unresolved question.
+
+If this runs in Muse, `docs/agent-workflows/MUSE_DATA_BOUNDARY.md` is binding. All project-relevant technical data may be used; unrelated personal/private data and raw credential values stay outside model context.
 
 ## Exact Current Reproducer / Blocker
 
@@ -102,21 +103,31 @@ Do not push/merge unless explicitly authorized.
 
 ## Lane-Specific Execution
 
-### If running in Work/Codex
+### If running in Work / Terra High
 
+- verify live source state and mutable authority facts;
 - minimize context reads;
-- use exact named files first;
-- use smallest authoritative validation first;
-- spend capacity on diagnosis/semantics/high-risk edits;
-- if remaining work becomes bounded mechanical implementation, persist state and hand to Muse.
+- use exact named files/evidence first;
+- use the smallest authoritative validation first;
+- spend capacity on diagnosis/semantics/high-risk integration/evidence adjudication;
+- if remaining work becomes substantial bounded implementation/test iteration, persist state and hand to Muse.
 
-### If running in OpenCode/Muse
+### If running in Sol High
 
+Use only for a bounded genuinely difficult/high-blast-radius question, MTG semantic dispute, foundational architecture, difficult hidden-information/RNG/concurrency reasoning, materially ambiguous provider-vs-engine attribution, or a blocker that survived two materially distinct Terra attempts. Return normal ownership to Terra/Muse afterward.
+
+### If running in OpenCode / Muse
+
+- treat Muse as the primary coding worker once semantics/acceptance criteria are fixed enough;
 - continue through remediable implementation/test failures without asking after every ordinary action;
+- use all project-relevant source/evidence/logs/engine/card data and normal coding tools needed for the objective;
+- keep unrelated personal/private user data and raw credential values outside Muse context;
+- authenticated project tooling may consume configured credentials without printing them;
 - use broader local exploration when useful but remain within the one terminal objective;
-- do not impose an artificial small step cap;
 - checkpoint frequently because Free-tier availability is dynamic;
-- return to Work for unresolved architecture/rules authority or final decision-critical adjudication.
+- return to Terra/Sol for unresolved architecture/rules authority or final decision-critical adjudication.
+
+Luna is not part of the active Foundry routing policy.
 
 ## Stop Conditions
 
@@ -140,4 +151,4 @@ Only:
 - Outputs
 - Dependencies Unblocked
 - Exact Next Action
-- Recommended Next Lane: `[WORK | MUSE | NONE]`
+- Recommended Next Lane: `[TERRA | SOL | MUSE | NONE]`
