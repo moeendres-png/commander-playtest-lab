@@ -57,16 +57,20 @@ def main() -> int:
     else:
         print("WS45_V104_NULLABLE_KNOWLEDGE_PRESENCE=ALREADY_APPLIED")
 
-    # This workflow-triggered bridge is also the sequenced entry point for the bounded
-    # HIDDEN_10/11 native-library-capacity remediation. The helper mutates only the sibling
-    # qualification state loader; it does not alter observation comparison or pilot policy.
+    # This workflow-triggered bridge is the sequenced entry point for bounded WS45
+    # state-loader remediations. They mutate only the sibling qualification state
+    # loader and do not alter observation comparison or pilot policy.
     state_java = p.with_name("Ws40SuccessorState.java")
-    helper = Path("scripts/ws45_v104_materialize_opaque_library_capacity.py")
+    helpers = [
+        Path("scripts/ws45_v104_materialize_opaque_library_capacity.py"),
+        Path("scripts/ws45_v104_native_summoning_sickness_state.py"),
+    ]
     if not state_java.is_file():
-        raise SystemExit(f"WS45_V104_LIBRARY_CAPACITY_STATE_JAVA_MISSING:{state_java}")
-    if not helper.is_file():
-        raise SystemExit(f"WS45_V104_LIBRARY_CAPACITY_HELPER_MISSING:{helper}")
-    subprocess.check_call([sys.executable, str(helper), "--state-java", str(state_java)])
+        raise SystemExit(f"WS45_V104_STATE_JAVA_MISSING:{state_java}")
+    for helper in helpers:
+        if not helper.is_file():
+            raise SystemExit(f"WS45_V104_STATE_HELPER_MISSING:{helper}")
+        subprocess.check_call([sys.executable, str(helper), "--state-java", str(state_java)])
     return 0
 
 
