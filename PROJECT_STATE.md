@@ -103,23 +103,46 @@ The authoritative current construction diagnostic is the actual GitHub Actions a
 - job: `102045705813`
 - artifact id: `10054580582`
 - artifact name: `ws46-v104-construction-v2-d5f534f7014e78b272983b0548e3c5ce266fde35`
-- artifact digest: `sha256:a355642467116934642344b95e29de5cdcca5e73a899e001cccc64e5b0a196a1`
+- artifact ZIP digest: `sha256:a355642467116934642344b95e29de5cdcca5e73a899e001cccc64e5b0a196a1`
+- `WS46_FULL107_CONSTRUCTION_PROBE.json` SHA-256: `79867549f065e8f2c457b93c90fac56e3e9ac38aa88cc2c83da2dea602328061`
 - result: `88 PASS / 19 FAIL / 0 DEFERRED`
 
-All pre-runtime gates in that job passed: exact WS44/XMage locks, independent denominator reconstruction, qualification overlays, exact XMage build, bridge build, and runtime classpath.
+All pre-runtime gates in that job passed: exact WS44/XMage locks, independent denominator reconstruction, qualification overlays, exact XMage build, bridge build (60 tests, 0 failures/errors/skips), and runtime classpath.
 
-Authoritative failure classes:
+The exact current 19 failures from the sealed probe are:
 
-1. natural-start commander configuration — 7 records;
-2. native `face_down` proof boundary — 4 records;
-3. native `known_library_ranges` proof boundary — 2 records;
-4. native extra-turn `resolution_sequence` proof boundary — 2 records;
-5. native elimination `condition` proof boundary — 4 records.
+1. `PLAYER_COUNT_2P` — `INVALID_SCENARIO: text natural_library_card_name`
+2. `PLAYER_COUNT_3P` — same
+3. `PLAYER_COUNT_4P` — same
+4. `PLAYER_COUNT_5P` — same
+5. `PILOT_MULLIGAN` — same
+6. `WS05-CMD-MULL-2` — same
+7. `WS05-CMD-MULL-4` — same
+8. `HIDDEN_05` — `INVALID_SCENARIO: face_down only applies to battlefield`
+9. `HIDDEN_06` — same
+10. `HIDDEN_10` — `WS46_KNOWLEDGE_LIBRARY_RANGE_INVALID:P1:0:2`
+11. `HIDDEN_11` — `WS46_KNOWLEDGE_LIBRARY_RANGE_INVALID:P2:0:2`
+12. `WS05-MP-TURN-3` — `WS46_JSON_INTEGER_REQUIRED:resolution_sequence`
+13. `WS05-MP-TURN-5` — same
+14. `WS05-MP-ELIM-OWNED-3` — `WS46_JSON_STRING_REQUIRED:condition`
+15. `WS05-MP-ELIM-CONTROL-3` — same
+16. `WS05-MP-ELIM-STACK-3` — same
+17. `WS05-MP-ELIM-PRIO-3` — same
+18. `WS05-MP-ELIM-TURN-3` — same
+19. `WS05-MP-ELIM-5` — same
 
-Exact fixture/error list is persisted in:
-`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_03I_RUNTIME_ARTIFACT_RECONCILIATION.md`
+Failure-class counts:
 
-Checkpoint 03I supersedes conflicting artifact identity/taxonomy prose in 03H. Construction PASS remains NOT GRANTED.
+- natural-game-start scenario configuration: `7`
+- hidden-information `face_down`: `2`
+- knowledge/library-range: `2`
+- extra-turn `resolution_sequence`: `2`
+- elimination `condition`: `6`
+
+Persistent current authority:
+`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_03J_CURRENT_ARTIFACT_CONTENT_LOCK.md`
+
+Checkpoint 03J supersedes conflicting failure-list prose in 03H and 03I. Construction PASS remains NOT GRANTED.
 
 ## Qualification Rules
 
@@ -163,4 +186,4 @@ PR `#160` remains open, Draft and unmerged. Do not merge without explicit author
 
 ## Exact Next Action
 
-Bind the five actual runtime failure classes in Checkpoint 03I to their exact immutable WS44 requested-state shapes and the current WS46 bridge/probe reject sites. Implement only request-independent native-state remediation for those concrete shapes: real commander setup for natural start, native face-down readback, native knowledge/library-range readback, native turn-mod resolution ordering, and native elimination-condition derivation. Execute a fresh Full107 Construction v2 run. Do not grant construction credit until a separate independent v1.0.4 native-readback normalizer passes all 107 requested-state digests. Continue automatically through behavior and AF04/05/06/08/09 only after the complete construction gate closes.
+Execute a source-locked WS44 shape audit over the exact 19 fixture IDs in Checkpoint 03J. Persist the compact immutable requested-state/native-procedure forms, then remediate only the proven current schema/native-state mismatches and execute a fresh exact Full107 Construction v2 run. Do not grant construction credit until a separate independent v1.0.4 native-readback normalizer passes all 107 requested-state digests. Continue automatically through behavior and AF04/05/06/08/09 only after the complete construction gate closes.
