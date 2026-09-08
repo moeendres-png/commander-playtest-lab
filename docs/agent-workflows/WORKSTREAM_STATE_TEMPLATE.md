@@ -11,6 +11,7 @@
 - State updated at commit: `[sha or UNCOMMITTED_CHECKPOINT]`
 - State updated UTC: `[timestamp]`
 - Status: `[IN_PROGRESS | COMPLETE | FAIL | TERMINAL_BLOCKED]`
+- Current execution lane: `[WORK | MUSE | OTHER]`
 
 ## Terminal Objective
 
@@ -72,6 +73,14 @@
 ## Exact Next Action
 
 [Single next technical action. Do not write a vague roadmap here.]
+
+## Recommended Next Lane
+
+- Lane: `[WORK | MUSE | NONE]`
+- Reason: `[e.g. semantic adjudication, bounded implementation loop, independent review, terminal]`
+- If switching lanes, handoff packet: `[inline concise packet or path to task packet]`
+
+Use `docs/agent-workflows/DUAL_LANE_EXECUTION_PLAYBOOK.md` for routing. The lane recommendation is operational guidance, not Source Authority.
 
 ## Do Not Redo Unless Invalidated
 
