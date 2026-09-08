@@ -75,7 +75,7 @@ jobs:
           d105=Path('contract-v105/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json')
           p104=Path('contract-v104/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json')
           d104=Path('contract-v104/qualification/ws44/WS44_PROVIDER_DENOMINATOR_107.json')
-          b105=p105.read_bytes(); doc105=json.loads(b105); den105=json.loads(d105.read_text())
+          doc105=json.loads(p105.read_bytes()); den105=json.loads(d105.read_text())
           doc104=json.loads(p104.read_bytes()); den104=json.loads(d104.read_text())
           assert doc105['schema_version']==os.environ['WS47_SCHEMA']
           assert doc105['canonical_bundle_digest']==os.environ['WS47_BUNDLE']
@@ -86,21 +86,23 @@ jobs:
           assert len(reconstructed)==107 and reconstructed==den105['fixture_ids']
           assert reconstructed==den104['fixture_ids']
 
+          # Canonical requested-state digest semantics from ws32_lint_semantic_v1_0_2.py:
+          # hash only state keys actually present in the record; absent != explicit null.
           keys=['execution_entry_mode','players','deck_state','commander_state','semantic_objects','temporal_state','knowledge_state','rules_randomness','combat_state','stack_state','continuous_rules_effects','extra_turn_creation','elimination_trigger','zone_move_event','setup_validation']
           def canon(v): return json.dumps(v,ensure_ascii=False,sort_keys=True,separators=(',',':'))
           def digest(v): return hashlib.sha256(canon(v).encode()).hexdigest()
+          def state_projection(r): return {k:r[k] for k in keys if k in r}
           by105={r['fixture_id']:r for r in doc105['records']}; by104={r['fixture_id']:r for r in doc104['records']}
           digest_rows=[]
           for i,fid in enumerate(reconstructed,1):
-              r=by105[fid]; projection={k:r.get(k) for k in keys}; got=digest(projection)
+              r=by105[fid]; got=digest(state_projection(r))
               assert got==r['requested_state_digest'], (fid,got,r['requested_state_digest'])
               digest_rows.append({'index':i,'fixture_id':fid,'fixture_family':r['fixture_family'],'requested_state_digest':got,'materialization_digest':r['materialization_digest'],'execution_entry_mode':r['execution_entry_mode']})
 
-          changed=[]
-          for fid in reconstructed:
-              a={k:by104[fid].get(k) for k in keys}; b={k:by105[fid].get(k) for k in keys}
-              if a!=b: changed.append(fid)
+          changed=[fid for fid in reconstructed if state_projection(by104[fid]) != state_projection(by105[fid])]
           assert changed==['WS05-MP-BLOCK-4'], changed
+          obligation_changed=[fid for fid in reconstructed if by104[fid]['obligation_digest'] != by105[fid]['obligation_digest']]
+          assert obligation_changed==[], obligation_changed
           a=by104['WS05-MP-BLOCK-4']; b=by105['WS05-MP-BLOCK-4']
           assert a['combat_state']['eligible_blockers']==['obj:mp-p2-blocker']
           assert b['combat_state']['eligible_blockers']==['obj:P2-bears','obj:mp-p2-blocker']
