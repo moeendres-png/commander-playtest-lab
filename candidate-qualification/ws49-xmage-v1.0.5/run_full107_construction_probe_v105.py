@@ -193,16 +193,30 @@ def _natural_starting_player_option(decision: dict[str, Any], player_count: int)
     ):
         raise RuntimeError("WS49_NATURAL_STARTING_PLAYER_DECISION_SIGNATURE_INVALID")
     options = decision.get("legal_options") or []
-    expected_ids = {f"P{seat}" for seat in range(1, player_count + 1)}
-    by_id = {str(option.get("option_id")): option for option in options if isinstance(option, dict)}
-    if set(by_id) != expected_ids or len(by_id) != player_count:
+    # XMage correctly exposes the actual player objects as opaque option IDs.
+    # Their stable, native labels are assigned when this qualification session is
+    # created: ``WS26 Seat <n>``.  Bind canonical P<n> to that semantic native
+    # identity after checking the complete offer set.  Never select by position,
+    # raw UUID, or a GUI convention.
+    expected_labels = {f"WS26 Seat {seat}" for seat in range(1, player_count + 1)}
+    by_label = {
+        str(option.get("label")): option
+        for option in options
+        if isinstance(option, dict)
+        and option.get("option_type") == "choice"
+        and isinstance(option.get("option_id"), str)
+        and isinstance(option.get("metadata"), dict)
+        and option["metadata"].get("name") == option.get("label")
+    }
+    if set(by_label) != expected_labels or len(by_label) != player_count:
         raise RuntimeError(
-            f"WS49_NATURAL_STARTING_PLAYER_OPTION_SET_INVALID:expected={sorted(expected_ids)}:actual={sorted(by_id)}"
+            "WS49_NATURAL_STARTING_PLAYER_OPTION_SET_INVALID:"
+            f"expected_labels={sorted(expected_labels)}:actual_labels={sorted(by_label)}"
         )
-    chosen = by_id.get("P1")
-    if chosen is None or chosen.get("option_type") != "choice":
+    chosen = by_label.get("WS26 Seat 1")
+    if chosen is None:
         raise RuntimeError("WS49_NATURAL_STARTING_PLAYER_P1_OPTION_INVALID")
-    return "P1"
+    return str(chosen["option_id"])
 
 
 def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
