@@ -69,7 +69,7 @@ jobs:
           assert p['runtime_credit_granted'] is False
           assert p['historical_pass_imported'] is False
           assert p['provider_semantics_used'] is False
-          assert p['execution_entry_modes'] == {'NATIVE_STATE_LOAD': 107}, p['execution_entry_modes']
+          assert p['execution_entry_modes'] == {'NATIVE_STATE_LOAD': 100, 'NATURAL_GAME_START': 7}, p['execution_entry_modes']
           assert p['record_count_with_open_surface'] == 39
           assert p['counts'] == {
               'combat_state': 12,
