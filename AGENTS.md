@@ -441,3 +441,32 @@ No missing component may be silently replaced with inference.
 At the end of each substantial task, inspect the final diff for unrelated semantic
 changes, weakened assertions, new fallback behavior, hidden-information leakage, or
 unintended API changes before claiming PASS.
+
+## 18. Harness Portability
+
+The repository must remain resumable across normal ChatGPT, ChatGPT Work when the user
+explicitly chooses it, Codex, OpenCode, and later model/provider changes. No harness
+receives Source Authority merely because it can execute tools or run for longer.
+
+For substantial long-running branches, prefer a branch-local
+`.foundry/WORKSTREAM_STATE.md` copied from
+`docs/agent-workflows/WORKSTREAM_STATE_TEMPLATE.md`.
+
+When that state file exists:
+
+1. read it after `AGENTS.md` and the active Workstream Contract;
+2. treat it as a resume pointer, not authority;
+3. verify current Git state and mutable facts needed for the next action;
+4. update it after material validated milestones;
+5. make checkpoint commits so a different harness/model can resume without the prior
+   conversation transcript.
+
+Cross-harness continuation rules are documented in
+`docs/agent-workflows/HARNESS_PORTABILITY_AND_CONTINUATION.md`.
+
+For OpenCode + Muse Spark 1.3 prompt/session guidance, consult
+`docs/agent-workflows/MUSE_SPARK_1_3_OPENCODE_HANDBOOK.md` on demand. Do not pre-load
+model-specific documentation when it is irrelevant to the current task.
+
+A model/provider handoff should pass the Workstream Contract, exact branch/commits,
+workstream state, and persisted evidence rather than a giant historical chat dump.
