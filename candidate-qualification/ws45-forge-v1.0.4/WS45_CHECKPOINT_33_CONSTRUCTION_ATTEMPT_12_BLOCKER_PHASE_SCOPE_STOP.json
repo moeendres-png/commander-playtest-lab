@@ -1,0 +1,58 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 33,
+  "status": "BLOCKED_REMEDIABLE",
+  "workstream": "WS45_FORGE_V1_0_4_SUCCESSOR_PROVIDER_QUALIFICATION",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "source_lock": {
+    "commander_lab_head": "9c0d724cb5b445c5b63530ef04dfb4ec85e41d94",
+    "commander_lab_tree": "caf54fc51bfeb1037a085a07b45c7cad8cf6005a",
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "ws44_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "ws44_materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_version": "2.0.15-SNAPSHOT"
+  },
+  "workflow": {
+    "run_id": 34220763125,
+    "job_id": 102043067761,
+    "artifact_id": 10053778954,
+    "artifact_zip_sha256": "eacc4775fbf23615127dc777d4b99ef20bb5ddd9545dc4516aeae12b3bc7b008"
+  },
+  "verified_gates": {
+    "immutable_ws44_lock": "PASS",
+    "exact_forge_lock": "PASS",
+    "forge_build": "PASS",
+    "provider_compile": "PASS",
+    "native_opaque_library_patch_apply": "PASS",
+    "native_summoning_sickness_patch_apply": "PASS",
+    "native_blocker_partition_patch_apply": "PASS",
+    "strict_no_request_echo_refresh_after_patch": "PASS"
+  },
+  "construction": {
+    "sequential_diagnostic_pass_count": 60,
+    "first_failure_index": 61,
+    "first_failure_fixture_id": "MICRO_REPLACEMENT",
+    "failure": "CONTROLLED_STOP",
+    "stop_reason": "WS45_COMBAT_NATIVE_BLOCKER_ACTOR_IS_ACTIVE_PLAYER",
+    "native_phase": "COMBAT_DAMAGE",
+    "runtime_interpretation": "The actor-scoped eligible-blocker observer was invoked by generic construction snapshot emission outside the declare-blockers decision surface. It therefore rejected a valid active priority player during COMBAT_DAMAGE before the prior record-78 blocker mismatch could be re-observed."
+  },
+  "adjudication": {
+    "provider_scope_defect": true,
+    "terminal_contract_blocker_proven": false,
+    "record_78_reached_in_this_run": false,
+    "record_78_contract_adjudication": "PENDING_RUNTIME_ISOLATION",
+    "reason": "Forge exposes PhaseHandler.getPhase() and PhaseType.COMBAT_DECLARE_BLOCKERS at the exact engine lock. The blocker legal-option projection must be scoped to that native phase; outside that phase there is no blocker-declaration legal-option surface to project. No request-derived filtering is authorized."
+  },
+  "credit": {
+    "historical_successor_credit_imported": 0,
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "provider_qualified": false
+  },
+  "next_action": "Phase-gate eligibleBlockersJson to native PhaseType.COMBAT_DECLARE_BLOCKERS, preserve Forge CombatUtil.canBlock legality and actor partition without request filtering, then rerun strict no-request-echo followed by the full 107-record construction gate from record 1. Re-adjudicate WS05-MP-BLOCK-4 only if the rerun actually reaches it."
+}
