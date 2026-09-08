@@ -485,36 +485,44 @@ workstream state, and persisted evidence rather than a giant historical chat dum
 
 ## 19. Muse Data Boundary
 
-Muse Spark 1.3 Contributor Free is an implementation endpoint, not a confidential-data
-boundary. Material sent to that endpoint must be suitable for the data-use terms of
-the current provider.
+Muse Spark 1.3 Contributor Free is the primary bounded implementation worker and must
+be able to use all technical information materially required for Foundry engineering.
+The project privacy boundary protects unrelated personal/private information about the
+user and raw credential values; it does **not** classify ordinary project data as
+sensitive.
 
 Explicitly allowed for Muse in this project:
 
-- repository source and tests intended for Foundry engineering;
-- Magic card names, Oracle/card metadata, decklists, owned-card inventories, and other
-  MTG collection/deck information;
-- qualification fixtures/evidence that contain no credentials or unrelated private
-  personal/account data;
-- non-sensitive build/test logs.
+- all Foundry repository source, tests, scripts, schemas, docs and project-relevant
+  configuration;
+- qualification contracts, immutable materializations, fixtures, runtime evidence,
+  logs, traces, build artifacts and machine-readable results;
+- project-related external engine/provider source and build trees, including Forge,
+  XMage and other candidates, subject to their license/process constraints;
+- Magic card names, Oracle/card metadata, decklists, owned-card inventories,
+  collection information, matchup/deckbuilding data and other MTG-specific data;
+- other technical project data needed to compile, test, debug, qualify or reproduce
+  the simulator.
 
-Do not expose to Muse:
+Do not deliberately expose unrelated personal/private information such as home/postal
+addresses, private telephone numbers, private email message content, personal
+calendar/contact data, private chats, government identifiers, banking/payment data,
+browser/password-manager data or unrelated personal documents. Normal repository and
+public GitHub metadata may be used when required for Source Truth; do not unnecessarily
+surface personal contact details from that metadata.
 
-- passwords, API keys, access/refresh tokens, session cookies, OAuth material;
-- SSH/GPG/private keys, certificates containing private key material, cloud/service
-  credentials, or password-manager exports;
-- `.env` secrets or secret-bearing local configuration;
-- private email/calendar/contact content, browser profiles/cookies, financial/account
-  data, or unrelated confidential personal documents;
-- any secret merely because it happens to be reachable from the same WSL user.
+Raw credentials may be **used indirectly by project tooling** but must not be printed
+into Muse context. Muse may run authenticated Git/provider/build/test commands using
+already-configured authentication or inherited environment credentials. Do not read,
+echo, dump, copy, commit or persist passwords, API keys, access/refresh tokens, OAuth
+secrets, session cookies, private keys or secret-bearing `.env` values. If a credential
+itself must be created, rotated, read or edited, perform that credential-management
+step outside Muse and then continue normal project work.
 
-If a task requires forbidden data, fail closed for the Muse lane and route that part to
-a non-Muse authority/execution path. Never paste sensitive material into a Muse prompt
-or persist it into branch state/evidence for convenience.
+Do not block ordinary Foundry work merely because it needs project source, evidence,
+logs, engine checkouts, card/deck data, normal search tools or normal shell/build/test
+commands. Project-related external paths may be explicitly allowed or approval-gated.
 
-Repository OpenCode permissions provide defense in depth but are not an operating-
-system security sandbox. Shell/code execution under the same Unix user can create
-paths around simple file-read rules. Therefore the project combines explicit data
-policy, secret-file denies, restricted external-directory access, and a narrowed shell
-policy. A task requiring a hard confidentiality guarantee needs an OS/container/user
+OpenCode permissions provide defense in depth but are not an operating-system security
+sandbox. A task requiring a hard confidentiality guarantee needs an OS/container/user
 isolation boundary in addition to OpenCode permissions.
