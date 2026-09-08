@@ -53,15 +53,14 @@ def _zone_move_entry(record: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def _natural_deck_templates(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    state = record.get("deck_state") or {}
-    raw = state.get("deck_template")
+    raw = record.get("deck_state")
     if not isinstance(raw, list):
-        raise ValueError(f"WS49_NATURAL_DECK_TEMPLATE_NOT_LIST:{record.get('fixture_id')}")
+        raise ValueError(f"WS49_NATURAL_DECK_STATE_NOT_LIST:{record.get('fixture_id')}")
     result: dict[str, dict[str, Any]] = {}
     for entry in raw:
         if not isinstance(entry, dict):
             raise ValueError(f"WS49_NATURAL_DECK_TEMPLATE_ENTRY_NOT_OBJECT:{record.get('fixture_id')}")
-        player = entry.get("player") or entry.get("player_id")
+        player = entry.get("player_id")
         if not isinstance(player, str) or not player.startswith("P"):
             raise ValueError(f"WS49_NATURAL_DECK_TEMPLATE_PLAYER_INVALID:{record.get('fixture_id')}:{player!r}")
         if player in result:
@@ -86,15 +85,50 @@ def _template_library(entry: dict[str, Any], fixture_id: str, player: str) -> tu
     return name, count
 
 
-def _template_commander(entry: dict[str, Any], fixture_id: str, player: str) -> str:
-    commander = entry.get("commander")
-    if isinstance(commander, dict):
-        name = commander.get("card_identity") or commander.get("card_name")
-    else:
-        name = entry.get("commander_card_identity")
-    if not isinstance(name, str) or not name:
-        raise ValueError(f"WS49_NATURAL_COMMANDER_TEMPLATE_INVALID:{fixture_id}:{player}:{entry!r}")
-    return name
+def _template_commanders(
+    record: dict[str, Any],
+    entry: dict[str, Any],
+    fixture_id: str,
+    player: str,
+) -> list[str]:
+    commander_ids = entry.get("commander_ids")
+    if not isinstance(commander_ids, list) or not commander_ids or not all(isinstance(x, str) and x for x in commander_ids):
+        raise ValueError(f"WS49_NATURAL_COMMANDER_IDS_INVALID:{fixture_id}:{player}:{commander_ids!r}")
+    commanders = (record.get("commander_state") or {}).get("commanders")
+    if not isinstance(commanders, list):
+        raise ValueError(f"WS49_NATURAL_COMMANDER_STATE_INVALID:{fixture_id}")
+    by_id: dict[str, dict[str, Any]] = {}
+    for commander in commanders:
+        if not isinstance(commander, dict):
+            raise ValueError(f"WS49_NATURAL_COMMANDER_ENTRY_INVALID:{fixture_id}")
+        commander_id = commander.get("commander_id")
+        if not isinstance(commander_id, str) or not commander_id or commander_id in by_id:
+            raise ValueError(f"WS49_NATURAL_COMMANDER_ID_INVALID:{fixture_id}:{commander_id!r}")
+        by_id[commander_id] = commander
+
+    result: list[str] = []
+    for commander_id in commander_ids:
+        commander = by_id.get(commander_id)
+        if commander is None:
+            raise ValueError(f"WS49_NATURAL_COMMANDER_REFERENCE_MISSING:{fixture_id}:{player}:{commander_id}")
+        if commander.get("owner") != player:
+            raise ValueError(f"WS49_NATURAL_COMMANDER_OWNER_MISMATCH:{fixture_id}:{player}:{commander_id}")
+        name = commander.get("card_identity")
+        if not isinstance(name, str) or not name:
+            raise ValueError(f"WS49_NATURAL_COMMANDER_IDENTITY_INVALID:{fixture_id}:{player}:{commander_id}")
+        result.append(name)
+    return result
+
+
+def _validate_shuffle_binding(record: dict[str, Any], entry: dict[str, Any], fixture_id: str, player: str) -> None:
+    channel = entry.get("shuffle_channel")
+    expected = f"library_shuffle:{player}"
+    if channel != expected:
+        raise ValueError(f"WS49_NATURAL_SHUFFLE_CHANNEL_INVALID:{fixture_id}:{player}:{channel!r}")
+    randomness = record.get("rules_randomness")
+    channels = randomness.get("channels") if isinstance(randomness, dict) else None
+    if not isinstance(channels, list) or channel not in channels:
+        raise ValueError(f"WS49_NATURAL_SHUFFLE_CHANNEL_UNBOUND:{fixture_id}:{player}:{channel!r}")
 
 
 def _apply_natural_start(
@@ -112,20 +146,17 @@ def _apply_natural_start(
         player = f"P{seat}"
         entry = templates[player]
         library_name, library_count = _template_library(entry, fixture_id, player)
-        commander_name = _template_commander(entry, fixture_id, player)
+        commander_names = _template_commanders(record, entry, fixture_id, player)
         opening = entry.get("opening_hand_size")
         if opening != 7:
             raise ValueError(f"WS49_NATURAL_OPENING_HAND_SIZE_UNSUPPORTED:{fixture_id}:{player}:{opening!r}")
-        if entry.get("shuffle_required") is not True:
-            raise ValueError(f"WS49_NATURAL_SHUFFLE_REQUIRED_NOT_TRUE:{fixture_id}:{player}")
+        _validate_shuffle_binding(record, entry, fixture_id, player)
 
-        # Exact native deck input.  No provider filler is permitted for
-        # NATURAL_GAME_START: XMage itself must shuffle/draw this deck.
+        # Exact immutable natural-start deck input. No provider filler is
+        # permitted here: XMage itself must perform the rules shuffle/draw.
         deck["mainboard"] = [library_name] * library_count
-        deck["commander_names"] = [commander_name]
+        deck["commander_names"] = list(commander_names)
         deck["deck_id"] = f"ws49-{fixture_id.lower()}-p{seat}-natural"
-        # inherited importer recomputes/validates the hash only as opaque deck
-        # provenance; use its canonical helper through the bootstrap module.
         deck["deck_hash"] = base.base.legacy.canonical_sha({
             "deck_id": deck["deck_id"],
             "mainboard": deck["mainboard"],
@@ -134,7 +165,7 @@ def _apply_natural_start(
         })
 
         spec = players_by_seat[seat]
-        spec["commander_names"] = [commander_name]
+        spec["commander_names"] = list(commander_names)
         spec["natural_library_card_name"] = library_name
         spec["natural_library_card_count"] = library_count
         zones = spec.get("zones")
