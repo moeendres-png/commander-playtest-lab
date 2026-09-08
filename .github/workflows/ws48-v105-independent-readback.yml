@@ -1,0 +1,146 @@
+name: WS48 v1.0.5 independent native readback 107
+
+on:
+  push:
+    branches: [ws48/forge-v1.0.5-successor-qualification]
+    paths:
+      - '.github/workflows/ws48-v105-independent-readback.yml'
+      - 'candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py'
+      - 'scripts/ws48_v105_native_stack_modes.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS47_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_TREE: f596c54d2cb229b9827c6c94a278175e8312c65c
+  WS47_NAMESPACE_TREE: 12af73695c801a42a0193ee895d5fc0843d16b0c
+  WS47_SCHEMA: commander-lab.semantic-fixture-materialization/1.0.5
+  WS47_BUNDLE: 631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01
+  WS47_MATERIALIZATION_SHA256: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+  FORGE_COMMIT: 66caae16015bd403bc0a52fa6689afb5508f74d0
+  FORGE_TREE: 40fc8f29ce4de31a964972461db2b48b4221e07f
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+jobs:
+  independent-readback:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws47
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable WS47 and standalone normalizer isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-readback
+          mkdir -p "$ev/runners"
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS47_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS47_TREE"
+          test "$(git -C contract-lock rev-parse HEAD:qualification/ws47)" = "$WS47_NAMESPACE_TREE"
+          test "$(sha256sum contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')" = "$WS47_MATERIALIZATION_SHA256"
+          python -m py_compile candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py
+          ! grep -nE 'run_fresh_construction_107|from .*construction|import .*construction' candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py
+          cp candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws45_patch_noecho_runner_lineage.py --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws45_patch_noecho_runner_forge_lock.py --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws48_patch_v105_runner_identity.py --noecho-runner "$ev/runners/run_strict_no_echo_gate.py" --construction-runner candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+      - name: Verify and build exact Forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q '<versionCode>2.0.15</versionCode>' vendor/engine-source/forge/pom.xml
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build Forge and provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-readback
+          (cd vendor/engine-source/forge && mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install)
+          (cd vendor/engine-source/forge && mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/$ev/dependency-classpath.txt")
+          out="$ev/generated"; mkdir -p "$out" "$ev/classes"
+          python scripts/ws40_generate_forge_provider.py --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python scripts/ws40_apply_successor_state_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_stack_history.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_revealed_state.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_v104_exact_stack_target_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_combat_legal_surface.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_apply_generated_overlay.py --generated-dir "$out/java/forge/game/player" --strict-source qualification/providers/forge/gpl/Ws45StrictObservation.java
+          python scripts/ws45_patch_generated_gamestate_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_extend_natural_observation.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          python scripts/ws45_v104_nullable_knowledge_presence.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          python scripts/ws48_v105_native_stack_modes.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java" --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws45_v104_native_zero_counter_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java" --runner candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana|candidates\.get\(0\)|game\.findById\(expectedNativeId\)' "$out/java"
+          ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
+          javac -cp "$cp" -d "$ev/classes" "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$out/java/forge/game/player/Ws23ForgeBootstrap.java" "$out/java/forge/game/player/Ws40SuccessorState.java" "$out/java/forge/game/player/Ws45StrictObservation.java"
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/$ev/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+      - name: Fresh independent native readback 107
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-readback
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          PYTHONPATH="$GITHUB_WORKSPACE/$ev/runners" python candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py --materialization contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json --denominator contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json --output "$ev/WS48_INDEPENDENT_NATIVE_READBACK_107.json"
+          python - <<'PY'
+          import json,os
+          p=json.load(open('artifacts/ws48-v105-readback/WS48_INDEPENDENT_NATIVE_READBACK_107.json'))
+          assert p['status']=='PASS' and p['hard_gate']=='PASS'
+          assert p['denominator']==107 and p['pass_count']==107
+          assert p['construction_normalizer_imported'] is False
+          assert p['historical_successor_runtime_credit_imported']==0
+          assert p['construction_credit']=='107/107' and p['behavior_credit']=='0/107'
+          assert p['forge']=={'commit':os.environ['FORGE_COMMIT'],'tree':os.environ['FORGE_TREE']}
+          assert all(r['status']=='PASS' and r['native_equal'] and r['evidence_class']=='RUNTIME_VERIFIED_INDEPENDENT_READBACK' for r in p['rows'])
+          PY
+      - name: Seal evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-readback
+          python - <<'PY'
+          import json,os,subprocess
+          p={'schema_version':'commander-lab.ws48-independent-readback-source-lock/1.0.0','qualification_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'ws47_commit':os.environ['WS47_COMMIT'],'ws47_tree':os.environ['WS47_TREE'],'ws47_namespace_tree':os.environ['WS47_NAMESPACE_TREE'],'forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'forge_version':os.environ['FORGE_VERSION'],'historical_successor_runtime_credit_imported':0,'normalizer':'candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py','construction_normalizer_imported':False}
+          open('artifacts/ws48-v105-readback/SOURCE_LOCK.json','w').write(json.dumps(p,indent=2,sort_keys=True)+'\n')
+          PY
+          find "$ev" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$ev/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws48-v105-independent-readback-${{ github.sha }}
+          path: artifacts/ws48-v105-readback/
+          if-no-files-found: error
+          retention-days: 90
