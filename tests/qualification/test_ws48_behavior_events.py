@@ -1,4 +1,5 @@
 """Unit tests for the WS-48 behavior event-feed verifier (no engine needed)."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -75,7 +76,7 @@ def test_hidden_sentinel_scans_snapshots():
     sentinel = next(e for e in ee["forbidden_events"] if e.startswith("leak:"))
     feed = ["knowledge_projection:HIDDEN_01:P1"]
     assert be.verify(ee, feed)["status"] == "PASS"
-    bad = be.verify(ee, feed, snapshot_texts=['{"note": "%s"}' % sentinel])
+    bad = be.verify(ee, feed, snapshot_texts=[f'{{"note": "{sentinel}"}}'])
     assert bad["status"] == "FAIL"
     assert bad["forbidden_observed"] == [sentinel]
 

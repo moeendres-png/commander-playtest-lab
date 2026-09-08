@@ -14,6 +14,7 @@ feed plus the terminal native snapshot text:
 This module performs no Magic legality reasoning. It only compares strings the
 provider natively emitted.
 """
+
 from __future__ import annotations
 
 from typing import Any
