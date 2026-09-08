@@ -1,0 +1,113 @@
+{
+  "artifact_version": "commander-lab.ws47-source-lock/1.0.0",
+  "workstream": "WS-47",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "branch": "ws47/successor-contract-v1.0.5-freeze",
+  "observed_branch_head_before_persistence": "831b12d390a73ac7d97b32f416e7ba708f426653",
+  "predecessor": {
+    "workstream": "WS-44",
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace": "qualification/ws44",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "materialization_blob": "4e3344bac577aca677260a837dd78e2c096f72f1",
+    "provider_denominator": 107,
+    "record_count": 135
+  },
+  "predecessor_integrity_at_ws47_start": {
+    "compare_base": "12940248497a8795991cbbd2eedef72945528cfe",
+    "compare_head": "831b12d390a73ac7d97b32f416e7ba708f426653",
+    "status": "ahead",
+    "ahead_by": 1,
+    "behind_by": 0,
+    "changed_files": [
+      "candidate-qualification/ws47-successor-v1.0.5/WS47_WORKSTREAM_CONTRACT.md"
+    ],
+    "qualification_ws44_changed": false,
+    "terminal_status": "PASS"
+  },
+  "frozen_generator_chain": [
+    {
+      "path": "scripts/ws44_build_successor.py",
+      "role": "base v1.0.4 successor builder; canonical serialization, record digest and semantic repair base"
+    },
+    {
+      "path": "scripts/ws44_build_successor_v2.py",
+      "role": "referential-integrity closure and final materialization assembly"
+    },
+    {
+      "path": "scripts/ws44_build_successor_v3.py",
+      "blob_sha": "4928521e99f77d3401ed05cca49f54473aca0e46",
+      "role": "Draft 2020-12 schema-composition closure only"
+    },
+    {
+      "path": "scripts/ws44_build_successor_v4.py",
+      "blob_sha": "a3c58c9cfe33b8ed2f7ceb24b51647ecfe4f2286",
+      "role": "exact schema exception modeling; production freeze entrypoint"
+    },
+    {
+      "path": "scripts/ws41_lint_semantic_v1_0_3.py",
+      "role": "v1.0.3 semantic linter adapter and digest delegation"
+    },
+    {
+      "path": "scripts/ws32_lint_semantic_v1_0_2.py",
+      "blob_sha": "6ac97ae2d5e4688864cd3f9a41c544a3cd2019db",
+      "role": "canonical JSON, requested-state projection/digest, obligation projection/digest"
+    },
+    {
+      "path": "scripts/ws44_test_referential_integrity.py",
+      "role": "referential-integrity regression suite used by freeze CI"
+    }
+  ],
+  "frozen_freeze_workflow": {
+    "path": ".github/workflows/ws44-v104-freeze-v4.yml",
+    "blob_sha": "0c66bcb22ea85bfe466caa7090bd39e5f7f123a9",
+    "entrypoint": "python scripts/ws44_build_successor_v4.py --output <dir>",
+    "deterministic_double_materialization": true,
+    "referential_integrity_regression": true,
+    "draft_2020_12_schema_validation": true
+  },
+  "digest_mechanism": {
+    "canonical_json": "json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')",
+    "requested_state_digest": {
+      "algorithm": "SHA-256",
+      "projection_keys": [
+        "execution_entry_mode",
+        "players",
+        "deck_state",
+        "commander_state",
+        "semantic_objects",
+        "temporal_state",
+        "knowledge_state",
+        "rules_randomness",
+        "combat_state",
+        "stack_state",
+        "continuous_rules_effects",
+        "extra_turn_creation",
+        "elimination_trigger",
+        "zone_move_event",
+        "setup_validation"
+      ]
+    },
+    "obligation_digest": {
+      "algorithm": "SHA-256",
+      "projection_keys": [
+        "fixture_id",
+        "fixture_family",
+        "frozen_contract_binding",
+        "card_authority_binding",
+        "expected_events",
+        "terminal_postconditions"
+      ]
+    },
+    "record_materialization_digest": "SHA-256(canonical_json(record with materialization_digest removed))",
+    "canonical_bundle_digest": "SHA-256(canonical_json(bundle with canonical_bundle_digest removed))",
+    "materialization_file_sha256": "SHA-256(canonical_json(bundle) + LF)"
+  },
+  "source_classification": "CODE_DERIVED_FROM_IMMUTABLE_WS44_FREEZE",
+  "provider_runtime_credit_imported": false,
+  "terminal_status": "PASS"
+}
