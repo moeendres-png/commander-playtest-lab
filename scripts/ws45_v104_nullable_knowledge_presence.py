@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# WS45 refresh trigger: opaque-library patch signature corrected; rerun strict-noecho before construction.
+# WS45 refresh trigger: phase-scope native blocker observation; rerun strict-noecho before construction.
 import argparse
 import subprocess
 import sys
