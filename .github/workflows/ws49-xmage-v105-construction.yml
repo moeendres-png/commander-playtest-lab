@@ -127,6 +127,7 @@ jobs:
           python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_identity_overlay.py
           python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py
           python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py
+          python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_hidden_identity_overlay.py
           python candidate-qualification/ws46-xmage-v1.0.4/apply_ws46_v104_construction_overlay.py
           python candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_native_remediation.py
           git diff --check
