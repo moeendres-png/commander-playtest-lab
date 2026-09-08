@@ -173,6 +173,42 @@ def _natural_mulligan_plan(record: dict[str, Any]) -> list[dict[str, Any]]:
     return normalized
 
 
+def _mulligan_plan_by_player(
+    plan: list[dict[str, Any]], player_count: int, fixture_id: str
+) -> dict[str, list[dict[str, Any]]]:
+    """Bind immutable mulligan responses to the native player, not callback order.
+
+    XMage may solicit private mulligan responses in an internal callback order.
+    That order is not a player-visible Rules choice.  The contract instead
+    binds each response to its canonical player and round, which this helper
+    validates exhaustively before any response is submitted.
+    """
+    by_player = {f"P{seat}": [] for seat in range(1, player_count + 1)}
+    for item in plan:
+        player_id = item["player_id"]
+        if player_id not in by_player:
+            raise RuntimeError(f"WS49_NATURAL_MULLIGAN_PLAYER_OUT_OF_RANGE:{fixture_id}:{player_id}")
+        by_player[player_id].append(item)
+    for player_id, items in by_player.items():
+        expected_rounds = list(range(1, len(items) + 1))
+        actual_rounds = [int(item["round"]) for item in items]
+        if actual_rounds != expected_rounds:
+            raise RuntimeError(
+                f"WS49_NATURAL_MULLIGAN_ROUND_PLAN_INVALID:{fixture_id}:{player_id}:"
+                f"expected={expected_rounds}:actual={actual_rounds}"
+            )
+    return by_player
+
+
+def _canonical_player_from_native_seat(
+    pending: dict[str, Any], player_count: int, fixture_id: str
+) -> str:
+    seat = pending.get("seat")
+    if not isinstance(seat, int) or not 0 <= seat < player_count:
+        raise RuntimeError(f"WS49_NATURAL_NATIVE_ACTOR_SEAT_INVALID:{fixture_id}:{seat!r}")
+    return f"P{seat + 1}"
+
+
 def _natural_starting_player_option(decision: dict[str, Any], player_count: int) -> str:
     """Select only the contract's P1 native starting-player option.
 
@@ -230,6 +266,8 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
     fixture_id = record["fixture_id"]
     player_count = len(record["players"])
     plan = _natural_mulligan_plan(record)
+    planned_by_player = _mulligan_plan_by_player(plan, player_count, fixture_id)
+    mulligan_cursors = {player_id: 0 for player_id in planned_by_player}
     decks, scenario = canonical_v105.deck_and_scenario(record)
     decisions: list[dict[str, Any]] = []
 
@@ -256,7 +294,6 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
             raise RuntimeError(f"WS49_NATURAL_NATIVE_PREFLIGHT_FAILED:{fixture_id}")
         client.request("start_full_game")
 
-        plan_cursor = 0
         starting_player_selected = False
         for _ in range(128):
             status = client.request("get_full_game_decision")
@@ -270,14 +307,15 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
                 starting_player_selected = True
                 continue
             if kind == "mulligan":
-                if plan_cursor >= len(plan):
-                    raise RuntimeError(f"WS49_NATURAL_UNPLANNED_MULLIGAN:{fixture_id}:{pending!r}")
-                expected = plan[plan_cursor]
-                actual_actor = f"P{int(pending.get('seat', -1)) + 1}"
-                if actual_actor != expected["player_id"]:
+                actual_actor = _canonical_player_from_native_seat(pending, player_count, fixture_id)
+                cursor = mulligan_cursors[actual_actor]
+                expected_for_actor = planned_by_player[actual_actor]
+                if cursor >= len(expected_for_actor):
                     raise RuntimeError(
-                        f"WS49_NATURAL_MULLIGAN_ACTOR_MISMATCH:{fixture_id}:{actual_actor}:{expected!r}"
+                        f"WS49_NATURAL_UNPLANNED_MULLIGAN:{fixture_id}:{actual_actor}:"
+                        f"native_round={cursor + 1}"
                     )
+                expected = expected_for_actor[cursor]
                 option_type = "keep" if expected["decision"] == "KEEP" else "mulligan"
                 option = legacy.run_tax3.gate.unique_option(pending, option_type=option_type)
                 legacy.run_tax3.gate.submit_one(client, pending, [str(option["option_id"])])
@@ -290,18 +328,41 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
                         "selected_option_type": option_type,
                     }
                 )
-                plan_cursor += 1
+                mulligan_cursors[actual_actor] += 1
                 continue
             if kind == "priority":
                 break
-            raise RuntimeError(f"WS49_NATURAL_UNSUPPORTED_PREGAME_DECISION:{fixture_id}:{kind}")
+            diagnostic = {
+                "actor": _canonical_player_from_native_seat(pending, player_count, fixture_id),
+                "class": kind,
+                "context": pending.get("context"),
+                "maximum_selections": pending.get("maximum_selections"),
+                "minimum_selections": pending.get("minimum_selections"),
+                "option_types": [
+                    option.get("option_type")
+                    for option in (pending.get("legal_options") or [])
+                    if isinstance(option, dict)
+                ],
+            }
+            raise RuntimeError(
+                f"WS49_NATURAL_UNSUPPORTED_PREGAME_DECISION:{fixture_id}:"
+                f"{json.dumps(diagnostic, sort_keys=True)}"
+            )
         else:
             raise RuntimeError(f"WS49_NATURAL_PREGAME_PRIORITY_NOT_REACHED:{fixture_id}")
 
         if not starting_player_selected:
             raise RuntimeError(f"WS49_NATURAL_STARTING_PLAYER_NOT_SELECTED:{fixture_id}")
-        if plan_cursor != len(plan):
-            raise RuntimeError(f"WS49_NATURAL_PREGAME_PLAN_NOT_CONSUMED:{fixture_id}:{plan_cursor}/{len(plan)}")
+        unconsumed = {
+            player_id: items[mulligan_cursors[player_id]:]
+            for player_id, items in planned_by_player.items()
+            if mulligan_cursors[player_id] != len(items)
+        }
+        if unconsumed:
+            raise RuntimeError(
+                f"WS49_NATURAL_PREGAME_PLAN_NOT_CONSUMED:{fixture_id}:"
+                f"{json.dumps(unconsumed, sort_keys=True)}"
+            )
 
         observation = client.request(
             "get_full_game_observation", {"viewer_seat": 0, "decision_subject_seat": 0}
@@ -311,9 +372,20 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
 
     if not isinstance(observation, dict) or not isinstance(state, dict) or not isinstance(result, dict):
         raise RuntimeError(f"WS49_NATURAL_RUNTIME_READBACK_MISSING:{fixture_id}")
-    players = {player.get("player_id"): player for player in observation.get("players") or [] if isinstance(player, dict)}
-    if set(players) != {f"P{seat}" for seat in range(1, player_count + 1)}:
-        raise RuntimeError(f"WS49_NATURAL_PLAYER_READBACK_MISMATCH:{fixture_id}:{sorted(players)}")
+    players: dict[str, dict[str, Any]] = {}
+    for player in observation.get("players") or []:
+        if not isinstance(player, dict):
+            raise RuntimeError(f"WS49_NATURAL_PLAYER_READBACK_ENTRY_INVALID:{fixture_id}")
+        player_id = _canonical_player_from_native_seat(player, player_count, fixture_id)
+        if player_id in players:
+            raise RuntimeError(f"WS49_NATURAL_PLAYER_READBACK_DUPLICATE_SEAT:{fixture_id}:{player_id}")
+        players[player_id] = player
+    expected_players = {f"P{seat}" for seat in range(1, player_count + 1)}
+    if set(players) != expected_players:
+        raise RuntimeError(
+            f"WS49_NATURAL_PLAYER_READBACK_MISMATCH:{fixture_id}:"
+            f"expected={sorted(expected_players)}:actual={sorted(players)}"
+        )
     expected_mulligans = {f"P{seat}": 0 for seat in range(1, player_count + 1)}
     for item in plan:
         if item["decision"] == "MULLIGAN":
