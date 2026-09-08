@@ -36,6 +36,7 @@ jobs:
           rm -rf regen
           mkdir regen
           python scripts/ws47_build_successor_v1_0_5.py --output regen
+          python scripts/ws47_finalize_evidence_metadata.py --input-dir regen
           python scripts/ws47_validate_successor_v1_0_5.py --input-dir regen --report regen/WS47_INDEPENDENT_VALIDATION.json
           python - <<'PY'
           import hashlib, json
@@ -52,7 +53,7 @@ jobs:
           (d/'WS47_EVIDENCE_INDEX.json').write_text(json.dumps(idx,ensure_ascii=False,sort_keys=True,separators=(',',':'))+'\n')
           PY
           diff -ru qualification/ws47 regen
-      - name: Build postfreeze attestation
+      - name: Build postfreeze attestation outside working tree
         if: steps.namespace.outputs.present == 'true'
         run: |
           FREEZE_COMMIT="$GITHUB_SHA"
@@ -60,7 +61,6 @@ jobs:
           NS_TREE="$(git rev-parse "$GITHUB_SHA:qualification/ws47")"
           MAT_SHA="$(sha256sum qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')"
           CANON="$(python -c 'import json; print(json.load(open("qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json"))["canonical_bundle_digest"])')"
-          mkdir -p candidate-qualification/ws47-successor-v1.0.5
           python - <<PY
           import json
           data={
@@ -83,11 +83,26 @@ jobs:
             'ARCHITECTURE_FREEZE':False,
             'terminal_status':'PASS'
           }
-          open('candidate-qualification/ws47-successor-v1.0.5/WS47_POSTFREEZE_ATTESTATION.json','w').write(json.dumps(data,indent=2,sort_keys=True)+'\n')
+          open('/tmp/WS47_POSTFREEZE_ATTESTATION.json','w').write(json.dumps(data,indent=2,sort_keys=True)+'\n')
           PY
-      - name: Persist postfreeze attestation
+      - name: Verify freeze freshness and persist postfreeze attestation
         if: steps.namespace.outputs.present == 'true'
         run: |
+          BRANCH='ws47/successor-contract-v1.0.5-freeze'
+          RUN_NS_TREE="$(git rev-parse "$GITHUB_SHA:qualification/ws47")"
+          RUN_BUILDER="$(git rev-parse "$GITHUB_SHA:scripts/ws47_build_successor_v1_0_5.py")"
+          RUN_VALIDATOR="$(git rev-parse "$GITHUB_SHA:scripts/ws47_validate_successor_v1_0_5.py")"
+          RUN_FINALIZER="$(git rev-parse "$GITHUB_SHA:scripts/ws47_finalize_evidence_metadata.py")"
+          RUN_WORKFLOW="$(git rev-parse "$GITHUB_SHA:.github/workflows/ws47-v105-postfreeze.yml")"
+          git fetch origin "$BRANCH"
+          test "$RUN_NS_TREE" = "$(git rev-parse "origin/$BRANCH:qualification/ws47")"
+          test "$RUN_BUILDER" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_build_successor_v1_0_5.py")"
+          test "$RUN_VALIDATOR" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_validate_successor_v1_0_5.py")"
+          test "$RUN_FINALIZER" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_finalize_evidence_metadata.py")"
+          test "$RUN_WORKFLOW" = "$(git rev-parse "origin/$BRANCH:.github/workflows/ws47-v105-postfreeze.yml")"
+          git rebase "origin/$BRANCH"
+          mkdir -p candidate-qualification/ws47-successor-v1.0.5
+          cp /tmp/WS47_POSTFREEZE_ATTESTATION.json candidate-qualification/ws47-successor-v1.0.5/WS47_POSTFREEZE_ATTESTATION.json
           git add candidate-qualification/ws47-successor-v1.0.5/WS47_POSTFREEZE_ATTESTATION.json
           if git diff --cached --quiet; then
             echo 'WS47_POSTFREEZE_ATTESTATION_ALREADY_CURRENT=TRUE'
