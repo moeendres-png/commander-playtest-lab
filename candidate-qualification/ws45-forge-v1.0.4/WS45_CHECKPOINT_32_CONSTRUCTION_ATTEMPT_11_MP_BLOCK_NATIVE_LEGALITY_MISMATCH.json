@@ -1,0 +1,86 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": 32,
+  "status": "AUTHORITY_ADJUDICATION_REQUIRED",
+  "gate": "STRICT_NO_REQUEST_ECHO_REFRESH_THEN_FRESH_CONSTRUCTION_107",
+  "source_lock": {
+    "commander_lab_execution_commit": "72bcb708010a1b610367d8b92ea7fd0676b25520",
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "ws44_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "ws44_materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+  },
+  "runtime": {
+    "workflow_run_id": 34218410788,
+    "job_id": 102035550316,
+    "artifact_id": 10053157456,
+    "artifact_name": "ws45-v104-noecho-then-construction-72bcb708010a1b610367d8b92ea7fd0676b25520",
+    "artifact_sha256": "f0255d53bc02df13fb0b2bd5a892f20adfc53899785d124a780c83ce870367f3"
+  },
+  "strict_no_request_echo": {
+    "status": "PASS",
+    "fresh_after_native_summoning_sickness_change": true,
+    "historical_successor_credit_imported": 0
+  },
+  "fresh_construction": {
+    "denominator": 107,
+    "runtime_verified_prefix_pass_count": 77,
+    "failure_index": 78,
+    "failure_fixture_id": "WS05-MP-BLOCK-4",
+    "failure_class": "NATIVE_COMBAT_ELIGIBLE_BLOCKER_STATE_MISMATCH",
+    "requested_attackers": {
+      "obj:mp-a2": "P2",
+      "obj:mp-a3": "P3"
+    },
+    "requested_eligible_blockers": [
+      "obj:mp-p2-blocker"
+    ],
+    "native_eligible_blockers": [
+      "obj:P2-bears",
+      "obj:P3-bears",
+      "obj:mp-p2-blocker"
+    ],
+    "previous_blocker_closure": {
+      "WS05-MP-COMBAT-4": "PASS_RUNTIME_VERIFIED",
+      "WS05-MP-COMBAT-5": "PASS_RUNTIME_VERIFIED",
+      "native_summoning_sickness_remediation": "PASS_RUNTIME_VERIFIED"
+    },
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "partial_credit_forbidden": true
+  },
+  "source_findings": {
+    "forge_blocking_semantics": "Forge CombatUtil.canBlock checks creature status, phasing, tapped state and blocking restrictions; it does not use summoning sickness as a blocking restriction.",
+    "forge_multiplayer_scope": "Forge CombatUtil.canBeBlocked(attacker, combat, defendingPlayer) enforces that a player can block only attackers attacking that player or a related defended permanent.",
+    "current_observer_scope": "eligibleBlockersJson iterates all non-active defenders and emits any semantic creature that can legally block at least one attacker, creating a global rather than actor-scoped list."
+  },
+  "adjudication_required": {
+    "question_1": "Does immutable combat_state.eligible_blockers normatively denote the complete global native blocker set, the current decision actor's complete legal blocker set, or a narrower scenario-relevant candidate set?",
+    "question_2": "If actor-scoped to P2, is omission of untapped battlefield obj:P2-bears a frozen materialization inconsistency under current MTG blocking rules?",
+    "must_check": [
+      "frozen COMMON fixture authority for WS05-MP-BLOCK-4",
+      "WS44 predecessor/repair provenance and inherited obligation",
+      "current official MTG blocking rules",
+      "provider-neutral normalization intent"
+    ]
+  },
+  "forbidden_until_adjudicated": [
+    "filter native eligible_blockers to the requested list",
+    "treat summoning sickness as a blocking restriction",
+    "compute blocker legality in Python or pilot",
+    "silently make Grizzly Bears tapped or noncreature",
+    "modify immutable WS44",
+    "grant construction or behavior credit"
+  ],
+  "credit": {
+    "historical_successor_credit_imported": 0,
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "provider_qualified": false
+  },
+  "next_action": "Perform authority-first adjudication of WS05-MP-BLOCK-4. If the immutable requested eligible_blockers list is inconsistent with the frozen obligation/current rules, prove a terminal contract blocker rather than weakening native Forge legality. Otherwise implement only the minimum provider-native actor-scoping or representation repair justified by authority and rerun the full gate from record 1."
+}
