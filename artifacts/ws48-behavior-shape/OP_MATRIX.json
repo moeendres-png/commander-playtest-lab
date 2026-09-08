@@ -1,0 +1,737 @@
+{
+  "denominator": 107,
+  "distinct_operations": 64,
+  "operations": [
+    {
+      "count": 76,
+      "fixtures": [
+        "PILOT_CHOOSE_OBJECT",
+        "PILOT_TARGET_AMOUNT",
+        "PILOT_PILE",
+        "PILOT_MULTI_AMOUNT",
+        "PILOT_TRIGGER_ORDER",
+        "PILOT_CHOOSE_ABILITY",
+        "PILOT_DECLARE_BLOCKER",
+        "NEGATIVE_FIRST_OPTION",
+        "NEGATIVE_RANDOM_OPTION",
+        "NEGATIVE_DEFAULT_YES_NO",
+        "NEGATIVE_INTERNAL_AI",
+        "NEGATIVE_GUI_DEFAULT",
+        "NEGATIVE_SILENT_SKIP",
+        "HIDDEN_01",
+        "HIDDEN_02",
+        "HIDDEN_03",
+        "HIDDEN_04",
+        "HIDDEN_05",
+        "HIDDEN_06",
+        "HIDDEN_07",
+        "HIDDEN_08",
+        "HIDDEN_09",
+        "HIDDEN_10",
+        "HIDDEN_11",
+        "HIDDEN_12",
+        "HIDDEN_13",
+        "HIDDEN_14",
+        "HIDDEN_15",
+        "HIDDEN_16",
+        "HIDDEN_17",
+        "HIDDEN_18",
+        "HIDDEN_19",
+        "HIDDEN_HONEYCARD_SENTINEL",
+        "RNG_RULES_TAPE",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_STATE_HASHES",
+        "MICRO_MODES",
+        "MICRO_CONTINUOUS_EFFECTS",
+        "MICRO_LAYERS",
+        "MICRO_COPY",
+        "MICRO_CONTROL",
+        "MICRO_COMBAT",
+        "MICRO_RULES_RANDOMNESS",
+        "WS05-MP-PRIO-3",
+        "WS05-MP-PRIO-5",
+        "WS05-MP-TRIG-5",
+        "WS05-MP-COMBAT-5",
+        "WS05-MP-TURN-3",
+        "WS05-MP-TURN-5",
+        "WS05-MP-ELIM-OWNED-3",
+        "WS05-MP-ELIM-CONTROL-3",
+        "WS05-MP-ELIM-STACK-3",
+        "WS05-MP-ELIM-PRIO-3",
+        "WS05-MP-ELIM-TURN-3",
+        "WS05-MP-ELIM-5",
+        "WS05-CMD-TAX-2",
+        "WS05-CMD-TAX-4",
+        "WS05-CMD-ZONE-GY-YES",
+        "WS05-CMD-ZONE-GY-NO",
+        "WS05-CMD-ZONE-EXILE-YES",
+        "WS05-CMD-ZONE-EXILE-NO",
+        "WS05-CMD-ZONE-HAND-YES",
+        "WS05-CMD-ZONE-HAND-NO",
+        "WS05-CMD-ZONE-LIB-YES",
+        "WS05-CMD-ZONE-LIB-NO",
+        "WS05-CMD-DMG-SAME-21",
+        "WS05-CMD-DMG-SPLIT",
+        "WS05-CMD-DMG-CONTROL",
+        "WS05-CMD-PARTNER-TAX",
+        "WS05-CMD-PARTNER-DMG",
+        "WS05-CMD-PARTNER-ZONE",
+        "WS05-CMD-START-2",
+        "WS05-CMD-START-3",
+        "WS05-CMD-ELIM-4"
+      ],
+      "operation": "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE"
+    },
+    {
+      "count": 28,
+      "fixtures": [
+        "PILOT_CHOOSE_OBJECT",
+        "PILOT_TARGET_AMOUNT",
+        "PILOT_PILE",
+        "PILOT_MULTI_AMOUNT",
+        "PILOT_TRIGGER_ORDER",
+        "PILOT_CHOOSE_ABILITY",
+        "PILOT_DECLARE_BLOCKER",
+        "MICRO_MODES",
+        "MICRO_COPY",
+        "MICRO_RULES_RANDOMNESS",
+        "WS05-MP-PRIO-3",
+        "WS05-MP-PRIO-5",
+        "WS05-MP-TRIG-5",
+        "WS05-MP-COMBAT-5",
+        "WS05-MP-ELIM-STACK-3",
+        "WS05-CMD-TAX-2",
+        "WS05-CMD-TAX-4",
+        "WS05-CMD-ZONE-GY-YES",
+        "WS05-CMD-ZONE-GY-NO",
+        "WS05-CMD-ZONE-EXILE-YES",
+        "WS05-CMD-ZONE-EXILE-NO",
+        "WS05-CMD-ZONE-HAND-YES",
+        "WS05-CMD-ZONE-HAND-NO",
+        "WS05-CMD-ZONE-LIB-YES",
+        "WS05-CMD-ZONE-LIB-NO",
+        "WS05-CMD-DMG-SPLIT",
+        "WS05-CMD-PARTNER-TAX",
+        "WS05-CMD-PARTNER-DMG"
+      ],
+      "operation": "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+    },
+    {
+      "count": 24,
+      "fixtures": [
+        "PILOT_CHOOSE_OBJECT",
+        "PILOT_TARGET_AMOUNT",
+        "PILOT_PILE",
+        "PILOT_MULTI_AMOUNT",
+        "PILOT_TRIGGER_ORDER",
+        "PILOT_CHOOSE_ABILITY",
+        "PILOT_DECLARE_BLOCKER",
+        "RNG_RULES_TAPE",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_STATE_HASHES",
+        "MICRO_MODES",
+        "WS05-MP-COMBAT-5",
+        "WS05-CMD-TAX-2",
+        "WS05-CMD-TAX-4",
+        "WS05-CMD-ZONE-GY-YES",
+        "WS05-CMD-ZONE-GY-NO",
+        "WS05-CMD-ZONE-EXILE-YES",
+        "WS05-CMD-ZONE-EXILE-NO",
+        "WS05-CMD-ZONE-HAND-YES",
+        "WS05-CMD-ZONE-HAND-NO",
+        "WS05-CMD-ZONE-LIB-YES",
+        "WS05-CMD-ZONE-LIB-NO"
+      ],
+      "operation": "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE"
+    },
+    {
+      "count": 19,
+      "fixtures": [
+        "PLAYER_COUNT_2P",
+        "PLAYER_COUNT_2P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_5P",
+        "PLAYER_COUNT_5P",
+        "PLAYER_COUNT_5P",
+        "PLAYER_COUNT_5P",
+        "PLAYER_COUNT_5P",
+        "PILOT_MULLIGAN",
+        "PILOT_MULLIGAN",
+        "PILOT_MULLIGAN",
+        "PILOT_MULLIGAN",
+        "PILOT_MULLIGAN"
+      ],
+      "operation": "NATIVE_MULLIGAN_PROMPT"
+    },
+    {
+      "count": 19,
+      "fixtures": [
+        "PILOT_CHOOSE_OBJECT",
+        "PILOT_TARGET_AMOUNT",
+        "PILOT_PILE",
+        "PILOT_MULTI_AMOUNT",
+        "PILOT_TRIGGER_ORDER",
+        "PILOT_CHOOSE_ABILITY",
+        "PILOT_DECLARE_BLOCKER",
+        "MICRO_MODES",
+        "WS05-MP-COMBAT-5",
+        "WS05-CMD-TAX-2",
+        "WS05-CMD-TAX-4",
+        "WS05-CMD-ZONE-GY-YES",
+        "WS05-CMD-ZONE-GY-NO",
+        "WS05-CMD-ZONE-EXILE-YES",
+        "WS05-CMD-ZONE-EXILE-NO",
+        "WS05-CMD-ZONE-HAND-YES",
+        "WS05-CMD-ZONE-HAND-NO",
+        "WS05-CMD-ZONE-LIB-YES",
+        "WS05-CMD-ZONE-LIB-NO"
+      ],
+      "operation": "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION"
+    },
+    {
+      "count": 18,
+      "fixtures": [
+        "HIDDEN_03",
+        "HIDDEN_04",
+        "HIDDEN_05",
+        "HIDDEN_06",
+        "HIDDEN_07",
+        "HIDDEN_08",
+        "HIDDEN_09",
+        "HIDDEN_10",
+        "HIDDEN_11",
+        "HIDDEN_12",
+        "HIDDEN_13",
+        "HIDDEN_14",
+        "HIDDEN_15",
+        "HIDDEN_16",
+        "HIDDEN_17",
+        "HIDDEN_18",
+        "HIDDEN_19",
+        "HIDDEN_HONEYCARD_SENTINEL"
+      ],
+      "operation": "NATIVE_PROJECT_ACTOR_ENTITLED_VIEW_FROM_CURRENT_RULES_STATE"
+    },
+    {
+      "count": 16,
+      "fixtures": [
+        "PILOT_PRIORITY",
+        "PILOT_TARGET",
+        "PILOT_CHOOSE_USE",
+        "PILOT_REPLACEMENT_EFFECT",
+        "NEGATIVE_PARENT_CLASS_FALLBACK",
+        "MICRO_PRIORITY",
+        "MICRO_PRIORITY",
+        "MICRO_STACK",
+        "MICRO_STACK",
+        "MICRO_TARGETS",
+        "MICRO_TRIGGERS",
+        "MICRO_PREVENTION",
+        "MICRO_STATE_BASED_ACTIONS",
+        "MICRO_ZONE_CHANGES",
+        "CARD_02",
+        "WS05-MP-TRIG-3"
+      ],
+      "operation": "NATIVE_RESOLVE_TOP_OF_STACK"
+    },
+    {
+      "count": 15,
+      "fixtures": [
+        "PILOT_PRIORITY",
+        "PILOT_TARGET",
+        "PILOT_CHOOSE_USE",
+        "PILOT_MANA_PAYMENT",
+        "PILOT_ANNOUNCE_X",
+        "PILOT_CHOOSE_MODE",
+        "MICRO_COSTS",
+        "MICRO_MANA_PAYMENT",
+        "MICRO_PRIORITY",
+        "MICRO_STACK",
+        "MICRO_TARGETS",
+        "MICRO_TRIGGERS",
+        "MICRO_PREVENTION",
+        "MICRO_STATE_BASED_ACTIONS",
+        "WS05-MP-TRIG-3"
+      ],
+      "operation": "NATIVE_CAST_SPELL"
+    },
+    {
+      "count": 8,
+      "fixtures": [
+        "WS05-CMD-ZONE-GY-YES",
+        "WS05-CMD-ZONE-GY-NO",
+        "WS05-CMD-ZONE-EXILE-YES",
+        "WS05-CMD-ZONE-EXILE-NO",
+        "WS05-CMD-ZONE-HAND-YES",
+        "WS05-CMD-ZONE-HAND-NO",
+        "WS05-CMD-ZONE-LIB-YES",
+        "WS05-CMD-ZONE-LIB-NO"
+      ],
+      "operation": "NATIVE_RESOLVE_ZONE_MOVE_AND_REQUEST_COMMANDER_ZONE_CHOICE"
+    },
+    {
+      "count": 6,
+      "fixtures": [
+        "NEGATIVE_FIRST_OPTION",
+        "NEGATIVE_RANDOM_OPTION",
+        "NEGATIVE_DEFAULT_YES_NO",
+        "NEGATIVE_INTERNAL_AI",
+        "NEGATIVE_GUI_DEFAULT",
+        "NEGATIVE_SILENT_SKIP"
+      ],
+      "operation": "EXTERNAL_DECISION_HANDLER_INTENTIONALLY_UNAVAILABLE"
+    },
+    {
+      "count": 6,
+      "fixtures": [
+        "WS05-MP-ELIM-OWNED-3",
+        "WS05-MP-ELIM-CONTROL-3",
+        "WS05-MP-ELIM-PRIO-3",
+        "WS05-MP-ELIM-TURN-3",
+        "WS05-MP-ELIM-5",
+        "WS05-CMD-ELIM-4"
+      ],
+      "operation": "NATIVE_CAUSE_DECLARED_PLAYER_LOSS_AND_APPLY_MULTIPLAYER_CLEANUP"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "PLAYER_COUNT_2P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_5P",
+        "PILOT_MULLIGAN"
+      ],
+      "operation": "CREATE_COMMANDER_GAME"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "PLAYER_COUNT_2P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_5P",
+        "PILOT_MULLIGAN"
+      ],
+      "operation": "NATIVE_SEEDED_INITIAL_SHUFFLE"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "PLAYER_COUNT_2P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_5P",
+        "PILOT_MULLIGAN"
+      ],
+      "operation": "NATIVE_OPENING_HAND_DRAW"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "PILOT_REPLACEMENT_EFFECT",
+        "NEGATIVE_PARENT_CLASS_FALLBACK",
+        "MICRO_PRIORITY",
+        "MICRO_STACK",
+        "MICRO_ZONE_CHANGES"
+      ],
+      "operation": "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "RNG_RULES_TAPE",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_STATE_HASHES"
+      ],
+      "operation": "NATIVE_CAST_BURN_DOWN_THE_HOUSE_AND_REQUEST_MODE"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "RNG_RULES_TAPE",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_STATE_HASHES"
+      ],
+      "operation": "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "RNG_RULES_TAPE",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_STATE_HASHES"
+      ],
+      "operation": "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY"
+    },
+    {
+      "count": 5,
+      "fixtures": [
+        "RNG_RULES_TAPE",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_STATE_HASHES"
+      ],
+      "operation": "NATIVE_CAPTURE_SEMANTIC_REPLAY_CHECKPOINT"
+    },
+    {
+      "count": 4,
+      "fixtures": [
+        "PLAYER_COUNT_2P",
+        "PLAYER_COUNT_3P",
+        "PLAYER_COUNT_4P",
+        "PLAYER_COUNT_5P"
+      ],
+      "operation": "NATIVE_START_FIRST_TURN"
+    },
+    {
+      "count": 4,
+      "fixtures": [
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-4",
+        "WS05-CMD-MULL-4"
+      ],
+      "operation": "NATIVE_EXECUTE_MULLIGAN_ROUND_AND_REQUEST_DECISION"
+    },
+    {
+      "count": 3,
+      "fixtures": [
+        "NEGATIVE_FIRST_OPTION",
+        "NEGATIVE_GUI_DEFAULT",
+        "MICRO_MODES"
+      ],
+      "operation": "NATIVE_BEGIN_OR_CONTINUE_CAST_TO_MODE_DECISION"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "PILOT_TARGET_AMOUNT",
+        "PILOT_MULTI_AMOUNT"
+      ],
+      "operation": "NATIVE_BEGIN_PAYABLE_MAGMA_OPUS_CAST"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "PILOT_TARGET_AMOUNT",
+        "PILOT_MULTI_AMOUNT"
+      ],
+      "operation": "NATIVE_CONTINUE_CAST_TO_DAMAGE_DISTRIBUTION_DECISION"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "PILOT_DECLARE_ATTACKER",
+        "WS05-MP-COMBAT-4"
+      ],
+      "operation": "NATIVE_ENTER_DECLARE_ATTACKERS_STEP"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "PILOT_DECLARE_ATTACKER",
+        "WS05-MP-COMBAT-4"
+      ],
+      "operation": "NATIVE_DECLARE_ATTACKERS"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "NEGATIVE_RANDOM_OPTION",
+        "NEGATIVE_SILENT_SKIP"
+      ],
+      "operation": "NATIVE_BEGIN_OR_CONTINUE_RULES_PROCEDURE_TO_TARGET_DECISION"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "NEGATIVE_INTERNAL_AI",
+        "WS05-MP-COMBAT-5"
+      ],
+      "operation": "NATIVE_ENTER_DECLARE_ATTACKERS_AND_REQUEST_DECLARATION"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "HIDDEN_01",
+        "HIDDEN_02"
+      ],
+      "operation": "NATIVE_KNOWLEDGE_PROJECTION"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "MICRO_TRIGGERS",
+        "WS05-MP-TRIG-3"
+      ],
+      "operation": "NATIVE_CREATE_TRIGGER"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "MICRO_REPLACEMENT",
+        "MICRO_PREVENTION"
+      ],
+      "operation": "NATIVE_ENTER_COMBAT_DAMAGE_STEP"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-MP-TURN-3",
+        "WS05-MP-TURN-5"
+      ],
+      "operation": "NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-TAX-2",
+        "WS05-CMD-TAX-4"
+      ],
+      "operation": "NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-DMG-SAME-21",
+        "WS05-CMD-DMG-CONTROL"
+      ],
+      "operation": "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTIONS"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-DMG-SPLIT",
+        "WS05-CMD-PARTNER-DMG"
+      ],
+      "operation": "NATIVE_CHECK_COMMANDER_DAMAGE_STATE_BASED_ACTION"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-4"
+      ],
+      "operation": "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-4"
+      ],
+      "operation": "NATIVE_RULES_RNG_INITIAL_LIBRARY_SHUFFLE_ALL_PLAYERS"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-4"
+      ],
+      "operation": "NATIVE_DRAW_OPENING_HANDS"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-4"
+      ],
+      "operation": "EXTERNAL_SUBMIT_EXPLICIT_MULLIGAN_KEEP_RESPONSES"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-4"
+      ],
+      "operation": "NATIVE_COMPLETE_LONDON_MULLIGAN_BOTTOMING"
+    },
+    {
+      "count": 2,
+      "fixtures": [
+        "WS05-CMD-START-2",
+        "WS05-CMD-START-3"
+      ],
+      "operation": "NATIVE_CREATE_COMMANDER_GAME_FROM_DECKS_AND_VERIFY_START_STATE"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "PILOT_CHOOSE_OBJECT"
+      ],
+      "operation": "NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OBJECT_DECISION"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "PILOT_CHOOSE_USE"
+      ],
+      "operation": "NATIVE_RESOLVE_TRIGGER"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "PILOT_CHOICE"
+      ],
+      "operation": "NATIVE_RESOLVE_UTOPIA_SPRAW_AND_REQUEST_AS_ENTERS_COLOR_CHOICE"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "PILOT_PILE"
+      ],
+      "operation": "NATIVE_RESOLVE_TOP_STACK_OBJECT_TO_PILE_DECISION"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "PILOT_TRIGGER_ORDER"
+      ],
+      "operation": "NATIVE_GENERATE_OR_REVEAL_ORDERABLE_OBJECTS_AND_REQUEST_ORDER"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "PILOT_CHOOSE_ABILITY"
+      ],
+      "operation": "NATIVE_ENUMERATE_LEGAL_ACTIVATED_ABILITIES_AND_REQUEST_SELECTION"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "PILOT_DECLARE_BLOCKER"
+      ],
+      "operation": "NATIVE_ENTER_DECLARE_BLOCKERS_AND_REQUEST_DECLARATION"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "NEGATIVE_DEFAULT_YES_NO"
+      ],
+      "operation": "NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OPTIONAL_DECISION"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "MICRO_REPLACEMENT"
+      ],
+      "operation": "NATIVE_CREATE_COMBAT_DAMAGE_EVENT"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "MICRO_REPLACEMENT"
+      ],
+      "operation": "NATIVE_APPLY_REPLACEMENT_EFFECT"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "MICRO_CONTINUOUS_EFFECTS"
+      ],
+      "operation": "NATIVE_REEVALUATE_CONTINUOUS_EFFECTS_FROM_CURRENT_STATE"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "MICRO_LAYERS"
+      ],
+      "operation": "NATIVE_APPLY_LAYER_SYSTEM_TO_CURRENT_CONTINUOUS_EFFECTS"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "MICRO_STATE_BASED_ACTIONS"
+      ],
+      "operation": "NATIVE_CHECK_STATE_BASED_ACTIONS"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "MICRO_CONTROL"
+      ],
+      "operation": "NATIVE_RESOLVE_CONTROL_EFFECT_AND_UPDATE_CONTROLLER"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "MICRO_COMBAT"
+      ],
+      "operation": "NATIVE_ADVANCE_COMBAT_AND_CREATE_COMBAT_DAMAGE_EVENT"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "CARD_02"
+      ],
+      "operation": "NATIVE_CAST_COMMANDER"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "WS05-MP-TRIG-5"
+      ],
+      "operation": "NATIVE_CAST_AND_RESOLVE_ENTERING_GRIZZLY_BEARS"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "WS05-MP-TRIG-5"
+      ],
+      "operation": "NATIVE_CREATE_SIMULTANEOUS_SOUL_WARDEN_TRIGGERS_AND_PLACE_APNAP"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "WS05-MP-BLOCK-4"
+      ],
+      "operation": "NATIVE_ENTER_DECLARE_BLOCKERS_STEP"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "WS05-MP-BLOCK-4"
+      ],
+      "operation": "NATIVE_DECLARE_BLOCKERS"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "WS05-MP-ELIM-STACK-3"
+      ],
+      "operation": "NATIVE_CHECK_STATE_BASED_ACTIONS_CAUSING_P2_TO_LOSE_AND_LEAVE"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "WS05-CMD-PARTNER-TAX"
+      ],
+      "operation": "NATIVE_ENUMERATE_COMMANDER_CAST_COSTS_FOR_BOTH_PARTNERS"
+    },
+    {
+      "count": 1,
+      "fixtures": [
+        "WS05-CMD-PARTNER-ZONE"
+      ],
+      "operation": "NATIVE_EXECUTE_PARTNER_COMMANDER_ZONE_CHANGE_WITH_INDEPENDENT_IDENTITIES"
+    }
+  ]
+}
