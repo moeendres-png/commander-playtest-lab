@@ -56,7 +56,7 @@ jobs:
           cp candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py "$ev/runners/run_strict_no_echo_gate.py"
           python scripts/ws45_patch_noecho_runner_lineage.py --runner "$ev/runners/run_strict_no_echo_gate.py"
           python scripts/ws45_patch_noecho_runner_forge_lock.py --runner "$ev/runners/run_strict_no_echo_gate.py"
-          python scripts/ws48_patch_v105_runner_identity.py --noecho-runner "$ev/runners/run_strict_no_echo_gate.py" --construction-runner candidate-qualification/ws48-forge-v1.0.5/run_independent_native_readback_107.py
+          python scripts/ws48_patch_v105_runner_identity.py --noecho-runner "$ev/runners/run_strict_no_echo_gate.py"
       - uses: actions/checkout@v4
         with:
           repository: moeendres-png/forge
