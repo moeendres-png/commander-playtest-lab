@@ -12,6 +12,12 @@ writes to it.
 - Commander Lab authoritative WS-49 remote head observed:
   `47fb5aa6ac0362494d7e021b73ba1c405f8ca645`
   (`ws49: checkpoint construction remediation before fresh full107`)
+- NOTE (reverified near end of this support run): the authoritative branch
+  has since advanced to `00505b17f1c08ecf32b17fa1dd073a242f7a84c1`
+  (`WS49: execute native natural-start pregame`, via `76a754be`).
+  This lane did not touch it. The support branch stays based on 47fb5aa6;
+  Work should decide whether support commits need rebasing onto the new
+  head before cherry-pick. All support evidence cites its own head below.
 - Muse support branch: `muse/ws49-xmage-local-execution-readiness`
   based on the exact remote head above (no divergence at creation).
 - XMage fork: `moeendres-png/mage`
