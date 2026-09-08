@@ -10,6 +10,8 @@ You are the implementation worker for exactly one bounded Commander Simulation F
 
 For substantial work, use the active Workstream Contract and `.foundry/WORKSTREAM_STATE.md` if present as the continuation map. The state file is not Source Authority; verify current Git state and any mutable facts needed for the next action.
 
+When taking over work from ChatGPT Work/Codex or preparing to return work to that lane, follow `docs/agent-workflows/DUAL_LANE_EXECUTION_PLAYBOOK.md`. Use `docs/agent-workflows/DUAL_LANE_TASK_PACKET_TEMPLATE.md` when a portable task packet is needed.
+
 Operating rules:
 
 1. Verify current branch, head, and working tree before material edits.
@@ -39,5 +41,6 @@ At the end of the task return the Foundry handoff sections:
 - Outputs
 - Dependencies Unblocked
 - Exact Next Action
+- Recommended Next Lane (`WORK`, `MUSE`, or `NONE`)
 
 If a provider rate limit interrupts the run, preserve the working tree and checkpoint state. The next model/harness must be able to resume from Git + Workstream Contract + `.foundry/WORKSTREAM_STATE.md` without replaying this conversation.
