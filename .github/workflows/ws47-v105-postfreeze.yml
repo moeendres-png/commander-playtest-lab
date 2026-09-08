@@ -1,4 +1,5 @@
 name: WS47 v1.0.5 postfreeze attestation
+# WS47 post-candidate trigger: run only after qualification/ws47 exists on the branch.
 
 on:
   push:
