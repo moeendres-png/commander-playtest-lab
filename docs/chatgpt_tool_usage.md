@@ -1,16 +1,16 @@
 # ChatGPT Tool Usage
 
-This document describes the local Commander Lab tool API. It does **not** define which ChatGPT execution environment should own project work.
+This document describes the local Commander Lab tool API. It does not define which execution environment owns project work.
 
 For execution routing, the canonical policy is [`PROJECT_EXECUTION_POLICY.md`](PROJECT_EXECUTION_POLICY.md).
 
-In particular:
+There are exactly three project execution paths:
 
-- normal ChatGPT **Sol High** is the default coordinator/reasoning environment;
-- **OpenCode** is the preferred repository implementation/runtime worker;
-- **Muse** is the preferred independent audit/review worker;
-- **Spark 1.3** is preferred for bounded mechanical work;
-- **ChatGPT Work is exceptional only**, normally Sol Medium, and requires `WORK_NECESSITY = PASS` before use.
+- normal ChatGPT Sol High for coordination, research, architecture, review and adjudication;
+- OpenCode with Muse Spark 1.3 for repository implementation, debugging, CI, qualification, audits and mechanical repository work;
+- ChatGPT Work with Sol Medium only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
+
+Muse and Spark 1.3 are not separate project resources. The OpenCode resource is OpenCode with Muse Spark 1.3.
 
 Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work.
 
