@@ -59,7 +59,7 @@ jobs:
             --output artifacts/ws46-construction-surface/WS46_CONSTRUCTION_SURFACE_AUDIT.json \
             | tee artifacts/ws46-construction-surface/audit.log
 
-      - name: Assert historical gap census
+      - name: Assert fresh v1.0.4 construction census
         run: |
           python - <<'PY'
           import json
@@ -69,12 +69,13 @@ jobs:
           assert p['runtime_credit_granted'] is False
           assert p['historical_pass_imported'] is False
           assert p['provider_semantics_used'] is False
+          assert p['execution_entry_modes'] == {'NATIVE_STATE_LOAD': 107}, p['execution_entry_modes']
+          assert p['record_count_with_open_surface'] == 39
           assert p['counts'] == {
               'combat_state': 12,
               'elimination_trigger': 6,
               'extra_turn_creation': 2,
               'knowledge_grants': 11,
-              'natural_game_start': 7,
               'zone_move_event': 8,
           }, p['counts']
           PY

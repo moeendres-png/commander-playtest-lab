@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Extract the exact immutable WS44 construction surfaces still absent from WS42.
+"""Extract exact immutable WS44 construction surfaces still absent from WS42.
 
-Audit only: this grants no provider/runtime credit and never interprets Magic legality.
+Audit only: grants no provider/runtime credit and never interprets Magic legality.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -53,13 +54,12 @@ def main() -> int:
     rows: list[dict[str, Any]] = []
     counts = {key: 0 for key in SURFACES}
     counts["knowledge_grants"] = 0
-    counts["natural_game_start"] = 0
+    entry_modes = Counter(str(record.get("execution_entry_mode")) for record in records)
 
     for record in records:
         present = [key for key in SURFACES if nonempty(record.get(key))]
         knowledge = has_knowledge_grants(record)
-        natural = record.get("execution_entry_mode") == "natural_game_start"
-        if not (present or knowledge or natural):
+        if not (present or knowledge):
             continue
         row: dict[str, Any] = {
             "fixture_id": record["fixture_id"],
@@ -73,15 +73,14 @@ def main() -> int:
         if knowledge:
             row["knowledge_state"] = record["knowledge_state"]
             counts["knowledge_grants"] += 1
-        if natural:
-            counts["natural_game_start"] += 1
         rows.append(row)
 
     payload = {
-        "schema_version": "commander-lab.ws46-construction-surface-audit/1.0.0",
+        "schema_version": "commander-lab.ws46-construction-surface-audit/1.0.1",
         "contract_version": contract["schema_version"],
         "canonical_bundle_digest": contract["canonical_bundle_digest"],
         "provider_denominator": len(records),
+        "execution_entry_modes": dict(sorted(entry_modes.items())),
         "counts": counts,
         "record_count_with_open_surface": len(rows),
         "records": rows,
@@ -91,7 +90,7 @@ def main() -> int:
     }
     ns.output.parent.mkdir(parents=True, exist_ok=True)
     ns.output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"counts": counts, "records": len(rows)}, sort_keys=True))
+    print(json.dumps({"counts": counts, "entry_modes": dict(sorted(entry_modes.items())), "records": len(rows)}, sort_keys=True))
     return 0
 
 
