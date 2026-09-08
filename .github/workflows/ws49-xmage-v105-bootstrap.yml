@@ -8,6 +8,12 @@ on:
     paths:
       - 'candidate-qualification/ws49-xmage-v1.0.5/**'
       - '.github/workflows/ws49-xmage-v105-bootstrap.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'candidate-qualification/ws49-xmage-v1.0.5/**'
+      - '.github/workflows/ws49-xmage-v105-bootstrap.yml'
 
 permissions:
   contents: read
