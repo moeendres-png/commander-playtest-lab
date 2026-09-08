@@ -1,0 +1,47 @@
+{
+  "schema_version": "commander-lab.ws45-construction-preaudit/1.0.0",
+  "workstream": "WS-45",
+  "status": "CODE_DERIVED_NO_RUNTIME_CREDIT",
+  "authority": {
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "provider_records_artifact_id": 9996574989,
+    "provider_records_artifact_sha256": "07dd81033c1eb63e5dcce9bfa06709f1ff968ddfddfcdd792ce9c8a722929fb0"
+  },
+  "scope": {
+    "record_start": 76,
+    "record_end": 107,
+    "runtime_credit_granted": false,
+    "historical_successor_credit_imported": 0
+  },
+  "findings": [
+    {
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "classification": "CURRENT_RUNTIME_BLOCKER_REMEDIATION_PENDING_REFRESH",
+      "finding": "The persisted controlled_since_turn_began -> Forge |SummonSick mapping is the minimum native representation needed to remove obj:P1-bears from native attacker eligibility while preserving Forge CombatUtil as sole legality authority."
+    },
+    {
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "classification": "CODE_DERIVED_POTENTIAL_NEXT_BLOCKER_NOT_RUNTIME_VERIFIED",
+      "contract_state": {
+        "requested_eligible_blockers": ["obj:mp-p2-blocker"],
+        "additional_p2_battlefield_creature": "obj:P2-bears",
+        "additional_creature_identity": "Grizzly Bears",
+        "additional_creature_tapped": false
+      },
+      "forge_source_finding": "CombatUtil.canBlock(Card, boolean) checks creature status, phasing, tapped state and blocking restrictions but does not use summoning sickness. eligibleBlockersJson iterates every non-active defender creature and includes each semantic card that CombatUtil.canBlock(attacker, blocker, combat) accepts for at least one attacker.",
+      "implication": "The summoning-sickness remediation cannot legitimately remove obj:P2-bears from blocker legality. If fresh runtime emits obj:P2-bears as an eligible blocker, do not filter it in the provider/runner and do not alter native legality. Adjudicate the immutable requested state against current authority before any further implementation change."
+    }
+  ],
+  "forbidden_preemptive_actions": [
+    "filter native eligible_blockers to requested identifiers",
+    "treat summoning sickness as a blocking restriction",
+    "compute blocking legality in Python or pilot",
+    "change immutable WS44 inside WS45",
+    "grant runtime credit from this pre-audit"
+  ],
+  "next_action": "Use the active fresh strict-noecho->construction run as authority. If WS05-MP-BLOCK-4 passes, discard this risk. If it fails with the predicted extra native blocker, persist the exact runtime artifact and perform authority adjudication before any remediation."
+}
