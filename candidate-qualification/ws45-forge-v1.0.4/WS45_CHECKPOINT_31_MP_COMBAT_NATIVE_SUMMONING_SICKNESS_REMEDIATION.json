@@ -1,0 +1,51 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 31,
+  "status": "REMEDIATION_PERSISTED_RUNTIME_REFRESH_REQUIRED",
+  "workstream": "WS45_FORGE_V1_0_4_SUCCESSOR_PROVIDER_QUALIFICATION",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "preceding_runtime": {
+    "workflow_run_id": 34215831770,
+    "job_id": 102027219228,
+    "artifact_id": 10051972400,
+    "artifact_zip_sha256": "26c35622bd559542e3395585d928d061341b5659a4673471f5e44e4a9e514285",
+    "strict_no_request_echo": "PASS",
+    "sequential_diagnostic_pass_count": 75,
+    "first_failure_index": 76,
+    "first_failure_fixture_id": "WS05-MP-COMBAT-4",
+    "failure": "REQUESTED_NATIVE_STATE_MISMATCH",
+    "requested_eligible_attackers": ["obj:mp-attacker-0", "obj:mp-attacker-1"],
+    "native_eligible_attackers": ["obj:P1-bears", "obj:mp-attacker-0", "obj:mp-attacker-1"]
+  },
+  "source_provenance": {
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_card_native_state": "Card.sickness",
+    "forge_native_mutator": "Card.setSickness(boolean)",
+    "forge_native_attack_semantics": "Card.hasSickness() suppresses sickness for Haste; Card.isSick() applies it to creatures",
+    "forge_gamestate_serialization": "Battlefield cards serialize native sickness as |SummonSick and GameState parsing maps |SummonSick to Card.setSickness(true)"
+  },
+  "adjudication": {
+    "classification": "PROVIDER_STATE_LOADER_CONTROL_DURATION_REPRESENTATION_GAP",
+    "contract_field": "semantic_objects[].controlled_since_turn_began",
+    "transport_already_present": true,
+    "old_loader_behavior": "parsed controlledSinceTurnBegan but omitted it from GameState card serialization",
+    "minimum_native_mapping": "For battlefield objects, emit |SummonSick iff controlledSinceTurnBegan is false; explicit true emits no sickness marker.",
+    "legal_action_computation_changed": false,
+    "comparator_filtering_added": false,
+    "pilot_legality_added": false,
+    "rules_core_remains_authoritative": true
+  },
+  "changes": {
+    "new_helper": "scripts/ws45_v104_native_summoning_sickness_state.py",
+    "sequenced_bridge": "scripts/ws45_v104_nullable_knowledge_presence.py",
+    "remediation_commit": "72bcb708010a1b610367d8b92ea7fd0676b25520"
+  },
+  "credit": {
+    "historical_successor_credit_imported": 0,
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "provider_qualified": false
+  },
+  "next_action": "Require a fresh exact WS44/Forge-lock Strict-No-Request-Echo PASS on the changed state loader, then rerun Fresh Construction 107 from record 1; grant no construction credit unless the complete denominator passes."
+}
