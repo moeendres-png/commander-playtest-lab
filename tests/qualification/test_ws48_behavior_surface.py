@@ -20,13 +20,23 @@ STUB = """package forge.game.player;
 import forge.game.Game;
 import forge.game.card.Card;
 import forge.game.combat.Combat;
+import forge.game.cost.CostDecisionMakerBase;
+import forge.game.cost.CostPart;
 import forge.game.spellability.SpellAbility;
 import forge.game.zone.ZoneType;
+import forge.card.mana.ManaCost;
+import forge.game.cost.CostPartMana;
+import forge.game.mana.ManaConversionMatrix;
 import java.util.List;
 
 public abstract class PlayerController {
     public abstract List<SpellAbility> chooseSpellAbilityToPlay();
     public abstract boolean playChosenSpellAbility(SpellAbility sa);
+    public abstract SpellAbility getAbilityToPlay(Card hostCard, java.util.List<SpellAbility> abilities, forge.util.ITriggerEvent triggerEvent);
+    public abstract boolean chooseTargetsFor(SpellAbility currentAbility);
+    public abstract CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt);
+    public abstract boolean payManaCost(ManaCost toPay, CostPartMana costPartMana, SpellAbility sa, String prompt, ManaConversionMatrix matrix, boolean effect);
+    public abstract List<CostPart> orderCosts(List<CostPart> costs);
     public abstract void playSpellAbilityNoStack(SpellAbility effectSA, boolean mayChoseNewTargets);
     public abstract void declareAttackers(Player attacker, Combat combat);
     public abstract void declareBlockers(Player defender, Combat combat);
@@ -44,6 +54,20 @@ def _load_overlay():
     return mod
 
 
+def _fake_forge_src(tmp_path):
+    src = tmp_path / "forge-src/forge-game/src/main/java/forge/game/cost"
+    src.mkdir(parents=True)
+    (src / "ICostVisitor.java").write_text(
+        "package forge.game.cost;\n"
+        "public interface ICostVisitor<T> {\n"
+        "    T visit(CostPartMana cost);\n"
+        "    T visit(CostTap cost);\n"
+        "    T visit(CostDiscard cost);\n"
+        "}\n"
+    )
+    return tmp_path / "forge-src"
+
+
 def test_behavior_surface_applies(tmp_path):
     provider = tmp_path / "Ws23ForgeVerticalProvider.java"
     state = tmp_path / "Ws40SuccessorState.java"
@@ -51,7 +75,7 @@ def test_behavior_surface_applies(tmp_path):
     provider.write_text(java)
     shutil.copy(REPO / "qualification/providers/forge/gpl/Ws40SuccessorState.java", state)
     overlay = _load_overlay()
-    overlay.patch_provider(provider)
+    overlay.patch_provider(provider, _fake_forge_src(tmp_path))
     overlay.patch_state(state)
     patched = provider.read_text()
     for marker in (
@@ -62,11 +86,16 @@ def test_behavior_surface_applies(tmp_path):
         "Ws48BehaviorEvents(broker)",
         "WS48_SELECTED_ATTACK_ASSIGNMENT",
         "WS48_SELECTED_BLOCK_ASSIGNMENT",
+        "SINGLE_NATIVE_SPELL_VARIANT",
+        "chooseTargetsFor",
+        "Ws48CostDecisionMaker",
+        "NATIVE_MANA_ACTIVATED",
+        "WS48_COST_PART_UNSUPPORTED:CostDiscard",
         "ATTACK_ASSIGNMENT:",
         "BLOCK_ASSIGNMENT:",
         "emitDecisionFrame(kind, actor, labels.size())",
         "ws48BehaviorEnabled()",
-        'COMMANDER_LAB_WS48_BEHAVIOR',
+        "COMMANDER_LAB_WS48_BEHAVIOR",
     ):
         assert marker in patched, marker
     assert "import forge.ai" not in patched and "import forge.gui" not in patched

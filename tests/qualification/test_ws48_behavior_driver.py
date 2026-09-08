@@ -107,6 +107,16 @@ def _record():
     }
 
 
+def test_kind_has_ref_boundaries():
+    assert drv.kind_has_ref("SEMANTIC_CARD:obj:micro-target:Grizzly Bears", "obj:micro-target")
+    assert not drv.kind_has_ref(
+        "SEMANTIC_CARD:obj:micro-target-2:Grizzly Bears", "obj:micro-target"
+    )
+    assert drv.kind_has_ref("PLAYER:P2", "P2")
+    assert not drv.kind_has_ref("ATTACK_ASSIGNMENT:obj:P2-bears=P3", "P2")
+    assert drv.kind_has_ref("FORGE_LEGAL_ACTION:Giant Growth:hand:Pump:obj:micro-growth", "obj:micro-growth")
+
+
 def test_drive_cast_target_pass_resolve(tmp_path, monkeypatch):
     fake = tmp_path / "fake_provider.py"
     fake.write_text(FAKE)

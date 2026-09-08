@@ -516,7 +516,226 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
 """
 
 
-def patch_provider(path: Path) -> None:
+CHOOSE_TARGETS_PATTERN = re.compile(
+    r"(        @Override\n)        public boolean chooseTargetsFor\(SpellAbility currentAbility\) \{\n            throw failClosed\(\"chooseTargetsFor\"\);\n        \}",
+)
+
+CHOOSE_TARGETS_NEW = """\\1        public boolean chooseTargetsFor(SpellAbility currentAbility) {
+            if (currentAbility.getTargetRestrictions() == null) {
+                throw failClosed("chooseTargetsFor:NO_RESTRICTIONS");
+            }
+            Card host = currentAbility.getHostCard();
+            int min = currentAbility.getTargetRestrictions().getMinTargets(host, currentAbility);
+            int max = currentAbility.getTargetRestrictions().getMaxTargets(host, currentAbility);
+            if (max <= 0) return currentAbility.getTargets().size() >= min;
+            java.util.List<ZoneType> zones = currentAbility.getTargetRestrictions().getZone();
+            if (zones == null || zones.isEmpty()) zones = java.util.List.of(ZoneType.Battlefield);
+            for (int pick = currentAbility.getTargets().size(); pick < max; pick++) {
+                java.util.List<GameObject> legal = new ArrayList<>();
+                for (Player candidate : getGame().getPlayers()) {
+                    if (currentAbility.canTarget(candidate)) legal.add(candidate);
+                }
+                for (ZoneType zone : zones) {
+                    for (Player candidate : getGame().getPlayers()) {
+                        for (Card card : candidate.getCardsIn(zone)) {
+                            if (currentAbility.canTarget(card)) legal.add(card);
+                        }
+                    }
+                }
+                if (legal.isEmpty()) {
+                    return currentAbility.getTargets().size() >= min;
+                }
+                java.util.List<String> labels = new ArrayList<>();
+                for (GameObject candidate : legal) {
+                    labels.add(broker.ws48OptionLabel(this.player, candidate));
+                }
+                String selectedId = broker.choose("chooseTargetsFor", this.player, labels);
+                int selectedIndex = Integer.parseInt(selectedId.substring(1));
+                if (selectedIndex < 0 || selectedIndex >= legal.size()) {
+                    throw failClosed("chooseTargetsFor:STALE_SELECTION");
+                }
+                currentAbility.getTargets().add(legal.get(selectedIndex));
+            }
+            return currentAbility.getTargets().size() >= min;
+        }"""
+
+COST_PATTERN = re.compile(
+    r"(        @Override\n)        public CostDecisionMakerBase getCostDecisionMaker\(Player player, SpellAbility ability, boolean effect, String prompt\) \{\n            throw failClosed\(\"getCostDecisionMaker\"\);\n        \}",
+)
+
+COST_NEW = """\\1        public CostDecisionMakerBase getCostDecisionMaker(
+                Player player, SpellAbility ability, boolean effect, String prompt) {
+            return new Ws48CostDecisionMaker(
+                player, effect, ability, ability == null ? null : ability.getHostCard());
+        }"""
+
+PAY_MANA_PATTERN = re.compile(
+    r"(        @Override\n)        public boolean payManaCost\(ManaCost toPay, CostPartMana costPartMana, SpellAbility sa, String prompt, ManaConversionMatrix matrix, boolean effect\) \{\n            throw failClosed\(\"payManaCost\"\);\n        \}",
+)
+
+PAY_MANA_NEW = """\\1        public boolean payManaCost(
+                ManaCost toPay, CostPartMana costPartMana, SpellAbility sa,
+                String prompt, ManaConversionMatrix matrix, boolean effect) {
+            // Neutral headless mana payment. Enumeration is native (canPlay);
+            // every source activation is externally authorized from the offered
+            // set via broker.choose. No AI evaluation, no GUI, no first-option.
+            Player payer = this.player;
+            forge.game.mana.ManaCostBeingPaid cost = new forge.game.mana.ManaCostBeingPaid(toPay);
+            forge.game.mana.ManaPool manapool = payer.getManaPool();
+            Ws48CostDecisionMaker activationDecisions =
+                new Ws48CostDecisionMaker(payer, effect, sa, sa == null ? null : sa.getHostCard());
+            for (int guard = 0; guard < 32; guard++) {
+                if (cost.isPaid()) return true;
+                java.util.List<SpellAbility> options = new ArrayList<>();
+                for (Card source : payer.getCardsIn(ZoneType.Battlefield)) {
+                    for (SpellAbility ma : source.getManaAbilities()) {
+                        ma.setActivatingPlayer(payer);
+                        if (ma.canPlay()) options.add(ma);
+                    }
+                }
+                if (options.isEmpty()) return false;
+                options.sort(java.util.Comparator.comparing(option ->
+                    String.valueOf(Ws40SuccessorState.semanticRefOf(option.getHostCard()))));
+                java.util.List<String> labels = new ArrayList<>();
+                for (SpellAbility option : options) {
+                    String semantic = Ws40SuccessorState.semanticRefOf(option.getHostCard());
+                    String produced = option.getParamOrDefault("Produced", "?");
+                    labels.add("MANA_SOURCE:" + String.valueOf(semantic) + ":" + produced);
+                }
+                String selectedId = broker.choose("payMana", payer, labels);
+                int selectedIndex = Integer.parseInt(selectedId.substring(1));
+                if (selectedIndex < 0 || selectedIndex >= options.size()) {
+                    throw failClosed("payManaCost:STALE_SELECTION");
+                }
+                SpellAbility picked = options.get(selectedIndex);
+                forge.game.cost.CostPayment activation =
+                    new forge.game.cost.CostPayment(picked.getPayCosts(), picked);
+                if (!activation.payCost(activationDecisions)) {
+                    throw failClosed("payManaCost:ACTIVATION_UNPAYABLE");
+                }
+                payer.getGame().getStack().addAndUnfreeze(picked);
+                manapool.payManaFromAbility(sa, cost, picked);
+                broker.recordAutomatic("NATIVE_MANA_ACTIVATED:" + labels.get(selectedIndex));
+            }
+            throw failClosed("payManaCost:SELECTION_BUDGET_EXHAUSTED");
+        }"""
+
+ORDER_COSTS_PATTERN = re.compile(
+    r"(        @Override\n)        public List<CostPart> orderCosts\(List<CostPart> costs\) \{\n            throw failClosed\(\"orderCosts\"\);\n        \}",
+)
+
+ORDER_COSTS_NEW = """\\1        public List<CostPart> orderCosts(List<CostPart> costs) {
+            if (costs == null || costs.size() <= 1) return costs;
+            if (costs.size() > 4) throw failClosed("orderCosts:PERMUTATION_SPACE_UNSUPPORTED");
+            java.util.List<java.util.List<CostPart>> permutations = new ArrayList<>();
+            java.util.List<String> labels = new ArrayList<>();
+            ws48PermuteCosts(new ArrayList<>(costs), 0, permutations, labels);
+            String selectedId = broker.choose("orderCosts", this.player, labels);
+            int selectedIndex = Integer.parseInt(selectedId.substring(1));
+            if (selectedIndex < 0 || selectedIndex >= permutations.size()) {
+                throw failClosed("orderCosts:STALE_SELECTION");
+            }
+            return permutations.get(selectedIndex);
+        }"""
+
+COST_HELPERS = """    static void ws48PermuteCosts(
+            java.util.List<CostPart> parts, int from,
+            java.util.List<java.util.List<CostPart>> out, java.util.List<String> labels) {
+        if (from == parts.size()) {
+            out.add(new ArrayList<>(parts));
+            StringBuilder label = new StringBuilder("COST_ORDER:");
+            for (int i = 0; i < parts.size(); i++) {
+                if (i > 0) label.append(',');
+                label.append(parts.get(i).getClass().getSimpleName());
+            }
+            labels.add(label.toString());
+            return;
+        }
+        for (int i = from; i < parts.size(); i++) {
+            java.util.Collections.swap(parts, from, i);
+            ws48PermuteCosts(parts, from + 1, out, labels);
+            java.util.Collections.swap(parts, from, i);
+        }
+    }
+
+    static final class Ws48CostDecisionMaker extends CostDecisionMakerBase {
+        Ws48CostDecisionMaker(Player player, boolean effect, SpellAbility ability, Card source) {
+            super(player, effect, ability, source);
+        }
+
+        @Override
+        public boolean paysRightAfterDecision() {
+            return false;
+        }
+
+__WS48_COST_VISITS__
+    }
+
+"""
+
+
+def cost_visit_methods(forge_src: Path) -> str:
+    """Render Ws48CostDecisionMaker visit overrides from the pinned ICostVisitor.
+
+    Only CostPartMana and CostTap carry structural no-op decisions (the real
+    payment happens in part.payAsDecided through externalized controller
+    callbacks). Every other cost part fails closed with a typed code so new
+    discretionary cost paths stay visible instead of silently AI/GUI-resolved.
+    """
+    visitor = forge_src / "forge-game/src/main/java/forge/game/cost/ICostVisitor.java"
+    text = visitor.read_text(encoding="utf-8")
+    names = re.findall(r"[A-Za-z0-9_<>, ?]+\s+visit\(([A-Za-z0-9_]+)\s+\w+\)\s*;", text)
+    if not names:
+        raise SystemExit("WS48_BEHAVIOR_SURFACE:no ICostVisitor visit methods found")
+    if "CostPartMana" not in names:
+        raise SystemExit("WS48_BEHAVIOR_SURFACE:ICostVisitor lacks CostPartMana")
+    blocks = []
+    for name in names:
+        if name in {"CostPartMana", "CostTap"}:
+            body = "return PaymentDecision.number(0);"
+        else:
+            body = (
+                "throw new Ws23ForgeVerticalProvider.ControlledStop("
+                f'"WS48_COST_PART_UNSUPPORTED:{name}");'
+            )
+        blocks.append(
+            "        @Override\n"
+            f"        public PaymentDecision visit({name} cost) {{\n"
+            f"            {body}\n"
+            "        }"
+        )
+    return "\n\n".join(blocks)
+
+
+GET_ABILITY_PATTERN = re.compile(
+    r"(        @Override\n)        public SpellAbility getAbilityToPlay\(.*?\) \{\n            throw failClosed\(\"getAbilityToPlay\"\);\n        \}",
+)
+
+GET_ABILITY_NEW = """\\1        public SpellAbility getAbilityToPlay(
+                Card hostCard, java.util.List<SpellAbility> abilities, ITriggerEvent triggerEvent) {
+            if (abilities == null || abilities.isEmpty()) {
+                throw failClosed("getAbilityToPlay:EMPTY");
+            }
+            if (abilities.size() == 1) {
+                broker.recordAutomatic("SINGLE_NATIVE_SPELL_VARIANT");
+                return abilities.get(0);
+            }
+            java.util.List<String> labels = new ArrayList<>();
+            for (SpellAbility option : abilities) {
+                String text = option.getDescription() == null ? "null" : option.getDescription();
+                labels.add("SPELL_VARIANT:" + option.getHostCard().getName() + ":"
+                    + text.replace("|", "/").replace(",", ";"));
+            }
+            String selectedId = broker.choose("getAbilityToPlay", this.player, labels);
+            int selectedIndex = Integer.parseInt(selectedId.substring(1));
+            if (selectedIndex < 0 || selectedIndex >= abilities.size()) {
+                throw failClosed("getAbilityToPlay:STALE_SELECTION");
+            }
+            return abilities.get(selectedIndex);
+        }"""
+
+
+def patch_provider(path: Path, forge_src: Path) -> None:
     java = path.read_text(encoding="utf-8")
     java = replace_once(java, PRIORITY_LABEL_OLD, PRIORITY_LABEL_NEW, "priority labels")
     java = replace_once(java, CHOOSE_OBJECT_OLD, CHOOSE_OBJECT_NEW, "chooseObject labels")
@@ -528,6 +747,8 @@ def patch_provider(path: Path) -> None:
     java = replace_once(java, SUBSCRIBE_OLD, SUBSCRIBE_NEW, "event subscription")
     java = replace_once(java, RESULT_EVENTS_OLD, RESULT_EVENTS_NEW, "result events")
     anchor2 = "    static String sessionSnapshot(Game game) {"
+    helpers = COST_HELPERS.replace("__WS48_COST_VISITS__", cost_visit_methods(forge_src))
+    java = replace_once(java, anchor2, helpers + "\n" + anchor2, "cost helpers")
     java = replace_once(java, anchor2, EVENTS_CLASS + "\n" + anchor2, "events class")
     new_java, n = DECLARE_ATTACKERS_PATTERN.subn(DECLARE_ATTACKERS_NEW, java, count=1)
     if n != 1:
@@ -539,6 +760,27 @@ def patch_provider(path: Path) -> None:
     if n != 1:
         raise SystemExit("WS48_BEHAVIOR_SURFACE:declareBlockers:expected 1 anchor, found " + str(n))
     java = new_java
+    new_java, n = GET_ABILITY_PATTERN.subn(GET_ABILITY_NEW, java, count=1)
+    if n != 1:
+        raise SystemExit(
+            "WS48_BEHAVIOR_SURFACE:getAbilityToPlay:expected 1 anchor, found " + str(n)
+        )
+    java = new_java
+    new_java, n = CHOOSE_TARGETS_PATTERN.subn(CHOOSE_TARGETS_NEW, java, count=1)
+    if n != 1:
+        raise SystemExit(
+            "WS48_BEHAVIOR_SURFACE:chooseTargetsFor:expected 1 anchor, found " + str(n)
+        )
+    java = new_java
+    for pattern, replacement, label in (
+        (COST_PATTERN, COST_NEW, "getCostDecisionMaker"),
+        (PAY_MANA_PATTERN, PAY_MANA_NEW, "payManaCost"),
+        (ORDER_COSTS_PATTERN, ORDER_COSTS_NEW, "orderCosts"),
+    ):
+        new_java, n = pattern.subn(replacement, java, count=1)
+        if n != 1:
+            raise SystemExit(f"WS48_BEHAVIOR_SURFACE:{label}:expected 1 anchor, found {n}")
+        java = new_java
     if "import forge.ai" in java or "import forge.gui" in java:
         raise SystemExit("WS48_BEHAVIOR_SURFACE:forbidden engine import present")
     path.write_text(java, encoding="utf-8")
@@ -554,8 +796,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--provider", type=Path, required=True)
     ap.add_argument("--state-java", type=Path, required=True)
+    ap.add_argument("--forge-src", type=Path, required=True)
     a = ap.parse_args()
-    patch_provider(a.provider)
+    patch_provider(a.provider, a.forge_src)
     patch_state(a.state_java)
     print("WS48_V105_BEHAVIOR_SURFACE=PASS")
     return 0
