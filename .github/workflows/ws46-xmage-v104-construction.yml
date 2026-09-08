@@ -1,0 +1,166 @@
+name: WS46 XMage v1.0.4 Full107 Construction
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws46/xmage-v1.0.4-successor-qualification
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws46-xmage-v1.0.4/**'
+      - '.github/workflows/ws46-xmage-v104-construction.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS44_FREEZE_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  WS44_FREEZE_TREE: cd83c973b269711106d08ab5be2d7672f05bcb7c
+  WS44_MATERIALIZATION_SHA256: 9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35
+  XMAGE_WS46_COMMIT: 0c1f455ea8c8fa48ab9d638ad5068ec242800428
+  XMAGE_WS46_TREE: fdb8bf56a8bd8199a4ef372e468d93d6550b0649
+  XMAGE_WS42_COMMIT: 0c1f455ea8c8fa48ab9d638ad5068ec242800428
+  COMMANDER_LAB_XMAGE_WS26_BRIDGE_CMD: >-
+    java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar:${{ github.workspace }}/engine-bridge/target/dependency/* org.commanderlab.xmage.XmageWs26QualificationMain full-game
+
+jobs:
+  full107-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout exact WS46 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Record provider identity
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws46-v104-construction artifacts/ws39-ci
+          git rev-parse HEAD | tee artifacts/ws46-v104-construction/PROVIDER_COMMIT.txt
+          git rev-parse HEAD^{tree} | tee artifacts/ws46-v104-construction/PROVIDER_TREE.txt
+
+      - name: Checkout exact immutable WS44 contract
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_FREEZE_COMMIT }}
+          path: _ws44
+
+      - name: Checkout exact XMage candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_WS46_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+
+      - name: Install Commander Lab runtime dependencies
+        run: python -m pip install -e .
+
+      - name: Verify exact source locks
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws44 rev-parse HEAD)" = "$WS44_FREEZE_COMMIT"
+          test "$(git -C _ws44 rev-parse HEAD^{tree})" = "$WS44_FREEZE_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_WS46_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_WS46_TREE"
+          MATERIALIZATION=_ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
+          test "$(sha256sum "$MATERIALIZATION" | cut -d' ' -f1)" = "$WS44_MATERIALIZATION_SHA256"
+          printf '%s\n' "$WS44_FREEZE_COMMIT" > artifacts/ws46-v104-construction/WS44_COMMIT.txt
+          printf '%s\n' "$WS44_FREEZE_TREE" > artifacts/ws46-v104-construction/WS44_TREE.txt
+          printf '%s\n' "$XMAGE_WS46_COMMIT" > artifacts/ws46-v104-construction/XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_WS46_TREE" > artifacts/ws46-v104-construction/XMAGE_TREE.txt
+          python -m py_compile \
+            candidate-qualification/ws46-xmage-v1.0.4/successor_contract_v104.py \
+            candidate-qualification/ws46-xmage-v1.0.4/canonical_v104.py \
+            candidate-qualification/ws46-xmage-v1.0.4/run_full107_construction_probe_v104.py \
+            candidate-qualification/ws46-xmage-v1.0.4/apply_ws46_v104_construction_overlay.py
+
+      - name: Independently reconstruct exact v1.0.4 denominator
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws46-xmage-v1.0.4/build_denominator_v104.py \
+            --contract _ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json \
+            --output artifacts/ws46-v104-construction/WS46_DENOMINATOR_MANIFEST_107.json \
+            | tee artifacts/ws46-v104-construction/DENOMINATOR.log
+
+      - name: Apply qualification overlays and WS46 v1.0.4 extension
+        run: |
+          set -euo pipefail
+          python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
+          python candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py
+          python candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_runtime_evidence_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_state_surface_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_state_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_identity_overlay.py
+          python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py
+          python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py
+          python candidate-qualification/ws46-xmage-v1.0.4/apply_ws46_v104_construction_overlay.py
+          git diff --check
+          git -C vendor/engine-source/xmage diff --check
+          git diff -- engine-bridge > artifacts/ws46-v104-construction/QUALIFICATION_BRIDGE_OVERLAY.patch
+          git -C vendor/engine-source/xmage diff > artifacts/ws46-v104-construction/XMAGE_QUALIFICATION_OVERLAY.patch
+          cp artifacts/ws39-ci/WS39_XMAGE_RNG_SOURCE_TRANSFORM.json artifacts/ws46-v104-construction/
+
+      - name: Build exact XMage candidate
+        working-directory: vendor/engine-source/xmage
+        run: mvn -B -ntp -DskipTests install
+
+      - name: Build qualification bridge
+        working-directory: engine-bridge
+        run: |
+          set -o pipefail
+          mvn -B -ntp verify 2>&1 | tee ../artifacts/ws46-v104-construction/BRIDGE_BUILD.log
+
+      - name: Materialize runtime classpath
+        working-directory: engine-bridge
+        run: |
+          set -euo pipefail
+          mvn -B -ntp dependency:copy-dependencies \
+            -DincludeScope=runtime \
+            -DoutputDirectory="${{ github.workspace }}/engine-bridge/target/dependency"
+          test -n "$(find "${{ github.workspace }}/engine-bridge/target/dependency" -maxdepth 1 -name '*.jar' -print -quit)"
+
+      - name: Execute fresh v1.0.4 full107 native construction probe
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws46-xmage-v1.0.4/run_full107_construction_probe_v104.py \
+            --contract _ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json \
+            --output artifacts/ws46-v104-construction/WS46_FULL107_CONSTRUCTION_PROBE.json \
+            | tee artifacts/ws46-v104-construction/WS46_FULL107_CONSTRUCTION_STDOUT.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('artifacts/ws46-v104-construction/WS46_FULL107_CONSTRUCTION_PROBE.json').read_text())
+          assert p['denominator']==107 and p['record_count']==107
+          assert p['historical_pass_imported'] is False
+          assert p['legacy_request_echo_accepted_as_proof'] is False
+          assert p['unsupported_dimension_counts']=={}
+          assert p['counts']=={'NATIVE_SETUP_PASS_AWAITING_INDEPENDENT_NORMALIZATION':107}, p['counts']
+          PY
+
+      - name: Seal construction diagnostic evidence
+        if: always()
+        run: |
+          find artifacts/ws46-v104-construction -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws46-v104-construction/SHA256SUMS || true
+
+      - name: Upload WS46 construction diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws46-v104-construction-${{ github.sha }}
+          path: artifacts/ws46-v104-construction/
+          if-no-files-found: error
