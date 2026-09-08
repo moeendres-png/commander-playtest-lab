@@ -7,6 +7,7 @@ on:
     paths:
       - scripts/ws47_build_successor_v1_0_5.py
       - scripts/ws47_validate_successor_v1_0_5.py
+      - scripts/ws47_finalize_evidence_metadata.py
       - .github/workflows/ws47-v105-materialize.yml
   workflow_dispatch:
 
@@ -33,7 +34,9 @@ jobs:
           rm -rf out-a out-b
           mkdir out-a out-b
           python scripts/ws47_build_successor_v1_0_5.py --output out-a
+          python scripts/ws47_finalize_evidence_metadata.py --input-dir out-a
           python scripts/ws47_build_successor_v1_0_5.py --output out-b
+          python scripts/ws47_finalize_evidence_metadata.py --input-dir out-b
           diff -ru out-a out-b
       - name: Independent validation A and B
         run: |
@@ -48,7 +51,6 @@ jobs:
           for d in (Path('out-a'), Path('out-b')):
               report=json.loads((d/'WS47_FREEZE_RESULT.json').read_text())
               report['G47_14']='PASS_DOUBLE_MATERIALIZATION_BYTE_IDENTICAL'
-              # G47-15 remains pending until a later run regenerates from checked-in namespace.
               (d/'WS47_FREEZE_RESULT.json').write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, separators=(',',':'))+'\n')
               files=sorted(p for p in d.iterdir() if p.is_file() and p.name not in {'WS47_SHA256SUMS','WS47_EVIDENCE_INDEX.json'})
               rows=[(hashlib.sha256(p.read_bytes()).hexdigest(),p.name) for p in files]
@@ -58,6 +60,19 @@ jobs:
               (d/'WS47_EVIDENCE_INDEX.json').write_text(json.dumps(idx,ensure_ascii=False,sort_keys=True,separators=(',',':'))+'\n')
           PY
           diff -ru out-a out-b
+      - name: Verify source freshness and fast-forward onto live branch
+        run: |
+          BRANCH='ws47/successor-contract-v1.0.5-freeze'
+          RUN_BUILDER="$(git rev-parse "$GITHUB_SHA:scripts/ws47_build_successor_v1_0_5.py")"
+          RUN_VALIDATOR="$(git rev-parse "$GITHUB_SHA:scripts/ws47_validate_successor_v1_0_5.py")"
+          RUN_FINALIZER="$(git rev-parse "$GITHUB_SHA:scripts/ws47_finalize_evidence_metadata.py")"
+          RUN_WORKFLOW="$(git rev-parse "$GITHUB_SHA:.github/workflows/ws47-v105-materialize.yml")"
+          git fetch origin "$BRANCH"
+          test "$RUN_BUILDER" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_build_successor_v1_0_5.py")"
+          test "$RUN_VALIDATOR" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_validate_successor_v1_0_5.py")"
+          test "$RUN_FINALIZER" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_finalize_evidence_metadata.py")"
+          test "$RUN_WORKFLOW" = "$(git rev-parse "origin/$BRANCH:.github/workflows/ws47-v105-materialize.yml")"
+          git rebase "origin/$BRANCH"
       - name: Commit exact generated successor namespace
         run: |
           rm -rf qualification/ws47
