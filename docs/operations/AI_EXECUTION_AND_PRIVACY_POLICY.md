@@ -1,7 +1,7 @@
 # AI Execution and Privacy Policy
 
 **Status:** project operating policy
-**Policy epoch:** 2026-09-08
+**Policy epoch:** 2026-09-08 revision 2
 **Scope:** Commander Simulation Foundry repository engineering, OpenCode/Muse execution, ChatGPT Work routing, and handling of local/user data.
 
 This policy does not override a stricter active Workstream Contract, current Magic authority, or fresh repository Source Truth.
@@ -35,94 +35,118 @@ User-selected project policy:
 
 Use Terra Medium or a stronger available Work configuration for substantive project work. Do not intentionally downgrade below this floor without explicit user approval. This repository policy records the routing preference; it cannot itself change the user's ChatGPT product/model selector.
 
-## 2. Why the Contributor-Free boundary exists
+## 2. Core privacy principle
 
-The OpenCode Zen documentation states that the Muse Spark 1.3 Contributor Free endpoint is offered at heavily discounted/free pricing in exchange for permission to use prompts and completions to train future Meta models.
+Muse Spark 1.3 Contributor Free is a training-eligible external model endpoint. The project should still use it aggressively for engineering, but the privacy boundary is **personal/private data**, not ordinary project data.
 
-Therefore, treat every prompt, tool result, attached file excerpt, generated completion, and command output that reaches Muse as potentially training-eligible external data.
+Operational rule:
 
-The rule is not “never use Muse.” The rule is “Muse gets project-safe data only.”
+> If information is genuinely needed to build, test, qualify, debug, reproduce, or operate Commander Simulator Next and is not personal/private data or a raw secret value, it may be used by Muse/OpenCode.
 
-## 3. Data classification
+Do not reduce project capability by blanket-blocking harmless configuration, build metadata, logs, caches, worktrees, or tooling.
 
-### ALLOWED_FOR_MUSE
+## 3. Data classes
 
-The user explicitly permits the following project information to be processed by OpenCode/Muse:
-- source code and repository text intended for this project;
-- public or repository-pinned upstream source;
-- tests, fixtures, contracts, manifests, and non-secret build metadata;
-- generated project evidence and logs after secret/PII screening;
-- Magic card names;
-- decklists;
-- owned-card/collection contents and card counts;
-- Commander/deck preferences;
-- gameplay and simulator scenarios;
-- MTG collection facts the user explicitly treats as non-sensitive.
+### ALLOWED_PROJECT_DATA
 
-The MTG allowance does **not** automatically allow unrelated financial, shipping, location, identity, or account data that may happen to appear beside a card purchase/collection record.
+Muse/OpenCode may process project-relevant information including:
+- source code, repository text, contracts, Workstream state, ADRs, handoffs, tests, fixtures, manifests, generated evidence, artifacts, stack traces, and technical logs;
+- public or repository-pinned upstream source and documentation;
+- build/runtime configuration and non-secret `.env` values;
+- targeted project environment variables such as engine/provider paths, Java/JDK/Maven/Gradle settings, test flags, and qualification configuration;
+- Git branches, commits, diffs, worktrees, repository metadata, and automation;
+- Maven/Gradle caches, package caches, temporary build directories, toolchains, containers/devcontainers, and CI data;
+- external project worktrees or repositories such as XMage/Forge checkouts when required by the active task;
+- project-related web research and project subagents;
+- Magic card names, Oracle/rules material, decklists, collection contents, owned-card counts, Commander/deck preferences, gameplay scenarios, card prices used for project decisions, and other MTG collection facts the user has explicitly declared non-sensitive.
 
-### FORBIDDEN_FOR_MUSE
+The MTG allowance does **not** automatically include unrelated shipping, billing, location, account, or identity data that may happen to appear beside purchase or collection records.
 
-Never expose the following to Muse/OpenCode Contributor Free:
+### LOCAL_ONLY_SECRET_DATA
+
+Some project operations require credentials or secret material. These values may be used by authorized local tools but should not be exposed to Muse itself.
+
+Examples:
+- Git/GitHub credentials;
+- API keys or bearer tokens;
+- private SSH keys;
+- signing keys;
+- registry credentials;
+- passwords or service credentials.
+
+Allowed handling:
+- a local command authenticates through an existing credential helper;
+- a process consumes a secret through an environment variable or secret store without printing it;
+- a build tool reads its credential configuration internally;
+- Muse receives only the success/failure/result needed for the project.
+
+Forbidden handling:
+- printing a raw token/key/password into model-visible output;
+- asking Muse to read a private key or password store;
+- copying raw secrets into prompts, evidence, or committed files.
+
+If a project `.env` or config file mixes non-secret configuration with secrets, expose the required non-secret subset or create a sanitized derivative. The filename itself is not a reason to block the whole file.
+
+### FORBIDDEN_PERSONAL_DATA
+
+Do not intentionally expose personal/private information that is not required project material, including:
 - residential/private addresses or precise private location;
 - personal phone numbers;
-- government ID numbers or scans;
-- banking, card-payment, billing, tax, insurance, legal, medical, employment, or similar private records;
-- passwords, passphrases, recovery codes;
-- API keys, OAuth tokens, bearer tokens, session cookies, SSH/private keys, signing keys, certificates containing private material;
-- credential/password stores;
-- personal browser profiles/history unless a separately sanitized project artifact is explicitly required;
-- unrelated private email, chat, calendar, contacts, or cloud-drive contents;
-- private photos or identity documents;
-- files under host Documents/Desktop/Downloads or similar personal folders unless the user has explicitly copied a sanitized project input into the worktree for this task;
-- sensitive data of third parties;
-- any private local file merely because the agent can technically access it.
+- private email/chat contents, personal contact lists, private calendar contents, or personal account/profile data unrelated to the project;
+- government ID numbers or identity documents;
+- banking/payment/billing, tax, insurance, medical, legal, employment, or similar private records;
+- personal browser profiles/history, password stores, cookie/session databases, and private cloud-drive contents;
+- private photos and unrelated personal documents;
+- sensitive personal information belonging to third parties;
+- unrelated host files merely because the tool can technically access them.
+
+Ordinary repository author metadata may exist as part of project history. Do not deliberately mine or aggregate personal contact details from it unless that information is genuinely required for project operation.
 
 ## 4. Operational controls
 
-### Worktree-only default
+### Project-relevant external paths are allowed
 
-Start OpenCode from the exact project worktree. Repository-native `read`, `edit`, `glob`, and related operations must stay inside that worktree.
+OpenCode may access paths outside the current worktree when the active task needs them, including:
+- sibling project worktrees;
+- engine/upstream source checkouts;
+- Maven/Gradle/package caches;
+- JDK/toolchain locations;
+- temporary build/test directories;
+- container mounts used for project execution.
 
-Project OpenCode configuration denies `external_directory` access and denies common environment/key/credential files. Session sharing is configured disabled.
+Do not traverse unrelated personal directories or scan the full home directory without a concrete project reason.
+
+### Shell and environment access
+
+Shell access is part of the primary implementation workflow and should be broadly available for project work: builds, tests, Git inspection, worktree management, code generation, qualification tooling, containers, package managers, and diagnostics.
+
+Targeted environment inspection is allowed when useful for project debugging. Prefer commands that query only the required variables or configuration. Avoid indiscriminate full-environment dumps because they can accidentally print credentials or unrelated personal values.
+
+Subagents and web access are permitted when they serve the project and comply with the same privacy/authority rules.
+
+### Destructive/external actions remain gated
+
+The privacy relaxation does not weaken repository safety. Continue to require confirmation/authorization for materially destructive or external actions according to the active contract, including push/force/reset/clean/rebase/merge where applicable, remote repository creation/deletion, destructive filesystem operations, paid services, or intentional secret disclosure.
 
 ### Shell caveat
 
-OpenCode permission rules are not a complete host sandbox. The OpenCode V2 documentation explicitly notes that shell commands execute with the host user's filesystem/process/network authority and that path arguments are only best-effort scanned.
+OpenCode permissions are not a full host sandbox. Shell commands run with the host user's process/filesystem/network authority, and path analysis is necessarily imperfect.
 
-Therefore `external_directory=deny` alone is not enough to guarantee that a model-driven shell process cannot access host files.
+For the strongest practical guarantee that unrelated personal files never reach a training-eligible endpoint, prefer a dedicated project WSL/container environment that contains the repositories, worktrees, caches, and toolchains needed for the simulator but does not mount unrelated personal directories.
 
-For the strict interpretation of “private PC documents must never land at Muse,” run Muse in an isolation boundary where those documents are not present at all.
-
-Preferred order:
-1. dedicated devcontainer/container with only the repository/worktree and non-sensitive build caches mounted;
-2. dedicated WSL distro/user containing only project material, with Windows drive automount disabled;
-3. ordinary WSL only when the host mounts contain no sensitive material accessible to the agent and the user accepts the weaker boundary.
-
-Do not run the training-eligible agent directly in a broad personal home directory.
-
-### Commands that must not be used to gather model context
-
-Do not perform broad host reconnaissance or secret extraction, including equivalents of:
-- whole-home `find`/`rg`/`grep` scans;
-- `env`, `printenv`, or full process-environment dumps for model inspection;
-- reading `~/.ssh`, browser profiles, credential stores, password managers, or unrelated dotfiles;
-- `gh auth token`, credential-helper dumps, cookie databases, cloud CLI credential files;
-- copying unrelated host files into the repository just so Muse can read them.
-
-Build tools may use credentials internally only when the credential value itself is not rendered into model-visible output. Prefer scoped credential helpers/secrets mechanisms rather than plaintext files.
+This isolation is a privacy hardening measure, not a requirement to cripple project tooling.
 
 ## 5. Sanitization rule
 
-If an otherwise useful project log contains a secret or forbidden personal value, create a sanitized project-local derivative **before** giving it to Muse.
+If an otherwise useful project log or configuration contains a raw secret or forbidden personal value, create or extract a sanitized project-local derivative **before** giving that material to Muse.
 
 A valid sanitized artifact:
-- removes the original value rather than merely hiding it visually;
-- preserves only the technical fields needed for debugging;
+- removes the forbidden value rather than merely hiding it visually;
+- preserves the technical information needed for debugging;
 - is checked for accidental secrets/PII;
-- records that it is a sanitized derivative when that matters to evidence provenance.
+- records that it is a sanitized derivative when provenance matters.
 
-Never ask Muse to perform the first-pass redaction on raw forbidden data, because sending the raw data would already violate the boundary.
+Never ask Muse to perform first-pass redaction on raw forbidden personal data or raw secrets, because transmitting the raw value would already violate the boundary.
 
 ## 6. Source and qualification authority
 
@@ -147,7 +171,7 @@ The Git checkpoint, not the conversation transcript, is the recovery unit.
 
 For OpenCode V2, the committed project config selects `foundry-implementer` with Muse Spark 1.3 Contributor Free `#high` by default.
 
-From the current worktree:
+From a project worktree:
 
 ```bash
 cd ~/code/commander-playtest-lab-muse-ws49
@@ -160,14 +184,29 @@ or directly:
 opencode2 --standalone ~/code/commander-playtest-lab-muse-ws49
 ```
 
-The full-screen TUI is the same class of interface shown in the project screenshot. Verify the footer shows the Foundry implementer, Muse Spark 1.3 Contributor Free, and `high` before starting substantive work.
+Verify the footer shows the Foundry implementer, Muse Spark 1.3 Contributor Free, and `high` before substantive work.
 
 If `xhigh` is actually present for the current Muse catalog, use the TUI variant selector/cycle for the hardest work. If it is absent, stay on `high`.
 
 Existing sessions may retain their previously selected agent/model rather than adopting a newly configured default. For an old session, explicitly verify the footer before continuing.
 
-## 9. Version boundary
+## 9. OpenCode V2 permission strategy
 
-This repository configuration targets **OpenCode V2**, consistent with the project handbook. OpenCode V2 is currently a separate beta CLI (`opencode2`) and its configuration schema differs from OpenCode V1.
+The project config is intentionally permissive for normal engineering:
+- repository read/edit/search: allowed;
+- shell for project work: allowed;
+- web access: allowed;
+- subagents: allowed;
+- external project directories: allowed;
+- `.env` and environment access: not blanket-denied;
+- session sharing: disabled.
 
-Do not silently convert the V2 `agents`/`permissions` schema to V1 `agent`/`permission` syntax. If the project later standardizes on V1 or V2 reaches stable and changes schema, re-verify current official documentation before migrating configuration.
+Safety is enforced by project instructions plus explicit confirmation rules for destructive/external actions and by the personal/private-data boundary above.
+
+OpenCode V2's own defaults ask before `.env` reads and external-directory access. This project overrides those defaults for the Foundry implementer so long-running work is not interrupted by harmless project configuration or dependency paths. The agent remains responsible for not reading unrelated personal data or printing raw secrets.
+
+## 10. Version boundary
+
+This repository configuration targets **OpenCode V2**. V2 uses ordered `permissions` rules with actions such as `shell`, `subagent`, and `external_directory`, and agent definitions under `agents`.
+
+Do not silently convert this V2 schema to V1 syntax. Re-verify current official OpenCode documentation when the project upgrades OpenCode or changes its model/provider configuration.

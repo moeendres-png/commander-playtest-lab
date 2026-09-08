@@ -7,14 +7,6 @@ if [[ -z "$ROOT" ]]; then
   exit 2
 fi
 
-case "$ROOT" in
-  /mnt/*)
-    echo "ERROR: refusing to start training-eligible Muse from a Windows-mounted worktree: $ROOT" >&2
-    echo "Use a project-local WSL/Linux worktree (for example ~/code/...) or an isolated container." >&2
-    exit 3
-    ;;
-esac
-
 if [[ ! -f "$ROOT/AGENTS.md" || ! -f "$ROOT/opencode.jsonc" ]]; then
   echo "ERROR: project OpenCode policy/config is missing from $ROOT." >&2
   exit 4
@@ -26,6 +18,15 @@ if ! command -v opencode2 >/dev/null 2>&1; then
   exit 5
 fi
 
+case "$ROOT" in
+  /mnt/*)
+    echo "WARNING: project worktree is on a Windows-mounted path: $ROOT" >&2
+    echo "Project files may be used normally, but Muse must not inspect unrelated personal host directories." >&2
+    echo "For the strongest privacy boundary, prefer a project-only WSL/container worktree." >&2
+    echo >&2
+    ;;
+esac
+
 cd "$ROOT"
 
 echo "Commander Simulation Foundry"
@@ -33,7 +34,8 @@ echo "worktree: $ROOT"
 echo "agent:    foundry-implementer"
 echo "model:    Muse Spark 1.3 Contributor Free"
 echo "effort:   high (xhigh only when the live model catalog exposes it)"
-echo "privacy:  external directories denied; session sharing disabled"
+echo "privacy:  project data/tools allowed; unrelated personal data and raw-secret disclosure forbidden"
+echo "sharing:  disabled"
 echo
 
 exec opencode2 --standalone "$ROOT"
