@@ -38,12 +38,19 @@ jobs:
     steps:
       - name: Checkout exact WS49 head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
 
-      - name: Record provider identity
+      - name: Attest exact provider identity
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
           mkdir -p artifacts/ws49-v105-construction artifacts/ws39-ci
-          git rev-parse HEAD | tee artifacts/ws49-v105-construction/PROVIDER_COMMIT.txt
+          ACTUAL_HEAD="$(git rev-parse HEAD)"
+          test "$ACTUAL_HEAD" = "$EXPECTED_HEAD"
+          printf '%s\n' "$ACTUAL_HEAD" | tee artifacts/ws49-v105-construction/PROVIDER_COMMIT.txt
           git rev-parse HEAD^{tree} | tee artifacts/ws49-v105-construction/PROVIDER_TREE.txt
 
       - name: Checkout exact immutable WS47 contract
@@ -186,6 +193,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: ws49-v105-construction-${{ github.sha }}
+          name: ws49-v105-construction-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           path: artifacts/ws49-v105-construction/
           if-no-files-found: error
