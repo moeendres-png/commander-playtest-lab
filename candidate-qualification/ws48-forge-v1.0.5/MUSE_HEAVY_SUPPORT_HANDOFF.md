@@ -76,3 +76,21 @@ a provider-emitted native event feed; currently only snapshots exist.
 
 Phase B: verify Forge clone → build forge-game → compile provider → reproduce one
 construction case locally, then construction subset, then design behavior runner.
+
+## 6. PROGRESS LOG (support branch commits)
+
+- `eaa93b8f` Phase A: source lock, gate matrix, behavior shape.
+- `197dcd80` Behavior G48-09 implementation design (`WS48_BEHAVIOR_DESIGN.md`).
+- `fbdc4f69` Behavior event verifier (`behavior_events.py`) + 5 unit tests.
+- `5eb6cdcb` Behavior driver core (`behavior_driver.py`: session state machine,
+  fail-closed selector matchers, scripted passes, event/postcondition terminal
+  verification) + fake-provider tests; postcondition registry
+  (`behavior_postconditions.py`: G-B decision-log, G-C negative, stack-empty;
+  unknown templates FAIL). 11 tests pass; ruff clean.
+- Op matrix: 64 distinct native-procedure ops over 107
+  (`artifacts/ws48-behavior-shape/OP_MATRIX.json`).
+- Q1 (stack:N indexing) + Q4 (tape schema) resolved; Q2 (mode-key binding) + Q3
+  (per-viewer capture) remain for Terra/Sol at closeout.
+
+Remote Forge pin verified as branch tip (`ls-remote`); local clone in progress
+(`/tmp/opencode/forge`, depth-1 single-branch).
