@@ -1,0 +1,54 @@
+name: WS48 v1.0.5 behavior contract inventory
+
+on:
+  push:
+    branches: [ws48/forge-v1.0.5-successor-qualification]
+    paths:
+      - '.github/workflows/ws48-v105-behavior-inventory.yml'
+      - 'candidate-qualification/ws48-forge-v1.0.5/build_behavior_inventory.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS47_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_TREE: f596c54d2cb229b9827c6c94a278175e8312c65c
+  WS47_NAMESPACE_TREE: 12af73695c801a42a0193ee895d5fc0843d16b0c
+  WS47_MATERIALIZATION_SHA256: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws47
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inventory immutable 107 behavior contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS47_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS47_TREE"
+          test "$(git -C contract-lock rev-parse HEAD:qualification/ws47)" = "$WS47_NAMESPACE_TREE"
+          test "$(sha256sum contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')" = "$WS47_MATERIALIZATION_SHA256"
+          mkdir -p artifacts/ws48-behavior-inventory
+          python candidate-qualification/ws48-forge-v1.0.5/build_behavior_inventory.py \
+            --materialization contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json \
+            --denominator contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json \
+            --output artifacts/ws48-behavior-inventory/WS48_BEHAVIOR_CONTRACT_INVENTORY.json
+          sha256sum artifacts/ws48-behavior-inventory/WS48_BEHAVIOR_CONTRACT_INVENTORY.json > artifacts/ws48-behavior-inventory/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws48-behavior-inventory-${{ github.sha }}
+          path: artifacts/ws48-behavior-inventory/
+          if-no-files-found: error
+          retention-days: 90
