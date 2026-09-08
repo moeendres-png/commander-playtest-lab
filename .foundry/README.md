@@ -20,10 +20,12 @@ The state file should be updated after material validated milestones and before 
 
 The same state file supports:
 
-- ChatGPT Work / Codex -> OpenCode / Muse;
-- OpenCode / Muse -> ChatGPT Work / Codex;
-- Muse -> another OpenCode provider such as DeepSeek;
+- ChatGPT Work / Terra -> OpenCode / Muse;
+- OpenCode / Muse -> ChatGPT Work / Terra/Sol;
+- Muse -> another implementation provider if needed;
 - interrupted-session recovery in the same harness.
+
+Current routing uses Muse Spark 1.3 as the primary substantial bounded implementation/test/repair worker, Terra High as the normal Work-side owner/integrator, and Sol High as targeted authority/high-blast-radius escalation. Luna is not part of the active routing policy.
 
 Use:
 
@@ -31,8 +33,15 @@ Use:
 - `docs/agent-workflows/DUAL_LANE_TASK_PACKET_TEMPLATE.md`
 - `docs/agent-workflows/CHATGPT_WORK_EXECUTION_HANDBOOK.md`
 - `docs/agent-workflows/MUSE_SPARK_1_3_OPENCODE_HANDBOOK.md`
+- `docs/agent-workflows/MUSE_DATA_BOUNDARY.md`
 
 as operational guidance.
+
+## Muse project-data rule
+
+Muse may use all project-relevant technical data required for Foundry work, including source/tests/docs/configuration, qualification evidence/logs/artifacts, external engine/provider source and Magic card/deck/collection data.
+
+Keep unrelated personal/private user data and raw credential values outside Muse context. Authenticated project tooling may consume configured credentials without printing their values.
 
 ## Authority rule
 
