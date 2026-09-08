@@ -7,13 +7,15 @@ from pathlib import Path
 OLD_PROJECTION = '    return {k: record.get(k) for k in PROJECTION_KEYS}\n'
 NEW_PROJECTION = '    return {k: record[k] for k in PROJECTION_KEYS if k in record}\n'
 OLD_NORMALIZED = '            normalized = normalize(record, evidence)\n'
-NEW_NORMALIZED = '            normalized = {k: v for k, v in normalize(record, evidence).items() if k in record}\n'
+NEW_NORMALIZED = '            normalized = presence_shape(requested, normalize(record, evidence))\n'
 OLD_PROTOCOL_FAILURE = '        raise RuntimeError(f"provider construction failed {record[\'fixture_id\']} rc={rc} created={created is not None} raw={raw is not None} result={result is not None} stderr={stderr[-6000:]}")\n'
 NEW_PROTOCOL_FAILURE = '        result_payload = None if result is None else result.get("payload")\n        raise RuntimeError(f"provider construction failed {record[\'fixture_id\']} rc={rc} created={created is not None} raw={raw is not None} result={result is not None} result_payload={canon(result_payload)} messages={messages} stderr={stderr[-6000:]}")\n'
 OLD_LINEAGE_TRANSPORT = 'str(bool(o["emit_semantic"])).lower()])'
 NEW_LINEAGE_TRANSPORT = 'str(bool(o["emit_semantic"])).lower(),enc(o.get("card_lineage_id"))])'
 OLD_REVEALED_ZONE = '            "face_down": bool(g["face_down"]), "owner": g["owner"], "tapped": bool(g["tapped"]), "zone": g["zone"],\n'
 NEW_REVEALED_ZONE = '            "face_down": bool(g["face_down"]), "owner": g["owner"], "tapped": bool(g["tapped"]),\n            # Forge reveal is a transient native state over Library. Project the provider-neutral\n            # semantic only from the native RememberRevealed observation, never from requested zone.\n            "zone": "revealed" if g.get("native_revealed") is True else g["zone"],\n'
+OLD_WRITE_REPORT = '''def write_report(path: Path, result: dict[str, Any]) -> None:\n'''
+NEW_WRITE_REPORT = '''def presence_shape(shape: Any, value: Any) -> Any:\n    # The immutable request is authority only for semantic field presence/shape here. Values\n    # always come from native Forge observation. Extra provider-local optional fields are pruned;\n    # missing fields and list cardinality differences remain visible to the equality gate.\n    if isinstance(shape, dict) and isinstance(value, dict):\n        return {k: presence_shape(v, value[k]) for k, v in shape.items() if k in value}\n    if isinstance(shape, list) and isinstance(value, list):\n        if len(shape) != len(value):\n            return value\n        return [presence_shape(s, v) for s, v in zip(shape, value)]\n    return value\n\n\ndef write_report(path: Path, result: dict[str, Any]) -> None:\n'''
 
 
 def patch_once(text: str, old: str, new: str, label: str) -> tuple[str, bool]:
@@ -53,11 +55,13 @@ def main() -> int:
     changed = False
     text, applied = patch_once(text, OLD_PROJECTION, NEW_PROJECTION, 'projection')
     changed |= applied
-    text, applied = patch_once(text, OLD_NORMALIZED, NEW_NORMALIZED, 'normalized')
+    text, applied = patch_once(text, OLD_NORMALIZED, NEW_NORMALIZED, 'normalized recursive presence')
     changed |= applied
     text, applied = patch_once(text, OLD_PROTOCOL_FAILURE, NEW_PROTOCOL_FAILURE, 'protocol diagnostic')
     changed |= applied
     text, applied = patch_once(text, OLD_REVEALED_ZONE, NEW_REVEALED_ZONE, 'native revealed projection')
+    changed |= applied
+    text, applied = patch_once(text, OLD_WRITE_REPORT, NEW_WRITE_REPORT, 'recursive presence helper')
     changed |= applied
 
     if changed:
