@@ -7,6 +7,7 @@ on:
       - 'candidate-qualification/ws45-forge-v1.0.4/run_fresh_construction_107.py'
       - 'scripts/ws45_extend_natural_observation.py'
       - 'scripts/ws45_patch_construction_presence_semantics.py'
+      - 'scripts/ws45_v104_exact_stack_target_identity.py'
       - '.github/workflows/ws45-v104-fresh-construction-107.yml'
   workflow_dispatch:
 
@@ -106,6 +107,7 @@ jobs:
           python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_v104_exact_stack_target_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws40_v103_native_combat_legal_surface.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws45_apply_generated_overlay.py --generated-dir "$out/java/forge/game/player" --strict-source qualification/providers/forge/gpl/Ws45StrictObservation.java
           python scripts/ws45_patch_generated_gamestate_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
