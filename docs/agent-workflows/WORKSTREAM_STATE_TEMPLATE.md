@@ -11,7 +11,7 @@
 - State updated at commit: `[sha or UNCOMMITTED_CHECKPOINT]`
 - State updated UTC: `[timestamp]`
 - Status: `[IN_PROGRESS | COMPLETE | FAIL | TERMINAL_BLOCKED]`
-- Current execution lane: `[WORK | MUSE | OTHER]`
+- Current execution lane: `[TERRA | SOL | MUSE | OTHER]`
 
 ## Terminal Objective
 
@@ -76,11 +76,13 @@
 
 ## Recommended Next Lane
 
-- Lane: `[WORK | MUSE | NONE]`
-- Reason: `[e.g. semantic adjudication, bounded implementation loop, independent review, terminal]`
+- Lane: `[TERRA | SOL | MUSE | NONE]`
+- Reason: `[e.g. integration/adjudication, bounded implementation loop, hard authority escalation, independent review, terminal]`
 - If switching lanes, handoff packet: `[inline concise packet or path to task packet]`
 
-Use `docs/agent-workflows/DUAL_LANE_EXECUTION_PLAYBOOK.md` for routing. The lane recommendation is operational guidance, not Source Authority.
+Use `docs/agent-workflows/DUAL_LANE_EXECUTION_PLAYBOOK.md` for routing. Luna is not part of the active Foundry routing policy. The lane recommendation is operational guidance, not Source Authority.
+
+If the next lane is Muse, all project-relevant technical data/tools needed by the workstream may be used. Keep unrelated personal/private user data and raw credential values outside Muse context; authenticated project tooling may consume configured credentials without revealing their values. See `docs/agent-workflows/MUSE_DATA_BOUNDARY.md`.
 
 ## Do Not Redo Unless Invalidated
 
