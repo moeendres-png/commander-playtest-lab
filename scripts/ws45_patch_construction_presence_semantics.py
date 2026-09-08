@@ -12,6 +12,8 @@ OLD_PROTOCOL_FAILURE = '        raise RuntimeError(f"provider construction faile
 NEW_PROTOCOL_FAILURE = '        result_payload = None if result is None else result.get("payload")\n        raise RuntimeError(f"provider construction failed {record[\'fixture_id\']} rc={rc} created={created is not None} raw={raw is not None} result={result is not None} result_payload={canon(result_payload)} messages={messages} stderr={stderr[-6000:]}")\n'
 OLD_LINEAGE_TRANSPORT = 'str(bool(o["emit_semantic"])).lower()])'
 NEW_LINEAGE_TRANSPORT = 'str(bool(o["emit_semantic"])).lower(),enc(o.get("card_lineage_id"))])'
+OLD_REVEALED_ZONE = '            "face_down": bool(g["face_down"]), "owner": g["owner"], "tapped": bool(g["tapped"]), "zone": g["zone"],\n'
+NEW_REVEALED_ZONE = '            "face_down": bool(g["face_down"]), "owner": g["owner"], "tapped": bool(g["tapped"]),\n            # Forge reveal is a transient native state over Library. Project the provider-neutral\n            # semantic only from the native RememberRevealed observation, never from requested zone.\n            "zone": "revealed" if g.get("native_revealed") is True else g["zone"],\n'
 
 
 def patch_once(text: str, old: str, new: str, label: str) -> tuple[str, bool]:
@@ -55,12 +57,14 @@ def main() -> int:
     changed |= applied
     text, applied = patch_once(text, OLD_PROTOCOL_FAILURE, NEW_PROTOCOL_FAILURE, 'protocol diagnostic')
     changed |= applied
+    text, applied = patch_once(text, OLD_REVEALED_ZONE, NEW_REVEALED_ZONE, 'native revealed projection')
+    changed |= applied
 
     if changed:
         args.runner.write_text(text, encoding='utf-8')
-        print('WS45_CONSTRUCTION_PRESENCE_AND_DIAGNOSTICS=PASS')
+        print('WS45_CONSTRUCTION_PRESENCE_DIAGNOSTICS_AND_REVEALED=PASS')
     else:
-        print('WS45_CONSTRUCTION_PRESENCE_AND_DIAGNOSTICS=ALREADY_APPLIED')
+        print('WS45_CONSTRUCTION_PRESENCE_DIAGNOSTICS_AND_REVEALED=ALREADY_APPLIED')
 
     patch_lineage_transport(args.runner)
     return 0
