@@ -1,189 +1,71 @@
-# COMMANDER SIMULATION FOUNDRY — WS-46 CURRENT PROJECT STATE
+# COMMANDER SIMULATION FOUNDRY — WS-49 CURRENT PROJECT STATE
 
 ## Current Assignment
 
-WS-46 — fresh XMage successor-provider qualification against immutable WS-44 v1.0.4 using the newest technically valid WS-42/WS-39 implementation provenance and zero imported successor-runtime PASS.
+WS-49 — fresh XMage successor-provider qualification against immutable WS-47 v1.0.5 using the newest technically valid WS-46/WS-42/WS-39 implementation provenance and zero imported successor-runtime PASS.
 
-This is a NEW workstream. WS-42 remains closed and is not reopened.
+WS-46 is superseded by v1.0.5 and must not continue broad v1.0.4 qualification.
 
 ## Current Status
 
-- `WS46_WORKSTREAM_TERMINAL = NO`
+- `WS49_WORKSTREAM_TERMINAL = NO`
 - `TASK_COMPLETE = NO`
-- `Completion Status = FULL107_CONSTRUCTION_REMEDIATION_IN_PROGRESS`
-- `WS46_RECONCILIATION_GATE = PASS`
-- `XMAGE_EXACT_BUILD_SOURCE_LOCK = PASS`
-- `XMAGE_NATIVE_RESTORE_RUNTIME = PASS`
-- `XMAGE_NATIVE_CONSTRUCTION_RUNTIME = 88/107`
-- `XMAGE_NATIVE_CONSTRUCTION_PASS = NOT_GRANTED`
-- `XMAGE_INDEPENDENT_CONSTRUCTION_NORMALIZATION = NOT_GRANTED`
-- `XMAGE_FRESH_BEHAVIOR_RUNTIME = 0/107`
+- `TURN_STATUS = READY`
+- `Completion Status = READY_FOR_V1_0_5_XMAGE_REQUALIFICATION`
+- `XMAGE_ENGINE_BASELINE_READY = YES`
+- `XMAGE_IMPLEMENTATION_PROVENANCE_READY = YES`
 - `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
 - `HISTORICAL_SUCCESSOR_RUNTIME_CREDIT_IMPORTED = 0`
 - `AF07_GRANTED = FALSE`
 - `ARCHITECTURE_FREEZE = NO`
 
-## Repository Instruction Discovery
-
-The repository root contains no `AGENTS.md` at the current WS-46 branch, and prior repository search found no `AGENTS.md`. No repository-local AGENTS instructions are therefore available. This `PROJECT_STATE.md`, the binding WS-46 workstream contract, persisted WS46 checkpoints, and live repository/CI state are the persistent execution state.
-
-## Binding Successor Contract — WS-44 v1.0.4
+## Binding Successor Contract — WS-47 v1.0.5
 
 Consume exactly:
 
-- repository: `moeendres-png/commander-playtest-lab`
-- freeze commit: `12940248497a8795991cbbd2eedef72945528cfe`
-- freeze tree: `cd83c973b269711106d08ab5be2d7672f05bcb7c`
-- namespace: `qualification/ws44`
-- namespace tree: `6579e119605b90248426a3121a47c487b2bb13cd`
-- contract: `commander-lab.semantic-fixture-materialization/1.0.4`
-- canonical bundle digest: `77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54`
-- materialization SHA-256: `9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35`
-- exact provider denominator: `107`
+- freeze commit: `192e2b77c0625ad26905bd0ee8dcc3f44a5796c8`
+- freeze tree: `f596c54d2cb229b9827c6c94a278175e8312c65c`
+- namespace: `qualification/ws47`
+- namespace tree: `12af73695c801a42a0193ee895d5fc0843d16b0c`
+- contract: `commander-lab.semantic-fixture-materialization/1.0.5`
+- canonical bundle digest: `631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01`
+- materialization SHA-256: `0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3`
+- provider denominator: `107`
 
-WS-44 remains immutable and unmodified.
+v1.0.5 changes exactly one requested-state record from v1.0.4: `WS05-MP-BLOCK-4` now contains both legal P2 blocker candidates. Obligation change count is zero.
 
-## Closed Gate — v1.0.4 Reconciliation
-
-Exact tested Commander-Lab source:
-
-- commit: `792b1bd78f4c3f1fef96cd0ef7f61cea29e815a4`
-- tree: `d7dabad3df53033bcfd3a7836ea2173f739ba812`
-
-Exact Actions evidence:
-
-- workflow: `WS46 XMage v1.0.4 Contract Reconciliation`
-- run: `34069232685`
-- job: `101583387934`
-- conclusion: `success`
-- artifact: `9999907632`
-- artifact digest: `sha256:be181654ffdd1a46d68bbdb06e276a093181efb5e7cbcb241de7b0eecce6e6aa`
-
-Validated: exact 107-record denominator, all requested-state digests, 11 repair rows / 9 changed fixtures / 8 provider-relevant fixtures, no provider heuristic, zero historical runtime credit.
-
-Persistent evidence:
-`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_02_V104_RECONCILIATION.md`
-
-## Closed Gate — Fresh XMage Build / Source Lock / Native Restore Runtime
-
-Authoritative XMage candidate:
+## XMage Baseline
 
 - repository: `moeendres-png/mage`
 - branch: `foundry/ws39-commander-history-state-restore`
 - commit: `0c1f455ea8c8fa48ab9d638ad5068ec242800428`
 - tree: `fdb8bf56a8bd8199a4ef372e468d93d6550b0649`
-- parent: `7bde812727817723616c575759f39bfc4cda4607`
 
-Fresh exact build/source-lock plus native Commander cast-history and Commander-damage restoration runtime passed in WS46. Historical WS42/WS39 results remain provenance only and import zero PASS credit.
+This exact tree includes native Commander-history restoration and later native Commander-damage restoration. It was freshly build/runtime-verified during WS-46 but must be freshly source/build locked for WS-49.
 
-Persistent evidence:
-`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_03_FRESH_XMAGE_BUILD_SOURCE_LOCK.md`
+## WS-46 Implementation Provenance
 
-## Construction Surface / Entry-Mode Findings
+Newest substantive pre-supersession Commander-Lab implementation:
 
-The immutable v1.0.4 provider denominator contains:
+- commit: `d599449faa4ceda17315c5db87ec783a241e20aa`
+- tree: `b86edceb0cb9316f4c565ce9f89fc9f8c91c15f4`
+- v1.0.4 diagnostic: `88/107 PASS`, `19 FAIL`, `0 DEFERRED`
+- official construction PASS: NOT GRANTED
+- behavior: `0/107`
+- provider qualified: NO
 
-- `100` records with `NATIVE_STATE_LOAD`
-- `7` records with `NATURAL_GAME_START`
+Coordinator supersession notice:
 
-Natural-start records:
-`PLAYER_COUNT_2P`, `PLAYER_COUNT_3P`, `PLAYER_COUNT_4P`, `PLAYER_COUNT_5P`, `PILOT_MULLIGAN`, `WS05-CMD-MULL-2`, `WS05-CMD-MULL-4`.
+- commit: `b32c3de2a323a4b1bc5ad1880008372af01b7a52`
+- file: `candidate-qualification/ws46-xmage-v1.0.4/WS46_COORDINATOR_V1_0_4_SUPERSESSION_NOTICE.md`
 
-WS46 removed the inherited deferred treatment and implemented first-external-decision-boundary native readback for natural start. No historical construction credit is imported.
+The 19 failure shapes and all native remediation work are diagnostic/implementation provenance only. No v1.0.4 runtime PASS is imported into v1.0.5.
 
-Relevant persistent checkpoints include 03C–03G.
+## Binding Files
 
-## Current Full107 Runtime Authority
-
-The authoritative current construction diagnostic is the actual GitHub Actions artifact, not older checkpoint prose.
-
-- workflow: `WS46 XMage v1.0.4 Full107 Construction v2`
-- run: `34221583745`
-- tested head: `d5f534f7014e78b272983b0548e3c5ce266fde35`
-- job: `102045705813`
-- artifact id: `10054580582`
-- artifact name: `ws46-v104-construction-v2-d5f534f7014e78b272983b0548e3c5ce266fde35`
-- artifact ZIP digest: `sha256:a355642467116934642344b95e29de5cdcca5e73a899e001cccc64e5b0a196a1`
-- `WS46_FULL107_CONSTRUCTION_PROBE.json` SHA-256: `79867549f065e8f2c457b93c90fac56e3e9ac38aa88cc2c83da2dea602328061`
-- result: `88 PASS / 19 FAIL / 0 DEFERRED`
-
-All pre-runtime gates in that job passed: exact WS44/XMage locks, independent denominator reconstruction, qualification overlays, exact XMage build, bridge build (60 tests, 0 failures/errors/skips), and runtime classpath.
-
-The exact current 19 failures from the sealed probe are:
-
-1. `PLAYER_COUNT_2P` — `INVALID_SCENARIO: text natural_library_card_name`
-2. `PLAYER_COUNT_3P` — same
-3. `PLAYER_COUNT_4P` — same
-4. `PLAYER_COUNT_5P` — same
-5. `PILOT_MULLIGAN` — same
-6. `WS05-CMD-MULL-2` — same
-7. `WS05-CMD-MULL-4` — same
-8. `HIDDEN_05` — `INVALID_SCENARIO: face_down only applies to battlefield`
-9. `HIDDEN_06` — same
-10. `HIDDEN_10` — `WS46_KNOWLEDGE_LIBRARY_RANGE_INVALID:P1:0:2`
-11. `HIDDEN_11` — `WS46_KNOWLEDGE_LIBRARY_RANGE_INVALID:P2:0:2`
-12. `WS05-MP-TURN-3` — `WS46_JSON_INTEGER_REQUIRED:resolution_sequence`
-13. `WS05-MP-TURN-5` — same
-14. `WS05-MP-ELIM-OWNED-3` — `WS46_JSON_STRING_REQUIRED:condition`
-15. `WS05-MP-ELIM-CONTROL-3` — same
-16. `WS05-MP-ELIM-STACK-3` — same
-17. `WS05-MP-ELIM-PRIO-3` — same
-18. `WS05-MP-ELIM-TURN-3` — same
-19. `WS05-MP-ELIM-5` — same
-
-Failure-class counts:
-
-- natural-game-start scenario configuration: `7`
-- hidden-information `face_down`: `2`
-- knowledge/library-range: `2`
-- extra-turn `resolution_sequence`: `2`
-- elimination `condition`: `6`
-
-Persistent current authority:
-`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_03J_CURRENT_ARTIFACT_CONTENT_LOCK.md`
-
-Checkpoint 03J supersedes conflicting failure-list prose in 03H and 03I. Construction PASS remains NOT GRANTED.
-
-## Qualification Rules
-
-- fresh successor runtime credit starts at `0` and only current v1.0.4 evidence counts;
-- no request echo as construction proof;
-- no provider-specific identity heuristic;
-- no synthetic historical Commander casts/events;
-- complete native construction from record 1;
-- construction-only evidence is not behavior PASS;
-- whole-request or declared digest echo is not independent normalization;
-- Rules Core owns Magic legality;
-- pilots/controllers choose only among Rules-Core-provided legal options;
-- no first-option/random/default yes-no/internal AI/GUI default/silent skip/parent fallback;
-- unsupported production-reachable paths fail closed;
-- preserve actor-entitled hidden information;
-- opaque hidden handles must not encode hidden card identity, deck fingerprint, seat, zone, occurrence, native UUID or Rules RNG;
-- preserve deterministic Rules RNG/replay.
-
-## Required Terminal Targets
-
-Only if technically justified:
-
-- construction `107/107 PASS`;
-- separate independent native-readback normalization reproducing all 107 `requested_state_digest` values;
-- behavior runtime `107/107 PASS`;
-- fresh AF04/AF05/AF06/AF08/AF09 PASS after v1.0.4 membership reconstruction;
-- `CARD_02 PASS`;
-- hidden-information / hidden-identity adversarial gate PASS;
-- deterministic replay/RNG gate PASS;
-- unsupported production decision paths `0`;
-- forbidden fallback paths `0`.
-
-Only then:
-`XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = TRUE`.
-
-No AF07. No Architecture Freeze.
-
-## Pull Request State
-
-PR `#160` remains open, Draft and unmerged. Do not merge without explicit authorization.
+- `candidate-qualification/ws49-xmage-v1.0.5/WS49_COORDINATOR_INPUT_WS47.md`
+- `candidate-qualification/ws49-xmage-v1.0.5/WS49_WORKSTREAM_CONTRACT.md`
 
 ## Exact Next Action
 
-Execute a source-locked WS44 shape audit over the exact 19 fixture IDs in Checkpoint 03J. Persist the compact immutable requested-state/native-procedure forms, then remediate only the proven current schema/native-state mismatches and execute a fresh exact Full107 Construction v2 run. Do not grant construction credit until a separate independent v1.0.4 native-readback normalizer passes all 107 requested-state digests. Continue automatically through behavior and AF04/05/06/08/09 only after the complete construction gate closes.
+Freshly verify the live WS-49 branch, exact WS-47 freeze and exact XMage source/build identity. Reconstruct the v1.0.5 107-record denominator and v1.0.4 -> v1.0.5 impact diff. Freshly revalidate the preserved native construction/readback, natural-start, Commander restore, revealed-state, hidden opaque identity and replay-alias surfaces. Then execute complete construction from record 1 with zero imported runtime credit. Use the WS-46 19 failure classes only as remediation hypotheses after confirming their v1.0.5 shapes. Continue automatically through independent normalization, full behavior and AF04/05/06/08/09 + CARD_02 qualification until terminal PASS or a genuinely non-remediable blocker is proven.
