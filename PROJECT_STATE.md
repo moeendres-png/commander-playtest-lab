@@ -10,12 +10,13 @@ This is a NEW workstream. WS-42 remains closed and is not reopened.
 
 - `WS46_WORKSTREAM_TERMINAL = NO`
 - `TASK_COMPLETE = NO`
-- `Completion Status = RECONCILIATION_PASS_READY_FOR_FRESH_XMAGE_BUILD`
+- `Completion Status = FULL107_CONSTRUCTION_REMEDIATION_IN_PROGRESS`
 - `WS46_RECONCILIATION_GATE = PASS`
-- `XMAGE_ENGINE_BASELINE_READY = YES`
-- `XMAGE_IMPLEMENTATION_PROVENANCE_READY = YES`
-- `XMAGE_EXACT_BUILD_SOURCE_LOCK = NOT_RUN`
-- `XMAGE_NATIVE_CONSTRUCTION = 0/107`
+- `XMAGE_EXACT_BUILD_SOURCE_LOCK = PASS`
+- `XMAGE_NATIVE_RESTORE_RUNTIME = PASS`
+- `XMAGE_NATIVE_CONSTRUCTION_RUNTIME = 88/107`
+- `XMAGE_NATIVE_CONSTRUCTION_PASS = NOT_GRANTED`
+- `XMAGE_INDEPENDENT_CONSTRUCTION_NORMALIZATION = NOT_GRANTED`
 - `XMAGE_FRESH_BEHAVIOR_RUNTIME = 0/107`
 - `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = NO`
 - `HISTORICAL_SUCCESSOR_RUNTIME_CREDIT_IMPORTED = 0`
@@ -24,7 +25,7 @@ This is a NEW workstream. WS-42 remains closed and is not reopened.
 
 ## Repository Instruction Discovery
 
-The repository root contains no `AGENTS.md` at the current WS-46 branch, and repository code search found no `AGENTS.md`. No repository-local AGENTS instructions are therefore available. This `PROJECT_STATE.md`, the binding WS-46 workstream contract and live repository/CI state remain the persistent execution state.
+The repository root contains no `AGENTS.md` at the current WS-46 branch, and prior repository search found no `AGENTS.md`. No repository-local AGENTS instructions are therefore available. This `PROJECT_STATE.md`, the binding WS-46 workstream contract, persisted WS46 checkpoints, and live repository/CI state are the persistent execution state.
 
 ## Binding Successor Contract — WS-44 v1.0.4
 
@@ -40,7 +41,7 @@ Consume exactly:
 - materialization SHA-256: `9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35`
 - exact provider denominator: `107`
 
-WS-44 terminal administrative head is provenance only; provider qualification binds the immutable freeze above. WS-44 remains unmodified.
+WS-44 remains immutable and unmodified.
 
 ## Closed Gate — v1.0.4 Reconciliation
 
@@ -56,59 +57,79 @@ Exact Actions evidence:
 - job: `101583387934`
 - conclusion: `success`
 - artifact: `9999907632`
-- artifact name: `ws46-v104-reconciliation-792b1bd78f4c3f1fef96cd0ef7f61cea29e815a4`
 - artifact digest: `sha256:be181654ffdd1a46d68bbdb06e276a093181efb5e7cbcb241de7b0eecce6e6aa`
 
-Validated results:
-
-- immutable WS-44 locks PASS;
-- independent provider denominator `107/107` identities reconstructed;
-- all requested-state digests independently recomputed equal;
-- family counts: player_count 4, pilot_boundary 17, pilot_boundary_negative 7, hidden_information 20, replay_rng 5, micro_rules 17, actual_card 1, multiplayer_commander 36;
-- repair matrix: 11 repairs / 9 changed fixtures;
-- provider-relevant changed fixtures: 8;
-- `obligation_changed = false`;
-- `provider_semantics_used = false`;
-- MICRO target ambiguity repaired by immutable adjudication with `provider_heuristic_required = false`;
-- historical successor runtime credit imported: `0`.
+Validated: exact 107-record denominator, all requested-state digests, 11 repair rows / 9 changed fixtures / 8 provider-relevant fixtures, no provider heuristic, zero historical runtime credit.
 
 Persistent evidence:
+`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_02_V104_RECONCILIATION.md`
 
-- `candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_02_V104_RECONCILIATION.md`
+## Closed Gate — Fresh XMage Build / Source Lock / Native Restore Runtime
 
-## Fresh XMage Implementation Provenance To Qualify
-
-Fresh live verification identifies the current in-scope XMage branch head as:
+Authoritative XMage candidate:
 
 - repository: `moeendres-png/mage`
 - branch: `foundry/ws39-commander-history-state-restore`
 - commit: `0c1f455ea8c8fa48ab9d638ad5068ec242800428`
 - tree: `fdb8bf56a8bd8199a4ef372e468d93d6550b0649`
 - parent: `7bde812727817723616c575759f39bfc4cda4607`
-- commit purpose: `WS42 add native commander-damage state restore API`
 
-The earlier parent baseline remains provenance, but the later intentional in-scope remediation lock above is authoritative for fresh WS-46 qualification unless fresh evidence changes it.
+Fresh exact build/source-lock plus native Commander cast-history and Commander-damage restoration runtime passed in WS46. Historical WS42/WS39 results remain provenance only and import zero PASS credit.
 
-Candidate reusable implementation areas requiring fresh proof:
+Persistent evidence:
+`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_03_FRESH_XMAGE_BUILD_SOURCE_LOCK.md`
 
-- native non-echo construction/readback boundary;
-- native semantic `zone:revealed` via XMage reveal registry;
-- opaque identity-independent hidden-card physical references;
-- deterministic replay alias canonicalization;
-- native Commander cast-history restoration;
-- native Commander-damage state restoration.
+## Construction Surface / Entry-Mode Findings
 
-All historical construction/AF05/behavior/provider credit remains zero.
+The immutable v1.0.4 provider denominator contains:
+
+- `100` records with `NATIVE_STATE_LOAD`
+- `7` records with `NATURAL_GAME_START`
+
+Natural-start records:
+`PLAYER_COUNT_2P`, `PLAYER_COUNT_3P`, `PLAYER_COUNT_4P`, `PLAYER_COUNT_5P`, `PILOT_MULLIGAN`, `WS05-CMD-MULL-2`, `WS05-CMD-MULL-4`.
+
+WS46 removed the inherited deferred treatment and implemented first-external-decision-boundary native readback for natural start. No historical construction credit is imported.
+
+Relevant persistent checkpoints include 03C–03G.
+
+## Current Full107 Runtime Authority
+
+The authoritative current construction diagnostic is the actual GitHub Actions artifact, not older checkpoint prose.
+
+- workflow: `WS46 XMage v1.0.4 Full107 Construction v2`
+- run: `34221583745`
+- tested head: `d5f534f7014e78b272983b0548e3c5ce266fde35`
+- job: `102045705813`
+- artifact id: `10054580582`
+- artifact name: `ws46-v104-construction-v2-d5f534f7014e78b272983b0548e3c5ce266fde35`
+- artifact digest: `sha256:a355642467116934642344b95e29de5cdcca5e73a899e001cccc64e5b0a196a1`
+- result: `88 PASS / 19 FAIL / 0 DEFERRED`
+
+All pre-runtime gates in that job passed: exact WS44/XMage locks, independent denominator reconstruction, qualification overlays, exact XMage build, bridge build, and runtime classpath.
+
+Authoritative failure classes:
+
+1. natural-start commander configuration — 7 records;
+2. native `face_down` proof boundary — 4 records;
+3. native `known_library_ranges` proof boundary — 2 records;
+4. native extra-turn `resolution_sequence` proof boundary — 2 records;
+5. native elimination `condition` proof boundary — 4 records.
+
+Exact fixture/error list is persisted in:
+`candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_03I_RUNTIME_ARTIFACT_RECONCILIATION.md`
+
+Checkpoint 03I supersedes conflicting artifact identity/taxonomy prose in 03H. Construction PASS remains NOT GRANTED.
 
 ## Qualification Rules
 
-- fresh successor runtime credit starts at `0/107`;
+- fresh successor runtime credit starts at `0` and only current v1.0.4 evidence counts;
 - no request echo as construction proof;
 - no provider-specific identity heuristic;
 - no synthetic historical Commander casts/events;
 - complete native construction from record 1;
 - construction-only evidence is not behavior PASS;
-- complete fresh behavior runtime only after construction gate;
+- whole-request or declared digest echo is not independent normalization;
 - Rules Core owns Magic legality;
 - pilots/controllers choose only among Rules-Core-provided legal options;
 - no first-option/random/default yes-no/internal AI/GUI default/silent skip/parent fallback;
@@ -119,39 +140,27 @@ All historical construction/AF05/behavior/provider credit remains zero.
 
 ## Required Terminal Targets
 
-If technically justified:
+Only if technically justified:
 
-- exact XMage build/source lock PASS;
-- request-independent native construction/readback PASS;
 - construction `107/107 PASS`;
+- separate independent native-readback normalization reproducing all 107 `requested_state_digest` values;
 - behavior runtime `107/107 PASS`;
-- AF04 expected `24/24` after fresh membership reconstruction;
-- AF05 expected `20/20`;
-- AF06 expected `17/17`;
-- AF08 expected `36/36`;
-- AF09 expected `5/5`;
+- fresh AF04/AF05/AF06/AF08/AF09 PASS after v1.0.4 membership reconstruction;
 - `CARD_02 PASS`;
-- hidden-information / hidden-identity adversarial gate `PASS`;
-- deterministic replay/RNG gate `PASS`;
+- hidden-information / hidden-identity adversarial gate PASS;
+- deterministic replay/RNG gate PASS;
 - unsupported production decision paths `0`;
 - forbidden fallback paths `0`.
 
 Only then:
-
 `XMAGE_SUCCESSOR_PROVIDER_QUALIFIED = TRUE`.
 
 No AF07. No Architecture Freeze.
 
-## Binding Files
-
-- `candidate-qualification/ws46-xmage-v1.0.4/WS46_COORDINATOR_INPUT_WS44.md`
-- `candidate-qualification/ws46-xmage-v1.0.4/WS46_WORKSTREAM_CONTRACT.md`
-- `candidate-qualification/ws46-xmage-v1.0.4/WS46_CHECKPOINT_02_V104_RECONCILIATION.md`
-
 ## Pull Request State
 
-PR `#160` is open, Draft and unmerged. Do not merge without explicit authorization.
+PR `#160` remains open, Draft and unmerged. Do not merge without explicit authorization.
 
 ## Exact Next Action
 
-Execute a fresh exact XMage source/build qualification against `moeendres-png/mage@0c1f455ea8c8fa48ab9d638ad5068ec242800428` / tree `fdb8bf56a8bd8199a4ef372e468d93d6550b0649`. Revalidate the native Commander cast-history and Commander-damage restoration APIs without synthetic historical events, persist exact build/test run/job/artifact/checksum evidence, then continue directly into complete fresh v1.0.4 native construction from record 1.
+Bind the five actual runtime failure classes in Checkpoint 03I to their exact immutable WS44 requested-state shapes and the current WS46 bridge/probe reject sites. Implement only request-independent native-state remediation for those concrete shapes: real commander setup for natural start, native face-down readback, native knowledge/library-range readback, native turn-mod resolution ordering, and native elimination-condition derivation. Execute a fresh Full107 Construction v2 run. Do not grant construction credit until a separate independent v1.0.4 native-readback normalizer passes all 107 requested-state digests. Continue automatically through behavior and AF04/05/06/08/09 only after the complete construction gate closes.
