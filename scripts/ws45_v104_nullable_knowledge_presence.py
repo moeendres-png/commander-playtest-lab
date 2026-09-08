@@ -58,12 +58,13 @@ def main() -> int:
         print("WS45_V104_NULLABLE_KNOWLEDGE_PRESENCE=ALREADY_APPLIED")
 
     # This workflow-triggered bridge is the sequenced entry point for bounded WS45
-    # state-loader remediations. They mutate only the sibling qualification state
-    # loader and do not alter observation comparison or pilot policy.
+    # state-loader/observer remediations. They mutate only the sibling qualification
+    # provider surfaces and do not alter observation comparison or pilot policy.
     state_java = p.with_name("Ws40SuccessorState.java")
     helpers = [
         Path("scripts/ws45_v104_materialize_opaque_library_capacity.py"),
         Path("scripts/ws45_v104_native_summoning_sickness_state.py"),
+        Path("scripts/ws45_v104_native_blocker_partition.py"),
     ]
     if not state_java.is_file():
         raise SystemExit(f"WS45_V104_STATE_JAVA_MISSING:{state_java}")
