@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Freshly audit the exact 19 WS-46 construction-failure shapes in WS-47 v1.0.5.
 
-This is contract/source evidence only.  It grants no construction or behavior
-credit.  The v1.0.4 materialization is used solely as provenance for the exact
+This is contract/source evidence only. It grants no construction or behavior
+credit. The v1.0.4 materialization is used solely as provenance for the exact
 19 identities and to prove those requested states are unchanged in v1.0.5.
 """
 from __future__ import annotations
@@ -111,16 +111,64 @@ def contains_dict(node: Any, required: dict[str, Any]) -> bool:
 def assert_natural(fid: str, row: dict[str, Any]) -> None:
     if row.get("execution_entry_mode") != "NATURAL_GAME_START":
         fail(f"natural-entry-mode:{fid}:{row.get('execution_entry_mode')}")
-    deck = row.get("deck_state")
-    if deck is None:
-        fail(f"natural-deck-state-missing:{fid}")
-    # Source-proven WS46 shape: real Rograkh commander plus Mountain x99
-    # library template.  Match recursively so this remains independent of
-    # provider translation layout.
-    if not any(item == "Rograkh, Son of Rohgahh" for item in walk(deck)):
-        fail(f"natural-commander-missing:{fid}")
-    if not contains_dict(deck, {"card_identity": "Mountain", "count": 99}):
-        fail(f"natural-library-template-missing:{fid}")
+    decks = row.get("deck_state")
+    if not isinstance(decks, list):
+        fail(f"natural-deck-state-not-list:{fid}")
+    players = row.get("players")
+    if not isinstance(players, list):
+        fail(f"natural-players-not-list:{fid}")
+    expected_players = {p.get("player_id") for p in players if isinstance(p, dict)}
+    if None in expected_players or len(expected_players) != len(players):
+        fail(f"natural-player-ids:{fid}")
+    by_player: dict[str, dict[str, Any]] = {}
+    for deck in decks:
+        if not isinstance(deck, dict):
+            fail(f"natural-deck-entry:{fid}")
+        player = deck.get("player_id")
+        if not isinstance(player, str) or player in by_player:
+            fail(f"natural-deck-player:{fid}:{player!r}")
+        by_player[player] = deck
+    if set(by_player) != expected_players:
+        fail(f"natural-deck-player-set:{fid}:{sorted(by_player)}:{sorted(expected_players)}")
+
+    commander_state = row.get("commander_state")
+    commanders = commander_state.get("commanders") if isinstance(commander_state, dict) else None
+    if not isinstance(commanders, list):
+        fail(f"natural-commanders-not-list:{fid}")
+    commander_by_id = {
+        item.get("commander_id"): item
+        for item in commanders
+        if isinstance(item, dict) and isinstance(item.get("commander_id"), str)
+    }
+    if len(commander_by_id) != len(commanders):
+        fail(f"natural-commander-id-uniqueness:{fid}")
+
+    randomness = row.get("rules_randomness")
+    channels = randomness.get("channels") if isinstance(randomness, dict) else None
+    if not isinstance(channels, list):
+        fail(f"natural-rng-channels:{fid}")
+
+    for player in sorted(expected_players):
+        deck = by_player[player]
+        library = deck.get("library_template")
+        if library != {"card_identity": "Mountain", "count": 99}:
+            fail(f"natural-library-template:{fid}:{player}:{library!r}")
+        if deck.get("opening_hand_size") != 7:
+            fail(f"natural-opening-hand:{fid}:{player}:{deck.get('opening_hand_size')!r}")
+        shuffle_channel = deck.get("shuffle_channel")
+        if shuffle_channel != f"library_shuffle:{player}" or shuffle_channel not in channels:
+            fail(f"natural-shuffle-binding:{fid}:{player}:{shuffle_channel!r}")
+        commander_ids = deck.get("commander_ids")
+        if not isinstance(commander_ids, list) or not commander_ids:
+            fail(f"natural-commander-ids:{fid}:{player}:{commander_ids!r}")
+        for commander_id in commander_ids:
+            commander = commander_by_id.get(commander_id)
+            if commander is None:
+                fail(f"natural-commander-ref:{fid}:{player}:{commander_id}")
+            if commander.get("owner") != player:
+                fail(f"natural-commander-owner:{fid}:{player}:{commander_id}")
+            if commander.get("card_identity") != "Rograkh, Son of Rohgahh":
+                fail(f"natural-commander-identity:{fid}:{player}:{commander_id}:{commander.get('card_identity')!r}")
 
 
 def assert_face_down_exile(fid: str, row: dict[str, Any]) -> None:
@@ -137,7 +185,14 @@ def assert_face_down_exile(fid: str, row: dict[str, Any]) -> None:
         "zone": "exile",
         "face_down": True,
     }
-    for key, expected in required.items():
+    # Historical source used identity while current materialization uses
+    # card_identity. Accept only the exact immutable card value, never a
+    # provider substitution.
+    identity = target.get("card_identity", target.get("identity"))
+    if identity != required["identity"]:
+        fail(f"hidden-hand-identity:{fid}:{identity!r}")
+    for key in ("owner", "controller", "zone", "face_down"):
+        expected = required[key]
         if target.get(key) != expected:
             fail(f"hidden-hand-{key}:{fid}:{target.get(key)!r}")
 
@@ -234,7 +289,7 @@ def main() -> int:
         })
 
     out = {
-        "schema": "commander-lab.ws49-prior19-v105-shape-audit/1.0.0",
+        "schema": "commander-lab.ws49-prior19-v105-shape-audit/1.0.1",
         "historical_runtime_credit_imported": 0,
         "prior_failure_denominator": 19,
         "all_19_present": True,
