@@ -125,8 +125,10 @@ Reuses `run_strict_no_echo_gate` transport + construction env builders with
 
 ## 6. Open authority questions for Terra/Sol (do NOT self-adjudicate)
 
-- Q1: `semantic_stack_object` `stack:<n>` indexing semantics (top-down vs
-  bottom-up) — infer from MICRO records or ask.
+- Q1: RESOLVED 2026-09-08 — denominator uses `stack:1` only where exactly one
+  native stack object exists (PILOT_MANA_PAYMENT, MICRO_MANA_PAYMENT). Rule:
+  resolve against live native stack listing; match iff exactly one entry;
+  otherwise FAIL_CLOSED (zero/multiple match).
 - Q2: mode-key → native description binding source of truth (card text parsing in
   harness is matching aid; ambiguity policy = FAIL_CLOSED, but confirm).
 - Q3: per-viewer observation capture requirements for HIDDEN fixtures
