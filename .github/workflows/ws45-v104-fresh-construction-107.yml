@@ -121,6 +121,7 @@ jobs:
           ev=artifacts/ws45-construction
           export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
           export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          python scripts/ws45_patch_construction_presence_semantics.py --runner candidate-qualification/ws45-forge-v1.0.4/run_fresh_construction_107.py
           python candidate-qualification/ws45-forge-v1.0.4/run_fresh_construction_107.py --materialization contract-lock/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json --denominator contract-lock/qualification/ws44/WS44_PROVIDER_DENOMINATOR_107.json --output "$ev/WS45_FRESH_CONSTRUCTION_107.json"
           python - <<'PY'
           import json
