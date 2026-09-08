@@ -1,0 +1,70 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 26,
+  "workstream": "WS-45",
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "commander_lab_head": "7b4573bbde549a057e31285e60e84b39ffae399b",
+  "commander_lab_tree": "14d142ca2cab2ace9b1764f2169b6ce7fa1144f9",
+  "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+  "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+  "ws44": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "denominator": 107
+  },
+  "strict_no_request_echo": "PASS",
+  "historical_successor_credit_imported": 0,
+  "construction_credit": "0/107",
+  "behavior_credit": "0/107",
+  "attempt": {
+    "workflow_run_id": 34177454758,
+    "job_id": 101909600603,
+    "artifact_id": 10037766007,
+    "artifact_name": "ws45-v104-fresh-construction-107-7b4573bbde549a057e31285e60e84b39ffae399b",
+    "artifact_sha256": "5e026b1f6b8711f2203bef25eecfe1bf4b47f21e3ddd057857241421aece13c5",
+    "records_runtime_equal_before_failure": 16,
+    "records_runtime_equal_fixture_ids": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET",
+      "PILOT_CHOOSE_OBJECT",
+      "PILOT_TARGET_AMOUNT",
+      "PILOT_MULLIGAN",
+      "PILOT_CHOOSE_USE",
+      "PILOT_CHOICE",
+      "PILOT_PILE",
+      "PILOT_MANA_PAYMENT",
+      "PILOT_ANNOUNCE_X",
+      "PILOT_MULTI_AMOUNT",
+      "PILOT_REPLACEMENT_EFFECT"
+    ],
+    "failure_index": 17,
+    "failure_fixture_id": "PILOT_TRIGGER_ORDER",
+    "failure_entry_mode": "NATIVE_STATE_LOAD",
+    "mismatch": {
+      "dimension": "semantic_objects.counters",
+      "semantic_id": "obj:remora",
+      "card_identity": "Mystic Remora",
+      "requested_counters": {"age": 0},
+      "normalized_native_counters": {}
+    }
+  },
+  "runtime_proven_repairs": {
+    "native_revealed_projection": "PASS_THROUGH_RECORD_12",
+    "v1_0_4_exact_stack_target_identity": "PASS_THROUGH_RECORD_16"
+  },
+  "forge_native_finding": "Forge GameEntity stores counters in a Guava Multiset. getCounters(CounterType) natively returns zero for an absent counter type, but setCount(type, 0) leaves no iterable entry and nonpositive add-counter paths are ignored. Therefore an explicit provider-neutral zero counter cannot be reconstructed by iterating c.getCounters().entrySet() alone.",
+  "denominator_counter_surface_finding": "Across the exact WS44 provider denominator only two semantic objects carry nonempty counter maps: PILOT_TRIGGER_ORDER Mystic Remora age=0 and PILOT_CHOOSE_ABILITY Jeska loyalty=3. The exact zero-valued counter surface occurs only at PILOT_TRIGGER_ORDER.",
+  "remediation_constraint": "Any repair must derive explicit zero-counter observability from provider-owned Forge state/rules, not requested counter keys or card-name special cases. The game state must not be mutated merely to preserve a zero entry.",
+  "candidate_native_basis": "Forge exposes the native CUMULATIVE_UPKEEP keyword and getCounters(AGE). A bounded observer can therefore include age with the native value for cards whose Forge rules actually have cumulative upkeep, including zero, while retaining ordinary positive-counter iteration for all other counter types.",
+  "credit_policy": "No partial construction credit. Sixteen runtime-equal records are evidence only; construction remains 0/107 until one fresh exact 107-record run passes every record.",
+  "terminal": false,
+  "next_action": "Implement and statically verify a bounded generated-Java observation patch that emits native age count for cards with Forge-native cumulative upkeep even when zero, without consulting requested counters; wire it into the WS45 construction workflow; rerun all 107 from record 1."
+}
