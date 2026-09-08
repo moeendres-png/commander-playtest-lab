@@ -82,16 +82,38 @@ Full command logs: `/home/moeen/ws49-muse-logs/`
 - `scripts/bootstrap_engine_linux.sh` — additive `COMMANDER_LAB_XMAGE_TREE`
   fail-closed verification only (syntax-checked with `bash -n`; wrong-tree
   exits 4, correct/unset exits 0, tested against the real checkout).
+- `candidate-qualification/ws49-xmage-v1.0.5/probe_ws49_fallback_zero_static.py`
+  (new) — deterministic G49-13 reporter: scans WS-49 adapter scripts +
+  `engine-bridge/src`, emits sorted JSON inventory, always exits 0.
+  Ruff check + format clean; `py_compile` clean alongside all WS-49 scripts.
 - this handoff file.
+
+## Phase E mechanical results (no gate claims)
+
+- Fallback-zero static inventory over 57 files:
+  `files=57 matches=11 categories={"FALLBACK_MENTION": 11}`,
+  `PILOT_RANDOMNESS=0 UNRESOLVED_MARKER=0 SILENT_SKIP=0`.
+  Evidence JSON SHA-256 `8dc73e29...638b67e`, byte-identical across two
+  runs (deterministic). Logs: `/home/moeen/ws49-muse-logs/`.
+- Mechanical reading only: most hits are comments/patch-labels describing
+  *absent* fallbacks; three hits are JSON `optionalInt/optionalText/
+  booleanValue` helpers in `XmageWs26QualificationJsonlBridge.java:272-273`
+  and `XmageWs26Scenario.java:472-489`. No `new Random`/`Math.random` in
+  bridge sources (useful G49-12 prep signal, not a verdict).
 
 Suitable for Terra review/cherry-pick: yes, both are isolated support
 artifacts; neither touches semantics, providers, or immutable material.
 
 ## Authority questions (none blocking local readiness)
 
-- None for provisioning. Any G49-08..G49-14 semantic question arising in
-  Phase E will be recorded here as AUTHORITY_REQUIRED; no gate PASS will be
-  claimed from this lane.
+1. AUTHORITY_REQUIRED — `XmageWs26QualificationJsonlBridge.java:272-273`,
+   `XmageWs26Scenario.java:472-489` (`optionalInt/optionalText/
+   booleanValue` JSON helpers): are these reachable from discretionary
+   player-decision paths (which would implicate G49-13), or only from
+   scenario/evidence parsing? Alternatives: (a) parsing-only helpers,
+   (b) decision-path defaults requiring remediation. Current sources do
+   not resolve reachability; needs Work/Terra call-graph adjudication.
+   No gate PASS will be claimed from this lane.
 
 ## Exact next action
 
