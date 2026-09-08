@@ -145,6 +145,10 @@ final class XmageFullGameDecisionController {
                     optionBinding.externalOptions(),
                     sourceObject
             );
+            optionBinding = XmageDecisionOptionIdentity.rebindAfterOutboundProjection(
+                    optionBinding,
+                    safeDecision.legalOptions()
+            );
         } catch (IllegalStateException exc) {
             DecisionException failure = new DecisionException(exc.getMessage(), exc);
             terminalFailure = failure;

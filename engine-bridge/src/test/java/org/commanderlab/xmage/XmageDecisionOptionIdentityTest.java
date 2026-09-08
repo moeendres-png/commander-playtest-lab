@@ -55,4 +55,48 @@ class XmageDecisionOptionIdentityTest {
 
         assertTrue(failure.getMessage().startsWith("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER:"));
     }
+
+    @Test
+    void preservesNativeBindingAfterActorSafeProjectionChangesOptionId() {
+        String nativePlayerId = "123e4567-e89b-12d3-a456-426614174001";
+        JsonArray nativeOptions = new JsonArray();
+        JsonObject nativeOption = new JsonObject();
+        nativeOption.addProperty("option_id", nativePlayerId);
+        nativeOption.addProperty("option_type", "choice");
+        nativeOptions.add(nativeOption);
+
+        XmageDecisionOptionIdentity.Binding initial = XmageDecisionOptionIdentity.externalize(
+                nativeOptions,
+                Map.of(nativePlayerId, "P1")
+        );
+        JsonArray projected = initial.externalOptions().deepCopy();
+        projected.get(0).getAsJsonObject().addProperty("option_id", "obj-actor-visible-player");
+
+        XmageDecisionOptionIdentity.Binding rebound =
+                XmageDecisionOptionIdentity.rebindAfterOutboundProjection(initial, projected);
+
+        assertEquals(nativePlayerId, rebound.externalToNative().get("obj-actor-visible-player"));
+    }
+
+    @Test
+    void failsClosedWhenProjectionCollapsesDistinctOptions() {
+        JsonArray options = new JsonArray();
+        JsonObject first = new JsonObject();
+        first.addProperty("option_id", "keep");
+        JsonObject second = new JsonObject();
+        second.addProperty("option_id", "mulligan");
+        options.add(first);
+        options.add(second);
+        XmageDecisionOptionIdentity.Binding initial = XmageDecisionOptionIdentity.externalize(options, Map.of());
+        JsonArray collapsed = initial.externalOptions().deepCopy();
+        collapsed.get(0).getAsJsonObject().addProperty("option_id", "same");
+        collapsed.get(1).getAsJsonObject().addProperty("option_id", "same");
+
+        IllegalStateException failure = assertThrows(
+                IllegalStateException.class,
+                () -> XmageDecisionOptionIdentity.rebindAfterOutboundProjection(initial, collapsed)
+        );
+
+        assertTrue(failure.getMessage().startsWith("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER:"));
+    }
 }

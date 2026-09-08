@@ -67,6 +67,59 @@ final class XmageDecisionOptionIdentity {
         return new Binding(externalOptions, Map.copyOf(externalToNative));
     }
 
+    /**
+     * Rebinds an already-validated option frame after its final actor-safe
+     * projection.  The projection deliberately replaces semantic object
+     * references with viewer-scoped opaque handles, including an option's
+     * {@code option_id}.  The privileged-to-native relation must therefore be
+     * composed with that final projection before a pilot response is accepted.
+     *
+     * <p>The observation gateway is not permitted to filter or reorder offered
+     * options.  We nevertheless require exact cardinality and an unambiguous
+     * option id at every corresponding position, failing closed if that
+     * boundary invariant changes.</p>
+     */
+    static Binding rebindAfterOutboundProjection(Binding preProjection, JsonArray projectedOptions) {
+        if (preProjection == null || projectedOptions == null) {
+            throw blocker("option projection binding is missing");
+        }
+        JsonArray priorOptions = preProjection.externalOptions();
+        if (priorOptions.size() != projectedOptions.size()) {
+            throw blocker("actor-safe option projection changed option cardinality");
+        }
+
+        JsonArray externalOptions = projectedOptions.deepCopy();
+        Map<String, String> externalToNative = new LinkedHashMap<>();
+        for (int index = 0; index < priorOptions.size(); index++) {
+            String priorExternalId = requiredOptionId(priorOptions.get(index));
+            String nativeId = preProjection.externalToNative().get(priorExternalId);
+            if (nativeId == null || nativeId.isBlank()) {
+                throw blocker("pre-projection option has no native binding");
+            }
+            String finalExternalId = requiredOptionId(externalOptions.get(index));
+            String priorNative = externalToNative.putIfAbsent(finalExternalId, nativeId);
+            if (priorNative != null && !priorNative.equals(nativeId)) {
+                throw blocker("two native XMage options collapse after actor-safe projection");
+            }
+        }
+        return new Binding(externalOptions, Map.copyOf(externalToNative));
+    }
+
+    private static String requiredOptionId(JsonElement element) {
+        if (element == null || !element.isJsonObject()) {
+            throw blocker("decision option is not an object");
+        }
+        JsonObject option = element.getAsJsonObject();
+        if (!option.has("option_id") || option.get("option_id").isJsonNull()) {
+            throw blocker("decision option has no option_id");
+        }
+        String optionId = option.get("option_id").getAsString();
+        if (optionId == null || optionId.isBlank()) {
+            throw blocker("decision option has blank option_id");
+        }
+        return optionId;
+    }
+
     private static String externalId(String nativeId, Map<String, String> nativeToExternal) {
         UUID uuid;
         try {
