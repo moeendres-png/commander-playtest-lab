@@ -32,6 +32,11 @@ OLD = '''    private static String eligibleBlockersJson(Game game) {
 NEW = '''    private static String eligibleBlockersJson(Game game) {
         Combat combat = game.getCombat();
         if (combat == null) return "[]";
+        // This is a legal-option observation surface, not a request-state mirror.
+        // Blocker options exist only during Forge's native Declare Blockers step.
+        if (game.getPhaseHandler().getPhase() != PhaseType.COMBAT_DECLARE_BLOCKERS) {
+            return "[]";
+        }
         Player defender = game.getPhaseHandler().getPriorityPlayer();
         if (defender == null) {
             throw new Ws23ForgeVerticalProvider.ControlledStop("WS45_COMBAT_NATIVE_BLOCKER_ACTOR_UNAVAILABLE");
@@ -43,8 +48,9 @@ NEW = '''    private static String eligibleBlockersJson(Game game) {
         for (Card blocker : defender.getCreaturesInPlay()) {
             boolean legal = false;
             for (Card attacker : combat.getAttackers()) {
-                // Forge owns both multiplayer defending-player partition (CR 802.4a)
-                // and all attacker/blocker restrictions.  No requested option list is read here.
+                // Forge owns multiplayer defending-player partition (CR 802.4a)
+                // and all attacker/blocker restrictions through this Core API.
+                // No requested option list is read or used to filter the result.
                 if (CombatUtil.canBlock(attacker, blocker, combat)) { legal = true; break; }
             }
             if (!legal) continue;
@@ -74,6 +80,7 @@ def main() -> int:
         raise SystemExit(f"WS45_V104_NATIVE_BLOCKER_PARTITION_TARGET:expected=1:actual={count}")
     text = text.replace(OLD, NEW, 1)
     required = [
+        'getPhase() != PhaseType.COMBAT_DECLARE_BLOCKERS',
         'getPriorityPlayer()',
         'WS45_COMBAT_NATIVE_BLOCKER_ACTOR_IS_ACTIVE_PLAYER',
         'CombatUtil.canBlock(attacker, blocker, combat)',
