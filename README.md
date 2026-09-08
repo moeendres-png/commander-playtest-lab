@@ -25,15 +25,15 @@ No search, confirmatory result, diagnostic, or holdout automatically mutates a c
 
 The canonical execution-environment policy is [`docs/PROJECT_EXECUTION_POLICY.md`](docs/PROJECT_EXECUTION_POLICY.md).
 
-Default routing is:
+There are exactly three project execution paths:
 
-- **normal ChatGPT Sol High** for coordination, architecture, difficult reasoning, MTG authority work and evidence adjudication;
-- **OpenCode** for substantial repository implementation and runtime execution;
-- **Muse** for independent audit/review and non-colliding investigations;
-- **Spark 1.3** for bounded mechanical work;
-- **ChatGPT Work with Sol Medium only as an exceptional, minimal fallback after an explicit Work Necessity Gate passes**.
+- **normal ChatGPT Sol High** for coordination, research, architecture, difficult reasoning, MTG authority work and evidence adjudication;
+- **OpenCode with Muse Spark 1.3** for repository implementation, debugging, CI, runtime qualification, audits and mechanical repository work;
+- **ChatGPT Work with Sol Medium** only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
 
-Older reports, prompts or handoffs that prescribe Work as the default execution environment are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
+Muse and Spark 1.3 are not separate project resources. The OpenCode resource is OpenCode with Muse Spark 1.3.
+
+Older reports, prompts or handoffs that prescribe Work as the default execution environment or split Muse and Spark into separate resources are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
 
 ## Optimizer-v2 decision path
 
