@@ -1,0 +1,160 @@
+name: WS49 XMage v1.0.5 Bootstrap and Impact
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws49/xmage-v1.0.5-successor-qualification
+    paths:
+      - 'candidate-qualification/ws49-xmage-v1.0.5/**'
+      - '.github/workflows/ws49-xmage-v105-bootstrap.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS47_FREEZE_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_FREEZE_TREE: f596c54d2cb229b9827c6c94a278175e8312c65c
+  WS47_NAMESPACE_TREE: 12af73695c801a42a0193ee895d5fc0843d16b0c
+  WS47_MATERIALIZATION_SHA256: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+  WS44_FREEZE_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  WS44_FREEZE_TREE: cd83c973b269711106d08ab5be2d7672f05bcb7c
+  WS44_MATERIALIZATION_SHA256: 9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35
+  XMAGE_COMMIT: 0c1f455ea8c8fa48ab9d638ad5068ec242800428
+  XMAGE_TREE: fdb8bf56a8bd8199a4ef372e468d93d6550b0649
+
+jobs:
+  bootstrap-impact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact WS49 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Checkout immutable WS47
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_FREEZE_COMMIT }}
+          path: _ws47
+
+      - name: Checkout immutable WS44 predecessor
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_FREEZE_COMMIT }}
+          path: _ws44
+
+      - name: Checkout exact XMage source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+
+      - name: Verify exact source locks
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws49-bootstrap
+          test "$(git -C _ws47 rev-parse HEAD)" = "$WS47_FREEZE_COMMIT"
+          test "$(git -C _ws47 rev-parse HEAD^{tree})" = "$WS47_FREEZE_TREE"
+          test "$(git -C _ws47 rev-parse HEAD:qualification/ws47)" = "$WS47_NAMESPACE_TREE"
+          test "$(sha256sum _ws47/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | cut -d' ' -f1)" = "$WS47_MATERIALIZATION_SHA256"
+          test "$(git -C _ws44 rev-parse HEAD)" = "$WS44_FREEZE_COMMIT"
+          test "$(git -C _ws44 rev-parse HEAD^{tree})" = "$WS44_FREEZE_TREE"
+          test "$(sha256sum _ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json | cut -d' ' -f1)" = "$WS44_MATERIALIZATION_SHA256"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_TREE"
+          printf '%s\n' "$(git rev-parse HEAD)" > artifacts/ws49-bootstrap/WS49_HEAD.txt
+          printf '%s\n' "$(git rev-parse HEAD^{tree})" > artifacts/ws49-bootstrap/WS49_TREE.txt
+          printf '%s\n' "$WS47_FREEZE_COMMIT" > artifacts/ws49-bootstrap/WS47_COMMIT.txt
+          printf '%s\n' "$WS47_FREEZE_TREE" > artifacts/ws49-bootstrap/WS47_TREE.txt
+          printf '%s\n' "$WS47_NAMESPACE_TREE" > artifacts/ws49-bootstrap/WS47_NAMESPACE_TREE.txt
+          printf '%s\n' "$XMAGE_COMMIT" > artifacts/ws49-bootstrap/XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_TREE" > artifacts/ws49-bootstrap/XMAGE_TREE.txt
+          python -m py_compile \
+            candidate-qualification/ws49-xmage-v1.0.5/successor_contract_v105.py \
+            candidate-qualification/ws49-xmage-v1.0.5/build_denominator_v105.py \
+            candidate-qualification/ws49-xmage-v1.0.5/reconcile_v105_impact.py
+
+      - name: Independently reconstruct all 107 provider records
+        run: |
+          set -euo pipefail
+          cd candidate-qualification/ws49-xmage-v1.0.5
+          python build_denominator_v105.py \
+            --contract ../../_ws47/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json \
+            --output ../../artifacts/ws49-bootstrap/WS49_DENOMINATOR_MANIFEST_107.json \
+            | tee ../../artifacts/ws49-bootstrap/DENOMINATOR.log
+          cd ../..
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('artifacts/ws49-bootstrap/WS49_DENOMINATOR_MANIFEST_107.json').read_text())
+          assert p['provider_denominator']==107
+          assert p['unique_fixture_ids']==107
+          assert p['all_requested_state_digests_recomputed_equal'] is True
+          assert p['historical_successor_runtime_credit_imported']==0
+          PY
+
+      - name: Independently reconcile v1.0.4 to v1.0.5 impact
+        run: |
+          set -euo pipefail
+          cd candidate-qualification/ws49-xmage-v1.0.5
+          python reconcile_v105_impact.py \
+            --v104 ../../_ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json \
+            --v105 ../../_ws47/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json \
+            --published-change-accounting ../../_ws47/qualification/ws47/WS47_CHANGE_ACCOUNTING.json \
+            --published-supersedes ../../_ws47/qualification/ws47/SUPERSEDES_v1_0_4.json \
+            --output ../../artifacts/ws49-bootstrap/WS49_V104_V105_IMPACT.json \
+            | tee ../../artifacts/ws49-bootstrap/IMPACT.log
+          cd ../..
+
+      - name: Capture v1.0.5 shapes for prior WS46 failure hypotheses
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract=json.loads(Path('_ws47/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json').read_text())
+          by={r['fixture_id']:r for r in contract['records']}
+          ids=[
+            'PLAYER_COUNT_2P','PLAYER_COUNT_3P','PLAYER_COUNT_4P','PLAYER_COUNT_5P','PILOT_MULLIGAN','WS05-CMD-MULL-2','WS05-CMD-MULL-4',
+            'HIDDEN_05','HIDDEN_06','HIDDEN_10','HIDDEN_11','WS05-MP-TURN-3','WS05-MP-TURN-5',
+            'WS05-MP-ELIM-2','WS05-MP-ELIM-3','WS05-MP-ELIM-4','WS05-MP-ELIM-5','WS05-CMD-ELIM-1','WS05-CMD-ELIM-2',
+            'WS05-MP-BLOCK-4'
+          ]
+          rows=[]
+          for fid in ids:
+            r=by[fid]
+            rows.append({
+              'fixture_id':fid,
+              'requested_state_digest':r['requested_state_digest'],
+              'execution_entry_mode':r['execution_entry_mode'],
+              'deck_state':r.get('deck_state'),
+              'semantic_objects':r.get('semantic_objects'),
+              'knowledge_state':r.get('knowledge_state'),
+              'extra_turn_creation':r.get('extra_turn_creation'),
+              'elimination_trigger':r.get('elimination_trigger'),
+              'combat_state':r.get('combat_state'),
+            })
+          Path('artifacts/ws49-bootstrap/WS49_PRIOR_FAILURE_SHAPES_V105.json').write_text(json.dumps({'rows':rows},indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Seal bootstrap evidence
+        if: always()
+        run: |
+          find artifacts/ws49-bootstrap -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws49-bootstrap/SHA256SUMS || true
+
+      - name: Upload WS49 bootstrap evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws49-v105-bootstrap-${{ github.sha }}
+          path: artifacts/ws49-bootstrap/
+          if-no-files-found: error
