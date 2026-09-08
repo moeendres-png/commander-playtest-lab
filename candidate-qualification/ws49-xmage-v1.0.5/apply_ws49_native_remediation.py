@@ -90,19 +90,28 @@ def patch_native_state() -> None:
         "combat-remove-fallback",
     )
 
-    # Immutable v1.0.5 elimination entry uses reason, not condition.  The state
-    # loader only validates the pre-SBA boundary; native XMage SBA owns loss.
+    # Immutable v1.0.5 elimination entry uses reason, not condition.  Keep the
+    # native pre-SBA boundary check (life == 0 and !hasLost()) untouched.  Use
+    # narrow one-token replacements so formatting cannot turn a valid source
+    # block into an anchor miss while still requiring each old token exactly
+    # once and failing closed on any unexpected implementation drift.
     text = replace_once(
         text,
-        '        String condition = requireString(requested, "condition");\n'
-        '        if (!"life_total_0".equals(condition)) {\n'
-        '            throw fail("WS46_ELIMINATION_CONDITION_UNSUPPORTED:" + condition);\n'
-        '}\n',
-        '        String reason = requireString(requested, "reason");\n'
-        '        if (!"life_total_0".equals(reason)) {\n'
-        '            throw fail("WS49_ELIMINATION_REASON_UNSUPPORTED:" + reason);\n'
-        '}\n',
+        '        String condition = requireString(requested, "condition");\n',
+        '        String reason = requireString(requested, "reason");\n',
         "elimination-reason-key",
+    )
+    text = replace_once(
+        text,
+        '        if (!"life_total_0".equals(condition)) {\n',
+        '        if (!"life_total_0".equals(reason)) {\n',
+        "elimination-reason-value",
+    )
+    text = replace_once(
+        text,
+        '            throw fail("WS46_ELIMINATION_CONDITION_UNSUPPORTED:" + condition);\n',
+        '            throw fail("WS49_ELIMINATION_REASON_UNSUPPORTED:" + reason);\n',
+        "elimination-reason-error",
     )
     text = replace_once(
         text,
