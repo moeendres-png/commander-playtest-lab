@@ -13,6 +13,7 @@ import json
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 HERE = Path(__file__).resolve().parent
 WS42 = HERE.parents[0] / "ws42-xmage-v1.0.3"
@@ -44,6 +45,8 @@ EXPECTED_NATURAL_START_FIXTURES = [
     "WS05-CMD-MULL-2",
     "WS05-CMD-MULL-4",
 ]
+NATIVE_SETUP_BOUNDARY = "AFTER_NATIVE_SETUP_VALIDATION_BEFORE_PRIORITY_RESUME"
+NATURAL_START_BOUNDARY = "AFTER_NATURAL_GAME_START_AT_FIRST_EXTERNAL_DECISION_BEFORE_SUBMISSION"
 
 _LEGACY_REQUIRED_DIMENSIONS = legacy.required_dimensions
 
@@ -62,12 +65,99 @@ def required_dimensions_v104(record: dict) -> set[str]:
     return _LEGACY_REQUIRED_DIMENSIONS(record)
 
 
+def capture_non_echo_readback_v104(
+    record: dict[str, Any], scenario: dict[str, Any], state: dict[str, Any]
+) -> dict[str, Any]:
+    """Capture request-independent readback for both immutable entry modes.
+
+    NATIVE_STATE_LOAD retains the source-audited WS42 setup-boundary path
+    unchanged. NATURAL_GAME_START is accepted only at the real first external
+    XMage decision after game.start(), before any external submit call.
+    """
+    mode = record.get("execution_entry_mode")
+    if mode == "NATIVE_STATE_LOAD":
+        proof = enriched.capture_non_echo_readback(record, scenario, state)
+        if proof.get("snapshot_boundary") != NATIVE_SETUP_BOUNDARY:
+            raise RuntimeError("WS46_NATIVE_SETUP_BOUNDARY_REGRESSION")
+        return proof
+    if mode != "NATURAL_GAME_START":
+        raise RuntimeError(f"WS46_UNSUPPORTED_EXECUTION_ENTRY_MODE:{mode}")
+
+    readback = state.get("ws42_native_construction_readback")
+    if not isinstance(readback, dict):
+        raise RuntimeError("WS46_NATURAL_START_NATIVE_READBACK_MISSING")
+    if readback.get("schema_version") != "xmage-ws42-native-construction-readback/1.0.0":
+        raise RuntimeError("WS46_NATURAL_START_READBACK_SCHEMA_MISMATCH")
+    if readback.get("request_object_copied_as_proof") is not False:
+        raise RuntimeError("WS46_NATURAL_START_REQUEST_ECHO_NOT_FALSE")
+    if readback.get("snapshot_boundary") != NATURAL_START_BOUNDARY:
+        raise RuntimeError(
+            "WS46_NATURAL_START_SNAPSHOT_BOUNDARY_INVALID:"
+            f"{readback.get('snapshot_boundary')}"
+        )
+    if readback.get("pending_external_decision_present") is not True:
+        raise RuntimeError("WS46_NATURAL_START_PENDING_EXTERNAL_DECISION_NOT_PROVEN")
+
+    semantic_state = readback.get("semantic_state")
+    if not isinstance(semantic_state, dict):
+        raise RuntimeError("WS46_NATURAL_START_NATIVE_SEMANTIC_STATE_MISSING")
+    validation = readback.get("native_validation")
+    if not isinstance(validation, dict) or validation.get("valid") is not True:
+        raise RuntimeError("WS46_NATURAL_START_NATIVE_VALIDATION_NOT_PASS")
+    rng_tape = readback.get("rules_rng_tape")
+    if not isinstance(rng_tape, dict):
+        raise RuntimeError("WS46_NATURAL_START_RULES_RNG_TAPE_MISSING")
+
+    required = (
+        "execution_entry_mode",
+        "rules_seed",
+        "starting_player_seat",
+        "starting_life",
+        "player_count",
+    )
+    for key in required:
+        if key not in readback:
+            raise RuntimeError(f"WS46_NATURAL_START_CONFIGURATION_FIELD_MISSING:{key}")
+    if readback["execution_entry_mode"] != mode:
+        raise RuntimeError("WS46_NATURAL_START_ENTRY_MODE_MISMATCH")
+    if int(readback["player_count"]) != len(record["players"]):
+        raise RuntimeError("WS46_NATURAL_START_PLAYER_COUNT_MISMATCH")
+    if int(readback["starting_player_seat"]) < 1 or int(readback["starting_player_seat"]) > int(readback["player_count"]):
+        raise RuntimeError("WS46_NATURAL_START_STARTING_PLAYER_INVALID")
+    if int(readback["starting_life"]) <= 0:
+        raise RuntimeError("WS46_NATURAL_START_STARTING_LIFE_INVALID")
+
+    seed_evidence = legacy.seed_binding_evidence(record, scenario)
+    if int(readback.get("rules_seed", -1)) != int(seed_evidence["scenario_execution_seed"]):
+        raise RuntimeError("WS46_NATURAL_START_EXECUTION_SEED_MISMATCH")
+
+    return {
+        "evidence_class": "LOWER_LEVEL_NATIVE_READBACK_READY_FOR_INDEPENDENT_NORMALIZATION",
+        "ws42_readback_schema": readback["schema_version"],
+        "execution_entry_mode": mode,
+        "rules_seed": readback["rules_seed"],
+        "starting_player_seat": readback["starting_player_seat"],
+        "starting_life": readback["starting_life"],
+        "player_count": readback["player_count"],
+        "snapshot_boundary": readback["snapshot_boundary"],
+        "pending_external_decision_present": True,
+        "request_object_copied_as_proof": False,
+        "legacy_normalized_constructed_state_consumed": False,
+        "legacy_declared_digest_consumed": False,
+        "seed_binding": seed_evidence,
+        "semantic_state": semantic_state,
+        "native_validation": validation,
+        "rules_rng_tape": rng_tape,
+        "construction_credit_granted": False,
+    }
+
+
 def configure_v104_runtime() -> None:
     legacy.canonical_v103 = canonical_v104
     legacy.load_contract = load_contract
     legacy.provider_records = provider_records
     legacy.CURRENT_NATIVE_DIMENSIONS.update(WS46_IMPLEMENTED_NATIVE_DIMENSIONS)
-    legacy.capture_non_echo_readback = enriched.capture_non_echo_readback
+    legacy.capture_non_echo_readback = capture_non_echo_readback_v104
     legacy.required_dimensions = required_dimensions_v104
 
 
@@ -115,7 +205,7 @@ def main() -> int:
         raise RuntimeError("WS46_NATURAL_START_DEFERRED_INSTEAD_OF_EXECUTED")
 
     output = {
-        "schema_version": "commander-lab.ws46-full107-construction-probe/1.0.1",
+        "schema_version": "commander-lab.ws46-full107-construction-probe/1.0.2",
         "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.4",
         "candidate_commit": legacy.run_tax3.exact_provider_identity()[0],
         "engine_commit": os.environ.get("XMAGE_WS46_COMMIT", "UNKNOWN"),
@@ -125,6 +215,7 @@ def main() -> int:
         "natural_start_fixture_ids": natural_start_fixtures,
         "natural_start_fresh_execution_required": True,
         "natural_start_historical_credit_imported": False,
+        "natural_start_snapshot_boundary": NATURAL_START_BOUNDARY,
         "counts": counts,
         "unsupported_dimension_counts": dict(sorted(unsupported_dimension_counts.items())),
         "current_native_dimensions": sorted(legacy.CURRENT_NATIVE_DIMENSIONS),
