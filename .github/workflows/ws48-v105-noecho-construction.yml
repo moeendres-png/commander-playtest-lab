@@ -1,0 +1,223 @@
+name: WS48 v1.0.5 strict noecho then construction 107
+
+on:
+  push:
+    branches: [ws48/forge-v1.0.5-successor-qualification]
+    paths:
+      - '.github/workflows/ws48-v105-noecho-construction.yml'
+      - 'scripts/ws48_patch_v105_runner_identity.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS47_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_TREE: f596c54d2cb229b9827c6c94a278175e8312c65c
+  WS47_NAMESPACE_TREE: 12af73695c801a42a0193ee895d5fc0843d16b0c
+  WS47_SCHEMA: commander-lab.semantic-fixture-materialization/1.0.5
+  WS47_BUNDLE: 631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01
+  WS47_MATERIALIZATION_SHA256: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+  FORGE_COMMIT: 66caae16015bd403bc0a52fa6689afb5508f74d0
+  FORGE_TREE: 40fc8f29ce4de31a964972461db2b48b4221e07f
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+jobs:
+  strict-noecho-then-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws47
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable WS47 contract and exact denominator
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-construction
+          mkdir -p "$ev/runners"
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS47_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS47_TREE"
+          test "$(git -C contract-lock rev-parse HEAD:qualification/ws47)" = "$WS47_NAMESPACE_TREE"
+          test "$(sha256sum contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')" = "$WS47_MATERIALIZATION_SHA256"
+          python - <<'PY'
+          import json,os
+          m='contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json'
+          d='contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json'
+          p=json.load(open(m)); q=json.load(open(d))
+          assert p['schema_version']==os.environ['WS47_SCHEMA']
+          assert p['canonical_bundle_digest']==os.environ['WS47_BUNDLE']
+          assert len(q['fixture_ids'])==107 and len(set(q['fixture_ids']))==107
+          by={r['fixture_id']:r for r in p['records']}
+          reconstructed=[r['fixture_id'] for r in p['records'] if r['fixture_family']!='actual_card' or r['fixture_id']=='CARD_02']
+          assert reconstructed==q['fixture_ids']
+          assert sum(1 for x in q['fixture_ids'] if by[x]['execution_entry_mode']=='NATIVE_STATE_LOAD')==100
+          assert sum(1 for x in q['fixture_ids'] if by[x]['execution_entry_mode']=='NATURAL_GAME_START')==7
+          assert by['WS05-MP-BLOCK-4']['combat_state']['eligible_blockers']==['obj:P2-bears','obj:mp-p2-blocker']
+          PY
+          cp candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py "$ev/runners/run_strict_no_echo_gate.py"
+          cp candidate-qualification/ws45-forge-v1.0.4/run_fresh_construction_107.py "$ev/runners/run_fresh_construction_107.py"
+          python scripts/ws45_patch_noecho_runner_lineage.py --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws45_patch_noecho_runner_forge_lock.py --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws48_patch_v105_runner_identity.py --noecho-runner "$ev/runners/run_strict_no_echo_gate.py" --construction-runner "$ev/runners/run_fresh_construction_107.py"
+          python scripts/ws45_patch_construction_presence_semantics.py --runner "$ev/runners/run_fresh_construction_107.py"
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+      - name: Verify exact Forge source/build lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q 'GNU GENERAL PUBLIC LICENSE' vendor/engine-source/forge/LICENSE
+          grep -q '<versionCode>2.0.15</versionCode>' vendor/engine-source/forge/pom.xml
+          grep -q '<snapshotName>-SNAPSHOT</snapshotName>' vendor/engine-source/forge/pom.xml
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/NativeQualificationObservation.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45ObservationPolicy.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45ValidatedExtraTurnHistory.java
+          test -f vendor/engine-source/forge/forge-game/src/main/java/forge/game/qualification/Ws45GameStateIdentityAccess.java
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build exact Forge game
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+      - name: Resolve isolated classpath
+        working-directory: vendor/engine-source/forge
+        run: mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws48-v105-construction/dependency-classpath.txt"
+      - name: Build terminal WS45 implementation fresh for WS48
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-construction
+          out="$ev/generated"
+          mkdir -p "$out" "$ev/classes"
+          python scripts/ws40_generate_forge_provider.py --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python scripts/ws40_apply_successor_state_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_stack_history.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_revealed_state.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_v104_exact_stack_target_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_combat_legal_surface.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_apply_generated_overlay.py --generated-dir "$out/java/forge/game/player" --strict-source qualification/providers/forge/gpl/Ws45StrictObservation.java
+          python scripts/ws45_patch_generated_gamestate_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_extend_natural_observation.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          python scripts/ws45_v104_nullable_knowledge_presence.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          python scripts/ws45_v104_native_zero_counter_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java" --runner "$ev/runners/run_fresh_construction_107.py"
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana|RestoredQualificationHistory|candidates\.get\(0\)|game\.findById\(expectedNativeId\)|\\"bound_config\\"' "$out/java"
+          ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('artifacts/ws48-v105-construction/generated/java/forge/game/player/Ws40SuccessorState.java')
+          s=p.read_text()
+          start=s.index('private static String eligibleBlockersJson(Game game)')
+          tail=s[start:start+5000]
+          assert 'getPhase() != PhaseType.COMBAT_DECLARE_BLOCKERS' in tail
+          assert 'getPriorityPlayer()' in tail
+          assert 'CombatUtil.canBlock(attacker, blocker, combat)' in tail
+          assert 'System.getenv' not in tail
+          assert 'expectedNativeId' not in tail and 'candidates.get(0)' not in tail
+          Path('artifacts/ws48-v105-construction/WS48_BLOCKER_SURFACE_STATIC.txt').write_text(tail)
+          PY
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
+          javac -cp "$cp" -d "$ev/classes" "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$out/java/forge/game/player/Ws23ForgeBootstrap.java" "$out/java/forge/game/player/Ws40SuccessorState.java" "$out/java/forge/game/player/Ws45StrictObservation.java"
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/$ev/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+      - name: Fresh v1.0.5 native blocker surface gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-construction
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          python - <<'PY'
+          import json,sys,os
+          from pathlib import Path
+          runners=Path('artifacts/ws48-v105-construction/runners').resolve(); sys.path.insert(0,str(runners))
+          import run_fresh_construction_107 as c
+          doc=json.load(open('contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json'))
+          r=next(x for x in doc['records'] if x['fixture_id']=='WS05-MP-BLOCK-4')
+          e=c.run_native(r)
+          native=list((e['raw'].get('combat') or {}).get('eligible_blockers') or [])
+          expected=['obj:P2-bears','obj:mp-p2-blocker']
+          assert native==expected,(native,expected)
+          out={'schema_version':'commander-lab.ws48-native-blocker-surface/1.0.0','status':'PASS','fixture_id':'WS05-MP-BLOCK-4','native_eligible_blockers':native,'requested_eligible_blockers':r['combat_state']['eligible_blockers'],'request_filtering_used':False,'native_legality_api':'CombatUtil.canBlock(attacker, blocker, combat)','actor_scope':'Forge priority player during COMBAT_DECLARE_BLOCKERS','forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'historical_successor_runtime_credit_imported':0}
+          Path('artifacts/ws48-v105-construction/WS48_NATIVE_BLOCKER_SURFACE.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Fresh strict no-request-echo v1.0.5
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-construction
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          (cd "$ev/runners" && python run_strict_no_echo_gate.py --materialization "$GITHUB_WORKSPACE/contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json" --output "$GITHUB_WORKSPACE/$ev/WS48_STRICT_NO_REQUEST_ECHO.json")
+          python - <<'PY'
+          import json,os
+          p=json.load(open('artifacts/ws48-v105-construction/WS48_STRICT_NO_REQUEST_ECHO.json'))
+          assert p['status']=='PASS' and p['strict_no_request_echo']=='PASS'
+          assert p['historical_successor_credit_imported']==0
+          assert p['construction_credit']=='0/107' and p['behavior_credit']=='0/107'
+          assert p['forge']['commit']==os.environ['FORGE_COMMIT'] and p['forge']['tree']==os.environ['FORGE_TREE']
+          assert p['ws47']['schema']==os.environ['WS47_SCHEMA'] and p['ws47']['bundle_digest']==os.environ['WS47_BUNDLE']
+          assert all(t['status']=='PASS' for t in p['tests'])
+          assert p['proof']['comparison_canaries_do_not_influence_native_observation'] is True
+          assert p['proof']['invalid_native_operations_fail_closed'] is True
+          PY
+      - name: Fresh construction 107 from record 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-construction
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          (cd "$ev/runners" && python run_fresh_construction_107.py --materialization "$GITHUB_WORKSPACE/contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json" --denominator "$GITHUB_WORKSPACE/contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json" --output "$GITHUB_WORKSPACE/$ev/WS48_FRESH_CONSTRUCTION_107.json")
+          python - <<'PY'
+          import json,os
+          p=json.load(open('artifacts/ws48-v105-construction/WS48_FRESH_CONSTRUCTION_107.json'))
+          assert p['status']=='PASS' and p['hard_gate']=='PASS'
+          assert p['denominator']==107 and p['pass_count']==107 and p['construction_credit']=='107/107'
+          assert p['behavior_credit']=='0/107' and p['historical_successor_credit_imported']==0
+          assert p['ws47']['schema']==os.environ['WS47_SCHEMA'] and p['ws47']['bundle_digest']==os.environ['WS47_BUNDLE']
+          assert all(r['construction_status']=='PASS' and r['requested_native_state_equal'] and r['evidence_class']=='RUNTIME_VERIFIED' for r in p['rows'])
+          assert p['family_counts']=={'actual_card':1,'hidden_information':20,'micro_rules':17,'multiplayer_commander':36,'pilot_boundary':17,'pilot_boundary_negative':7,'player_count':4,'replay_rng':5}
+          PY
+      - name: Materialize source lock and checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-construction
+          python - <<'PY'
+          import json,os,subprocess
+          lock={'schema_version':'commander-lab.ws48-v105-construction-source-lock/1.0.0','qualification_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'ws47_commit':os.environ['WS47_COMMIT'],'ws47_tree':os.environ['WS47_TREE'],'ws47_namespace_tree':os.environ['WS47_NAMESPACE_TREE'],'ws47_schema':os.environ['WS47_SCHEMA'],'ws47_bundle_digest':os.environ['WS47_BUNDLE'],'ws47_materialization_sha256':os.environ['WS47_MATERIALIZATION_SHA256'],'forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'forge_version':os.environ['FORGE_VERSION'],'historical_successor_runtime_credit_imported':0,'process_boundary':'SEPARATE_GPL_JVM','gate_order':['NATIVE_BLOCKER_SURFACE','STRICT_NO_REQUEST_ECHO','FRESH_CONSTRUCTION_107']}
+          open('artifacts/ws48-v105-construction/SOURCE_LOCK.json','w').write(json.dumps(lock,indent=2,sort_keys=True)+'\n')
+          PY
+          find "$ev" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$ev/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws48-v105-noecho-construction-${{ github.sha }}
+          path: artifacts/ws48-v105-construction/
+          if-no-files-found: error
+          retention-days: 90
