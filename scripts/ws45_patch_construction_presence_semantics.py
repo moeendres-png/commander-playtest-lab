@@ -8,6 +8,17 @@ OLD_PROJECTION = '    return {k: record.get(k) for k in PROJECTION_KEYS}\n'
 NEW_PROJECTION = '    return {k: record[k] for k in PROJECTION_KEYS if k in record}\n'
 OLD_NORMALIZED = '            normalized = normalize(record, evidence)\n'
 NEW_NORMALIZED = '            normalized = {k: v for k, v in normalize(record, evidence).items() if k in record}\n'
+OLD_PROTOCOL_FAILURE = '        raise RuntimeError(f"provider construction failed {record[\'fixture_id\']} rc={rc} created={created is not None} raw={raw is not None} result={result is not None} stderr={stderr[-6000:]}")\n'
+NEW_PROTOCOL_FAILURE = '        result_payload = None if result is None else result.get("payload")\n        raise RuntimeError(f"provider construction failed {record[\'fixture_id\']} rc={rc} created={created is not None} raw={raw is not None} result={result is not None} result_payload={canon(result_payload)} messages={messages} stderr={stderr[-6000:]}")\n'
+
+
+def patch_once(text: str, old: str, new: str, label: str) -> tuple[str, bool]:
+    if new in text:
+        return text, False
+    count = text.count(old)
+    if count != 1:
+        raise SystemExit(f'WS45 {label} patch target count {count}, expected 1')
+    return text.replace(old, new, 1), True
 
 
 def main() -> int:
@@ -16,18 +27,19 @@ def main() -> int:
     args = ap.parse_args()
     text = args.runner.read_text(encoding='utf-8')
 
-    if NEW_PROJECTION in text and NEW_NORMALIZED in text:
-        print('WS45_CONSTRUCTION_PRESENCE_SEMANTICS=ALREADY_APPLIED')
-        return 0
-    if text.count(OLD_PROJECTION) != 1:
-        raise SystemExit(f'WS45 projection patch target count {text.count(OLD_PROJECTION)}, expected 1')
-    if text.count(OLD_NORMALIZED) != 1:
-        raise SystemExit(f'WS45 normalized patch target count {text.count(OLD_NORMALIZED)}, expected 1')
+    changed = False
+    text, applied = patch_once(text, OLD_PROJECTION, NEW_PROJECTION, 'projection')
+    changed |= applied
+    text, applied = patch_once(text, OLD_NORMALIZED, NEW_NORMALIZED, 'normalized')
+    changed |= applied
+    text, applied = patch_once(text, OLD_PROTOCOL_FAILURE, NEW_PROTOCOL_FAILURE, 'protocol diagnostic')
+    changed |= applied
 
-    text = text.replace(OLD_PROJECTION, NEW_PROJECTION, 1)
-    text = text.replace(OLD_NORMALIZED, NEW_NORMALIZED, 1)
-    args.runner.write_text(text, encoding='utf-8')
-    print('WS45_CONSTRUCTION_PRESENCE_SEMANTICS=PASS')
+    if changed:
+        args.runner.write_text(text, encoding='utf-8')
+        print('WS45_CONSTRUCTION_PRESENCE_AND_DIAGNOSTICS=PASS')
+    else:
+        print('WS45_CONSTRUCTION_PRESENCE_AND_DIAGNOSTICS=ALREADY_APPLIED')
     return 0
 
 
