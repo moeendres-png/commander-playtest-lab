@@ -151,24 +151,44 @@ def assert_natural(fid: str, row: dict[str, Any]) -> None:
     for player in sorted(expected_players):
         deck = by_player[player]
         library = deck.get("library_template")
-        if library != {"card_identity": "Mountain", "count": 99}:
-            fail(f"natural-library-template:{fid}:{player}:{library!r}")
-        if deck.get("opening_hand_size") != 7:
-            fail(f"natural-opening-hand:{fid}:{player}:{deck.get('opening_hand_size')!r}")
-        shuffle_channel = deck.get("shuffle_channel")
-        if shuffle_channel != f"library_shuffle:{player}" or shuffle_channel not in channels:
-            fail(f"natural-shuffle-binding:{fid}:{player}:{shuffle_channel!r}")
-        commander_ids = deck.get("commander_ids")
-        if not isinstance(commander_ids, list) or not commander_ids:
-            fail(f"natural-commander-ids:{fid}:{player}:{commander_ids!r}")
-        for commander_id in commander_ids:
-            commander = commander_by_id.get(commander_id)
-            if commander is None:
-                fail(f"natural-commander-ref:{fid}:{player}:{commander_id}")
-            if commander.get("owner") != player:
-                fail(f"natural-commander-owner:{fid}:{player}:{commander_id}")
-            if commander.get("card_identity") != "Rograkh, Son of Rohgahh":
-                fail(f"natural-commander-identity:{fid}:{player}:{commander_id}:{commander.get('card_identity')!r}")
+        if library is not None:
+            if library != {"card_identity": "Mountain", "count": 99}:
+                fail(f"natural-library-template:{fid}:{player}:{library!r}")
+            if deck.get("opening_hand_size") != 7:
+                fail(f"natural-opening-hand:{fid}:{player}:{deck.get('opening_hand_size')!r}")
+            shuffle_channel = deck.get("shuffle_channel")
+            if shuffle_channel != f"library_shuffle:{player}" or shuffle_channel not in channels:
+                fail(f"natural-shuffle-binding:{fid}:{player}:{shuffle_channel!r}")
+            commander_ids = deck.get("commander_ids")
+            if not isinstance(commander_ids, list) or not commander_ids:
+                fail(f"natural-commander-ids:{fid}:{player}:{commander_ids!r}")
+            for commander_id in commander_ids:
+                commander = commander_by_id.get(commander_id)
+                if commander is None:
+                    fail(f"natural-commander-ref:{fid}:{player}:{commander_id}")
+                if commander.get("owner") != player:
+                    fail(f"natural-commander-owner:{fid}:{player}:{commander_id}")
+                if commander.get("card_identity") != "Rograkh, Son of Rohgahh":
+                    fail(f"natural-commander-identity:{fid}:{player}:{commander_id}:{commander.get('card_identity')!r}")
+            continue
+
+        # WS-47 deliberately retains the direct deck-list representation for
+        # two Commander mulligan records.  Validate it exactly; do not pretend
+        # it has the newer template-only fields.
+        if deck.get("main_deck") != [{"card_identity": "Mountain", "count": 99}]:
+            fail(f"natural-main-deck:{fid}:{player}:{deck.get('main_deck')!r}")
+        if deck.get("commander") != [{"card_identity": "Rograkh, Son of Rohgahh", "count": 1}]:
+            fail(f"natural-direct-commander:{fid}:{player}:{deck.get('commander')!r}")
+        if deck.get("exact_card_count") != 100:
+            fail(f"natural-direct-card-count:{fid}:{player}:{deck.get('exact_card_count')!r}")
+        if channels != ["INITIAL_LIBRARY_SHUFFLE"] or randomness.get("seed_binding") != "SCENARIO_SEED":
+            fail(f"natural-initial-shuffle-binding:{fid}:{player}:{randomness!r}")
+        matching = [
+            commander for commander in commander_by_id.values()
+            if commander.get("owner") == player and commander.get("card_identity") == "Rograkh, Son of Rohgahh"
+        ]
+        if len(matching) != 1:
+            fail(f"natural-direct-commander-mapping:{fid}:{player}:matches={len(matching)}")
 
 
 def assert_face_down_exile(fid: str, row: dict[str, Any]) -> None:

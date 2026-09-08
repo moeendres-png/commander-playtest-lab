@@ -76,13 +76,25 @@ def _natural_deck_templates(record: dict[str, Any]) -> dict[str, dict[str, Any]]
 
 def _template_library(entry: dict[str, Any], fixture_id: str, player: str) -> tuple[str, int]:
     library = entry.get("library_template")
-    if not isinstance(library, dict):
-        raise ValueError(f"WS49_NATURAL_LIBRARY_TEMPLATE_MISSING:{fixture_id}:{player}")
-    name = library.get("card_identity")
-    count = library.get("count")
-    if not isinstance(name, str) or not name or not isinstance(count, int) or isinstance(count, bool) or count <= 0:
-        raise ValueError(f"WS49_NATURAL_LIBRARY_TEMPLATE_INVALID:{fixture_id}:{player}:{library!r}")
-    return name, count
+    if isinstance(library, dict):
+        name = library.get("card_identity")
+        count = library.get("count")
+        if library != {"card_identity": "Mountain", "count": 99}:
+            raise ValueError(f"WS49_NATURAL_LIBRARY_TEMPLATE_INVALID:{fixture_id}:{player}:{library!r}")
+        return str(name), int(count)
+
+    # WS-47 preserves two older Commander mulligan records in the direct deck
+    # form.  It is semantically equivalent to the template form only when it
+    # is exactly one 99-card Mountain main deck.  Accepting any wider shape
+    # would silently replace immutable deck input with provider assumptions.
+    main_deck = entry.get("main_deck")
+    if main_deck != [{"card_identity": "Mountain", "count": 99}]:
+        raise ValueError(f"WS49_NATURAL_MAIN_DECK_INVALID:{fixture_id}:{player}:{main_deck!r}")
+    if entry.get("exact_card_count") != 100:
+        raise ValueError(
+            f"WS49_NATURAL_EXACT_CARD_COUNT_INVALID:{fixture_id}:{player}:{entry.get('exact_card_count')!r}"
+        )
+    return "Mountain", 99
 
 
 def _template_commanders(
@@ -91,9 +103,6 @@ def _template_commanders(
     fixture_id: str,
     player: str,
 ) -> list[str]:
-    commander_ids = entry.get("commander_ids")
-    if not isinstance(commander_ids, list) or not commander_ids or not all(isinstance(x, str) and x for x in commander_ids):
-        raise ValueError(f"WS49_NATURAL_COMMANDER_IDS_INVALID:{fixture_id}:{player}:{commander_ids!r}")
     commanders = (record.get("commander_state") or {}).get("commanders")
     if not isinstance(commanders, list):
         raise ValueError(f"WS49_NATURAL_COMMANDER_STATE_INVALID:{fixture_id}")
@@ -106,6 +115,26 @@ def _template_commanders(
             raise ValueError(f"WS49_NATURAL_COMMANDER_ID_INVALID:{fixture_id}:{commander_id!r}")
         by_id[commander_id] = commander
 
+    commander_ids = entry.get("commander_ids")
+    if commander_ids is None:
+        # The direct deck form has no semantic commander-id references.  Its
+        # sole card must still have an exact, owner-matching Commander-state
+        # counterpart before it can be supplied to XMage's native deck API.
+        direct = entry.get("commander")
+        if direct != [{"card_identity": "Rograkh, Son of Rohgahh", "count": 1}]:
+            raise ValueError(f"WS49_NATURAL_DIRECT_COMMANDER_INVALID:{fixture_id}:{player}:{direct!r}")
+        matching = [
+            item for item in by_id.values()
+            if item.get("owner") == player and item.get("card_identity") == "Rograkh, Son of Rohgahh"
+        ]
+        if len(matching) != 1:
+            raise ValueError(
+                f"WS49_NATURAL_DIRECT_COMMANDER_MAPPING_NOT_UNIQUE:{fixture_id}:{player}:matches={len(matching)}"
+            )
+        return ["Rograkh, Son of Rohgahh"]
+
+    if not isinstance(commander_ids, list) or not commander_ids or not all(isinstance(x, str) and x for x in commander_ids):
+        raise ValueError(f"WS49_NATURAL_COMMANDER_IDS_INVALID:{fixture_id}:{player}:{commander_ids!r}")
     result: list[str] = []
     for commander_id in commander_ids:
         commander = by_id.get(commander_id)
@@ -122,13 +151,34 @@ def _template_commanders(
 
 def _validate_shuffle_binding(record: dict[str, Any], entry: dict[str, Any], fixture_id: str, player: str) -> None:
     channel = entry.get("shuffle_channel")
+    randomness = record.get("rules_randomness")
+    channels = randomness.get("channels") if isinstance(randomness, dict) else None
+    if not isinstance(channels, list):
+        raise ValueError(f"WS49_NATURAL_SHUFFLE_CHANNELS_INVALID:{fixture_id}:{player}")
+
+    if channel is None:
+        # The preserved direct-deck records bind the whole initial shuffle to
+        # the scenario seed rather than naming each player's shuffle channel.
+        # XMage must still perform the actual per-library Rules-RNG shuffles.
+        if channels != ["INITIAL_LIBRARY_SHUFFLE"] or randomness.get("seed_binding") != "SCENARIO_SEED":
+            raise ValueError(f"WS49_NATURAL_INITIAL_SHUFFLE_BINDING_INVALID:{fixture_id}:{player}:{randomness!r}")
+        return
     expected = f"library_shuffle:{player}"
     if channel != expected:
         raise ValueError(f"WS49_NATURAL_SHUFFLE_CHANNEL_INVALID:{fixture_id}:{player}:{channel!r}")
-    randomness = record.get("rules_randomness")
-    channels = randomness.get("channels") if isinstance(randomness, dict) else None
-    if not isinstance(channels, list) or channel not in channels:
+    if channel not in channels:
         raise ValueError(f"WS49_NATURAL_SHUFFLE_CHANNEL_UNBOUND:{fixture_id}:{player}:{channel!r}")
+
+
+def _validate_opening_hand(entry: dict[str, Any], fixture_id: str, player: str) -> None:
+    opening = entry.get("opening_hand_size")
+    if opening is None and "main_deck" in entry:
+        # Direct deck records deliberately enter a native Commander game;
+        # XMage, rather than this provider, supplies its native seven-card
+        # opening hand rule.  There is no requested hand state to fabricate.
+        return
+    if opening != 7:
+        raise ValueError(f"WS49_NATURAL_OPENING_HAND_SIZE_UNSUPPORTED:{fixture_id}:{player}:{opening!r}")
 
 
 def _apply_natural_start(
@@ -147,9 +197,7 @@ def _apply_natural_start(
         entry = templates[player]
         library_name, library_count = _template_library(entry, fixture_id, player)
         commander_names = _template_commanders(record, entry, fixture_id, player)
-        opening = entry.get("opening_hand_size")
-        if opening != 7:
-            raise ValueError(f"WS49_NATURAL_OPENING_HAND_SIZE_UNSUPPORTED:{fixture_id}:{player}:{opening!r}")
+        _validate_opening_hand(entry, fixture_id, player)
         _validate_shuffle_binding(record, entry, fixture_id, player)
 
         # Exact immutable natural-start deck input. No provider filler is
