@@ -9,17 +9,16 @@
   "model": "opencode/muse-spark-1.3-contributor-free",
   "default_agent": "foundry-implementer",
 
-  // OpenCode V1-compatible compaction. Durable Git/state remains authoritative
-  // because compaction is lossy.
+  // Durable Git/state remains authoritative because compaction is lossy.
   "compaction": {
     "auto": true,
     "prune": true,
     "reserved": 32000
   },
 
-  // Keep caches/build output and common secret-bearing local files out of watcher
-  // noise. Watcher ignores are defense in depth; permission rules below remain
-  // the access boundary.
+  // Keep caches/build output and raw credential-bearing files out of watcher
+  // noise. This does not hide project data from Muse; it only reduces accidental
+  // credential exposure and irrelevant churn.
   "watcher": {
     "ignore": [
       ".git/**",
@@ -38,10 +37,10 @@
     ]
   },
 
-  // V1 permission syntax. This is deliberately stricter than a normal coding
-  // profile because Muse Contributor Free is not a confidential-data endpoint.
-  // OpenCode permissions are defense in depth, not an OS sandbox; see
-  // docs/agent-workflows/MUSE_DATA_BOUNDARY.md.
+  // V1 permission syntax. The profile is intentionally productive: project source,
+  // tests, evidence, logs, tooling, engine checkouts and normal coding/search/build
+  // commands are available. Raw credentials and unrelated personal data remain out
+  // of Muse context. See docs/agent-workflows/MUSE_DATA_BOUNDARY.md.
   "permission": {
     "*": "ask",
 
@@ -70,17 +69,13 @@
     },
 
     "glob": "allow",
-
-    // Built-in grep can search untracked workspace content. Keep it disabled and
-    // use `git grep` for tracked repository source instead.
-    "grep": "deny",
-
+    "grep": "allow",
     "websearch": "allow",
     "webfetch": "allow",
 
     "task": {
       "*": "ask",
-      "explore": "deny",
+      "explore": "allow",
       "foundry-reviewer": "allow"
     },
 
@@ -106,86 +101,13 @@
       "**/service-account*.json": "deny"
     },
 
-    // Unknown shell commands require approval. Common repository-safe inspection,
-    // validation and checkpoint commands are automatic; commands commonly used to
-    // dump credentials, arbitrary file contents, environment variables, or tunnel
-    // data are denied. This reduces accidental disclosure while keeping normal
-    // Foundry build/test loops practical.
+    // Normal coding, inspection, source-search, setup, build and test commands are
+    // allowed so Muse can finish long work without approval churn. Remote/destructive
+    // Git operations remain gated. Credential-dump commands are denied; already
+    // configured credentials may still be consumed indirectly by tools without being
+    // printed into model context.
     "bash": {
-      "*": "ask",
-
-      "pwd": "allow",
-      "git status": "allow",
-      "git status *": "allow",
-      "git diff": "allow",
-      "git diff *": "allow",
-      "git log": "allow",
-      "git log *": "allow",
-      "git show": "allow",
-      "git show *": "allow",
-      "git rev-parse *": "allow",
-      "git merge-base *": "allow",
-      "git describe *": "allow",
-      "git branch": "allow",
-      "git fetch": "allow",
-      "git fetch *": "allow",
-      "git ls-files": "allow",
-      "git ls-files *": "allow",
-      "git grep *": "allow",
-      "git add -u": "allow",
-      "git add -u *": "allow",
-      "git commit *": "allow",
-
-      "pytest": "allow",
-      "pytest *": "allow",
-      ".venv/bin/pytest": "allow",
-      ".venv/bin/pytest *": "allow",
-      "ruff": "allow",
-      "ruff *": "allow",
-      ".venv/bin/ruff": "allow",
-      ".venv/bin/ruff *": "allow",
-      "mypy": "allow",
-      "mypy *": "allow",
-      ".venv/bin/mypy": "allow",
-      ".venv/bin/mypy *": "allow",
-      "python -m pytest": "allow",
-      "python -m pytest *": "allow",
-      "python3 -m pytest": "allow",
-      "python3 -m pytest *": "allow",
-      ".venv/bin/python -m pytest": "allow",
-      ".venv/bin/python -m pytest *": "allow",
-      "python -m compileall *": "allow",
-      "python3 -m compileall *": "allow",
-      ".venv/bin/python -m compileall *": "allow",
-      "python -m pip *": "allow",
-      "python3 -m pip *": "allow",
-      ".venv/bin/python -m pip *": "allow",
-      "uv *": "allow",
-      "mvn *": "allow",
-      "java -version": "allow",
-      "java *": "allow",
-      "javac *": "allow",
-      "export JAVA_HOME=*": "allow",
-
-      "git add *": "ask",
-      "git branch *": "ask",
-      "git switch *": "ask",
-      "git push": "ask",
-      "git push *": "ask",
-      "git clone *": "ask",
-      "git worktree *": "ask",
-      "git merge *": "ask",
-      "git cherry-pick *": "ask",
-      "git rebase *": "ask",
-      "git reset *": "ask",
-      "git clean *": "ask",
-      "git checkout *": "ask",
-      "git restore *": "ask",
-      "mkdir *": "ask",
-      "cp *": "ask",
-      "mv *": "ask",
-      "touch *": "ask",
-      "rm *": "ask",
+      "*": "allow",
 
       "env": "deny",
       "env *": "deny",
@@ -195,56 +117,59 @@
       "export -p*": "deny",
       "set": "deny",
       "set *": "deny",
-      "cat *": "deny",
-      "head *": "deny",
-      "tail *": "deny",
-      "less *": "deny",
-      "more *": "deny",
-      "sed *": "deny",
-      "awk *": "deny",
-      "grep *": "deny",
-      "rg *": "deny",
-      "base64 *": "deny",
-      "xxd *": "deny",
-      "od *": "deny",
-      "dd *": "deny",
-      "python -c *": "deny",
-      "python3 -c *": "deny",
-      ".venv/bin/python -c *": "deny",
-      "bash *": "deny",
-      "sh *": "deny",
-      "zsh *": "deny",
-      "eval *": "deny",
-      "source *": "deny",
-      "curl *": "deny",
-      "wget *": "deny",
-      "nc *": "deny",
-      "netcat *": "deny",
-      "ssh *": "deny",
-      "scp *": "deny",
-      "sftp *": "deny",
-      "rsync *": "deny",
       "gh auth*": "deny",
       "git credential*": "deny",
-      "git config --global*": "deny",
-      "git config --system*": "deny",
-      "git branch -D *": "deny",
-      "rm -rf *": "deny",
-      "del *": "deny",
-      "rmdir *": "deny",
-      "Remove-Item *": "deny"
+      "git config --global*": "ask",
+      "git config --system*": "ask",
+
+      "git push": "ask",
+      "git push *": "ask",
+      "git merge *": "ask",
+      "git cherry-pick *": "ask",
+      "git rebase *": "ask",
+      "git reset *": "ask",
+      "git clean *": "ask",
+      "git branch -D *": "ask",
+      "git checkout -- *": "ask",
+      "git restore *": "ask",
+      "rm -rf *": "ask",
+      "del *": "ask",
+      "rmdir *": "ask",
+      "Remove-Item *": "ask",
+
+      "ssh *": "ask",
+      "scp *": "ask",
+      "sftp *": "ask"
     },
 
-    // Muse may access the active Foundry checkout and explicitly named sibling
-    // Foundry worktrees, but not arbitrary files elsewhere in the user's home.
-    // External engine sources needed by Muse should be provisioned inside the
-    // active Foundry worktree unless a separate trusted boundary is created.
+    // Project-related external source trees are allowed, including current engine
+    // candidates. Other external directories are approval-gated rather than denied,
+    // so an unexpected but legitimate project dependency can still be used without
+    // weakening the personal-data boundary globally.
     "external_directory": {
-      "*": "deny",
+      "*": "ask",
       "~/code/commander-playtest-lab": "allow",
       "~/code/commander-playtest-lab/**": "allow",
       "~/code/commander-playtest-lab-*": "allow",
-      "~/code/commander-playtest-lab-*/**": "allow"
+      "~/code/commander-playtest-lab-*/**": "allow",
+      "~/code/mage": "allow",
+      "~/code/mage/**": "allow",
+      "~/code/mage-*": "allow",
+      "~/code/mage-*/**": "allow",
+      "~/code/xmage*": "allow",
+      "~/code/xmage*/**": "allow",
+      "~/code/forge*": "allow",
+      "~/code/forge*/**": "allow",
+      "~/code/Card-Forge*": "allow",
+      "~/code/Card-Forge*/**": "allow",
+      "~/code/manabrew*": "allow",
+      "~/code/manabrew*/**": "allow",
+      "~/code/phase.rs*": "allow",
+      "~/code/phase.rs*/**": "allow",
+      "~/code/arcana*": "allow",
+      "~/code/arcana*/**": "allow",
+      "~/code/argentum*": "allow",
+      "~/code/argentum*/**": "allow"
     }
   }
 }
