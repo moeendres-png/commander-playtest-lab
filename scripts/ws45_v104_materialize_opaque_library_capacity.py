@@ -2,7 +2,8 @@
 import argparse
 from pathlib import Path
 
-ROWS_BLOCK = '''    private static List<String[]> rows(String envName) {
+# Raw literal is intentional: generated Java contains the two-character escape sequences \\n and \\t.
+ROWS_BLOCK = r'''    private static List<String[]> rows(String envName) {
         List<String[]> out = new ArrayList<>();
         String raw = decodeB64Env(envName);
         if (raw.isEmpty()) return out;
