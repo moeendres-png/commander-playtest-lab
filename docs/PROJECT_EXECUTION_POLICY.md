@@ -1,319 +1,149 @@
-# Commander Simulation Foundry — Project Execution Policy
+# Commander Simulation Foundry - Project Execution Policy
 
-Status: **ACTIVE / CANONICAL EXECUTION ROUTING**  
-Effective: **2026-09-08**
+Status: ACTIVE / CANONICAL EXECUTION ROUTING
+Effective: 2026-09-08
 
-This document controls **how project work is assigned to execution environments and models**. It does not weaken Rules correctness, evidence requirements, source authority, qualification gates, fail-closed behavior, reproducibility, or the Rules-Core/Pilot boundary.
+This policy controls how project work is executed. It does not weaken Rules correctness, evidence quality, qualification standards, fail-closed behavior, reproducibility, Source Truth, or the Rules-Core/Pilot boundary.
 
-If an older prompt, handoff, audit, report, or historical artifact prescribes a different execution environment (for example, "one Work chat only"), that routing instruction is superseded by this policy. The technical evidence and historical findings in those artifacts remain provenance and are not rewritten retroactively.
+Older prompts or handoffs that prescribe another execution environment remain historical provenance only. Their technical evidence is not rewritten, but their execution-routing instructions are superseded here.
 
-## 1. Primary operating rule
+## 1. Available execution paths
 
-ChatGPT Work is **not** a normal execution environment for this project.
+There are exactly three project execution paths:
 
-Default routing is:
+1. normal ChatGPT with GPT-5.6 Sol High
+2. OpenCode with Muse Spark 1.3
+3. ChatGPT Work with GPT-5.6 Sol Medium, exceptional only
 
-1. **normal ChatGPT Sol chat, High reasoning** — coordinator, architecture, difficult analysis and adjudication;
-2. **OpenCode** — primary repository implementation and execution worker;
-3. **Muse** — independent technical audit, review and bounded parallel investigation;
-4. **Spark 1.3** — bounded mechanical work that does not require frontier-level reasoning;
-5. **ChatGPT Work with Sol Medium** — exceptional, minimal, capability-specific fallback only.
+Muse and Spark 1.3 are not separate workers or execution paths in this project. The only OpenCode resource is OpenCode with Muse Spark 1.3.
 
-Resource constraints change execution routing only. They do not reduce qualification standards.
+## 2. Primary operating rule
 
-## 2. Normal Sol High is the primary reasoning tier
+Default execution uses normal Sol High and OpenCode with Muse Spark 1.3.
 
-Use normal Sol High chats for:
+ChatGPT Work is not a normal project environment. It may be used only when a required capability cannot reasonably be completed through normal Sol High or OpenCode with Muse Spark 1.3.
 
-- coordinator/integration work;
-- workstream contracts and handoffs;
-- architecture analysis and convergence;
-- source-truth adjudication;
-- difficult code review and design review;
-- MTG Comprehensive Rules / Oracle interpretation;
-- Rules-Core/Pilot boundary analysis;
-- qualification and test design;
-- failure attribution;
-- evidence review and PASS/FAIL/UNKNOWN adjudication;
-- deciding whether reruns are required;
-- deciding whether a candidate can advance toward Architecture Freeze.
+## 3. Normal Sol High
 
-Sol High should prefer directing executable or repetitive repository work to OpenCode rather than spending scarce reasoning budget on mechanical iteration.
+Use normal Sol High for:
 
-## 3. OpenCode is the primary implementation/execution worker
+- Coordinator and Integration
+- workstream design and handoffs
+- architecture and convergence
+- Source Truth adjudication
+- GitHub and source research
+- difficult code review
+- MTG Comprehensive Rules, Oracle and rulings work
+- Rules-Core/Pilot boundary analysis
+- qualification and test design
+- failure attribution
+- evidence review
+- PASS, FAIL and UNKNOWN adjudication
+- rerun decisions
+- Architecture Freeze and production-provider decisions
 
-Use OpenCode for substantial repository work, including:
+Normal Sol High is the final project-level adjudicator.
 
-- code changes;
-- provider/bridge implementation;
-- test implementation;
-- build fixes;
-- CI/workflow changes;
-- harness work;
-- repeated test/remediation cycles;
-- large source-tree inspection when execution context matters;
-- local/runtime qualification;
-- evidence generation that requires executable code.
+## 4. OpenCode with Muse Spark 1.3
 
-Every OpenCode assignment must be bounded to one workstream and include the exact repository/branch/source lock, objective, in-scope surfaces, hard gates, forbidden shortcuts, evidence requirements, persistence requirements and stop conditions.
+Use OpenCode with Muse Spark 1.3 for substantial repository execution, including:
 
-OpenCode does not independently grant architecture credit or global PASS.
+- implementation
+- repository edits
+- provider and bridge work
+- harness work
+- tests
+- build fixes
+- CI and workflow changes
+- debugging
+- runtime qualification
+- repeated remediation cycles
+- large source-tree inspection
+- static and dynamic audits
+- evidence generation
+- inventories, metadata extraction and other bounded mechanical repository work
 
-## 4. Muse is the independent audit worker
+Every substantial OpenCode assignment must be bounded to one primary workstream and include repository, branch, source lock, current head, objective, in-scope surface, hard gates, forbidden shortcuts, evidence requirements, persistence requirements and stop conditions.
 
-Use Muse aggressively for independent work that does not collide with the primary implementation lane, including:
+OpenCode with Muse Spark 1.3 may produce implementation and evidence but does not independently grant global architecture credit.
 
-- code and evidence audits;
-- no-request-echo audits;
-- fallback-path census;
-- Rules/Pilot separation review;
-- hidden-information review;
-- test-gap analysis;
-- likely-failure analysis;
-- post-failure diagnosis;
-- review of proposed fixes;
-- stale-evidence detection;
-- bounded experimental work on a separate surface when explicitly assigned.
+## 5. Work budget and necessity gate
 
-Default concurrency rule:
+Work is forbidden for ordinary tasks that normal Sol High or OpenCode with Muse Spark 1.3 can perform.
 
-- **OpenCode = primary implementation**
-- **Muse = independent verifier/investigator**
+Do not use Work for ordinary research, GitHub reading, repository investigation, architecture, code review, MTG Rules or Oracle work, evidence adjudication, coordination, prompt creation, test design, static analysis, candidate comparison, report reading, implementation, CI, debugging, runtime qualification or mechanical repository work when the normal paths are adequate.
 
-Do not let Muse and OpenCode concurrently edit the same implementation surface unless the coordinator explicitly partitions the work.
+Before any Work use, record:
 
-## 5. Spark 1.3 is the bounded mechanical worker
-
-Use Spark 1.3 for work such as:
-
-- inventories;
-- file/path mapping;
-- metadata extraction;
-- machine-readable comparison;
-- simple static searches;
-- checklist generation;
-- straightforward evidence formatting/classification;
-- bounded documentation extraction.
-
-Spark may gather and structure evidence. It must not have final authority over:
-
-- Rules correctness;
-- architecture selection;
-- semantic qualification;
-- native-engine defect attribution;
-- contract defects;
-- final PASS/FAIL adjudication;
-- complex multiplayer/Commander semantics;
-- hidden-information correctness;
-- determinism guarantees.
-
-Consequential conclusions return to Sol High for adjudication.
-
-## 6. ChatGPT Work is exceptional and quota-protected
-
-Work is forbidden for ordinary tasks that can reasonably be completed by normal Sol High, OpenCode, Muse or Spark 1.3.
-
-Do **not** use Work for:
-
-- ordinary research;
-- GitHub reading;
-- architecture reasoning;
-- code review;
-- MTG Rules research;
-- Oracle verification;
-- evidence adjudication;
-- coordinator work;
-- prompt creation;
-- test design;
-- static analysis;
-- candidate-engine comparison;
-- reading handoffs/reports;
-- routine repository investigation;
-- work OpenCode can execute;
-- work Muse can audit;
-- mechanical work Spark can perform.
-
-### Work Necessity Gate
-
-Before any Work invocation, explicitly establish:
-
-`WORK_NECESSITY = PASS`
+WORK_NECESSITY = PASS or FAIL
 
 PASS requires all of the following:
 
-1. a required capability is identified precisely;
-2. normal Sol High cannot adequately perform the task;
-3. OpenCode cannot adequately perform the required execution;
-4. Muse cannot adequately perform the supporting work;
-5. Spark 1.3 cannot adequately perform the bounded/mechanical portion;
-6. the Work assignment is reduced to the smallest possible scope.
+1. the exact missing capability is identified
+2. normal Sol High cannot adequately perform it
+3. OpenCode with Muse Spark 1.3 cannot adequately perform it
+4. the capability is genuinely required
+5. the Work assignment is reduced to the smallest possible operation
 
-If any condition is missing:
+If any condition is missing, WORK_NECESSITY = FAIL and Work must not be used.
 
-`WORK_NECESSITY = FAIL`
+If Work is necessary, use GPT-5.6 Sol Medium by default. Do not give Work an entire workstream when only one operation requires it. The result returns to normal Sol High and the remaining work continues outside Work.
 
-and Work must not be used.
+## 6. Parallelism
 
-When Work is genuinely necessary, use **Sol Medium by default**. A stronger Work reasoning level requires a task-specific justification. Work must perform only the irreducible operation, then return the result to the normal Sol High coordinator.
+Parallelism is allowed only across independent work surfaces.
 
-## 7. Workstream decomposition
+Before starting another OpenCode lane, verify branch ownership, current remote head, active worker, touched files and semantic surface, active CI or runtime runs, and expected output.
 
-For each workstream, decompose only as needed:
+Do not run competing OpenCode edits against the same semantic implementation surface. Do not overwrite or force-push over another worker. Preserve source-valid in-progress qualification runs.
 
-- **Reasoning / authority / adjudication** → Sol High
-- **Implementation / runtime execution** → OpenCode
-- **Independent audit / second opinion** → Muse
-- **Mechanical volume** → Spark 1.3
-- **Irreplaceable capability** → Work Sol Medium after `WORK_NECESSITY = PASS`
+## 7. Context and persistence
 
-Do not assign every role automatically. Minimize duplication.
+Do not send the entire project history to every worker. Each workstream receives only relevant global invariants, exact source lock, current state, workstream contract, hard gates, blockers, evidence requirements and exact next action.
 
-## 8. Parallelism and collision prevention
+Every workstream starts with a WORKSTREAM CONTRACT containing Objective, Inputs, Authority, In Scope, Out of Scope, Dependencies, Required Deliverables, Hard Gates, Evidence Requirements and Stop Conditions.
 
-Parallelism is allowed only when work surfaces are independent.
+Every workstream ends with a SELF-CONTAINED HANDOFF containing Source Lock, Work Completed, New Findings, Changes, Tests / Evidence, PASS / FAIL / UNKNOWN, Remaining Blockers, Outputs, Dependencies Unblocked and Exact Next Action.
 
-Before starting a second implementation worker, verify:
+Material progress must be persisted so another qualified worker can resume after interruption.
 
-- branch ownership;
-- current remote head;
-- active worker;
-- files/surfaces being changed;
-- expected outputs.
+## 8. Source Truth and qualification
 
-If two workers would modify the same semantic implementation surface:
+Project truth order remains:
 
-- do not duplicate the implementation;
-- do not force-push or overwrite another worker;
-- preserve the newest verified remote state;
-- either repartition the work or fail closed on the collision.
+1. newest direct user instruction
+2. freshly verified technical state
+3. current canonical domain data
+4. current primary sources
+5. historical reports and chats as provenance
 
-A running source-valid qualification workflow should not be invalidated by speculative commits merely to "keep working".
+For software, fresh repository, branch and commit state outrank reports.
 
-## 9. Context-efficiency rule
-
-Do not send the complete project history to every worker.
-
-Each worker receives a self-contained packet containing only:
-
-- relevant global invariants;
-- exact source lock;
-- exact current workstream state;
-- workstream contract;
-- hard gates;
-- known blockers;
-- required evidence;
-- exact next action.
-
-The coordinator maintains integration context. Workers maintain local workstream context.
-
-## 10. Persistence and handoff
-
-Material progress must remain resumable.
-
-Every workstream starts with a WORKSTREAM CONTRACT containing:
-
-- Objective
-- Inputs
-- Authority
-- In Scope
-- Out of Scope
-- Dependencies
-- Required Deliverables
-- Hard Gates
-- Evidence Requirements
-- Stop Conditions
-
-Every workstream ends with a SELF-CONTAINED HANDOFF containing:
-
-- Source Lock
-- Work Completed
-- New Findings
-- Changes
-- Tests / Evidence
-- PASS / FAIL / UNKNOWN
-- Remaining Blockers
-- Outputs
-- Dependencies Unblocked
-- Exact Next Action
-
-Persist material checkpoints during long execution rather than relying on chat continuity.
-
-## 11. Source truth and qualification remain unchanged
-
-Tool/model choice does not determine truth.
-
-Software truth:
-
-fresh verified repository/branch/commit state > README/report claims.
-
-MTG truth:
-
-current Comprehensive Rules / official Oracle and rulings > engine behavior > secondary sources.
-
-Project truth order:
-
-1. newest direct user instruction;
-2. freshly verified technical state;
-3. current canonical domain data;
-4. current primary sources;
-5. historical reports/chats/artifacts as provenance.
+For MTG, current Comprehensive Rules, official Oracle and official rulings outrank engine behavior, which outranks secondary sources.
 
 Qualification invariants remain:
 
-- `UNKNOWN != PASS`
-- `PARTIAL != FULL`
-- `NOT_RUN != PASS`
-- `CODE_DERIVED != RUNTIME_VERIFIED`
-- import/parsing does not prove card functionality;
-- construction does not prove behavior;
-- materially changed source invalidates affected stale runtime credit until impact adjudication/rerun;
-- unsupported production-reachable discretionary paths fail closed.
+- UNKNOWN is not PASS
+- PARTIAL is not FULL
+- NOT_RUN is not PASS
+- CODE_DERIVED is not RUNTIME_VERIFIED
+- parsing or import does not prove card functionality
+- construction does not prove behavior
+- material source changes require impact adjudication and affected reruns where necessary
+- unsupported production-reachable discretionary paths fail closed
 
-Forbidden fallbacks remain:
+Forbidden fallbacks remain first option, random option, default yes or no, hidden engine AI, GUI default, silent skip, parent fallback, fabricated legal actions and any second hidden Rules engine.
 
-- first option;
-- random option;
-- default yes/no;
-- hidden engine AI;
-- GUI default;
-- silent skip;
-- parent-class fallback;
-- any second hidden Rules engine in pilot/provider code.
+## 9. Coordinator authority
 
-## 12. Coordinator authority
+The normal Sol High Coordinator decides the next workstream, whether OpenCode is required, safe parallelization, evidence credit, failure attribution, required reruns, convergence timing, Architecture Freeze, production-provider selection and whether Work passes the necessity gate.
 
-The normal Sol High coordinator decides:
+## 10. Canonical routing summary
 
-- next workstream;
-- worker/model routing;
-- safe parallelization;
-- evidence credit;
-- failure attribution;
-- required reruns;
-- convergence timing;
-- Architecture Freeze eligibility;
-- whether Work use is justified.
+Normal Sol High = reasoning, research, authority, coordination and adjudication.
 
-OpenCode, Muse, Spark and Work may produce evidence and implementation, but none independently grants global architecture credit.
+OpenCode with Muse Spark 1.3 = repository implementation, execution, audits, debugging, qualification and mechanical repository work.
 
-## 13. Default routing algorithm
+Work with Sol Medium = exceptional irreducible capability only after WORK_NECESSITY = PASS.
 
-For each new task:
-
-1. Can normal Sol High solve the reasoning/adjudication directly? → use Sol High.
-2. Does the task primarily require repository implementation/execution? → use OpenCode.
-3. Would independent parallel technical review materially help? → use Muse.
-4. Is there substantial bounded/mechanical volume? → use Spark 1.3.
-5. Is a required capability still unavailable through all paths above? → only then evaluate the Work Necessity Gate and, if PASS, use minimally scoped Work Sol Medium.
-
-## 14. Operating principle
-
-Spend expensive reasoning on decisions.
-
-Spend implementation workers on implementation.
-
-Spend cheap workers on mechanical volume.
-
-Spend Work only on genuinely irreplaceable capability.
-
-Never trade Rules correctness or evidence quality for quota efficiency.
+Never trade correctness or evidence quality for quota efficiency.
