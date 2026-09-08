@@ -1,0 +1,149 @@
+name: WS46 XMage v1.0.4 Current Failure Shape Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws46/xmage-v1.0.4-successor-qualification
+    paths:
+      - '.github/workflows/ws46-xmage-v104-current-failure-shape-audit.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS44_FREEZE_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  WS44_FREEZE_TREE: cd83c973b269711106d08ab5be2d7672f05bcb7c
+  WS44_NAMESPACE_TREE: 6579e119605b90248426a3121a47c487b2bb13cd
+  WS44_MATERIALIZATION_SHA256: 9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35
+
+jobs:
+  current-failure-shapes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact WS46 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+
+      - name: Checkout exact immutable WS44 freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_FREEZE_COMMIT }}
+          path: _ws44
+          fetch-depth: 1
+
+      - name: Verify immutable WS44 locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws44 rev-parse HEAD)" = "$WS44_FREEZE_COMMIT"
+          test "$(git -C _ws44 rev-parse HEAD^{tree})" = "$WS44_FREEZE_TREE"
+          test "$(git -C _ws44 rev-parse HEAD:qualification/ws44)" = "$WS44_NAMESPACE_TREE"
+          test "$(sha256sum _ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json | cut -d' ' -f1)" = "$WS44_MATERIALIZATION_SHA256"
+
+      - name: Extract exact immutable shapes for current 19 failures
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws46-current-failure-shapes
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          source = Path('_ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json')
+          raw = source.read_bytes()
+          expected_sha = '9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35'
+          observed_sha = hashlib.sha256(raw).hexdigest()
+          assert observed_sha == expected_sha, (observed_sha, expected_sha)
+          contract = json.loads(raw)
+          assert contract['schema_version'] == 'commander-lab.semantic-fixture-materialization/1.0.4'
+          assert len(contract['records']) == 135
+
+          wanted = [
+              'PLAYER_COUNT_2P', 'PLAYER_COUNT_3P', 'PLAYER_COUNT_4P', 'PLAYER_COUNT_5P',
+              'PILOT_MULLIGAN', 'WS05-CMD-MULL-2', 'WS05-CMD-MULL-4',
+              'HIDDEN_05', 'HIDDEN_06', 'HIDDEN_10', 'HIDDEN_11',
+              'WS05-MP-TURN-3', 'WS05-MP-TURN-5',
+              'WS05-MP-ELIM-OWNED-3', 'WS05-MP-ELIM-CONTROL-3',
+              'WS05-MP-ELIM-STACK-3', 'WS05-MP-ELIM-PRIO-3',
+              'WS05-MP-ELIM-TURN-3', 'WS05-MP-ELIM-5',
+          ]
+          by_id = {r['fixture_id']: r for r in contract['records']}
+          assert len(by_id) == 135
+          missing = [x for x in wanted if x not in by_id]
+          assert not missing, missing
+
+          state_keys = [
+              'execution_entry_mode', 'players', 'deck_state', 'commander_state',
+              'semantic_objects', 'temporal_state', 'knowledge_state', 'rules_randomness',
+              'combat_state', 'stack_state', 'continuous_rules_effects',
+              'extra_turn_creation', 'elimination_trigger', 'zone_move_event',
+              'setup_validation',
+          ]
+          extracted = []
+          for fixture_id in wanted:
+              r = by_id[fixture_id]
+              row = {
+                  'fixture_id': fixture_id,
+                  'fixture_family': r.get('fixture_family'),
+                  'execution_entry_mode': r.get('execution_entry_mode'),
+                  'requested_state_digest': r.get('requested_state_digest'),
+                  'materialization_digest': r.get('materialization_digest'),
+                  'requested_state': {k: r[k] for k in state_keys if k in r},
+                  'native_procedure': r.get('native_procedure'),
+                  'expected_observation': r.get('expected_observation'),
+                  'semantic_oracle': r.get('semantic_oracle'),
+              }
+              extracted.append(row)
+
+          out = {
+              'schema_version': 'commander-lab.ws46-current-failure-shapes/1.0.0',
+              'source': {
+                  'freeze_commit': '12940248497a8795991cbbd2eedef72945528cfe',
+                  'freeze_tree': 'cd83c973b269711106d08ab5be2d7672f05bcb7c',
+                  'namespace_tree': '6579e119605b90248426a3121a47c487b2bb13cd',
+                  'materialization_sha256': observed_sha,
+                  'contract_version': contract['schema_version'],
+              },
+              'runtime_failure_source': {
+                  'run_id': 34221583745,
+                  'job_id': 102045705813,
+                  'artifact_id': 10054580582,
+                  'probe_sha256': '79867549f065e8f2c457b93c90fac56e3e9ac38aa88cc2c83da2dea602328061',
+              },
+              'fixture_count': len(extracted),
+              'fixture_ids': wanted,
+              'records': extracted,
+              'provider_runtime_credit_granted': False,
+          }
+          assert out['fixture_count'] == 19
+          p = Path('artifacts/ws46-current-failure-shapes/WS46_CURRENT_FAILURE_SHAPES.json')
+          p.write_text(json.dumps(out, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps({
+              'fixture_count': len(extracted),
+              'entry_modes': {m: sum(1 for x in extracted if x['execution_entry_mode'] == m) for m in sorted({x['execution_entry_mode'] for x in extracted})},
+              'fixture_ids': wanted,
+          }, sort_keys=True))
+          PY
+
+      - name: Seal shape-audit evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$GITHUB_SHA" > artifacts/ws46-current-failure-shapes/COMMANDER_LAB_COMMIT.txt
+          git rev-parse HEAD^{tree} > artifacts/ws46-current-failure-shapes/COMMANDER_LAB_TREE.txt
+          printf '%s\n' "$WS44_FREEZE_COMMIT" > artifacts/ws46-current-failure-shapes/WS44_COMMIT.txt
+          printf '%s\n' "$WS44_FREEZE_TREE" > artifacts/ws46-current-failure-shapes/WS44_TREE.txt
+          printf '%s\n' "$WS44_NAMESPACE_TREE" > artifacts/ws46-current-failure-shapes/WS44_NAMESPACE_TREE.txt
+          find artifacts/ws46-current-failure-shapes -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws46-current-failure-shapes/SHA256SUMS
+
+      - name: Upload source-locked shape audit
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws46-current-failure-shapes-${{ github.sha }}
+          path: artifacts/ws46-current-failure-shapes/
+          if-no-files-found: error
