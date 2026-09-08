@@ -1,0 +1,55 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 23,
+  "workstream": "WS-45",
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "commander_lab_head": "2e3d899b3fe30ec0875b87cd7d9b649a0fad75a1",
+  "commander_lab_tree": "d1a6f2e33b561a8d00ea76b47c979b4d319aae87",
+  "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+  "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+  "ws44": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "denominator": 107
+  },
+  "strict_no_request_echo": "PASS",
+  "historical_successor_credit_imported": 0,
+  "construction_credit": "0/107",
+  "behavior_credit": "0/107",
+  "attempt": {
+    "workflow_run_id": 34173410789,
+    "job_id": 101897994576,
+    "artifact_id": 10036522672,
+    "artifact_sha256": "103f2900012a8ff1571cc1a7f8c946db5c10754373120d397f5ed33b7af2d0e8",
+    "artifact_name": "ws45-v104-fresh-construction-107-2e3d899b3fe30ec0875b87cd7d9b649a0fad75a1",
+    "records_runtime_equal_before_failure": 4,
+    "records_runtime_equal_fixture_ids": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P"
+    ],
+    "failure_index": 5,
+    "failure_fixture_id": "PILOT_PRIORITY",
+    "failure_entry_mode": "NATIVE_STATE_LOAD",
+    "provider_exit_code": 0,
+    "qualification_state_seen": false,
+    "session_result_seen": true,
+    "decision_frames_before_stop": 5,
+    "stop_reason": "WS40_STATE_OBJECT_SPEC_ARITY:13",
+    "session_result_priority_decisions": 0,
+    "session_result_snapshot": {
+      "phase": "UNTAP",
+      "turn": "1",
+      "player_count": 4
+    }
+  },
+  "finding": "The missing QUALIFICATION_STATE is caused by a controlled native-state-load stop before snapshot emission. The exact stop is WS40_STATE_OBJECT_SPEC_ARITY:13, proving an object-spec transport/parser arity mismatch. This is distinct from strict no-request-echo and deterministic native identity, both of which remain closed at their existing PASS checkpoints.",
+  "credit_policy": "No partial construction credit. Four equal records are runtime evidence only; construction remains 0/107 until one fresh exact 107-record run passes every record.",
+  "terminal": false,
+  "next_action": "Audit the exact Python semantic-object serialization and generated Ws40SuccessorState parser, repair only the bounded object-spec format contract, fail closed on malformed or ambiguous fields, then rerun all 107 from record 1."
+}
