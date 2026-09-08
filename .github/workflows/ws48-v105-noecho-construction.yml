@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/ws48-v105-noecho-construction.yml'
       - 'scripts/ws48_patch_v105_runner_identity.py'
+      - 'scripts/ws48_v105_native_stack_modes.py'
   workflow_dispatch:
 
 permissions:
@@ -124,6 +125,7 @@ jobs:
           python scripts/ws45_patch_generated_gamestate_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
           python scripts/ws45_extend_natural_observation.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
           python scripts/ws45_v104_nullable_knowledge_presence.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          python scripts/ws48_v105_native_stack_modes.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java" --runner "$ev/runners/run_strict_no_echo_gate.py"
           python scripts/ws45_v104_native_zero_counter_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java" --runner "$ev/runners/run_fresh_construction_107.py"
           ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana|RestoredQualificationHistory|candidates\.get\(0\)|game\.findById\(expectedNativeId\)|\\"bound_config\\"' "$out/java"
           ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
@@ -138,7 +140,12 @@ jobs:
           assert 'CombatUtil.canBlock(attacker, blocker, combat)' in tail
           assert 'System.getenv' not in tail
           assert 'expectedNativeId' not in tail and 'candidates.get(0)' not in tail
+          assert 'CharmEffect.makePossibleOptions(sa)' in s
+          assert 'CharmEffect.chainAbilities(sa, matches)' in s
+          assert 'RestoredSpellCastHistory.restoreCompletedPaidSpell(game, sa)' in s
+          assert 'WS48_STACK_MODE_NATIVE_MATCH_NONUNIQUE' in s
           Path('artifacts/ws48-v105-construction/WS48_BLOCKER_SURFACE_STATIC.txt').write_text(tail)
+          Path('artifacts/ws48-v105-construction/WS48_STACK_MODE_STATIC.txt').write_text('\n'.join(x for x in s.splitlines() if 'ws48' in x.lower() or 'CharmEffect' in x or 'RestoredSpellCastHistory' in x))
           PY
           cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
           javac -cp "$cp" -d "$ev/classes" "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$out/java/forge/game/player/Ws23ForgeBootstrap.java" "$out/java/forge/game/player/Ws40SuccessorState.java" "$out/java/forge/game/player/Ws45StrictObservation.java"
