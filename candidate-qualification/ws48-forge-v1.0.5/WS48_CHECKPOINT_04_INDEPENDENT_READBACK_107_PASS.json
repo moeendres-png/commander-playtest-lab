@@ -1,0 +1,57 @@
+{
+  "schema_version": "commander-lab.ws48-checkpoint/1.0.0",
+  "workstream": "WS-48",
+  "checkpoint": 4,
+  "status": "PASS",
+  "gates": {
+    "G48-07_FRESH_CONSTRUCTION_107": "PASS",
+    "G48-08_INDEPENDENT_NATIVE_READBACK_NORMALIZATION": "PASS"
+  },
+  "source_lock": {
+    "qualification_source_head": "f54bf68f881d5c6cb911e0a4ff2ffcc05ebdbbf3",
+    "ws47_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "ws47_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+    "ws47_namespace_tree": "12af73695c801a42a0193ee895d5fc0843d16b0c",
+    "ws47_schema": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "ws47_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "ws47_materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_version": "2.0.15-SNAPSHOT"
+  },
+  "workflow": {
+    "run_id": 34263710979,
+    "job_id": 102187721320,
+    "artifact_id": 10071172447,
+    "artifact_name": "ws48-v105-independent-readback-f54bf68f881d5c6cb911e0a4ff2ffcc05ebdbbf3",
+    "artifact_digest": "sha256:f320fbac2eb95b9f5a79cc13c22561ebfab613632504bd64fefd6a8a3dbda0c7",
+    "artifact_file_count": 23
+  },
+  "runtime": {
+    "forge_build": "PASS",
+    "provider_compile": "PASS",
+    "independent_readback_denominator": 107,
+    "independent_readback_pass_count": 107,
+    "hard_gate": "PASS",
+    "all_native_readback_equal_requested_state": true,
+    "all_rows_runtime_verified_independent_readback": true,
+    "native_runtime_reexecuted_all_107": true,
+    "standalone_normalizer": true,
+    "construction_normalizer_imported": false,
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "proof": {
+    "normalizer_implementation": "WS48_STANDALONE_NATIVE_READBACK",
+    "request_use_limited_to_identity_presence_order_and_explicit_semantic_checkpoint_mapping": true,
+    "behavior_not_credited_by_readback": true
+  },
+  "credit": {
+    "historical_successor_runtime_credit_imported": 0,
+    "construction_credit": "107/107",
+    "behavior_credit": "0/107",
+    "forge_successor_provider_qualified": false,
+    "af07_granted": false,
+    "architecture_freeze_granted": false
+  },
+  "next_action": "Execute G48-09 as a complete fresh native behavior runtime over the exact immutable WS47 107-record denominator. Do not import construction/readback results as behavior credit. Continue automatically through G48-10..G48-13 after behavior closure."
+}
