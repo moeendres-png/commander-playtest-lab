@@ -64,7 +64,8 @@ jobs:
           test "$(sha256sum contract-v105/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')" = "$WS47_MATERIALIZATION_SHA256"
           test "$(git -C forge-lock rev-parse HEAD)" = "$FORGE_COMMIT"
           test "$(git -C forge-lock rev-parse HEAD^{tree})" = "$FORGE_TREE"
-          grep -Rqs '<revision>2.0.15-SNAPSHOT</revision>' forge-lock/pom.xml forge-lock/*/pom.xml || grep -Rqs '2.0.15-SNAPSHOT' forge-lock/pom.xml
+          grep -q '<versionCode>2.0.15</versionCode>' forge-lock/pom.xml
+          grep -q '<snapshotName>-SNAPSHOT</snapshotName>' forge-lock/pom.xml
           python - <<'PY'
           import hashlib, json, os
           from pathlib import Path
@@ -81,7 +82,6 @@ jobs:
           assert len(doc105['records'])==135
           assert len(den105['fixture_ids'])==107 and len(set(den105['fixture_ids']))==107
 
-          # Independent denominator reconstruction: every non-Actual-Card record plus CARD_02.
           reconstructed=[r['fixture_id'] for r in doc105['records'] if r['fixture_family']!='actual_card' or r['fixture_id']=='CARD_02']
           assert len(reconstructed)==107 and reconstructed==den105['fixture_ids']
           assert reconstructed==den104['fixture_ids']
@@ -104,7 +104,6 @@ jobs:
           a=by104['WS05-MP-BLOCK-4']; b=by105['WS05-MP-BLOCK-4']
           assert a['combat_state']['eligible_blockers']==['obj:mp-p2-blocker']
           assert b['combat_state']['eligible_blockers']==['obj:P2-bears','obj:mp-p2-blocker']
-          # Prove no other projected field changed in the repaired record.
           for k in keys:
               if k!='combat_state': assert a.get(k)==b.get(k), k
           ca=dict(a['combat_state']); cb=dict(b['combat_state']); ca.pop('eligible_blockers',None); cb.pop('eligible_blockers',None); assert ca==cb
