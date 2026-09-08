@@ -6,121 +6,143 @@ This document is subordinate to the newest direct user instruction, `AGENTS.md`,
 
 ## 1. Purpose
 
-Muse Spark 1.3 Contributor Free is used as the Foundry's primary bounded implementation worker because it is well suited to long implementation/test/repair loops. It is **not** treated as a confidential-data processing boundary.
+Muse Spark 1.3 Contributor Free is the Foundry's primary bounded implementation worker. It must be able to use everything materially required for project engineering.
 
-The project therefore distinguishes engineering data that may be sent to Muse from sensitive material that must remain outside Muse context.
+The boundary therefore protects **unrelated personal/private data and raw credentials**, not ordinary Foundry project information.
 
-## 2. Explicitly allowed data
+Do not treat project data as sensitive merely because it belongs to the user or is locally stored.
 
-Muse may receive and process:
+## 2. Explicitly allowed project data
 
-- repository source code and tests intended for Foundry engineering;
-- Magic card names, Oracle/card metadata, decklists, owned-card inventories, collection information, matchup/deckbuilding data, and other MTG-specific data supplied for this project;
-- provider/engine source needed for the bounded engineering task when its license/process boundary permits it;
-- qualification contracts, fixtures, runtime evidence, logs, traces, and build artifacts that do not contain forbidden sensitive data;
-- public technical documentation and public web sources.
+Muse may receive, inspect, search, transform, test, and reason over all project-relevant technical material, including:
 
-The user's MTG cards, decks, and owned-card information are **not classified as sensitive for this Muse policy**.
+- Commander Simulation Foundry repository source, tests, scripts, schemas, docs and configuration;
+- qualification contracts, immutable materializations, fixtures, runtime evidence, traces, logs, build artifacts and machine-readable results;
+- Forge, XMage, Manabrew, phase.rs, Arcana, Argentum and other engine/provider source or build trees needed for current research/implementation, subject to their license/process constraints;
+- local build caches and generated project artifacts when useful for diagnosis;
+- Magic card names, Oracle/card metadata, decklists, owned-card inventories, collection information, matchup/deckbuilding data and other MTG-specific data supplied for this project;
+- public technical sources and current primary-source research;
+- project-specific non-personal settings and metadata necessary to compile, test, debug, qualify or reproduce the simulator.
 
-## 3. Forbidden data
+The user's MTG cards, decks, collection and owned-card information are explicitly **not sensitive for this Muse policy**.
 
-Do not send, read, search for, print, copy, persist into prompts, or otherwise expose to Muse:
+Project data must not be withheld merely because it is detailed, proprietary-looking, historical, machine-generated or large. Source Truth and scope rules still determine whether it is authoritative.
+
+## 3. Personal/private data that stays outside Muse context
+
+Do not deliberately send, search for, quote, persist, or expose unrelated personal/private information such as:
+
+- home/postal addresses;
+- private telephone numbers;
+- personal email addresses when they are not materially required for repository operation, and especially private email message content;
+- private calendar/contact/address-book data;
+- private chats or unrelated conversation exports;
+- government identifiers, banking/payment information or unrelated account records;
+- browser profiles, saved passwords, personal browsing history or personal documents unrelated to Foundry;
+- comparable information whose primary purpose is to describe or identify the user as a private person rather than the project.
+
+Normal repository metadata, public GitHub identities, commit SHAs, branch/PR data and technical attribution may be used when required for Source Truth. Do not unnecessarily surface personal contact details from such metadata.
+
+If a file mixes required Foundry data with unrelated personal/private data, prefer a project-only/sanitized view when practical. Do not block the entire engineering task if the required project information can be accessed without exposing the personal portion.
+
+## 4. Raw credentials: may be used indirectly, not exposed
+
+Credentials are operational secrets rather than project evidence. They may be necessary for project tooling, but the model does not need to see their raw values.
+
+Examples:
 
 - passwords;
 - API keys;
-- access tokens, refresh tokens, bearer tokens, session tokens, cookies, OAuth secrets;
-- SSH private keys, GPG private keys, private certificates, signing secrets;
-- cloud/service credentials or password-manager exports;
-- secret-bearing `.env` or local credential files;
-- browser profiles, browser cookie stores, saved passwords, or unrelated browsing history;
-- private email, calendar, contacts, private chat exports, or unrelated personal documents;
-- banking/payment information, government/account identifiers, or other unrelated confidential personal/account data;
-- secrets from another project merely because that project is reachable from the same WSL account.
+- access/refresh/bearer/session tokens;
+- OAuth secrets/cookies;
+- SSH/GPG/private keys;
+- cloud/service credentials;
+- secret-bearing `.env` files;
+- password-manager exports.
 
-If a file mixes allowed Foundry/MTG data with forbidden sensitive data, the file is forbidden until a sanitized copy containing only allowed information is produced outside Muse.
+Policy:
 
-## 4. Fail-closed rule
+1. Muse may run project tools that use already-configured authentication or inherited environment credentials.
+2. Muse may invoke authenticated Git/provider/build/test workflows when the credential value itself is not printed into model context.
+3. Do not inspect, echo, dump, copy, commit or persist raw credential values.
+4. If a credential itself must be created/rotated/read/edited, perform that credential-management step outside the Muse model context, then let Muse continue using the configured tool normally.
 
-If a Muse task materially requires forbidden data:
+This distinction is important: **credential use is allowed when needed for the project; credential disclosure to Muse is not required or desired.**
 
-1. do not ask Muse to inspect it;
-2. do not temporarily weaken the OpenCode privacy rules;
-3. mark the affected subtask `MUSE_DATA_BOUNDARY_BLOCKED`;
-4. route that subtask to an appropriate non-Muse authority/execution path or sanitize the required input first;
-5. continue independent Muse-safe work when possible.
+## 5. Workspace and external-engine access
 
-Sensitive data is never a valid reason to bypass the boundary for convenience.
+Muse should normally work in the active Foundry checkout/worktree, but it may also access project-related external source/build trees required for the current task.
 
-## 5. Workspace boundary
+`opencode.jsonc` explicitly allows common Foundry and engine checkout families and approval-gates other external directories rather than denying them globally.
 
-The normal Muse workspace is the active Foundry checkout or an explicitly named sibling Foundry worktree.
+A new external path is acceptable when it is genuinely project-related. Do not approve unrelated personal directories merely for convenience.
 
-`opencode.jsonc` denies arbitrary external-directory access and allows only the Foundry checkout/worktree family required for dual-lane continuation.
+## 6. Search and inspection
 
-Do not keep unrelated secrets inside a Muse-enabled Foundry worktree.
+Normal engineering search must remain available.
 
-If an external engine checkout is required for Muse, prefer placing it inside a gitignored area of the active Foundry worktree or another explicitly approved Foundry worktree rather than granting broad access to `~/code`, `$HOME`, or another project directory.
+Muse may use:
 
-## 6. Search boundary
+- OpenCode `grep`;
+- `git grep`;
+- `rg`/`grep`/`find`/`sed`/`awk` and equivalent project inspection tools;
+- normal file reads within project-relevant trees.
 
-The built-in OpenCode `grep` tool is disabled for the Muse profile because it can search untracked workspace content.
+Do not deliberately redirect those tools into unrelated personal locations or credential stores.
 
-Use `git grep` for normal tracked-source search. This has two advantages:
+## 7. Shell and tooling
 
-- the searched source is part of the repository source lock;
-- untracked secret-bearing local files are not searched by default.
+Muse needs ordinary shell autonomy for real coding work, including:
 
-`glob` may be used for repository navigation, but discovering a forbidden filename is not permission to read its content.
+- Python/Java/Maven/build tools;
+- repository scripts;
+- source search and text processing;
+- dependency/source acquisition;
+- compile/test/fix loops;
+- evidence generation;
+- local checkpoint commits.
 
-## 7. Shell boundary
+Do not weaken project execution merely to avoid normal shell use.
 
-The Muse shell policy is allowlisted for common Foundry inspection/build/test/checkpoint commands and asks for unknown commands. Common credential/environment dump, arbitrary file-content dump, tunneling, shell-within-shell, and credential-management command classes are denied.
+Remote/destructive Git and filesystem actions remain approval-gated by `opencode.jsonc`.
 
-The agent must never use:
+Environment/credential dump commands remain denied because they are rarely required for engineering and can expose unrelated secrets. Already-configured credentials can still be consumed indirectly by the tools that need them.
 
-- variable assignment;
-- shell indirection;
-- a generated script;
-- Python/Java/test code;
-- a subprocess;
-- encoded output;
-- another agent;
+## 8. Fail-closed rule for personal data / raw credential disclosure
 
-as a way to obtain data that a direct OpenCode read would deny.
+If a subtask would require Muse to inspect unrelated personal data or reveal a raw credential value:
 
-Approval of an unknown shell command is not an exception to the forbidden-data policy.
+1. stop only that disclosure path;
+2. use an authenticated tool, sanitized input or non-Muse credential-management step instead;
+3. continue all independent project work;
+4. do not reinterpret the privacy boundary as a simulator/qualification blocker unless the project truly cannot proceed without disclosure.
 
-## 8. Environment hygiene
-
-Start Muse/OpenCode from a terminal that does not intentionally export unrelated service secrets.
-
-Do not put OpenAI, cloud, database, GitHub, email, payment, or other unrelated API credentials into the environment merely to make them convenient for unrelated tooling.
-
-Where a workstream genuinely needs a credential for an external action, prefer performing that action outside Muse or through an execution path where the credential is not surfaced to Muse context.
+The privacy boundary is not a reason to withhold ordinary project source, evidence, logs, card data or engine code.
 
 ## 9. Known limitation: OpenCode permissions are not a hard OS sandbox
 
-OpenCode `read`, `edit`, `external_directory`, and shell permission rules are valuable defense in depth, but they do not create a cryptographic or operating-system isolation boundary.
+OpenCode permissions are defense in depth, not an operating-system isolation boundary.
 
-A coding agent that can edit executable repository code and run tests shares the authority of the Unix account running those tools unless a stronger sandbox exists. Permission patterns can also have edge cases around shell indirection and command parsing.
+A coding agent that can execute repository code shares substantial authority with the Unix account running that code. Therefore policy and workspace discipline remain necessary even when file patterns are denied.
 
-Therefore:
+For Foundry this means:
 
-- this repository policy does **not** claim that OpenCode configuration alone can make arbitrary same-user secrets technically unreachable under every adversarial condition;
-- the project relies on keeping sensitive material outside the Muse workspace/context, restricting external paths, and narrowing shell access;
-- if a task requires a hard confidentiality guarantee, run Muse inside a dedicated OS user/container/sandbox that mounts only the allowed Foundry workspace and required non-sensitive dependencies.
+- normal project engineering remains enabled;
+- unrelated personal files should remain outside project workspaces;
+- raw credentials should be consumed by configured tools without being printed;
+- if a future task requires a hard confidentiality guarantee, use a dedicated OS user/container/sandbox that mounts only the required project trees.
 
-Do not claim `SENSITIVE_DATA_ISOLATION = PASS` solely because `opencode.jsonc` parses successfully.
+Do not claim `PERSONAL_DATA_ISOLATION = PASS` solely because `opencode.jsonc` parses successfully.
 
-## 10. Review checklist
+## 10. Practical review checklist
 
-Before a substantial Muse task, verify:
+Before substantial Muse work, verify:
 
-- active workspace is a Foundry checkout/worktree;
-- no required input contains forbidden sensitive data;
-- no broad external-directory exception has been added;
-- no task prompt contains credentials/secrets;
-- any logs/evidence expected to enter Muse context are sanitized;
-- the task remains executable with the restricted shell/search profile.
+- the active task is a Foundry engineering task;
+- required project/engine data is available rather than unnecessarily blocked;
+- prompts/evidence do not contain unrelated personal data;
+- raw credentials are not being printed or persisted;
+- project-related external paths can be accessed or approved;
+- normal search/build/test/debug tooling remains usable.
 
-At handoff, report any data-boundary exception request as `UNKNOWN`/blocked rather than silently weakening the policy.
+At handoff, report only genuine privacy blockers. Ordinary project data access is expected and allowed.
