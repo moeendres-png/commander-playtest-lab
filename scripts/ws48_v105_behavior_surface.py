@@ -122,6 +122,7 @@ BROKER_HELPERS = """        static String ws48Pid(Player p) {
         }
 
         void emitEvent(String name) {
+            if (!ws48BehaviorEnabled()) return;
             recordAutomatic("EVENT:" + name);
             out.println("{\\"protocol\\":" + esc(PROTOCOL)
                 + ",\\"message_type\\":\\"EVENT\\""
@@ -132,7 +133,12 @@ BROKER_HELPERS = """        static String ws48Pid(Player p) {
         }
 
         void emitDecisionFrame(String kind, Player actor, int optionCount) {
+            if (!ws48BehaviorEnabled()) return;
             emitEvent("decision_frame:" + kind + ":" + ws48Pid(actor) + ":" + optionCount);
+        }
+
+        static boolean ws48BehaviorEnabled() {
+            return "1".equals(System.getenv("COMMANDER_LAB_WS48_BEHAVIOR"));
         }
 
 """
@@ -160,12 +166,14 @@ SNAPSHOT_HOOK_OLD = """                revision++;
                 return choice;"""
 
 SNAPSHOT_HOOK_NEW = """                revision++;
-                try {
-                    Ws40SuccessorState.emitBehaviorCheckpoint(actor.getGame(), this);
-                } catch (ControlledStop stop) {
-                    throw stop;
-                } catch (RuntimeException emitFailure) {
-                    throw new ControlledStop("WS48_BEHAVIOR_SNAPSHOT_FAILED:" + emitFailure.getMessage());
+                if (ws48BehaviorEnabled()) {
+                    try {
+                        Ws40SuccessorState.emitBehaviorCheckpoint(actor.getGame(), this);
+                    } catch (ControlledStop stop) {
+                        throw stop;
+                    } catch (RuntimeException emitFailure) {
+                        throw new ControlledStop("WS48_BEHAVIOR_SNAPSHOT_FAILED:" + emitFailure.getMessage());
+                    }
                 }
                 return choice;"""
 
@@ -451,9 +459,10 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
         cards.append(']');
         StringBuilder stack = new StringBuilder("[");
         boolean sfirst = true;
-        for (SpellAbility sa : game.getStack()) {
+        for (forge.game.spellability.SpellAbilityStackInstance si : game.getStack()) {
             if (!sfirst) stack.append(',');
             sfirst = false;
+            SpellAbility sa = si.getSpellAbility();
             Card host = sa.getHostCard();
             stack.append("{\\"source\\":")
                 .append(Ws23ForgeVerticalProvider.esc(host == null ? null : host.getName()))

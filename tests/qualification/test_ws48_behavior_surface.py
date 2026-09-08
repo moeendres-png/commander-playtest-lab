@@ -65,6 +65,8 @@ def test_behavior_surface_applies(tmp_path):
         "ATTACK_ASSIGNMENT:",
         "BLOCK_ASSIGNMENT:",
         "emitDecisionFrame(kind, actor, labels.size())",
+        "ws48BehaviorEnabled()",
+        'COMMANDER_LAB_WS48_BEHAVIOR',
     ):
         assert marker in patched, marker
     assert "import forge.ai" not in patched and "import forge.gui" not in patched
