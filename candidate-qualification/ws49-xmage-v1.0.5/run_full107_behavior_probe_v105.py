@@ -632,11 +632,18 @@ def open_state_load_session(record: dict[str, Any]) -> tuple[Any, dict[str, Any]
         configured = client.request("configure_qualification_scenario", {"scenario": scenario})
         if configured.get("execution_entry_mode") != "NATIVE_STATE_LOAD":
             fail("WS49_BEHAVIOR_ENTRY_MODE_MISMATCH", fixture_id, configured.get("execution_entry_mode"))
-        native_preflight = configured.get("native_validation")
-        if not isinstance(native_preflight, dict) or native_preflight.get("valid") is not True:
-            fail("WS49_BEHAVIOR_NATIVE_PREFLIGHT_FAILED", fixture_id)
         client.request("start_full_game")
         state = client.request("get_qualification_state")
+        # Restoration gate mirrors the construction probe's readback contract:
+        # a present lower-level native readback with passing native
+        # validation. No requested-state comparison happens here; setup
+        # equality was already proven independently by G49-07/G49-08.
+        readback = state.get("ws42_native_construction_readback")
+        if not isinstance(readback, dict):
+            fail("WS49_BEHAVIOR_NATIVE_READBACK_MISSING", fixture_id)
+        validation = readback.get("native_validation")
+        if not isinstance(validation, dict) or validation.get("valid") is not True:
+            fail("WS49_BEHAVIOR_NATIVE_VALIDATION_NOT_PASS", fixture_id)
         return client, scenario, state
     except Exception:
         client.__exit__(*sys.exc_info())
@@ -884,19 +891,33 @@ def collect_terminal_observation(client: Any, record: dict[str, Any]) -> dict[st
 # Registry maps fixture_id -> checker. Missing checker => UNKNOWN, no credit.
 # ---------------------------------------------------------------------------
 
-def _obs_players(terminal: dict[str, Any], viewer: str = "P1") -> dict[str, Any]:
+def _obs_players(record: dict[str, Any], terminal: dict[str, Any], viewer: str = "P1") -> dict[str, Any]:
+    fixture_id = record.get("fixture_id")
+    player_count = len(record["players"])
     observations = terminal.get("observations") or {}
     obs = observations.get(viewer) or observations.get("P1")
     if not isinstance(obs, dict):
         raise RuntimeError("WS49_BEHAVIOR_TERMINAL_VIEWER_MISSING")
     players = obs.get("players") or []
-    return {p.get("player_id"): p for p in players if isinstance(p, dict)}
+    by_id: dict[str, Any] = {}
+    for bucket in players:
+        if not isinstance(bucket, dict):
+            raise RuntimeError("WS49_BEHAVIOR_TERMINAL_PLAYER_ENTRY_INVALID")
+        pid = bucket.get("player_id")
+        if not isinstance(pid, str) or not pid:
+            # Seat-addressed native buckets: bind explicitly like the probe.
+            pid = construction_v105._canonical_player_from_native_seat(
+                bucket, player_count, fixture_id)
+        if pid in by_id:
+            raise RuntimeError("WS49_BEHAVIOR_TERMINAL_PLAYER_DUPLICATE")
+        by_id[pid] = bucket
+    return by_id
 
 
 def check_natural_opening(record: dict[str, Any], terminal: dict[str, Any]) -> dict[str, Any]:
     """Player-count / mulligan opening postconditions from native observations."""
     fixture_id = record.get("fixture_id")
-    players = _obs_players(terminal)
+    players = _obs_players(record, terminal)
     expected_count = len(record["players"])
     if len(players) != expected_count:
         fail("WS49_BEHAVIOR_OPENING_PLAYER_COUNT_MISMATCH", fixture_id, len(players))
@@ -1132,10 +1153,20 @@ def execute_natural(record: dict[str, Any]) -> dict[str, Any]:
         ).get("observation")
         if not isinstance(observation, dict):
             fail("WS49_BEHAVIOR_NATURAL_OBSERVATION_MISSING", fixture_id)
-        observed_players = {p.get("player_id"): p for p in (observation.get("players") or [])
-                            if isinstance(p, dict)}
+        # Observation player buckets are seat-addressed (mirroring the
+        # construction probe); bind seats to canonical P<n> explicitly.
+        observed_players: dict[str, Any] = {}
+        for player in observation.get("players") or []:
+            if not isinstance(player, dict):
+                fail("WS49_BEHAVIOR_NATURAL_PLAYER_ENTRY_INVALID", fixture_id)
+            pid = construction_v105._canonical_player_from_native_seat(
+                player, player_count, fixture_id)
+            if pid in observed_players:
+                fail("WS49_BEHAVIOR_NATURAL_PLAYER_DUPLICATE_SEAT", fixture_id, pid)
+            observed_players[pid] = player
         if set(observed_players) != {f"P{seat}" for seat in range(1, player_count + 1)}:
-            fail("WS49_BEHAVIOR_NATURAL_PLAYER_SET_MISMATCH", fixture_id)
+            fail("WS49_BEHAVIOR_NATURAL_PLAYER_SET_MISMATCH", fixture_id,
+                 sorted(observed_players))
         for pid, player in observed_players.items():
             if player.get("life") != 40:
                 fail("WS49_BEHAVIOR_NATURAL_LIFE_MISMATCH", fixture_id, pid)
