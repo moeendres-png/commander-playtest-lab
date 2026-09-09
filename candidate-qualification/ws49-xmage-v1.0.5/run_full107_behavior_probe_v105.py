@@ -72,6 +72,29 @@ EXPECTED_ENTRY_MODE_COUNTS = {"NATIVE_STATE_LOAD": 100, "NATURAL_GAME_START": 7}
 PRIORITY_CLASS = "priority"
 PASS_OPTION_TYPE = "pass_priority"
 
+# R2 frame-vocabulary normalization (WS49_R2_FRAME_VOCABULARY_MAP.md, M1).
+# Native producer `XmageFullGamePlayer.chooseMode` — the SOLE emitter of the
+# modal-spell mode decision — publishes decision_class "mode", while the
+# WS47-derived obligation family names the same native semantic event
+# "choose_mode". Routing and frame derivation below canonicalize through this
+# table; the authoritative native decision/options are never rewritten and the
+# raw native spelling is additionally emitted (provenance preserved). Entries
+# are added ONLY with SAME_NATIVE_SEMANTIC_EVENT = PROVEN. In particular
+# "choose_use", "choice", and "replacement_effect" are distinct native methods
+# with distinct option sets and MUST NOT be conflated here.
+CANONICAL_DECISION_CLASS = {
+    "mode": "choose_mode",
+}
+
+
+def canonical_decision_class(native_class: Any) -> str:
+    """Canonical routing label for a native decision_class (R2 M1).
+
+    Unknown classes pass through unchanged (fail closed downstream).
+    """
+    klass = str(native_class)
+    return CANONICAL_DECISION_CLASS.get(klass, klass)
+
 
 def fail(code: str, fixture_id: str, detail: Any = None) -> None:
     suffix = (
@@ -130,9 +153,20 @@ class NativeEventLog:
         self.events.append(event)
 
     def frame_events(self, decision: dict[str, Any], actor: str) -> None:
-        klass = str(decision.get("decision_class"))
+        raw = str(decision.get("decision_class"))
+        klass = canonical_decision_class(raw)
+        # Canonical long forms (routing vocabulary).
         self.emit(f"{klass}_decision_frame:{actor}")
         self.emit(f"decision_frame:{klass}")
+        # R2 M2: contract-legacy short form for the same native frame event.
+        # Emitted iff the native frame occurred (lossless additive alias).
+        self.emit(f"{klass}_frame:{actor}")
+        if klass != raw:
+            # Raw native provenance (R2 M1): the bridge published `raw`, not
+            # `klass`. Retained alongside the canonical forms, never instead.
+            self.emit(f"{raw}_decision_frame:{actor}")
+            self.emit(f"decision_frame:{raw}")
+            self.emit(f"{raw}_frame:{actor}")
 
     def as_list(self) -> list[str]:
         return list(self.events)
@@ -1544,7 +1578,7 @@ def execute_negative(record: dict[str, Any]) -> dict[str, Any]:
                     fixture_id,
                     {"probe_families": probe_families, "events_so_far": log.as_list()},
                 )
-            klass = str(decision.get("decision_class"))
+            klass = canonical_decision_class(decision.get("decision_class"))
             actor = canonical_player(int(decision.get("seat", -1)), fixture_id)
             log.frame_events(decision, actor)
             if not probe_families or klass in probe_families:
@@ -1556,6 +1590,7 @@ def execute_negative(record: dict[str, Any]) -> dict[str, Any]:
                     "transcript": transcript,
                     "negative_detail": {
                         "withheld_at_class": klass,
+                        "withheld_at_native_class": str(decision.get("decision_class")),
                         "withheld_at_actor": actor,
                         "fallback_used": False,
                         "game_continued": False,
@@ -1631,7 +1666,8 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(decision, dict):
                 # No pending decision: native execution rests at a checkpoint.
                 break
-            klass = str(decision.get("decision_class"))
+            native_klass = str(decision.get("decision_class"))
+            klass = canonical_decision_class(native_klass)
             actor = canonical_player(int(decision.get("seat", -1)), fixture_id)
             log.frame_events(decision, actor)
             if klass == PRIORITY_CLASS:
@@ -1743,6 +1779,7 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
                 {
                     "actor": actor,
                     "class": klass,
+                    "native_class": native_klass,
                     "family": entry.get("decision_family"),
                     "causal_step": entry.get("causal_step_id"),
                     "selected_native_ids": selected,
@@ -1821,7 +1858,7 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
                     pending = resting.get("decision")
                     if not isinstance(pending, dict):
                         break
-                    pending_class = str(pending.get("decision_class"))
+                    pending_class = canonical_decision_class(pending.get("decision_class"))
                     pending_actor = canonical_player(int(pending.get("seat", -1)), fixture_id)
                     log.frame_events(pending, pending_actor)
                     watch.observe(pending)
@@ -2210,6 +2247,9 @@ def derive_settlement_outcomes(
     for sid in sorted(terminal.get("battlefield_arrivals") or []):
         log.emit(f"creature_entered:{sid}")
         log.emit("creature_entered")
+        # R2 M3: contract-legacy alias for the same native arrival event
+        # (identical sid scheme). Emitted iff the arrival was observed.
+        log.emit(f"creature_enters:{sid}")
     for pid, delta in sorted((terminal.get("life_deltas") or {}).items()):
         if delta != 0:
             log.emit(f"life_changed:{pid}:{delta}")
@@ -2970,7 +3010,7 @@ def execute_cause_driven(record: dict[str, Any]) -> dict[str, Any]:
             decision = payload.get("decision")
             if not isinstance(decision, dict):
                 break
-            klass = str(decision.get("decision_class"))
+            klass = canonical_decision_class(decision.get("decision_class"))
             actor = canonical_player(int(decision.get("seat", -1)), fixture_id)
             log.frame_events(decision, actor)
             if klass == PRIORITY_CLASS:
