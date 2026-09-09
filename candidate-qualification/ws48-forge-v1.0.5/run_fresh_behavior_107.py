@@ -319,15 +319,23 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         cur = sess.snapshots[-1]
         if isinstance(cur, dict) and cur.get("behavior_checkpoint") is True:
             prev_idx = sess.prev_checkpoint_idx
-            if prev_idx is not None:
-                lineage = {
-                    o.get("semantic_id"): o.get("card_lineage_id")
-                    for o in record.get("semantic_objects") or []
-                    if o.get("semantic_id") and o.get("card_lineage_id")
-                }
-                for ev in _diff(sess.snapshots[prev_idx], cur, lineage):
-                    sess.note_event(ev)
-            sess.prev_checkpoint_idx = len(sess.snapshots) - 1
+            # Only diff checkpoints taken after native setup: pre-load
+            # checkpoints (pre-state-load game) would fabricate transitions.
+            setup_seen = any(
+                isinstance(s, dict)
+                and (s.get("ws45_observation") or s.get("natural_lifecycle"))
+                for s in sess.snapshots
+            )
+            if setup_seen:
+                if prev_idx is not None:
+                    lineage = {
+                        o.get("semantic_id"): o.get("card_lineage_id")
+                        for o in record.get("semantic_objects") or []
+                        if o.get("semantic_id") and o.get("card_lineage_id")
+                    }
+                    for ev in _diff(sess.snapshots[prev_idx], cur, lineage):
+                        sess.note_event(ev)
+                sess.prev_checkpoint_idx = len(sess.snapshots) - 1
         ready = _ready(record, sess)
         if ready is not None:
             raise TerminalReached(ready)
