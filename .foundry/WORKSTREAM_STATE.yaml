@@ -4,7 +4,7 @@ worktree: /home/moeen/code/commander-exec-consolidation
 branch: project/opencode-execution-system-consolidation-20260910
 audit_base_sha: b3f5a9929aaf07d2ae574724bbe198b5ab402df6
 audit_base_tree: 6c7e3f43ea6ef7aa0eaf385807138f938162bbdd
-current_head: b3f5a9929aaf07d2ae574724bbe198b5ab402df6
+current_head: ff9056b924ae787a851c554180e797474ef90a0c
 objective: Implement the single coherent OpenCode/Muse execution system (AGENTS.md, config, agents, skills, state, tooling, docs) on top of origin/main b3f5a992.
 in_scope:
 - Root AGENTS.md (durable rules only)
@@ -97,7 +97,6 @@ evidence:
 - DIRECTLY_VERIFIED: origin/main SHA/tree, PR heads, WS48/WS49 origin SHAs and trees, tool test outcomes
 - CODE_DERIVED: schema-conformance reasoning from live opencode.ai/config.json for opencode.json key choices
 remaining_scope:
-- Local commit of the consolidation milestone
 - Final §30 validation sweep and handoff
 status: ACTIVE
-exact_next_action: Commit the validated milestone locally, update current_head, run the final validation sweep.
+exact_next_action: Run the final §30 validation sweep over the committed tree, then close with status COMPLETE and the handoff.
