@@ -251,8 +251,25 @@ SUBSCRIBE_OLD = "        Game game = match.createGame();"
 SUBSCRIBE_NEW = """        Game game = match.createGame();
         game.subscribeToEvents(new Ws48BehaviorEvents(broker));"""
 
+STOP_REASON_OLD = """        } catch (ControlledStop expected) {
+            stopReason = expected.getMessage();
+        } catch (UnsupportedOperationException unsupported) {
+            stopReason = unsupported.getMessage();
+        }"""
+
+STOP_REASON_NEW = """        } catch (ControlledStop expected) {
+            stopReason = expected.getMessage();
+        } catch (UnsupportedOperationException unsupported) {
+            stopReason = "WS48_UNSUPPORTED_OP:" + unsupported.getClass().getName() + ":"
+                + String.valueOf(unsupported.getMessage());
+        } catch (RuntimeException unexpected) {
+            stopReason = "WS48_UNEXPECTED_RUNTIME:" + unexpected.getClass().getName() + ":"
+                + String.valueOf(unexpected.getMessage());
+        }"""
+
 RESULT_EVENTS_OLD = """            + ",\\"priority_decisions\\":" + broker.priorityDecisions
 """
+
 RESULT_EVENTS_NEW = """            + ",\\"priority_decisions\\":" + broker.priorityDecisions
             + ",\\"native_events\\":" + ws48JsonStringList(broker.automatic)
             + ",\\"automatic\\":" + ws48JsonStringList(broker.automatic)
@@ -905,6 +922,7 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     java = replace_once(java, SNAPSHOT_HOOK_OLD, SNAPSHOT_HOOK_NEW, "checkpoint hook")
     java = replace_once(java, SUBSCRIBE_OLD, SUBSCRIBE_NEW, "event subscription")
     java = replace_once(java, RESULT_EVENTS_OLD, RESULT_EVENTS_NEW, "result events")
+    java = replace_once(java, STOP_REASON_OLD, STOP_REASON_NEW, "typed stop reasons")
     anchor2 = "    static String sessionSnapshot(Game game) {"
     helpers = COST_HELPERS.replace("__WS48_COST_VISITS__", cost_visit_methods(forge_src))
     java = replace_once(java, anchor2, helpers + "\n" + anchor2, "cost helpers")

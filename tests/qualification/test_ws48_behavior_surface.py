@@ -97,6 +97,7 @@ def test_behavior_surface_applies(tmp_path):
         "mana_paid:",
         "commander_cast",
         "spell_resolved",
+        "WS48_UNSUPPORTED_OP:",
         "ATTACK_ASSIGNMENT:",
         "BLOCK_ASSIGNMENT:",
         "emitDecisionFrame(kind, actor, labels.size())",
