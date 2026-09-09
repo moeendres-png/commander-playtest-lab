@@ -440,13 +440,20 @@ def match_mana_source(
 def match_assignment(
     frame: dict[str, Any], expected: dict[str, str], prefix: str
 ) -> dict[str, Any]:
-    """Match a whole-assignment label (ATTACK_ASSIGNMENT:/BLOCK_ASSIGNMENT:)."""
+    """Match a whole-assignment label (ATTACK_ASSIGNMENT:/BLOCK_ASSIGNMENT:).
+
+    The contract lists assigned pairs only; unassigned natives appear as NONE
+    in labels. Matching requires every expected pair present with no extra
+    non-NONE assignments.
+    """
 
     def pred(kind: str, _o: dict[str, Any]) -> bool:
         if not kind.startswith(prefix):
             return False
         pairs = dict(p.split("=", 1) for p in kind[len(prefix) :].split(",") if "=" in p)
-        return pairs == expected
+        return all(pairs.get(key) == want for key, want in expected.items()) and all(
+            key in expected or got == "NONE" for key, got in pairs.items()
+        )
 
     return match_single_option(frame, pred, f"assignment:{expected}")
 

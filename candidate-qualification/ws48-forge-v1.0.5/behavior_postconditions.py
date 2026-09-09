@@ -438,7 +438,63 @@ def _check_mulligan_posts(record: dict[str, Any], ctx: dict[str, Any]) -> list[s
     return bad
 
 
+def _combat_attackers(ctx: dict[str, Any]) -> dict[str, str]:
+    """Attacker->defender map from the anchored snapshot's native combat."""
+    combat = (ctx.get("snapshot") or {}).get("combat") or {}
+    return dict(combat.get("attackers") or {})
+
+
+def _check_declare_attacker(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Attacker assignment + tapped state from native combat snapshot."""
+    entries = [
+        d
+        for d in record.get("decision_script") or []
+        if d.get("decision_family") == "declare_attacker"
+    ]
+    if not entries:
+        return ["DECLARE_ATTACKER_NO_ENTRY"]
+    bad: list[str] = []
+    attackers = _combat_attackers(ctx)
+    cards = _snapshot_cards(ctx)
+    for entry in entries:
+        want = dict(entry["selection"]["semantic_value"])
+        for attacker, defender in want.items():
+            if attackers.get(attacker) != defender:
+                bad.append(
+                    f"DECLARE_ATTACKER_MISMATCH:{attacker}:{attackers.get(attacker)}:{defender}"
+                )
+            card = cards.get(attacker)
+            if card is None:
+                bad.append(f"DECLARE_ATTACKER_ABSENT:{attacker}")
+    return bad
+
+
+def _check_declare_blocker(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Block assignment from native combat snapshot (blocker->attacker)."""
+    entries = [
+        d
+        for d in record.get("decision_script") or []
+        if d.get("decision_family") == "declare_blocker"
+    ]
+    if not entries:
+        return ["DECLARE_BLOCKER_NO_ENTRY"]
+    bad: list[str] = []
+    combat = (ctx.get("snapshot") or {}).get("combat") or {}
+    blockers = dict(combat.get("blockers") or {})
+    for entry in entries:
+        want = dict(entry["selection"]["semantic_value"])
+        for blocker, attacker in want.items():
+            if blockers.get(blocker) != attacker:
+                bad.append(f"DECLARE_BLOCKER_MISMATCH:{blocker}:{blockers.get(blocker)}:{attacker}")
+    return bad
+
+
 REGISTRY: dict[str, Checker] = {
+    "obj:p1-bears is attacking P2 and is tapped if required by rules.": _check_declare_attacker,
+    "PX is attacking PX and is tapped if required by rules.": _check_declare_attacker,
+    "Block assignment exists only between the defending player PX blocker and attacker attacking PX.": _check_declare_blocker,
+    "A single declare-attackers action may assign different attackers to different defending players; each assignment retains defender identity.": _check_declare_attacker,
+    "PX blocker options contain only attackers for which PX is defending player.": _check_declare_blocker,
     "exactly N live real players exist": _check_player_count_posts,
     "each player started at N life": _check_player_count_posts,
     "each commander began in command zone": _check_player_count_posts,

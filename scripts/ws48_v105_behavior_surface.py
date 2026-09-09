@@ -686,6 +686,9 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
             + ",\\"cards\\":" + cards
             + ",\\"stack\\":" + stack
             + ",\\"players\\":" + life
+            + ",\\"combat\\":" + combatJson(game)
+            + ",\\"eligible_attackers\\":" + eligibleAttackersJson(game)
+            + ",\\"eligible_blockers\\":" + eligibleBlockersJson(game)
             + ",\\"commanders\\":" + commanders
             + ",\\"turn\\":" + game.getPhaseHandler().getTurn()
             + ",\\"phase\\":" + Ws23ForgeVerticalProvider.esc(phase)
