@@ -13,7 +13,7 @@ The current project has exactly three execution paths:
 
 1. normal ChatGPT with GPT-5.6 Sol High
 2. OpenCode Go with Muse Spark 1.3 Contributor
-3. ChatGPT Work with GPT-5.6 Sol Medium, exceptional only
+3. ChatGPT Work with Astra, exceptional only
 
 Muse Spark 1.3 is a single AI model identity and must not be split into Muse and Spark resources.
 
@@ -27,19 +27,32 @@ Use High for all other project OpenCode work, including helpers and bounded/mech
 
 OpenCode Zen free models are not part of current routing while OpenCode Go is active. No other OpenCode model or provider may be substituted without a newer direct user instruction and corresponding policy/config update.
 
-Historical instructions such as one Work chat only, single ChatGPT Work chat, Work-first execution, separate Muse and Spark routing, Muse High/XHigh as separate model identities, use of another OpenCode model, or permission to run OpenCode below High are no longer operationally authoritative.
+Historical instructions such as one Work chat only, single ChatGPT Work chat, Work-first execution, separate Muse and Spark routing, Muse High/XHigh as separate model identities, use of another OpenCode model, permission to run OpenCode below High, Work with Sol Medium, or a different Work effort policy are no longer operationally authoritative.
 
 Technical findings, source locks, defect registers, Rules analysis and evidence from historical handoffs remain provenance unless superseded by fresher technical or domain truth.
 
 Current routing is:
 
-- normal Sol High for coordination, research, architecture, Rules and Oracle analysis, review and evidence adjudication
+- normal Sol High for coordination, research, architecture, Rules and Oracle analysis, review, evidence adjudication, and maximum feasible pre-work before any Work handoff
 - OpenCode Go with Muse Spark 1.3 Contributor at High or XHigh for repository implementation, debugging, CI, qualification, audits and mechanical repository work
-- Work with Sol Medium only after WORK_NECESSITY = PASS
+- Work with Astra only after WORK_NECESSITY = PASS
 
-WORK_NECESSITY = PASS requires that the exact missing capability is identified, normal Sol High is inadequate, OpenCode Go with Muse Spark 1.3 Contributor is inadequate, the capability is genuinely required, and the Work scope is minimized.
+WORK_NECESSITY = PASS requires that the exact missing capability is identified, normal Sol High is inadequate, OpenCode Go with Muse Spark 1.3 Contributor is inadequate, the capability is genuinely required, normal Sol High has already completed all useful preparatory work it can reasonably perform, and the Work scope is minimized to the irreducible operation.
 
 If any condition is missing, WORK_NECESSITY = FAIL and Work is not used.
+
+When Work is required:
+
+- Astra Medium is the default and normal Work effort.
+- Astra High is used only rarely when the specific irreducible Work-only operation materially requires more reasoning than Medium.
+- High is not justified merely because the parent workstream is difficult.
+- Sol High must perform all useful source locking, research, authority adjudication, narrowing, planning and context reduction before opening Work.
+- Work receives the minimum necessary context: exact objective, exact inputs/IDs, already-proven facts, exact blocker, scope boundaries, required output, hard gates, stop conditions and return point.
+- Work must not repeat completed research, broad discovery, comparison, summarization or planning.
+- Work must not expand scope merely to consume more context; if broader work becomes necessary, it returns the exact blocker to Sol High.
+- Work returns control immediately after the irreducible operation is complete; Sol High performs integration, adjudication and all remaining non-Work tasks.
+
+Token efficiency must come from reducing scope, deduplicating context and doing as much work as possible in Sol High before handoff. It must never come from weakening correctness, qualification or evidence requirements.
 
 This policy migration must not disturb source-valid qualification work. Do not rewrite immutable WS-47 authority, do not modify active WS-48 or WS-49 implementation or evidence merely for routing changes, and do not grant or revoke runtime credit because of worker choice alone.
 
