@@ -79,8 +79,8 @@ PRIORITY_LABEL_NEW = """                            nativeOptions.add(sa);
                                 + ":card=" + ws48Enc(ws48CardName(sa.getHostCard()))
                                 + ":sa=" + ws48Enc(ws48Clip(String.valueOf(sa), 160)));"""
 
-PROVIDER_STATIC_ANCHOR = "        static String ws40EntityLabel(final GameEntity entity) {"
-PROVIDER_STATIC_ADD = """        static String ws48Enc(String v) {
+PROVIDER_STATIC_ANCHOR = "    static String esc(String s) {"
+PROVIDER_STATIC_ADD = """    static String ws48Enc(String v) {
             try { return java.net.URLEncoder.encode(String.valueOf(v), java.nio.charset.StandardCharsets.UTF_8); }
             catch (Exception e) { throw new RuntimeException(e); }
         }
@@ -476,7 +476,7 @@ MANA_NEW = """        @Override
                 SpellAbility chosen = nativeMana.get(ws48Choose("mana_payment", this.player, labels));
                 if (!PlaySpellAbility.playSpellAbility(this, this.player, chosen)) return false;
                 boolean restrictionsMet = true;
-                for (forge.game.cost.AbilityManaPart manaPart : chosen.getAllManaParts()) {
+                for (AbilityManaPart manaPart : chosen.getAllManaParts()) {
                     if (!manaPart.meetsManaRestrictions(ability)) {
                         restrictionsMet = false;
                         break;
