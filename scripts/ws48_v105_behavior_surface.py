@@ -665,6 +665,16 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
                 .append('}');
         }
         life.append(']');
+        String combatFrag;
+        try {
+            combatFrag = ",\\"combat\\":" + combatJson(game)
+                + ",\\"eligible_attackers\\":" + eligibleAttackersJson(game)
+                + ",\\"eligible_blockers\\":" + eligibleBlockersJson(game);
+        } catch (Ws23ForgeVerticalProvider.ControlledStop preLoad) {
+            // Pre-load checkpoints (starting player, mulligans) have no
+            // player turn yet; combat observation is honestly unavailable.
+            combatFrag = ",\\"combat\\":null,\\"eligible_attackers\\":null,\\"eligible_blockers\\":null";
+        }
         StringBuilder commanders = new StringBuilder("[");
         boolean cfirst = true;
         for (Map.Entry<String,Card> entry : commanderCards.entrySet()) {
@@ -686,9 +696,7 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
             + ",\\"cards\\":" + cards
             + ",\\"stack\\":" + stack
             + ",\\"players\\":" + life
-            + ",\\"combat\\":" + combatJson(game)
-            + ",\\"eligible_attackers\\":" + eligibleAttackersJson(game)
-            + ",\\"eligible_blockers\\":" + eligibleBlockersJson(game)
+            + combatFrag
             + ",\\"commanders\\":" + commanders
             + ",\\"turn\\":" + game.getPhaseHandler().getTurn()
             + ",\\"phase\\":" + Ws23ForgeVerticalProvider.esc(phase)
