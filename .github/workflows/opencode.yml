@@ -21,15 +21,51 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
 
+      # Hardened OpenCode CLI execution lane.
+      # Audited action implementation: anomalyco/opencode/github@77fc88c8ade8e5a620ebbe1197f3a572d29ae91a
+      # (github/action.yml at that SHA). That composite resolves VERSION from
+      # https://api.github.com/repos/anomalyco/opencode/releases/latest at runtime and restores
+      # ~/.opencode/bin via actions/cache key opencode-<os>-<arch>-<version> without any
+      # version/hash verification; its cache-hit path skips install entirely, so VERSION env
+      # alone cannot guarantee the executed binary. This lane installs without cache and
+      # asserts the exact qualified CLI before execution (fail-closed, no fallback to latest).
+      # Qualified CLI from smoke run 34298347976: v1.18.29.
+      - name: Install pinned OpenCode CLI v1.18.29
+        env:
+          VERSION: 1.18.29
+        run: |
+          set -euo pipefail
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
+
+      - name: Assert OpenCode CLI is exactly v1.18.29
+        run: |
+          set -euo pipefail
+          BIN="$HOME/.opencode/bin/opencode"
+          test -x "$BIN"
+          RESOLVED="$(command -v opencode)"
+          echo "opencode path: ${RESOLVED}"
+          test "${RESOLVED}" = "${BIN}"
+          INSTALLED="$("${BIN}" --version)"
+          echo "opencode --version (path): ${INSTALLED}"
+          test "${INSTALLED}" = "1.18.29"
+          INSTALLED_PATH="$(opencode --version)"
+          echo "opencode --version (PATH): ${INSTALLED_PATH}"
+          test "${INSTALLED_PATH}" = "1.18.29"
+
       - name: Run opencode
-        uses: anomalyco/opencode/github@latest
+        run: opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        with:
-          model: opencode-go/muse-spark-1.3-contributor
-          variant: high
-          share: false
+          MODEL: opencode-go/muse-spark-1.3-contributor
+          AGENT: ''
+          SHARE: 'false'
+          PROMPT: ''
+          USE_GITHUB_TOKEN: 'false'
+          MENTIONS: ''
+          VARIANT: high
+          OIDC_BASE_URL: ''
