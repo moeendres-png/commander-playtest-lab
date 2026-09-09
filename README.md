@@ -27,9 +27,9 @@ The canonical execution-environment policy is [`docs/PROJECT_EXECUTION_POLICY.md
 
 There are exactly three project execution paths:
 
-- **normal ChatGPT Sol High** for coordination, research, architecture, difficult reasoning, MTG authority work and evidence adjudication;
+- **normal ChatGPT Sol High** for coordination, research, architecture, difficult reasoning, MTG authority work, evidence adjudication, and all useful pre-work before any Work handoff;
 - **OpenCode Go with Muse Spark 1.3 Contributor** for repository implementation, debugging, CI, runtime qualification, audits and mechanical repository work;
-- **ChatGPT Work with Sol Medium** only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
+- **ChatGPT Work with Astra** only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
 
 Muse Spark 1.3 is one AI model and must not be split into separate Muse and Spark resources.
 
@@ -46,9 +46,18 @@ The current OpenCode project lock is:
 
 Use High for all other project OpenCode work, including helpers and bounded/mechanical tasks, as well as normal repository execution. Prefer XHigh when task difficulty or length materially benefits from it, including difficult implementation, long-running autonomous campaigns, difficult debugging/root-cause analysis, complex multi-file remediation, provider/Rules-Core boundary work, qualification campaigns, semantic integration, and difficult evidence reconciliation.
 
+Work policy:
+
+- Astra Medium is the normal/default Work effort.
+- Astra High is allowed only rarely when the exact irreducible Work-only operation materially requires it.
+- Normal Sol High must do as much useful research, source locking, narrowing, adjudication, planning and context reduction as possible before Work is opened.
+- Work receives only the minimum context and smallest operation that genuinely requires Work.
+- Work must not repeat completed Sol/OpenCode research or broad discovery.
+- Work returns control to normal Sol High immediately after the irreducible operation is complete.
+
 The repository root [`opencode.json`](opencode.json) is the machine-enforced OpenCode configuration.
 
-Older reports, prompts or handoffs that prescribe Work as the default execution environment, split Muse and Spark into separate resources, use another OpenCode model, or permit OpenCode effort below High are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
+Older reports, prompts or handoffs that prescribe Work as the default execution environment, split Muse and Spark into separate resources, use another OpenCode model, permit OpenCode effort below High, or prescribe a different Work model/effort policy are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
 
 ## Optimizer-v2 decision path
 
