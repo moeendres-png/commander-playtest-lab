@@ -81,24 +81,32 @@ The allowed reasoning-effort range is exactly:
 - `high`
 - `xhigh`
 
-Minimum effort is `high`. Default effort is `high`.
+Minimum effort is `high`.
+Default and preferred effort is `xhigh`.
 
-OpenCode project effort is High/XHigh only.
+OpenCode project effort is High/XHigh only, with a deliberate quality bias toward XHigh because project token/credit availability is not currently a limiting constraint.
 
-Use `high` for all other project OpenCode work, including helpers and bounded/mechanical tasks, as well as normal substantial repository work such as implementation, tests, debugging, audits, CI, runtime qualification and bounded remediation.
+Use `xhigh` by default for substantial project work, including:
 
-Prefer `xhigh` when task difficulty or length materially benefits from it, including:
-
-- difficult implementation
+- implementation
+- repository edits with nontrivial semantic impact
+- tests and debugging where root cause is not already local and obvious
+- audits
+- CI/runtime qualification
+- provider and Rules-Core boundary work
+- repeated remediation cycles
 - long-running autonomous campaigns
-- difficult debugging/root-cause analysis
-- complex multi-file remediation
-- provider/Rules-Core boundary work
-- qualification campaigns
 - semantic integration
+- multi-file changes
 - difficult evidence reconciliation
+- failure attribution where multiple causes remain plausible
+- work where an incorrect shortcut could invalidate qualification evidence
 
-Use `xhigh` for especially difficult nonlocal implementation, complex multi-file debugging, high-risk remediation, or other cases where additional reasoning materially improves correctness.
+When uncertain between High and XHigh, choose XHigh.
+
+Use `high` only for clearly bounded, local, mechanical or low-ambiguity work where additional reasoning is not expected to materially improve correctness, for example straightforward metadata extraction, narrow formatting/documentation updates, already-specified one-file edits, or simple deterministic repository operations.
+
+Do not downgrade to High merely to save tokens when additional reasoning could plausibly improve correctness, diagnosis, qualification quality, or implementation robustness.
 
 Do not use `medium`, `low`, `minimal`, `none`, `off`, or any effort below `high` for project OpenCode work. `medium` and all lower efforts are unauthorized for Commander Simulator Next OpenCode execution.
 
@@ -125,7 +133,7 @@ Every substantial OpenCode assignment must be bounded to one primary workstream 
 
 OpenCode Go with Muse Spark 1.3 Contributor may produce implementation and evidence but does not independently grant global architecture credit.
 
-The repository root `opencode.json` is the machine-enforced project configuration for provider/model selection and allowed variants. Project prompts must not override it with another model or an effort below High.
+The repository root `opencode.json` is the machine-enforced project configuration for provider/model selection and allowed variants. Its default reasoning effort is XHigh. Project prompts should request XHigh for substantial work and may use High only under the bounded-task rule above. They must never override the config with another model or an effort below High.
 
 ## 5. Work budget, Astra policy and necessity gate
 
@@ -234,7 +242,7 @@ The normal Sol High Coordinator decides the next workstream, whether OpenCode is
 
 Normal Sol High = reasoning, research, authority, coordination, adjudication, and maximum feasible pre-work before any Work handoff.
 
-OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only = repository implementation, execution, audits, debugging, qualification and mechanical repository work. Allowed effort = High or XHigh only. Minimum = High. Default = High. Medium and all lower efforts are unauthorized. Prefer XHigh when task difficulty/length materially benefits from it.
+OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only = repository implementation, execution, audits, debugging, qualification and mechanical repository work. Allowed effort = High or XHigh only. Minimum = High. Default/preferred = XHigh. When uncertain, use XHigh. High is reserved for clearly bounded, local, mechanical or low-ambiguity work where extra reasoning is not expected to improve the result materially.
 
 Work with Astra = exceptional irreducible capability only after WORK_NECESSITY = PASS. Astra Medium is default. Astra High is rare and must be justified by the specific minimal Work-only operation. Work receives minimum necessary context, performs only the irreducible operation, and returns control immediately to normal Sol High.
 
