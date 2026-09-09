@@ -506,11 +506,6 @@ def answer_frame(drv: Driver, kind: str, actor: str,
 
 def answer_priority(drv: Driver, actor: str, opts: list[dict[str, Any]],
                     labels: list[dict[str, str]]) -> str:
-    script_empty = not drv.script and drv.ps_cursor >= len(drv.priority_script)
-    if script_empty:
-        # All scripted obligations consumed: terminate to capture transcript.
-        # (v2 credit runner replaces this with checkpoint-aware settling.)
-        return "__TERMINATE__"
     d = drv.pop_script("priority", actor)
     if d is not None:
         sv = d["selection"]["semantic_value"]
@@ -566,12 +561,15 @@ def answer_priority(drv: Driver, actor: str, opts: list[dict[str, Any]],
     # STRUCTURAL_PASS: no unconsumed priority-family obligation remains for
     # this actor, so declining to act cannot skip script. PASS is offered by
     # the provider itself; passing advances the engine toward the next
-    # declared decision. Every structural pass is recorded with its frame.
-    # Terminal verification (v2) still must pass; passes never grant credit.
+    # declared decision (or natural game end). Every structural pass is
+    # recorded with its frame. Bounded: after the cap, terminate to capture
+    # the transcript instead of looping to the engine priority cap.
     pending_priority = [x for x in drv.script
                         if x["decision_family"] == "priority"
                         and x.get("actor") == actor]
     if not pending_priority:
+        if len(drv.structural_passes) >= 64:
+            return "__TERMINATE__"
         for i, o in enumerate(opts):
             if o.get("kind") == "PASS":
                 drv.structural_passes.append({"actor": actor,
@@ -886,6 +884,7 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
         "decode_errors": drv.decode_errors,
         "frames_detail": drv.frames[:64],
         "native_event_tape": drv.events[:128],
+        "session_snapshot": session_snapshot,
         "script_remaining": remaining,
         "stop_reason": stop_reason,
         "offered_digest": digest(drv.offered_for_digest),
