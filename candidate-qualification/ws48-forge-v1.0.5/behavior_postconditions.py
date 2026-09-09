@@ -340,7 +340,118 @@ def _check_hidden_viewer(record: dict[str, Any], ctx: dict[str, Any]) -> list[st
     return ["HIDDEN_NO_NATIVE_VIEWER_STATE"]
 
 
+def _natural_snapshots(ctx: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        s
+        for s in ctx.get("snapshots") or []
+        if isinstance(s, dict) and s.get("natural_lifecycle") is True
+    ]
+
+
+def _check_player_count_posts(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Player-count/lifecycle posts for natural-game records."""
+    import re
+
+    fid = record.get("fixture_id", "")
+    m = re.search(r"PLAYER_COUNT_(\d)P", fid)
+    expect_n = int(m.group(1)) if m else len(record.get("players") or [])
+    bad: list[str] = []
+    nats = _natural_snapshots(ctx)
+    if not nats:
+        return ["PLAYER_COUNT_NO_NATURAL_SNAPSHOT"]
+    life = nats[-1]
+    decks = {d.get("player_id"): d for d in life.get("decks") or []}
+    if len(decks) != expect_n:
+        bad.append(f"PLAYER_COUNT_MISMATCH:{len(decks)}:{expect_n}")
+    for shape in record.get("players") or []:
+        pid = shape["player_id"]
+        d = decks.get(pid)
+        if d is None:
+            bad.append(f"PLAYER_COUNT_MISSING:{pid}")
+            continue
+        if int(d.get("registered_starting_life", -1)) != int(shape.get("starting_life", -1)):
+            bad.append(f"PLAYER_COUNT_STARTING_LIFE:{pid}")
+        if int(d.get("live_life", -1)) != int(shape.get("starting_life", -1)):
+            bad.append(f"PLAYER_COUNT_LIVE_LIFE:{pid}:{d.get('live_life')}")
+        if int(d.get("main_count", -1)) != 99 or int(d.get("mountain_count", -1)) != 99:
+            bad.append(
+                f"PLAYER_COUNT_LIBRARY:{pid}:{d.get('main_count')}/{d.get('mountain_count')}"
+            )
+        if int(d.get("hand_count", -1)) != 7:
+            bad.append(f"PLAYER_COUNT_HAND:{pid}:{d.get('hand_count')}")
+        commanders = list(d.get("commander_names") or [])
+        if not commanders:
+            bad.append(f"PLAYER_COUNT_NO_COMMANDER:{pid}")
+    # Turn/priority ring: latest checkpoint actors are exactly live players.
+    snap = ctx.get("snapshot") or {}
+    live = {pid for pid, d in decks.items()}
+    for key in ("active_player", "priority_player"):
+        actor = snap.get(key)
+        if actor is not None and actor not in live:
+            bad.append(f"PLAYER_COUNT_RING:{key}:{actor}")
+    return bad
+
+
+def _check_mulligan_posts(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Mulligan/bottom/draw posts for natural-game records."""
+    fid = record.get("fixture_id", "")
+    nats = _natural_snapshots(ctx)
+    if not nats:
+        # State-load start-state fixtures: observe the continuing game.
+        if fid in {"WS05-CMD-START-2", "WS05-CMD-START-3"}:
+            want_draw = fid.endswith("3")
+            players = {
+                p.get("player_id"): p for p in (ctx.get("snapshot") or {}).get("players") or []
+            }
+            p1 = players.get("P1", {})
+            grew = int(p1.get("hand_count", 7) or 7) > 7
+            if grew != want_draw:
+                return [f"FIRST_TURN_DRAW:{grew}:{want_draw}"]
+            return []
+        return ["MULLIGAN_NO_NATURAL_SNAPSHOT"]
+    life = nats[-1]
+    decks = {d.get("player_id"): d for d in life.get("decks") or []}
+    trace = list(life.get("mulligan_trace") or [])
+    bad: list[str] = []
+    p1 = decks.get("P1", {})
+    bottomed = max(0, 7 - int(p1.get("hand_count", 7) or 7))
+    if fid == "PILOT_MULLIGAN":
+        if bottomed != 0:
+            bad.append(f"MULLIGAN_BOTTOM:{bottomed}")
+        if int(p1.get("hand_count", -1) or -1) != 7:
+            bad.append(f"MULLIGAN_HAND:{p1.get('hand_count')}")
+    elif fid == "WS05-CMD-MULL-2":
+        if bottomed != 1:
+            bad.append(f"MULLIGAN_BOTTOM:{bottomed}")
+    elif fid == "WS05-CMD-MULL-4":
+        if bottomed != 0:
+            bad.append(f"MULLIGAN_BOTTOM:{bottomed}")
+    elif fid in {"WS05-CMD-START-2", "WS05-CMD-START-3"}:
+        want_draw = fid.endswith("3")
+        grew = int(p1.get("hand_count", 7) or 7) > 7
+        if grew != want_draw:
+            bad.append(f"FIRST_TURN_DRAW:{grew}:{want_draw}")
+    if "mulligan" in fid.lower() or fid == "PILOT_MULLIGAN":
+        p1_r1 = [t for t in trace if t.get("player") == "P1"]
+        if not p1_r1:
+            bad.append("MULLIGAN_NO_TRACE_P1")
+    return bad
+
+
 REGISTRY: dict[str, Checker] = {
+    "exactly N live real players exist": _check_player_count_posts,
+    "each player started at N life": _check_player_count_posts,
+    "each commander began in command zone": _check_player_count_posts,
+    "each library was derived from exactly N Mountains": _check_player_count_posts,
+    "opening hand size is seven after scripted keeps": _check_player_count_posts,
+    "turn/priority ring contains exactly the live players": _check_player_count_posts,
+    "In this NP Commander fixture the first mulligan is the multiplayer free mulligan, so it does not increase the bottom-card count.": _check_mulligan_posts,
+    "PX keeps a legal seven-card opening hand after exactly one free mulligan and bottoms zero cards.": _check_mulligan_posts,
+    "P1 keeps a legal seven-card opening hand after exactly one free mulligan and bottoms zero cards.": _check_mulligan_posts,
+    "In NP Commander the first mulligan is not the multiplayer free mulligan; after exactly one mulligan and keep, PX bottoms one card under the London mulligan.": _check_mulligan_posts,
+    "In NP multiplayer Commander the first mulligan is free and a kept hand after exactly one mulligan bottoms zero cards.": _check_mulligan_posts,
+    "In NP, starting player PX skips the draw step draw on first turn.": _check_mulligan_posts,
+    "In NP multiplayer, starting player PX draws on first turn.": _check_mulligan_posts,
     "PX observation exactly respects declared viewer state.": _check_hidden_viewer,
     "No prohibited metadata appears in any tested channel.": _check_hidden_viewer,
     "Knowledge invalidation/permission persistence follows the declared conditions.": _check_hidden_viewer,

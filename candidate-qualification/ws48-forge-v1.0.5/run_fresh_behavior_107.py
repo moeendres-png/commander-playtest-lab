@@ -448,6 +448,19 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         cur = sess.snapshots[-1]
         if isinstance(cur, dict) and cur.get("natural_lifecycle") is True:
             derive_natural_events(record, sess, cur)
+        if (
+            isinstance(cur, dict)
+            and cur.get("behavior_checkpoint") is True
+            and any(
+                str(e).startswith("first_turn_draw:")
+                for e in (record.get("expected_events") or {}).get("required_events") or []
+            )
+        ):
+            for p in cur.get("players") or []:
+                if p.get("player_id") == "P1":
+                    sess.note_event(
+                        f"first_turn_draw:{str(int(p.get('hand_count', 7) or 7) > 7).lower()}"
+                    )
         if isinstance(cur, dict) and cur.get("behavior_checkpoint") is True:
             prev_idx = sess.prev_checkpoint_idx
             # Only diff checkpoints taken after native setup: pre-load
