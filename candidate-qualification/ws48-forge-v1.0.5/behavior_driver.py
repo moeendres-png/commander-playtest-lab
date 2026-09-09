@@ -67,6 +67,9 @@ FRAME_FAMILY: dict[str, tuple[str, str]] = {
     "declareBlockers": ("declare_blocker", "declare_blocker_frame"),
     "confirmAction": ("choose_use", "choose_use_frame"),
     "chooseBinary": ("choice", "choice_frame"),
+    "confirmReplacementEffect": ("replacement_effect", "replacement_effect_frame"),
+    "chooseColor": ("choice", "choice_frame"),
+    "arrangeForScry": ("choose_use", "choose_use_frame"),
     "announceRequirements": ("announce_x", "announce_x_frame"),
     "chooseSingleEntityForEffect": ("choose_object", "choose_object_frame"),
     "orderSimultaneousSa": ("trigger_order", "trigger_order_frame"),
@@ -294,6 +297,117 @@ def match_stack_object(frame: dict[str, Any], stack_ref: str, session: Session) 
     return match_semantic_object(frame, str(target))
 
 
+TRUE_LABELS = {"YES", "TRUE", "PAY", "KEEP"}
+FALSE_LABELS = {"NO", "FALSE", "DECLINE", "MULLIGAN"}
+
+
+def match_boolean(frame: dict[str, Any], value: bool) -> dict[str, Any]:
+    """Match a boolean selection by provider option-label semantics.
+
+    chooseBoolean-derived frames offer (true-label, false-label) option pairs;
+    matching is by label membership, never by position.
+    """
+    wanted = TRUE_LABELS if value else FALSE_LABELS
+
+    def pred(kind: str, _o: dict[str, Any]) -> bool:
+        return kind in wanted
+
+    return match_single_option(frame, pred, f"boolean:{value}")
+
+
+def match_integer(frame: dict[str, Any], value: int) -> dict[str, Any]:
+    """Match an announced integer (X_VALUE:<n> options)."""
+
+    def pred(kind: str, _o: dict[str, Any]) -> bool:
+        return kind == f"X_VALUE:{value}"
+
+    return match_single_option(frame, pred, f"integer:{value}")
+
+
+def match_color_choice(frame: dict[str, Any], key: str) -> dict[str, Any]:
+    """Match a color choice (COLOR_CHOICE:<name>, case-insensitive)."""
+
+    def pred(kind: str, _o: dict[str, Any]) -> bool:
+        return (
+            kind.startswith("COLOR_CHOICE:") and kind[len("COLOR_CHOICE:") :].upper() == key.upper()
+        )
+
+    return match_single_option(frame, pred, f"color_choice:{key}")
+
+
+def match_scry_keep(frame: dict[str, Any], keep_top: bool) -> dict[str, Any]:
+    """Match a singleton scry arrangement (keep-top vs put-bottom)."""
+    want = "SCRY_KEEP_TOP" if keep_top else "SCRY_PUT_BOTTOM"
+
+    def pred(kind: str, _o: dict[str, Any]) -> bool:
+        return kind.startswith(want + ":")
+
+    return match_single_option(frame, pred, f"scry:{keep_top}")
+
+
+def match_amount_assignment(
+    frame: dict[str, Any], needed: dict[str, int]
+) -> tuple[dict[str, Any], str, int]:
+    """Match one damage/amount distribution pick against remaining needs.
+
+    Options carry recipient_ref + amount. Greedy-max: among offered options
+    with 0 < amount <= needed[ref], take the largest amount. Never overshoots;
+    the entry completes when all needs reach zero.
+    """
+    cands = []
+    for o in frame["payload"].get("options") or []:
+        kind = str(o.get("kind"))
+        if "AMOUNT_DISTRIBUTION" not in kind and "COMBAT_DAMAGE" not in kind:
+            continue
+        ref = _pipe_field(kind, "recipient_ref")
+        amount = _pipe_field(kind, "amount")
+        if ref is None or amount is None:
+            continue
+        try:
+            amount_n = int(amount)
+        except ValueError:
+            continue
+        if ref in needed and 0 < amount_n <= needed[ref]:
+            cands.append((o, ref, amount_n))
+    if not cands:
+        raise BehaviorFailure(f"AMOUNT_MATCH_ZERO:{needed}:{frame['payload'].get('decision_id')}")
+    cands.sort(key=lambda c: c[2], reverse=True)
+    return cands[0]
+
+
+def _pipe_field(kind: str, field: str) -> str | None:
+    for part in kind.split("|"):
+        if part.startswith(field + "="):
+            return part[len(field) + 1 :]
+    return None
+
+
+def match_trigger_order(frame: dict[str, Any], expected: list[str]) -> dict[str, Any]:
+    """Match a trigger-order permutation against contract trigger names."""
+    want = [str(t).split(":", 1)[-1] for t in expected]
+
+    def names_of(kind: str) -> list[str] | None:
+        if not kind.startswith("TRIGGER_ORDER:"):
+            return None
+        out = []
+        for desc in kind[len("TRIGGER_ORDER:") :].split("|"):
+            parts = desc.split(":")
+            if len(parts) < 3 or parts[0] != "TRIGGER":
+                return None
+            out.append(parts[-1])
+        return out
+
+    hits = [
+        o for o in frame["payload"].get("options") or [] if names_of(str(o.get("kind"))) == want
+    ]
+    if len(hits) != 1:
+        raise BehaviorFailure(
+            f"TRIGGER_ORDER_{'ZERO' if not hits else 'MULTIPLE'}:{want}:"
+            f"{frame['payload'].get('decision_id')}"
+        )
+    return hits[0]
+
+
 def match_mana_source(
     frame: dict[str, Any], remaining_refs: list[str]
 ) -> tuple[dict[str, Any], str, str]:
@@ -353,7 +467,7 @@ class Session:
         # Progressive multi-pick state, keyed by script entry index:
         # target entries (remaining semantic values) and mana entries
         # (remaining source refs + produced symbols).
-        self.multi_remaining: dict[int, list[str]] = {}
+        self.multi_remaining: dict[int, Any] = {}
         self.mana_produced: dict[int, list[str]] = {}
         # Unified journal: (seq, kind, text) with kind in
         # {snapshot, event, frame, match} for anchored evaluation.
@@ -363,6 +477,8 @@ class Session:
         self.mulligan_rounds: dict[str, int] = {}
         # Whether static (construction-observation) events were derived.
         self.static_derived = False
+        # Natural-lifecycle one-shot markers already emitted.
+        self.natural_done: set[str] = set()
         # Index of the previous behavior checkpoint for zone diffing.
         self.prev_checkpoint_idx: int | None = None
         # Active cast cost context: {remaining, cast_idx} linked from the
@@ -380,6 +496,40 @@ class Session:
     def note_event(self, name: str) -> None:
         self.feed.append(name)
         self._log("event", name)
+        # Contract-anchored alias: a singleton scry kept on top.
+        if name == "scry_top:1_bottom:0":
+            self.feed.append("scry_choice:keep_top")
+            self._log("event", "scry_choice:keep_top")
+
+    def answer_unscripted_discretion(self, frame: dict[str, Any]) -> None:
+        """Answer a frame with no compatible script entry, deterministically.
+
+        Used only where the contract leaves the choice open (cleanup
+        discards, London bottoming, post-terminal continuations). Selects the
+        lowest offered option id — a stable, logged convention, never recorded
+        as a contract match and never drawing on request semantics.
+        """
+        options = frame["payload"].get("options") or []
+        if not options:
+            raise BehaviorFailure(
+                f"UNSCRIPTED_ZERO_OPTIONS:{frame['payload'].get('decision_kind')}"
+            )
+        option = sorted(options, key=lambda o: str(o.get("option_id")))[0]
+        self.matches.append(
+            {
+                "decision_id": frame["payload"].get("decision_id"),
+                "decision_kind": frame["payload"].get("decision_kind"),
+                "actor": normalize_actor(frame.get("actor_id")),
+                "match_rule": "unscripted_discretion",
+                "offered_count": len(options),
+                "offered_digest": _digest_options(options),
+                "selected_option_id": option.get("option_id"),
+                "selected_kind": option.get("kind"),
+                "submitted": True,
+            }
+        )
+        self._log("match", "unscripted_discretion")
+        submit(self.proc, frame, str(option["option_id"]), "unscripted")
 
     def note_frame(self, kind: str, actor: str | None) -> None:
         norm = normalize_actor(actor)
@@ -451,7 +601,7 @@ class Session:
                 "offered_digest": _digest_options(options),
                 "selected_option_id": option.get("option_id"),
                 "selected_kind": option.get("kind"),
-                "submitted": False,
+                "submitted": True,
             }
         )
         submit(self.proc, frame, str(option["option_id"]), "forced")
@@ -480,7 +630,6 @@ class Session:
             rule = f"{selector}:{value}"
         elif selector in {
             "semantic_mode_key",
-            "semantic_choice_key",
             "semantic_ability_key",
         }:
             option = match_semantic_key(frame, str(value))
@@ -503,14 +652,39 @@ class Session:
         elif selector == "semantic_player":
             option = match_semantic_player(frame, str(value))
             rule = f"semantic_player:{value}"
+        elif selector == "boolean":
+            if family == "choose_use" and kind == "arrangeForScry":
+                option = match_scry_keep(frame, bool(value))
+                rule = f"scry_keep_top:{value}"
+            else:
+                option = match_boolean(frame, bool(value))
+                rule = f"boolean:{value}"
+        elif selector == "integer":
+            option = match_integer(frame, int(value))
+            rule = f"integer:{value}"
+        elif selector == "semantic_choice_key":
+            option = match_color_choice(frame, str(value))
+            rule = f"color_choice:{value}"
+        elif selector == "amount_assignment":
+            needed = self.multi_remaining.setdefault(self.decision_index, dict(value))
+            if not isinstance(needed, dict):
+                raise BehaviorFailure(f"AMOUNT_STATE_CORRUPT:{needed}")
+            option, ref, amount = match_amount_assignment(frame, needed)
+            rule = f"amount_assignment:{ref}:{amount}"
+            needed[ref] = needed[ref] - amount
+            if needed[ref] < 0:
+                raise BehaviorFailure(f"AMOUNT_OVERSHOOT:{ref}")
+            if any(v > 0 for v in needed.values()):
+                self.record_match(frame, option, rule, family, value)
+                submit(self.proc, frame, str(option["option_id"]), "scripted")
+                return
+        elif selector == "order":
+            option = match_trigger_order(frame, list(value))
+            rule = f"order:{value}"
         elif selector in {
-            "boolean",
-            "integer",
             "mana_payment",
-            "amount_assignment",
             "attacker_assignment",
             "blocker_assignment",
-            "order",
             "partition",
         }:
             raise BehaviorFailure(f"SELECTOR_NEEDS_PROVIDER_SURFACE:{kind}:{family}:{selector}")
@@ -824,6 +998,7 @@ def verify_terminal(
     ctx = {
         "snapshot": terminal,
         "snapshot_index": idx,
+        "snapshots": list(session.snapshots),
         "feed": list(session.feed),
         "matches": list(session.matches),
         "stop": dict(session.stop or {}),

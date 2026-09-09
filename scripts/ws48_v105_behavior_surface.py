@@ -186,10 +186,6 @@ CHOOSE_GATE_OLD = """        String choose(String kind, Player actor, java.util.
             long seq = ++decisionSeq;"""
 
 CHOOSE_GATE_NEW = """        String choose(String kind, Player actor, java.util.List<String> labels) {
-            String unsupported = ws48UnsupportedFamily();
-            if (!unsupported.isEmpty() && (kind.equals(unsupported) || kind.startsWith(unsupported + ":"))) {
-                throw new ControlledStop("UNSUPPORTED_DISCRETIONARY_DECISION:" + kind);
-            }
             long seq = ++decisionSeq;"""
 
 PRIORITY_SELECT_OLD = """            String id = choose("priority", actor, labels);
@@ -231,6 +227,15 @@ FRAME_HOOK_OLD = """            out.flush();
 
 FRAME_HOOK_NEW = """            out.flush();
             emitDecisionFrame(kind, actor, labels.size());
+            // Negative-probe gate: the frame is emitted (native decision point
+            // is real and observed), then the external handler is unavailable,
+            // so the session terminates with a typed fail-closed code instead
+            // of any fallback selection.
+            String negativeProbe = ws48UnsupportedFamily();
+            if (!negativeProbe.isEmpty()
+                    && (kind.equals(negativeProbe) || kind.startsWith(negativeProbe + ":"))) {
+                throw new ControlledStop("UNSUPPORTED_DISCRETIONARY_DECISION:" + kind);
+            }
             try {
                 String answer = in.readLine();"""
 
@@ -398,6 +403,19 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
                 }
             }
             emit("blockers_declared");
+        }
+
+        @com.google.common.eventbus.Subscribe
+        public void onTurnBegan(forge.game.event.GameEventTurnBegan event) {
+            if (event.turnOwner() == null) return;
+            emit("next_turn:" + ws48EventPlayerRef(event.turnOwner().getName()));
+            emit("turn_began");
+        }
+
+        @com.google.common.eventbus.Subscribe
+        public void onScry(forge.game.event.GameEventScry event) {
+            if (event.player() == null) return;
+            emit("scry_top:" + event.toTop() + "_bottom:" + event.toBottom());
         }
     }
 
@@ -898,6 +916,248 @@ def cost_visit_methods(forge_src: Path) -> str:
     return "\n\n".join(blocks)
 
 
+ORDER_SA_PATTERN = re.compile(
+    r"(        @Override\n)(        public List<SpellAbility> orderSimultaneousSa\(List<SpellAbility> activePlayerSAs\) \{\n            if \(activePlayerSAs == null \|\| activePlayerSAs\.size\(\) <= 1\) \{\n                broker\.recordAutomatic\(\"orderSimultaneousSa:ZERO_OR_ONE\"\);\n                return activePlayerSAs;\n            \}\n            throw failClosed\(\"orderSimultaneousSa:MULTI_ORDER\"\);\n        \})",
+)
+
+ORDER_SA_NEW = """\\1        public List<SpellAbility> orderSimultaneousSa(List<SpellAbility> activePlayerSAs) {
+            if (activePlayerSAs == null || activePlayerSAs.size() <= 1) {
+                broker.recordAutomatic("orderSimultaneousSa:ZERO_OR_ONE");
+                return activePlayerSAs;
+            }
+            if (activePlayerSAs.size() > 4) {
+                throw failClosed("orderSimultaneousSa:PERMUTATION_SPACE_UNSUPPORTED");
+            }
+            java.util.List<java.util.List<SpellAbility>> permutations = new ArrayList<>();
+            java.util.List<String> labels = new ArrayList<>();
+            ws48PermuteTriggers(new ArrayList<>(activePlayerSAs), 0, permutations, labels);
+            String selectedId = broker.choose("orderSimultaneousSa", this.player, labels);
+            int selectedIndex = Integer.parseInt(selectedId.substring(1));
+            if (selectedIndex < 0 || selectedIndex >= permutations.size()) {
+                throw failClosed("orderSimultaneousSa:STALE_SELECTION");
+            }
+            broker.recordAutomatic("WS48_SELECTED_TRIGGER_ORDER:" + labels.get(selectedIndex));
+            return permutations.get(selectedIndex);
+        }"""
+
+TRIGGER_HELPERS = """    static String ws48TriggerDescriptor(SpellAbility sa) {
+        Card host = sa.getHostCard();
+        String ref = host == null ? null : Ws40SuccessorState.semanticRefOf(host);
+        String name = host == null ? "null" : host.getName().replace(" ", "_").replace("|", "/").replace(",", ";");
+        return "TRIGGER:" + String.valueOf(ref) + ":" + name;
+    }
+
+    static void ws48PermuteTriggers(
+            java.util.List<SpellAbility> parts, int from,
+            java.util.List<java.util.List<SpellAbility>> out, java.util.List<String> labels) {
+        if (from == parts.size()) {
+            out.add(new ArrayList<>(parts));
+            StringBuilder label = new StringBuilder("TRIGGER_ORDER:");
+            for (int i = 0; i < parts.size(); i++) {
+                if (i > 0) label.append('|');
+                label.append(ws48TriggerDescriptor(parts.get(i)));
+            }
+            labels.add(label.toString());
+            return;
+        }
+        for (int i = from; i < parts.size(); i++) {
+            java.util.Collections.swap(parts, from, i);
+            ws48PermuteTriggers(parts, from + 1, out, labels);
+            java.util.Collections.swap(parts, from, i);
+        }
+    }
+
+"""
+
+ANNOUNCE_PATTERN = re.compile(
+    r"(        @Override\n)(        public Integer announceRequirements\(SpellAbility ability, int min, int max, String announce\) \{\n            throw failClosed\(\"announceRequirements\"\);\n        \})",
+)
+
+ANNOUNCE_NEW = """\\1        public Integer announceRequirements(SpellAbility ability, int min, int max, String announce) {
+            if (max < min) throw failClosed("announceRequirements:EMPTY_RANGE");
+            if (max - min > 128) throw failClosed("announceRequirements:RANGE_UNSUPPORTED");
+            java.util.List<String> labels = new ArrayList<>();
+            for (int value = min; value <= max; value++) labels.add("X_VALUE:" + value);
+            String selectedId = broker.choose("announceRequirements", this.player, labels);
+            int selectedIndex = Integer.parseInt(selectedId.substring(1));
+            if (selectedIndex < 0 || selectedIndex >= labels.size()) {
+                throw failClosed("announceRequirements:STALE_SELECTION");
+            }
+            int chosen = min + selectedIndex;
+            broker.recordAutomatic("NATIVE_X_ANNOUNCED:" + chosen);
+            broker.emitEvent("x_announced:" + chosen);
+            return chosen;
+        }"""
+
+CONFIRM_REPL_PATTERN = re.compile(
+    r"(        @Override\n)(        public boolean confirmReplacementEffect\(ReplacementEffect replacementEffect, SpellAbility effectSA, GameEntity affected, String question\) \{\n            throw failClosed\(\"confirmReplacementEffect\"\);\n        \})",
+)
+
+CONFIRM_REPL_NEW = """\\1        public boolean confirmReplacementEffect(ReplacementEffect replacementEffect, SpellAbility effectSA, GameEntity affected, String question) {
+            return broker.chooseBoolean("confirmReplacementEffect", player, "YES", "NO");
+        }"""
+
+ENTITY_PATTERN = re.compile(
+    r"(        @Override\n)(        public <T extends GameEntity> T chooseSingleEntityForEffect\(FCollectionView<T> optionList, DelayedReveal delayedReveal, SpellAbility sa, String title, boolean isOptional, Player relatedPlayer, Map<String, Object> params\) \{\n            throw failClosed\(\"chooseSingleEntityForEffect\"\);\n        \})",
+)
+
+ENTITY_NEW = """\\1        public <T extends GameEntity> T chooseSingleEntityForEffect(FCollectionView<T> optionList, DelayedReveal delayedReveal, SpellAbility sa, String title, boolean isOptional, Player relatedPlayer, Map<String, Object> params) {
+            java.util.List<T> nativeOptions = new ArrayList<>();
+            java.util.List<String> labels = new ArrayList<>();
+            if (isOptional) labels.add("NONE");
+            for (T option : optionList) {
+                nativeOptions.add(option);
+                labels.add(broker.ws48OptionLabel(this.player, option));
+            }
+            if (nativeOptions.isEmpty() && !isOptional) {
+                throw failClosed("chooseSingleEntityForEffect:EMPTY");
+            }
+            if (nativeOptions.size() == 1 && !isOptional) {
+                broker.recordAutomatic("SINGLE_NATIVE_ENTITY_OPTION");
+            } else {
+                String selectedId = broker.choose("chooseSingleEntityForEffect", this.player, labels);
+                int selectedIndex = Integer.parseInt(selectedId.substring(1));
+                if (isOptional) {
+                    if (selectedIndex == 0) return null;
+                    selectedIndex--;
+                }
+                if (selectedIndex < 0 || selectedIndex >= nativeOptions.size()) {
+                    throw failClosed("chooseSingleEntityForEffect:STALE_SELECTION");
+                }
+                if (selectedIndex != 0 || isOptional) {
+                    T picked = nativeOptions.get(selectedIndex);
+                    broker.recordAutomatic("NATIVE_ENTITY_SELECTED");
+                    return picked;
+                }
+            }
+            broker.recordAutomatic("SINGLE_NATIVE_ENTITY_OPTION");
+            return nativeOptions.get(0);
+        }"""
+
+COLOR_PATTERN = re.compile(
+    r"(        @Override\n)(        public byte chooseColor\(String message, SpellAbility sa, ColorSet colors\) \{\n            throw failClosed\(\"chooseColor\"\);\n        \})",
+)
+
+COLOR_NEW = """\\1        public byte chooseColor(String message, SpellAbility sa, ColorSet colors) {
+            java.util.List<forge.card.MagicColor.Color> nativeOptions = new ArrayList<>();
+            java.util.List<String> labels = new ArrayList<>();
+            for (forge.card.MagicColor.Color color : colors) {
+                nativeOptions.add(color);
+                labels.add("COLOR_CHOICE:" + color.getName());
+            }
+            if (nativeOptions.isEmpty()) throw failClosed("chooseColor:EMPTY");
+            String selectedId = broker.choose("chooseColor", this.player, labels);
+            int selectedIndex = Integer.parseInt(selectedId.substring(1));
+            if (selectedIndex < 0 || selectedIndex >= nativeOptions.size()) {
+                throw failClosed("chooseColor:STALE_SELECTION");
+            }
+            forge.card.MagicColor.Color picked = nativeOptions.get(selectedIndex);
+            broker.recordAutomatic("NATIVE_COLOR_SELECTED:" + picked.getName());
+            broker.emitEvent("choice:" + picked.getName());
+            return picked.getColor();
+        }"""
+
+SCRY_PATTERN = re.compile(
+    r"(        @Override\n)(        public ImmutablePair<CardCollection, CardCollection> arrangeForScry\(CardCollection topN\) \{\n            throw failClosed\(\"arrangeForScry\"\);\n        \})",
+)
+
+SCRY_NEW = """\\1        public ImmutablePair<CardCollection, CardCollection> arrangeForScry(CardCollection topN) {
+            if (topN == null || topN.size() != 1) {
+                throw failClosed("arrangeForScry:NON_SINGLETON_UNSUPPORTED");
+            }
+            Card only = topN.get(0);
+            String ref = Ws40SuccessorState.semanticRefOf(only);
+            java.util.List<String> labels = java.util.List.of(
+                "SCRY_KEEP_TOP:" + String.valueOf(ref),
+                "SCRY_PUT_BOTTOM:" + String.valueOf(ref));
+            String selectedId = broker.choose("arrangeForScry", this.player, labels);
+            CardCollection top = new CardCollection();
+            CardCollection bottom = new CardCollection();
+            if ("o0".equals(selectedId)) {
+                top.add(only);
+                broker.recordAutomatic("NATIVE_SCRY_KEEP_TOP");
+            } else if ("o1".equals(selectedId)) {
+                bottom.add(only);
+                broker.recordAutomatic("NATIVE_SCRY_PUT_BOTTOM");
+            } else {
+                throw failClosed("arrangeForScry:STALE_SELECTION");
+            }
+            return ImmutablePair.of(top, bottom);
+        }"""
+
+PILE_PATTERN = re.compile(
+    r"(        @Override\n)(        public boolean chooseCardsPile\(SpellAbility sa, CardCollectionView pile1, CardCollectionView pile2, String faceUp\) \{\n            throw failClosed\(\"chooseCardsPile\"\);\n        \})",
+)
+
+PILE_NEW = """\\1        public boolean chooseCardsPile(SpellAbility sa, CardCollectionView pile1, CardCollectionView pile2, String faceUp) {
+            java.util.List<String> labels = new ArrayList<>();
+            labels.add("PILE_1:" + ws48PileLabel(pile1));
+            labels.add("PILE_2:" + ws48PileLabel(pile2));
+            String selectedId = broker.choose("chooseCardsPile", this.player, labels);
+            if ("o0".equals(selectedId)) {
+                broker.recordAutomatic("NATIVE_PILE_CHOSEN:1");
+                return true;
+            }
+            if ("o1".equals(selectedId)) {
+                broker.recordAutomatic("NATIVE_PILE_CHOSEN:2");
+                return false;
+            }
+            throw failClosed("chooseCardsPile:STALE_SELECTION");
+        }"""
+
+LIFECYCLE_OLD = """            if ("1".equals(ws40ConstructionOnly) && "NATURAL_GAME_START".equals(ws40EntryMode)) {
+                Ws45StrictObservation.prepareNatural(game);
+                match.startGame(game, () -> Ws45StrictObservation.emitNaturalLifecycle(game, broker));
+            } else if ("NATIVE_STATE_LOAD".equals(ws40EntryMode)) {"""
+
+LIFECYCLE_NEW = """            if ("NATURAL_GAME_START".equals(ws40EntryMode)
+                    && ("1".equals(ws40ConstructionOnly) || ws48BehaviorEnabled())) {
+                Ws45StrictObservation.prepareNatural(game);
+                match.startGame(game, () -> Ws45StrictObservation.emitNaturalLifecycle(game, broker));
+            } else if ("NATIVE_STATE_LOAD".equals(ws40EntryMode)) {"""
+PILE_HELPERS = """    static String ws48PileLabel(CardCollectionView pile) {
+        java.util.List<String> refs = new ArrayList<>();
+        for (Card card : pile) {
+            String ref = Ws40SuccessorState.semanticRefOf(card);
+            refs.add(ref == null ? "NATIVE:" + card.getName() : ref);
+        }
+        java.util.Collections.sort(refs);
+        return String.join("+", refs);
+    }
+
+"""
+
+AMOUNT_REF_OLD = """                    semanticOptions.add("AMOUNT_DISTRIBUTION|recipient=" + ws40EntityLabel(recipient.getRecipient())
+                            + "|amount=" + amount + "|remaining=" + decision.getRemainingAmount());"""
+
+AMOUNT_REF_NEW = """                    semanticOptions.add("AMOUNT_DISTRIBUTION|recipient=" + ws40EntityLabel(recipient.getRecipient())
+                            + "|recipient_ref=" + ws48DistributionRef(recipient.getRecipient())
+                            + "|amount=" + amount + "|remaining=" + decision.getRemainingAmount());"""
+
+COMBAT_REF_OLD = """                    semanticOptions.add("COMBAT_DAMAGE|source=" + ws40EntityLabel(source.getSource())
+                                + "|recipient=" + ws40EntityLabel(recipient.getRecipient())
+                                + "|amount=" + amount"""
+
+COMBAT_REF_NEW = """                    semanticOptions.add("COMBAT_DAMAGE|source=" + ws40EntityLabel(source.getSource())
+                                + "|source_ref=" + ws48DistributionRef(source.getSource())
+                                + "|recipient=" + ws40EntityLabel(recipient.getRecipient())
+                                + "|recipient_ref=" + ws48DistributionRef(recipient.getRecipient())
+                                + "|amount=" + amount"""
+
+DISTRIBUTION_HELPERS = """    static String ws48DistributionRef(GameEntity entity) {
+        if (entity instanceof Card card) {
+            String ref = Ws40SuccessorState.semanticRefOf(card);
+            return ref == null ? "NATIVE:" + card.getName().replace(" ", "_") : ref;
+        }
+        if (entity instanceof Player player && player.getGame() != null) {
+            int idx = player.getGame().getPlayers().indexOf(player);
+            return idx < 0 ? "PLAYER:unknown" : "P" + (idx + 1);
+        }
+        return "ENTITY:unknown";
+    }
+
+"""
+
 GET_ABILITY_PATTERN = re.compile(
     r"(        @Override\n)        public SpellAbility getAbilityToPlay\(.*?\) \{\n            throw failClosed\(\"getAbilityToPlay\"\);\n        \}",
 )
@@ -941,9 +1201,13 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     java = replace_once(java, SUBSCRIBE_OLD, SUBSCRIBE_NEW, "event subscription")
     java = replace_once(java, RESULT_EVENTS_OLD, RESULT_EVENTS_NEW, "result events")
     java = replace_once(java, STOP_REASON_OLD, STOP_REASON_NEW, "typed stop reasons")
+    java = replace_once(java, LIFECYCLE_OLD, LIFECYCLE_NEW, "natural behavior lifecycle")
+    java = replace_once(java, AMOUNT_REF_OLD, AMOUNT_REF_NEW, "amount recipient ref")
+    java = replace_once(java, COMBAT_REF_OLD, COMBAT_REF_NEW, "combat damage refs")
     anchor2 = "    static String sessionSnapshot(Game game) {"
     helpers = COST_HELPERS.replace("__WS48_COST_VISITS__", cost_visit_methods(forge_src))
     java = replace_once(java, anchor2, helpers + "\n" + anchor2, "cost helpers")
+    java = replace_once(java, anchor2, DISTRIBUTION_HELPERS + anchor2, "distribution helpers")
     java = replace_once(java, anchor2, EVENTS_CLASS + "\n" + anchor2, "events class")
     new_java, n = DECLARE_ATTACKERS_PATTERN.subn(DECLARE_ATTACKERS_NEW, java, count=1)
     if n != 1:
@@ -971,6 +1235,13 @@ def patch_provider(path: Path, forge_src: Path) -> None:
         (COST_PATTERN, COST_NEW, "getCostDecisionMaker"),
         (PAY_MANA_PATTERN, PAY_MANA_NEW, "payManaCost"),
         (ORDER_COSTS_PATTERN, ORDER_COSTS_NEW, "orderCosts"),
+        (ORDER_SA_PATTERN, ORDER_SA_NEW, "orderSimultaneousSa"),
+        (ANNOUNCE_PATTERN, ANNOUNCE_NEW, "announceRequirements"),
+        (CONFIRM_REPL_PATTERN, CONFIRM_REPL_NEW, "confirmReplacementEffect"),
+        (ENTITY_PATTERN, ENTITY_NEW, "chooseSingleEntityForEffect"),
+        (COLOR_PATTERN, COLOR_NEW, "chooseColor"),
+        (SCRY_PATTERN, SCRY_NEW, "arrangeForScry"),
+        (PILE_PATTERN, PILE_NEW, "chooseCardsPile"),
     ):
         new_java, n = pattern.subn(replacement, java, count=1)
         if n != 1:

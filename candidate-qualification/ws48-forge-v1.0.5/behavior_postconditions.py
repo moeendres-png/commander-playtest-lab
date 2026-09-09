@@ -305,7 +305,45 @@ def _check_commander_cast_count(record: dict[str, Any], ctx: dict[str, Any]) -> 
     return bad
 
 
+def _check_hidden_viewer(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Hidden-information viewer-state conformance.
+
+    The native knowledge_state (typed observation at construction) must digest-
+    equal the record's declared knowledge_state: actor-entitled views, ordered
+    known information, permissions and invalidation conditions. Prohibited
+    metadata absence is covered by the leak: forbidden-event scan over the
+    feed and snapshot texts.
+    """
+    import hashlib
+    import json
+
+    want = record.get("knowledge_state")
+    if want is None:
+        return ["HIDDEN_NO_DECLARED_VIEWER_STATE"]
+    want_digest = hashlib.sha256(
+        json.dumps(want, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    for snap in ctx.get("snapshots") or []:
+        if not isinstance(snap, dict):
+            continue
+        native_ks = (snap.get("ws45_observation") or {}).get("knowledge_state")
+        if native_ks is None:
+            continue
+        got_digest = hashlib.sha256(
+            json.dumps(
+                native_ks, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+            ).encode()
+        ).hexdigest()
+        if got_digest != want_digest:
+            return [f"HIDDEN_VIEWER_STATE_DIVERGED:{got_digest[:12]}:{want_digest[:12]}"]
+        return []
+    return ["HIDDEN_NO_NATIVE_VIEWER_STATE"]
+
+
 REGISTRY: dict[str, Checker] = {
+    "PX observation exactly respects declared viewer state.": _check_hidden_viewer,
+    "No prohibited metadata appears in any tested channel.": _check_hidden_viewer,
+    "Knowledge invalidation/permission persistence follows the declared conditions.": _check_hidden_viewer,
     "Rograkh is on P1 battlefield.": _check_commander_battlefield,
     "Rograkh is on PX battlefield.": _check_commander_battlefield,
     "Selected mode is the provider-offered Devil-token mode.": _check_selected_from_offered,

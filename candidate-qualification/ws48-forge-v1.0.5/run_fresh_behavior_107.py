@@ -54,12 +54,29 @@ def digest(v: Any) -> str:
     return hashlib.sha256(canon(v).encode()).hexdigest()
 
 
+NEGATIVE_KINDS = {
+    "NEGATIVE_FIRST_OPTION": "chooseModeForAbility",
+    "NEGATIVE_GUI_DEFAULT": "chooseModeForAbility",
+    "NEGATIVE_RANDOM_OPTION": "chooseTargetsFor",
+    "NEGATIVE_SILENT_SKIP": "chooseTargetsFor",
+    "NEGATIVE_DEFAULT_YES_NO": "confirmAction",
+    "NEGATIVE_INTERNAL_AI": "declareAttackers",
+    "NEGATIVE_PARENT_CLASS_FALLBACK": "chooseSingleEntityForEffect",
+}
+
+
 def behavior_env(record: dict[str, Any]) -> dict[str, str]:
     """Construction-equivalent env with the game allowed to continue."""
     e = dict(constr.env_for(record))
     e["COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"] = "0"
     e["COMMANDER_LAB_FORGE_STOP_AFTER_PRIORITY"] = "100000"
     e["COMMANDER_LAB_WS48_BEHAVIOR"] = "1"
+    for d in record.get("decision_script") or []:
+        if d["selection"]["selector_kind"] == "fail_closed_probe":
+            kind = NEGATIVE_KINDS.get(record["fixture_id"])
+            if kind:
+                e["COMMANDER_LAB_WS48_UNSUPPORTED_FAMILY"] = kind
+            break
     return e
 
 
@@ -103,6 +120,71 @@ def mana_expected_sources(
     raise _BF(f"MANA_SOURCES_UNRESOLVABLE:{entry['causal_step_id']}")
 
 
+def derive_natural_events(record: dict[str, Any], session: Session, snap: dict[str, Any]) -> None:
+    """Record native natural-game lifecycle markers (first observance each).
+
+    All values come from provider-emitted native snapshots: deck/hand state,
+    mulligan trace, Rules-RNG channels, turn/phase. Each marker is noted once
+    (guarded by session flags) to keep the feed interpretable.
+    """
+    done = session.natural_done
+    decks = list(snap.get("decks") or [])
+    rr = snap.get("rules_randomness") or {}
+    trace = list(snap.get("mulligan_trace") or [])
+    turn = int(snap.get("native_turn") or 0)
+
+    def once(key: str) -> bool:
+        if key in done:
+            return False
+        done.add(key)
+        return True
+
+    if decks and once("game_created"):
+        session.note_event("game_created")
+    if (
+        decks
+        and all(int(d.get("commander_count", 0) or 0) >= 1 for d in decks)
+        and once("commander_zones_initialized")
+    ):
+        session.note_event("commander_zones_initialized")
+    channels = list(rr.get("channels") or [])
+    if channels and once("libraries_shuffled"):
+        session.note_event("libraries_shuffled")
+        for ch in channels:
+            session.note_event(f"rules_rng:{ch}")
+    for d in rr.get("predetermined_semantic_draws") or []:
+        key = f"rules_rng_draw:{d.get('channel')}:{d.get('operation')}:{d.get('result')}"
+        if once(key):
+            session.note_event(f"rules_rng:{d.get('operation')}:{d.get('result')}")
+    if (
+        decks
+        and all(int(d.get("hand_count", -1) or -1) == 7 for d in decks)
+        and once("opening_hands_drawn")
+    ):
+        session.note_event("opening_hands_drawn")
+    if turn >= 1 and once("first_turn_started"):
+        session.note_event("first_turn_started")
+    for d in decks:
+        pid = d.get("player_id")
+        hand = int(d.get("hand_count", 7) or 7)
+        key = f"bottom:{pid}:{max(0, 7 - hand)}"
+        if once(key):
+            session.note_event(f"bottom_count:{pid}:{max(0, 7 - hand)}")
+    p1_trace = [t for t in trace if t.get("player") == "P1"]
+    if p1_trace and once("free_mulligan"):
+        first_mull = next((t for t in p1_trace if not t.get("keep")), None)
+        if first_mull is not None:
+            session.note_event(
+                f"free_mulligan:{str(int(first_mull.get('cards_to_return', 1) or 0) == 0).lower()}"
+            )
+    if turn >= 1 and decks and once("first_turn_draw"):
+        p1 = next((d for d in decks if d.get("player_id") == "P1"), None)
+        if p1 is not None:
+            session.note_event(
+                f"first_turn_draw:{str(int(p1.get('hand_count', 7) or 7) > 7).lower()}"
+            )
+
+
 def derive_static_events(record: dict[str, Any], session: Session) -> None:
     """Record native bookkeeping markers from the construction snapshot.
 
@@ -119,6 +201,14 @@ def derive_static_events(record: dict[str, Any], session: Session) -> None:
             setup = snap
             break
     if setup is None:
+        # Natural-game records carry Rules-RNG in lifecycle snapshots;
+        # knowledge projection is covered by derive_natural_events flow.
+        for snap in session.snapshots:
+            if isinstance(snap, dict) and snap.get("natural_lifecycle") is True:
+                rr = snap.get("rules_randomness") or {}
+                for ch in rr.get("channels") or []:
+                    session.note_event(f"rules_rng:{ch}")
+                return
         raise _BF("STATIC_DERIVATION_MISSING_OBSERVATION")
     obs = setup.get("ws45_observation") or {}
     rr = obs.get("rules_randomness") or {}
@@ -140,23 +230,45 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
     script = list(record.get("decision_script") or [])
     negatives = [d for d in script if d["selection"]["selector_kind"] == "fail_closed_probe"]
     if negatives:
-        # Negative fixtures never submit: the provider must terminate with a
-        # typed unsupported-decision failure by itself.
-        stop = drive_until_result(session, _reject_all_frames)
+        # Negative fixtures: setup frames are answered normally; the gated
+        # probe frame is emitted by the provider and then fails closed with
+        # a typed code without any submission.
+        stop = drive_until_result(session, on_frame_negative_setup)
         session.stop = stop
         code = str(stop.get("stop_reason") or "")
         if "UNSUPPORTED_DISCRETIONARY_DECISION" not in code:
             raise BehaviorFailure(f"NEGATIVE_NO_TYPED_FAIL_CLOSED:{code!r}")
-        feed = list(session.feed)
+        session.note_event("fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION")
         fams = {str(d.get("decision_family")) for d in negatives}
-        for fam in fams:
-            probe = next(d for d in negatives if d.get("decision_family") == fam)
-            forbidden = [f"fallback_used:{probe['selection'].get('forbidden_probe', fam)}"]
-            _ = forbidden
+        if not session.snapshots:
+            raise BehaviorFailure("NEGATIVE_NO_SNAPSHOTS")
+        import behavior_postconditions as _posts
+        from behavior_driver import behavior_events as _events
+
+        snapshot_texts = [
+            json.dumps(s, ensure_ascii=False, sort_keys=True) for s in session.snapshots
+        ]
+        events = _events.verify(record.get("expected_events") or {}, session.feed, snapshot_texts)
+        ctx = {
+            "snapshot": session.snapshots[-1],
+            "snapshot_index": len(session.snapshots) - 1,
+            "feed": list(session.feed),
+            "matches": list(session.matches),
+            "stop": dict(session.stop or {}),
+        }
+        posts = _posts.check_all(
+            [str(x) for x in record.get("terminal_postconditions") or []], record, ctx
+        )
+        if events["status"] != "PASS" or posts["status"] != "PASS":
+            raise BehaviorFailure(f"NEGATIVE_VERIFICATION_FAIL:events={events} posts={posts}")
         return {
             "negative": True,
             "stop_reason": code,
-            "feed": feed,
+            "families": sorted(fams),
+            "events": events,
+            "postconditions": posts,
+            "status": "PASS",
+            "feed": list(session.feed),
             "matches": list(session.matches),
         }
 
@@ -207,6 +319,8 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             sess.note_event(
                 f"{'keep' if action == 'keep_opening_hand' else 'mulligan'}:{actor_pid}:round{round_no}"
             )
+            if action == "mulligan_once":
+                sess.note_event(f"mulligan_once:{actor_pid}")
             _submit(proc, frame, mulligan_option_id(frame, keep), "mulligan")
             sess.matches.append(
                 {
@@ -221,6 +335,15 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             return
         if kind == "payMana":
             expected = sess.next_expected()
+            if not (
+                (sess.active_cost and sess.active_cost["remaining"])
+                or (
+                    expected is not None
+                    and expected["selection"]["selector_kind"] == "mana_payment"
+                )
+            ):
+                sess.answer_unscripted_discretion(frame)
+                return
             entry_idx = sess.decision_index
             if sess.active_cost and sess.active_cost["remaining"]:
                 remaining = sess.active_cost["remaining"]
@@ -292,18 +415,24 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             }:
                 sess.answer_expected(frame, expected)
                 return
-            sess.answer_forced_singleton(frame)
+            sess.answer_unscripted_discretion(frame)
             return
         expected = sess.next_expected()
         if expected is not None:
+            if kind == "priority" and normalize_actor(frame.get("actor_id")) != expected.get(
+                "actor"
+            ):
+                # Off-actor priority: pass without consuming the entry.
+                sess.answer_pass(frame)
+                return
             sess.answer_expected(frame, expected)
             return
-        # Script exhausted: only scripted priority passes may continue the game
-        # toward terminal resolution.
+        # Script exhausted: priority passes continue the game toward terminal
+        # resolution; anything else is unscripted pilot discretion.
         if kind == "priority":
             sess.answer_pass(frame)
             return
-        raise BehaviorFailure(f"POST_SCRIPT_UNEXPECTED_FRAME:{kind}")
+        sess.answer_unscripted_discretion(frame)
 
     def on_snapshot(sess: Session) -> None:
         from behavior_driver import TerminalReached
@@ -317,13 +446,14 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             derive_static_events(record, sess)
             sess.static_derived = True
         cur = sess.snapshots[-1]
+        if isinstance(cur, dict) and cur.get("natural_lifecycle") is True:
+            derive_natural_events(record, sess, cur)
         if isinstance(cur, dict) and cur.get("behavior_checkpoint") is True:
             prev_idx = sess.prev_checkpoint_idx
             # Only diff checkpoints taken after native setup: pre-load
             # checkpoints (pre-state-load game) would fabricate transitions.
             setup_seen = any(
-                isinstance(s, dict)
-                and (s.get("ws45_observation") or s.get("natural_lifecycle"))
+                isinstance(s, dict) and (s.get("ws45_observation") or s.get("natural_lifecycle"))
                 for s in sess.snapshots
             )
             if setup_seen:
@@ -391,6 +521,22 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             f"TERMINAL_VERIFICATION_FAIL:events={result['events']} posts={result['postconditions']}"
         )
     return result
+
+
+def on_frame_negative_setup(sess: Session, frame: dict[str, Any]) -> None:
+    """Setup-only handler for negative fixtures; the probe frame must never
+    be answered (the provider fails closed on it by itself)."""
+    from behavior_driver import submit as _submit
+
+    kind = frame["payload"].get("decision_kind")
+    if kind == "chooseStartingPlayer":
+        _submit(sess.proc, frame, starting_player_option_id(frame), "setup-starting")
+        sess.note_event("starting_player:P1")
+        return
+    if kind == "mulliganKeepHand":
+        _submit(sess.proc, frame, mulligan_option_id(frame, True), "setup-mulligan")
+        return
+    raise BehaviorFailure(f"NEGATIVE_FRAME_REACHED:{kind}:{frame['payload'].get('decision_id')}")
 
 
 def _reject_all_frames(sess: Session, frame: dict[str, Any]) -> None:
