@@ -123,3 +123,12 @@ Key findings: object incarnation changes across zones (resolves/casts create
 new unbound objects — checkers match by identity+controller+uniqueness);
 `priority:Pn`-style recurring events must not drag anchors (completion-based);
 setup snapshot arrives post-pregame (derivations wait for it).
+
+## 8. BEHAVIOR MATRIX RUN 2 (2026-09-09, in progress)
+
+First full-matrix run (batch-1 provider): 8/107 → second run 34/107.
+Current run: batch-2 provider (announce/boolean/amount/order/pile/color/scry/
+trigger-permutations/combat+amount refs/turn-began/typed stops/natural
+lifecycle hook) + batch-2 driver (natural derivations, unscripted discretion,
+off-actor passes, negative cause-casts + post-emit gate, boolean/integer/
+amount/order/color/scry matchers, HI/lifecycle checkers). HIDDEN 01-05 PASS.
