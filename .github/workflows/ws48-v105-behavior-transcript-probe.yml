@@ -135,7 +135,7 @@ jobs:
           assert p['behavior_credit'] == '0/107'
           print(json.dumps(p.get('summary'), indent=2, sort_keys=True))
           for r in p['rows']:
-              print(f"{r['fixture_id']}: {r['verdict']} frames={r['frames']} consumed={r['consumed']} stop={r['stop_reason']}")
+              print(f"{r['fixture_id']}: {r['verdict']} frames={r.get('frames')} consumed={r.get('consumed')} ritual={len(r.get('ritual_answers') or [])} stop={r.get('stop_reason')}")
           PY
       - name: Anti-echo mutation invariance (PILOT_PRIORITY)
         shell: bash

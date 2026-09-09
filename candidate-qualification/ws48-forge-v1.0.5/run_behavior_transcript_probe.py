@@ -120,6 +120,7 @@ class Driver:
         self.mana_cursors: dict[int, int] = {}
         self.target_cursors: dict[int, list[str]] = {}
         self.frames: list[dict[str, Any]] = []
+        self.ritual_answers: list[dict[str, Any]] = []
         self.offered_for_digest: list[Any] = []
         self.events: list[dict[str, Any]] = []
         self.setup_stage_seen = False
@@ -132,6 +133,19 @@ class Driver:
                 continue
             return self.script.pop(i)
         return None
+
+    def ritual(self, frame_kind: str, option_id: str) -> None:
+        """Record a construction-precedent startup answer (pre-setup ritual).
+
+        NATIVE_STATE_LOAD sessions replay game startup (starting player +
+        mulligan prompts for the pre-hook fresh game) before the state-load
+        hook replaces the game state. These frames carry no scripted
+        obligation; answering them KEEP/seat-1 reproduces the retained
+        G48-07 construction precedent. Bounded to fail closed if abused.
+        """
+        self.ritual_answers.append({"kind": frame_kind, "option_id": option_id})
+        if len(self.ritual_answers) > 8:
+            raise Blocked("ritual", "startup ritual exceeded bound; refusing to mask decisions")
 
     def actor_pid(self, frame: dict[str, Any]) -> str:
         raw = frame.get("actor_id") or ""
@@ -388,11 +402,22 @@ def answer_frame(drv: Driver, kind: str, actor: str,
         return str(opts[i]["option_id"])
 
     if kind == "chooseStartingPlayer":
-        for i, o in enumerate(opts):
-            if o.get("kind") == "PLAYER:seat-1":
-                return opt_id(i)
-        raise Blocked("chooseStartingPlayer", f"seat-1 not offered: {[o.get('kind') for o in opts]}")
+        if (record["execution_entry_mode"] == "NATIVE_STATE_LOAD"
+                and not drv.setup_stage_seen):
+            for i, o in enumerate(opts):
+                if o.get("kind") == "PLAYER:seat-1":
+                    drv.ritual(kind, str(o["option_id"]))
+                    return str(o["option_id"])
+            raise Blocked("chooseStartingPlayer", f"seat-1 not offered: {[o.get('kind') for o in opts]}")
+        raise Blocked("chooseStartingPlayer", "post-setup starting-player choice is unscripted")
     if kind == "mulliganKeepHand":
+        if (record["execution_entry_mode"] == "NATIVE_STATE_LOAD"
+                and not drv.setup_stage_seen):
+            for i, o in enumerate(opts):
+                if o.get("kind") == "KEEP":
+                    drv.ritual(kind, str(o["option_id"]))
+                    return str(o["option_id"])
+            raise Blocked("mulliganKeepHand", f"KEEP not offered in ritual: {[o.get('kind') for o in opts]}")
         d = drv.pop_script("mulligan", actor)
         if d is None:
             raise Blocked("mulligan", f"unscripted mulligan for {actor}")
@@ -724,7 +749,12 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
     remaining = [{"family": d["decision_family"], "actor": d.get("actor"),
                   "selector": d["selection"]["selector_kind"]} for d in drv.script]
     if "verdict" not in outcome:
-        if stop_reason in ("FORGE_GAME_RETURNED", "WS23_CONTROLLED_AFTER_PRIORITY_512"):
+        if "terminate_rc" in outcome and not remaining:
+            # Harness-initiated EOF after the full script was consumed: the
+            # provider's EOF-typed stop is the expected termination signal,
+            # not a mid-script fail-closed.
+            outcome["verdict"] = "TRANSCRIPT_COMPLETE"
+        elif stop_reason in ("FORGE_GAME_RETURNED", "WS23_CONTROLLED_AFTER_PRIORITY_512"):
             if not remaining:
                 outcome["verdict"] = "TRANSCRIPT_COMPLETE"
             else:
@@ -748,6 +778,7 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
         "frames": len(drv.frames),
         "answered": answered,
         "consumed": len(drv.consumed),
+        "ritual_answers": drv.ritual_answers,
         "script_remaining": remaining,
         "stop_reason": stop_reason,
         "offered_digest": digest(drv.offered_for_digest),
@@ -769,6 +800,9 @@ def finish_negative(outcome: dict[str, Any], drv: Driver,
     outcome.update({
         "setup_stage_seen": drv.setup_stage_seen,
         "frames": len(drv.frames),
+        "answered": 0,
+        "consumed": 0,
+        "ritual_answers": drv.ritual_answers,
         "evidence_class": "TRANSCRIPT_PROBE",
         "offered_digest": digest(drv.offered_for_digest),
         "stop_reason": stop_reason,
