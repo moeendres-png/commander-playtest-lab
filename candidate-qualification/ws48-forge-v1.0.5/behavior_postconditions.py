@@ -41,6 +41,60 @@ def _cards(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     return list((snapshot or {}).get("cards") or [])
 
 
+def _snapshot_cards(ctx: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        str(c.get("semantic_id")): c
+        for c in _cards(ctx.get("snapshot") or {})
+        if c.get("semantic_id")
+    }
+
+
+def _script_refs(record: dict[str, Any], families: set[str], key: str) -> list[str]:
+    refs = []
+    for d in record.get("decision_script") or []:
+        if d.get("decision_family") in families:
+            sv = d["selection"]["semantic_value"]
+            if isinstance(sv, dict) and isinstance(sv.get(key), str):
+                refs.append(sv[key])
+            elif key == "target" and isinstance(sv, str):
+                refs.append(sv)
+    return refs
+
+
+def _check_bears_survive_bolt(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Grizzly Bears survives Lightning Bolt because Giant Growth resolved first."""
+    cards = _snapshot_cards(ctx)
+    targets = _script_refs(record, {"target"}, "target")
+    if len(targets) != 1:
+        return [f"SURVIVOR_TARGET_NONUNIQUE:{targets}"]
+    target = cards.get(targets[0])
+    if target is None:
+        return [f"SURVIVOR_TARGET_ABSENT:{targets[0]}"]
+    bad = []
+    if target.get("zone") != "battlefield":
+        bad.append(f"SURVIVOR_NOT_ON_BATTLEFIELD:{target.get('zone')}")
+    damage = int(target.get("damage", 0) or 0)
+    toughness = int(target.get("toughness", 0) or 0)
+    if damage <= 0:
+        bad.append("SURVIVOR_TOOK_NO_DAMAGE")
+    if toughness <= damage:
+        bad.append(f"SURVIVOR_DID_NOT_SURVIVE:toughness={toughness}:damage={damage}")
+    for ref in _script_refs(record, {"priority"}, "object"):
+        card = cards.get(ref)
+        if card is None:
+            bad.append(f"SURVIVOR_CAST_OBJECT_ABSENT:{ref}")
+        elif card.get("zone") != "graveyard":
+            bad.append(f"SURVIVOR_CAST_OBJECT_NOT_RESOLVED:{ref}:{card.get('zone')}")
+    for item in record.get("stack_state") or []:
+        ref = item.get("source_semantic_id")
+        card = cards.get(ref)
+        if card is None:
+            bad.append(f"SURVIVOR_STACK_OBJECT_ABSENT:{ref}")
+        elif card.get("zone") != "graveyard":
+            bad.append(f"SURVIVOR_STACK_OBJECT_NOT_RESOLVED:{ref}:{card.get('zone')}")
+    return bad
+
+
 def _by_semantic(snapshot: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {c.get("semantic_id"): c for c in _cards(snapshot) if c.get("semantic_id")}
 
@@ -95,6 +149,7 @@ def _check_stack_empty(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]
 
 
 REGISTRY: dict[str, Checker] = {
+    "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.": _check_bears_survive_bolt,
     "Selected cast action was among provider-offered legal options and no adapter legality was invented.": _check_selected_from_offered,
     "Stack is empty after both spells resolve.": _check_stack_empty,
     "Session/fixture terminates with typed unsupported discretionary-decision failure.": _check_typed_fail_closed,

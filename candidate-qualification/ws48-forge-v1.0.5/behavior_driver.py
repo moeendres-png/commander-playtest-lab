@@ -49,6 +49,47 @@ class BehaviorFailure(Exception):
     """Fail-closed behavior error carrying a machine-readable code."""
 
 
+class TerminalReached(Exception):
+    """Raised when script + required events + postconditions are all satisfied."""
+
+
+# Provider DECISION_FRAME kind -> contract decision family. The family frame
+# event (`<family>_frame:<actor>`) and `decision:<family>:<value>` syntheses
+# derive from this map. Kinds absent here are non-scripted native intermediates
+# (diagnostic decision_frame events only).
+FRAME_FAMILY: dict[str, str] = {
+    "priority": "priority",
+    "chooseModeForAbility": "choose_mode",
+    "chooseTargetsFor": "target",
+    "chooseTarget": "target",
+    "payMana": "mana_payment",
+    "declareAttackers": "declare_attacker",
+    "declareBlockers": "declare_blocker",
+    "confirmAction": "choose_use",
+    "chooseBinary": "choice",
+    "announceRequirements": "announce_x",
+    "chooseSingleEntityForEffect": "choose_object",
+    "orderSimultaneousSa": "trigger_order",
+    "chooseCardsPile": "pile",
+    "combatDamage": "target_amount",
+    "amountDistribution": "multi_amount",
+}
+
+
+def frame_family(kind: str) -> str | None:
+    return FRAME_FAMILY.get(kind)
+
+
+def synthesize_frame_events(kind: str, actor: str | None) -> list[str]:
+    """Contract-level feed events for one offered native decision frame."""
+    family = frame_family(kind)
+    if family is None or actor is None:
+        return []
+    if family == "priority":
+        return [f"priority:{actor}", f"priority_decision_frame:{actor}"]
+    return [f"{family}_frame:{actor}", f"decision_frame:{family}"]
+
+
 def provider_command() -> list[str]:
     raw = os.environ.get("COMMANDER_LAB_FORGE_PROVIDER_CMD")
     if not raw:
@@ -248,6 +289,29 @@ class Session:
         # (remaining source refs + produced symbols).
         self.multi_remaining: dict[int, list[str]] = {}
         self.mana_produced: dict[int, list[str]] = {}
+        # Unified journal: (seq, kind, text) with kind in
+        # {snapshot, event, frame, match} for anchored evaluation.
+        self.journal: list[tuple[int, str, str]] = []
+        self._seq = 0
+        # Per-actor mulligan prompt counts for round lifecycle events.
+        self.mulligan_rounds: dict[str, int] = {}
+
+    def _log(self, kind: str, text: str) -> None:
+        self.journal.append((self._seq, kind, text))
+        self._seq += 1
+
+    def note_snapshot(self, index: int) -> None:
+        self._log("snapshot", f"snapshot:{index}")
+
+    def note_event(self, name: str) -> None:
+        self.feed.append(name)
+        self._log("event", name)
+
+    def note_frame(self, kind: str, actor: str | None) -> None:
+        norm = normalize_actor(actor)
+        for synth in synthesize_frame_events(kind, norm):
+            self.note_event(synth)
+        self._log("frame", f"{kind}:{norm}")
 
     @property
     def script(self) -> list[dict[str, Any]]:
@@ -258,13 +322,20 @@ class Session:
             return self.script[self.decision_index]
         return None
 
-    def record_match(self, frame: dict[str, Any], option: dict[str, Any], rule: str) -> None:
+    def record_match(
+        self,
+        frame: dict[str, Any],
+        option: dict[str, Any],
+        rule: str,
+        family: str | None = None,
+        value: Any = None,
+    ) -> None:
         options = frame["payload"].get("options") or []
         self.matches.append(
             {
                 "decision_id": frame["payload"].get("decision_id"),
                 "decision_kind": frame["payload"].get("decision_kind"),
-                "actor": frame.get("actor_id"),
+                "actor": normalize_actor(frame.get("actor_id")),
                 "match_rule": rule,
                 "offered_count": len(options),
                 "offered_digest": _digest_options(options),
@@ -273,6 +344,10 @@ class Session:
                 "submitted": True,
             }
         )
+        self._log("match", rule)
+        if family is not None:
+            compact = value if isinstance(value, str) else _compact_value(value)
+            self.note_event(f"decision:{family}:{compact}")
 
     def answer_pass(self, frame: dict[str, Any]) -> None:
         option = match_pass_option(frame)
@@ -337,7 +412,9 @@ class Session:
             rule = f"{selector}:{value}"
             remaining.remove(_matched_ref(option, remaining))
             if remaining:
-                self.record_match(frame, option, rule + f":remaining={len(remaining)}")
+                self.record_match(
+                    frame, option, rule + f":remaining={len(remaining)}", family, value
+                )
                 submit(self.proc, frame, str(option["option_id"]), "scripted")
                 return
         elif selector == "semantic_player":
@@ -360,7 +437,7 @@ class Session:
             )
         else:
             raise BehaviorFailure(f"UNKNOWN_SELECTOR:{kind}:{family}:{selector}")
-        self.record_match(frame, option, rule)
+        self.record_match(frame, option, rule, family, value)
         submit(self.proc, frame, str(option["option_id"]), "scripted")
         self.decision_index += 1
 
@@ -374,6 +451,16 @@ def _matched_ref(option: dict[str, Any], remaining: list[str]) -> str:
     raise BehaviorFailure(f"MATCHED_REF_UNRESOLVABLE:{segments}:{remaining}")
 
 
+def _compact_value(value: Any) -> str:
+    """Compact a semantic value for decision: feed events."""
+    if isinstance(value, dict):
+        parts = [f"{k}={_compact_value(v)}" for k, v in sorted(value.items())]
+        return ",".join(parts)
+    if isinstance(value, list):
+        return "+".join(_compact_value(v) for v in value)
+    return str(value)
+
+
 def _digest_options(options: list[dict[str, Any]]) -> str:
     import hashlib
 
@@ -385,6 +472,7 @@ def drive_until_result(
     session: Session,
     on_frame,
     max_messages: int = 4096,
+    on_snapshot=None,
 ) -> dict[str, Any]:
     """Consume provider messages until SESSION_RESULT; delegate frames."""
     proc = session.proc
@@ -403,14 +491,20 @@ def drive_until_result(
             payload = msg.get("payload") or {}
             if "raw_native" in payload:
                 session.snapshots.append(payload["raw_native"])
+                session.note_snapshot(len(session.snapshots) - 1)
+                if on_snapshot is not None:
+                    on_snapshot(session)
             continue
         if typ == "EVENT":
             payload = msg.get("payload") or {}
             name = payload.get("name")
             if name:
-                session.feed.append(str(name))
+                session.note_event(str(name))
             continue
         if typ == "DECISION_FRAME":
+            session.note_frame(
+                str(msg.get("payload", {}).get("decision_kind")), msg.get("actor_id")
+            )
             on_frame(session, msg)
             continue
         if typ == "SESSION_RESULT":
@@ -448,17 +542,43 @@ def open_session(record: dict[str, Any], env: dict[str, str]):
     return proc
 
 
+def anchored_snapshot_index(record: dict[str, Any], session: Session) -> int | None:
+    """Index of the first snapshot after the last required event.
+
+    Postconditions describe terminal native outcomes; they must be evaluated
+    at a checkpoint taken after the required native behavior completed, not
+    at an arbitrary (e.g. game-end) snapshot.
+    """
+    required = set((record.get("expected_events") or {}).get("required_events") or [])
+    if not required:
+        return len(session.snapshots) - 1 if session.snapshots else None
+    last_event_seq = -1
+    for seq, kind, text in session.journal:
+        if kind == "event" and text in required and seq > last_event_seq:
+            last_event_seq = seq
+    if last_event_seq < 0:
+        return None
+    for seq, kind, text in session.journal:
+        if kind == "snapshot" and seq > last_event_seq:
+            return int(text.split(":", 1)[1])
+    return None
+
+
 def verify_terminal(record: dict[str, Any], session: Session) -> dict[str, Any]:
     """Run event + postcondition verification over collected evidence."""
     if not session.snapshots:
         raise BehaviorFailure("NO_SNAPSHOTS")
-    terminal = session.snapshots[-1]
+    anchor = anchored_snapshot_index(record, session)
+    if anchor is None:
+        raise BehaviorFailure("NO_POST_RESOLUTION_SNAPSHOT")
+    terminal = session.snapshots[anchor]
     snapshot_texts = [json.dumps(s, ensure_ascii=False, sort_keys=True) for s in session.snapshots]
     events = behavior_events.verify(
         record.get("expected_events") or {}, session.feed, snapshot_texts
     )
     ctx = {
         "snapshot": terminal,
+        "snapshot_index": anchor,
         "feed": list(session.feed),
         "matches": list(session.matches),
         "stop": dict(session.stop or {}),
@@ -474,4 +594,23 @@ def verify_terminal(record: dict[str, Any], session: Session) -> dict[str, Any]:
         "passes": session.passes,
         "decisions": session.decision_index,
         "snapshot_count": len(session.snapshots),
+        "anchor_snapshot": anchor,
     }
+
+
+def check_terminal_ready(record: dict[str, Any], session: Session) -> dict[str, Any] | None:
+    """Return a PASS terminal result if the session may stop now, else None.
+
+    Ready means: script fully consumed, every required event observed, and
+    postconditions holding at the anchored snapshot.
+    """
+    if session.decision_index != len(session.script):
+        return None
+    required = set((record.get("expected_events") or {}).get("required_events") or [])
+    if not required.issubset(set(session.feed)):
+        return None
+    try:
+        result = verify_terminal(record, session)
+    except BehaviorFailure:
+        return None
+    return result if result["status"] == "PASS" else None

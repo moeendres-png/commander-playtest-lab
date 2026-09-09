@@ -143,8 +143,14 @@ def test_drive_cast_target_pass_resolve(tmp_path, monkeypatch):
     assert session.decision_index == 2
     assert session.passes == 1
     assert session.feed == [
+        "priority:P2",
+        "priority_decision_frame:P2",
+        "decision:priority:action=cast,object=obj:micro-growth",
+        "decision:target:obj:micro-target",
         "spell_cast:Giant_Growth",
         "stack_push:Giant_Growth",
+        "priority:P1",
+        "priority_decision_frame:P1",
         "resolve:Giant_Growth",
         "resolve:Lightning_Bolt",
     ]

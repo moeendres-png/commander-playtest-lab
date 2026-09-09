@@ -103,6 +103,33 @@ def mana_expected_sources(
     raise _BF(f"MANA_SOURCES_UNRESOLVABLE:{entry['causal_step_id']}")
 
 
+def derive_static_events(record: dict[str, Any], session: Session) -> None:
+    """Record native bookkeeping markers from the construction snapshot.
+
+    All values come from the provider-emitted native snapshot (typed
+    observation), never from the requested record: Rules-RNG channels and
+    predetermined draws from native rules_randomness, tested viewers from
+    native knowledge_state.
+    """
+    from behavior_driver import BehaviorFailure as _BF
+
+    first = session.snapshots[0]
+    if first.get("natural_lifecycle") is True:
+        # Natural-game lifecycle markers are derived when those fixtures run.
+        return
+    obs = first.get("ws45_observation") or {}
+    if not obs:
+        raise _BF("STATIC_DERIVATION_MISSING_OBSERVATION")
+    rr = obs.get("rules_randomness") or {}
+    for ch in rr.get("channels") or []:
+        session.note_event(f"rules_rng:{ch}")
+    for d in rr.get("predetermined_semantic_draws") or []:
+        session.note_event(f"rules_rng:{d.get('operation')}:{d.get('result')}")
+    ks = obs.get("knowledge_state") or {}
+    for v in ks.get("viewer_states") or []:
+        session.note_event(f"knowledge_projection:{record['fixture_id']}:{v.get('viewer')}")
+
+
 def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict[str, Any]:
     """Drive one record to terminal verification. Raises BehaviorFailure."""
     session = Session(record, proc)
@@ -143,6 +170,7 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         kind = frame["payload"].get("decision_kind")
         if kind == "chooseStartingPlayer":
             _submit(proc, frame, starting_player_option_id(frame), "setup-starting")
+            sess.note_event("starting_player:P1")
             sess.matches.append(
                 {
                     "decision_id": frame["payload"].get("decision_id"),
@@ -156,6 +184,9 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             return
         if kind == "mulliganKeepHand":
             expected = sess.next_expected()
+            actor_pid = normalize_actor(frame.get("actor_id"))
+            round_no = sess.mulligan_rounds.get(actor_pid, 0) + 1
+            sess.mulligan_rounds[actor_pid] = round_no
             if expected is not None and expected["decision_family"] == "mulligan":
                 action = expected["selection"]["semantic_value"]
                 if action == "keep_opening_hand":
@@ -171,6 +202,10 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
                 # (e.g. NATIVE_STATE_LOAD): keep, exactly as construction does.
                 keep = True
                 rule = "setup_mulligan_keep"
+                action = "keep_opening_hand"
+            sess.note_event(
+                f"{'keep' if action == 'keep_opening_hand' else 'mulligan'}:{actor_pid}:round{round_no}"
+            )
             _submit(proc, frame, mulligan_option_id(frame, keep), "mulligan")
             sess.matches.append(
                 {
@@ -240,20 +275,52 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             return
         expected = sess.next_expected()
         if expected is not None:
-            if kind == "priority":
-                # Native evidence that the provider offered priority to this actor.
-                sess.feed.append(f"priority:{normalize_actor(frame.get('actor_id'))}")
             sess.answer_expected(frame, expected)
             return
         # Script exhausted: only scripted priority passes may continue the game
         # toward terminal resolution.
         if kind == "priority":
-            sess.feed.append(f"priority:{normalize_actor(frame.get('actor_id'))}")
             sess.answer_pass(frame)
             return
         raise BehaviorFailure(f"POST_SCRIPT_UNEXPECTED_FRAME:{kind}")
 
-    stop = drive_until_result(session, on_frame)
+    def on_snapshot(sess: Session) -> None:
+        from behavior_driver import TerminalReached
+        from behavior_driver import check_terminal_ready as _ready
+
+        if len(sess.snapshots) == 1:
+            derive_static_events(record, sess)
+        ready = _ready(record, sess)
+        if ready is not None:
+            raise TerminalReached(ready)
+
+    from behavior_driver import TerminalReached as _Terminal
+
+    try:
+        stop = drive_until_result(session, on_frame, on_snapshot=on_snapshot)
+    except _Terminal as term:
+        ready = term.args[0]
+        with contextlib.suppress(Exception):
+            proc.stdin.close()
+        try:
+            raw_stop = None
+            for _ in range(600):
+                line = proc.stdout.readline()
+                if not line:
+                    break
+                msg = json.loads(line)
+                if msg.get("message_type") == "SESSION_RESULT":
+                    raw_stop = msg.get("payload") or {}
+                    break
+            session.stop = raw_stop or {"stop_reason": "WS48_EARLY_TERMINAL_EOF"}
+        finally:
+            with contextlib.suppress(Exception):
+                proc.kill()
+        ready["stop_reason"] = (session.stop or {}).get("stop_reason")
+        ready["matches"] = list(session.matches)
+        ready["feed"] = list(session.feed)
+        ready["early_terminal"] = True
+        return ready
     if session.decision_index != len(script):
         raise BehaviorFailure(f"SCRIPT_INCOMPLETE:{session.decision_index}/{len(script)}")
     result = verify_terminal(record, session)
