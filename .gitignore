@@ -7,6 +7,8 @@ __pycache__/
 htmlcov/
 .venv/
 .env
+.env.*
+!.env.example
 *.sqlite3
 *.sqlite3-wal
 *.sqlite3-shm
@@ -24,6 +26,18 @@ release/
 
 # Ephemeral local runtime state
 .runtime/
+
+# Raw local credential material must stay untracked. Project source, evidence,
+# logs, card/deck data and other technical artifacts remain usable by Muse when
+# they are part of the active workstream.
+.secrets/
+*.pem
+*.p12
+*.pfx
+*.key
+credentials.json
+client_secret*.json
+service-account*.json
 
 # Generated Phase-10 demo evidence
 artifacts/phase10/*.json

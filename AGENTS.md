@@ -173,59 +173,69 @@ its exact proof.
 
 ## 7. Model / Agent Routing
 
-The project uses a cost-aware but correctness-first routing policy.
+The active Foundry routing policy is correctness-first and intentionally separates
+**authority/integration** from **bulk implementation**.
 
-### Normal GPT-5.6 Sol chat
+### Normal GPT-5.6 Sol chat — authority and design
 
-Use for architecture, authority research, difficult root-cause analysis, MTG rules
-adjudication, differential interpretation, implementation strategy, critical review,
-and creation of precise repository-agent work packages.
+Use for architecture, current-authority research, difficult root-cause analysis, MTG
+rules adjudication, differential interpretation, implementation strategy, critical
+review, and creation of precise repository-agent work packages.
 
-### Codex Terra — default implementer
+### ChatGPT Work / Codex Terra High — control and integration lane
 
-Use by default for normal repository implementation:
+Use for fresh source locks, dependency reconstruction, difficult repository diagnosis,
+current external-source work, provider-vs-engine classification, high-risk edits where
+implementation and semantics remain tightly coupled, integration of independently
+produced patches, qualification evidence adjudication, and coordinator work.
 
-- multi-file features;
-- provider/state-loader work;
-- ordinary bugs;
-- refactors;
-- APIs and integration;
+Terra High is the normal Work-side owner/integrator. Do not spend Work capacity on
+long repetitive implementation/test/fix loops once the objective, semantics, and
+acceptance criteria are bounded enough for Muse.
+
+### OpenCode + Muse Spark 1.3 Contributor Free — primary implementation worker
+
+Muse is the default worker for substantial bounded coding once authority and semantic
+constraints are sufficiently fixed. Prefer it for:
+
+- multi-file implementation;
+- provider adapters and state loaders;
+- ordinary bugs and refactors;
+- APIs and integration code;
 - test-suite expansion;
-- implementation of an already-decided design.
+- compile/test/fix loops;
+- deterministic evidence/tooling work;
+- larger mechanical migrations with executable acceptance criteria.
 
-### Codex Luna — mechanical work
+When the current OpenCode model catalog actually exposes reasoning variants for the
+selected Muse model, prefer `high` for substantial implementation and reserve `xhigh`
+for genuinely difficult nonlocal blockers, large call-graph problems, or complex
+integration/debugging. Never invent or assume a variant that the live catalog does not
+expose; the base model remains valid when no such variant is available.
 
-Use only when intended semantics are already fixed, for example:
+Muse must not independently decide Magic rules semantics, qualification denominators,
+hidden-information policy, Rules-randomness ownership, provider-vs-engine blame when
+materially ambiguous, Architecture Freeze, or final decision-critical qualification
+PASS. Return those questions to the Work/Sol authority layer.
 
-- formatting / lint cleanup;
-- simple type repairs;
-- documentation;
-- repetitive refactors;
-- straightforward tests following an existing pattern;
-- renames and generated-file maintenance;
-- running predefined validation and summarizing results.
+### Codex Sol High — targeted escalation
 
-Luna must not independently decide Magic rules semantics, architecture,
-hidden-information policy, RNG authority, provider-vs-engine blame, qualification
-PASS, or contract obligations.
+Reserve for genuinely difficult repository reasoning or implementation where one of
+these applies:
 
-### Codex Sol — escalation
-
-Reserve for genuinely difficult repository reasoning, especially when one of these
-applies:
-
-- Terra has made two substantive unsuccessful attempts at the same blocker;
 - foundational Rules-Core architecture changes;
 - hard-to-reproduce nonlocal defects;
 - concurrency / race conditions / RNG isolation;
 - large central migrations;
 - high-blast-radius correctness changes;
-- cross-subsystem interaction that cannot be safely bounded first.
+- cross-subsystem interaction that cannot be safely bounded first;
+- Terra has made two materially distinct evidence-driven attempts on the same blocker
+  and it remains unresolved.
 
-Whenever practical, analyze the problem in normal Sol first and give Codex Sol a
-bounded remediation contract instead of an open-ended exploration request.
+Whenever practical, analyze the question in normal Sol first and give Codex Sol a
+bounded remediation contract rather than an open-ended exploration request.
 
-Model cost never changes the evidence standard.
+Model cost or provider availability never changes the evidence standard.
 
 ## 8. Task Granularity
 
@@ -465,8 +475,54 @@ Cross-harness continuation rules are documented in
 `docs/agent-workflows/HARNESS_PORTABILITY_AND_CONTINUATION.md`.
 
 For OpenCode + Muse Spark 1.3 prompt/session guidance, consult
-`docs/agent-workflows/MUSE_SPARK_1_3_OPENCODE_HANDBOOK.md` on demand. Do not pre-load
-model-specific documentation when it is irrelevant to the current task.
+`docs/agent-workflows/MUSE_SPARK_1_3_OPENCODE_HANDBOOK.md` on demand. For every Muse
+session, the data boundary in `docs/agent-workflows/MUSE_DATA_BOUNDARY.md` is binding.
+Do not pre-load model-specific documentation when it is irrelevant to the current
+task.
 
 A model/provider handoff should pass the Workstream Contract, exact branch/commits,
 workstream state, and persisted evidence rather than a giant historical chat dump.
+
+## 19. Muse Data Boundary
+
+Muse Spark 1.3 Contributor Free is the primary bounded implementation worker and must
+be able to use all technical information materially required for Foundry engineering.
+The project privacy boundary protects unrelated personal/private information about the
+user and raw credential values; it does **not** classify ordinary project data as
+sensitive.
+
+Explicitly allowed for Muse in this project:
+
+- all Foundry repository source, tests, scripts, schemas, docs and project-relevant
+  configuration;
+- qualification contracts, immutable materializations, fixtures, runtime evidence,
+  logs, traces, build artifacts and machine-readable results;
+- project-related external engine/provider source and build trees, including Forge,
+  XMage and other candidates, subject to their license/process constraints;
+- Magic card names, Oracle/card metadata, decklists, owned-card inventories,
+  collection information, matchup/deckbuilding data and other MTG-specific data;
+- other technical project data needed to compile, test, debug, qualify or reproduce
+  the simulator.
+
+Do not deliberately expose unrelated personal/private information such as home/postal
+addresses, private telephone numbers, private email message content, personal
+calendar/contact data, private chats, government identifiers, banking/payment data,
+browser/password-manager data or unrelated personal documents. Normal repository and
+public GitHub metadata may be used when required for Source Truth; do not unnecessarily
+surface personal contact details from that metadata.
+
+Raw credentials may be **used indirectly by project tooling** but must not be printed
+into Muse context. Muse may run authenticated Git/provider/build/test commands using
+already-configured authentication or inherited environment credentials. Do not read,
+echo, dump, copy, commit or persist passwords, API keys, access/refresh tokens, OAuth
+secrets, session cookies, private keys or secret-bearing `.env` values. If a credential
+itself must be created, rotated, read or edited, perform that credential-management
+step outside Muse and then continue normal project work.
+
+Do not block ordinary Foundry work merely because it needs project source, evidence,
+logs, engine checkouts, card/deck data, normal search tools or normal shell/build/test
+commands. Project-related external paths may be explicitly allowed or approval-gated.
+
+OpenCode permissions provide defense in depth but are not an operating-system security
+sandbox. A task requiring a hard confidentiality guarantee needs an OS/container/user
+isolation boundary in addition to OpenCode permissions.

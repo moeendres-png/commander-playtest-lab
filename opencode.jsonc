@@ -1,25 +1,24 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  // Muse Spark 1.3 Contributor Free is the intended zero-cost OpenCode lane.
-  // Verify in the OpenCode UI that OpenCode Zen is connected and this exact
-  // Free model is selected before beginning a material task. If the Free SKU
-  // disappears, do not assume an automatic paid fallback is acceptable.
+  // Muse Spark 1.3 Contributor Free is the primary bounded implementation lane.
+  // Verify in the live OpenCode model catalog that this exact Free model is
+  // selected before beginning a material task. If a High/XHigh variant is used,
+  // it must actually exist in the live catalog; never invent a variant name.
+  // If the Free SKU disappears, do not assume an automatic paid fallback.
   "model": "opencode/muse-spark-1.3-contributor-free",
   "default_agent": "foundry-implementer",
 
-  // Preserve more recent detail than the V2 default while still compacting
-  // automatically. Durable workstream state/commits remain authoritative
-  // because compaction is lossy.
+  // Durable Git/state remains authoritative because compaction is lossy.
   "compaction": {
     "auto": true,
-    "keep": {
-      "tokens": 30000
-    },
-    "buffer": 32000
+    "prune": true,
+    "reserved": 32000
   },
 
-  // Keep file watching focused on source/evidence rather than build/cache noise.
+  // Keep caches/build output and raw credential-bearing files out of watcher
+  // noise. This does not hide project data from Muse; it only reduces accidental
+  // credential exposure and irrelevant churn.
   "watcher": {
     "ignore": [
       ".git/**",
@@ -28,54 +27,149 @@
       "**/.pytest_cache/**",
       "**/.mypy_cache/**",
       "engine-bridge/target/**",
-      "dist/**"
+      "dist/**",
+      ".env",
+      ".env.*",
+      "**/.env",
+      "**/.env.*",
+      ".secrets/**",
+      "**/.secrets/**"
     ]
   },
 
-  // OpenCode is intentionally fairly autonomous inside the repository because
-  // Muse Free capacity is useful for long implementation/test/repair loops.
-  // Remote publication and destructive operations remain approval-gated.
-  "permissions": [
-    { "action": "*", "resource": "*", "effect": "ask" },
+  // V1 permission syntax. The profile is intentionally productive: project source,
+  // tests, evidence, logs, tooling, engine checkouts and normal coding/search/build
+  // commands are available. Raw credentials and unrelated personal data remain out
+  // of Muse context. See docs/agent-workflows/MUSE_DATA_BOUNDARY.md.
+  "permission": {
+    "*": "ask",
 
-    { "action": "read", "resource": "*", "effect": "allow" },
-    { "action": "read", "resource": "*.env", "effect": "deny" },
-    { "action": "read", "resource": "*.env.*", "effect": "deny" },
-    { "action": "read", "resource": "**/*.env", "effect": "deny" },
-    { "action": "read", "resource": "**/*.env.*", "effect": "deny" },
+    "read": {
+      "*": "allow",
+      ".env": "deny",
+      ".env.*": "deny",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/*.pem": "deny",
+      "**/*.p12": "deny",
+      "**/*.pfx": "deny",
+      "**/*.key": "deny",
+      "**/id_rsa": "deny",
+      "**/id_ed25519": "deny",
+      "**/.netrc": "deny",
+      "**/.npmrc": "deny",
+      "**/.pypirc": "deny",
+      "**/credentials.json": "deny",
+      "**/client_secret*.json": "deny",
+      "**/service-account*.json": "deny",
+      ".env.example": "allow",
+      "**/.env.example": "allow"
+    },
 
-    { "action": "glob", "resource": "*", "effect": "allow" },
-    { "action": "grep", "resource": "*", "effect": "allow" },
-    { "action": "websearch", "resource": "*", "effect": "allow" },
-    { "action": "webfetch", "resource": "*", "effect": "allow" },
+    "glob": "allow",
+    "grep": "allow",
+    "websearch": "allow",
+    "webfetch": "allow",
 
-    { "action": "subagent", "resource": "*", "effect": "ask" },
-    { "action": "subagent", "resource": "explore", "effect": "allow" },
-    { "action": "subagent", "resource": "foundry-reviewer", "effect": "allow" },
+    "task": {
+      "*": "ask",
+      "explore": "allow",
+      "foundry-reviewer": "allow"
+    },
 
-    { "action": "edit", "resource": "*", "effect": "allow" },
-    { "action": "edit", "resource": "*.env", "effect": "deny" },
-    { "action": "edit", "resource": "*.env.*", "effect": "deny" },
-    { "action": "edit", "resource": "**/*.env", "effect": "deny" },
-    { "action": "edit", "resource": "**/*.env.*", "effect": "deny" },
+    "edit": {
+      "*": "allow",
+      ".env": "deny",
+      ".env.*": "deny",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/*.pem": "deny",
+      "**/*.p12": "deny",
+      "**/*.pfx": "deny",
+      "**/*.key": "deny",
+      "**/id_rsa": "deny",
+      "**/id_ed25519": "deny",
+      "**/.netrc": "deny",
+      "**/.npmrc": "deny",
+      "**/.pypirc": "deny",
+      "**/credentials.json": "deny",
+      "**/client_secret*.json": "deny",
+      "**/service-account*.json": "deny"
+    },
 
-    { "action": "shell", "resource": "*", "effect": "allow" },
+    // Normal coding, inspection, source-search, setup, build and test commands are
+    // allowed so Muse can finish long work without approval churn. Remote/destructive
+    // Git operations remain gated. Credential-dump commands are denied; already
+    // configured credentials may still be consumed indirectly by tools without being
+    // printed into model context.
+    "bash": {
+      "*": "allow",
 
-    { "action": "shell", "resource": "git push *", "effect": "ask" },
-    { "action": "shell", "resource": "git push", "effect": "ask" },
-    { "action": "shell", "resource": "git merge *", "effect": "ask" },
-    { "action": "shell", "resource": "git rebase *", "effect": "ask" },
-    { "action": "shell", "resource": "git reset --hard*", "effect": "ask" },
-    { "action": "shell", "resource": "git clean *", "effect": "ask" },
-    { "action": "shell", "resource": "git branch -D *", "effect": "ask" },
-    { "action": "shell", "resource": "git checkout -- *", "effect": "ask" },
-    { "action": "shell", "resource": "git restore *", "effect": "ask" },
+      "env": "deny",
+      "env *": "deny",
+      "printenv": "deny",
+      "printenv *": "deny",
+      "export": "deny",
+      "export -p*": "deny",
+      "set": "deny",
+      "set *": "deny",
+      "gh auth*": "deny",
+      "git credential*": "deny",
+      "git config --global*": "ask",
+      "git config --system*": "ask",
 
-    { "action": "shell", "resource": "rm -rf *", "effect": "ask" },
-    { "action": "shell", "resource": "del *", "effect": "ask" },
-    { "action": "shell", "resource": "rmdir *", "effect": "ask" },
-    { "action": "shell", "resource": "Remove-Item *", "effect": "ask" },
+      "git push": "ask",
+      "git push *": "ask",
+      "git merge *": "ask",
+      "git cherry-pick *": "ask",
+      "git rebase *": "ask",
+      "git reset *": "ask",
+      "git clean *": "ask",
+      "git branch -D *": "ask",
+      "git checkout -- *": "ask",
+      "git restore *": "ask",
+      "rm -rf *": "ask",
+      "del *": "ask",
+      "rmdir *": "ask",
+      "Remove-Item *": "ask",
 
-    { "action": "external_directory", "resource": "*", "effect": "ask" }
-  ]
+      "ssh *": "ask",
+      "scp *": "ask",
+      "sftp *": "ask"
+    },
+
+    // Project-related external source trees are allowed, including current engine
+    // candidates. Other external directories are approval-gated rather than denied,
+    // so an unexpected but legitimate project dependency can still be used without
+    // weakening the personal-data boundary globally.
+    "external_directory": {
+      "*": "ask",
+      "~/code/commander-playtest-lab": "allow",
+      "~/code/commander-playtest-lab/**": "allow",
+      "~/code/commander-playtest-lab-*": "allow",
+      "~/code/commander-playtest-lab-*/**": "allow",
+      "~/code/mage": "allow",
+      "~/code/mage/**": "allow",
+      "~/code/mage-*": "allow",
+      "~/code/mage-*/**": "allow",
+      "~/code/xmage*": "allow",
+      "~/code/xmage*/**": "allow",
+      "~/code/forge*": "allow",
+      "~/code/forge*/**": "allow",
+      "~/code/Card-Forge*": "allow",
+      "~/code/Card-Forge*/**": "allow",
+      "~/code/manabrew*": "allow",
+      "~/code/manabrew*/**": "allow",
+      "~/code/phase.rs*": "allow",
+      "~/code/phase.rs*/**": "allow",
+      "~/code/arcana*": "allow",
+      "~/code/arcana*/**": "allow",
+      "~/code/argentum*": "allow",
+      "~/code/argentum*/**": "allow"
+    }
+  }
 }

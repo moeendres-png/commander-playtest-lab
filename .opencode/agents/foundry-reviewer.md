@@ -3,37 +3,18 @@ description: Read-only Commander Simulation Foundry implementation and evidence 
 mode: subagent
 model: opencode/muse-spark-1.3-contributor-free
 steps: 24
-permissions:
-  - action: edit
-    resource: "*"
-    effect: deny
-  - action: shell
-    resource: "*"
-    effect: deny
-  - action: shell
-    resource: "git status *"
-    effect: allow
-  - action: shell
-    resource: "git status"
-    effect: allow
-  - action: shell
-    resource: "git diff *"
-    effect: allow
-  - action: shell
-    resource: "git diff"
-    effect: allow
-  - action: shell
-    resource: "git log *"
-    effect: allow
-  - action: shell
-    resource: "git log"
-    effect: allow
-  - action: shell
-    resource: "git show *"
-    effect: allow
-  - action: shell
-    resource: "git show"
-    effect: allow
+permission:
+  edit: deny
+  bash:
+    "*": deny
+    "git status": allow
+    "git status *": allow
+    "git diff": allow
+    "git diff *": allow
+    "git log": allow
+    "git log *": allow
+    "git show": allow
+    "git show *": allow
 ---
 
 Review the current implementation without modifying files.
