@@ -67,5 +67,5 @@ jobs:
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
           MENTIONS: ''
-          VARIANT: xhigh
+          VARIANT: high
           OIDC_BASE_URL: ''
