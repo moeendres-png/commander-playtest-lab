@@ -40,11 +40,11 @@ The current OpenCode project lock is:
 - full ID: `opencode-go/muse-spark-1.3-contributor`
 - allowed reasoning effort: `high`, `xhigh` only
 - minimum reasoning effort: `high`
-- default reasoning effort: `high`
+- **default/preferred reasoning effort: `xhigh`**
 - `medium`, `low`, `minimal`, `none`, and `off` are not authorized; medium and all lower efforts are unauthorized
 - all other OpenCode providers/models are outside current project policy
 
-Use High for all other project OpenCode work, including helpers and bounded/mechanical tasks, as well as normal repository execution. Prefer XHigh when task difficulty or length materially benefits from it, including difficult implementation, long-running autonomous campaigns, difficult debugging/root-cause analysis, complex multi-file remediation, provider/Rules-Core boundary work, qualification campaigns, semantic integration, and difficult evidence reconciliation.
+Use XHigh by default for substantial implementation, debugging, qualification, audits, semantic integration, multi-file work, repeated remediation and any task where extra reasoning could materially improve correctness. When uncertain between High and XHigh, choose XHigh. Use High only for clearly bounded, local, mechanical or low-ambiguity work where additional reasoning is not expected to materially improve the result.
 
 Work policy:
 
@@ -57,7 +57,7 @@ Work policy:
 
 The repository root [`opencode.json`](opencode.json) is the machine-enforced OpenCode configuration.
 
-Older reports, prompts or handoffs that prescribe Work as the default execution environment, split Muse and Spark into separate resources, use another OpenCode model, permit OpenCode effort below High, or prescribe a different Work model/effort policy are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
+Older reports, prompts or handoffs that prescribe Work as the default execution environment, split Muse and Spark into separate resources, use another OpenCode model, permit OpenCode effort below High, prescribe High rather than XHigh as the default, or prescribe a different Work model/effort policy are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
 
 ## Optimizer-v2 decision path
 
