@@ -7,12 +7,14 @@ For execution routing, the canonical policy is [`PROJECT_EXECUTION_POLICY.md`](P
 There are exactly three project execution paths:
 
 - normal ChatGPT Sol High for coordination, research, architecture, review and adjudication;
-- OpenCode with Muse Spark 1.3 for repository implementation, debugging, CI, qualification, audits and mechanical repository work;
+- OpenCode Go with Muse Spark 1.3 Contributor for repository implementation, debugging, CI, qualification, audits and mechanical repository work;
 - ChatGPT Work with Sol Medium only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
 
-Muse and Spark 1.3 are not separate project resources. The OpenCode resource is OpenCode with Muse Spark 1.3.
+Muse Spark 1.3 is one AI model and must not be split into separate Muse and Spark resources.
 
-Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work.
+The only authorized OpenCode model is `opencode-go/muse-spark-1.3-contributor`. Allowed effort is `medium`, `high`, or `xhigh`, with `high` as the project default. The repository root `opencode.json` enforces the current OpenCode provider/model policy.
+
+Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work or as authorization to substitute another OpenCode model.
 
 ## Local API
 
