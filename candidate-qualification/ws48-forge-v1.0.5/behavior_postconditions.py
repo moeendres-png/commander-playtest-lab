@@ -562,6 +562,40 @@ def _check_commander_tax_fresh(record: dict[str, Any], ctx: dict[str, Any]) -> l
     return bad
 
 
+def _check_warstorm_surge(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Surge triggers exactly once; entering creature deals 2 to P2."""
+    bad: list[str] = []
+    feed = list(ctx.get("feed") or [])
+    surges = [e for e in feed if e == "trigger:Warstorm_Surge"]
+    if len(surges) != 1:
+        bad.append(f"SURGE_TRIGGER_COUNT:{len(surges)}")
+    if "damage:P2:2" not in feed:
+        bad.append("SURGE_DAMAGE_MISSING")
+    cards = _snapshot_cards(ctx)
+    entering = None
+    for d in record.get("decision_script") or []:
+        if d.get("decision_family") == "priority" and isinstance(
+            d["selection"]["semantic_value"], dict
+        ):
+            entering = d["selection"]["semantic_value"].get("object")
+    if entering:
+        card = cards.get(entering)
+        if card is None:
+            # Reincarnated entry may be unbound; accept identity presence.
+            found = [
+                c
+                for c in _cards(ctx.get("snapshot") or {})
+                if c.get("card_identity") == (_record_object(record, entering) or {}).get("card_identity")
+                and c.get("controller") == (_record_object(record, entering) or {}).get("controller")
+                and c.get("zone") == "battlefield"
+            ]
+            if not found:
+                bad.append(f"SURGE_ENTERED_ABSENT:{entering}")
+        elif card.get("zone") != "battlefield":
+            bad.append(f"SURGE_ENTERED_ZONE:{entering}:{card.get('zone')}")
+    return bad
+
+
 REGISTRY: dict[str, Checker] = {
     "obj:p1-bears is attacking P2 and is tapped if required by rules.": _check_declare_attacker,
     "PX is attacking PX and is tapped if required by rules.": _check_declare_attacker,
@@ -595,6 +629,7 @@ REGISTRY: dict[str, Checker] = {
     "Exactly the selected provider-legal mana payment is consumed.": _check_mana_consumed,
     "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned.": _check_mana_consumed,
     "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.": _check_bears_survive_bolt,
+    "Warstorm Surge triggers exactly once and entering creature deals 2 to P2 on resolution.": _check_warstorm_surge,
     "X=N is bound into the announced spell and cost calculation by the Rules Core.": _check_announced_x,
     "Rograkh printed mana cost N plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes N.": _check_commander_tax_fresh,
     "Selected cast action was among provider-offered legal options and no adapter legality was invented.": _check_selected_from_offered,
