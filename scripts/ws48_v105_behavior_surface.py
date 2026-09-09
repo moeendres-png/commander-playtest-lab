@@ -692,6 +692,50 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
     }
 """
 
+DECLARE_DIRECT_OLD = """        emitNativeSnapshot(game, broker, false);
+        if ("1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {"""
+
+DECLARE_DIRECT_NEW = """        emitNativeSnapshot(game, broker, false);
+        if (!"1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {
+            ws48BeginLoadedCombatStep(game, broker);
+        }
+        if ("1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {"""
+
+DECLARE_DIRECT_HELPERS = """    public static void ws48BeginLoadedCombatStep(Game game, Ws23ForgeVerticalProvider.Broker broker) {
+        // devModeSet places the game directly into the loaded step, skipping
+        // that step's onPhaseBegin turn-based actions. In behavior mode the
+        // skipped declare-attackers/declare-blockers decision must still be
+        // offered natively: legality stays in Forge Rules Core (CombatUtil
+        // enumeration inside the controller), and this mirrors only
+        // PhaseHandler's turn-based invocation plus its immediate post-steps.
+        // Construction mode is unaffected (it stops before this point).
+        PhaseType phase = game.getPhaseHandler().getPhase();
+        if (phase == PhaseType.COMBAT_DECLARE_ATTACKERS) {
+            Player turn = game.getPhaseHandler().getPlayerTurn();
+            Player who = turn.getDeclaresAttackers() != null ? turn.getDeclaresAttackers() : turn;
+            who.getController().declareAttackers(turn, game.getCombat());
+            if (!CombatUtil.validateAttackers(game.getCombat())) {
+                throw new Ws23ForgeVerticalProvider.ControlledStop("WS48_DECLARE_ATTACKERS_REJECTED");
+            }
+            for (Card attacker : game.getCombat().getAttackers()) {
+                if (!attacker.attackVigilance()) attacker.setTapped(true);
+            }
+        } else if (phase == PhaseType.COMBAT_DECLARE_BLOCKERS) {
+            Combat combat = game.getCombat();
+            if (combat == null) {
+                throw new Ws23ForgeVerticalProvider.ControlledStop("WS48_DECLARE_NO_COMBAT");
+            }
+            for (Player p : game.getPlayers()) {
+                if (!combat.isPlayerAttacked(p)) continue;
+                Player who = p.getDeclaresBlockers() != null ? p.getDeclaresBlockers() : p;
+                who.getController().declareBlockers(p, combat);
+            }
+            combat.orderBlockersForDamageAssignment();
+        }
+    }
+
+"""
+
 
 CHOOSE_TARGETS_PATTERN = re.compile(
     r"(        @Override\n)        public boolean chooseTargetsFor\(SpellAbility currentAbility\) \{\n            throw failClosed\(\"chooseTargetsFor\"\);\n        \}",
@@ -1257,6 +1301,13 @@ def patch_provider(path: Path, forge_src: Path) -> None:
 def patch_state(path: Path) -> None:
     java = path.read_text(encoding="utf-8")
     java = replace_once(java, STATE_HELPERS_OLD, STATE_HELPERS_NEW, "state semantic helpers")
+    java = replace_once(java, DECLARE_DIRECT_OLD, DECLARE_DIRECT_NEW, "loaded combat step")
+    java = replace_once(
+        java,
+        "    private static String controllerPid(Game game, Player p) {",
+        DECLARE_DIRECT_HELPERS + "    private static String controllerPid(Game game, Player p) {",
+        "loaded combat helpers",
+    )
     path.write_text(java, encoding="utf-8")
 
 

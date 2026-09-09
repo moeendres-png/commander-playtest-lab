@@ -153,6 +153,7 @@ def test_behavior_surface_applies(tmp_path):
     patched_state = state.read_text()
     assert "semanticRefOf" in patched_state
     assert "emitBehaviorCheckpoint" in patched_state
+    assert "ws48BeginLoadedCombatStep" in patched_state
     # The generic failClosed stubs must be replaced by native implementations.
     assert 'throw failClosed("declareAttackers");' not in patched
     assert 'throw failClosed("declareBlockers");' not in patched
