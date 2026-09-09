@@ -543,9 +543,17 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             return
         # All other frame kinds with a pending script entry are answered by
         # contract match; with no entry pending they are unscripted discretion.
+        # An actor-mismatched frame is also discretion: another player's real
+        # game decision while our entry waits for its own native frame.
         expected = sess.next_expected()
         if expected is not None:
-            sess.answer_expected(frame, expected)
+            try:
+                sess.answer_expected(frame, expected)
+            except BehaviorFailure as mismatch:
+                if "ACTOR_MISMATCH" in str(mismatch):
+                    sess.answer_unscripted_discretion(frame)
+                else:
+                    raise
             return
         sess.answer_unscripted_discretion(frame)
 

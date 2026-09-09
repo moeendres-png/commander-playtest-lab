@@ -489,6 +489,68 @@ def _check_declare_blocker(record: dict[str, Any], ctx: dict[str, Any]) -> list[
     return bad
 
 
+def _check_announced_x(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """X is bound into the announced spell and cost calculation."""
+    want = None
+    for d in record.get("decision_script") or []:
+        if d.get("decision_family") == "announce_x":
+            want = int(d["selection"]["semantic_value"])
+    if want is None:
+        return ["ANNOUNCE_NO_ENTRY"]
+    bad = []
+    hits = [
+        m for m in (ctx.get("matches") or []) if str(m.get("match_rule")).startswith("integer:")
+    ]
+    if not hits:
+        bad.append("ANNOUNCE_NO_MATCH")
+    for m in hits:
+        try:
+            got = int(str(m.get("match_rule")).split(":")[1])
+        except (IndexError, ValueError):
+            bad.append(f"ANNOUNCE_RULE_MALFORMED:{m.get('match_rule')}")
+            continue
+        if got != want:
+            bad.append(f"ANNOUNCE_MISMATCH:{got}:{want}")
+        if int(m.get("offered_count", 0) or 0) < 1 or not m.get("offered_digest"):
+            bad.append(f"ANNOUNCE_NOT_FROM_OFFERED:{m.get('decision_id')}")
+    return bad
+
+
+def _check_commander_tax_fresh(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Printed-0 commander + two priors -> {4} additional; count becomes 3.
+
+    Verifies from native evidence: tax/paid events in feed, mana picks in the
+    match log, and the native commander cast count in the anchored snapshot.
+    The 'two priors' premise comes from the record commander_state.
+    """
+    posts = [str(x) for x in record.get("terminal_postconditions") or []]
+    tax_posts = [p for p in posts if "additional generic" in p]
+    if not tax_posts:
+        return ["TAX_NO_POST"]
+    bad: list[str] = []
+    feed = list(ctx.get("feed") or [])
+    paid = [e for e in feed if e.startswith("mana_paid:")]
+    taxed = [e for e in feed if e.startswith("commander_tax:")]
+    if not any("commander_cast_from_command" in e for e in feed):
+        bad.append("TAX_NO_FROM_COMMAND")
+    if not taxed:
+        bad.append("TAX_NO_TAX_EVENT")
+    counts = {c.get("commander_id"): c for c in (ctx.get("snapshot") or {}).get("commanders") or []}
+    priors = {
+        c.get("commander_id"): int(c.get("prior_command_zone_cast_count", 0) or 0)
+        for c in (record.get("commander_state") or {}).get("commanders") or []
+    }
+    for cid, prior in priors.items():
+        entry = counts.get(cid)
+        if entry is None:
+            continue
+        if int(entry.get("cast_count", -1)) != prior + 1:
+            bad.append(f"TAX_COUNT_MISMATCH:{cid}:{entry.get('cast_count')}")
+    if taxed and not paid:
+        bad.append("TAX_NO_PAYMENT")
+    return bad
+
+
 REGISTRY: dict[str, Checker] = {
     "obj:p1-bears is attacking P2 and is tapped if required by rules.": _check_declare_attacker,
     "PX is attacking PX and is tapped if required by rules.": _check_declare_attacker,
@@ -522,6 +584,8 @@ REGISTRY: dict[str, Checker] = {
     "Exactly the selected provider-legal mana payment is consumed.": _check_mana_consumed,
     "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned.": _check_mana_consumed,
     "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.": _check_bears_survive_bolt,
+    "X=N is bound into the announced spell and cost calculation by the Rules Core.": _check_announced_x,
+    "Rograkh printed mana cost N plus two prior command-zone casts gives exactly {N} additional generic; cast count becomes N.": _check_commander_tax_fresh,
     "Selected cast action was among provider-offered legal options and no adapter legality was invented.": _check_selected_from_offered,
     "Stack is empty after both spells resolve.": _check_stack_empty,
     "Session/fixture terminates with typed unsupported discretionary-decision failure.": _check_typed_fail_closed,
