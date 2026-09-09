@@ -688,6 +688,17 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
                 .append('}');
         }
         life.append(']');
+        StringBuilder elim = new StringBuilder("[");
+        boolean efirst = true;
+        for (forge.game.qualification.NativeQualificationObservation.PendingElimination e
+                : forge.game.qualification.NativeQualificationObservation.pendingStateBasedEliminations(game)) {
+            if (!efirst) elim.append(',');
+            efirst = false;
+            elim.append("{\\"player_id\\":").append(e.playerId())
+                .append(",\\"reason\\":").append(Ws23ForgeVerticalProvider.esc(e.reason()))
+                .append('}');
+        }
+        elim.append(']');
         String combatFrag;
         try {
             combatFrag = ",\\"combat\\":" + combatJson(game)
@@ -721,6 +732,7 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
             + ",\\"players\\":" + life
             + combatFrag
             + ",\\"commanders\\":" + commanders
+            + ",\\"pending_eliminations\\":" + elim
             + ",\\"turn\\":" + game.getPhaseHandler().getTurn()
             + ",\\"phase\\":" + Ws23ForgeVerticalProvider.esc(phase)
             + ",\\"active_player\\":" + Ws23ForgeVerticalProvider.esc(
