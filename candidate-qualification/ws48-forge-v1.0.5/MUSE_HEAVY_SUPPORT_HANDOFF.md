@@ -94,3 +94,32 @@ construction case locally, then construction subset, then design behavior runner
 
 Remote Forge pin verified as branch tip (`ls-remote`); local clone in progress
 (`/tmp/opencode/forge`, depth-1 single-branch).
+
+## 7. BEHAVIOR G48-09 PROGRESS (2026-09-09)
+
+Local: Forge `66caae1` built (JDK 17) + WS-48 provider compiled WITH behavior
+surface (`COMMANDER_LAB_WS48_BEHAVIOR=1` gates emissions; construction path
+byte-identical to CI) + **local construction 107/107 PASS** with that build.
+
+First native behavior passes (local, early-terminal):
+MICRO_STACK, MICRO_PRIORITY, PILOT_TARGET, PILOT_MANA_PAYMENT, MICRO_MANA_PAYMENT,
+PILOT_CHOOSE_MODE, CARD_02.
+
+Provider surface added (all Rules-Core-owned, external-choice-only):
+semantic action/target/mana/combat-assignment descriptors, native GameEvent feed
+(cast/stack/resolve/commander/attacker/blocker/mana_paid/mode/ability events),
+behavior checkpoints with semantic refs + commander cast counts, native
+declareAttackers/declareBlockers from CombatUtil enumeration, neutral
+CostDecisionMaker (mana/tap structural; rest fail-closed), externalized
+payManaCost from canPlay mana abilities, singleton costs/mode/variant handling,
+mutable mode list (Forge sorts in place), typed unexpected stops with traces.
+
+Driver: fail-closed selector matchers, active-cast cost context (cost-state
+sources with or without mana entries), journal-anchored evaluation at first
+satisfying checkpoint, early termination, zone-diff engine with incarnation
+pairing, contract-exact frame/decision/lifecycle/RNG/viewer synthesis.
+
+Key findings: object incarnation changes across zones (resolves/casts create
+new unbound objects — checkers match by identity+controller+uniqueness);
+`priority:Pn`-style recurring events must not drag anchors (completion-based);
+setup snapshot arrives post-pregame (derivations wait for it).
