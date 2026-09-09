@@ -485,6 +485,12 @@ class Session:
         # record's action_cost_state when a cast is matched. payMana picks
         # consume it whether or not a mana_payment decision entry exists.
         self.active_cost: dict[str, Any] | None = None
+        # Negative-probe fields (set by the runner for fail_closed_probe rows).
+        self.proc_env: dict[str, str] = {}
+        self.probe_seen = False
+        self.neg_cause_ref: str | None = None
+        self.neg_cause_actor: str | None = None
+        self.neg_cause_done = False
 
     def _log(self, kind: str, text: str) -> None:
         self.journal.append((self._seq, kind, text))
@@ -933,6 +939,7 @@ def open_session(record: dict[str, Any], env: dict[str, str]):
         env=env,
         bufsize=1,
     )
+    proc.behavior_env = dict(env)  # type: ignore[attr-defined]
     assert proc.stdin is not None and proc.stdout is not None
     proc.stdin.write(
         json.dumps(

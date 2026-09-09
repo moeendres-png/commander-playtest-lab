@@ -223,9 +223,13 @@ def derive_static_events(record: dict[str, Any], session: Session) -> None:
 
 def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict[str, Any]:
     """Drive one record to terminal verification. Raises BehaviorFailure."""
+    from behavior_driver import Session
+
     session = Session(record, proc)
     evidence["session"] = session
     from behavior_driver import submit as _submit
+
+    session.proc_env = dict(getattr(proc, "behavior_env", {}) or {})
 
     script = list(record.get("decision_script") or [])
     negatives = [d for d in script if d["selection"]["selector_kind"] == "fail_closed_probe"]
@@ -233,6 +237,20 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         # Negative fixtures: setup frames are answered normally; the gated
         # probe frame is emitted by the provider and then fails closed with
         # a typed code without any submission.
+        probe_actor = negatives[0].get("actor")
+        hands = [
+            o.get("semantic_id")
+            for o in record.get("semantic_objects") or []
+            if o.get("zone") == "hand"
+            and o.get("controller") == probe_actor
+            and "-mana-" not in str(o.get("semantic_id"))
+        ]
+        if len(hands) == 1:
+            # Cause-cast fixtures (Burn/Bolt in hand): the harness initiates
+            # the scripted cause through native legal options; only the probe
+            # decision itself stays unanswered.
+            session.neg_cause_ref = hands[0]
+            session.neg_cause_actor = probe_actor
         stop = drive_until_result(session, on_frame_negative_setup)
         session.stop = stop
         code = str(stop.get("stop_reason") or "")
@@ -537,8 +555,14 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
 
 
 def on_frame_negative_setup(sess: Session, frame: dict[str, Any]) -> None:
-    """Setup-only handler for negative fixtures; the probe frame must never
-    be answered (the provider fails closed on it by itself)."""
+    """Setup/passes/cause for negative fixtures; the probe frame is never answered.
+
+    Cause-casts (FIRST/GUI/RANDOM/SILENT) initiate the scripted cause from the
+    record's hand object through native legal options; the gated probe frame
+    itself is observed but never submitted (the provider fails closed on it).
+    Everything is logged as negative_cause_*, never as a contract match.
+    """
+    from behavior_driver import normalize_actor as _norm
     from behavior_driver import submit as _submit
 
     kind = frame["payload"].get("decision_kind")
@@ -548,6 +572,31 @@ def on_frame_negative_setup(sess: Session, frame: dict[str, Any]) -> None:
         return
     if kind == "mulliganKeepHand":
         _submit(sess.proc, frame, mulligan_option_id(frame, True), "setup-mulligan")
+        return
+    gated = (sess.proc_env or {}).get("COMMANDER_LAB_WS48_UNSUPPORTED_FAMILY", "")
+    if gated and kind == gated:
+        sess.probe_seen = True
+        return
+    if kind == "priority":
+        actor = _norm(frame.get("actor_id"))
+        cause_ref = sess.neg_cause_ref
+        if cause_ref is not None and not sess.neg_cause_done and actor == sess.neg_cause_actor:
+            from behavior_driver import match_semantic_action_object as _match_cast
+
+            option = _match_cast(frame, cause_ref)
+            sess.record_match(frame, option, f"negative_cause_cast:{cause_ref}")
+            _submit(sess.proc, frame, str(option["option_id"]), "negative-cause")
+            sess.neg_cause_done = True
+            return
+        sess.answer_pass(frame)
+        return
+    if kind == "payMana":
+        options = frame["payload"].get("options") or []
+        if not options:
+            raise BehaviorFailure("NEGATIVE_CAUSE_NO_MANA_OPTIONS")
+        option = sorted(options, key=lambda o: str(o.get("option_id")))[0]
+        sess.record_match(frame, option, "negative_cause_payment")
+        _submit(sess.proc, frame, str(option["option_id"]), "negative-cause")
         return
     raise BehaviorFailure(f"NEGATIVE_FRAME_REACHED:{kind}:{frame['payload'].get('decision_id')}")
 
