@@ -86,6 +86,18 @@ HELPERS_ADD = """        String ws48Pid(Player p) {
             return idx;
         }
 
+        void ws48Milestone(String name) {
+            // Diagnostic NATIVE_EVENT milestone: proves control reached this
+            // provider point. Content-free by design (no game facts).
+            broker.out.println("{\\"protocol\\":" + esc(PROTOCOL)
+                + ",\\"message_type\\":\\"NATIVE_EVENT\\""
+                + ",\\"request_id\\":\\"ws48-milestone\\""
+                + ",\\"session_id\\":" + esc(SESSION_ID)
+                + ",\\"payload\\":{\\"event\\":" + esc("milestone:" + name)
+                + ",\\"facts\\":\\"\\"}}");
+            broker.out.flush();
+        }
+
         RuntimeException failClosed(String method) {"""
 
 PRIORITY_LABEL_ANCHOR = '                            labels.add("FORGE_LEGAL_ACTION");'
@@ -518,6 +530,7 @@ def cost_decision_java() -> str:
             "                }")
     return """        @Override
         public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
+            ws48Milestone("getCostDecisionMaker:ENTERED");
             Card source = ability == null ? null : ability.getHostCard();
             return new CostDecisionMakerBase(player, effect, ability, source) {
                 @Override
@@ -556,11 +569,13 @@ COST_DECISION_NEW = cost_decision_java()
 
 MANA_NEW = """        @Override
         public boolean payManaCost(ManaCost toPay, CostPartMana costPartMana, SpellAbility sa, String prompt, ManaConversionMatrix matrix, boolean effect) {
+            ws48Milestone("payManaCost:ENTERED");
             return PlaySpellAbility.payManaCost(this, toPay, costPartMana, sa, this.player, prompt, matrix, effect);
         }
 
         @Override
         public boolean applyManaToCost(ManaCostBeingPaid toPay, SpellAbility ability, String prompt, ManaConversionMatrix matrix, boolean effect) {
+            ws48Milestone("applyManaToCost:ENTERED");
             int guard = 0;
             while (!toPay.isPaid()) {
                 if (++guard > 24) throw failClosed("applyManaToCost:GUARD");
@@ -596,6 +611,7 @@ MANA_NEW = """        @Override
 
 DECLARE_NEW = """        @Override
         public void declareAttackers(Player attacker, Combat combat) {
+            ws48Milestone("declareAttackers:ENTERED");
             java.util.List<Card> cands = new java.util.ArrayList<>();
             for (Card c : attacker.getCardsIn(ZoneType.Battlefield)) {
                 if (!c.isCreature()) continue;
@@ -632,6 +648,7 @@ DECLARE_NEW = """        @Override
 
         @Override
         public void declareBlockers(Player defender, Combat combat) {
+            ws48Milestone("declareBlockers:ENTERED");
             java.util.List<Card> cands = new java.util.ArrayList<>();
             for (Card c : defender.getCardsIn(ZoneType.Battlefield)) {
                 if (!c.isCreature()) continue;
