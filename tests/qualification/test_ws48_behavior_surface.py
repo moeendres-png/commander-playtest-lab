@@ -142,6 +142,8 @@ def test_behavior_surface_applies(tmp_path):
         "ws48DistributionRef",
         "ws48ModeKeyForSub",
         "ws48AbilityKeyForSA",
+        "commander_cast_from_command",
+        "commander_tax:+",
         "ATTACK_ASSIGNMENT:",
         "BLOCK_ASSIGNMENT:",
         "emitDecisionFrame(kind, actor, labels.size())",

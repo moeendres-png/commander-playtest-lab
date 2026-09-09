@@ -361,24 +361,6 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
             }
             if (event.sa().getHostCard().isCommander()) {
                 emit("commander_cast");
-                // Mirror CostAdjustment's native commander-tax rule: tax applies
-                // when cast from the command zone; amount is twice the current
-                // native command-zone cast count. Observation only.
-                forge.game.card.Card host = event.sa().getHostCard();
-                boolean fromCommand = host.getCastFrom() != null
-                    && forge.game.zone.ZoneType.Command.equals(host.getCastFrom().getZoneType());
-                if (fromCommand) {
-                    emit("commander_cast_from_command");
-                    int tax = 0;
-                    try {
-                        tax = event.sa().getActivatingPlayer().getCommanderCast(host) * 2;
-                    } catch (RuntimeException untracked) {
-                        broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
-                    }
-                    if (tax > 0) {
-                        emit("commander_tax:+" + tax + "_generic");
-                    }
-                }
             }
         }
 
@@ -1250,6 +1232,36 @@ DISTRIBUTION_HELPERS = """    static String ws48DistributionRef(GameEntity entit
 
 """
 
+PLAY_CHOSEN_PATTERN = re.compile(
+    r"(        @Override\n)(        public boolean playChosenSpellAbility\(SpellAbility sa\) \{\n            return PlaySpellAbility\.playSpellAbility\(this, player, sa\);\n        \})",
+)
+
+PLAY_CHOSEN_NEW = """\\1        public boolean playChosenSpellAbility(SpellAbility sa) {
+            // Pre-play native commander-cast count (CostAdjustment taxes twice
+            // the prior count; the increment lands later in the cast flow).
+            Card taxHost = sa == null ? null : sa.getHostCard();
+            int preCastCount = -1;
+            if (taxHost != null && taxHost.isCommander()) {
+                try {
+                    preCastCount = this.player.getCommanderCast(taxHost);
+                } catch (RuntimeException untracked) {
+                    broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
+                }
+            }
+            boolean result = PlaySpellAbility.playSpellAbility(this, player, sa);
+            if (result && taxHost != null && taxHost.isCommander() && preCastCount >= 0) {
+                boolean fromCommand = taxHost.getCastFrom() != null
+                    && ZoneType.Command.equals(taxHost.getCastFrom().getZoneType());
+                if (fromCommand) {
+                    broker.emitEvent("commander_cast_from_command");
+                    if (preCastCount > 0) {
+                        broker.emitEvent("commander_tax:+" + (preCastCount * 2) + "_generic");
+                    }
+                }
+            }
+            return result;
+        }"""
+
 GET_ABILITY_PATTERN = re.compile(
     r"(        @Override\n)        public SpellAbility getAbilityToPlay\(.*?\) \{\n            throw failClosed\(\"getAbilityToPlay\"\);\n        \}",
 )
@@ -1317,6 +1329,12 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     if n != 1:
         raise SystemExit(
             "WS48_BEHAVIOR_SURFACE:getAbilityToPlay:expected 1 anchor, found " + str(n)
+        )
+    java = new_java
+    new_java, n = PLAY_CHOSEN_PATTERN.subn(PLAY_CHOSEN_NEW, java, count=1)
+    if n != 1:
+        raise SystemExit(
+            "WS48_BEHAVIOR_SURFACE:playChosenSpellAbility:expected 1 anchor, found " + str(n)
         )
     java = new_java
     new_java, n = CHOOSE_TARGETS_PATTERN.subn(CHOOSE_TARGETS_NEW, java, count=1)
