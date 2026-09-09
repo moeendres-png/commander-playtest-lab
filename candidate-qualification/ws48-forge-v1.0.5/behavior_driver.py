@@ -643,18 +643,26 @@ def diff_checkpoints(
             )
 
     # 2. Vanished cards paired with unique appeared same-identity cards.
+    # Presence keys are zone-sensitive so moves across zones surface as
+    # vanish/appear pairs. Library/hand churn is excluded from pairing.
+    tracked = {"stack", "battlefield", "graveyard", "exile", "command"}
+
     def presence_key(card: dict[str, Any]) -> tuple:
-        return (str(card.get("semantic_id") or ""), ident(card))
+        return (str(card.get("semantic_id") or ""), ident(card), str(card.get("zone")))
 
     before_keys = [presence_key(c) for c in before]
     after_keys = [presence_key(c) for c in after]
     vanished = [c for c in before if presence_key(c) not in after_keys]
     appeared = [c for c in after if presence_key(c) not in before_keys]
     for old_card in vanished:
+        if str(old_card.get("zone")) not in tracked:
+            continue
         same = [c for c in appeared if ident(c) == ident(old_card)]
         if len(same) != 1:
             continue
         new_card = same[0]
+        if str(new_card.get("zone")) not in tracked:
+            continue
         if len([c for c in vanished if ident(c) == ident(new_card)]) != 1:
             continue
         old_zone = str(old_card.get("zone"))
@@ -667,14 +675,14 @@ def diff_checkpoints(
         if ref and lineage.get(str(ref)):
             events.append(f"new_object_incarnation:{lineage[str(ref)]}")
 
-    # 2b. Unbound battlefield arrivals without a vanished counterpart
+    # 2b. Unbound battlefield arrivals without a tracked vanished counterpart
     # (tokens, reincarnated permanents whose prior object is already gone).
     for new_card in appeared:
         if new_card.get("semantic_id"):
             continue
         if str(new_card.get("zone")) != "battlefield":
             continue
-        if any(ident(c) == ident(new_card) for c in vanished):
+        if any(ident(c) == ident(new_card) and str(c.get("zone")) in tracked for c in vanished):
             continue
         events.append(f"creature_enters:{label(new_card)}")
         events.append("creature_entered")
