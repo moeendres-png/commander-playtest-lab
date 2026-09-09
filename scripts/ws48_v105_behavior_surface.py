@@ -856,19 +856,21 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
             Card taxHost = sa == null ? null : sa.getHostCard();
             int preCastCount = -1;
             boolean taxFromCommand = false;
-            if (taxHost != null && taxHost.isCommander() && taxHost.getZone() != null
-                    && taxHost.getZone().is(forge.game.zone.ZoneType.Command)) {
-                taxFromCommand = true;
-                try {
-                    preCastCount = payer.getCommanderCast(taxHost);
-                } catch (RuntimeException untracked) {
-                    broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
-                }
-            }
             if (taxHost != null && taxHost.isCommander()) {
-                String zoneName = taxHost.getZone() == null ? "null"
-                    : taxHost.getZone().getZoneType().toString();
-                broker.recordAutomatic("COMMANDER_CAST_DEBUG:" + zoneName + ":count_pending");
+                // Native origin zone (CostAdjustment reads the same field for
+                // the real tax); current zone is already stack by payment time.
+                forge.game.zone.Zone castFrom = taxHost.getCastFrom();
+                String castFromZone = castFrom == null ? "null" : String.valueOf(castFrom.getZoneType());
+                broker.recordAutomatic("COMMANDER_CAST_DEBUG:" + castFromZone + ":count_pending");
+                if (castFrom != null
+                        && forge.game.zone.ZoneType.Command.equals(castFrom.getZoneType())) {
+                    taxFromCommand = true;
+                    try {
+                        preCastCount = payer.getCommanderCast(taxHost);
+                    } catch (RuntimeException untracked) {
+                        broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
+                    }
+                }
             }
             forge.game.mana.ManaCostBeingPaid cost = new forge.game.mana.ManaCostBeingPaid(toPay);
             forge.game.mana.ManaPool manapool = payer.getManaPool();
