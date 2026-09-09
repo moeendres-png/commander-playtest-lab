@@ -13,16 +13,16 @@ Older prompts or handoffs that prescribe another execution environment, OpenCode
 There are exactly three project execution paths:
 
 1. normal ChatGPT with GPT-5.6 Sol High
-2. OpenCode with Muse Spark 1.3 Contributor through OpenCode Go
+2. OpenCode Go with Muse Spark 1.3 Contributor
 3. ChatGPT Work with GPT-5.6 Sol Medium, exceptional only
 
 Muse Spark 1.3 is one model identity. It must never be split into separate Muse and Spark resources.
 
 ## 2. Primary operating rule
 
-Default execution uses normal Sol High and OpenCode with Muse Spark 1.3 Contributor.
+Default execution uses normal Sol High and OpenCode Go with Muse Spark 1.3 Contributor.
 
-ChatGPT Work is not a normal project environment. It may be used only when a required capability cannot reasonably be completed through normal Sol High or OpenCode with Muse Spark 1.3 Contributor.
+ChatGPT Work is not a normal project environment. It may be used only when a required capability cannot reasonably be completed through normal Sol High or OpenCode Go with Muse Spark 1.3 Contributor.
 
 ## 3. Normal Sol High
 
@@ -45,7 +45,7 @@ Use normal Sol High for:
 
 Normal Sol High is the final project-level adjudicator.
 
-## 4. OpenCode with Muse Spark 1.3 Contributor
+## 4. OpenCode Go with Muse Spark 1.3 Contributor
 
 The current project OpenCode provider is OpenCode Go only.
 
@@ -69,9 +69,9 @@ Use `medium` for bounded, clear, lower-risk repository work. Use `high` for norm
 
 Do not use `none`, `off`, `minimal`, `low`, or any effort below `medium` for project OpenCode work.
 
-OpenCode Zen free models are not active project routing while OpenCode Go is in use. If the user later changes provider policy, the replacement must be explicitly source-locked before use.
+OpenCode Zen free models are not active project routing while OpenCode Go is in use. The current Zen free listing is a different provider/model identity and must not be substituted silently. If the user later changes provider policy, the replacement must be explicitly source-locked before use.
 
-Use OpenCode with Muse Spark 1.3 Contributor for substantial repository execution, including:
+Use OpenCode Go with Muse Spark 1.3 Contributor for substantial repository execution, including:
 
 - implementation
 - repository edits
@@ -90,13 +90,13 @@ Use OpenCode with Muse Spark 1.3 Contributor for substantial repository executio
 
 Every substantial OpenCode assignment must be bounded to one primary workstream and include repository, branch, source lock, current head, objective, in-scope surface, hard gates, forbidden shortcuts, evidence requirements, persistence requirements and stop conditions.
 
-OpenCode with Muse Spark 1.3 Contributor may produce implementation and evidence but does not independently grant global architecture credit.
+OpenCode Go with Muse Spark 1.3 Contributor may produce implementation and evidence but does not independently grant global architecture credit.
 
 The repository root `opencode.json` is the machine-enforced project configuration for provider/model selection and allowed variants. Project prompts must not override it with another model.
 
 ## 5. Work budget and necessity gate
 
-Work is forbidden for ordinary tasks that normal Sol High or OpenCode with Muse Spark 1.3 Contributor can perform.
+Work is forbidden for ordinary tasks that normal Sol High or OpenCode Go with Muse Spark 1.3 Contributor can perform.
 
 Do not use Work for ordinary research, GitHub reading, repository investigation, architecture, code review, MTG Rules or Oracle work, evidence adjudication, coordination, prompt creation, test design, static analysis, candidate comparison, report reading, implementation, CI, debugging, runtime qualification or mechanical repository work when the normal paths are adequate.
 
@@ -108,7 +108,7 @@ PASS requires all of the following:
 
 1. the exact missing capability is identified
 2. normal Sol High cannot adequately perform it
-3. OpenCode with Muse Spark 1.3 Contributor cannot adequately perform it
+3. OpenCode Go with Muse Spark 1.3 Contributor cannot adequately perform it
 4. the capability is genuinely required
 5. the Work assignment is reduced to the smallest possible operation
 
