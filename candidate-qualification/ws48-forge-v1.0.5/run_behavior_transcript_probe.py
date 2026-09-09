@@ -122,6 +122,7 @@ class Driver:
         self.frames: list[dict[str, Any]] = []
         self.ritual_answers: list[dict[str, Any]] = []
         self.structural_passes: list[dict[str, Any]] = []
+        self.decode_errors = 0
         self.offered_for_digest: list[Any] = []
         self.events: list[dict[str, Any]] = []
         self.setup_stage_seen = False
@@ -324,11 +325,20 @@ def run_record(record: dict[str, Any], transport: Any,
             stop_reason: str | None = None
             session_snapshot: Any = None
             answered = 0
+            exit_rc: Any = None
+            stderr_tail: str = ""
+            decode_errors = 0
             for _ in range(4096):
                 line = next_line()
                 if not line:
                     break
-                m = json.loads(line)
+                try:
+                    m = json.loads(line)
+                except Exception:
+                    drv.decode_errors += 1
+                    if drv.decode_errors > 16:
+                        raise Blocked("PROTOCOL", "too many undecodable lines")
+                    continue
                 typ = m.get("message_type")
                 if typ == "SESSION_CREATED":
                     continue
@@ -371,12 +381,19 @@ def run_record(record: dict[str, Any], transport: Any,
                 submit(m, oid)
                 answered += 1
             else:
-                rc, tail = close_and_collect()
+                exit_rc, stderr_tail = close_and_collect()
                 outcome.update({"verdict": "PROBE_FAIL", "reason": "FRAME_BUDGET_EXHAUSTED",
-                                "stderr_tail": tail})
+                                "exit_rc": exit_rc, "stderr_tail": stderr_tail})
                 return finish(outcome, drv, stop_reason, session_snapshot, answered)
             if is_negative and stop_reason is not None:
+                exit_rc, stderr_tail = close_and_collect()
+                outcome.update({"exit_rc": exit_rc, "stderr_tail": stderr_tail})
                 return finish_negative(outcome, drv, record, stop_reason)
+            if stop_reason is None and "terminate_rc" not in outcome:
+                # EOF without SESSION_RESULT: process crashed or exited
+                # abnormally. Capture rc + stderr for causal classification.
+                exit_rc, stderr_tail = close_and_collect()
+                outcome.update({"exit_rc": exit_rc, "stderr_tail": stderr_tail})
             return finish(outcome, drv, stop_reason, session_snapshot, answered)
     except Blocked as b:
         try:
@@ -862,6 +879,7 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
         "consumed": len(drv.consumed),
         "ritual_answers": drv.ritual_answers,
         "structural_passes": drv.structural_passes,
+        "decode_errors": drv.decode_errors,
         "script_remaining": remaining,
         "stop_reason": stop_reason,
         "offered_digest": digest(drv.offered_for_digest),

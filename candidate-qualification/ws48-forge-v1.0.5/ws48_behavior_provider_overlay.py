@@ -463,6 +463,21 @@ TRIGGER_ORDER_NEW = """        @Override
             broker.recordAutomatic("orderAndPlaySimultaneousSa:FORGE_CORE_TRIGGER_STACK");
         }"""
 
+COST_DECISION_NEW = """        @Override
+        public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
+            Card source = ability == null ? null : ability.getHostCard();
+            return new CostDecisionMakerBase(player, effect, ability, source) {
+                @Override
+                public boolean paysRightAfterDecision() {
+                    // Structural payment timing: pay incrementally as decided,
+                    // mirroring interactive payment and the WS48 mana loop.
+                    // Both branches execute real engine payment; no legality
+                    // is invented here.
+                    return true;
+                }
+            };
+        }"""
+
 MANA_NEW = """        @Override
         public boolean payManaCost(ManaCost toPay, CostPartMana costPartMana, SpellAbility sa, String prompt, ManaConversionMatrix matrix, boolean effect) {
             return PlaySpellAbility.payManaCost(this, toPay, costPartMana, sa, this.player, prompt, matrix, effect);
@@ -842,6 +857,9 @@ def main() -> int:
     rep("""        public ImmutablePair<CardCollection, CardCollection> arrangeForScry(CardCollection topN) {
             throw failClosed("arrangeForScry");
         }""", SCRY_NEW, "scry")
+    rep("""        public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
+            throw failClosed("getCostDecisionMaker");
+        }""", COST_DECISION_NEW, "getCostDecisionMaker")
     rep(EVENTS_ANCHOR, EVENTS_ADD, "event subscription")
     rep(EVENTS_CLASS_ANCHOR, EVENTS_CLASS_ADD, "event recorder")
     rep(EOF_TYPED_ANCHOR, EOF_TYPED_NEW, "typed EOF fail-closed")
