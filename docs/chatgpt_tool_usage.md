@@ -6,15 +6,17 @@ For execution routing, the canonical policy is [`PROJECT_EXECUTION_POLICY.md`](P
 
 There are exactly three project execution paths:
 
-- normal ChatGPT Sol High for coordination, research, architecture, review and adjudication;
+- normal ChatGPT Sol High for coordination, research, architecture, review, adjudication, and all useful pre-work before Work;
 - OpenCode Go with Muse Spark 1.3 Contributor for repository implementation, debugging, CI, qualification, audits and mechanical repository work;
-- ChatGPT Work with Sol Medium only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
+- ChatGPT Work with Astra only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
 
 Muse Spark 1.3 is one AI model and must not be split into separate Muse and Spark resources.
 
 The only authorized OpenCode model is `opencode-go/muse-spark-1.3-contributor`. Allowed effort is `high` or `xhigh` only, with `high` as both the minimum and the project default. `medium` and all lower effort variants are not authorized for Commander Simulator Next OpenCode execution. Use High for all other project OpenCode work, including helpers and bounded/mechanical tasks. Prefer XHigh when task difficulty or length materially benefits from it, including difficult implementation, long-running autonomous campaigns, difficult debugging/root-cause analysis, complex multi-file remediation, provider/Rules-Core boundary work, qualification campaigns, semantic integration, and difficult evidence reconciliation. The repository root `opencode.json` enforces the current OpenCode provider/model/effort policy.
 
-Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work or as authorization to substitute another OpenCode model or lower reasoning effort.
+For ChatGPT Work, Astra Medium is the default. Astra High is allowed only rarely when the exact irreducible Work-only operation materially requires more reasoning than Medium. Work must be token-efficient: normal Sol High should complete all useful research, source locking, adjudication, planning, narrowing and context reduction before handoff. Work receives only the minimum exact inputs, already-proven facts, blocker, required output, hard gates and stop condition needed to perform the operation. Work must not repeat completed Sol/OpenCode work or expand into broad discovery. Control returns to normal Sol High immediately after the irreducible operation is complete.
+
+Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work or as authorization to substitute another OpenCode model, lower OpenCode reasoning effort, or a broader Work scope than the canonical policy permits.
 
 ## Local API
 
