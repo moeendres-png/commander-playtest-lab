@@ -1,0 +1,47 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/muse-spark-1.3-contributor",
+  "enabled_providers": [
+    "opencode-go"
+  ],
+  "instructions": [
+    "docs/PROJECT_EXECUTION_POLICY.md"
+  ],
+  "provider": {
+    "opencode-go": {
+      "whitelist": [
+        "muse-spark-1.3-contributor"
+      ],
+      "models": {
+        "muse-spark-1.3-contributor": {
+          "options": {
+            "reasoningEffort": "high"
+          },
+          "variants": {
+            "none": {
+              "disabled": true
+            },
+            "off": {
+              "disabled": true
+            },
+            "minimal": {
+              "disabled": true
+            },
+            "low": {
+              "disabled": true
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        }
+      }
+    }
+  }
+}
