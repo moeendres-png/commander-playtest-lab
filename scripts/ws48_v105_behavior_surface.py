@@ -848,7 +848,23 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
             // Neutral headless mana payment. Enumeration is native (canPlay);
             // every source activation is externally authorized from the offered
             // set via broker.choose. No AI evaluation, no GUI, no first-option.
+            // Commander-tax observation: at payment time the host is still the
+            // command-zone object, so the native prior cast count and zone are
+            // readable here (both are reborn by stack time). Mirrors the
+            // CostAdjustment commander-tax rule for evidence only.
             Player payer = this.player;
+            Card taxHost = sa == null ? null : sa.getHostCard();
+            int preCastCount = -1;
+            boolean taxFromCommand = false;
+            if (taxHost != null && taxHost.isCommander() && taxHost.getZone() != null
+                    && taxHost.getZone().is(forge.game.zone.ZoneType.Command)) {
+                taxFromCommand = true;
+                try {
+                    preCastCount = payer.getCommanderCast(taxHost);
+                } catch (RuntimeException untracked) {
+                    broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
+                }
+            }
             forge.game.mana.ManaCostBeingPaid cost = new forge.game.mana.ManaCostBeingPaid(toPay);
             forge.game.mana.ManaPool manapool = payer.getManaPool();
             Ws48CostDecisionMaker activationDecisions =
@@ -860,6 +876,12 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
                     // real source activations produce mana_paid evidence.
                     if (activated) {
                         broker.emitEvent("mana_paid:" + ws48ManaPaidString(toPay));
+                        if (taxFromCommand) {
+                            broker.emitEvent("commander_cast_from_command");
+                            if (preCastCount > 0) {
+                                broker.emitEvent("commander_tax:+" + (preCastCount * 2) + "_generic");
+                            }
+                        }
                     }
                     broker.recordAutomatic("MANA_PAID_DEBUG:"
                         + (sa == null || sa.getHostCard() == null ? "null" : sa.getHostCard().getName())
@@ -1049,9 +1071,12 @@ ANNOUNCE_PATTERN = re.compile(
 
 ANNOUNCE_NEW = """\\1        public Integer announceRequirements(SpellAbility ability, int min, int max, String announce) {
             if (max < min) throw failClosed("announceRequirements:EMPTY_RANGE");
-            if (max - min > 128) throw failClosed("announceRequirements:RANGE_UNSUPPORTED");
+            // Bounded offering window: X contracts in the denominator use small
+            // values; windows beyond this fail closed instead of enumerating.
+            // The offered set always starts at the native minimum.
+            int hi = Math.min(max, min + 255);
             java.util.List<String> labels = new ArrayList<>();
-            for (int value = min; value <= max; value++) labels.add("X_VALUE:" + value);
+            for (int value = min; value <= hi; value++) labels.add("X_VALUE:" + value);
             String selectedId = broker.choose("announceRequirements", this.player, labels);
             int selectedIndex = Integer.parseInt(selectedId.substring(1));
             if (selectedIndex < 0 || selectedIndex >= labels.size()) {
@@ -1232,36 +1257,6 @@ DISTRIBUTION_HELPERS = """    static String ws48DistributionRef(GameEntity entit
 
 """
 
-PLAY_CHOSEN_PATTERN = re.compile(
-    r"(        @Override\n)(        public boolean playChosenSpellAbility\(SpellAbility sa\) \{\n            return PlaySpellAbility\.playSpellAbility\(this, player, sa\);\n        \})",
-)
-
-PLAY_CHOSEN_NEW = """\\1        public boolean playChosenSpellAbility(SpellAbility sa) {
-            // Pre-play native commander-cast count (CostAdjustment taxes twice
-            // the prior count; the increment lands later in the cast flow).
-            Card taxHost = sa == null ? null : sa.getHostCard();
-            int preCastCount = -1;
-            if (taxHost != null && taxHost.isCommander()) {
-                try {
-                    preCastCount = this.player.getCommanderCast(taxHost);
-                } catch (RuntimeException untracked) {
-                    broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
-                }
-            }
-            boolean result = PlaySpellAbility.playSpellAbility(this, player, sa);
-            if (result && taxHost != null && taxHost.isCommander() && preCastCount >= 0) {
-                boolean fromCommand = taxHost.getCastFrom() != null
-                    && ZoneType.Command.equals(taxHost.getCastFrom().getZoneType());
-                if (fromCommand) {
-                    broker.emitEvent("commander_cast_from_command");
-                    if (preCastCount > 0) {
-                        broker.emitEvent("commander_tax:+" + (preCastCount * 2) + "_generic");
-                    }
-                }
-            }
-            return result;
-        }"""
-
 GET_ABILITY_PATTERN = re.compile(
     r"(        @Override\n)        public SpellAbility getAbilityToPlay\(.*?\) \{\n            throw failClosed\(\"getAbilityToPlay\"\);\n        \}",
 )
@@ -1329,12 +1324,6 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     if n != 1:
         raise SystemExit(
             "WS48_BEHAVIOR_SURFACE:getAbilityToPlay:expected 1 anchor, found " + str(n)
-        )
-    java = new_java
-    new_java, n = PLAY_CHOSEN_PATTERN.subn(PLAY_CHOSEN_NEW, java, count=1)
-    if n != 1:
-        raise SystemExit(
-            "WS48_BEHAVIOR_SURFACE:playChosenSpellAbility:expected 1 anchor, found " + str(n)
         )
     java = new_java
     new_java, n = CHOOSE_TARGETS_PATTERN.subn(CHOOSE_TARGETS_NEW, java, count=1)
