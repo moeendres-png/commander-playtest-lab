@@ -667,6 +667,18 @@ def diff_checkpoints(
         if ref and lineage.get(str(ref)):
             events.append(f"new_object_incarnation:{lineage[str(ref)]}")
 
+    # 2b. Unbound battlefield arrivals without a vanished counterpart
+    # (tokens, reincarnated permanents whose prior object is already gone).
+    for new_card in appeared:
+        if new_card.get("semantic_id"):
+            continue
+        if str(new_card.get("zone")) != "battlefield":
+            continue
+        if any(ident(c) == ident(new_card) for c in vanished):
+            continue
+        events.append(f"creature_enters:{label(new_card)}")
+        events.append("creature_entered")
+
     # 3. Fresh Devil tokens (no vanished counterpart).
     devils: dict[str, int] = {}
     for card in after:
