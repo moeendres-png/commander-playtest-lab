@@ -21,9 +21,9 @@ The only authorized OpenCode provider/model is:
 
 `opencode-go/muse-spark-1.3-contributor`
 
-Allowed OpenCode reasoning effort is High or XHigh only. High is both the minimum and the default. Medium, low, minimal, none, off, and any lower effort are not authorized for project execution.
+Allowed OpenCode reasoning effort is High or XHigh only. High is both the minimum and the default. Medium, low, minimal, none, off, and any lower effort are not authorized for project execution. Medium and all lower efforts are unauthorized for Commander Simulator Next OpenCode execution.
 
-Use High for normal implementation, tests, debugging, audits, CI, runtime qualification and bounded remediation. Use XHigh for especially difficult nonlocal implementation, complex debugging, high-risk remediation or other tasks where additional reasoning materially improves correctness.
+Use High for all other project OpenCode work, including helpers and bounded/mechanical tasks, as well as normal implementation, tests, debugging, audits, CI, runtime qualification and bounded remediation. Prefer XHigh when task difficulty or length materially benefits from it, including difficult implementation, long-running autonomous campaigns, difficult debugging/root-cause analysis, complex multi-file remediation, provider/Rules-Core boundary work, qualification campaigns, semantic integration, and difficult evidence reconciliation. Use XHigh for especially difficult nonlocal implementation, complex debugging, high-risk remediation or other tasks where additional reasoning materially improves correctness.
 
 OpenCode Zen free models are not part of current routing while OpenCode Go is active. No other OpenCode model or provider may be substituted without a newer direct user instruction and corresponding policy/config update.
 

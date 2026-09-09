@@ -4,7 +4,7 @@ Status: architecture contract for package 1.24.0, amended by current Foundry exe
 Candidate runtime: `candidate-pipeline-1.0.0`  
 Candidate-set schema: `deck-candidate-set-1.0.0`
 
-Execution-environment routing is governed by [`../PROJECT_EXECUTION_POLICY.md`](../PROJECT_EXECUTION_POLICY.md). The repository root `opencode.json` machine-enforces the current OpenCode provider/model policy: OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only, reasoning effort Medium through XHigh, default High. Muse Spark 1.3 is one model identity and must not be split into Muse and Spark resources. Rules-core selection is not precommitted by this document; any older XMage-specific target wording is historical architecture provenance only until a candidate earns current Architecture Freeze.
+Execution-environment routing is governed by [`../PROJECT_EXECUTION_POLICY.md`](../PROJECT_EXECUTION_POLICY.md). The repository root `opencode.json` machine-enforces the current OpenCode provider/model policy: OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only, reasoning effort High or XHigh only, minimum High, default High; Medium and all lower efforts are unauthorized. Muse Spark 1.3 is one model identity and must not be split into Muse and Spark resources. Rules-core selection is not precommitted by this document; any older XMage-specific target wording is historical architecture provenance only until a candidate earns current Architecture Freeze.
 
 ## OLD ARCHITECTURE
 

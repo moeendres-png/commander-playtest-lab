@@ -12,7 +12,7 @@ There are exactly three project execution paths:
 
 Muse Spark 1.3 is one AI model and must not be split into separate Muse and Spark resources.
 
-The only authorized OpenCode model is `opencode-go/muse-spark-1.3-contributor`. Allowed effort is `high` or `xhigh` only, with `high` as both the minimum and the project default. `medium` and all lower effort variants are not authorized. The repository root `opencode.json` enforces the current OpenCode provider/model/effort policy.
+The only authorized OpenCode model is `opencode-go/muse-spark-1.3-contributor`. Allowed effort is `high` or `xhigh` only, with `high` as both the minimum and the project default. `medium` and all lower effort variants are not authorized for Commander Simulator Next OpenCode execution. Use High for all other project OpenCode work, including helpers and bounded/mechanical tasks. Prefer XHigh when task difficulty or length materially benefits from it, including difficult implementation, long-running autonomous campaigns, difficult debugging/root-cause analysis, complex multi-file remediation, provider/Rules-Core boundary work, qualification campaigns, semantic integration, and difficult evidence reconciliation. The repository root `opencode.json` enforces the current OpenCode provider/model/effort policy.
 
 Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work or as authorization to substitute another OpenCode model or lower reasoning effort.
 

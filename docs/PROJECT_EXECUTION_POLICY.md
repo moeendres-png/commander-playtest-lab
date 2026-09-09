@@ -62,11 +62,26 @@ The allowed reasoning-effort range is exactly:
 - `high`
 - `xhigh`
 
-Default effort is `high`.
+Minimum effort is `high`. Default effort is `high`.
 
-Use `high` for all normal substantial repository work, including implementation, tests, debugging, audits, CI, runtime qualification and bounded remediation. Use `xhigh` for especially difficult nonlocal implementation, complex multi-file debugging, high-risk remediation, or other cases where additional reasoning materially improves correctness.
+OpenCode project effort is High/XHigh only.
 
-Do not use `medium`, `low`, `minimal`, `none`, `off`, or any effort below `high` for project OpenCode work.
+Use `high` for all other project OpenCode work, including helpers and bounded/mechanical tasks, as well as normal substantial repository work such as implementation, tests, debugging, audits, CI, runtime qualification and bounded remediation.
+
+Prefer `xhigh` when task difficulty or length materially benefits from it, including:
+
+- difficult implementation
+- long-running autonomous campaigns
+- difficult debugging/root-cause analysis
+- complex multi-file remediation
+- provider/Rules-Core boundary work
+- qualification campaigns
+- semantic integration
+- difficult evidence reconciliation
+
+Use `xhigh` for especially difficult nonlocal implementation, complex multi-file debugging, high-risk remediation, or other cases where additional reasoning materially improves correctness.
+
+Do not use `medium`, `low`, `minimal`, `none`, `off`, or any effort below `high` for project OpenCode work. `medium` and all lower efforts are unauthorized for Commander Simulator Next OpenCode execution.
 
 OpenCode Zen free models are not active project routing while OpenCode Go is in use. The current Zen free listing is a different provider/model identity and must not be substituted silently. If the user later changes provider policy, the replacement must be explicitly source-locked before use.
 
@@ -168,7 +183,7 @@ The normal Sol High Coordinator decides the next workstream, whether OpenCode is
 
 Normal Sol High = reasoning, research, authority, coordination and adjudication.
 
-OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only = repository implementation, execution, audits, debugging, qualification and mechanical repository work. Allowed effort = High or XHigh only. Default = High.
+OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only = repository implementation, execution, audits, debugging, qualification and mechanical repository work. Allowed effort = High or XHigh only. Minimum = High. Default = High. Medium and all lower efforts are unauthorized. Prefer XHigh when task difficulty/length materially benefits from it.
 
 Work with Sol Medium = exceptional irreducible capability only after WORK_NECESSITY = PASS.
 

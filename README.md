@@ -38,13 +38,13 @@ The current OpenCode project lock is:
 - provider: `opencode-go`
 - model: `muse-spark-1.3-contributor`
 - full ID: `opencode-go/muse-spark-1.3-contributor`
-- allowed reasoning effort: `high`, `xhigh`
+- allowed reasoning effort: `high`, `xhigh` only
 - minimum reasoning effort: `high`
 - default reasoning effort: `high`
-- `medium`, `low`, `minimal`, `none`, and `off` are not authorized
+- `medium`, `low`, `minimal`, `none`, and `off` are not authorized; medium and all lower efforts are unauthorized
 - all other OpenCode providers/models are outside current project policy
 
-Use High for normal repository execution. Use XHigh for especially difficult nonlocal implementation, debugging, or remediation.
+Use High for all other project OpenCode work, including helpers and bounded/mechanical tasks, as well as normal repository execution. Prefer XHigh when task difficulty or length materially benefits from it, including difficult implementation, long-running autonomous campaigns, difficult debugging/root-cause analysis, complex multi-file remediation, provider/Rules-Core boundary work, qualification campaigns, semantic integration, and difficult evidence reconciliation.
 
 The repository root [`opencode.json`](opencode.json) is the machine-enforced OpenCode configuration.
 
