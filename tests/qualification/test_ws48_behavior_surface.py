@@ -111,6 +111,22 @@ def test_behavior_surface_applies(tmp_path):
     shutil.copy(REPO / "qualification/providers/forge/gpl/Ws40SuccessorState.java", state)
     overlay = _load_overlay()
     overlay.patch_provider(provider, _fake_forge_src(tmp_path))
+    import subprocess
+
+    # Faithful WS-45 predecessor state: opaque library capacity comes from the
+    # ws45 capacity overlay, which runs before the behavior surface in the chain.
+    cap = subprocess.run(
+        [
+            sys.executable,
+            "scripts/ws45_v104_materialize_opaque_library_capacity.py",
+            "--state-java",
+            str(state),
+        ],
+        capture_output=True,
+        text=True,
+        cwd=REPO,
+    )
+    assert cap.returncode == 0, cap.stderr[-2000:]
     overlay.patch_state(state)
     patched = provider.read_text()
     for marker in (
@@ -157,6 +173,7 @@ def test_behavior_surface_applies(tmp_path):
     assert "semanticRefOf" in patched_state
     assert "emitBehaviorCheckpoint" in patched_state
     assert "ws48BeginLoadedStep" in patched_state
+    assert "ws48PadLibraries" in patched_state
     # The generic failClosed stubs must be replaced by native implementations.
     assert 'throw failClosed("declareAttackers");' not in patched
     assert 'throw failClosed("declareBlockers");' not in patched

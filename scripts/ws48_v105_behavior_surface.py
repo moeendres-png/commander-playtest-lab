@@ -781,6 +781,51 @@ SEAT_BIND_NEW = """    public static void applyNativeState(Game game, Ws23ForgeV
         loadObjectSpecs();
         ws48BindSeatPids(game);"""
 
+LIBRARY_PAD_OLD = """                if ("library".equals(zone)) {
+                    int minimum = libraryMinimums.getOrDefault(seat, 0);
+                    while (values.size() < minimum) {
+                        int opaqueIndex = values.size();
+                        int opaqueId = 900000 + seat * 1000 + opaqueIndex;
+                        values.add("Forest|Id:" + opaqueId);
+                    }
+                }"""
+
+LIBRARY_PAD_NEW = """                if ("library".equals(zone)) {
+                    int minimum = libraryMinimums.getOrDefault(seat, 0);
+                    while (values.size() < minimum) {
+                        int opaqueIndex = values.size();
+                        int opaqueId = 900000 + seat * 1000 + opaqueIndex;
+                        values.add("Forest|Id:" + opaqueId);
+                    }
+                    // Behavior-only canonical background: GameState clears all
+                    // zones, so unspecified libraries would be empty and the
+                    // first draw step would eliminate players whose scripted
+                    // actions come on later turns (multi-turn flow is
+                    // contract-intended). Pad specified libraries with opaque
+                    // face-down Forests to canonical size at the bottom,
+                    // preserving specified order/positions. Never in
+                    // construction mode (fidelity), never for natural games
+                    // (real decks), never for hidden-information fixtures
+                    // (knowledge-divergence risk; their terminals need no turns).
+                    // Library-intent credit remains Terra-adjudicated.
+                    if (ws48PadLibraries()) {
+                        registerCardRules(java.util.Set.of("Forest"));
+                        while (values.size() < 99) {
+                            int opaqueIndex = values.size();
+                            int opaqueId = 910000 + seat * 1000 + opaqueIndex;
+                            values.add("Forest|Id:" + opaqueId);
+                        }
+                    }
+                }"""
+
+LIBRARY_PAD_HELPERS = """    static boolean ws48PadLibraries() {
+        if ("1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) return false;
+        if (!"NATIVE_STATE_LOAD".equals(env("COMMANDER_LAB_WS40_ENTRY_MODE"))) return false;
+        String fixture = env("COMMANDER_LAB_FORGE_FIXTURE_ID");
+        return !fixture.startsWith("HIDDEN_");
+    }
+"""
+
 
 DECLARE_DIRECT_OLD = """        emitNativeSnapshot(game, broker, false);
         if ("1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {"""
@@ -1512,6 +1557,13 @@ def patch_state(path: Path) -> None:
     java = path.read_text(encoding="utf-8")
     java = replace_once(java, STATE_HELPERS_OLD, STATE_HELPERS_NEW, "state semantic helpers")
     java = replace_once(java, SEAT_BIND_OLD, SEAT_BIND_NEW, "seat pid binding")
+    java = replace_once(java, LIBRARY_PAD_OLD, LIBRARY_PAD_NEW, "library background")
+    java = replace_once(
+        java,
+        "    private static String controllerPid(Game game, Player p) {",
+        LIBRARY_PAD_HELPERS + "    private static String controllerPid(Game game, Player p) {",
+        "library helpers",
+    )
     java = replace_once(java, DECLARE_DIRECT_OLD, DECLARE_DIRECT_NEW, "loaded combat step")
     java = replace_once(
         java,
