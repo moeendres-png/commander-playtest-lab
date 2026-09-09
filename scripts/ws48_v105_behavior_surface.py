@@ -413,6 +413,25 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
         }
 
         @com.google.common.eventbus.Subscribe
+        public void onCardDamaged(forge.game.event.GameEventCardDamaged event) {
+            if (event.card() == null) return;
+            String target = ws48EventCardRef(event.card().getId());
+            String source = event.source() == null ? "unknown"
+                : ws48EventName(event.source().getName());
+            emit("card_damaged:" + target + ":" + event.amount() + ":" + source);
+        }
+
+        @com.google.common.eventbus.Subscribe
+        public void onPlayerDamaged(forge.game.event.GameEventPlayerDamaged event) {
+            if (event.target() == null) return;
+            String pid = ws48EventPlayerRef(event.target().getName());
+            String source = event.source() == null ? "unknown"
+                : ws48EventName(event.source().getName());
+            String kind = event.combat() ? "combat" : "noncombat";
+            emit("player_damaged:" + pid + ":" + event.amount() + ":" + kind + ":" + source);
+        }
+
+        @com.google.common.eventbus.Subscribe
         public void onScry(forge.game.event.GameEventScry event) {
             if (event.player() == null) return;
             emit("scry_top:" + event.toTop() + "_bottom:" + event.toBottom());

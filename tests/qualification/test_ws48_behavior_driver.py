@@ -170,6 +170,23 @@ def test_diff_incarnation_and_devils():
     assert "creature_entered" in events
     assert "new_object_incarnation:line:cmd" in events
     assert "create_Devil_token:2" in events
+    # Reincarnated permanent keeps its record ref by exclusion.
+    re_prev = {
+        "cards": [
+            {"semantic_id": "obj:enter", "card_identity": "Bears", "controller": "P1", "zone": "hand"},
+            {"semantic_id": "obj:stay", "card_identity": "Bears", "controller": "P1", "zone": "battlefield"},
+        ]
+    }
+    re_cur = {
+        "cards": [
+            {"semantic_id": "obj:stay", "card_identity": "Bears", "controller": "P1", "zone": "battlefield"},
+            {"semantic_id": None, "card_identity": "Bears", "controller": "P1", "zone": "battlefield"},
+        ]
+    }
+    idents = {"obj:enter": ("Bears", "P1"), "obj:stay": ("Bears", "P1")}
+    re_events = drv.diff_checkpoints(re_prev, re_cur, {"obj:enter": "line:enter"}, idents)
+    assert "creature_enters:obj:enter" in re_events
+    assert "new_object_incarnation:line:enter" in re_events
     # Mountain churn alone produces nothing.
     quiet = drv.diff_checkpoints(
         {

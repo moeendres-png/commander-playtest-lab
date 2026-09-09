@@ -599,7 +599,12 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
                         for o in record.get("semantic_objects") or []
                         if o.get("semantic_id") and o.get("card_lineage_id")
                     }
-                    for ev in _diff(sess.snapshots[prev_idx], cur, lineage):
+                    identities = {
+                        o.get("semantic_id"): (o.get("card_identity"), o.get("controller"))
+                        for o in record.get("semantic_objects") or []
+                        if o.get("semantic_id")
+                    }
+                    for ev in _diff(sess.snapshots[prev_idx], cur, lineage, identities):
                         sess.note_event(ev)
                 sess.prev_checkpoint_idx = len(sess.snapshots) - 1
         ready = _ready(record, sess)

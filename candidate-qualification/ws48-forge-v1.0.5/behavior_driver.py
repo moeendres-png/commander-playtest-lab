@@ -510,10 +510,16 @@ class Session:
     def note_event(self, name: str) -> None:
         self.feed.append(name)
         self._log("event", name)
-        # Contract-anchored alias: a singleton scry kept on top.
+        # Contract-anchored aliases from native observation facts.
         if name == "scry_top:1_bottom:0":
             self.feed.append("scry_choice:keep_top")
             self._log("event", "scry_choice:keep_top")
+        if name.startswith("player_damaged:"):
+            parts = name.split(":")
+            if len(parts) >= 3:
+                alias = f"damage:{parts[1]}:{parts[2]}"
+                self.feed.append(alias)
+                self._log("event", alias)
 
     def answer_unscripted_discretion(self, frame: dict[str, Any]) -> None:
         """Answer a frame with no compatible script entry, deterministically.
@@ -777,6 +783,7 @@ def diff_checkpoints(
     prev: dict[str, Any],
     cur: dict[str, Any],
     lineage: dict[str, str] | None = None,
+    identities: dict[str, tuple] | None = None,
 ) -> list[str]:
     """Derive structural zone-transition events between behavior checkpoints.
 
@@ -788,14 +795,44 @@ def diff_checkpoints(
     derivatives; bound refs additionally yield lineage incarnation markers.
     Unbound churn without a unique counterpart (library/hand Mountains) is
     ignored. Devil token creation counts use the contract-anchored vocabulary.
+    Battlefield arrivals are labeled by record ref when exactly one
+    identity+controller-matching ref is absent from the previous battlefield
+    (reincarnated permanents keep their semantic identity for evidence).
     """
     lineage = lineage or {}
+    identities = identities or {}
 
     def label(card: dict[str, Any]) -> str:
         if card.get("semantic_id"):
             return str(card.get("semantic_id"))
+        ref = link_ref(card)
+        if ref is not None:
+            return ref
         name = str(card.get("card_identity") or "unknown").replace(" ", "_")
         return f"{name}@{card.get('controller')}"
+
+    def link_ref(card: dict[str, Any]) -> str | None:
+        """Link an unbound card to its record ref by exclusion.
+
+        Exactly one identity+controller-matching ref absent from the previous
+        battlefield snapshot identifies a reincarnated permanent.
+        """
+        if card.get("semantic_id"):
+            return None
+        ident = (card.get("card_identity"), card.get("controller"))
+        prev_battlefield_refs = {
+            str(c.get("semantic_id"))
+            for c in prev.get("cards") or []
+            if c.get("semantic_id") and str(c.get("zone")) == "battlefield"
+        }
+        cands = [
+            ref
+            for ref, (identity, controller) in identities.items()
+            if identity == ident[0] and controller == ident[1] and ref not in prev_battlefield_refs
+        ]
+        if len(cands) != 1:
+            return None
+        return cands[0]
 
     def ident(card: dict[str, Any]) -> tuple:
         return (card.get("card_identity"), card.get("controller"))
@@ -875,6 +912,9 @@ def diff_checkpoints(
             continue
         events.append(f"creature_enters:{label(new_card)}")
         events.append("creature_entered")
+        linked = link_ref(new_card)
+        if linked is not None and lineage.get(linked):
+            events.append(f"new_object_incarnation:{lineage[linked]}")
 
     # 3. Fresh Devil tokens (no vanished counterpart).
     devils: dict[str, int] = {}
