@@ -41,6 +41,7 @@ strings are used only at evaluation time as the pass predicate.
 Verdicts per record: PASS_BEHAVIOR | FAIL_CLOSED_* | UNKNOWN_*.
 UNKNOWN is not PASS. PARTIAL is not FULL. Behavior credit requires PASS.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -58,7 +59,6 @@ sys.path[:0] = [str(HERE), str(WS42)]
 
 import canonical_v105  # noqa: E402
 import run_full107_construction_probe_v103 as legacy  # noqa: E402
-import run_full107_construction_probe_v103_enriched as enriched  # noqa: E402
 import run_full107_construction_probe_v105 as construction_v105  # noqa: E402
 from successor_contract_v105 import load_contract, provider_records  # noqa: E402
 
@@ -74,7 +74,9 @@ PASS_OPTION_TYPE = "pass_priority"
 
 
 def fail(code: str, fixture_id: str, detail: Any = None) -> None:
-    suffix = "" if detail is None else ":" + json.dumps(detail, sort_keys=True, ensure_ascii=False)[:800]
+    suffix = (
+        "" if detail is None else ":" + json.dumps(detail, sort_keys=True, ensure_ascii=False)[:800]
+    )
     raise RuntimeError(f"{code}:{fixture_id}{suffix}")
 
 
@@ -92,23 +94,29 @@ def script_entries(record: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def procedure_has_pass_steps(record: dict[str, Any]) -> bool:
-    return any(
-        isinstance(step, dict)
-        and step.get("operation")
-        in (
-            "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-            "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES",
-            "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
-            "NATIVE_RESOLVE_TOP_OF_STACK",
-            "NATIVE_RESOLVE_TRIGGER",
-        )
-        for step in (record.get("native_procedure") or [])
-    )
+    """Whether neutral priority advancement is declared for this obligation.
+
+    PASS cannot be manufactured by passing: full script consumption plus
+    event/terminal evaluation is still required. Passing is therefore
+    admitted wherever the procedure models Rules advancement beyond bare
+    construction (resolve/continue/enter/advance/resume/settle steps).
+    Match-first ordering still protects scripted actions from being
+    skipped: a matching entry is always answered, never passed over.
+    """
+    ops = [
+        str(s.get("operation"))
+        for s in (record.get("native_procedure") or [])
+        if isinstance(s, dict)
+    ]
+    if not ops:
+        return False
+    return ops != ["NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE"]
 
 
 # ---------------------------------------------------------------------------
 # Native event log (derived from native payloads only)
 # ---------------------------------------------------------------------------
+
 
 class NativeEventLog:
     """Ordered semantic events derived exclusively from native observations."""
@@ -130,11 +138,8 @@ class NativeEventLog:
         return list(self.events)
 
 
-def evaluate_events(
-    record: dict[str, Any], emitted: list[str]
-) -> tuple[bool, dict[str, Any]]:
+def evaluate_events(record: dict[str, Any], emitted: list[str]) -> tuple[bool, dict[str, Any]]:
     """Evaluate required/forbidden/ordering predicates against native events."""
-    fixture_id = record.get("fixture_id")
     expected = record.get("expected_events") or {}
     required = list(expected.get("required_events") or [])
     forbidden = list(expected.get("forbidden_events") or [])
@@ -162,6 +167,51 @@ def evaluate_events(
         "present_forbidden_events": present_forbidden,
         "ordering_violations": order_violations,
     }
+
+
+# Required-event vocabulary with NO proven WS49-owned native derivation
+# path (engine-internal would-be/counterfactual/layer/cost assertions).
+# Missing ONLY such vocabulary yields UNKNOWN (evidence gap for bridge
+# event-tap enrichment under foreign ownership), never PASS and never a
+# false FAIL. Any missing observable-required event still fails closed.
+UNOBSERVABLE_VOCABULARY_PREFIXES = (
+    "damage_would_be:",
+    "combat_damage_would_be:",
+    "prevention_applied",
+    "replacement_effect:",
+    "layer6_",
+    "layer7",
+    "continuous_",
+    "cost_determined:",
+    "priority_action_resets_pass_count",
+    "commander_damage_total:",
+    "commander_combat_damage:",
+    "extra_turn_created:",
+    "next_turn:",
+    "resolve:obj:",
+    "zone_change:",
+)
+
+
+def split_unobservable(missing: list[str]) -> tuple[list[str], list[str]]:
+    """Partition missing required events into observable vs unobservable."""
+    unobservable = [e for e in missing if _is_unobservable(e)]
+    observable = [e for e in missing if e not in unobservable]
+    return observable, unobservable
+
+
+def _is_unobservable(event: str) -> bool:
+    for prefix in UNOBSERVABLE_VOCABULARY_PREFIXES:
+        if prefix.endswith(":"):
+            if event.startswith(prefix):
+                return True
+        elif (
+            event == prefix
+            or event.startswith(prefix.rstrip("_") + ":")
+            or event.startswith(prefix)
+        ):
+            return True
+    return False
 
 
 def anti_echo_probe(
@@ -198,6 +248,7 @@ def anti_echo_probe(
 # matches fail closed. Diagnostics capture native offer shapes (truncated).
 # ---------------------------------------------------------------------------
 
+
 def _offer_summary(decision: dict[str, Any]) -> Any:
     options = decision.get("legal_options") or []
     summary = []
@@ -208,12 +259,14 @@ def _offer_summary(decision: dict[str, Any]) -> Any:
             continue
         otype = str(option.get("option_type"))
         type_counts[otype] = type_counts.get(otype, 0) + 1
-        summary.append({
-            "option_id": option.get("option_id"),
-            "option_type": option.get("option_type"),
-            "label": option.get("label"),
-            "metadata": option.get("metadata"),
-        })
+        summary.append(
+            {
+                "option_id": option.get("option_id"),
+                "option_type": option.get("option_type"),
+                "label": option.get("label"),
+                "metadata": option.get("metadata"),
+            }
+        )
     return {
         "decision_class": decision.get("decision_class"),
         "seat": decision.get("seat"),
@@ -233,9 +286,138 @@ def _non_cancel_options(decision: dict[str, Any]) -> list[dict[str, Any]]:
     they are never a forced move and never a fallback answer.
     """
     options = decision.get("legal_options") or []
-    return [o for o in options
-            if isinstance(o, dict)
-            and o.get("option_type") not in ("cancel_mana_payment", "cancel", "decline")]
+    return [
+        o
+        for o in options
+        if isinstance(o, dict)
+        and o.get("option_type") not in ("cancel_mana_payment", "cancel", "decline")
+    ]
+
+
+def canonical_bucket_id(bucket: dict[str, Any], player_count: int, fixture_id: str) -> str:
+    """Bind a native observation player bucket to canonical P<n> by SEAT.
+
+    Full-game observation buckets may carry opaque viewer-scoped player
+    handles in player_id; the native seat is the stable binding (P{n} sits
+    at seat n-1). A P-form player_id is accepted only when seat is absent
+    and the id is canonically shaped and in range.
+    """
+    seat = bucket.get("seat")
+    if isinstance(seat, int) and not isinstance(seat, bool) and 0 <= seat < player_count:
+        return f"P{seat + 1}"
+    pid = bucket.get("player_id")
+    if isinstance(pid, str) and pid.startswith("P"):
+        try:
+            number = int(pid[1:])
+        except ValueError:
+            number = -1
+        if 1 <= number <= player_count and f"P{number}" == pid:
+            return pid
+    fail("WS49_BEHAVIOR_BUCKET_IDENTITY_UNMAPPABLE", fixture_id, {"shape": shape_overview(bucket)})
+    raise AssertionError("unreachable")
+
+
+def seat_label_for(player: str, player_count: int, fixture_id: str) -> str:
+    """Stable native seat label for a canonical player (WS26 Seat N)."""
+    try:
+        number = int(player[1:])
+    except (ValueError, TypeError, IndexError):
+        number = -1
+    if not player.startswith("P") or not 1 <= number <= player_count:
+        fail("WS49_BEHAVIOR_SEAT_LABEL_PLAYER_INVALID", fixture_id, player)
+    return f"WS26 Seat {number}"
+
+
+def profile_match_object(
+    record: dict[str, Any], decision: dict[str, Any], semantic_id: str, fixture_id: str
+) -> str:
+    """Map a scripted semantic object to the natively offered opaque option.
+
+    Duplicate card names make label matching ambiguous, so the runner
+    profile-matches the contract's full object description (card identity,
+    owner/controller seats, zone, tapped, counters) against the live
+    actor-visible object inventory in the pending decision's pilot_state.
+    Exactly one inventory object may match; its opaque handle must then be
+    the unique offered option. Identification only; legality from offers.
+    """
+    candidates = [
+        o
+        for o in (record.get("semantic_objects") or [])
+        if isinstance(o, dict) and o.get("semantic_id") == semantic_id
+    ]
+    if len(candidates) != 1:
+        fail("WS49_BEHAVIOR_CONTRACT_OBJECT_NOT_UNIQUE", fixture_id, semantic_id)
+    wanted = candidates[0]
+    pilot_state = decision.get("pilot_state") or {}
+    inventory: list[dict[str, Any]] = []
+    for zone_key in ("battlefield", "hand", "graveyard", "exile", "command", "library", "stack"):
+        zone = pilot_state.get(zone_key)
+        entries = zone if isinstance(zone, list) else []
+        for entry in entries:
+            if isinstance(entry, dict):
+                inventory.append({"zone": zone_key, **entry})
+    if not inventory:
+        fail(
+            "WS49_BEHAVIOR_ACTOR_INVENTORY_UNAVAILABLE",
+            fixture_id,
+            {
+                "pilot_state_keys": sorted(pilot_state) if isinstance(pilot_state, dict) else None,
+                "decision_class": decision.get("decision_class"),
+            },
+        )
+    matches = []
+    for item in inventory:
+        if not _profile_agrees(wanted, item):
+            continue
+        handle = item.get("object_id") or item.get("option_id")
+        if isinstance(handle, str) and handle:
+            matches.append(handle)
+    matches = list(dict.fromkeys(matches))
+    if len(matches) != 1:
+        fail(
+            "WS49_BEHAVIOR_OBJECT_PROFILE_NOT_UNIQUE",
+            fixture_id,
+            {
+                "semantic_id": semantic_id,
+                "match_count": len(matches),
+                "wanted_profile": {
+                    k: wanted.get(k)
+                    for k in ("card_identity", "owner", "controller", "zone", "tapped", "counters")
+                },
+                "inventory": [
+                    {
+                        k: item.get(k)
+                        for k in ("object_id", "name", "zone", "controller", "owner", "tapped")
+                    }
+                    for item in inventory[:12]
+                ],
+            },
+        )
+    handle = matches[0]
+    option = _unique(
+        decision,
+        fixture_id,
+        lambda o: (
+            str(o.get("option_id")) == handle
+            or str((o.get("metadata") or {}).get("object_id")) == handle
+        ),
+        "PROFILE_OBJECT",
+    )
+    return str(option["option_id"])
+
+
+def _profile_agrees(wanted: dict[str, Any], item: dict[str, Any]) -> bool:
+    """Strict attribute agreement between contract object and live inventory."""
+    name = item.get("name") or item.get("label")
+    if name != wanted.get("card_identity"):
+        return False
+    zone = item.get("zone")
+    if isinstance(zone, str) and isinstance(wanted.get("zone"), str) and zone != wanted["zone"]:
+        return False
+    for key in ("tapped", "face_down"):
+        if key in wanted and key in item and bool(item[key]) != bool(wanted[key]):
+            return False
+    return True
 
 
 def contract_card_identity(record: dict[str, Any], semantic_id: str) -> str:
@@ -246,8 +428,11 @@ def contract_card_identity(record: dict[str, Any], semantic_id: str) -> str:
     discipline; identity naming never authorizes an action.
     """
     fixture_id = record.get("fixture_id")
-    matches = [o for o in (record.get("semantic_objects") or [])
-               if isinstance(o, dict) and o.get("semantic_id") == semantic_id]
+    matches = [
+        o
+        for o in (record.get("semantic_objects") or [])
+        if isinstance(o, dict) and o.get("semantic_id") == semantic_id
+    ]
     if len(matches) != 1:
         fail("WS49_BEHAVIOR_CONTRACT_OBJECT_IDENTITY_NOT_UNIQUE", fixture_id, semantic_id)
     name = matches[0].get("card_identity")
@@ -265,8 +450,11 @@ def _unique(
     options = decision.get("legal_options") or []
     matches = [o for o in options if isinstance(o, dict) and predicate(o)]
     if len(matches) != 1:
-        fail(f"WS49_BEHAVIOR_SELECTOR_MATCH_NOT_UNIQUE:{label}", fixture_id,
-             {"match_count": len(matches), "offer": _offer_summary(decision)})
+        fail(
+            f"WS49_BEHAVIOR_SELECTOR_MATCH_NOT_UNIQUE:{label}",
+            fixture_id,
+            {"match_count": len(matches), "offer": _offer_summary(decision)},
+        )
     return matches[0]
 
 
@@ -280,9 +468,15 @@ def _exact_set(
     options = decision.get("legal_options") or []
     matches = [o for o in options if isinstance(o, dict) and predicate(o)]
     if len(matches) != expected_count:
-        fail(f"WS49_BEHAVIOR_SELECTOR_SET_MISMATCH:{label}", fixture_id,
-             {"match_count": len(matches), "expected_count": expected_count,
-              "offer": _offer_summary(decision)})
+        fail(
+            f"WS49_BEHAVIOR_SELECTOR_SET_MISMATCH:{label}",
+            fixture_id,
+            {
+                "match_count": len(matches),
+                "expected_count": expected_count,
+                "offer": _offer_summary(decision),
+            },
+        )
     ids = [str(o.get("option_id")) for o in matches]
     if len(set(ids)) != len(ids):
         fail(f"WS49_BEHAVIOR_SELECTOR_DUPLICATE_OPTION_ID:{label}", fixture_id, ids)
@@ -314,61 +508,95 @@ def match_selection(
             card_name = contract_card_identity(record, target)
         except RuntimeError:
             card_name = None
+
         def _cast_predicate(o: dict[str, Any]) -> bool:
             if str(o.get("option_id")) == target:
                 return True
-            if card_name is not None \
-                    and o.get("option_type") == "activated_ability" \
-                    and (o.get("metadata") or {}).get("mana_ability") is not True \
-                    and (o.get("metadata") or {}).get("source_name") == card_name:
-                return True
-            return False
+            return (
+                card_name is not None
+                and o.get("option_type") == "activated_ability"
+                and (o.get("metadata") or {}).get("mana_ability") is not True
+                and (o.get("metadata") or {}).get("source_name") == card_name
+            )
+
         option = _unique(decision, fixture_id, _cast_predicate, "CAST_ACTION")
         native_name = str((option.get("metadata") or {}).get("source_name") or card_name or target)
         name_slug = native_name.replace(" ", "_")
-        return [str(option["option_id"])], [], None, [
-            f"spell_cast:{target}", f"spell_cast:{name_slug}", f"{name_slug}_cast",
-            f"cast_source_native:{native_name}",
-        ], True
-    if kind == "semantic_action" and isinstance(value, dict) and value.get("action") == "cast_commander":
+        return (
+            [str(option["option_id"])],
+            [],
+            None,
+            [
+                f"spell_cast:{target}",
+                f"spell_cast:{name_slug}",
+                f"{name_slug}_cast",
+                f"cast_source_native:{native_name}",
+            ],
+            True,
+        )
+    if (
+        kind == "semantic_action"
+        and isinstance(value, dict)
+        and value.get("action") == "cast_commander"
+    ):
         commander_id = value.get("commander_id")
         commanders = (record.get("commander_state") or {}).get("commanders") or []
-        names = [c.get("card_identity") for c in commanders
-                 if isinstance(c, dict) and c.get("commander_id") == commander_id]
+        names = [
+            c.get("card_identity")
+            for c in commanders
+            if isinstance(c, dict) and c.get("commander_id") == commander_id
+        ]
         if len(names) != 1 or not names[0]:
             fail("WS49_BEHAVIOR_COMMANDER_IDENTITY_NOT_UNIQUE", fixture_id, commander_id)
         option = _unique(
-            decision, fixture_id,
-            lambda o: o.get("option_type") == "activated_ability"
-            and (o.get("metadata") or {}).get("source_name") == names[0],
+            decision,
+            fixture_id,
+            lambda o: (
+                o.get("option_type") == "activated_ability"
+                and (o.get("metadata") or {}).get("source_name") == names[0]
+            ),
             "CAST_COMMANDER",
         )
-        return [str(option["option_id"])], [], None, [
-            "commander_cast_from_command",
-            f"commander_cast_from_command:{commander_id}",
-            "commander_cast",
-        ], True
+        return (
+            [str(option["option_id"])],
+            [],
+            None,
+            [
+                "commander_cast_from_command",
+                f"commander_cast_from_command:{commander_id}",
+                "commander_cast",
+            ],
+            True,
+        )
     if kind == "semantic_player":
         if not isinstance(value, str) or not value:
             fail("WS49_BEHAVIOR_PLAYER_SELECTOR_VALUE_INVALID", fixture_id, value)
-        option = _unique(decision, fixture_id,
-                         lambda o: str(o.get("option_id")) == value, "SEMANTIC_PLAYER")
+        # Native player options are opaque handles labeled with the stable
+        # seat name (same binding as the starting-player setup): match the
+        # canonical player's seat label exactly, with metadata coherence.
+        label = seat_label_for(value, len(record.get("players") or []), fixture_id)
+        option = _unique(
+            decision,
+            fixture_id,
+            lambda o: (
+                str(o.get("label")) == label and (o.get("metadata") or {}).get("name") == label
+            ),
+            "SEMANTIC_PLAYER",
+        )
         return [str(option["option_id"])], [], None, [f"target_selected:{value}"], True
     if kind == "semantic_object":
         if not isinstance(value, str) or not value:
             fail("WS49_BEHAVIOR_OBJECT_SELECTOR_VALUE_INVALID", fixture_id, value)
-        option = _unique(decision, fixture_id,
-                         lambda o: str(o.get("option_id")) == value, "SEMANTIC_OBJECT")
-        event = "object_selected:" + value if family == "choose_object" else "target_selected:" + value
-        return [str(option["option_id"])], [], None, [event], True
+        selected_id = profile_match_object(record, decision, value, fixture_id)
+        event = (
+            "object_selected:" + value if family == "choose_object" else "target_selected:" + value
+        )
+        return [selected_id], [], None, [event], True
     if kind == "semantic_objects":
         if not isinstance(value, list) or not value or not all(isinstance(v, str) for v in value):
             fail("WS49_BEHAVIOR_OBJECTS_SELECTOR_VALUE_INVALID", fixture_id, value)
-        options = _exact_set(decision, fixture_id,
-                             lambda o: str(o.get("option_id")) in set(value),
-                             len(value), "SEMANTIC_OBJECTS")
-        ordered = sorted(str(o["option_id"]) for o in options)
-        if ordered != sorted(value):
+        ordered = sorted(profile_match_object(record, decision, v, fixture_id) for v in value)
+        if len(set(ordered)) != len(value):
             fail("WS49_BEHAVIOR_OBJECTS_SELECTION_MISMATCH", fixture_id, ordered)
         return ordered, [], None, [f"targets_selected:{'+'.join(sorted(value))}"], True
     if kind == "semantic_stack_object":
@@ -382,36 +610,57 @@ def match_selection(
             fail("WS49_BEHAVIOR_STACK_SELECTOR_POSITION_INVALID", fixture_id, value)
         stack_view = ((decision.get("pilot_state") or {}).get("stack")) or []
         if not isinstance(stack_view, list) or position < 1 or position > len(stack_view):
-            fail("WS49_BEHAVIOR_STACK_POSITION_OUT_OF_RANGE", fixture_id,
-                 {"selector": value, "stack_size": len(stack_view) if isinstance(stack_view, list) else None})
+            fail(
+                "WS49_BEHAVIOR_STACK_POSITION_OUT_OF_RANGE",
+                fixture_id,
+                {
+                    "selector": value,
+                    "stack_size": len(stack_view) if isinstance(stack_view, list) else None,
+                },
+            )
         entry_view = stack_view[position - 1]
         semantic_id = (entry_view or {}).get("object_id") if isinstance(entry_view, dict) else None
         if not semantic_id:
             fail("WS49_BEHAVIOR_STACK_VIEW_OBJECT_ID_MISSING", fixture_id, value)
-        option = _unique(decision, fixture_id,
-                         lambda o: str(o.get("option_id")) == str(semantic_id), "STACK_OBJECT")
+        option = _unique(
+            decision,
+            fixture_id,
+            lambda o: str(o.get("option_id")) == str(semantic_id),
+            "STACK_OBJECT",
+        )
         return [str(option["option_id"])], [], None, [f"target_selected:{semantic_id}"], True
     if kind == "boolean":
         if not isinstance(value, bool):
             fail("WS49_BEHAVIOR_BOOLEAN_SELECTOR_VALUE_INVALID", fixture_id, value)
         option = _unique(
-            decision, fixture_id,
-            lambda o: o.get("option_type") == "boolean"
-            and (o.get("metadata") or {}).get("value") is value,
+            decision,
+            fixture_id,
+            lambda o: (
+                o.get("option_type") == "boolean"
+                and (o.get("metadata") or {}).get("value") is value
+            ),
             "BOOLEAN",
         )
         label = str(option.get("label") or "")
-        return [str(option["option_id"])], [], None, [
-            f"boolean_selected:{actor}:{str(value).lower()}",
-            f"boolean_label:{label}",
-        ], True
+        return (
+            [str(option["option_id"])],
+            [],
+            None,
+            [
+                f"boolean_selected:{actor}:{str(value).lower()}",
+                f"boolean_label:{label}",
+            ],
+            True,
+        )
     if kind == "semantic_choice_key":
         if not isinstance(value, str) or not value:
             fail("WS49_BEHAVIOR_CHOICE_SELECTOR_VALUE_INVALID", fixture_id, value)
         option = _unique(
-            decision, fixture_id,
-            lambda o: (o.get("metadata") or {}).get("choice") == value
-            or str(o.get("option_id")) == value,
+            decision,
+            fixture_id,
+            lambda o: (
+                (o.get("metadata") or {}).get("choice") == value or str(o.get("option_id")) == value
+            ),
             "CHOICE_KEY",
         )
         return [str(option["option_id"])], [], None, [f"choice:{value}"], True
@@ -419,20 +668,30 @@ def match_selection(
         if not isinstance(value, str) or not value:
             fail("WS49_BEHAVIOR_MODE_SELECTOR_VALUE_INVALID", fixture_id, value)
         option = _unique(
-            decision, fixture_id,
-            lambda o: (o.get("metadata") or {}).get("mode") == value
-            or str(o.get("option_id")) == value,
+            decision,
+            fixture_id,
+            lambda o: (
+                (o.get("metadata") or {}).get("mode") == value or str(o.get("option_id")) == value
+            ),
             "MODE_KEY",
         )
-        return [str(option["option_id"])], [], None, [
-            f"decision:choose_mode:{value}", f"mode_selected:{value}"], True
+        return (
+            [str(option["option_id"])],
+            [],
+            None,
+            [f"decision:choose_mode:{value}", f"mode_selected:{value}"],
+            True,
+        )
     if kind == "semantic_ability_key":
         if not isinstance(value, str) or not value:
             fail("WS49_BEHAVIOR_ABILITY_SELECTOR_VALUE_INVALID", fixture_id, value)
         option = _unique(
-            decision, fixture_id,
-            lambda o: (o.get("metadata") or {}).get("ability") == value
-            or str(o.get("option_id")) == value,
+            decision,
+            fixture_id,
+            lambda o: (
+                (o.get("metadata") or {}).get("ability") == value
+                or str(o.get("option_id")) == value
+            ),
             "ABILITY_KEY",
         )
         return [str(option["option_id"])], [], None, [f"ability_selected:{value}"], True
@@ -443,12 +702,15 @@ def match_selection(
         numeric_min, numeric_max = context.get("numeric_min"), context.get("numeric_max")
         if isinstance(numeric_min, int) and isinstance(numeric_max, int):
             if not numeric_min <= value <= numeric_max:
-                fail("WS49_BEHAVIOR_INTEGER_OUT_OF_NATIVE_RANGE", fixture_id,
-                     {"value": value, "min": numeric_min, "max": numeric_max})
-        options = decision.get("legal_options") or []
-        if not isinstance(options, list) or len(options) == 0:
-            fail("WS49_BEHAVIOR_INTEGER_NO_NATIVE_OPTIONS", fixture_id,
-                 _offer_summary(decision))
+                fail(
+                    "WS49_BEHAVIOR_INTEGER_OUT_OF_NATIVE_RANGE",
+                    fixture_id,
+                    {"value": value, "min": numeric_min, "max": numeric_max},
+                )
+        else:
+            fail("WS49_BEHAVIOR_INTEGER_NATIVE_RANGE_MISSING", fixture_id, _offer_summary(decision))
+        # Announce-X style numeric decisions carry no selectable options;
+        # the range above is the entire native offer. Submit numeric only.
         return [], [], value, [f"x_announced:{value}"], True
     if kind == "mana_payment":
         return match_mana_payment(entry, decision, record)
@@ -486,50 +748,70 @@ def match_mana_payment(
         # Scripted symbols name WHAT is paid; the contract's payment
         # instruction names WHICH objects pay. Merge the two immutable
         # sources; ambiguity fails closed.
-        cost_entries = [e for e in (record.get("action_cost_state") or [])
-                        if isinstance(e, dict) and e.get("payable") is True
-                        and isinstance(e.get("explicit_payment_sources"), list)]
+        cost_entries = [
+            e
+            for e in (record.get("action_cost_state") or [])
+            if isinstance(e, dict)
+            and e.get("payable") is True
+            and isinstance(e.get("explicit_payment_sources"), list)
+        ]
         if len(cost_entries) == 1:
             sources = list(cost_entries[0].get("explicit_payment_sources") or [])
             entry["_mana_sources_merged_from_cost_state"] = True
         elif len(cost_entries) > 1:
-            fail("WS49_BEHAVIOR_MANA_SOURCES_AMBIGUOUS", fixture_id,
-                 len(cost_entries))
+            fail("WS49_BEHAVIOR_MANA_SOURCES_AMBIGUOUS", fixture_id, len(cost_entries))
     used: list[str] = list(entry.setdefault("_mana_sources_used", []))
     committed: list[str] = list(entry.setdefault("_mana_committed_native", []))
     context = decision.get("context") or {}
     unpaid = context.get("unpaid_mana")
 
     def summary() -> Any:
-        return {"offer": _offer_summary(decision), "unpaid_mana": unpaid,
-                "queue": queue, "sources": sources, "used": used}
+        return {
+            "offer": _offer_summary(decision),
+            "unpaid_mana": unpaid,
+            "queue": queue,
+            "sources": sources,
+            "used": used,
+        }
 
     # Source-activation step: scripted sources name exact semantic objects.
     remaining_sources = [s for s in sources if s not in used]
     if remaining_sources:
         wanted = remaining_sources[0]
         option = _unique(
-            decision, fixture_id,
-            lambda o: o.get("option_type") == "mana_ability"
-            and (o.get("metadata") or {}).get("semantic_source_object_id") == wanted,
+            decision,
+            fixture_id,
+            lambda o: (
+                o.get("option_type") == "mana_ability"
+                and (o.get("metadata") or {}).get("semantic_source_object_id") == wanted
+            ),
             "MANA_SOURCE",
         )
         used.append(wanted)
         entry["_mana_sources_used"] = used
         activations = int(entry.get("_mana_activations", 0)) + 1
         entry["_mana_activations"] = activations
-        return [str(option["option_id"])], [], None, [
-            f"mana_source_activated:{wanted}",
-            f"mana_abilities_activated:{activations}",
-        ], False
+        return (
+            [str(option["option_id"])],
+            [],
+            None,
+            [
+                f"mana_source_activated:{wanted}",
+                f"mana_abilities_activated:{activations}",
+            ],
+            False,
+        )
     if not queue:
         fail("WS49_BEHAVIOR_MANA_PAYMENT_SCRIPT_EXHAUSTED", fixture_id, summary())
     symbol = queue.pop(0)
     entry["_mana_symbol_queue"] = queue
     option = _unique(
-        decision, fixture_id,
-        lambda o: o.get("option_type") in ("mana_pool", "mana_ability")
-        and str((o.get("metadata") or {}).get("mana_type", "")).upper() == str(symbol).upper(),
+        decision,
+        fixture_id,
+        lambda o: (
+            o.get("option_type") in ("mana_pool", "mana_ability")
+            and str((o.get("metadata") or {}).get("mana_type", "")).upper() == str(symbol).upper()
+        ),
         "MANA_SYMBOL",
     )
     native_symbol = str((option.get("metadata") or {}).get("mana_type", symbol)).upper()
@@ -561,8 +843,11 @@ def match_amount_assignment(
     target_hint = (
         context.get("target_semantic_id")
         or context.get("target")
-        or ((decision.get("source_object") or {}).get("object_id")
-            if isinstance(decision.get("source_object"), dict) else None)
+        or (
+            (decision.get("source_object") or {}).get("object_id")
+            if isinstance(decision.get("source_object"), dict)
+            else None
+        )
     )
     options = decision.get("legal_options") or []
     if target_hint is not None and str(target_hint) in remaining:
@@ -571,18 +856,27 @@ def match_amount_assignment(
         offered = {str(o.get("option_id")) for o in options if isinstance(o, dict)}
         candidates = [t for t in remaining if t in offered]
         if len(candidates) != 1:
-            fail("WS49_BEHAVIOR_AMOUNT_TARGET_NOT_UNIQUE", fixture_id,
-                 {"remaining": remaining, "offer": _offer_summary(decision)})
+            fail(
+                "WS49_BEHAVIOR_AMOUNT_TARGET_NOT_UNIQUE",
+                fixture_id,
+                {"remaining": remaining, "offer": _offer_summary(decision)},
+            )
         target = candidates[0]
     amount = remaining.pop(target)
     entry["_amount_remaining"] = remaining
     if not isinstance(amount, int) or isinstance(amount, bool) or amount < 1:
         fail("WS49_BEHAVIOR_AMOUNT_VALUE_NOT_POSITIVE_INT", fixture_id, amount)
     numeric_min, numeric_max = context.get("numeric_min"), context.get("numeric_max")
-    if isinstance(numeric_min, int) and isinstance(numeric_max, int):
-        if not numeric_min <= amount <= numeric_max:
-            fail("WS49_BEHAVIOR_AMOUNT_OUT_OF_NATIVE_RANGE", fixture_id,
-                 {"target": target, "amount": amount})
+    if (
+        isinstance(numeric_min, int)
+        and isinstance(numeric_max, int)
+        and not numeric_min <= amount <= numeric_max
+    ):
+        fail(
+            "WS49_BEHAVIOR_AMOUNT_OUT_OF_NATIVE_RANGE",
+            fixture_id,
+            {"target": target, "amount": amount},
+        )
     submitted: list[int] = entry.setdefault("_amount_submitted_native", [])
     submitted.append(amount)
     entry["_amount_submitted_native"] = submitted
@@ -606,10 +900,8 @@ def match_attacker_assignment(
     selected: list[str] = []
     events: list[str] = []
     for attacker, defender in value.items():
-        option = _unique(decision, fixture_id,
-                         lambda o, a=attacker: str(o.get("option_id")) == str(a),
-                         "ATTACKER")
-        selected.append(str(option["option_id"]))
+        selected_id = profile_match_object(record, decision, str(attacker), fixture_id)
+        selected.append(selected_id)
         events.append(f"attacker_declared:{attacker}->{defender}")
     if len(selected) != len(value):
         fail("WS49_BEHAVIOR_ATTACKER_COUNT_MISMATCH", fixture_id, value)
@@ -626,10 +918,8 @@ def match_blocker_assignment(
     selected: list[str] = []
     events: list[str] = []
     for blocker, attacker in value.items():
-        option = _unique(decision, fixture_id,
-                         lambda o, b=blocker: str(o.get("option_id")) == str(b),
-                         "BLOCKER")
-        selected.append(str(option["option_id"]))
+        selected_id = profile_match_object(record, decision, str(blocker), fixture_id)
+        selected.append(selected_id)
         events.append(f"blocker_declared:{blocker}->{attacker}")
     return selected, [], None, events, True
 
@@ -658,10 +948,15 @@ def match_partition(
     selected: list[str] = []
     for member, pile in sorted(wanted.items()):
         option = _unique(
-            decision, fixture_id,
-            lambda o, m=member, p=pile: str(o.get("option_id")) == m
-            and (o.get("metadata") or {}).get("pile") in (p, None)
-            or (str(o.get("option_id")) == m and p in str(o.get("label") or "")),
+            decision,
+            fixture_id,
+            lambda o, m=member, p=pile: (
+                (
+                    str(o.get("option_id")) == m
+                    and (o.get("metadata") or {}).get("pile") in (p, None)
+                )
+                or (str(o.get("option_id")) == m and p in str(o.get("label") or ""))
+            ),
             f"PILE_MEMBER:{member}",
         )
         selected.append(str(option["option_id"]))
@@ -680,19 +975,30 @@ def match_trigger_order(
     options = decision.get("legal_options") or []
     offered = [str(o.get("option_id")) for o in options if isinstance(o, dict)]
     if sorted(offered) != sorted(str(v) for v in value):
-        fail("WS49_BEHAVIOR_ORDER_OFFER_SET_MISMATCH", fixture_id,
-             {"offered": offered, "scripted": value})
+        fail(
+            "WS49_BEHAVIOR_ORDER_OFFER_SET_MISMATCH",
+            fixture_id,
+            {"offered": offered, "scripted": value},
+        )
     ordered = [str(v) for v in value]
     actor = entry.get("actor")
-    return [], ordered, None, [
-        f"trigger_order_submitted:{'<'.join(ordered)}",
-        f"simultaneous_triggers:{actor}:{len(offered)}",
-    ], True, True
+    return (
+        [],
+        ordered,
+        None,
+        [
+            f"trigger_order_submitted:{'<'.join(ordered)}",
+            f"simultaneous_triggers:{actor}:{len(offered)}",
+        ],
+        True,
+        True,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Sessions
 # ---------------------------------------------------------------------------
+
 
 def open_state_load_session(record: dict[str, Any]) -> tuple[Any, dict[str, Any], dict[str, Any]]:
     """Create, configure, and start one restored native game; return client/scenario/state."""
@@ -706,17 +1012,28 @@ def open_state_load_session(record: dict[str, Any]) -> tuple[Any, dict[str, Any]
         handles = gate.import_decks(client, decks)
         starting_lives = {int(player["starting_life"]) for player in record["players"]}
         if len(starting_lives) != 1:
-            fail("WS49_BEHAVIOR_NONUNIFORM_STARTING_LIFE_UNSUPPORTED", fixture_id, sorted(starting_lives))
-        client.request("create_full_game", {
-            "game_id": f"WS49-V105-BEHAVIOR-{fixture_id}",
-            "deck_handles": handles,
-            "starting_player_seat": int(scenario["starting_player_seat"]) - 1,
-            "starting_life": next(iter(starting_lives)),
-            "seed": int(scenario["seed"]),
-        })
+            fail(
+                "WS49_BEHAVIOR_NONUNIFORM_STARTING_LIFE_UNSUPPORTED",
+                fixture_id,
+                sorted(starting_lives),
+            )
+        client.request(
+            "create_full_game",
+            {
+                "game_id": f"WS49-V105-BEHAVIOR-{fixture_id}",
+                "deck_handles": handles,
+                "starting_player_seat": int(scenario["starting_player_seat"]) - 1,
+                "starting_life": next(iter(starting_lives)),
+                "seed": int(scenario["seed"]),
+            },
+        )
         configured = client.request("configure_qualification_scenario", {"scenario": scenario})
         if configured.get("execution_entry_mode") != "NATIVE_STATE_LOAD":
-            fail("WS49_BEHAVIOR_ENTRY_MODE_MISMATCH", fixture_id, configured.get("execution_entry_mode"))
+            fail(
+                "WS49_BEHAVIOR_ENTRY_MODE_MISMATCH",
+                fixture_id,
+                configured.get("execution_entry_mode"),
+            )
         client.request("start_full_game")
         state = client.request("get_qualification_state")
         # Restoration gate mirrors the construction probe's readback contract:
@@ -737,7 +1054,8 @@ def open_state_load_session(record: dict[str, Any]) -> tuple[Any, dict[str, Any]
 
 def pass_priority_option(decision: dict[str, Any], fixture_id: str) -> dict[str, Any]:
     return _unique(
-        decision, fixture_id,
+        decision,
+        fixture_id,
         lambda o: o.get("option_type") == PASS_OPTION_TYPE,
         "PRIORITY_PASS",
     )
@@ -747,21 +1065,22 @@ def pass_priority_option(decision: dict[str, Any], fixture_id: str) -> dict[str,
 # Executors
 # ---------------------------------------------------------------------------
 
+
 def execute_hidden(record: dict[str, Any]) -> dict[str, Any]:
     """Actor-entitled knowledge projection battery (no decisions exist)."""
     fixture_id = record.get("fixture_id")
     log = NativeEventLog()
-    client, scenario, _ = open_state_load_session(record)
+    client, _, _ = open_state_load_session(record)
     try:
-        player_count = len(record["players"])
         viewer_states = (record.get("knowledge_state") or {}).get("viewer_states") or []
         observations: dict[str, Any] = {}
         blob_parts: list[str] = []
         for viewer in viewer_states:
             viewer_id = viewer.get("viewer")
             seat = int(str(viewer_id)[1:]) - 1
-            payload = client.request("get_full_game_observation",
-                                     {"viewer_seat": seat, "decision_subject_seat": seat})
+            payload = client.request(
+                "get_full_game_observation", {"viewer_seat": seat, "decision_subject_seat": seat}
+            )
             observation = payload.get("observation")
             if not isinstance(observation, dict):
                 fail("WS49_BEHAVIOR_OBSERVATION_MISSING", fixture_id, viewer_id)
@@ -797,24 +1116,26 @@ def verify_viewer_states(record: dict[str, Any], observations: dict[str, Any]) -
     """
     fixture_id = record.get("fixture_id")
     player_count = len(record["players"])
-    viewer_states = {(v.get("viewer")): v for v in (record.get("knowledge_state") or {}).get("viewer_states") or []}
+    viewer_states = {
+        (v.get("viewer")): v
+        for v in (record.get("knowledge_state") or {}).get("viewer_states") or []
+    }
     for viewer_id, obs in observations.items():
         players = obs.get("players") or []
         by_id: dict[str, Any] = {}
         for bucket in players:
             if not isinstance(bucket, dict):
                 fail("WS49_BEHAVIOR_VIEWER_BUCKET_INVALID", fixture_id, viewer_id)
-            pid = bucket.get("player_id")
-            if not isinstance(pid, str) or not pid:
-                pid = construction_v105._canonical_player_from_native_seat(
-                    bucket, player_count, fixture_id)
+            pid = canonical_bucket_id(bucket, player_count, fixture_id)
             if pid in by_id:
                 fail("WS49_BEHAVIOR_VIEWER_BUCKET_DUPLICATE", fixture_id, viewer_id)
             by_id[pid] = bucket
         if set(by_id) != set(viewer_states):
-            fail("WS49_BEHAVIOR_VIEWER_PLAYER_SET_MISMATCH", fixture_id,
-                 {"viewer": viewer_id, "observed": sorted(by_id),
-                  "shape": shape_overview(players)})
+            fail(
+                "WS49_BEHAVIOR_VIEWER_PLAYER_SET_MISMATCH",
+                fixture_id,
+                {"viewer": viewer_id, "observed": sorted(by_id), "shape": shape_overview(players)},
+            )
         me = by_id.get(viewer_id)
         if not isinstance(me, dict):
             fail("WS49_BEHAVIOR_SELF_VIEW_MISSING", fixture_id, viewer_id)
@@ -823,8 +1144,11 @@ def verify_viewer_states(record: dict[str, Any], observations: dict[str, Any]) -
             if pid == viewer_id:
                 continue
             if isinstance(bucket.get("hand"), list) and len(bucket["hand"]) > 0:
-                fail("WS49_BEHAVIOR_OPPONENT_HAND_IDENTITIES_EXPOSED", fixture_id,
-                     {"viewer": viewer_id, "player": pid})
+                fail(
+                    "WS49_BEHAVIOR_OPPONENT_HAND_IDENTITIES_EXPOSED",
+                    fixture_id,
+                    {"viewer": viewer_id, "player": pid},
+                )
     return {"viewers_verified": sorted(observations), "sentinel_absent": True}
 
 
@@ -872,8 +1196,9 @@ class StackWatch:
                 self.log.emit(f"stack_push:{sid}")
                 if sid in names:
                     self.log.emit(f"stack_push:{self._slug(names[sid])}")
-                if sid not in self.cast_selected_ids \
-                        and (sid not in names or names[sid] not in self.cast_selected_names):
+                if sid not in self.cast_selected_ids and (
+                    sid not in names or names[sid] not in self.cast_selected_names
+                ):
                     # Rules-created arrival (trigger/copy), never pilot-cast.
                     if sid in names:
                         self.log.emit(f"trigger:{self._slug(names[sid])}")
@@ -896,9 +1221,74 @@ class StackWatch:
                 self.cast_selected_names.add(event.split(":", 1)[1])
 
 
-def submit_pass(gate: Any, client: Any, decision: dict[str, Any],
-                actor: str, log: NativeEventLog, transcript: list[dict[str, Any]],
-                kind: str, fixture_id: str) -> None:
+def salvage_native_failure(client: Any, fixture_id: str, action: str) -> dict[str, Any]:
+    """Read-only salvage after an engine-side failure (never submits).
+
+    Queries result/state surfaces that may still respond after a Rules
+    publication crash, capturing the native decision transcript and tapes
+    for first-causal-defect classification. Every query is guarded: a dead
+    engine yields empty salvage, never a second failure.
+    """
+    salvaged: dict[str, Any] = {"action": action}
+    for name, args in (("get_full_game_result", {}), ("get_qualification_state", {})):
+        try:
+            payload = client.request(name, args)
+        except Exception as exc:
+            salvaged[name] = f"UNAVAILABLE:{type(exc).__name__}"
+            continue
+        try:
+            blob = json.dumps(payload, sort_keys=True)
+        except (TypeError, ValueError):
+            blob = str(payload)
+        salvaged[name] = blob[:3000]
+    return salvaged
+
+
+def request_salvaged(
+    client: Any, fixture_id: str, action: str, payload: dict[str, Any] | None = None
+) -> Any:
+    """Client request with read-only native salvage on engine failure."""
+    try:
+        if payload is None:
+            return client.request(action)
+        return client.request(action, payload)
+    except Exception as exc:
+        salvaged = salvage_native_failure(client, fixture_id, action)
+        raise RuntimeError(
+            f"{type(exc).__name__}:{exc}:NATIVE_SALVAGE:{json.dumps(salvaged, sort_keys=True)[:2500]}"
+        ) from exc
+
+
+def submit_salvaged(
+    gate: Any,
+    client: Any,
+    fixture_id: str,
+    decision: dict[str, Any],
+    selected: list[str],
+    ordering: list[str] | None = None,
+    numeric: int | None = None,
+) -> Any:
+    """Decision submit with read-only native salvage on engine failure."""
+    try:
+        return gate.submit_one(client, decision, selected, ordering=ordering or [], numeric=numeric)
+    except Exception as exc:
+        salvaged = salvage_native_failure(client, fixture_id, str(decision.get("decision_class")))
+        raise RuntimeError(
+            f"submit_full_game_decision failed: {exc}:NATIVE_SALVAGE:"
+            f"{json.dumps(salvaged, sort_keys=True)[:2500]}"
+        ) from exc
+
+
+def submit_pass(
+    gate: Any,
+    client: Any,
+    decision: dict[str, Any],
+    actor: str,
+    log: NativeEventLog,
+    transcript: list[dict[str, Any]],
+    kind: str,
+    fixture_id: str,
+) -> None:
     """Neutral Rules advancement: pass priority without selecting any action.
 
     Passing is the unique non-discretionary advance. It never selects a game
@@ -907,14 +1297,27 @@ def submit_pass(gate: Any, client: Any, decision: dict[str, Any],
     procedure steps) are in flight, in positive and negative flows alike.
     """
     option = pass_priority_option(decision, fixture_id)
-    gate.submit_one(client, decision, [str(option["option_id"])])
-    transcript.append({"actor": actor, "class": str(decision.get("decision_class")),
-                       "submitted": kind})
+    submit_salvaged(gate, client, fixture_id, decision, [str(option["option_id"])])
+    transcript.append(
+        {
+            "actor": actor,
+            "class": str(decision.get("decision_class")),
+            "submitted": kind,
+            "temporal": temporal_slice(decision),
+        }
+    )
     log.emit(f"priority_pass:{actor}")
 
 
-def submit_forced(gate: Any, client: Any, decision: dict[str, Any],
-                  actor: str, log: NativeEventLog, transcript: list[dict[str, Any]]) -> bool:
+def submit_forced(
+    gate: Any,
+    client: Any,
+    decision: dict[str, Any],
+    actor: str,
+    log: NativeEventLog,
+    transcript: list[dict[str, Any]],
+    fixture_id: str,
+) -> bool:
     """Forced move: exactly one non-cancel option is natively offered.
 
     Selecting the sole offered legal option exercises no discretion and is
@@ -930,17 +1333,29 @@ def submit_forced(gate: Any, client: Any, decision: dict[str, Any],
     if len(options) != 1:
         return False
     option = options[0]
-    gate.submit_one(client, decision, [str(option["option_id"])])
-    transcript.append({"actor": actor, "class": str(decision.get("decision_class")),
-                       "submitted": "FORCED_SINGLE_OFFER",
-                       "selected_native_ids": [str(option["option_id"])]})
+    submit_salvaged(gate, client, fixture_id, decision, [str(option["option_id"])])
+    transcript.append(
+        {
+            "actor": actor,
+            "class": str(decision.get("decision_class")),
+            "submitted": "FORCED_SINGLE_OFFER",
+            "selected_native_ids": [str(option["option_id"])],
+            "temporal": temporal_slice(decision),
+        }
+    )
     log.emit(f"forced_move:{actor}:{option.get('option_type')}:{option.get('option_id')}")
     return True
 
 
-def submit_identical_neutral(gate: Any, client: Any, decision: dict[str, Any],
-                             actor: str, log: NativeEventLog,
-                             transcript: list[dict[str, Any]]) -> bool:
+def submit_identical_neutral(
+    gate: Any,
+    client: Any,
+    decision: dict[str, Any],
+    actor: str,
+    log: NativeEventLog,
+    transcript: list[dict[str, Any]],
+    fixture_id: str,
+) -> bool:
     """Identical-option neutral completion (London-mulligan rule, generalized).
 
     When every natively offered option is semantically identical through the
@@ -973,20 +1388,31 @@ def submit_identical_neutral(gate: Any, client: Any, decision: dict[str, Any],
         semantic.add(f"{option.get('option_type')}\x00{label}")
     if len(semantic) != 1:
         return False
-    ordered_ids = sorted(str(o["option_id"]) for o in options
-                         if isinstance(o.get("option_id"), str) and o["option_id"])
+    ordered_ids = sorted(
+        str(o["option_id"])
+        for o in options
+        if isinstance(o.get("option_id"), str) and o["option_id"]
+    )
     if len(ordered_ids) != len(options):
         return False
     selected = ordered_ids[:minimum]
-    gate.submit_one(client, decision, selected)
-    transcript.append({"actor": actor, "class": str(decision.get("decision_class")),
-                       "submitted": "IDENTICAL_NEUTRAL",
-                       "selected_native_ids": selected})
+    submit_salvaged(gate, client, fixture_id, decision, selected)
+    transcript.append(
+        {
+            "actor": actor,
+            "class": str(decision.get("decision_class")),
+            "submitted": "IDENTICAL_NEUTRAL",
+            "selected_native_ids": selected,
+            "temporal": temporal_slice(decision),
+        }
+    )
     log.emit(f"identical_neutral:{actor}:{minimum}_of_{len(options)}")
     return True
 
 
-def payment_cost_entry(record: dict[str, Any], source_semantic_id: str | None) -> dict[str, Any] | None:
+def payment_cost_entry(
+    record: dict[str, Any], source_semantic_id: str | None
+) -> dict[str, Any] | None:
     """Immutable payment instruction for a cast (sources named by contract).
 
     The action_cost_state entry names WHICH objects pay; every payment step
@@ -994,16 +1420,26 @@ def payment_cost_entry(record: dict[str, Any], source_semantic_id: str | None) -
     """
     if not source_semantic_id:
         return None
-    for entry in (record.get("action_cost_state") or []):
-        if isinstance(entry, dict) and entry.get("source_semantic_id") == source_semantic_id \
-                and entry.get("payable") is True:
+    for entry in record.get("action_cost_state") or []:
+        if (
+            isinstance(entry, dict)
+            and entry.get("source_semantic_id") == source_semantic_id
+            and entry.get("payable") is True
+        ):
             return entry
     return None
 
 
-def drive_mana_payment(gate: Any, client: Any, decision: dict[str, Any],
-                       actor: str, log: NativeEventLog, transcript: list[dict[str, Any]],
-                       record: dict[str, Any], pay_state: dict[str, Any]) -> None:
+def drive_mana_payment(
+    gate: Any,
+    client: Any,
+    decision: dict[str, Any],
+    actor: str,
+    log: NativeEventLog,
+    transcript: list[dict[str, Any]],
+    record: dict[str, Any],
+    pay_state: dict[str, Any],
+) -> None:
     """Drive one native mana_payment decision from contract payment state.
 
     pay_state tracks per-cast progress: {"source": <semantic_id>,
@@ -1023,18 +1459,28 @@ def drive_mana_payment(gate: Any, client: Any, decision: dict[str, Any],
     if remaining:
         wanted = remaining[0]
         option = _unique(
-            decision, fixture_id,
-            lambda o: o.get("option_type") == "mana_ability"
-            and (o.get("metadata") or {}).get("semantic_source_object_id") == wanted,
+            decision,
+            fixture_id,
+            lambda o: (
+                o.get("option_type") == "mana_ability"
+                and (o.get("metadata") or {}).get("semantic_source_object_id") == wanted
+            ),
             "MANA_SOURCE",
         )
-        gate.submit_one(client, decision, [str(option["option_id"])])
+        submit_salvaged(gate, client, fixture_id, decision, [str(option["option_id"])])
         pay_state["remaining_sources"] = remaining[1:]
         pay_state["activations"] = int(pay_state.get("activations", 0)) + 1
         log.emit(f"mana_source_activated:{wanted}")
         log.emit(f"mana_abilities_activated:{pay_state['activations']}")
-        transcript.append({"actor": actor, "class": "mana_payment",
-                           "submitted": "MANA_SOURCE", "source": wanted})
+        transcript.append(
+            {
+                "actor": actor,
+                "class": "mana_payment",
+                "submitted": "MANA_SOURCE",
+                "source": wanted,
+                "temporal": temporal_slice(decision),
+            }
+        )
         return
     # Sources exhausted: pool commits mirror the native mana the activated
     # sources produced (one commit per source, as the bridge structures it).
@@ -1045,16 +1491,25 @@ def drive_mana_payment(gate: Any, client: Any, decision: dict[str, Any],
         fail("WS49_BEHAVIOR_MANA_POOL_OVER_COMMIT", fixture_id, pay_state)
     options = _non_cancel_options(decision)
     if len(options) != 1:
-        fail("WS49_BEHAVIOR_MANA_POOL_CHOICE_UNSCRIPTED", fixture_id,
-             {"actor": actor, "offer": _offer_summary(decision)})
+        fail(
+            "WS49_BEHAVIOR_MANA_POOL_CHOICE_UNSCRIPTED",
+            fixture_id,
+            {"actor": actor, "offer": _offer_summary(decision)},
+        )
     option = options[0]
-    gate.submit_one(client, decision, [str(option["option_id"])])
+    submit_salvaged(gate, client, fixture_id, decision, [str(option["option_id"])])
     mana_type = str((option.get("metadata") or {}).get("mana_type", ""))
     pay_state.setdefault("committed_native", []).append(mana_type.upper() or "pool")
     pay_state["pool_done"] = pool_done + 1
-    transcript.append({"actor": actor, "class": "mana_payment",
-                       "submitted": "MANA_POOL_FORCED",
-                       "selected_native_ids": [str(option["option_id"])]})
+    transcript.append(
+        {
+            "actor": actor,
+            "class": "mana_payment",
+            "submitted": "MANA_POOL_FORCED",
+            "selected_native_ids": [str(option["option_id"])],
+            "temporal": temporal_slice(decision),
+        }
+    )
     log.emit(f"mana_pool_committed:{mana_type}")
 
 
@@ -1080,7 +1535,15 @@ def execute_negative(record: dict[str, Any]) -> dict[str, Any]:
             payload = client.request("get_full_game_decision")
             decision = payload.get("decision")
             if not isinstance(decision, dict):
-                fail("WS49_BEHAVIOR_NEGATIVE_PENDING_DECISION_MISSING", fixture_id, payload)
+                # No pending decision and the probed frame never appeared:
+                # the native cause cannot reach a discretionary frame (e.g.
+                # unscripted cast initiation). Withholding is vacuous here;
+                # report the unreachable frame precisely.
+                fail(
+                    "WS49_BEHAVIOR_NEGATIVE_FRAME_NOT_REACHED",
+                    fixture_id,
+                    {"probe_families": probe_families, "events_so_far": log.as_list()},
+                )
             klass = str(decision.get("decision_class"))
             actor = canonical_player(int(decision.get("seat", -1)), fixture_id)
             log.frame_events(decision, actor)
@@ -1088,20 +1551,36 @@ def execute_negative(record: dict[str, Any]) -> dict[str, Any]:
                 # Handler intentionally unavailable: terminate WITHOUT
                 # submitting. No fallback exists on this path by construction.
                 log.emit("fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION")
-                return {"events": log.as_list(), "transcript": transcript,
-                        "negative_detail": {
-                            "withheld_at_class": klass, "withheld_at_actor": actor,
-                            "fallback_used": False, "game_continued": False,
-                            "failure_code": "UNSUPPORTED_DISCRETIONARY_DECISION",
-                        }}
+                return {
+                    "events": log.as_list(),
+                    "transcript": transcript,
+                    "negative_detail": {
+                        "withheld_at_class": klass,
+                        "withheld_at_actor": actor,
+                        "fallback_used": False,
+                        "game_continued": False,
+                        "failure_code": "UNSUPPORTED_DISCRETIONARY_DECISION",
+                    },
+                }
             if klass == PRIORITY_CLASS:
-                submit_pass(gate, client, decision, actor, log, transcript,
-                            "PASS_PRIORITY_NEUTRAL_ADVANCEMENT", fixture_id)
+                submit_pass(
+                    gate,
+                    client,
+                    decision,
+                    actor,
+                    log,
+                    transcript,
+                    "PASS_PRIORITY_NEUTRAL_ADVANCEMENT",
+                    fixture_id,
+                )
                 continue
-            if submit_forced(gate, client, decision, actor, log, transcript):
+            if submit_forced(gate, client, decision, actor, log, transcript, fixture_id):
                 continue
-            fail("WS49_BEHAVIOR_NEGATIVE_UNEXPECTED_PRIOR_FRAME", fixture_id,
-                 {"class": klass, "actor": actor, "offer": _offer_summary(decision)})
+            fail(
+                "WS49_BEHAVIOR_NEGATIVE_UNEXPECTED_PRIOR_FRAME",
+                fixture_id,
+                {"class": klass, "actor": actor, "offer": _offer_summary(decision)},
+            )
         fail("WS49_BEHAVIOR_NEGATIVE_FRAME_NOT_REACHED", fixture_id, probe_families)
     finally:
         client.__exit__(None, None, None)
@@ -1135,9 +1614,17 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
     selection_trail: list[dict[str, Any]] = []
     pay_state: dict[str, Any] = {}
     submits = 0
-    client, _, opening_state = open_state_load_session(record)
+    client, scenario, opening_state = open_state_load_session(record)
     opening_snapshot = snapshot_terminal_facts(opening_state, record)
     try:
+        try:
+            starting_seat = int(scenario.get("starting_player_seat", 1))
+            log.emit(f"starting_player:P{starting_seat}")
+        except (TypeError, ValueError):
+            pass
+        baseline = query_opening_life(client, len(record["players"]), fixture_id)
+        if baseline:
+            opening_snapshot["opening_life"] = baseline
         for _ in range(MAX_DECISION_STEPS):
             payload = client.request("get_full_game_decision")
             decision = payload.get("decision")
@@ -1150,17 +1637,28 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
             if klass == PRIORITY_CLASS:
                 log.emit(f"priority:{actor}")
             watch.observe(decision)
-            entry = next((e for e in entries
-                          if not e.get("_consumed") and e.get("actor") == actor
-                          and e.get("decision_family") == klass), None)
+            entry = next(
+                (
+                    e
+                    for e in entries
+                    if not e.get("_consumed")
+                    and e.get("actor") == actor
+                    and e.get("decision_family") == klass
+                ),
+                None,
+            )
             if entry is None and klass == "mana_payment" and pay_state.get("active"):
-                drive_mana_payment(gate, client, decision, actor, log,
-                                   transcript, record, pay_state)
+                drive_mana_payment(
+                    gate, client, decision, actor, log, transcript, record, pay_state
+                )
                 submits += 1
-                pool_expected = int(pay_state.get("pool_expected",
-                                                  len(pay_state.get("source_log") or [])))
-                if not pay_state.get("remaining_sources") \
-                        and int(pay_state.get("pool_done", 0)) >= pool_expected:
+                pool_expected = int(
+                    pay_state.get("pool_expected", len(pay_state.get("source_log") or []))
+                )
+                if (
+                    not pay_state.get("remaining_sources")
+                    and int(pay_state.get("pool_done", 0)) >= pool_expected
+                ):
                     pay_state["active"] = False
                     symbols = [s for s in (pay_state.get("committed_native") or []) if s != "pool"]
                     log.emit(f"mana_paid:{''.join(symbols) if symbols else 'pool'}")
@@ -1168,64 +1666,148 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
                 continue
             if entry is None:
                 if klass == PRIORITY_CLASS and allow_pass:
-                    submit_pass(gate, client, decision, actor, log, transcript,
-                                "PASS_PRIORITY_SCRIPTED", fixture_id)
+                    submit_pass(
+                        gate,
+                        client,
+                        decision,
+                        actor,
+                        log,
+                        transcript,
+                        "PASS_PRIORITY_SCRIPTED",
+                        fixture_id,
+                    )
                     submits += 1
                     continue
                 if klass != PRIORITY_CLASS and submit_forced(
-                        gate, client, decision, actor, log, transcript):
+                    gate, client, decision, actor, log, transcript, fixture_id
+                ):
                     submits += 1
                     continue
                 if klass != PRIORITY_CLASS and submit_identical_neutral(
-                        gate, client, decision, actor, log, transcript):
+                    gate, client, decision, actor, log, transcript, fixture_id
+                ):
                     submits += 1
                     continue
                 if klass == PRIORITY_CLASS and not allow_pass:
-                    fail("WS49_BEHAVIOR_PRIORITY_PASS_NOT_DECLARED", fixture_id,
-                         {"actor": actor, "offer": _offer_summary(decision)})
-                if klass in ("target", "choose_object", "declare_attacker",
-                             "declare_blocker"):
-                    fail("WS49_BEHAVIOR_ROUTING_CHOICE_UNSCRIPTED", fixture_id,
-                         {"actor": actor, "offer": _offer_summary(decision),
-                          "unconsumed_script": [(e.get("actor"), e.get("decision_family")) for e in entries if not e.get("_consumed")]})
-                fail("WS49_BEHAVIOR_UNEXPECTED_DISCRETIONARY_DECISION", fixture_id,
-                     {"actor": actor, "offer": _offer_summary(decision),
-                      "unconsumed_script": [(e.get("actor"), e.get("decision_family")) for e in entries if not e.get("_consumed")]})
+                    fail(
+                        "WS49_BEHAVIOR_PRIORITY_PASS_NOT_DECLARED",
+                        fixture_id,
+                        {"actor": actor, "offer": _offer_summary(decision)},
+                    )
+                if klass in ("target", "choose_object", "declare_attacker", "declare_blocker"):
+                    fail(
+                        "WS49_BEHAVIOR_ROUTING_CHOICE_UNSCRIPTED",
+                        fixture_id,
+                        {
+                            "actor": actor,
+                            "offer": _offer_summary(decision),
+                            "unconsumed_script": [
+                                (e.get("actor"), e.get("decision_family"))
+                                for e in entries
+                                if not e.get("_consumed")
+                            ],
+                        },
+                    )
+                fail(
+                    "WS49_BEHAVIOR_UNEXPECTED_DISCRETIONARY_DECISION",
+                    fixture_id,
+                    {
+                        "actor": actor,
+                        "offer": _offer_summary(decision),
+                        "unconsumed_script": [
+                            (e.get("actor"), e.get("decision_family"))
+                            for e in entries
+                            if not e.get("_consumed")
+                        ],
+                    },
+                )
             if (entry.get("selection") or {}).get("selector_kind") == "fail_closed_probe":
-                fail("WS49_BEHAVIOR_PROBE_ENTRY_IN_POSITIVE_FLOW", fixture_id, entry.get("decision_family"))
-            selected, ordering, numeric, selection_events, entry_complete = match_selection(entry, decision, record)
-            gate.submit_one(client, decision, selected, ordering=ordering, numeric=numeric)
+                fail(
+                    "WS49_BEHAVIOR_PROBE_ENTRY_IN_POSITIVE_FLOW",
+                    fixture_id,
+                    entry.get("decision_family"),
+                )
+            selected, ordering, numeric, selection_events, entry_complete = match_selection(
+                entry, decision, record
+            )
+            submit_salvaged(
+                gate, client, fixture_id, decision, selected, ordering=ordering, numeric=numeric
+            )
             submits += 1
             watch.note_cast_selection(selected, selection_events)
             if entry_complete:
                 entry["_consumed"] = True
             for event in selection_events:
                 log.emit(event)
-            transcript.append({"actor": actor, "class": klass,
-                               "family": entry.get("decision_family"),
-                               "causal_step": entry.get("causal_step_id"),
-                               "selected_native_ids": selected,
-                               "ordering": ordering, "numeric": numeric})
-            selection_trail.append({"actor": actor, "family": entry.get("decision_family"),
-                                    "causal_step_id": entry.get("causal_step_id")})
+            transcript.append(
+                {
+                    "actor": actor,
+                    "class": klass,
+                    "family": entry.get("decision_family"),
+                    "causal_step": entry.get("causal_step_id"),
+                    "selected_native_ids": selected,
+                    "ordering": ordering,
+                    "numeric": numeric,
+                    "temporal": temporal_slice(decision),
+                }
+            )
+            selection_trail.append(
+                {
+                    "actor": actor,
+                    "family": entry.get("decision_family"),
+                    "causal_step_id": entry.get("causal_step_id"),
+                }
+            )
             # A scripted cast arms contract-driven payment for the mana
             # decisions its resolution requires, unless the script itself
             # owns a mana_payment entry (script spelling takes precedence).
+            # Cost entries are matched by casting actor (single payable
+            # entry); commander casts carry no source semantic id.
             if (entry.get("selection") or {}).get("selector_kind") == "semantic_action":
-                cast_object = ((entry.get("selection") or {}).get("semantic_value") or {}).get("object")
+                cast_object = ((entry.get("selection") or {}).get("semantic_value") or {}).get(
+                    "object"
+                )
                 has_scripted_mana = any(
-                    not e.get("_consumed") and e.get("actor") == actor
-                    and e.get("decision_family") == "mana_payment" for e in entries)
-                cost_entry = None if has_scripted_mana else payment_cost_entry(record, cast_object)
+                    not e.get("_consumed")
+                    and e.get("actor") == actor
+                    and e.get("decision_family") == "mana_payment"
+                    for e in entries
+                )
+                cost_entry = None
+                if not has_scripted_mana:
+                    payable = [
+                        e
+                        for e in (record.get("action_cost_state") or [])
+                        if isinstance(e, dict)
+                        and e.get("payable") is True
+                        and e.get("actor") == actor
+                    ]
+                    if len(payable) == 1 and payable[0].get("explicit_payment_sources"):
+                        cost_entry = payable[0]
+                    elif len(payable) > 1:
+                        cost_by_source = [
+                            e for e in payable if e.get("source_semantic_id") == cast_object
+                        ]
+                        if len(cost_by_source) == 1 and cost_by_source[0].get(
+                            "explicit_payment_sources"
+                        ):
+                            cost_entry = cost_by_source[0]
                 if cost_entry is not None:
-                    pay_state = {"active": True,
-                                 "source": cast_object,
-                                 "remaining_sources": list(cost_entry.get("explicit_payment_sources") or []),
-                                 "is_commander_cast": ((entry.get("selection") or {}).get("semantic_value") or {}).get("action") == "cast_commander",
-                                 "activations": 0,
-                                 "pool_done": 0,
-                                 "pool_expected": len(list(cost_entry.get("explicit_payment_sources") or [])),
-                                 "source_log": list(cost_entry.get("explicit_payment_sources") or [])}
+                    pay_state = {
+                        "active": True,
+                        "source": cast_object,
+                        "remaining_sources": list(cost_entry.get("explicit_payment_sources") or []),
+                        "is_commander_cast": (
+                            (entry.get("selection") or {}).get("semantic_value") or {}
+                        ).get("action")
+                        == "cast_commander",
+                        "activations": 0,
+                        "pool_done": 0,
+                        "pool_expected": len(
+                            list(cost_entry.get("explicit_payment_sources") or [])
+                        ),
+                        "source_log": list(cost_entry.get("explicit_payment_sources") or []),
+                    }
             if all(e.get("_consumed") for e in entries) and not pay_state.get("active"):
                 # Script consumed. Records whose procedure declares explicit
                 # passes continue settling through remaining priorities;
@@ -1245,51 +1827,92 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
                     watch.observe(pending)
                     if pending_class == PRIORITY_CLASS:
                         log.emit(f"priority:{pending_actor}")
-                        submit_pass(gate, client, pending, pending_actor, log,
-                                    transcript, "PASS_PRIORITY_SETTLE", fixture_id)
+                        submit_pass(
+                            gate,
+                            client,
+                            pending,
+                            pending_actor,
+                            log,
+                            transcript,
+                            "PASS_PRIORITY_SETTLE",
+                            fixture_id,
+                        )
                         continue
                     if pending_class == "mana_payment":
-                        fail("WS49_BEHAVIOR_POST_SCRIPT_MANA_UNDRIVEN", fixture_id,
-                             _offer_summary(pending))
-                    fail("WS49_BEHAVIOR_UNEXPECTED_POST_SCRIPT_DECISION", fixture_id,
-                         _offer_summary(pending))
+                        fail(
+                            "WS49_BEHAVIOR_POST_SCRIPT_MANA_UNDRIVEN",
+                            fixture_id,
+                            _offer_summary(pending),
+                        )
+                    fail(
+                        "WS49_BEHAVIOR_UNEXPECTED_POST_SCRIPT_DECISION",
+                        fixture_id,
+                        _offer_summary(pending),
+                    )
                 break
         else:
             fail("WS49_BEHAVIOR_DECISION_BUDGET_EXHAUSTED", fixture_id)
-        unconsumed = [(e.get("actor"), e.get("decision_family"), e.get("causal_step_id"))
-                      for e in entries if not e.get("_consumed")]
+        unconsumed = [
+            (e.get("actor"), e.get("decision_family"), e.get("causal_step_id"))
+            for e in entries
+            if not e.get("_consumed")
+        ]
         if unconsumed:
             if submits == 0 and procedure_has_begin_op(record):
-                fail("WS49_BEHAVIOR_UNSCRIPTED_CAUSE_INITIATION", fixture_id,
-                     {"unconsumed": unconsumed,
-                      "operations": [s.get("operation") for s in (record.get("native_procedure") or [])]})
-            fail("WS49_BEHAVIOR_SCRIPT_NOT_CONSUMED", fixture_id,
-                 {"unconsumed": unconsumed, "submits": submits,
-                  "events_so_far": log.as_list()})
+                fail(
+                    "WS49_BEHAVIOR_UNSCRIPTED_CAUSE_INITIATION",
+                    fixture_id,
+                    {
+                        "unconsumed": unconsumed,
+                        "operations": [
+                            s.get("operation") for s in (record.get("native_procedure") or [])
+                        ],
+                    },
+                )
+            fail(
+                "WS49_BEHAVIOR_SCRIPT_NOT_CONSUMED",
+                fixture_id,
+                {"unconsumed": unconsumed, "submits": submits, "events_so_far": log.as_list()},
+            )
         if pay_state.get("active"):
             fail("WS49_BEHAVIOR_PAYMENT_NOT_SETTLED", fixture_id, pay_state)
         terminal = collect_terminal_observation(client, record, opening_snapshot)
-        if any(isinstance(step, dict) and step.get("operation")
-               == "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY"
-               for step in (record.get("native_procedure") or [])):
+        if any(
+            isinstance(step, dict)
+            and step.get("operation") == "NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY"
+            for step in (record.get("native_procedure") or [])
+        ):
             assert_rules_shuffle_tape(record, terminal, log)
         derive_settlement_outcomes(record, opening_snapshot, terminal, log)
         emit_tape_gated_events(record, terminal, log)
+        derive_elim_and_ring(record, terminal, log, transcript)
     except RuntimeError as exc:
         raise RuntimeError(
-            f"{exc}:PARTIAL_PATH:submits={submits}:events={json.dumps(log.as_list())[:1200]}")
+            f"{exc}:PARTIAL_PATH:submits={submits}:events={json.dumps(log.as_list())[:1200]}"
+        ) from exc
     finally:
         client.__exit__(None, None, None)
-    return {"events": log.as_list(), "transcript": transcript,
-            "selection_trail": selection_trail, "terminal": terminal,
-            "pay_state": {k: v for k, v in pay_state.items() if k != "remaining_sources"}}
+    return {
+        "events": log.as_list(),
+        "transcript": transcript,
+        "selection_trail": selection_trail,
+        "terminal": terminal,
+        "pay_state": {k: v for k, v in pay_state.items() if k != "remaining_sources"},
+    }
 
 
 def procedure_has_begin_op(record: dict[str, Any]) -> bool:
     return any(
-        isinstance(step, dict) and str(step.get("operation") or "").startswith(
-            ("NATIVE_BEGIN_", "NATIVE_GENERATE_", "NATIVE_ENUMERATE_",
-             "NATIVE_ENTER_DECLARE", "NATIVE_CAST_BURN_DOWN_THE_HOUSE"))
+        isinstance(step, dict)
+        and str(step.get("operation") or "").startswith(
+            (
+                "NATIVE_BEGIN_",
+                "NATIVE_GENERATE_",
+                "NATIVE_ENUMERATE_",
+                "NATIVE_ENTER_DECLARE",
+                "NATIVE_CAST_BURN_DOWN_THE_HOUSE",
+            )
+        )
         for step in (record.get("native_procedure") or [])
     )
 
@@ -1310,8 +1933,11 @@ def shape_overview(value: Any, depth: int = 0, budget: int = 40) -> Any:
             out["…"] = f"+{len(value) - 20}_more_keys"
         return out
     if isinstance(value, list):
-        return {"list_len": len(value),
-                "sample": [shape_overview(v, depth + 1, 2) for v in value[:2]]} if value else {"list_len": 0}
+        return (
+            {"list_len": len(value), "sample": [shape_overview(v, depth + 1, 2) for v in value[:2]]}
+            if value
+            else {"list_len": 0}
+        )
     if isinstance(value, str):
         return f"str_len_{len(value)}" if len(value) > 12 else value
     if isinstance(value, bool):
@@ -1341,11 +1967,14 @@ def snapshot_terminal_facts(state: dict[str, Any], record: dict[str, Any]) -> di
             for player in players:
                 if isinstance(player, dict) and isinstance(player.get("player_id"), str):
                     life[player["player_id"]] = player.get("life")
-    return {"state_keys": sorted(state.keys()),
-            "semantic_keys": sorted(semantic.keys()) if isinstance(semantic, dict) else [],
-            "opening_zones": zones,
-            "opening_life": life,
-            "shape": shape_overview(semantic)}
+    return {
+        "state_keys": sorted(state.keys()),
+        "semantic_keys": sorted(semantic.keys()) if isinstance(semantic, dict) else [],
+        "opening_zones": zones,
+        "opening_life": life,
+        "native_surfaces": deep_find_surfaces(state, SURFACE_NEEDLES),
+        "shape": shape_overview(semantic),
+    }
 
 
 def stack_ids_from_state(state: dict[str, Any]) -> tuple[list[str], dict[str, str]]:
@@ -1371,16 +2000,196 @@ def stack_ids_from_state(state: dict[str, Any]) -> tuple[list[str], dict[str, st
     return ids, names
 
 
-def derive_settlement_outcomes(record: dict[str, Any],
-                               opening_snapshot: dict[str, Any],
-                               terminal: dict[str, Any],
-                               log: NativeEventLog) -> None:
+def query_opening_life(client: Any, player_count: int, fixture_id: str) -> dict[str, int]:
+    """Native opening life baseline from a read-only observation query."""
+    try:
+        payload = client.request(
+            "get_full_game_observation", {"viewer_seat": 0, "decision_subject_seat": 0}
+        )
+    except Exception:
+        return {}
+    observation = payload.get("observation")
+    life: dict[str, int] = {}
+    if isinstance(observation, dict):
+        for bucket in observation.get("players") or []:
+            if not isinstance(bucket, dict):
+                continue
+            try:
+                pid = canonical_bucket_id(bucket, player_count, fixture_id)
+            except RuntimeError:
+                continue
+            if isinstance(bucket.get("life"), int):
+                life[pid] = bucket["life"]
+    return life
+
+
+def temporal_slice(decision: dict[str, Any]) -> dict[str, Any]:
+    """Bounded temporal projection of a pending decision's actor view."""
+    pilot_state = decision.get("pilot_state")
+    if not isinstance(pilot_state, dict):
+        return {}
+    out: dict[str, Any] = {}
+    for key in (
+        "phase",
+        "step",
+        "turn_number",
+        "active_player_id",
+        "priority_player_id",
+        "turn",
+        "seat",
+        "decision_subject_seat",
+    ):
+        if key in pilot_state and not isinstance(pilot_state[key], (dict, list)):
+            out[key] = pilot_state[key]
+    return out
+
+
+def deep_find_surfaces(
+    node: Any, needles: tuple[str, ...], path: str = "", budget: int = 30
+) -> dict[str, Any]:
+    """Bounded search for native rules surfaces (turn/damage matrices)."""
+    found: dict[str, Any] = {}
+    if budget <= 0 or len(found) >= 10:
+        return found
+    if isinstance(node, dict):
+        for key, value in node.items():
+            lowered = str(key).lower()
+            if any(n in lowered for n in needles) and not isinstance(value, (dict, list)):
+                found[path + "/" + str(key)] = value
+            elif any(n in lowered for n in needles) and isinstance(value, (dict, list)):
+                found[path + "/" + str(key)] = shape_overview(value)
+            if isinstance(value, (dict, list)) and budget > 0:
+                for sub_path, sub_value in deep_find_surfaces(
+                    value, needles, path + "/" + str(key), budget - 1
+                ).items():
+                    if len(found) < 10:
+                        found[sub_path] = sub_value
+    elif isinstance(node, list):
+        for index, value in enumerate(node[:5]):
+            for sub_path, sub_value in deep_find_surfaces(
+                value, needles, f"{path}[{index}]", budget - 1
+            ).items():
+                if len(found) < 10:
+                    found[sub_path] = sub_value
+    return found
+
+
+SURFACE_NEEDLES = (
+    "commander_damage",
+    "damage_matrix",
+    "turn_mod",
+    "extra_turn",
+    "commander_tax",
+    "monarch",
+    "initiative",
+)
+
+
+def derive_elim_and_ring(
+    record: dict[str, Any],
+    terminal: dict[str, Any],
+    log: NativeEventLog,
+    transcript: list[dict[str, Any]] | None,
+) -> None:
+    """Elimination/ring derivations from native observations + pass order.
+
+    Required leave/lose events name the departed player (spec use); the
+    native bucket's has_left/has_lost decides. Cleanup gates on owned
+    objects being gone. Ring order comes from the pass sequence.
+    """
+    fixture_id = record.get("fixture_id")
+    player_count = len(record.get("players") or [])
+    observations = terminal.get("observations") or {}
+    buckets: dict[str, Any] = {}
+    for obs in observations.values():
+        if not isinstance(obs, dict):
+            continue
+        for bucket in obs.get("players") or []:
+            if not isinstance(bucket, dict):
+                continue
+            try:
+                pid = canonical_bucket_id(bucket, player_count, fixture_id)
+            except RuntimeError:
+                continue
+            buckets.setdefault(pid, bucket)
+    required = (record.get("expected_events") or {}).get("required_events") or []
+    objects = terminal.get("scenario_objects") or {}
+    for event in required:
+        if not isinstance(event, str):
+            continue
+        if event.startswith("player_leaves:"):
+            pid = event.split(":", 1)[1]
+            if buckets.get(pid, {}).get("has_left") is True:
+                log.emit(event)
+        elif event.startswith("player_loses:"):
+            pid = event.split(":", 1)[1]
+            if buckets.get(pid, {}).get("has_lost") is True:
+                log.emit(event)
+        elif event == "multiplayer_cleanup:CR800.4":
+            leavers = [
+                e.split(":", 1)[1]
+                for e in required
+                if isinstance(e, str) and e.startswith("player_leaves:")
+            ]
+            # Owned objects must be gone from every game zone; presence in
+            # exile/removed/outside (or absence) is the cleanup proof.
+            gone = True
+            for leaver in leavers:
+                for _sid, obj in objects.items():
+                    if (
+                        isinstance(obj, dict)
+                        and obj.get("owner") == leaver
+                        and str(obj.get("zone")) not in ("exile", "removed", "outside")
+                    ):
+                        gone = False
+            if (
+                leavers
+                and gone
+                and all(buckets.get(p, {}).get("has_left") is True for p in leavers)
+            ):
+                log.emit(event)
+    # Ring order from the neutral pass sequence (first-appearance order).
+    passes: list[str] = []
+    for step in transcript or []:
+        if (
+            isinstance(step, dict)
+            and str(step.get("submitted", "")).startswith("PASS_PRIORITY")
+            and step.get("actor") not in passes
+        ):
+            passes.append(step["actor"])
+    live = {f"P{seat}" for seat in range(1, player_count + 1)}
+    if (
+        passes
+        and set(passes) <= live
+        and len(passes) == len([p for p in live if buckets.get(p, {}).get("has_left") is not True])
+        and "priority_ring_live_order" in required
+    ):
+        log.emit("priority_ring_live_order")
+        log.emit(f"priority_ring_order:{','.join(passes)}")
+    # A second distinct cast push over an existing stack is a response.
+    pushed_names = {
+        e.split("stack_push:", 1)[1]
+        for e in log.as_list()
+        if isinstance(e, str)
+        and e.startswith("stack_push:")
+        and ":" not in e.split("stack_push:", 1)[1]
+    }
+    if len(pushed_names) >= 2 and "response_on_stack" in required:
+        log.emit("response_on_stack")
+
+
+def derive_settlement_outcomes(
+    record: dict[str, Any],
+    opening_snapshot: dict[str, Any],
+    terminal: dict[str, Any],
+    log: NativeEventLog,
+) -> None:
     """Structural settlement events from opening/terminal native diffs.
 
     Compares scenario objects, battlefield zones, life totals, and stack
     emptiness. Name slugs use NATIVE card names from terminal observations.
     """
-    opening_keys = set((opening_snapshot.get("state_keys") or []))
+    opening_keys = set(opening_snapshot.get("state_keys") or [])
     _ = opening_keys
     terminal_objects = terminal.get("scenario_objects") or {}
     battlefield: dict[str, list[str]] = {}
@@ -1412,8 +2221,9 @@ def derive_settlement_outcomes(record: dict[str, Any],
             log.emit(f"commander_in_command:{sid}")
 
 
-def collect_terminal_observation(client: Any, record: dict[str, Any],
-                                 opening_snapshot: dict[str, Any] | None = None) -> dict[str, Any]:
+def collect_terminal_observation(
+    client: Any, record: dict[str, Any], opening_snapshot: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Independently observe terminal native state (never requested state)."""
     fixture_id = record.get("fixture_id")
     player_count = len(record["players"])
@@ -1421,8 +2231,9 @@ def collect_terminal_observation(client: Any, record: dict[str, Any],
     result = client.request("get_full_game_result")
     observations: dict[str, Any] = {}
     for seat in range(player_count):
-        payload = client.request("get_full_game_observation",
-                                 {"viewer_seat": seat, "decision_subject_seat": seat})
+        payload = client.request(
+            "get_full_game_observation", {"viewer_seat": seat, "decision_subject_seat": seat}
+        )
         observation = payload.get("observation")
         if not isinstance(observation, dict):
             fail("WS49_BEHAVIOR_TERMINAL_OBSERVATION_MISSING", fixture_id, seat)
@@ -1448,11 +2259,12 @@ def collect_terminal_observation(client: Any, record: dict[str, Any],
                 battlefield_arrivals.append(sid)
     life_deltas: dict[str, int] = {}
     first_obs = observations.get("P1") or {}
-    for bucket in (first_obs.get("players") or []):
+    for bucket in first_obs.get("players") or []:
         if not isinstance(bucket, dict):
             continue
-        pid = bucket.get("player_id")
-        if not isinstance(pid, str) or not pid:
+        try:
+            pid = canonical_bucket_id(bucket, player_count, fixture_id)
+        except RuntimeError:
             continue
         try:
             before = opening_life.get(pid)
@@ -1490,12 +2302,27 @@ def collect_terminal_observation(client: Any, record: dict[str, Any],
         "token_counts": token_counts,
         "stack_empty": stack_empty,
         "shape_overview": {
-            "semantic_keys": sorted(semantic_state.keys()) if isinstance(semantic_state, dict) else [],
-            "scenario_object_sample_keys": sorted(next(
-                (o.keys() for o in by_semantic.values() if isinstance(o, dict)), [])),
+            "semantic_keys": sorted(semantic_state.keys())
+            if isinstance(semantic_state, dict)
+            else [],
+            "semantic_turn": shape_overview(semantic_state.get("turn"))
+            if isinstance(semantic_state, dict)
+            else None,
+            "scenario_object_sample_keys": sorted(
+                next((o.keys() for o in by_semantic.values() if isinstance(o, dict)), [])
+            ),
             "tape_keys": sorted(tape.keys()) if isinstance(tape, dict) else [],
             "probe_present": isinstance(probe, dict),
             "observation_stack_len": len(stack_view) if isinstance(stack_view, list) else None,
+            "observation_player_keys": sorted(
+                next(
+                    (
+                        (b.keys() for b in (first_obs.get("players") or []) if isinstance(b, dict)),
+                        [],
+                    )
+                )
+            ),
+            "native_surfaces": deep_find_surfaces(state, SURFACE_NEEDLES),
         },
         "raw_state_keys": sorted(state.keys()),
     }
@@ -1506,7 +2333,10 @@ def collect_terminal_observation(client: Any, record: dict[str, Any],
 # Registry maps fixture_id -> checker. Missing checker => UNKNOWN, no credit.
 # ---------------------------------------------------------------------------
 
-def _obs_players(record: dict[str, Any], terminal: dict[str, Any], viewer: str = "P1") -> dict[str, Any]:
+
+def _obs_players(
+    record: dict[str, Any], terminal: dict[str, Any], viewer: str = "P1"
+) -> dict[str, Any]:
     fixture_id = record.get("fixture_id")
     player_count = len(record["players"])
     observations = terminal.get("observations") or {}
@@ -1518,19 +2348,16 @@ def _obs_players(record: dict[str, Any], terminal: dict[str, Any], viewer: str =
     for bucket in players:
         if not isinstance(bucket, dict):
             raise RuntimeError("WS49_BEHAVIOR_TERMINAL_PLAYER_ENTRY_INVALID")
-        pid = bucket.get("player_id")
-        if not isinstance(pid, str) or not pid:
-            # Seat-addressed native buckets: bind explicitly like the probe.
-            pid = construction_v105._canonical_player_from_native_seat(
-                bucket, player_count, fixture_id)
+        pid = canonical_bucket_id(bucket, player_count, fixture_id)
         if pid in by_id:
             raise RuntimeError("WS49_BEHAVIOR_TERMINAL_PLAYER_DUPLICATE")
         by_id[pid] = bucket
     return by_id
 
 
-def check_natural_opening(record: dict[str, Any], terminal: dict[str, Any],
-                        outcome: dict[str, Any]) -> dict[str, Any]:
+def check_natural_opening(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Player-count / mulligan opening postconditions from native observations."""
     fixture_id = record.get("fixture_id")
     players = _obs_players(record, terminal)
@@ -1539,35 +2366,65 @@ def check_natural_opening(record: dict[str, Any], terminal: dict[str, Any],
         fail("WS49_BEHAVIOR_OPENING_PLAYER_COUNT_MISMATCH", fixture_id, len(players))
     objects = terminal.get("scenario_objects") or {}
     for pid, bucket in players.items():
-        if bucket.get("life") != 40 or bucket.get("has_lost") is not False or bucket.get("has_left") is not False:
+        if (
+            bucket.get("life") != 40
+            or bucket.get("has_lost") is not False
+            or bucket.get("has_left") is not False
+        ):
             fail("WS49_BEHAVIOR_OPENING_PLAYER_STATE_MISMATCH", fixture_id, pid)
         hand = bucket.get("hand_count")
         library = bucket.get("library_count")
-        if isinstance(hand, int) and isinstance(library, int):
-            if hand + library != 99:
-                fail("WS49_BEHAVIOR_OPENING_CARD_CONSERVATION_MISMATCH", fixture_id,
-                     {"player": pid, "hand": hand, "library": library})
+        if isinstance(hand, int) and isinstance(library, int) and hand + library != 99:
+            fail(
+                "WS49_BEHAVIOR_OPENING_CARD_CONSERVATION_MISMATCH",
+                fixture_id,
+                {"player": pid, "hand": hand, "library": library},
+            )
     commanders = (record.get("commander_state") or {}).get("commanders") or []
+    # Setup-state lookup first (state-load sessions), then live observation
+    # command zones (natural sessions carry no scenario object index).
     for commander in commanders:
         native_obj = None
         for key, obj in objects.items():
             if not isinstance(obj, dict):
                 continue
-            if key == commander.get("object_id") or obj.get("commander_id") == commander.get("commander_id"):
+            if key == commander.get("object_id") or obj.get("commander_id") == commander.get(
+                "commander_id"
+            ):
                 native_obj = obj
                 break
         if native_obj is None:
-            fail("WS49_BEHAVIOR_COMMANDER_NOT_FOUND_NATIVELY", fixture_id,
-                 {"commander_id": commander.get("commander_id"),
-                  "scenario_object_keys": sorted(objects)[:40],
-                  "sample_keys": terminal.get("shape_overview", {}).get("scenario_object_sample_keys")})
+            owner = commander.get("owner")
+            identity = commander.get("card_identity")
+            bucket = players.get(owner) if isinstance(owner, str) else None
+            command_zone = (bucket or {}).get("command") or []
+            names = [c.get("name") for c in command_zone if isinstance(c, dict)]
+            if not isinstance(identity, str) or identity not in names:
+                fail(
+                    "WS49_BEHAVIOR_COMMANDER_NOT_FOUND_NATIVELY",
+                    fixture_id,
+                    {
+                        "commander_id": commander.get("commander_id"),
+                        "scenario_object_keys": sorted(objects)[:40],
+                        "observation_command_names": names,
+                        "sample_keys": terminal.get("shape_overview", {}).get(
+                            "scenario_object_sample_keys"
+                        ),
+                    },
+                )
+            continue
         if native_obj.get("zone") != "command":
-            fail("WS49_BEHAVIOR_COMMANDER_NOT_IN_COMMAND_ZONE", fixture_id, commander.get("commander_id"))
+            fail(
+                "WS49_BEHAVIOR_COMMANDER_NOT_IN_COMMAND_ZONE",
+                fixture_id,
+                commander.get("commander_id"),
+            )
     return {"opening_postconditions_native_verified": True, "player_count": expected_count}
 
 
-def check_selection_attested(record: dict[str, Any], terminal: dict[str, Any],
-                             outcome: dict[str, Any]) -> dict[str, Any]:
+def check_selection_attested(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Terminal postconditions that ARE the scripted selection facts.
 
     Applies only where the WS47 terminal text asserts exactly that the
@@ -1583,10 +2440,15 @@ def check_selection_attested(record: dict[str, Any], terminal: dict[str, Any],
     for step in transcript:
         if not isinstance(step, dict):
             fail("WS49_BEHAVIOR_ATTEST_STEP_INVALID", fixture_id)
-        if step.get("submitted") in ("PASS_PRIORITY_SCRIPTED", "PASS_PRIORITY_SETTLE",
-                                     "PASS_PRIORITY_NEUTRAL_ADVANCEMENT",
-                                     "FORCED_SINGLE_OFFER", "IDENTICAL_NEUTRAL",
-                                     "MANA_SOURCE", "MANA_POOL_FORCED"):
+        if step.get("submitted") in (
+            "PASS_PRIORITY_SCRIPTED",
+            "PASS_PRIORITY_SETTLE",
+            "PASS_PRIORITY_NEUTRAL_ADVANCEMENT",
+            "FORCED_SINGLE_OFFER",
+            "IDENTICAL_NEUTRAL",
+            "MANA_SOURCE",
+            "MANA_POOL_FORCED",
+        ):
             continue
         selected = step.get("selected_native_ids") or []
         ordering = step.get("ordering") or []
@@ -1596,8 +2458,9 @@ def check_selection_attested(record: dict[str, Any], terminal: dict[str, Any],
     return {"selection_attestation": True, "selection_steps": len(transcript)}
 
 
-def check_top_unchanged(record: dict[str, Any], terminal: dict[str, Any],
-                        outcome: dict[str, Any]) -> dict[str, Any]:
+def check_top_unchanged(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Scry-style outcome: known top card remains on top (PILOT_CHOOSE_USE)."""
     fixture_id = record.get("fixture_id")
     objects = terminal.get("scenario_objects") or {}
@@ -1611,8 +2474,11 @@ def check_top_unchanged(record: dict[str, Any], terminal: dict[str, Any],
         controller = obj.get("controller") or obj.get("owner")
         library_tops.setdefault(str(controller), []).append((position, obj.get("card_name"), sid))
     if not library_tops:
-        fail("WS49_BEHAVIOR_LIBRARY_POSITIONS_UNAVAILABLE", fixture_id,
-             terminal.get("shape_overview"))
+        fail(
+            "WS49_BEHAVIOR_LIBRARY_POSITIONS_UNAVAILABLE",
+            fixture_id,
+            terminal.get("shape_overview"),
+        )
     for controller, entries in library_tops.items():
         entries.sort()
         if entries[0][0] != 0:
@@ -1620,33 +2486,44 @@ def check_top_unchanged(record: dict[str, Any], terminal: dict[str, Any],
     return {"library_tops_native_observed": {k: v[0][1] for k, v in sorted(library_tops.items())}}
 
 
-def check_commander_zone(record: dict[str, Any], terminal: dict[str, Any],
-                         outcome: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+def check_commander_zone(
+    record: dict[str, Any],
+    terminal: dict[str, Any],
+    outcome: dict[str, Any],
+    params: dict[str, Any],
+) -> dict[str, Any]:
     """A named commander object rests in the expected zone post-resolution."""
     fixture_id = record.get("fixture_id")
     objects = terminal.get("scenario_objects") or {}
     sid, zone = params["semantic_id"], params["zone"]
     obj = objects.get(sid)
     if not isinstance(obj, dict):
-        fail("WS49_BEHAVIOR_COMMANDER_OBJECT_MISSING", fixture_id,
-             {"semantic_id": sid, "known_keys": sorted(objects)[:40]})
+        fail(
+            "WS49_BEHAVIOR_COMMANDER_OBJECT_MISSING",
+            fixture_id,
+            {"semantic_id": sid, "known_keys": sorted(objects)[:40]},
+        )
     if obj.get("zone") != zone:
-        fail("WS49_BEHAVIOR_COMMANDER_ZONE_MISMATCH", fixture_id,
-             {"semantic_id": sid, "native_zone": obj.get("zone"), "expected": zone})
+        fail(
+            "WS49_BEHAVIOR_COMMANDER_ZONE_MISMATCH",
+            fixture_id,
+            {"semantic_id": sid, "native_zone": obj.get("zone"), "expected": zone},
+        )
     return {"commander_zone_native_verified": {sid: zone}}
 
 
-def check_payment_consumed(record: dict[str, Any], terminal: dict[str, Any],
-                           outcome: dict[str, Any]) -> dict[str, Any]:
+def check_payment_consumed(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Contract-named payment sources are natively tapped post-payment."""
     fixture_id = record.get("fixture_id")
     objects = terminal.get("scenario_objects") or {}
     sources: list[str] = []
-    for entry in (record.get("action_cost_state") or []):
+    for entry in record.get("action_cost_state") or []:
         if isinstance(entry, dict):
             sources.extend(entry.get("explicit_payment_sources") or [])
     script_sources: list[str] = []
-    for step in (outcome.get("transcript") or []):
+    for step in outcome.get("transcript") or []:
         if isinstance(step, dict) and step.get("submitted") == "MANA_SOURCE":
             script_sources.append(step.get("source"))
     for sid in list(dict.fromkeys(sources + script_sources)):
@@ -1658,20 +2535,29 @@ def check_payment_consumed(record: dict[str, Any], terminal: dict[str, Any],
     return {"payment_sources_native_tapped": sorted(set(sources + script_sources))}
 
 
-def check_stack_settled(record: dict[str, Any], terminal: dict[str, Any],
-                        outcome: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+def check_stack_settled(
+    record: dict[str, Any],
+    terminal: dict[str, Any],
+    outcome: dict[str, Any],
+    params: dict[str, Any],
+) -> dict[str, Any]:
     """Stack empty plus named zone assertions (Micro resolution records)."""
     fixture_id = record.get("fixture_id")
     if terminal.get("stack_empty") is not True:
-        fail("WS49_BEHAVIOR_STACK_NOT_EMPTY", fixture_id,
-             terminal.get("shape_overview"))
+        fail("WS49_BEHAVIOR_STACK_NOT_EMPTY", fixture_id, terminal.get("shape_overview"))
     objects = terminal.get("scenario_objects") or {}
     for sid, zone in (params.get("zones") or {}).items():
         obj = objects.get(sid)
         if not isinstance(obj, dict) or obj.get("zone") != zone:
-            fail("WS49_BEHAVIOR_SETTLED_ZONE_MISMATCH", fixture_id,
-                 {"semantic_id": sid, "expected": zone,
-                  "native": obj.get("zone") if isinstance(obj, dict) else None})
+            fail(
+                "WS49_BEHAVIOR_SETTLED_ZONE_MISMATCH",
+                fixture_id,
+                {
+                    "semantic_id": sid,
+                    "expected": zone,
+                    "native": obj.get("zone") if isinstance(obj, dict) else None,
+                },
+            )
     for pid, min_life in (params.get("min_life") or {}).items():
         players = _obs_players(record, terminal)
         life = (players.get(pid) or {}).get("life")
@@ -1680,21 +2566,26 @@ def check_stack_settled(record: dict[str, Any], terminal: dict[str, Any],
     return {"stack_settled_native_verified": True, "params": params}
 
 
-def check_devils(record: dict[str, Any], terminal: dict[str, Any],
-                 outcome: dict[str, Any]) -> dict[str, Any]:
+def check_devils(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Exactly three Devil tokens under P1 after Devil-mode resolution."""
     fixture_id = record.get("fixture_id")
     counts = terminal.get("token_counts") or {}
     total = sum(v for v in counts.values() if isinstance(v, int))
     devil = counts.get("Devil", 0)
     if devil != 3 and total < 3:
-        fail("WS49_BEHAVIOR_DEVIL_COUNT_MISMATCH", fixture_id,
-             {"token_counts": counts, "shape": terminal.get("shape_overview")})
+        fail(
+            "WS49_BEHAVIOR_DEVIL_COUNT_MISMATCH",
+            fixture_id,
+            {"token_counts": counts, "shape": terminal.get("shape_overview")},
+        )
     return {"devil_tokens_native_verified": devil if devil == 3 else total}
 
 
-def check_tax(record: dict[str, Any], terminal: dict[str, Any],
-              outcome: dict[str, Any]) -> dict[str, Any]:
+def check_tax(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Commander-tax obligation: probe count, mana count, tax context."""
     fixture_id = record.get("fixture_id")
     probe = terminal.get("commander_probe") or {}
@@ -1705,8 +2596,11 @@ def check_tax(record: dict[str, Any], terminal: dict[str, Any],
             if isinstance(row, dict) and row.get("commander_id") == "cmd:P1-A":
                 count = row.get("live_command_zone_cast_count")
     if count != 3:
-        fail("WS49_BEHAVIOR_TAX_CAST_COUNT_MISMATCH", fixture_id,
-             {"native_count": count, "probe_shape": shape_overview(probe)})
+        fail(
+            "WS49_BEHAVIOR_TAX_CAST_COUNT_MISMATCH",
+            fixture_id,
+            {"native_count": count, "probe_shape": shape_overview(probe)},
+        )
     events = outcome.get("events") or []
     if "mana_paid:4" not in events:
         fail("WS49_BEHAVIOR_TAX_MANA_COUNT_MISSING", fixture_id)
@@ -1715,15 +2609,20 @@ def check_tax(record: dict[str, Any], terminal: dict[str, Any],
     return {"tax_native_verified": {"cast_count": 3, "mana_paid": 4}}
 
 
-def check_card02(record: dict[str, Any], terminal: dict[str, Any],
-                 outcome: dict[str, Any]) -> dict[str, Any]:
+def check_card02(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Rograkh on P1 battlefield, first cast, no tax increment."""
     fixture_id = record.get("fixture_id")
     objects = terminal.get("scenario_objects") or {}
-    rograkhs = [sid for sid, obj in objects.items()
-                if isinstance(obj, dict) and obj.get("zone") == "battlefield"
-                and obj.get("card_name") == "Rograkh, Son of Rohgahh"
-                and (obj.get("controller") == "P1" or obj.get("owner") == "P1")]
+    rograkhs = [
+        sid
+        for sid, obj in objects.items()
+        if isinstance(obj, dict)
+        and obj.get("zone") == "battlefield"
+        and obj.get("card_name") == "Rograkh, Son of Rohgahh"
+        and (obj.get("controller") == "P1" or obj.get("owner") == "P1")
+    ]
     if len(rograkhs) != 1:
         fail("WS49_BEHAVIOR_ROGRAKH_BATTLEFIELD_MISMATCH", fixture_id, rograkhs)
     probe = terminal.get("commander_probe") or {}
@@ -1734,17 +2633,24 @@ def check_card02(record: dict[str, Any], terminal: dict[str, Any],
             if isinstance(row, dict) and row.get("commander_id") == "cmd:P1-A":
                 count = row.get("live_command_zone_cast_count")
     if count != 1:
-        fail("WS49_BEHAVIOR_CARD02_CAST_COUNT_MISMATCH", fixture_id,
-             {"native_count": count, "probe_shape": shape_overview(probe)})
+        fail(
+            "WS49_BEHAVIOR_CARD02_CAST_COUNT_MISMATCH",
+            fixture_id,
+            {"native_count": count, "probe_shape": shape_overview(probe)},
+        )
     return {"card02_native_verified": {"battlefield": rograkhs[0], "cast_count": 1}}
 
 
-def check_amount_attested(record: dict[str, Any], terminal: dict[str, Any],
-                          outcome: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+def check_amount_attested(
+    record: dict[str, Any],
+    terminal: dict[str, Any],
+    outcome: dict[str, Any],
+    params: dict[str, Any],
+) -> dict[str, Any]:
     """Distribution totals from natively accepted amount submissions."""
     fixture_id = record.get("fixture_id")
     amounts: list[int] = []
-    for event in (outcome.get("events") or []):
+    for event in outcome.get("events") or []:
         if isinstance(event, str) and event.startswith("amount_assigned:"):
             try:
                 amounts.append(int(event.rsplit(":", 1)[1]))
@@ -1755,32 +2661,40 @@ def check_amount_attested(record: dict[str, Any], terminal: dict[str, Any],
     return {"amounts_native_accepted": sorted(amounts)}
 
 
-def check_trigger_order_stack(record: dict[str, Any], terminal: dict[str, Any],
-                              outcome: dict[str, Any]) -> dict[str, Any]:
+def check_trigger_order_stack(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Both triggers on stack in the scripted relative order."""
     fixture_id = record.get("fixture_id")
     scripted: list[str] = []
-    for step in (outcome.get("transcript") or []):
+    for step in outcome.get("transcript") or []:
         if isinstance(step, dict) and step.get("family") == "trigger_order":
             scripted = [str(v) for v in (step.get("ordering") or [])]
     if not scripted:
         fail("WS49_BEHAVIOR_TRIGGER_ORDER_NOT_SUBMITTED", fixture_id)
     observations = terminal.get("observations") or {}
     stack_ids: list[str] = []
-    for viewer, obs in observations.items():
+    for _viewer, obs in observations.items():
         stack = (obs or {}).get("stack") or []
         if isinstance(stack, list) and stack:
-            stack_ids = [str(e.get("object_id")) for e in stack
-                         if isinstance(e, dict) and isinstance(e.get("object_id"), str)]
+            stack_ids = [
+                str(e.get("object_id"))
+                for e in stack
+                if isinstance(e, dict) and isinstance(e.get("object_id"), str)
+            ]
             break
     if stack_ids != scripted:
-        fail("WS49_BEHAVIOR_TRIGGER_STACK_ORDER_MISMATCH", fixture_id,
-             {"native_stack": stack_ids, "scripted": scripted})
+        fail(
+            "WS49_BEHAVIOR_TRIGGER_STACK_ORDER_MISMATCH",
+            fixture_id,
+            {"native_stack": stack_ids, "scripted": scripted},
+        )
     return {"trigger_order_native_verified": scripted}
 
 
-def check_micro_modes(record: dict[str, Any], terminal: dict[str, Any],
-                      outcome: dict[str, Any]) -> dict[str, Any]:
+def check_micro_modes(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Selected mode resolves exclusively: Devils exist, no damage occurs."""
     detail = check_devils(record, terminal, outcome)
     deltas = terminal.get("life_deltas") or {}
@@ -1790,26 +2704,33 @@ def check_micro_modes(record: dict[str, Any], terminal: dict[str, Any],
     return detail
 
 
-def check_micro_triggers(record: dict[str, Any], terminal: dict[str, Any],
-                         outcome: dict[str, Any]) -> dict[str, Any]:
+def check_micro_triggers(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Warstorm Surge trigger: creature enters, P2 takes exactly 2."""
     fixture_id = record.get("fixture_id")
     objects = terminal.get("scenario_objects") or {}
     entered = objects.get("obj:micro-enter")
     if not isinstance(entered, dict) or entered.get("zone") != "battlefield":
-        fail("WS49_BEHAVIOR_TRIGGER_ENTER_MISSING", fixture_id,
-             entered.get("zone") if isinstance(entered, dict) else None)
+        fail(
+            "WS49_BEHAVIOR_TRIGGER_ENTER_MISSING",
+            fixture_id,
+            entered.get("zone") if isinstance(entered, dict) else None,
+        )
     deltas = terminal.get("life_deltas") or {}
     if deltas.get("P2") != -2:
         fail("WS49_BEHAVIOR_TRIGGER_DAMAGE_MISMATCH", fixture_id, deltas)
     events = outcome.get("events") or []
-    if not any(isinstance(e, str) and e.startswith("trigger:") and "Warstorm_Surge" in e for e in events):
+    if not any(
+        isinstance(e, str) and e.startswith("trigger:") and "Warstorm_Surge" in e for e in events
+    ):
         fail("WS49_BEHAVIOR_TRIGGER_EVENT_MISSING", fixture_id)
     return {"trigger_native_verified": {"entered": "obj:micro-enter", "damage_P2": 2}}
 
 
-def check_prevention(record: dict[str, Any], terminal: dict[str, Any],
-                     outcome: dict[str, Any]) -> dict[str, Any]:
+def check_prevention(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
     """Prevented combat damage: P2 life unchanged, Fog resolved away."""
     fixture_id = record.get("fixture_id")
     deltas = terminal.get("life_deltas") or {}
@@ -1826,8 +2747,19 @@ def check_prevention(record: dict[str, Any], terminal: dict[str, Any],
     return {"hidden_terminal_attested": detail}
 
 
-def assert_rules_shuffle_tape(record: dict[str, Any], terminal: dict[str, Any],
-                              log: NativeEventLog) -> None:
+def check_hidden_attested(
+    record: dict[str, Any], terminal: dict[str, Any], outcome: dict[str, Any]
+) -> dict[str, Any]:
+    """Hidden postconditions ARE the projection battery predicates."""
+    detail = outcome.get("hidden_detail") or {}
+    if not detail.get("viewers_verified") or detail.get("sentinel_absent") is not True:
+        fail("WS49_BEHAVIOR_HIDDEN_BATTERY_INCOMPLETE", record.get("fixture_id"), detail)
+    return {"hidden_terminal_attested": detail}
+
+
+def assert_rules_shuffle_tape(
+    record: dict[str, Any], terminal: dict[str, Any], log: NativeEventLog
+) -> None:
     """Observation-gated shuffle assertion for RNG-shuffle procedure steps.
 
     The restore path shuffles every library through Rules RNG under the
@@ -1849,9 +2781,11 @@ def assert_rules_shuffle_tape(record: dict[str, Any], terminal: dict[str, Any],
     if not isinstance(operations, list):
         fail("WS49_BEHAVIOR_RULES_TAPE_OPERATIONS_INVALID", fixture_id)
     if int(tape.get("operation_count", 0)) < len(record.get("players") or []):
-        fail("WS49_BEHAVIOR_RULES_SHUFFLE_NOT_OBSERVED", fixture_id,
-             {"operation_count": tape.get("operation_count"),
-              "operations_sample": operations[:6]})
+        fail(
+            "WS49_BEHAVIOR_RULES_SHUFFLE_NOT_OBSERVED",
+            fixture_id,
+            {"operation_count": tape.get("operation_count"), "operations_sample": operations[:6]},
+        )
     channels = (record.get("rules_randomness") or {}).get("channels") or []
     for channel in channels:
         if isinstance(channel, str) and channel.startswith("library_shuffle:"):
@@ -1875,21 +2809,22 @@ TERMINAL_CHECKERS: dict[str, Any] = {
     "PILOT_CHOOSE_ABILITY": check_selection_attested,
     "PILOT_CHOOSE_USE": check_top_unchanged,
     "PILOT_REPLACEMENT_EFFECT": lambda r, t, o: check_commander_zone(
-        r, t, o, {"semantic_id": "obj:p1-commander-bf", "zone": "command"}),
+        r, t, o, {"semantic_id": "obj:p1-commander-bf", "zone": "command"}
+    ),
     "PILOT_MANA_PAYMENT": check_payment_consumed,
     "MICRO_MANA_PAYMENT": check_payment_consumed,
     "MICRO_STACK": lambda r, t, o: check_stack_settled(
-        r, t, o, {"zones": {"obj:micro-target": "battlefield"}}),
+        r, t, o, {"zones": {"obj:micro-target": "battlefield"}}
+    ),
     "MICRO_PRIORITY": lambda r, t, o: check_stack_settled(
-        r, t, o, {"zones": {"obj:micro-target": "battlefield"}}),
+        r, t, o, {"zones": {"obj:micro-target": "battlefield"}}
+    ),
     "MICRO_TARGETS": check_selection_attested,
     "MICRO_MODES": check_micro_modes,
     "MICRO_TRIGGERS": check_micro_triggers,
     "MICRO_PREVENTION": check_prevention,
-    "PILOT_TARGET_AMOUNT": lambda r, t, o: check_amount_attested(
-        r, t, o, {"total": 4}),
-    "PILOT_MULTI_AMOUNT": lambda r, t, o: check_amount_attested(
-        r, t, o, {"total": 4}),
+    "PILOT_TARGET_AMOUNT": lambda r, t, o: check_amount_attested(r, t, o, {"total": 4}),
+    "PILOT_MULTI_AMOUNT": lambda r, t, o: check_amount_attested(r, t, o, {"total": 4}),
     "PILOT_TRIGGER_ORDER": check_trigger_order_stack,
     "RNG_RULES_TAPE": check_devils,
     "REPLAY_DECISION_TAPE": check_devils,
@@ -1902,15 +2837,18 @@ TERMINAL_CHECKERS: dict[str, Any] = {
 }
 
 
-def check_terminal(record: dict[str, Any], terminal: dict[str, Any] | None,
-                   outcome: dict[str, Any] | None) -> dict[str, Any]:
+def check_terminal(
+    record: dict[str, Any], terminal: dict[str, Any] | None, outcome: dict[str, Any] | None
+) -> dict[str, Any]:
     fixture_id = record.get("fixture_id")
     checker = TERMINAL_CHECKERS.get(fixture_id)
     if checker is None and str(fixture_id).startswith("HIDDEN"):
         checker = check_hidden_attested
     if checker is None or terminal is None or outcome is None:
-        return {"terminal_status": "UNKNOWN_TERMINAL_CHECKER_NOT_IMPLEMENTED",
-                "terminal_passed": False}
+        return {
+            "terminal_status": "UNKNOWN_TERMINAL_CHECKER_NOT_IMPLEMENTED",
+            "terminal_passed": False,
+        }
     try:
         detail = checker(record, terminal, outcome)
     except RuntimeError as exc:
@@ -1920,9 +2858,15 @@ def check_terminal(record: dict[str, Any], terminal: dict[str, Any] | None,
 
 def normalized_semantic_hash(value: Any) -> str:
     """Canonical digest excluding provider-local identity fields."""
-    ignored = {"raw_uuid", "jvm_object_id", "memory_identity",
-               "internal_stack_object_identity", "engine_action_id",
-               "process_id", "wall_clock"}
+    ignored = {
+        "raw_uuid",
+        "jvm_object_id",
+        "memory_identity",
+        "internal_stack_object_identity",
+        "engine_action_id",
+        "process_id",
+        "wall_clock",
+    }
 
     def scrub(node: Any) -> Any:
         if isinstance(node, dict):
@@ -1931,9 +2875,23 @@ def normalized_semantic_hash(value: Any) -> str:
             return [scrub(v) for v in node]
         return node
 
-    canonical = json.dumps(scrub(value), ensure_ascii=False, sort_keys=True,
-                           separators=(",", ":")).encode("utf-8")
+    canonical = json.dumps(
+        scrub(value), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
+
+
+def uuid_hygiene(value: Any) -> bool:
+    """Normalized checkpoints must exclude process-local identity."""
+    import re
+
+    blob = json.dumps(value, sort_keys=True, default=str)
+    return (
+        re.search(
+            r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", blob, re.IGNORECASE
+        )
+        is None
+    )
 
 
 DOUBLE_RUN_FIXTURES = {"REPLAY_CLEAN_PROCESS", "REPLAY_STATE_HASHES"}
@@ -1943,8 +2901,10 @@ DOUBLE_RUN_FIXTURES = {"REPLAY_CLEAN_PROCESS", "REPLAY_STATE_HASHES"}
 # Record dispatch + main
 # ---------------------------------------------------------------------------
 
-def emit_tape_gated_events(record: dict[str, Any], terminal: dict[str, Any],
-                           log: NativeEventLog) -> None:
+
+def emit_tape_gated_events(
+    record: dict[str, Any], terminal: dict[str, Any], log: NativeEventLog
+) -> None:
     """Emit required vocabulary found verbatim in native replay tapes.
 
     The replay decision/event tapes are native Rules-execution products.
@@ -1952,7 +2912,6 @@ def emit_tape_gated_events(record: dict[str, Any], terminal: dict[str, Any],
     persist in the row for audit). This is observation-gating, not echo:
     absent tape entries never emit, and the tapes themselves are the proof.
     """
-    fixture_id = record.get("fixture_id")
     required = (record.get("expected_events") or {}).get("required_events") or []
     replay = terminal.get("result_replay") or {}
     pool: set[str] = set()
@@ -1994,10 +2953,18 @@ def execute_cause_driven(record: dict[str, Any]) -> dict[str, Any]:
     fixture_id = record.get("fixture_id")
     gate = legacy.run_tax3.gate
     log = NativeEventLog()
-    watch = StackWatch(log)
     transcript: list[dict[str, Any]] = []
-    client, _, opening_snapshot = open_state_load_session(record)
+    client, scenario, opening_state = open_state_load_session(record)
+    opening_snapshot = snapshot_terminal_facts(opening_state, record)
     try:
+        try:
+            starting_seat = int(scenario.get("starting_player_seat", 1))
+            log.emit(f"starting_player:P{starting_seat}")
+        except (TypeError, ValueError):
+            pass
+        baseline = query_opening_life(client, len(record["players"]), fixture_id)
+        if baseline:
+            opening_snapshot["opening_life"] = baseline
         for _ in range(MAX_DECISION_STEPS):
             payload = client.request("get_full_game_decision")
             decision = payload.get("decision")
@@ -2008,20 +2975,32 @@ def execute_cause_driven(record: dict[str, Any]) -> dict[str, Any]:
             log.frame_events(decision, actor)
             if klass == PRIORITY_CLASS:
                 log.emit(f"priority:{actor}")
-                submit_pass(gate, client, decision, actor, log, transcript,
-                            "PASS_PRIORITY_CAUSE_ADVANCEMENT", fixture_id)
+                submit_pass(
+                    gate,
+                    client,
+                    decision,
+                    actor,
+                    log,
+                    transcript,
+                    "PASS_PRIORITY_CAUSE_ADVANCEMENT",
+                    fixture_id,
+                )
                 continue
-            if submit_forced(gate, client, decision, actor, log, transcript):
+            if submit_forced(gate, client, decision, actor, log, transcript, fixture_id):
                 continue
-            if submit_identical_neutral(gate, client, decision, actor, log, transcript):
+            if submit_identical_neutral(gate, client, decision, actor, log, transcript, fixture_id):
                 continue
-            fail("WS49_BEHAVIOR_CAUSE_FLOW_DISCRETIONARY_FRAME", fixture_id,
-                 {"actor": actor, "offer": _offer_summary(decision)})
+            fail(
+                "WS49_BEHAVIOR_CAUSE_FLOW_DISCRETIONARY_FRAME",
+                fixture_id,
+                {"actor": actor, "offer": _offer_summary(decision)},
+            )
         else:
             fail("WS49_BEHAVIOR_DECISION_BUDGET_EXHAUSTED", fixture_id)
         terminal = collect_terminal_observation(client, record, opening_snapshot)
         emit_tape_gated_events(record, terminal, log)
         derive_settlement_outcomes(record, opening_snapshot, terminal, log)
+        derive_elim_and_ring(record, terminal, log, transcript)
     finally:
         client.__exit__(None, None, None)
     return {"events": log.as_list(), "transcript": transcript, "terminal": terminal}
@@ -2061,8 +3040,7 @@ def probe_record(record: dict[str, Any]) -> dict[str, Any]:
         row["execution_class"] = mode
         if mode == "hidden":
             outcome = execute_hidden(record)
-            terminal = {"observations": {}, "scenario_objects": {},
-                        "hidden_battery": True}
+            terminal = {"observations": {}, "scenario_objects": {}, "hidden_battery": True}
         elif mode == "cause_driven":
             outcome = execute_cause_driven(record)
             terminal = outcome.get("terminal")
@@ -2079,13 +3057,25 @@ def probe_record(record: dict[str, Any]) -> dict[str, Any]:
         row["native_events_emitted"] = emitted
         events_passed, events_detail = evaluate_events(record, emitted)
         row["events_evaluation"] = events_detail
-        row["events_passed"] = events_passed
+        observable_missing, unobservable_missing = split_unobservable(
+            events_detail.get("missing_required_events") or []
+        )
+        row["observable_missing_required_events"] = observable_missing
+        row["unobservable_missing_required_events"] = unobservable_missing
+        row["events_passed"] = (
+            events_passed
+            and not observable_missing
+            and not events_detail.get("present_forbidden_events")
+            and not events_detail.get("ordering_violations")
+        )
         row["anti_echo_probe"] = anti_echo_probe(record, emitted, events_passed)
         if mode == "hidden":
             terminal_check = check_terminal(record, terminal, outcome)
         elif mode in ("negative", "negative_empty_script"):
             terminal_check = {
-                "terminal_status": "TERMINAL_NEGATIVE_FAIL_CLOSED", "terminal_passed": True}
+                "terminal_status": "TERMINAL_NEGATIVE_FAIL_CLOSED",
+                "terminal_passed": True,
+            }
         else:
             terminal_check = check_terminal(record, terminal, outcome)
         row["terminal_check"] = terminal_check
@@ -2109,31 +3099,51 @@ def probe_record(record: dict[str, Any]) -> dict[str, Any]:
                 }
         row["transcript_summary"] = [
             (s.get("actor"), s.get("class"), s.get("family") or s.get("submitted"))
-            for s in (outcome.get("transcript") or []) if isinstance(s, dict)]
+            for s in (outcome.get("transcript") or [])
+            if isinstance(s, dict)
+        ]
         # Semantic-replay double execution for dedicated replay fixtures:
         # a second fresh process must reproduce normalized checkpoints.
-        if fixture_id in DOUBLE_RUN_FIXTURES and events_passed \
-                and terminal_check.get("terminal_passed"):
+        if (
+            fixture_id in DOUBLE_RUN_FIXTURES
+            and row["events_passed"]
+            and not unobservable_missing
+            and terminal_check.get("terminal_passed")
+        ):
             second = execute_decision_driven(record)
             first_hash = normalized_semantic_hash(
-                (terminal.get("result_replay") or {}).get("checkpoints"))
+                (terminal.get("result_replay") or {}).get("checkpoints")
+            )
             second_hash = normalized_semantic_hash(
-                ((second.get("terminal") or {}).get("result_replay") or {}).get("checkpoints"))
+                ((second.get("terminal") or {}).get("result_replay") or {}).get("checkpoints")
+            )
+            hygiene = uuid_hygiene((terminal.get("result_replay") or {}).get("checkpoints"))
             row["replay_double_run"] = {
                 "first_checkpoints_hash": first_hash,
                 "second_checkpoints_hash": second_hash,
                 "equal": first_hash == second_hash,
+                "uuid_hygiene_pass": hygiene,
             }
-            if first_hash != second_hash:
+            if first_hash != second_hash or not hygiene:
                 row["behavior_status"] = "FAIL_CLOSED_BEHAVIOR_REPLAY_DIVERGED"
                 row["behavior_credit_granted"] = False
                 return row
-        if events_passed and terminal_check.get("terminal_passed") \
-                and outcome.get("echo_free", True):
+        if (
+            row["events_passed"]
+            and not unobservable_missing
+            and terminal_check.get("terminal_passed")
+            and outcome.get("echo_free", True)
+        ):
             row["behavior_status"] = "PASS_BEHAVIOR"
             row["behavior_credit_granted"] = True
-        elif not events_passed:
+        elif (
+            observable_missing
+            or events_detail.get("present_forbidden_events")
+            or events_detail.get("ordering_violations")
+        ):
             row["behavior_status"] = "FAIL_CLOSED_BEHAVIOR_EVENTS"
+        elif unobservable_missing:
+            row["behavior_status"] = "UNKNOWN_UNOBSERVABLE_VOCABULARY"
         else:
             row["behavior_status"] = "UNKNOWN_TERMINAL_PENDING"
     except RuntimeError as exc:
@@ -2171,13 +3181,16 @@ def execute_natural(record: dict[str, Any]) -> dict[str, Any]:
     try:
         client.request("start_engine")
         handles = gate.import_decks(client, decks)
-        create_ack = client.request("create_full_game", {
-            "game_id": f"WS49-V105-BEHAVIOR-{fixture_id}",
-            "deck_handles": handles,
-            "starting_player_seat": 0,
-            "starting_life": 40,
-            "seed": int(scenario["seed"]),
-        })
+        create_ack = client.request(
+            "create_full_game",
+            {
+                "game_id": f"WS49-V105-BEHAVIOR-{fixture_id}",
+                "deck_handles": handles,
+                "starting_player_seat": 0,
+                "starting_life": 40,
+                "seed": int(scenario["seed"]),
+            },
+        )
         if not isinstance(create_ack, dict):
             fail("WS49_BEHAVIOR_NATURAL_CREATE_UNACKNOWLEDGED", fixture_id)
         log.emit("game_created")
@@ -2199,12 +3212,13 @@ def execute_natural(record: dict[str, Any]) -> dict[str, Any]:
             kind = pending.get("decision_class")
             if kind == "choose_object" and not starting_player_selected:
                 selected = construction_v105._natural_starting_player_option(pending, player_count)
-                gate.submit_one(client, pending, [selected])
+                submit_salvaged(gate, client, fixture_id, pending, [selected])
                 starting_player_selected = True
                 continue
             if kind == "mulligan":
                 actual_actor = construction_v105._canonical_player_from_native_seat(
-                    pending, player_count, fixture_id)
+                    pending, player_count, fixture_id
+                )
                 log.frame_events(pending, actual_actor)
                 cursor = mulligan_cursors[actual_actor]
                 expected_for_actor = planned_by_player[actual_actor]
@@ -2213,35 +3227,51 @@ def execute_natural(record: dict[str, Any]) -> dict[str, Any]:
                 expected = expected_for_actor[cursor]
                 option_type = "keep" if expected["decision"] == "KEEP" else "mulligan"
                 option = gate.unique_option(pending, option_type=option_type)
-                gate.submit_one(client, pending, [str(option["option_id"])])
-                transcript.append({"actor": actual_actor, "round": expected["round"],
-                                   "semantic_decision": expected["decision"]})
+                submit_salvaged(gate, client, fixture_id, pending, [str(option["option_id"])])
+                transcript.append(
+                    {
+                        "actor": actual_actor,
+                        "round": expected["round"],
+                        "semantic_decision": expected["decision"],
+                    }
+                )
                 mulligan_cursors[actual_actor] += 1
                 if expected["decision"] == "MULLIGAN":
                     mulligans_taken[actual_actor] += 1
                 continue
             if kind == "target":
                 actual_actor = construction_v105._canonical_player_from_native_seat(
-                    pending, player_count, fixture_id)
+                    pending, player_count, fixture_id
+                )
                 if bottoms_submitted[actual_actor] >= mulligans_taken[actual_actor]:
-                    fail("WS49_BEHAVIOR_NATURAL_BOTTOM_WITHOUT_MULLIGAN_COVER", fixture_id, actual_actor)
-                selected, _proof = construction_v105._natural_london_bottom_selection(pending, fixture_id)
-                gate.submit_one(client, pending, selected)
+                    fail(
+                        "WS49_BEHAVIOR_NATURAL_BOTTOM_WITHOUT_MULLIGAN_COVER",
+                        fixture_id,
+                        actual_actor,
+                    )
+                selected, _proof = construction_v105._natural_london_bottom_selection(
+                    pending, fixture_id
+                )
+                submit_salvaged(gate, client, fixture_id, pending, selected)
                 bottoms_submitted[actual_actor] += len(selected)
                 transcript.append({"actor": actual_actor, "london_bottom_cards": len(selected)})
                 continue
             if kind == "priority":
                 break
-            fail("WS49_BEHAVIOR_NATURAL_UNSUPPORTED_PREGAME_DECISION", fixture_id,
-                 {"class": kind,
-                  "offer": _offer_summary(pending)})
+            fail(
+                "WS49_BEHAVIOR_NATURAL_UNSUPPORTED_PREGAME_DECISION",
+                fixture_id,
+                {"class": kind, "offer": _offer_summary(pending)},
+            )
         else:
             fail("WS49_BEHAVIOR_NATURAL_PREGAME_PRIORITY_NOT_REACHED", fixture_id)
         if not starting_player_selected:
             fail("WS49_BEHAVIOR_NATURAL_STARTING_PLAYER_NOT_SELECTED", fixture_id)
-        unconsumed = {pid: items[mulligan_cursors[pid]:]
-                      for pid, items in planned_by_player.items()
-                      if mulligan_cursors[pid] != len(items)}
+        unconsumed = {
+            pid: items[mulligan_cursors[pid] :]
+            for pid, items in planned_by_player.items()
+            if mulligan_cursors[pid] != len(items)
+        }
         if unconsumed:
             fail("WS49_BEHAVIOR_NATURAL_PREGAME_PLAN_NOT_CONSUMED", fixture_id, unconsumed)
         log.emit("first_turn_started")
@@ -2263,13 +3293,13 @@ def execute_natural(record: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(player, dict):
                 fail("WS49_BEHAVIOR_NATURAL_PLAYER_ENTRY_INVALID", fixture_id)
             pid = construction_v105._canonical_player_from_native_seat(
-                player, player_count, fixture_id)
+                player, player_count, fixture_id
+            )
             if pid in observed_players:
                 fail("WS49_BEHAVIOR_NATURAL_PLAYER_DUPLICATE_SEAT", fixture_id, pid)
             observed_players[pid] = player
         if set(observed_players) != {f"P{seat}" for seat in range(1, player_count + 1)}:
-            fail("WS49_BEHAVIOR_NATURAL_PLAYER_SET_MISMATCH", fixture_id,
-                 sorted(observed_players))
+            fail("WS49_BEHAVIOR_NATURAL_PLAYER_SET_MISMATCH", fixture_id, sorted(observed_players))
         for pid, player in observed_players.items():
             if player.get("life") != 40:
                 fail("WS49_BEHAVIOR_NATURAL_LIFE_MISMATCH", fixture_id, pid)
@@ -2280,7 +3310,11 @@ def execute_natural(record: dict[str, Any]) -> dict[str, Any]:
                 log.emit(f"mulligan:{entry['actor']}:round{entry['round']}")
         mulligan_takers = sorted(pid for pid, taken in mulligans_taken.items() if int(taken) > 0)
         for pid in mulligan_takers:
-            takes = [e for e in transcript if e.get("actor") == pid and e.get("semantic_decision") == "MULLIGAN"]
+            takes = [
+                e
+                for e in transcript
+                if e.get("actor") == pid and e.get("semantic_decision") == "MULLIGAN"
+            ]
             if len(takes) == 1:
                 log.emit(f"mulligan_once:{pid}")
         total_bottoms = sum(int(v) for v in bottoms_submitted.values())
@@ -2293,7 +3327,8 @@ def execute_natural(record: dict[str, Any]) -> dict[str, Any]:
                 log.emit(f"bottom_count:{pid}:0")
         hand_ok = all(
             player.get("hand_count") == 7 - bottoms_submitted[pid]
-            for pid, player in observed_players.items())
+            for pid, player in observed_players.items()
+        )
         if not hand_ok:
             fail("WS49_BEHAVIOR_NATURAL_OPENING_HAND_MISMATCH", fixture_id)
         log.emit("opening_hands_drawn")
@@ -2326,8 +3361,7 @@ def main() -> int:
         mode = record.get("execution_entry_mode")
         entry_mode_counts[mode] = entry_mode_counts.get(mode, 0) + 1
     if entry_mode_counts != EXPECTED_ENTRY_MODE_COUNTS:
-        raise RuntimeError(
-            f"WS49_BEHAVIOR_ENTRY_MODE_DISTRIBUTION_MISMATCH:{entry_mode_counts}")
+        raise RuntimeError(f"WS49_BEHAVIOR_ENTRY_MODE_DISTRIBUTION_MISMATCH:{entry_mode_counts}")
 
     rows = [probe_record(record) for record in records]
     status_counts: dict[str, int] = {}
@@ -2350,7 +3384,8 @@ def main() -> int:
         "denominator": 107,
         "record_count": len(rows),
         "entry_mode_counts": entry_mode_counts,
-        "record_order_preserved": [row["fixture_id"] for row in rows] == [r["fixture_id"] for r in records],
+        "record_order_preserved": [row["fixture_id"] for row in rows]
+        == [r["fixture_id"] for r in records],
         "historical_pass_imported": False,
         "historical_successor_runtime_credit": 0,
         "construction_credit_claimed": False,
@@ -2363,10 +3398,15 @@ def main() -> int:
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({
-        "behavior_credit_count": behavior_pass,
-        "status_counts": output["status_counts"],
-    }, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "behavior_credit_count": behavior_pass,
+                "status_counts": output["status_counts"],
+            },
+            sort_keys=True,
+        )
+    )
     if len(rows) != 107 or not output["record_order_preserved"]:
         return 2
     return 0

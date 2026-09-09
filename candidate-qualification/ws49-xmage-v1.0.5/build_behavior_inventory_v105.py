@@ -16,6 +16,7 @@ Strict validation (fail-closed, no engine needed):
 
 Output grants zero behavior credit. It is the execution plan G49-09 runs.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -75,14 +76,38 @@ def check(cond: bool, code: str, detail: Any = None) -> None:
 def inventory_decision(entry: dict[str, Any], fixture_id: str) -> dict[str, Any]:
     check(isinstance(entry, dict), "DECISION_ENTRY_NOT_OBJECT", fixture_id)
     for key in ("actor", "causal_step_id", "decision_family"):
-        check(isinstance(entry.get(key), str) and entry[key], "DECISION_ENTRY_FIELD_INVALID", [fixture_id, key])
-    check(set(entry.get("forbidden_fallbacks") or []) == ALL_FALLBACKS, "DECISION_FALLBACK_SET_CHANGED", fixture_id)
+        check(
+            isinstance(entry.get(key), str) and entry[key],
+            "DECISION_ENTRY_FIELD_INVALID",
+            [fixture_id, key],
+        )
+    check(
+        set(entry.get("forbidden_fallbacks") or []) == ALL_FALLBACKS,
+        "DECISION_FALLBACK_SET_CHANGED",
+        fixture_id,
+    )
     selection = entry.get("selection")
     check(isinstance(selection, dict), "DECISION_SELECTION_NOT_OBJECT", fixture_id)
-    check(selection.get("matches_only_provider_offered_legal_options") is True, "DECISION_MATCH_POLICY_CHANGED", fixture_id)
-    check(selection.get("on_multiple_match") == "FAIL_CLOSED", "DECISION_MULTIPLE_MATCH_NOT_FAIL_CLOSED", fixture_id)
-    check(selection.get("on_zero_match") == "FAIL_CLOSED", "DECISION_ZERO_MATCH_NOT_FAIL_CLOSED", fixture_id)
-    check(isinstance(selection.get("selector_kind"), str) and selection["selector_kind"], "DECISION_SELECTOR_KIND_INVALID", fixture_id)
+    check(
+        selection.get("matches_only_provider_offered_legal_options") is True,
+        "DECISION_MATCH_POLICY_CHANGED",
+        fixture_id,
+    )
+    check(
+        selection.get("on_multiple_match") == "FAIL_CLOSED",
+        "DECISION_MULTIPLE_MATCH_NOT_FAIL_CLOSED",
+        fixture_id,
+    )
+    check(
+        selection.get("on_zero_match") == "FAIL_CLOSED",
+        "DECISION_ZERO_MATCH_NOT_FAIL_CLOSED",
+        fixture_id,
+    )
+    check(
+        isinstance(selection.get("selector_kind"), str) and selection["selector_kind"],
+        "DECISION_SELECTOR_KIND_INVALID",
+        fixture_id,
+    )
     return {
         "actor": entry["actor"],
         "causal_step_id": entry["causal_step_id"],
@@ -96,8 +121,16 @@ def inventory_decision(entry: dict[str, Any], fixture_id: str) -> dict[str, Any]
 def inventory_record(ordinal: int, record: dict[str, Any]) -> dict[str, Any]:
     fixture_id = record["fixture_id"]
     players = record.get("players") or []
-    player_ids = [p["player_id"] for p in players if isinstance(p, dict) and isinstance(p.get("player_id"), str)]
-    check(len(player_ids) == len(players) and len(set(player_ids)) == len(player_ids), "RECORD_PLAYERS_INVALID", fixture_id)
+    player_ids = [
+        p["player_id"]
+        for p in players
+        if isinstance(p, dict) and isinstance(p.get("player_id"), str)
+    ]
+    check(
+        len(player_ids) == len(players) and len(set(player_ids)) == len(player_ids),
+        "RECORD_PLAYERS_INVALID",
+        fixture_id,
+    )
 
     decisions = [inventory_decision(e, fixture_id) for e in (record.get("decision_script") or [])]
     for d in decisions:
@@ -108,19 +141,38 @@ def inventory_record(ordinal: int, record: dict[str, Any]) -> dict[str, Any]:
     check(isinstance(procedure, list) and len(procedure) > 0, "NATIVE_PROCEDURE_EMPTY", fixture_id)
     ops = []
     for step in procedure:
-        check(isinstance(step, dict) and isinstance(step.get("operation"), str), "NATIVE_PROCEDURE_STEP_INVALID", fixture_id)
+        check(
+            isinstance(step, dict) and isinstance(step.get("operation"), str),
+            "NATIVE_PROCEDURE_STEP_INVALID",
+            fixture_id,
+        )
         ops.append(step["operation"])
 
     expected = record.get("expected_events") or {}
-    check(isinstance(expected.get("required_events"), list), "EXPECTED_EVENTS_REQUIRED_MISSING", fixture_id)
-    check(isinstance(expected.get("forbidden_events"), list), "EXPECTED_EVENTS_FORBIDDEN_MISSING", fixture_id)
+    check(
+        isinstance(expected.get("required_events"), list),
+        "EXPECTED_EVENTS_REQUIRED_MISSING",
+        fixture_id,
+    )
+    check(
+        isinstance(expected.get("forbidden_events"), list),
+        "EXPECTED_EVENTS_FORBIDDEN_MISSING",
+        fixture_id,
+    )
     terminals = record.get("terminal_postconditions")
-    check(isinstance(terminals, list) and len(terminals) > 0 and all(isinstance(t, str) and t for t in terminals),
-          "TERMINAL_POSTCONDITIONS_EMPTY", fixture_id)
+    check(
+        isinstance(terminals, list)
+        and len(terminals) > 0
+        and all(isinstance(t, str) and t for t in terminals),
+        "TERMINAL_POSTCONDITIONS_EMPTY",
+        fixture_id,
+    )
 
     rng = record.get("rules_randomness") or {}
     knowledge = record.get("knowledge_state") or {}
-    viewers = [v.get("viewer") for v in (knowledge.get("viewer_states") or []) if isinstance(v, dict)]
+    viewers = [
+        v.get("viewer") for v in (knowledge.get("viewer_states") or []) if isinstance(v, dict)
+    ]
 
     return {
         "ordinal": ordinal,
@@ -143,8 +195,8 @@ def inventory_record(ordinal: int, record: dict[str, Any]) -> dict[str, Any]:
         "expected_ordering_constraints": list(expected.get("ordering_constraints") or []),
         "expected_partial_order_constraints": list(expected.get("partial_order_constraints") or []),
         "terminal_postconditions": list(terminals),
-        "rules_channels": list((rng.get("channels") or [])),
-        "predetermined_semantic_draws": list((rng.get("predetermined_semantic_draws") or [])),
+        "rules_channels": list(rng.get("channels") or []),
+        "predetermined_semantic_draws": list(rng.get("predetermined_semantic_draws") or []),
         "knowledge_viewers": viewers,
         "behavior_status": "UNKNOWN_NOT_RUN",
         "behavior_credit_granted": False,
@@ -163,10 +215,20 @@ def main() -> int:
     family_counts = Counter(r["fixture_family"] for r in records)
     check(dict(family_counts) == EXPECTED_FAMILIES, "FAMILY_COUNTS_MISMATCH", dict(family_counts))
     entry_counts = Counter(r["execution_entry_mode"] for r in records)
-    check(dict(entry_counts) == EXPECTED_ENTRY_MODES, "ENTRY_MODE_COUNTS_MISMATCH", dict(entry_counts))
-    natural_ids = [r["fixture_id"] for r in records if r["execution_entry_mode"] == "NATURAL_GAME_START"]
-    check(natural_ids == EXPECTED_NATURAL_START_FIXTURES, "NATURAL_START_IDENTITY_MISMATCH", natural_ids)
-    check(len({r["fixture_id"] for r in records}) == 107, "FIXTURE_IDS_NOT_UNIQUE_107", len(records))
+    check(
+        dict(entry_counts) == EXPECTED_ENTRY_MODES, "ENTRY_MODE_COUNTS_MISMATCH", dict(entry_counts)
+    )
+    natural_ids = [
+        r["fixture_id"] for r in records if r["execution_entry_mode"] == "NATURAL_GAME_START"
+    ]
+    check(
+        natural_ids == EXPECTED_NATURAL_START_FIXTURES,
+        "NATURAL_START_IDENTITY_MISMATCH",
+        natural_ids,
+    )
+    check(
+        len({r["fixture_id"] for r in records}) == 107, "FIXTURE_IDS_NOT_UNIQUE_107", len(records)
+    )
 
     rows = [inventory_record(ordinal, record) for ordinal, record in enumerate(records, 1)]
 
@@ -206,13 +268,18 @@ def main() -> int:
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({
-        "provider_denominator": 107,
-        "family_counts": output["family_counts"],
-        "entry_mode_counts": output["entry_mode_counts"],
-        "decision_family_totals": output["decision_family_totals"],
-        "decision_selector_kind_totals": output["decision_selector_kind_totals"],
-    }, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "provider_denominator": 107,
+                "family_counts": output["family_counts"],
+                "entry_mode_counts": output["entry_mode_counts"],
+                "decision_family_totals": output["decision_family_totals"],
+                "decision_selector_kind_totals": output["decision_selector_kind_totals"],
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 
