@@ -103,6 +103,7 @@ jobs:
             candidate-qualification/ws49-xmage-v1.0.5/canonical_v105.py \
             candidate-qualification/ws49-xmage-v1.0.5/build_denominator_v105.py \
             candidate-qualification/ws49-xmage-v1.0.5/run_full107_construction_probe_v105.py \
+            candidate-qualification/ws49-xmage-v1.0.5/normalize_construction_v105.py \
             candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_native_remediation.py \
             candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_compile_guard.py \
             candidate-qualification/ws49-xmage-v1.0.5/apply_ws49_readback_evidence_overlay.py
@@ -186,6 +187,35 @@ jobs:
           assert p['counts']=={'NATIVE_SETUP_PASS_AWAITING_INDEPENDENT_NORMALIZATION':107}, p['counts']
           assert p['construction_credit_granted'] is False
           assert p['behavior_credit_granted'] is False
+          PY
+
+      - name: Independently normalize native constructed state (G49-08)
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws49-xmage-v1.0.5/normalize_construction_v105.py \
+            --contract _ws47/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json \
+            --probe artifacts/ws49-v105-construction/WS49_FULL107_CONSTRUCTION_PROBE.json \
+            --output artifacts/ws49-v105-construction/WS49_INDEPENDENT_NORMALIZATION.json \
+            | tee artifacts/ws49-v105-construction/WS49_INDEPENDENT_NORMALIZATION_STDOUT.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          n = json.loads(Path('artifacts/ws49-v105-construction/WS49_INDEPENDENT_NORMALIZATION.json').read_text())
+          p = json.loads(Path('artifacts/ws49-v105-construction/WS49_FULL107_CONSTRUCTION_PROBE.json').read_text())
+          provider = Path('artifacts/ws49-v105-construction/PROVIDER_COMMIT.txt').read_text().strip()
+          admitted = p['counts'].get('NATIVE_SETUP_PASS_AWAITING_INDEPENDENT_NORMALIZATION', 0)
+          assert n['denominator'] == 107 and n['record_count'] == 107
+          assert n['construction_credit_count'] == admitted
+          assert n['source_probe_native_setup_pass'] == admitted
+          assert n['candidate_commit'] == provider
+          assert n['engine_commit'] == Path('artifacts/ws49-v105-construction/XMAGE_COMMIT.txt').read_text().strip()
+          assert n['engine_tree'] == Path('artifacts/ws49-v105-construction/XMAGE_TREE.txt').read_text().strip()
+          assert n['historical_pass_imported'] is False
+          assert n['legacy_request_echo_consumed'] is False
+          assert n['whole_requested_state_object_copied'] is False
+          assert n['behavior_runtime_credit_granted'] is False
+          assert n['counts'].get('PASS_INDEPENDENT_NORMALIZATION', 0) == admitted
+          assert n['global_construction_complete'] == (admitted == 107)
           PY
 
       - name: Seal construction evidence

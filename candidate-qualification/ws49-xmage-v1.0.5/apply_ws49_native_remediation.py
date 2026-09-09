@@ -23,6 +23,243 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new, 1)
 
 
+def patch_combat_blocker_defender_scoping() -> None:
+    text = NATIVE.read_text(encoding="utf-8")
+
+    # canBlock answers capability, not declaration authority: it does not
+    # scope the blocker to the attacked defender, so aggregating it across
+    # every non-attacking player lists creatures that defend nothing (a
+    # latent primitive gap invisible in real play, where the declaration UI
+    # scopes defenders first). Scope eligibility per native combat group:
+    # a blocker is eligible only against attackers its own controller
+    # defends. No requested data enters this computation.
+    old_loop = '''        Set<UUID> nativeAttackers = combat.getAttackers();
+        for (Player player : players) {
+            if (attackingPlayer != null && player.getId().equals(attackingPlayer.getId())) continue;
+            for (Permanent blocker : player.getAvailableBlockers(game)) {
+                boolean canBlock = nativeAttackers.isEmpty();
+                for (UUID attackerId : nativeAttackers) {
+                    if (blocker.canBlock(attackerId, game)) {
+                        canBlock = true;
+                        break;
+                    }
+                }
+'''
+    new_loop = '''        Set<UUID> nativeAttackers = combat.getAttackers();
+        for (Player player : players) {
+            if (attackingPlayer != null && player.getId().equals(attackingPlayer.getId())) continue;
+            for (Permanent blocker : player.getAvailableBlockers(game)) {
+                boolean canBlock = nativeAttackers.isEmpty();
+                for (UUID attackerId : nativeAttackers) {
+                    if (blocker.canBlock(attackerId, game)
+                            && defendsAttacker(game, combat, blocker, attackerId)) {
+                        canBlock = true;
+                        break;
+                    }
+                }
+'''
+    text = replace_once(text, old_loop, new_loop, "blocker-defender-scoping")
+
+    anchor = '''        result.addProperty("native_surface", "GameState.Combat/CombatGroup");
+        return result;
+    }
+
+    private static JsonObject applyExtraTurns(JsonObject scenario, Game game, List<? extends Player> players) {
+'''
+    helper = '''        result.addProperty("native_surface", "GameState.Combat/CombatGroup");
+        return result;
+    }
+
+    private static boolean defendsAttacker(
+            Game game,
+            Combat combat,
+            Permanent blocker,
+            UUID attackerId
+    ) {
+        // Declaration authority (CR 509.1a) belongs to the defending player:
+        // the blocker must control the attacked player, planeswalker, or
+        // battle of at least one group holding this attacker.
+        for (CombatGroup group : combat.getGroups()) {
+            if (!group.getAttackers().contains(attackerId)) continue;
+            UUID defenderId = group.getDefenderId();
+            if (defenderId == null) continue;
+            if (blocker.getControllerId().equals(defenderId)) return true;
+            Permanent defendingPermanent = game.getPermanent(defenderId);
+            if (defendingPermanent == null) continue;
+            if (defendingPermanent.isBattle(game)) {
+                if (blocker.getControllerId().equals(defendingPermanent.getProtectorId())) return true;
+            } else if (blocker.getControllerId().equals(defendingPermanent.getControllerId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static JsonObject applyExtraTurns(JsonObject scenario, Game game, List<? extends Player> players) {
+'''
+    text = replace_once(text, anchor, helper, "defends-attacker-helper")
+    NATIVE.write_text(text, encoding="utf-8")
+
+
+def patch_sick_preserving_battlefield_placement() -> None:
+    text = SCENARIO.read_text(encoding="utf-8")
+
+    # game.cheat exercises the native ETB path but unconditionally lifts
+    # summoning sickness for every placed permanent, erasing the per-object
+    # controlled-since-turn-began state the immutable scenario models. Place
+    # battlefield permanents through the same native ETB mechanics minus that
+    # single lifting call instead: ETB default is sick, and sickness is then
+    # lifted only where modeled (the existing post-hoc WS39 lift stays as a
+    # harmless idempotent net). No turn is ever begun before the snapshot
+    # (jump model), so installed sickness persists to readback.
+    text = replace_once(
+        text,
+        "import java.util.UUID;\n",
+        "import java.util.UUID;\n"
+        "import mage.abilities.Ability;\n"
+        "import mage.abilities.common.SimpleStaticAbility;\n"
+        "import mage.abilities.effects.ContinuousEffect;\n"
+        "import mage.abilities.effects.common.InfoEffect;\n"
+        "import mage.cards.MeldCard;\n"
+        "import mage.game.permanent.PermanentCard;\n"
+        "import mage.game.permanent.PermanentMeld;\n"
+        "import mage.util.CardUtil;\n"
+        "import java.util.Optional;\n",
+        "sick-aware-placement-imports",
+    )
+
+    old_bind = '''    private static List<PutToBattlefieldInfo> bindBattlefield(
+            JsonArray specs,
+            Map<String, List<Card>> available,
+            Set<UUID> used,
+            Map<UUID, String> semanticMap
+    ) {
+        List<PutToBattlefieldInfo> result = new ArrayList<>();
+        for (JsonElement element : specs) {
+            JsonObject spec = element.getAsJsonObject();
+            Card card = bindOne(spec, available, used);
+            semanticMap.put(card.getId(), text(spec, "semantic_id"));
+            result.add(new PutToBattlefieldInfo(card, booleanValue(spec, "tapped", false)));
+        }
+        return result;
+    }
+'''
+    new_bind = '''    record BattlefieldPlacement(
+            Card card, boolean tapped, boolean controlledSinceTurnBegan, String semanticId) {
+    }
+
+    private static List<BattlefieldPlacement> bindBattlefield(
+            JsonArray specs,
+            Map<String, List<Card>> available,
+            Set<UUID> used,
+            Map<UUID, String> semanticMap
+    ) {
+        List<BattlefieldPlacement> result = new ArrayList<>();
+        for (JsonElement element : specs) {
+            JsonObject spec = element.getAsJsonObject();
+            Card card = bindOne(spec, available, used);
+            semanticMap.put(card.getId(), text(spec, "semantic_id"));
+            result.add(
+                    new BattlefieldPlacement(
+                            card,
+                            booleanValue(spec, "tapped", false),
+                            booleanValue(spec, "controlled_since_turn_began", false),
+                            text(spec, "semantic_id")));
+        }
+        return result;
+    }
+'''
+    text = replace_once(text, old_bind, new_bind, "battlefield-placement-record")
+
+    text = replace_once(
+        text,
+        """            List<PutToBattlefieldInfo> battlefield = bindBattlefield(
+                    optionalArray(zones, "battlefield"), available, used, semanticMap
+            );
+""",
+        """            List<BattlefieldPlacement> battlefield = bindBattlefield(
+                    optionalArray(zones, "battlefield"), available, used, semanticMap
+            );
+""",
+        "battlefield-placement-call",
+    )
+
+    text = replace_once(
+        text,
+        "            game.cheat(player.getId(), insertion, hand, battlefield, grave, List.of(), exile);\n",
+        "            game.cheat(player.getId(), insertion, hand, List.of(), grave, List.of(), exile);\n"
+        "            placeBattlefieldPreservingSickness(game, player, battlefield);\n",
+        "battlefield-placement-site",
+    )
+
+    anchor = "    private static Card bindOne(JsonObject spec, Map<String, List<Card>> available, Set<UUID> used) {\n"
+    method = '''    private static void placeBattlefieldPreservingSickness(
+            Game game,
+            Player player,
+            List<BattlefieldPlacement> placements
+    ) {
+        // Step-for-step mirror of CardUtil.putCardOntoBattlefieldWithEffects
+        // at the locked engine revision, minus its unconditional
+        // removeSummoningSickness: ETB default (sick) is the correct
+        // installation for scenario-unmodeled sickness, and modeled
+        // controlled-since-turn-began is lifted explicitly below.
+        Ability fakeSourceAbilityTemplate =
+                new SimpleStaticAbility(Zone.OUTSIDE, new InfoEffect("fake ability"));
+        fakeSourceAbilityTemplate.setControllerId(player.getId());
+        Set<Card> toLoad = new HashSet<>();
+        for (BattlefieldPlacement placement : placements) {
+            if (placement.card() instanceof PermanentCard) {
+                throw fail(
+                        "NATIVE_STATE_LOAD_REAL_PERMANENT_CARD:"
+                                + placement.semanticId());
+            }
+            toLoad.add(placement.card());
+        }
+        game.loadCards(toLoad, player.getId());
+        for (BattlefieldPlacement placement : placements) {
+            Card newCard = placement.card();
+            Ability fakeSourceAbility = fakeSourceAbilityTemplate.copy();
+            fakeSourceAbility.setSourceId(newCard.getId());
+            Card permCard = CardUtil.getDefaultCardSideForBattlefield(game, newCard);
+            permCard.setZone(Zone.BATTLEFIELD, game);
+            permCard.setOwnerId(player.getId());
+            PermanentCard permanent;
+            if (permCard instanceof MeldCard meldCard) {
+                permanent = new PermanentMeld(meldCard, player.getId(), game);
+            } else {
+                permanent = new PermanentCard(permCard, player.getId(), game);
+            }
+            game.getPermanentsEntering().put(permanent.getId(), permanent);
+            permCard.applyEnterWithCounters(permanent, fakeSourceAbility, game);
+            permanent.entersBattlefield(fakeSourceAbility, game, Zone.OUTSIDE, false);
+            game.addPermanent(permanent, game.getState().getNextPermanentOrderNumber());
+            game.getPermanentsEntering().remove(permanent.getId());
+            if (placement.tapped()) {
+                permanent.setTapped(true);
+            }
+            if (placement.controlledSinceTurnBegan()) {
+                permanent.removeSummoningSickness();
+            }
+            for (ContinuousEffect effect :
+                    game.getState().getContinuousEffects().getLayeredEffects(game)) {
+                Optional<Ability> ability = game.getState()
+                        .getContinuousEffects()
+                        .getLayeredEffectAbilities(effect)
+                        .stream()
+                        .findFirst();
+                if (ability.isPresent() && permanent.getId().equals(ability.get().getSourceId())) {
+                    effect.init(ability.get(), game, player.getId());
+                }
+            }
+        }
+        game.applyEffects();
+    }
+
+'''
+    text = replace_once(text, anchor, method + anchor, "battlefield-placement-method")
+    SCENARIO.write_text(text, encoding="utf-8")
+
+
 def patch_native_state() -> None:
     text = NATIVE.read_text(encoding="utf-8")
 
@@ -326,8 +563,10 @@ def patch_eliminated_commander_probe() -> None:
 
 def main() -> int:
     patch_native_state()
+    patch_combat_blocker_defender_scoping()
     patch_face_down_exile_and_hidden_library_substrate()
     patch_eliminated_commander_probe()
+    patch_sick_preserving_battlefield_placement()
     print("WS49_NATIVE_REMEDIATION=PASS")
     return 0
 
