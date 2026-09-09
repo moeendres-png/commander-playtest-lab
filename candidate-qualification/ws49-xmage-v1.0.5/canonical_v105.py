@@ -16,7 +16,6 @@ WS42 = HERE.parents[0] / "ws42-xmage-v1.0.3"
 sys.path.insert(0, str(WS42))
 
 import canonical_v103 as base  # noqa: E402
-
 from successor_contract_v105 import (  # noqa: E402
     CONTRACT_VERSION,
     requested_state_digest,

@@ -167,9 +167,8 @@ def _natural_mulligan_plan(record: dict[str, Any]) -> list[dict[str, Any]]:
         if step.get("operation") == "EXTERNAL_SUBMIT_EXPLICIT_MULLIGAN_KEEP_RESPONSES":
             procedure_plan = (step.get("details") or {}).get("plan")
             break
-    if procedure_plan is not None:
-        if procedure_plan != normalized:
-            raise RuntimeError(f"WS49_NATURAL_PROCEDURE_PLAN_MISMATCH:{fixture_id}")
+    if procedure_plan is not None and procedure_plan != normalized:
+        raise RuntimeError(f"WS49_NATURAL_PROCEDURE_PLAN_MISMATCH:{fixture_id}")
     return normalized
 
 
@@ -255,6 +254,122 @@ def _natural_starting_player_option(decision: dict[str, Any], player_count: int)
     return str(chosen["option_id"])
 
 
+_LONDON_BOTTOM_DESCRIPTION_FRAGMENT = "put on the bottom of your library"
+
+
+def _contract_london_bottom_total(record: dict[str, Any]) -> int | None:
+    """Return the immutable expected London-bottom total, when modeled.
+
+    New-format natural records carry an explicit
+    NATIVE_COMPLETE_LONDON_MULLIGAN_BOTTOMING step with expected_bottom_count.
+    Old-format records (PILOT_MULLIGAN) carry no bottoming step; the runner
+    then verifies purely from its own native submission log.
+    """
+    total: int | None = None
+    for step in record.get("native_procedure") or []:
+        if not isinstance(step, dict):
+            continue
+        if step.get("operation") != "NATIVE_COMPLETE_LONDON_MULLIGAN_BOTTOMING":
+            continue
+        details = step.get("details")
+        if not isinstance(details, dict) or not isinstance(
+            details.get("expected_bottom_count"), int
+        ):
+            raise RuntimeError(
+                f"WS49_NATURAL_BOTTOM_STEP_INVALID:{record.get('fixture_id')}:{details!r}"
+            )
+        if total is not None:
+            raise RuntimeError(
+                f"WS49_NATURAL_BOTTOM_STEP_DUPLICATE:{record.get('fixture_id')}"
+            )
+        total = int(details["expected_bottom_count"])
+    if total is not None and total < 0:
+        raise RuntimeError(
+            f"WS49_NATURAL_BOTTOM_TOTAL_NEGATIVE:{record.get('fixture_id')}"
+        )
+    return total
+
+
+def _natural_london_bottom_selection(
+    pending: dict[str, Any], fixture_id: str
+) -> tuple[list[str], dict[str, Any]]:
+    """Select native London-bottom cards only across proven-identical options.
+
+    XMage natively prompts the mulliganing player to put N drawn cards on the
+    bottom of their library (London mulligan).  The immutable WS-47 record
+    models only the bottom COUNT, never which physical cards bottom, so the
+    runner may complete this prompt only when every natively offered option
+    is semantically identical through the actor-safe surface.  Any divergence
+    fails closed: choosing among differing cards would be an unsanctioned
+    pilot decision, and no first/random/default/AI/GUI fallback exists here.
+    """
+    context = pending.get("context") or {}
+    if (
+        pending.get("decision_class") != "target"
+        or context.get("targeted") is not True
+        or context.get("outcome") != "discard"
+        or context.get("required") is not True
+        or _LONDON_BOTTOM_DESCRIPTION_FRAGMENT
+        not in str(context.get("target_description") or "")
+    ):
+        raise RuntimeError(f"WS49_NATURAL_BOTTOM_SIGNATURE_INVALID:{fixture_id}")
+    if pending.get("source_object") is not None:
+        raise RuntimeError(f"WS49_NATURAL_BOTTOM_SOURCE_UNEXPECTED:{fixture_id}")
+    try:
+        minimum = int(pending.get("minimum_selections"))
+        maximum = int(pending.get("maximum_selections"))
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"WS49_NATURAL_BOTTOM_BOUNDS_INVALID:{fixture_id}") from exc
+    if minimum < 1 or minimum != maximum:
+        raise RuntimeError(
+            f"WS49_NATURAL_BOTTOM_COUNT_NOT_EXACT:{fixture_id}:"
+            f"min={minimum}:max={maximum}"
+        )
+    options = pending.get("legal_options") or []
+    if len(options) < maximum:
+        raise RuntimeError(f"WS49_NATURAL_BOTTOM_OPTION_SHORTAGE:{fixture_id}")
+    semantic: set[str] = set()
+    for option in options:
+        if not isinstance(option, dict):
+            raise RuntimeError(f"WS49_NATURAL_BOTTOM_OPTION_INVALID:{fixture_id}")
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict):
+            raise RuntimeError(
+                f"WS49_NATURAL_BOTTOM_OPTION_METADATA_INVALID:{fixture_id}"
+            )
+        label = option.get("label")
+        name = metadata.get("name")
+        if (
+            option.get("option_type") != "target"
+            or not isinstance(label, str)
+            or not label
+            or label != name
+        ):
+            raise RuntimeError(
+                f"WS49_NATURAL_BOTTOM_OPTION_IDENTITY_INVALID:{fixture_id}"
+            )
+        semantic.add(f"{option.get('option_type')}\x00{label}")
+    if len(semantic) != 1:
+        raise RuntimeError(
+            f"WS49_NATURAL_BOTTOM_OPTIONS_DIVERGE:{fixture_id}:"
+            f"distinct={len(semantic)}"
+        )
+    ordered_ids = sorted(
+        str(option["option_id"])
+        for option in options
+        if isinstance(option.get("option_id"), str) and option["option_id"]
+    )
+    if len(ordered_ids) != len(options):
+        raise RuntimeError(f"WS49_NATURAL_BOTTOM_OPTION_ID_INVALID:{fixture_id}")
+    proof = {
+        "option_count": len(options),
+        "distinct_semantic_identities": 1,
+        "common_label": next(iter(semantic)).split("\x00", 1)[1],
+        "submitted_count": minimum,
+    }
+    return ordered_ids[:minimum], proof
+
+
 def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
     """Execute the native shuffle/draw/mulligan lifecycle for one natural row.
 
@@ -268,6 +383,9 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
     plan = _natural_mulligan_plan(record)
     planned_by_player = _mulligan_plan_by_player(plan, player_count, fixture_id)
     mulligan_cursors = {player_id: 0 for player_id in planned_by_player}
+    mulligans_taken = {player_id: 0 for player_id in planned_by_player}
+    bottoms_submitted = {player_id: 0 for player_id in planned_by_player}
+    contract_bottom_total = _contract_london_bottom_total(record)
     decks, scenario = canonical_v105.deck_and_scenario(record)
     decisions: list[dict[str, Any]] = []
 
@@ -329,6 +447,29 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
                     }
                 )
                 mulligan_cursors[actual_actor] += 1
+                if expected["decision"] == "MULLIGAN":
+                    mulligans_taken[actual_actor] += 1
+                continue
+            if kind == "target":
+                # Native London-bottom prompt after a non-free mulligan.  The
+                # runner completes it only across proven-identical options and
+                # only while a taken mulligan still covers the bottom count.
+                actual_actor = _canonical_player_from_native_seat(pending, player_count, fixture_id)
+                if bottoms_submitted[actual_actor] >= mulligans_taken[actual_actor]:
+                    raise RuntimeError(
+                        f"WS49_NATURAL_BOTTOM_WITHOUT_MULLIGAN_COVER:{fixture_id}:{actual_actor}"
+                    )
+                selected, proof = _natural_london_bottom_selection(pending, fixture_id)
+                legacy.run_tax3.gate.submit_one(client, pending, selected)
+                bottoms_submitted[actual_actor] += len(selected)
+                decisions.append(
+                    {
+                        "actor": actual_actor,
+                        "native_decision_class": "target",
+                        "london_bottom_cards": len(selected),
+                        "identical_option_neutrality_proof": proof,
+                    }
+                )
                 continue
             if kind == "priority":
                 break
@@ -386,12 +527,27 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
             f"WS49_NATURAL_PLAYER_READBACK_MISMATCH:{fixture_id}:"
             f"expected={sorted(expected_players)}:actual={sorted(players)}"
         )
-    expected_mulligans = {f"P{seat}": 0 for seat in range(1, player_count + 1)}
-    for item in plan:
-        if item["decision"] == "MULLIGAN":
-            expected_mulligans[item["player_id"]] += 1
+    # Opening-hand expectation is empirical, never predicted from a mirrored
+    # mulligan rule: XMage natively reports each non-free mulligan through a
+    # London-bottom prompt, and the runner submits exactly those prompts above.
+    # A free first mulligan (multiplayer Commander) therefore yields 7 cards
+    # with zero submissions, while a non-free one yields 7 minus bottoms.
+    # The immutable contract bottom total cross-checks the submission log
+    # wherever the record models it.
+    if contract_bottom_total is not None and sum(
+        bottoms_submitted.values()
+    ) != contract_bottom_total:
+        raise RuntimeError(
+            f"WS49_NATURAL_BOTTOM_TOTAL_MISMATCH:{fixture_id}:"
+            f"submitted={dict(sorted(bottoms_submitted.items()))}:"
+            f"contract={contract_bottom_total}"
+        )
     for player_id, player in players.items():
-        expected_hand = 7 - expected_mulligans[player_id]
+        if bottoms_submitted[player_id] > mulligans_taken[player_id]:
+            raise RuntimeError(
+                f"WS49_NATURAL_BOTTOM_EXCEEDS_MULLIGANS:{fixture_id}:{player_id}"
+            )
+        expected_hand = 7 - bottoms_submitted[player_id]
         if player.get("hand_count") != expected_hand:
             raise RuntimeError(
                 f"WS49_NATURAL_OPENING_HAND_MISMATCH:{fixture_id}:{player_id}:"
@@ -417,6 +573,9 @@ def _natural_pregame_runtime(record: dict[str, Any]) -> dict[str, Any]:
         "native_pregame_boundary": "AFTER_NATIVE_SHUFFLE_DRAW_AND_SCRIPTED_MULLIGANS_AT_FIRST_PRIORITY",
         "starting_player_selected_from_native_offer": "P1",
         "semantic_pregame_decisions": decisions,
+        "native_mulligans_taken": dict(sorted(mulligans_taken.items())),
+        "native_london_bottoms_submitted": dict(sorted(bottoms_submitted.items())),
+        "contract_london_bottom_total": contract_bottom_total,
         "native_public_player_state": [
             {
                 "player_id": player_id,

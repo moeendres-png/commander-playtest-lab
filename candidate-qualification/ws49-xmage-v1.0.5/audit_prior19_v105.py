@@ -238,7 +238,7 @@ def assert_extra_turn(fid: str, row: dict[str, Any]) -> None:
         {"player": "P2", "source": "obj:mp-time-warp", "sequence": 1},
         {"player": "P3", "source": "obj:mp-nexus", "sequence": 2},
     )
-    for item, want in zip(turns, expected):
+    for item, want in zip(turns, expected, strict=True):
         if not isinstance(item, dict) or any(item.get(k) != v for k, v in want.items()):
             fail(f"extra-turn-shape:{fid}:{item!r}")
         if "resolution_sequence" in item:
