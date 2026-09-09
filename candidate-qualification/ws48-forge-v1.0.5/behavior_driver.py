@@ -755,11 +755,11 @@ class Session:
 
 def _matched_ref(option: dict[str, Any], remaining: list[str]) -> str:
     """Identify which expected ref an offered option matched."""
-    segments = kind_segments(str(option.get("kind")))
+    kind = str(option.get("kind"))
     for ref in remaining:
-        if ref in segments:
+        if kind_has_ref(kind, ref):
             return ref
-    raise BehaviorFailure(f"MATCHED_REF_UNRESOLVABLE:{segments}:{remaining}")
+    raise BehaviorFailure(f"MATCHED_REF_UNRESOLVABLE:{kind}:{remaining}")
 
 
 def _compact_value(value: Any) -> str:
