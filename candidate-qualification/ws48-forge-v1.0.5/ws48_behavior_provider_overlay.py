@@ -49,32 +49,10 @@ STATE_ACCESSOR_ADD = """    public static String ws48SemanticOf(Card c) { return
 """
 
 HELPERS_ANCHOR = "        RuntimeException failClosed(String method) {"
-HELPERS_ADD = """        static String ws48Enc(String v) {
-            try { return java.net.URLEncoder.encode(String.valueOf(v), java.nio.charset.StandardCharsets.UTF_8); }
-            catch (Exception e) { throw new RuntimeException(e); }
-        }
-
-        static String ws48Clip(String v, int n) {
-            String s = String.valueOf(v).replace('|', '/').replace('\\n', ' ').replace('\\r', ' ');
-            return s.length() <= n ? s : s.substring(0, n);
-        }
-
-        String ws48Pid(Player p) {
+HELPERS_ADD = """        String ws48Pid(Player p) {
             int i = getGame().getPlayers().indexOf(p);
             if (i < 0) throw failClosed("ws48Pid:UNBOUND:" + p);
             return "P" + (i + 1);
-        }
-
-        static String ws48CardName(Card c) {
-            if (c == null) return "null";
-            return c.getPaperCard() == null ? c.getName() : c.getPaperCard().getName();
-        }
-
-        static String ws48CardRef(Card c) {
-            if (c == null) return "WS48:null:null";
-            String sid = Ws40SuccessorState.ws48SemanticOf(c);
-            String id = sid == null ? ("MINTED-" + c.getId()) : sid;
-            return "WS48:" + id + ":" + ws48CardName(c);
         }
 
         String ws48EntityRef(GameEntity e) {
@@ -95,14 +73,33 @@ HELPERS_ADD = """        static String ws48Enc(String v) {
 PRIORITY_LABEL_ANCHOR = '                            labels.add("FORGE_LEGAL_ACTION");'
 PRIORITY_LABEL_NEW = """                            nativeOptions.add(sa);
                             String ws48Host = Ws40SuccessorState.ws48SemanticOf(sa.getHostCard());
+                            String ws48Cmd = Ws40SuccessorState.ws48CommanderOf(sa.getHostCard());
                             labels.add("WS48:ACT:host=" + ws48Enc(ws48Host == null ? ("MINTED-" + sa.getHostCard().getId()) : ws48Host)
-                                + ":card=" + ws48Enc(ws40CardName(sa.getHostCard()))
+                                + ":cmd=" + ws48Enc(String.valueOf(ws48Cmd))
+                                + ":card=" + ws48Enc(ws48CardName(sa.getHostCard()))
                                 + ":sa=" + ws48Enc(ws48Clip(String.valueOf(sa), 160)));"""
 
 PROVIDER_STATIC_ANCHOR = "        static String ws40EntityLabel(final GameEntity entity) {"
-PROVIDER_STATIC_ADD = """        static String ws40CardName(Card c) {
+PROVIDER_STATIC_ADD = """        static String ws48Enc(String v) {
+            try { return java.net.URLEncoder.encode(String.valueOf(v), java.nio.charset.StandardCharsets.UTF_8); }
+            catch (Exception e) { throw new RuntimeException(e); }
+        }
+
+        static String ws48Clip(String v, int n) {
+            String s = String.valueOf(v).replace('|', '/').replace('\\n', ' ').replace('\\r', ' ');
+            return s.length() <= n ? s : s.substring(0, n);
+        }
+
+        static String ws48CardName(Card c) {
             if (c == null) return "null";
             return c.getPaperCard() == null ? c.getName() : c.getPaperCard().getName();
+        }
+
+        static String ws48CardRef(Card c) {
+            if (c == null) return "WS48:null:null";
+            String sid = Ws40SuccessorState.ws48SemanticOf(c);
+            String id = sid == null ? ("MINTED-" + c.getId()) : sid;
+            return "WS48:" + id + ":" + ws48CardName(c);
         }
 
         static String ws48StaticPid(Game game, Player p) {
@@ -385,7 +382,7 @@ BINARY_NEW = """        @Override
 
 COLOR_NEW = """        @Override
         public byte chooseColor(String message, SpellAbility sa, ColorSet colors) {
-            if (colors == null || colors.isEmpty()) throw failClosed("chooseColor:EMPTY");
+            if (colors == null || colors.countColors() == 0) throw failClosed("chooseColor:EMPTY");
             java.util.List<Byte> opts = new java.util.ArrayList<>();
             java.util.List<String> labels = new java.util.ArrayList<>();
             for (forge.card.MagicColor.Color col : colors) {
@@ -479,7 +476,7 @@ MANA_NEW = """        @Override
                 SpellAbility chosen = nativeMana.get(ws48Choose("mana_payment", this.player, labels));
                 if (!PlaySpellAbility.playSpellAbility(this, this.player, chosen)) return false;
                 boolean restrictionsMet = true;
-                for (forge.game.mana.AbilityManaPart manaPart : chosen.getAllManaParts()) {
+                for (forge.game.cost.AbilityManaPart manaPart : chosen.getAllManaParts()) {
                     if (!manaPart.meetsManaRestrictions(ability)) {
                         restrictionsMet = false;
                         break;
@@ -597,6 +594,8 @@ SCRY_NEW = """        @Override
             return ImmutablePair.of(tops.get(idx), bottoms.get(idx));
         }"""
 
+EOF_TYPED_ANCHOR = '                if (answer == null) throw new ControlledStop("WS23_EXTERNAL_EOF");'
+EOF_TYPED_NEW = """                if (answer == null) throw new ControlledStop("WS48_UNSUPPORTED_DISCRETIONARY_DECISION:" + kind);"""
 EVENTS_ANCHOR = "        Game game = match.createGame();"
 EVENTS_ADD = """        Game game = match.createGame();
         game.subscribeToEvents(new Ws48NativeEvents(broker, game));"""
@@ -827,6 +826,11 @@ def main() -> int:
         }""", SCRY_NEW, "scry")
     rep(EVENTS_ANCHOR, EVENTS_ADD, "event subscription")
     rep(EVENTS_CLASS_ANCHOR, EVENTS_CLASS_ADD, "event recorder")
+    rep(EOF_TYPED_ANCHOR, EOF_TYPED_NEW, "typed EOF fail-closed")
+    # Collapse doubled @Override (original anchors exclude the annotation line
+    # while replacement bodies include it).
+    while "        @Override\n        @Override\n" in p:
+        p = p.replace("        @Override\n        @Override\n", "        @Override\n")
     args.provider.write_text(p, encoding="utf-8")
 
     required_state = ["ws48SemanticOf", "ws48CommanderOf", "ws48SemanticOfSpell"]

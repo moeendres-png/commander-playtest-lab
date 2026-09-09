@@ -28,6 +28,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.parse
 from pathlib import Path
 from typing import Any
@@ -189,11 +190,63 @@ def run_record(record: dict[str, Any], transport: Any,
                 d["selection"]["semantic_value"] = mutate.get("mode", d["selection"]["semantic_value"])
     drv = Driver(record)
     outcome: dict[str, Any] = {"fixture_id": record["fixture_id"], "mutated": bool(mutate)}
+    deadline = time.monotonic() + per_record_timeout
+    proc: Any = None
     try:
         with tempfile.TemporaryFile(mode="w+t", encoding="utf-8") as err:
             p = subprocess.Popen(command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                 stderr=err, text=True, env=behavior_env(record, transport), bufsize=1)
+                                 stderr=err, text=True, env=behavior_env(record, transport),
+                                 bufsize=1)
+            proc = p
             assert p.stdin is not None and p.stdout is not None
+            # Binary reader on a duplicated fd: avoids clashing with the text
+            # wrapper's internal buffer while keeping line semantics here.
+            bindup = os.dup(p.stdout.fileno())
+            sel = None
+            buf = b""
+            try:
+                import selectors as _selectors
+                sel = _selectors.DefaultSelector()
+                sel.register(bindup, _selectors.EVENT_READ)
+            except Exception:
+                sel = None
+
+            def next_line() -> str | None:
+                nonlocal buf
+                while True:
+                    if b"\n" in buf:
+                        line, buf = buf.split(b"\n", 1)
+                        return (line + b"\n").decode("utf-8", errors="replace")
+                    if p.poll() is not None:
+                        try:
+                            chunk = os.read(bindup, 65536)
+                        except OSError:
+                            chunk = b""
+                        if chunk:
+                            buf += chunk
+                            continue
+                        if buf:
+                            rest, buf = buf, b""
+                            return rest.decode("utf-8", errors="replace")
+                        return None
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise Blocked("TIMEOUT", f"no session result within {per_record_timeout}s")
+                    if sel is not None:
+                        ready = sel.select(timeout=min(5.0, remaining))
+                        if not ready:
+                            continue
+                    else:
+                        time.sleep(0.05)
+                    try:
+                        chunk = os.read(bindup, 65536)
+                    except OSError:
+                        chunk = b""
+                    if not chunk:
+                        if p.poll() is not None:
+                            continue
+                        continue
+                    buf += chunk
 
             def submit(frame: dict[str, Any], oid: str) -> None:
                 p.stdin.write(json.dumps({
@@ -203,6 +256,32 @@ def run_record(record: dict[str, Any], transport: Any,
                     "payload": {"decision_id": frame["payload"]["decision_id"],
                                 "option_id": oid}}, separators=(",", ":")) + "\n")
                 p.stdin.flush()
+
+            def drain_to_result() -> None:
+                """Close stdin (signal handler-unavailable) then keep reading
+                until SESSION_RESULT or EOF; the provider must terminate
+                itself with a typed stop reason."""
+                nonlocal stop_reason, session_snapshot
+                try:
+                    p.stdin.close()
+                except Exception:
+                    pass
+                for _ in range(4096):
+                    line = next_line()
+                    if not line:
+                        break
+                    try:
+                        m = json.loads(line)
+                    except Exception:
+                        continue
+                    typ = m.get("message_type")
+                    if typ == "SESSION_RESULT":
+                        stop_reason = (m.get("payload") or {}).get("stop_reason")
+                        session_snapshot = (m.get("payload") or {}).get("snapshot")
+                        break
+                    if typ == "NATIVE_EVENT":
+                        drv.events.append({"event": (m.get("payload") or {}).get("event"),
+                                           "facts": (m.get("payload") or {}).get("facts")})
 
             def close_and_collect() -> tuple[int, str]:
                 try:
@@ -231,7 +310,7 @@ def run_record(record: dict[str, Any], transport: Any,
             session_snapshot: Any = None
             answered = 0
             for _ in range(4096):
-                line = p.stdout.readline()
+                line = next_line()
                 if not line:
                     break
                 m = json.loads(line)
@@ -262,12 +341,15 @@ def run_record(record: dict[str, Any], transport: Any,
                 drv.frames.append({"kind": kind, "actor": actor,
                                    "options": [o.get("kind", "") for o in opts]})
                 if is_negative:
+                    # Never answer: the external handler is intentionally
+                    # unavailable. Drain until the provider terminates itself.
+                    drain_to_result()
                     rc, tail = close_and_collect()
-                    outcome.update({"verdict": "NEGATIVE_EOF_SENT",
-                                    "stop_after_eof_rc": rc, "stderr_tail": tail})
+                    outcome.update({"stop_after_eof_rc": rc, "stderr_tail": tail})
                     break
                 oid = answer_frame(drv, kind, actor, opts, labels, record)
                 if oid == "__TERMINATE__":
+                    drain_to_result()
                     rc, tail = close_and_collect()
                     outcome.update({"terminate_rc": rc, "stderr_tail": tail})
                     break
@@ -278,13 +360,23 @@ def run_record(record: dict[str, Any], transport: Any,
                 outcome.update({"verdict": "PROBE_FAIL", "reason": "FRAME_BUDGET_EXHAUSTED",
                                 "stderr_tail": tail})
                 return finish(outcome, drv, stop_reason, session_snapshot, answered)
-            if "verdict" in outcome and outcome["verdict"] == "NEGATIVE_EOF_SENT":
-                return finish_negative(outcome, drv, record)
+            if is_negative and stop_reason is not None:
+                return finish_negative(outcome, drv, record, stop_reason)
             return finish(outcome, drv, stop_reason, session_snapshot, answered)
     except Blocked as b:
+        try:
+            if proc is not None:
+                proc.kill()
+        except Exception:
+            pass
         outcome.update({"verdict": f"BLOCKED_AT:{b.where}", "reason": b.detail[:4000]})
         return finish(outcome, drv, None, None, 0)
     except Exception as ex:
+        try:
+            if proc is not None:
+                proc.kill()
+        except Exception:
+            pass
         outcome.update({"verdict": "PROBE_FAIL", "reason": f"{type(ex).__name__}:{ex}"[:4000]})
         return finish(outcome, drv, None, None, 0)
 
@@ -353,7 +445,10 @@ def answer_priority(drv: Driver, actor: str, opts: list[dict[str, Any]],
             want = sv.get("object") or sv.get("commander_id")
             hits = []
             for i, lb in enumerate(labels):
-                if lb.get("_kind") == "ACT" and (lb.get("host") == want):
+                if lb.get("_kind") != "ACT":
+                    continue
+                if lb.get("host") == want or (sv.get("action") == "cast_commander"
+                                              and lb.get("cmd") == want):
                     hits.append(i)
             if len(hits) != 1:
                 drv.script.insert(0, d)
@@ -462,7 +557,7 @@ def answer_mana(drv: Driver, actor: str, opts: list[dict[str, Any]],
     for cs in drv.cost_state:
         if cs.get("actor", actor) == actor or "actor" not in cs:
             sources.extend(cs.get("explicit_payment_sources") or [])
-    key = (actor, len(drv.consumed))
+    key = actor
     used = drv.mana_cursors.get(key, 0)
     if used >= len(sources):
         raise Blocked("mana_payment", f"unscripted mana frame {used + 1} for {actor}")
@@ -635,7 +730,8 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
             else:
                 outcome["verdict"] = "PROBE_FAIL"
                 outcome["reason"] = f"stopped with {len(remaining)} scripted decisions unconsumed"
-        elif stop_reason and "WS23_FAIL_CLOSED_UNSUPPORTED" in str(stop_reason):
+        elif stop_reason and ("WS23_FAIL_CLOSED_UNSUPPORTED" in str(stop_reason)
+                               or "WS48_UNSUPPORTED_DISCRETIONARY_DECISION" in str(stop_reason)):
             outcome["verdict"] = f"BLOCKED_AT:{stop_reason}"
         elif stop_reason and "WS23_EXTERNAL_EOF" in str(stop_reason):
             outcome["verdict"] = "TRANSCRIPT_COMPLETE" if not remaining else "PROBE_FAIL"
@@ -662,12 +758,20 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
 
 
 def finish_negative(outcome: dict[str, Any], drv: Driver,
-                    record: dict[str, Any]) -> dict[str, Any]:
+                    record: dict[str, Any], stop_reason: str) -> dict[str, Any]:
+    if stop_reason.startswith("WS48_UNSUPPORTED_DISCRETIONARY_DECISION"):
+        outcome["verdict"] = "EXPECTED_FAIL_CLOSED_PASS"
+    elif stop_reason.startswith("WS23_FAIL_CLOSED_UNSUPPORTED"):
+        outcome["verdict"] = "EXPECTED_FAIL_CLOSED_PASS"
+    else:
+        outcome["verdict"] = "PROBE_FAIL"
+        outcome["reason"] = f"negative probe did not fail closed: {stop_reason}"
     outcome.update({
         "setup_stage_seen": drv.setup_stage_seen,
         "frames": len(drv.frames),
         "evidence_class": "TRANSCRIPT_PROBE",
         "offered_digest": digest(drv.offered_for_digest),
+        "stop_reason": stop_reason,
     })
     return outcome
 
