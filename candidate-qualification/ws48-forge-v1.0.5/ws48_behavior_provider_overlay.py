@@ -46,6 +46,24 @@ STATE_ACCESSOR_ADD = """    public static String ws48SemanticOf(Card c) { return
         if (sa == null || sa.getHostCard() == null) return null;
         return ws48SemanticOf(sa.getHostCard());
     }
+
+    // WS48-PROVISIONAL (coordinator review pending): complete AttackingBand
+    // blocked flags for loader-injected combat. Live Forge finalizes these in
+    // Combat.fireTriggersForUnblockedAttackers after the declare-blockers
+    // turn-based action; injected combat bypasses that pipeline, leaving null
+    // flags that NPE Combat.assignAttackersDamage. This mirrors the engine's
+    // flag computation WITHOUT firing triggers (trigger firing remains the
+    // engine's job when the declare step runs). Snapshot-neutral: no emitted
+    // combat snapshot field carries band flags (attackers/blockers/eligible
+    // only), so construction/readback normalization equality is preserved.
+    // Behavior-workflow only; shared sources untouched.
+    public static void ws48FinalizeLoadedCombatBands(Game game) {
+        forge.game.combat.Combat combat = game.getCombat();
+        if (combat == null) return;
+        for (forge.game.combat.AttackingBand band : combat.getAttackingBands()) {
+            band.setBlocked(!combat.getBlockers(band).isEmpty());
+        }
+    }
 """
 
 HELPERS_ANCHOR = "        RuntimeException failClosed(String method) {"
@@ -105,6 +123,13 @@ PROVIDER_STATIC_ADD = """    static String ws48Enc(String v) {
         static String ws48StaticPid(Game game, Player p) {
             int i = game.getPlayers().indexOf(p);
             return i < 0 ? "PX" : ("P" + (i + 1));
+        }
+
+        static void ws48FinalizeDeclaredBands(Combat combat) {
+            if (combat == null) return;
+            for (forge.game.combat.AttackingBand band : combat.getAttackingBands()) {
+                band.setBlocked(!combat.getBlockers(band).isEmpty());
+            }
         }
 
 """ + PROVIDER_STATIC_ANCHOR
@@ -475,8 +500,8 @@ COST_VISIT_PARTS = [
     "CostDamage", "CostDraw", "CostExile", "CostExileFromStack",
     "CostExiledMoveToGrave", "CostExert", "CostEnlist", "CostFlipCoin",
     "CostForage", "CostRollDice", "CostMill", "CostAddMana", "CostPayLife",
-    "CostPayEnergy", "CostGainLife", "CostPromiseGift", "CostPutCardToLib",
-    "CostTap", "CostSacrifice", "CostReturn", "CostReveal",
+    "CostPayEnergy", "CostGainLife",     "CostPromiseGift", "CostPutCardToLib",
+    "CostSacrifice", "CostReturn", "CostReveal",
     "CostRevealChosen", "CostRemoveAnyCounter", "CostRemoveCounter",
     "CostPutCounter", "CostPutCounterYou", "CostUntapType", "CostUntap",
     "CostUnattach", "CostTapType", "CostPayShards", "CostBlight",
@@ -509,6 +534,16 @@ def cost_decision_java() -> str:
                     // CostPartMana.payAsDecided (whole payment runs through
                     // the native payManaCost/applyManaToCost path).
                     broker.recordAutomatic("costVisit:CostPartMana");
+                    return new PaymentDecision(0);
+                }
+
+                @Override
+                public PaymentDecision visit(CostTap cost) {
+                    // CostTap.payAsDecided taps ability.getHostCard()
+                    // directly and ignores the decision content. No
+                    // discretion exists here; the tapped card is forced by
+                    // the ability under payment.
+                    broker.recordAutomatic("costVisit:CostTap");
                     return new PaymentDecision(0);
                 }
 
@@ -591,6 +626,7 @@ DECLARE_NEW = """        @Override
                 if (idx == labels.size() - 1) continue;
                 combat.addAttacker(c, defs.get(idx));
             }
+            ws48FinalizeDeclaredBands(combat);
             broker.recordAutomatic("declareAttackers:WS48_NATIVE_COMBAT");
         }
 
@@ -618,6 +654,7 @@ DECLARE_NEW = """        @Override
                 combat.addBlocker(foes.get(idx), c);
                 combat.setBlocked(foes.get(idx), true);
             }
+            ws48FinalizeDeclaredBands(combat);
             broker.recordAutomatic("declareBlockers:WS48_NATIVE_COMBAT");
         }"""
 
@@ -752,6 +789,9 @@ def main() -> int:
     s = args.state_java.read_text(encoding="utf-8")
     s = once(s, STATE_ACCESSOR_ANCHOR, STATE_ACCESSOR_ADD + STATE_ACCESSOR_ANCHOR,
              "state semantic accessors")
+    s = once(s, "        applyCombat(game);",
+             "        applyCombat(game);\n        ws48FinalizeLoadedCombatBands(game);",
+             "loaded combat band finalization")
     args.state_java.write_text(s, encoding="utf-8")
 
     p = args.provider.read_text(encoding="utf-8")
@@ -910,7 +950,8 @@ def main() -> int:
         p = p.replace("        @Override\n        @Override\n", "        @Override\n")
     args.provider.write_text(p, encoding="utf-8")
 
-    required_state = ["ws48SemanticOf", "ws48CommanderOf", "ws48SemanticOfSpell"]
+    required_state = ["ws48SemanticOf", "ws48CommanderOf", "ws48SemanticOfSpell",
+                      "ws48FinalizeLoadedCombatBands"]
     missing_state = [x for x in required_state if x not in s]
     if missing_state:
         raise SystemExit(f"WS48_OVERLAY_INCOMPLETE_STATE:{missing_state}")

@@ -363,8 +363,12 @@ def run_record(record: dict[str, Any], transport: Any,
                 labels = [dec_label(o.get("kind", "")) for o in opts]
                 drv.offered_for_digest.append({"kind": kind, "actor": actor,
                                                "options": sorted(o.get("kind", "") for o in opts)})
+                kinds = [o.get("kind", "") for o in opts]
                 drv.frames.append({"kind": kind, "actor": actor,
-                                   "options": [o.get("kind", "") for o in opts]})
+                                   "option_count": len(kinds),
+                                   "options": kinds[:16]})
+                if len(drv.frames) > 256:
+                    raise Blocked("PROTOCOL", "frame budget exceeded")
                 if is_negative:
                     # Never answer: the external handler is intentionally
                     # unavailable. Drain until the provider terminates itself.
@@ -880,6 +884,8 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
         "ritual_answers": drv.ritual_answers,
         "structural_passes": drv.structural_passes,
         "decode_errors": drv.decode_errors,
+        "frames_detail": drv.frames[:64],
+        "native_event_tape": drv.events[:128],
         "script_remaining": remaining,
         "stop_reason": stop_reason,
         "offered_digest": digest(drv.offered_for_digest),
