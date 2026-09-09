@@ -109,6 +109,21 @@ PROVIDER_STATIC_ADD = """    static String ws48Enc(String v) {
 
 """ + PROVIDER_STATIC_ANCHOR
 
+ABILITY_TO_PLAY_NEW = """        @Override
+        public SpellAbility getAbilityToPlay(Card hostCard, List<SpellAbility> abilities, ITriggerEvent triggerEvent) {
+            if (abilities == null || abilities.isEmpty()) throw failClosed("getAbilityToPlay:EMPTY");
+            if (abilities.size() == 1) {
+                broker.recordAutomatic("SINGLE_NATIVE_OPTION:getAbilityToPlay");
+                return abilities.get(0);
+            }
+            java.util.List<String> labels = new java.util.ArrayList<>();
+            for (SpellAbility o : abilities) {
+                labels.add("WS48:ABILITY:host=" + ws48Enc(ws48CardRef(hostCard))
+                    + ":sa=" + ws48Enc(ws48Clip(String.valueOf(o), 200)));
+            }
+            return abilities.get(ws48Choose("choose_ability", this.player, labels));
+        }"""
+
 TARGETS_FOR_NEW = """        @Override
         public boolean chooseTargetsFor(SpellAbility currentAbility) {
             TargetRestrictions restrictions = currentAbility.getTargetRestrictions();
@@ -692,6 +707,9 @@ def main() -> int:
         nonlocal p
         p = once(p, old, new, label)
 
+    rep("""        public SpellAbility getAbilityToPlay(Card hostCard, List<SpellAbility> abilities, ITriggerEvent triggerEvent) {
+            throw failClosed("getAbilityToPlay");
+        }""", ABILITY_TO_PLAY_NEW, "getAbilityToPlay")
     rep("""        public boolean chooseTargetsFor(SpellAbility currentAbility) {
             throw failClosed("chooseTargetsFor");
         }""", TARGETS_FOR_NEW, "chooseTargetsFor")
@@ -838,7 +856,7 @@ def main() -> int:
     if missing_state:
         raise SystemExit(f"WS48_OVERLAY_INCOMPLETE_STATE:{missing_state}")
     required = [
-        "WS48:ACT:host=",
+        "WS48:ACT:host=", "WS48:ABILITY:host=",
         "WS48:TARGET:tgt=", "WS48:MODE:api=", "WS48:NUM:n=",
         "WS48:COLOR:color=", "WS48:BOOL:val=", "WS48:REPL:apply=",
         "WS48:ORDER:order=", "WS48:MANA:src=", "WS48:ATTACK:attacker=",

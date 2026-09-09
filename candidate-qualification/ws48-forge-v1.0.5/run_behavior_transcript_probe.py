@@ -121,6 +121,7 @@ class Driver:
         self.target_cursors: dict[int, list[str]] = {}
         self.frames: list[dict[str, Any]] = []
         self.ritual_answers: list[dict[str, Any]] = []
+        self.structural_passes: list[dict[str, Any]] = []
         self.offered_for_digest: list[Any] = []
         self.events: list[dict[str, Any]] = []
         self.setup_stage_seen = False
@@ -409,6 +410,19 @@ def answer_frame(drv: Driver, kind: str, actor: str,
                     drv.ritual(kind, str(o["option_id"]))
                     return str(o["option_id"])
             raise Blocked("chooseStartingPlayer", f"seat-1 not offered: {[o.get('kind') for o in opts]}")
+        if record["execution_entry_mode"] == "NATURAL_GAME_START":
+            # Startup ritual grounded in the requested start condition: every
+            # natural denominator record requests active_player P1, and the
+            # construction precedent (G48-07) starts seat-1. Recorded as
+            # ritual, never as behavior credit. See checkpoint design note.
+            want_active = (record.get("temporal_state") or {}).get("active_player", "P1")
+            if want_active == "P1":
+                for i, o in enumerate(opts):
+                    if o.get("kind") == "PLAYER:seat-1":
+                        drv.ritual(kind, str(o["option_id"]))
+                        return str(o["option_id"])
+            raise Blocked("chooseStartingPlayer",
+                          f"non-P1 requested start needs explicit grounding: {want_active}")
         raise Blocked("chooseStartingPlayer", "post-setup starting-player choice is unscripted")
     if kind == "mulliganKeepHand":
         if (record["execution_entry_mode"] == "NATIVE_STATE_LOAD"
@@ -421,8 +435,14 @@ def answer_frame(drv: Driver, kind: str, actor: str,
         d = drv.pop_script("mulligan", actor)
         if d is None:
             raise Blocked("mulligan", f"unscripted mulligan for {actor}")
-        want = "KEEP" if d["selection"]["semantic_value"] in (
-            "keep_opening_hand",) else str(d["selection"]["semantic_value"]).upper()
+        sv = d["selection"]["semantic_value"]
+        if sv == "keep_opening_hand":
+            want = "KEEP"
+        elif sv in ("mulligan", "mulligan_once"):
+            want = "MULLIGAN"
+        else:
+            drv.script.insert(0, d)
+            raise Blocked("mulligan", f"unsupported mulligan semantic {sv}")
         for i, o in enumerate(opts):
             if o.get("kind") == want or (want == "KEEP" and o.get("kind") == "KEEP"):
                 drv.consumed.append(d)
@@ -438,6 +458,8 @@ def answer_frame(drv: Driver, kind: str, actor: str,
         return answer_choose_object(drv, actor, opts, labels)
     if kind == "choose_mode":
         return answer_mode(drv, actor, opts, labels)
+    if kind == "choose_ability":
+        return answer_ability(drv, actor, opts, labels)
     if kind == "mana_payment":
         return answer_mana(drv, actor, opts, labels)
     if kind == "announce_x":
@@ -463,6 +485,11 @@ def answer_frame(drv: Driver, kind: str, actor: str,
 
 def answer_priority(drv: Driver, actor: str, opts: list[dict[str, Any]],
                     labels: list[dict[str, str]]) -> str:
+    script_empty = not drv.script and drv.ps_cursor >= len(drv.priority_script)
+    if script_empty:
+        # All scripted obligations consumed: terminate to capture transcript.
+        # (v2 credit runner replaces this with checkpoint-aware settling.)
+        return "__TERMINATE__"
     d = drv.pop_script("priority", actor)
     if d is not None:
         sv = d["selection"]["semantic_value"]
@@ -483,6 +510,25 @@ def answer_priority(drv: Driver, actor: str, opts: list[dict[str, Any]],
             return str(opts[hits[0]]["option_id"])
         drv.script.insert(0, d)
         raise Blocked("priority", f"unsupported priority semantic {sv}")
+    ab = drv.pop_script("choose_ability", actor)
+    if ab is not None:
+        key = str(ab["selection"]["semantic_value"])
+        tokens = [t for t in key.lower().replace("_", " ").split() if t]
+        hits = []
+        for i, lb in enumerate(labels):
+            if lb.get("_kind") != "ACT":
+                continue
+            text = (lb.get("sa", "") + " " + lb.get("host", "")
+                    + " " + lb.get("card", "")).lower()
+            if all(t in text or (t.endswith("s") and t[:-1] in text)
+                   or (t + "s" in text) for t in tokens):
+                hits.append(i)
+        if len(hits) != 1:
+            drv.script.insert(0, ab)
+            raise Blocked("priority",
+                          f"ability {key}: {len(hits)} offered matches of {len(opts)}")
+        drv.consumed.append(ab)
+        return str(opts[hits[0]]["option_id"])
     if drv.ps_cursor < len(drv.priority_script):
         ps = drv.priority_script[drv.ps_cursor]
         if ps.get("holder") == actor:
@@ -496,9 +542,21 @@ def answer_priority(drv: Driver, actor: str, opts: list[dict[str, Any]],
             if action.startswith("CAST "):
                 stuck = action
                 raise Blocked("priority", f"scripted CAST action needs grounding: {stuck}")
-    # Script exhausted: terminate session to capture transcript (probe only).
-    if all(not x for x in drv.script) and drv.ps_cursor >= len(drv.priority_script):
-        return "__TERMINATE__"
+    # STRUCTURAL_PASS: no unconsumed priority-family obligation remains for
+    # this actor, so declining to act cannot skip script. PASS is offered by
+    # the provider itself; passing advances the engine toward the next
+    # declared decision. Every structural pass is recorded with its frame.
+    # Terminal verification (v2) still must pass; passes never grant credit.
+    pending_priority = [x for x in drv.script
+                        if x["decision_family"] == "priority"
+                        and x.get("actor") == actor]
+    if not pending_priority:
+        for i, o in enumerate(opts):
+            if o.get("kind") == "PASS":
+                drv.structural_passes.append({"actor": actor,
+                                              "frame_options": len(opts)})
+                return str(o["option_id"])
+        raise Blocked("priority", "structural pass unavailable: no PASS offered")
     raise Blocked("priority", f"unscripted priority for {actor}; script remaining={len(drv.script)}")
 
 
@@ -550,6 +608,30 @@ def answer_choose_object(drv: Driver, actor: str, opts: list[dict[str, Any]],
         return str(opts[hits[0]]["option_id"])
     drv.script.insert(0, d)
     raise Blocked("choose_object", f"non-string semantic {sv} needs v2 grounding")
+
+
+def answer_ability(drv: Driver, actor: str, opts: list[dict[str, Any]],
+                   labels: list[dict[str, str]]) -> str:
+    """Match scripted activated-ability keys against native ABILITY/OPT:sa labels."""
+    d = drv.pop_script("choose_ability", actor)
+    if d is None:
+        raise Blocked("choose_ability", f"unscripted choose_ability for {actor}")
+    key = str(d["selection"]["semantic_value"])
+    tokens = [t for t in key.lower().replace("_", " ").split() if t]
+    hits = []
+    for i, lb in enumerate(labels):
+        if lb.get("_kind") not in ("ABILITY", "OPT"):
+            continue
+        text = (lb.get("sa", "") + " " + lb.get("host", "")).lower()
+        if all(t in text or (t.endswith("s") and t[:-1] in text)
+               or (t + "s" in text) for t in tokens):
+            hits.append(i)
+    if len(hits) != 1:
+        drv.script.insert(0, d)
+        raise Blocked("choose_ability",
+                      f"key {key}: {len(hits)} grounded matches")
+    drv.consumed.append(d)
+    return str(opts[hits[0]]["option_id"])
 
 
 def answer_mode(drv: Driver, actor: str, opts: list[dict[str, Any]],
@@ -779,6 +861,7 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
         "answered": answered,
         "consumed": len(drv.consumed),
         "ritual_answers": drv.ritual_answers,
+        "structural_passes": drv.structural_passes,
         "script_remaining": remaining,
         "stop_reason": stop_reason,
         "offered_digest": digest(drv.offered_for_digest),
