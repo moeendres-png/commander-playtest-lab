@@ -1,0 +1,103 @@
+schema_version: "1.0"
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/commander-exec-consolidation
+branch: project/opencode-execution-system-consolidation-20260910
+audit_base_sha: b3f5a9929aaf07d2ae574724bbe198b5ab402df6
+audit_base_tree: 6c7e3f43ea6ef7aa0eaf385807138f938162bbdd
+current_head: b3f5a9929aaf07d2ae574724bbe198b5ab402df6
+objective: Implement the single coherent OpenCode/Muse execution system (AGENTS.md, config, agents, skills, state, tooling, docs) on top of origin/main b3f5a992.
+in_scope:
+- Root AGENTS.md (durable rules only)
+- Canonical opencode.json (HIGH default, XHIGH permitted, below-HIGH disabled)
+- foundry-implementer and foundry-reviewer agents
+- Five-skill library under .opencode/skills/
+- .foundry workstream-state mechanism and schema
+- Deterministic helpers under tools/foundry/ with tests
+- Compaction, metrics, benchmark-harness, docs-consolidation records
+- Next-workstream handoff text for CROSS-CANDIDATE-DECISION-PLUMBING-ROOT-CAUSE-AUDIT
+- .github/workflows/opencode.yml VARIANT high alignment
+out_of_scope:
+- WS48/WS49 runtime, semantic, fixture, or engine-bridge code
+- WS47 fixture semantics and immutable authority
+- Production Repository creation, provider selection, Architecture Freeze claims
+- Merging, closing, or modifying PRs 161, 166, 167 remotely
+- Historical qualification campaign reruns
+ownership: PROJECT-EXECUTION-SYSTEM-CONSOLIDATION session (branch project/opencode-execution-system-consolidation-20260910)
+dependencies:
+- origin/main at b3f5a992 (AUDIT_BASE, verified 2026-09-10, matches Coordinator observation)
+- Pinned OpenCode CLI v1.18.29 lane in .github/workflows/opencode.yml
+- Live opencode.ai config schema (permission singular, share disabled, provider variants)
+hard_gates:
+- HIGH is the normal default project effort in config, agents, workflow, and docs
+- Below-HIGH effort is not authorized for active project work
+- Rules Authority and Evidence semantics preserved verbatim in durable instructions
+- Session sharing disabled via share=disabled
+- Destructive and remote Git operations gated, secret extraction denied
+- No WS48/WS49 semantic surface modified
+- Deterministic tools tested and passing
+forbidden_shortcuts:
+- first/random/default/AI/GUI/silent-skip/parent fallbacks
+- fabricated legal actions or manual outcome injection
+- second hidden Rules Engine in any helper, skill, or tool
+- UNKNOWN/PARTIAL/NOT_RUN promoted to PASS
+- green workflow equated with Qualification PASS
+validated_gates:
+- source lock verified (origin/main b3f5a992, tree 6c7e3f43, clean worktree on dedicated branch)
+- PR 161/166/167 inputs inspected at exact heads 26409b93/22e2a20f/633f51ae
+- live opencode.ai config schema fetched; PR161 permissions-array and PR167 variant-reasoningEffort defects identified and avoided
+- 17 deterministic tool tests pass; ruff check and ruff format clean on new surfaces
+- skills discoverable (.opencode/skills/*/SKILL.md, names match dirs, frontmatter valid)
+- agents carry model opencode-go/muse-spark-1.3-contributor at variant high
+- workflow VARIANT high with MODEL/SHARE unchanged; opencode.json share disabled
+failed_gates: []
+invalidated_gates: []
+do_not_rerun:
+- PR head inspection (immutable refs pr-161-head/pr-166-head/pr-167-head in main checkout)
+current_failure: NONE
+failure_class: NONE
+current_hypothesis: All deliverables A-K implemented; final validation and local commit remain.
+files_modified:
+- AGENTS.md
+- opencode.json
+- .opencode/agents/foundry-implementer.md
+- .opencode/agents/foundry-reviewer.md
+- .opencode/skills/workstream-bootstrap/SKILL.md
+- .opencode/skills/failure-classification/SKILL.md
+- .opencode/skills/test-impact/SKILL.md
+- .opencode/skills/evidence-seal/SKILL.md
+- .opencode/skills/continuation/SKILL.md
+- .foundry/WORKSTREAM_STATE.yaml
+- .foundry/WORKSTREAM_STATE.schema.json
+- tools/foundry/__init__.py
+- tools/foundry/source_lock.py
+- tools/foundry/worktree_inventory.py
+- tools/foundry/cluster_failures.py
+- tools/foundry/evidence.py
+- tools/foundry/state.py
+- tools/foundry/metrics.py
+- tests/foundry/test_foundry_tools.py
+- pyproject.toml (per-file-ignores entry for E402 in new test module)
+- .github/workflows/opencode.yml (VARIANT xhigh to high)
+- docs/foundry-execution/README.md
+- docs/foundry-execution/ROUTING_AND_EFFORT.md
+- docs/foundry-execution/GOVERNANCE_SUPERSESSION.md
+- docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md
+- docs/foundry-execution/METRICS.md
+- docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md
+- handoffs/CROSS_CANDIDATE_DECISION_PLUMBING_ROOT_CAUSE_AUDIT.md
+tests_run:
+- pytest tests/foundry/ -q (17 passed)
+- ruff check tools/foundry tests/foundry (pass)
+- ruff format --check tools/foundry tests/foundry (pass)
+- tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml (STATE_OK)
+- tools/foundry/source_lock.py self-check (LOCK_OK)
+- tools/foundry/worktree_inventory.py smoke run (correct clean flags, ref prefixes stripped)
+- opencode.json/workflow/skills/agents structural verification script (pass)
+evidence:
+- DIRECTLY_VERIFIED: origin/main SHA/tree, PR heads, WS48/WS49 origin SHAs and trees, tool test outcomes
+- CODE_DERIVED: schema-conformance reasoning from live opencode.ai/config.json for opencode.json key choices
+remaining_scope:
+- Local commit of the consolidation milestone
+- Final §30 validation sweep and handoff
+status: ACTIVE
+exact_next_action: Commit the validated milestone locally, update current_head, run the final validation sweep.

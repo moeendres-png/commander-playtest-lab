@@ -1,0 +1,115 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/muse-spark-1.3-contributor",
+  "default_agent": "foundry-implementer",
+  "share": "disabled",
+  "instructions": ["docs/foundry-execution/ROUTING_AND_EFFORT.md"],
+  "enabled_providers": ["opencode-go"],
+  "permission": {
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "todowrite": "allow",
+    "question": "allow",
+    "skill": "allow",
+    "doom_loop": "ask",
+    "edit": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git show*": "allow",
+      "git rev-parse*": "allow",
+      "git worktree list*": "allow",
+      "git fetch*": "allow",
+      "git ls-files*": "allow",
+      "git ls-tree*": "allow",
+      "git for-each-ref*": "allow",
+      "pytest*": "allow",
+      "python*": "allow",
+      "ruff*": "allow",
+      "mypy*": "allow",
+      "gh run view*": "allow",
+      "gh run list*": "allow",
+      "gh api*": "allow",
+      "git push*": "ask",
+      "git merge*": "ask",
+      "git rebase*": "ask",
+      "git reset --hard*": "ask",
+      "git clean*": "ask",
+      "git branch -D*": "ask",
+      "rm -rf*": "ask",
+      "gh auth token*": "deny",
+      "gh auth login*": "deny"
+    },
+    "task": {
+      "*": "ask",
+      "explore": "allow",
+      "foundry-reviewer": "allow"
+    },
+    "external_directory": {
+      "*": "ask",
+      "/home/moeen/code/*": "allow",
+      "/tmp/*": "allow"
+    }
+  },
+  "provider": {
+    "opencode-go": {
+      "whitelist": ["muse-spark-1.3-contributor"],
+      "models": {
+        "muse-spark-1.3-contributor": {
+          "options": {
+            "reasoningEffort": "high"
+          },
+          "variants": {
+            "none": {
+              "disabled": true
+            },
+            "off": {
+              "disabled": true
+            },
+            "minimal": {
+              "disabled": true
+            },
+            "low": {
+              "disabled": true
+            },
+            "medium": {
+              "disabled": true
+            },
+            "high": {},
+            "xhigh": {}
+          }
+        }
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "variant": "high"
+    }
+  },
+  "experimental": {
+    "policies": [
+      {
+        "action": "provider.use",
+        "effect": "deny",
+        "resource": "*"
+      },
+      {
+        "action": "provider.use",
+        "effect": "allow",
+        "resource": "opencode-go"
+      }
+    ]
+  }
+}
