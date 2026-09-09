@@ -463,20 +463,61 @@ TRIGGER_ORDER_NEW = """        @Override
             broker.recordAutomatic("orderAndPlaySimultaneousSa:FORGE_CORE_TRIGGER_STACK");
         }"""
 
-COST_DECISION_NEW = """        @Override
+# Exact ICostVisitor<PaymentDecision> surface at Forge 66caae16 (40 methods).
+# Only CostPartMana is decidable headlessly: CostPartMana.payAsDecided
+# ignores the decision content and runs the interactive native payment
+# (payManaCost/applyManaToCost), so the visit returns an empty decision and
+# real payment authority stays in the engine. All other parts fail closed
+# with the exact part identity.
+COST_VISIT_PARTS = [
+    "CostBehold", "CostBeholdExile", "CostGainControl", "CostChooseColor",
+    "CostChooseCreatureType", "CostCollectEvidence", "CostDiscard",
+    "CostDamage", "CostDraw", "CostExile", "CostExileFromStack",
+    "CostExiledMoveToGrave", "CostExert", "CostEnlist", "CostFlipCoin",
+    "CostForage", "CostRollDice", "CostMill", "CostAddMana", "CostPayLife",
+    "CostPayEnergy", "CostGainLife", "CostPromiseGift", "CostPutCardToLib",
+    "CostTap", "CostSacrifice", "CostReturn", "CostReveal",
+    "CostRevealChosen", "CostRemoveAnyCounter", "CostRemoveCounter",
+    "CostPutCounter", "CostPutCounterYou", "CostUntapType", "CostUntap",
+    "CostUnattach", "CostTapType", "CostPayShards", "CostBlight",
+]
+
+
+def cost_decision_java() -> str:
+    visits = []
+    for part in COST_VISIT_PARTS:
+        visits.append(
+            "                @Override\n"
+            f"                public PaymentDecision visit({part} cost) {{\n"
+            f'                    throw failClosed("costVisit:{part}");\n'
+            "                }")
+    return """        @Override
         public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
             Card source = ability == null ? null : ability.getHostCard();
             return new CostDecisionMakerBase(player, effect, ability, source) {
                 @Override
                 public boolean paysRightAfterDecision() {
-                    // Structural payment timing: pay incrementally as decided,
-                    // mirroring interactive payment and the WS48 mana loop.
-                    // Both branches execute real engine payment; no legality
-                    // is invented here.
-                    return true;
+                    // Structural two-phase payment: decide all parts first,
+                    // then CostPayment pays each once via payAsDecided.
+                    // Returning true would double-pay mana parts.
+                    return false;
                 }
+
+                @Override
+                public PaymentDecision visit(CostPartMana cost) {
+                    // The decision content is unused by
+                    // CostPartMana.payAsDecided (whole payment runs through
+                    // the native payManaCost/applyManaToCost path).
+                    broker.recordAutomatic("costVisit:CostPartMana");
+                    return new PaymentDecision(0);
+                }
+
+""" + "\n".join(visits) + """
             };
         }"""
+
+
+COST_DECISION_NEW = cost_decision_java()
 
 MANA_NEW = """        @Override
         public boolean payManaCost(ManaCost toPay, CostPartMana costPartMana, SpellAbility sa, String prompt, ManaConversionMatrix matrix, boolean effect) {
