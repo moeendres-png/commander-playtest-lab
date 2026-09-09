@@ -220,7 +220,9 @@ MODE_SELECT_NEW = """            if (min == 1 && num == 1 && !allowRepeat) {
                     broker.recordAutomatic("NATIVE_MODE_SELECTED:" + chosenModeKey);
                     broker.emitEvent("mode_selected:" + chosenModeKey);
                 }
-                return java.util.List.of(chosen);
+                // Forge sorts the chosen modes in place (CharmEffect);
+                // List.of is immutable, so return a mutable copy.
+                return new java.util.ArrayList<>(java.util.List.of(chosen));
             }"""
 
 FRAME_HOOK_OLD = """            out.flush();
