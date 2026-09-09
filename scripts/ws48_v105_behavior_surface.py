@@ -499,6 +499,14 @@ DECLARE_ATTACKERS_NEW = """        @Override
                 throw failClosed("declareAttackers:SELECTED_ASSIGNMENT_REJECTED_BY_NATIVE_VALIDATOR");
             }
             broker.recordAutomatic("WS48_SELECTED_ATTACK_ASSIGNMENT:" + labels.get(selectedIndex));
+            for (java.util.Map.Entry<Card, GameEntity> applied : selected.entrySet()) {
+                String aRef = Ws40SuccessorState.semanticRefOf(applied.getKey());
+                GameEntity defender = applied.getValue();
+                String dRef = defender instanceof Player defenderPlayer
+                    ? Broker.ws48Pid(defenderPlayer) : "NONPLAYER";
+                broker.emitEvent("attacker_declared:"
+                    + (aRef == null ? "NATIVE:" + applied.getKey().getId() : aRef) + "->" + dRef);
+            }
         }"""
 
 DECLARE_BLOCKERS_NEW = """        @Override
@@ -558,6 +566,13 @@ DECLARE_BLOCKERS_NEW = """        @Override
                 combat.setBlocked(entry.getValue(), true);
             }
             broker.recordAutomatic("WS48_SELECTED_BLOCK_ASSIGNMENT:" + labels.get(selectedIndex));
+            for (java.util.Map.Entry<Card, Card> applied : selected.entrySet()) {
+                String bRef = Ws40SuccessorState.semanticRefOf(applied.getKey());
+                String aRef = Ws40SuccessorState.semanticRefOf(applied.getValue());
+                broker.emitEvent("blocker_declared:"
+                    + (bRef == null ? "NATIVE:" + applied.getKey().getId() : bRef) + "->"
+                    + (aRef == null ? "NATIVE:" + applied.getValue().getId() : aRef));
+            }
         }"""
 
 STATE_HELPERS_OLD = """    private static String semanticOf(Card c) {
@@ -713,6 +728,9 @@ DECLARE_DIRECT_HELPERS = """    public static void ws48BeginLoadedCombatStep(Gam
         if (phase == PhaseType.COMBAT_DECLARE_ATTACKERS) {
             Player turn = game.getPhaseHandler().getPlayerTurn();
             Player who = turn.getDeclaresAttackers() != null ? turn.getDeclaresAttackers() : turn;
+            if (game.getCombat() == null) {
+                game.getPhaseHandler().setCombat(new Combat(turn));
+            }
             who.getController().declareAttackers(turn, game.getCombat());
             if (!CombatUtil.validateAttackers(game.getCombat())) {
                 throw new Ws23ForgeVerticalProvider.ControlledStop("WS48_DECLARE_ATTACKERS_REJECTED");
