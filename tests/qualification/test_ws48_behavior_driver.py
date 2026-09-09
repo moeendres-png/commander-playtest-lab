@@ -114,7 +114,86 @@ def test_kind_has_ref_boundaries():
     )
     assert drv.kind_has_ref("PLAYER:P2", "P2")
     assert not drv.kind_has_ref("ATTACK_ASSIGNMENT:obj:P2-bears=P3", "P2")
-    assert drv.kind_has_ref("FORGE_LEGAL_ACTION:Giant Growth:hand:Pump:obj:micro-growth", "obj:micro-growth")
+    assert drv.kind_has_ref(
+        "FORGE_LEGAL_ACTION:Giant Growth:hand:Pump:obj:micro-growth", "obj:micro-growth"
+    )
+
+
+def test_diff_incarnation_and_devils():
+    prev = {
+        "cards": [
+            {
+                "semantic_id": "obj:burn-cmd",
+                "card_identity": "Rograkh",
+                "controller": "P1",
+                "zone": "stack",
+            },
+            {
+                "semantic_id": None,
+                "card_identity": "Mountain",
+                "controller": "P1",
+                "zone": "library",
+            },
+        ]
+    }
+    cur = {
+        "cards": [
+            {
+                "semantic_id": None,
+                "card_identity": "Rograkh",
+                "controller": "P1",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": None,
+                "card_identity": "Mountain",
+                "controller": "P1",
+                "zone": "library",
+            },
+            {
+                "semantic_id": None,
+                "card_identity": "Devil",
+                "controller": "P1",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": None,
+                "card_identity": "Devil",
+                "controller": "P1",
+                "zone": "battlefield",
+            },
+        ]
+    }
+    events = drv.diff_checkpoints(prev, cur, {"obj:burn-cmd": "line:cmd"})
+    assert "zone_change:stack->battlefield" in events
+    assert "creature_enters:Rograkh@P1" in events
+    assert "creature_entered" in events
+    assert "new_object_incarnation:line:cmd" in events
+    assert "create_Devil_token:2" in events
+    # Mountain churn alone produces nothing.
+    quiet = drv.diff_checkpoints(
+        {
+            "cards": [
+                {
+                    "semantic_id": None,
+                    "card_identity": "Mountain",
+                    "controller": "P1",
+                    "zone": "library",
+                }
+            ]
+        },
+        {
+            "cards": [
+                {
+                    "semantic_id": None,
+                    "card_identity": "Mountain",
+                    "controller": "P1",
+                    "zone": "hand",
+                }
+            ]
+        },
+    )
+    assert quiet == []
 
 
 def test_drive_cast_target_pass_resolve(tmp_path, monkeypatch):

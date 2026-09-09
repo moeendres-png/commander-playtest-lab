@@ -256,17 +256,15 @@ def _check_mana_consumed(record: dict[str, Any], ctx: dict[str, Any]) -> list[st
 
 def _check_commander_battlefield(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     """Cast commander is on the battlefield (identity verified)."""
-    cards = _snapshot_cards(ctx)
+    cards = _cards(ctx.get("snapshot") or {})
     bad = []
     for ref in _script_refs(record, {"priority"}, "object"):
-        card = cards.get(ref)
-        shape = _record_object(record, ref)
+        card, find_bad = _find_card(record, cards, ref)
+        bad.extend(find_bad)
         if card is None:
-            bad.append(f"COMMANDER_BATTLEFIELD_ABSENT:{ref}")
-        elif card.get("zone") != "battlefield":
+            continue
+        if card.get("zone") != "battlefield":
             bad.append(f"COMMANDER_BATTLEFIELD_ZONE:{ref}:{card.get('zone')}")
-        elif shape is not None and card.get("card_identity") != shape.get("card_identity"):
-            bad.append(f"COMMANDER_BATTLEFIELD_IDENTITY:{ref}")
     return bad
 
 

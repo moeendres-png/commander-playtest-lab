@@ -591,12 +591,14 @@ def diff_checkpoints(
 ) -> list[str]:
     """Derive structural zone-transition events between behavior checkpoints.
 
-    Only provider-bound semantic objects produce transition events; unbound
-    churn (library/hand Mountains) is ignored. A bound object that vanishes
-    while an unbound same-identity card appears is a new object incarnation
-    across zones (e.g. stack spell resolving to graveyard): emits the zone
-    change plus the new-incarnation marker with the record lineage id.
-    Devil token creation counts use the contract-anchored token vocabulary.
+    Cards are paired across checkpoints by provider-bound semantic id when
+    available, otherwise by identity+controller with uniqueness enforcement
+    (zone changes create new object incarnations, so post-move objects are
+    routinely unbound). A unique vanished/appeared pair with the same
+    identity+controller yields the zone change plus arrival/departure
+    derivatives; bound refs additionally yield lineage incarnation markers.
+    Unbound churn without a unique counterpart (library/hand Mountains) is
+    ignored. Devil token creation counts use the contract-anchored vocabulary.
     """
     lineage = lineage or {}
 
@@ -606,59 +608,73 @@ def diff_checkpoints(
         name = str(card.get("card_identity") or "unknown").replace(" ", "_")
         return f"{name}@{card.get('controller')}"
 
-    before = {str(c.get("semantic_id")): c for c in prev.get("cards") or [] if c.get("semantic_id")}
-    after = {str(c.get("semantic_id")): c for c in cur.get("cards") or [] if c.get("semantic_id")}
+    def ident(card: dict[str, Any]) -> tuple:
+        return (card.get("card_identity"), card.get("controller"))
+
+    before = list(prev.get("cards") or [])
+    after = list(cur.get("cards") or [])
+    before_by_ref = {str(c.get("semantic_id")): c for c in before if c.get("semantic_id")}
+    after_by_ref = {str(c.get("semantic_id")): c for c in after if c.get("semantic_id")}
     events: list[str] = []
-    vanished = {k: c for k, c in before.items() if k not in after}
-    for k, card in after.items():
-        old = before.get(k)
-        zone = str(card.get("zone"))
+
+    def arrivals(new_zone: str, old_zone: str | None, card: dict[str, Any]) -> None:
+        if new_zone == "battlefield" and old_zone != "battlefield":
+            events.append(f"creature_enters:{label(card)}")
+            events.append("creature_entered")
+        if new_zone == "graveyard" and old_zone in {"battlefield", "stack"}:
+            events.append(f"move_to_graveyard:{label(card)}")
+
+    # 1. Bound refs present in both: direct transitions.
+    for ref, card in after_by_ref.items():
+        old = before_by_ref.get(ref)
         if old is None:
+            zone = str(card.get("zone"))
             if zone == "battlefield":
-                events.append(f"creature_enters:{label(card)}")
-                events.append("creature_entered")
+                arrivals(zone, None, card)
             continue
         old_zone = str(old.get("zone"))
-        if old_zone != zone:
-            events.append(f"zone_change:{old_zone}->{zone}")
-            if zone == "battlefield" and old_zone in {
-                "stack",
-                "command",
-                "hand",
-                "graveyard",
-                "exile",
-                "library",
-            }:
-                events.append(f"creature_enters:{label(card)}")
-                events.append("creature_entered")
-            if zone == "graveyard" and old_zone in {"battlefield", "stack"}:
-                events.append(f"move_to_graveyard:{label(card)}")
+        new_zone = str(card.get("zone"))
+        if old_zone != new_zone:
+            events.append(f"zone_change:{old_zone}->{new_zone}")
+            arrivals(new_zone, old_zone, card)
         if old.get("controller") != card.get("controller"):
             events.append(
                 f"control_effect_applied:{old.get('controller')}->{card.get('controller')}"
             )
-    unbound_new = [c for c in cur.get("cards") or [] if not c.get("semantic_id")]
-    for ref, old_card in vanished.items():
-        same = [
-            c
-            for c in unbound_new
-            if c.get("card_identity") == old_card.get("card_identity")
-            and c.get("controller") == old_card.get("controller")
-        ]
+
+    # 2. Vanished cards paired with unique appeared same-identity cards.
+    def presence_key(card: dict[str, Any]) -> tuple:
+        return (str(card.get("semantic_id") or ""), ident(card))
+
+    before_keys = [presence_key(c) for c in before]
+    after_keys = [presence_key(c) for c in after]
+    vanished = [c for c in before if presence_key(c) not in after_keys]
+    appeared = [c for c in after if presence_key(c) not in before_keys]
+    for old_card in vanished:
+        same = [c for c in appeared if ident(c) == ident(old_card)]
         if len(same) != 1:
             continue
         new_card = same[0]
+        if len([c for c in vanished if ident(c) == ident(new_card)]) != 1:
+            continue
         old_zone = str(old_card.get("zone"))
         new_zone = str(new_card.get("zone"))
-        if old_zone != new_zone:
-            events.append(f"zone_change:{old_zone}->{new_zone}")
-            if lineage.get(ref):
-                events.append(f"new_object_incarnation:{lineage[ref]}")
+        if old_zone == new_zone:
+            continue
+        events.append(f"zone_change:{old_zone}->{new_zone}")
+        arrivals(new_zone, old_zone, new_card)
+        ref = old_card.get("semantic_id") or new_card.get("semantic_id")
+        if ref and lineage.get(str(ref)):
+            events.append(f"new_object_incarnation:{lineage[str(ref)]}")
+
+    # 3. Fresh Devil tokens (no vanished counterpart).
     devils: dict[str, int] = {}
-    for card in unbound_new:
+    for card in after:
         if (
             "Devil" in str(card.get("card_identity") or "")
             and str(card.get("zone")) == "battlefield"
+            and not card.get("semantic_id")
+            and ident(card) not in [ident(d) for d in before]
         ):
             devils[str(card.get("controller"))] = devils.get(str(card.get("controller")), 0) + 1
     for _controller, count in sorted(devils.items()):
