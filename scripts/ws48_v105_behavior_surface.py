@@ -597,11 +597,28 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
                 .append('}');
         }
         life.append(']');
+        StringBuilder commanders = new StringBuilder("[");
+        boolean cfirst = true;
+        for (Map.Entry<String,Card> entry : commanderCards.entrySet()) {
+            if (!cfirst) commanders.append(',');
+            cfirst = false;
+            Card commander = entry.getValue();
+            commanders.append("{\\"commander_id\\":")
+                .append(Ws23ForgeVerticalProvider.esc(entry.getKey()))
+                .append(",\\"zone\\":")
+                .append(Ws23ForgeVerticalProvider.esc(commander.getZone() == null ? null
+                    : commander.getZone().getZoneType().toString().toLowerCase()))
+                .append(",\\"cast_count\\":")
+                .append(commander.getOwner().getCommanderCast(commander))
+                .append('}');
+        }
+        commanders.append(']');
         String raw = "{\\"behavior_checkpoint\\":true"
             + ",\\"player_count\\":" + players.size()
             + ",\\"cards\\":" + cards
             + ",\\"stack\\":" + stack
             + ",\\"players\\":" + life
+            + ",\\"commanders\\":" + commanders
             + ",\\"turn\\":" + game.getPhaseHandler().getTurn()
             + ",\\"phase\\":" + Ws23ForgeVerticalProvider.esc(phase)
             + ",\\"active_player\\":" + Ws23ForgeVerticalProvider.esc(

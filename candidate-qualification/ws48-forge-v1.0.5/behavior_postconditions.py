@@ -228,7 +228,7 @@ def _check_mana_consumed(record: dict[str, Any], ctx: dict[str, Any]) -> list[st
     for _i, entry in entries:
         sv = entry["selection"]["semantic_value"]
         required = list(sv.get("mana", [])) if isinstance(sv, dict) else []
-        produced: list[str] = []
+        produced_syms: list[str] = []
         refs: list[str] = []
         for m in ctx.get("matches") or []:
             rule = str(m.get("match_rule"))
@@ -237,14 +237,14 @@ def _check_mana_consumed(record: dict[str, Any], ctx: dict[str, Any]) -> list[st
                 if ":" not in body:
                     bad.append(f"MANA_RULE_MALFORMED:{rule}")
                     continue
-                ref, produced = body.rsplit(":", 1)
+                ref, sym = body.rsplit(":", 1)
                 refs.append(ref)
-                produced.append(produced)
+                produced_syms.append(sym)
         if not refs:
             bad.append("MANA_LOG_NO_PICKS")
             continue
-        if sorted(produced) != sorted(required):
-            bad.append(f"MANA_SYMBOLS_NOT_CONSUMED:{produced}:{required}")
+        if sorted(produced_syms) != sorted(required):
+            bad.append(f"MANA_SYMBOLS_NOT_CONSUMED:{produced_syms}:{required}")
         for ref in refs:
             card = cards.get(ref)
             if card is None:
@@ -254,11 +254,70 @@ def _check_mana_consumed(record: dict[str, Any], ctx: dict[str, Any]) -> list[st
     return bad
 
 
+def _check_commander_battlefield(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Cast commander is on the battlefield (identity verified)."""
+    cards = _snapshot_cards(ctx)
+    bad = []
+    for ref in _script_refs(record, {"priority"}, "object"):
+        card = cards.get(ref)
+        shape = _record_object(record, ref)
+        if card is None:
+            bad.append(f"COMMANDER_BATTLEFIELD_ABSENT:{ref}")
+        elif card.get("zone") != "battlefield":
+            bad.append(f"COMMANDER_BATTLEFIELD_ZONE:{ref}:{card.get('zone')}")
+        elif shape is not None and card.get("card_identity") != shape.get("card_identity"):
+            bad.append(f"COMMANDER_BATTLEFIELD_IDENTITY:{ref}")
+    return bad
+
+
+def _check_commander_cast_count(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Commander cast count incremented exactly once, no tax charged.
+
+    Covers 'commander cast count cmd:P1-A = 1.' and 'No commander-tax
+    increment was charged.': the native cast_count for the cast commander is
+    prior+1 (prior from the record's commander_state) and no mana payment
+    was logged for a zero-cost cast.
+    """
+    bad = []
+    counts = {c.get("commander_id"): c for c in (ctx.get("snapshot") or {}).get("commanders") or []}
+    priors = {
+        c.get("commander_id"): int(c.get("prior_command_zone_cast_count", 0) or 0)
+        for c in (record.get("commander_state") or {}).get("commanders") or []
+    }
+    seen: set[str] = set()
+    for d in record.get("decision_script") or []:
+        if d.get("decision_family") != "priority":
+            continue
+        sv = d["selection"]["semantic_value"]
+        if not isinstance(sv, dict) or sv.get("action") != "cast_commander":
+            continue
+        cid = sv.get("commander_id")
+        seen.add(cid)
+        entry = counts.get(cid)
+        if entry is None:
+            bad.append(f"COMMANDER_COUNT_ABSENT:{cid}")
+            continue
+        if int(entry.get("cast_count", -1)) != priors.get(cid, 0) + 1:
+            bad.append(f"COMMANDER_COUNT_MISMATCH:{cid}:{entry.get('cast_count')}")
+    if not seen:
+        return ["COMMANDER_COUNT_NO_CAST"]
+    for m in ctx.get("matches") or []:
+        if str(m.get("match_rule")).startswith("mana_payment:"):
+            bad.append(f"COMMANDER_TAX_PAYMENT_LOGGED:{m.get('decision_id')}")
+    return bad
+
+
 REGISTRY: dict[str, Checker] = {
+    "Rograkh is on P1 battlefield.": _check_commander_battlefield,
+    "Rograkh is on PX battlefield.": _check_commander_battlefield,
+    "Selected mode is the provider-offered Devil-token mode.": _check_selected_from_offered,
+    "commander cast count CMD = N.": _check_commander_cast_count,
+    "No commander-tax increment was charged.": _check_commander_cast_count,
     "P2 is the target selected from the provider legal target set.": _check_target_selected_log,
     "PX is the target selected from the provider legal target set.": _check_target_selected_log,
     "Only Rules-Core legal targets were offered and PX was selected.": _check_target_selected_log,
     "Exactly the selected provider-legal mana payment is consumed.": _check_mana_consumed,
+    "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned.": _check_mana_consumed,
     "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.": _check_bears_survive_bolt,
     "Selected cast action was among provider-offered legal options and no adapter legality was invented.": _check_selected_from_offered,
     "Stack is empty after both spells resolve.": _check_stack_empty,

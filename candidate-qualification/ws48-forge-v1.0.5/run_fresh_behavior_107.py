@@ -221,6 +221,26 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             return
         if kind == "payMana":
             expected = sess.next_expected()
+            entry_idx = sess.decision_index
+            if sess.active_cost and sess.active_cost["remaining"]:
+                remaining = sess.active_cost["remaining"]
+                option, ref, produced = _match_mana(frame, remaining)
+                remaining.remove(ref)
+                sess.mana_produced.setdefault(entry_idx, []).append(produced)
+                sess.record_match(frame, option, f"mana_payment:{ref}:{produced}")
+                _submit(proc, frame, str(option["option_id"]), "mana")
+                if not remaining:
+                    sess.active_cost = None
+                    if (
+                        expected is not None
+                        and expected["selection"]["selector_kind"] == "mana_payment"
+                    ):
+                        wanted, required = mana_expected_sources(record, entry_idx)
+                        got = sess.mana_produced.get(entry_idx, [])
+                        if required is not None and sorted(got) != sorted(required):
+                            raise BehaviorFailure(f"MANA_SYMBOLS_MISMATCH:{got}:{required}")
+                        sess.decision_index += 1
+                return
             if expected is not None and expected["selection"]["selector_kind"] == "mana_payment":
                 entry_idx = sess.decision_index
                 wanted, required = mana_expected_sources(record, entry_idx)
@@ -288,6 +308,7 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
     def on_snapshot(sess: Session) -> None:
         from behavior_driver import TerminalReached
         from behavior_driver import check_terminal_ready as _ready
+        from behavior_driver import diff_checkpoints as _diff
 
         if not sess.static_derived and any(
             isinstance(s, dict) and (s.get("ws45_observation") or s.get("natural_lifecycle"))
@@ -295,6 +316,18 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         ):
             derive_static_events(record, sess)
             sess.static_derived = True
+        cur = sess.snapshots[-1]
+        if isinstance(cur, dict) and cur.get("behavior_checkpoint") is True:
+            prev_idx = sess.prev_checkpoint_idx
+            if prev_idx is not None:
+                lineage = {
+                    o.get("semantic_id"): o.get("card_lineage_id")
+                    for o in record.get("semantic_objects") or []
+                    if o.get("semantic_id") and o.get("card_lineage_id")
+                }
+                for ev in _diff(sess.snapshots[prev_idx], cur, lineage):
+                    sess.note_event(ev)
+            sess.prev_checkpoint_idx = len(sess.snapshots) - 1
         ready = _ready(record, sess)
         if ready is not None:
             raise TerminalReached(ready)

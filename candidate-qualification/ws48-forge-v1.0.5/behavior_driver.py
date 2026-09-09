@@ -363,6 +363,12 @@ class Session:
         self.mulligan_rounds: dict[str, int] = {}
         # Whether static (construction-observation) events were derived.
         self.static_derived = False
+        # Index of the previous behavior checkpoint for zone diffing.
+        self.prev_checkpoint_idx: int | None = None
+        # Active cast cost context: {remaining, cast_idx} linked from the
+        # record's action_cost_state when a cast is matched. payMana picks
+        # consume it whether or not a mana_payment decision entry exists.
+        self.active_cost: dict[str, Any] | None = None
 
     def _log(self, kind: str, text: str) -> None:
         self.journal.append((self._seq, kind, text))
@@ -516,7 +522,40 @@ class Session:
             raise BehaviorFailure(f"UNKNOWN_SELECTOR:{kind}:{family}:{selector}")
         self.record_match(frame, option, rule, family, value)
         submit(self.proc, frame, str(option["option_id"]), "scripted")
+        if (
+            family == "priority"
+            and isinstance(value, dict)
+            and value.get("action")
+            in {
+                "cast",
+                "cast_commander",
+            }
+        ):
+            self._link_cost_context(expected)
         self.decision_index += 1
+
+    def _link_cost_context(self, expected: dict[str, Any]) -> None:
+        """Link action_cost_state payment sources to a matched cast entry."""
+        try:
+            entry_idx = self.script.index(expected)
+        except ValueError:
+            return
+        sv = expected["selection"]["semantic_value"]
+        obj = sv.get("object") if isinstance(sv, dict) else None
+        if obj is None and isinstance(sv, dict) and sv.get("action") == "cast_commander":
+            for o in self.record.get("semantic_objects") or []:
+                if o.get("commander_id") == sv.get("commander_id"):
+                    obj = o.get("semantic_id")
+                    break
+        for cs in self.record.get("action_cost_state") or []:
+            if cs.get("decision_index") == entry_idx and (
+                obj is None or cs.get("source_semantic_id") == obj
+            ):
+                self.active_cost = {
+                    "remaining": list(cs.get("explicit_payment_sources") or []),
+                    "cast_idx": entry_idx,
+                }
+                return
 
 
 def _matched_ref(option: dict[str, Any], remaining: list[str]) -> str:
@@ -543,6 +582,78 @@ def _digest_options(options: list[dict[str, Any]]) -> str:
 
     canon = json.dumps(options, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canon.encode()).hexdigest()
+
+
+def diff_checkpoints(
+    prev: dict[str, Any],
+    cur: dict[str, Any],
+    lineage: dict[str, str] | None = None,
+) -> list[str]:
+    """Derive structural zone-transition events between behavior checkpoints.
+
+    Only provider-bound semantic objects produce transition events; unbound
+    churn (library/hand Mountains) is ignored. A bound object that vanishes
+    while an unbound same-identity card appears is a new object incarnation
+    across zones (e.g. stack spell resolving to graveyard): emits the zone
+    change plus the new-incarnation marker with the record lineage id.
+    Devil token creation counts use the contract-anchored token vocabulary.
+    """
+    lineage = lineage or {}
+
+    def label(card: dict[str, Any]) -> str:
+        if card.get("semantic_id"):
+            return str(card.get("semantic_id"))
+        name = str(card.get("card_identity") or "unknown").replace(" ", "_")
+        return f"{name}@{card.get('controller')}"
+
+    before = {str(c.get("semantic_id")): c for c in prev.get("cards") or [] if c.get("semantic_id")}
+    after = {str(c.get("semantic_id")): c for c in cur.get("cards") or [] if c.get("semantic_id")}
+    events: list[str] = []
+    vanished = {k: c for k, c in before.items() if k not in after}
+    for k, card in after.items():
+        old = before.get(k)
+        zone = str(card.get("zone"))
+        if old is None:
+            if zone == "battlefield":
+                events.append(f"creature_enters:{label(card)}")
+                events.append("creature_entered")
+            continue
+        old_zone = str(old.get("zone"))
+        if old_zone != zone:
+            events.append(f"zone_change:{old_zone}->{zone}")
+            if zone == "graveyard" and old_zone in {"battlefield", "stack"}:
+                events.append(f"move_to_graveyard:{label(card)}")
+        if old.get("controller") != card.get("controller"):
+            events.append(
+                f"control_effect_applied:{old.get('controller')}->{card.get('controller')}"
+            )
+    unbound_new = [c for c in cur.get("cards") or [] if not c.get("semantic_id")]
+    for ref, old_card in vanished.items():
+        same = [
+            c
+            for c in unbound_new
+            if c.get("card_identity") == old_card.get("card_identity")
+            and c.get("controller") == old_card.get("controller")
+        ]
+        if len(same) != 1:
+            continue
+        new_card = same[0]
+        old_zone = str(old_card.get("zone"))
+        new_zone = str(new_card.get("zone"))
+        if old_zone != new_zone:
+            events.append(f"zone_change:{old_zone}->{new_zone}")
+            if lineage.get(ref):
+                events.append(f"new_object_incarnation:{lineage[ref]}")
+    devils: dict[str, int] = {}
+    for card in unbound_new:
+        if (
+            "Devil" in str(card.get("card_identity") or "")
+            and str(card.get("zone")) == "battlefield"
+        ):
+            devils[str(card.get("controller"))] = devils.get(str(card.get("controller")), 0) + 1
+    for _controller, count in sorted(devils.items()):
+        events.append(f"create_Devil_token:{count}")
+    return events
 
 
 def drive_until_result(
