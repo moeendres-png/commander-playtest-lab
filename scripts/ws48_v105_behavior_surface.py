@@ -84,6 +84,8 @@ BROKER_FIELD_NEW = """        final java.util.List<String> automatic = new Array
 
 BROKER_HELPERS = """        static String ws48Pid(Player p) {
             if (p == null || p.getGame() == null) return "null";
+            String seat = Ws40SuccessorState.seatPidOf(p);
+            if (seat != null) return seat;
             int idx = p.getGame().getPlayers().indexOf(p);
             return idx < 0 ? "null" : "P" + (idx + 1);
         }
@@ -678,8 +680,10 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
         for (int pi = 0; pi < players.size(); pi++) {
             if (pi > 0) life.append(',');
             Player p = players.get(pi);
-            life.append("{\\"player_id\\":\\"P").append(pi + 1)
-                .append("\\",\\"life\\":").append(p.getLife())
+            String pid = seatPidOf(p);
+            if (pid == null) pid = "P" + (pi + 1);
+            life.append("{\\"player_id\\":\\"").append(pid).append("\\"")
+                .append(",\\"life\\":").append(p.getLife())
                 .append(",\\"in_game\\":").append(p.isInGame())
                 .append(",\\"lost\\":").append(p.hasLost())
                 .append(",\\"poison\\":").append(p.getCounters(forge.game.card.CounterEnumType.POISON))
@@ -748,10 +752,35 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
 
     private static String controllerPid(Game game, Player p) {
         if (p == null || game == null) return null;
+        String seat = seatPidOf(p);
+        if (seat != null) return seat;
         int idx = game.getPlayers().indexOf(p);
         return idx < 0 ? null : "P" + (idx + 1);
     }
+
+    private static final Map<Integer, String> seatPidByNativeId = new LinkedHashMap<>();
+
+    public static String seatPidOf(Player p) {
+        if (p == null) return null;
+        return seatPidByNativeId.get(p.getId());
+    }
+
+    static void ws48BindSeatPids(Game game) {
+        seatPidByNativeId.clear();
+        java.util.List<Player> players = game.getPlayers();
+        for (int i = 0; i < players.size(); i++) {
+            seatPidByNativeId.put(players.get(i).getId(), "P" + (i + 1));
+        }
+    }
 """
+
+SEAT_BIND_OLD = """    public static void applyNativeState(Game game, Ws23ForgeVerticalProvider.Broker broker) {
+        loadObjectSpecs();"""
+
+SEAT_BIND_NEW = """    public static void applyNativeState(Game game, Ws23ForgeVerticalProvider.Broker broker) {
+        loadObjectSpecs();
+        ws48BindSeatPids(game);"""
+
 
 DECLARE_DIRECT_OLD = """        emitNativeSnapshot(game, broker, false);
         if ("1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {"""
@@ -1482,6 +1511,7 @@ def patch_provider(path: Path, forge_src: Path) -> None:
 def patch_state(path: Path) -> None:
     java = path.read_text(encoding="utf-8")
     java = replace_once(java, STATE_HELPERS_OLD, STATE_HELPERS_NEW, "state semantic helpers")
+    java = replace_once(java, SEAT_BIND_OLD, SEAT_BIND_NEW, "seat pid binding")
     java = replace_once(java, DECLARE_DIRECT_OLD, DECLARE_DIRECT_NEW, "loaded combat step")
     java = replace_once(
         java,
