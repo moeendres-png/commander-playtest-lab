@@ -1301,7 +1301,7 @@ TRIGGER_PREPARE = """    static boolean ws48PrepareTrigger(SpellAbility sa) {
         // Neutral trigger preparation: charm modes and targeting-player
         // choices route to externalized callbacks; anything else needs no
         // preparation here (targets resolve via setupTargets at stack time).
-        if (sa.getApi() == forge.game.spellability.ApiType.Charm) {
+        if (sa.getApi() == forge.game.ability.ApiType.Charm) {
             return forge.game.ability.effects.CharmEffect.makeChoices(sa);
         }
         return true;
