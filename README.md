@@ -28,12 +28,23 @@ The canonical execution-environment policy is [`docs/PROJECT_EXECUTION_POLICY.md
 There are exactly three project execution paths:
 
 - **normal ChatGPT Sol High** for coordination, research, architecture, difficult reasoning, MTG authority work and evidence adjudication;
-- **OpenCode with Muse Spark 1.3** for repository implementation, debugging, CI, runtime qualification, audits and mechanical repository work;
+- **OpenCode Go with Muse Spark 1.3 Contributor** for repository implementation, debugging, CI, runtime qualification, audits and mechanical repository work;
 - **ChatGPT Work with Sol Medium** only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
 
-Muse and Spark 1.3 are not separate project resources. The OpenCode resource is OpenCode with Muse Spark 1.3.
+Muse Spark 1.3 is one AI model and must not be split into separate Muse and Spark resources.
 
-Older reports, prompts or handoffs that prescribe Work as the default execution environment or split Muse and Spark into separate resources are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
+The current OpenCode project lock is:
+
+- provider: `opencode-go`
+- model: `muse-spark-1.3-contributor`
+- full ID: `opencode-go/muse-spark-1.3-contributor`
+- allowed reasoning effort: `medium`, `high`, `xhigh`
+- default reasoning effort: `high`
+- all other OpenCode providers/models are outside current project policy
+
+The repository root [`opencode.json`](opencode.json) is the machine-enforced OpenCode configuration.
+
+Older reports, prompts or handoffs that prescribe Work as the default execution environment, split Muse and Spark into separate resources, use another OpenCode model, or restrict OpenCode only to High/XHigh are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
 
 ## Optimizer-v2 decision path
 
