@@ -566,6 +566,7 @@ DECLARE_BLOCKERS_NEW = """        @Override
                 combat.setBlocked(entry.getValue(), true);
             }
             broker.recordAutomatic("WS48_SELECTED_BLOCK_ASSIGNMENT:" + labels.get(selectedIndex));
+            broker.emitEvent("legal_blocker_partition:" + Broker.ws48Pid(defender));
             for (java.util.Map.Entry<Card, Card> applied : selected.entrySet()) {
                 String bRef = Ws40SuccessorState.semanticRefOf(applied.getKey());
                 String aRef = Ws40SuccessorState.semanticRefOf(applied.getValue());

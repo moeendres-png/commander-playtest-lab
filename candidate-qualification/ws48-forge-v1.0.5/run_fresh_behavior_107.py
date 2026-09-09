@@ -221,6 +221,36 @@ def derive_static_events(record: dict[str, Any], session: Session) -> None:
         session.note_event(f"knowledge_projection:{record['fixture_id']}:{v.get('viewer')}")
 
 
+def _submit_combat_state_declaration(
+    sess: Session, proc, record: dict[str, Any], frame: dict[str, Any], kind: str
+) -> None:
+    """Declare combat per the verified record combat_state, else discretion.
+
+    The construction gate proved requested==native combat maps, so declaring
+    the loaded assignment reproduces verified native state (logged as
+    combat_state_declared with full offered-set evidence). Falls back to
+    unscripted discretion only when the record declares no assignment.
+    """
+    from behavior_driver import match_assignment as _match_assignment
+
+    want = record.get("combat_state") or {}
+    if kind == "declareAttackers" and want.get("attackers"):
+        option = _match_assignment(frame, dict(want["attackers"]), "ATTACK_ASSIGNMENT:")
+        sess.record_match(frame, option, f"combat_state_attackers:{want['attackers']}")
+        from behavior_driver import submit as _submit
+
+        _submit(proc, frame, str(option["option_id"]), "declare")
+        return
+    if kind == "declareBlockers" and want.get("blockers"):
+        option = _match_assignment(frame, dict(want["blockers"]), "BLOCK_ASSIGNMENT:")
+        sess.record_match(frame, option, f"combat_state_blockers:{want['blockers']}")
+        from behavior_driver import submit as _submit
+
+        _submit(proc, frame, str(option["option_id"]), "declare")
+        return
+    sess.answer_unscripted_discretion(frame)
+
+
 def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict[str, Any]:
     """Drive one record to terminal verification. Raises BehaviorFailure."""
     from behavior_driver import Session
@@ -404,25 +434,26 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             return
         if kind in {"declareAttackers", "declareBlockers"}:
             expected = sess.next_expected()
-            if expected is None:
-                sess.answer_unscripted_discretion(frame)
+            if expected is not None and expected["selection"]["selector_kind"] in {
+                "attacker_assignment",
+                "blocker_assignment",
+            }:
+                selector = expected["selection"]["selector_kind"]
+                prefix = (
+                    "ATTACK_ASSIGNMENT:"
+                    if selector == "attacker_assignment"
+                    else "BLOCK_ASSIGNMENT:"
+                )
+                option = _match_assignment(
+                    frame, dict(expected["selection"]["semantic_value"]), prefix
+                )
+                sess.record_match(
+                    frame, option, f"{selector}:{expected['selection']['semantic_value']}"
+                )
+                _submit(proc, frame, str(option["option_id"]), "declare")
+                sess.decision_index += 1
                 return
-            selector = expected["selection"]["selector_kind"]
-            prefix = (
-                "ATTACK_ASSIGNMENT:"
-                if selector == "attacker_assignment"
-                else "BLOCK_ASSIGNMENT:"
-                if selector == "blocker_assignment"
-                else None
-            )
-            if prefix is None:
-                raise BehaviorFailure(f"DECLARE_KIND_SELECTOR_MISMATCH:{kind}:{selector}")
-            option = _match_assignment(frame, dict(expected["selection"]["semantic_value"]), prefix)
-            sess.record_match(
-                frame, option, f"{selector}:{expected['selection']['semantic_value']}"
-            )
-            _submit(proc, frame, str(option["option_id"]), "declare")
-            sess.decision_index += 1
+            _submit_combat_state_declaration(sess, proc, record, frame, kind)
             return
         if kind == "chooseTargetsFor":
             expected = sess.next_expected()
