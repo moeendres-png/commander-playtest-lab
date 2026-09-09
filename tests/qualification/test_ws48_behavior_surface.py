@@ -46,6 +46,7 @@ public abstract class PlayerController {
     public abstract List<CostPart> orderCosts(List<CostPart> costs);
     public abstract List<AbilitySub> chooseModeForAbility(SpellAbility sa, List<AbilitySub> possible, int min, int num, boolean allowRepeat);
     public abstract List<SpellAbility> orderSimultaneousSa(List<SpellAbility> activePlayerSAs);
+    public abstract void orderAndPlaySimultaneousSa(List<SpellAbility> activePlayerSAs);
     public abstract Integer announceRequirements(SpellAbility ability, int min, int max, String announce);
     public abstract boolean confirmReplacementEffect(ReplacementEffect replacementEffect, SpellAbility effectSA, GameEntity affected, String question);
     public abstract byte chooseColor(String message, SpellAbility sa, ColorSet colors);

@@ -1264,6 +1264,51 @@ DISTRIBUTION_HELPERS = """    static String ws48DistributionRef(GameEntity entit
 
 """
 
+ORDER_PLAY_PATTERN = re.compile(
+    r"(        @Override\n)(        public void orderAndPlaySimultaneousSa\(List<SpellAbility> activePlayerSAs\) \{\n            if \(activePlayerSAs == null \|\| activePlayerSAs\.isEmpty\(\)\) \{\n                broker\.recordAutomatic\(\"orderAndPlaySimultaneousSa:EMPTY\"\);\n                return;\n            \}\n            throw failClosed\(\"orderAndPlaySimultaneousSa\"\);\n        \})",
+)
+
+ORDER_PLAY_NEW = """\\1        public void orderAndPlaySimultaneousSa(List<SpellAbility> activePlayerSAs) {
+            if (activePlayerSAs == null || activePlayerSAs.isEmpty()) {
+                broker.recordAutomatic("orderAndPlaySimultaneousSa:EMPTY");
+                return;
+            }
+            if (activePlayerSAs.size() > 4) {
+                throw failClosed("orderAndPlaySimultaneousSa:PERMUTATION_SPACE_UNSUPPORTED");
+            }
+            java.util.List<java.util.List<SpellAbility>> permutations = new ArrayList<>();
+            java.util.List<String> labels = new ArrayList<>();
+            ws48PermuteTriggers(new ArrayList<>(activePlayerSAs), 0, permutations, labels);
+            String selectedId = broker.choose("orderAndPlaySimultaneousSa", this.player, labels);
+            int selectedIndex = Integer.parseInt(selectedId.substring(1));
+            if (selectedIndex < 0 || selectedIndex >= permutations.size()) {
+                throw failClosed("orderAndPlaySimultaneousSa:STALE_SELECTION");
+            }
+            broker.recordAutomatic("WS48_SELECTED_TRIGGER_ORDER:" + labels.get(selectedIndex));
+            for (SpellAbility sa : permutations.get(selectedIndex)) {
+                if (!ws48PrepareTrigger(sa)) {
+                    throw failClosed("orderAndPlaySimultaneousSa:TRIGGER_PREPARATION_DECLINED");
+                }
+                if (!sa.setupTargets()) {
+                    throw failClosed("orderAndPlaySimultaneousSa:TRIGGER_TARGETS_DECLINED");
+                }
+                getGame().getStack().addAndUnfreeze(sa);
+                broker.recordAutomatic("NATIVE_TRIGGER_STACKED:" + ws48TriggerDescriptor(sa));
+            }
+        }"""
+
+TRIGGER_PREPARE = """    static boolean ws48PrepareTrigger(SpellAbility sa) {
+        // Neutral trigger preparation: charm modes and targeting-player
+        // choices route to externalized callbacks; anything else needs no
+        // preparation here (targets resolve via setupTargets at stack time).
+        if (sa.getApi() == forge.game.spellability.ApiType.Charm) {
+            return forge.game.ability.effects.CharmEffect.makeChoices(sa);
+        }
+        return true;
+    }
+
+"""
+
 GET_ABILITY_PATTERN = re.compile(
     r"(        @Override\n)        public SpellAbility getAbilityToPlay\(.*?\) \{\n            throw failClosed\(\"getAbilityToPlay\"\);\n        \}",
 )
@@ -1314,6 +1359,7 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     helpers = COST_HELPERS.replace("__WS48_COST_VISITS__", cost_visit_methods(forge_src))
     java = replace_once(java, anchor2, helpers + "\n" + anchor2, "cost helpers")
     java = replace_once(java, anchor2, TRIGGER_HELPERS + "\n" + anchor2, "trigger helpers")
+    java = replace_once(java, anchor2, TRIGGER_PREPARE + anchor2, "trigger prepare")
     java = replace_once(java, anchor2, PILE_HELPERS + "\n" + anchor2, "pile helpers")
     java = replace_once(java, anchor2, DISTRIBUTION_HELPERS + anchor2, "distribution helpers")
     java = replace_once(java, anchor2, EVENTS_CLASS + "\n" + anchor2, "events class")
@@ -1344,6 +1390,7 @@ def patch_provider(path: Path, forge_src: Path) -> None:
         (PAY_MANA_PATTERN, PAY_MANA_NEW, "payManaCost"),
         (ORDER_COSTS_PATTERN, ORDER_COSTS_NEW, "orderCosts"),
         (ORDER_SA_PATTERN, ORDER_SA_NEW, "orderSimultaneousSa"),
+        (ORDER_PLAY_PATTERN, ORDER_PLAY_NEW, "orderAndPlaySimultaneousSa"),
         (ANNOUNCE_PATTERN, ANNOUNCE_NEW, "announceRequirements"),
         (CONFIRM_REPL_PATTERN, CONFIRM_REPL_NEW, "confirmReplacementEffect"),
         (ENTITY_PATTERN, ENTITY_NEW, "chooseSingleEntityForEffect"),

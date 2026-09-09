@@ -73,6 +73,7 @@ FRAME_FAMILY: dict[str, tuple[str, str]] = {
     "announceRequirements": ("announce_x", "announce_x_frame"),
     "chooseSingleEntityForEffect": ("choose_object", "choose_object_frame"),
     "orderSimultaneousSa": ("trigger_order", "trigger_order_frame"),
+    "orderAndPlaySimultaneousSa": ("trigger_order", "trigger_order_frame"),
     "chooseCardsPile": ("pile", "pile_frame"),
     "combatDamage": ("target_amount", "target_amount_frame"),
     "amountDistribution": ("multi_amount", "multi_amount_frame"),
